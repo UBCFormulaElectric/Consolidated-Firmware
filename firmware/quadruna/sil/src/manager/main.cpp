@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <czmq.h>
 
+typedef struct
+{
+    const char *name;
+    const char *binPath;
+    uint32_t    timeMs;
+} Board;
+
 // Store socket poll, and proxy pointers for graceful exit.
 static zactor_t  *proxy;
 static zsock_t   *socketTx;
@@ -27,9 +34,9 @@ uint32_t sil_atoiUint32(char *in)
 
 // Returns the PID of the subprocess in which the requested binary runs.
 // Blocks until a ready signal is received from the child board.
-pid_t sil_runBoard(const char *binPath, const char *boardName)
+pid_t sil_board_run(Board *board)
 {
-    printf("Forking process for %s: %s\n", boardName, binPath);
+    printf("Forking process for %s: %s\n", board->name, board->binPath);
 
     // Fork returns:
     //  -1 on error,
@@ -45,8 +52,8 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
     if (pid == 0)
     {
         // Run binary on child process, argv must be NULL terminated.
-        char const *argv[] = { binPath, boardName, NULL };
-        if (execv(binPath, (char *const *)argv) == -1)
+        char const *argv[] = { board->binPath, board->name, NULL };
+        if (execv(board->binPath, (char *const *)argv) == -1)
         {
             perror("Error running board binary");
             exit(1);
@@ -86,11 +93,11 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
                 if (readiedBoardName != NULL)
                 {
                     // Check if returned boardName does not match, and if so, exit and error.
-                    if (strcmp(readiedBoardName, boardName) != 0)
+                    if (strcmp(readiedBoardName, board->name) != 0)
                     {
                         fprintf(
                             stderr, "Expected to receive ready signal from boardName: %s, instead received from %s",
-                            boardName, readiedBoardName);
+                            board->name, readiedBoardName);
                         exit(1);
                     }
 
@@ -127,6 +134,15 @@ void exitHandler()
 int main()
 {
     printf("Starting up SIL Manager\n");
+
+    Board boards[] = {
+        Board{ .name = "FSM", .binPath = "./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", .timeMs = 0 },
+        Board{ .name = "RSM", .binPath = "./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", .timeMs = 0 },
+        Board{ .name = "BMS", .binPath = "./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", .timeMs = 0 },
+        Board{ .name = "CRIT", .binPath = "./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", .timeMs = 0 },
+        Board{ .name = "VC", .binPath = "./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", .timeMs = 0 },
+    };
+    size_t boardCount = sizeof(boards) / sizeof(boards[0]);
 
     // See https://zguide.zeromq.org/docs/chapter2/#The-Dynamic-Discovery-Problem - Figure 13.
     // Normal PUB/SUB zmq architectures support one-to-many and many-to-one.
@@ -182,14 +198,16 @@ int main()
     atexit(exitHandler);
 
     // Spin-up boards.
-    sil_runBoard("./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", "RSM");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", "FSM");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", "VC");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", "CRIT");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", "BMS");
+    for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
+    {
+        sil_board_run(&boards[boardIndex]);
+    }
 
     // Keep track of time.
     uint32_t timeMs = 0;
+
+    // Aim to set time to 1000 ms.
+    zsock_send(socketTx, "s4", "time_req", 1000);
 
     // Main loop for manager.
     for (;;)
@@ -211,10 +229,32 @@ int main()
             }
             else if (strcmp(topic, "time_resp") == 0)
             {
-                char    *receivedBoardName = zmsg_popstr(zmqMsg);
-                char    *receivedTimeMsStr = zmsg_popstr(zmqMsg);
-                uint32_t receivedTimeMs    = sil_atoiUint32(receivedTimeMsStr);
-                printf("%s: %s ms\n", receivedBoardName, receivedTimeMsStr);
+                // time_resp topic.
+                // Message are built in the following order:
+                //  1) Name of board.
+                //  2) Time in ms.
+
+                // Extract board name.
+                char *receivedBoardName = zmsg_popstr(zmqMsg);
+                if (receivedBoardName != NULL)
+                {
+                    // If successful, extract time in ms.
+                    char *receivedTimeMsStr = zmsg_popstr(zmqMsg);
+                    if (receivedTimeMsStr != NULL)
+                    {
+                        // If successful, convert time to uint32_t.
+                        uint32_t receivedTimeMs = sil_atoiUint32(receivedTimeMsStr);
+
+                        // Update record.
+                        for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
+                            if (strcmp(receivedBoardName, boards[boardIndex].name) == 0)
+                                boards[boardIndex].timeMs = receivedTimeMs;
+
+                        free(receivedTimeMsStr);
+                    }
+
+                    free(receivedBoardName);
+                }
             }
 
             // Free up zmq-allocated memory.
@@ -223,7 +263,8 @@ int main()
         }
         else
         {
-            zsock_send(socketTx, "s4", "time_req", 1000);
+            for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
+                printf("%s: %d\n", boards[boardIndex].name, boards[boardIndex].timeMs);
         }
     }
 }
