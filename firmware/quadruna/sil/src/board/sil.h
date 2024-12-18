@@ -3,8 +3,11 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 
+// Interface between sil and canbus.
+// Hook for can to transmit a message via fakeCan.
 void sil_txCallback(const JsonCanMsg *msg);
 
+// Main SIL loop logic.
 void sil_main(
     int   argc,
     char *argv[],
