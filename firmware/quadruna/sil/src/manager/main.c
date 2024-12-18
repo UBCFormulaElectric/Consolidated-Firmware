@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include <czmq.h>
 #include <stdatomic.h>
+#include "board.h"
 
-typedef struct
-{
-    const char *name;
-    const char *binPath;
-    uint32_t    timeMs;
-} Board;
+// Store socket poll, and proxy pointers for graceful exit.
+static zactor_t  *proxy;
+static zsock_t   *socketTx;
+static zsock_t   *socketRx;
+static zpoller_t *pollerRx;
 
-Board boards[] = {
+// Configure boards in the loop.
+sil_Board boards[] = {
     { .name = "FSM", .binPath = "./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", .timeMs = 0 },
     { .name = "RSM", .binPath = "./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", .timeMs = 0 },
     { .name = "BMS", .binPath = "./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", .timeMs = 0 },
@@ -18,12 +19,6 @@ Board boards[] = {
     { .name = "VC", .binPath = "./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", .timeMs = 0 },
 };
 size_t boardCount = sizeof(boards) / sizeof(boards[0]);
-
-// Store socket poll, and proxy pointers for graceful exit.
-static zactor_t  *proxy;
-static zsock_t   *socketTx;
-static zsock_t   *socketRx;
-static zpoller_t *pollerRx;
 
 // Store global reference for time.
 uint32_t timeMs = 0;
@@ -43,96 +38,6 @@ uint32_t sil_atoiUint32(char *in)
     }
 
     return res;
-}
-
-// Returns the PID of the subprocess in which the requested binary runs.
-// Blocks until a ready signal is received from the child board.
-pid_t sil_board_run(Board *board)
-{
-    printf("Forking process for %s: %s\n", board->name, board->binPath);
-
-    // Fork returns:
-    //  -1 on error,
-    //  0 if the current process is the child,
-    //  the pid of the child process if the current process is the parent.
-    pid_t pid = fork();
-    if (pid == -1)
-    {
-        perror("Error forking process");
-        exit(1);
-    }
-
-    if (pid == 0)
-    {
-        // Run binary on child process, argv must be NULL terminated.
-        char const *argv[] = { board->binPath, board->name, NULL };
-        if (execv(board->binPath, (char *const *)argv) == -1)
-        {
-            perror("Error running board binary");
-            exit(1);
-        }
-
-        // Make sure to exit child process, to make sure parent process code is unreachable.
-        exit(0);
-    }
-
-    // Unreachable from child process, return pid if parent process running.
-    printf("Process forked on pid %ld\n", (long)pid);
-
-    // Block until the board reports ready.
-    // Control the main loop of all the boards.
-    for (;;)
-    {
-        // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
-        // there is only one such socket attachted to pollerRx, which is socketRx.
-        // Since zpoller_wait may technically also return a zactor,
-        // CZMQ common practice is to make this a void pointer.
-        void *socket = zpoller_wait(pollerRx, 1);
-        if (socket != NULL)
-        {
-            // Receive the message.
-            char   *topic;
-            zmsg_t *zmqMsg;
-
-            if (zsock_recv(socket, "sm", &topic, &zmqMsg) == -1)
-            {
-                perror("Error: Failed to receive on socket");
-            }
-            else if (strcmp(topic, "ready") == 0)
-            {
-                // Receive ready topic.
-                // Extract name of reporting board.
-                char *readiedBoardName = zmsg_popstr(zmqMsg);
-                if (readiedBoardName != NULL)
-                {
-                    // Check if returned boardName does not match, and if so, exit and error.
-                    if (strcmp(readiedBoardName, board->name) != 0)
-                    {
-                        fprintf(
-                            stderr, "Expected to receive ready signal from boardName: %s, instead received from %s",
-                            board->name, readiedBoardName);
-                        exit(1);
-                    }
-
-                    printf("Received ready signal from %s\n", readiedBoardName);
-
-                    // Free up zmq-allocated memory.
-                    free(topic);
-                    free(readiedBoardName);
-                    zmsg_destroy(&zmqMsg);
-
-                    // Stop blocking.
-                    break;
-                }
-            }
-
-            // Free up zmq-allocated memory.
-            free(topic);
-            zmsg_destroy(&zmqMsg);
-        }
-    }
-
-    return pid;
 }
 
 // Graciously exit process by freeing memory allocated by CZMQ.
@@ -284,7 +189,7 @@ int main()
     // Spin-up boards.
     for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
     {
-        sil_board_run(&boards[boardIndex]);
+        sil_board_run(&boards[boardIndex], pollerRx);
     }
 
     int64_t start = zclock_mono();
