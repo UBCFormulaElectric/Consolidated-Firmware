@@ -122,8 +122,8 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
 // This should be sent when the process is ready to receive messages.
 int sil_sendReady()
 {
-    // Give the manager a 100ms grace period so that it can catch the ready signal.
-    zclock_sleep(100);
+    // Give the manager a 50ms grace period so that it can catch the ready signal.
+    zclock_sleep(50);
     return zsock_send(socketTx, "ss", "ready", boardName);
 }
 
