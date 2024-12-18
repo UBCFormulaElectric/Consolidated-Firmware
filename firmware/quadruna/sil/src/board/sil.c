@@ -185,7 +185,7 @@ void sil_main(
         perror("Error opening rx socket");
         exit(1);
     }
-    zsock_set_subscribe(socketRx, "task");
+    zsock_set_subscribe(socketRx, "time_req");
     zsock_set_subscribe(socketRx, "can");
 
     // Poll the rx socket.
@@ -207,7 +207,8 @@ void sil_main(
     tasks_init();
 
     // Main loop.
-    uint32_t timeMs = 0;
+    uint32_t timeMs       = 0;
+    uint32_t targetTimeMs = 0;
     for (;;)
     {
         // Parent process id becomes 1 when parent dies.
@@ -237,12 +238,22 @@ void sil_main(
                 sil_parseJsonCanMsg(zmqMsg, &canMsg);
                 sil_canRx(&canMsg);
             }
+            else if (strcmp(topic, "time_req") == 0)
+            {
+                char *newTargetimeMsStr = zmsg_popstr(zmqMsg);
+                if (newTargetimeMsStr != NULL)
+                {
+                    uint32_t newTargetimeMs = sil_atoiUint32(newTargetimeMsStr);
+                    targetTimeMs            = newTargetimeMs;
+                    free(newTargetimeMsStr);
+                }
+            }
 
             // Free up zmq-allocated memory.
             free(topic);
             zmsg_destroy(&zmqMsg);
         }
-        else
+        else if (timeMs < targetTimeMs)
         {
             // 1 kHz task.
             if (timeMs % 1 == 0)
@@ -257,6 +268,7 @@ void sil_main(
                 tasks_1Hz(timeMs);
 
             timeMs += 1;
+            zsock_send(socketTx, "ss4", "time_resp", boardName, timeMs);
         }
     }
 }

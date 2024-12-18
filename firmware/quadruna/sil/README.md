@@ -9,8 +9,8 @@ To be able to run the firmware of multiple boards on our local machines, we use 
 - `3001`) Out of a board (tx).
 
 ## Topics
-- `task`
-- `task_counts`
+- `time_req`
+- `time_resp`
 - `can`
 - `ready`
 

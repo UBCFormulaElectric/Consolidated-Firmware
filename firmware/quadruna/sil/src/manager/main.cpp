@@ -8,6 +8,23 @@ static zsock_t   *socketTx;
 static zsock_t   *socketRx;
 static zpoller_t *pollerRx;
 
+// Utility function to convert char * to uint32_t.
+// Returns 0 if invalid input.
+uint32_t sil_atoiUint32(char *in)
+{
+    uint32_t res = 0;
+    int      len = strlen(in);
+    for (int i = 0; i < len; i += 1)
+    {
+        if ('0' > in[i] || in[i] > '9')
+            return 0;
+
+        res += (in[i] - '0') * pow(10, (len - i - 1));
+    }
+
+    return res;
+}
+
 // Returns the PID of the subprocess in which the requested binary runs.
 // Blocks until a ready signal is received from the child board.
 pid_t sil_runBoard(const char *binPath, const char *boardName)
@@ -152,6 +169,7 @@ int main()
         exit(1);
     }
     zsock_set_subscribe(socketRx, "ready");
+    zsock_set_subscribe(socketRx, "time_resp");
 
     // Poll the rx socket.
     pollerRx = zpoller_new(socketRx, NULL);
@@ -191,10 +209,21 @@ int main()
             {
                 perror("Error: Failed to receive on socket");
             }
+            else if (strcmp(topic, "time_resp") == 0)
+            {
+                char    *receivedBoardName = zmsg_popstr(zmqMsg);
+                char    *receivedTimeMsStr = zmsg_popstr(zmqMsg);
+                uint32_t receivedTimeMs    = sil_atoiUint32(receivedTimeMsStr);
+                printf("%s: %s ms\n", receivedBoardName, receivedTimeMsStr);
+            }
 
             // Free up zmq-allocated memory.
             free(topic);
             zmsg_destroy(&zmqMsg);
+        }
+        else
+        {
+            zsock_send(socketTx, "s4", "time_req", 1000);
         }
     }
 }
