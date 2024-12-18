@@ -9,12 +9,6 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 
-// Count number of invocations to each task.
-static uint64_t tasks_1Hz_count   = 0;
-static uint64_t tasks_100Hz_count = 0;
-static uint64_t tasks_1kHz_count  = 0;
-static uint64_t tasks_init_count  = 0;
-
 // Store socket and poll pointers for graceful exit.
 static zsock_t   *socketTx;
 static zsock_t   *socketRx;
@@ -123,86 +117,6 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
     }
 }
 
-// To keep all tasks in sync, we want to make sure that each board runs the same number of tasks.
-// Because of this, we broadcast to the "task_counts" topic.
-// In the message, we broadcast the board name, task name, and count.
-// The image of the message is sss8 (topic, char *, char *, uint64_t).
-int sil_sendTaskConfirmation(void *socket, char *taskName)
-{
-    uint64_t *countPtr = NULL;
-    if (strcmp(taskName, "1Hz") == 0)
-        countPtr = &tasks_1Hz_count;
-    else if (strcmp(taskName, "100Hz") == 0)
-        countPtr = &tasks_100Hz_count;
-    else if (strcmp(taskName, "1kHz") == 0)
-        countPtr = &tasks_1kHz_count;
-    else if (strcmp(taskName, "init") == 0)
-        countPtr = &tasks_init_count;
-    else
-        return -1;
-
-    (*countPtr) += 1;
-    return zsock_send(socketTx, "sss8", "task_counts", boardName, taskName, *countPtr);
-}
-
-// Task messages are received in taskTitle, timeMs order.
-// Run a task message, and send the verification message.
-// Socket is a void pointer to be consistent with CZMQ api.
-// Returns -1 if an error occured.
-int sil_runTaskMsg(
-    void   *socket,
-    zmsg_t *zmqMsg,
-    void    tasks_init(),
-    void    tasks_1Hz(uint32_t timeMs),
-    void    tasks_100Hz(uint32_t timeMs),
-    void    tasks_1kHz(uint32_t timeMs))
-{
-    int res = 0;
-
-    // NOTE: zmsg_popstr allocates memory on the heap, which must be freed.
-    // Select task function.
-    char *taskName         = zmsg_popstr(zmqMsg);
-    void (*task)(uint32_t) = NULL;
-    if (taskName != NULL)
-    {
-        if (strcmp(taskName, "1Hz") == 0)
-            task = tasks_1Hz;
-        else if (strcmp(taskName, "100Hz") == 0)
-            task = tasks_100Hz;
-        else if (strcmp(taskName, "1kHz") == 0)
-            task = tasks_1kHz;
-        else if (strcmp(taskName, "init") == 0)
-        {
-            // If given an init task, just invoke it.
-            tasks_init();
-            sil_sendTaskConfirmation(socketTx, taskName);
-            free(taskName);
-            return 0;
-        }
-    }
-
-    // Invoke the task.
-    if (task != NULL)
-    {
-        // Parse time.
-        char *timeMsStr = zmsg_popstr(zmqMsg);
-        if (timeMsStr != NULL)
-        {
-            uint32_t timeMs = sil_atoiUint32(timeMsStr);
-
-            // Invoke task with parsed time.
-            task(timeMs);
-            free(timeMsStr);
-
-            res = sil_sendTaskConfirmation(socket, taskName);
-        }
-    }
-
-    if (taskName != NULL)
-        free(taskName);
-    return res;
-}
-
 // Sends the boardName to the "ready" topic.
 // The image for this message is "ss" (topic, char *).
 // This should be sent when the process is ready to receive messages.
@@ -289,7 +203,11 @@ void sil_main(
     // Tell the parent process we are ready.
     sil_sendReady();
 
+    // Init task.
+    tasks_init();
+
     // Main loop.
+    uint32_t timeMs = 0;
     for (;;)
     {
         // Parent process id becomes 1 when parent dies.
@@ -319,16 +237,26 @@ void sil_main(
                 sil_parseJsonCanMsg(zmqMsg, &canMsg);
                 sil_canRx(&canMsg);
             }
-            else if (strcmp(topic, "task") == 0)
-            {
-                // Task topic case.
-                if (sil_runTaskMsg(socketTx, zmqMsg, tasks_init, tasks_1Hz, tasks_100Hz, tasks_1kHz) == -1)
-                    perror("Error running task");
-            }
 
             // Free up zmq-allocated memory.
             free(topic);
             zmsg_destroy(&zmqMsg);
+        }
+        else
+        {
+            // 1 kHz task.
+            if (timeMs % 1 == 0)
+                tasks_1kHz(timeMs);
+
+            // 100 Hz task.
+            if (timeMs % 10 == 0)
+                tasks_100Hz(timeMs);
+
+            // 1 Hz task.
+            if (timeMs % 1000 == 0)
+                tasks_1Hz(timeMs);
+
+            timeMs += 1;
         }
     }
 }

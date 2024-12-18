@@ -98,14 +98,6 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
     return pid;
 }
 
-// Send a task message.
-// Tasks are transmited in taskName, timeMs order.
-// Hence the CZMQ image of this message is "ss4" (topic, char *, uint32_t).
-int sil_sendTaskMsg(const char *taskName, uint32_t timeMs)
-{
-    return zsock_send(socketTx, "ss4", "task", taskName, timeMs);
-}
-
 // Graciously exit process by freeing memory allocated by CZMQ.
 void exitHandler()
 {
@@ -159,7 +151,6 @@ int main()
         perror("Error opening rx socket");
         exit(1);
     }
-    zsock_set_subscribe(socketRx, "task_counts");
     zsock_set_subscribe(socketRx, "ready");
 
     // Poll the rx socket.
@@ -182,13 +173,7 @@ int main()
     // Keep track of time.
     uint32_t timeMs = 0;
 
-    // Init task.
-    sil_sendTaskMsg("init", 0);
-
     // Main loop for manager.
-    // Handles:
-    //  - Reading any incomming messages.
-    //  - Invoking tasks for the boards.
     for (;;)
     {
         // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
@@ -206,50 +191,10 @@ int main()
             {
                 perror("Error: Failed to receive on socket");
             }
-            else if (strcmp(topic, "task_counts") == 0)
-            {
-                char *boardName = zmsg_popstr(zmqMsg);
-                if (boardName != NULL)
-                {
-                    printf("Task count reporting for: %s, ", boardName);
-                    free(boardName);
-                }
-
-                char *taskName = zmsg_popstr(zmqMsg);
-                if (taskName != NULL)
-                {
-                    printf("Task name: %s, ", taskName);
-                    free(taskName);
-                }
-
-                char *countStr = zmsg_popstr(zmqMsg);
-                if (countStr != NULL)
-                {
-                    printf("Count: %s\n", countStr);
-                    free(countStr);
-                }
-            }
 
             // Free up zmq-allocated memory.
             free(topic);
             zmsg_destroy(&zmqMsg);
-        }
-        else
-        {
-            // Only send tasks once all messages have been consumed.
-            // 1 kHz task.
-            if (timeMs % 1 == 0)
-                sil_sendTaskMsg("1kHz", timeMs);
-
-            // 100 Hz task.
-            if (timeMs % 10 == 0)
-                sil_sendTaskMsg("100Hz", timeMs);
-
-            // 1 Hz task.
-            if (timeMs % 1000 == 0)
-                sil_sendTaskMsg("1Hz", timeMs);
-
-            timeMs += 1;
         }
     }
 }
