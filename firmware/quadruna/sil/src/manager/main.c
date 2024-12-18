@@ -287,7 +287,9 @@ int main()
         sil_board_run(&boards[boardIndex]);
     }
 
+    int64_t start = zclock_mono();
     sil_setTime(1000);
+    printf("\nReal Time / Simulated Time: %lld\n", zclock_mono() - start);
     printf("\n--- Sleeping for 5 s ---\n");
     zclock_sleep(5000);
     sil_setTime(2000);
