@@ -166,10 +166,13 @@ void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[])
                         uint32_t receivedTimeMs = sil_atoi_uint32_t(receivedTimeMsStr);
 
                         // Update record.
-                        for (size_t boardIndex = 0; boardsToVerify[boardIndex] != NULL; boardIndex += 1)
+                        if (boardsToVerify != NULL)
                         {
-                            if (strcmp(receivedBoardName, boardsToVerify[boardIndex]->name) == 0)
-                                boardsToVerify[boardIndex]->timeMs = receivedTimeMs;
+                            for (size_t boardIndex = 0; boardsToVerify[boardIndex] != NULL; boardIndex += 1)
+                            {
+                                if (strcmp(receivedBoardName, boardsToVerify[boardIndex]->name) == 0)
+                                    boardsToVerify[boardIndex]->timeMs = receivedTimeMs;
+                            }
                         }
 
                         free(receivedTimeMsStr);
@@ -187,8 +190,11 @@ void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[])
         {
             // If we are not receiving messages, check if all the boards have passed the target time.
             bool boardsHitTargetTime = true;
-            for (size_t boardIndex = 0; boardsToVerify[boardIndex] != NULL; boardIndex += 1)
-                boardsHitTargetTime &= boardsToVerify[boardIndex]->timeMs >= timeMs;
+            if (boardsToVerify != NULL)
+            {
+                for (size_t boardIndex = 0; boardsToVerify[boardIndex] != NULL; boardIndex += 1)
+                    boardsHitTargetTime &= boardsToVerify[boardIndex]->timeMs >= timeMs;
+            }
 
             // If they have, break out.
             if (boardsHitTargetTime)

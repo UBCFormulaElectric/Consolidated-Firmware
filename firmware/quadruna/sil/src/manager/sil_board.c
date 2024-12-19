@@ -93,7 +93,20 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
 void sil_board_reset(sil_Board *board)
 {
     if (board->pid != -1)
+    {
+        // Send kill signal.
         kill(board->pid, SIGKILL);
+
+        // Wait for the process to die.
+        int status;
+        waitpid(board->pid, &status, 0);
+
+        // Verify process is dead.
+        if (!(WIFEXITED(status) || WIFSIGNALED(status)))
+        {
+            fprintf(stderr, "Error: Killing board %s resulted in unexpected status.", board->name);
+        }
+    }
 
     board->timeMs = 0;
     board->pid    = -1;

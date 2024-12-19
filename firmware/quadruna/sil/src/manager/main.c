@@ -22,13 +22,13 @@ int main()
     zclock_sleep(1000);
     int64_t startMs = zclock_mono();
     sil_manager_setTime(1000, boards);
-    printf("Real Time Elapsed: %lld\n", zclock_mono() - startMs);
+    printf("Real Time Elapsed: %lld ms\n", zclock_mono() - startMs);
 
     printf("--- Waiting 1s, then Running for 1s in Simulation Time. ---\n");
     zclock_sleep(1000);
     startMs = zclock_mono();
     sil_manager_setTime(2000, boards);
-    printf("Real Time Elapsed: %lld\n", zclock_mono() - startMs);
+    printf("Real Time Elapsed: %lld ms\n", zclock_mono() - startMs);
 
     printf("--- Waiting 1s, then Restarting ---\n");
     zclock_sleep(1000);
@@ -38,5 +38,5 @@ int main()
     zclock_sleep(1000);
     startMs = zclock_mono();
     sil_manager_setTime(1000, boards);
-    printf("Real Time Elapsed: %lld\n", zclock_mono() - startMs);
+    printf("Real Time Elapsed: %lld ms\n", zclock_mono() - startMs);
 }
