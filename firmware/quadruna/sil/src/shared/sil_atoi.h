@@ -3,10 +3,11 @@
 #include <string.h>
 #include <math.h>
 
-// Utility macro to define atoi-style functions for arbritrary uint types.
+// Utility macros to define atoi-style functions for arbritrary uint types.
 // Generates functions of name sil_atoi_TYPE, ie. sil_atoi_uint32_t.
 // Returns 0 if invalid input.
-#define SIL_ATOI_UINT_DEF(TYPE)                            \
+
+#define SIL_ATOI_UINT_IMPL(TYPE)                           \
     TYPE sil_atoi_##TYPE(char *in)                         \
     {                                                      \
         TYPE res = 0;                                      \
@@ -20,5 +21,7 @@
         return res;                                        \
     }
 
-SIL_ATOI_UINT_DEF(uint32_t)
-SIL_ATOI_UINT_DEF(uint64_t)
+#define SIL_ATOI_UINT_DECL(TYPE) TYPE sil_atoi_##TYPE(char *in);
+
+SIL_ATOI_UINT_DECL(uint32_t)
+SIL_ATOI_UINT_DECL(uint64_t)

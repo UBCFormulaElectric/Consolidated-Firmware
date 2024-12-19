@@ -3,181 +3,43 @@
 #include <czmq.h>
 
 #include "sil_board.h"
-#include "sil_atoi.h"
-
-// Store socket poll, and proxy pointers for graceful exit.
-static zactor_t  *proxy;
-static zsock_t   *socketTx;
-static zsock_t   *socketRx;
-static zpoller_t *pollerRx;
-
-// Configure boards in the loop.
-sil_Board boards[] = {
-    { .name = "FSM", .binPath = "./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", .timeMs = 0 },
-    { .name = "RSM", .binPath = "./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", .timeMs = 0 },
-    { .name = "BMS", .binPath = "./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", .timeMs = 0 },
-    { .name = "CRIT", .binPath = "./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", .timeMs = 0 },
-    { .name = "VC", .binPath = "./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", .timeMs = 0 },
-};
-size_t boardCount = sizeof(boards) / sizeof(boards[0]);
-
-// Store global reference for time.
-uint32_t timeMs = 0;
-
-// Graciously exit process by freeing memory allocated by CZMQ.
-void sil_exitHandler()
-{
-    zpoller_destroy(&pollerRx);
-    zactor_destroy(&proxy);
-    zsock_destroy(&socketTx);
-    zsock_destroy(&socketRx);
-}
-
-// Set the time to a given target.
-// Will block until the target is reached.
-// If a target lower than the current time is provided, will fail on assertion.
-void sil_setTime(uint32_t targetMs)
-{
-    assert(targetMs >= timeMs);
-    timeMs = targetMs;
-
-    // Make a request to all the boards to set the time to targetMs.
-    zsock_send(socketTx, "s4", "time_req", targetMs);
-
-    // Block until the the request is satisfied, reading all incomming messages in the process.
-    // Every loop either:
-    //  - Captures a message to update records.
-    //  - Checks the records for times matching the target.
-    for (;;)
-    {
-        // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
-        // there is only one such socket attachted to pollerRx, which is socketRx.
-        // Since zpoller_wait may technically also return a zactor,
-        // CZMQ common practice is to make this a void pointer.
-        void *socket = zpoller_wait(pollerRx, 1);
-        if (socket != NULL)
-        {
-            // Receive the message.
-            char   *topic;
-            zmsg_t *zmqMsg;
-
-            if (zsock_recv(socket, "sm", &topic, &zmqMsg) == -1)
-            {
-                perror("Error: Failed to receive on socket");
-            }
-            else if (strcmp(topic, "time_resp") == 0)
-            {
-                // time_resp topic.
-                // Message are built in the following order:
-                //  1) Name of board.
-                //  2) Time in ms.
-
-                // Extract board name.
-                char *receivedBoardName = zmsg_popstr(zmqMsg);
-                if (receivedBoardName != NULL)
-                {
-                    // If successful, extract time in ms.
-                    char *receivedTimeMsStr = zmsg_popstr(zmqMsg);
-                    if (receivedTimeMsStr != NULL)
-                    {
-                        // If successful, convert time to uint32_t.
-                        uint32_t receivedTimeMs = sil_atoi_uint32_t(receivedTimeMsStr);
-
-                        // Update record.
-                        for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
-                            if (strcmp(receivedBoardName, boards[boardIndex].name) == 0)
-                                boards[boardIndex].timeMs = receivedTimeMs;
-
-                        free(receivedTimeMsStr);
-                    }
-
-                    free(receivedBoardName);
-                }
-            }
-
-            // Free up zmq-allocated memory.
-            free(topic);
-            zmsg_destroy(&zmqMsg);
-        }
-        else
-        {
-            // If we are not receiving messages, check if all the boards have passed the target time.
-            bool boardsHitTargetTime = true;
-            for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
-                boardsHitTargetTime &= boards[boardIndex].timeMs >= targetMs;
-
-            // If they have, break out.
-            if (boardsHitTargetTime)
-                break;
-        }
-    }
-}
+#include "sil_manager.h"
 
 int main()
 {
-    printf("Starting up SIL Manager\n");
+    // Setup boards.
+    sil_Board  fsm      = sil_board_new("FSM", "./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil");
+    sil_Board  rsm      = sil_board_new("RSM", "./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil");
+    sil_Board  bms      = sil_board_new("DIM", "./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil");
+    sil_Board  crit     = sil_board_new("CRIT", "./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil");
+    sil_Board  vc       = sil_board_new("VC", "./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil");
+    sil_Board *boards[] = { &fsm, &rsm, &bms, &crit, &vc, NULL };
 
-    // See https://zguide.zeromq.org/docs/chapter2/#The-Dynamic-Discovery-Problem - Figure 13.
-    // Normal PUB/SUB zmq architectures support one-to-many and many-to-one.
-    // For fake comms (ie. can), we need many-to-many. To do this, we create a proxy between an XSUB and XPUB port.
-    // Individual boards transmit to the XSUB endpoint, which gets forwarded to the XPUB endpoint.
-    // We call the receiver end of the proxy the frontend, and the sender end the badkend.
-    proxy = zactor_new(zproxy, NULL);
-    if (proxy == NULL)
-        perror("Error creating proxy");
+    // Start up manager.
+    sil_manager_start(NULL, boards);
 
-    // Setup the xsub frontend.
-    if (zstr_sendx(proxy, "FRONTEND", "XSUB", "tcp://localhost:3001", NULL) == -1)
-        perror("Error setting up xsub frontend on proxy");
-    if (zsock_wait(proxy) == -1)
-        perror("Error waiting for frontend setup on proxy");
+    // Quick demo.
 
-    // Setup the xpub backend.
-    if (zstr_sendx(proxy, "BACKEND", "XPUB", "tcp://localhost:3000", NULL) == -1)
-        perror("Error setting up xsub backend on proxy");
-    if (zsock_wait(proxy) == -1)
-        perror("Error waiting for backend setup on proxy");
+    int64_t startMs = zclock_mono();
+    sil_manager_setTime(1000, boards);
+    printf("Real Time: %lld\n", zclock_mono() - startMs);
 
-    // Open up rx/tx sockets and rx poller, to allow the manager to tap into the pub/sub network.
+    printf("--- Sleeping for 1 s ---\n");
+    zclock_sleep(1000);
 
-    // Setup a tx socket into the pub/sub network, to allow the manager to inject messages.
-    // Prefixing the endpoint with ">" connects to the endpoint,
-    // rather than the default bind behavior.
-    socketTx = zsock_new_pub(">tcp://localhost:3001");
-    if (socketTx == NULL)
-    {
-        perror("Error opening tx socket");
-        exit(1);
-    }
+    startMs = zclock_mono();
+    sil_manager_setTime(2000, boards);
+    printf("Real Time: %lld\n", zclock_mono() - startMs);
 
-    // Topics in CZMQ are just prefix strings in sent messages.
-    socketRx = zsock_new_sub("tcp://localhost:3000", NULL);
-    if (socketRx == NULL)
-    {
-        perror("Error opening rx socket");
-        exit(1);
-    }
-    zsock_set_subscribe(socketRx, "ready");
-    zsock_set_subscribe(socketRx, "time_resp");
+    printf("--- Resetting in 1 s ---\n");
+    zclock_sleep(1000);
 
-    // Poll the rx socket.
-    pollerRx = zpoller_new(socketRx, NULL);
-    if (pollerRx == NULL)
-    {
-        perror("Error opening rx poller");
-        exit(1);
-    }
+    sil_manager_start(boards, boards);
 
-    atexit(sil_exitHandler);
+    printf("--- Starting a 1 s after a 1 s pause ---\n");
+    zclock_sleep(1000);
 
-    // Spin-up boards.
-    for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
-        sil_board_run(&boards[boardIndex], pollerRx);
-
-    int64_t start = zclock_mono();
-    sil_setTime(1000);
-    printf("\nReal Time / Simulated Time: %lld\n", zclock_mono() - start);
-    printf("\n--- Sleeping for 5 s ---\n");
-    zclock_sleep(5000);
-    sil_setTime(2000);
+    startMs = zclock_mono();
+    sil_manager_setTime(1000, boards);
+    printf("Real Time: %lld\n", zclock_mono() - startMs);
 }

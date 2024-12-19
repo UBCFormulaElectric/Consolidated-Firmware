@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <czmq.h>
 
-pid_t sil_board_run(sil_Board *board, zpoller_t *pollerRx)
+void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
 {
     printf("Forking process for %s: %s\n", board->name, board->binPath);
 
@@ -87,5 +87,21 @@ pid_t sil_board_run(sil_Board *board, zpoller_t *pollerRx)
         }
     }
 
-    return pid;
+    board->pid = pid;
+};
+
+void sil_board_reset(sil_Board *board)
+{
+    if (board->pid != -1)
+        kill(board->pid, SIGKILL);
+
+    board->timeMs = 0;
+    board->pid    = -1;
+}
+
+sil_Board sil_board_new(const char *name, const char *binPath)
+{
+    sil_Board res = { .name = name, .binPath = binPath, .pid = -1, .timeMs = 0 };
+
+    return res;
 };
