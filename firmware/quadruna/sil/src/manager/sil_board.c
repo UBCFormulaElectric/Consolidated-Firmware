@@ -42,7 +42,7 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
         // there is only one such socket attachted to pollerRx, which is socketRx.
         // Since zpoller_wait may technically also return a zactor,
         // CZMQ common practice is to make this a void pointer.
-        void *socket = zpoller_wait(pollerRx, 1);
+        void *socket = zpoller_wait(pollerRx, 0);
         if (socket != NULL)
         {
             // Receive the message.

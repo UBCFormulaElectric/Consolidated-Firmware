@@ -15,31 +15,28 @@ int main()
     sil_Board  vc       = sil_board_new("VC", "./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil");
     sil_Board *boards[] = { &fsm, &rsm, &bms, &crit, &vc, NULL };
 
-    // Start up manager.
+    // Quick demo.
     sil_manager_start(NULL, boards);
 
-    // Quick demo.
-
+    printf("--- Waiting 1s, then Running for 1s in Simulation Time ---\n");
+    zclock_sleep(1000);
     int64_t startMs = zclock_mono();
     sil_manager_setTime(1000, boards);
-    printf("Real Time: %lld\n", zclock_mono() - startMs);
+    printf("Real Time Elapsed: %lld\n", zclock_mono() - startMs);
 
-    printf("--- Sleeping for 1 s ---\n");
+    printf("--- Waiting 1s, then Running for 1s in Simulation Time. ---\n");
     zclock_sleep(1000);
-
     startMs = zclock_mono();
     sil_manager_setTime(2000, boards);
-    printf("Real Time: %lld\n", zclock_mono() - startMs);
+    printf("Real Time Elapsed: %lld\n", zclock_mono() - startMs);
 
-    printf("--- Resetting in 1 s ---\n");
+    printf("--- Waiting 1s, then Restarting ---\n");
     zclock_sleep(1000);
-
     sil_manager_start(boards, boards);
 
-    printf("--- Starting a 1 s after a 1 s pause ---\n");
+    printf("--- Waiting 1s, then Running for 1s in Simulation Time. ---\n");
     zclock_sleep(1000);
-
     startMs = zclock_mono();
     sil_manager_setTime(1000, boards);
-    printf("Real Time: %lld\n", zclock_mono() - startMs);
+    printf("Real Time Elapsed: %lld\n", zclock_mono() - startMs);
 }
