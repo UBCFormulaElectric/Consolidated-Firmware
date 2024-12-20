@@ -79,7 +79,6 @@ static void modifyStackPointerAndStartApp(const uint32_t *address)
 
 void io_bootloader_checkBootMsg(CanMsg *msg)
 {
-    LOG_INFO("here");
     if (msg->std_id == BOOT_CAN_START)
     {
         // DeInit all peripherals and interupts

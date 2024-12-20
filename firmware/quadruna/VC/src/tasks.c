@@ -82,6 +82,7 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_VC_TxOverflowCount_set(overflow_count);
     app_canAlerts_VC_Warning_TxOverflow_set(true);
+    LOG_INFO("CAN TX OVERFLOW");
 }
 
 void canTxQueueOverflowClearCallback(void)
