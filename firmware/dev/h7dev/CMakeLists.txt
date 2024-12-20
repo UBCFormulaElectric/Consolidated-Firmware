@@ -121,6 +121,8 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
             "h7dev_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/h7dev_boot.hex"
+            "h7_loader.hex"
+            "${BINARY_ROOT_DIR}/loader/h7_loader.hex"
     )
 
 ENDIF ()

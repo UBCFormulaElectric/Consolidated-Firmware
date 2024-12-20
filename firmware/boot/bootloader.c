@@ -32,6 +32,7 @@ typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
+    uint32_t bootloader_status;
 } Metadata;
 
 typedef enum
@@ -44,13 +45,13 @@ typedef enum
 static void canRxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void canTxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
@@ -88,12 +89,12 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // program counter accordingly.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    uint32_t app_sp    = address[0];
-    uint32_t app_start = address[1];
+    uint32_t boot_sp    = address[0];
+    uint32_t boot_start = address[1];
 #pragma GCC diagnostic pop
-    __set_MSP(app_sp);
-    void (*app_reset_handler)(void) = (void (*)(void))app_start;
-    app_reset_handler(); // Call app's Reset_Handler, starting the app.
+    __set_MSP(boot_sp);
+    void (*boot_reset_handler)(void) = (void (*)(void))boot_start;
+    boot_reset_handler(); // Call app's Reset_Handler, starting the app.
 
     // Should never get here!
     BREAK_IF_DEBUGGER_CONNECTED()
@@ -159,24 +160,6 @@ void bootloader_init(void)
     // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
-
-    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
-#ifndef BOOT_AUTO
-        && hw_gpio_readPin(&bootloader_pin)
-#endif
-    )
-    {
-        // Deinit peripherals.
-#ifndef BOOT_AUTO
-        HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
-#endif
-        HAL_TIM_Base_Stop_IT(&htim6);
-        HAL_CRC_DeInit(&hcrc);
-
-        // Jump to app.
-        modifyStackPointerAndStartApp(&__app_code_start__);
-    }
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -223,11 +206,18 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
-            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+            uint8_t valid_app = (uint8_t)verifyAppCodeChecksum();
+            reply.data[0]     = valid_app;
             io_can_pushTxMsgToQueue(&reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
+        }
+        else if (command.std_id == GO_TO_APP && !update_in_progress)
+        {
+            HAL_TIM_Base_Stop_IT(&htim6);
+            HAL_CRC_DeInit(&hcrc);
+            modifyStackPointerAndStartApp(&__app_code_start__);
         }
     }
 }
