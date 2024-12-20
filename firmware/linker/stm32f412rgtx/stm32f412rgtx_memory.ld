@@ -1,7 +1,7 @@
 MEMORY
 {
   ram           (xrw)   : ORIGIN = 0x20000000,  LENGTH = 256K
-  loader    (rx)    : ORIGIN = 0x8000000,   LENGTH = 128K  
+  loader_code    (rx)    : ORIGIN = 0x8000000,   LENGTH = 128K  
   boot_code    (rx)    : ORIGIN = 0x8020000,   LENGTH = 128K
   app_metadata    (rx)    : ORIGIN = 0x8040000,   LENGTH = 1K
   app_code     (rx)    : ORIGIN = 0x8040400,  LENGTH = 767K
