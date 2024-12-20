@@ -47,6 +47,7 @@ function(configure_loader LOADER_NAME BOARD IOC_FILE LINKER_SCRIPT ARM_CORE)
         "stm32${BOARD}xx_hal_sd.c"
         "stm32${BOARD}xx_hal_rcc_ex.c"
         "stm32${BOARD}xx_ll_sdmmc.c"
+        "stm32${BOARD}xx_hal_uart.c"
     )
 
     # Board-specific CAN/FDCAN configuration
@@ -60,6 +61,7 @@ function(configure_loader LOADER_NAME BOARD IOC_FILE LINKER_SCRIPT ARM_CORE)
             "${STM32_HAL_SRCS}"
             "${LOADER_DIR}/cubemx/Src/syscalls.c"
             "${LOADER_DIR}/cubemx/h7_loader.ioc"
+            FALSE
         )
 
         list(APPEND SRCS
@@ -77,6 +79,7 @@ function(configure_loader LOADER_NAME BOARD IOC_FILE LINKER_SCRIPT ARM_CORE)
             "${STM32_HAL_SRCS}"
             "${LOADER_DIR}/cubemx/Src/syscalls.c"
             "${LOADER_DIR}/cubemx/f4_loader.ioc"
+            FALSE
         )
 
         list(APPEND SRCS
