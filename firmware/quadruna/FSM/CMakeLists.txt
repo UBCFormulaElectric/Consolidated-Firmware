@@ -124,12 +124,16 @@ IF ("${TARGET}" STREQUAL "binary")
     target_link_libraries("quadruna_FSM_app.elf" PRIVATE "quadruna_FSM_stm32cube" "quadruna_FSM_jsoncan" "quadruna_FSM_commit_info" "debug_modules" "m")
     target_link_libraries("quadruna_FSM_boot.elf" PRIVATE "quadruna_FSM_commit_info")
 
+    message("TESTING: ${CMAKE_CURRENT_BINARY_DIR}/../loader/f4_loader.hex")
+
     embedded_image(
             "quadruna_FSM"
             "quadruna_FSM_app.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_FSM_app.hex"
             "quadruna_FSM_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_FSM_boot.hex"
+            "f4_loader.hex"
+            "${BINARY_ROOT_DIR}/loader/f4_loader.hex"
     )
 elseif ("${TARGET}" STREQUAL "test")
     # tests

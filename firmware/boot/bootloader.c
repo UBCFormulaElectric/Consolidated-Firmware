@@ -216,14 +216,6 @@ void bootloader_init(void)
     // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
-
-    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID)
-    {
-        HAL_TIM_Base_Stop_IT(&htim6);
-        HAL_CRC_DeInit(&hcrc);
-        modifyStackPointerAndStartApp(&__app_code_start__);
-    }
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
