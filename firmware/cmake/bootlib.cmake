@@ -43,6 +43,7 @@ function(stm32f4_boot_binary
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # Add bootloader-specific files.
@@ -121,6 +122,7 @@ function(stm32h7_boot_binary
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # Add bootloader-specific files.

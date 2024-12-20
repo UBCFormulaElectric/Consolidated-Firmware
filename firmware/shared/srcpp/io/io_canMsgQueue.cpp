@@ -1,11 +1,39 @@
 #include "io_canMsgQueue.h"
-#include "io_log.h"
 
-#include <cstring>
 #include <cassert>
+#include "io_log.h"
 
 namespace io
 {
+CanMsgQueue::CanMsgQueue(
+    const std::string &name,
+    void (*const in_tx_overflow_callback)(uint32_t),
+    void (*const in_rx_overflow_callback)(uint32_t),
+    void (*const in_tx_overflow_clear_callback)(),
+    void (*const in_rx_overflow_clear_callback)())
+  : tx_overflow_callback(in_tx_overflow_callback),
+    rx_overflow_callback(in_rx_overflow_callback),
+    tx_overflow_clear_callback(in_tx_overflow_clear_callback),
+    rx_overflow_clear_callback(in_rx_overflow_clear_callback),
+    rx_queue_attr({
+        .name      = (name + " RXQ").c_str(),
+        .attr_bits = 0,
+        .cb_mem    = &tx_queue_control_block,
+        .cb_size   = sizeof(StaticQueue_t),
+        .mq_mem    = tx_queue_buf,
+        .mq_size   = TX_QUEUE_BYTES,
+    }),
+    tx_queue_attr({
+        .name      = (name + " TXQ").c_str(),
+        .attr_bits = 0,
+        .cb_mem    = &rx_queue_control_block,
+        .cb_size   = sizeof(StaticQueue_t),
+        .mq_mem    = rx_queue_buf,
+        .mq_size   = RX_QUEUE_BYTES,
+    })
+{
+}
+
 void CanMsgQueue::init()
 {
     // Initialize CAN queues.
@@ -32,7 +60,7 @@ void CanMsgQueue::pushTxMsgToQueue(const hw::can::CanMsg *msg)
     }
 }
 
-hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue()
+hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue() const
 {
     hw::can::CanMsg msg{};
     // Pop a msg of the TX queue
@@ -41,7 +69,7 @@ hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue()
     return msg;
 }
 
-hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue()
+hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue() const
 {
     hw::can::CanMsg msg{};
     // Pop a message off the RX queue.
@@ -52,10 +80,6 @@ hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue()
 
 void CanMsgQueue::pushRxMsgToQueue(const hw::can::CanMsg *rx_msg)
 {
-    if (!rx_msg_filter(rx_msg->std_id))
-        // Early return if we don't care about this msg via configured filter func.
-        return;
-
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
     if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)

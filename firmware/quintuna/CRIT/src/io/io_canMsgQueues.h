@@ -38,6 +38,6 @@ namespace can1
     }
 } // namespace can1
 
-static CanMsgQueue can1queue{ io_canRx_filterMessageId, can1::TxQueueOverflowCallback, can1::RxQueueOverflowCallback,
+static CanMsgQueue can1queue{ "can1", can1::TxQueueOverflowCallback, can1::RxQueueOverflowCallback,
                               can1::TxQueueOverflowClearCallback, can1::RxQueueOverflowClearCallback };
 } // namespace io
