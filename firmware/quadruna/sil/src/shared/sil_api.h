@@ -24,9 +24,9 @@ int sil_api_can_tx(sil_api_Can *msg, zsock_t *socket);
 // Expects a message without the topic string included.
 // ie.
 //  ```
-//  zmsg_t zmqMsg;
-//  zsock_recv(socket, "sm", ..., &zmqMsg);
-//  sil_api_Can *msg = sil_api_can_rx(&zmqMsg);
+//  zmsg_t *zmqMsg;
+//  zsock_recv(socket, "sm", ..., zmqMsg);
+//  sil_api_Can *msg = sil_api_can_rx(zmqMsg);
 //  sil_api_can_destroy(msg);
 //  ```
 sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg);
@@ -53,9 +53,9 @@ int sil_api_ready_tx(sil_api_Ready *msg, zsock_t *socket);
 // Expects a message without the topic string included.
 // ie.
 //  ```
-//  zmsg_t zmqMsg;
-//  zsock_recv(socket, "sm", ..., &zmqMsg);
-//  sil_api_Ready *msg = sil_api_ready_rx(&zmqMsg);
+//  zmsg_t *zmqMsg;
+//  zsock_recv(socket, "sm", ..., zmqMsg);
+//  sil_api_Ready *msg = sil_api_ready_rx(zmqMsg);
 //  sil_api_ready_destroy(msg);
 //  ```
 sil_api_Ready *sil_api_ready_rx(zmsg_t *zmqMsg);
