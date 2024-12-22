@@ -70,12 +70,13 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
 
 // Interface between sil and canbus.
 // Hook for can to transmit a message via fakeCan.
-void sil_txCallback(const JsonCanMsg *msg)
+void sil_txCallback(const JsonCanMsg *jsonCanMsg)
 {
-    if (sil_api_tx_can(socketTx, msg->std_id, msg->dlc, msg->data) == -1)
+    sil_api_Can msg = sil_api_can_new(jsonCanMsg->std_id, jsonCanMsg->dlc, jsonCanMsg->data);
+    if (sil_api_can_tx(&msg, socketTx) == -1)
         perror("Error sending jsoncan tx message");
     else
-        sil_printCanMsg(true, (JsonCanMsg *)msg);
+        sil_printCanMsg(true, (JsonCanMsg *)jsonCanMsg);
 }
 
 // Insert a JsonCanMsg into the board's internal can system.
@@ -142,7 +143,8 @@ void sil_main(
     // Tell the parent process we are ready.
     // Give the manager a 50ms grace period so that it can catch the ready signal.
     zclock_sleep(50);
-    if (sil_api_tx_ready(socketTx, boardName) == -1)
+    sil_api_Ready msg = sil_api_ready_new(boardName);
+    if (sil_api_ready_tx(&msg, socketTx) == -1)
         perror("Error transmitting ready message");
 
     // Init task.
@@ -212,7 +214,8 @@ void sil_main(
                 tasks_1Hz(timeMs);
 
             // Tell the supervisor what the current time for this board is.
-            sil_api_tx_timeResp(socketTx, boardName, timeMs);
+            sil_api_TimeResp msg = sil_api_timeResp_new(boardName, timeMs);
+            sil_api_timeResp_tx(&msg, socketTx);
         }
     }
 }

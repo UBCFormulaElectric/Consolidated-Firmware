@@ -125,7 +125,8 @@ void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[])
     timeMs = targetMs;
 
     // Make a request to match the time for all the other boards.
-    sil_api_tx_timeReq(socketTx, targetMs);
+    sil_api_TimeReq msg = sil_api_timeReq_new(timeMs);
+    sil_api_timeReq_tx(&msg, socketTx);
 
     // Block until the the request is satisfied, reading all incomming messages in the process.
     // Every loop either:
