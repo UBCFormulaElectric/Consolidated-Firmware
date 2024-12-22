@@ -5,6 +5,7 @@
 #include <czmq.h>
 
 #include "sil_atoi.h"
+#include "sil_api.h"
 
 #include "io_canRx.h"
 #include "io_canTx.h"
@@ -34,22 +35,6 @@ void sil_printCanMsg(bool isTx, JsonCanMsg *msg)
     printf(
         "%s | ACTIVE BOARD: %4s, ID: %4d, DATA: %016llx, DLC: %d, PASSED FILTER?: %d\n", isTx ? "TX" : "RX", boardName,
         msg->std_id, uint64Data, msg->dlc, io_canRx_filterMessageId(msg->std_id));
-}
-
-// Can messages are transmitted in std_id, dlc, data order.
-// We cast the 8 byte data array to a uint64_t for easier transmit.
-// CZMQ topics are sent as a string prefix.
-// Hence, the CZMQ image of the message is "s448" (topic, uint32_t, uint32_t, uint64_t).
-// CZMQ images are like printf format strings, they define the format of a message in an easier foramt.
-
-// Wrapper around zsock_send for sending a JsonCanMsg.
-// Gets a pointer to the message to send.
-// Socket is a void pointer to be consistent with CZMQ api, can be socket or actor.
-int sil_sendJsonCanMsg(void *socket, JsonCanMsg *msg)
-{
-    uint64_t uint64Data;
-    memcpy(&uint64Data, msg->data, sizeof(uint64_t));
-    return zsock_send(socketTx, "s448", "can", msg->std_id, msg->dlc, uint64Data);
 }
 
 // Parse a JsonCanMsg from a zmsg_t.
@@ -83,26 +68,14 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
     }
 }
 
-// Sends the boardName to the "ready" topic.
-// The image for this message is "ss" (topic, char *).
-// This should be sent when the process is ready to receive messages.
-int sil_sendReady()
-{
-    // Give the manager a 50ms grace period so that it can catch the ready signal.
-    zclock_sleep(50);
-    return zsock_send(socketTx, "ss", "ready", boardName);
-}
-
 // Interface between sil and canbus.
 // Hook for can to transmit a message via fakeCan.
 void sil_txCallback(const JsonCanMsg *msg)
 {
-    if (sil_sendJsonCanMsg(socketTx, (JsonCanMsg *)msg) == -1)
+    if (sil_api_tx_can(socketTx, msg->std_id, msg->dlc, msg->data) == -1)
         perror("Error sending jsoncan tx message");
     else
-    {
         sil_printCanMsg(true, (JsonCanMsg *)msg);
-    }
 }
 
 // Insert a JsonCanMsg into the board's internal can system.
@@ -167,7 +140,10 @@ void sil_main(
     atexit(sil_exitHandler);
 
     // Tell the parent process we are ready.
-    sil_sendReady();
+    // Give the manager a 50ms grace period so that it can catch the ready signal.
+    zclock_sleep(50);
+    if (sil_api_tx_ready(socketTx, boardName) == -1)
+        perror("Error transmitting ready message");
 
     // Init task.
     tasks_init();
@@ -221,6 +197,8 @@ void sil_main(
         }
         else if (timeMs < targetTimeMs)
         {
+            timeMs += 1;
+
             // 1 kHz task.
             if (timeMs % 1 == 0)
                 tasks_1kHz(timeMs);
@@ -233,8 +211,8 @@ void sil_main(
             if (timeMs % 1000 == 0)
                 tasks_1Hz(timeMs);
 
-            timeMs += 1;
-            zsock_send(socketTx, "ss4", "time_resp", boardName, timeMs);
+            // Tell the supervisor what the current time for this board is.
+            sil_api_tx_timeResp(socketTx, boardName, timeMs);
         }
     }
 }

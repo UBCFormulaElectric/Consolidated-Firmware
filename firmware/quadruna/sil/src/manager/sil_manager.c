@@ -2,6 +2,7 @@
 #include <czmq.h>
 #include <stdio.h>
 #include "sil_atoi.h"
+#include "sil_api.h"
 
 // Store socket, poll, and proxy pointers for graceful exit.
 static zactor_t  *proxy    = NULL;
@@ -124,7 +125,7 @@ void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[])
     timeMs = targetMs;
 
     // Make a request to match the time for all the other boards.
-    zsock_send(socketTx, "s4", "time_req", timeMs);
+    sil_api_tx_timeReq(socketTx, targetMs);
 
     // Block until the the request is satisfied, reading all incomming messages in the process.
     // Every loop either:
