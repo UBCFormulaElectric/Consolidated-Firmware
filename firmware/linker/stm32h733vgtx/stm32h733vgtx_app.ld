@@ -103,7 +103,6 @@ SECTIONS
     *(.bss)
     *(.bss*)
     *(COMMON)
-    KEEP(*(.bootloader_byte))
     
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */

@@ -35,7 +35,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbol at end of code */
-  } >loader
+  } >loader_code
 
   /* Constant data into "loader" Rom type memory */
   .rodata :
@@ -44,13 +44,13 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >loader
+  } >loader_code
 
   .ARM.extab   : {
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
-  } >loader
+  } >loader_code
 
   .ARM : {
     . = ALIGN(4);
@@ -58,7 +58,7 @@ SECTIONS
     *(.ARM.exidx*)
     __exidx_end = .;
     . = ALIGN(4);
-  } >loader
+  } >loader_code
 
   .preinit_array     :
   {
@@ -67,7 +67,7 @@ SECTIONS
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
     . = ALIGN(4);
-  } >loader
+  } >loader_code
 
   .init_array :
   {
@@ -87,7 +87,7 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
     . = ALIGN(4);
-  } >loader
+  } >loader_code
 
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -105,7 +105,7 @@ SECTIONS
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
 
-  } >ram AT> loader
+  } >ram AT> loader_code
 
   /* Uninitialized data section into "ram" Ram type memory */
   . = ALIGN(4);
@@ -144,18 +144,3 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
-
-MEMORY
-{
-  ram           (xrw)   : ORIGIN = 0x20000000,  LENGTH = 256K
-  loader        (rx)    : ORIGIN = 0x8000000,   LENGTH = 128K
-  app_metadata  (rx)    : ORIGIN = 0x8020000,   LENGTH = 1K
-  app_code      (rx)    : ORIGIN = 0x8020400,   LENGTH = 767K
-}
-
-__loader_start__ = ORIGIN(loader);
-__loader_size__  = LENGTH(loader);
-__app_metadata_start__ = ORIGIN(app_metadata);
-__app_metadata_size__  = LENGTH(app_metadata);
-__app_code_start__ = ORIGIN(app_code);
-__app_code_size__  = LENGTH(app_code);

@@ -115,7 +115,7 @@ static LoaderStatus verifyAppCodeChecksum(void)
     return calculated_checksum == metadata->checksum ? LOADER_STATUS_APP_VALID : LOADER_STATUS_APP_INVALID;
 }
 
-_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
+_Noreturn static void modifyStackPointerAndJump(const uint32_t *address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
@@ -135,7 +135,7 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // the microcontroller looks for the corresponding interrupt service handler
     // at the memory address in the VTOR. We need to update it so the app ISRs
     // are used.
-    SCB->VTOR = (uint32_t)address;
+    SCB->VTOR = (uint32_t)vectorTableAddress;
 
     // Flush processor pipeline.
     __ISB();
@@ -143,19 +143,19 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // Tell MCU to use the main stack pointer rather than process stack pointer (PSP is used with RTOS)
     __set_CONTROL(__get_CONTROL() & ~CONTROL_SPSEL_Msk);
 
-    // Modify stack pointer and jump to app code.
+    // Modify stack pointer and jump to code.
     // In a binary built with our linker settings, the interrupt vector table is the first thing
     // placed in flash. The first word of the vector table contains the initial stack pointer
     // and the second word containers the address of the reset handler. Update stack pointer and
     // program counter accordingly.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    uint32_t boot_sp    = address[0];
-    uint32_t boot_start = address[1];
+    uint32_t newStackPointer = vectorTableAddress[0];
+    uint32_t resetHandler    = vectorTableAddress[1];
 #pragma GCC diagnostic pop
-    __set_MSP(boot_sp);
-    void (*boot_reset_handler)(void) = (void (*)(void))boot_start;
-    boot_reset_handler(); // Call app's Reset_Handler, starting the app.
+    __set_MSP(newStackPointer);
+    void (*app_reset_handler)(void) = (void (*)(void))resetHandler;
+    app_reset_handler(); // Call app's Reset_Handler, starting the app.
 
     // Should never get here!
     BREAK_IF_DEBUGGER_CONNECTED();
@@ -187,11 +187,11 @@ int main(void)
     LoaderStatus status = verifyAppCodeChecksum();
     if (status == LOADER_STATUS_APP_VALID)
     {
-        modifyStackPointerAndStartApp(&__app_code_start__);
+        modifyStackPointerAndJump(&__app_code_start__);
     }
     else
     {
-        modifyStackPointerAndStartApp(&__boot_code_start__);
+        modifyStackPointerAndJump(&__boot_code_start__);
     }
     /* USER CODE END Init */
 
