@@ -135,7 +135,7 @@ _Noreturn static void modifyStackPointerAndJump(const uint32_t *address)
     // the microcontroller looks for the corresponding interrupt service handler
     // at the memory address in the VTOR. We need to update it so the app ISRs
     // are used.
-    SCB->VTOR = (uint32_t)vectorTableAddress;
+    SCB->VTOR = (uint32_t)address;
 
     // Flush processor pipeline.
     __ISB();
@@ -150,8 +150,8 @@ _Noreturn static void modifyStackPointerAndJump(const uint32_t *address)
     // program counter accordingly.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    uint32_t newStackPointer = vectorTableAddress[0];
-    uint32_t resetHandler    = vectorTableAddress[1];
+    uint32_t newStackPointer = address[0];
+    uint32_t resetHandler    = address[1];
 #pragma GCC diagnostic pop
     __set_MSP(newStackPointer);
     void (*app_reset_handler)(void) = (void (*)(void))resetHandler;
