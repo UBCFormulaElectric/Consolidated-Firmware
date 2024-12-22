@@ -41,11 +41,12 @@ void sil_printCanMsg(bool isTx, JsonCanMsg *msg)
 // Hook for can to transmit a message via fakeCan.
 void sil_txCallback(const JsonCanMsg *jsonCanMsg)
 {
-    sil_api_Can msg = sil_api_can_new(jsonCanMsg->std_id, jsonCanMsg->dlc, jsonCanMsg->data);
+    sil_api_Can *msg = sil_api_can_new(jsonCanMsg->std_id, jsonCanMsg->dlc, jsonCanMsg->data);
     if (sil_api_can_tx(msg, socketTx) == -1)
         perror("Error sending jsoncan tx message");
     else
         sil_printCanMsg(true, (JsonCanMsg *)jsonCanMsg);
+    sil_api_can_destroy(msg);
 }
 
 // Insert a JsonCanMsg into the board's internal can system.
@@ -147,12 +148,13 @@ void sil_main(
             else if (strcmp(topic, "can") == 0)
             {
                 // Can topic case.
-                sil_api_Can msg    = sil_api_can_rx(zmqMsg);
-                JsonCanMsg  canMsg = {
-                     .std_id = msg.stdId,
-                     .dlc    = msg.dlc,
+                sil_api_Can *msg    = sil_api_can_rx(zmqMsg);
+                JsonCanMsg   canMsg = {
+                      .std_id = msg->stdId,
+                      .dlc    = msg->dlc,
                 };
-                memcpy(canMsg.data, msg.data, 8 * sizeof(uint8_t));
+                memcpy(canMsg.data, msg->data, 8 * sizeof(uint8_t));
+                sil_api_can_destroy(msg);
                 sil_canRx(&canMsg);
             }
             else if (strcmp(topic, "time_req") == 0)

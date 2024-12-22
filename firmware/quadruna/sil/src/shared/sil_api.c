@@ -2,29 +2,32 @@
 #include <czmq.h>
 #include "sil_atoi.h"
 
-sil_api_Can sil_api_can_new(uint32_t stdId, uint32_t dlc, const uint8_t data[8])
+sil_api_Can *sil_api_can_new(uint32_t stdId, uint32_t dlc, const uint8_t data[8])
 {
-    sil_api_Can res = { .stdId = stdId, .dlc = dlc };
-    memcpy(res.data, data, sizeof(uint8_t) * 8);
+    sil_api_Can *res = malloc(sizeof(sil_api_Can));
+    res->stdId       = stdId;
+    res->dlc         = dlc;
+    memcpy(res->data, data, sizeof(uint8_t) * 8);
+
     return res;
 }
 
-int sil_api_can_tx(sil_api_Can msg, zsock_t *socket)
+int sil_api_can_tx(sil_api_Can *msg, zsock_t *socket)
 {
     uint64_t uint64Data;
-    memcpy(&uint64Data, msg.data, sizeof(uint64Data));
-    return zsock_send(socket, "s448", "can", msg.stdId, msg.dlc, uint64Data);
+    memcpy(&uint64Data, msg->data, sizeof(uint64Data));
+    return zsock_send(socket, "s448", "can", msg->stdId, msg->dlc, uint64Data);
 }
 
-sil_api_Can sil_api_can_rx(zmsg_t *zmqMsg)
+sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg)
 {
-    sil_api_Can res;
+    sil_api_Can *res = malloc(sizeof(sil_api_Can));
 
     // Extract stdId.
     char *stdIdStr = zmsg_popstr(zmqMsg);
     if (stdIdStr != NULL)
     {
-        res.stdId = sil_atoi_uint32_t(stdIdStr);
+        res->stdId = sil_atoi_uint32_t(stdIdStr);
         free(stdIdStr);
     }
 
@@ -32,7 +35,7 @@ sil_api_Can sil_api_can_rx(zmsg_t *zmqMsg)
     char *dlcStr = zmsg_popstr(zmqMsg);
     if (dlcStr != NULL)
     {
-        res.dlc = sil_atoi_uint32_t(dlcStr);
+        res->dlc = sil_atoi_uint32_t(dlcStr);
         free(dlcStr);
     }
 
@@ -40,12 +43,17 @@ sil_api_Can sil_api_can_rx(zmsg_t *zmqMsg)
     char *dataStr = zmsg_popstr(zmqMsg);
     if (dataStr != NULL)
     {
-        uint64_t uint64data = sil_atoi_uint64_t(dataStr);
-        memcpy(res.data, &uint64data, 8);
+        uint64_t dataUInt64 = sil_atoi_uint64_t(dataStr);
+        memcpy(res->data, &dataUInt64, 8);
         free(dataStr);
     }
 
     return res;
+}
+
+void sil_api_can_destroy(sil_api_Can *msg)
+{
+    free(msg);
 }
 
 sil_api_Ready sil_api_ready_new(const char *boardName)
