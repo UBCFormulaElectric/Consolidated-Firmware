@@ -7,9 +7,9 @@
 // Sent from boards, each message denotes a JsonCanMsg.
 typedef struct sil_api_Can
 {
-    uint32_t stdId;
-    uint32_t dlc;
-    uint8_t  data[8];
+    uint32_t       stdId;
+    uint32_t       dlc;
+    const uint8_t *data;
 } sil_api_Can;
 
 // Create a new SIL can message.

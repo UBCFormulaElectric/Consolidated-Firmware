@@ -3,8 +3,7 @@
 
 sil_api_Can sil_api_can_new(uint32_t stdId, uint32_t dlc, const uint8_t data[8])
 {
-    sil_api_Can res = { .stdId = stdId, .dlc = dlc };
-    memcpy(res.data, data, 8 * sizeof(uint8_t));
+    sil_api_Can res = { .stdId = stdId, .dlc = dlc, .data = data };
     return res;
 }
 
