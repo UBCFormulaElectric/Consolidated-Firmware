@@ -145,12 +145,12 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // program counter accordingly.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    uint32_t boot_sp    = address[0];
-    uint32_t boot_start = address[1];
+    uint32_t app_sp    = address[0];
+    uint32_t app_start = address[1];
 #pragma GCC diagnostic pop
-    __set_MSP(boot_sp);
-    void (*boot_reset_handler)(void) = (void (*)(void))boot_start;
-    boot_reset_handler(); // Call app's Reset_Handler, starting the app.
+    __set_MSP(app_sp);
+    void (*app_reset_handler)(void) = (void (*)(void))app_start;
+    app_reset_handler(); // Call app's Reset_Handler, starting the app.
 
     // Should never get here!
     BREAK_IF_DEBUGGER_CONNECTED()
