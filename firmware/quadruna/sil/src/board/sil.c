@@ -37,37 +37,6 @@ void sil_printCanMsg(bool isTx, JsonCanMsg *msg)
         msg->std_id, uint64Data, msg->dlc, io_canRx_filterMessageId(msg->std_id));
 }
 
-// Parse a JsonCanMsg from a zmsg_t.
-// Gets zmqMsg, a pointer to the zmsg_t, and dumps the parsed data into the provided canMsg.
-void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
-{
-    // NOTE: zmsg_popstr allocates memory on the heap, which must be freed.
-    // Extract std_id.
-    char *stdIdStr = zmsg_popstr(zmqMsg);
-    if (stdIdStr != NULL)
-    {
-        canMsg->std_id = sil_atoi_uint32_t(stdIdStr);
-        free(stdIdStr);
-    }
-
-    // Extract dlc.
-    char *dlcStr = zmsg_popstr(zmqMsg);
-    if (dlcStr != NULL)
-    {
-        canMsg->dlc = sil_atoi_uint32_t(dlcStr);
-        free(dlcStr);
-    }
-
-    // Extract data.
-    char *dataStr = zmsg_popstr(zmqMsg);
-    if (dataStr != NULL)
-    {
-        uint64_t uint64data = sil_atoi_uint64_t(dataStr);
-        memcpy(canMsg->data, &uint64data, 8);
-        free(dataStr);
-    }
-}
-
 // Interface between sil and canbus.
 // Hook for can to transmit a message via fakeCan.
 void sil_txCallback(const JsonCanMsg *jsonCanMsg)
@@ -178,8 +147,12 @@ void sil_main(
             else if (strcmp(topic, "can") == 0)
             {
                 // Can topic case.
-                JsonCanMsg canMsg;
-                sil_parseJsonCanMsg(zmqMsg, &canMsg);
+                sil_api_Can msg    = sil_api_can_rx(zmqMsg);
+                JsonCanMsg  canMsg = {
+                     .std_id = msg.stdId,
+                     .dlc    = msg.dlc,
+                };
+                memcpy(canMsg.data, msg.data, 8 * sizeof(uint8_t));
                 sil_canRx(&canMsg);
             }
             else if (strcmp(topic, "time_req") == 0)

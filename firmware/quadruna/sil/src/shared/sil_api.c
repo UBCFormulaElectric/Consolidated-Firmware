@@ -1,7 +1,8 @@
 #include "sil_api.h"
 #include <czmq.h>
+#include "sil_atoi.h"
 
-sil_api_Can sil_api_can_new(uint32_t stdId, uint32_t dlc, uint8_t data[8])
+sil_api_Can sil_api_can_new(uint32_t stdId, uint32_t dlc, const uint8_t data[8])
 {
     sil_api_Can res = { .stdId = stdId, .dlc = dlc };
     memcpy(res.data, data, sizeof(uint8_t) * 8);
@@ -13,6 +14,38 @@ int sil_api_can_tx(sil_api_Can msg, zsock_t *socket)
     uint64_t uint64Data;
     memcpy(&uint64Data, msg.data, sizeof(uint64Data));
     return zsock_send(socket, "s448", "can", msg.stdId, msg.dlc, uint64Data);
+}
+
+sil_api_Can sil_api_can_rx(zmsg_t *zmqMsg)
+{
+    sil_api_Can res;
+
+    // Extract stdId.
+    char *stdIdStr = zmsg_popstr(zmqMsg);
+    if (stdIdStr != NULL)
+    {
+        res.stdId = sil_atoi_uint32_t(stdIdStr);
+        free(stdIdStr);
+    }
+
+    // Extract dlc.
+    char *dlcStr = zmsg_popstr(zmqMsg);
+    if (dlcStr != NULL)
+    {
+        res.dlc = sil_atoi_uint32_t(dlcStr);
+        free(dlcStr);
+    }
+
+    // Extract data.
+    char *dataStr = zmsg_popstr(zmqMsg);
+    if (dataStr != NULL)
+    {
+        uint64_t uint64data = sil_atoi_uint64_t(dataStr);
+        memcpy(res.data, &uint64data, 8);
+        free(dataStr);
+    }
+
+    return res;
 }
 
 sil_api_Ready sil_api_ready_new(const char *boardName)

@@ -13,10 +13,20 @@ typedef struct sil_api_Can
 } sil_api_Can;
 
 // Create a new SIL can message.
-sil_api_Can sil_api_can_new(uint32_t stdId, uint32_t dlc, uint8_t data[8]);
+sil_api_Can sil_api_can_new(uint32_t stdId, uint32_t dlc, const uint8_t data[8]);
 
 // Send a SIL can message.
 int sil_api_can_tx(sil_api_Can msg, zsock_t *socket);
+
+// Receive a SIL can message.
+// Expects a message without the topic string included.
+// ie.
+//  ```
+//  zmsg_t zmqMsg;
+//  zsock_recv(socket, "sm", ..., &zmqMsg);
+//  sil_api_Can msg = sil_api_can_rx(&zmqMsg);
+//  ```
+sil_api_Can sil_api_can_rx(zmsg_t *zmqMsg);
 
 // ready topic.
 // Sent from boards on startup, notifies the SIL manager that the board is ready to go.
