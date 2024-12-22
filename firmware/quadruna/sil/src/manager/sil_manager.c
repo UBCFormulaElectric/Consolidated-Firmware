@@ -151,37 +151,16 @@ void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[])
             }
             else if (strcmp(topic, "time_resp") == 0)
             {
-                // time_resp topic.
-                // Message are built in the following order:
-                //  1) Name of board.
-                //  2) Time in ms.
-
-                // Extract board name.
-                char *receivedBoardName = zmsg_popstr(zmqMsg);
-                if (receivedBoardName != NULL)
+                // Get the time response message.
+                sil_api_TimeResp *msg = sil_api_timeResp_rx(zmqMsg);
+                if (msg != NULL && boardsToVerify != NULL)
                 {
-                    // If successful, extract time in ms.
-                    char *receivedTimeMsStr = zmsg_popstr(zmqMsg);
-                    if (receivedTimeMsStr != NULL)
-                    {
-                        // If successful, convert time to uint32_t.
-                        uint32_t receivedTimeMs = sil_atoi_uint32_t(receivedTimeMsStr);
-
-                        // Update record.
-                        if (boardsToVerify != NULL)
-                        {
-                            for (size_t boardIndex = 0; boardsToVerify[boardIndex] != NULL; boardIndex += 1)
-                            {
-                                if (strcmp(receivedBoardName, boardsToVerify[boardIndex]->name) == 0)
-                                    boardsToVerify[boardIndex]->timeMs = receivedTimeMs;
-                            }
-                        }
-
-                        free(receivedTimeMsStr);
-                    }
-
-                    free(receivedBoardName);
+                    // If we should update the boardsToVerify record, update it.
+                    for (size_t boardIndex = 0; boardsToVerify[boardIndex] != NULL; boardIndex += 1)
+                        if (strcmp(msg->boardName, boardsToVerify[boardIndex]->name) == 0)
+                            boardsToVerify[boardIndex]->timeMs = msg->timeMs;
                 }
+                sil_api_timeResp_destroy(msg);
             }
 
             // Free up zmq-allocated memory.

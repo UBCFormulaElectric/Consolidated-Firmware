@@ -32,9 +32,7 @@ sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg)
         free(stdIdStr);
     }
     else
-    {
         return NULL;
-    }
 
     // Extract dlc.
     char    *dlcStr = zmsg_popstr(zmqMsg);
@@ -45,9 +43,7 @@ sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg)
         free(dlcStr);
     }
     else
-    {
         return NULL;
-    }
 
     // Extract data.
     char    *dataStr    = zmsg_popstr(zmqMsg);
@@ -58,9 +54,7 @@ sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg)
         free(dataStr);
     }
     else
-    {
         return NULL;
-    }
 
     // Allocate and return the result.
     sil_api_Can *res = malloc(sizeof(sil_api_Can));
@@ -113,15 +107,55 @@ void sil_api_ready_destroy(sil_api_Ready *msg)
 
 // time_resp topic.
 
-sil_api_TimeResp sil_api_timeResp_new(const char *boardName, uint32_t timeMs)
+sil_api_TimeResp *sil_api_timeResp_new(char *boardName, uint32_t timeMs)
 {
-    sil_api_TimeResp res = { .boardName = boardName, .timeMs = timeMs };
+    sil_api_TimeResp *res           = malloc(sizeof(sil_api_TimeResp));
+    size_t            boardNameSize = sizeof(char) * (strlen(boardName) + 1);
+    res->boardName                  = malloc(boardNameSize);
+    memcpy(res->boardName, boardName, boardNameSize);
+
+    res->timeMs = timeMs;
     return res;
 }
 
-int sil_api_timeResp_tx(sil_api_TimeResp msg, zsock_t *socket)
+int sil_api_timeResp_tx(sil_api_TimeResp *msg, zsock_t *socket)
 {
-    return zsock_send(socket, "ss4", "time_resp", msg.boardName, msg.timeMs);
+    return zsock_send(socket, "ss4", "time_resp", msg->boardName, msg->timeMs);
+}
+
+sil_api_TimeResp *sil_api_timeResp_rx(zmsg_t *zmqMsg)
+{
+    // Extract board name.
+    char *boardName = zmsg_popstr(zmqMsg);
+    if (boardName == NULL)
+        return NULL;
+
+    // Extract time.
+    char    *timeMsStr = zmsg_popstr(zmqMsg);
+    uint32_t timeMs    = 0;
+    if (timeMsStr != NULL)
+    {
+        timeMs = sil_atoi_uint32_t(timeMsStr);
+        free(timeMsStr);
+    }
+    else
+    {
+        // Make sure to free boardName if failure happens.
+        free(boardName);
+        return NULL;
+    }
+
+    // Allocate and return result.
+    sil_api_TimeResp *res = malloc(sizeof(sil_api_TimeResp));
+    res->boardName        = boardName;
+    res->timeMs           = timeMs;
+    return res;
+}
+
+void sil_api_timeResp_destroy(sil_api_TimeResp *msg)
+{
+    free(msg->boardName);
+    free(msg);
 }
 
 // time_req topic.

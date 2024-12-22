@@ -148,7 +148,7 @@ void sil_main(
             }
             else if (strcmp(topic, "can") == 0)
             {
-                // Can topic case.
+                // Receive the can message, and dump it into a JsonCanMsg.
                 sil_api_Can *msg    = sil_api_can_rx(zmqMsg);
                 JsonCanMsg   canMsg = {
                       .std_id = msg->stdId,
@@ -156,6 +156,8 @@ void sil_main(
                 };
                 memcpy(canMsg.data, msg->data, 8 * sizeof(uint8_t));
                 sil_api_can_destroy(msg);
+
+                // Invoke the callback with the JsonCanMsg.
                 sil_canRx(&canMsg);
             }
             else if (strcmp(topic, "time_req") == 0)
@@ -190,8 +192,9 @@ void sil_main(
                 tasks_1Hz(timeMs);
 
             // Tell the supervisor what the current time for this board is.
-            sil_api_TimeResp msg = sil_api_timeResp_new(boardName, timeMs);
+            sil_api_TimeResp *msg = sil_api_timeResp_new(boardName, timeMs);
             sil_api_timeResp_tx(msg, socketTx);
+            sil_api_timeResp_destroy(msg);
         }
     }
 }

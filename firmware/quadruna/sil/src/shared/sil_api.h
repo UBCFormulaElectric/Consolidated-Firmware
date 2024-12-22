@@ -67,15 +67,31 @@ void sil_api_ready_destroy(sil_api_Ready *msg);
 // Sent from boards, lets the SIL manager know how much time has passed for an individual board process.
 typedef struct sil_api_TimeResp
 {
-    const char *boardName;
-    uint32_t    timeMs;
+    char    *boardName;
+    uint32_t timeMs;
 } sil_api_TimeResp;
 
 // Create a new time response message.
-sil_api_TimeResp sil_api_timeResp_new(const char *boardName, uint32_t timeMs);
+// Always make sure to destroy the message afterwards.
+sil_api_TimeResp *sil_api_timeResp_new(char *boardName, uint32_t timeMs);
 
 // Send a notification of the given board's current time.
-int sil_api_timeResp_tx(sil_api_TimeResp msg, zsock_t *socket);
+int sil_api_timeResp_tx(sil_api_TimeResp *msg, zsock_t *socket);
+
+// Receive a SIL can message.
+// Allocates result to the heap.
+// Expects a message without the topic string included.
+// ie.
+//  ```
+//  zmsg_t *zmqMsg;
+//  zsock_recv(socket, "sm", ..., zmqMsg);
+//  sil_api_TimeResp *msg = sil_api_timeResp_rx(zmqMsg);
+//  sil_api_timeResp_destroy(msg);
+//  ```
+sil_api_TimeResp *sil_api_timeResp_rx(zmsg_t *zmqMsg);
+
+// Destroy a time response.
+void sil_api_timeResp_destroy(sil_api_TimeResp *msg);
 
 // time_req topic.
 // Sent from the supervisor, tells all the boards to target a given time.
