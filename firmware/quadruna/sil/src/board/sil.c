@@ -16,7 +16,7 @@ static zsock_t   *socketRx;
 static zpoller_t *pollerRx;
 
 // Note: only valid since the program exits when main exits.
-static const char *boardName;
+static char *boardName;
 
 // Graciously exit process by freeing memory allocated by czmq.
 void sil_exitHandler()
@@ -113,9 +113,10 @@ void sil_main(
     // Tell the parent process we are ready.
     // Give the manager a 50ms grace period so that it can catch the ready signal.
     zclock_sleep(50);
-    sil_api_Ready msg = sil_api_ready_new(boardName);
-    if (sil_api_ready_tx(msg, socketTx) == -1)
+    sil_api_Ready *msg = sil_api_ready_new(boardName);
+    if (msg == NULL || sil_api_ready_tx(msg, socketTx) == -1)
         perror("Error transmitting ready message");
+    sil_api_ready_destroy(msg);
 
     // Init task.
     tasks_init();

@@ -32,21 +32,36 @@ int sil_api_can_tx(sil_api_Can *msg, zsock_t *socket);
 sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg);
 
 // Destroy a SIL can message.
-// Call this on the result sil_api_can_rx.
 void sil_api_can_destroy(sil_api_Can *msg);
 
 // ready topic.
 // Sent from boards on startup, notifies the SIL manager that the board is ready to go.
 typedef struct sil_api_Ready
 {
-    const char *boardName;
+    char *boardName;
 } sil_api_Ready;
 
 // Create a new ready signal.
-sil_api_Ready sil_api_ready_new(const char *boardName);
+// Always make sure to destroy the message afterwards.
+sil_api_Ready *sil_api_ready_new(char *boardName);
 
 // Send a ready signal.
-int sil_api_ready_tx(sil_api_Ready msg, zsock_t *socket);
+int sil_api_ready_tx(sil_api_Ready *msg, zsock_t *socket);
+
+// Receive a SIL can message.
+// Allocates result to the heap.
+// Expects a message without the topic string included.
+// ie.
+//  ```
+//  zmsg_t zmqMsg;
+//  zsock_recv(socket, "sm", ..., &zmqMsg);
+//  sil_api_Ready *msg = sil_api_ready_rx(&zmqMsg);
+//  sil_api_ready_destroy(msg);
+//  ```
+sil_api_Ready *sil_api_ready_rx(zmsg_t *zmqMsg);
+
+// Destroy a ready signal.
+void sil_api_ready_destroy(sil_api_Ready *msg);
 
 // time_resp topic.
 // Sent from boards, lets the SIL manager know how much time has passed for an individual board process.

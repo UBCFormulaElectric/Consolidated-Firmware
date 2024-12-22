@@ -1,6 +1,7 @@
 #include "sil_board.h"
 #include <stdio.h>
 #include <czmq.h>
+#include "sil_api.h"
 
 void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
 {
@@ -45,6 +46,7 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
         void *socket = zpoller_wait(pollerRx, 0);
         if (socket != NULL)
         {
+            bool ready = false;
             // Receive the message.
             char   *topic;
             zmsg_t *zmqMsg;
@@ -55,35 +57,20 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
             }
             else if (strcmp(topic, "ready") == 0)
             {
-                // Receive ready topic.
-                // Extract name of reporting board.
-                char *readiedBoardName = zmsg_popstr(zmqMsg);
-                if (readiedBoardName != NULL)
-                {
-                    // Check if returned boardName does not match, and if so, exit and error.
-                    if (strcmp(readiedBoardName, board->name) != 0)
-                    {
-                        fprintf(
-                            stderr, "Expected to receive ready signal from boardName: %s, instead received from %s",
-                            board->name, readiedBoardName);
-                        exit(1);
-                    }
-
-                    printf("Received ready signal from %s\n", readiedBoardName);
-
-                    // Free up zmq-allocated memory.
-                    free(topic);
-                    free(readiedBoardName);
-                    zmsg_destroy(&zmqMsg);
-
-                    // Stop blocking.
-                    break;
-                }
+                // Receive the ready message when it is sent, and check that the board name matches.
+                sil_api_Ready *msg = sil_api_ready_rx(zmqMsg);
+                assert(msg != NULL && strcmp(msg->boardName, board->name) == 0);
+                sil_api_ready_destroy(msg);
+                ready = true;
             }
 
             // Free up zmq-allocated memory.
             free(topic);
             zmsg_destroy(&zmqMsg);
+
+            // If the board is ready, stop blocking.
+            if (ready)
+                break;
         }
     }
 
