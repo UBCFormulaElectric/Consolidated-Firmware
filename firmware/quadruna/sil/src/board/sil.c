@@ -73,7 +73,7 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
 void sil_txCallback(const JsonCanMsg *jsonCanMsg)
 {
     sil_api_Can msg = sil_api_can_new(jsonCanMsg->std_id, jsonCanMsg->dlc, jsonCanMsg->data);
-    if (sil_api_can_tx(&msg, socketTx) == -1)
+    if (sil_api_can_tx(msg, socketTx) == -1)
         perror("Error sending jsoncan tx message");
     else
         sil_printCanMsg(true, (JsonCanMsg *)jsonCanMsg);
@@ -144,7 +144,7 @@ void sil_main(
     // Give the manager a 50ms grace period so that it can catch the ready signal.
     zclock_sleep(50);
     sil_api_Ready msg = sil_api_ready_new(boardName);
-    if (sil_api_ready_tx(&msg, socketTx) == -1)
+    if (sil_api_ready_tx(msg, socketTx) == -1)
         perror("Error transmitting ready message");
 
     // Init task.
@@ -215,7 +215,7 @@ void sil_main(
 
             // Tell the supervisor what the current time for this board is.
             sil_api_TimeResp msg = sil_api_timeResp_new(boardName, timeMs);
-            sil_api_timeResp_tx(&msg, socketTx);
+            sil_api_timeResp_tx(msg, socketTx);
         }
     }
 }
