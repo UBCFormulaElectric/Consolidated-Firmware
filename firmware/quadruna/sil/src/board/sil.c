@@ -95,8 +95,8 @@ void sil_main(
         perror("Error opening rx socket");
         exit(1);
     }
-    zsock_set_subscribe(socketRx, "time_req");
-    zsock_set_subscribe(socketRx, "can");
+    zsock_set_subscribe(socketRx, SIL_API_TIME_REQ_TOPIC);
+    zsock_set_subscribe(socketRx, SIL_API_CAN_TOPIC);
 
     // Poll the rx socket.
     pollerRx = zpoller_new(socketRx, NULL);
@@ -146,7 +146,7 @@ void sil_main(
             {
                 perror("Error: Failed to receive on socket");
             }
-            else if (strcmp(topic, "can") == 0)
+            else if (strcmp(topic, SIL_API_CAN_TOPIC) == 0)
             {
                 // Receive the can message, and dump it into a JsonCanMsg.
                 sil_api_Can *msg    = sil_api_can_rx(zmqMsg);
@@ -160,7 +160,7 @@ void sil_main(
                 // Invoke the callback with the JsonCanMsg.
                 sil_canRx(&canMsg);
             }
-            else if (strcmp(topic, "time_req") == 0)
+            else if (strcmp(topic, SIL_API_TIME_REQ_TOPIC) == 0)
             {
                 // Receive the time request, and set the target time to the provided time.
                 sil_api_TimeReq *msg = sil_api_timeReq_rx(zmqMsg);

@@ -5,6 +5,9 @@
 
 // can topic.
 // Sent from boards, each message denotes a JsonCanMsg.
+#define SIL_API_CAN_TOPIC ("can")
+
+// Wrapper around a single SIL can message.
 typedef struct sil_api_Can
 {
     uint32_t stdId;
@@ -36,6 +39,9 @@ void sil_api_can_destroy(sil_api_Can *msg);
 
 // ready topic.
 // Sent from boards on startup, notifies the SIL manager that the board is ready to go.
+#define SIL_API_READY_TOPIC ("ready")
+
+// Wrapper for a ready signal.
 typedef struct sil_api_Ready
 {
     char *boardName;
@@ -65,6 +71,9 @@ void sil_api_ready_destroy(sil_api_Ready *msg);
 
 // time_resp topic.
 // Sent from boards, lets the SIL manager know how much time has passed for an individual board process.
+#define SIL_API_TIME_RESP_TOPIC ("time_resp")
+
+// Wrapper around a single time response.
 typedef struct sil_api_TimeResp
 {
     char    *boardName;
@@ -95,6 +104,9 @@ void sil_api_timeResp_destroy(sil_api_TimeResp *msg);
 
 // time_req topic.
 // Sent from the supervisor, tells all the boards to target a given time.
+#define SIL_API_TIME_REQ_TOPIC ("time_req")
+
+// Wrapper around a single type request.
 typedef struct sil_api_TimeReq
 {
     uint32_t timeMs;

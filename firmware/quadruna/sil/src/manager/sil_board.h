@@ -12,7 +12,7 @@ typedef struct sil_Board
 } sil_Board;
 
 // Runs the binary of a given board in a parallel process.
-// Gets a czmq poller to verify the board started up, verified over the "ready" topic.
+// Gets a czmq poller to verify the board started up, verified over the ready topic.
 void sil_board_run(sil_Board *board, zpoller_t *pollerRx);
 
 // Reset the relevant fields in the board, and kill the process.

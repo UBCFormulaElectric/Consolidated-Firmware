@@ -55,7 +55,7 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
             {
                 perror("Error: Failed to receive on socket");
             }
-            else if (strcmp(topic, "ready") == 0)
+            else if (strcmp(topic, SIL_API_READY_TOPIC) == 0)
             {
                 // Receive the ready message when it is sent, and check that the board name matches.
                 sil_api_Ready *msg = sil_api_ready_rx(zmqMsg);

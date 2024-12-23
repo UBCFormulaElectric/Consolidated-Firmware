@@ -96,8 +96,8 @@ void sil_manager_start(sil_Board *boardsToKill[], sil_Board *boardsToStart[])
         perror("Error opening rx socket");
         exit(1);
     }
-    zsock_set_subscribe(socketRx, "ready");
-    zsock_set_subscribe(socketRx, "time_resp");
+    zsock_set_subscribe(socketRx, SIL_API_READY_TOPIC);
+    zsock_set_subscribe(socketRx, SIL_API_TIME_RESP_TOPIC);
 
     // Poll the rx socket.
     pollerRx = zpoller_new(socketRx, NULL);
@@ -151,7 +151,7 @@ void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[])
             {
                 perror("Error: Failed to receive on socket");
             }
-            else if (strcmp(topic, "time_resp") == 0)
+            else if (strcmp(topic, SIL_API_TIME_RESP_TOPIC) == 0)
             {
                 // Get the time response message.
                 sil_api_TimeResp *msg = sil_api_timeResp_rx(zmqMsg);

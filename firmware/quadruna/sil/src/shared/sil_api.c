@@ -18,7 +18,7 @@ int sil_api_can_tx(sil_api_Can *msg, zsock_t *socket)
 {
     uint64_t uint64Data;
     memcpy(&uint64Data, msg->data, sizeof(uint64Data));
-    return zsock_send(socket, "s448", "can", msg->stdId, msg->dlc, uint64Data);
+    return zsock_send(socket, "s448", SIL_API_CAN_TOPIC, msg->stdId, msg->dlc, uint64Data);
 }
 
 sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg)
@@ -71,7 +71,7 @@ sil_api_Ready *sil_api_ready_new(char *boardName)
 
 int sil_api_ready_tx(sil_api_Ready *msg, zsock_t *socket)
 {
-    return zsock_send(socket, "ss", "ready", msg->boardName);
+    return zsock_send(socket, "ss", SIL_API_READY_TOPIC, msg->boardName);
 }
 
 sil_api_Ready *sil_api_ready_rx(zmsg_t *zmqMsg)
@@ -108,7 +108,7 @@ sil_api_TimeResp *sil_api_timeResp_new(char *boardName, uint32_t timeMs)
 
 int sil_api_timeResp_tx(sil_api_TimeResp *msg, zsock_t *socket)
 {
-    return zsock_send(socket, "ss4", "time_resp", msg->boardName, msg->timeMs);
+    return zsock_send(socket, "ss4", SIL_API_TIME_RESP_TOPIC, msg->boardName, msg->timeMs);
 }
 
 sil_api_TimeResp *sil_api_timeResp_rx(zmsg_t *zmqMsg)
@@ -153,7 +153,7 @@ sil_api_TimeReq *sil_api_timeReq_new(uint32_t timeMs)
 
 int sil_api_timeReq_tx(sil_api_TimeReq *msg, zsock_t *socket)
 {
-    return zsock_send(socket, "s4", "time_req", msg->timeMs);
+    return zsock_send(socket, "s4", SIL_API_TIME_REQ_TOPIC, msg->timeMs);
 }
 
 sil_api_TimeReq *sil_api_timeReq_rx(zmsg_t *zmqMsg)
