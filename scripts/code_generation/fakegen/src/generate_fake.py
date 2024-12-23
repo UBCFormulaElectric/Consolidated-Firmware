@@ -68,7 +68,7 @@ def parse_type(type: pyclibrary.c_parser.Type) -> str:
 
 
 def generate_output(
-    header_path: str, output_header: str, output_source: str, functions: List[CFunction]
+    sil: bool, header_path: str, output_header: str, output_source: str, functions: List[CFunction]
 ) -> None:
     """
     Use jinja2 templates to generate a file which fakes a list of functions. Creates:
@@ -103,6 +103,7 @@ def generate_output(
         definition_template = env.get_template(f"{template}.cpp.j2")
 
         data = {
+            "sil": sil,
             "name": function.name,
             "return_type": function.return_type,
             "params": [
@@ -160,6 +161,7 @@ if __name__ == "__main__":
     parser.add_argument("--header", type=str, required=False)
     parser.add_argument("--output-header", type=str, required=False)
     parser.add_argument("--output-source", type=str, required=False)
+    parser.add_argument("--sil", action='store_true')
     args = parser.parse_args()
 
     if args.header:
@@ -174,6 +176,7 @@ if __name__ == "__main__":
             # Generate output.
             input_module = args.header.split(".")[0]
             generate_output(
+                sil=args.sil,
                 header_path=args.header,
                 output_header=args.output_header,
                 output_source=args.output_source,

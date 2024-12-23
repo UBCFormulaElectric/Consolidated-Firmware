@@ -13,6 +13,7 @@ IF("${TARGET}" STREQUAL "test")
     create_fake_library(
             "shared_fakes"
             "${HDRS_TO_FAKE}"
+            FALSE
     )
 
     jsoncan_sources(
@@ -51,6 +52,7 @@ ELSEIF("${TARGET}" STREQUAL "sil")
         create_fake_library(
                 "shared_fakes"
                 "${HDRS_TO_FAKE}"
+                TRUE
         )
 
         jsoncan_sources(

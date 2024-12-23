@@ -183,6 +183,7 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     create_fake_library(
             "quadruna_VC_fakes"
             "${HEADERS_TO_FAKE}"
+            FALSE
     )
 
     target_link_libraries("quadruna_VC_test" "quadruna_VC_jsoncan" "quadruna_VC_fakes" "shared_fakes")
@@ -225,7 +226,7 @@ elseif ("${TARGET}" STREQUAL "sil")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
     )
-    create_fake_library("quadruna_VC_fakes" "${HEADERS_TO_FAKE}")
+    create_fake_library("quadruna_VC_fakes" "${HEADERS_TO_FAKE}" TRUE)
 
     # Add srcs, include dirs, and libs to target.
     add_executable(quadruna_VC_sil "${SRCS}")

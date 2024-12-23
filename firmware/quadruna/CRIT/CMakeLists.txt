@@ -157,6 +157,7 @@ elseif ("${TARGET}" STREQUAL "test")
     create_fake_library(
             "quadruna_CRIT_fakes"
             "${HEADERS_TO_FAKE}"
+            FALSE
     )
 
     target_link_libraries("quadruna_CRIT_test" "quadruna_CRIT_jsoncan" "quadruna_CRIT_fakes" "shared_fakes" "m")
@@ -191,7 +192,7 @@ elseif ("${TARGET}" STREQUAL "sil")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_critShdn.h"
     )
-    create_fake_library("quadruna_CRIT_fakes" "${HEADERS_TO_FAKE}")
+    create_fake_library("quadruna_CRIT_fakes" "${HEADERS_TO_FAKE}" TRUE)
 
     # Add srcs, include dirs, and libs to target.
     add_executable(quadruna_CRIT_sil "${SRCS}")

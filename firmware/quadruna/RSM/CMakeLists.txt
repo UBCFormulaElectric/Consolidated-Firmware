@@ -157,6 +157,7 @@ elseif ("${TARGET}" STREQUAL "test")
     create_fake_library(
             "quadruna_RSM_fakes"
             "${HEADERS_TO_FAKE}"
+            FALSE
     )
 
     target_link_libraries("quadruna_RSM_test" "quadruna_RSM_jsoncan" "quadruna_RSM_fakes" "shared_fakes" "m")
@@ -192,7 +193,7 @@ elseif ("${TARGET}" STREQUAL "sil")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fans.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brake_light.h"
     )
-    create_fake_library("quadruna_RSM_fakes" "${HEADERS_TO_FAKE}")
+    create_fake_library("quadruna_RSM_fakes" "${HEADERS_TO_FAKE}" TRUE)
 
     # Add srcs, include dirs, and libs to target.
     add_executable(quadruna_RSM_sil "${SRCS}")

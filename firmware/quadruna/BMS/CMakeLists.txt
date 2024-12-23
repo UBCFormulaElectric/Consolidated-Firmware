@@ -172,6 +172,7 @@ elseif ("${TARGET}" STREQUAL "test")
     create_fake_library(
             "quadruna_BMS_fakes"
             "${HEADERS_TO_FAKE}"
+            FALSE
     )
 
     target_link_libraries("quadruna_BMS_test" "quadruna_BMS_jsoncan" "quadruna_BMS_fakes" "shared_fakes")
@@ -213,7 +214,7 @@ elseif ("${TARGET}" STREQUAL "sil")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bmsShdn.h"
     )
-    create_fake_library("quadruna_BMS_fakes" "${HEADERS_TO_FAKE}")
+    create_fake_library("quadruna_BMS_fakes" "${HEADERS_TO_FAKE}" TRUE)
 
     # Add srcs, include dirs, and libs to target.
     add_executable(quadruna_BMS_sil "${SRCS}")

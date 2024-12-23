@@ -31,7 +31,7 @@ ELSEIF ("${TARGET}" STREQUAL "test")
 ELSEIF ("${TARGET}" STREQUAL "sil")
 
     # SIL Specific CMAKE.
-    include(cmake/sil.cmake)
+    include(cmake/tests.cmake)
 
     # SIL is simmilar enough to tests to warrant flipping on the TARGET_TEST flag.
     add_compile_definitions(TARGET_TEST)
