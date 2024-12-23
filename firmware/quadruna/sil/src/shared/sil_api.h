@@ -48,7 +48,7 @@ sil_api_Ready *sil_api_ready_new(char *boardName);
 // Send a ready signal.
 int sil_api_ready_tx(sil_api_Ready *msg, zsock_t *socket);
 
-// Receive a SIL can message.
+// Receive a ready signal.
 // Allocates result to the heap.
 // Expects a message without the topic string included.
 // ie.
@@ -78,7 +78,7 @@ sil_api_TimeResp *sil_api_timeResp_new(char *boardName, uint32_t timeMs);
 // Send a notification of the given board's current time.
 int sil_api_timeResp_tx(sil_api_TimeResp *msg, zsock_t *socket);
 
-// Receive a SIL can message.
+// Receive a time response message.
 // Allocates result to the heap.
 // Expects a message without the topic string included.
 // ie.
@@ -101,7 +101,22 @@ typedef struct sil_api_TimeReq
 } sil_api_TimeReq;
 
 // Create a new time request message.
-sil_api_TimeReq sil_api_timeReq_new(uint32_t timeMs);
+sil_api_TimeReq *sil_api_timeReq_new(uint32_t timeMs);
 
 // Make a request for all boards to advance to a given time.
-int sil_api_timeReq_tx(sil_api_TimeReq msg, zsock_t *socket);
+int sil_api_timeReq_tx(sil_api_TimeReq *msg, zsock_t *socket);
+
+// Receive a time request message.
+// Allocates result to the heap.
+// Expects a message without the topic string included.
+// ie.
+//  ```
+//  zmsg_t *zmqMsg;
+//  zsock_recv(socket, "sm", ..., zmqMsg);
+//  sil_api_TimeReq *msg = sil_api_timeReq_rx(zmqMsg);
+//  sil_api_timeReq_destroy(msg);
+//  ```
+sil_api_TimeReq *sil_api_timeReq_rx(zmsg_t *zmqMsg);
+
+// Destroy a time request.
+void sil_api_timeReq_destroy(sil_api_TimeReq *msg);

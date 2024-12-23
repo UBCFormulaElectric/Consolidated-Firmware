@@ -23,38 +23,26 @@ int sil_api_can_tx(sil_api_Can *msg, zsock_t *socket)
 
 sil_api_Can *sil_api_can_rx(zmsg_t *zmqMsg)
 {
-    // Extract stdId.
-    char    *stdIdStr = zmsg_popstr(zmqMsg);
-    uint32_t stdId    = 0;
-    if (stdIdStr != NULL)
-    {
-        stdId = sil_atoi_uint32_t(stdIdStr);
-        free(stdIdStr);
-    }
-    else
+    // Extract std id.
+    char *stdIdStr = zmsg_popstr(zmqMsg);
+    if (stdIdStr == NULL)
         return NULL;
+    uint32_t stdId = sil_atoi_uint32_t(stdIdStr);
+    free(stdIdStr);
 
     // Extract dlc.
-    char    *dlcStr = zmsg_popstr(zmqMsg);
-    uint32_t dlc    = 0;
-    if (dlcStr != NULL)
-    {
-        dlc = sil_atoi_uint32_t(dlcStr);
-        free(dlcStr);
-    }
-    else
+    char *dlcStr = zmsg_popstr(zmqMsg);
+    if (dlcStr == NULL)
         return NULL;
+    uint32_t dlc = sil_atoi_uint32_t(dlcStr);
+    free(dlcStr);
 
     // Extract data.
-    char    *dataStr    = zmsg_popstr(zmqMsg);
-    uint64_t dataUInt64 = 0;
-    if (dataStr != NULL)
-    {
-        dataUInt64 = sil_atoi_uint64_t(dataStr);
-        free(dataStr);
-    }
-    else
+    char *dataStr = zmsg_popstr(zmqMsg);
+    if (dataStr == NULL)
         return NULL;
+    uint32_t dataUInt64 = sil_atoi_uint32_t(dataStr);
+    free(dataStr);
 
     // Allocate and return the result.
     sil_api_Can *res = malloc(sizeof(sil_api_Can));
@@ -133,17 +121,13 @@ sil_api_TimeResp *sil_api_timeResp_rx(zmsg_t *zmqMsg)
     // Extract time.
     char    *timeMsStr = zmsg_popstr(zmqMsg);
     uint32_t timeMs    = 0;
-    if (timeMsStr != NULL)
+    if (timeMsStr == NULL)
     {
-        timeMs = sil_atoi_uint32_t(timeMsStr);
-        free(timeMsStr);
-    }
-    else
-    {
-        // Make sure to free boardName if failure happens.
         free(boardName);
         return NULL;
     }
+    timeMs = sil_atoi_uint32_t(timeMsStr);
+    free(timeMsStr);
 
     // Allocate and return result.
     sil_api_TimeResp *res = malloc(sizeof(sil_api_TimeResp));
@@ -160,13 +144,33 @@ void sil_api_timeResp_destroy(sil_api_TimeResp *msg)
 
 // time_req topic.
 
-sil_api_TimeReq sil_api_timeReq_new(uint32_t timeMs)
+sil_api_TimeReq *sil_api_timeReq_new(uint32_t timeMs)
 {
-    sil_api_TimeReq res = { .timeMs = timeMs };
+    sil_api_TimeReq *res = malloc(sizeof(sil_api_TimeReq));
+    res->timeMs          = timeMs;
     return res;
 }
 
-int sil_api_timeReq_tx(sil_api_TimeReq msg, zsock_t *socket)
+int sil_api_timeReq_tx(sil_api_TimeReq *msg, zsock_t *socket)
 {
-    return zsock_send(socket, "s4", "time_req", msg.timeMs);
+    return zsock_send(socket, "s4", "time_req", msg->timeMs);
+}
+
+sil_api_TimeReq *sil_api_timeReq_rx(zmsg_t *zmqMsg)
+{
+    // Extract time.
+    char *timeMsStr = zmsg_popstr(zmqMsg);
+    if (timeMsStr == NULL)
+        return NULL;
+    uint32_t timeMs = sil_atoi_uint32_t(timeMsStr);
+
+    // Allocate and return result.
+    sil_api_TimeReq *res = malloc(sizeof(sil_api_TimeReq));
+    res->timeMs          = timeMs;
+    return res;
+}
+
+void sil_api_timeReq_destroy(sil_api_TimeReq *msg)
+{
+    free(msg);
 }

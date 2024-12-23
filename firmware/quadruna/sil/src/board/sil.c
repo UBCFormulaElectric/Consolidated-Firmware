@@ -162,13 +162,11 @@ void sil_main(
             }
             else if (strcmp(topic, "time_req") == 0)
             {
-                char *newTargetimeMsStr = zmsg_popstr(zmqMsg);
-                if (newTargetimeMsStr != NULL)
-                {
-                    uint32_t newTargetimeMs = sil_atoi_uint32_t(newTargetimeMsStr);
-                    targetTimeMs            = newTargetimeMs;
-                    free(newTargetimeMsStr);
-                }
+                // Receive the time request, and set the target time to the provided time.
+                sil_api_TimeReq *msg = sil_api_timeReq_rx(zmqMsg);
+                if (msg != NULL)
+                    targetTimeMs = msg->timeMs;
+                sil_api_timeReq_destroy(msg);
             }
 
             // Free up zmq-allocated memory.
