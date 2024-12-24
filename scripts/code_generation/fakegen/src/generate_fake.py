@@ -137,6 +137,7 @@ def generate_output(
         file.write(
             header_template.render(
                 {
+                    "sil": sil,
                     "module": io_file_name_without_extension,
                     "declarations": fake_declarations_arr,
                 }

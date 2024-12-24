@@ -79,4 +79,11 @@ function(create_fake_library
         ${SHARED_APP_INCLUDE_DIR}
         ${SHARED_IO_INCLUDE_DIR}
     )
+
+    if(SIL_ENABLED)
+        # Add CZMQ.
+        target_link_libraries (${LIB_NAME} ${CZMQ_LIBRARIES})
+        target_include_directories(${LIB_NAME} PRIVATE "${CZMQ_INCLUDE_DIRS}")
+    endif()
+    
 endfunction()

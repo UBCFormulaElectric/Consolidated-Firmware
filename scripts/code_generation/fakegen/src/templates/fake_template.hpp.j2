@@ -1,6 +1,11 @@
 #pragma once
+// SIL enabled: {{ sil }}
 
 #include <stdint.h>
+
+{% if sil %}
+#include <czmq.h>
+{% endif %}
 
 extern "C"
 {
