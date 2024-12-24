@@ -30,24 +30,19 @@ const LiveFault: React.FC = () => {
 			if (isFault) {
 				return (
 					<p
-						className='bg-red-500 px-6 py-2 h-1 rounded-full'
+						className='bg-red-500 px-6 py-2 h-1 '
 						style={{ width: `${width}px` }}
 					/>
 				)
 			} else if (isWarning) {
 				return (
 					<p
-						className='bg-orange-500 px-6 py-2 h-1 rounded-full'
+						className='bg-orange-500 px-6 py-2 h-1 '
 						style={{ width: `${width}px` }}
 					/>
 				)
 			} else {
-				return (
-					<p
-						className='px-6 py-2 h-1 rounded-full'
-						style={{ width: `${width}px` }}
-					/>
-				)
+				return <p className='px-6 py-2 h-1 ' style={{ width: `${width}px` }} />
 			}
 		}
 
@@ -70,7 +65,7 @@ const LiveFault: React.FC = () => {
 					} else {
 						return (
 							<FaultDisplay
-								width={96 * count}
+								width={96 * (count - board1[board1.length - 1].timestamp)}
 								isFault={hasFault}
 								isWarning={hasWarning}
 							/>
