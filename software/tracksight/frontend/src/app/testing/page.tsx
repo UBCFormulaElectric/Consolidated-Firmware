@@ -44,7 +44,7 @@ const TestingPage = () => {
 			{/* <MouseTest /> */}
 			<Timer />
 			<LiveFault />
-			<EnumerationGraph
+			{/* <EnumerationGraph
 				signalName='VC_STATE'
 				currentState={currentState}
 				currentTime={currentTime}
@@ -53,7 +53,7 @@ const TestingPage = () => {
 			<NumericalGraph
 				numericalSignals={numericalSignals}
 				currentTime={currentTime}
-			/>
+			/> */}
 		</div>
 	)
 }
