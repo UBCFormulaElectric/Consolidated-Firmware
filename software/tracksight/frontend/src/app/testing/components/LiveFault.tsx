@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Draggable from 'react-draggable'
 import { DropdownMenuCheckboxes } from './FaultFilters'
 
 const initData = { timestamp: 0, name: 'e' }
@@ -6,8 +7,24 @@ const initData = { timestamp: 0, name: 'e' }
 const LiveFault: React.FC = () => {
 	// TODO change the TS type late
 	const [board1, setBoard1] = useState([initData])
-	const [faults, setFaults] = useState<boolean[]>([false, false, false])
-	const [warnings, setWarnings] = useState<boolean[]>([false, false, false])
+	const [faults, setFaults] = useState<boolean[]>([
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+	])
+	const [warnings, setWarnings] = useState<boolean[]>([
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+	])
 	const [count, setCount] = useState<number>(-1)
 
 	useEffect(() => {
@@ -56,7 +73,7 @@ const LiveFault: React.FC = () => {
 						return (
 							<div>
 								<FaultDisplay
-									width={96 * (board1[index + 1].timestamp - fault.timestamp)}
+									width={97 * (board1[index + 1].timestamp - fault.timestamp)}
 									isFault={hasFault}
 									isWarning={hasWarning}
 								/>
@@ -65,7 +82,7 @@ const LiveFault: React.FC = () => {
 					} else {
 						return (
 							<FaultDisplay
-								width={96 * (count - board1[board1.length - 1].timestamp)}
+								width={97 * (count - board1[board1.length - 1].timestamp)}
 								isFault={hasFault}
 								isWarning={hasWarning}
 							/>
@@ -143,10 +160,9 @@ const LiveFault: React.FC = () => {
 			<button
 				className='bg-cyan-200 dark:bg-cyan-800 pr-2 rounded-md px-2 mx-1'
 				onClick={() => {
-					console.log(board1)
 					setBoard1([initData])
-					setFaults([false, false, false])
-					setWarnings([false, false, false])
+					setFaults([false, false, false, false, false, false, false])
+					setWarnings([false, false, false, false, false, false, false])
 					setCount(-1)
 				}}>
 				Reset
@@ -172,16 +188,20 @@ const LiveFault: React.FC = () => {
 	}
 
 	return (
-		<div className='bg-gray-200 dark:bg-gray-700 w-full'>
-			<div className='flex flex-row justify-end'>
-				<div className='flex flex-col pr-9'>
-					{/* Below is the actual faults graph */}
-					{faults.map((fault, index) => {
-						return <FaultBar fault={fault} index={index} key={index} />
-					})}
+		// ! TODO Figure out how to cap the height of this to like 30% of screen and make this scrollable
+		// Replace the bottom div with a draggable one
+		<div className='bg-gray-200 dark:bg-gray-700 w-full h-18 overflow-hidden'>
+			<Draggable>
+				<div className='flex flex-row justify-end'>
+					<div className='flex flex-col pr-9'>
+						{/* Below is the actual faults graph */}
+						{faults.map((fault, index) => {
+							return <FaultBar fault={fault} index={index} key={index} />
+						})}
+					</div>
+					<div className='p-2'>TBD{/* <DropdownMenuCheckboxes /> */}</div>
 				</div>
-				<div className='p-2'>TBD{/* <DropdownMenuCheckboxes /> */}</div>
-			</div>
+			</Draggable>
 			{/* //! TODO: REMOVE AFTER TESTING */}
 			<div className='flex justify-start'>
 				<p className='pr-2'>Toggle Faults: </p>
