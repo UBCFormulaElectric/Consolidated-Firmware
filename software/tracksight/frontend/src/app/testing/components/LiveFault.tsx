@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Draggable from 'react-draggable'
 import { DropdownMenuCheckboxes } from './FaultFilters'
 
-const initData = { timestamp: 0, name: 'e' }
+const initData = { timestamp: 0, name: 'f' }
 
 const LiveFault: React.FC = () => {
 	// TODO change the TS type late
@@ -93,83 +93,6 @@ const LiveFault: React.FC = () => {
 		)
 	}
 
-	// ! DEBUGGING: REMOVE ========================
-	const toggleFault = (key: number) => {
-		var newFaults = [...faults]
-		newFaults[key] = !newFaults[key]
-		setFaults(newFaults)
-
-		setBoard1((prev) => {
-			const object = {
-				timestamp: count,
-				name: newFaults[key] ? 'fault1' : 'e',
-			}
-			return [...prev, object]
-		})
-	}
-
-	// ! DEBUGGING: REMOVE
-	const FaultButton: React.FC<{ fault: boolean; index: number }> = ({
-		fault,
-		index,
-	}) => {
-		return (
-			<button
-				className='bg-cyan-200 dark:bg-cyan-800 pr-2 rounded-md px-2 mx-1'
-				onClick={() => {
-					toggleFault(index)
-				}}>
-				{index + ': ' + faults[index]}
-			</button>
-		)
-	}
-
-	// ! DEBUGGING: REMOVE
-	const toggleWarning = (key: number) => {
-		var newWarnings = [...warnings]
-		newWarnings[key] = !newWarnings[key]
-		setWarnings(newWarnings)
-
-		setBoard1((prev) => {
-			const object = {
-				timestamp: count,
-				name: newWarnings[key] ? 'warning1' : 'e',
-			}
-			return [...prev, object]
-		})
-	}
-
-	// ! DEBUGGING: REMOVE ================
-	const WarningButton: React.FC<{ warning: boolean; index: number }> = ({
-		warning,
-		index,
-	}) => {
-		return (
-			<button
-				className='bg-cyan-200 dark:bg-cyan-800 pr-2 rounded-md px-2 mx-1'
-				onClick={() => {
-					toggleWarning(index)
-				}}>
-				{index + ': ' + warnings[index]}
-			</button>
-		)
-	}
-
-	const ResetButton = () => {
-		return (
-			<button
-				className='bg-cyan-200 dark:bg-cyan-800 pr-2 rounded-md px-2 mx-1'
-				onClick={() => {
-					setBoard1([initData])
-					setFaults([false, false, false, false, false, false, false])
-					setWarnings([false, false, false, false, false, false, false])
-					setCount(-1)
-				}}>
-				Reset
-			</button>
-		)
-	}
-
 	// TODO vvv to be worked on.
 
 	const FilterFaults: React.FC<{ fault: boolean; index: number }> = ({
@@ -188,32 +111,18 @@ const LiveFault: React.FC = () => {
 	}
 
 	return (
-		// ! TODO Figure out how to cap the height of this to like 30% of screen and make this scrollable
-		// Replace the bottom div with a draggable one
+		// TODO: Figure out how to cap the height of this to 30% and have endpoints
 		<div className='bg-gray-200 dark:bg-gray-700 w-full h-18 overflow-hidden'>
-			<Draggable>
-				<div className='flex flex-row justify-end'>
+			<div className='flex flex-col justify-end'>
+				<Draggable cancel='.non-draggable'>
 					<div className='flex flex-col pr-9'>
 						{/* Below is the actual faults graph */}
 						{faults.map((fault, index) => {
 							return <FaultBar fault={fault} index={index} key={index} />
 						})}
 					</div>
-					<div className='p-2'>TBD{/* <DropdownMenuCheckboxes /> */}</div>
-				</div>
-			</Draggable>
-			{/* //! TODO: REMOVE AFTER TESTING */}
-			<div className='flex justify-start'>
-				<p className='pr-2'>Toggle Faults: </p>
-				{faults.map((button, index) => {
-					return <FaultButton fault={button} index={index} key={index} />
-				})}
-				<p className='pr-2'>Toggle Warnings: </p>
-				{warnings.map((button, index) => {
-					return <WarningButton warning={button} index={index} key={index} />
-				})}
-				<p className='pr-2'>Reset: </p>
-				<ResetButton />
+				</Draggable>
+				<div className='p-2'>TBD{/* <DropdownMenuCheckboxes /> */}</div>
 			</div>
 		</div>
 	)
