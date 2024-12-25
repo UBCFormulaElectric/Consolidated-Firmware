@@ -1,8 +1,9 @@
 #pragma once
 
-#include "io_heartbeatNode.h"
-#include "app_timer.h"
+#include "io_heartbeatNode.hpp"
+#include "app_timer.hpp"
 #include <cassert>
+#include <array>
 
 namespace app::heartbeat
 {

@@ -2,7 +2,7 @@
 #ifdef TARGET_EMBEDDED
 extern "C"
 {
-#include "hw_hal.h"
+#include "hw_hal.hpp"
 }
 #endif
 

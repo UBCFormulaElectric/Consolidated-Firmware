@@ -1,6 +1,6 @@
 #pragma once
 
-#include "hw_hal.h"
+#include "hw_hal.hpp"
 
 #define TICK_TO_MS(tick) ((tick) * portTICK_PERIOD_MS)
 

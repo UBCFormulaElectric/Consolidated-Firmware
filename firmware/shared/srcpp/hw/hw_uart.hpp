@@ -3,7 +3,7 @@
 #include <cstdint>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_hal.h"
+#include "hw_hal.hpp"
 #endif
 
 // HAL UART type documentation pg 1161:

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hw_uart.h"
-#include "hw_gpio.h"
+#include "hw_uart.hpp"
+#include "hw_gpio.hpp"
 
 #define CASERETURN(A, B) \
     case A:              \

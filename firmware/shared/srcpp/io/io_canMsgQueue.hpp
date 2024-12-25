@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <string>
-#include "hw_can.h"
+#include "hw_can.hpp"
 #include "cmsis_os.h"
 
 /**

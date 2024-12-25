@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include "io_shdnLoopNode.h"
+#include "io_shdnLoopNode.hpp"
 
 namespace app::shdn
 {

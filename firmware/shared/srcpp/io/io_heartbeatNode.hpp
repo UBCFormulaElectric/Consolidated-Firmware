@@ -1,5 +1,5 @@
 #pragma once
-#include "app_timer.h"
+#include "app_timer.hpp"
 
 namespace io::heartbeat
 {
