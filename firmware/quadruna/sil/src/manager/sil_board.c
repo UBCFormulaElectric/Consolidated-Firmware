@@ -37,6 +37,7 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
 
     // Block until the board reports ready.
     // Control the main loop of all the boards.
+    bool ready = false;
     for (;;)
     {
         // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
@@ -46,7 +47,6 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
         void *socket = zpoller_wait(pollerRx, 0);
         if (socket != NULL)
         {
-            bool ready = false;
             // Receive the message.
             char   *topic;
             zmsg_t *zmqMsg;
@@ -67,11 +67,9 @@ void sil_board_run(sil_Board *board, zpoller_t *pollerRx)
             // Free up zmq-allocated memory.
             free(topic);
             zmsg_destroy(&zmqMsg);
-
-            // If the board is ready, stop blocking.
-            if (ready)
-                break;
         }
+        else if (ready)
+            break;
     }
 
     board->pid = pid;
