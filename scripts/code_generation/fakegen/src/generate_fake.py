@@ -162,7 +162,6 @@ if __name__ == "__main__":
     parser.add_argument("--header", type=str, required=False)
     parser.add_argument("--output-header", type=str, required=False)
     parser.add_argument("--output-source", type=str, required=False)
-    parser.add_argument("--sil", action='store_true')
     args = parser.parse_args()
 
     if args.header:
@@ -177,7 +176,6 @@ if __name__ == "__main__":
             # Generate output.
             input_module = args.header.split(".")[0]
             generate_output(
-                sil=args.sil,
                 header_path=args.header,
                 output_header=args.output_header,
                 output_source=args.output_source,

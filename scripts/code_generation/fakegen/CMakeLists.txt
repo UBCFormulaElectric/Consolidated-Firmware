@@ -11,7 +11,6 @@ set(TEST_INCLUDE_DIRS
 create_fake_library(
     "fakegen_test_fakes"
     "${TEST_HDRS_TO_FAKE}"
-    FALSE
 )
 
 if ("${TARGET}" STREQUAL "test")

@@ -34,7 +34,6 @@ message("  🔃 Registering function compile_fake_library")
 function(create_fake_library
     LIB_NAME
     HDRS_TO_FAKE
-    SIL_ENABLED
 )
     file(GLOB_RECURSE FAKEGEN_SRCS
         ${SCRIPTS_DIR}/code_generation/fakegen/src/*.py
@@ -48,11 +47,6 @@ function(create_fake_library
         set(FAKE_SRC "${CMAKE_CURRENT_BINARY_DIR}/fake_${HDR_MODULE_NAME}.cpp")
         list(APPEND FAKE_HDRS ${FAKE_HDR})
         list(APPEND FAKE_SRCS ${FAKE_SRC})
-        if(SIL_ENABLED)
-            set(SIL_ARG "--sil")
-        else()
-            set(SIL_ARG "")
-        endif()
         add_custom_command(
             OUTPUT ${FAKE_HDR} ${FAKE_SRC}
             COMMAND ${PYTHON_COMMAND}
@@ -60,7 +54,6 @@ function(create_fake_library
             --header ${HDR_TO_FAKE}
             --output-header ${FAKE_HDR}
             --output-source ${FAKE_SRC}
-            ${SIL_ARG}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
             DEPENDS ${FAKEGEN_SRCS} ${HDR_TO_FAKE}
         )
@@ -79,11 +72,4 @@ function(create_fake_library
         ${SHARED_APP_INCLUDE_DIR}
         ${SHARED_IO_INCLUDE_DIR}
     )
-
-    if(SIL_ENABLED)
-        # Add CZMQ.
-        target_link_libraries (${LIB_NAME} ${CZMQ_LIBRARIES})
-        target_include_directories(${LIB_NAME} PRIVATE "${CZMQ_INCLUDE_DIRS}")
-    endif()
-    
 endfunction()
