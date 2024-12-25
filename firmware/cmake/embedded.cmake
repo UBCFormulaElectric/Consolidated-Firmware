@@ -36,9 +36,6 @@ set(SHARED_COMPILER_FLAGS
         -fdata-sections
         -fno-common
         -fmessage-length=0
-        -Wl,--gc-sections
-        --specs=nosys.specs
-        --specs=nano.specs
         -Wall
         -Werror
         -Wextra

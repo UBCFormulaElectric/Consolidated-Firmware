@@ -1,5 +1,5 @@
 message("")
-message("⚙️ Configuring [BOARD] (Quintuna)")
+message("⚙️ Configuring RSM (Quintuna)")
 
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
