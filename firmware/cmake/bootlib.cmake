@@ -116,6 +116,7 @@ function(stm32h7_boot_binary
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
+    message(${INCLUDE_DIRS})
     stm32h733xx_cube_library(
             "${BOOT_NAME}_stm32cube"
             "${INCLUDE_DIRS}"

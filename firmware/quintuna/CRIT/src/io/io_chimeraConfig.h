@@ -4,6 +4,7 @@
 #include "hw_gpios.h"
 #include "hw_adcs.h"
 #include "CRIT.pb.h"
+#include <cassert>
 
 const hw::Gpio *id_to_gpio(uint32_t net_name)
 {
