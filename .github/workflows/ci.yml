@@ -60,16 +60,16 @@ jobs:
           #          - board: BMS_Quint
           #            ioc_dir: firmware/quintuna/BMS/src/cubemx
           #            env_version: cube_6_12_0
-          - board: CRIT_Quint
+          - board: CRIT
             ioc_dir: firmware/quintuna/CRIT/src/cubemx
             env_version: cube_6_12_0
           #          - board: FSM_Quint
           #            ioc_dir: firmware/quintuna/FSM/src/cubemx
           #            env_version: cube_6_12_0
-          - board: RSM_Quint
+          - board: RSM
             ioc_dir: firmware/quintuna/RSM/src/cubemx
             env_version: cube_6_12_0
-          - board: VC_Quint
+          - board: VC
             ioc_dir: firmware/quintuna/VC/src/cubemx
             env_version: cube_6_12_0
 
