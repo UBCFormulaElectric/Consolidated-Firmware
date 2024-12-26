@@ -24,7 +24,6 @@ typedef struct
     uint16_t window_size;
 } AppFIRFilter;
 
-
 /**
  * Initialize the FIR filter.
  *

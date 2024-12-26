@@ -18,7 +18,7 @@ void app_fir_filter_init(AppFIRFilter *filter, uint16_t window_size, const float
         }
     }
 
-    filter->index = 0;
+    filter->index       = 0;
     filter->window_size = window_size;
 }
 
@@ -46,4 +46,3 @@ float app_fir_filter_apply(AppFIRFilter *filter, float new_sample)
 
     return result;
 }
-

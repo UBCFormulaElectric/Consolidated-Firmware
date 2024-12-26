@@ -20,9 +20,7 @@ void app_tractiveSystem_init()
     }
     app_fir_filter_init(&current_filter, FILTER_SIZE, coefficients);
 
-
     app_timer_init(&overcurrent_fault_timer, TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
-
 }
 
 #define W_TO_KW 1.0e-3f
@@ -48,10 +46,10 @@ float app_tractiveSystem_getCurrent(void)
         current = low_res_current;
     }
 
-    #if APPLY_CURRENT_FILTER
-        // Apply the FIR filter if enabled
-        current = app_fir_filter_apply(&current_filter, current);
-    #endif
+#if APPLY_CURRENT_FILTER
+    // Apply the FIR filter if enabled
+    current = app_fir_filter_apply(&current_filter, current);
+#endif
 
     return current;
 }
