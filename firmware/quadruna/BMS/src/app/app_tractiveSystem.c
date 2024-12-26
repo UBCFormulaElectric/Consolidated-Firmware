@@ -3,12 +3,26 @@
 #include "app_canTx.h"
 #include "io_tractiveSystem.h"
 #include "app_timer.h"
+#include "app_fir_filter.h"
+
+#define FILTER_SIZE 16
+static AppFIRFilter current_filter;
 
 TimerChannel overcurrent_fault_timer;
 
 void app_tractiveSystem_init()
 {
+    // Initialize the Moving Average filter (FIR) with filter coefficients
+    float coefficients[FILTER_SIZE];
+    for (int i = 0; i < FILTER_SIZE; i++)
+    {
+        coefficients[i] = 1.0f / FILTER_SIZE;
+    }
+    app_fir_filter_init(&current_filter, FILTER_SIZE, coefficients);
+
+
     app_timer_init(&overcurrent_fault_timer, TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
+
 }
 
 #define W_TO_KW 1.0e-3f
@@ -23,14 +37,23 @@ float app_tractiveSystem_getCurrent(void)
     const float low_res_current  = io_tractiveSystem_getCurrentLowResolution();
     const float high_res_current = io_tractiveSystem_getCurrentHighResolution();
 
+    float current = 0.0f;
+
     if (IS_IN_RANGE(-HIGH_RES_MAX_CURRENT_READING, HIGH_RES_MAX_CURRENT_READING, low_res_current))
     {
-        return high_res_current;
+        current = high_res_current;
     }
     else
     {
-        return low_res_current;
+        current = low_res_current;
     }
+
+    #if APPLY_CURRENT_FILTER
+        // Apply the FIR filter if enabled
+        current = app_fir_filter_apply(&current_filter, current);
+    #endif
+
+    return current;
 }
 
 void app_tractiveSystem_broadcast()

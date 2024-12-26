@@ -21,6 +21,9 @@
 #define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 #define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 
+// Enable or disable filtering for current measurements
+#define APPLY_CURRENT_FILTER (true) // or (false)
+
 /**
  * Init the app tractive system module.
  */
