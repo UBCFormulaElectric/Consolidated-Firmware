@@ -208,12 +208,21 @@ class CanDatabase:
 
     nodes: List[str]  # List of names of the nodes on the bus
     bus_config: List[CanBusConfig]  # List of bus configurations, multiple buses supported
-    msgs: Dict[
-        int, CanMessage
-    ]  # All messages being sent to the bus (dict of (ID to message)
     shared_enums: List[CanEnum]  # Enums used by all nodes
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
+    msgs: Dict[
+        int, CanMessage
+    ]  # All messages being sent to the bus (dict of (ID to message)
+
+    pd_msgs: pd.DataFrame 
+
+
+    def canMessage_to_pdR
+
+
+
+    
 
     
