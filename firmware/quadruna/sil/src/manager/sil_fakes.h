@@ -5,7 +5,8 @@
 #define SIL_FAKES_SET_TOPIC ("fakes_set")
 
 // Set the return value of an io-level fake on a given board.
-void _sil_fakes_set_tx(zsock_t *socket, char *boardName, char *fnName, void *retPointer, size_t retSize);
+// Returns -1 on failure (forwards zsock_send).
+int _sil_fakes_set_tx(zsock_t *socket, char *boardName, char *fnName, void *retPointer, size_t retSize);
 
 // Set the return value of an io-level fake on a given board.
 // Macro to automatically find the size of retPointer, assumes that retPointer is deref-able.
