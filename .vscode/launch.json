@@ -431,6 +431,24 @@
       "osx": {
         "MIMode": "lldb"
       }
+    },
+    {
+      "name": "Run SIL (Quadruna)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_sil/firmware/quadruna/sil/quadruna_sil",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build SIL (Quadruna)",
+      "logging": {
+        "moduleLoad": false,
+        "exceptions": false,
+      },
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
     }
   ]
 }

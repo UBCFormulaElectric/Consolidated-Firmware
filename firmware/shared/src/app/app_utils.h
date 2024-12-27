@@ -13,7 +13,6 @@
 #ifndef MAX
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
-
 #define MIN3(x, y, z) (MIN(MIN((x), (y)), (z)))
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 #define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
