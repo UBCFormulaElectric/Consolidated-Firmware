@@ -90,17 +90,15 @@ if ("${TARGET}" STREQUAL "binary")
 
     # JSONCAN
     # JSONCAN
-    jsoncan_embedded_library(RSM quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(RSM quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
             "quintuna_RSM_app.elf"
             "quintuna_RSM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_RSM_jsoncan" PRIVATE "quintuna_RSM_stm32cube")
     target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "debug_modules")
     target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
 
