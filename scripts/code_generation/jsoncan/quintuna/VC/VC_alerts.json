@@ -1,14 +1,20 @@
 {
-    "warnings_id": 601,
-    "faults_id": 602,
-    "warnings_counts_id": 603,
-    "faults_counts_id": 604,
-    "warnings": {
-    },
-    "faults": {
-        "DummyFault": {
-            "id": 600,
-            "description": "Dummy Fault"
-        }
+  "warnings_id": 601,
+  "faults_id": 602,
+  "warnings_counts_id": 603,
+  "faults_counts_id": 604,
+  "warnings": [
+    {
+      "name": "DummyWarning",
+      "id": 500,
+      "description": "Dummy Warning"
     }
+  ],
+  "faults": [
+    {
+      "name": "DummyFault",
+      "id": 600,
+      "description": "Dummy Fault"
+    }
+  ]
 }

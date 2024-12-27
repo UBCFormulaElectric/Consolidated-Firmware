@@ -2,15 +2,15 @@
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
 
-from dataclasses import dataclass
-from typing import List, Union, Dict
 import logging
+from dataclasses import dataclass
+from typing import Dict, List, Union
+
+import pandas as pd
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
 from .utils import bits_for_uint, bits_to_bytes, is_int
-
-import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ class CanEnum:
 
     name: str
     items: Dict[int, str]  # Dict of enum value to enum item name
+
 
     def max_val(self) -> int:
         """
@@ -43,6 +44,9 @@ class CanEnum:
         Number of bits needed to store this value table.
         """
         return bits_for_uint(self.max_val())
+    
+    def __hash__(self):
+        return hash(self.name)
 
 
 class CanSignalDatatype(StrEnum):
@@ -219,7 +223,22 @@ class CanDatabase:
     pd_msgs: pd.DataFrame 
 
 
-    def canMessage_to_pdR
+    def canMessage_to_pdRow(self, msg: CanMessage):
+        """
+        Convert a CanMessage to a pandas row
+        """
+        return {
+            "name": msg.name,
+            "id": msg.id,
+            "description": msg.description,
+            "cycle_time": msg.cycle_time,
+            "tx_node": msg.tx_node,
+            "rx_nodes": msg.rx_nodes,
+            "modes": msg.modes,
+            "log_cycle_time": msg.log_cycle_time,
+            "telem_cycle_time": msg.telem_cycle_time,
+            "signals": msg.signals
+        }
 
 
 

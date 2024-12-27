@@ -1,7 +1,8 @@
+import json
 import os
 import logging
 from math import ceil
-from typing import Union
+from typing import Dict, Union
 import re
 
 BYTE_SIZE = 8
@@ -90,3 +91,14 @@ def pascal_to_snake_case(text: str) -> str:
 
 def pascal_to_screaming_snake_case(text: str) -> str:
     return pascal_to_snake_case(text).upper()
+
+def load_json_file(file_path: str) -> Dict:
+        """
+        Load an individual JSON file from specified path.
+        """
+        with open(f"{file_path}.json") as file:
+            try:
+                data = json.load(file)
+                return data
+            except json.JSONDecodeError:
+                raise Exception(f"Invalid JSON file: {file_path}.json")
