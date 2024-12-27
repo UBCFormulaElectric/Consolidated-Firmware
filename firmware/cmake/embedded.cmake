@@ -142,6 +142,30 @@ function(embedded_library
     )
 endfunction()
 
+function(embedded_interface_library
+        LIB_NAME
+        LIB_SRCS
+        LIB_INCLUDE_DIRS
+        THIRD_PARTY
+)
+    add_library(${LIB_NAME} INTERFACE)
+    target_sources(${LIB_NAME} INTERFACE ${LIB_SRCS})
+
+    IF (${THIRD_PARTY})
+        # Suppress header file warnings for third-party code by marking them as system includes.
+        target_include_directories(${LIB_NAME} SYSTEM
+                INTERFACE
+                ${LIB_INCLUDE_DIRS}
+        )
+        set_source_files_properties(
+                ${LIB_SRCS}
+                PROPERTIES COMPILE_FLAGS "-w"
+        )
+    ELSE ()
+        target_include_directories(${LIB_NAME} INTERFACE ${LIB_INCLUDE_DIRS})
+    ENDIF ()
+endfunction()
+
 message("  🔃 Registered embedded_binary() function")
 # Generate an embedded binary target, a hex file, and an optional assembly file.
 function(embedded_binary

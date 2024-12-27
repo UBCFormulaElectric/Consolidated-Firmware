@@ -129,15 +129,14 @@ function(stm32f412rx_cube_library
         )
     endif()
 
-    embedded_library(
+    embedded_interface_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
             "${STM32CUBE_INCLUDE_DIRS}"
-            "cm4"
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            PUBLIC
+            INTERFACE
             USE_HAL_DRIVER
             STM32F412Rx
     )
@@ -224,15 +223,14 @@ function(stm32h733xx_cube_library
         )
     endif()
 
-    embedded_library(
+    embedded_interface_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
             "${STM32CUBE_INCLUDE_DIRS}"
-            "cm7"
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            PUBLIC
+            INTERFACE
             USE_HAL_DRIVER
             STM32H733xx
             CANFD

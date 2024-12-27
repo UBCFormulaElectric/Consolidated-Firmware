@@ -114,6 +114,5 @@ if ("${TARGET}" STREQUAL "binary")
         "quintuna_VC_boot.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_boot.hex"
     )
-    
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
