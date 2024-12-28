@@ -5,7 +5,7 @@
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 
-HeartbeatMonitorBoard boards[4] = {
+static const HeartbeatMonitorBoard boards[4] = {
     // bms
     { .getter       = app_canRx_BMS_Heartbeat_get,
       .resetter     = app_canRx_BMS_Heartbeat_update,
@@ -32,7 +32,7 @@ HeartbeatMonitorBoard boards[4] = {
       .timeout_ms   = 200 }
 };
 
-HeartbeatMonitor VC_heartbeat_monitor = { .boards           = boards,
-                                          .board_count      = 4,
-                                          .block_faults     = false,
-                                          .self_heartbeater = app_canTx_VC_Heartbeat_set };
+const HeartbeatMonitor VC_heartbeat_monitor = { .boards           = boards,
+                                                .board_count      = 4,
+                                                .block_faults     = false,
+                                                .self_heartbeater = app_canTx_VC_Heartbeat_set };

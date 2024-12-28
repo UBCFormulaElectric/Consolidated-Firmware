@@ -11,6 +11,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
         "${SHARED_APP_INCLUDE_DIR}/app_math.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitorBoard.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
 )
