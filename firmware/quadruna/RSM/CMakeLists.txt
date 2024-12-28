@@ -110,17 +110,15 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(RSM quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(RSM quadruna ${CMAKE_CURRENT_BINARY_DIR})
 
     # CommitInfo
     commit_info_library(
             "quadruna_RSM_app.elf"
             "quadruna_RSM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_RSM_jsoncan" PRIVATE "quadruna_RSM_stm32cube")
     target_link_libraries("quadruna_RSM_app.elf" PRIVATE "quadruna_RSM_stm32cube" "quadruna_RSM_jsoncan" "quadruna_RSM_commit_info" "debug_modules" "m")
     target_link_libraries("quadruna_RSM_boot.elf" PRIVATE "quadruna_RSM_commit_info")
 

@@ -29,42 +29,39 @@ function(commit_info_library
     BIND_TARGET
     LIB_NAME
     OUTPUT_PATH
-    ARM_CORE
 )
     commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
     IF("${TARGET}" STREQUAL "binary")
-        embedded_library(
+        embedded_interface_library(
             "${LIB_NAME}"
             "${COMMIT_INFO_SRC}"
             "${COMMIT_INFO_INCLUDE_DIR}"
-            "${ARM_CORE}"
             FALSE
         )
-        target_include_directories("${LIB_NAME}" PUBLIC "${COMMIT_INFO_INCLUDE_DIR}")
     ELSEIF("${TARGET}" STREQUAL "test")
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
+        # TODO make this an interface library as well
         add_library(
-            "${LIB_NAME}" STATIC
+            "${LIB_NAME}" INTERFACE
             "${COMMIT_INFO_SRC}"
         )
-        target_include_directories("${LIB_NAME}" PUBLIC "${HEADER_DIR}")
+        target_include_directories("${LIB_NAME}" INTERFACE "${HEADER_DIR}")
     ENDIF()
 endfunction()
 
 # Generates library ${CAR}_${BOARD}_jsoncan
 message("  🔃 Registered jsoncan_library() function")
-function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR ARM_CORE)
+function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
     jsoncan_sources(
             ${BOARD}
             ${JSONCAN_DIR}
             TRUE
             ${CAR}
     )
-    embedded_library(
+    embedded_interface_library(
             "${CAR}_${BOARD}_jsoncan"
             "${CAN_SRCS}"
             "${CAN_INCLUDE_DIRS}"
-            "${ARM_CORE}"
             TRUE
     )
 endfunction()

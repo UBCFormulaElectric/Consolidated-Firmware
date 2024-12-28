@@ -110,17 +110,15 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(CRIT quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(CRIT quadruna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
             "quadruna_CRIT_app.elf"
             "quadruna_CRIT_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_CRIT_jsoncan" PRIVATE "quadruna_CRIT_stm32cube")
     target_link_libraries("quadruna_CRIT_app.elf" PRIVATE "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quadruna_CRIT_boot.elf" PRIVATE "quadruna_CRIT_commit_info")
 
