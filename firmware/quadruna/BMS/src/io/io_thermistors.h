@@ -10,10 +10,10 @@
 
 typedef struct
 {
-    const Gpio       mux_0_gpio;
-    const Gpio       mux_1_gpio;
-    const Gpio       mux_2_gpio;
-    const Gpio       mux_3_gpio;
+    const Gpio        mux_0_gpio;
+    const Gpio        mux_1_gpio;
+    const Gpio        mux_2_gpio;
+    const Gpio        mux_3_gpio;
     const AdcChannel *thermistor_adc_channel;
 } ThermistorsConfig;
 #else

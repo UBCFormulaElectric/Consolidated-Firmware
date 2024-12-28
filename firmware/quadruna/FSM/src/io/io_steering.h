@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    const AdcChannel* steering;
+    const AdcChannel *steering;
 } SteeringConfig;
 
 #else

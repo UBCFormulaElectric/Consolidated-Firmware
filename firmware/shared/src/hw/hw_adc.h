@@ -11,7 +11,7 @@ typedef struct
     uint16_t *raw_adc_values;
     float    *adc_voltages;
     uint16_t  channel_count;
-    bool is_differential;
+    bool      is_differential;
 } AdcChip;
 
 /**
@@ -36,7 +36,7 @@ float *hw_adcchip_getChannel(const AdcChip *adc_c, uint32_t channel);
 
 typedef struct
 {
-    float* voltage;
+    float *voltage;
 } AdcChannel;
 
 /**
@@ -44,4 +44,4 @@ typedef struct
  * @param c channel in question
  * @return The voltage measured at the specified ADC channel, in volts.
  */
-float hw_adc_getVoltage(const AdcChannel* c);
+float hw_adc_getVoltage(const AdcChannel *c);

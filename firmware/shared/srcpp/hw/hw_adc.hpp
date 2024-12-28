@@ -13,7 +13,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 {
     static constexpr float SINGLE_ENDED_ADC_V_SCALE = 3.3f;
     static constexpr float DIFFERENTIAL_ADC_V_SCALE = 6.6f;
-    float rawAdcValueToVoltage(bool is_differential, uint16_t raw_adc_value) const
+    float                  rawAdcValueToVoltage(bool is_differential, uint16_t raw_adc_value) const
     {
         uint16_t full_scale;
         switch (hadc->Init.Resolution)
@@ -56,12 +56,13 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 
   private:
     ADC_HandleTypeDef *const                       hadc;
-    TIM_HandleTypeDef* const htim;
-    mutable std::array<float, NUM_ADC_CHANNELS> adc_voltages;
+    TIM_HandleTypeDef *const                       htim;
+    mutable std::array<float, NUM_ADC_CHANNELS>    adc_voltages;
     mutable std::array<uint16_t, NUM_ADC_CHANNELS> raw_adc_values;
 
   public:
-    explicit AdcChip(ADC_HandleTypeDef *const in_hadc, TIM_HandleTypeDef* const in_htim) : hadc(in_hadc), htim(in_htim){};
+    explicit AdcChip(ADC_HandleTypeDef *const in_hadc, TIM_HandleTypeDef *const in_htim)
+      : hadc(in_hadc), htim(in_htim){};
 
     void init() const
     {

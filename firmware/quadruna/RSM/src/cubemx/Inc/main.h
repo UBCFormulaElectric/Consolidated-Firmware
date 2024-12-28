@@ -37,11 +37,11 @@ extern "C"
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
-    extern ADC_HandleTypeDef hadc1;
-    extern DMA_HandleTypeDef hdma_adc1;
-    extern CAN_HandleTypeDef hcan1;
+    extern ADC_HandleTypeDef  hadc1;
+    extern DMA_HandleTypeDef  hdma_adc1;
+    extern CAN_HandleTypeDef  hcan1;
     extern IWDG_HandleTypeDef hiwdg;
-    extern TIM_HandleTypeDef htim3;
+    extern TIM_HandleTypeDef  htim3;
     extern UART_HandleTypeDef huart1;
     /* USER CODE END ET */
 
