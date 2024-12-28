@@ -35,18 +35,14 @@ float app_tractiveSystem_getCurrent(void)
     const float low_res_current  = io_tractiveSystem_getCurrentLowResolution();
     const float high_res_current = io_tractiveSystem_getCurrentHighResolution();
 
-    float current = 0.0f;
-
     if (IS_IN_RANGE(-HIGH_RES_MAX_CURRENT_READING, HIGH_RES_MAX_CURRENT_READING, low_res_current))
     {
-        current = high_res_current;
+        return high_res_current;
     }
     else
     {
-        current = low_res_current;
+        return low_res_current;
     }
-
-    return current;
 }
 
 float app_tractiveSystem_getFilteredCurrent(void)
