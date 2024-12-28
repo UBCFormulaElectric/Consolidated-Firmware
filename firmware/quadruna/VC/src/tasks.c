@@ -5,13 +5,11 @@
 
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
-#include "app_heartbeatMonitor.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
 #include "app_commitInfo.h"
-#include "app_powerManager.h"
 #include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
@@ -337,7 +335,6 @@ void tasks_init(void)
     app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
     app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!sd_card_present);
 
-    app_heartbeatMonitor_init(false);
     app_stateMachine_init(app_initState_get());
     io_telemMessage_init(&modem);
 
