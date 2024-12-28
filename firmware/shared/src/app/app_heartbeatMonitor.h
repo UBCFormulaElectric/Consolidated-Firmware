@@ -1,13 +1,13 @@
 #pragma once
 #include <stdbool.h>
-#include "app_heartbeatMonitorBoard.h"
+#include "app_heartbeatBoard.h"
 
 typedef struct
 {
-    HeartbeatMonitorBoard *boards;
+    HeartbeatBoard *boards;
     uint8_t                board_count;
     bool                   block_faults;
-    void (*self_heartbeater)(bool);
+    void (*own_heartbeat)(bool);
 } HeartbeatMonitor;
 
 void app_heartbeatMonitor_checkIn(const HeartbeatMonitor *hbm);

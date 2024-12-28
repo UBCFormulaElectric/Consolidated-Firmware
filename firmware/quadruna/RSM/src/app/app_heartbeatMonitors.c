@@ -4,7 +4,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 
-static HeartbeatMonitorBoard boards[3] = {
+static HeartbeatBoard heartbeat_boards[3] = {
     // bms
     { .getter       = app_canRx_BMS_Heartbeat_get,
       .resetter     = app_canRx_BMS_Heartbeat_update,
@@ -25,7 +25,7 @@ static HeartbeatMonitorBoard boards[3] = {
       .timeout_ms   = 200 }
 };
 
-const HeartbeatMonitor RSM_heartbeat_monitor = { .boards           = boards,
+const HeartbeatMonitor hb_monitor = { .boards           = heartbeat_boards,
                                                  .board_count      = 3,
                                                  .block_faults     = false,
-                                                 .self_heartbeater = app_canTx_RSM_Heartbeat_set };
+                                                 .own_heartbeat = app_canTx_RSM_Heartbeat_set };

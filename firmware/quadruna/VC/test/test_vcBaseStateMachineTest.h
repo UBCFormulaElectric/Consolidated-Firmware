@@ -88,7 +88,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_BMS_State_update(BMS_DRIVE_STATE);
         app_canRx_FSM_BrakeActuated_update(true);
         SetInitialState(app_driveState_get());
-        app_heartbeatMonitor_clearFaults(&VC_heartbeat_monitor);
+        app_heartbeatMonitor_clearFaults(&hb_monitor);
     }
 
     // configs for efuse messages over can

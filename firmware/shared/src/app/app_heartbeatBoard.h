@@ -32,28 +32,28 @@ typedef struct
     void (*const fault_setter)(bool);
     // fault getters for each board's heartbeat from this board
     bool (*const fault_getter)(void);
-} HeartbeatMonitorBoard;
+} HeartbeatBoard;
 
-void app_heartbeatMonitorBoard_init(HeartbeatMonitorBoard *hb);
+void app_heartbeatBoard_init(HeartbeatBoard *hb);
 
 /**
  * Populates heartbeats_checked_in
  */
-void app_heartbeatMonitorBoard_checkIn(HeartbeatMonitorBoard *hb);
+void app_heartbeatBoard_checkIn(HeartbeatBoard *hb);
 
 /**
  * Gets state to broadcast via can, and can callbacks to use to broadcast
  */
-void app_heartbeatMonitorBoard_broadcastFaults(const HeartbeatMonitorBoard *hb);
+void app_heartbeatBoard_broadcastFaults(const HeartbeatBoard *hb);
 
 /**
  * @return Whether the heartbeat monitor for the current board has detected any fault
  */
-bool app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(const HeartbeatMonitorBoard *hb);
+bool app_heartbeatBoard_isSendingMissingHeartbeatFault(const HeartbeatBoard *hb);
 
 #ifdef TARGET_TEST
 /**
  * Resets faults as to report as false, useful for test environments
  */
-void app_heartbeatMonitorBoard_clearFaults(const HeartbeatMonitorBoard *hb);
+void app_heartbeatBoard_clearFaults(const HeartbeatMonitorBoard *hb);
 #endif

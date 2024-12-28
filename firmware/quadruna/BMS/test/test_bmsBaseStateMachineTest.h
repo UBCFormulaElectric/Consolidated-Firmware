@@ -49,7 +49,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
-        app_heartbeatMonitor_blockFaults(&BMS_heartbeat_monitor, true);
+        app_heartbeatMonitor_blockFaults(&hb_monitor, true);
 
         app_accumulator_init();
         app_tractiveSystem_init();

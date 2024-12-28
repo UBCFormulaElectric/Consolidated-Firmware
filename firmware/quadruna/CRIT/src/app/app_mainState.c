@@ -13,8 +13,8 @@ static void mainStateRunOnTick100Hz(void)
 
     app_shdnLoop_broadcast();
 
-    app_heartbeatMonitor_checkIn(&CRIT_heartbeat_monitor);
-    app_heartbeatMonitor_broadcastFaults(&CRIT_heartbeat_monitor);
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 }
 
 static void mainStateRunOnEntry(void) {}

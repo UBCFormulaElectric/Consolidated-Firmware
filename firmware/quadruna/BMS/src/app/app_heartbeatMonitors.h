@@ -2,4 +2,4 @@
 
 #include "app_heartbeatMonitor.h"
 
-extern HeartbeatMonitor BMS_heartbeat_monitor;
+extern HeartbeatMonitor hb_monitor;

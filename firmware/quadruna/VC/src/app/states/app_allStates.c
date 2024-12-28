@@ -50,12 +50,12 @@ void app_allStates_runOnTick100Hz(void)
         app_canTx_VC_ImuAccelerationZ_set(lin_accel_z);
     }
 
-    app_heartbeatMonitor_checkIn(&VC_heartbeat_monitor);
+    app_heartbeatMonitor_checkIn(&hb_monitor);
 
     if (heartbeat_cycles <= IGNORE_HEARTBEAT_CYCLES) // TODO make this part of the heartbeat monitor
         heartbeat_cycles++;
     else
-        app_heartbeatMonitor_broadcastFaults(&VC_heartbeat_monitor);
+        app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     io_sbgEllipse_handleLogs();
     app_sbgEllipse_broadcast();

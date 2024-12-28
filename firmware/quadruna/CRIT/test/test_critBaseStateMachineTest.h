@@ -31,11 +31,11 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
-        app_heartbeatMonitor_blockFaults(&CRIT_heartbeat_monitor, true);
+        app_heartbeatMonitor_blockFaults(&hb_monitor, true);
 
         app_stateMachine_init(app_mainState_get());
 
-        app_heartbeatMonitor_clearFaults(&CRIT_heartbeat_monitor);
+        app_heartbeatMonitor_clearFaults(&hb_monitor);
     }
 
     void TearDown() override

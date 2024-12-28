@@ -2,4 +2,4 @@
 
 #include "app_heartbeatMonitor.h"
 
-extern const HeartbeatMonitor RSM_heartbeat_monitor;
+extern const HeartbeatMonitor hb_monitor;
