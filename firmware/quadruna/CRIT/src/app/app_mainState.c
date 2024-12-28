@@ -3,7 +3,7 @@
 #include "app_shdnLoop.h"
 #include "app_leds.h"
 #include "app_switches.h"
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
@@ -13,8 +13,8 @@ static void mainStateRunOnTick100Hz(void)
 
     app_shdnLoop_broadcast();
 
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitor_checkIn(&CRIT_heartbeat_monitor);
+    app_heartbeatMonitor_broadcastFaults(&CRIT_heartbeat_monitor);
 }
 
 static void mainStateRunOnEntry(void) {}

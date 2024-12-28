@@ -154,8 +154,6 @@ void tasks_init(void)
     io_brake_light_init(&brake_light);
     app_coolant_init();
 
-    app_heartbeatMonitor_init(false);
-
     app_stateMachine_init(app_mainState_get());
 
     app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);

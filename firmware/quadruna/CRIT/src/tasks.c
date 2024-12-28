@@ -392,8 +392,6 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_heartbeatMonitor_init(false);
-
     app_stateMachine_init(app_mainState_get());
 
     // broadcast commit info
