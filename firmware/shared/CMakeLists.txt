@@ -1,6 +1,6 @@
 IF("${TARGET}" STREQUAL "test")
     # fakelib
-    set(HDRS_TO_FAKE
+    list(APPEND HDRS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${SHARED_IO_INCLUDE_DIR}/io_led.h"
             "${SHARED_IO_INCLUDE_DIR}/io_switch.h"
