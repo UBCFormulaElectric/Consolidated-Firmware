@@ -1,3 +1,6 @@
+message("")
+message("⚙️ Configuring Shared")
+
 IF("${TARGET}" STREQUAL "test")
     # fakelib
     list(APPEND HDRS_TO_FAKE
