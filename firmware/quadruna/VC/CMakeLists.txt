@@ -194,4 +194,7 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quadruna_VC_test" "quadruna_VC_jsoncan" "quadruna_VC_fakes" "shared_fakes")
+
+    get_target_property(OUT "quadruna_VC_test" INCLUDE_DIRECTORIES)
+    message(${OUT})
 ENDIF ()
