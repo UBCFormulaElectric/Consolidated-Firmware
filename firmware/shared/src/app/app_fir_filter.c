@@ -11,11 +11,7 @@ void app_fir_filter_init(AppFIRFilter *filter, uint16_t window_size, const float
     // Initialize the buffer and variables
     for (uint16_t i = 0; i < APP_FIR_FILTER_MAX_SIZE; i++)
     {
-        filter->samples[i] = 0.0f;
-        if (i < window_size)
-        {
-            filter->coefficients[i] = coefficients[i];
-        }
+        filter->coefficients[i] = i < window_size ? coefficients[i] : 0.0f;
     }
 
     filter->index       = 0;
