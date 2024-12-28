@@ -7,7 +7,6 @@
 #include "fake_io_sbgEllipse.hpp"
 #include "fake_io_pcm.hpp"
 
-
 extern "C"
 {
 #include "app_canTx.h"
