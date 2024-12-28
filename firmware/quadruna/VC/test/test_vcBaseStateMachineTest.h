@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "test_baseStateMachineTest.h"
 
-#include "fake_io_time.hpp"
 #include "fake_io_lowVoltageBattery.hpp"
 #include "fake_io_efuse.hpp"
 #include "fake_io_sbgEllipse.hpp"
