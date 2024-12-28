@@ -24,5 +24,5 @@ runs:
     - name: Build
       shell: bash
       run: |
-        cmake -B ${{ inputs.build_dir }} -DPLATFORM=firmware -DTARGET=deploy -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-        xvfb-run make --directory=${{ inputs.build_dir }} -j`nproc` ${{ inputs.board }}.hex
+        cmake --preset "FW Deploy CI" -B ${{ inputs.build_dir }}
+        xvfb-run cmake --build ${{ inputs.build_dir }} --target ${{ inputs.board }}.hex

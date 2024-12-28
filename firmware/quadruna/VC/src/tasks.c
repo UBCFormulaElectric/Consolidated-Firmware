@@ -12,8 +12,6 @@
 #include "app_canDataCapture.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
-#include "app_efuse.h"
-#include "app_shdnLoop.h"
 #include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
@@ -63,6 +61,7 @@ static void canRxCallback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
 
+    // Log the message if it needs to be logged
     if (sd_card_present && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
     {
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
@@ -205,13 +204,6 @@ static const VcShdnConfig shutdown_config = { .tsms_gpio                   = &ts
                                               .RE_stop_gpio                = &r_shdn_sns,
                                               .splitter_box_interlock_gpio = &sb_ilck_shdn_sns };
 
-static const BoardShdnNode vc_shdn_nodes[VC_SHDN_NODE_COUNT] = {
-    { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
-    { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
-    { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
-    { io_vcShdn_SplitterBoxInterlockFault_get, &app_canTx_VC_SplitterBoxInterlockOKStatus_set },
-};
-
 static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,
                                                    .ltc3786_boost_fault_gpio  = pgood,
                                                    .vbat_vsense_adc_channel   = id_to_adc[VC_AdcNetName_VBAT_SENSE],
@@ -264,27 +256,6 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
 
 static const PcmConfig pcm_config = { .pcm_gpio = &npcm_en };
 
-static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
-    [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
-    [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvStatus_set,
-    [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpStatus_set,
-    [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxStatus_set,
-    [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRStatus_set,
-    [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLStatus_set,
-    [EFUSE_CHANNEL_TELEM]  = NULL,
-    [EFUSE_CHANNEL_BUZZER] = NULL,
-};
-
-static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
-    [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnCurrent_set,
-    [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvCurrent_set,
-    [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpCurrent_set,
-    [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxCurrent_set,
-    [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRCurrent_set,
-    [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLCurrent_set,
-    [EFUSE_CHANNEL_TELEM]  = NULL,
-    [EFUSE_CHANNEL_BUZZER] = NULL,
-};
 static const UART  debug_uart    = { .handle = &huart7 };
 static const UART  sbg_uart      = { .handle = &huart2 };
 static const UART  modem2G4_uart = { .handle = &huart3 };
@@ -318,7 +289,7 @@ void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
-    SEGGER_SYSVIEW_Conf();
+    SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
     LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
@@ -345,15 +316,15 @@ void tasks_init(void)
     io_efuse_init(efuse_configs);
     io_pcm_init(&pcm_config);
 
-    // Comment out for now, not using sbg
-    // if (!io_sbgEllipse_init(&sbg_uart))
-    // {
-    //     Error_Handler();
-    // }
-
+    if (!io_sbgEllipse_init(&sbg_uart))
+    {
+        app_canAlerts_VC_Warning_SbgInitFailed_set(true);
+        LOG_INFO("Sbg initialization failed");
+    }
     if (!io_imu_init())
     {
         app_canAlerts_VC_Warning_ImuInitFailed_set(true);
+        LOG_INFO("Imu initialization failed");
     }
 
     app_canTx_init();
@@ -367,15 +338,12 @@ void tasks_init(void)
     app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!sd_card_present);
 
     app_heartbeatMonitor_init(false);
-    app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
     io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    app_shdnLoop_init(vc_shdn_nodes, VC_SHDN_NODE_COUNT);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
-    app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);

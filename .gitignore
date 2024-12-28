@@ -57,9 +57,9 @@
 *.ini
 
 # Python
+*.pyd
 *.pyc
 __pycache__
-Pipfile.lock
 *.egg-info
 
 # Other files
@@ -138,6 +138,8 @@ can_bus/**/*.dbc
 # CMake build directories
 build_fw_deploy
 build_fw_deploy_wsl
+build_fw_dev
+build_fw_dev_wsl
 build_fw_test
 build_fw_test_wsl
 
@@ -150,5 +152,4 @@ environment/bin
 CMakeUserPresets.json
 build
 
-zadig.exe
 /can_bus/**/*.plt

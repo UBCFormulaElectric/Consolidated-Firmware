@@ -24,7 +24,6 @@ extern "C"
 #include "states/app_inverterOnState.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
-#include "app_globals.h"
 #include "app_faultCheck.h"
 #include "app_regen.h"
 }
@@ -47,8 +46,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(true);
         // app_globals_init(&globals_config);
 
-        app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
-
         // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
 
@@ -58,7 +55,9 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
 
         fake_io_sbgEllipse_getImuAccelerations_returns(&fake_sensor_data.imu_data.acceleration);
         fake_io_sbgEllipse_getImuAngularVelocities_returns(&fake_sensor_data.imu_data.angular_velocity);
-        fake_io_sbgEllipse_getEulerAngles_returns(&fake_sensor_data.euler_data.euler_angles);
+        fake_io_sbgEllipse_getEkfEulerAngles_returns(&fake_sensor_data.ekf_euler_data.euler_angles);
+        fake_io_sbgEllipse_getEkfNavVelocityData_returns(&fake_sensor_data.ekf_nav_data.velocity);
+        fake_io_sbgEllipse_getEkfNavPositionData_returns(&fake_sensor_data.ekf_nav_data.position);
     }
 
     void TearDown() override
@@ -79,7 +78,9 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_pcm_set_reset();
         fake_io_sbgEllipse_getImuAccelerations_reset();
         fake_io_sbgEllipse_getImuAngularVelocities_reset();
-        fake_io_sbgEllipse_getEulerAngles_reset();
+        fake_io_sbgEllipse_getEkfEulerAngles_reset();
+        fake_io_sbgEllipse_getEkfNavVelocityData_reset();
+        fake_io_sbgEllipse_getEkfNavPositionData_reset();
     }
 
     void SetInitialState(const State *const initial_state)
@@ -98,27 +99,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     }
 
     // configs for efuse messages over can
-    void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
-        [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
-        [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvStatus_set,
-        [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpStatus_set,
-        [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxStatus_set,
-        [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRStatus_set,
-        [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLStatus_set,
-        [EFUSE_CHANNEL_TELEM]  = NULL,
-        [EFUSE_CHANNEL_BUZZER] = NULL,
-    };
-
-    void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
-        [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnCurrent_set,
-        [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvCurrent_set,
-        [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpCurrent_set,
-        [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxCurrent_set,
-        [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRCurrent_set,
-        [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLCurrent_set,
-        [EFUSE_CHANNEL_TELEM]  = NULL,
-        [EFUSE_CHANNEL_BUZZER] = NULL,
-    };
     std::vector<const State *> GetAllStates(void)
     {
         return std::vector<const State *>{ app_initState_get(), app_driveState_get() };

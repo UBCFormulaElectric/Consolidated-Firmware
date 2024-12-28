@@ -14,7 +14,6 @@ extern "C"
 #include "app_canUtils.h"
 #include "app_utils.h"
 #include "app_mainState.h"
-#include "app_globals.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -61,10 +60,4 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         fake_io_switches_regen_get_reset();
         fake_io_switches_torquevec_get_reset();
     }
-    // dummy used to initialize shdn_sen_pin
-    const DriveMode drive_mode = {};
-
-    const GlobalsConfig globals_config = {
-        .drive_mode = &drive_mode,
-    };
 };

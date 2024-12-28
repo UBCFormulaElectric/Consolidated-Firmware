@@ -38,21 +38,43 @@ jobs:
         include:
           - board: VC
             ioc_dir: firmware/quadruna/VC/src/cubemx
+            env_version: latest
           - board: BMS
             ioc_dir: firmware/quadruna/BMS/src/cubemx
+            env_version: latest
           - board: FSM
             ioc_dir: firmware/quadruna/FSM/src/cubemx
+            env_version: latest
           - board: RSM
             ioc_dir: firmware/quadruna/RSM/src/cubemx
+            env_version: latest
           - board: CRIT
             ioc_dir: firmware/quadruna/CRIT/src/cubemx
+            env_version: latest
           - board: f4dev
-            ioc_dir: firmware/dev/f4dev/cubemx
+            ioc_dir: firmware/dev/f4dev/src/cubemx
+            env_version: latest
           - board: h7dev
             ioc_dir: firmware/dev/h7dev/src/cubemx
+            env_version: latest
+          #          - board: BMS_Quint
+          #            ioc_dir: firmware/quintuna/BMS/src/cubemx
+          #            env_version: cube_6_12_0
+          - board: CRIT
+            ioc_dir: firmware/quintuna/CRIT/src/cubemx
+            env_version: cube_6_12_0
+          #          - board: FSM_Quint
+          #            ioc_dir: firmware/quintuna/FSM/src/cubemx
+          #            env_version: cube_6_12_0
+          - board: RSM
+            ioc_dir: firmware/quintuna/RSM/src/cubemx
+            env_version: cube_6_12_0
+          - board: VC
+            ioc_dir: firmware/quintuna/VC/src/cubemx
+            env_version: cube_6_12_0
 
     container:
-      image: ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:${{ matrix.env_version }}
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -89,17 +111,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - quadruna_VC
-          - quadruna_BMS
-          - quadruna_FSM
-          - quadruna_RSM
-          - quadruna_CRIT
-          - f4dev
-          - h7dev
+        include:
+          - board: quadruna_VC
+            env_version: latest
+          - board: quadruna_BMS
+            env_version: latest
+          - board: quadruna_FSM
+            env_version: latest
+          - board: quadruna_RSM
+            env_version: latest
+          - board: quadruna_CRIT
+            env_version: latest
+          - board: f4dev
+            env_version: latest
+          - board: h7dev
+            env_version: latest
+          #          - board: quintuna_BMS
+          #            env_version: cube_6_12_0
+          - board: quintuna_CRIT
+            env_version: cube_6_12_0
+          #          - board: quintuna_FSM
+          #            env_version: cube_6_12_0
+          - board: quintuna_RSM
+            env_version: cube_6_12_0
+          - board: quintuna_VC
+            env_version: cube_6_12_0
 
     container:
-      image: ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:${{ matrix.env_version }}
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}
@@ -112,7 +151,7 @@ jobs:
         with:
           board: ${{ matrix.board }}
 
-  test:
+  test-firmware:
     needs: [ clang-format ]
     name: Test Firmware
     runs-on: ubuntu-22.04
@@ -153,8 +192,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.car }}_${{ matrix.board }}_test
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target ${{ matrix.car }}_${{ matrix.board }}_test
 
       - name: Run Tests
         run: |
@@ -187,8 +226,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` shared_test
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target shared_test
 
       - name: Run tests
         run: |
@@ -221,8 +260,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` fakegen_test
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target fakegen_test
 
       - name: Run tests
         run: |
@@ -254,6 +293,6 @@ jobs:
 
       - name: Build and install `logfs`
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` install_python_logfs
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target install_python_logfs
           pytest -v firmware/logfs/test
