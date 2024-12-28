@@ -1,12 +1,10 @@
-[
-  {
-    "name": "VCState",
+{
+  "VCState": {
     "VC_INIT_STATE": 0,
     "VC_INVERTER_ON_STATE": 1,
     "VC_DRIVE_STATE": 2
   },
-  {
-    "name": "ShutdownNode",
+  "ShutdownNode": {
     "SHDN_BSPD_OK": 0,
     "SHDN_BMS_OK": 1,
     "SHDN_IMD_OK": 2,
@@ -21,4 +19,4 @@
     "SHDN_HVD_ILCK": 11,
     "SHDN_OK": 12
   }
-]
+}

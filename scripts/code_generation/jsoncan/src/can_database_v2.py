@@ -9,7 +9,6 @@ from typing import Dict, List, Union
 import pandas as pd
 from strenum import StrEnum
 
-from .json_parsing.schema_validation import AlertsEntry
 from .utils import bits_for_uint, bits_to_bytes, is_int
 
 logger = logging.getLogger(__name__)
@@ -131,6 +130,17 @@ class CanSignal:
     def __str__(self):
         return self.name
 
+@dataclass(frozen=True)
+class CanBusConfig:
+    """
+    Dataclass for holding bus config.
+    """
+
+    default_receiver: str
+    bus_speed: int
+    modes: List[str]
+    default_mode: str
+    name : str
 
 @dataclass(frozen=True)
 class CanMessage:
@@ -173,17 +183,6 @@ class CanMessage:
         return self.cycle_time is not None
 
 
-@dataclass(frozen=True)
-class CanBusConfig:
-    """
-    Dataclass for holding bus config.
-    """
-
-    default_receiver: str
-    bus_speed: int
-    modes: List[str]
-    default_mode: str
-
 
 class CanAlertType(StrEnum):
     """
@@ -193,6 +192,11 @@ class CanAlertType(StrEnum):
     WARNING = "Warning"  # Warnings sent periodically, for notifying driver
     FAULT = "Fault"  # Faults sent periodically, contactors open if a fault is set
 
+
+class AlertsEntry():
+    id: int
+    name: str
+    description: str
 
 @dataclass(frozen=True)
 class CanAlert:

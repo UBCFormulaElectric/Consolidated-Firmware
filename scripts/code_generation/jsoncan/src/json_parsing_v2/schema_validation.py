@@ -1,14 +1,11 @@
 # logic for validate json 
-from scripts.code_generation.jsoncan.src.can_database_v2 import (CanBusConfig,
-                                                                 CanEnum)
-
 from ..utils import load_json_file
 
 """
 Functions to validate the CAN JSON schema.
 """
 
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, Union
 
 from schema import And, Optional, Or, Schema
 
@@ -107,6 +104,11 @@ rx_schema = Schema({"messages": [str]})
 """
 Enum file schema
 """
+
+class EnumEntry(TypedDict):
+    name: str
+    value: int
+
 enum_schema = Schema(Or({str: {str: int}}, {}))  # If the node doesn"t define any enums
 
 """
@@ -119,21 +121,27 @@ class BusJson(TypedDict):
     bus_speed: int
     modes: list[str]
     default_mode: str
+    name : str
 
 
-bus_single_schema = Schema(
-    {"default_receiver": str, "bus_speed": And(int, lambda x:x>0), "modes": [str], "default_mode": str}
+bus_schema = Or(
+    [
+        {
+            "name": str,
+            "default_receiver": str,
+            "bus_speed": And(int, lambda x: x > 0),  # Ensures bus_speed is a positive integer
+            "modes": [str],  # Use `list` instead of `typing.List`
+            "default_mode": str,
+        }
+    ],
+    [],  # Allow an empty list as a valid input
 )
-bus_schema = Schema(Or([bus_single_schema], []))
 
 """
 Alerts file schema
 """
 
 
-class AlertsEntry(TypedDict):
-    id: int
-    description: str
 
 
 class AlertsJson(TypedDict):
@@ -220,8 +228,47 @@ def check_repeat_names(signals_json: List[Dict]) -> bool:
 
 # dynamic validation of json
 
+
+# validate bus config
+def dynamic_validate_bus(bus_json: List[Dict]) -> bool:
+    # check if bus speed is valid
+    if not check_repeat_names(bus_json):
+        return False
+    
+    for bus in bus_json:
+        modes = bus["modes"]
+        default_mode = bus["default_mode"]
+
+        if default_mode not in modes:
+            return False
+     
+    return True
+
+
+def dynamic_validate_enum(enum_json: Dict) -> bool:
+    # no repeated names
+    names = set()
+    for enum_name, enum_entries in enum_json.items():
+        # check duplicate names
+        if enum_name in names:
+            return False
+        set.add(enum_name)
+
+        # check duplicate values and entries names
+        enum_values = set()
+        enum_entries_names = set()
+        for entry_name, entry_value in enum_entries.items():
+            if entry_name in enum_entries_names or entry_value in enum_values:
+                return False
+            enum_values.add(entry_value)
+            enum_entries_names.add(entry_name)
+
+    return True
+
+
+
 # validate signals from one message
-def dynamic_validate_tx_signals(signals_json: Dict, enum : dict[str, CanEnum]) -> bool:
+def dynamic_validate_tx_signals(signals_json: Dict, enum : dict[str, ]) -> bool:
     # no repeated names
     if not check_repeat_names(signals_json):
         return False
@@ -249,7 +296,7 @@ def dynamic_validate_tx_signals(signals_json: Dict, enum : dict[str, CanEnum]) -
 
 
 # validate a single message
-def dynamic_validate_tx_message(tx_message_json, buses: dict[str, CanBusConfig], enum : dict[str, CanEnum]):
+def dynamic_validate_tx_message(tx_message_json, buses: dict[str, BusJson], enum : dict[str, EnumEntry]) -> bool:
     # no repeated names
     if not check_repeat_names(tx_message_json["signals"]):
         return False
@@ -270,17 +317,36 @@ def dynamic_validate_tx_message(tx_message_json, buses: dict[str, CanBusConfig],
     
     return True
 
-# validate bus config
-def dynamic_validate_bus(bus_json: List[Dict]) -> bool:
-    # check if bus speed is valid
-    if not check_repeat_names(bus_json):
-        return False
-    
-    for bus in bus_json:
-        modes = bus["modes"]
-        default_mode = bus["default_mode"]
 
-        if default_mode not in modes:
-            return False
-     
-    return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def validate_bus_json(json: Dict) -> List[BusJson]:
+    data = schema_validate_bus_json(json)
+    if(not dynamic_validate_bus(data)):
+        raise ValueError("Invalid bus config")
+    return data
+
+def validate_enum_json(json: Dict) -> Dict[str, Dict[str, int]]:
+    data = schema_validate_enum_json(json)
+    if(not dynamic_validate_enum(data)):
+        raise ValueError("Invalid enum config")
+    return data
+
+def validate_tx_json(json: Dict, enums:dict[str, EnumEntry], buses:dict[str, BusJson]) -> Dict[str, dict]:
+    data = schema_validate_tx_json(json)
+    for message in data:
+        if not dynamic_validate_tx_message(message, buses, enums):
+            raise ValueError("Invalid message")
+    return data

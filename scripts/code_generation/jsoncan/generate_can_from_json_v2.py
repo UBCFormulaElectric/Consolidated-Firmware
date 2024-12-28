@@ -16,7 +16,7 @@ from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
 from src.codegen.c_generation.io_can_rx_module import IoCanRxModule
 from src.codegen.c_generation.io_can_tx_module import IoCanTxModule
 from src.codegen.dbc_generation.dbc_generation import DbcGenerator
-from src.json_parsing.json_can_parsing import JsonCanParser
+from src.json_parsing_v2.json_can_parsing import JsonCanParser
 from src.utils import write_text
 
 if __name__ == "__main__":
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", help="Path to the output source files")
     parser.add_argument("--dbc_output", help="Path to the DBC file")
     parser.add_argument(
-        "--only_dbc", action="store_true", help="Only generate DBC file"
+        "--only_dbc", action="store_true", help="Only generate DBC file",
     )
     args = parser.parse_args()
 
