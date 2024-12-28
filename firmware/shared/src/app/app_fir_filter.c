@@ -37,7 +37,7 @@ float app_fir_filter_apply(AppFIRFilter *filter, float new_sample)
     float result = 0.0f;
     for (uint16_t i = 0; i < filter->window_size; i++)
     {
-        uint16_t sample_index = (uint16_t)((filter->index + filter->window_size - i) % filter->window_size);
+        const uint16_t sample_index = (uint16_t)((filter->index + filter->window_size - i) % filter->window_size);
         result += filter->samples[sample_index] * filter->coefficients[i];
     }
 
