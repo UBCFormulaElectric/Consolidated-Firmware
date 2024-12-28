@@ -11,7 +11,7 @@ typedef struct
 {
     const Gpio      *enable_gpio;
     const Gpio      *stby_reset_gpio;
-    const AdcChannel cur_sns_adc_channel;
+    const AdcChannel* cur_sns_adc_channel;
 } EfuseConfig;
 #else
 EMPTY_STRUCT(EfuseConfig);

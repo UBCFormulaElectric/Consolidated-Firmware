@@ -12,7 +12,7 @@ typedef struct
     const Gpio       air_p_gpio;
     const Gpio       air_n_gpio;
     const Gpio       precharge_gpio;
-    const AdcChannel loop_isense_channel;
+    const AdcChannel * loop_isense_channel;
 } AirsConfig;
 #else
 EMPTY_STRUCT(AirsConfig);

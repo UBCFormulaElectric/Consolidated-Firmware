@@ -11,9 +11,9 @@ typedef struct
 {
     const Gpio       lt3650_charger_fault_gpio;
     const Gpio       ltc3786_boost_fault_gpio;
-    const AdcChannel vbat_vsense_adc_channel;
-    const AdcChannel boost_vsense_adc_channel;
-    const AdcChannel acc_vsense_adc_channel;
+    const AdcChannel* vbat_vsense_adc_channel;
+    const AdcChannel* boost_vsense_adc_channel;
+    const AdcChannel* acc_vsense_adc_channel;
 } LvBatteryConfig;
 #else
 EMPTY_STRUCT(LvBatteryConfig);

@@ -10,8 +10,8 @@ typedef struct
 {
     const Gpio       bat_fault_gpio;
     const Gpio       acc_fault_gpio;
-    const AdcChannel bat_current_adc;
-    const AdcChannel acc_current_adc;
+    const AdcChannel* bat_current_adc;
+    const AdcChannel* acc_current_adc;
 } CurrentSensingConfig;
 #else
 EMPTY_STRUCT(CurrentSensingConfig);

@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "cmsis_os.h"
 
-#include "hw_adc.h"
+#include "hw_adcs.h"
 
 #include "shared.pb.h"
 #include "VC.pb.h"
@@ -13,8 +13,8 @@
 #define MAX_DEBUG_BUF_SIZE 100
 #define DEBUG_SIZE_MSG_BUF_SIZE 1
 
-extern const Gpio *const id_to_gpio[];
-extern const AdcChannel  id_to_adc[];
+extern const Gpio *const       id_to_gpio[];
+extern const AdcChannel *const id_to_adc[];
 
 static const UART *uart;
 static bool        is_mid_debug_msg;
@@ -58,7 +58,7 @@ static const Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
     }
 }
 
-static AdcChannel io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
+static const AdcChannel *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
 {
     switch (net_name->which_name)
     {
@@ -85,7 +85,7 @@ static AdcChannel io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
         default:
         {
             assert(false);
-            return 0U;
+            return NULL;
         }
     }
 }
@@ -147,8 +147,8 @@ void io_chimera_msgRxCallback(void)
             {
                 // ADC read message.
                 assert(msg.payload.adc.net_name.which_name == net_name_adc);
-                const AdcChannel adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
-                msg.payload.adc.value        = hw_adc_getVoltage(adc_channel);
+                const AdcChannel *adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
+                msg.payload.adc.value         = hw_adc_getVoltage(adc_channel);
                 break;
             }
             default:

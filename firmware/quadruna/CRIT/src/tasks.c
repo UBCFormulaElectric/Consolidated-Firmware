@@ -28,7 +28,7 @@
 #include "app_commitInfo.h"
 // hw
 #include "hw_gpio.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_uart.h"
 #include "hw_utils.h"
 #include "hw_bootup.h"
@@ -36,11 +36,6 @@
 #include "hw_watchdogConfig.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
-
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern UART_HandleTypeDef huart2;
-extern CAN_HandleTypeDef  hcan1;
 
 static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
@@ -324,8 +319,8 @@ const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_NCHIMERA]             = &n_chimera_pin,
 };
 
-const AdcChannel id_to_adc[] = {
-    [CRIT_AdcNetName_REGEN_3V3] = ADC1_IN14_REGEN,
+const AdcChannel *id_to_adc[] = {
+    [CRIT_AdcNetName_REGEN_3V3] = &regen,
 };
 
 static const UART debug_uart = { .handle = &huart2 };
@@ -414,8 +409,7 @@ void tasks_init(void)
     LOG_INFO("VC reset!");
 
     // Start DMA/TIM3 for the ADC.
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    hw_adcs_chipsInit();
 
     io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);
 
