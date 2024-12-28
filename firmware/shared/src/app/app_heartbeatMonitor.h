@@ -18,5 +18,5 @@ bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(const HeartbeatMonitor*
 
 #ifdef TARGET_TEST
 void app_heartbeatMonitor_clearFaults(const HeartbeatMonitor* hbm);
-void app_heartbeatMonitor_blockFaults(bool block_faults);
+void app_heartbeatMonitor_blockFaults(HeartbeatMonitor *hbm, bool block_faults_init);
 #endif

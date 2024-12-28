@@ -23,7 +23,6 @@ function(compile_gtest_executable
     target_compile_options(${TEST_EXECUTABLE_NAME}
         PUBLIC
         -Wall
-        -g3
     )
     target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
@@ -59,14 +58,10 @@ function(create_fake_library
         )
     endforeach()
 
-    add_library(${LIB_NAME} STATIC ${FAKE_SRCS})
-    target_compile_options(${LIB_NAME}
-        PUBLIC
-        -Wall
-        -g3
-    )
+    add_library(${LIB_NAME} INTERFACE)
+    target_sources(${LIB_NAME} INTERFACE ${FAKE_SRCS})
     target_include_directories(${LIB_NAME}
-        PUBLIC
+        INTERFACE
         ${CMAKE_CURRENT_BINARY_DIR}
         ${HDR_DIR}
         ${SHARED_APP_INCLUDE_DIR}

@@ -69,13 +69,13 @@ endfunction()
 function(jsoncan_library BOARD CAR JSONCAN_DIR)
     jsoncan_sources(
             ${BOARD}
-            "${JSONCAN_DIR}"
+            ${JSONCAN_DIR}
             FALSE
             ${CAR}
     )
     add_library(
-            "${CAR}_${BOARD}_jsoncan" STATIC
-            "${CAN_SRCS}"
+            "${CAR}_${BOARD}_jsoncan" INTERFACE
     )
-    target_include_directories("${CAR}_${BOARD}_jsoncan" PUBLIC "${CAN_INCLUDE_DIRS}")
+    target_sources("${CAR}_${BOARD}_jsoncan" INTERFACE ${CAN_SRCS})
+    target_include_directories("${CAR}_${BOARD}_jsoncan" INTERFACE "${CAN_INCLUDE_DIRS}")
 endfunction()
