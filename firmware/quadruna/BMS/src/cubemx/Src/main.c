@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
+#include <assert.h>
 #include "tasks.h"
 #include "hw_gpio.h"
 #include "hw_error.h"

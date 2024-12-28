@@ -118,17 +118,15 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(BMS quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(BMS quadruna ${CMAKE_CURRENT_BINARY_DIR})
 
     # Autogenerate git commit info header/source.
     commit_info_library(
             "quadruna_BMS_app.elf"
             "quadruna_BMS_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_BMS_jsoncan" PRIVATE "quadruna_BMS_stm32cube")
     target_link_libraries("quadruna_BMS_app.elf" PRIVATE "quadruna_BMS_stm32cube" "quadruna_BMS_jsoncan" "quadruna_BMS_commit_info" "debug_modules")
     target_link_libraries("quadruna_BMS_boot.elf" PRIVATE "quadruna_BMS_commit_info")
 
