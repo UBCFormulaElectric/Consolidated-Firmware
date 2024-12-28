@@ -21,7 +21,7 @@ extern "C"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_canUtils.h"
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
 #include "app_stateMachine.h"
 #include "app_utils.h"
 #include "states/app_initState.h"
@@ -50,8 +50,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
-        app_heartbeatMonitor_init(true);
-
         app_accumulator_init();
         app_tractiveSystem_init();
         app_thermistors_init();

@@ -492,7 +492,8 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(false);
         LetTimePass(210U);
-        ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState());
+        ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState())
+            << "Given " << app_stateMachine_getCurrentState()->name << ", expected to be precharge state";
         ASSERT_FALSE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
 
         // 3.8V nominal cell voltage * total # of cells to give estimate of nominal pack voltage

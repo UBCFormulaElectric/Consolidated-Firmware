@@ -4,10 +4,9 @@
 #include "fake_io_time.hpp"
 #include "fake_io_lowVoltageBattery.hpp"
 #include "fake_io_efuse.hpp"
-#include "fake_io_led.hpp"
 #include "fake_io_sbgEllipse.hpp"
 #include "fake_io_pcm.hpp"
-#include "fake_io_canLogging.hpp"
+
 
 extern "C"
 {
@@ -26,6 +25,7 @@ extern "C"
 #include "app_efuse.h"
 #include "app_faultCheck.h"
 #include "app_regen.h"
+#include "app_heartbeatMonitors.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -40,11 +40,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
 
         app_canTx_init();
         app_canRx_init();
-
-        // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
-        // re-enable the heartbeat monitor.
-        app_heartbeatMonitor_init(true);
-        // app_globals_init(&globals_config);
 
         // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
@@ -95,7 +90,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_BMS_State_update(BMS_DRIVE_STATE);
         app_canRx_FSM_BrakeActuated_update(true);
         SetInitialState(app_driveState_get());
-        app_heartbeatMonitor_clearFaults();
+        app_heartbeatMonitor_clearFaults(&VC_heartbeat_monitor);
     }
 
     // configs for efuse messages over can

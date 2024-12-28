@@ -13,7 +13,7 @@ extern "C"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
 #include "app_stateMachine.h"
 #include "app_canUtils.h"
 #include "app_utils.h"
@@ -35,9 +35,6 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_init();
 
         app_coolant_init();
-        // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
-        // re-enable the heartbeat monitor.
-        app_heartbeatMonitor_init(true);
         app_stateMachine_init(app_mainState_get());
     }
 

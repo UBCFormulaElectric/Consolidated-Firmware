@@ -18,7 +18,7 @@ static HeartbeatMonitorBoard boards[1] = {
     }
 };
 
-const HeartbeatMonitor BMS_heartbeat_monitor = { .boards           = boards,
-                                                 .board_count      = 1,
-                                                 .block_faults     = false,
-                                                 .self_heartbeater = app_canTx_BMS_Heartbeat_set };
+HeartbeatMonitor BMS_heartbeat_monitor = { .boards           = boards,
+                                           .board_count      = 1,
+                                           .block_faults     = false,
+                                           .self_heartbeater = app_canTx_BMS_Heartbeat_set };

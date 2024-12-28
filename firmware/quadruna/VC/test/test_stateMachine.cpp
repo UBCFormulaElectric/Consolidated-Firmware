@@ -6,7 +6,7 @@ class VCStateMachineTest : public VcBaseStateMachineTest
     void TestFaultBlocksDrive(const std::function<void(void)> &set_fault, const std::function<void(void)> &clear_fault)
     {
         SetInitialState(app_driveState_get());
-        app_heartbeatMonitor_clearFaults();
+        app_heartbeatMonitor_clearFaults(&VC_heartbeat_monitor);
 
         // Set the CRIT start switch to on, and the BMS to drive state, to prevent state transitions in
         // the drive state.
@@ -46,7 +46,7 @@ TEST_F(VCStateMachineTest, test_SetStateToDrive)
 
 TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
-    app_heartbeatMonitor_clearFaults();
+    app_heartbeatMonitor_clearFaults(&VC_heartbeat_monitor);
 
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
@@ -80,7 +80,7 @@ TEST_F(VCStateMachineTest, check_init_state_is_broadcasted_over_can)
 TEST_F(VCStateMachineTest, check_state_transition_from_init_to_inverter_on)
 {
     SetInitialState(app_initState_get());
-    app_heartbeatMonitor_clearFaults();
+    app_heartbeatMonitor_clearFaults(&VC_heartbeat_monitor);
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(1000);
     EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
@@ -106,7 +106,7 @@ TEST_F(VCStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
 TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
 {
     SetInitialState(app_initState_get());
-    app_heartbeatMonitor_clearFaults();
+    app_heartbeatMonitor_clearFaults(&VC_heartbeat_monitor);
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(1000);
     // Transitioning from init state to inverter on state as inverters have been turned on
@@ -149,7 +149,7 @@ TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_e
     {
         VcBaseStateMachineTest::SetUp();
         SetInitialState(state);
-        app_heartbeatMonitor_clearFaults();
+        app_heartbeatMonitor_clearFaults(&VC_heartbeat_monitor);
 
         if (app_canTx_VC_State_get() == VC_DRIVE_STATE)
         {
