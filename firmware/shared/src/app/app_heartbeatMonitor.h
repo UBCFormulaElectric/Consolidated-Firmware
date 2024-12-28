@@ -4,7 +4,7 @@
 
 typedef struct
 {
-  const HeartbeatMonitorBoard * boards;
+  HeartbeatMonitorBoard * boards;
   uint8_t board_count;
   bool block_faults;
   void (*self_heartbeater)(bool);

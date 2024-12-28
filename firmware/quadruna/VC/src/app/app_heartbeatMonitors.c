@@ -5,7 +5,7 @@
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 
-static const HeartbeatMonitorBoard boards[4] = {
+static HeartbeatMonitorBoard boards[4] = {
     // bms
     { .getter       = app_canRx_BMS_Heartbeat_get,
       .resetter     = app_canRx_BMS_Heartbeat_update,
