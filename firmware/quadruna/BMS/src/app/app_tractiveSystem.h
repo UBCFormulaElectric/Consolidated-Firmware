@@ -21,9 +21,6 @@
 #define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 #define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 
-// Enable or disable filtering for current measurements
-#define APPLY_CURRENT_FILTER (true) // or (false)
-
 /**
  * Init the app tractive system module.
  */
@@ -40,6 +37,12 @@ float app_tractiveSystem_getVoltage(void);
  * @return The current in A
  */
 float app_tractiveSystem_getCurrent(void);
+
+/**
+ * Get the Filtered TS current
+ * @return The filtered current in A
+ */
+float app_tractiveSystem_getFilteredCurrent(void);
 
 /**
  * Broadcast state of the tractive system over CAN.

@@ -5,7 +5,7 @@
 #include "app_timer.h"
 #include "app_fir_filter.h"
 
-#define FILTER_SIZE 16
+#define FILTER_SIZE 8
 static AppFIRFilter current_filter;
 
 TimerChannel overcurrent_fault_timer;
@@ -46,12 +46,15 @@ float app_tractiveSystem_getCurrent(void)
         current = low_res_current;
     }
 
-#if APPLY_CURRENT_FILTER
-    // Apply the FIR filter if enabled
-    current = app_fir_filter_apply(&current_filter, current);
-#endif
-
     return current;
+}
+
+float app_tractiveSystem_getFilteredCurrent(void)
+{
+    float current = app_tractiveSystem_getCurrent();
+
+    // Apply the FIR filter if enabled
+    return app_fir_filter_apply(&current_filter, current);
 }
 
 void app_tractiveSystem_broadcast()
