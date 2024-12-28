@@ -1,9 +1,13 @@
 #include <assert.h>
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_utils.h"
 #include "app_units.h"
 #include "io_sbgEllipse.h"
+#include "app_vehicleDynamicsConstants.h"
+
+static VelocityData app_sbgEllipse_calculateVelocity(void);
 
 void app_sbgEllipse_broadcast()
 {
@@ -21,10 +25,23 @@ void app_sbgEllipse_broadcast()
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    // Velocity EKF
-    const float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
-    const float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
-    const float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+    VcEkfStatus sbgSolutionMode = (VcEkfStatus)io_sbgEllipse_geEkfSolutionMode();
+
+    float ekf_vel_N = 0;
+    float ekf_vel_E = 0;
+    float ekf_vel_D = 0;
+
+    if (sbgSolutionMode != POSITION) {
+        // Wheelspeed Velocity
+        VelocityData velocity = app_sbgEllipse_calculateVelocity();
+
+    // ekf_vel_N = velocity.north;
+    // ekf_vel_E = velocity.east;
+    // ekf_vel_D = velocity.down;
+    // EKF
+    ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
+    ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
+    ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
 
     const float ekf_vel_N_accuracy = io_sbgEllipse_getEkfNavVelocityData()->north_std_dev;
     const float ekf_vel_E_accuracy = io_sbgEllipse_getEkfNavVelocityData()->east_std_dev;
@@ -40,7 +57,14 @@ void app_sbgEllipse_broadcast()
 
     const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
 
-    app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
+    // Check solution mode to determine if calculated or EKF velocity should be used
+    if (sbgSolutionMode != POSITION)
+    {
+        app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
+    } else 
+    {
+        app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
+    }
 
     // Position EKF
     // const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
@@ -59,6 +83,7 @@ void app_sbgEllipse_broadcast()
     // app_canTx_VC_AccelerationVertical_set(vertical_accel);
 
     // Angular velocity msg
+    // Angular velocity msg
     // const float ang_vel_roll  = io_sbgEllipse_getImuAngularVelocities()->roll;
     // const float ang_vel_pitch = io_sbgEllipse_getImuAngularVelocities()->pitch;
     // const float ang_vel_yaw   = io_sbgEllipse_getImuAngularVelocities()->yaw;
@@ -75,4 +100,32 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_EulerAnglesRoll_set(euler_roll);
     app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
+}
+
+static VelocityData app_sbgEllipse_calculateVelocity()
+{
+    // These velocity calculations are not going to be super accurate because it
+    // currently does not compute a proper relative y-axis velocity because no yaw rate 
+
+    float wheelRadius = IN_TO_M * (WHEEL_DIAMETER_IN) / 2.0f; // Wheel radius converted to meters
+
+    const float rightMotorRPM             = (float)-app_canRx_INVR_MotorSpeed_get();
+    const float leftMotorRPM             = (float)app_canRx_INVL_MotorSpeed_get();
+
+    float leftWheelVelocity  = MOTOR_RPM_TO_KMH(leftMotorRPM);
+    float rightWheelVelocity = MOTOR_RPM_TO_KMH(rightMotorRPM);
+
+    float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
+
+    VelocityData velocity;
+
+    // This is technically velocity in the x-axis as it is relative
+    velocity.north = velocityX;
+
+    // This is technically velocity in the y-axis as it is relative
+    velocity.east = 0;
+
+    velocity.down = 0;
+
+    return velocity;
 }

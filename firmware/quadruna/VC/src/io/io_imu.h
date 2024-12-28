@@ -29,3 +29,24 @@ bool io_imu_getLinearAccelerationY(float *y_acceleration);
  * @return if successful read
  */
 bool io_imu_getLinearAccelerationZ(float *z_acceleration);
+
+/**
+ * @brief Gets the angular velocity in the roll direction
+ * @param roll_velocity Pointer to store the roll angular velocity
+ * @return True if the read is successful, false otherwise
+ */
+bool io_imu_getAngularVelocityRoll(float *roll_velocity);
+
+/**
+ * @brief Gets the angular velocity in the pitch direction
+ * @param pitch_velocity Pointer to store the pitch angular velocity
+ * @return True if the read is successful, false otherwise
+ */
+bool io_imu_getAngularVelocityPitch(float *pitch_velocity);
+
+/**
+ * @brief Gets the angular velocity in the yaw direction
+ * @param yaw_velocity Pointer to store the yaw angular velocity
+ * @return True if the read is successful, false otherwise
+ */
+bool io_imu_getAngularVelocityYaw(float *yaw_velocity);
