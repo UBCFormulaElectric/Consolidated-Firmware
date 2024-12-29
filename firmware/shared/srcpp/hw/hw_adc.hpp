@@ -11,11 +11,9 @@ namespace hw
 {
 template <size_t NUM_ADC_CHANNELS> class AdcChip
 {
-    mutable std::array<float, NUM_ADC_CHANNELS> adc_voltages;
-
-#define SINGLE_ENDED_ADC_V_SCALE (3.3f)
-#define DIFFERENTIAL_ADC_V_SCALE (6.6f)
-    float rawAdcValueToVoltage(bool is_differential, uint16_t raw_adc_value) const
+    static constexpr float SINGLE_ENDED_ADC_V_SCALE = 3.3f;
+    static constexpr float DIFFERENTIAL_ADC_V_SCALE = 6.6f;
+    float                  rawAdcValueToVoltage(bool is_differential, uint16_t raw_adc_value) const
     {
         uint16_t full_scale;
         switch (hadc->Init.Resolution)
@@ -56,29 +54,27 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
         return scale * (float)raw_adc_value / (float)full_scale;
     }
 
-#ifdef TARGET_EMBEDDED
   private:
     ADC_HandleTypeDef *const                       hadc;
+    TIM_HandleTypeDef *const                       htim;
+    mutable std::array<float, NUM_ADC_CHANNELS>    adc_voltages;
     mutable std::array<uint16_t, NUM_ADC_CHANNELS> raw_adc_values;
 
   public:
-    explicit AdcChip(ADC_HandleTypeDef *const in_hadc) : hadc(in_hadc){};
+    explicit AdcChip(ADC_HandleTypeDef *const in_hadc, TIM_HandleTypeDef *const in_htim)
+      : hadc(in_hadc), htim(in_htim){};
 
     void init() const
     {
-        HAL_ADC_Start_DMA(&hadc1, (uint32_t *)raw_adc_values.data(), hadc1.Init.NbrOfConversion);
-        HAL_TIM_Base_Start(&htim3);
+        HAL_ADC_Start_DMA(hadc, (uint32_t *)raw_adc_values.data(), hadc->Init.NbrOfConversion);
+        HAL_TIM_Base_Start(htim);
     }
 
     void update_callback() const
     {
         for (uint16_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
-        {
             adc_voltages[ch] = rawAdcValueToVoltage(false, raw_adc_values[ch]);
-        }
     }
-#endif
-  public:
     [[nodiscard]] const float *getChannel(uint32_t channel) const { return &adc_voltages[channel]; }
 };
 

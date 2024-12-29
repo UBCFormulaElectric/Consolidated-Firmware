@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "hw_pwmInputFreqOnly.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "app_utils.h"
 #include "app_canTx.h"
 #include "io_log.h"
@@ -47,7 +47,7 @@ void io_coolant_init(const PwmInputFreqOnlyConfig *config)
     hw_pwmInputFreqOnly_init(&flow_meter, config);
 }
 
-void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim)
+void io_coolant_inputCaptureCallback(const TIM_HandleTypeDef *htim)
 {
     if (htim == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
         htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
@@ -67,47 +67,47 @@ void io_coolant_checkIfFlowMeterActive(void)
     hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter);
 }
 
-bool temperature_ocsc(float v)
+bool temperature_ocsc(const float v)
 {
     return v < TEMPERATURE_VOLTAGE_MIN || v > TEMPERATURE_VOLTAGE_MAX;
 }
 
 float io_coolant_getTemperatureA(void)
 {
-    const float v_read = hw_adc_getVoltage(ADC1_IN2_COOLANT_TEMP_1);
+    const float v_read = hw_adc_getVoltage(&coolant_temp_1);
     app_canTx_RSM_Warning_CoolantTempAOCSC_set(temperature_ocsc(v_read));
-    float const v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
-    float const r_thermistor = RTHERM(v_out);
-    float       b_term       = BTERM_STEIN_EQN(r_thermistor);
-    float       coolant_temp =
+    const float v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
+    const float r_thermistor = RTHERM(v_out);
+    const float b_term       = BTERM_STEIN_EQN(r_thermistor);
+    const float coolant_temp =
         (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
-    float coolant_temp_cel = coolant_temp - 273.15f;
+    const float coolant_temp_cel = coolant_temp - 273.15f;
 
     return coolant_temp_cel;
 }
 
 float io_coolant_getTemperatureB(void)
 {
-    const float v_read = hw_adc_getVoltage(ADC1_IN3_COOLANT_TEMP_2);
+    const float v_read = hw_adc_getVoltage(&coolant_temp_2);
     app_canTx_RSM_Warning_CoolantTempBOCSC_set(temperature_ocsc(v_read));
-    float const v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
-    float const r_thermistor = RTHERM(v_out);
-    float       b_term       = BTERM_STEIN_EQN(r_thermistor);
-    float       coolant_temp =
+    const float v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
+    const float r_thermistor = RTHERM(v_out);
+    const float b_term       = BTERM_STEIN_EQN(r_thermistor);
+    const float coolant_temp =
         (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
-    float coolant_temp_cel = coolant_temp - 273.15f;
+    const float coolant_temp_cel = coolant_temp - 273.15f;
 
     return coolant_temp_cel;
 }
 
-bool pressure_ocsc(float v)
+bool pressure_ocsc(const float v)
 {
     return v < PRESSURE_VOLTAGE_MIN || v > PRESSURE_VOLTAGE_MAX;
 }
 
 float io_coolant_getPressureA(void)
 {
-    const float water_pressure_A = VOLTAGE_PRESSURE_CONVERSION(ADC1_IN12_COOLANT_PRESSURE_1);
+    const float water_pressure_A = VOLTAGE_PRESSURE_CONVERSION(hw_adc_getVoltage(&coolant_pressure_1));
     app_canTx_RSM_Warning_CoolantPressureAOCSC_set(io_coolant_PressureAOCSC());
 
     return CLAMP(water_pressure_A, 0.0f, PRESSURE_PSI_MAX);
@@ -115,13 +115,13 @@ float io_coolant_getPressureA(void)
 
 bool io_coolant_PressureAOCSC(void)
 {
-    return (
-        PRESSURE_VOLTAGE_MIN > (ADC1_IN12_COOLANT_PRESSURE_1) || PRESSURE_VOLTAGE_MAX < (ADC1_IN12_COOLANT_PRESSURE_1));
+    return PRESSURE_VOLTAGE_MIN > hw_adc_getVoltage(&coolant_pressure_1) ||
+           PRESSURE_VOLTAGE_MAX < hw_adc_getVoltage(&coolant_pressure_1);
 }
 
 float io_coolant_getPressureB(void)
 {
-    const float water_pressure_B = VOLTAGE_PRESSURE_CONVERSION(ADC1_IN11_COOLANT_PRESSURE_2);
+    const float water_pressure_B = VOLTAGE_PRESSURE_CONVERSION(hw_adc_getVoltage(&coolant_pressure_2));
     app_canTx_RSM_Warning_CoolantPressureBOCSC_set(io_coolant_PressureBOCSC());
 
     return CLAMP(water_pressure_B, 0.0f, PRESSURE_PSI_MAX);
@@ -129,6 +129,6 @@ float io_coolant_getPressureB(void)
 
 bool io_coolant_PressureBOCSC(void)
 {
-    return (
-        PRESSURE_VOLTAGE_MIN > (ADC1_IN11_COOLANT_PRESSURE_2) || PRESSURE_VOLTAGE_MAX < (ADC1_IN12_COOLANT_PRESSURE_1));
+    return PRESSURE_VOLTAGE_MIN > hw_adc_getVoltage(&coolant_pressure_2) ||
+           PRESSURE_VOLTAGE_MAX < hw_adc_getVoltage(&coolant_pressure_1);
 }

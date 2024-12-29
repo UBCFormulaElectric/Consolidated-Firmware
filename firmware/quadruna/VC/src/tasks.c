@@ -37,18 +37,8 @@
 #include "hw_gpio.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_sd.h"
-
-extern ADC_HandleTypeDef   hadc1;
-extern ADC_HandleTypeDef   hadc3;
-extern FDCAN_HandleTypeDef hfdcan1;
-extern UART_HandleTypeDef  huart7;
-extern TIM_HandleTypeDef   htim3;
-extern UART_HandleTypeDef  huart2;
-extern UART_HandleTypeDef  huart1;
-extern UART_HandleTypeDef  huart3;
-extern SD_HandleTypeDef    hsd1;
 
 static uint32_t can_logging_overflow_count = 0;
 static uint32_t read_count                 = 0; // TODO debugging variables
@@ -177,24 +167,24 @@ const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
                              [VC_GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
 
-const AdcChannel id_to_adc[] = {
-    [VC_AdcNetName_INV_R_PWR_I_SNS]  = ADC1_IN10_INV_R_PWR_I_SNS,
-    [VC_AdcNetName_INV_L_PWR_I_SNS]  = ADC1_IN11_INV_L_PWR_I_SNS,
-    [VC_AdcNetName_AUX_PWR_I_SNS]    = ADC3_IN0_AUX_PWR_I_SNS,
-    [VC_AdcNetName_SHDN_PWR_I_SNS]   = ADC1_IN18_SHDN_PWR_I_SNS,
-    [VC_AdcNetName_VBAT_SENSE]       = ADC1_IN19_VBAT_SENSE,
-    [VC_AdcNetName__24V_ACC_SENSE]   = ADC1_IN3_24V_ACC_SENSE,
-    [VC_AdcNetName__22V_BOOST_SENSE] = ADC1_IN7_22V_BOOST_SENSE,
-    [VC_AdcNetName_LV_PWR_I_SNS]     = ADC1_IN4_LV_PWR_I_SNS,
-    [VC_AdcNetName_ACC_I_SENSE]      = ADC1_IN5_ACC_I_SENSE,
-    [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
+const AdcChannel *const id_to_adc[] = {
+    [VC_AdcNetName_INV_R_PWR_I_SNS]  = &inv_r_pwr_i_sns,
+    [VC_AdcNetName_INV_L_PWR_I_SNS]  = &inv_l_pwr_i_sns,
+    [VC_AdcNetName_AUX_PWR_I_SNS]    = &aux_pwr_i_sns,
+    [VC_AdcNetName_SHDN_PWR_I_SNS]   = &shdn_pwr_i_sns,
+    [VC_AdcNetName_VBAT_SENSE]       = &vbat_sns,
+    [VC_AdcNetName__24V_ACC_SENSE]   = &acc_24v_sns,
+    [VC_AdcNetName__22V_BOOST_SENSE] = &boost_22v_sns,
+    [VC_AdcNetName_LV_PWR_I_SNS]     = &lv_pwr_i_sns,
+    [VC_AdcNetName_ACC_I_SENSE]      = &acc_i_sns,
+    [VC_AdcNetName_PUMP_PWR_I_SNS]   = &pump_pwr_i_sns,
 };
 
 static const CurrentSensingConfig current_sensing_config = {
     .bat_fault_gpio  = bat_i_sns_nflt,
     .acc_fault_gpio  = acc_i_sns_nflt,
-    .bat_current_adc = ADC1_IN14_BAT_I_SNS,
-    .acc_current_adc = ADC1_IN5_ACC_I_SENSE,
+    .bat_current_adc = &bat_i_sns,
+    .acc_current_adc = &acc_i_sns,
 };
 
 static const VcShdnConfig shutdown_config = { .tsms_gpio                   = &tsms_shdn_sns,
@@ -213,42 +203,42 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_SHDN] = {
         .enable_gpio = &shdn_pwr_en,
         .stby_reset_gpio = &fr_stby1,
-        .cur_sns_adc_channel = ADC1_IN18_SHDN_PWR_I_SNS,
+        .cur_sns_adc_channel = &shdn_pwr_i_sns,
     },
     [EFUSE_CHANNEL_LV] = {
         .enable_gpio = &lv_pwr_en,
         .stby_reset_gpio = &fr_stby1,
-        .cur_sns_adc_channel = ADC1_IN4_LV_PWR_I_SNS,
+        .cur_sns_adc_channel = &lv_pwr_i_sns,
     },
     [EFUSE_CHANNEL_PUMP] = {
         .enable_gpio = &pump_pwr_en,
         .stby_reset_gpio = &fr_stby2,
-        .cur_sns_adc_channel = ADC3_IN1_PUMP_PWR_I_SNS
+        .cur_sns_adc_channel = &pump_pwr_i_sns
     },
     [EFUSE_CHANNEL_AUX] = {
         .enable_gpio = &aux_pwr_en,
         .stby_reset_gpio = &fr_stby2,
-        .cur_sns_adc_channel = ADC3_IN0_AUX_PWR_I_SNS
+        .cur_sns_adc_channel = &aux_pwr_i_sns
     },
     [EFUSE_CHANNEL_INV_R] = {
         .enable_gpio = &inv_r_pwr_en,
         .stby_reset_gpio = &fr_stby3,
-        .cur_sns_adc_channel = ADC1_IN10_INV_R_PWR_I_SNS
+        .cur_sns_adc_channel = &inv_r_pwr_i_sns
     },
     [EFUSE_CHANNEL_INV_L] = {
         .enable_gpio = &inv_l_pwr_en,
         .stby_reset_gpio = &fr_stby3,
-        .cur_sns_adc_channel = ADC1_IN11_INV_L_PWR_I_SNS
+        .cur_sns_adc_channel = &inv_l_pwr_i_sns
     },
     [EFUSE_CHANNEL_TELEM] = {
         .enable_gpio = &telem_pwr_en,
         .stby_reset_gpio = NULL,
-        .cur_sns_adc_channel = NO_ADC_CHANNEL
+        .cur_sns_adc_channel = NULL
     },
     [EFUSE_CHANNEL_BUZZER] = {
         .enable_gpio = &buzzer_pwr_en,
         .stby_reset_gpio = NULL,
-        .cur_sns_adc_channel = NO_ADC_CHANNEL
+        .cur_sns_adc_channel = NULL
     }
 };
 
@@ -296,8 +286,7 @@ void tasks_init(void)
     hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    hw_adcs_chipsInit();
 
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).

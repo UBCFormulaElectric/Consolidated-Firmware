@@ -8,8 +8,8 @@
 
 typedef struct
 {
-    AdcChannel papps;
-    AdcChannel sapps;
+    const AdcChannel *papps;
+    const AdcChannel *sapps;
 } AppsConfig;
 
 #else
