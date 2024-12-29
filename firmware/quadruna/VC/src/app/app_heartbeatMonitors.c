@@ -32,7 +32,7 @@ static HeartbeatBoard heartbeat_boards[4] = {
       .timeout_ms   = 200 }
 };
 
-const HeartbeatMonitor hb_monitor = { .boards           = heartbeat_boards,
-                                                .board_count      = 4,
-                                                .block_faults     = false,
-                                                .own_heartbeat = app_canTx_VC_Heartbeat_set };
+const HeartbeatMonitor hb_monitor = { .boards        = heartbeat_boards,
+                                      .board_count   = 4,
+                                      .block_faults  = false,
+                                      .own_heartbeat = app_canTx_VC_Heartbeat_set };

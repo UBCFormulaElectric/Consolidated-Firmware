@@ -6,15 +6,15 @@ extern "C"
 }
 
 // fake can states
-bool                  MOCK_BOARD_CAN_FAULT     = false;
-bool                  MOCK_CAN_HEARTBEAT_STATE = false;
-uint8_t               timeout_ms               = 200;
+bool           MOCK_BOARD_CAN_FAULT     = false;
+bool           MOCK_CAN_HEARTBEAT_STATE = false;
+uint8_t        timeout_ms               = 200;
 HeartbeatBoard a_hbmonitor              = {
                  .timeout_ms = timeout_ms,
                  .getter     = []() { return MOCK_CAN_HEARTBEAT_STATE; },
-    .resetter                                  = [](bool v) { MOCK_CAN_HEARTBEAT_STATE = v; },
-    .fault_setter                              = [](bool v) { MOCK_BOARD_CAN_FAULT = v; },
-    .fault_getter                              = []() { return MOCK_BOARD_CAN_FAULT; },
+    .resetter                           = [](bool v) { MOCK_CAN_HEARTBEAT_STATE = v; },
+    .fault_setter                       = [](bool v) { MOCK_BOARD_CAN_FAULT = v; },
+    .fault_getter                       = []() { return MOCK_BOARD_CAN_FAULT; },
 };
 
 class HeartbeatMonitorTest : public testing::Test
