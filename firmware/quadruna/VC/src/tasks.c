@@ -1,18 +1,15 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
-#include "string.h"
 #include "shared.pb.h"
 
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
-#include "app_heartbeatMonitor.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
 #include "app_commitInfo.h"
-#include "app_powerManager.h"
 #include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
@@ -253,51 +250,6 @@ static const UART  modem2G4_uart = { .handle = &huart3 };
 static const UART  modem900_uart = { .handle = &huart1 };
 static const Modem modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 
-// config for heartbeat monitor (can funcs and flags)
-// VC relies on FSM, RSM, BMS, CRIT
-const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = true,
-    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = true
-};
-
-// heartbeatGetters - get heartbeat signals from other boards
-bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                                [VC_HEARTBEAT_BOARD]   = NULL,
-                                                                [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                                [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                                [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                                [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
-};
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_set,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_set
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
-};
-
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -372,9 +324,6 @@ void tasks_init(void)
     app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
     app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!sd_card_present);
 
-    app_heartbeatMonitor_init(
-        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
-        heartbeatFaultSetters, heartbeatFaultGetters);
     app_stateMachine_init(app_initState_get());
     io_telemMessage_init(&modem);
 
