@@ -1,3 +1,6 @@
+message("")
+message("⚙️ Configuring LogFS")
+
 set(LOGFS_INCLUDE_DIRS
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
