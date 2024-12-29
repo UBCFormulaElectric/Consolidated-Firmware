@@ -1,4 +1,5 @@
 # logic for validate json 
+from ..can_database_v2 import *
 from ..utils import load_json_file
 
 """
@@ -141,7 +142,10 @@ bus_schema = Or(
 Alerts file schema
 """
 
-
+class AlertsEntry (TypedDict):
+    name: str
+    id: int
+    description: str
 
 
 class AlertsJson(TypedDict):
@@ -278,7 +282,7 @@ def dynamic_validate_tx_signals(signals_json: Dict, enum : dict[str, ]) -> bool:
         if "enum" in signal:
             if signal["enum"] not in enum:
                 return False
-   
+               
     # check bits are smaller than 64
     total_bits = 0
     for signal in signals_json:
