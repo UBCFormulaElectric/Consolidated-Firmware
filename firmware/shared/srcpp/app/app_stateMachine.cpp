@@ -1,4 +1,4 @@
-#include "app_stateMachine.h"
+#include "app_stateMachine.hpp"
 
 #ifdef __arm__
 #include <FreeRTOS.h>

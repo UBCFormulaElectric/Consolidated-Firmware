@@ -371,7 +371,7 @@ TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state)
 {
     SetInitialState(app_initState_get());
     fake_io_airs_isNegativeClosed_returns(true);
-    app_heartbeatMonitor_blockFaults(false);
+    app_heartbeatMonitor_blockFaults(&hb_monitor, false);
     app_canRx_VC_Heartbeat_update(false);
 
     LetTimePass(500U);

@@ -8,6 +8,7 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
@@ -113,6 +114,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # Telemetry Protocol Buffers
@@ -128,18 +130,25 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(VC quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(VC quadruna ${CMAKE_CURRENT_BINARY_DIR})
 
     # CommitInfo
     commit_info_library(
             "quadruna_VC_app.elf"
             "quadruna_VC_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_VC_jsoncan" PRIVATE "quadruna_VC_stm32cube")
-    target_link_libraries("quadruna_VC_app.elf" PRIVATE "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "logfs_cm7" "debug_modules" "m" "telem_proto" "sbg_ecom_cm7")
+    target_link_libraries("quadruna_VC_app.elf" PRIVATE
+            "quadruna_VC_stm32cube"
+            "quadruna_VC_jsoncan"
+            "quadruna_VC_commit_info"
+            "logfs_cm7"
+            "debug_modules"
+            "m"
+            "telem_proto"
+            "sbg_ecom_cm7"
+    )
     target_link_libraries("quadruna_VC_boot.elf" PRIVATE "quadruna_VC_commit_info")
 
     embedded_image(

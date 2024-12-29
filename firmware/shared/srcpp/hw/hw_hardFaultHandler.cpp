@@ -1,6 +1,6 @@
-#include "hw_hardFaultHandler.h"
-#include "hw_hal.h"
-#include "hw_utils.h"
+#include "hw_hardFaultHandler.hpp"
+#include "hw_hal.hpp"
+#include "hw_utils.hpp"
 
 void hw_hardFaultHandler_init(void)
 {

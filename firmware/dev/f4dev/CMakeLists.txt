@@ -36,6 +36,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal.c"
             "stm32f4xx_hal_sd.c"
             "stm32f4xx_ll_sdmmc.c"
+            "stm32f4xx_hal_pcd.c"
+            "stm32f4xx_hal_pcd_ex.c"
+            "stm32f4xx_ll_usb.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
@@ -46,6 +49,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            TRUE
     )
 
     embedded_binary(
