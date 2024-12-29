@@ -1,20 +1,20 @@
 [
   {
-    "name": "bus1",
+    "name": "CAN1",
     "default_receiver": "DEBUG",
     "bus_speed": 500,
     "modes": ["default", "debug"],
     "default_mode": "default"
   },
   {
-    "name": "bus2",
+    "name": "CAN2",
     "default_receiver": "DEBUG",
     "bus_speed": 500,
     "modes": ["default", "debug"],
     "default_mode": "default"
   },
   {
-    "name": "bus3",
+    "name": "CAN3",
     "default_receiver": "DEBUG",
     "bus_speed": 500,
     "modes": ["default", "debug"],

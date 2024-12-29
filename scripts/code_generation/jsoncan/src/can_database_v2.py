@@ -215,8 +215,8 @@ class CanDatabase:
     """
 
     nodes: List[str]  # List of names of the nodes on the bus
-    bus_config: List[CanBusConfig]  # List of bus configurations, multiple buses supported
-    shared_enums: List[CanEnum]  # Enums used by all nodes
+    bus_config: dict[str, CanBusConfig]  # List of bus configurations, multiple buses supported
+    shared_enums: dict[str, CanEnum]  # Enums used by all nodes
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node

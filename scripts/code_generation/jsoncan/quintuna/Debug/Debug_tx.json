@@ -59,6 +59,7 @@
     "name": "CellBalancing",
     "msg_id": 902,
     "cycle_time": 1000,
+    "bus": ["CAN1", "CAN2"],
     "description": "Signals related to BMS cell balancing.",
     "signals": [
       {
@@ -100,6 +101,7 @@
     "name": "ResetSoc",
     "msg_id": 903,
     "cycle_time": 100,
+    "bus": ["CAN1", "CAN2"],
     "description": "Value set by user to set SOC based on min cell voltage.",
     "signals": [
       {
@@ -123,6 +125,7 @@
     "name": "SetCoolantPump",
     "msg_id": 904,
     "cycle_time": 1000,
+    "bus": ["CAN1", "CAN2"],
     "description": "Value set by the user to set the coolant pump flow rate.",
     "signals": [
       {
@@ -142,6 +145,7 @@
     "name": "SetBSPDTestCurrent",
     "msg_id": 905,
     "cycle_time": 100,
+    "bus": ["CAN1", "CAN2"],
     "description": "Enable BSPD Test Current",
     "signals": [
       {
