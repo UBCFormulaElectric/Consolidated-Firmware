@@ -55,5 +55,5 @@ bool app_heartbeatBoard_isSendingMissingHeartbeatFault(const HeartbeatBoard *hb)
 /**
  * Resets faults as to report as false, useful for test environments
  */
-void app_heartbeatBoard_clearFaults(const HeartbeatMonitorBoard *hb);
+void app_heartbeatBoard_clearFaults(const HeartbeatBoard*hb);
 #endif
