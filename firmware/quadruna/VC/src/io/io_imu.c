@@ -73,7 +73,7 @@ bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x22, roll_data, 2); // Replace with correct register address for roll.
+    bool    is_read_successful = hw_i2c_memRead(&imu, 0x22, roll_data, 2);
 
     if (!is_read_successful)
     {
@@ -82,14 +82,14 @@ bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     int16_t roll_raw       = (int16_t)(roll_data[1] << 8 | roll_data[0]);
-    *roll_velocity = roll_raw * GYRO_SENSITIVITY / 1000.0f; // Replace with the correct sensitivity for roll
+    *roll_velocity = roll_raw * GYRO_SENSITIVITY / 1000.0f;
     return true;
 }
 
 bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x24, pitch_data, 2); // Replace with correct register address for pitch.
+    bool    is_read_successful = hw_i2c_memRead(&imu, 0x24, pitch_data, 2);
 
     if (!is_read_successful)
     {
@@ -98,14 +98,14 @@ bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     int16_t pitch_raw       = (int16_t)(pitch_data[1] << 8 | pitch_data[0]);
-    *pitch_velocity = pitch_raw * GYRO_SENSITIVITY / 1000.0f; // Replace with the correct sensitivity for pitch
+    *pitch_velocity = pitch_raw * GYRO_SENSITIVITY / 1000.0f;
     return true;
 }
 
 bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x26, yaw_data, 2); // Replace with correct register address for yaw.
+    bool    is_read_successful = hw_i2c_memRead(&imu, 0x26, yaw_data, 2);
 
     if (!is_read_successful)
     {
@@ -114,6 +114,6 @@ bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     int16_t yaw_raw       = (int16_t)(yaw_data[1] << 8 | yaw_data[0]);
-    *yaw_velocity = yaw_raw * GYRO_SENSITIVITY / 1000.0f; // Replace with the correct sensitivity for yaw
+    *yaw_velocity = yaw_raw * GYRO_SENSITIVITY / 1000.0f;
     return true;
 }

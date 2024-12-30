@@ -214,8 +214,6 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
     
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
-    sensor_data.ekf_solution_status = sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status);
-    app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sensor_data.ekf_solution_status);
 
     // uint32_t status = log_data->ekfNavData.status;
 
@@ -324,6 +322,7 @@ uint32_t io_sbgEllipse_geEkfSolutionMode(void)
 {
     return sensor_data.ekf_solution_status;
 }
+
 Vector3 *io_sbgEllipse_getImuAccelerations()
 {
     return &sensor_data.imu_data.acceleration;

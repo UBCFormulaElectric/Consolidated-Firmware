@@ -34,10 +34,8 @@ void app_sbgEllipse_broadcast()
     if (sbgSolutionMode != POSITION) {
         // Wheelspeed Velocity
         VelocityData velocity = app_sbgEllipse_calculateVelocity();
-
-    // ekf_vel_N = velocity.north;
-    // ekf_vel_E = velocity.east;
-    // ekf_vel_D = velocity.down;
+    }
+    
     // EKF
     ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
     ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
