@@ -5,6 +5,8 @@
 #include "app_units.h"
 #include "io_sbgEllipse.h"
 
+float vehicle_velocity = 0.0f;
+
 void app_sbgEllipse_broadcast()
 {
     /* Enable these back when you turn this on in the SBG, otherwise it's still sending
@@ -38,7 +40,7 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
     app_canTx_VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
 
-    const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+    vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
 
     app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
 
