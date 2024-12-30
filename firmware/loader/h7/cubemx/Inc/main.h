@@ -60,6 +60,8 @@ extern "C"
 #define TIM3_PRESCALER 8
 #define ADC_FREQUENCY 1000
 #define TIMx_FREQUENCY 512000000
+#define LOADER_LED_Pin GPIO_PIN_14
+#define LOADER_LED_GPIO_Port GPIOD
 
     /* USER CODE BEGIN Private defines */
 

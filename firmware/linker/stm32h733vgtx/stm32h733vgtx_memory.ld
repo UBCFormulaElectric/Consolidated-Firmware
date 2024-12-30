@@ -1,10 +1,10 @@
 MEMORY
 {
   ram  (xrw)    : ORIGIN = 0x24000000,   LENGTH = 320K
-  loader_code    (rx)    : ORIGIN = 0x8000000,   LENGTH = 128K 
-  boot_code    (rx)    : ORIGIN = 0x8020000,   LENGTH = 128K
-  app_metadata    (rx)    : ORIGIN = 0x8040000,   LENGTH = 1K
-  app_code     (rx)    : ORIGIN = 0x8040400,  LENGTH = 767K
+  loader_code    (rx)    : ORIGIN = 0x8000000,   LENGTH = 64K 
+  boot_code    (rx)    : ORIGIN = 0x8010000,   LENGTH = 64K
+  app_metadata    (rx)    : ORIGIN = 0x8020000,   LENGTH = 1K
+  app_code     (rx)    : ORIGIN = 0x8020400,  LENGTH = 895K
 }
 
 __loader_code_start__  = ORIGIN(loader_code);
