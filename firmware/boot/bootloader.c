@@ -183,7 +183,9 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Erase a flash sector.
             uint8_t sector = command.data[0];
+            LOG_INFO("before");
             hw_flash_eraseSector(sector);
+            LOG_INFO("after");
 
             // Erasing sectors takes a while, so reply when finished.
             CanMsg reply = {

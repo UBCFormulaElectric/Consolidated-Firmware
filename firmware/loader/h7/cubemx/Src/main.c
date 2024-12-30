@@ -67,9 +67,7 @@ typedef struct
 
 /* Private variables ---------------------------------------------------------*/
 
-FDCAN_HandleTypeDef hfdcan1;
-
-SD_HandleTypeDef hsd1;
+CRC_HandleTypeDef hcrc;
 
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
@@ -79,23 +77,6 @@ const osThreadAttr_t defaultTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void        SystemClock_Config(void);
-static void MPU_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_FDCAN1_Init(void);
-static void MX_SDMMC1_SD_Init(void);
-void        StartDefaultTask(void *argument);
-
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 static LoaderStatus verifyAppCodeChecksum(void)
 {
     if (*&__app_code_start__ == 0xFFFFFFFF)
@@ -111,7 +92,8 @@ static LoaderStatus verifyAppCodeChecksum(void)
         return LOADER_STATUS_APP_INVALID;
     }
 
-    uint32_t calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
+    uint32_t *buffer              = &__app_code_start__;
+    uint32_t  calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
     return calculated_checksum == metadata->checksum ? LOADER_STATUS_APP_VALID : LOADER_STATUS_APP_INVALID;
 }
 
@@ -163,6 +145,20 @@ _Noreturn static void modifyStackPointerAndJump(const uint32_t *address)
     {
     }
 }
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void        SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_CRC_Init(void);
+void        StartDefaultTask(void *argument);
+
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 /* USER CODE END 0 */
 
 /**
@@ -172,11 +168,8 @@ _Noreturn static void modifyStackPointerAndJump(const uint32_t *address)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // SEGGER_SYSVIEW_Conf();
     /* USER CODE END 1 */
-
-    /* MPU Configuration--------------------------------------------------------*/
-    MPU_Config();
 
     /* MCU Configuration--------------------------------------------------------*/
 
@@ -184,6 +177,22 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
+    /* USER CODE END Init */
+
+    /* Configure the system clock */
+    SystemClock_Config();
+
+    /* USER CODE BEGIN SysInit */
+    /* USER CODE END SysInit */
+
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_CRC_Init();
+    /* USER CODE BEGIN 2 */
+    hw_hardFaultHandler_init();
+    hw_crc_init(&hcrc);
+    __HAL_RCC_CRC_CLK_ENABLE();
+
     LoaderStatus status = verifyAppCodeChecksum();
     if (status == LOADER_STATUS_APP_VALID)
     {
@@ -193,21 +202,6 @@ int main(void)
     {
         modifyStackPointerAndJump(&__boot_code_start__);
     }
-    /* USER CODE END Init */
-
-    /* Configure the system clock */
-    SystemClock_Config();
-
-    /* USER CODE BEGIN SysInit */
-
-    /* USER CODE END SysInit */
-
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_FDCAN1_Init();
-    MX_SDMMC1_SD_Init();
-    /* USER CODE BEGIN 2 */
-
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -245,7 +239,6 @@ int main(void)
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
-
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -317,83 +310,34 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief FDCAN1 Initialization Function
+ * @brief CRC Initialization Function
  * @param None
  * @retval None
  */
-static void MX_FDCAN1_Init(void)
+static void MX_CRC_Init(void)
 {
-    /* USER CODE BEGIN FDCAN1_Init 0 */
+    /* USER CODE BEGIN CRC_Init 0 */
 
-    /* USER CODE END FDCAN1_Init 0 */
+    /* USER CODE END CRC_Init 0 */
 
-    /* USER CODE BEGIN FDCAN1_Init 1 */
+    /* USER CODE BEGIN CRC_Init 1 */
 
-    /* USER CODE END FDCAN1_Init 1 */
-    hfdcan1.Instance                  = FDCAN1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
-    hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = ENABLE;
-    hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 4;
-    hfdcan1.Init.NominalTimeSeg1      = 13;
-    hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 1;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.RxBuffersNbr         = 0;
-    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.TxEventsNbr          = 0;
-    hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
-    hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
+    /* USER CODE END CRC_Init 1 */
+    hcrc.Instance                     = CRC;
+    hcrc.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
+    hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
+    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
+    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
+    if (HAL_CRC_Init(&hcrc) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN FDCAN1_Init 2 */
-
-    /* USER CODE END FDCAN1_Init 2 */
-}
-
-/**
- * @brief SDMMC1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_SDMMC1_SD_Init(void)
-{
-    /* USER CODE BEGIN SDMMC1_Init 0 */
-
-    /* USER CODE END SDMMC1_Init 0 */
-
-    /* USER CODE BEGIN SDMMC1_Init 1 */
-
-    /* USER CODE END SDMMC1_Init 1 */
-    hsd1.Instance                 = SDMMC1;
-    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
-    hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
-    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 9;
-    if (HAL_SD_Init(&hsd1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN SDMMC1_Init 2 */
-
-    /* USER CODE END SDMMC1_Init 2 */
+    /* USER CODE BEGIN CRC_Init 2 */
+    uint32_t test_data[] = { 0x12345678, 0x9ABCDEF0 };
+    size_t   test_length = sizeof(test_data) / sizeof(test_data[0]);
+    uint32_t test_crc    = HAL_CRC_Calculate(&hcrc, test_data, test_length);
+    /* USER CODE END CRC_Init 2 */
 }
 
 /**
@@ -403,15 +347,25 @@ static void MX_SDMMC1_SD_Init(void)
  */
 static void MX_GPIO_Init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LOADER_LED_GPIO_Port, LOADER_LED_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : LOADER_LED_Pin */
+    GPIO_InitStruct.Pin   = LOADER_LED_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LOADER_LED_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -431,40 +385,7 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
     /* USER CODE END 5 */
-}
-
-/* MPU Configuration */
-
-void MPU_Config(void)
-{
-    MPU_Region_InitTypeDef MPU_InitStruct = { 0 };
-
-    /* Disables the MPU */
-    HAL_MPU_Disable();
-
-    /** Initializes and configures the Region and the memory to be protected
-     */
-    MPU_InitStruct.Enable           = MPU_REGION_ENABLE;
-    MPU_InitStruct.Number           = MPU_REGION_NUMBER0;
-    MPU_InitStruct.BaseAddress      = 0x0;
-    MPU_InitStruct.Size             = MPU_REGION_SIZE_4GB;
-    MPU_InitStruct.SubRegionDisable = 0x87;
-    MPU_InitStruct.TypeExtField     = MPU_TEX_LEVEL0;
-    MPU_InitStruct.AccessPermission = MPU_REGION_NO_ACCESS;
-    MPU_InitStruct.DisableExec      = MPU_INSTRUCTION_ACCESS_DISABLE;
-    MPU_InitStruct.IsShareable      = MPU_ACCESS_SHAREABLE;
-    MPU_InitStruct.IsCacheable      = MPU_ACCESS_NOT_CACHEABLE;
-    MPU_InitStruct.IsBufferable     = MPU_ACCESS_NOT_BUFFERABLE;
-
-    HAL_MPU_ConfigRegion(&MPU_InitStruct);
-    /* Enables the MPU */
-    HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 
 /**

@@ -100,9 +100,6 @@ void io_bootloader_checkBootMsg(CanMsg *msg)
         CanMsg reply = { .std_id = BOOT_CAN_START, .dlc = 0 };
         io_can_pushTxMsgToQueue(&reply);
 
-        // Set bootloader status, so we stay in boot code
-        // bootloader_byte = 1;
-
         modifyStackPointerAndStartApp(&__boot_code_start__);
     }
 }

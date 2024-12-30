@@ -245,7 +245,7 @@ function(embedded_binary
 endfunction()
 
 message("  🔃 Registered embedded_image() function")
-# Generate firmware image package (merged app + bootloader).
+# Generate firmware image package (merged app + boot + loader).
 function(embedded_image
         IMAGE_NAME
         APP_HEX_TARGET
