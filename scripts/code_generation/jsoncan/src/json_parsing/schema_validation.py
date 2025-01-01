@@ -2,9 +2,9 @@
 Functions to validate the CAN JSON schema.
 """
 
-from typing import Dict, TypedDict
+from typing import Dict, List, TypedDict
 
-from schema import Schema, Optional, Or, And
+from schema import And, Optional, Or, Schema
 
 """
 Tx file schemas
@@ -61,6 +61,7 @@ tx_signal_schema = Schema(
 
 tx_msg_schema = Schema(
     {
+        "bus": list[str],
         "msg_id": And(
             int, lambda x: x >= 0 and x < 2**11
         ),  # Standard CAN uses 11-bit identifiers
@@ -109,9 +110,10 @@ class BusJson(TypedDict):
     default_mode: str
 
 
-bus_schema = Schema(
+single_bus_schema = Schema(
     {"default_receiver": str, "bus_speed": int, "modes": [str], "default_mode": str}
 )
+bus_schema = Schema(Or(list[single_bus_schema], []))
 
 """
 Alerts file schema
@@ -183,7 +185,7 @@ def validate_enum_json(json: Dict) -> Dict[str, Dict[str, int]]:
     return enum_schema.validate(json)
 
 
-def validate_bus_json(json: Dict) -> BusJson:
+def validate_bus_json(json: Dict) -> List[BusJson]:
     return bus_schema.validate(json)
 
 
