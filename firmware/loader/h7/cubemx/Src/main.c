@@ -194,6 +194,7 @@ int main(void)
     __HAL_RCC_CRC_CLK_ENABLE();
 
     LoaderStatus status = verifyAppCodeChecksum();
+    HAL_CRC_DeInit(&hcrc);
     if (status == LOADER_STATUS_APP_VALID)
     {
         modifyStackPointerAndJump(&__app_code_start__);
