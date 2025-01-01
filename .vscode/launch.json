@@ -92,6 +92,7 @@
       "executable": "build_fw_dev/firmware/quadruna/FSM/quadruna_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/loader/f4_loader.elf",
         "build_fw_dev/firmware/quadruna/FSM/quadruna_FSM_boot.elf",
         "build_fw_dev/firmware/quadruna/FSM/quadruna_FSM_app.elf",
       ],
@@ -134,6 +135,7 @@
       "executable": "build_fw_dev/firmware/quadruna/RSM/quadruna_RSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/loader/f4_loader.elf",
         "build_fw_dev/firmware/quadruna/RSM/quadruna_RSM_boot.elf",
         "build_fw_dev/firmware/quadruna/RSM/quadruna_RSM_app.elf",
       ],
@@ -177,6 +179,7 @@
       "executable": "build_fw_dev/firmware/quadruna/CRIT/quadruna_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/loader/f4_loader.elf",
         "build_fw_dev/firmware/quadruna/CRIT/quadruna_CRIT_boot.elf",
         "build_fw_dev/firmware/quadruna/CRIT/quadruna_CRIT_app.elf",
       ],
