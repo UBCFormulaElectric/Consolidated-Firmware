@@ -1,0 +1,16 @@
+[
+  {
+    "name": "bus1",
+    "default_receiver": "DEBUG",
+    "bus_speed": 500,
+    "modes": ["default", "debug"],
+    "default_mode": "default"
+  },
+  {
+    "name": "bus2",
+    "default_receiver": "DEBUG",
+    "bus_speed": 500,
+    "modes": ["default", "debug"],
+    "default_mode": "default"
+  }
+]
