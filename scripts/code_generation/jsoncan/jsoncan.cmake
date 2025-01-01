@@ -121,6 +121,7 @@ function(log_bus_load CAR)
 endfunction()
 
 log_bus_load("quadruna")
+log_bus_load("quintuna")
 
 
 
