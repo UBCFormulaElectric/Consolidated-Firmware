@@ -1,0 +1,11 @@
+{
+  "messages": [
+    "BMS_TractiveSystem",
+    "BMS_BMSShdnNodeStatus",
+    "BMS_CellTemperatures",
+    "BMS_VoltageAndChargeStats",
+    "BMS_OkStatuses",
+    "BMS_TractiveSystem",
+    "BMS_Vitals"
+  ]
+}
