@@ -26,6 +26,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_log.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_bootloader.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
@@ -157,6 +158,8 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_app.hex"
             "quadruna_VC_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_boot.hex"
+            "h7_loader.hex"
+            "${BINARY_ROOT_DIR}/loader/h7_loader.hex"
     )
 ELSEIF ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")

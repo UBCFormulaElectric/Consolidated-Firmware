@@ -32,6 +32,7 @@ typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
+    uint32_t bootloader_status;
 } Metadata;
 
 typedef enum
@@ -44,13 +45,13 @@ typedef enum
 static void canRxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void canTxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
@@ -159,24 +160,6 @@ void bootloader_init(void)
     // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
-
-    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
-#ifndef BOOT_AUTO
-        && hw_gpio_readPin(&bootloader_pin)
-#endif
-    )
-    {
-        // Deinit peripherals.
-#ifndef BOOT_AUTO
-        HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
-#endif
-        HAL_TIM_Base_Stop_IT(&htim6);
-        HAL_CRC_DeInit(&hcrc);
-
-        // Jump to app.
-        modifyStackPointerAndStartApp(&__app_code_start__);
-    }
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -200,7 +183,9 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Erase a flash sector.
             uint8_t sector = command.data[0];
+            LOG_INFO("before");
             hw_flash_eraseSector(sector);
+            LOG_INFO("after");
 
             // Erasing sectors takes a while, so reply when finished.
             CanMsg reply = {
@@ -223,11 +208,18 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
-            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+            uint8_t valid_app = (uint8_t)verifyAppCodeChecksum();
+            reply.data[0]     = valid_app;
             io_can_pushTxMsgToQueue(&reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
+        }
+        else if (command.std_id == GO_TO_APP && !update_in_progress)
+        {
+            HAL_TIM_Base_Stop_IT(&htim6);
+            HAL_CRC_DeInit(&hcrc);
+            modifyStackPointerAndStartApp(&__app_code_start__);
         }
     }
 }

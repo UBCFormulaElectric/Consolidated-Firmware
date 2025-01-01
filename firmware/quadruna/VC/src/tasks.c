@@ -28,6 +28,7 @@
 #include "io_telemMessage.h"
 #include "io_pcm.h"
 #include "io_time.h"
+#include "io_bootloader.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -474,6 +475,8 @@ _Noreturn void tasks_runCanRx(void)
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
+
+        io_bootloader_checkBootMsg(&rx_msg);
 
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
