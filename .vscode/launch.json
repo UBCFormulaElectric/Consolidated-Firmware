@@ -2,6 +2,22 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug Python",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "scripts/code_generation/jsoncan/generate_can_from_json.py",
+      "args": [
+        "--board",
+        "quadruna",
+        "--can_data_dir",
+        "scripts/code_generation/jsoncan/quadruna",
+        "--output_dir",
+        "output",
+        "--dbc_output",
+        "output/quadruna_can.dbc"
+      ],
+    }
+    {
       "name": "Debug Embedded: VC (Quadruna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quadruna/VC/quadruna_VC.hex",
