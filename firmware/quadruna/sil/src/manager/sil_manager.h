@@ -1,4 +1,5 @@
 #pragma once
+#include <czmq.h>
 #include "sil_board.h"
 
 // Resets the manager to a clean state, by freeing up allocated memory, and killing child processes.
@@ -16,3 +17,6 @@ void sil_manager_start(sil_Board *boardsToKill[], sil_Board *boardsToStart[]);
 // Blocks while all boards in boardsToVerify catch up.
 // NOTE: boardsToVerify must be NULL terminated.
 void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[]);
+
+// Get the active tx socket of the manager.
+zsock_t *sil_manager_getSocketTx();

@@ -3,7 +3,7 @@
 
 int _sil_fakes_set_tx(zsock_t *socket, char *boardName, char *fnName, void *retPointer, size_t retSize)
 {
-    byte retBytes[retSize];
-    memcpy(retBytes, retPointer, retSize);
-    return zsock_send("sssb", SIL_FAKES_SET_TOPIC, boardName, fnName, retBytes, retSize);
+    byte retData[retSize];
+    memcpy(retData, retPointer, retSize);
+    return zsock_send(socket, "sssb", SIL_FAKES_SET_TOPIC, boardName, fnName, retData, retSize);
 }

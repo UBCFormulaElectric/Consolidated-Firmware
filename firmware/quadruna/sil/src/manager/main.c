@@ -4,6 +4,7 @@
 
 #include "sil_board.h"
 #include "sil_manager.h"
+#include "sil_fakes.h"
 
 int main()
 {
@@ -17,6 +18,9 @@ int main()
 
     // Quick demo.
     sil_manager_start(NULL, boards);
+
+    int a = 2;
+    sil_fakes_set_tx(sil_manager_getSocketTx(), "fsm", "io_apps_abc", &a);
 
     printf("--- Waiting 1s, then Running for 1s in Simulation Time ---\n");
     zclock_sleep(1000);

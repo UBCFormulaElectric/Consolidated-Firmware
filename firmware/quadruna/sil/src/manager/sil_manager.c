@@ -185,3 +185,8 @@ void sil_manager_setTime(uint32_t targetMs, sil_Board *boardsToVerify[])
         }
     }
 }
+
+zsock_t *sil_manager_getSocketTx()
+{
+    return socketTx;
+}
