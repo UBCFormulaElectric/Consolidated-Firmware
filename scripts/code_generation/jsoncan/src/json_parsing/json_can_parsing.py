@@ -5,18 +5,14 @@ Module for parsing CAN JSON, and returning a CanDatabase object.
 import json
 import os
 from math import ceil
-from typing import Tuple, Any
+from typing import Any, Tuple
 
-from .schema_validation import (
-    validate_bus_json,
-    validate_enum_json,
-    validate_tx_json,
-    validate_alerts_json,
-    AlertsJson,
-)
 from ..can_database import *
-from ..can_database import CanSignal, CanMessage
+from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
+from .schema_validation import (AlertsJson, validate_alerts_json,
+                                validate_bus_json, validate_enum_json,
+                                validate_tx_json)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -43,7 +39,7 @@ def calc_signal_scale_and_offset(
 
 class JsonCanParser:
     def __init__(self, can_data_dir: str):
-        self._bus_cfg: CanBusConfig | None = None
+        self._bus_cfg: list[CanBusConfig] = []  # List of bus configurations
         self._nodes: list[str] = []  # List of node names
         self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
         self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
@@ -74,14 +70,19 @@ class JsonCanParser:
         # Load shared JSON data
         # Parse bus data
         bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
-        self._bus_cfg = CanBusConfig(
-            default_receiver=bus_json_data["default_receiver"],
-            bus_speed=bus_json_data["bus_speed"],
-            modes=bus_json_data["modes"],
-            default_mode=bus_json_data["default_mode"],
-        )
-        if self._bus_cfg.default_mode not in self._bus_cfg.modes:
-            raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
+        self._bus_cfg = [
+            CanBusConfig(
+                name=bus["name"],
+                default_mode=bus["default_mode"],
+                modes=bus["modes"],
+                default_receiver=bus["default_receiver"],
+                bus_speed=bus["bus_speed"],
+            )
+            for bus in bus_json_data
+        ]
+        for bus in self._bus_cfg:
+            if bus.default_mode not in bus.modes:
+                raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
 
         shared_enum_json_data = validate_enum_json(
             self._load_json_file(f"{can_data_dir}/shared_enum")
@@ -204,8 +205,11 @@ class JsonCanParser:
         msg_id = msg_json_data["msg_id"]
         description, _ = self._get_optional_value(msg_json_data, "description", "")
         msg_cycle_time = msg_json_data["cycle_time"]
+        buses = msg_json_data["bus"]
+        
+        # will use mode from bus if none 
         msg_modes, _ = self._get_optional_value(
-            msg_json_data, "allowed_modes", [self._bus_cfg.default_mode]
+            msg_json_data, "allowed_modes", []
         )
 
         log_cycle_time = msg_cycle_time
@@ -218,16 +222,16 @@ class JsonCanParser:
                 msg_json_data["data_capture"], "telem_cycle_time", msg_cycle_time
             )
 
-        if len(msg_modes) == 0:
-            raise InvalidCanJson(
-                f"Message '{msg_name}' transmitted by '{node}' doesn't specify any allowed modes."
-            )
+        # if len(msg_modes) == 0:
+        #     raise InvalidCanJson(
+        #         f"Message '{msg_name}' transmitted by '{node}' doesn't specify any allowed modes."
+        #     )
 
-        for mode in msg_modes:
-            if mode not in self._bus_cfg.modes:
-                raise InvalidCanJson(
-                    f"Mode '{mode}' for message '{msg_name}' transmitted by '{node}' is not a valid mode. You may need to add it in the 'bus.json' file."
-                )
+        # for mode in msg_modes:
+        #     if mode not in self._bus_cfg.modes:
+        #         raise InvalidCanJson(
+        #             f"Mode '{mode}' for message '{msg_name}' transmitted by '{node}' is not a valid mode. You may need to add it in the 'bus.json' file."
+        #         )
 
         # Check if message ID is unique
         if msg_id in {msg.id for msg in self._messages.values()}:
@@ -282,7 +286,7 @@ class JsonCanParser:
             cycle_time=msg_cycle_time,
             tx_node=node,
             rx_nodes=[
-                self._bus_cfg.default_receiver
+                # self._bus_cfg.default_receiver
             ],  # Every msg is received by the default receiver
             modes=msg_modes,
             log_cycle_time=log_cycle_time,
@@ -529,8 +533,12 @@ class JsonCanParser:
                 telem_cycle_time=cycle_time,
                 signals=signals,
                 tx_node=node,
-                rx_nodes=[self._bus_cfg.default_receiver],
-                modes=[self._bus_cfg.default_mode],
+                rx_nodes=[
+                #    self._bus_cfg.default_receiver
+                ],
+                modes=[
+                #    self._bus_cfg.default_mode
+                ],
             )
             for name, msg_id, description, signals, cycle_time in [
                 (
