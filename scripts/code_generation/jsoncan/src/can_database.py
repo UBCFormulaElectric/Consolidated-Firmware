@@ -178,6 +178,7 @@ class CanBusConfig:
     bus_speed: int
     modes: List[str]
     default_mode: str
+    name: str
 
 
 class CanAlertType(StrEnum):
