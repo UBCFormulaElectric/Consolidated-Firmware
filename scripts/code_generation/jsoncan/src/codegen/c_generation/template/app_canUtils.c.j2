@@ -65,33 +65,8 @@ static inline uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t ma
 
 /* ------------------------- Function Definitions ------------------------- */
 
-void app_canUtils_BMS_Vitals_pack(const BMS_Vitals_Signals* const in_msg, uint8_t* const out_data)
-{
-    // Pack 1-byte payload for message BMS_Vitals.
-    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|____BBBA|
-    
-    if (in_msg == NULL || out_data == NULL)
-    {
-        return;
-    }
-    
-    // Pack 1-bit signal BMS_Heartbeat into payload (at bit 0 to bit 1).
-    const bool BMS_Heartbeat_val = in_msg->BMS_Heartbeat_value;
-    const uint32_t BMS_Heartbeat_raw = CAN_ENCODE(BMS_Heartbeat_val, CANSIG_BMS_VITALS_BMS_HEARTBEAT_SCALE, CANSIG_BMS_VITALS_BMS_HEARTBEAT_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_Heartbeat_raw, 0, 0x1);   // Packs bits _______# of byte 0
-    
-    // Pack 3-bit signal BMS_State into payload (at bit 1 to bit 4).
-    const BmsState BMS_State_val = in_msg->BMS_State_value;
-    const uint32_t BMS_State_raw = CAN_ENCODE(BMS_State_val, CANSIG_BMS_VITALS_BMS_STATE_SCALE, CANSIG_BMS_VITALS_BMS_STATE_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_State_raw, 1, 0xe);   // Packs bits ____###_ of byte 0
-    
-}
-
 {% set scale_macro = "CANSIG_{}_{}_SCALE" %}
-
 {% set offset_macro = "CANSIG_{}_{}_OFFSET" %}
-
-
 
 {% for msg in tx_messages -%}
 {% set msg_big_name =  msg.scremming_snake_name() %} 
@@ -112,7 +87,7 @@ void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg
     {%- set DECORD_MACRO = "CAN_SIGNED_ENCODE" if signal.signed else "CAN_ENCODE" -%}
     // Pack {{ signal.bits }}-bit signal {{ signal.name }} into payload at [ bit {{ signal.start_bit }} to bit {{ signal.start_bit + signal.bits }} ).
     const {{ signal.datatype() }} {{ signal.name }}_val = in_msg->{{ signal.name }}_value;
-    const {{ raw_type }} {{ signal.name }}_raw = {{ DECORD_MACRO }}({{ signal.name }}_val, {{ scale_macro.format(msg_big_name, signal_big_name) }}, {{ offset_macro.format(msg_big_name, signal_big_name) }}, {{ raw_type }});
+    const {{ raw_type }} {{ signal.name }}_raw = {{ DECORD_MACRO }}({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ raw_type }});
     {% for iteration in iterations(signal) -%}
     {%- set packShift = "packShiftRight" if iteration.shift >= 0 else "packShiftLeft" -%}
     out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift | abs }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }} 
@@ -145,9 +120,9 @@ void app_canUtils_{{ msg.name }}_unpack(const uint8_t* const in_data, {{ msg.nam
     {% endfor -%}
     {%- if signal.signed -%}
     const int {{ signal.name }}_signed = SIGNED_DECODE({{ signal.name }}_raw, {{ signal.bits }}, {{ max_uint_for_bits(signal.bits) }});
-    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_signed, {{ scale_macro.format(msg_big_name, signal_big_name) }}, {{ offset_macro.format(msg_big_name, signal_big_name) }}, {{ signal.representation() }});
+    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_signed, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ signal.representation() }});
     {%- else -%}
-    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_raw, {{ scale_macro.format(msg_big_name, signal_big_name) }}, {{ offset_macro.format(msg_big_name, signal_big_name) }}, {{signal.representation()}});
+    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_raw, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{signal.representation()}});
     {% endif %}
     {% endfor %}
 }
