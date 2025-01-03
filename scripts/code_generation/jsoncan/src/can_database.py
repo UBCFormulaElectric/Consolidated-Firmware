@@ -2,14 +2,15 @@
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
 
-from dataclasses import dataclass
-from typing import List, Union, Dict
 import logging
+from dataclasses import dataclass
+from typing import Dict, List, Union
+
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import bits_for_uint, bits_to_bytes, is_int, pascal_to_screaming_snake_case, pascal_to_snake_case
-
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 
@@ -188,6 +189,10 @@ class CanMessage:
     
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
+    
+    # type of the message
+    def c_type(self):
+        return self.name + "_Signals"
 
 
 @dataclass(frozen=True)
