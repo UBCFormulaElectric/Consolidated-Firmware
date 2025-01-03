@@ -19,1265 +19,993 @@ void app_canTx_init(void);
 
 
 /**
- * Update value stored in TX table of signal VC_Heartbeat in msg VC_Vitals.
+ * Update value stored in TX table of signal BMS_Heartbeat in msg BMS_Vitals.
  */
-void app_canTx_VC_Heartbeat_set(bool value);
+void app_canTx_BMS_Heartbeat_set(bool value);
 /**
- * Update value stored in TX table of signal VC_State in msg VC_Vitals.
+ * Update value stored in TX table of signal BMS_State in msg BMS_Vitals.
  */
-void app_canTx_VC_State_set(VcState value);
+void app_canTx_BMS_State_set(BmsState value);
 /**
- * Update value stored in TX table of signal VC_BuzzerOn in msg VC_Vitals.
+ * Update value stored in TX table of signal BMS_TxOverflowCount in msg BMS_AlertsContext.
  */
-void app_canTx_VC_BuzzerOn_set(bool value);
+void app_canTx_BMS_TxOverflowCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_NumberOfCanDataLogs in msg VC_Vitals.
+ * Update value stored in TX table of signal BMS_RxOverflowCount in msg BMS_AlertsContext.
  */
-void app_canTx_VC_NumberOfCanDataLogs_set(uint32_t value);
+void app_canTx_BMS_RxOverflowCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_CanLoggingRemainingErrors in msg VC_Vitals.
+ * Update value stored in TX table of signal BMS_WatchdogTimeoutTaskName in msg BMS_AlertsContext.
  */
-void app_canTx_VC_CanLoggingRemainingErrors_set(uint32_t value);
+void app_canTx_BMS_WatchdogTimeoutTaskName_set(RtosTaskName value);
 /**
- * Update value stored in TX table of signal VC_LeftInverterTorqueCommand in msg VC_LeftInverterCommand.
+ * Update value stored in TX table of signal BMS_ModuleCommunication_NumCommTries in msg BMS_AlertsContext.
  */
-void app_canTx_VC_LeftInverterTorqueCommand_set(float value);
+void app_canTx_BMS_ModuleCommunication_NumCommTries_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_LeftInverterSpeedCommand in msg VC_LeftInverterCommand.
+ * Update value stored in TX table of signal BMS_ModuleCommunication_MonitorState in msg BMS_AlertsContext.
  */
-void app_canTx_VC_LeftInverterSpeedCommand_set(int value);
+void app_canTx_BMS_ModuleCommunication_MonitorState_set(CAN_AccumulatorMonitorState value);
 /**
- * Update value stored in TX table of signal VC_LeftInverterDirectionCommand in msg VC_LeftInverterCommand.
+ * Update value stored in TX table of signal BMS_ImdOkHs in msg BMS_ImdStatus.
  */
-void app_canTx_VC_LeftInverterDirectionCommand_set(InverterDirection value);
+void app_canTx_BMS_ImdOkHs_set(bool value);
 /**
- * Update value stored in TX table of signal VC_LeftInverterEnable in msg VC_LeftInverterCommand.
+ * Update value stored in TX table of signal BMS_ImdTimeSincePowerOn in msg BMS_ImdStatus.
  */
-void app_canTx_VC_LeftInverterEnable_set(bool value);
+void app_canTx_BMS_ImdTimeSincePowerOn_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_LeftInverterEnableDischarge in msg VC_LeftInverterCommand.
+ * Update value stored in TX table of signal BMS_ImdValidDutyCycle in msg BMS_ImdStatus.
  */
-void app_canTx_VC_LeftInverterEnableDischarge_set(bool value);
+void app_canTx_BMS_ImdValidDutyCycle_set(bool value);
 /**
- * Update value stored in TX table of signal VC_LeftInverterEnableSpeedMode in msg VC_LeftInverterCommand.
+ * Update value stored in TX table of signal BMS_ImdCondition in msg BMS_ImdStatus.
  */
-void app_canTx_VC_LeftInverterEnableSpeedMode_set(bool value);
+void app_canTx_BMS_ImdCondition_set(ImdConditionName value);
 /**
- * Update value stored in TX table of signal VC_LeftInverterTorqueLimit in msg VC_LeftInverterCommand.
+ * Update value stored in TX table of signal BMS_ImdDutyCycle in msg BMS_ImdStatus.
  */
-void app_canTx_VC_LeftInverterTorqueLimit_set(float value);
+void app_canTx_BMS_ImdDutyCycle_set(float value);
 /**
- * Update value stored in TX table of signal VC_INVL_CommandParameterAddress in msg VC_INVL_ReadWriteParamCommand.
+ * Update value stored in TX table of signal BMS_ImdFrequency in msg BMS_ImdStatus.
  */
-void app_canTx_VC_INVL_CommandParameterAddress_set(uint32_t value);
+void app_canTx_BMS_ImdFrequency_set(float value);
 /**
- * Update value stored in TX table of signal VC_INVL_CommandReadWrite in msg VC_INVL_ReadWriteParamCommand.
+ * Update value stored in TX table of signal BMS_ImdActiveFrequency in msg BMS_ImdData.
  */
-void app_canTx_VC_INVL_CommandReadWrite_set(InverterReadWriteCommand value);
+void app_canTx_BMS_ImdActiveFrequency_set(ImdActiveFrequency value);
 /**
- * Update value stored in TX table of signal VC_INVL_CommandData in msg VC_INVL_ReadWriteParamCommand.
+ * Update value stored in TX table of signal BMS_ImdInsulationMeasurementDcp10Hz in msg BMS_ImdData.
  */
-void app_canTx_VC_INVL_CommandData_set(uint32_t value);
+void app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(float value);
 /**
- * Update value stored in TX table of signal VC_RightInverterTorqueCommand in msg VC_RightInverterCommand.
+ * Update value stored in TX table of signal BMS_ImdInsulationMeasurementDcp20Hz in msg BMS_ImdData.
  */
-void app_canTx_VC_RightInverterTorqueCommand_set(float value);
+void app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(float value);
 /**
- * Update value stored in TX table of signal VC_RightInverterSpeedCommand in msg VC_RightInverterCommand.
+ * Update value stored in TX table of signal BMS_ImdSpeedStartStatus30Hz in msg BMS_ImdData.
  */
-void app_canTx_VC_RightInverterSpeedCommand_set(int value);
+void app_canTx_BMS_ImdSpeedStartStatus30Hz_set(float value);
 /**
- * Update value stored in TX table of signal VC_RightInverterDirectionCommand in msg VC_RightInverterCommand.
+ * Update value stored in TX table of signal BMS_ChargerConnected in msg BMS_Charger.
  */
-void app_canTx_VC_RightInverterDirectionCommand_set(InverterDirection value);
+void app_canTx_BMS_ChargerConnected_set(bool value);
 /**
- * Update value stored in TX table of signal VC_RightInverterEnable in msg VC_RightInverterCommand.
+ * Update value stored in TX table of signal BMS_ChargerEnable in msg BMS_BrusaControls.
  */
-void app_canTx_VC_RightInverterEnable_set(bool value);
+void app_canTx_BMS_ChargerEnable_set(bool value);
 /**
- * Update value stored in TX table of signal VC_RightInverterEnableDischarge in msg VC_RightInverterCommand.
+ * Update value stored in TX table of signal BMS_ClearLatch in msg BMS_BrusaControls.
  */
-void app_canTx_VC_RightInverterEnableDischarge_set(bool value);
+void app_canTx_BMS_ClearLatch_set(bool value);
 /**
- * Update value stored in TX table of signal VC_RightInverterEnableSpeedMode in msg VC_RightInverterCommand.
+ * Update value stored in TX table of signal BMS_MaxMainsCurrent in msg BMS_BrusaControls.
  */
-void app_canTx_VC_RightInverterEnableSpeedMode_set(bool value);
+void app_canTx_BMS_MaxMainsCurrent_set(float value);
 /**
- * Update value stored in TX table of signal VC_RightInverterTorqueLimit in msg VC_RightInverterCommand.
+ * Update value stored in TX table of signal BMS_ChargingVoltage in msg BMS_BrusaControls.
  */
-void app_canTx_VC_RightInverterTorqueLimit_set(float value);
+void app_canTx_BMS_ChargingVoltage_set(float value);
 /**
- * Update value stored in TX table of signal VC_INVR_CommandParameterAddress in msg VC_INVR_ReadWriteParamCommand.
+ * Update value stored in TX table of signal BMS_ChargingCurrent in msg BMS_BrusaControls.
  */
-void app_canTx_VC_INVR_CommandParameterAddress_set(uint32_t value);
+void app_canTx_BMS_ChargingCurrent_set(float value);
 /**
- * Update value stored in TX table of signal VC_INVR_CommandReadWrite in msg VC_INVR_ReadWriteParamCommand.
+ * Update value stored in TX table of signal BMS_BmsOk in msg BMS_OkStatuses.
  */
-void app_canTx_VC_INVR_CommandReadWrite_set(InverterReadWriteCommand value);
+void app_canTx_BMS_BmsOk_set(bool value);
 /**
- * Update value stored in TX table of signal VC_INVR_CommandData in msg VC_INVR_ReadWriteParamCommand.
+ * Update value stored in TX table of signal BMS_ImdOk in msg BMS_OkStatuses.
  */
-void app_canTx_VC_INVR_CommandData_set(uint32_t value);
+void app_canTx_BMS_ImdOk_set(bool value);
 /**
- * Update value stored in TX table of signal VC_WatchdogTimeout in msg VC_AlertsContext.
+ * Update value stored in TX table of signal BMS_BspdOk in msg BMS_OkStatuses.
  */
-void app_canTx_VC_WatchdogTimeout_set(bool value);
+void app_canTx_BMS_BspdOk_set(bool value);
 /**
- * Update value stored in TX table of signal VC_WatchdogTimeoutTaskName in msg VC_AlertsContext.
+ * Update value stored in TX table of signal BMS_BmsLatchedFault in msg BMS_OkStatuses.
  */
-void app_canTx_VC_WatchdogTimeoutTaskName_set(RtosTaskName value);
+void app_canTx_BMS_BmsLatchedFault_set(bool value);
 /**
- * Update value stored in TX table of signal VC_TxOverflowCount in msg VC_AlertsContext.
+ * Update value stored in TX table of signal BMS_ImdLatchedFault in msg BMS_OkStatuses.
  */
-void app_canTx_VC_TxOverflowCount_set(uint32_t value);
+void app_canTx_BMS_ImdLatchedFault_set(bool value);
 /**
- * Update value stored in TX table of signal VC_RxOverflowCount in msg VC_AlertsContext.
+ * Update value stored in TX table of signal BMS_BspdLatchedFault in msg BMS_OkStatuses.
  */
-void app_canTx_VC_RxOverflowCount_set(uint32_t value);
+void app_canTx_BMS_BspdLatchedFault_set(bool value);
 /**
- * Update value stored in TX table of signal VC_EllipseGeneralStatusBitmask in msg VC_EllipseStatus.
+ * Update value stored in TX table of signal BMS_AirPositive in msg BMS_Contactors.
  */
-void app_canTx_VC_EllipseGeneralStatusBitmask_set(uint32_t value);
+void app_canTx_BMS_AirPositive_set(ContactorState value);
 /**
- * Update value stored in TX table of signal VC_EllipseComStatusBitmask in msg VC_EllipseStatus.
+ * Update value stored in TX table of signal BMS_AirNegative in msg BMS_Contactors.
  */
-void app_canTx_VC_EllipseComStatusBitmask_set(uint32_t value);
+void app_canTx_BMS_AirNegative_set(ContactorState value);
 /**
- * Update value stored in TX table of signal VC_EkfSolutionMode in msg VC_EllipseStatus.
+ * Update value stored in TX table of signal BMS_PrechargeRelay in msg BMS_Contactors.
  */
-void app_canTx_VC_EkfSolutionMode_set(VcEkfStatus value);
+void app_canTx_BMS_PrechargeRelay_set(ContactorState value);
 /**
- * Update value stored in TX table of signal VC_EllipseTimestamp in msg VC_EllipseTime.
+ * Update value stored in TX table of signal BMS_MinCellTemperature in msg BMS_CellTemperatures.
  */
-void app_canTx_VC_EllipseTimestamp_set(uint32_t value);
+void app_canTx_BMS_MinCellTemperature_set(float value);
 /**
- * Update value stored in TX table of signal VC_EulerAnglesRoll in msg VC_EllipseEulerAngles.
+ * Update value stored in TX table of signal BMS_MaxCellTemperature in msg BMS_CellTemperatures.
  */
-void app_canTx_VC_EulerAnglesRoll_set(float value);
+void app_canTx_BMS_MaxCellTemperature_set(float value);
 /**
- * Update value stored in TX table of signal VC_EulerAnglesPitch in msg VC_EllipseEulerAngles.
+ * Update value stored in TX table of signal BMS_PackVoltage in msg BMS_VoltageAndChargeStats.
  */
-void app_canTx_VC_EulerAnglesPitch_set(float value);
+void app_canTx_BMS_PackVoltage_set(float value);
 /**
- * Update value stored in TX table of signal VC_EulerAnglesYaw in msg VC_EllipseEulerAngles.
+ * Update value stored in TX table of signal BMS_Soc in msg BMS_VoltageAndChargeStats.
  */
-void app_canTx_VC_EulerAnglesYaw_set(float value);
+void app_canTx_BMS_Soc_set(float value);
 /**
- * Update value stored in TX table of signal VC_Hash in msg VC_CommitInfo.
+ * Update value stored in TX table of signal BMS_SocCorrupt in msg BMS_VoltageAndChargeStats.
  */
-void app_canTx_VC_Hash_set(uint32_t value);
+void app_canTx_BMS_SocCorrupt_set(bool value);
 /**
- * Update value stored in TX table of signal VC_Clean in msg VC_CommitInfo.
+ * Update value stored in TX table of signal BMS_MinCellVoltage in msg BMS_VoltageAndChargeStats.
  */
-void app_canTx_VC_Clean_set(bool value);
+void app_canTx_BMS_MinCellVoltage_set(float value);
 /**
- * Update value stored in TX table of signal VC_PowerEstimateValue in msg VC_PowerEstimate.
+ * Update value stored in TX table of signal BMS_MaxCellVoltage in msg BMS_VoltageAndChargeStats.
  */
-void app_canTx_VC_PowerEstimateValue_set(float value);
+void app_canTx_BMS_MaxCellVoltage_set(float value);
 /**
- * Update value stored in TX table of signal VC_PowerEstimateMeasuredValue in msg VC_PowerEstimate.
+ * Update value stored in TX table of signal BMS_MinCellVoltageSegment in msg BMS_CellStats.
  */
-void app_canTx_VC_PowerEstimateMeasuredValue_set(float value);
+void app_canTx_BMS_MinCellVoltageSegment_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDPowerEstimateOutput in msg VC_PowerEstimatePID.
+ * Update value stored in TX table of signal BMS_MinCellVoltageIdx in msg BMS_CellStats.
  */
-void app_canTx_VC_PIDPowerEstimateOutput_set(float value);
+void app_canTx_BMS_MinCellVoltageIdx_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDPowerEstimateError in msg VC_PowerEstimatePID.
+ * Update value stored in TX table of signal BMS_MaxCellVoltageSegment in msg BMS_CellStats.
  */
-void app_canTx_VC_PIDPowerEstimateError_set(float value);
+void app_canTx_BMS_MaxCellVoltageSegment_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDPowerEstimateDerivative in msg VC_PowerEstimatePID.
+ * Update value stored in TX table of signal BMS_MaxCellVoltageIdx in msg BMS_CellStats.
  */
-void app_canTx_VC_PIDPowerEstimateDerivative_set(float value);
+void app_canTx_BMS_MaxCellVoltageIdx_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDPowerEstimateIntegral in msg VC_PowerEstimatePID.
+ * Update value stored in TX table of signal BMS_MinTempSegment in msg BMS_CellStats.
  */
-void app_canTx_VC_PIDPowerEstimateIntegral_set(float value);
+void app_canTx_BMS_MinTempSegment_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDSlipRatioOutput in msg VC_PIDSlipRatio.
+ * Update value stored in TX table of signal BMS_MinTempIdx in msg BMS_CellStats.
  */
-void app_canTx_VC_PIDSlipRatioOutput_set(float value);
+void app_canTx_BMS_MinTempIdx_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDSlipRatioError in msg VC_PIDSlipRatio.
+ * Update value stored in TX table of signal BMS_MaxTempSegment in msg BMS_CellStats.
  */
-void app_canTx_VC_PIDSlipRatioError_set(float value);
+void app_canTx_BMS_MaxTempSegment_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDSlipRatioDerivative in msg VC_PIDSlipRatio.
+ * Update value stored in TX table of signal BMS_MaxTempIdx in msg BMS_CellStats.
  */
-void app_canTx_VC_PIDSlipRatioDerivative_set(float value);
+void app_canTx_BMS_MaxTempIdx_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PIDSlipRatioIntegral in msg VC_PIDSlipRatio.
+ * Update value stored in TX table of signal BMS_TractiveSystemVoltage in msg BMS_TractiveSystem.
  */
-void app_canTx_VC_PIDSlipRatioIntegral_set(float value);
+void app_canTx_BMS_TractiveSystemVoltage_set(float value);
 /**
- * Update value stored in TX table of signal VC_SlipRatioLeft in msg VC_SlipRatios.
+ * Update value stored in TX table of signal BMS_TractiveSystemCurrent in msg BMS_TractiveSystem.
  */
-void app_canTx_VC_SlipRatioLeft_set(float value);
+void app_canTx_BMS_TractiveSystemCurrent_set(float value);
 /**
- * Update value stored in TX table of signal VC_SlipRatioRight in msg VC_SlipRatios.
+ * Update value stored in TX table of signal BMS_TractiveSystemPower in msg BMS_TractiveSystem.
  */
-void app_canTx_VC_SlipRatioRight_set(float value);
+void app_canTx_BMS_TractiveSystemPower_set(float value);
 /**
- * Update value stored in TX table of signal VC_ActiveDiffTorqueLeft in msg VC_ActiveDiffOutputs.
+ * Update value stored in TX table of signal BMS_AvailablePower in msg BMS_TractiveSystem.
  */
-void app_canTx_VC_ActiveDiffTorqueLeft_set(float value);
+void app_canTx_BMS_AvailablePower_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_ActiveDiffTorqueRight in msg VC_ActiveDiffOutputs.
+ * Update value stored in TX table of signal BMS_BSPDCurrentThresholdExceeded in msg BMS_TractiveSystem.
  */
-void app_canTx_VC_ActiveDiffTorqueRight_set(float value);
+void app_canTx_BMS_BSPDCurrentThresholdExceeded_set(bool value);
 /**
- * Update value stored in TX table of signal VC_PowerLimitValue in msg VC_PowerLimit.
+ * Update value stored in TX table of signal BMS_Hash in msg BMS_CommitInfo.
  */
-void app_canTx_VC_PowerLimitValue_set(float value);
+void app_canTx_BMS_Hash_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_PowerLimitValueAtFullThrottle in msg VC_PowerLimit.
+ * Update value stored in TX table of signal BMS_Clean in msg BMS_CommitInfo.
  */
-void app_canTx_VC_PowerLimitValueAtFullThrottle_set(float value);
+void app_canTx_BMS_Clean_set(bool value);
 /**
- * Update value stored in TX table of signal VC_RegenEnabled in msg VC_VehicleDynamics.
+ * Update value stored in TX table of signal BMS_Segment0_OWC_Cells_Status in msg BMS_OWC_Segment0to2_Status.
  */
-void app_canTx_VC_RegenEnabled_set(bool value);
+void app_canTx_BMS_Segment0_OWC_Cells_Status_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_TorqueVectoringEnabled in msg VC_VehicleDynamics.
+ * Update value stored in TX table of signal BMS_Segment1_OWC_Cells_Status in msg BMS_OWC_Segment0to2_Status.
  */
-void app_canTx_VC_TorqueVectoringEnabled_set(bool value);
+void app_canTx_BMS_Segment1_OWC_Cells_Status_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_VehicleVelocity in msg VC_VehicleDynamics.
+ * Update value stored in TX table of signal BMS_Segment2_OWC_Cells_Status in msg BMS_OWC_Segment0to2_Status.
  */
-void app_canTx_VC_VehicleVelocity_set(float value);
+void app_canTx_BMS_Segment2_OWC_Cells_Status_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_VelocityNorth in msg VC_EllipseEkfNavVelocity.
+ * Update value stored in TX table of signal BMS_Segment3_OWC_Cells_Status in msg BMS_OWC_Segment3to4_Status.
  */
-void app_canTx_VC_VelocityNorth_set(float value);
+void app_canTx_BMS_Segment3_OWC_Cells_Status_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_VelocityNorthAccuracy in msg VC_EllipseEkfNavVelocity.
+ * Update value stored in TX table of signal BMS_Segment4_OWC_Cells_Status in msg BMS_OWC_Segment3to4_Status.
  */
-void app_canTx_VC_VelocityNorthAccuracy_set(float value);
+void app_canTx_BMS_Segment4_OWC_Cells_Status_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_VelocityEast in msg VC_EllipseEkfNavVelocity.
+ * Update value stored in TX table of signal BMS_HVDShdnOKStatus in msg BMS_BMSShdnNodeStatus.
  */
-void app_canTx_VC_VelocityEast_set(float value);
+void app_canTx_BMS_HVDShdnOKStatus_set(bool value);
 /**
- * Update value stored in TX table of signal VC_VelocityEastAccuracy in msg VC_EllipseEkfNavVelocity.
+ * Update value stored in TX table of signal BMS_TSIlckOKStatus in msg BMS_BMSShdnNodeStatus.
  */
-void app_canTx_VC_VelocityEastAccuracy_set(float value);
+void app_canTx_BMS_TSIlckOKStatus_set(bool value);
 /**
- * Update value stored in TX table of signal VC_VelocityDown in msg VC_EllipseEkfNavVelocity.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1Hz in msg BMS_Warnings.
  */
-void app_canTx_VC_VelocityDown_set(float value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTask1Hz_set(bool value);
 /**
- * Update value stored in TX table of signal VC_VelocityDownAccuracy in msg VC_EllipseEkfNavVelocity.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask100Hz in msg BMS_Warnings.
  */
-void app_canTx_VC_VelocityDownAccuracy_set(float value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTask100Hz_set(bool value);
 /**
- * Update value stored in TX table of signal VC_BatVoltage in msg VC_Voltages.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1kHz in msg BMS_Warnings.
  */
-void app_canTx_VC_BatVoltage_set(float value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTask1kHz_set(bool value);
 /**
- * Update value stored in TX table of signal VC_BoostVoltage in msg VC_Voltages.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanRx in msg BMS_Warnings.
  */
-void app_canTx_VC_BoostVoltage_set(float value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRx_set(bool value);
 /**
- * Update value stored in TX table of signal VC_AccVoltage in msg VC_Voltages.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanTx in msg BMS_Warnings.
  */
-void app_canTx_VC_AccVoltage_set(float value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTx_set(bool value);
 /**
- * Update value stored in TX table of signal VC_AccCurrent in msg VC_CurrentSensing.
+ * Update value stored in TX table of signal BMS_Warning_WatchdogTimeout in msg BMS_Warnings.
  */
-void app_canTx_VC_AccCurrent_set(float value);
+void app_canTx_BMS_Warning_WatchdogTimeout_set(bool value);
 /**
- * Update value stored in TX table of signal VC_BatCurrent in msg VC_CurrentSensing.
+ * Update value stored in TX table of signal BMS_Warning_TxOverflow in msg BMS_Warnings.
  */
-void app_canTx_VC_BatCurrent_set(float value);
+void app_canTx_BMS_Warning_TxOverflow_set(bool value);
 /**
- * Update value stored in TX table of signal VC_ShdnCurrent in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_RxOverflow in msg BMS_Warnings.
  */
-void app_canTx_VC_ShdnCurrent_set(float value);
+void app_canTx_BMS_Warning_RxOverflow_set(bool value);
 /**
- * Update value stored in TX table of signal VC_ShdnStatus in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheckFault in msg BMS_Warnings.
  */
-void app_canTx_VC_ShdnStatus_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheckFault_set(bool value);
 /**
- * Update value stored in TX table of signal VC_LvCurrent in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment0_GND in msg BMS_Warnings.
  */
-void app_canTx_VC_LvCurrent_set(float value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment0_GND_set(bool value);
 /**
- * Update value stored in TX table of signal VC_LvStatus in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment1_GND in msg BMS_Warnings.
  */
-void app_canTx_VC_LvStatus_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment1_GND_set(bool value);
 /**
- * Update value stored in TX table of signal VC_PumpCurrent in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment2_GND in msg BMS_Warnings.
  */
-void app_canTx_VC_PumpCurrent_set(float value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment2_GND_set(bool value);
 /**
- * Update value stored in TX table of signal VC_PumpStatus in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment3_GND in msg BMS_Warnings.
  */
-void app_canTx_VC_PumpStatus_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment3_GND_set(bool value);
 /**
- * Update value stored in TX table of signal VC_AuxCurrent in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment4_GND in msg BMS_Warnings.
  */
-void app_canTx_VC_AuxCurrent_set(float value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment4_GND_set(bool value);
 /**
- * Update value stored in TX table of signal VC_AuxStatus in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Warning_MissingVCHeartbeat in msg BMS_Warnings.
  */
-void app_canTx_VC_AuxStatus_set(bool value);
+void app_canTx_BMS_Warning_MissingVCHeartbeat_set(bool value);
 /**
- * Update value stored in TX table of signal VC_InvRCurrent in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Fault_StateMachine in msg BMS_Faults.
  */
-void app_canTx_VC_InvRCurrent_set(float value);
+void app_canTx_BMS_Fault_StateMachine_set(bool value);
 /**
- * Update value stored in TX table of signal VC_InvRStatus in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Fault_CellUndervoltage in msg BMS_Faults.
  */
-void app_canTx_VC_InvRStatus_set(bool value);
+void app_canTx_BMS_Fault_CellUndervoltage_set(bool value);
 /**
- * Update value stored in TX table of signal VC_InvLCurrent in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Fault_CellOvervoltage in msg BMS_Faults.
  */
-void app_canTx_VC_InvLCurrent_set(float value);
+void app_canTx_BMS_Fault_CellOvervoltage_set(bool value);
 /**
- * Update value stored in TX table of signal VC_InvLStatus in msg VC_Efuse.
+ * Update value stored in TX table of signal BMS_Fault_ModuleCommunicationError in msg BMS_Faults.
  */
-void app_canTx_VC_InvLStatus_set(bool value);
+void app_canTx_BMS_Fault_ModuleCommunicationError_set(bool value);
 /**
- * Update value stored in TX table of signal VC_ImuAccelerationX in msg VC_ImuLinearAcceleration.
+ * Update value stored in TX table of signal BMS_Fault_CellUndertemp in msg BMS_Faults.
  */
-void app_canTx_VC_ImuAccelerationX_set(float value);
+void app_canTx_BMS_Fault_CellUndertemp_set(bool value);
 /**
- * Update value stored in TX table of signal VC_ImuAccelerationY in msg VC_ImuLinearAcceleration.
+ * Update value stored in TX table of signal BMS_Fault_CellOvertemp in msg BMS_Faults.
  */
-void app_canTx_VC_ImuAccelerationY_set(float value);
+void app_canTx_BMS_Fault_CellOvertemp_set(bool value);
 /**
- * Update value stored in TX table of signal VC_ImuAccelerationZ in msg VC_ImuLinearAcceleration.
+ * Update value stored in TX table of signal BMS_Fault_ChargerReportedError in msg BMS_Faults.
  */
-void app_canTx_VC_ImuAccelerationZ_set(float value);
+void app_canTx_BMS_Fault_ChargerReportedError_set(bool value);
 /**
- * Update value stored in TX table of signal VC_FlowRate in msg VC_CoolantPumpFlowRate.
+ * Update value stored in TX table of signal BMS_Fault_ChargerDisconnectedDuringCharge in msg BMS_Faults.
  */
-void app_canTx_VC_FlowRate_set(float value);
+void app_canTx_BMS_Fault_ChargerDisconnectedDuringCharge_set(bool value);
 /**
- * Update value stored in TX table of signal VC_LEStopOKStatus in msg VC_VCShdnNodeStatus.
+ * Update value stored in TX table of signal BMS_Fault_ChargerShutdownLoopOpen in msg BMS_Faults.
  */
-void app_canTx_VC_LEStopOKStatus_set(bool value);
+void app_canTx_BMS_Fault_ChargerShutdownLoopOpen_set(bool value);
 /**
- * Update value stored in TX table of signal VC_REStopOKStatus in msg VC_VCShdnNodeStatus.
+ * Update value stored in TX table of signal BMS_Fault_TractiveSystemOvercurrent in msg BMS_Faults.
  */
-void app_canTx_VC_REStopOKStatus_set(bool value);
+void app_canTx_BMS_Fault_TractiveSystemOvercurrent_set(bool value);
 /**
- * Update value stored in TX table of signal VC_TSMSOKStatus in msg VC_VCShdnNodeStatus.
+ * Update value stored in TX table of signal BMS_Fault_PrechargeFailure in msg BMS_Faults.
  */
-void app_canTx_VC_TSMSOKStatus_set(bool value);
+void app_canTx_BMS_Fault_PrechargeFailure_set(bool value);
 /**
- * Update value stored in TX table of signal VC_SplitterBoxInterlockOKStatus in msg VC_VCShdnNodeStatus.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1HzCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_SplitterBoxInterlockOKStatus_set(bool value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTask1HzCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_FirstFaultNode in msg VC_GlobalShdnNodeStatus.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask100HzCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_FirstFaultNode_set(ShutdownNode value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTask100HzCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_MappedPedalPercentage in msg VC_PedalPercentage.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1kHzCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_MappedPedalPercentage_set(float value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTask1kHzCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1Hz in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanRxCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_StackWaterMarkHighTask1Hz_set(bool value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRxCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100Hz in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanTxCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_StackWaterMarkHighTask100Hz_set(bool value);
+void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTxCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHz in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_WatchdogTimeoutCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_StackWaterMarkHighTask1kHz_set(bool value);
+void app_canTx_BMS_Warning_WatchdogTimeoutCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRx in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_TxOverflowCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_StackWaterMarkHighTaskCanRx_set(bool value);
+void app_canTx_BMS_Warning_TxOverflowCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTx in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_RxOverflowCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_StackWaterMarkHighTaskCanTx_set(bool value);
+void app_canTx_BMS_Warning_RxOverflowCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_WatchdogTimeout in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheckFaultCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_WatchdogTimeout_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheckFaultCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_TxOverflow in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment0_GNDCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_TxOverflow_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment0_GNDCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_RxOverflow in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment1_GNDCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_RxOverflow_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment1_GNDCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_RegenNotAvailable in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment2_GNDCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_RegenNotAvailable_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment2_GNDCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_ImuInitFailed in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment3_GNDCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_ImuInitFailed_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment3_GNDCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_FlowRateInputOutOfRange in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment4_GNDCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_FlowRateInputOutOfRange_set(bool value);
+void app_canTx_BMS_Warning_OpenWireCheck_Segment4_GNDCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFault in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Warning_MissingVCHeartbeatCount in msg BMS_WarningsCounts.
  */
-void app_canTx_VC_Warning_BatteryRailOvercurrentFault_set(bool value);
+void app_canTx_BMS_Warning_MissingVCHeartbeatCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFault in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_StateMachineCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_AccumulatorRailOvercurrentFault_set(bool value);
+void app_canTx_BMS_Fault_StateMachineCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_LvChargeFault in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_CellUndervoltageCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_LvChargeFault_set(bool value);
+void app_canTx_BMS_Fault_CellUndervoltageCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_BoostControllerFault in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_CellOvervoltageCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_BoostControllerFault_set(bool value);
+void app_canTx_BMS_Fault_CellOvervoltageCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogs in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_ModuleCommunicationErrorCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_HighNumberOfCanDataLogs_set(bool value);
+void app_canTx_BMS_Fault_ModuleCommunicationErrorCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresent in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_CellUndertempCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_CanLoggingSdCardNotPresent_set(bool value);
+void app_canTx_BMS_Fault_CellUndertempCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_CanLoggingErrored in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_CellOvertempCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_CanLoggingErrored_set(bool value);
+void app_canTx_BMS_Fault_CellOvertempCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_BrakeAppsDisagreement in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_ChargerReportedErrorCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_BrakeAppsDisagreement_set(bool value);
+void app_canTx_BMS_Fault_ChargerReportedErrorCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Warning_SbgInitFailed in msg VC_Warnings.
+ * Update value stored in TX table of signal BMS_Fault_ChargerDisconnectedDuringChargeCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Warning_SbgInitFailed_set(bool value);
+void app_canTx_BMS_Fault_ChargerDisconnectedDuringChargeCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Fault_MissingBMSHeartbeat in msg VC_Faults.
+ * Update value stored in TX table of signal BMS_Fault_ChargerShutdownLoopOpenCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Fault_MissingBMSHeartbeat_set(bool value);
+void app_canTx_BMS_Fault_ChargerShutdownLoopOpenCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Fault_MissingFSMHeartbeat in msg VC_Faults.
+ * Update value stored in TX table of signal BMS_Fault_TractiveSystemOvercurrentCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Fault_MissingFSMHeartbeat_set(bool value);
+void app_canTx_BMS_Fault_TractiveSystemOvercurrentCount_set(uint32_t value);
 /**
- * Update value stored in TX table of signal VC_Fault_MissingRSMHeartbeat in msg VC_Faults.
+ * Update value stored in TX table of signal BMS_Fault_PrechargeFailureCount in msg BMS_FaultsCounts.
  */
-void app_canTx_VC_Fault_MissingRSMHeartbeat_set(bool value);
-/**
- * Update value stored in TX table of signal VC_Fault_MissingCRITHeartbeat in msg VC_Faults.
- */
-void app_canTx_VC_Fault_MissingCRITHeartbeat_set(bool value);
-/**
- * Update value stored in TX table of signal VC_Fault_LeftInverterFault in msg VC_Faults.
- */
-void app_canTx_VC_Fault_LeftInverterFault_set(bool value);
-/**
- * Update value stored in TX table of signal VC_Fault_RightInverterFault in msg VC_Faults.
- */
-void app_canTx_VC_Fault_RightInverterFault_set(bool value);
-/**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1HzCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_StackWaterMarkHighTask1HzCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100HzCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_StackWaterMarkHighTask100HzCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHzCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_StackWaterMarkHighTask1kHzCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRxCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_StackWaterMarkHighTaskCanRxCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTxCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_StackWaterMarkHighTaskCanTxCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_WatchdogTimeoutCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_WatchdogTimeoutCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_TxOverflowCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_TxOverflowCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_RxOverflowCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_RxOverflowCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_RegenNotAvailableCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_RegenNotAvailableCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_ImuInitFailedCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_ImuInitFailedCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_FlowRateInputOutOfRangeCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_FlowRateInputOutOfRangeCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFaultCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_BatteryRailOvercurrentFaultCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFaultCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_AccumulatorRailOvercurrentFaultCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_LvChargeFaultCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_LvChargeFaultCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_BoostControllerFaultCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_BoostControllerFaultCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogsCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_HighNumberOfCanDataLogsCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresentCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_CanLoggingSdCardNotPresentCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_CanLoggingErroredCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_CanLoggingErroredCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_BrakeAppsDisagreementCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_BrakeAppsDisagreementCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Warning_SbgInitFailedCount in msg VC_WarningsCounts.
- */
-void app_canTx_VC_Warning_SbgInitFailedCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Fault_MissingBMSHeartbeatCount in msg VC_FaultsCounts.
- */
-void app_canTx_VC_Fault_MissingBMSHeartbeatCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Fault_MissingFSMHeartbeatCount in msg VC_FaultsCounts.
- */
-void app_canTx_VC_Fault_MissingFSMHeartbeatCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Fault_MissingRSMHeartbeatCount in msg VC_FaultsCounts.
- */
-void app_canTx_VC_Fault_MissingRSMHeartbeatCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Fault_MissingCRITHeartbeatCount in msg VC_FaultsCounts.
- */
-void app_canTx_VC_Fault_MissingCRITHeartbeatCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Fault_LeftInverterFaultCount in msg VC_FaultsCounts.
- */
-void app_canTx_VC_Fault_LeftInverterFaultCount_set(uint32_t value);
-/**
- * Update value stored in TX table of signal VC_Fault_RightInverterFaultCount in msg VC_FaultsCounts.
- */
-void app_canTx_VC_Fault_RightInverterFaultCount_set(uint32_t value);
+void app_canTx_BMS_Fault_PrechargeFailureCount_set(uint32_t value);
 
 
 /**
- * Get value stored in TX table of signal VC_Heartbeat in msg VC_Vitals.
+ * Get value stored in TX table of signal BMS_Heartbeat in msg BMS_Vitals.
  */
-bool app_canTx_VC_Vitals_VC_Heartbeat_get(void);
+bool app_canTx_BMS_Vitals_BMS_Heartbeat_get(void);
 /**
- * Get value stored in TX table of signal VC_State in msg VC_Vitals.
+ * Get value stored in TX table of signal BMS_State in msg BMS_Vitals.
  */
-VcState app_canTx_VC_Vitals_VC_State_get(void);
+BmsState app_canTx_BMS_Vitals_BMS_State_get(void);
 /**
- * Get value stored in TX table of signal VC_BuzzerOn in msg VC_Vitals.
+ * Get value stored in TX table of signal BMS_TxOverflowCount in msg BMS_AlertsContext.
  */
-bool app_canTx_VC_Vitals_VC_BuzzerOn_get(void);
+uint32_t app_canTx_BMS_AlertsContext_BMS_TxOverflowCount_get(void);
 /**
- * Get value stored in TX table of signal VC_NumberOfCanDataLogs in msg VC_Vitals.
+ * Get value stored in TX table of signal BMS_RxOverflowCount in msg BMS_AlertsContext.
  */
-uint32_t app_canTx_VC_Vitals_VC_NumberOfCanDataLogs_get(void);
+uint32_t app_canTx_BMS_AlertsContext_BMS_RxOverflowCount_get(void);
 /**
- * Get value stored in TX table of signal VC_CanLoggingRemainingErrors in msg VC_Vitals.
+ * Get value stored in TX table of signal BMS_WatchdogTimeoutTaskName in msg BMS_AlertsContext.
  */
-uint32_t app_canTx_VC_Vitals_VC_CanLoggingRemainingErrors_get(void);
+RtosTaskName app_canTx_BMS_AlertsContext_BMS_WatchdogTimeoutTaskName_get(void);
 /**
- * Get value stored in TX table of signal VC_LeftInverterTorqueCommand in msg VC_LeftInverterCommand.
+ * Get value stored in TX table of signal BMS_ModuleCommunication_NumCommTries in msg BMS_AlertsContext.
  */
-float app_canTx_VC_LeftInverterCommand_VC_LeftInverterTorqueCommand_get(void);
+uint32_t app_canTx_BMS_AlertsContext_BMS_ModuleCommunication_NumCommTries_get(void);
 /**
- * Get value stored in TX table of signal VC_LeftInverterSpeedCommand in msg VC_LeftInverterCommand.
+ * Get value stored in TX table of signal BMS_ModuleCommunication_MonitorState in msg BMS_AlertsContext.
  */
-int app_canTx_VC_LeftInverterCommand_VC_LeftInverterSpeedCommand_get(void);
+CAN_AccumulatorMonitorState app_canTx_BMS_AlertsContext_BMS_ModuleCommunication_MonitorState_get(void);
 /**
- * Get value stored in TX table of signal VC_LeftInverterDirectionCommand in msg VC_LeftInverterCommand.
+ * Get value stored in TX table of signal BMS_ImdOkHs in msg BMS_ImdStatus.
  */
-InverterDirection app_canTx_VC_LeftInverterCommand_VC_LeftInverterDirectionCommand_get(void);
+bool app_canTx_BMS_ImdStatus_BMS_ImdOkHs_get(void);
 /**
- * Get value stored in TX table of signal VC_LeftInverterEnable in msg VC_LeftInverterCommand.
+ * Get value stored in TX table of signal BMS_ImdTimeSincePowerOn in msg BMS_ImdStatus.
  */
-bool app_canTx_VC_LeftInverterCommand_VC_LeftInverterEnable_get(void);
+uint32_t app_canTx_BMS_ImdStatus_BMS_ImdTimeSincePowerOn_get(void);
 /**
- * Get value stored in TX table of signal VC_LeftInverterEnableDischarge in msg VC_LeftInverterCommand.
+ * Get value stored in TX table of signal BMS_ImdValidDutyCycle in msg BMS_ImdStatus.
  */
-bool app_canTx_VC_LeftInverterCommand_VC_LeftInverterEnableDischarge_get(void);
+bool app_canTx_BMS_ImdStatus_BMS_ImdValidDutyCycle_get(void);
 /**
- * Get value stored in TX table of signal VC_LeftInverterEnableSpeedMode in msg VC_LeftInverterCommand.
+ * Get value stored in TX table of signal BMS_ImdCondition in msg BMS_ImdStatus.
  */
-bool app_canTx_VC_LeftInverterCommand_VC_LeftInverterEnableSpeedMode_get(void);
+ImdConditionName app_canTx_BMS_ImdStatus_BMS_ImdCondition_get(void);
 /**
- * Get value stored in TX table of signal VC_LeftInverterTorqueLimit in msg VC_LeftInverterCommand.
+ * Get value stored in TX table of signal BMS_ImdDutyCycle in msg BMS_ImdStatus.
  */
-float app_canTx_VC_LeftInverterCommand_VC_LeftInverterTorqueLimit_get(void);
+float app_canTx_BMS_ImdStatus_BMS_ImdDutyCycle_get(void);
 /**
- * Get value stored in TX table of signal VC_INVL_CommandParameterAddress in msg VC_INVL_ReadWriteParamCommand.
+ * Get value stored in TX table of signal BMS_ImdFrequency in msg BMS_ImdStatus.
  */
-uint32_t app_canTx_VC_INVL_ReadWriteParamCommand_VC_INVL_CommandParameterAddress_get(void);
+float app_canTx_BMS_ImdStatus_BMS_ImdFrequency_get(void);
 /**
- * Get value stored in TX table of signal VC_INVL_CommandReadWrite in msg VC_INVL_ReadWriteParamCommand.
+ * Get value stored in TX table of signal BMS_ImdActiveFrequency in msg BMS_ImdData.
  */
-InverterReadWriteCommand app_canTx_VC_INVL_ReadWriteParamCommand_VC_INVL_CommandReadWrite_get(void);
+ImdActiveFrequency app_canTx_BMS_ImdData_BMS_ImdActiveFrequency_get(void);
 /**
- * Get value stored in TX table of signal VC_INVL_CommandData in msg VC_INVL_ReadWriteParamCommand.
+ * Get value stored in TX table of signal BMS_ImdInsulationMeasurementDcp10Hz in msg BMS_ImdData.
  */
-uint32_t app_canTx_VC_INVL_ReadWriteParamCommand_VC_INVL_CommandData_get(void);
+float app_canTx_BMS_ImdData_BMS_ImdInsulationMeasurementDcp10Hz_get(void);
 /**
- * Get value stored in TX table of signal VC_RightInverterTorqueCommand in msg VC_RightInverterCommand.
+ * Get value stored in TX table of signal BMS_ImdInsulationMeasurementDcp20Hz in msg BMS_ImdData.
  */
-float app_canTx_VC_RightInverterCommand_VC_RightInverterTorqueCommand_get(void);
+float app_canTx_BMS_ImdData_BMS_ImdInsulationMeasurementDcp20Hz_get(void);
 /**
- * Get value stored in TX table of signal VC_RightInverterSpeedCommand in msg VC_RightInverterCommand.
+ * Get value stored in TX table of signal BMS_ImdSpeedStartStatus30Hz in msg BMS_ImdData.
  */
-int app_canTx_VC_RightInverterCommand_VC_RightInverterSpeedCommand_get(void);
+float app_canTx_BMS_ImdData_BMS_ImdSpeedStartStatus30Hz_get(void);
 /**
- * Get value stored in TX table of signal VC_RightInverterDirectionCommand in msg VC_RightInverterCommand.
+ * Get value stored in TX table of signal BMS_ChargerConnected in msg BMS_Charger.
  */
-InverterDirection app_canTx_VC_RightInverterCommand_VC_RightInverterDirectionCommand_get(void);
+bool app_canTx_BMS_Charger_BMS_ChargerConnected_get(void);
 /**
- * Get value stored in TX table of signal VC_RightInverterEnable in msg VC_RightInverterCommand.
+ * Get value stored in TX table of signal BMS_ChargerEnable in msg BMS_BrusaControls.
  */
-bool app_canTx_VC_RightInverterCommand_VC_RightInverterEnable_get(void);
+bool app_canTx_BMS_BrusaControls_BMS_ChargerEnable_get(void);
 /**
- * Get value stored in TX table of signal VC_RightInverterEnableDischarge in msg VC_RightInverterCommand.
+ * Get value stored in TX table of signal BMS_ClearLatch in msg BMS_BrusaControls.
  */
-bool app_canTx_VC_RightInverterCommand_VC_RightInverterEnableDischarge_get(void);
+bool app_canTx_BMS_BrusaControls_BMS_ClearLatch_get(void);
 /**
- * Get value stored in TX table of signal VC_RightInverterEnableSpeedMode in msg VC_RightInverterCommand.
+ * Get value stored in TX table of signal BMS_MaxMainsCurrent in msg BMS_BrusaControls.
  */
-bool app_canTx_VC_RightInverterCommand_VC_RightInverterEnableSpeedMode_get(void);
+float app_canTx_BMS_BrusaControls_BMS_MaxMainsCurrent_get(void);
 /**
- * Get value stored in TX table of signal VC_RightInverterTorqueLimit in msg VC_RightInverterCommand.
+ * Get value stored in TX table of signal BMS_ChargingVoltage in msg BMS_BrusaControls.
  */
-float app_canTx_VC_RightInverterCommand_VC_RightInverterTorqueLimit_get(void);
+float app_canTx_BMS_BrusaControls_BMS_ChargingVoltage_get(void);
 /**
- * Get value stored in TX table of signal VC_INVR_CommandParameterAddress in msg VC_INVR_ReadWriteParamCommand.
+ * Get value stored in TX table of signal BMS_ChargingCurrent in msg BMS_BrusaControls.
  */
-uint32_t app_canTx_VC_INVR_ReadWriteParamCommand_VC_INVR_CommandParameterAddress_get(void);
+float app_canTx_BMS_BrusaControls_BMS_ChargingCurrent_get(void);
 /**
- * Get value stored in TX table of signal VC_INVR_CommandReadWrite in msg VC_INVR_ReadWriteParamCommand.
+ * Get value stored in TX table of signal BMS_BmsOk in msg BMS_OkStatuses.
  */
-InverterReadWriteCommand app_canTx_VC_INVR_ReadWriteParamCommand_VC_INVR_CommandReadWrite_get(void);
+bool app_canTx_BMS_OkStatuses_BMS_BmsOk_get(void);
 /**
- * Get value stored in TX table of signal VC_INVR_CommandData in msg VC_INVR_ReadWriteParamCommand.
+ * Get value stored in TX table of signal BMS_ImdOk in msg BMS_OkStatuses.
  */
-uint32_t app_canTx_VC_INVR_ReadWriteParamCommand_VC_INVR_CommandData_get(void);
+bool app_canTx_BMS_OkStatuses_BMS_ImdOk_get(void);
 /**
- * Get value stored in TX table of signal VC_WatchdogTimeout in msg VC_AlertsContext.
+ * Get value stored in TX table of signal BMS_BspdOk in msg BMS_OkStatuses.
  */
-bool app_canTx_VC_AlertsContext_VC_WatchdogTimeout_get(void);
+bool app_canTx_BMS_OkStatuses_BMS_BspdOk_get(void);
 /**
- * Get value stored in TX table of signal VC_WatchdogTimeoutTaskName in msg VC_AlertsContext.
+ * Get value stored in TX table of signal BMS_BmsLatchedFault in msg BMS_OkStatuses.
  */
-RtosTaskName app_canTx_VC_AlertsContext_VC_WatchdogTimeoutTaskName_get(void);
+bool app_canTx_BMS_OkStatuses_BMS_BmsLatchedFault_get(void);
 /**
- * Get value stored in TX table of signal VC_TxOverflowCount in msg VC_AlertsContext.
+ * Get value stored in TX table of signal BMS_ImdLatchedFault in msg BMS_OkStatuses.
  */
-uint32_t app_canTx_VC_AlertsContext_VC_TxOverflowCount_get(void);
+bool app_canTx_BMS_OkStatuses_BMS_ImdLatchedFault_get(void);
 /**
- * Get value stored in TX table of signal VC_RxOverflowCount in msg VC_AlertsContext.
+ * Get value stored in TX table of signal BMS_BspdLatchedFault in msg BMS_OkStatuses.
  */
-uint32_t app_canTx_VC_AlertsContext_VC_RxOverflowCount_get(void);
+bool app_canTx_BMS_OkStatuses_BMS_BspdLatchedFault_get(void);
 /**
- * Get value stored in TX table of signal VC_EllipseGeneralStatusBitmask in msg VC_EllipseStatus.
+ * Get value stored in TX table of signal BMS_AirPositive in msg BMS_Contactors.
  */
-uint32_t app_canTx_VC_EllipseStatus_VC_EllipseGeneralStatusBitmask_get(void);
+ContactorState app_canTx_BMS_Contactors_BMS_AirPositive_get(void);
 /**
- * Get value stored in TX table of signal VC_EllipseComStatusBitmask in msg VC_EllipseStatus.
+ * Get value stored in TX table of signal BMS_AirNegative in msg BMS_Contactors.
  */
-uint32_t app_canTx_VC_EllipseStatus_VC_EllipseComStatusBitmask_get(void);
+ContactorState app_canTx_BMS_Contactors_BMS_AirNegative_get(void);
 /**
- * Get value stored in TX table of signal VC_EkfSolutionMode in msg VC_EllipseStatus.
+ * Get value stored in TX table of signal BMS_PrechargeRelay in msg BMS_Contactors.
  */
-VcEkfStatus app_canTx_VC_EllipseStatus_VC_EkfSolutionMode_get(void);
+ContactorState app_canTx_BMS_Contactors_BMS_PrechargeRelay_get(void);
 /**
- * Get value stored in TX table of signal VC_EllipseTimestamp in msg VC_EllipseTime.
+ * Get value stored in TX table of signal BMS_MinCellTemperature in msg BMS_CellTemperatures.
  */
-uint32_t app_canTx_VC_EllipseTime_VC_EllipseTimestamp_get(void);
+float app_canTx_BMS_CellTemperatures_BMS_MinCellTemperature_get(void);
 /**
- * Get value stored in TX table of signal VC_EulerAnglesRoll in msg VC_EllipseEulerAngles.
+ * Get value stored in TX table of signal BMS_MaxCellTemperature in msg BMS_CellTemperatures.
  */
-float app_canTx_VC_EllipseEulerAngles_VC_EulerAnglesRoll_get(void);
+float app_canTx_BMS_CellTemperatures_BMS_MaxCellTemperature_get(void);
 /**
- * Get value stored in TX table of signal VC_EulerAnglesPitch in msg VC_EllipseEulerAngles.
+ * Get value stored in TX table of signal BMS_PackVoltage in msg BMS_VoltageAndChargeStats.
  */
-float app_canTx_VC_EllipseEulerAngles_VC_EulerAnglesPitch_get(void);
+float app_canTx_BMS_VoltageAndChargeStats_BMS_PackVoltage_get(void);
 /**
- * Get value stored in TX table of signal VC_EulerAnglesYaw in msg VC_EllipseEulerAngles.
+ * Get value stored in TX table of signal BMS_Soc in msg BMS_VoltageAndChargeStats.
  */
-float app_canTx_VC_EllipseEulerAngles_VC_EulerAnglesYaw_get(void);
+float app_canTx_BMS_VoltageAndChargeStats_BMS_Soc_get(void);
 /**
- * Get value stored in TX table of signal VC_Hash in msg VC_CommitInfo.
+ * Get value stored in TX table of signal BMS_SocCorrupt in msg BMS_VoltageAndChargeStats.
  */
-uint32_t app_canTx_VC_CommitInfo_VC_Hash_get(void);
+bool app_canTx_BMS_VoltageAndChargeStats_BMS_SocCorrupt_get(void);
 /**
- * Get value stored in TX table of signal VC_Clean in msg VC_CommitInfo.
+ * Get value stored in TX table of signal BMS_MinCellVoltage in msg BMS_VoltageAndChargeStats.
  */
-bool app_canTx_VC_CommitInfo_VC_Clean_get(void);
+float app_canTx_BMS_VoltageAndChargeStats_BMS_MinCellVoltage_get(void);
 /**
- * Get value stored in TX table of signal VC_PowerEstimateValue in msg VC_PowerEstimate.
+ * Get value stored in TX table of signal BMS_MaxCellVoltage in msg BMS_VoltageAndChargeStats.
  */
-float app_canTx_VC_PowerEstimate_VC_PowerEstimateValue_get(void);
+float app_canTx_BMS_VoltageAndChargeStats_BMS_MaxCellVoltage_get(void);
 /**
- * Get value stored in TX table of signal VC_PowerEstimateMeasuredValue in msg VC_PowerEstimate.
+ * Get value stored in TX table of signal BMS_MinCellVoltageSegment in msg BMS_CellStats.
  */
-float app_canTx_VC_PowerEstimate_VC_PowerEstimateMeasuredValue_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MinCellVoltageSegment_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDPowerEstimateOutput in msg VC_PowerEstimatePID.
+ * Get value stored in TX table of signal BMS_MinCellVoltageIdx in msg BMS_CellStats.
  */
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateOutput_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MinCellVoltageIdx_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDPowerEstimateError in msg VC_PowerEstimatePID.
+ * Get value stored in TX table of signal BMS_MaxCellVoltageSegment in msg BMS_CellStats.
  */
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateError_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MaxCellVoltageSegment_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDPowerEstimateDerivative in msg VC_PowerEstimatePID.
+ * Get value stored in TX table of signal BMS_MaxCellVoltageIdx in msg BMS_CellStats.
  */
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateDerivative_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MaxCellVoltageIdx_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDPowerEstimateIntegral in msg VC_PowerEstimatePID.
+ * Get value stored in TX table of signal BMS_MinTempSegment in msg BMS_CellStats.
  */
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateIntegral_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MinTempSegment_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDSlipRatioOutput in msg VC_PIDSlipRatio.
+ * Get value stored in TX table of signal BMS_MinTempIdx in msg BMS_CellStats.
  */
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioOutput_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MinTempIdx_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDSlipRatioError in msg VC_PIDSlipRatio.
+ * Get value stored in TX table of signal BMS_MaxTempSegment in msg BMS_CellStats.
  */
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioError_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MaxTempSegment_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDSlipRatioDerivative in msg VC_PIDSlipRatio.
+ * Get value stored in TX table of signal BMS_MaxTempIdx in msg BMS_CellStats.
  */
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioDerivative_get(void);
+uint32_t app_canTx_BMS_CellStats_BMS_MaxTempIdx_get(void);
 /**
- * Get value stored in TX table of signal VC_PIDSlipRatioIntegral in msg VC_PIDSlipRatio.
+ * Get value stored in TX table of signal BMS_TractiveSystemVoltage in msg BMS_TractiveSystem.
  */
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioIntegral_get(void);
+float app_canTx_BMS_TractiveSystem_BMS_TractiveSystemVoltage_get(void);
 /**
- * Get value stored in TX table of signal VC_SlipRatioLeft in msg VC_SlipRatios.
+ * Get value stored in TX table of signal BMS_TractiveSystemCurrent in msg BMS_TractiveSystem.
  */
-float app_canTx_VC_SlipRatios_VC_SlipRatioLeft_get(void);
+float app_canTx_BMS_TractiveSystem_BMS_TractiveSystemCurrent_get(void);
 /**
- * Get value stored in TX table of signal VC_SlipRatioRight in msg VC_SlipRatios.
+ * Get value stored in TX table of signal BMS_TractiveSystemPower in msg BMS_TractiveSystem.
  */
-float app_canTx_VC_SlipRatios_VC_SlipRatioRight_get(void);
+float app_canTx_BMS_TractiveSystem_BMS_TractiveSystemPower_get(void);
 /**
- * Get value stored in TX table of signal VC_ActiveDiffTorqueLeft in msg VC_ActiveDiffOutputs.
+ * Get value stored in TX table of signal BMS_AvailablePower in msg BMS_TractiveSystem.
  */
-float app_canTx_VC_ActiveDiffOutputs_VC_ActiveDiffTorqueLeft_get(void);
+uint32_t app_canTx_BMS_TractiveSystem_BMS_AvailablePower_get(void);
 /**
- * Get value stored in TX table of signal VC_ActiveDiffTorqueRight in msg VC_ActiveDiffOutputs.
+ * Get value stored in TX table of signal BMS_BSPDCurrentThresholdExceeded in msg BMS_TractiveSystem.
  */
-float app_canTx_VC_ActiveDiffOutputs_VC_ActiveDiffTorqueRight_get(void);
+bool app_canTx_BMS_TractiveSystem_BMS_BSPDCurrentThresholdExceeded_get(void);
 /**
- * Get value stored in TX table of signal VC_PowerLimitValue in msg VC_PowerLimit.
+ * Get value stored in TX table of signal BMS_Hash in msg BMS_CommitInfo.
  */
-float app_canTx_VC_PowerLimit_VC_PowerLimitValue_get(void);
+uint32_t app_canTx_BMS_CommitInfo_BMS_Hash_get(void);
 /**
- * Get value stored in TX table of signal VC_PowerLimitValueAtFullThrottle in msg VC_PowerLimit.
+ * Get value stored in TX table of signal BMS_Clean in msg BMS_CommitInfo.
  */
-float app_canTx_VC_PowerLimit_VC_PowerLimitValueAtFullThrottle_get(void);
+bool app_canTx_BMS_CommitInfo_BMS_Clean_get(void);
 /**
- * Get value stored in TX table of signal VC_RegenEnabled in msg VC_VehicleDynamics.
+ * Get value stored in TX table of signal BMS_Segment0_OWC_Cells_Status in msg BMS_OWC_Segment0to2_Status.
  */
-bool app_canTx_VC_VehicleDynamics_VC_RegenEnabled_get(void);
+uint32_t app_canTx_BMS_OWC_Segment0to2_Status_BMS_Segment0_OWC_Cells_Status_get(void);
 /**
- * Get value stored in TX table of signal VC_TorqueVectoringEnabled in msg VC_VehicleDynamics.
+ * Get value stored in TX table of signal BMS_Segment1_OWC_Cells_Status in msg BMS_OWC_Segment0to2_Status.
  */
-bool app_canTx_VC_VehicleDynamics_VC_TorqueVectoringEnabled_get(void);
+uint32_t app_canTx_BMS_OWC_Segment0to2_Status_BMS_Segment1_OWC_Cells_Status_get(void);
 /**
- * Get value stored in TX table of signal VC_VehicleVelocity in msg VC_VehicleDynamics.
+ * Get value stored in TX table of signal BMS_Segment2_OWC_Cells_Status in msg BMS_OWC_Segment0to2_Status.
  */
-float app_canTx_VC_VehicleDynamics_VC_VehicleVelocity_get(void);
+uint32_t app_canTx_BMS_OWC_Segment0to2_Status_BMS_Segment2_OWC_Cells_Status_get(void);
 /**
- * Get value stored in TX table of signal VC_VelocityNorth in msg VC_EllipseEkfNavVelocity.
+ * Get value stored in TX table of signal BMS_Segment3_OWC_Cells_Status in msg BMS_OWC_Segment3to4_Status.
  */
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityNorth_get(void);
+uint32_t app_canTx_BMS_OWC_Segment3to4_Status_BMS_Segment3_OWC_Cells_Status_get(void);
 /**
- * Get value stored in TX table of signal VC_VelocityNorthAccuracy in msg VC_EllipseEkfNavVelocity.
+ * Get value stored in TX table of signal BMS_Segment4_OWC_Cells_Status in msg BMS_OWC_Segment3to4_Status.
  */
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityNorthAccuracy_get(void);
+uint32_t app_canTx_BMS_OWC_Segment3to4_Status_BMS_Segment4_OWC_Cells_Status_get(void);
 /**
- * Get value stored in TX table of signal VC_VelocityEast in msg VC_EllipseEkfNavVelocity.
+ * Get value stored in TX table of signal BMS_HVDShdnOKStatus in msg BMS_BMSShdnNodeStatus.
  */
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityEast_get(void);
+bool app_canTx_BMS_BMSShdnNodeStatus_BMS_HVDShdnOKStatus_get(void);
 /**
- * Get value stored in TX table of signal VC_VelocityEastAccuracy in msg VC_EllipseEkfNavVelocity.
+ * Get value stored in TX table of signal BMS_TSIlckOKStatus in msg BMS_BMSShdnNodeStatus.
  */
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityEastAccuracy_get(void);
+bool app_canTx_BMS_BMSShdnNodeStatus_BMS_TSIlckOKStatus_get(void);
 /**
- * Get value stored in TX table of signal VC_VelocityDown in msg VC_EllipseEkfNavVelocity.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1Hz in msg BMS_Warnings.
  */
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityDown_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_StackWaterMarkHighTask1Hz_get(void);
 /**
- * Get value stored in TX table of signal VC_VelocityDownAccuracy in msg VC_EllipseEkfNavVelocity.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask100Hz in msg BMS_Warnings.
  */
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityDownAccuracy_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_StackWaterMarkHighTask100Hz_get(void);
 /**
- * Get value stored in TX table of signal VC_BatVoltage in msg VC_Voltages.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1kHz in msg BMS_Warnings.
  */
-float app_canTx_VC_Voltages_VC_BatVoltage_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_StackWaterMarkHighTask1kHz_get(void);
 /**
- * Get value stored in TX table of signal VC_BoostVoltage in msg VC_Voltages.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanRx in msg BMS_Warnings.
  */
-float app_canTx_VC_Voltages_VC_BoostVoltage_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_StackWaterMarkHighTaskCanRx_get(void);
 /**
- * Get value stored in TX table of signal VC_AccVoltage in msg VC_Voltages.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanTx in msg BMS_Warnings.
  */
-float app_canTx_VC_Voltages_VC_AccVoltage_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_StackWaterMarkHighTaskCanTx_get(void);
 /**
- * Get value stored in TX table of signal VC_AccCurrent in msg VC_CurrentSensing.
+ * Get value stored in TX table of signal BMS_Warning_WatchdogTimeout in msg BMS_Warnings.
  */
-float app_canTx_VC_CurrentSensing_VC_AccCurrent_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_WatchdogTimeout_get(void);
 /**
- * Get value stored in TX table of signal VC_BatCurrent in msg VC_CurrentSensing.
+ * Get value stored in TX table of signal BMS_Warning_TxOverflow in msg BMS_Warnings.
  */
-float app_canTx_VC_CurrentSensing_VC_BatCurrent_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_TxOverflow_get(void);
 /**
- * Get value stored in TX table of signal VC_ShdnCurrent in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_RxOverflow in msg BMS_Warnings.
  */
-float app_canTx_VC_Efuse_VC_ShdnCurrent_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_RxOverflow_get(void);
 /**
- * Get value stored in TX table of signal VC_ShdnStatus in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheckFault in msg BMS_Warnings.
  */
-bool app_canTx_VC_Efuse_VC_ShdnStatus_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_OpenWireCheckFault_get(void);
 /**
- * Get value stored in TX table of signal VC_LvCurrent in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment0_GND in msg BMS_Warnings.
  */
-float app_canTx_VC_Efuse_VC_LvCurrent_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_OpenWireCheck_Segment0_GND_get(void);
 /**
- * Get value stored in TX table of signal VC_LvStatus in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment1_GND in msg BMS_Warnings.
  */
-bool app_canTx_VC_Efuse_VC_LvStatus_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_OpenWireCheck_Segment1_GND_get(void);
 /**
- * Get value stored in TX table of signal VC_PumpCurrent in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment2_GND in msg BMS_Warnings.
  */
-float app_canTx_VC_Efuse_VC_PumpCurrent_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_OpenWireCheck_Segment2_GND_get(void);
 /**
- * Get value stored in TX table of signal VC_PumpStatus in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment3_GND in msg BMS_Warnings.
  */
-bool app_canTx_VC_Efuse_VC_PumpStatus_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_OpenWireCheck_Segment3_GND_get(void);
 /**
- * Get value stored in TX table of signal VC_AuxCurrent in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment4_GND in msg BMS_Warnings.
  */
-float app_canTx_VC_Efuse_VC_AuxCurrent_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_OpenWireCheck_Segment4_GND_get(void);
 /**
- * Get value stored in TX table of signal VC_AuxStatus in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Warning_MissingVCHeartbeat in msg BMS_Warnings.
  */
-bool app_canTx_VC_Efuse_VC_AuxStatus_get(void);
+bool app_canTx_BMS_Warnings_BMS_Warning_MissingVCHeartbeat_get(void);
 /**
- * Get value stored in TX table of signal VC_InvRCurrent in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Fault_StateMachine in msg BMS_Faults.
  */
-float app_canTx_VC_Efuse_VC_InvRCurrent_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_StateMachine_get(void);
 /**
- * Get value stored in TX table of signal VC_InvRStatus in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Fault_CellUndervoltage in msg BMS_Faults.
  */
-bool app_canTx_VC_Efuse_VC_InvRStatus_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_CellUndervoltage_get(void);
 /**
- * Get value stored in TX table of signal VC_InvLCurrent in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Fault_CellOvervoltage in msg BMS_Faults.
  */
-float app_canTx_VC_Efuse_VC_InvLCurrent_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_CellOvervoltage_get(void);
 /**
- * Get value stored in TX table of signal VC_InvLStatus in msg VC_Efuse.
+ * Get value stored in TX table of signal BMS_Fault_ModuleCommunicationError in msg BMS_Faults.
  */
-bool app_canTx_VC_Efuse_VC_InvLStatus_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_ModuleCommunicationError_get(void);
 /**
- * Get value stored in TX table of signal VC_ImuAccelerationX in msg VC_ImuLinearAcceleration.
+ * Get value stored in TX table of signal BMS_Fault_CellUndertemp in msg BMS_Faults.
  */
-float app_canTx_VC_ImuLinearAcceleration_VC_ImuAccelerationX_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_CellUndertemp_get(void);
 /**
- * Get value stored in TX table of signal VC_ImuAccelerationY in msg VC_ImuLinearAcceleration.
+ * Get value stored in TX table of signal BMS_Fault_CellOvertemp in msg BMS_Faults.
  */
-float app_canTx_VC_ImuLinearAcceleration_VC_ImuAccelerationY_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_CellOvertemp_get(void);
 /**
- * Get value stored in TX table of signal VC_ImuAccelerationZ in msg VC_ImuLinearAcceleration.
+ * Get value stored in TX table of signal BMS_Fault_ChargerReportedError in msg BMS_Faults.
  */
-float app_canTx_VC_ImuLinearAcceleration_VC_ImuAccelerationZ_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_ChargerReportedError_get(void);
 /**
- * Get value stored in TX table of signal VC_FlowRate in msg VC_CoolantPumpFlowRate.
+ * Get value stored in TX table of signal BMS_Fault_ChargerDisconnectedDuringCharge in msg BMS_Faults.
  */
-float app_canTx_VC_CoolantPumpFlowRate_VC_FlowRate_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_ChargerDisconnectedDuringCharge_get(void);
 /**
- * Get value stored in TX table of signal VC_LEStopOKStatus in msg VC_VCShdnNodeStatus.
+ * Get value stored in TX table of signal BMS_Fault_ChargerShutdownLoopOpen in msg BMS_Faults.
  */
-bool app_canTx_VC_VCShdnNodeStatus_VC_LEStopOKStatus_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_ChargerShutdownLoopOpen_get(void);
 /**
- * Get value stored in TX table of signal VC_REStopOKStatus in msg VC_VCShdnNodeStatus.
+ * Get value stored in TX table of signal BMS_Fault_TractiveSystemOvercurrent in msg BMS_Faults.
  */
-bool app_canTx_VC_VCShdnNodeStatus_VC_REStopOKStatus_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_TractiveSystemOvercurrent_get(void);
 /**
- * Get value stored in TX table of signal VC_TSMSOKStatus in msg VC_VCShdnNodeStatus.
+ * Get value stored in TX table of signal BMS_Fault_PrechargeFailure in msg BMS_Faults.
  */
-bool app_canTx_VC_VCShdnNodeStatus_VC_TSMSOKStatus_get(void);
+bool app_canTx_BMS_Faults_BMS_Fault_PrechargeFailure_get(void);
 /**
- * Get value stored in TX table of signal VC_SplitterBoxInterlockOKStatus in msg VC_VCShdnNodeStatus.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1HzCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_VCShdnNodeStatus_VC_SplitterBoxInterlockOKStatus_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_StackWaterMarkHighTask1HzCount_get(void);
 /**
- * Get value stored in TX table of signal VC_FirstFaultNode in msg VC_GlobalShdnNodeStatus.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask100HzCount in msg BMS_WarningsCounts.
  */
-ShutdownNode app_canTx_VC_GlobalShdnNodeStatus_VC_FirstFaultNode_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_StackWaterMarkHighTask100HzCount_get(void);
 /**
- * Get value stored in TX table of signal VC_MappedPedalPercentage in msg VC_PedalPercentage.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTask1kHzCount in msg BMS_WarningsCounts.
  */
-float app_canTx_VC_PedalPercentage_VC_MappedPedalPercentage_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_StackWaterMarkHighTask1kHzCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1Hz in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanRxCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1Hz_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_StackWaterMarkHighTaskCanRxCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100Hz in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_StackWaterMarkHighTaskCanTxCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask100Hz_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_StackWaterMarkHighTaskCanTxCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHz in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_WatchdogTimeoutCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1kHz_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_WatchdogTimeoutCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRx in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_TxOverflowCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanRx_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_TxOverflowCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTx in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_RxOverflowCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanTx_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_RxOverflowCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_WatchdogTimeout in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheckFaultCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_WatchdogTimeout_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_OpenWireCheckFaultCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_TxOverflow in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment0_GNDCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_TxOverflow_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_OpenWireCheck_Segment0_GNDCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_RxOverflow in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment1_GNDCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_RxOverflow_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_OpenWireCheck_Segment1_GNDCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_RegenNotAvailable in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment2_GNDCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_RegenNotAvailable_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_OpenWireCheck_Segment2_GNDCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_ImuInitFailed in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment3_GNDCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_ImuInitFailed_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_OpenWireCheck_Segment3_GNDCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_FlowRateInputOutOfRange in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_OpenWireCheck_Segment4_GNDCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_FlowRateInputOutOfRange_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_OpenWireCheck_Segment4_GNDCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFault in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Warning_MissingVCHeartbeatCount in msg BMS_WarningsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_BatteryRailOvercurrentFault_get(void);
+uint32_t app_canTx_BMS_WarningsCounts_BMS_Warning_MissingVCHeartbeatCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFault in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_StateMachineCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_AccumulatorRailOvercurrentFault_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_StateMachineCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_LvChargeFault in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_CellUndervoltageCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_LvChargeFault_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_CellUndervoltageCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_BoostControllerFault in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_CellOvervoltageCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_BoostControllerFault_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_CellOvervoltageCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogs in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_ModuleCommunicationErrorCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_HighNumberOfCanDataLogs_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_ModuleCommunicationErrorCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresent in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_CellUndertempCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_CanLoggingSdCardNotPresent_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_CellUndertempCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_CanLoggingErrored in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_CellOvertempCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_CanLoggingErrored_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_CellOvertempCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_BrakeAppsDisagreement in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_ChargerReportedErrorCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_BrakeAppsDisagreement_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_ChargerReportedErrorCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Warning_SbgInitFailed in msg VC_Warnings.
+ * Get value stored in TX table of signal BMS_Fault_ChargerDisconnectedDuringChargeCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Warnings_VC_Warning_SbgInitFailed_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_ChargerDisconnectedDuringChargeCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Fault_MissingBMSHeartbeat in msg VC_Faults.
+ * Get value stored in TX table of signal BMS_Fault_ChargerShutdownLoopOpenCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Faults_VC_Fault_MissingBMSHeartbeat_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_ChargerShutdownLoopOpenCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Fault_MissingFSMHeartbeat in msg VC_Faults.
+ * Get value stored in TX table of signal BMS_Fault_TractiveSystemOvercurrentCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Faults_VC_Fault_MissingFSMHeartbeat_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_TractiveSystemOvercurrentCount_get(void);
 /**
- * Get value stored in TX table of signal VC_Fault_MissingRSMHeartbeat in msg VC_Faults.
+ * Get value stored in TX table of signal BMS_Fault_PrechargeFailureCount in msg BMS_FaultsCounts.
  */
-bool app_canTx_VC_Faults_VC_Fault_MissingRSMHeartbeat_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_MissingCRITHeartbeat in msg VC_Faults.
- */
-bool app_canTx_VC_Faults_VC_Fault_MissingCRITHeartbeat_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_LeftInverterFault in msg VC_Faults.
- */
-bool app_canTx_VC_Faults_VC_Fault_LeftInverterFault_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_RightInverterFault in msg VC_Faults.
- */
-bool app_canTx_VC_Faults_VC_Fault_RightInverterFault_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1HzCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1HzCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100HzCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask100HzCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHzCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1kHzCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRxCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanRxCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTxCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanTxCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_WatchdogTimeoutCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_WatchdogTimeoutCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_TxOverflowCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_TxOverflowCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_RxOverflowCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RxOverflowCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_RegenNotAvailableCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RegenNotAvailableCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_ImuInitFailedCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_ImuInitFailedCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_FlowRateInputOutOfRangeCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_FlowRateInputOutOfRangeCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFaultCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BatteryRailOvercurrentFaultCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFaultCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_AccumulatorRailOvercurrentFaultCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_LvChargeFaultCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_LvChargeFaultCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_BoostControllerFaultCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BoostControllerFaultCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogsCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_HighNumberOfCanDataLogsCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresentCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingSdCardNotPresentCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_CanLoggingErroredCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingErroredCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_BrakeAppsDisagreementCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BrakeAppsDisagreementCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Warning_SbgInitFailedCount in msg VC_WarningsCounts.
- */
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_SbgInitFailedCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_MissingBMSHeartbeatCount in msg VC_FaultsCounts.
- */
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingBMSHeartbeatCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_MissingFSMHeartbeatCount in msg VC_FaultsCounts.
- */
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingFSMHeartbeatCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_MissingRSMHeartbeatCount in msg VC_FaultsCounts.
- */
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingRSMHeartbeatCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_MissingCRITHeartbeatCount in msg VC_FaultsCounts.
- */
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingCRITHeartbeatCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_LeftInverterFaultCount in msg VC_FaultsCounts.
- */
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_LeftInverterFaultCount_get(void);
-/**
- * Get value stored in TX table of signal VC_Fault_RightInverterFaultCount in msg VC_FaultsCounts.
- */
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_RightInverterFaultCount_get(void);
+uint32_t app_canTx_BMS_FaultsCounts_BMS_Fault_PrechargeFailureCount_get(void);
 
 
 /**
- * Get pointer to value stored in TX table of msg VC_Vitals.
+ * Get pointer to value stored in TX table of msg BMS_Vitals.
  */
-VC_Vitals_Signals* app_canTx_VC_Vitals_getData();
+BMS_Vitals_Signals* app_canTx_BMS_Vitals_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_LeftInverterCommand.
+ * Get pointer to value stored in TX table of msg BMS_AlertsContext.
  */
-VC_LeftInverterCommand_Signals* app_canTx_VC_LeftInverterCommand_getData();
+BMS_AlertsContext_Signals* app_canTx_BMS_AlertsContext_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_INVL_ReadWriteParamCommand.
+ * Get pointer to value stored in TX table of msg BMS_ImdStatus.
  */
-VC_INVL_ReadWriteParamCommand_Signals* app_canTx_VC_INVL_ReadWriteParamCommand_getData();
+BMS_ImdStatus_Signals* app_canTx_BMS_ImdStatus_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_RightInverterCommand.
+ * Get pointer to value stored in TX table of msg BMS_ImdData.
  */
-VC_RightInverterCommand_Signals* app_canTx_VC_RightInverterCommand_getData();
+BMS_ImdData_Signals* app_canTx_BMS_ImdData_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_INVR_ReadWriteParamCommand.
+ * Get pointer to value stored in TX table of msg BMS_Charger.
  */
-VC_INVR_ReadWriteParamCommand_Signals* app_canTx_VC_INVR_ReadWriteParamCommand_getData();
+BMS_Charger_Signals* app_canTx_BMS_Charger_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_AlertsContext.
+ * Get pointer to value stored in TX table of msg BMS_BrusaControls.
  */
-VC_AlertsContext_Signals* app_canTx_VC_AlertsContext_getData();
+BMS_BrusaControls_Signals* app_canTx_BMS_BrusaControls_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_EllipseStatus.
+ * Get pointer to value stored in TX table of msg BMS_OkStatuses.
  */
-VC_EllipseStatus_Signals* app_canTx_VC_EllipseStatus_getData();
+BMS_OkStatuses_Signals* app_canTx_BMS_OkStatuses_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_EllipseTime.
+ * Get pointer to value stored in TX table of msg BMS_Contactors.
  */
-VC_EllipseTime_Signals* app_canTx_VC_EllipseTime_getData();
+BMS_Contactors_Signals* app_canTx_BMS_Contactors_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_EllipseEulerAngles.
+ * Get pointer to value stored in TX table of msg BMS_CellTemperatures.
  */
-VC_EllipseEulerAngles_Signals* app_canTx_VC_EllipseEulerAngles_getData();
+BMS_CellTemperatures_Signals* app_canTx_BMS_CellTemperatures_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_CommitInfo.
+ * Get pointer to value stored in TX table of msg BMS_VoltageAndChargeStats.
  */
-VC_CommitInfo_Signals* app_canTx_VC_CommitInfo_getData();
+BMS_VoltageAndChargeStats_Signals* app_canTx_BMS_VoltageAndChargeStats_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_PowerEstimate.
+ * Get pointer to value stored in TX table of msg BMS_CellStats.
  */
-VC_PowerEstimate_Signals* app_canTx_VC_PowerEstimate_getData();
+BMS_CellStats_Signals* app_canTx_BMS_CellStats_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_PowerEstimatePID.
+ * Get pointer to value stored in TX table of msg BMS_TractiveSystem.
  */
-VC_PowerEstimatePID_Signals* app_canTx_VC_PowerEstimatePID_getData();
+BMS_TractiveSystem_Signals* app_canTx_BMS_TractiveSystem_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_PIDSlipRatio.
+ * Get pointer to value stored in TX table of msg BMS_CommitInfo.
  */
-VC_PIDSlipRatio_Signals* app_canTx_VC_PIDSlipRatio_getData();
+BMS_CommitInfo_Signals* app_canTx_BMS_CommitInfo_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_SlipRatios.
+ * Get pointer to value stored in TX table of msg BMS_OWC_Segment0to2_Status.
  */
-VC_SlipRatios_Signals* app_canTx_VC_SlipRatios_getData();
+BMS_OWC_Segment0to2_Status_Signals* app_canTx_BMS_OWC_Segment0to2_Status_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_ActiveDiffOutputs.
+ * Get pointer to value stored in TX table of msg BMS_OWC_Segment3to4_Status.
  */
-VC_ActiveDiffOutputs_Signals* app_canTx_VC_ActiveDiffOutputs_getData();
+BMS_OWC_Segment3to4_Status_Signals* app_canTx_BMS_OWC_Segment3to4_Status_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_PowerLimit.
+ * Get pointer to value stored in TX table of msg BMS_BMSShdnNodeStatus.
  */
-VC_PowerLimit_Signals* app_canTx_VC_PowerLimit_getData();
+BMS_BMSShdnNodeStatus_Signals* app_canTx_BMS_BMSShdnNodeStatus_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_VehicleDynamics.
+ * Get pointer to value stored in TX table of msg BMS_Warnings.
  */
-VC_VehicleDynamics_Signals* app_canTx_VC_VehicleDynamics_getData();
+BMS_Warnings_Signals* app_canTx_BMS_Warnings_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_EllipseEkfNavVelocity.
+ * Get pointer to value stored in TX table of msg BMS_Faults.
  */
-VC_EllipseEkfNavVelocity_Signals* app_canTx_VC_EllipseEkfNavVelocity_getData();
+BMS_Faults_Signals* app_canTx_BMS_Faults_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_Voltages.
+ * Get pointer to value stored in TX table of msg BMS_WarningsCounts.
  */
-VC_Voltages_Signals* app_canTx_VC_Voltages_getData();
+BMS_WarningsCounts_Signals* app_canTx_BMS_WarningsCounts_getData();
 /**
- * Get pointer to value stored in TX table of msg VC_CurrentSensing.
+ * Get pointer to value stored in TX table of msg BMS_FaultsCounts.
  */
-VC_CurrentSensing_Signals* app_canTx_VC_CurrentSensing_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_Efuse.
- */
-VC_Efuse_Signals* app_canTx_VC_Efuse_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_ImuLinearAcceleration.
- */
-VC_ImuLinearAcceleration_Signals* app_canTx_VC_ImuLinearAcceleration_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_CoolantPumpFlowRate.
- */
-VC_CoolantPumpFlowRate_Signals* app_canTx_VC_CoolantPumpFlowRate_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_VCShdnNodeStatus.
- */
-VC_VCShdnNodeStatus_Signals* app_canTx_VC_VCShdnNodeStatus_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_GlobalShdnNodeStatus.
- */
-VC_GlobalShdnNodeStatus_Signals* app_canTx_VC_GlobalShdnNodeStatus_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_PedalPercentage.
- */
-VC_PedalPercentage_Signals* app_canTx_VC_PedalPercentage_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_Warnings.
- */
-VC_Warnings_Signals* app_canTx_VC_Warnings_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_Faults.
- */
-VC_Faults_Signals* app_canTx_VC_Faults_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_WarningsCounts.
- */
-VC_WarningsCounts_Signals* app_canTx_VC_WarningsCounts_getData();
-/**
- * Get pointer to value stored in TX table of msg VC_FaultsCounts.
- */
-VC_FaultsCounts_Signals* app_canTx_VC_FaultsCounts_getData();
+BMS_FaultsCounts_Signals* app_canTx_BMS_FaultsCounts_getData();
 
 
 
