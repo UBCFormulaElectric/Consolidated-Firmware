@@ -410,9 +410,11 @@ class AppCanUtilsModule(CModule):
         j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
         template = j2_env.from_string(template)
         return template.render(
-            messages = self._db.msgs_for_node(self._node),
+            tx_messages = self._db.tx_msgs_for_node(self._node),
+            rx_messages = self._db.rx_msgs_for_node(self._node),
             signal_placement_comment = signal_placement_comment,
-            iterations = calculate_packing_iterations
+            iterations = calculate_packing_iterations,
+            max_uint_for_bits=max_uint_for_bits,
         )
     
     def header_template(self):
