@@ -93,7 +93,8 @@ void app_canUtils_BMS_Vitals_pack(const BMS_Vitals_Signals* const in_msg, uint8_
 
 
 
-{% for msg in messages -%}
+{% for msg in tx_messages -%}
+{% set msg_big_name =  msg.scremming_snake_name() %} 
 // pack function for {{ msg.name }}
 void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -106,12 +107,48 @@ void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg
     }
     
     {% for signal in msg.signals %}
+    {%- set signal_big_name =  signal.scremming_snake_name() -%}
+    {%- set raw_type =  "int32_t" if signal.signed else "uint32_t" -%}
+    {%- set DECORD_MACRO = "CAN_SIGNED_ENCODE" if signal.signed else "CAN_ENCODE" -%}
     // Pack {{ signal.bits }}-bit signal {{ signal.name }} into payload at [ bit {{ signal.start_bit }} to bit {{ signal.start_bit + signal.bits }} ).
     const {{ signal.datatype() }} {{ signal.name }}_val = in_msg->{{ signal.name }}_value;
-    const {{ "int32_t" if signal.signed else "uint32_t" }} {{ signal.name }}_raw = {{ "CAN_SIGNED_ENCODE" if signal.signed else "CAN_ENCODE" }}({{ signal.name }}_val, {{ scale_macro.format(msg.scremming_snake_name(), signal.scremming_snake_name()) }}, {{ offset_macro.format(msg.scremming_snake_name(), signal.scremming_snake_name()) }}, {{ "int32_t" if signal.signed else "uint32_t" }});
+    const {{ raw_type }} {{ signal.name }}_raw = {{ DECORD_MACRO }}({{ signal.name }}_val, {{ scale_macro.format(msg_big_name, signal_big_name) }}, {{ offset_macro.format(msg_big_name, signal_big_name) }}, {{ raw_type }});
     {% for iteration in iterations(signal) -%}
-    out_data[{{ iteration.starting_byte }}] |= {{ "packShiftRight" if iteration.shift >= 0 else "packShiftLeft" }}({{ signal.name }}_raw, {{ iteration.shift | abs }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }} 
+    {%- set packShift = "packShiftRight" if iteration.shift >= 0 else "packShiftLeft" -%}
+    out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift | abs }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }} 
+    {% endfor %}
+    {% endfor %}
+}
+{% endfor %}
+
+{% for msg in rx_messages -%}
+{% set msg_big_name =  msg.scremming_snake_name() %}
+
+// unpack function for {{ msg.name }}
+void app_canUtils_{{ msg.name }}_unpack(const uint8_t* const in_data, {{ msg.name }}_Signals* const out_msg)
+{
+    // Unpack message {{ msg.name }}.
+    // {{ signal_placement_comment(msg) }}
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    {% for signal in msg.signals %}
+    {%- set signal_big_name =  signal.scremming_snake_name() -%}
+    {%- set DECORD_MACRO = "SIGNED_DECODE" if signal.signed else "CAN_DECODE" -%}
+    uint32_t {{ signal.name }}_raw = 0; // Temporary raw variable for {{ signal.name }}
+    {% for iteration in iterations(signal) -%}
+    {%- set unpackShift = "unpackShiftRight" if iteration.shift >= 0 else "unpackShiftLeft" -%}
+    {{ signal.name }}_raw |= {{ unpackShift }}(in_data[{{ iteration.starting_byte }}], {{ iteration.shift | abs }}, {{ iteration.mask_text }}); // Unpacks bits {{ iteration.comment_data }} from byte {{ iteration.starting_byte }}
     {% endfor -%}
+    {%- if signal.signed -%}
+    const int {{ signal.name }}_signed = SIGNED_DECODE({{ signal.name }}_raw, {{ signal.bits }}, {{ max_uint_for_bits(signal.bits) }});
+    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_signed, {{ scale_macro.format(msg_big_name, signal_big_name) }}, {{ offset_macro.format(msg_big_name, signal_big_name) }}, {{ signal.representation() }});
+    {%- else -%}
+    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_raw, {{ scale_macro.format(msg_big_name, signal_big_name) }}, {{ offset_macro.format(msg_big_name, signal_big_name) }}, {{signal.representation()}});
+    {% endif %}
     {% endfor %}
 }
 {% endfor %}
