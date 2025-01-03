@@ -93,6 +93,7 @@ void app_canUtils_BMS_Vitals_pack(const BMS_Vitals_Signals* const in_msg, uint8_
 
 
 
+ 
 // pack function for VC_Vitals
 void app_canUtils_VC_Vitals_pack(const VC_Vitals_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -103,7 +104,6 @@ void app_canUtils_VC_Vitals_pack(const VC_Vitals_Signals* const in_msg, uint8_t*
     {
         return;
     }
-    
     
     // Pack 1-bit signal VC_Heartbeat into payload at [ bit 0 to bit 1 ).
     const bool VC_Heartbeat_val = in_msg->VC_Heartbeat_value;
@@ -132,7 +132,9 @@ void app_canUtils_VC_Vitals_pack(const VC_Vitals_Signals* const in_msg, uint8_t*
     out_data[1] |= packShiftLeft(VC_CanLoggingRemainingErrors_raw, 6, 0xC0);   // Packs bits ##______ of byte 1 
     out_data[2] |= packShiftRight(VC_CanLoggingRemainingErrors_raw, 2, 0x3);   // Packs bits ______## of byte 2 
     
+    
 }
+ 
 // pack function for VC_LeftInverterCommand
 void app_canUtils_VC_LeftInverterCommand_pack(const VC_LeftInverterCommand_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -143,7 +145,6 @@ void app_canUtils_VC_LeftInverterCommand_pack(const VC_LeftInverterCommand_Signa
     {
         return;
     }
-    
     
     // Pack 16-bit signal VC_LeftInverterTorqueCommand into payload at [ bit 0 to bit 16 ).
     const float VC_LeftInverterTorqueCommand_val = in_msg->VC_LeftInverterTorqueCommand_value;
@@ -183,7 +184,9 @@ void app_canUtils_VC_LeftInverterCommand_pack(const VC_LeftInverterCommand_Signa
     out_data[6] |= packShiftRight(VC_LeftInverterTorqueLimit_raw, 0, 0xFF);   // Packs bits ######## of byte 6 
     out_data[7] |= packShiftRight(VC_LeftInverterTorqueLimit_raw, 8, 0xFF);   // Packs bits ######## of byte 7 
     
+    
 }
+ 
 // pack function for VC_INVL_ReadWriteParamCommand
 void app_canUtils_VC_INVL_ReadWriteParamCommand_pack(const VC_INVL_ReadWriteParamCommand_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -194,7 +197,6 @@ void app_canUtils_VC_INVL_ReadWriteParamCommand_pack(const VC_INVL_ReadWritePara
     {
         return;
     }
-    
     
     // Pack 16-bit signal VC_INVL_CommandParameterAddress into payload at [ bit 0 to bit 16 ).
     const uint32_t VC_INVL_CommandParameterAddress_val = in_msg->VC_INVL_CommandParameterAddress_value;
@@ -213,7 +215,9 @@ void app_canUtils_VC_INVL_ReadWriteParamCommand_pack(const VC_INVL_ReadWritePara
     out_data[4] |= packShiftRight(VC_INVL_CommandData_raw, 0, 0xFF);   // Packs bits ######## of byte 4 
     out_data[5] |= packShiftRight(VC_INVL_CommandData_raw, 8, 0xFF);   // Packs bits ######## of byte 5 
     
+    
 }
+ 
 // pack function for VC_RightInverterCommand
 void app_canUtils_VC_RightInverterCommand_pack(const VC_RightInverterCommand_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -224,7 +228,6 @@ void app_canUtils_VC_RightInverterCommand_pack(const VC_RightInverterCommand_Sig
     {
         return;
     }
-    
     
     // Pack 16-bit signal VC_RightInverterTorqueCommand into payload at [ bit 0 to bit 16 ).
     const float VC_RightInverterTorqueCommand_val = in_msg->VC_RightInverterTorqueCommand_value;
@@ -264,7 +267,9 @@ void app_canUtils_VC_RightInverterCommand_pack(const VC_RightInverterCommand_Sig
     out_data[6] |= packShiftRight(VC_RightInverterTorqueLimit_raw, 0, 0xFF);   // Packs bits ######## of byte 6 
     out_data[7] |= packShiftRight(VC_RightInverterTorqueLimit_raw, 8, 0xFF);   // Packs bits ######## of byte 7 
     
+    
 }
+ 
 // pack function for VC_INVR_ReadWriteParamCommand
 void app_canUtils_VC_INVR_ReadWriteParamCommand_pack(const VC_INVR_ReadWriteParamCommand_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -275,7 +280,6 @@ void app_canUtils_VC_INVR_ReadWriteParamCommand_pack(const VC_INVR_ReadWritePara
     {
         return;
     }
-    
     
     // Pack 16-bit signal VC_INVR_CommandParameterAddress into payload at [ bit 0 to bit 16 ).
     const uint32_t VC_INVR_CommandParameterAddress_val = in_msg->VC_INVR_CommandParameterAddress_value;
@@ -294,7 +298,9 @@ void app_canUtils_VC_INVR_ReadWriteParamCommand_pack(const VC_INVR_ReadWritePara
     out_data[4] |= packShiftRight(VC_INVR_CommandData_raw, 0, 0xFF);   // Packs bits ######## of byte 4 
     out_data[5] |= packShiftRight(VC_INVR_CommandData_raw, 8, 0xFF);   // Packs bits ######## of byte 5 
     
+    
 }
+ 
 // pack function for VC_AlertsContext
 void app_canUtils_VC_AlertsContext_pack(const VC_AlertsContext_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -305,7 +311,6 @@ void app_canUtils_VC_AlertsContext_pack(const VC_AlertsContext_Signals* const in
     {
         return;
     }
-    
     
     // Pack 1-bit signal VC_WatchdogTimeout into payload at [ bit 0 to bit 1 ).
     const bool VC_WatchdogTimeout_val = in_msg->VC_WatchdogTimeout_value;
@@ -331,7 +336,9 @@ void app_canUtils_VC_AlertsContext_pack(const VC_AlertsContext_Signals* const in
     out_data[3] |= packShiftRight(VC_RxOverflowCount_raw, 4, 0xFF);   // Packs bits ######## of byte 3 
     out_data[4] |= packShiftRight(VC_RxOverflowCount_raw, 12, 0xF);   // Packs bits ____#### of byte 4 
     
+    
 }
+ 
 // pack function for VC_EllipseStatus
 void app_canUtils_VC_EllipseStatus_pack(const VC_EllipseStatus_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -342,7 +349,6 @@ void app_canUtils_VC_EllipseStatus_pack(const VC_EllipseStatus_Signals* const in
     {
         return;
     }
-    
     
     // Pack 16-bit signal VC_EllipseGeneralStatusBitmask into payload at [ bit 0 to bit 16 ).
     const uint32_t VC_EllipseGeneralStatusBitmask_val = in_msg->VC_EllipseGeneralStatusBitmask_value;
@@ -363,7 +369,9 @@ void app_canUtils_VC_EllipseStatus_pack(const VC_EllipseStatus_Signals* const in
     const uint32_t VC_EkfSolutionMode_raw = CAN_ENCODE(VC_EkfSolutionMode_val, CANSIG_VC_ELLIPSE_STATUS_VC_EKF_SOLUTION_MODE_SCALE, CANSIG_VC_ELLIPSE_STATUS_VC_EKF_SOLUTION_MODE_OFFSET, uint32_t);
     out_data[6] |= packShiftRight(VC_EkfSolutionMode_raw, 0, 0x7);   // Packs bits _____### of byte 6 
     
+    
 }
+ 
 // pack function for VC_EllipseTime
 void app_canUtils_VC_EllipseTime_pack(const VC_EllipseTime_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -375,7 +383,6 @@ void app_canUtils_VC_EllipseTime_pack(const VC_EllipseTime_Signals* const in_msg
         return;
     }
     
-    
     // Pack 32-bit signal VC_EllipseTimestamp into payload at [ bit 0 to bit 32 ).
     const uint32_t VC_EllipseTimestamp_val = in_msg->VC_EllipseTimestamp_value;
     const uint32_t VC_EllipseTimestamp_raw = CAN_ENCODE(VC_EllipseTimestamp_val, CANSIG_VC_ELLIPSE_TIME_VC_ELLIPSE_TIMESTAMP_SCALE, CANSIG_VC_ELLIPSE_TIME_VC_ELLIPSE_TIMESTAMP_OFFSET, uint32_t);
@@ -384,7 +391,9 @@ void app_canUtils_VC_EllipseTime_pack(const VC_EllipseTime_Signals* const in_msg
     out_data[2] |= packShiftRight(VC_EllipseTimestamp_raw, 16, 0xFF);   // Packs bits ######## of byte 2 
     out_data[3] |= packShiftRight(VC_EllipseTimestamp_raw, 24, 0xFF);   // Packs bits ######## of byte 3 
     
+    
 }
+ 
 // pack function for VC_EllipseEulerAngles
 void app_canUtils_VC_EllipseEulerAngles_pack(const VC_EllipseEulerAngles_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -395,7 +404,6 @@ void app_canUtils_VC_EllipseEulerAngles_pack(const VC_EllipseEulerAngles_Signals
     {
         return;
     }
-    
     
     // Pack 12-bit signal VC_EulerAnglesRoll into payload at [ bit 0 to bit 12 ).
     const float VC_EulerAnglesRoll_val = in_msg->VC_EulerAnglesRoll_value;
@@ -415,7 +423,9 @@ void app_canUtils_VC_EllipseEulerAngles_pack(const VC_EllipseEulerAngles_Signals
     out_data[3] |= packShiftRight(VC_EulerAnglesYaw_raw, 0, 0xFF);   // Packs bits ######## of byte 3 
     out_data[4] |= packShiftRight(VC_EulerAnglesYaw_raw, 8, 0xF);   // Packs bits ____#### of byte 4 
     
+    
 }
+ 
 // pack function for VC_CommitInfo
 void app_canUtils_VC_CommitInfo_pack(const VC_CommitInfo_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -426,7 +436,6 @@ void app_canUtils_VC_CommitInfo_pack(const VC_CommitInfo_Signals* const in_msg, 
     {
         return;
     }
-    
     
     // Pack 32-bit signal VC_Hash into payload at [ bit 0 to bit 32 ).
     const uint32_t VC_Hash_val = in_msg->VC_Hash_value;
@@ -441,7 +450,9 @@ void app_canUtils_VC_CommitInfo_pack(const VC_CommitInfo_Signals* const in_msg, 
     const uint32_t VC_Clean_raw = CAN_ENCODE(VC_Clean_val, CANSIG_VC_COMMIT_INFO_VC_CLEAN_SCALE, CANSIG_VC_COMMIT_INFO_VC_CLEAN_OFFSET, uint32_t);
     out_data[4] |= packShiftRight(VC_Clean_raw, 0, 0x1);   // Packs bits _______# of byte 4 
     
+    
 }
+ 
 // pack function for VC_PowerEstimate
 void app_canUtils_VC_PowerEstimate_pack(const VC_PowerEstimate_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -452,7 +463,6 @@ void app_canUtils_VC_PowerEstimate_pack(const VC_PowerEstimate_Signals* const in
     {
         return;
     }
-    
     
     // Pack 11-bit signal VC_PowerEstimateValue into payload at [ bit 0 to bit 11 ).
     const float VC_PowerEstimateValue_val = in_msg->VC_PowerEstimateValue_value;
@@ -466,7 +476,9 @@ void app_canUtils_VC_PowerEstimate_pack(const VC_PowerEstimate_Signals* const in
     out_data[1] |= packShiftLeft(VC_PowerEstimateMeasuredValue_raw, 3, 0xF8);   // Packs bits #####___ of byte 1 
     out_data[2] |= packShiftRight(VC_PowerEstimateMeasuredValue_raw, 5, 0x3F);   // Packs bits __###### of byte 2 
     
+    
 }
+ 
 // pack function for VC_PowerEstimatePID
 void app_canUtils_VC_PowerEstimatePID_pack(const VC_PowerEstimatePID_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -477,7 +489,6 @@ void app_canUtils_VC_PowerEstimatePID_pack(const VC_PowerEstimatePID_Signals* co
     {
         return;
     }
-    
     
     // Pack 8-bit signal VC_PIDPowerEstimateOutput into payload at [ bit 0 to bit 8 ).
     const float VC_PIDPowerEstimateOutput_val = in_msg->VC_PIDPowerEstimateOutput_value;
@@ -503,7 +514,9 @@ void app_canUtils_VC_PowerEstimatePID_pack(const VC_PowerEstimatePID_Signals* co
     out_data[6] |= packShiftRight(VC_PIDPowerEstimateIntegral_raw, 8, 0xFF);   // Packs bits ######## of byte 6 
     out_data[7] |= packShiftRight(VC_PIDPowerEstimateIntegral_raw, 16, 0xFF);   // Packs bits ######## of byte 7 
     
+    
 }
+ 
 // pack function for VC_PIDSlipRatio
 void app_canUtils_VC_PIDSlipRatio_pack(const VC_PIDSlipRatio_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -514,7 +527,6 @@ void app_canUtils_VC_PIDSlipRatio_pack(const VC_PIDSlipRatio_Signals* const in_m
     {
         return;
     }
-    
     
     // Pack 8-bit signal VC_PIDSlipRatioOutput into payload at [ bit 0 to bit 8 ).
     const float VC_PIDSlipRatioOutput_val = in_msg->VC_PIDSlipRatioOutput_value;
@@ -540,7 +552,9 @@ void app_canUtils_VC_PIDSlipRatio_pack(const VC_PIDSlipRatio_Signals* const in_m
     out_data[6] |= packShiftRight(VC_PIDSlipRatioIntegral_raw, 8, 0xFF);   // Packs bits ######## of byte 6 
     out_data[7] |= packShiftRight(VC_PIDSlipRatioIntegral_raw, 16, 0xFF);   // Packs bits ######## of byte 7 
     
+    
 }
+ 
 // pack function for VC_SlipRatios
 void app_canUtils_VC_SlipRatios_pack(const VC_SlipRatios_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -552,7 +566,6 @@ void app_canUtils_VC_SlipRatios_pack(const VC_SlipRatios_Signals* const in_msg, 
         return;
     }
     
-    
     // Pack 8-bit signal VC_SlipRatioLeft into payload at [ bit 0 to bit 8 ).
     const float VC_SlipRatioLeft_val = in_msg->VC_SlipRatioLeft_value;
     const int32_t VC_SlipRatioLeft_raw = CAN_SIGNED_ENCODE(VC_SlipRatioLeft_val, CANSIG_VC_SLIP_RATIOS_VC_SLIP_RATIO_LEFT_SCALE, CANSIG_VC_SLIP_RATIOS_VC_SLIP_RATIO_LEFT_OFFSET, int32_t);
@@ -563,7 +576,9 @@ void app_canUtils_VC_SlipRatios_pack(const VC_SlipRatios_Signals* const in_msg, 
     const int32_t VC_SlipRatioRight_raw = CAN_SIGNED_ENCODE(VC_SlipRatioRight_val, CANSIG_VC_SLIP_RATIOS_VC_SLIP_RATIO_RIGHT_SCALE, CANSIG_VC_SLIP_RATIOS_VC_SLIP_RATIO_RIGHT_OFFSET, int32_t);
     out_data[1] |= packShiftRight(VC_SlipRatioRight_raw, 0, 0xFF);   // Packs bits ######## of byte 1 
     
+    
 }
+ 
 // pack function for VC_ActiveDiffOutputs
 void app_canUtils_VC_ActiveDiffOutputs_pack(const VC_ActiveDiffOutputs_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -574,7 +589,6 @@ void app_canUtils_VC_ActiveDiffOutputs_pack(const VC_ActiveDiffOutputs_Signals* 
     {
         return;
     }
-    
     
     // Pack 10-bit signal VC_ActiveDiffTorqueLeft into payload at [ bit 0 to bit 10 ).
     const float VC_ActiveDiffTorqueLeft_val = in_msg->VC_ActiveDiffTorqueLeft_value;
@@ -588,7 +602,9 @@ void app_canUtils_VC_ActiveDiffOutputs_pack(const VC_ActiveDiffOutputs_Signals* 
     out_data[1] |= packShiftLeft(VC_ActiveDiffTorqueRight_raw, 2, 0xFC);   // Packs bits ######__ of byte 1 
     out_data[2] |= packShiftRight(VC_ActiveDiffTorqueRight_raw, 6, 0xF);   // Packs bits ____#### of byte 2 
     
+    
 }
+ 
 // pack function for VC_PowerLimit
 void app_canUtils_VC_PowerLimit_pack(const VC_PowerLimit_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -599,7 +615,6 @@ void app_canUtils_VC_PowerLimit_pack(const VC_PowerLimit_Signals* const in_msg, 
     {
         return;
     }
-    
     
     // Pack 11-bit signal VC_PowerLimitValue into payload at [ bit 0 to bit 11 ).
     const float VC_PowerLimitValue_val = in_msg->VC_PowerLimitValue_value;
@@ -613,7 +628,9 @@ void app_canUtils_VC_PowerLimit_pack(const VC_PowerLimit_Signals* const in_msg, 
     out_data[1] |= packShiftLeft(VC_PowerLimitValueAtFullThrottle_raw, 3, 0xF8);   // Packs bits #####___ of byte 1 
     out_data[2] |= packShiftRight(VC_PowerLimitValueAtFullThrottle_raw, 5, 0x3F);   // Packs bits __###### of byte 2 
     
+    
 }
+ 
 // pack function for VC_VehicleDynamics
 void app_canUtils_VC_VehicleDynamics_pack(const VC_VehicleDynamics_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -624,7 +641,6 @@ void app_canUtils_VC_VehicleDynamics_pack(const VC_VehicleDynamics_Signals* cons
     {
         return;
     }
-    
     
     // Pack 1-bit signal VC_RegenEnabled into payload at [ bit 0 to bit 1 ).
     const bool VC_RegenEnabled_val = in_msg->VC_RegenEnabled_value;
@@ -643,7 +659,9 @@ void app_canUtils_VC_VehicleDynamics_pack(const VC_VehicleDynamics_Signals* cons
     out_data[1] |= packShiftRight(VC_VehicleVelocity_raw, 6, 0xFF);   // Packs bits ######## of byte 1 
     out_data[2] |= packShiftRight(VC_VehicleVelocity_raw, 14, 0x1);   // Packs bits _______# of byte 2 
     
+    
 }
+ 
 // pack function for VC_EllipseEkfNavVelocity
 void app_canUtils_VC_EllipseEkfNavVelocity_pack(const VC_EllipseEkfNavVelocity_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -654,7 +672,6 @@ void app_canUtils_VC_EllipseEkfNavVelocity_pack(const VC_EllipseEkfNavVelocity_S
     {
         return;
     }
-    
     
     // Pack 11-bit signal VC_VelocityNorth into payload at [ bit 0 to bit 11 ).
     const float VC_VelocityNorth_val = in_msg->VC_VelocityNorth_value;
@@ -692,7 +709,9 @@ void app_canUtils_VC_EllipseEkfNavVelocity_pack(const VC_EllipseEkfNavVelocity_S
     out_data[6] |= packShiftLeft(VC_VelocityDownAccuracy_raw, 3, 0xF8);   // Packs bits #####___ of byte 6 
     out_data[7] |= packShiftRight(VC_VelocityDownAccuracy_raw, 5, 0xF);   // Packs bits ____#### of byte 7 
     
+    
 }
+ 
 // pack function for VC_Voltages
 void app_canUtils_VC_Voltages_pack(const VC_Voltages_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -703,7 +722,6 @@ void app_canUtils_VC_Voltages_pack(const VC_Voltages_Signals* const in_msg, uint
     {
         return;
     }
-    
     
     // Pack 10-bit signal VC_BatVoltage into payload at [ bit 0 to bit 10 ).
     const float VC_BatVoltage_val = in_msg->VC_BatVoltage_value;
@@ -724,7 +742,9 @@ void app_canUtils_VC_Voltages_pack(const VC_Voltages_Signals* const in_msg, uint
     out_data[3] |= packShiftRight(VC_AccVoltage_raw, 2, 0xFF);   // Packs bits ######## of byte 3 
     out_data[4] |= packShiftRight(VC_AccVoltage_raw, 10, 0x3);   // Packs bits ______## of byte 4 
     
+    
 }
+ 
 // pack function for VC_CurrentSensing
 void app_canUtils_VC_CurrentSensing_pack(const VC_CurrentSensing_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -735,7 +755,6 @@ void app_canUtils_VC_CurrentSensing_pack(const VC_CurrentSensing_Signals* const 
     {
         return;
     }
-    
     
     // Pack 11-bit signal VC_AccCurrent into payload at [ bit 0 to bit 11 ).
     const float VC_AccCurrent_val = in_msg->VC_AccCurrent_value;
@@ -749,7 +768,9 @@ void app_canUtils_VC_CurrentSensing_pack(const VC_CurrentSensing_Signals* const 
     out_data[1] |= packShiftLeft(VC_BatCurrent_raw, 3, 0xF8);   // Packs bits #####___ of byte 1 
     out_data[2] |= packShiftRight(VC_BatCurrent_raw, 5, 0xFF);   // Packs bits ######## of byte 2 
     
+    
 }
+ 
 // pack function for VC_Efuse
 void app_canUtils_VC_Efuse_pack(const VC_Efuse_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -760,7 +781,6 @@ void app_canUtils_VC_Efuse_pack(const VC_Efuse_Signals* const in_msg, uint8_t* c
     {
         return;
     }
-    
     
     // Pack 9-bit signal VC_ShdnCurrent into payload at [ bit 0 to bit 9 ).
     const float VC_ShdnCurrent_val = in_msg->VC_ShdnCurrent_value;
@@ -828,7 +848,9 @@ void app_canUtils_VC_Efuse_pack(const VC_Efuse_Signals* const in_msg, uint8_t* c
     const uint32_t VC_InvLStatus_raw = CAN_ENCODE(VC_InvLStatus_val, CANSIG_VC_EFUSE_VC_INV_L_STATUS_SCALE, CANSIG_VC_EFUSE_VC_INV_L_STATUS_OFFSET, uint32_t);
     out_data[7] |= packShiftLeft(VC_InvLStatus_raw, 5, 0x20);   // Packs bits __#_____ of byte 7 
     
+    
 }
+ 
 // pack function for VC_ImuLinearAcceleration
 void app_canUtils_VC_ImuLinearAcceleration_pack(const VC_ImuLinearAcceleration_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -839,7 +861,6 @@ void app_canUtils_VC_ImuLinearAcceleration_pack(const VC_ImuLinearAcceleration_S
     {
         return;
     }
-    
     
     // Pack 8-bit signal VC_ImuAccelerationX into payload at [ bit 0 to bit 8 ).
     const float VC_ImuAccelerationX_val = in_msg->VC_ImuAccelerationX_value;
@@ -856,7 +877,9 @@ void app_canUtils_VC_ImuLinearAcceleration_pack(const VC_ImuLinearAcceleration_S
     const uint32_t VC_ImuAccelerationZ_raw = CAN_ENCODE(VC_ImuAccelerationZ_val, CANSIG_VC_IMU_LINEAR_ACCELERATION_VC_IMU_ACCELERATION_Z_SCALE, CANSIG_VC_IMU_LINEAR_ACCELERATION_VC_IMU_ACCELERATION_Z_OFFSET, uint32_t);
     out_data[2] |= packShiftRight(VC_ImuAccelerationZ_raw, 0, 0xFF);   // Packs bits ######## of byte 2 
     
+    
 }
+ 
 // pack function for VC_CoolantPumpFlowRate
 void app_canUtils_VC_CoolantPumpFlowRate_pack(const VC_CoolantPumpFlowRate_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -868,13 +891,14 @@ void app_canUtils_VC_CoolantPumpFlowRate_pack(const VC_CoolantPumpFlowRate_Signa
         return;
     }
     
-    
     // Pack 8-bit signal VC_FlowRate into payload at [ bit 0 to bit 8 ).
     const float VC_FlowRate_val = in_msg->VC_FlowRate_value;
     const uint32_t VC_FlowRate_raw = CAN_ENCODE(VC_FlowRate_val, CANSIG_VC_COOLANT_PUMP_FLOW_RATE_VC_FLOW_RATE_SCALE, CANSIG_VC_COOLANT_PUMP_FLOW_RATE_VC_FLOW_RATE_OFFSET, uint32_t);
     out_data[0] |= packShiftRight(VC_FlowRate_raw, 0, 0xFF);   // Packs bits ######## of byte 0 
     
+    
 }
+ 
 // pack function for VC_VCShdnNodeStatus
 void app_canUtils_VC_VCShdnNodeStatus_pack(const VC_VCShdnNodeStatus_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -885,7 +909,6 @@ void app_canUtils_VC_VCShdnNodeStatus_pack(const VC_VCShdnNodeStatus_Signals* co
     {
         return;
     }
-    
     
     // Pack 1-bit signal VC_LEStopOKStatus into payload at [ bit 0 to bit 1 ).
     const bool VC_LEStopOKStatus_val = in_msg->VC_LEStopOKStatus_value;
@@ -907,7 +930,9 @@ void app_canUtils_VC_VCShdnNodeStatus_pack(const VC_VCShdnNodeStatus_Signals* co
     const uint32_t VC_SplitterBoxInterlockOKStatus_raw = CAN_ENCODE(VC_SplitterBoxInterlockOKStatus_val, CANSIG_VC_VC_SHDN_NODE_STATUS_VC_SPLITTER_BOX_INTERLOCK_OK_STATUS_SCALE, CANSIG_VC_VC_SHDN_NODE_STATUS_VC_SPLITTER_BOX_INTERLOCK_OK_STATUS_OFFSET, uint32_t);
     out_data[0] |= packShiftLeft(VC_SplitterBoxInterlockOKStatus_raw, 3, 0x8);   // Packs bits ____#___ of byte 0 
     
+    
 }
+ 
 // pack function for VC_GlobalShdnNodeStatus
 void app_canUtils_VC_GlobalShdnNodeStatus_pack(const VC_GlobalShdnNodeStatus_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -919,13 +944,14 @@ void app_canUtils_VC_GlobalShdnNodeStatus_pack(const VC_GlobalShdnNodeStatus_Sig
         return;
     }
     
-    
     // Pack 4-bit signal VC_FirstFaultNode into payload at [ bit 0 to bit 4 ).
     const ShutdownNode VC_FirstFaultNode_val = in_msg->VC_FirstFaultNode_value;
     const uint32_t VC_FirstFaultNode_raw = CAN_ENCODE(VC_FirstFaultNode_val, CANSIG_VC_GLOBAL_SHDN_NODE_STATUS_VC_FIRST_FAULT_NODE_SCALE, CANSIG_VC_GLOBAL_SHDN_NODE_STATUS_VC_FIRST_FAULT_NODE_OFFSET, uint32_t);
     out_data[0] |= packShiftRight(VC_FirstFaultNode_raw, 0, 0xF);   // Packs bits ____#### of byte 0 
     
+    
 }
+ 
 // pack function for VC_PedalPercentage
 void app_canUtils_VC_PedalPercentage_pack(const VC_PedalPercentage_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -937,13 +963,14 @@ void app_canUtils_VC_PedalPercentage_pack(const VC_PedalPercentage_Signals* cons
         return;
     }
     
-    
     // Pack 8-bit signal VC_MappedPedalPercentage into payload at [ bit 0 to bit 8 ).
     const float VC_MappedPedalPercentage_val = in_msg->VC_MappedPedalPercentage_value;
     const uint32_t VC_MappedPedalPercentage_raw = CAN_ENCODE(VC_MappedPedalPercentage_val, CANSIG_VC_PEDAL_PERCENTAGE_VC_MAPPED_PEDAL_PERCENTAGE_SCALE, CANSIG_VC_PEDAL_PERCENTAGE_VC_MAPPED_PEDAL_PERCENTAGE_OFFSET, uint32_t);
     out_data[0] |= packShiftRight(VC_MappedPedalPercentage_raw, 0, 0xFF);   // Packs bits ######## of byte 0 
     
+    
 }
+ 
 // pack function for VC_Warnings
 void app_canUtils_VC_Warnings_pack(const VC_Warnings_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -954,7 +981,6 @@ void app_canUtils_VC_Warnings_pack(const VC_Warnings_Signals* const in_msg, uint
     {
         return;
     }
-    
     
     // Pack 1-bit signal VC_Warning_StackWaterMarkHighTask1Hz into payload at [ bit 0 to bit 1 ).
     const bool VC_Warning_StackWaterMarkHighTask1Hz_val = in_msg->VC_Warning_StackWaterMarkHighTask1Hz_value;
@@ -1056,7 +1082,9 @@ void app_canUtils_VC_Warnings_pack(const VC_Warnings_Signals* const in_msg, uint
     const uint32_t VC_Warning_SbgInitFailed_raw = CAN_ENCODE(VC_Warning_SbgInitFailed_val, CANSIG_VC_WARNINGS_VC_WARNING_SBG_INIT_FAILED_SCALE, CANSIG_VC_WARNINGS_VC_WARNING_SBG_INIT_FAILED_OFFSET, uint32_t);
     out_data[2] |= packShiftLeft(VC_Warning_SbgInitFailed_raw, 3, 0x8);   // Packs bits ____#___ of byte 2 
     
+    
 }
+ 
 // pack function for VC_Faults
 void app_canUtils_VC_Faults_pack(const VC_Faults_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -1067,7 +1095,6 @@ void app_canUtils_VC_Faults_pack(const VC_Faults_Signals* const in_msg, uint8_t*
     {
         return;
     }
-    
     
     // Pack 1-bit signal VC_Fault_MissingBMSHeartbeat into payload at [ bit 0 to bit 1 ).
     const bool VC_Fault_MissingBMSHeartbeat_val = in_msg->VC_Fault_MissingBMSHeartbeat_value;
@@ -1099,7 +1126,9 @@ void app_canUtils_VC_Faults_pack(const VC_Faults_Signals* const in_msg, uint8_t*
     const uint32_t VC_Fault_RightInverterFault_raw = CAN_ENCODE(VC_Fault_RightInverterFault_val, CANSIG_VC_FAULTS_VC_FAULT_RIGHT_INVERTER_FAULT_SCALE, CANSIG_VC_FAULTS_VC_FAULT_RIGHT_INVERTER_FAULT_OFFSET, uint32_t);
     out_data[0] |= packShiftLeft(VC_Fault_RightInverterFault_raw, 5, 0x20);   // Packs bits __#_____ of byte 0 
     
+    
 }
+ 
 // pack function for VC_WarningsCounts
 void app_canUtils_VC_WarningsCounts_pack(const VC_WarningsCounts_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -1110,7 +1139,6 @@ void app_canUtils_VC_WarningsCounts_pack(const VC_WarningsCounts_Signals* const 
     {
         return;
     }
-    
     
     // Pack 3-bit signal VC_Warning_StackWaterMarkHighTask1HzCount into payload at [ bit 0 to bit 3 ).
     const uint32_t VC_Warning_StackWaterMarkHighTask1HzCount_val = in_msg->VC_Warning_StackWaterMarkHighTask1HzCount_value;
@@ -1217,7 +1245,9 @@ void app_canUtils_VC_WarningsCounts_pack(const VC_WarningsCounts_Signals* const 
     const uint32_t VC_Warning_SbgInitFailedCount_raw = CAN_ENCODE(VC_Warning_SbgInitFailedCount_val, CANSIG_VC_WARNINGS_COUNTS_VC_WARNING_SBG_INIT_FAILED_COUNT_SCALE, CANSIG_VC_WARNINGS_COUNTS_VC_WARNING_SBG_INIT_FAILED_COUNT_OFFSET, uint32_t);
     out_data[7] |= packShiftLeft(VC_Warning_SbgInitFailedCount_raw, 1, 0xE);   // Packs bits ____###_ of byte 7 
     
+    
 }
+ 
 // pack function for VC_FaultsCounts
 void app_canUtils_VC_FaultsCounts_pack(const VC_FaultsCounts_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -1228,7 +1258,6 @@ void app_canUtils_VC_FaultsCounts_pack(const VC_FaultsCounts_Signals* const in_m
     {
         return;
     }
-    
     
     // Pack 3-bit signal VC_Fault_MissingBMSHeartbeatCount into payload at [ bit 0 to bit 3 ).
     const uint32_t VC_Fault_MissingBMSHeartbeatCount_val = in_msg->VC_Fault_MissingBMSHeartbeatCount_value;
@@ -1262,360 +1291,331 @@ void app_canUtils_VC_FaultsCounts_pack(const VC_FaultsCounts_Signals* const in_m
     out_data[1] |= packShiftLeft(VC_Fault_RightInverterFaultCount_raw, 7, 0x80);   // Packs bits #_______ of byte 1 
     out_data[2] |= packShiftRight(VC_Fault_RightInverterFaultCount_raw, 1, 0x3);   // Packs bits ______## of byte 2 
     
+    
 }
-// pack function for BMS_Vitals
-void app_canUtils_BMS_Vitals_pack(const BMS_Vitals_Signals* const in_msg, uint8_t* const out_data)
+
+
+
+
+// unpack function for BMS_Vitals
+void app_canUtils_BMS_Vitals_unpack(const uint8_t* const in_data, BMS_Vitals_Signals* const out_msg)
 {
-    // Pack message BMS_Vitals.
+    // Unpack message BMS_Vitals.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|____BBBA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_Heartbeat_raw = 0; // Temporary raw variable for BMS_Heartbeat
+    BMS_Heartbeat_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->BMS_Heartbeat_value = CAN_DECODE(BMS_Heartbeat_raw, CANSIG_BMS_VITALS_BMS_HEARTBEAT_SCALE, CANSIG_BMS_VITALS_BMS_HEARTBEAT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Heartbeat into payload at [ bit 0 to bit 1 ).
-    const bool BMS_Heartbeat_val = in_msg->BMS_Heartbeat_value;
-    const uint32_t BMS_Heartbeat_raw = CAN_ENCODE(BMS_Heartbeat_val, CANSIG_BMS_VITALS_BMS_HEARTBEAT_SCALE, CANSIG_BMS_VITALS_BMS_HEARTBEAT_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_Heartbeat_raw, 0, 0x1);   // Packs bits _______# of byte 0 
+    uint32_t BMS_State_raw = 0; // Temporary raw variable for BMS_State
+    BMS_State_raw |= unpackShiftLeft(in_data[0], 1, 0xE); // Unpacks bits ____###_ from byte 0
+    out_msg->BMS_State_value = CAN_DECODE(BMS_State_raw, CANSIG_BMS_VITALS_BMS_STATE_SCALE, CANSIG_BMS_VITALS_BMS_STATE_OFFSET, uint32_t);
     
-    // Pack 3-bit signal BMS_State into payload at [ bit 1 to bit 4 ).
-    const BmsState BMS_State_val = in_msg->BMS_State_value;
-    const uint32_t BMS_State_raw = CAN_ENCODE(BMS_State_val, CANSIG_BMS_VITALS_BMS_STATE_SCALE, CANSIG_BMS_VITALS_BMS_STATE_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_State_raw, 1, 0xE);   // Packs bits ____###_ of byte 0 
     
 }
-// pack function for BMS_OkStatuses
-void app_canUtils_BMS_OkStatuses_pack(const BMS_OkStatuses_Signals* const in_msg, uint8_t* const out_data)
+
+
+// unpack function for BMS_OkStatuses
+void app_canUtils_BMS_OkStatuses_unpack(const uint8_t* const in_data, BMS_OkStatuses_Signals* const out_msg)
 {
-    // Pack message BMS_OkStatuses.
+    // Unpack message BMS_OkStatuses.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|__FEDCBA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_BmsOk_raw = 0; // Temporary raw variable for BMS_BmsOk
+    BMS_BmsOk_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->BMS_BmsOk_value = CAN_DECODE(BMS_BmsOk_raw, CANSIG_BMS_OK_STATUSES_BMS_BMS_OK_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BMS_OK_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_BmsOk into payload at [ bit 0 to bit 1 ).
-    const bool BMS_BmsOk_val = in_msg->BMS_BmsOk_value;
-    const uint32_t BMS_BmsOk_raw = CAN_ENCODE(BMS_BmsOk_val, CANSIG_BMS_OK_STATUSES_BMS_BMS_OK_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BMS_OK_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_BmsOk_raw, 0, 0x1);   // Packs bits _______# of byte 0 
+    uint32_t BMS_ImdOk_raw = 0; // Temporary raw variable for BMS_ImdOk
+    BMS_ImdOk_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->BMS_ImdOk_value = CAN_DECODE(BMS_ImdOk_raw, CANSIG_BMS_OK_STATUSES_BMS_IMD_OK_SCALE, CANSIG_BMS_OK_STATUSES_BMS_IMD_OK_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_ImdOk into payload at [ bit 1 to bit 2 ).
-    const bool BMS_ImdOk_val = in_msg->BMS_ImdOk_value;
-    const uint32_t BMS_ImdOk_raw = CAN_ENCODE(BMS_ImdOk_val, CANSIG_BMS_OK_STATUSES_BMS_IMD_OK_SCALE, CANSIG_BMS_OK_STATUSES_BMS_IMD_OK_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_ImdOk_raw, 1, 0x2);   // Packs bits ______#_ of byte 0 
+    uint32_t BMS_BspdOk_raw = 0; // Temporary raw variable for BMS_BspdOk
+    BMS_BspdOk_raw |= unpackShiftLeft(in_data[0], 2, 0x4); // Unpacks bits _____#__ from byte 0
+    out_msg->BMS_BspdOk_value = CAN_DECODE(BMS_BspdOk_raw, CANSIG_BMS_OK_STATUSES_BMS_BSPD_OK_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BSPD_OK_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_BspdOk into payload at [ bit 2 to bit 3 ).
-    const bool BMS_BspdOk_val = in_msg->BMS_BspdOk_value;
-    const uint32_t BMS_BspdOk_raw = CAN_ENCODE(BMS_BspdOk_val, CANSIG_BMS_OK_STATUSES_BMS_BSPD_OK_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BSPD_OK_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_BspdOk_raw, 2, 0x4);   // Packs bits _____#__ of byte 0 
+    uint32_t BMS_BmsLatchedFault_raw = 0; // Temporary raw variable for BMS_BmsLatchedFault
+    BMS_BmsLatchedFault_raw |= unpackShiftLeft(in_data[0], 3, 0x8); // Unpacks bits ____#___ from byte 0
+    out_msg->BMS_BmsLatchedFault_value = CAN_DECODE(BMS_BmsLatchedFault_raw, CANSIG_BMS_OK_STATUSES_BMS_BMS_LATCHED_FAULT_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BMS_LATCHED_FAULT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_BmsLatchedFault into payload at [ bit 3 to bit 4 ).
-    const bool BMS_BmsLatchedFault_val = in_msg->BMS_BmsLatchedFault_value;
-    const uint32_t BMS_BmsLatchedFault_raw = CAN_ENCODE(BMS_BmsLatchedFault_val, CANSIG_BMS_OK_STATUSES_BMS_BMS_LATCHED_FAULT_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BMS_LATCHED_FAULT_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_BmsLatchedFault_raw, 3, 0x8);   // Packs bits ____#___ of byte 0 
+    uint32_t BMS_ImdLatchedFault_raw = 0; // Temporary raw variable for BMS_ImdLatchedFault
+    BMS_ImdLatchedFault_raw |= unpackShiftLeft(in_data[0], 4, 0x10); // Unpacks bits ___#____ from byte 0
+    out_msg->BMS_ImdLatchedFault_value = CAN_DECODE(BMS_ImdLatchedFault_raw, CANSIG_BMS_OK_STATUSES_BMS_IMD_LATCHED_FAULT_SCALE, CANSIG_BMS_OK_STATUSES_BMS_IMD_LATCHED_FAULT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_ImdLatchedFault into payload at [ bit 4 to bit 5 ).
-    const bool BMS_ImdLatchedFault_val = in_msg->BMS_ImdLatchedFault_value;
-    const uint32_t BMS_ImdLatchedFault_raw = CAN_ENCODE(BMS_ImdLatchedFault_val, CANSIG_BMS_OK_STATUSES_BMS_IMD_LATCHED_FAULT_SCALE, CANSIG_BMS_OK_STATUSES_BMS_IMD_LATCHED_FAULT_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_ImdLatchedFault_raw, 4, 0x10);   // Packs bits ___#____ of byte 0 
+    uint32_t BMS_BspdLatchedFault_raw = 0; // Temporary raw variable for BMS_BspdLatchedFault
+    BMS_BspdLatchedFault_raw |= unpackShiftLeft(in_data[0], 5, 0x20); // Unpacks bits __#_____ from byte 0
+    out_msg->BMS_BspdLatchedFault_value = CAN_DECODE(BMS_BspdLatchedFault_raw, CANSIG_BMS_OK_STATUSES_BMS_BSPD_LATCHED_FAULT_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BSPD_LATCHED_FAULT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_BspdLatchedFault into payload at [ bit 5 to bit 6 ).
-    const bool BMS_BspdLatchedFault_val = in_msg->BMS_BspdLatchedFault_value;
-    const uint32_t BMS_BspdLatchedFault_raw = CAN_ENCODE(BMS_BspdLatchedFault_val, CANSIG_BMS_OK_STATUSES_BMS_BSPD_LATCHED_FAULT_SCALE, CANSIG_BMS_OK_STATUSES_BMS_BSPD_LATCHED_FAULT_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_BspdLatchedFault_raw, 5, 0x20);   // Packs bits __#_____ of byte 0 
     
 }
-// pack function for BMS_CellTemperatures
-void app_canUtils_BMS_CellTemperatures_pack(const BMS_CellTemperatures_Signals* const in_msg, uint8_t* const out_data)
+
+
+// unpack function for BMS_CellTemperatures
+void app_canUtils_BMS_CellTemperatures_unpack(const uint8_t* const in_data, BMS_CellTemperatures_Signals* const out_msg)
 {
-    // Pack message BMS_CellTemperatures.
+    // Unpack message BMS_CellTemperatures.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|____BBBB|BBBBBBAA|AAAAAAAA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_MinCellTemperature_raw = 0; // Temporary raw variable for BMS_MinCellTemperature
+    BMS_MinCellTemperature_raw |= unpackShiftRight(in_data[0], 0, 0xFF); // Unpacks bits ######## from byte 0
+    BMS_MinCellTemperature_raw |= unpackShiftRight(in_data[1], 8, 0x3); // Unpacks bits ______## from byte 1
+    out_msg->BMS_MinCellTemperature_value = CAN_DECODE(BMS_MinCellTemperature_raw, CANSIG_BMS_CELL_TEMPERATURES_BMS_MIN_CELL_TEMPERATURE_SCALE, CANSIG_BMS_CELL_TEMPERATURES_BMS_MIN_CELL_TEMPERATURE_OFFSET, float);
     
-    // Pack 10-bit signal BMS_MinCellTemperature into payload at [ bit 0 to bit 10 ).
-    const float BMS_MinCellTemperature_val = in_msg->BMS_MinCellTemperature_value;
-    const uint32_t BMS_MinCellTemperature_raw = CAN_ENCODE(BMS_MinCellTemperature_val, CANSIG_BMS_CELL_TEMPERATURES_BMS_MIN_CELL_TEMPERATURE_SCALE, CANSIG_BMS_CELL_TEMPERATURES_BMS_MIN_CELL_TEMPERATURE_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_MinCellTemperature_raw, 0, 0xFF);   // Packs bits ######## of byte 0 
-    out_data[1] |= packShiftRight(BMS_MinCellTemperature_raw, 8, 0x3);   // Packs bits ______## of byte 1 
+    uint32_t BMS_MaxCellTemperature_raw = 0; // Temporary raw variable for BMS_MaxCellTemperature
+    BMS_MaxCellTemperature_raw |= unpackShiftLeft(in_data[1], 2, 0xFC); // Unpacks bits ######__ from byte 1
+    BMS_MaxCellTemperature_raw |= unpackShiftRight(in_data[2], 6, 0xF); // Unpacks bits ____#### from byte 2
+    out_msg->BMS_MaxCellTemperature_value = CAN_DECODE(BMS_MaxCellTemperature_raw, CANSIG_BMS_CELL_TEMPERATURES_BMS_MAX_CELL_TEMPERATURE_SCALE, CANSIG_BMS_CELL_TEMPERATURES_BMS_MAX_CELL_TEMPERATURE_OFFSET, float);
     
-    // Pack 10-bit signal BMS_MaxCellTemperature into payload at [ bit 10 to bit 20 ).
-    const float BMS_MaxCellTemperature_val = in_msg->BMS_MaxCellTemperature_value;
-    const uint32_t BMS_MaxCellTemperature_raw = CAN_ENCODE(BMS_MaxCellTemperature_val, CANSIG_BMS_CELL_TEMPERATURES_BMS_MAX_CELL_TEMPERATURE_SCALE, CANSIG_BMS_CELL_TEMPERATURES_BMS_MAX_CELL_TEMPERATURE_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_MaxCellTemperature_raw, 2, 0xFC);   // Packs bits ######__ of byte 1 
-    out_data[2] |= packShiftRight(BMS_MaxCellTemperature_raw, 6, 0xF);   // Packs bits ____#### of byte 2 
     
 }
-// pack function for BMS_VoltageAndChargeStats
-void app_canUtils_BMS_VoltageAndChargeStats_pack(const BMS_VoltageAndChargeStats_Signals* const in_msg, uint8_t* const out_data)
+
+
+// unpack function for BMS_VoltageAndChargeStats
+void app_canUtils_BMS_VoltageAndChargeStats_unpack(const uint8_t* const in_data, BMS_VoltageAndChargeStats_Signals* const out_msg)
 {
-    // Pack message BMS_VoltageAndChargeStats.
+    // Unpack message BMS_VoltageAndChargeStats.
     // |xxxxxxxx|___EEEEE|EEEEEEEE|DDDDDDDD|DDDDDCBB|BBBBBBBB|AAAAAAAA|AAAAAAAA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_PackVoltage_raw = 0; // Temporary raw variable for BMS_PackVoltage
+    BMS_PackVoltage_raw |= unpackShiftRight(in_data[0], 0, 0xFF); // Unpacks bits ######## from byte 0
+    BMS_PackVoltage_raw |= unpackShiftRight(in_data[1], 8, 0xFF); // Unpacks bits ######## from byte 1
+    out_msg->BMS_PackVoltage_value = CAN_DECODE(BMS_PackVoltage_raw, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_PACK_VOLTAGE_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_PACK_VOLTAGE_OFFSET, float);
     
-    // Pack 16-bit signal BMS_PackVoltage into payload at [ bit 0 to bit 16 ).
-    const float BMS_PackVoltage_val = in_msg->BMS_PackVoltage_value;
-    const uint32_t BMS_PackVoltage_raw = CAN_ENCODE(BMS_PackVoltage_val, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_PACK_VOLTAGE_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_PACK_VOLTAGE_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_PackVoltage_raw, 0, 0xFF);   // Packs bits ######## of byte 0 
-    out_data[1] |= packShiftRight(BMS_PackVoltage_raw, 8, 0xFF);   // Packs bits ######## of byte 1 
+    uint32_t BMS_Soc_raw = 0; // Temporary raw variable for BMS_Soc
+    BMS_Soc_raw |= unpackShiftRight(in_data[2], 0, 0xFF); // Unpacks bits ######## from byte 2
+    BMS_Soc_raw |= unpackShiftRight(in_data[3], 8, 0x3); // Unpacks bits ______## from byte 3
+    out_msg->BMS_Soc_value = CAN_DECODE(BMS_Soc_raw, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_OFFSET, float);
     
-    // Pack 10-bit signal BMS_Soc into payload at [ bit 16 to bit 26 ).
-    const float BMS_Soc_val = in_msg->BMS_Soc_value;
-    const uint32_t BMS_Soc_raw = CAN_ENCODE(BMS_Soc_val, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_OFFSET, uint32_t);
-    out_data[2] |= packShiftRight(BMS_Soc_raw, 0, 0xFF);   // Packs bits ######## of byte 2 
-    out_data[3] |= packShiftRight(BMS_Soc_raw, 8, 0x3);   // Packs bits ______## of byte 3 
+    uint32_t BMS_SocCorrupt_raw = 0; // Temporary raw variable for BMS_SocCorrupt
+    BMS_SocCorrupt_raw |= unpackShiftLeft(in_data[3], 2, 0x4); // Unpacks bits _____#__ from byte 3
+    out_msg->BMS_SocCorrupt_value = CAN_DECODE(BMS_SocCorrupt_raw, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_CORRUPT_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_CORRUPT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_SocCorrupt into payload at [ bit 26 to bit 27 ).
-    const bool BMS_SocCorrupt_val = in_msg->BMS_SocCorrupt_value;
-    const uint32_t BMS_SocCorrupt_raw = CAN_ENCODE(BMS_SocCorrupt_val, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_CORRUPT_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_SOC_CORRUPT_OFFSET, uint32_t);
-    out_data[3] |= packShiftLeft(BMS_SocCorrupt_raw, 2, 0x4);   // Packs bits _____#__ of byte 3 
+    uint32_t BMS_MinCellVoltage_raw = 0; // Temporary raw variable for BMS_MinCellVoltage
+    BMS_MinCellVoltage_raw |= unpackShiftLeft(in_data[3], 3, 0xF8); // Unpacks bits #####___ from byte 3
+    BMS_MinCellVoltage_raw |= unpackShiftRight(in_data[4], 5, 0xFF); // Unpacks bits ######## from byte 4
+    out_msg->BMS_MinCellVoltage_value = CAN_DECODE(BMS_MinCellVoltage_raw, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MIN_CELL_VOLTAGE_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MIN_CELL_VOLTAGE_OFFSET, float);
     
-    // Pack 13-bit signal BMS_MinCellVoltage into payload at [ bit 27 to bit 40 ).
-    const float BMS_MinCellVoltage_val = in_msg->BMS_MinCellVoltage_value;
-    const uint32_t BMS_MinCellVoltage_raw = CAN_ENCODE(BMS_MinCellVoltage_val, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MIN_CELL_VOLTAGE_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MIN_CELL_VOLTAGE_OFFSET, uint32_t);
-    out_data[3] |= packShiftLeft(BMS_MinCellVoltage_raw, 3, 0xF8);   // Packs bits #####___ of byte 3 
-    out_data[4] |= packShiftRight(BMS_MinCellVoltage_raw, 5, 0xFF);   // Packs bits ######## of byte 4 
+    uint32_t BMS_MaxCellVoltage_raw = 0; // Temporary raw variable for BMS_MaxCellVoltage
+    BMS_MaxCellVoltage_raw |= unpackShiftRight(in_data[5], 0, 0xFF); // Unpacks bits ######## from byte 5
+    BMS_MaxCellVoltage_raw |= unpackShiftRight(in_data[6], 8, 0x1F); // Unpacks bits ___##### from byte 6
+    out_msg->BMS_MaxCellVoltage_value = CAN_DECODE(BMS_MaxCellVoltage_raw, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MAX_CELL_VOLTAGE_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MAX_CELL_VOLTAGE_OFFSET, float);
     
-    // Pack 13-bit signal BMS_MaxCellVoltage into payload at [ bit 40 to bit 53 ).
-    const float BMS_MaxCellVoltage_val = in_msg->BMS_MaxCellVoltage_value;
-    const uint32_t BMS_MaxCellVoltage_raw = CAN_ENCODE(BMS_MaxCellVoltage_val, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MAX_CELL_VOLTAGE_SCALE, CANSIG_BMS_VOLTAGE_AND_CHARGE_STATS_BMS_MAX_CELL_VOLTAGE_OFFSET, uint32_t);
-    out_data[5] |= packShiftRight(BMS_MaxCellVoltage_raw, 0, 0xFF);   // Packs bits ######## of byte 5 
-    out_data[6] |= packShiftRight(BMS_MaxCellVoltage_raw, 8, 0x1F);   // Packs bits ___##### of byte 6 
     
 }
-// pack function for BMS_TractiveSystem
-void app_canUtils_BMS_TractiveSystem_pack(const BMS_TractiveSystem_Signals* const in_msg, uint8_t* const out_data)
+
+
+// unpack function for BMS_TractiveSystem
+void app_canUtils_BMS_TractiveSystem_unpack(const uint8_t* const in_data, BMS_TractiveSystem_Signals* const out_msg)
 {
-    // Pack message BMS_TractiveSystem.
+    // Unpack message BMS_TractiveSystem.
     // |xxxxxxxx|_EDDDDDD|DDDDDDDD|DDDCCCCC|CCCCCCBB|BBBBBBBB|BBBAAAAA|AAAAAAAA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_TractiveSystemVoltage_raw = 0; // Temporary raw variable for BMS_TractiveSystemVoltage
+    BMS_TractiveSystemVoltage_raw |= unpackShiftRight(in_data[0], 0, 0xFF); // Unpacks bits ######## from byte 0
+    BMS_TractiveSystemVoltage_raw |= unpackShiftRight(in_data[1], 8, 0x1F); // Unpacks bits ___##### from byte 1
+    out_msg->BMS_TractiveSystemVoltage_value = CAN_DECODE(BMS_TractiveSystemVoltage_raw, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_VOLTAGE_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_VOLTAGE_OFFSET, float);
     
-    // Pack 13-bit signal BMS_TractiveSystemVoltage into payload at [ bit 0 to bit 13 ).
-    const float BMS_TractiveSystemVoltage_val = in_msg->BMS_TractiveSystemVoltage_value;
-    const uint32_t BMS_TractiveSystemVoltage_raw = CAN_ENCODE(BMS_TractiveSystemVoltage_val, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_VOLTAGE_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_VOLTAGE_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_TractiveSystemVoltage_raw, 0, 0xFF);   // Packs bits ######## of byte 0 
-    out_data[1] |= packShiftRight(BMS_TractiveSystemVoltage_raw, 8, 0x1F);   // Packs bits ___##### of byte 1 
+    uint32_t BMS_TractiveSystemCurrent_raw = 0; // Temporary raw variable for BMS_TractiveSystemCurrent
+    BMS_TractiveSystemCurrent_raw |= unpackShiftLeft(in_data[1], 5, 0xE0); // Unpacks bits ###_____ from byte 1
+    BMS_TractiveSystemCurrent_raw |= unpackShiftRight(in_data[2], 3, 0xFF); // Unpacks bits ######## from byte 2
+    BMS_TractiveSystemCurrent_raw |= unpackShiftRight(in_data[3], 11, 0x3); // Unpacks bits ______## from byte 3
+    out_msg->BMS_TractiveSystemCurrent_value = CAN_DECODE(BMS_TractiveSystemCurrent_raw, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_CURRENT_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_CURRENT_OFFSET, float);
     
-    // Pack 13-bit signal BMS_TractiveSystemCurrent into payload at [ bit 13 to bit 26 ).
-    const float BMS_TractiveSystemCurrent_val = in_msg->BMS_TractiveSystemCurrent_value;
-    const uint32_t BMS_TractiveSystemCurrent_raw = CAN_ENCODE(BMS_TractiveSystemCurrent_val, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_CURRENT_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_CURRENT_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_TractiveSystemCurrent_raw, 5, 0xE0);   // Packs bits ###_____ of byte 1 
-    out_data[2] |= packShiftRight(BMS_TractiveSystemCurrent_raw, 3, 0xFF);   // Packs bits ######## of byte 2 
-    out_data[3] |= packShiftRight(BMS_TractiveSystemCurrent_raw, 11, 0x3);   // Packs bits ______## of byte 3 
+    uint32_t BMS_TractiveSystemPower_raw = 0; // Temporary raw variable for BMS_TractiveSystemPower
+    BMS_TractiveSystemPower_raw |= unpackShiftLeft(in_data[3], 2, 0xFC); // Unpacks bits ######__ from byte 3
+    BMS_TractiveSystemPower_raw |= unpackShiftRight(in_data[4], 6, 0x1F); // Unpacks bits ___##### from byte 4
+    out_msg->BMS_TractiveSystemPower_value = CAN_DECODE(BMS_TractiveSystemPower_raw, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_POWER_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_POWER_OFFSET, float);
     
-    // Pack 11-bit signal BMS_TractiveSystemPower into payload at [ bit 26 to bit 37 ).
-    const float BMS_TractiveSystemPower_val = in_msg->BMS_TractiveSystemPower_value;
-    const uint32_t BMS_TractiveSystemPower_raw = CAN_ENCODE(BMS_TractiveSystemPower_val, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_POWER_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_TRACTIVE_SYSTEM_POWER_OFFSET, uint32_t);
-    out_data[3] |= packShiftLeft(BMS_TractiveSystemPower_raw, 2, 0xFC);   // Packs bits ######__ of byte 3 
-    out_data[4] |= packShiftRight(BMS_TractiveSystemPower_raw, 6, 0x1F);   // Packs bits ___##### of byte 4 
+    uint32_t BMS_AvailablePower_raw = 0; // Temporary raw variable for BMS_AvailablePower
+    BMS_AvailablePower_raw |= unpackShiftLeft(in_data[4], 5, 0xE0); // Unpacks bits ###_____ from byte 4
+    BMS_AvailablePower_raw |= unpackShiftRight(in_data[5], 3, 0xFF); // Unpacks bits ######## from byte 5
+    BMS_AvailablePower_raw |= unpackShiftRight(in_data[6], 11, 0x3F); // Unpacks bits __###### from byte 6
+    out_msg->BMS_AvailablePower_value = CAN_DECODE(BMS_AvailablePower_raw, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_AVAILABLE_POWER_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_AVAILABLE_POWER_OFFSET, uint32_t);
     
-    // Pack 17-bit signal BMS_AvailablePower into payload at [ bit 37 to bit 54 ).
-    const uint32_t BMS_AvailablePower_val = in_msg->BMS_AvailablePower_value;
-    const uint32_t BMS_AvailablePower_raw = CAN_ENCODE(BMS_AvailablePower_val, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_AVAILABLE_POWER_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_AVAILABLE_POWER_OFFSET, uint32_t);
-    out_data[4] |= packShiftLeft(BMS_AvailablePower_raw, 5, 0xE0);   // Packs bits ###_____ of byte 4 
-    out_data[5] |= packShiftRight(BMS_AvailablePower_raw, 3, 0xFF);   // Packs bits ######## of byte 5 
-    out_data[6] |= packShiftRight(BMS_AvailablePower_raw, 11, 0x3F);   // Packs bits __###### of byte 6 
+    uint32_t BMS_BSPDCurrentThresholdExceeded_raw = 0; // Temporary raw variable for BMS_BSPDCurrentThresholdExceeded
+    BMS_BSPDCurrentThresholdExceeded_raw |= unpackShiftLeft(in_data[6], 6, 0x40); // Unpacks bits _#______ from byte 6
+    out_msg->BMS_BSPDCurrentThresholdExceeded_value = CAN_DECODE(BMS_BSPDCurrentThresholdExceeded_raw, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_BSPDCurrentThresholdExceeded into payload at [ bit 54 to bit 55 ).
-    const bool BMS_BSPDCurrentThresholdExceeded_val = in_msg->BMS_BSPDCurrentThresholdExceeded_value;
-    const uint32_t BMS_BSPDCurrentThresholdExceeded_raw = CAN_ENCODE(BMS_BSPDCurrentThresholdExceeded_val, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_OFFSET, uint32_t);
-    out_data[6] |= packShiftLeft(BMS_BSPDCurrentThresholdExceeded_raw, 6, 0x40);   // Packs bits _#______ of byte 6 
     
 }
-// pack function for BMS_BMSShdnNodeStatus
-void app_canUtils_BMS_BMSShdnNodeStatus_pack(const BMS_BMSShdnNodeStatus_Signals* const in_msg, uint8_t* const out_data)
+
+
+// unpack function for BMS_BMSShdnNodeStatus
+void app_canUtils_BMS_BMSShdnNodeStatus_unpack(const uint8_t* const in_data, BMS_BMSShdnNodeStatus_Signals* const out_msg)
 {
-    // Pack message BMS_BMSShdnNodeStatus.
+    // Unpack message BMS_BMSShdnNodeStatus.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|______BA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_HVDShdnOKStatus_raw = 0; // Temporary raw variable for BMS_HVDShdnOKStatus
+    BMS_HVDShdnOKStatus_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->BMS_HVDShdnOKStatus_value = CAN_DECODE(BMS_HVDShdnOKStatus_raw, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_HVD_SHDN_OK_STATUS_SCALE, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_HVD_SHDN_OK_STATUS_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_HVDShdnOKStatus into payload at [ bit 0 to bit 1 ).
-    const bool BMS_HVDShdnOKStatus_val = in_msg->BMS_HVDShdnOKStatus_value;
-    const uint32_t BMS_HVDShdnOKStatus_raw = CAN_ENCODE(BMS_HVDShdnOKStatus_val, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_HVD_SHDN_OK_STATUS_SCALE, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_HVD_SHDN_OK_STATUS_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_HVDShdnOKStatus_raw, 0, 0x1);   // Packs bits _______# of byte 0 
+    uint32_t BMS_TSIlckOKStatus_raw = 0; // Temporary raw variable for BMS_TSIlckOKStatus
+    BMS_TSIlckOKStatus_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->BMS_TSIlckOKStatus_value = CAN_DECODE(BMS_TSIlckOKStatus_raw, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_TS_ILCK_OK_STATUS_SCALE, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_TS_ILCK_OK_STATUS_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_TSIlckOKStatus into payload at [ bit 1 to bit 2 ).
-    const bool BMS_TSIlckOKStatus_val = in_msg->BMS_TSIlckOKStatus_value;
-    const uint32_t BMS_TSIlckOKStatus_raw = CAN_ENCODE(BMS_TSIlckOKStatus_val, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_TS_ILCK_OK_STATUS_SCALE, CANSIG_BMS_BMS_SHDN_NODE_STATUS_BMS_TS_ILCK_OK_STATUS_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_TSIlckOKStatus_raw, 1, 0x2);   // Packs bits ______#_ of byte 0 
     
 }
-// pack function for BMS_Warnings
-void app_canUtils_BMS_Warnings_pack(const BMS_Warnings_Signals* const in_msg, uint8_t* const out_data)
+
+
+// unpack function for BMS_Warnings
+void app_canUtils_BMS_Warnings_unpack(const uint8_t* const in_data, BMS_Warnings_Signals* const out_msg)
 {
-    // Pack message BMS_Warnings.
+    // Unpack message BMS_Warnings.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_ONMLKJI|HGFEDCBA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_Warning_StackWaterMarkHighTask1Hz_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask1Hz
+    BMS_Warning_StackWaterMarkHighTask1Hz_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask1Hz_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask1Hz_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_StackWaterMarkHighTask1Hz into payload at [ bit 0 to bit 1 ).
-    const bool BMS_Warning_StackWaterMarkHighTask1Hz_val = in_msg->BMS_Warning_StackWaterMarkHighTask1Hz_value;
-    const uint32_t BMS_Warning_StackWaterMarkHighTask1Hz_raw = CAN_ENCODE(BMS_Warning_StackWaterMarkHighTask1Hz_val, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_Warning_StackWaterMarkHighTask1Hz_raw, 0, 0x1);   // Packs bits _______# of byte 0 
+    uint32_t BMS_Warning_StackWaterMarkHighTask100Hz_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask100Hz
+    BMS_Warning_StackWaterMarkHighTask100Hz_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask100Hz_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask100Hz_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_StackWaterMarkHighTask100Hz into payload at [ bit 1 to bit 2 ).
-    const bool BMS_Warning_StackWaterMarkHighTask100Hz_val = in_msg->BMS_Warning_StackWaterMarkHighTask100Hz_value;
-    const uint32_t BMS_Warning_StackWaterMarkHighTask100Hz_raw = CAN_ENCODE(BMS_Warning_StackWaterMarkHighTask100Hz_val, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Warning_StackWaterMarkHighTask100Hz_raw, 1, 0x2);   // Packs bits ______#_ of byte 0 
+    uint32_t BMS_Warning_StackWaterMarkHighTask1kHz_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask1kHz
+    BMS_Warning_StackWaterMarkHighTask1kHz_raw |= unpackShiftLeft(in_data[0], 2, 0x4); // Unpacks bits _____#__ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask1kHz_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask1kHz_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_StackWaterMarkHighTask1kHz into payload at [ bit 2 to bit 3 ).
-    const bool BMS_Warning_StackWaterMarkHighTask1kHz_val = in_msg->BMS_Warning_StackWaterMarkHighTask1kHz_value;
-    const uint32_t BMS_Warning_StackWaterMarkHighTask1kHz_raw = CAN_ENCODE(BMS_Warning_StackWaterMarkHighTask1kHz_val, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Warning_StackWaterMarkHighTask1kHz_raw, 2, 0x4);   // Packs bits _____#__ of byte 0 
+    uint32_t BMS_Warning_StackWaterMarkHighTaskCanRx_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTaskCanRx
+    BMS_Warning_StackWaterMarkHighTaskCanRx_raw |= unpackShiftLeft(in_data[0], 3, 0x8); // Unpacks bits ____#___ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTaskCanRx_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTaskCanRx_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_StackWaterMarkHighTaskCanRx into payload at [ bit 3 to bit 4 ).
-    const bool BMS_Warning_StackWaterMarkHighTaskCanRx_val = in_msg->BMS_Warning_StackWaterMarkHighTaskCanRx_value;
-    const uint32_t BMS_Warning_StackWaterMarkHighTaskCanRx_raw = CAN_ENCODE(BMS_Warning_StackWaterMarkHighTaskCanRx_val, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Warning_StackWaterMarkHighTaskCanRx_raw, 3, 0x8);   // Packs bits ____#___ of byte 0 
+    uint32_t BMS_Warning_StackWaterMarkHighTaskCanTx_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTaskCanTx
+    BMS_Warning_StackWaterMarkHighTaskCanTx_raw |= unpackShiftLeft(in_data[0], 4, 0x10); // Unpacks bits ___#____ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTaskCanTx_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTaskCanTx_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_StackWaterMarkHighTaskCanTx into payload at [ bit 4 to bit 5 ).
-    const bool BMS_Warning_StackWaterMarkHighTaskCanTx_val = in_msg->BMS_Warning_StackWaterMarkHighTaskCanTx_value;
-    const uint32_t BMS_Warning_StackWaterMarkHighTaskCanTx_raw = CAN_ENCODE(BMS_Warning_StackWaterMarkHighTaskCanTx_val, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Warning_StackWaterMarkHighTaskCanTx_raw, 4, 0x10);   // Packs bits ___#____ of byte 0 
+    uint32_t BMS_Warning_WatchdogTimeout_raw = 0; // Temporary raw variable for BMS_Warning_WatchdogTimeout
+    BMS_Warning_WatchdogTimeout_raw |= unpackShiftLeft(in_data[0], 5, 0x20); // Unpacks bits __#_____ from byte 0
+    out_msg->BMS_Warning_WatchdogTimeout_value = CAN_DECODE(BMS_Warning_WatchdogTimeout_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_WATCHDOG_TIMEOUT_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_WATCHDOG_TIMEOUT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_WatchdogTimeout into payload at [ bit 5 to bit 6 ).
-    const bool BMS_Warning_WatchdogTimeout_val = in_msg->BMS_Warning_WatchdogTimeout_value;
-    const uint32_t BMS_Warning_WatchdogTimeout_raw = CAN_ENCODE(BMS_Warning_WatchdogTimeout_val, CANSIG_BMS_WARNINGS_BMS_WARNING_WATCHDOG_TIMEOUT_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_WATCHDOG_TIMEOUT_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Warning_WatchdogTimeout_raw, 5, 0x20);   // Packs bits __#_____ of byte 0 
+    uint32_t BMS_Warning_TxOverflow_raw = 0; // Temporary raw variable for BMS_Warning_TxOverflow
+    BMS_Warning_TxOverflow_raw |= unpackShiftLeft(in_data[0], 6, 0x40); // Unpacks bits _#______ from byte 0
+    out_msg->BMS_Warning_TxOverflow_value = CAN_DECODE(BMS_Warning_TxOverflow_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_TX_OVERFLOW_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_TX_OVERFLOW_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_TxOverflow into payload at [ bit 6 to bit 7 ).
-    const bool BMS_Warning_TxOverflow_val = in_msg->BMS_Warning_TxOverflow_value;
-    const uint32_t BMS_Warning_TxOverflow_raw = CAN_ENCODE(BMS_Warning_TxOverflow_val, CANSIG_BMS_WARNINGS_BMS_WARNING_TX_OVERFLOW_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_TX_OVERFLOW_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Warning_TxOverflow_raw, 6, 0x40);   // Packs bits _#______ of byte 0 
+    uint32_t BMS_Warning_RxOverflow_raw = 0; // Temporary raw variable for BMS_Warning_RxOverflow
+    BMS_Warning_RxOverflow_raw |= unpackShiftLeft(in_data[0], 7, 0x80); // Unpacks bits #_______ from byte 0
+    out_msg->BMS_Warning_RxOverflow_value = CAN_DECODE(BMS_Warning_RxOverflow_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_RX_OVERFLOW_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_RX_OVERFLOW_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_RxOverflow into payload at [ bit 7 to bit 8 ).
-    const bool BMS_Warning_RxOverflow_val = in_msg->BMS_Warning_RxOverflow_value;
-    const uint32_t BMS_Warning_RxOverflow_raw = CAN_ENCODE(BMS_Warning_RxOverflow_val, CANSIG_BMS_WARNINGS_BMS_WARNING_RX_OVERFLOW_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_RX_OVERFLOW_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Warning_RxOverflow_raw, 7, 0x80);   // Packs bits #_______ of byte 0 
+    uint32_t BMS_Warning_OpenWireCheckFault_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheckFault
+    BMS_Warning_OpenWireCheckFault_raw |= unpackShiftRight(in_data[1], 0, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->BMS_Warning_OpenWireCheckFault_value = CAN_DECODE(BMS_Warning_OpenWireCheckFault_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_OpenWireCheckFault into payload at [ bit 8 to bit 9 ).
-    const bool BMS_Warning_OpenWireCheckFault_val = in_msg->BMS_Warning_OpenWireCheckFault_value;
-    const uint32_t BMS_Warning_OpenWireCheckFault_raw = CAN_ENCODE(BMS_Warning_OpenWireCheckFault_val, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_OFFSET, uint32_t);
-    out_data[1] |= packShiftRight(BMS_Warning_OpenWireCheckFault_raw, 0, 0x1);   // Packs bits _______# of byte 1 
+    uint32_t BMS_Warning_OpenWireCheck_Segment0_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment0_GND
+    BMS_Warning_OpenWireCheck_Segment0_GND_raw |= unpackShiftLeft(in_data[1], 1, 0x2); // Unpacks bits ______#_ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment0_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment0_GND_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_OpenWireCheck_Segment0_GND into payload at [ bit 9 to bit 10 ).
-    const bool BMS_Warning_OpenWireCheck_Segment0_GND_val = in_msg->BMS_Warning_OpenWireCheck_Segment0_GND_value;
-    const uint32_t BMS_Warning_OpenWireCheck_Segment0_GND_raw = CAN_ENCODE(BMS_Warning_OpenWireCheck_Segment0_GND_val, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Warning_OpenWireCheck_Segment0_GND_raw, 1, 0x2);   // Packs bits ______#_ of byte 1 
+    uint32_t BMS_Warning_OpenWireCheck_Segment1_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment1_GND
+    BMS_Warning_OpenWireCheck_Segment1_GND_raw |= unpackShiftLeft(in_data[1], 2, 0x4); // Unpacks bits _____#__ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment1_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment1_GND_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_OpenWireCheck_Segment1_GND into payload at [ bit 10 to bit 11 ).
-    const bool BMS_Warning_OpenWireCheck_Segment1_GND_val = in_msg->BMS_Warning_OpenWireCheck_Segment1_GND_value;
-    const uint32_t BMS_Warning_OpenWireCheck_Segment1_GND_raw = CAN_ENCODE(BMS_Warning_OpenWireCheck_Segment1_GND_val, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Warning_OpenWireCheck_Segment1_GND_raw, 2, 0x4);   // Packs bits _____#__ of byte 1 
+    uint32_t BMS_Warning_OpenWireCheck_Segment2_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment2_GND
+    BMS_Warning_OpenWireCheck_Segment2_GND_raw |= unpackShiftLeft(in_data[1], 3, 0x8); // Unpacks bits ____#___ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment2_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment2_GND_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_OpenWireCheck_Segment2_GND into payload at [ bit 11 to bit 12 ).
-    const bool BMS_Warning_OpenWireCheck_Segment2_GND_val = in_msg->BMS_Warning_OpenWireCheck_Segment2_GND_value;
-    const uint32_t BMS_Warning_OpenWireCheck_Segment2_GND_raw = CAN_ENCODE(BMS_Warning_OpenWireCheck_Segment2_GND_val, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Warning_OpenWireCheck_Segment2_GND_raw, 3, 0x8);   // Packs bits ____#___ of byte 1 
+    uint32_t BMS_Warning_OpenWireCheck_Segment3_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment3_GND
+    BMS_Warning_OpenWireCheck_Segment3_GND_raw |= unpackShiftLeft(in_data[1], 4, 0x10); // Unpacks bits ___#____ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment3_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment3_GND_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_OpenWireCheck_Segment3_GND into payload at [ bit 12 to bit 13 ).
-    const bool BMS_Warning_OpenWireCheck_Segment3_GND_val = in_msg->BMS_Warning_OpenWireCheck_Segment3_GND_value;
-    const uint32_t BMS_Warning_OpenWireCheck_Segment3_GND_raw = CAN_ENCODE(BMS_Warning_OpenWireCheck_Segment3_GND_val, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Warning_OpenWireCheck_Segment3_GND_raw, 4, 0x10);   // Packs bits ___#____ of byte 1 
+    uint32_t BMS_Warning_OpenWireCheck_Segment4_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment4_GND
+    BMS_Warning_OpenWireCheck_Segment4_GND_raw |= unpackShiftLeft(in_data[1], 5, 0x20); // Unpacks bits __#_____ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment4_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment4_GND_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_OpenWireCheck_Segment4_GND into payload at [ bit 13 to bit 14 ).
-    const bool BMS_Warning_OpenWireCheck_Segment4_GND_val = in_msg->BMS_Warning_OpenWireCheck_Segment4_GND_value;
-    const uint32_t BMS_Warning_OpenWireCheck_Segment4_GND_raw = CAN_ENCODE(BMS_Warning_OpenWireCheck_Segment4_GND_val, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Warning_OpenWireCheck_Segment4_GND_raw, 5, 0x20);   // Packs bits __#_____ of byte 1 
+    uint32_t BMS_Warning_MissingVCHeartbeat_raw = 0; // Temporary raw variable for BMS_Warning_MissingVCHeartbeat
+    BMS_Warning_MissingVCHeartbeat_raw |= unpackShiftLeft(in_data[1], 6, 0x40); // Unpacks bits _#______ from byte 1
+    out_msg->BMS_Warning_MissingVCHeartbeat_value = CAN_DECODE(BMS_Warning_MissingVCHeartbeat_raw, CANSIG_BMS_WARNINGS_BMS_WARNING_MISSING_VC_HEARTBEAT_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_MISSING_VC_HEARTBEAT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Warning_MissingVCHeartbeat into payload at [ bit 14 to bit 15 ).
-    const bool BMS_Warning_MissingVCHeartbeat_val = in_msg->BMS_Warning_MissingVCHeartbeat_value;
-    const uint32_t BMS_Warning_MissingVCHeartbeat_raw = CAN_ENCODE(BMS_Warning_MissingVCHeartbeat_val, CANSIG_BMS_WARNINGS_BMS_WARNING_MISSING_VC_HEARTBEAT_SCALE, CANSIG_BMS_WARNINGS_BMS_WARNING_MISSING_VC_HEARTBEAT_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Warning_MissingVCHeartbeat_raw, 6, 0x40);   // Packs bits _#______ of byte 1 
     
 }
-// pack function for BMS_Faults
-void app_canUtils_BMS_Faults_pack(const BMS_Faults_Signals* const in_msg, uint8_t* const out_data)
+
+
+// unpack function for BMS_Faults
+void app_canUtils_BMS_Faults_unpack(const uint8_t* const in_data, BMS_Faults_Signals* const out_msg)
 {
-    // Pack message BMS_Faults.
+    // Unpack message BMS_Faults.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_____KJI|HGFEDCBA|
     
-    if (in_msg == NULL || out_data == NULL)
+    if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
     
+    uint32_t BMS_Fault_StateMachine_raw = 0; // Temporary raw variable for BMS_Fault_StateMachine
+    BMS_Fault_StateMachine_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->BMS_Fault_StateMachine_value = CAN_DECODE(BMS_Fault_StateMachine_raw, CANSIG_BMS_FAULTS_BMS_FAULT_STATE_MACHINE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_STATE_MACHINE_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_StateMachine into payload at [ bit 0 to bit 1 ).
-    const bool BMS_Fault_StateMachine_val = in_msg->BMS_Fault_StateMachine_value;
-    const uint32_t BMS_Fault_StateMachine_raw = CAN_ENCODE(BMS_Fault_StateMachine_val, CANSIG_BMS_FAULTS_BMS_FAULT_STATE_MACHINE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_STATE_MACHINE_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(BMS_Fault_StateMachine_raw, 0, 0x1);   // Packs bits _______# of byte 0 
+    uint32_t BMS_Fault_CellUndervoltage_raw = 0; // Temporary raw variable for BMS_Fault_CellUndervoltage
+    BMS_Fault_CellUndervoltage_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->BMS_Fault_CellUndervoltage_value = CAN_DECODE(BMS_Fault_CellUndervoltage_raw, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERVOLTAGE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERVOLTAGE_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_CellUndervoltage into payload at [ bit 1 to bit 2 ).
-    const bool BMS_Fault_CellUndervoltage_val = in_msg->BMS_Fault_CellUndervoltage_value;
-    const uint32_t BMS_Fault_CellUndervoltage_raw = CAN_ENCODE(BMS_Fault_CellUndervoltage_val, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERVOLTAGE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERVOLTAGE_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Fault_CellUndervoltage_raw, 1, 0x2);   // Packs bits ______#_ of byte 0 
+    uint32_t BMS_Fault_CellOvervoltage_raw = 0; // Temporary raw variable for BMS_Fault_CellOvervoltage
+    BMS_Fault_CellOvervoltage_raw |= unpackShiftLeft(in_data[0], 2, 0x4); // Unpacks bits _____#__ from byte 0
+    out_msg->BMS_Fault_CellOvervoltage_value = CAN_DECODE(BMS_Fault_CellOvervoltage_raw, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERVOLTAGE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERVOLTAGE_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_CellOvervoltage into payload at [ bit 2 to bit 3 ).
-    const bool BMS_Fault_CellOvervoltage_val = in_msg->BMS_Fault_CellOvervoltage_value;
-    const uint32_t BMS_Fault_CellOvervoltage_raw = CAN_ENCODE(BMS_Fault_CellOvervoltage_val, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERVOLTAGE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERVOLTAGE_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Fault_CellOvervoltage_raw, 2, 0x4);   // Packs bits _____#__ of byte 0 
+    uint32_t BMS_Fault_ModuleCommunicationError_raw = 0; // Temporary raw variable for BMS_Fault_ModuleCommunicationError
+    BMS_Fault_ModuleCommunicationError_raw |= unpackShiftLeft(in_data[0], 3, 0x8); // Unpacks bits ____#___ from byte 0
+    out_msg->BMS_Fault_ModuleCommunicationError_value = CAN_DECODE(BMS_Fault_ModuleCommunicationError_raw, CANSIG_BMS_FAULTS_BMS_FAULT_MODULE_COMMUNICATION_ERROR_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_MODULE_COMMUNICATION_ERROR_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_ModuleCommunicationError into payload at [ bit 3 to bit 4 ).
-    const bool BMS_Fault_ModuleCommunicationError_val = in_msg->BMS_Fault_ModuleCommunicationError_value;
-    const uint32_t BMS_Fault_ModuleCommunicationError_raw = CAN_ENCODE(BMS_Fault_ModuleCommunicationError_val, CANSIG_BMS_FAULTS_BMS_FAULT_MODULE_COMMUNICATION_ERROR_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_MODULE_COMMUNICATION_ERROR_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Fault_ModuleCommunicationError_raw, 3, 0x8);   // Packs bits ____#___ of byte 0 
+    uint32_t BMS_Fault_CellUndertemp_raw = 0; // Temporary raw variable for BMS_Fault_CellUndertemp
+    BMS_Fault_CellUndertemp_raw |= unpackShiftLeft(in_data[0], 4, 0x10); // Unpacks bits ___#____ from byte 0
+    out_msg->BMS_Fault_CellUndertemp_value = CAN_DECODE(BMS_Fault_CellUndertemp_raw, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERTEMP_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERTEMP_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_CellUndertemp into payload at [ bit 4 to bit 5 ).
-    const bool BMS_Fault_CellUndertemp_val = in_msg->BMS_Fault_CellUndertemp_value;
-    const uint32_t BMS_Fault_CellUndertemp_raw = CAN_ENCODE(BMS_Fault_CellUndertemp_val, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERTEMP_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_UNDERTEMP_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Fault_CellUndertemp_raw, 4, 0x10);   // Packs bits ___#____ of byte 0 
+    uint32_t BMS_Fault_CellOvertemp_raw = 0; // Temporary raw variable for BMS_Fault_CellOvertemp
+    BMS_Fault_CellOvertemp_raw |= unpackShiftLeft(in_data[0], 5, 0x20); // Unpacks bits __#_____ from byte 0
+    out_msg->BMS_Fault_CellOvertemp_value = CAN_DECODE(BMS_Fault_CellOvertemp_raw, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERTEMP_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERTEMP_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_CellOvertemp into payload at [ bit 5 to bit 6 ).
-    const bool BMS_Fault_CellOvertemp_val = in_msg->BMS_Fault_CellOvertemp_value;
-    const uint32_t BMS_Fault_CellOvertemp_raw = CAN_ENCODE(BMS_Fault_CellOvertemp_val, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERTEMP_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CELL_OVERTEMP_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Fault_CellOvertemp_raw, 5, 0x20);   // Packs bits __#_____ of byte 0 
+    uint32_t BMS_Fault_ChargerReportedError_raw = 0; // Temporary raw variable for BMS_Fault_ChargerReportedError
+    BMS_Fault_ChargerReportedError_raw |= unpackShiftLeft(in_data[0], 6, 0x40); // Unpacks bits _#______ from byte 0
+    out_msg->BMS_Fault_ChargerReportedError_value = CAN_DECODE(BMS_Fault_ChargerReportedError_raw, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_REPORTED_ERROR_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_REPORTED_ERROR_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_ChargerReportedError into payload at [ bit 6 to bit 7 ).
-    const bool BMS_Fault_ChargerReportedError_val = in_msg->BMS_Fault_ChargerReportedError_value;
-    const uint32_t BMS_Fault_ChargerReportedError_raw = CAN_ENCODE(BMS_Fault_ChargerReportedError_val, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_REPORTED_ERROR_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_REPORTED_ERROR_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Fault_ChargerReportedError_raw, 6, 0x40);   // Packs bits _#______ of byte 0 
+    uint32_t BMS_Fault_ChargerDisconnectedDuringCharge_raw = 0; // Temporary raw variable for BMS_Fault_ChargerDisconnectedDuringCharge
+    BMS_Fault_ChargerDisconnectedDuringCharge_raw |= unpackShiftLeft(in_data[0], 7, 0x80); // Unpacks bits #_______ from byte 0
+    out_msg->BMS_Fault_ChargerDisconnectedDuringCharge_value = CAN_DECODE(BMS_Fault_ChargerDisconnectedDuringCharge_raw, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_ChargerDisconnectedDuringCharge into payload at [ bit 7 to bit 8 ).
-    const bool BMS_Fault_ChargerDisconnectedDuringCharge_val = in_msg->BMS_Fault_ChargerDisconnectedDuringCharge_value;
-    const uint32_t BMS_Fault_ChargerDisconnectedDuringCharge_raw = CAN_ENCODE(BMS_Fault_ChargerDisconnectedDuringCharge_val, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_OFFSET, uint32_t);
-    out_data[0] |= packShiftLeft(BMS_Fault_ChargerDisconnectedDuringCharge_raw, 7, 0x80);   // Packs bits #_______ of byte 0 
+    uint32_t BMS_Fault_ChargerShutdownLoopOpen_raw = 0; // Temporary raw variable for BMS_Fault_ChargerShutdownLoopOpen
+    BMS_Fault_ChargerShutdownLoopOpen_raw |= unpackShiftRight(in_data[1], 0, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->BMS_Fault_ChargerShutdownLoopOpen_value = CAN_DECODE(BMS_Fault_ChargerShutdownLoopOpen_raw, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_ChargerShutdownLoopOpen into payload at [ bit 8 to bit 9 ).
-    const bool BMS_Fault_ChargerShutdownLoopOpen_val = in_msg->BMS_Fault_ChargerShutdownLoopOpen_value;
-    const uint32_t BMS_Fault_ChargerShutdownLoopOpen_raw = CAN_ENCODE(BMS_Fault_ChargerShutdownLoopOpen_val, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_OFFSET, uint32_t);
-    out_data[1] |= packShiftRight(BMS_Fault_ChargerShutdownLoopOpen_raw, 0, 0x1);   // Packs bits _______# of byte 1 
+    uint32_t BMS_Fault_TractiveSystemOvercurrent_raw = 0; // Temporary raw variable for BMS_Fault_TractiveSystemOvercurrent
+    BMS_Fault_TractiveSystemOvercurrent_raw |= unpackShiftLeft(in_data[1], 1, 0x2); // Unpacks bits ______#_ from byte 1
+    out_msg->BMS_Fault_TractiveSystemOvercurrent_value = CAN_DECODE(BMS_Fault_TractiveSystemOvercurrent_raw, CANSIG_BMS_FAULTS_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_TractiveSystemOvercurrent into payload at [ bit 9 to bit 10 ).
-    const bool BMS_Fault_TractiveSystemOvercurrent_val = in_msg->BMS_Fault_TractiveSystemOvercurrent_value;
-    const uint32_t BMS_Fault_TractiveSystemOvercurrent_raw = CAN_ENCODE(BMS_Fault_TractiveSystemOvercurrent_val, CANSIG_BMS_FAULTS_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Fault_TractiveSystemOvercurrent_raw, 1, 0x2);   // Packs bits ______#_ of byte 1 
+    uint32_t BMS_Fault_PrechargeFailure_raw = 0; // Temporary raw variable for BMS_Fault_PrechargeFailure
+    BMS_Fault_PrechargeFailure_raw |= unpackShiftLeft(in_data[1], 2, 0x4); // Unpacks bits _____#__ from byte 1
+    out_msg->BMS_Fault_PrechargeFailure_value = CAN_DECODE(BMS_Fault_PrechargeFailure_raw, CANSIG_BMS_FAULTS_BMS_FAULT_PRECHARGE_FAILURE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_PRECHARGE_FAILURE_OFFSET, uint32_t);
     
-    // Pack 1-bit signal BMS_Fault_PrechargeFailure into payload at [ bit 10 to bit 11 ).
-    const bool BMS_Fault_PrechargeFailure_val = in_msg->BMS_Fault_PrechargeFailure_value;
-    const uint32_t BMS_Fault_PrechargeFailure_raw = CAN_ENCODE(BMS_Fault_PrechargeFailure_val, CANSIG_BMS_FAULTS_BMS_FAULT_PRECHARGE_FAILURE_SCALE, CANSIG_BMS_FAULTS_BMS_FAULT_PRECHARGE_FAILURE_OFFSET, uint32_t);
-    out_data[1] |= packShiftLeft(BMS_Fault_PrechargeFailure_raw, 2, 0x4);   // Packs bits _____#__ of byte 1 
     
 }

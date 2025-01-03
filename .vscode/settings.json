@@ -1,12 +1,25 @@
 {
-	"json.schemas": [
-		{
-			"fileMatch": [
-				"/can_bus/json/**/*tx.json"
-			],
-			"url": "/can_bus/json/schema_tx.json"
-		}
-	],
-	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false,
+  "json.schemas": [
+    {
+      "fileMatch": ["/can_bus/json/**/*tx.json"],
+      "url": "/can_bus/json/schema_tx.json"
+    }
+  ],
+  "cmake.configureOnEdit": false,
+  "cmake.configureOnOpen": false,
+  "files.associations": {
+    "*.c": "c",
+    "*.html": "html",
+    "array": "c",
+    "charconv": "c",
+    "compare": "c",
+    "complex": "c",
+    "functional": "c",
+    "ratio": "c",
+    "tuple": "c",
+    "type_traits": "c",
+    "utility": "c",
+    "variant": "c"
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }
