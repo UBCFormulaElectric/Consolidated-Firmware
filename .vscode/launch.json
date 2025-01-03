@@ -8,7 +8,7 @@
       "program": "scripts/code_generation/jsoncan/generate_can_from_json.py",
       "args": [
         "--board",
-        "quadruna",
+        "BMS",
         "--can_data_dir",
         "scripts/code_generation/jsoncan/quadruna",
         "--output_dir",

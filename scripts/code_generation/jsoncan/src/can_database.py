@@ -8,7 +8,7 @@ import logging
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import bits_for_uint, bits_to_bytes, is_int
+from .utils import bits_for_uint, bits_to_bytes, is_int, pascal_to_screaming_snake_case, pascal_to_snake_case
 
 
 logger = logging.getLogger(__name__)
@@ -42,6 +42,15 @@ class CanEnum:
         Number of bits needed to store this value table.
         """
         return bits_for_uint(self.max_val())
+    
+    @property
+    def snake_name(self):
+        return pascal_to_snake_case(self.name)
+    
+    @property
+    def scremming_snake_name(self):
+        return pascal_to_screaming_snake_case(self.name)
+    
 
 
 class CanSignalDatatype(StrEnum):
@@ -106,7 +115,7 @@ class CanSignal:
                 return CanSignalDatatype.INT
         else:
             return CanSignalDatatype.FLOAT
-
+    
     def datatype(self):
         """
         The name the datatype this signal should be stored as (specific to C).
@@ -122,7 +131,14 @@ class CanSignal:
                 return CanSignalDatatype.INT
         else:
             return CanSignalDatatype.FLOAT
-
+    @property
+    def snake_name(self):
+        return pascal_to_snake_case(self.name)
+    
+    @property
+    def scremming_snake_name(self):
+        return pascal_to_screaming_snake_case(self.name)
+    
     def __str__(self):
         return self.name
 
@@ -166,6 +182,14 @@ class CanMessage:
         If this signal is periodic, i.e. should be continuously transmitted at a certain cycle time.
         """
         return self.cycle_time is not None
+    
+    @property
+    def snake_name(self):
+        return pascal_to_snake_case(self.name)
+    
+    @property
+    def scremming_snake_name(self):
+        return pascal_to_screaming_snake_case(self.name)
 
 
 @dataclass(frozen=True)
