@@ -296,6 +296,10 @@ void app_canTx_BMS_ImdCondition_set(ImdConditionName value)
 }
 void app_canTx_BMS_ImdDutyCycle_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_IMD_DUTY_CYCLE_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_DUTY_CYCLE_MAX_VAL;
@@ -308,6 +312,10 @@ void app_canTx_BMS_ImdDutyCycle_set(float value)
 }
 void app_canTx_BMS_ImdFrequency_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_IMD_FREQUENCY_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_FREQUENCY_MAX_VAL;
@@ -332,6 +340,10 @@ void app_canTx_BMS_ImdActiveFrequency_set(ImdActiveFrequency value)
 }
 void app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP10_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP10_HZ_MAX_VAL;
@@ -344,6 +356,10 @@ void app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(float value)
 }
 void app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP20_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP20_HZ_MAX_VAL;
@@ -356,6 +372,10 @@ void app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(float value)
 }
 void app_canTx_BMS_ImdSpeedStartStatus30Hz_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_IMD_SPEED_START_STATUS30_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_SPEED_START_STATUS30_HZ_MAX_VAL;
@@ -404,6 +424,10 @@ void app_canTx_BMS_ClearLatch_set(bool value)
 }
 void app_canTx_BMS_MaxMainsCurrent_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_MAX_MAINS_CURRENT_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_MAINS_CURRENT_MAX_VAL;
@@ -416,6 +440,10 @@ void app_canTx_BMS_MaxMainsCurrent_set(float value)
 }
 void app_canTx_BMS_ChargingVoltage_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_CHARGING_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_CHARGING_VOLTAGE_MAX_VAL;
@@ -428,6 +456,10 @@ void app_canTx_BMS_ChargingVoltage_set(float value)
 }
 void app_canTx_BMS_ChargingCurrent_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_CHARGING_CURRENT_MAX_VAL)
     {
         value = CANSIG_BMS_CHARGING_CURRENT_MAX_VAL;
@@ -548,6 +580,10 @@ void app_canTx_BMS_PrechargeRelay_set(ContactorState value)
 }
 void app_canTx_BMS_MinCellTemperature_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_MIN_CELL_TEMPERATURE_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_CELL_TEMPERATURE_MAX_VAL;
@@ -560,6 +596,10 @@ void app_canTx_BMS_MinCellTemperature_set(float value)
 }
 void app_canTx_BMS_MaxCellTemperature_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_MAX_CELL_TEMPERATURE_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_CELL_TEMPERATURE_MAX_VAL;
@@ -572,6 +612,10 @@ void app_canTx_BMS_MaxCellTemperature_set(float value)
 }
 void app_canTx_BMS_PackVoltage_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_PACK_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_PACK_VOLTAGE_MAX_VAL;
@@ -584,6 +628,10 @@ void app_canTx_BMS_PackVoltage_set(float value)
 }
 void app_canTx_BMS_Soc_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_SOC_MAX_VAL)
     {
         value = CANSIG_BMS_SOC_MAX_VAL;
@@ -608,6 +656,10 @@ void app_canTx_BMS_SocCorrupt_set(bool value)
 }
 void app_canTx_BMS_MinCellVoltage_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_MIN_CELL_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_CELL_VOLTAGE_MAX_VAL;
@@ -620,6 +672,10 @@ void app_canTx_BMS_MinCellVoltage_set(float value)
 }
 void app_canTx_BMS_MaxCellVoltage_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_MAX_CELL_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_CELL_VOLTAGE_MAX_VAL;
@@ -728,6 +784,10 @@ void app_canTx_BMS_MaxTempIdx_set(uint32_t value)
 }
 void app_canTx_BMS_TractiveSystemVoltage_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_TRACTIVE_SYSTEM_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_VOLTAGE_MAX_VAL;
@@ -740,6 +800,10 @@ void app_canTx_BMS_TractiveSystemVoltage_set(float value)
 }
 void app_canTx_BMS_TractiveSystemCurrent_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_TRACTIVE_SYSTEM_CURRENT_MAX_VAL)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_CURRENT_MAX_VAL;
@@ -752,6 +816,10 @@ void app_canTx_BMS_TractiveSystemCurrent_set(float value)
 }
 void app_canTx_BMS_TractiveSystemPower_set(float value)
 {
+    if (value == NAN)
+    {
+        return;
+    }
     if (value > CANSIG_BMS_TRACTIVE_SYSTEM_POWER_MAX_VAL)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_POWER_MAX_VAL;
