@@ -185,4 +185,4 @@ class AppCanTxModule(CModule):
         template = load_template("app_canTx.c.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
         template = j2_env.from_string(template)
-        return template.render(source=self.source())
+        return template.render(messages=self._db.tx_msgs_for_node(self._node))
