@@ -1,0 +1,1028 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canUtils.h"
+
+/* ------------------------- Function Prototypes -------------------------- */
+
+/**
+ * Initialize RX signals to their starting values.
+ */
+void app_canRx_init(void);
+
+/**
+ * Update value stored in RX table of signal BRUSA_IsConnected in msg BRUSA_Vitals.
+ */
+void app_canRx_BRUSA_IsConnected_update(bool value);
+
+/**
+ * Update value stored in RX table of signal BRUSA_Error in msg BRUSA_Vitals.
+ */
+void app_canRx_BRUSA_Error_update(bool value);
+
+/**
+ * Update value stored in RX table of signal BRUSA_PowerLimitedWarning in msg BRUSA_Vitals.
+ */
+void app_canRx_BRUSA_PowerLimitedWarning_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_StackWaterMarkHighTask1Hz in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_StackWaterMarkHighTask1Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_StackWaterMarkHighTask100Hz in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_StackWaterMarkHighTask100Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_StackWaterMarkHighTask1kHz in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_StackWaterMarkHighTask1kHz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_StackWaterMarkHighTaskCanRx in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_StackWaterMarkHighTaskCanRx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_StackWaterMarkHighTaskCanTx in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_StackWaterMarkHighTaskCanTx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_WatchdogTimeout in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_WatchdogTimeout_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_TxOverflow in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_TxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Warning_RxOverflow in msg CRIT_Warnings.
+ */
+void app_canRx_CRIT_Warning_RxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Fault_MissingBMSHeartbeat in msg CRIT_Faults.
+ */
+void app_canRx_CRIT_Fault_MissingBMSHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Fault_MissingFSMHeartbeat in msg CRIT_Faults.
+ */
+void app_canRx_CRIT_Fault_MissingFSMHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Fault_MissingRSMHeartbeat in msg CRIT_Faults.
+ */
+void app_canRx_CRIT_Fault_MissingRSMHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal CRIT_Fault_MissingVCHeartbeat in msg CRIT_Faults.
+ */
+void app_canRx_CRIT_Fault_MissingVCHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_EnableDebugMode in msg Debug_CanMode.
+ */
+void app_canRx_Debug_EnableDebugMode_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_StartCharging in msg Debug_Charging.
+ */
+void app_canRx_Debug_StartCharging_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_ClearChargerLatchedFault in msg Debug_Charging.
+ */
+void app_canRx_Debug_ClearChargerLatchedFault_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_FaultEncounteredOverride in msg Debug_Charging.
+ */
+void app_canRx_Debug_FaultEncounteredOverride_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_ChargingCurrentOverride in msg Debug_Charging.
+ */
+void app_canRx_Debug_ChargingCurrentOverride_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_ChargingVoltageOverride in msg Debug_Charging.
+ */
+void app_canRx_Debug_ChargingVoltageOverride_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_ChargingCurrentTargetValue in msg Debug_Charging.
+ */
+void app_canRx_Debug_ChargingCurrentTargetValue_update(float value);
+
+/**
+ * Update value stored in RX table of signal Debug_ChargingVoltageTargetValue in msg Debug_Charging.
+ */
+void app_canRx_Debug_ChargingVoltageTargetValue_update(float value);
+
+/**
+ * Update value stored in RX table of signal Debug_CellBalancingRequest in msg Debug_CellBalancing.
+ */
+void app_canRx_Debug_CellBalancingRequest_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_CellBalancingOverrideTarget in msg Debug_CellBalancing.
+ */
+void app_canRx_Debug_CellBalancingOverrideTarget_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_CellBalancingOverrideTargetValue in msg Debug_CellBalancing.
+ */
+void app_canRx_Debug_CellBalancingOverrideTargetValue_update(float value);
+
+/**
+ * Update value stored in RX table of signal Debug_CellBalancingOverridePWM in msg Debug_CellBalancing.
+ */
+void app_canRx_Debug_CellBalancingOverridePWM_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_CellBalancingOverridePWMFrequency in msg Debug_CellBalancing.
+ */
+void app_canRx_Debug_CellBalancingOverridePWMFrequency_update(float value);
+
+/**
+ * Update value stored in RX table of signal Debug_CellBalancingOverridePWMDuty in msg Debug_CellBalancing.
+ */
+void app_canRx_Debug_CellBalancingOverridePWMDuty_update(uint32_t value);
+
+/**
+ * Update value stored in RX table of signal Debug_ResetSoc_MinCellV in msg Debug_ResetSoc.
+ */
+void app_canRx_Debug_ResetSoc_MinCellV_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_ResetSoc_CustomEnable in msg Debug_ResetSoc.
+ */
+void app_canRx_Debug_ResetSoc_CustomEnable_update(bool value);
+
+/**
+ * Update value stored in RX table of signal Debug_ResetSoc_CustomVal in msg Debug_ResetSoc.
+ */
+void app_canRx_Debug_ResetSoc_CustomVal_update(float value);
+
+/**
+ * Update value stored in RX table of signal Debug_EnableTestCurrent in msg Debug_SetBSPDTestCurrent.
+ */
+void app_canRx_Debug_EnableTestCurrent_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_WatchdogTimeout in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_WatchdogTimeout_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_TxOverflow in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_TxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_RxOverflow in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_RxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_StackWaterMarkHighTask1Hz in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_StackWaterMarkHighTask1Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_StackWaterMarkHighTask100Hz in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_StackWaterMarkHighTask100Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_StackWaterMarkHighTask1kHz in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_StackWaterMarkHighTask1kHz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_StackWaterMarkHighTaskCanRx in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_StackWaterMarkHighTaskCanRx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_StackWaterMarkHighTaskCanTx in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_StackWaterMarkHighTaskCanTx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_SteeringAngleOCSC in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_SteeringAngleOCSC_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_SteeringAngleOutOfRange in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_SteeringAngleOutOfRange_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_LeftWheelSpeedOutOfRange in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_LeftWheelSpeedOutOfRange_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_RightWheelSpeedOutOfRange in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_RightWheelSpeedOutOfRange_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_AppsDisagreement in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_AppsDisagreement_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_FrontBrakePressureOutOfRange in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_FrontBrakePressureOutOfRange_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_RearBrakePressureOutOfRange in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_RearBrakePressureOutOfRange_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_FrontBrakePressureOcSc in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_FrontBrakePressureOcSc_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_RearBrakePressureOcSc in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_RearBrakePressureOcSc_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Warning_BrakeOcScNotOk in msg FSM_Warnings.
+ */
+void app_canRx_FSM_Warning_BrakeOcScNotOk_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Fault_PappsOCSC in msg FSM_Faults.
+ */
+void app_canRx_FSM_Fault_PappsOCSC_update(bool value);
+
+/**
+ * Update value stored in RX table of signal FSM_Fault_SappsOCSC in msg FSM_Faults.
+ */
+void app_canRx_FSM_Fault_SappsOCSC_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_WatchdogTimeout in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_WatchdogTimeout_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_TxOverflow in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_TxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_RxOverflow in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_RxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_StackWaterMarkHighTask1Hz in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_StackWaterMarkHighTask1Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_StackWaterMarkHighTask100Hz in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_StackWaterMarkHighTask100Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_StackWaterMarkHighTask1kHz in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_StackWaterMarkHighTask1kHz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_StackWaterMarkHighTaskCanRx in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_StackWaterMarkHighTaskCanRx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_StackWaterMarkHighTaskCanTx in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_StackWaterMarkHighTaskCanTx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_FlowRateOutOfRange in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_FlowRateOutOfRange_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_CoolantTempAOCSC in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_CoolantTempAOCSC_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_CoolantTempBOCSC in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_CoolantTempBOCSC_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_CoolantPressureAOCSC in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_CoolantPressureAOCSC_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_CoolantPressureBOCSC in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_CoolantPressureBOCSC_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Warning_FlowMeterUnderflow in msg RSM_Warnings.
+ */
+void app_canRx_RSM_Warning_FlowMeterUnderflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Fault_MissingVCHeartbeat in msg RSM_Faults.
+ */
+void app_canRx_RSM_Fault_MissingVCHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Fault_MissingFSMHeartbeat in msg RSM_Faults.
+ */
+void app_canRx_RSM_Fault_MissingFSMHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal RSM_Fault_MissingBMSHeartbeat in msg RSM_Faults.
+ */
+void app_canRx_RSM_Fault_MissingBMSHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Heartbeat in msg VC_Vitals.
+ */
+void app_canRx_VC_Heartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_State in msg VC_Vitals.
+ */
+void app_canRx_VC_State_update(VcState value);
+
+/**
+ * Update value stored in RX table of signal VC_BuzzerOn in msg VC_Vitals.
+ */
+void app_canRx_VC_BuzzerOn_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_NumberOfCanDataLogs in msg VC_Vitals.
+ */
+void app_canRx_VC_NumberOfCanDataLogs_update(uint32_t value);
+
+/**
+ * Update value stored in RX table of signal VC_CanLoggingRemainingErrors in msg VC_Vitals.
+ */
+void app_canRx_VC_CanLoggingRemainingErrors_update(uint32_t value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_StackWaterMarkHighTask1Hz in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_StackWaterMarkHighTask100Hz in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_StackWaterMarkHighTask100Hz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_StackWaterMarkHighTask1kHz in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_StackWaterMarkHighTask1kHz_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_StackWaterMarkHighTaskCanRx in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_StackWaterMarkHighTaskCanRx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_StackWaterMarkHighTaskCanTx in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_StackWaterMarkHighTaskCanTx_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_WatchdogTimeout in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_WatchdogTimeout_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_TxOverflow in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_TxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_RxOverflow in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_RxOverflow_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_RegenNotAvailable in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_RegenNotAvailable_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_ImuInitFailed in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_ImuInitFailed_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_FlowRateInputOutOfRange in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_FlowRateInputOutOfRange_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_BatteryRailOvercurrentFault in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_BatteryRailOvercurrentFault_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_AccumulatorRailOvercurrentFault in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_AccumulatorRailOvercurrentFault_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_LvChargeFault in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_LvChargeFault_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_BoostControllerFault in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_BoostControllerFault_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_HighNumberOfCanDataLogs in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_HighNumberOfCanDataLogs_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_CanLoggingSdCardNotPresent in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_CanLoggingSdCardNotPresent_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_CanLoggingErrored in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_CanLoggingErrored_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_BrakeAppsDisagreement in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_BrakeAppsDisagreement_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Warning_SbgInitFailed in msg VC_Warnings.
+ */
+void app_canRx_VC_Warning_SbgInitFailed_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Fault_MissingBMSHeartbeat in msg VC_Faults.
+ */
+void app_canRx_VC_Fault_MissingBMSHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Fault_MissingFSMHeartbeat in msg VC_Faults.
+ */
+void app_canRx_VC_Fault_MissingFSMHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Fault_MissingRSMHeartbeat in msg VC_Faults.
+ */
+void app_canRx_VC_Fault_MissingRSMHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Fault_MissingCRITHeartbeat in msg VC_Faults.
+ */
+void app_canRx_VC_Fault_MissingCRITHeartbeat_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Fault_LeftInverterFault in msg VC_Faults.
+ */
+void app_canRx_VC_Fault_LeftInverterFault_update(bool value);
+
+/**
+ * Update value stored in RX table of signal VC_Fault_RightInverterFault in msg VC_Faults.
+ */
+void app_canRx_VC_Fault_RightInverterFault_update(bool value);
+
+/**
+ * Return value from RX table of signal BRUSA_IsConnected in msg BRUSA_Vitals.
+ */
+bool app_canRx_BRUSA_IsConnected_get(void);
+
+/**
+ * Return value from RX table of signal BRUSA_Error in msg BRUSA_Vitals.
+ */
+bool app_canRx_BRUSA_Error_get(void);
+
+/**
+ * Return value from RX table of signal BRUSA_PowerLimitedWarning in msg BRUSA_Vitals.
+ */
+bool app_canRx_BRUSA_PowerLimitedWarning_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_StackWaterMarkHighTask1Hz in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_StackWaterMarkHighTask1Hz_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_StackWaterMarkHighTask100Hz in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_StackWaterMarkHighTask100Hz_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_StackWaterMarkHighTask1kHz in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_StackWaterMarkHighTask1kHz_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_StackWaterMarkHighTaskCanRx in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_StackWaterMarkHighTaskCanRx_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_StackWaterMarkHighTaskCanTx in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_StackWaterMarkHighTaskCanTx_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_WatchdogTimeout in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_WatchdogTimeout_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_TxOverflow in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_TxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Warning_RxOverflow in msg CRIT_Warnings.
+ */
+bool app_canRx_CRIT_Warning_RxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Fault_MissingBMSHeartbeat in msg CRIT_Faults.
+ */
+bool app_canRx_CRIT_Fault_MissingBMSHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Fault_MissingFSMHeartbeat in msg CRIT_Faults.
+ */
+bool app_canRx_CRIT_Fault_MissingFSMHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Fault_MissingRSMHeartbeat in msg CRIT_Faults.
+ */
+bool app_canRx_CRIT_Fault_MissingRSMHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal CRIT_Fault_MissingVCHeartbeat in msg CRIT_Faults.
+ */
+bool app_canRx_CRIT_Fault_MissingVCHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal Debug_EnableDebugMode in msg Debug_CanMode.
+ */
+bool app_canRx_Debug_EnableDebugMode_get(void);
+
+/**
+ * Return value from RX table of signal Debug_StartCharging in msg Debug_Charging.
+ */
+bool app_canRx_Debug_StartCharging_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ClearChargerLatchedFault in msg Debug_Charging.
+ */
+bool app_canRx_Debug_ClearChargerLatchedFault_get(void);
+
+/**
+ * Return value from RX table of signal Debug_FaultEncounteredOverride in msg Debug_Charging.
+ */
+bool app_canRx_Debug_FaultEncounteredOverride_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ChargingCurrentOverride in msg Debug_Charging.
+ */
+bool app_canRx_Debug_ChargingCurrentOverride_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ChargingVoltageOverride in msg Debug_Charging.
+ */
+bool app_canRx_Debug_ChargingVoltageOverride_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ChargingCurrentTargetValue in msg Debug_Charging.
+ */
+float app_canRx_Debug_ChargingCurrentTargetValue_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ChargingVoltageTargetValue in msg Debug_Charging.
+ */
+float app_canRx_Debug_ChargingVoltageTargetValue_get(void);
+
+/**
+ * Return value from RX table of signal Debug_CellBalancingRequest in msg Debug_CellBalancing.
+ */
+bool app_canRx_Debug_CellBalancingRequest_get(void);
+
+/**
+ * Return value from RX table of signal Debug_CellBalancingOverrideTarget in msg Debug_CellBalancing.
+ */
+bool app_canRx_Debug_CellBalancingOverrideTarget_get(void);
+
+/**
+ * Return value from RX table of signal Debug_CellBalancingOverrideTargetValue in msg Debug_CellBalancing.
+ */
+float app_canRx_Debug_CellBalancingOverrideTargetValue_get(void);
+
+/**
+ * Return value from RX table of signal Debug_CellBalancingOverridePWM in msg Debug_CellBalancing.
+ */
+bool app_canRx_Debug_CellBalancingOverridePWM_get(void);
+
+/**
+ * Return value from RX table of signal Debug_CellBalancingOverridePWMFrequency in msg Debug_CellBalancing.
+ */
+float app_canRx_Debug_CellBalancingOverridePWMFrequency_get(void);
+
+/**
+ * Return value from RX table of signal Debug_CellBalancingOverridePWMDuty in msg Debug_CellBalancing.
+ */
+uint32_t app_canRx_Debug_CellBalancingOverridePWMDuty_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ResetSoc_MinCellV in msg Debug_ResetSoc.
+ */
+bool app_canRx_Debug_ResetSoc_MinCellV_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ResetSoc_CustomEnable in msg Debug_ResetSoc.
+ */
+bool app_canRx_Debug_ResetSoc_CustomEnable_get(void);
+
+/**
+ * Return value from RX table of signal Debug_ResetSoc_CustomVal in msg Debug_ResetSoc.
+ */
+float app_canRx_Debug_ResetSoc_CustomVal_get(void);
+
+/**
+ * Return value from RX table of signal Debug_EnableTestCurrent in msg Debug_SetBSPDTestCurrent.
+ */
+bool app_canRx_Debug_EnableTestCurrent_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_WatchdogTimeout in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_WatchdogTimeout_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_TxOverflow in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_TxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_RxOverflow in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_RxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_StackWaterMarkHighTask1Hz in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_StackWaterMarkHighTask1Hz_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_StackWaterMarkHighTask100Hz in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_StackWaterMarkHighTask100Hz_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_StackWaterMarkHighTask1kHz in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_StackWaterMarkHighTask1kHz_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_StackWaterMarkHighTaskCanRx in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_StackWaterMarkHighTaskCanRx_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_StackWaterMarkHighTaskCanTx in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_StackWaterMarkHighTaskCanTx_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_SteeringAngleOCSC in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_SteeringAngleOCSC_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_SteeringAngleOutOfRange in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_SteeringAngleOutOfRange_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_LeftWheelSpeedOutOfRange in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_LeftWheelSpeedOutOfRange_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_RightWheelSpeedOutOfRange in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_RightWheelSpeedOutOfRange_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_AppsDisagreement in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_AppsDisagreement_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_FrontBrakePressureOutOfRange in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_FrontBrakePressureOutOfRange_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_RearBrakePressureOutOfRange in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_RearBrakePressureOutOfRange_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_FrontBrakePressureOcSc in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_FrontBrakePressureOcSc_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_RearBrakePressureOcSc in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_RearBrakePressureOcSc_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Warning_BrakeOcScNotOk in msg FSM_Warnings.
+ */
+bool app_canRx_FSM_Warning_BrakeOcScNotOk_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Fault_PappsOCSC in msg FSM_Faults.
+ */
+bool app_canRx_FSM_Fault_PappsOCSC_get(void);
+
+/**
+ * Return value from RX table of signal FSM_Fault_SappsOCSC in msg FSM_Faults.
+ */
+bool app_canRx_FSM_Fault_SappsOCSC_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_WatchdogTimeout in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_WatchdogTimeout_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_TxOverflow in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_TxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_RxOverflow in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_RxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_StackWaterMarkHighTask1Hz in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_StackWaterMarkHighTask1Hz_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_StackWaterMarkHighTask100Hz in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_StackWaterMarkHighTask100Hz_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_StackWaterMarkHighTask1kHz in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_StackWaterMarkHighTask1kHz_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_StackWaterMarkHighTaskCanRx in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_StackWaterMarkHighTaskCanRx_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_StackWaterMarkHighTaskCanTx in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_StackWaterMarkHighTaskCanTx_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_FlowRateOutOfRange in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_FlowRateOutOfRange_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_CoolantTempAOCSC in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_CoolantTempAOCSC_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_CoolantTempBOCSC in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_CoolantTempBOCSC_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_CoolantPressureAOCSC in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_CoolantPressureAOCSC_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_CoolantPressureBOCSC in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_CoolantPressureBOCSC_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Warning_FlowMeterUnderflow in msg RSM_Warnings.
+ */
+bool app_canRx_RSM_Warning_FlowMeterUnderflow_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Fault_MissingVCHeartbeat in msg RSM_Faults.
+ */
+bool app_canRx_RSM_Fault_MissingVCHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Fault_MissingFSMHeartbeat in msg RSM_Faults.
+ */
+bool app_canRx_RSM_Fault_MissingFSMHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal RSM_Fault_MissingBMSHeartbeat in msg RSM_Faults.
+ */
+bool app_canRx_RSM_Fault_MissingBMSHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal VC_Heartbeat in msg VC_Vitals.
+ */
+bool app_canRx_VC_Heartbeat_get(void);
+
+/**
+ * Return value from RX table of signal VC_State in msg VC_Vitals.
+ */
+VcState app_canRx_VC_State_get(void);
+
+/**
+ * Return value from RX table of signal VC_BuzzerOn in msg VC_Vitals.
+ */
+bool app_canRx_VC_BuzzerOn_get(void);
+
+/**
+ * Return value from RX table of signal VC_NumberOfCanDataLogs in msg VC_Vitals.
+ */
+uint32_t app_canRx_VC_NumberOfCanDataLogs_get(void);
+
+/**
+ * Return value from RX table of signal VC_CanLoggingRemainingErrors in msg VC_Vitals.
+ */
+uint32_t app_canRx_VC_CanLoggingRemainingErrors_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_StackWaterMarkHighTask1Hz in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_StackWaterMarkHighTask100Hz in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_StackWaterMarkHighTask100Hz_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_StackWaterMarkHighTask1kHz in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_StackWaterMarkHighTask1kHz_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_StackWaterMarkHighTaskCanRx in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_StackWaterMarkHighTaskCanRx_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_StackWaterMarkHighTaskCanTx in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_StackWaterMarkHighTaskCanTx_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_WatchdogTimeout in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_WatchdogTimeout_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_TxOverflow in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_TxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_RxOverflow in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_RxOverflow_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_RegenNotAvailable in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_RegenNotAvailable_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_ImuInitFailed in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_ImuInitFailed_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_FlowRateInputOutOfRange in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_FlowRateInputOutOfRange_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_BatteryRailOvercurrentFault in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_BatteryRailOvercurrentFault_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_AccumulatorRailOvercurrentFault in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_AccumulatorRailOvercurrentFault_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_LvChargeFault in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_LvChargeFault_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_BoostControllerFault in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_BoostControllerFault_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_HighNumberOfCanDataLogs in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_HighNumberOfCanDataLogs_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_CanLoggingSdCardNotPresent in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_CanLoggingSdCardNotPresent_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_CanLoggingErrored in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_CanLoggingErrored_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_BrakeAppsDisagreement in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_BrakeAppsDisagreement_get(void);
+
+/**
+ * Return value from RX table of signal VC_Warning_SbgInitFailed in msg VC_Warnings.
+ */
+bool app_canRx_VC_Warning_SbgInitFailed_get(void);
+
+/**
+ * Return value from RX table of signal VC_Fault_MissingBMSHeartbeat in msg VC_Faults.
+ */
+bool app_canRx_VC_Fault_MissingBMSHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal VC_Fault_MissingFSMHeartbeat in msg VC_Faults.
+ */
+bool app_canRx_VC_Fault_MissingFSMHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal VC_Fault_MissingRSMHeartbeat in msg VC_Faults.
+ */
+bool app_canRx_VC_Fault_MissingRSMHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal VC_Fault_MissingCRITHeartbeat in msg VC_Faults.
+ */
+bool app_canRx_VC_Fault_MissingCRITHeartbeat_get(void);
+
+/**
+ * Return value from RX table of signal VC_Fault_LeftInverterFault in msg VC_Faults.
+ */
+bool app_canRx_VC_Fault_LeftInverterFault_get(void);
+
+/**
+ * Return value from RX table of signal VC_Fault_RightInverterFault in msg VC_Faults.
+ */
+bool app_canRx_VC_Fault_RightInverterFault_get(void);
+

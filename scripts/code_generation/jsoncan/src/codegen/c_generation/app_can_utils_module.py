@@ -1,5 +1,6 @@
+from .utils import load_template
 from .c_writer import *
-
+import jinja2 as j2
 PACK_SHIFT_LEFT_FUNC = "packShiftLeft"
 PACK_SHIFT_RIGHT_FUNC = "packShiftRight"
 UNPACK_SHIFT_LEFT_FUNC = "unpackShiftLeft"
@@ -373,6 +374,30 @@ class AppCanUtilsModule(CModule):
             cw.add_line()
 
         return str(cw)
+    
+    def source_template(self):
+        pass
+    
+    def header_template(self):
+        can_enums = self._db.shared_enums
+        for msg in self._db.msgs_for_node(self._node):
+            for signal in msg.signals:
+                if signal.enum and signal.enum not in can_enums:
+                    can_enums.append(signal.enum)
+        pwd = os.getcwd() 
+        files = []
+        template = load_template("app_canUtils.h.j2")
+        j2_env = j2.Environment(loader=j2.BaseLoader)
+        j2_env = j2.Environment(loader=j2.BaseLoader)
+        j2_env.filters['pascal_to_screaming_snake_case'] = pascal_to_screaming_snake_case
+        template = j2_env.from_string(template)
+        
+        return template.render(
+            all_messages = self._db.msgs.values(),
+            messages = self._db.msgs_for_node(self._node),
+            enums = can_enums
+        )
+        
 
 
 def signal_placement_comment(msg: CanMessage):
