@@ -25,13 +25,15 @@
 
 // Periodic msg cycle times (in MS)
 {% for message in messages -%}
+{% if message.cycle_time -%}
 #define CAN_MSG_{{  message.name | pascal_to_screaming_snake_case }}_TIME_MS ({{ message.cycle_time }}) 
+{%- endif %}
 {% endfor %}
 
 // Signal starting values
 {% for msg in messages -%}
 {% for signal in msg.signals -%}
-    # define CANSIG_{{ msg.name | pascal_to_screaming_snake_case }}_{{ signal.name | pascal_to_screaming_snake_case }}_START_VAL ({{ signal.start_val }}) {% if signal.unit and signal.unit != "" %}// {{ signal.unit }}
+    #define CANSIG_{{ msg.name | pascal_to_screaming_snake_case }}_{{ signal.name | pascal_to_screaming_snake_case }}_START_VAL ({{ signal.start_val }}) {% if signal.unit and signal.unit != "" %}// {{ signal.unit }}
 {% endif %}
 {% endfor %}
 {% endfor %}
