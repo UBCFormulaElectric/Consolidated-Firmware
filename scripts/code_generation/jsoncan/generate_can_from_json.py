@@ -40,14 +40,14 @@ if __name__ == "__main__":
 
     modules = {
         AppCanUtilsModule(can_db, args.board): os.path.join("app", "app_canUtils"),
-        AppCanTxModule(can_db, args.board): os.path.join("app", "app_canTx"),
-        AppCanRxModule(can_db, args.board): os.path.join("app", "app_canRx"),
-        AppCanAlertsModule(can_db, args.board): os.path.join("app", "app_canAlerts"),
-        AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"),
-        IoCanTxModule(can_db, args.board): os.path.join("io", "io_canTx"),
-        IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
+        # AppCanTxModule(can_db, args.board): os.path.join("app", "app_canTx"),
+        # AppCanRxModule(can_db, args.board): os.path.join("app", "app_canRx"),
+        # AppCanAlertsModule(can_db, args.board): os.path.join("app", "app_canAlerts"),
+        # AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"),
+        # IoCanTxModule(can_db, args.board): os.path.join("io", "io_canTx"),
+        # IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
     }
     for module, module_path in modules.items():
         module_full_path = os.path.join(args.output_dir, module_path)
-        write_text(module.header(), module_full_path + ".h")
+        write_text(module.header_template(), module_full_path + ".h")
         write_text(module.source(), module_full_path + ".c")
