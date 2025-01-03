@@ -15,34 +15,36 @@
 // Msg IDs
 // #define CAN_MSG_BMS_VITALS_ID (100)
 {% for message in all_messages -%}
-#define CAN_MSG_{{ message.scremming_snake_name() }}_ID ({{ message.id }})
+#define {{ message.id_macro() }} ({{ message.id }})
 {% endfor %}
 
 // Msg lengths (in bytes)
 {% for message in messages -%}
-#define CAN_MSG_{{ message.scremming_snake_name() }}_BYTES ({{ message.bytes() }})
+#define {{ message.bytes_macro() }} ({{ message.bytes() }})
 {% endfor %}
 
 // Periodic msg cycle times (in MS)
 {% for message in messages -%}
 {% if message.cycle_time -%}
-#define CAN_MSG_{{  message.scremming_snake_name() }}_TIME_MS ({{ message.cycle_time }}) 
+#define {{ message.cycle_time_macro() }} ({{ message.cycle_time }}) 
 {%- endif %}
 {% endfor %}
 
 // Signal starting values
 {% for msg in messages -%}
+// {{msg.name}}
 {% for signal in msg.signals -%}
-    #define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_START_VAL ({{ signal.start_val }}) {% if signal.unit and signal.unit != "" %}// {{ signal.unit }}
+#define {{ signal.start_val_macro() }} ({{ signal.start_val }}) {% if signal.unit and signal.unit != "" %}// {{ signal.unit }}
 {% endif %}
 {% endfor %}
 {% endfor %}
 // Scale/offset values for encoding/decoding signals
 #define CANSIG_BMS_VITALS_BMS_HEARTBEAT_SCALE (1)
 {% for msg in messages -%}
+// {{msg.name}}
 {% for signal in msg.signals -%}
-#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_SCALE ({{ signal.scale }})
-#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_OFFSET ({{ signal.offset }})
+#define {{ signal.scale_macro() }} ({{ signal.scale }})
+#define {{ signal.offset_macro() }} ({{ signal.offset }})
 {% endfor %}
 {% endfor %}
 
@@ -50,9 +52,10 @@
 // Min/max allowed values for signals
 // #define CANSIG_BMS_VITALS_BMS_HEARTBEAT_MIN (0)
 {% for msg in messages -%}
+// {{msg.name}}
 {% for signal in msg.signals -%}
-#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_MIN ({{ signal.min_val }})
-#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_MAX ({{ signal.max_val }})
+#define {{ signal.min_val_macro() }} ({{ signal.min_val }})
+#define {{ signal.max_val_macro() }} ({{ signal.max_val }})
 {% endfor %}
 {% endfor %}
 

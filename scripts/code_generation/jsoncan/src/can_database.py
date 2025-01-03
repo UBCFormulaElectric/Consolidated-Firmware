@@ -138,6 +138,21 @@ class CanSignal:
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
     
+    def start_val_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_START_VAL"
+    
+    def max_val_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_MAX_VAL"
+    
+    def min_val_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
+    
+    def scale_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_SCALE"
+    
+    def offset_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_OFFSET"
+    
     def __str__(self):
         return self.name
 
@@ -193,6 +208,16 @@ class CanMessage:
     # type of the message
     def c_type(self):
         return self.name + "_Signals"
+    
+    def id_macro(self):
+        return f"CANMSG_{self.snake_name().upper()}_ID"
+    
+    def cycle_time_macro(self):
+        return f"CANMSG_{self.snake_name().upper()}_CYCLE_TIME"
+    
+    def bytes_macro(self):
+        return f"CANMSG_{self.snake_name().upper()}_BYTES"
+    
 
 
 @dataclass(frozen=True)
