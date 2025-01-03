@@ -8,7 +8,6 @@ import argparse
 import os
 
 from calc_bus_load import report_bus_load
-from src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
 from src.codegen.c_generation.app_can_data_capture_module import \
     AppCanDataCaptureModule
 from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
@@ -50,4 +49,4 @@ if __name__ == "__main__":
     for module, module_path in modules.items():
         module_full_path = os.path.join(args.output_dir, module_path)
         write_text(module.header_template(), module_full_path + ".h")
-        write_text(module.source(), module_full_path + ".c")
+        write_text(module.source_template(), module_full_path + ".c")
