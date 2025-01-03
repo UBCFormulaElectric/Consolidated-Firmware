@@ -15,25 +15,25 @@
 // Msg IDs
 // #define CAN_MSG_BMS_VITALS_ID (100)
 {% for message in all_messages -%}
-#define CAN_MSG_{{ message.name | pascal_to_screaming_snake_case }}_ID ({{ message.id }})
+#define CAN_MSG_{{ message.scremming_snake_name() }}_ID ({{ message.id }})
 {% endfor %}
 
 // Msg lengths (in bytes)
 {% for message in messages -%}
-#define CAN_MSG_{{ message.name | pascal_to_screaming_snake_case }}_BYTES ({{ message.bytes() }})
+#define CAN_MSG_{{ message.scremming_snake_name() }}_BYTES ({{ message.bytes() }})
 {% endfor %}
 
 // Periodic msg cycle times (in MS)
 {% for message in messages -%}
 {% if message.cycle_time -%}
-#define CAN_MSG_{{  message.name | pascal_to_screaming_snake_case }}_TIME_MS ({{ message.cycle_time }}) 
+#define CAN_MSG_{{  message.scremming_snake_name() }}_TIME_MS ({{ message.cycle_time }}) 
 {%- endif %}
 {% endfor %}
 
 // Signal starting values
 {% for msg in messages -%}
 {% for signal in msg.signals -%}
-    #define CANSIG_{{ msg.name | pascal_to_screaming_snake_case }}_{{ signal.name | pascal_to_screaming_snake_case }}_START_VAL ({{ signal.start_val }}) {% if signal.unit and signal.unit != "" %}// {{ signal.unit }}
+    #define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_START_VAL ({{ signal.start_val }}) {% if signal.unit and signal.unit != "" %}// {{ signal.unit }}
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -41,8 +41,8 @@
 #define CANSIG_BMS_VITALS_BMS_HEARTBEAT_SCALE (1)
 {% for msg in messages -%}
 {% for signal in msg.signals -%}
-#define CANSIG_{{ msg.name | pascal_to_screaming_snake_case }}_{{ signal.name | pascal_to_screaming_snake_case }}_SCALE ({{ signal.scale }})
-#define CANSIG_{{ msg.name | pascal_to_screaming_snake_case }}_{{ signal.name | pascal_to_screaming_snake_case }}_OFFSET ({{ signal.offset }})
+#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_SCALE ({{ signal.scale }})
+#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_OFFSET ({{ signal.offset }})
 {% endfor %}
 {% endfor %}
 
@@ -51,8 +51,8 @@
 // #define CANSIG_BMS_VITALS_BMS_HEARTBEAT_MIN (0)
 {% for msg in messages -%}
 {% for signal in msg.signals -%}
-#define CANSIG_{{ msg.name | pascal_to_screaming_snake_case }}_{{ signal.name | pascal_to_screaming_snake_case }}_MIN ({{ signal.min_val }})
-#define CANSIG_{{ msg.name | pascal_to_screaming_snake_case }}_{{ signal.name | pascal_to_screaming_snake_case }}_MAX ({{ signal.max_val }})
+#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_MIN ({{ signal.min_val }})
+#define CANSIG_{{ msg.scremming_snake_name() }}_{{ signal.scremming_snake_name() }}_MAX ({{ signal.max_val }})
 {% endfor %}
 {% endfor %}
 
@@ -76,7 +76,7 @@ typedef enum
 typedef struct
 {
     {% for signal in message.signals -%}
-    {{ signal.datatype() }} {{ signal.name }};
+    {{ signal.datatype() }} {{ signal.name }}_value;
     {% endfor %}
 } {{ message.name }}_Signals;
 {% endfor %}
@@ -88,7 +88,7 @@ typedef struct
 /**
  * Pack signals into CAN payload for BMS_Vitals.
  */
-// void app_canUtils_BMS_Vitals_pack(const BMS_Vitals_Signals* const in_msg, uint8_t* const out_data);
+
 {% for message in messages -%}
 void app_canUtils_{{ message.name }}_pack(const {{ message.name }}_Signals* const in_msg, uint8_t* const out_data);
 {% endfor %}
@@ -98,7 +98,7 @@ void app_canUtils_{{ message.name }}_pack(const {{ message.name }}_Signals* cons
 /**
  * Unpack signals from CAN payload for BRUSA_Vitals.
  */
-// void app_canUtils_BRUSA_Vitals_unpack(const uint8_t* const in_data, BRUSA_Vitals_Signals* const out_msg);
+
 {% for message in messages -%}
 void app_canUtils_{{ message.name }}_unpack(const uint8_t* const in_data, {{ message.name }}_Signals* const out_msg);
 {% endfor %}
