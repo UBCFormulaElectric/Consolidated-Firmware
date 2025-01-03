@@ -43,11 +43,9 @@ class CanEnum:
         """
         return bits_for_uint(self.max_val())
     
-    @property
     def snake_name(self):
         return pascal_to_snake_case(self.name)
     
-    @property
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
     
@@ -131,11 +129,11 @@ class CanSignal:
                 return CanSignalDatatype.INT
         else:
             return CanSignalDatatype.FLOAT
-    @property
+    
     def snake_name(self):
         return pascal_to_snake_case(self.name)
     
-    @property
+   
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
     
@@ -183,11 +181,11 @@ class CanMessage:
         """
         return self.cycle_time is not None
     
-    @property
+    
     def snake_name(self):
         return pascal_to_snake_case(self.name)
     
-    @property
+    
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
 
