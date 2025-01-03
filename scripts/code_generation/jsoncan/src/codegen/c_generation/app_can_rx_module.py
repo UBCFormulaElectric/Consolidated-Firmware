@@ -157,3 +157,9 @@ class AppCanRxModule(CModule):
             cw.add_line()
 
         return str(cw)
+
+    def header_template(self):
+        
+    
+    def source_template(self):
+        return self.source()

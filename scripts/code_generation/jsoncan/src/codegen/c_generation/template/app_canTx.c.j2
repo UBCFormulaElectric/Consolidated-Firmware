@@ -42,6 +42,12 @@ void app_canTx_init()
 {%- for signal in msg.signals %}
 void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
 {
+    {%- if signal.representation() == "float" %}
+    if (value == NAN)
+    {
+        return;
+    }
+    {%- endif %}
     {%- if signal.max_val is defined %}
     if (value > {{ signal.max_val_macro() }})
     {
