@@ -18,7 +18,7 @@
 typedef struct
 {
     {%- for msg in messages %}
-    {{ msg.c_type() }} {{ msg.name }_signals};
+    {{ msg.c_type() }} {{ msg.name }}_signals;
     {%- endfor %}
 } {{node}}_TxMsgs;
 
@@ -33,7 +33,7 @@ void app_canTx_init()
     memset(&tx_table, 0, sizeof({{node}}_TxMsgs));
     {%- for msg in messages %}
     {%- for signal in msg.signals %}
-    app_canTx_{{ signal.name }}_set({{ signal.start_val_marcro() }});
+    app_canTx_{{ signal.name }}_set({{ signal.start_val_macro() }});
     {%- endfor %}
     {%- endfor %}
 }
@@ -42,19 +42,35 @@ void app_canTx_init()
 {%- for signal in msg.signals %}
 void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
 {
-    {{ if signal.max_val is defined -}}
-    if (value > {{ signal.max_val }})
+    {%- if signal.max_val is defined %}
+    if (value > {{ signal.max_val_macro() }})
     {
-        value = {{ signal.max_val }};
+        value = {{ signal.max_val_macro() }};
     }
-    {{- endif }}
-    {{ if signal.min_val is defined -}}
-    if (value < {{ signal.min_val }})
+    {%- endif %}
+    {%- if signal.min_val is defined %}
+    if (value < {{ signal.min_val_macro() }})
     {
-        value = {{ signal.min_val }};
+        value = {{ signal.min_val_macro() }};
     }
-    {{- endif }}
+    {%- endif %}
     tx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value;
 }
 {%- endfor %}
+{%- endfor %}
+
+{%- for msg in messages %}
+{%- for signal in msg.signals %}
+{{ signal.datatype() }} app_canTx_{{ msg.name }}_{{ signal.name }}_get(void)
+{
+    return tx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
+}
+{%- endfor %}
+{%- endfor %}
+
+{%- for msg in messages %}
+{{ msg.c_type() }}* app_canTx_{{ msg.name }}_getData()
+{
+    return &tx_table.{{ msg.name }}_signals;
+}
 {%- endfor %}
