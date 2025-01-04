@@ -26,6 +26,15 @@ void app_canRx_BRUSA_IsConnected_update(bool value);
 /**
  * Update value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-void app_canRx_{{ msg.name }}_{{ signal.name }}_update({{ signal.datatype() }} value);
+void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value);
+{%- endfor %}
+{% endfor %}
+
+{% for msg in messages -%}
+{%- for signal in msg.signals -%}
+/**
+ * Get value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
+ */
+{{ signal.datatype() }} app_canRx_{{ signal.name }}_get(void);
 {%- endfor %}
 {% endfor %}
