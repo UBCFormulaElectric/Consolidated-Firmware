@@ -302,27 +302,30 @@ class AppCanAlertsModule(CModule):
         ]
         return nodes_with_alerts
     
+    def get_rx_warning(self):
+       return self._db.node_rx_alerts(self._node, CanAlertType.WARNING)
     
-        
+    def get_rx_fault(self):
+        return self._db.node_rx_alerts(self._node, CanAlertType.FAULT)
     
     def source_template(self):
         
         template = load_template("app_canAlerts.c.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
         template = j2_env.from_string(template)
-        return template.render(faults=self._db.node_alerts(self._node, CanAlertType.FAULT), 
-                               warnings = self._db.node_alerts(self._node, CanAlertType.WARNING),
-                               fault_description = self._db.node_name_description(self._node, CanAlertType.FAULT),
-                                warning_description = self._db.node_name_description(self._node, CanAlertType.WARNING),
+        return template.render(tx_faults=self._db.node_alerts(self._node, CanAlertType.FAULT), 
+                               tx_warnings = self._db.node_alerts(self._node, CanAlertType.WARNING),
+                               rx_warnings = self.get_rx_warning(),
+                               rx_faults = self.get_rx_fault(),
+                               alert_description = self._db.node_alerts_all_description(),
                                boards = self.get_board_node(),
-                               messages=self._db.msgs_for_node(self._node),
                                node=self._node)
     
     def header_template(self):
         template = load_template("app_canAlerts.h.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
         template = j2_env.from_string(template)
-        return template.render(faults=self._db.node_alerts(self._node, CanAlertType.FAULT), 
-                               warnings = self._db.node_alerts(self._node, CanAlertType.WARNING),
+        return template.render(tx_faults=self._db.node_alerts(self._node, CanAlertType.FAULT), 
+                               tx_warnings = self._db.node_alerts(self._node, CanAlertType.WARNING),
                                boards = self.get_board_node(),
                                node=self._node)

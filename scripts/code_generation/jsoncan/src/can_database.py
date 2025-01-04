@@ -327,6 +327,33 @@ class CanDatabase:
             elif info == {}:
                 new_dict[alert.name] = {}
         return new_dict
+    
+    
+    def get_board_node(self):
+        nodes_with_alerts = [
+            node
+            for node in self.nodes
+            if any(
+                [
+                    self.node_has_alert(node, alert_type)
+                    for alert_type in CanAlertType
+                ]
+            )
+        ]
+        
+        return nodes_with_alerts
+    
+    
+        
+    def node_alerts_all_description(self):
+        """Returns a dictionary containing a the alert names as the key and a description and as the item"""
+
+        new_dict = {}
+        for node, alerts in self.alerts.items():
+            for alert, info in alerts.items():
+                if info != {}:
+                    new_dict[alert.name] = (info["id"], info["description"])
+        return new_dict
 
     def node_alerts_with_rx_check(
         self, tx_node: str, rx_node, alert_type: CanAlertType
@@ -348,6 +375,18 @@ class CanDatabase:
                 for alert in self.node_alerts(tx_node, alert_type)
                 if rx_node in alert_msg.rx_nodes
             ]
+    
+    def node_rx_alerts(self, node: str, type) -> List[str]:
+        """
+        Return list of alerts received by a node, of a specific type.
+        """
+        rte = []
+        for tx_node in self.get_board_node():
+            if tx_node == node:
+                continue # Skip self-transmitted alerts
+            for alert, alert_entry in self.alerts[tx_node].items():
+                rte.append(alert.name)
+        return rte
 
     def node_has_alert(self, node: str, alert_type: CanAlertType) -> bool:
         """
