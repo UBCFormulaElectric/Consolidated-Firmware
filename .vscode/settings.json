@@ -19,7 +19,8 @@
     "tuple": "c",
     "type_traits": "c",
     "utility": "c",
-    "variant": "c"
+    "variant": "c",
+    "freertos.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
