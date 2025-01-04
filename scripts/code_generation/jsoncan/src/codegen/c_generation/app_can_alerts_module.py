@@ -309,7 +309,6 @@ class AppCanAlertsModule(CModule):
         return self._db.node_rx_alerts(self._node, CanAlertType.FAULT)
     
     def source_template(self):
-        
         template = load_template("app_canAlerts.c.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
         template = j2_env.from_string(template)

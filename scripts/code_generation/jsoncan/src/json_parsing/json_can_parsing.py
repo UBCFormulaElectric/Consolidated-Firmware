@@ -283,6 +283,7 @@ class JsonCanParser:
             id=msg_id,
             description=description,
             signals=signals,
+            bus=buses,
             cycle_time=msg_cycle_time,
             tx_node=node,
             rx_nodes=[
@@ -539,6 +540,8 @@ class JsonCanParser:
                 modes=[
                 #    self._bus_cfg.default_mode
                 ],
+                # FIXME: bus=,
+                bus=["bus1", "bus2"],
             )
             for name, msg_id, description, signals, cycle_time in [
                 (

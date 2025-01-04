@@ -25,20 +25,29 @@ typedef struct
 /* -------------------------------- Enums --------------------------------- */
 typedef enum
 {
-{% for bus in buses %}
-    Bus_{{bus.name}} = {{loop.index0}},
-{% endfor %}
+
+    Bus_bus1 = 0,
+
+    Bus_bus2 = 1,
+
 } BusEnum;
 
 
-{% for bus in buses %}
+
 typedef enum
 {
-    {% for mode in bus.modes -%}
-    CanMode_{{bus.name}}_{{mode}} = 1 << {{loop.index0}},
-    {% endfor %}
-} CanMode_{{bus.name}};
-{% endfor %}
+    CanMode_bus1_default = 1 << 0,
+    CanMode_bus1_debug = 1 << 1,
+    
+} CanMode_bus1;
+
+typedef enum
+{
+    CanMode_bus2_default = 1 << 0,
+    CanMode_bus2_debug = 1 << 1,
+    
+} CanMode_bus2;
+
 
 
 
@@ -68,4 +77,3 @@ void io_canTx_enqueue100HzMsgs(void);
  * Enqueue periodic CAN messages whose cycle time does is not suitable for other periodic sending functions.
  */
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
-

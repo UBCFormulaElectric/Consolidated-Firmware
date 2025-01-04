@@ -166,20 +166,15 @@ class CanMessage:
     name: str  # Name of this CAN message
     id: int  # Message ID
     description: str  # Message description
-    cycle_time: Union[
-        int, None
-    ]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
+    cycle_time: Union[int, None]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
     signals: List[CanSignal]  # All signals that make up this message
+    bus: List[str] # List of buses this message is transmitted on
     tx_node: str  # The node that transmits this message
     rx_nodes: List[str]  # All nodes which receive this message
     modes: List[str]  # List of modes which this message should be transmitted in
-    log_cycle_time: Union[
-        int, None
-    ]  # Interval that this message should be logged to disk at (None if don't capture this msg)
-    telem_cycle_time: Union[
-        int, None
-    ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
-
+    log_cycle_time: Union[int, None]  # Interval that this message should be logged to disk at (None if don't capture this msg)
+    telem_cycle_time: Union[int, None]  # Interval that this message should be sent via telem at (None if don't capture this msg)
+    
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -259,7 +254,7 @@ class CanDatabase:
     """
 
     nodes: List[str]  # List of names of the nodes on the bus
-    bus_config: CanBusConfig  # Various bus params
+    bus_config: List[CanBusConfig]  # Various bus params
     msgs: Dict[
         int, CanMessage
     ]  # All messages being sent to the bus (dict of (ID to message)
