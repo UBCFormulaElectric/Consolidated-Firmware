@@ -1432,9 +1432,6 @@ typedef struct
 
 /* ------------------------- Function Prototypes -------------------------- */
 
-/**
- * Pack signals into CAN payload for BMS_Vitals.
- */
 
 void app_canUtils_BMS_Vitals_pack(const BMS_Vitals_Signals* const in_msg, uint8_t* const out_data);
 void app_canUtils_BMS_AlertsContext_pack(const BMS_AlertsContext_Signals* const in_msg, uint8_t* const out_data);
@@ -1463,9 +1460,6 @@ void app_canUtils_VC_Faults_pack(const VC_Faults_Signals* const in_msg, uint8_t*
 
 
 
-/**
- * Unpack signals from CAN payload for BRUSA_Vitals.
- */
 
 void app_canUtils_BMS_Vitals_unpack(const uint8_t* const in_data, BMS_Vitals_Signals* const out_msg);
 void app_canUtils_BMS_AlertsContext_unpack(const uint8_t* const in_data, BMS_AlertsContext_Signals* const out_msg);
