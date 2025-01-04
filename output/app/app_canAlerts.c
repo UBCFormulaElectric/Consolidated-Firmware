@@ -600,7 +600,6 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
 {
     switch (board)
     {
-        
         case BMS_ALERT_BOARD :
         {
             if (app_canTx_BMS_Fault_StateMachine_get()) 
