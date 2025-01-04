@@ -6,6 +6,7 @@
 #include "app_airs.h"
 #include "app_soc.h"
 #include "app_shdnLoop.h"
+#include "app_diagnosticsMode.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "io_bspdTest.h"
@@ -142,6 +143,16 @@ bool app_allStates_runOnTick100Hz(void)
     app_imd_broadcast();
     app_airs_broadcast();
     app_shdnLoop_broadcast();
+
+    bool diagnostics_mode_enabled = app_canRx_Debug_BMSDiagnosticsRequest_get();
+    if (diagnostics_mode_enabled)
+    {
+        app_diagnosticsMode_broadcast();
+    }
+    else
+    {
+        app_diagnosticsMode_invalidateValues();
+    }
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {
