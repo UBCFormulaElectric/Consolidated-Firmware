@@ -14,7 +14,7 @@
 
 
 // warning setter functions
-{% for warning in warnings %}
+{% for warning in tx_warnings %}
 void app_canAlerts_{{ warning }}_set(bool set_alert)
 {
     // Increment alert counter.
@@ -29,7 +29,7 @@ void app_canAlerts_{{ warning }}_set(bool set_alert)
 {% endfor %}
 
 // fault setter functions
-{% for fault in faults %}
+{% for fault in tx_faults %}
 void app_canAlerts_{{ fault }}_set(bool set_alert)
 {
     // Increment alert counter.
@@ -46,7 +46,7 @@ void app_canAlerts_{{ fault }}_set(bool set_alert)
 
 
 // warning getter functions
-{% for warning in warnings %}
+{% for warning in tx_warnings %}
 bool app_canAlerts_{{ warning }}_get()
 {
     return app_canTx_{{ warning }}_get();
@@ -54,7 +54,7 @@ bool app_canAlerts_{{ warning }}_get()
 {% endfor %}
 
 // fault getter functions
-{% for fault in faults %}
+{% for fault in tx_faults %}
 bool app_canAlerts_{{ fault }}_get()
 {
     return app_canTx_{{ fault }}_get();
@@ -69,7 +69,7 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
         {% for board in boards %}
         case {{board}}_ALERT_BOARD :
         {
-            {% for warning in warnings -%}
+            {% for warning in tx_warnings + rx_warnings -%}
             {%- if board in warning -%}
             if (app_canTx_{{ warning }}_get())
             {
@@ -98,7 +98,7 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
         {% for board in boards %}
         case {{board}}_ALERT_BOARD :
         {
-            {% for fault in faults -%}
+            {% for fault in tx_faults + rx_faults -%}
             {%- if board in fault -%}
             if (app_canTx_{{ fault }}_get())
             {
@@ -146,13 +146,24 @@ bool app_canAlerts_AnyBoardHasFault()
 uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
-    
-    {% for warning in warnings %}
+    // tx warnings
+    {% for warning in tx_warnings %}
     if (app_canTx_{{ warning }}_get())
     {
         alert_array[element_num].name = "{{ warning }}";
-        alert_array[element_num].description = "{{ warning_description[warning][1] }}";
-        alert_array[element_num].id = {{ warning_description[warning][0] }};
+        alert_array[element_num].description = "{{ alert_description[warning][1] }}";
+        alert_array[element_num].id = {{ alert_description[warning][0] }};
+        element_num++;
+    }
+    {% endfor %}
+
+    // rx warnings
+    {% for warning in rx_warnings %}
+    if (app_canRx_{{ warning }}_get())
+    {
+        alert_array[element_num].name = "{{ warning }}";
+        alert_array[element_num].description = "{{ alert_description[warning][1] }}";
+        alert_array[element_num].id = {{ alert_description[warning][0] }};
         element_num++;
     }
     {% endfor %}
@@ -165,13 +176,25 @@ uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
 uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
-    
-    {% for fault in faults %}
+
+    // tx faults
+    {% for fault in tx_faults %}
     if (app_canTx_{{ fault }}_get())
     {
         alert_array[element_num].name = "{{ fault }}";
-        alert_array[element_num].description = "{{ fault_description[fault][1] }}";
-        alert_array[element_num].id = {{ fault_description[fault][0] }};
+        alert_array[element_num].description = "{{ alert_description[fault][1] }}";
+        alert_array[element_num].id = {{ alert_description[fault][0] }};
+        element_num++;
+    }
+    {% endfor %}
+
+    // rx faults
+    {% for fault in rx_faults %}
+    if (app_canRx_{{ fault }}_get())
+    {
+        alert_array[element_num].name = "{{ fault }}";
+        alert_array[element_num].description = "{{ alert_description[fault][1] }}";
+        alert_array[element_num].id = {{ alert_description[fault][0] }};
         element_num++;
     }
     {% endfor %}
