@@ -45,7 +45,7 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
         {% for board in boards %}
         case {{board}}_ALERT_BOARD :
         {
-            {% for alert in alerts[board] -%}
+            {% for alert in alerts[board] %}
             {%- if alert.alert_type == CanAlertType.WARNING -%}
             {%- if board == node -%}
             if (app_canTx_{{ alert.name }}_get()) 
@@ -58,8 +58,8 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
                 return true;
             }
             {%- endif -%}
-            {%- endif %}
-            {%- endfor %}
+            {%- endif -%}
+            {% endfor %}
             break;
         }
         {% endfor %}
@@ -78,10 +78,10 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
 {
     switch (board)
     {
-        {% for board in boards %}
+        {%- for board in boards %}
         case {{board}}_ALERT_BOARD :
         {
-            {% for alert in alerts[board] -%}
+            {% for alert in alerts[board] %}
             {%- if alert.alert_type == CanAlertType.FAULT -%}
             {%- if board == node -%}
             if (app_canTx_{{ alert.name }}_get()) 
@@ -94,8 +94,8 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
                 return true;
             }
             {%- endif -%}
-            {%- endif %}
-            {%- endfor %}
+            {% endif -%}
+            {% endfor %}
             break;
         }
         {% endfor %}
@@ -138,7 +138,7 @@ uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
     // tx faults
     {% for board in boards %}
     {% for alert in alerts[board] %}
-    {%- if alert.alert_type == CanAlertType.WARNING -%}
+    {%- if alert.alert_type == CanAlertType.WARNING %}
     {%- if board == node %}
     if (app_canTx_{{ alert.name }}_get()) // tx {{ board }} faults
     {
@@ -170,7 +170,7 @@ uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
     // tx faults
     {% for board in boards %}
     {% for alert in alerts[board] %}
-    {%- if alert.alert_type == CanAlertType.Fault -%}
+    {%- if alert.alert_type == CanAlertType.Fault %}
     {%- if board == node %}
     if (app_canTx_{{ alert.name }}_get()) // tx {{ board }} faults
     {
