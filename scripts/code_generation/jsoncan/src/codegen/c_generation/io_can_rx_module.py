@@ -1,9 +1,12 @@
+import jinja2 as j2
+
 from ...can_database import *
 from ...utils import *
 from .c_config import *
 from .c_writer import *
-import jinja2 as j2
 from .utils import load_template
+
+
 class IoCanRxModule(CModule):
     def __init__(self, db: CanDatabase, node: str):
         self._db = db

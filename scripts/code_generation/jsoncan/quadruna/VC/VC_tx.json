@@ -24,6 +24,10 @@
         "min": 0,
         "max": 10
       }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
     }
   },
   "LeftInverterCommand": {
