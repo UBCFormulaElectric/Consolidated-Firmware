@@ -313,10 +313,8 @@ class AppCanAlertsModule(CModule):
         template = load_template("app_canAlerts.c.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
         template = j2_env.from_string(template)
-        return template.render(tx_faults=self._db.node_alerts(self._node, CanAlertType.FAULT), 
-                               tx_warnings = self._db.node_alerts(self._node, CanAlertType.WARNING),
-                               rx_warnings = self.get_rx_warning(),
-                               rx_faults = self.get_rx_fault(),
+        return template.render(alerts = self._db.alerts,
+                               CanAlertType = CanAlertType,
                                alert_description = self._db.node_alerts_all_description(),
                                boards = self.get_board_node(),
                                node=self._node)
