@@ -1,10 +1,9 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
-#ifdef TARGET_EMBEDDED
-#include "hw_can.h"
-#endif
+#include <stdint.h>
+
+#include "io_canMsg.h"
 
 /**
  * This module is a CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS queues: One for
@@ -30,54 +29,68 @@ typedef struct
     bool (*const rx_msg_filter)(uint32_t);        // Optional func to filter RX msgs by ID.
     void (*const tx_overflow_callback)(uint32_t); // Callback on TX queue overflow.
     void (*const rx_overflow_callback)(uint32_t); // Callback on RX queue overflow.
-    void (*const tx_overflow_clear_callback)();   // Callback on TX queue overflow clear.
-    void (*const rx_overflow_clear_callback)();   // Callback on RX queue overflow clear.
+    void (*const tx_overflow_clear_callback)(void);   // Callback on TX queue overflow clear.
+    void (*const rx_overflow_clear_callback)(void);   // Callback on RX queue overflow clear.
 } CanConfig;
 
-#define CAN_PAYLOAD_BYTES 8 // TODO: grab from the same place perhaps
-
-#ifdef TARGET_TEST
-typedef struct
-{
-    uint32_t std_id;
-    uint32_t dlc; // data length range : [0, 8]
-    uint8_t  data[CAN_PAYLOAD_BYTES];
-} CanMsg;
+#ifdef TARGET_EMBEDDED
+#include "cmsis_os.h"
+#define TX_QUEUE_SIZE 128
+#define RX_QUEUE_SIZE 128
+#define TX_QUEUE_BYTES sizeof(CanMsg) * TX_QUEUE_SIZE
+#define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
 #endif
+typedef struct {
+    void (*tx_overflow_callback)(uint32_t); // Callback on TX queue overflow.
+    void (*rx_overflow_callback)(uint32_t); // Callback on RX queue overflow.
+    void (*tx_overflow_clear_callback)(void);   // Callback on TX queue overflow clear.
+    void (*rx_overflow_clear_callback)(void);    // Callback on RX queue overflow clear.
+    uint8_t can_number;
+    bool init_complete;
+
+    // populated with init
+#ifdef TARGET_EMBEDDED
+    char* tx_name;
+    char* rx_name;
+    osMessageQueueId_t tx_queue_id;
+    osMessageQueueId_t rx_queue_id;
+    osMessageQueueAttr_t tx_queue_attr;
+    osMessageQueueAttr_t rx_queue_attr;
+    StaticQueue_t      tx_queue_control_block;
+    StaticQueue_t      rx_queue_control_block;
+    uint8_t            tx_queue_buf[TX_QUEUE_BYTES];
+    uint8_t            rx_queue_buf[RX_QUEUE_BYTES];
+#endif
+} CanQueue;
 
 /**
  * Initialize and start the CAN peripheral.
- * @param can_config Config struct.
+ * @param cq CanQueue in question
  */
-void io_can_init(const CanConfig *can_config);
+void io_canQueue_init(CanQueue *cq);
 
 /**
  * Enqueue a CAN msg to be transmitted on the bus.
  * Does not block, calls `tx_overflow_callback` if queue is full.
- * @param msg CAN msg to be TXed.
+ * @param cq CanQueue in question
+ * @param tx_msg CAN msg to be TXed.
  */
-void io_can_pushTxMsgToQueue(const CanMsg *msg);
+void io_canQueue_pushTx(const CanQueue *cq, const CanMsg *tx_msg);
 
 /**
  * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
+ * @param cq CanQueue in question
  */
-void io_can_popTxMsgFromQueue(CanMsg *msg);
+CanMsg io_canQueue_popTx(const CanQueue *cq);
 
 /**
- * Transmit a single CAN msg onto the bus.
+ * Callback fired by config-specific interrupts to receive a message from a given FIFO.
+ * @param cq CanQueue in question
+ * @param rx_msg CAN msg to be populated by RXed msg.
  */
-void io_can_transmitMsgFromQueue(CanMsg *msg);
+void io_canQueue_pushRx(const CanQueue *cq, const CanMsg *rx_msg);
 
 /**
  * Dequeue a received CAN msg. Blocks until a msg can be dequeued.
- * @param rx_fifo Which RX FIFO to receive a message from.
  */
-void io_can_popRxMsgFromQueue(CanMsg *msg);
-
-#ifdef TARGET_EMBEDDED
-/**
- * Callback fired by config-specific interrupts to receive a message from a given FIFO.
- * @param msg CAN msg to be populated by RXed msg.
- */
-void io_can_pushRxMsgToQueue(CanMsg *rx_msg);
-#endif
+CanMsg io_canQueue_popRx(const CanQueue* cq);

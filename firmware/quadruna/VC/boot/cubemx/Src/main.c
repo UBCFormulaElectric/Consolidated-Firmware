@@ -24,7 +24,10 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
-#include "io_can.h"
+#include "hw_utils.h"
+#include "io_canQueue.h"
+#include "io_log.h"
+#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,7 +107,49 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
+CanHandle can = { .hcan = &hfdcan1 };
+
+static void canRxOverflow(const uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+static void canTxOverflow(const uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+CanQueue cq = {
+    .tx_overflow_callback       = canRxOverflow,
+    .rx_overflow_callback       = canTxOverflow,
+    .tx_overflow_clear_callback = NULL,
+    .rx_overflow_clear_callback = NULL,
+    .can_number                 = 1,
+    .init_complete              = false,
+};
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
+{
+    assert(hfdcan == &hfdcan1);
+    UNUSED(RxFifo0ITs);
+    CanMsg rx_msg;
+    if (!hw_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&cq, &rx_msg);
+}
+
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
+{
+    assert(hfdcan == &hfdcan1);
+    UNUSED(RxFifo1ITs);
+    CanMsg rx_msg;
+    if (!hw_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&cq, &rx_msg);
+}
 /* USER CODE END 0 */
 
 /**
@@ -140,6 +185,7 @@ int main(void)
     /* USER CODE BEGIN 2 */
     bootloader_init();
     hw_can_init(&can);
+    io_canQueue_init(&cq);
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -431,6 +477,7 @@ static void MX_GPIO_Init(void)
 void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
+    UNUSED(argument);
     bootloader_runInterfaceTask();
     /* USER CODE END 5 */
 }
@@ -445,6 +492,7 @@ void runInterfaceTask(void *argument)
 void runTickTask(void *argument)
 {
     /* USER CODE BEGIN runTickTask */
+    UNUSED(argument);
     bootloader_runTickTask();
     /* USER CODE END runTickTask */
 }
@@ -459,6 +507,7 @@ void runTickTask(void *argument)
 void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
+    UNUSED(argument);
     bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
 }

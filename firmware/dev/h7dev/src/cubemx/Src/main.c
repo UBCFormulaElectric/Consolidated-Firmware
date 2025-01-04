@@ -139,7 +139,7 @@ static void can_msg_received_callback(CanMsg *rx_msg);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 CanHandle can = { .can = &hfdcan2, .can_msg_received_callback = can_msg_received_callback };
-SdCard    sd  = { .hsd = &hsd1, .timeout = osWaitForever };
+SdCard    sd1  = { .hsd = &hsd1, .timeout = osWaitForever };
 
 Gpio sd_present = {
     .pin  = GPIO_PIN_8,
@@ -195,8 +195,8 @@ int main(void)
 
     if (sd_inited)
     {
-        sd.hsd     = &hsd1;
-        sd.timeout = osWaitForever;
+        sd1.hsd     = &hsd1;
+        sd1.timeout = osWaitForever;
         int err    = io_fileSystem_init();
         io_canLogging_init(&can_config);
     }
@@ -449,7 +449,7 @@ static void MX_SDMMC1_SD_Init(void)
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
     sd_inited = true;
-    hw_sd_init(&sd);
+    hw_sd_init(&sd1);
     /* USER CODE END SDMMC1_Init 2 */
 }
 

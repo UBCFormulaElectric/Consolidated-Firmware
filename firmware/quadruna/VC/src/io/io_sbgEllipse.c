@@ -3,15 +3,13 @@
 #include <assert.h>
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
-#include "queue.h"
-
 #include "main.h"
 #include "app_units.h"
 #include "sbgECom.h"
 #include "interfaces/sbgInterfaceSerial.h"
 #include "app_canTx.h"
-#include "io_time.h"
 #include "io_log.h"
+#include "hw_uarts.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
@@ -19,9 +17,7 @@
 #define QUEUE_MAX_SIZE 32       // 128 * 32 = 4096 which is SBG_ECOM_MAX_BUFFER_SIZE
 
 /* --------------------------------- Variables ---------------------------------- */
-extern UART_HandleTypeDef huart2;
-
-static const UART   *uart = NULL;
+static const UART   *chimera_uart = &sbg_uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -252,11 +248,9 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool io_sbgEllipse_init(const UART *sbg_uart)
+bool io_sbgEllipse_init()
 {
     memset(&sensor_data, 0, sizeof(SensorData));
-
-    uart = sbg_uart;
 
     // Initialize the SBG serial interface handle
     io_sbgEllipse_createSerialInterface(&sbg_interface);
@@ -278,7 +272,7 @@ bool io_sbgEllipse_init(const UART *sbg_uart)
     assert(sensor_rx_queue_id != NULL);
 
     // Start waiting for UART packets
-    hw_uart_receiveDma(uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
+    hw_uart_receiveDma(chimera_uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }

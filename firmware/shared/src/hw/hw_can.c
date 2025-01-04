@@ -1,7 +1,6 @@
 #include "hw_can.h"
 #undef NDEBUG
 #include <assert.h>
-#include "io_can.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -30,12 +29,8 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-static const CanHandle *handle;
-
 void hw_can_init(const CanHandle *can_handle)
 {
-    handle = can_handle;
-
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
     filter.FilterMode           = CAN_FILTERMODE_IDMASK;
@@ -49,25 +44,25 @@ void hw_can_init(const CanHandle *can_handle)
     filter.FilterBank           = 0;
 
     // Configure and initialize hardware filter.
-    assert(HAL_CAN_ConfigFilter(handle->can, &filter) == HAL_OK);
+    assert(HAL_CAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_CAN_ActivateNotification(
-            handle->can, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
+            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
         HAL_OK);
 
     // Start the CAN peripheral.
-    assert(HAL_CAN_Start(handle->can) == HAL_OK);
+    assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
 }
 
-void hw_can_deinit(void)
+void hw_can_deinit(const CanHandle *can_handle)
 {
-    assert(HAL_CAN_Stop(handle->can) == HAL_OK);
-    assert(HAL_CAN_DeInit(handle->can) == HAL_OK);
+    assert(HAL_CAN_Stop(can_handle->hcan) == HAL_OK);
+    assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanMsg *msg)
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     CAN_TxHeaderTypeDef tx_header;
 
@@ -91,19 +86,19 @@ bool hw_can_transmit(const CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(handle->can) == 0U)
+    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
         ;
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t                mailbox       = 0;
-    const HAL_StatusTypeDef return_status = HAL_CAN_AddTxMessage(handle->can, &tx_header, msg->data, &mailbox);
+    const HAL_StatusTypeDef return_status = HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox);
     return return_status == HAL_OK;
 }
 
-bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
+bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     CAN_RxHeaderTypeDef header;
-    if (HAL_CAN_GetRxMessage(handle->can, rx_fifo, &header, msg->data) != HAL_OK)
+    if (HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
     {
         return false;
     }
@@ -115,28 +110,24 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     return true;
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    UNUSED(hcan);
-    CanMsg rx_msg;
-    if (!hw_can_receive(CAN_RX_FIFO0, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    handle->can_msg_received_callback(&rx_msg);
-}
-
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    UNUSED(hcan);
-    CanMsg rx_msg;
-    if (!hw_can_receive(CAN_RX_FIFO1, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    handle->can_msg_received_callback(&rx_msg);
-}
+//  void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+// {
+//      UNUSED(hcan);
+//      CanMsg rx_msg;
+//      if (!hw_can_receive(CAN_RX_FIFO0, &rx_msg))
+//          // Early return if RX msg is unavailable.
+//          return;
+//
+//      can_handle->hcan_msg_received_callback(&rx_msg);
+//  }
+//
+//  void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+// {
+//      UNUSED(hcan);
+//      CanMsg rx_msg;
+//      if (!hw_can_receive(CAN_RX_FIFO1, &rx_msg))
+//          // Early return if RX msg is unavailable.
+//          return;
+//
+//      can_handle->hcan_msg_received_callback(&rx_msg);
+//  }

@@ -1,15 +1,10 @@
 #include "hw_can.h"
-#include "io_can.h"
 #undef NDEBUG
 #include <assert.h>
 #include "io_log.h"
 
-static const CanHandle *handle;
-
 void hw_can_init(const CanHandle *can_handle)
 {
-    handle = can_handle;
-
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
     filter.IdType       = FDCAN_STANDARD_ID; // 11 bit ID
@@ -20,25 +15,25 @@ void hw_can_init(const CanHandle *can_handle)
     filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Standard CAN ID
 
     // Configure and initialize hardware filter.
-    assert(HAL_FDCAN_ConfigFilter(handle->can, &filter) == HAL_OK);
+    assert(HAL_FDCAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
     assert(
-        HAL_FDCAN_ActivateNotification(handle->can, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0) ==
-        HAL_OK);
-    assert(HAL_FDCAN_ActivateNotification(handle->can, FDCAN_IT_BUS_OFF, 0) == HAL_OK);
+        HAL_FDCAN_ActivateNotification(
+            can_handle->hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0) == HAL_OK);
+    assert(HAL_FDCAN_ActivateNotification(can_handle->hcan, FDCAN_IT_BUS_OFF, 0) == HAL_OK);
 
     // Start the FDCAN peripheral.
-    assert(HAL_FDCAN_Start(handle->can) == HAL_OK);
+    assert(HAL_FDCAN_Start(can_handle->hcan) == HAL_OK);
 }
 
-void hw_can_deinit(void)
+void hw_can_deinit(const CanHandle *can_handle)
 {
-    assert(HAL_FDCAN_Stop(handle->can) == HAL_OK);
-    assert(HAL_FDCAN_DeInit(handle->can) == HAL_OK);
+    assert(HAL_FDCAN_Stop(can_handle->hcan) == HAL_OK);
+    assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanMsg *msg)
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
@@ -51,16 +46,16 @@ bool hw_can_transmit(const CanMsg *msg)
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
 
-    while (HAL_FDCAN_GetTxFifoFreeLevel(handle->can) == 0U)
+    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
-    return HAL_FDCAN_AddMessageToTxFifoQ(handle->can, &tx_header, (uint8_t *)msg->data) == HAL_OK;
+    return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
 }
 
-bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
+bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     FDCAN_RxHeaderTypeDef header;
-    if (HAL_FDCAN_GetRxMessage(handle->can, rx_fifo, &header, msg->data) != HAL_OK)
+    if (HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
     {
         return false;
     }
@@ -71,37 +66,10 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     return true;
 }
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
-{
-    assert(hfdcan == handle->can);
-    UNUSED(RxFifo0ITs);
-    CanMsg rx_msg;
-    if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg) && handle->can_msg_received_callback != NULL)
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    handle->can_msg_received_callback(&rx_msg);
-}
-
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
-{
-    assert(hfdcan == handle->can);
-    UNUSED(RxFifo1ITs);
-    CanMsg rx_msg;
-    if (!hw_can_receive(FDCAN_RX_FIFO1, &rx_msg) && handle->can_msg_received_callback != NULL)
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    handle->can_msg_received_callback(&rx_msg);
-}
-
+// ReSharper disable once CppParameterMayBeConst
 void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
 {
-    assert(hfdcan == handle->can);
+    // assert(hfdcan == can_handle->hcan);
     LOG_INFO("FDCAN detected an error");
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {

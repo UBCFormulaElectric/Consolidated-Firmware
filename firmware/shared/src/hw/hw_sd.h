@@ -2,20 +2,16 @@
 
 #include "hw_hal.h"
 #include "hw_gpio.h"
-#include <stdbool.h>
 #include <stdint.h>
-
-// Check here for documentation about the type defined by HAL
-// https://www.disca.upv.es/aperles/arm_cortex_m3/llibre/st/STM32F439xx_User_Manual/structsd__handletypedef.html
+#include <stdbool.h>
 
 #define HW_DEVICE_SECTOR_SIZE 512
 
 typedef struct
 {
-    SD_HandleTypeDef *hsd;     // the HAL SD handle that will hold the state of the SD card
-    uint32_t          timeout; // the timeout for the SD card operations
-    // const Gpio        sd_present; // GPIO to detect if SD card installed
-    bool sd_init_complete;
+    SD_HandleTypeDef *hsd;        // the HAL SD handle that will hold the state of the SD card
+    uint32_t          timeout;    // the timeout for the SD card operations
+    const Gpio* present_gpio; // gpio for sd_cd
 } SdCard; // struct that included all the state about SDIO and SD card
 
 typedef enum
@@ -25,12 +21,6 @@ typedef enum
     SD_CARD_BUSY    = HAL_BUSY,
     SD_CARD_TIMEOUT = HAL_TIMEOUT
 } SdCardStatus; // wrapper of HAL status for better interface
-
-/**
- * @brief Initialize Static SD Card structure
- * @param sd_config SD Card Configuration
- */
-void hw_sd_init(SdCard *sd_config);
 
 /**
  * @brief   Read from sd card. The data size will be num_blocks * BlockSize
@@ -53,8 +43,8 @@ SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks
  * @return  SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
-SdCardStatus hw_sd_writeDma(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_write(const uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_writeDma(const uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   Read interface with offset and size arguement, interface for littlefs
@@ -81,7 +71,7 @@ SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offs
  * @return SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+SdCardStatus hw_sd_writeOffset(const uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
  * @brief Erase data from the sd card [start_addr, end_addr] inclusive
@@ -92,3 +82,5 @@ SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t off
  * @return SD_card_status the status of the opeation
  */
 SdCardStatus hw_sd_erase(uint32_t start_addr, uint32_t end_addr);
+
+bool hw_sd_present();

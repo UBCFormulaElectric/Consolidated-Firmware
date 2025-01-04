@@ -3,10 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef TARGET_EMBEDDED
-#include "hw_uart.h"
-#endif
-
 /* ------------------------------------ Typedefs ------------------------------------- */
 
 typedef struct
@@ -77,13 +73,7 @@ typedef struct
     EkfNavPacketData   ekf_nav_data;
 } SensorData;
 
-#ifdef TARGET_EMBEDDED
-#include "hw_uart.h"
-/*
- * Initialize the SBG Ellipse N sensor IO module.
- */
-bool io_sbgEllipse_init(const UART *imu_uart);
-#endif
+bool io_sbgEllipse_init();
 
 /*
  * Parse all logs which are currently residing in the UART RX buffer.

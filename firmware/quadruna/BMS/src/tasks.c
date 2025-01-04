@@ -100,11 +100,11 @@ static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_C
 static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
 // clang-format on
 
-static SdCard sd = {
+static SdCard sd1 = {
     .hsd     = &hsd1,
     .timeout = 0x20, // osWaitForever,
     // .sd_present       = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin },
-    .sd_init_complete = false,
+    .init_complete = false,
 };
 
 static const PwmInputConfig imd_pwm_input_config = {
@@ -270,7 +270,7 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
-    hw_sd_init(&sd);
+    hw_sd_init(&sd1);
     hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 

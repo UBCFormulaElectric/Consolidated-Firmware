@@ -1,14 +1,12 @@
 #pragma once
 
 #include <stdbool.h>
-#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
-
 typedef struct
 {
-    const Gpio gpio;
+    const Gpio* gpio;
 } BinaryLed;
 #else
 EMPTY_STRUCT(BinaryLed);
@@ -16,6 +14,7 @@ EMPTY_STRUCT(BinaryLed);
 
 /**
  * Turn an LED on or off.
+ * @param led led to modify
  * @param on Whether or not to turn LED on.
  */
 void io_led_enable(const BinaryLed *led, bool on);
