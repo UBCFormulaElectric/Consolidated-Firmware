@@ -1,9 +1,13 @@
 from lzma import is_check_supported
 from statistics import mode
+
+import jinja2 as j2
+
 from ...can_database import *
 from ...utils import *
 from .c_config import *
 from .c_writer import *
+from .utils import load_template
 
 MSG_CYCLE_TIME_2_FREQ = {
     1000: "1Hz",
@@ -236,3 +240,23 @@ class IoCanTxModule(CModule):
             cw.add_line()
 
         return str(cw)
+    
+    # FIXME: need node on what bus, need to know each message's bus. Need to fix a lot of parsing scripts. so I will fix here for now.
+    
+    #FIXME: assume all node on all buses for now
+    
+    
+    def header_template(self):
+        template = load_template("io_canTx.h.j2")
+        j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
+        template = j2_env.from_string(template)
+        return template.render(buses = self._db.bus_config)
+    
+    def source_template(self):
+        template = load_template("io_canTx.c.j2")
+        j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
+        template = j2_env.from_string(template)
+        return template.render(buses = self._db.bus_config,
+                                messages = self._db.tx_msgs_for_node(self._node),
+                                node = self._node
+                               )
