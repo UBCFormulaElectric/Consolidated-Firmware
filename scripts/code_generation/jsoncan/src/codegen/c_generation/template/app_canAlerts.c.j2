@@ -1,0 +1,182 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+
+/* ------------------------- Function Definitions ------------------------- */
+
+
+// warning setter functions
+{% for warning in warnings %}
+void app_canAlerts_{{ warning }}_set(bool set_alert)
+{
+    // Increment alert counter.
+    if (set_alert && !app_canTx_{{ warning }}_get())
+    {
+        app_canTx_{{ warning }}Count_set(app_canTx_{{ warning }}Count_get() + 1);
+    }
+    
+    // Set alert.
+    app_canTx_{{ warning }}_set(set_alert);
+}
+{% endfor %}
+
+// fault setter functions
+{% for fault in faults %}
+void app_canAlerts_{{ fault }}_set(bool set_alert)
+{
+    // Increment alert counter.
+    if (set_alert && !app_canTx_{{ fault }}_get())
+    {
+        app_canTx_{{ fault }}Count_set(app_canTx_{{ fault }}Count_get() + 1);
+    }
+    
+    // Set alert.
+    app_canTx_{{ fault }}_set(set_alert);
+}
+{% endfor %}
+
+
+
+// warning getter functions
+{% for warning in warnings %}
+bool app_canAlerts_{{ warning }}_get()
+{
+    return app_canTx_{{ warning }}_get();
+}
+{% endfor %}
+
+// fault getter functions
+{% for fault in faults %}
+bool app_canAlerts_{{ fault }}_get()
+{
+    return app_canTx_{{ fault }}_get();
+}
+{% endfor %}
+
+
+bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
+{
+    switch (board)
+    {
+        {% for board in boards %}
+        case {{board}}_ALERT_BOARD :
+        {
+            {% for warning in warnings -%}
+            {%- if board in warning -%}
+            if (app_canTx_{{ warning }}_get())
+            {
+                return true;
+            }
+            {%- endif %}
+            {%- endfor %}
+            break;
+        }
+        {% endfor %}
+        
+        default:
+        {
+            // Do nothing
+            break;
+        }
+    }
+    
+    return false;
+}
+
+bool app_canAlerts_BoardHasFault(CanAlertBoard board)
+{
+    switch (board)
+    {
+        {% for board in boards %}
+        case {{board}}_ALERT_BOARD :
+        {
+            {% for fault in faults -%}
+            {%- if board in fault -%}
+            if (app_canTx_{{ fault }}_get())
+            {
+                return true;
+            }
+            {%- endif -%}
+            {%- endfor %}
+            break;
+        }
+        {% endfor %}
+        
+        default:
+        {
+            // Do nothing
+            break;
+        }
+           
+    }
+    
+    return false;
+}
+
+bool app_canAlerts_AnyBoardHasWarning()
+{
+    if (app_canAlerts_BoardHasWarning({{node}}_ALERT_BOARD))
+    {
+        return true;
+    }
+    
+    
+    return false;
+}
+
+bool app_canAlerts_AnyBoardHasFault()
+{
+    if (app_canAlerts_BoardHasFault({{node}}_ALERT_BOARD))
+    {
+        return true;
+    }
+    
+    
+    return false;
+}
+
+uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
+{
+    uint8_t element_num = 0;
+    
+    {% for warning in warnings %}
+    if (app_canTx_{{ warning }}_get())
+    {
+        alert_array[element_num].name = "{{ warning }}";
+        alert_array[element_num].description = "{{ warning_description[warning][1] }}";
+        alert_array[element_num].id = {{ warning_description[warning][0] }};
+        element_num++;
+    }
+    {% endfor %}
+    
+    
+    return element_num;
+    
+}
+
+uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
+{
+    uint8_t element_num = 0;
+    
+    {% for fault in faults %}
+    if (app_canTx_{{ fault }}_get())
+    {
+        alert_array[element_num].name = "{{ fault }}";
+        alert_array[element_num].description = "{{ fault_description[fault][1] }}";
+        alert_array[element_num].id = {{ fault_description[fault][0] }};
+        element_num++;
+    }
+    {% endfor %}
+    
+    return element_num;
+    
+}
+

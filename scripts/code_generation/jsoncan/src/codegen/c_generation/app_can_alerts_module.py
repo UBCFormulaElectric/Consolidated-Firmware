@@ -1,7 +1,10 @@
+import jinja2 as j2
+
 from ...can_database import *
 from ...utils import *
 from .c_config import *
 from .c_writer import *
+from .utils import load_template
 
 NUM_ALERTS = "NUM_{node}_{alert_type}S"
 BOARD_HAS_ALERT_FUNC_NAME = "app_canAlerts_BoardHas{alert_type}"
@@ -284,3 +287,42 @@ class AppCanAlertsModule(CModule):
             cw.add_line()
 
         return str(cw)
+    
+    
+    def get_board_node(self):
+        nodes_with_alerts = [
+            node
+            for node in self._db.nodes
+            if any(
+                [
+                    self._db.node_has_alert(node, alert_type)
+                    for alert_type in CanAlertType
+                ]
+            )
+        ]
+        return nodes_with_alerts
+    
+    
+        
+    
+    def source_template(self):
+        
+        template = load_template("app_canAlerts.c.j2")
+        j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
+        template = j2_env.from_string(template)
+        return template.render(faults=self._db.node_alerts(self._node, CanAlertType.FAULT), 
+                               warnings = self._db.node_alerts(self._node, CanAlertType.WARNING),
+                               fault_description = self._db.node_name_description(self._node, CanAlertType.FAULT),
+                                warning_description = self._db.node_name_description(self._node, CanAlertType.WARNING),
+                               boards = self.get_board_node(),
+                               messages=self._db.msgs_for_node(self._node),
+                               node=self._node)
+    
+    def header_template(self):
+        template = load_template("app_canAlerts.h.j2")
+        j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
+        template = j2_env.from_string(template)
+        return template.render(faults=self._db.node_alerts(self._node, CanAlertType.FAULT), 
+                               warnings = self._db.node_alerts(self._node, CanAlertType.WARNING),
+                               boards = self.get_board_node(),
+                               node=self._node)
