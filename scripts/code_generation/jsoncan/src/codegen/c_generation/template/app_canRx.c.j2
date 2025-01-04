@@ -35,7 +35,7 @@ void app_canRx_init()
     // Initialize all signals to Start-up value
     {%- for msg in messages %}
     {%- for signal in msg.signals %}
-    app_canRx_{{ msg.name }}_{{ signal.name }}_update({{ signal.start_val_macro() }});
+    app_canRx_{{ signal.name }}_update({{ signal.start_val_macro() }});
     {%- endfor %}
     {%- endfor %}
     
@@ -48,7 +48,7 @@ void app_canRx_BRUSA_IsConnected_update(bool value)
 
 {% for msg in messages -%}
 {%- for signal in msg.signals -%}
-void app_canRx_{{ msg.name }}_{{ signal.name }}_update({{ signal.datatype() }} value)
+void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
 {
     {%- if signal.representation() == "float" %}
     if (value == NAN)
@@ -73,3 +73,15 @@ void app_canRx_{{ msg.name }}_{{ signal.name }}_update({{ signal.datatype() }} v
 }
 {% endfor %}
 {% endfor %}
+
+
+{% for msg in messages -%}
+{%- for signal in msg.signals -%}
+{{ signal.datatype() }} app_canRx_{{ signal.name }}_get()
+{
+    return rx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
+}
+{% endfor %}
+{% endfor %}
+
+

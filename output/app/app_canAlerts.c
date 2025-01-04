@@ -195,9 +195,6 @@ void app_canAlerts_BMS_Warning_MissingVCHeartbeat_set(bool set_alert)
     app_canTx_BMS_Warning_MissingVCHeartbeat_set(set_alert);
 }
 
-
-// fault setter functions
-
 void app_canAlerts_BMS_Fault_StateMachine_set(bool set_alert)
 {
     // Increment alert counter.
@@ -332,7 +329,6 @@ void app_canAlerts_BMS_Fault_PrechargeFailure_set(bool set_alert)
 
 
 
-
 // warning getter functions
 
 bool app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_get()
@@ -410,9 +406,6 @@ bool app_canAlerts_BMS_Warning_MissingVCHeartbeat_get()
     return app_canTx_BMS_Warning_MissingVCHeartbeat_get();
 }
 
-
-// fault getter functions
-
 bool app_canAlerts_BMS_Fault_StateMachine_get()
 {
     return app_canTx_BMS_Fault_StateMachine_get();
@@ -477,52 +470,49 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
         
         case BMS_ALERT_BOARD :
         {
-            if (app_canTx_BMS_Warning_StackWaterMarkHighTask1Hz_get())
+            if (app_canTx_BMS_Warning_StackWaterMarkHighTask1Hz_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_StackWaterMarkHighTask100Hz_get())
+            }if (app_canTx_BMS_Warning_StackWaterMarkHighTask100Hz_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_StackWaterMarkHighTask1kHz_get())
+            }if (app_canTx_BMS_Warning_StackWaterMarkHighTask1kHz_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRx_get())
+            }if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRx_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTx_get())
+            }if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTx_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_WatchdogTimeout_get())
+            }if (app_canTx_BMS_Warning_WatchdogTimeout_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_TxOverflow_get())
+            }if (app_canTx_BMS_Warning_TxOverflow_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_RxOverflow_get())
+            }if (app_canTx_BMS_Warning_RxOverflow_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_OpenWireCheckFault_get())
+            }if (app_canTx_BMS_Warning_OpenWireCheckFault_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment0_GND_get())
+            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment0_GND_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment1_GND_get())
+            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment1_GND_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment2_GND_get())
+            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment2_GND_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment3_GND_get())
+            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment3_GND_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment4_GND_get())
+            }if (app_canTx_BMS_Warning_OpenWireCheck_Segment4_GND_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Warning_MissingVCHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingBMSHeartbeat_get())
+            }if (app_canTx_BMS_Warning_MissingVCHeartbeat_get()) 
             {
                 return true;
             }
@@ -531,85 +521,64 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
         
         case VC_ALERT_BOARD :
         {
-            if (app_canTx_BMS_Warning_MissingVCHeartbeat_get())
+            if (app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTask1Hz_get())
+            }if (app_canRx_VC_Warning_StackWaterMarkHighTask100Hz_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTask100Hz_get())
+            }if (app_canRx_VC_Warning_StackWaterMarkHighTask1kHz_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTask1kHz_get())
+            }if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanRx_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTaskCanRx_get())
+            }if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanTx_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTaskCanTx_get())
+            }if (app_canRx_VC_Warning_WatchdogTimeout_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_WatchdogTimeout_get())
+            }if (app_canRx_VC_Warning_TxOverflow_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_TxOverflow_get())
+            }if (app_canRx_VC_Warning_RxOverflow_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_RxOverflow_get())
+            }if (app_canRx_VC_Warning_RegenNotAvailable_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_RegenNotAvailable_get())
+            }if (app_canRx_VC_Warning_ImuInitFailed_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_ImuInitFailed_get())
+            }if (app_canRx_VC_Warning_FlowRateInputOutOfRange_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_FlowRateInputOutOfRange_get())
+            }if (app_canRx_VC_Warning_BatteryRailOvercurrentFault_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_BatteryRailOvercurrentFault_get())
+            }if (app_canRx_VC_Warning_AccumulatorRailOvercurrentFault_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_AccumulatorRailOvercurrentFault_get())
+            }if (app_canRx_VC_Warning_LvChargeFault_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_LvChargeFault_get())
+            }if (app_canRx_VC_Warning_BoostControllerFault_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_BoostControllerFault_get())
+            }if (app_canRx_VC_Warning_HighNumberOfCanDataLogs_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_HighNumberOfCanDataLogs_get())
+            }if (app_canRx_VC_Warning_CanLoggingSdCardNotPresent_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_CanLoggingSdCardNotPresent_get())
+            }if (app_canRx_VC_Warning_CanLoggingErrored_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_CanLoggingErrored_get())
+            }if (app_canRx_VC_Warning_BrakeAppsDisagreement_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_BrakeAppsDisagreement_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_SbgInitFailed_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingBMSHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingFSMHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingRSMHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingCRITHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_LeftInverterFault_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_RightInverterFault_get())
+            }if (app_canRx_VC_Warning_SbgInitFailed_get()) 
             {
                 return true;
             }
@@ -634,40 +603,37 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
         
         case BMS_ALERT_BOARD :
         {
-            if (app_canTx_BMS_Fault_StateMachine_get())
+            if (app_canTx_BMS_Fault_StateMachine_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_CellUndervoltage_get())
+            }if (app_canTx_BMS_Fault_CellUndervoltage_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_CellOvervoltage_get())
+            }if (app_canTx_BMS_Fault_CellOvervoltage_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_ModuleCommunicationError_get())
+            }if (app_canTx_BMS_Fault_ModuleCommunicationError_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_CellUndertemp_get())
+            }if (app_canTx_BMS_Fault_CellUndertemp_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_CellOvertemp_get())
+            }if (app_canTx_BMS_Fault_CellOvertemp_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_ChargerReportedError_get())
+            }if (app_canTx_BMS_Fault_ChargerReportedError_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_ChargerDisconnectedDuringCharge_get())
+            }if (app_canTx_BMS_Fault_ChargerDisconnectedDuringCharge_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_ChargerShutdownLoopOpen_get())
+            }if (app_canTx_BMS_Fault_ChargerShutdownLoopOpen_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_TractiveSystemOvercurrent_get())
+            }if (app_canTx_BMS_Fault_TractiveSystemOvercurrent_get()) 
             {
                 return true;
-            }if (app_canTx_BMS_Fault_PrechargeFailure_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingBMSHeartbeat_get())
+            }if (app_canTx_BMS_Fault_PrechargeFailure_get()) 
             {
                 return true;
             }
@@ -676,82 +642,22 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
         
         case VC_ALERT_BOARD :
         {
-            if (app_canTx_VC_Warning_StackWaterMarkHighTask1Hz_get())
+            if (app_canRx_VC_Fault_MissingBMSHeartbeat_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTask100Hz_get())
+            }if (app_canRx_VC_Fault_MissingFSMHeartbeat_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTask1kHz_get())
+            }if (app_canRx_VC_Fault_MissingRSMHeartbeat_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTaskCanRx_get())
+            }if (app_canRx_VC_Fault_MissingCRITHeartbeat_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_StackWaterMarkHighTaskCanTx_get())
+            }if (app_canRx_VC_Fault_LeftInverterFault_get()) 
             {
                 return true;
-            }if (app_canTx_VC_Warning_WatchdogTimeout_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_TxOverflow_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_RxOverflow_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_RegenNotAvailable_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_ImuInitFailed_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_FlowRateInputOutOfRange_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_BatteryRailOvercurrentFault_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_AccumulatorRailOvercurrentFault_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_LvChargeFault_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_BoostControllerFault_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_HighNumberOfCanDataLogs_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_CanLoggingSdCardNotPresent_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_CanLoggingErrored_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_BrakeAppsDisagreement_get())
-            {
-                return true;
-            }if (app_canTx_VC_Warning_SbgInitFailed_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingBMSHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingFSMHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingRSMHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_MissingCRITHeartbeat_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_LeftInverterFault_get())
-            {
-                return true;
-            }if (app_canTx_VC_Fault_RightInverterFault_get())
+            }if (app_canRx_VC_Fault_RightInverterFault_get()) 
             {
                 return true;
             }
@@ -764,7 +670,6 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
             // Do nothing
             break;
         }
-           
     }
     
     return false;
@@ -795,649 +700,242 @@ bool app_canAlerts_AnyBoardHasFault()
 uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
-    // tx warnings
+    // tx faults
     
-    if (app_canTx_BMS_Warning_StackWaterMarkHighTask1Hz_get())
+    
+    if (app_canTx_BMS_Warning_StackWaterMarkHighTask1Hz_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_StackWaterMarkHighTask1Hz";
         alert_array[element_num].description = "1Hz task stack watermark exceeded.";
         alert_array[element_num].id = 101;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_StackWaterMarkHighTask100Hz_get())
+    if (app_canTx_BMS_Warning_StackWaterMarkHighTask100Hz_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_StackWaterMarkHighTask100Hz";
         alert_array[element_num].description = "100Hz task stack watermark exceeded.";
         alert_array[element_num].id = 102;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_StackWaterMarkHighTask1kHz_get())
+    if (app_canTx_BMS_Warning_StackWaterMarkHighTask1kHz_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_StackWaterMarkHighTask1kHz";
         alert_array[element_num].description = "1kHz task stack watermark exceeded.";
         alert_array[element_num].id = 103;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRx_get())
+    if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRx_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_StackWaterMarkHighTaskCanRx";
         alert_array[element_num].description = "CAN RX task stack watermark exceeded.";
         alert_array[element_num].id = 104;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTx_get())
+    if (app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTx_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_StackWaterMarkHighTaskCanTx";
         alert_array[element_num].description = "CAN TX task stack watermark exceeded.";
         alert_array[element_num].id = 105;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_WatchdogTimeout_get())
+    if (app_canTx_BMS_Warning_WatchdogTimeout_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_WatchdogTimeout";
         alert_array[element_num].description = "Watchdog timeout detected.";
         alert_array[element_num].id = 106;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_TxOverflow_get())
+    if (app_canTx_BMS_Warning_TxOverflow_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_TxOverflow";
         alert_array[element_num].description = "CAN TX queue has overflowed.";
         alert_array[element_num].id = 107;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_RxOverflow_get())
+    if (app_canTx_BMS_Warning_RxOverflow_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_RxOverflow";
         alert_array[element_num].description = "CAN RX queue has overflowed.";
         alert_array[element_num].id = 108;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_OpenWireCheckFault_get())
+    if (app_canTx_BMS_Warning_OpenWireCheckFault_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_OpenWireCheckFault";
         alert_array[element_num].description = "Open wire cell detected (cell voltage tap is open circuit).";
         alert_array[element_num].id = 109;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_OpenWireCheck_Segment0_GND_get())
+    if (app_canTx_BMS_Warning_OpenWireCheck_Segment0_GND_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_OpenWireCheck_Segment0_GND";
         alert_array[element_num].description = "Open wire cell detected in segment 0 (cell voltage tap is open circuit).";
         alert_array[element_num].id = 110;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_OpenWireCheck_Segment1_GND_get())
+    if (app_canTx_BMS_Warning_OpenWireCheck_Segment1_GND_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_OpenWireCheck_Segment1_GND";
         alert_array[element_num].description = "Open wire cell detected in segment 1 (cell voltage tap is open circuit).";
         alert_array[element_num].id = 111;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_OpenWireCheck_Segment2_GND_get())
+    if (app_canTx_BMS_Warning_OpenWireCheck_Segment2_GND_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_OpenWireCheck_Segment2_GND";
         alert_array[element_num].description = "Open wire cell detected in segment 2 (cell voltage tap is open circuit).";
         alert_array[element_num].id = 112;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_OpenWireCheck_Segment3_GND_get())
+    if (app_canTx_BMS_Warning_OpenWireCheck_Segment3_GND_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_OpenWireCheck_Segment3_GND";
         alert_array[element_num].description = "Open wire cell detected in segment 3 (cell voltage tap is open circuit).";
         alert_array[element_num].id = 113;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_OpenWireCheck_Segment4_GND_get())
+    if (app_canTx_BMS_Warning_OpenWireCheck_Segment4_GND_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_OpenWireCheck_Segment4_GND";
         alert_array[element_num].description = "Open wire cell detected in segment 4 (cell voltage tap is open circuit).";
         alert_array[element_num].id = 114;
         element_num++;
     }
-    
-    if (app_canTx_BMS_Warning_MissingVCHeartbeat_get())
+    if (app_canTx_BMS_Warning_MissingVCHeartbeat_get()) // tx BMS faults
     {
         alert_array[element_num].name = "BMS_Warning_MissingVCHeartbeat";
         alert_array[element_num].description = "Missing heartbeat from the VC.";
         alert_array[element_num].id = 115;
         element_num++;
     }
-    
-
-    // rx warnings
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_get())
+    if (app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTask1Hz";
         alert_array[element_num].description = "1Hz task stack watermark exceeded.";
         alert_array[element_num].id = 501;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTask100Hz_get())
+    }if (app_canRx_VC_Warning_StackWaterMarkHighTask100Hz_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTask100Hz";
         alert_array[element_num].description = "100Hz task stack watermark exceeded.";
         alert_array[element_num].id = 502;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTask1kHz_get())
+    }if (app_canRx_VC_Warning_StackWaterMarkHighTask1kHz_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTask1kHz";
         alert_array[element_num].description = "1kHz task stack watermark exceeded.";
         alert_array[element_num].id = 503;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanRx_get())
+    }if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanRx_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTaskCanRx";
         alert_array[element_num].description = "CAN RX task stack watermark exceeded.";
         alert_array[element_num].id = 504;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanTx_get())
+    }if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanTx_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTaskCanTx";
         alert_array[element_num].description = "CAN TX task stack watermark exceeded.";
         alert_array[element_num].id = 505;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_WatchdogTimeout_get())
+    }if (app_canRx_VC_Warning_WatchdogTimeout_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_WatchdogTimeout";
         alert_array[element_num].description = "Watchdog timeout detected.";
         alert_array[element_num].id = 506;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_TxOverflow_get())
+    }if (app_canRx_VC_Warning_TxOverflow_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_TxOverflow";
         alert_array[element_num].description = "CAN TX queue has overflowed.";
         alert_array[element_num].id = 507;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_RxOverflow_get())
+    }if (app_canRx_VC_Warning_RxOverflow_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_RxOverflow";
         alert_array[element_num].description = "CAN RX queue has overflowed.";
         alert_array[element_num].id = 508;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_RegenNotAvailable_get())
+    }if (app_canRx_VC_Warning_RegenNotAvailable_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_RegenNotAvailable";
         alert_array[element_num].description = "Regen is not currently available.";
         alert_array[element_num].id = 509;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_ImuInitFailed_get())
+    }if (app_canRx_VC_Warning_ImuInitFailed_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_ImuInitFailed";
         alert_array[element_num].description = "Initializing the embedded IMU failed.";
         alert_array[element_num].id = 516;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_FlowRateInputOutOfRange_get())
+    }if (app_canRx_VC_Warning_FlowRateInputOutOfRange_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_FlowRateInputOutOfRange";
         alert_array[element_num].description = "Input to app_pumpControl_setFlowRate out of range";
         alert_array[element_num].id = 517;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_BatteryRailOvercurrentFault_get())
+    }if (app_canRx_VC_Warning_BatteryRailOvercurrentFault_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_BatteryRailOvercurrentFault";
         alert_array[element_num].description = "LV rail from the 18650 batteries was overcurrent.";
         alert_array[element_num].id = 557;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_AccumulatorRailOvercurrentFault_get())
+    }if (app_canRx_VC_Warning_AccumulatorRailOvercurrentFault_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_AccumulatorRailOvercurrentFault";
         alert_array[element_num].description = "LV rail from the HV DCDC was overcurrent.";
         alert_array[element_num].id = 558;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_LvChargeFault_get())
+    }if (app_canRx_VC_Warning_LvChargeFault_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_LvChargeFault";
         alert_array[element_num].description = "LV battery charger has faulted.";
         alert_array[element_num].id = 559;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_BoostControllerFault_get())
+    }if (app_canRx_VC_Warning_BoostControllerFault_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_BoostControllerFault";
         alert_array[element_num].description = "Boost controller has faulted.";
         alert_array[element_num].id = 560;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_HighNumberOfCanDataLogs_get())
+    }if (app_canRx_VC_Warning_HighNumberOfCanDataLogs_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_HighNumberOfCanDataLogs";
         alert_array[element_num].description = "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem.";
         alert_array[element_num].id = 561;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_CanLoggingSdCardNotPresent_get())
+    }if (app_canRx_VC_Warning_CanLoggingSdCardNotPresent_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_CanLoggingSdCardNotPresent";
         alert_array[element_num].description = "CAN logging SD card is not detected.";
         alert_array[element_num].id = 562;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_CanLoggingErrored_get())
+    }if (app_canRx_VC_Warning_CanLoggingErrored_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_CanLoggingErrored";
         alert_array[element_num].description = "CAN logging received multiple errors and has been disabled.";
         alert_array[element_num].id = 563;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_BrakeAppsDisagreement_get())
+    }if (app_canRx_VC_Warning_BrakeAppsDisagreement_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_BrakeAppsDisagreement";
         alert_array[element_num].description = "Brakes and apps are active at same time.";
         alert_array[element_num].id = 564;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_SbgInitFailed_get())
+    }if (app_canRx_VC_Warning_SbgInitFailed_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_SbgInitFailed";
         alert_array[element_num].description = "Initializing the SBG Ellipse GPS failed";
         alert_array[element_num].id = 565;
         element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingBMSHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingBMSHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the BMS.";
-        alert_array[element_num].id = 551;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingFSMHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingFSMHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the FSM.";
-        alert_array[element_num].id = 552;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingRSMHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingRSMHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the RSM.";
-        alert_array[element_num].id = 553;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingCRITHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingCRITHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the CRIT.";
-        alert_array[element_num].id = 554;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_LeftInverterFault_get())
-    {
-        alert_array[element_num].name = "VC_Fault_LeftInverterFault";
-        alert_array[element_num].description = "Left inverter entered fault state.";
-        alert_array[element_num].id = 555;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_RightInverterFault_get())
-    {
-        alert_array[element_num].name = "VC_Fault_RightInverterFault";
-        alert_array[element_num].description = "Right inverter entered fault state.";
-        alert_array[element_num].id = 556;
-        element_num++;
-    }
-    
-    
-    
-    return element_num;
+    }return element_num;
     
 }
 
 uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
-
     // tx faults
-    
-    if (app_canTx_BMS_Fault_StateMachine_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_StateMachine";
-        alert_array[element_num].description = "BMS has transitioned to fault state.";
-        alert_array[element_num].id = 154;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_CellUndervoltage_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_CellUndervoltage";
-        alert_array[element_num].description = "Cell is critically undervoltage (<3.0V)";
-        alert_array[element_num].id = 155;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_CellOvervoltage_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_CellOvervoltage";
-        alert_array[element_num].description = "Cell is critically overvoltage (>4.2V)";
-        alert_array[element_num].id = 156;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_ModuleCommunicationError_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_ModuleCommunicationError";
-        alert_array[element_num].description = "Failed to communicate with LTC6813 modules (>3x bad PEC15 error checks).";
-        alert_array[element_num].id = 157;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_CellUndertemp_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_CellUndertemp";
-        alert_array[element_num].description = "Cell is critically undertemp (<-20degC)";
-        alert_array[element_num].id = 158;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_CellOvertemp_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_CellOvertemp";
-        alert_array[element_num].description = "Cell is critically overtemp (>45degC if charging, >60degC if not).";
-        alert_array[element_num].id = 159;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_ChargerReportedError_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_ChargerReportedError";
-        alert_array[element_num].description = "The charger reported an error.";
-        alert_array[element_num].id = 160;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_ChargerDisconnectedDuringCharge_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_ChargerDisconnectedDuringCharge";
-        alert_array[element_num].description = "Charger was disconnected while in charge state.";
-        alert_array[element_num].id = 161;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_ChargerShutdownLoopOpen_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_ChargerShutdownLoopOpen";
-        alert_array[element_num].description = "AIR- opened during charging.";
-        alert_array[element_num].id = 162;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_TractiveSystemOvercurrent_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_TractiveSystemOvercurrent";
-        alert_array[element_num].description = "Tractive system overcurrent detected (<-265A or >70.8A).";
-        alert_array[element_num].id = 163;
-        element_num++;
-    }
-    
-    if (app_canTx_BMS_Fault_PrechargeFailure_get())
-    {
-        alert_array[element_num].name = "BMS_Fault_PrechargeFailure";
-        alert_array[element_num].description = "Precharge failed 3x times.";
-        alert_array[element_num].id = 164;
-        element_num++;
-    }
-    
-
-    // rx faults
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_get())
-    {
-        alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTask1Hz";
-        alert_array[element_num].description = "1Hz task stack watermark exceeded.";
-        alert_array[element_num].id = 501;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTask100Hz_get())
-    {
-        alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTask100Hz";
-        alert_array[element_num].description = "100Hz task stack watermark exceeded.";
-        alert_array[element_num].id = 502;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTask1kHz_get())
-    {
-        alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTask1kHz";
-        alert_array[element_num].description = "1kHz task stack watermark exceeded.";
-        alert_array[element_num].id = 503;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanRx_get())
-    {
-        alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTaskCanRx";
-        alert_array[element_num].description = "CAN RX task stack watermark exceeded.";
-        alert_array[element_num].id = 504;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_StackWaterMarkHighTaskCanTx_get())
-    {
-        alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTaskCanTx";
-        alert_array[element_num].description = "CAN TX task stack watermark exceeded.";
-        alert_array[element_num].id = 505;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_WatchdogTimeout_get())
-    {
-        alert_array[element_num].name = "VC_Warning_WatchdogTimeout";
-        alert_array[element_num].description = "Watchdog timeout detected.";
-        alert_array[element_num].id = 506;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_TxOverflow_get())
-    {
-        alert_array[element_num].name = "VC_Warning_TxOverflow";
-        alert_array[element_num].description = "CAN TX queue has overflowed.";
-        alert_array[element_num].id = 507;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_RxOverflow_get())
-    {
-        alert_array[element_num].name = "VC_Warning_RxOverflow";
-        alert_array[element_num].description = "CAN RX queue has overflowed.";
-        alert_array[element_num].id = 508;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_RegenNotAvailable_get())
-    {
-        alert_array[element_num].name = "VC_Warning_RegenNotAvailable";
-        alert_array[element_num].description = "Regen is not currently available.";
-        alert_array[element_num].id = 509;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_ImuInitFailed_get())
-    {
-        alert_array[element_num].name = "VC_Warning_ImuInitFailed";
-        alert_array[element_num].description = "Initializing the embedded IMU failed.";
-        alert_array[element_num].id = 516;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_FlowRateInputOutOfRange_get())
-    {
-        alert_array[element_num].name = "VC_Warning_FlowRateInputOutOfRange";
-        alert_array[element_num].description = "Input to app_pumpControl_setFlowRate out of range";
-        alert_array[element_num].id = 517;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_BatteryRailOvercurrentFault_get())
-    {
-        alert_array[element_num].name = "VC_Warning_BatteryRailOvercurrentFault";
-        alert_array[element_num].description = "LV rail from the 18650 batteries was overcurrent.";
-        alert_array[element_num].id = 557;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_AccumulatorRailOvercurrentFault_get())
-    {
-        alert_array[element_num].name = "VC_Warning_AccumulatorRailOvercurrentFault";
-        alert_array[element_num].description = "LV rail from the HV DCDC was overcurrent.";
-        alert_array[element_num].id = 558;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_LvChargeFault_get())
-    {
-        alert_array[element_num].name = "VC_Warning_LvChargeFault";
-        alert_array[element_num].description = "LV battery charger has faulted.";
-        alert_array[element_num].id = 559;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_BoostControllerFault_get())
-    {
-        alert_array[element_num].name = "VC_Warning_BoostControllerFault";
-        alert_array[element_num].description = "Boost controller has faulted.";
-        alert_array[element_num].id = 560;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_HighNumberOfCanDataLogs_get())
-    {
-        alert_array[element_num].name = "VC_Warning_HighNumberOfCanDataLogs";
-        alert_array[element_num].description = "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem.";
-        alert_array[element_num].id = 561;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_CanLoggingSdCardNotPresent_get())
-    {
-        alert_array[element_num].name = "VC_Warning_CanLoggingSdCardNotPresent";
-        alert_array[element_num].description = "CAN logging SD card is not detected.";
-        alert_array[element_num].id = 562;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_CanLoggingErrored_get())
-    {
-        alert_array[element_num].name = "VC_Warning_CanLoggingErrored";
-        alert_array[element_num].description = "CAN logging received multiple errors and has been disabled.";
-        alert_array[element_num].id = 563;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_BrakeAppsDisagreement_get())
-    {
-        alert_array[element_num].name = "VC_Warning_BrakeAppsDisagreement";
-        alert_array[element_num].description = "Brakes and apps are active at same time.";
-        alert_array[element_num].id = 564;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Warning_SbgInitFailed_get())
-    {
-        alert_array[element_num].name = "VC_Warning_SbgInitFailed";
-        alert_array[element_num].description = "Initializing the SBG Ellipse GPS failed";
-        alert_array[element_num].id = 565;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingBMSHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingBMSHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the BMS.";
-        alert_array[element_num].id = 551;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingFSMHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingFSMHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the FSM.";
-        alert_array[element_num].id = 552;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingRSMHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingRSMHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the RSM.";
-        alert_array[element_num].id = 553;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_MissingCRITHeartbeat_get())
-    {
-        alert_array[element_num].name = "VC_Fault_MissingCRITHeartbeat";
-        alert_array[element_num].description = "Missing heartbeat signal from the CRIT.";
-        alert_array[element_num].id = 554;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_LeftInverterFault_get())
-    {
-        alert_array[element_num].name = "VC_Fault_LeftInverterFault";
-        alert_array[element_num].description = "Left inverter entered fault state.";
-        alert_array[element_num].id = 555;
-        element_num++;
-    }
-    
-    if (app_canRx_VC_Fault_RightInverterFault_get())
-    {
-        alert_array[element_num].name = "VC_Fault_RightInverterFault";
-        alert_array[element_num].description = "Right inverter entered fault state.";
-        alert_array[element_num].id = 556;
-        element_num++;
-    }
     
     
     return element_num;
