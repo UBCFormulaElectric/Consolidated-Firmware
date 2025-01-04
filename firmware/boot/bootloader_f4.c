@@ -9,3 +9,10 @@ void bootloader_boardSpecific_program(uint32_t address, uint64_t data)
     hw_flash_programWord(address, bottom_word);
     hw_flash_programWord(address + sizeof(uint32_t), top_word);
 }
+
+void bootloader_boardSpecific_program_length(uint32_t address, uint8_t *data, uint8_t length)
+{
+    //  TODO: naive implementation first, optimize later
+
+    hw_flash_program(address, data, (uint32_t)length);
+}
