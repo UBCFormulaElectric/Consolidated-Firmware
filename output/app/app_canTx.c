@@ -37,7 +37,7 @@ typedef struct
     BMS_Faults_Signals BMS_Faults_signals;
     BMS_WarningsCounts_Signals BMS_WarningsCounts_signals;
     BMS_FaultsCounts_Signals BMS_FaultsCounts_signals;
-} _TxMsgs;
+} BMS_TxMsgs;
 
 /* -------------------------- Private Variables --------------------------- */
 
@@ -47,7 +47,7 @@ static _TxMsgs tx_table;
 
 void app_canTx_init()
 {
-    memset(&tx_table, 0, sizeof(_TxMsgs));
+    memset(&tx_table, 0, sizeof(BMS_TxMsgs));
     app_canTx_BMS_Heartbeat_set(CANSIG_BMS_HEARTBEAT_START_VAL);
     app_canTx_BMS_State_set(CANSIG_BMS_STATE_START_VAL);
     app_canTx_BMS_TxOverflowCount_set(CANSIG_BMS_TX_OVERFLOW_COUNT_START_VAL);
@@ -164,6 +164,8 @@ void app_canTx_init()
 }
 void app_canTx_BMS_Heartbeat_set(bool value)
 {
+    tx_table.BMS_Vitals_signals.BMS_Heartbeat_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_HEARTBEAT_MAX_VAL)
     {
         value = CANSIG_BMS_HEARTBEAT_MAX_VAL;
@@ -172,10 +174,11 @@ void app_canTx_BMS_Heartbeat_set(bool value)
     {
         value = CANSIG_BMS_HEARTBEAT_MIN_VAL;
     }
-    tx_table.BMS_Vitals_signals.BMS_Heartbeat_value = value;
 }
 void app_canTx_BMS_State_set(BmsState value)
 {
+    tx_table.BMS_Vitals_signals.BMS_State_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_STATE_MAX_VAL)
     {
         value = CANSIG_BMS_STATE_MAX_VAL;
@@ -184,10 +187,11 @@ void app_canTx_BMS_State_set(BmsState value)
     {
         value = CANSIG_BMS_STATE_MIN_VAL;
     }
-    tx_table.BMS_Vitals_signals.BMS_State_value = value;
 }
 void app_canTx_BMS_TxOverflowCount_set(uint32_t value)
 {
+    tx_table.BMS_AlertsContext_signals.BMS_TxOverflowCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_TX_OVERFLOW_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_TX_OVERFLOW_COUNT_MAX_VAL;
@@ -196,10 +200,11 @@ void app_canTx_BMS_TxOverflowCount_set(uint32_t value)
     {
         value = CANSIG_BMS_TX_OVERFLOW_COUNT_MIN_VAL;
     }
-    tx_table.BMS_AlertsContext_signals.BMS_TxOverflowCount_value = value;
 }
 void app_canTx_BMS_RxOverflowCount_set(uint32_t value)
 {
+    tx_table.BMS_AlertsContext_signals.BMS_RxOverflowCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_RX_OVERFLOW_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_RX_OVERFLOW_COUNT_MAX_VAL;
@@ -208,10 +213,11 @@ void app_canTx_BMS_RxOverflowCount_set(uint32_t value)
     {
         value = CANSIG_BMS_RX_OVERFLOW_COUNT_MIN_VAL;
     }
-    tx_table.BMS_AlertsContext_signals.BMS_RxOverflowCount_value = value;
 }
 void app_canTx_BMS_WatchdogTimeoutTaskName_set(RtosTaskName value)
 {
+    tx_table.BMS_AlertsContext_signals.BMS_WatchdogTimeoutTaskName_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WATCHDOG_TIMEOUT_TASK_NAME_MAX_VAL)
     {
         value = CANSIG_BMS_WATCHDOG_TIMEOUT_TASK_NAME_MAX_VAL;
@@ -220,10 +226,11 @@ void app_canTx_BMS_WatchdogTimeoutTaskName_set(RtosTaskName value)
     {
         value = CANSIG_BMS_WATCHDOG_TIMEOUT_TASK_NAME_MIN_VAL;
     }
-    tx_table.BMS_AlertsContext_signals.BMS_WatchdogTimeoutTaskName_value = value;
 }
 void app_canTx_BMS_ModuleCommunication_NumCommTries_set(uint32_t value)
 {
+    tx_table.BMS_AlertsContext_signals.BMS_ModuleCommunication_NumCommTries_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MODULE_COMMUNICATION_NUM_COMM_TRIES_MAX_VAL)
     {
         value = CANSIG_BMS_MODULE_COMMUNICATION_NUM_COMM_TRIES_MAX_VAL;
@@ -232,10 +239,11 @@ void app_canTx_BMS_ModuleCommunication_NumCommTries_set(uint32_t value)
     {
         value = CANSIG_BMS_MODULE_COMMUNICATION_NUM_COMM_TRIES_MIN_VAL;
     }
-    tx_table.BMS_AlertsContext_signals.BMS_ModuleCommunication_NumCommTries_value = value;
 }
 void app_canTx_BMS_ModuleCommunication_MonitorState_set(CAN_AccumulatorMonitorState value)
 {
+    tx_table.BMS_AlertsContext_signals.BMS_ModuleCommunication_MonitorState_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MODULE_COMMUNICATION_MONITOR_STATE_MAX_VAL)
     {
         value = CANSIG_BMS_MODULE_COMMUNICATION_MONITOR_STATE_MAX_VAL;
@@ -244,10 +252,11 @@ void app_canTx_BMS_ModuleCommunication_MonitorState_set(CAN_AccumulatorMonitorSt
     {
         value = CANSIG_BMS_MODULE_COMMUNICATION_MONITOR_STATE_MIN_VAL;
     }
-    tx_table.BMS_AlertsContext_signals.BMS_ModuleCommunication_MonitorState_value = value;
 }
 void app_canTx_BMS_ImdOkHs_set(bool value)
 {
+    tx_table.BMS_ImdStatus_signals.BMS_ImdOkHs_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_OK_HS_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_OK_HS_MAX_VAL;
@@ -256,10 +265,11 @@ void app_canTx_BMS_ImdOkHs_set(bool value)
     {
         value = CANSIG_BMS_IMD_OK_HS_MIN_VAL;
     }
-    tx_table.BMS_ImdStatus_signals.BMS_ImdOkHs_value = value;
 }
 void app_canTx_BMS_ImdTimeSincePowerOn_set(uint32_t value)
 {
+    tx_table.BMS_ImdStatus_signals.BMS_ImdTimeSincePowerOn_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_TIME_SINCE_POWER_ON_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_TIME_SINCE_POWER_ON_MAX_VAL;
@@ -268,10 +278,11 @@ void app_canTx_BMS_ImdTimeSincePowerOn_set(uint32_t value)
     {
         value = CANSIG_BMS_IMD_TIME_SINCE_POWER_ON_MIN_VAL;
     }
-    tx_table.BMS_ImdStatus_signals.BMS_ImdTimeSincePowerOn_value = value;
 }
 void app_canTx_BMS_ImdValidDutyCycle_set(bool value)
 {
+    tx_table.BMS_ImdStatus_signals.BMS_ImdValidDutyCycle_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_VALID_DUTY_CYCLE_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_VALID_DUTY_CYCLE_MAX_VAL;
@@ -280,10 +291,11 @@ void app_canTx_BMS_ImdValidDutyCycle_set(bool value)
     {
         value = CANSIG_BMS_IMD_VALID_DUTY_CYCLE_MIN_VAL;
     }
-    tx_table.BMS_ImdStatus_signals.BMS_ImdValidDutyCycle_value = value;
 }
 void app_canTx_BMS_ImdCondition_set(ImdConditionName value)
 {
+    tx_table.BMS_ImdStatus_signals.BMS_ImdCondition_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_CONDITION_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_CONDITION_MAX_VAL;
@@ -292,7 +304,6 @@ void app_canTx_BMS_ImdCondition_set(ImdConditionName value)
     {
         value = CANSIG_BMS_IMD_CONDITION_MIN_VAL;
     }
-    tx_table.BMS_ImdStatus_signals.BMS_ImdCondition_value = value;
 }
 void app_canTx_BMS_ImdDutyCycle_set(float value)
 {
@@ -300,6 +311,8 @@ void app_canTx_BMS_ImdDutyCycle_set(float value)
     {
         return;
     }
+    tx_table.BMS_ImdStatus_signals.BMS_ImdDutyCycle_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_DUTY_CYCLE_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_DUTY_CYCLE_MAX_VAL;
@@ -308,7 +321,6 @@ void app_canTx_BMS_ImdDutyCycle_set(float value)
     {
         value = CANSIG_BMS_IMD_DUTY_CYCLE_MIN_VAL;
     }
-    tx_table.BMS_ImdStatus_signals.BMS_ImdDutyCycle_value = value;
 }
 void app_canTx_BMS_ImdFrequency_set(float value)
 {
@@ -316,6 +328,8 @@ void app_canTx_BMS_ImdFrequency_set(float value)
     {
         return;
     }
+    tx_table.BMS_ImdStatus_signals.BMS_ImdFrequency_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_FREQUENCY_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_FREQUENCY_MAX_VAL;
@@ -324,10 +338,11 @@ void app_canTx_BMS_ImdFrequency_set(float value)
     {
         value = CANSIG_BMS_IMD_FREQUENCY_MIN_VAL;
     }
-    tx_table.BMS_ImdStatus_signals.BMS_ImdFrequency_value = value;
 }
 void app_canTx_BMS_ImdActiveFrequency_set(ImdActiveFrequency value)
 {
+    tx_table.BMS_ImdData_signals.BMS_ImdActiveFrequency_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_ACTIVE_FREQUENCY_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_ACTIVE_FREQUENCY_MAX_VAL;
@@ -336,7 +351,6 @@ void app_canTx_BMS_ImdActiveFrequency_set(ImdActiveFrequency value)
     {
         value = CANSIG_BMS_IMD_ACTIVE_FREQUENCY_MIN_VAL;
     }
-    tx_table.BMS_ImdData_signals.BMS_ImdActiveFrequency_value = value;
 }
 void app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(float value)
 {
@@ -344,6 +358,8 @@ void app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(float value)
     {
         return;
     }
+    tx_table.BMS_ImdData_signals.BMS_ImdInsulationMeasurementDcp10Hz_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP10_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP10_HZ_MAX_VAL;
@@ -352,7 +368,6 @@ void app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(float value)
     {
         value = CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP10_HZ_MIN_VAL;
     }
-    tx_table.BMS_ImdData_signals.BMS_ImdInsulationMeasurementDcp10Hz_value = value;
 }
 void app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(float value)
 {
@@ -360,6 +375,8 @@ void app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(float value)
     {
         return;
     }
+    tx_table.BMS_ImdData_signals.BMS_ImdInsulationMeasurementDcp20Hz_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP20_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP20_HZ_MAX_VAL;
@@ -368,7 +385,6 @@ void app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(float value)
     {
         value = CANSIG_BMS_IMD_INSULATION_MEASUREMENT_DCP20_HZ_MIN_VAL;
     }
-    tx_table.BMS_ImdData_signals.BMS_ImdInsulationMeasurementDcp20Hz_value = value;
 }
 void app_canTx_BMS_ImdSpeedStartStatus30Hz_set(float value)
 {
@@ -376,6 +392,8 @@ void app_canTx_BMS_ImdSpeedStartStatus30Hz_set(float value)
     {
         return;
     }
+    tx_table.BMS_ImdData_signals.BMS_ImdSpeedStartStatus30Hz_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_SPEED_START_STATUS30_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_SPEED_START_STATUS30_HZ_MAX_VAL;
@@ -384,10 +402,11 @@ void app_canTx_BMS_ImdSpeedStartStatus30Hz_set(float value)
     {
         value = CANSIG_BMS_IMD_SPEED_START_STATUS30_HZ_MIN_VAL;
     }
-    tx_table.BMS_ImdData_signals.BMS_ImdSpeedStartStatus30Hz_value = value;
 }
 void app_canTx_BMS_ChargerConnected_set(bool value)
 {
+    tx_table.BMS_Charger_signals.BMS_ChargerConnected_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_CHARGER_CONNECTED_MAX_VAL)
     {
         value = CANSIG_BMS_CHARGER_CONNECTED_MAX_VAL;
@@ -396,10 +415,11 @@ void app_canTx_BMS_ChargerConnected_set(bool value)
     {
         value = CANSIG_BMS_CHARGER_CONNECTED_MIN_VAL;
     }
-    tx_table.BMS_Charger_signals.BMS_ChargerConnected_value = value;
 }
 void app_canTx_BMS_ChargerEnable_set(bool value)
 {
+    tx_table.BMS_BrusaControls_signals.BMS_ChargerEnable_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_CHARGER_ENABLE_MAX_VAL)
     {
         value = CANSIG_BMS_CHARGER_ENABLE_MAX_VAL;
@@ -408,10 +428,11 @@ void app_canTx_BMS_ChargerEnable_set(bool value)
     {
         value = CANSIG_BMS_CHARGER_ENABLE_MIN_VAL;
     }
-    tx_table.BMS_BrusaControls_signals.BMS_ChargerEnable_value = value;
 }
 void app_canTx_BMS_ClearLatch_set(bool value)
 {
+    tx_table.BMS_BrusaControls_signals.BMS_ClearLatch_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_CLEAR_LATCH_MAX_VAL)
     {
         value = CANSIG_BMS_CLEAR_LATCH_MAX_VAL;
@@ -420,7 +441,6 @@ void app_canTx_BMS_ClearLatch_set(bool value)
     {
         value = CANSIG_BMS_CLEAR_LATCH_MIN_VAL;
     }
-    tx_table.BMS_BrusaControls_signals.BMS_ClearLatch_value = value;
 }
 void app_canTx_BMS_MaxMainsCurrent_set(float value)
 {
@@ -428,6 +448,8 @@ void app_canTx_BMS_MaxMainsCurrent_set(float value)
     {
         return;
     }
+    tx_table.BMS_BrusaControls_signals.BMS_MaxMainsCurrent_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MAX_MAINS_CURRENT_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_MAINS_CURRENT_MAX_VAL;
@@ -436,7 +458,6 @@ void app_canTx_BMS_MaxMainsCurrent_set(float value)
     {
         value = CANSIG_BMS_MAX_MAINS_CURRENT_MIN_VAL;
     }
-    tx_table.BMS_BrusaControls_signals.BMS_MaxMainsCurrent_value = value;
 }
 void app_canTx_BMS_ChargingVoltage_set(float value)
 {
@@ -444,6 +465,8 @@ void app_canTx_BMS_ChargingVoltage_set(float value)
     {
         return;
     }
+    tx_table.BMS_BrusaControls_signals.BMS_ChargingVoltage_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_CHARGING_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_CHARGING_VOLTAGE_MAX_VAL;
@@ -452,7 +475,6 @@ void app_canTx_BMS_ChargingVoltage_set(float value)
     {
         value = CANSIG_BMS_CHARGING_VOLTAGE_MIN_VAL;
     }
-    tx_table.BMS_BrusaControls_signals.BMS_ChargingVoltage_value = value;
 }
 void app_canTx_BMS_ChargingCurrent_set(float value)
 {
@@ -460,6 +482,8 @@ void app_canTx_BMS_ChargingCurrent_set(float value)
     {
         return;
     }
+    tx_table.BMS_BrusaControls_signals.BMS_ChargingCurrent_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_CHARGING_CURRENT_MAX_VAL)
     {
         value = CANSIG_BMS_CHARGING_CURRENT_MAX_VAL;
@@ -468,10 +492,11 @@ void app_canTx_BMS_ChargingCurrent_set(float value)
     {
         value = CANSIG_BMS_CHARGING_CURRENT_MIN_VAL;
     }
-    tx_table.BMS_BrusaControls_signals.BMS_ChargingCurrent_value = value;
 }
 void app_canTx_BMS_BmsOk_set(bool value)
 {
+    tx_table.BMS_OkStatuses_signals.BMS_BmsOk_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_BMS_OK_MAX_VAL)
     {
         value = CANSIG_BMS_BMS_OK_MAX_VAL;
@@ -480,10 +505,11 @@ void app_canTx_BMS_BmsOk_set(bool value)
     {
         value = CANSIG_BMS_BMS_OK_MIN_VAL;
     }
-    tx_table.BMS_OkStatuses_signals.BMS_BmsOk_value = value;
 }
 void app_canTx_BMS_ImdOk_set(bool value)
 {
+    tx_table.BMS_OkStatuses_signals.BMS_ImdOk_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_OK_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_OK_MAX_VAL;
@@ -492,10 +518,11 @@ void app_canTx_BMS_ImdOk_set(bool value)
     {
         value = CANSIG_BMS_IMD_OK_MIN_VAL;
     }
-    tx_table.BMS_OkStatuses_signals.BMS_ImdOk_value = value;
 }
 void app_canTx_BMS_BspdOk_set(bool value)
 {
+    tx_table.BMS_OkStatuses_signals.BMS_BspdOk_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_BSPD_OK_MAX_VAL)
     {
         value = CANSIG_BMS_BSPD_OK_MAX_VAL;
@@ -504,10 +531,11 @@ void app_canTx_BMS_BspdOk_set(bool value)
     {
         value = CANSIG_BMS_BSPD_OK_MIN_VAL;
     }
-    tx_table.BMS_OkStatuses_signals.BMS_BspdOk_value = value;
 }
 void app_canTx_BMS_BmsLatchedFault_set(bool value)
 {
+    tx_table.BMS_OkStatuses_signals.BMS_BmsLatchedFault_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_BMS_LATCHED_FAULT_MAX_VAL)
     {
         value = CANSIG_BMS_BMS_LATCHED_FAULT_MAX_VAL;
@@ -516,10 +544,11 @@ void app_canTx_BMS_BmsLatchedFault_set(bool value)
     {
         value = CANSIG_BMS_BMS_LATCHED_FAULT_MIN_VAL;
     }
-    tx_table.BMS_OkStatuses_signals.BMS_BmsLatchedFault_value = value;
 }
 void app_canTx_BMS_ImdLatchedFault_set(bool value)
 {
+    tx_table.BMS_OkStatuses_signals.BMS_ImdLatchedFault_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_IMD_LATCHED_FAULT_MAX_VAL)
     {
         value = CANSIG_BMS_IMD_LATCHED_FAULT_MAX_VAL;
@@ -528,10 +557,11 @@ void app_canTx_BMS_ImdLatchedFault_set(bool value)
     {
         value = CANSIG_BMS_IMD_LATCHED_FAULT_MIN_VAL;
     }
-    tx_table.BMS_OkStatuses_signals.BMS_ImdLatchedFault_value = value;
 }
 void app_canTx_BMS_BspdLatchedFault_set(bool value)
 {
+    tx_table.BMS_OkStatuses_signals.BMS_BspdLatchedFault_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_BSPD_LATCHED_FAULT_MAX_VAL)
     {
         value = CANSIG_BMS_BSPD_LATCHED_FAULT_MAX_VAL;
@@ -540,10 +570,11 @@ void app_canTx_BMS_BspdLatchedFault_set(bool value)
     {
         value = CANSIG_BMS_BSPD_LATCHED_FAULT_MIN_VAL;
     }
-    tx_table.BMS_OkStatuses_signals.BMS_BspdLatchedFault_value = value;
 }
 void app_canTx_BMS_AirPositive_set(ContactorState value)
 {
+    tx_table.BMS_Contactors_signals.BMS_AirPositive_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_AIR_POSITIVE_MAX_VAL)
     {
         value = CANSIG_BMS_AIR_POSITIVE_MAX_VAL;
@@ -552,10 +583,11 @@ void app_canTx_BMS_AirPositive_set(ContactorState value)
     {
         value = CANSIG_BMS_AIR_POSITIVE_MIN_VAL;
     }
-    tx_table.BMS_Contactors_signals.BMS_AirPositive_value = value;
 }
 void app_canTx_BMS_AirNegative_set(ContactorState value)
 {
+    tx_table.BMS_Contactors_signals.BMS_AirNegative_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_AIR_NEGATIVE_MAX_VAL)
     {
         value = CANSIG_BMS_AIR_NEGATIVE_MAX_VAL;
@@ -564,10 +596,11 @@ void app_canTx_BMS_AirNegative_set(ContactorState value)
     {
         value = CANSIG_BMS_AIR_NEGATIVE_MIN_VAL;
     }
-    tx_table.BMS_Contactors_signals.BMS_AirNegative_value = value;
 }
 void app_canTx_BMS_PrechargeRelay_set(ContactorState value)
 {
+    tx_table.BMS_Contactors_signals.BMS_PrechargeRelay_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_PRECHARGE_RELAY_MAX_VAL)
     {
         value = CANSIG_BMS_PRECHARGE_RELAY_MAX_VAL;
@@ -576,7 +609,6 @@ void app_canTx_BMS_PrechargeRelay_set(ContactorState value)
     {
         value = CANSIG_BMS_PRECHARGE_RELAY_MIN_VAL;
     }
-    tx_table.BMS_Contactors_signals.BMS_PrechargeRelay_value = value;
 }
 void app_canTx_BMS_MinCellTemperature_set(float value)
 {
@@ -584,6 +616,8 @@ void app_canTx_BMS_MinCellTemperature_set(float value)
     {
         return;
     }
+    tx_table.BMS_CellTemperatures_signals.BMS_MinCellTemperature_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MIN_CELL_TEMPERATURE_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_CELL_TEMPERATURE_MAX_VAL;
@@ -592,7 +626,6 @@ void app_canTx_BMS_MinCellTemperature_set(float value)
     {
         value = CANSIG_BMS_MIN_CELL_TEMPERATURE_MIN_VAL;
     }
-    tx_table.BMS_CellTemperatures_signals.BMS_MinCellTemperature_value = value;
 }
 void app_canTx_BMS_MaxCellTemperature_set(float value)
 {
@@ -600,6 +633,8 @@ void app_canTx_BMS_MaxCellTemperature_set(float value)
     {
         return;
     }
+    tx_table.BMS_CellTemperatures_signals.BMS_MaxCellTemperature_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MAX_CELL_TEMPERATURE_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_CELL_TEMPERATURE_MAX_VAL;
@@ -608,7 +643,6 @@ void app_canTx_BMS_MaxCellTemperature_set(float value)
     {
         value = CANSIG_BMS_MAX_CELL_TEMPERATURE_MIN_VAL;
     }
-    tx_table.BMS_CellTemperatures_signals.BMS_MaxCellTemperature_value = value;
 }
 void app_canTx_BMS_PackVoltage_set(float value)
 {
@@ -616,6 +650,8 @@ void app_canTx_BMS_PackVoltage_set(float value)
     {
         return;
     }
+    tx_table.BMS_VoltageAndChargeStats_signals.BMS_PackVoltage_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_PACK_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_PACK_VOLTAGE_MAX_VAL;
@@ -624,7 +660,6 @@ void app_canTx_BMS_PackVoltage_set(float value)
     {
         value = CANSIG_BMS_PACK_VOLTAGE_MIN_VAL;
     }
-    tx_table.BMS_VoltageAndChargeStats_signals.BMS_PackVoltage_value = value;
 }
 void app_canTx_BMS_Soc_set(float value)
 {
@@ -632,6 +667,8 @@ void app_canTx_BMS_Soc_set(float value)
     {
         return;
     }
+    tx_table.BMS_VoltageAndChargeStats_signals.BMS_Soc_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_SOC_MAX_VAL)
     {
         value = CANSIG_BMS_SOC_MAX_VAL;
@@ -640,10 +677,11 @@ void app_canTx_BMS_Soc_set(float value)
     {
         value = CANSIG_BMS_SOC_MIN_VAL;
     }
-    tx_table.BMS_VoltageAndChargeStats_signals.BMS_Soc_value = value;
 }
 void app_canTx_BMS_SocCorrupt_set(bool value)
 {
+    tx_table.BMS_VoltageAndChargeStats_signals.BMS_SocCorrupt_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_SOC_CORRUPT_MAX_VAL)
     {
         value = CANSIG_BMS_SOC_CORRUPT_MAX_VAL;
@@ -652,7 +690,6 @@ void app_canTx_BMS_SocCorrupt_set(bool value)
     {
         value = CANSIG_BMS_SOC_CORRUPT_MIN_VAL;
     }
-    tx_table.BMS_VoltageAndChargeStats_signals.BMS_SocCorrupt_value = value;
 }
 void app_canTx_BMS_MinCellVoltage_set(float value)
 {
@@ -660,6 +697,8 @@ void app_canTx_BMS_MinCellVoltage_set(float value)
     {
         return;
     }
+    tx_table.BMS_VoltageAndChargeStats_signals.BMS_MinCellVoltage_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MIN_CELL_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_CELL_VOLTAGE_MAX_VAL;
@@ -668,7 +707,6 @@ void app_canTx_BMS_MinCellVoltage_set(float value)
     {
         value = CANSIG_BMS_MIN_CELL_VOLTAGE_MIN_VAL;
     }
-    tx_table.BMS_VoltageAndChargeStats_signals.BMS_MinCellVoltage_value = value;
 }
 void app_canTx_BMS_MaxCellVoltage_set(float value)
 {
@@ -676,6 +714,8 @@ void app_canTx_BMS_MaxCellVoltage_set(float value)
     {
         return;
     }
+    tx_table.BMS_VoltageAndChargeStats_signals.BMS_MaxCellVoltage_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MAX_CELL_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_CELL_VOLTAGE_MAX_VAL;
@@ -684,10 +724,11 @@ void app_canTx_BMS_MaxCellVoltage_set(float value)
     {
         value = CANSIG_BMS_MAX_CELL_VOLTAGE_MIN_VAL;
     }
-    tx_table.BMS_VoltageAndChargeStats_signals.BMS_MaxCellVoltage_value = value;
 }
 void app_canTx_BMS_MinCellVoltageSegment_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MinCellVoltageSegment_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MIN_CELL_VOLTAGE_SEGMENT_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_CELL_VOLTAGE_SEGMENT_MAX_VAL;
@@ -696,10 +737,11 @@ void app_canTx_BMS_MinCellVoltageSegment_set(uint32_t value)
     {
         value = CANSIG_BMS_MIN_CELL_VOLTAGE_SEGMENT_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MinCellVoltageSegment_value = value;
 }
 void app_canTx_BMS_MinCellVoltageIdx_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MinCellVoltageIdx_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MIN_CELL_VOLTAGE_IDX_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_CELL_VOLTAGE_IDX_MAX_VAL;
@@ -708,10 +750,11 @@ void app_canTx_BMS_MinCellVoltageIdx_set(uint32_t value)
     {
         value = CANSIG_BMS_MIN_CELL_VOLTAGE_IDX_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MinCellVoltageIdx_value = value;
 }
 void app_canTx_BMS_MaxCellVoltageSegment_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MaxCellVoltageSegment_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MAX_CELL_VOLTAGE_SEGMENT_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_CELL_VOLTAGE_SEGMENT_MAX_VAL;
@@ -720,10 +763,11 @@ void app_canTx_BMS_MaxCellVoltageSegment_set(uint32_t value)
     {
         value = CANSIG_BMS_MAX_CELL_VOLTAGE_SEGMENT_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MaxCellVoltageSegment_value = value;
 }
 void app_canTx_BMS_MaxCellVoltageIdx_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MaxCellVoltageIdx_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MAX_CELL_VOLTAGE_IDX_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_CELL_VOLTAGE_IDX_MAX_VAL;
@@ -732,10 +776,11 @@ void app_canTx_BMS_MaxCellVoltageIdx_set(uint32_t value)
     {
         value = CANSIG_BMS_MAX_CELL_VOLTAGE_IDX_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MaxCellVoltageIdx_value = value;
 }
 void app_canTx_BMS_MinTempSegment_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MinTempSegment_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MIN_TEMP_SEGMENT_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_TEMP_SEGMENT_MAX_VAL;
@@ -744,10 +789,11 @@ void app_canTx_BMS_MinTempSegment_set(uint32_t value)
     {
         value = CANSIG_BMS_MIN_TEMP_SEGMENT_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MinTempSegment_value = value;
 }
 void app_canTx_BMS_MinTempIdx_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MinTempIdx_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MIN_TEMP_IDX_MAX_VAL)
     {
         value = CANSIG_BMS_MIN_TEMP_IDX_MAX_VAL;
@@ -756,10 +802,11 @@ void app_canTx_BMS_MinTempIdx_set(uint32_t value)
     {
         value = CANSIG_BMS_MIN_TEMP_IDX_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MinTempIdx_value = value;
 }
 void app_canTx_BMS_MaxTempSegment_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MaxTempSegment_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MAX_TEMP_SEGMENT_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_TEMP_SEGMENT_MAX_VAL;
@@ -768,10 +815,11 @@ void app_canTx_BMS_MaxTempSegment_set(uint32_t value)
     {
         value = CANSIG_BMS_MAX_TEMP_SEGMENT_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MaxTempSegment_value = value;
 }
 void app_canTx_BMS_MaxTempIdx_set(uint32_t value)
 {
+    tx_table.BMS_CellStats_signals.BMS_MaxTempIdx_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_MAX_TEMP_IDX_MAX_VAL)
     {
         value = CANSIG_BMS_MAX_TEMP_IDX_MAX_VAL;
@@ -780,7 +828,6 @@ void app_canTx_BMS_MaxTempIdx_set(uint32_t value)
     {
         value = CANSIG_BMS_MAX_TEMP_IDX_MIN_VAL;
     }
-    tx_table.BMS_CellStats_signals.BMS_MaxTempIdx_value = value;
 }
 void app_canTx_BMS_TractiveSystemVoltage_set(float value)
 {
@@ -788,6 +835,8 @@ void app_canTx_BMS_TractiveSystemVoltage_set(float value)
     {
         return;
     }
+    tx_table.BMS_TractiveSystem_signals.BMS_TractiveSystemVoltage_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_TRACTIVE_SYSTEM_VOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_VOLTAGE_MAX_VAL;
@@ -796,7 +845,6 @@ void app_canTx_BMS_TractiveSystemVoltage_set(float value)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_VOLTAGE_MIN_VAL;
     }
-    tx_table.BMS_TractiveSystem_signals.BMS_TractiveSystemVoltage_value = value;
 }
 void app_canTx_BMS_TractiveSystemCurrent_set(float value)
 {
@@ -804,6 +852,8 @@ void app_canTx_BMS_TractiveSystemCurrent_set(float value)
     {
         return;
     }
+    tx_table.BMS_TractiveSystem_signals.BMS_TractiveSystemCurrent_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_TRACTIVE_SYSTEM_CURRENT_MAX_VAL)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_CURRENT_MAX_VAL;
@@ -812,7 +862,6 @@ void app_canTx_BMS_TractiveSystemCurrent_set(float value)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_CURRENT_MIN_VAL;
     }
-    tx_table.BMS_TractiveSystem_signals.BMS_TractiveSystemCurrent_value = value;
 }
 void app_canTx_BMS_TractiveSystemPower_set(float value)
 {
@@ -820,6 +869,8 @@ void app_canTx_BMS_TractiveSystemPower_set(float value)
     {
         return;
     }
+    tx_table.BMS_TractiveSystem_signals.BMS_TractiveSystemPower_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_TRACTIVE_SYSTEM_POWER_MAX_VAL)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_POWER_MAX_VAL;
@@ -828,10 +879,11 @@ void app_canTx_BMS_TractiveSystemPower_set(float value)
     {
         value = CANSIG_BMS_TRACTIVE_SYSTEM_POWER_MIN_VAL;
     }
-    tx_table.BMS_TractiveSystem_signals.BMS_TractiveSystemPower_value = value;
 }
 void app_canTx_BMS_AvailablePower_set(uint32_t value)
 {
+    tx_table.BMS_TractiveSystem_signals.BMS_AvailablePower_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_AVAILABLE_POWER_MAX_VAL)
     {
         value = CANSIG_BMS_AVAILABLE_POWER_MAX_VAL;
@@ -840,10 +892,11 @@ void app_canTx_BMS_AvailablePower_set(uint32_t value)
     {
         value = CANSIG_BMS_AVAILABLE_POWER_MIN_VAL;
     }
-    tx_table.BMS_TractiveSystem_signals.BMS_AvailablePower_value = value;
 }
 void app_canTx_BMS_BSPDCurrentThresholdExceeded_set(bool value)
 {
+    tx_table.BMS_TractiveSystem_signals.BMS_BSPDCurrentThresholdExceeded_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_MAX_VAL)
     {
         value = CANSIG_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_MAX_VAL;
@@ -852,10 +905,11 @@ void app_canTx_BMS_BSPDCurrentThresholdExceeded_set(bool value)
     {
         value = CANSIG_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_MIN_VAL;
     }
-    tx_table.BMS_TractiveSystem_signals.BMS_BSPDCurrentThresholdExceeded_value = value;
 }
 void app_canTx_BMS_Hash_set(uint32_t value)
 {
+    tx_table.BMS_CommitInfo_signals.BMS_Hash_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_HASH_MAX_VAL)
     {
         value = CANSIG_BMS_HASH_MAX_VAL;
@@ -864,10 +918,11 @@ void app_canTx_BMS_Hash_set(uint32_t value)
     {
         value = CANSIG_BMS_HASH_MIN_VAL;
     }
-    tx_table.BMS_CommitInfo_signals.BMS_Hash_value = value;
 }
 void app_canTx_BMS_Clean_set(bool value)
 {
+    tx_table.BMS_CommitInfo_signals.BMS_Clean_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_CLEAN_MAX_VAL)
     {
         value = CANSIG_BMS_CLEAN_MAX_VAL;
@@ -876,10 +931,11 @@ void app_canTx_BMS_Clean_set(bool value)
     {
         value = CANSIG_BMS_CLEAN_MIN_VAL;
     }
-    tx_table.BMS_CommitInfo_signals.BMS_Clean_value = value;
 }
 void app_canTx_BMS_Segment0_OWC_Cells_Status_set(uint32_t value)
 {
+    tx_table.BMS_OWC_Segment0to2_Status_signals.BMS_Segment0_OWC_Cells_Status_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_SEGMENT0_OWC_CELLS_STATUS_MAX_VAL)
     {
         value = CANSIG_BMS_SEGMENT0_OWC_CELLS_STATUS_MAX_VAL;
@@ -888,10 +944,11 @@ void app_canTx_BMS_Segment0_OWC_Cells_Status_set(uint32_t value)
     {
         value = CANSIG_BMS_SEGMENT0_OWC_CELLS_STATUS_MIN_VAL;
     }
-    tx_table.BMS_OWC_Segment0to2_Status_signals.BMS_Segment0_OWC_Cells_Status_value = value;
 }
 void app_canTx_BMS_Segment1_OWC_Cells_Status_set(uint32_t value)
 {
+    tx_table.BMS_OWC_Segment0to2_Status_signals.BMS_Segment1_OWC_Cells_Status_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_SEGMENT1_OWC_CELLS_STATUS_MAX_VAL)
     {
         value = CANSIG_BMS_SEGMENT1_OWC_CELLS_STATUS_MAX_VAL;
@@ -900,10 +957,11 @@ void app_canTx_BMS_Segment1_OWC_Cells_Status_set(uint32_t value)
     {
         value = CANSIG_BMS_SEGMENT1_OWC_CELLS_STATUS_MIN_VAL;
     }
-    tx_table.BMS_OWC_Segment0to2_Status_signals.BMS_Segment1_OWC_Cells_Status_value = value;
 }
 void app_canTx_BMS_Segment2_OWC_Cells_Status_set(uint32_t value)
 {
+    tx_table.BMS_OWC_Segment0to2_Status_signals.BMS_Segment2_OWC_Cells_Status_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_SEGMENT2_OWC_CELLS_STATUS_MAX_VAL)
     {
         value = CANSIG_BMS_SEGMENT2_OWC_CELLS_STATUS_MAX_VAL;
@@ -912,10 +970,11 @@ void app_canTx_BMS_Segment2_OWC_Cells_Status_set(uint32_t value)
     {
         value = CANSIG_BMS_SEGMENT2_OWC_CELLS_STATUS_MIN_VAL;
     }
-    tx_table.BMS_OWC_Segment0to2_Status_signals.BMS_Segment2_OWC_Cells_Status_value = value;
 }
 void app_canTx_BMS_Segment3_OWC_Cells_Status_set(uint32_t value)
 {
+    tx_table.BMS_OWC_Segment3to4_Status_signals.BMS_Segment3_OWC_Cells_Status_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_SEGMENT3_OWC_CELLS_STATUS_MAX_VAL)
     {
         value = CANSIG_BMS_SEGMENT3_OWC_CELLS_STATUS_MAX_VAL;
@@ -924,10 +983,11 @@ void app_canTx_BMS_Segment3_OWC_Cells_Status_set(uint32_t value)
     {
         value = CANSIG_BMS_SEGMENT3_OWC_CELLS_STATUS_MIN_VAL;
     }
-    tx_table.BMS_OWC_Segment3to4_Status_signals.BMS_Segment3_OWC_Cells_Status_value = value;
 }
 void app_canTx_BMS_Segment4_OWC_Cells_Status_set(uint32_t value)
 {
+    tx_table.BMS_OWC_Segment3to4_Status_signals.BMS_Segment4_OWC_Cells_Status_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_SEGMENT4_OWC_CELLS_STATUS_MAX_VAL)
     {
         value = CANSIG_BMS_SEGMENT4_OWC_CELLS_STATUS_MAX_VAL;
@@ -936,10 +996,11 @@ void app_canTx_BMS_Segment4_OWC_Cells_Status_set(uint32_t value)
     {
         value = CANSIG_BMS_SEGMENT4_OWC_CELLS_STATUS_MIN_VAL;
     }
-    tx_table.BMS_OWC_Segment3to4_Status_signals.BMS_Segment4_OWC_Cells_Status_value = value;
 }
 void app_canTx_BMS_HVDShdnOKStatus_set(bool value)
 {
+    tx_table.BMS_BMSShdnNodeStatus_signals.BMS_HVDShdnOKStatus_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_HVD_SHDN_OK_STATUS_MAX_VAL)
     {
         value = CANSIG_BMS_HVD_SHDN_OK_STATUS_MAX_VAL;
@@ -948,10 +1009,11 @@ void app_canTx_BMS_HVDShdnOKStatus_set(bool value)
     {
         value = CANSIG_BMS_HVD_SHDN_OK_STATUS_MIN_VAL;
     }
-    tx_table.BMS_BMSShdnNodeStatus_signals.BMS_HVDShdnOKStatus_value = value;
 }
 void app_canTx_BMS_TSIlckOKStatus_set(bool value)
 {
+    tx_table.BMS_BMSShdnNodeStatus_signals.BMS_TSIlckOKStatus_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_TS_ILCK_OK_STATUS_MAX_VAL)
     {
         value = CANSIG_BMS_TS_ILCK_OK_STATUS_MAX_VAL;
@@ -960,10 +1022,11 @@ void app_canTx_BMS_TSIlckOKStatus_set(bool value)
     {
         value = CANSIG_BMS_TS_ILCK_OK_STATUS_MIN_VAL;
     }
-    tx_table.BMS_BMSShdnNodeStatus_signals.BMS_TSIlckOKStatus_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTask1Hz_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTask1Hz_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_MAX_VAL;
@@ -972,10 +1035,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTask1Hz_set(bool value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTask1Hz_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTask100Hz_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTask100Hz_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_MAX_VAL;
@@ -984,10 +1048,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTask100Hz_set(bool value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTask100Hz_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTask1kHz_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTask1kHz_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_MAX_VAL;
@@ -996,10 +1061,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTask1kHz_set(bool value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTask1kHz_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRx_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTaskCanRx_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_MAX_VAL;
@@ -1008,10 +1074,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRx_set(bool value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTaskCanRx_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTx_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTaskCanTx_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_MAX_VAL;
@@ -1020,10 +1087,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTx_set(bool value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_StackWaterMarkHighTaskCanTx_value = value;
 }
 void app_canTx_BMS_Warning_WatchdogTimeout_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_WatchdogTimeout_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_MAX_VAL;
@@ -1032,10 +1100,11 @@ void app_canTx_BMS_Warning_WatchdogTimeout_set(bool value)
     {
         value = CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_WatchdogTimeout_value = value;
 }
 void app_canTx_BMS_Warning_TxOverflow_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_TxOverflow_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_TX_OVERFLOW_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_TX_OVERFLOW_MAX_VAL;
@@ -1044,10 +1113,11 @@ void app_canTx_BMS_Warning_TxOverflow_set(bool value)
     {
         value = CANSIG_BMS_WARNING_TX_OVERFLOW_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_TxOverflow_value = value;
 }
 void app_canTx_BMS_Warning_RxOverflow_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_RxOverflow_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_RX_OVERFLOW_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_RX_OVERFLOW_MAX_VAL;
@@ -1056,10 +1126,11 @@ void app_canTx_BMS_Warning_RxOverflow_set(bool value)
     {
         value = CANSIG_BMS_WARNING_RX_OVERFLOW_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_RxOverflow_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheckFault_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheckFault_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_MAX_VAL;
@@ -1068,10 +1139,11 @@ void app_canTx_BMS_Warning_OpenWireCheckFault_set(bool value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheckFault_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment0_GND_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment0_GND_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_MAX_VAL;
@@ -1080,10 +1152,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment0_GND_set(bool value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment0_GND_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment1_GND_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment1_GND_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_MAX_VAL;
@@ -1092,10 +1165,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment1_GND_set(bool value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment1_GND_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment2_GND_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment2_GND_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_MAX_VAL;
@@ -1104,10 +1178,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment2_GND_set(bool value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment2_GND_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment3_GND_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment3_GND_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_MAX_VAL;
@@ -1116,10 +1191,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment3_GND_set(bool value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment3_GND_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment4_GND_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment4_GND_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_MAX_VAL;
@@ -1128,10 +1204,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment4_GND_set(bool value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_OpenWireCheck_Segment4_GND_value = value;
 }
 void app_canTx_BMS_Warning_MissingVCHeartbeat_set(bool value)
 {
+    tx_table.BMS_Warnings_signals.BMS_Warning_MissingVCHeartbeat_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_MAX_VAL;
@@ -1140,10 +1217,11 @@ void app_canTx_BMS_Warning_MissingVCHeartbeat_set(bool value)
     {
         value = CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_MIN_VAL;
     }
-    tx_table.BMS_Warnings_signals.BMS_Warning_MissingVCHeartbeat_value = value;
 }
 void app_canTx_BMS_Fault_StateMachine_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_StateMachine_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_STATE_MACHINE_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_STATE_MACHINE_MAX_VAL;
@@ -1152,10 +1230,11 @@ void app_canTx_BMS_Fault_StateMachine_set(bool value)
     {
         value = CANSIG_BMS_FAULT_STATE_MACHINE_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_StateMachine_value = value;
 }
 void app_canTx_BMS_Fault_CellUndervoltage_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_CellUndervoltage_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_MAX_VAL;
@@ -1164,10 +1243,11 @@ void app_canTx_BMS_Fault_CellUndervoltage_set(bool value)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_CellUndervoltage_value = value;
 }
 void app_canTx_BMS_Fault_CellOvervoltage_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_CellOvervoltage_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_MAX_VAL;
@@ -1176,10 +1256,11 @@ void app_canTx_BMS_Fault_CellOvervoltage_set(bool value)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_CellOvervoltage_value = value;
 }
 void app_canTx_BMS_Fault_ModuleCommunicationError_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_ModuleCommunicationError_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_MAX_VAL;
@@ -1188,10 +1269,11 @@ void app_canTx_BMS_Fault_ModuleCommunicationError_set(bool value)
     {
         value = CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_ModuleCommunicationError_value = value;
 }
 void app_canTx_BMS_Fault_CellUndertemp_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_CellUndertemp_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_UNDERTEMP_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERTEMP_MAX_VAL;
@@ -1200,10 +1282,11 @@ void app_canTx_BMS_Fault_CellUndertemp_set(bool value)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERTEMP_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_CellUndertemp_value = value;
 }
 void app_canTx_BMS_Fault_CellOvertemp_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_CellOvertemp_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_OVERTEMP_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERTEMP_MAX_VAL;
@@ -1212,10 +1295,11 @@ void app_canTx_BMS_Fault_CellOvertemp_set(bool value)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERTEMP_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_CellOvertemp_value = value;
 }
 void app_canTx_BMS_Fault_ChargerReportedError_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_ChargerReportedError_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_MAX_VAL;
@@ -1224,10 +1308,11 @@ void app_canTx_BMS_Fault_ChargerReportedError_set(bool value)
     {
         value = CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_ChargerReportedError_value = value;
 }
 void app_canTx_BMS_Fault_ChargerDisconnectedDuringCharge_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_ChargerDisconnectedDuringCharge_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_MAX_VAL;
@@ -1236,10 +1321,11 @@ void app_canTx_BMS_Fault_ChargerDisconnectedDuringCharge_set(bool value)
     {
         value = CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_ChargerDisconnectedDuringCharge_value = value;
 }
 void app_canTx_BMS_Fault_ChargerShutdownLoopOpen_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_ChargerShutdownLoopOpen_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_MAX_VAL;
@@ -1248,10 +1334,11 @@ void app_canTx_BMS_Fault_ChargerShutdownLoopOpen_set(bool value)
     {
         value = CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_ChargerShutdownLoopOpen_value = value;
 }
 void app_canTx_BMS_Fault_TractiveSystemOvercurrent_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_TractiveSystemOvercurrent_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_MAX_VAL;
@@ -1260,10 +1347,11 @@ void app_canTx_BMS_Fault_TractiveSystemOvercurrent_set(bool value)
     {
         value = CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_TractiveSystemOvercurrent_value = value;
 }
 void app_canTx_BMS_Fault_PrechargeFailure_set(bool value)
 {
+    tx_table.BMS_Faults_signals.BMS_Fault_PrechargeFailure_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_PRECHARGE_FAILURE_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_PRECHARGE_FAILURE_MAX_VAL;
@@ -1272,10 +1360,11 @@ void app_canTx_BMS_Fault_PrechargeFailure_set(bool value)
     {
         value = CANSIG_BMS_FAULT_PRECHARGE_FAILURE_MIN_VAL;
     }
-    tx_table.BMS_Faults_signals.BMS_Fault_PrechargeFailure_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTask1HzCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTask1HzCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_MAX_VAL;
@@ -1284,10 +1373,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTask1HzCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTask1HzCount_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTask100HzCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTask100HzCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_MAX_VAL;
@@ -1296,10 +1386,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTask100HzCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTask100HzCount_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTask1kHzCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTask1kHzCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_MAX_VAL;
@@ -1308,10 +1399,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTask1kHzCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTask1kHzCount_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRxCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTaskCanRxCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_MAX_VAL;
@@ -1320,10 +1412,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanRxCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTaskCanRxCount_value = value;
 }
 void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTxCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTaskCanTxCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_MAX_VAL;
@@ -1332,10 +1425,11 @@ void app_canTx_BMS_Warning_StackWaterMarkHighTaskCanTxCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_StackWaterMarkHighTaskCanTxCount_value = value;
 }
 void app_canTx_BMS_Warning_WatchdogTimeoutCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_WatchdogTimeoutCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_COUNT_MAX_VAL;
@@ -1344,10 +1438,11 @@ void app_canTx_BMS_Warning_WatchdogTimeoutCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_WatchdogTimeoutCount_value = value;
 }
 void app_canTx_BMS_Warning_TxOverflowCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_TxOverflowCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_TX_OVERFLOW_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_TX_OVERFLOW_COUNT_MAX_VAL;
@@ -1356,10 +1451,11 @@ void app_canTx_BMS_Warning_TxOverflowCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_TX_OVERFLOW_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_TxOverflowCount_value = value;
 }
 void app_canTx_BMS_Warning_RxOverflowCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_RxOverflowCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_RX_OVERFLOW_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_RX_OVERFLOW_COUNT_MAX_VAL;
@@ -1368,10 +1464,11 @@ void app_canTx_BMS_Warning_RxOverflowCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_RX_OVERFLOW_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_RxOverflowCount_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheckFaultCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheckFaultCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_COUNT_MAX_VAL;
@@ -1380,10 +1477,11 @@ void app_canTx_BMS_Warning_OpenWireCheckFaultCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheckFaultCount_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment0_GNDCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment0_GNDCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_COUNT_MAX_VAL;
@@ -1392,10 +1490,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment0_GNDCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment0_GNDCount_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment1_GNDCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment1_GNDCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_COUNT_MAX_VAL;
@@ -1404,10 +1503,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment1_GNDCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment1_GNDCount_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment2_GNDCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment2_GNDCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_COUNT_MAX_VAL;
@@ -1416,10 +1516,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment2_GNDCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment2_GNDCount_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment3_GNDCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment3_GNDCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_COUNT_MAX_VAL;
@@ -1428,10 +1529,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment3_GNDCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment3_GNDCount_value = value;
 }
 void app_canTx_BMS_Warning_OpenWireCheck_Segment4_GNDCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment4_GNDCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_COUNT_MAX_VAL;
@@ -1440,10 +1542,11 @@ void app_canTx_BMS_Warning_OpenWireCheck_Segment4_GNDCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_OpenWireCheck_Segment4_GNDCount_value = value;
 }
 void app_canTx_BMS_Warning_MissingVCHeartbeatCount_set(uint32_t value)
 {
+    tx_table.BMS_WarningsCounts_signals.BMS_Warning_MissingVCHeartbeatCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_COUNT_MAX_VAL;
@@ -1452,10 +1555,11 @@ void app_canTx_BMS_Warning_MissingVCHeartbeatCount_set(uint32_t value)
     {
         value = CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_COUNT_MIN_VAL;
     }
-    tx_table.BMS_WarningsCounts_signals.BMS_Warning_MissingVCHeartbeatCount_value = value;
 }
 void app_canTx_BMS_Fault_StateMachineCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_StateMachineCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_STATE_MACHINE_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_STATE_MACHINE_COUNT_MAX_VAL;
@@ -1464,10 +1568,11 @@ void app_canTx_BMS_Fault_StateMachineCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_STATE_MACHINE_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_StateMachineCount_value = value;
 }
 void app_canTx_BMS_Fault_CellUndervoltageCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellUndervoltageCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_COUNT_MAX_VAL;
@@ -1476,10 +1581,11 @@ void app_canTx_BMS_Fault_CellUndervoltageCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellUndervoltageCount_value = value;
 }
 void app_canTx_BMS_Fault_CellOvervoltageCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellOvervoltageCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_COUNT_MAX_VAL;
@@ -1488,10 +1594,11 @@ void app_canTx_BMS_Fault_CellOvervoltageCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellOvervoltageCount_value = value;
 }
 void app_canTx_BMS_Fault_ModuleCommunicationErrorCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ModuleCommunicationErrorCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_COUNT_MAX_VAL;
@@ -1500,10 +1607,11 @@ void app_canTx_BMS_Fault_ModuleCommunicationErrorCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ModuleCommunicationErrorCount_value = value;
 }
 void app_canTx_BMS_Fault_CellUndertempCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellUndertempCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_UNDERTEMP_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERTEMP_COUNT_MAX_VAL;
@@ -1512,10 +1620,11 @@ void app_canTx_BMS_Fault_CellUndertempCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_CELL_UNDERTEMP_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellUndertempCount_value = value;
 }
 void app_canTx_BMS_Fault_CellOvertempCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellOvertempCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CELL_OVERTEMP_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERTEMP_COUNT_MAX_VAL;
@@ -1524,10 +1633,11 @@ void app_canTx_BMS_Fault_CellOvertempCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_CELL_OVERTEMP_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_CellOvertempCount_value = value;
 }
 void app_canTx_BMS_Fault_ChargerReportedErrorCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ChargerReportedErrorCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_COUNT_MAX_VAL;
@@ -1536,10 +1646,11 @@ void app_canTx_BMS_Fault_ChargerReportedErrorCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ChargerReportedErrorCount_value = value;
 }
 void app_canTx_BMS_Fault_ChargerDisconnectedDuringChargeCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ChargerDisconnectedDuringChargeCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_COUNT_MAX_VAL;
@@ -1548,10 +1659,11 @@ void app_canTx_BMS_Fault_ChargerDisconnectedDuringChargeCount_set(uint32_t value
     {
         value = CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ChargerDisconnectedDuringChargeCount_value = value;
 }
 void app_canTx_BMS_Fault_ChargerShutdownLoopOpenCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ChargerShutdownLoopOpenCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_COUNT_MAX_VAL;
@@ -1560,10 +1672,11 @@ void app_canTx_BMS_Fault_ChargerShutdownLoopOpenCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_ChargerShutdownLoopOpenCount_value = value;
 }
 void app_canTx_BMS_Fault_TractiveSystemOvercurrentCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_TractiveSystemOvercurrentCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_COUNT_MAX_VAL;
@@ -1572,10 +1685,11 @@ void app_canTx_BMS_Fault_TractiveSystemOvercurrentCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_TractiveSystemOvercurrentCount_value = value;
 }
 void app_canTx_BMS_Fault_PrechargeFailureCount_set(uint32_t value)
 {
+    tx_table.BMS_FaultsCounts_signals.BMS_Fault_PrechargeFailureCount_value = value; // Set value
+    // Clamp value to min/max
     if (value > CANSIG_BMS_FAULT_PRECHARGE_FAILURE_COUNT_MAX_VAL)
     {
         value = CANSIG_BMS_FAULT_PRECHARGE_FAILURE_COUNT_MAX_VAL;
@@ -1584,7 +1698,6 @@ void app_canTx_BMS_Fault_PrechargeFailureCount_set(uint32_t value)
     {
         value = CANSIG_BMS_FAULT_PRECHARGE_FAILURE_COUNT_MIN_VAL;
     }
-    tx_table.BMS_FaultsCounts_signals.BMS_Fault_PrechargeFailureCount_value = value;
 }
 bool app_canTx_BMS_Vitals_BMS_Heartbeat_get(void)
 {
