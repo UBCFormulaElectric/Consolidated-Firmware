@@ -44,7 +44,7 @@ if __name__ == "__main__":
         AppCanRxModule(can_db, args.board): os.path.join("app", "app_canRx"),
         AppCanAlertsModule(can_db, args.board): os.path.join("app", "app_canAlerts"),
         IoCanTxModule(can_db, args.board): os.path.join("io", "io_canTx"),
-        # IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
+        IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
         # AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"), 
     }
     for module, module_path in modules.items():
