@@ -1,0 +1,20 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <stdint.h>
+#include <stdbool.h>
+
+/* ------------------------- Function Prototypes -------------------------- */
+
+
+void app_canDataCapture_init(void);
+
+bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms);
+
+bool app_dataCapture_needsTelem(uint16_t msg_id, uint32_t time_ms);
