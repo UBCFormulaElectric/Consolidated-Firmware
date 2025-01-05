@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "io_canMsg.h"
 
 // Empirically determined number which corresponds to the time to mount the filesystem, plus the time to create a new

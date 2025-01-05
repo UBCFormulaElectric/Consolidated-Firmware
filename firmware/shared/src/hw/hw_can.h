@@ -15,7 +15,7 @@ typedef struct
 // STM32 HAL CAN handle.
 typedef struct
 {
-    CAN_HandleTypeDef  *hcan;
+    CAN_HandleTypeDef *hcan;
 } CanHandle;
 #endif
 

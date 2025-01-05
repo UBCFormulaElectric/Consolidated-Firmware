@@ -13,7 +13,7 @@
 #define CAN_DATA_LENGTH 12
 #define UART_LENGTH 1
 #define QUEUE_SIZE 50
-static bool        modem_900_choice;
+static bool modem_900_choice;
 typedef struct
 {
     const UART *modem900M;

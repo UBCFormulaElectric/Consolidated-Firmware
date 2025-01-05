@@ -1,6 +1,6 @@
 /**
  * This file is meant to help unit testing.
-*/
+ */
 
 #pragma once
 

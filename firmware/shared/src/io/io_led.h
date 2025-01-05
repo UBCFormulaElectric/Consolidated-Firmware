@@ -6,7 +6,7 @@
 #include "hw_gpio.h"
 typedef struct
 {
-    const Gpio* gpio;
+    const Gpio *gpio;
 } BinaryLed;
 #else
 EMPTY_STRUCT(BinaryLed);

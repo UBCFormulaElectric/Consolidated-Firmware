@@ -22,7 +22,6 @@ typedef enum
  */
 FileSystemError io_fileSystem_init(void);
 
-
 /**
  * open a file and return the file descriptor
  * @param path path in question

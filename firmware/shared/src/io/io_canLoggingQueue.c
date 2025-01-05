@@ -108,7 +108,7 @@ int io_canLogging_recordMsgFromQueue(void)
 bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
 {
     if (!isLoggingEnabled())
-        return;
+        return false;
 
     static uint32_t overflow_count = 0;
     CanMsgLog       msg_log;
@@ -116,7 +116,7 @@ bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
 
     // cache the message to the buffer first
     if (!pushToBuffer(&msg_log))
-        return;
+        return false;
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
