@@ -119,7 +119,7 @@ uint32_t io_sbgEllipse_getOverflowCount(void);
  * Get EKF Solution Mode Status
  * @return the ekf solution mode
  */
-uint32_t io_sbgEllipse_geEkfSolutionMode(void);
+uint32_t io_sbgEllipse_getEkfSolutionMode(void);
 
 /**
  * Get the IMU accelerations as a struct pointer with fields:

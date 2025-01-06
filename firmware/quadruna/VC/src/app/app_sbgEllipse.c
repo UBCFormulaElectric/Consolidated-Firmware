@@ -31,11 +31,14 @@ void app_sbgEllipse_broadcast()
     float ekf_vel_E = 0;
     float ekf_vel_D = 0;
 
-    if (sbgSolutionMode != POSITION) {
-        // Wheelspeed Velocity
-        VelocityData velocity = app_sbgEllipse_calculateVelocity();
+    bool is_moving = (app_canRx_INVR_MotorSpeed_get() > 0) || (app_canRx_INVL_MotorSpeed_get() > 0);
+
+    VelocityData velocity_calculated;
+
+    if (is_moving) {
+        velocity_calculated = app_sbgEllipse_calculateVelocity();
     }
-    
+        
     // EKF
     ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
     ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
@@ -54,15 +57,13 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
 
     const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+    const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
-    // Check solution mode to determine if calculated or EKF velocity should be used
-    if (sbgSolutionMode != POSITION)
-    {
-        app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
-    } else 
-    {
-        app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
-    }
+    // determines when to use calculated or gps velocity, will be externed later
+    bool use_calculated_velocity = io_sbgEllipse_geEkfSolutionMode() == POSITION;
+
+    app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
+    app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
 
     // Position EKF
     // const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;

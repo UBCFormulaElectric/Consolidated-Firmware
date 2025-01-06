@@ -318,7 +318,7 @@ uint32_t io_sbgEllipse_getOverflowCount(void)
     return sbg_queue_overflow_count;
 }
 
-uint32_t io_sbgEllipse_geEkfSolutionMode(void)
+uint32_t io_sbgEllipse_getEkfSolutionMode(void)
 {
     return sensor_data.ekf_solution_status;
 }
