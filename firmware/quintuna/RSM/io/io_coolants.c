@@ -75,7 +75,7 @@ bool io_coolant_temperature_ocsc(float v)
 
 float io_coolant_getTemperature(Coolant *coolant)
 {
-    const float v_read = hw_adc_getVoltage(coolant);
+    const float v_read = hw_adc_getVoltage(&coolant->src);
     app_canTx_RSM_Warning_CoolantTempAOCSC_set(io_coolant_temperature_ocsc(v_read));
 
     const float v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
@@ -95,7 +95,7 @@ bool io_coolant_pressure_ocsc(float v)
 
 float io_coolant_getPressure(Coolant *coolant)
 {
-    const float water_pressure = hw_adc_getVoltage(coolant);
+    const float water_pressure = hw_adc_getVoltage(&coolant->src);
     app_canTx_RSM_Warning_CoolantPressureAOCSC_set(io_coolant_pressure_ocsc(water_pressure));
     return CLAMP(water_pressure, 0.0f, PRESSURE_PSI_MAX);
 }
