@@ -1,7 +1,7 @@
 #include "io_currentSensing.h"
 #include <stdbool.h>
 #include "hw_gpios.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 
 // all constants in SI units
 #define AMPERAGE_PER_VOLTAGE (1.0f / (5.5e-2f))
@@ -19,10 +19,10 @@ bool io_currentSensing_hasBatteryFault()
 
 float io_currentSensing_getAccumulatorCurrent()
 {
-    return (hw_adc_getVoltage(ADC1_IN14_BAT_I_SNS) - MIN_VOLTAGE) * AMPERAGE_PER_VOLTAGE;
+    return (hw_adc_getVoltage(&bat_i_sns) - MIN_VOLTAGE) * AMPERAGE_PER_VOLTAGE;
 }
 
 float io_currentSensing_getBatteryCurrent()
 {
-    return (hw_adc_getVoltage(ADC1_IN5_ACC_I_SENSE) - MIN_VOLTAGE) * AMPERAGE_PER_VOLTAGE;
+    return (hw_adc_getVoltage(&acc_i_sns) - MIN_VOLTAGE) * AMPERAGE_PER_VOLTAGE;
 }

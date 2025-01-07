@@ -24,7 +24,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdogConfig.h"
 #include "hw_cans.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_stackWaterMarkConfig.h"
 
 void tasks_preInit(void)

@@ -3,55 +3,55 @@
 #include <assert.h>
 
 #include "hw_gpios.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 
 typedef struct
 {
-    const Gpio      *enable_gpio;
-    const Gpio      *stby_reset_gpio;
-    const AdcChannel cur_sns_adc_channel;
+    const Gpio       *enable_gpio;
+    const Gpio       *stby_reset_gpio;
+    const AdcChannel *cur_sns_adc_channel;
 } EfuseConfig;
 
 static const EfuseConfig configs[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_SHDN] = {
         .enable_gpio = &shdn_pwr_en,
         .stby_reset_gpio = &fr_stby1,
-        .cur_sns_adc_channel = ADC1_IN18_SHDN_PWR_I_SNS,
+        .cur_sns_adc_channel = &shdn_pwr_i_sns,
     },
     [EFUSE_CHANNEL_LV] = {
         .enable_gpio = &lv_pwr_en,
         .stby_reset_gpio = &fr_stby1,
-        .cur_sns_adc_channel = ADC1_IN4_LV_PWR_I_SNS,
+        .cur_sns_adc_channel = &lv_pwr_i_sns,
     },
     [EFUSE_CHANNEL_PUMP] = {
         .enable_gpio = &pump_pwr_en,
         .stby_reset_gpio = &fr_stby2,
-        .cur_sns_adc_channel = ADC3_IN1_PUMP_PWR_I_SNS
+        .cur_sns_adc_channel = &pump_pwr_i_sns
     },
     [EFUSE_CHANNEL_AUX] = {
         .enable_gpio = &aux_pwr_en,
         .stby_reset_gpio = &fr_stby2,
-        .cur_sns_adc_channel = ADC3_IN0_AUX_PWR_I_SNS
+        .cur_sns_adc_channel = &aux_pwr_i_sns
     },
     [EFUSE_CHANNEL_INV_R] = {
         .enable_gpio = &inv_r_pwr_en,
         .stby_reset_gpio = &fr_stby3,
-        .cur_sns_adc_channel = ADC1_IN10_INV_R_PWR_I_SNS
+        .cur_sns_adc_channel = &inv_r_pwr_i_sns
     },
     [EFUSE_CHANNEL_INV_L] = {
         .enable_gpio = &inv_l_pwr_en,
         .stby_reset_gpio = &fr_stby3,
-        .cur_sns_adc_channel = ADC1_IN11_INV_L_PWR_I_SNS
+        .cur_sns_adc_channel = &inv_l_pwr_i_sns
     },
     [EFUSE_CHANNEL_TELEM] = {
         .enable_gpio = &telem_pwr_en,
         .stby_reset_gpio = NULL,
-        .cur_sns_adc_channel = NO_ADC_CHANNEL
+        .cur_sns_adc_channel = NULL
     },
     [EFUSE_CHANNEL_BUZZER] = {
         .enable_gpio = &buzzer_pwr_en,
         .stby_reset_gpio = NULL,
-        .cur_sns_adc_channel = NO_ADC_CHANNEL
+        .cur_sns_adc_channel = NULL
     }
 };
 

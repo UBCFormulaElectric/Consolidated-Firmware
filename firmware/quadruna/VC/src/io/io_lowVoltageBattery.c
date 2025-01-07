@@ -1,6 +1,6 @@
 #include "io_lowVoltageBattery.h"
 #include "hw_gpios.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 
 // Percent error used to compensate for resistor errors. Determined from
 // testing with the HW
@@ -28,15 +28,15 @@ bool io_lowVoltageBattery_hasBoostControllerFault(void)
 
 float io_lowVoltageBattery_getBatVoltage(void)
 {
-    return hw_adc_getVoltage(ADC1_IN19_VBAT_SENSE) * VBAT_R_ERROR_COMPENSATION / VBAT_VOLTAGE_DIV;
+    return hw_adc_getVoltage(&vbat_sns) * VBAT_R_ERROR_COMPENSATION / VBAT_VOLTAGE_DIV;
 }
 
 float io_lowVoltageBattery_getBoostVoltage(void)
 {
-    return hw_adc_getVoltage(ADC1_IN7_22V_BOOST_SENSE) * VBOOST_R_ERROR_COMPENSATION / VBOOST_VOLTAGE_DIV;
+    return hw_adc_getVoltage(&boost_22v_sns) * VBOOST_R_ERROR_COMPENSATION / VBOOST_VOLTAGE_DIV;
 }
 
 float io_lowVoltageBattery_getAccVoltage(void)
 {
-    return hw_adc_getVoltage(ADC1_IN3_24V_ACC_SENSE) * VACC_R_ERROR_COMPENSATION / VACC_VOLTAGE_DIV;
+    return hw_adc_getVoltage(&acc_24v_sns) * VACC_R_ERROR_COMPENSATION / VACC_VOLTAGE_DIV;
 }
