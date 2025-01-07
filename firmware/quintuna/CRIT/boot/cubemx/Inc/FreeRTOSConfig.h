@@ -174,6 +174,7 @@ standard names. */
 #define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 0
 
 /* USER CODE BEGIN Defines */
+/* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
 #include "sysviewFreeRTOSConfigs.h"
 /* USER CODE END Defines */
 

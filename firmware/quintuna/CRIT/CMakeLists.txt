@@ -4,51 +4,35 @@ set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-        "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
-        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        ""
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR_CPP}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_led.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_switch.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_heartbeatNode.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_log.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_jsoncan.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_canMsgQueue.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_chimera.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_stackMonitor.cpp"
+        ""
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${SHARED_HW_INCLUDE_DIR}"
 )
 
 if ("${TARGET}" STREQUAL "binary")
@@ -107,17 +91,15 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(CRIT quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(CRIT quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
             "quintuna_CRIT_app.elf"
             "quintuna_CRIT_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_CRIT_jsoncan" PRIVATE "quintuna_CRIT_stm32cube")
     target_link_libraries("quintuna_CRIT_app.elf" PRIVATE "quintuna_CRIT_stm32cube" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quintuna_CRIT_boot.elf" PRIVATE "quintuna_CRIT_commit_info")
 
