@@ -7,12 +7,12 @@
 #define MIN_SUSPENSION_VOLTAGE (0.2f)
 #define MAX_SUSPENSION_VOLTAGE (3.5f)
 
-static const SuspensionSensor right = {coolantpressure1_3v3};
-static const SuspensionSensor left = {coolantpressure2_3v3};
+static const SuspensionSensor right = { coolantpressure1_3v3 };
+static const SuspensionSensor left  = { coolantpressure2_3v3 };
 
 float io_suspension_getTravel(SuspensionSensor *suspension)
 {
-    return src.getVoltage(&suspension -> src);
+    return src.getVoltage(&suspension->src);
 }
 
 float io_suspension_OCSC(SuspensionSensor *suspension)

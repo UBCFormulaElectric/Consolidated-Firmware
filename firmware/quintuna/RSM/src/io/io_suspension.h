@@ -9,14 +9,11 @@
 
 typedef struct
 {
-  Adc *src;
-}SuspensionSensor; 
+    Adc *src;
+} SuspensionSensor;
 
 float getTravel(SuspensionSensor *suspension);
 float OCSC(SuspensionSensor *suspension);
 
-
 static extern const SuspensionSensor right;
 static extern const SuspensionSensor left;
-
-
