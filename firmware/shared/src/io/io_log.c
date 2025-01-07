@@ -1,6 +1,5 @@
 #include "io_log.h"
 #include "app_canAlerts.h"
-
 #define MAX_FAULT_COUNT 50
 
 void LOG_ALL_FAULTS(void)
