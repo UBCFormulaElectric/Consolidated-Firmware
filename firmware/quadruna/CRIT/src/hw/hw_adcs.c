@@ -17,4 +17,8 @@ void hw_adcs_chipsInit(void)
     hw_adcchip_init(&adc1);
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {}
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc == adc1.hadc)
+        hw_adcchip_updateCallback(&adc1);
+}

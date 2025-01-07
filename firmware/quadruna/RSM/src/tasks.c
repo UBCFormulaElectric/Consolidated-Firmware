@@ -32,8 +32,6 @@
 #include "shared.pb.h"
 #include "RSM.pb.h"
 
-#include <hw_adc.h>
-
 static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
