@@ -11,7 +11,7 @@ float travelFromVoltage(float voltage)
 {
     // TODO: implement
     return voltage;
-}`
+}
 
 float io_suspension_getRearLeftTravel(void)
 {
