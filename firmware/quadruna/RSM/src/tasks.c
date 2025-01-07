@@ -25,17 +25,12 @@
 #include "hw_stackWaterMark.h" // TODO setup stack watermark on RSM
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
-
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern CAN_HandleTypeDef  hcan1;
-extern UART_HandleTypeDef huart1;
 
 static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
@@ -98,17 +93,17 @@ const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_p
                              [RSM_GpioNetName_ACC_FAN_EN]         = &acc_fan_en_pin,
                              [RSM_GpioNetName_NProgram_3V3]       = &n_program_pin };
 
-const AdcChannel id_to_adc[] = {
-    [RSM_AdcNetName_ACC_FAN_I_SNS]        = ADC1_IN15_ACC_FAN_I_SNS,
-    [RSM_AdcNetName_RAD_FAN_I_SNS]        = ADC1_IN14_RAD_FAN_I_SNS,
-    [RSM_AdcNetName_CoolantPressure1_3V3] = ADC1_IN12_COOLANT_PRESSURE_1,
-    [RSM_AdcNetName_CoolantPressure2_3V3] = ADC1_IN11_COOLANT_PRESSURE_2,
-    [RSM_AdcNetName_LC3_OUT]              = ADC1_IN10_LC3_OUT,
-    [RSM_AdcNetName_SUSP_TRAVEL_RR_3V3]   = ADC1_IN4_SUSP_TRAVEL_RR,
-    [RSM_AdcNetName_SUSP_TRAVEL_RL_3V3]   = ADC1_IN1_SUSP_TRAVEL_RL,
-    [RSM_AdcNetName_CoolantTemp2_3V3]     = ADC1_IN3_COOLANT_TEMP_2,
-    [RSM_AdcNetName_CoolantTemp1_3V3]     = ADC1_IN2_COOLANT_TEMP_1,
-    [RSM_AdcNetName_LC4_OUT]              = ADC1_IN0_LC4_OUT,
+const AdcChannel *const id_to_adc[] = {
+    [RSM_AdcNetName_ACC_FAN_I_SNS]        = &acc_fan_i_sns,
+    [RSM_AdcNetName_RAD_FAN_I_SNS]        = &rad_fan_i_sns,
+    [RSM_AdcNetName_CoolantPressure1_3V3] = &coolant_pressure_1,
+    [RSM_AdcNetName_CoolantPressure2_3V3] = &coolant_pressure_2,
+    [RSM_AdcNetName_LC3_OUT]              = &lc3,
+    [RSM_AdcNetName_SUSP_TRAVEL_RR_3V3]   = &susp_travel_rr,
+    [RSM_AdcNetName_SUSP_TRAVEL_RL_3V3]   = &susp_travel_rl,
+    [RSM_AdcNetName_CoolantTemp2_3V3]     = &coolant_temp_2,
+    [RSM_AdcNetName_CoolantTemp1_3V3]     = &coolant_temp_1,
+    [RSM_AdcNetName_LC4_OUT]              = &lc4,
 };
 
 PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
@@ -133,9 +128,7 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    // Start DMA/TIM3 for the ADC.
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    hw_adcs_chipsInit();
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
