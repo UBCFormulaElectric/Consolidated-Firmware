@@ -267,11 +267,9 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     /* USER CODE BEGIN 6 */
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-    LOG_INFO("before entering the cdc recieve fs queue");
+
+    // hook to hw_usb
     hw_usb_pushRxMsgToQueue(Buf, *Len);
-    LOG_INFO("WE PUSHED TO QUEUE");
-    uint16_t len = (uint16_t)*Len;
-    CDC_Transmit_FS(Buf, len);
 
     return (USBD_OK);
     /* USER CODE END 6 */
