@@ -1,11 +1,3 @@
 {
-    "SegmentCellVoltageRequest": {
-        "NONE": 0,
-        "SEG_0": 1,
-        "SEG_1": 2,
-        "SEG_2": 3,
-        "SEG_3": 4,
-        "SEG_4": 5,
-        "SEG_ALL": 6
-    }
+
 }
