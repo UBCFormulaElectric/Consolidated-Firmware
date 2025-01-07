@@ -160,15 +160,7 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx(&canQueue1);
-        hw_can_transmit(&can1, &tx_msg);
-
-        // ReSharper disable once CppRedundantCastExpression
-        if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)tx_msg.std_id, io_time_getCurrentMs()))
-            io_canLogging_loggingQueuePush(&tx_msg);
-        // ReSharper disable once CppRedundantCastExpression
-        if (app_dataCapture_needsTelem((uint16_t)tx_msg.std_id, io_time_getCurrentMs()))
-            io_telemMessage_pushMsgtoQueue(&tx_msg);
+        jobs_runCanTx_tick();
     }
 }
 
@@ -178,20 +170,7 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
-        CanMsg rx_msg = io_canQueue_popRx(&canQueue1);
-        if (io_canRx_filterMessageId(rx_msg.std_id))
-        {
-            JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
-            io_canRx_updateRxTableWithMessage(&json_can_msg);
-        }
-
-        // Log the message if it needs to be logged
-        // ReSharper disable once CppRedundantCastExpression
-        if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)rx_msg.std_id, io_time_getCurrentMs()))
-            io_canLogging_loggingQueuePush(&rx_msg); // push to logging queue
-        // ReSharper disable once CppRedundantCastExpression
-        if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, io_time_getCurrentMs()))
-            io_telemMessage_pushMsgtoQueue(&rx_msg);
+        jobs_runCanRx_tick();
     }
 }
 

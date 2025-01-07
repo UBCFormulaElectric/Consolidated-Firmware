@@ -8,6 +8,7 @@
 #include "app_faultCheck.h"
 #include "app_commitInfo.h"
 #include "io_canTx.h"
+#include "io_canRx.h"
 
 #include "app_stateMachine.h"
 #include "states/app_initState.h"
@@ -17,6 +18,9 @@
 #include "io_log.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_jsoncan.h"
+#include "io_canQueues.h"
+#include "io_telemMessage.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
 
@@ -77,4 +81,35 @@ void jobs_run1kHz_tick(void)
 {
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+}
+
+void jobs_runCanTx_tick(void)
+{
+    CanMsg tx_msg = io_canQueue_popTx(&canQueue1);
+    hw_can_transmit(&can1, &tx_msg); // TODO make HW -> IO CAN
+
+    // ReSharper disable once CppRedundantCastExpression
+    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)tx_msg.std_id, io_time_getCurrentMs()))
+        io_canLogging_loggingQueuePush(&tx_msg);
+    // ReSharper disable once CppRedundantCastExpression
+    if (app_dataCapture_needsTelem((uint16_t)tx_msg.std_id, io_time_getCurrentMs()))
+        io_telemMessage_pushMsgtoQueue(&tx_msg);
+}
+
+void jobs_runCanRx_tick(void)
+{
+    const CanMsg rx_msg = io_canQueue_popRx(&canQueue1);
+    if (io_canRx_filterMessageId(rx_msg.std_id))
+    {
+        JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&json_can_msg);
+    }
+
+    // Log the message if it needs to be logged
+    // ReSharper disable once CppRedundantCastExpression
+    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)rx_msg.std_id, io_time_getCurrentMs()))
+        io_canLogging_loggingQueuePush(&rx_msg); // push to logging queue
+    // ReSharper disable once CppRedundantCastExpression
+    if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, io_time_getCurrentMs()))
+        io_telemMessage_pushMsgtoQueue(&rx_msg);
 }
