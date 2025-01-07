@@ -42,7 +42,17 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern ADC_HandleTypeDef   hadc1;
+    extern DMA_HandleTypeDef   hdma_adc1;
+    extern CRC_HandleTypeDef   hcrc;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern SD_HandleTypeDef    hsd1;
+    extern SPI_HandleTypeDef   hspi2;
+    extern TIM_HandleTypeDef   htim1;
+    extern TIM_HandleTypeDef   htim3;
+    extern TIM_HandleTypeDef   htim15;
+    extern UART_HandleTypeDef  huart1;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

@@ -81,8 +81,10 @@ bool io_efuse_isChannelEnabled(const EfuseChannel channel)
 float io_efuse_getChannelCurrent(const EfuseChannel channel)
 {
     assert(channel < NUM_EFUSE_CHANNELS);
-
-    return hw_adc_getVoltage(configs[channel].cur_sns_adc_channel) * ADC_VOLTAGE_TO_CURRENT_A;
+    const AdcChannel *a = configs[channel].cur_sns_adc_channel;
+    if (a == NULL)
+        return 0;
+    return hw_adc_getVoltage(a) * ADC_VOLTAGE_TO_CURRENT_A;
 }
 
 void io_efuse_standbyReset(const EfuseChannel channel)

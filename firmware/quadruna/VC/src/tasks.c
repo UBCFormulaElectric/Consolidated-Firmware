@@ -23,7 +23,6 @@
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdogConfig.h"
-#include "hw_gpios.h"
 #include "hw_cans.h"
 #include "hw_adc.h"
 #include "hw_stackWaterMarkConfig.h"
@@ -58,8 +57,7 @@ void tasks_init(void)
     hw_can_init(&can1);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    hw_adcs_chipsInit();
 
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).

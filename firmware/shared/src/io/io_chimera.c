@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "cmsis_os.h"
 
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
 
@@ -18,8 +18,8 @@
 /**
  * Required to be provided by hw_chimeraConfig.c
  */
-extern const Gpio *const id_to_gpio[]; // TODO make these proper functions, rather than implicit list indexing?
-extern const AdcChannel  id_to_adc[];  // TODO make these proper functions, rather than implicit list indexing?
+extern const Gpio *const       id_to_gpio[]; // TODO make these proper functions, rather than implicit list indexing?
+extern const AdcChannel *const id_to_adc[];  // TODO make these proper functions, rather than implicit list indexing?
 extern const UART       *chimera_uart;
 extern const Gpio       *n_chimera_gpio;
 
@@ -61,7 +61,7 @@ static const Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
     }
 }
 
-static AdcChannel io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
+static const AdcChannel *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
 {
     switch (net_name->which_name)
     {
@@ -146,8 +146,8 @@ void io_chimera_msgRxCallback(void)
             {
                 // ADC read message.
                 assert(msg.payload.adc.net_name.which_name == net_name_adc);
-                const AdcChannel adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
-                msg.payload.adc.value        = hw_adc_getVoltage(adc_channel);
+                const AdcChannel *adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
+                msg.payload.adc.value         = hw_adc_getVoltage(adc_channel);
                 break;
             }
             default:
