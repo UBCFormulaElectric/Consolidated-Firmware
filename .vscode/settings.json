@@ -9,5 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-    "C_Cpp.autoAddFileAssociations": false
 }
