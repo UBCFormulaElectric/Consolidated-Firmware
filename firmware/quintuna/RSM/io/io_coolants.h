@@ -32,5 +32,5 @@ typedef struct
 float io_coolant_getPressure(Coolant *coolant);
 float io_coolant_getTemperature(Coolant *coolant)
 
-    static extern const Coolant a;
-static extern const Coolant b;
+extern const Coolant a;
+extern const Coolant b;

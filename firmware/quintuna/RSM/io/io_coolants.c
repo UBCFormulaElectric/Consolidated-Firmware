@@ -44,22 +44,28 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
-static const Coolant a(coolantpressure1_3v3);
-static const Coolant b(coolantpressure2_3v3);
+const Coolant a = {coolantpressure1_3v3};
+const Coolant b = {coolantpressure2_3v3};
 
-void io_coolant_init(void)
+static PwmInputFreqOnly flow_meter;
+
+void io_coolant_init(const PwmInputFreqOnlyConfig *config)
 {
-    coolant_config.init();
+    hw_pwmInputFreqOnly_init(&flow_meter, config);
 }
 
-void io_coolant_inputCaptureCallback(void)
+void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    coolant_config.tick();
+    if (htim == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
+        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
+    {
+        hw_pwmInputFreqOnly_tick(&flow_meter);
+    }
 }
 
 float io_coolant_getFlowRate(void)
 {
-    const float freq_read = coolant_config.getFrequency();
+    const float freq_read = hw_pwmInputFreqOnly_getFrequency(coolant_config);
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
