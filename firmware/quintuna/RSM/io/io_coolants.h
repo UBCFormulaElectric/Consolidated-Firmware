@@ -21,6 +21,7 @@ bool  io_coolant_pressure_ocsc(float v);
 float io_coolant_getPressureA(void);
 float io_coolant_getPressureB(void);
 
+bool io_coolant_PressureAOCSC(void);
 bool io_coolant_pressureBOCSC(void);
 
 typedef struct
