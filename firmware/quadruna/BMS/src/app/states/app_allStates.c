@@ -1,7 +1,5 @@
 #include "states/app_allStates.h"
 #include "states/app_faultState.h"
-#include "app_utils.h"
-#include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_tractiveSystem.h"
 #include "app_imd.h"
@@ -12,6 +10,7 @@
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "io_bspdTest.h"
+#include "app_heartbeatMonitors.h"
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
@@ -56,8 +55,8 @@ bool app_allStates_runOnTick100Hz(void)
 {
     app_canTx_BMS_Heartbeat_set(true);
 
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 

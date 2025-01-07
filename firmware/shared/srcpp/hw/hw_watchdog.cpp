@@ -1,5 +1,5 @@
-#include "hw_watchdog.h"
-#include "io_log.h"
+#include "hw_watchdog.hpp"
+#include "io_log.hpp"
 #include "cmsis_os.h"
 
 #include <array>
