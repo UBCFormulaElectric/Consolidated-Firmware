@@ -3,13 +3,9 @@ import usb.core
 import usb.util
 import time
 import importlib
-module = importlib.import_module("/root/Consolidated-Firmware/validationtools/validationtools/chimera/chimera.py")
 
 devboard = usb.core.find(idVendor=0x0483, idProduct=0x5740)
 interface = devboard[0][(1,0)]
-
-# #and this is resulting in err2 
-
 
 endpointW = interface[0]
 endpointR = interface[1]
@@ -39,8 +35,8 @@ while True:
 
     res = bytes(buf).decode()
     print(res)
-    #this is resulting in error number 2 so if you get err2 its cuz of the util stuff 
     
 usb.util.release_interface(devboard, interface.bInterfaceNumber)
-#I get resource busy errors when trying to reattach the kernel I think this will be an issue later on but right now its good? 
-#devboard.attach_kernel_driver(interface.bInterfaceNumber)
+
+# Note: We might need this - it throws resource busy errors, may be a problem later-on.
+# devboard.attach_kernel_driver(interface.bInterfaceNumber)
