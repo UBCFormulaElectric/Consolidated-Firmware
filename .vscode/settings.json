@@ -14,6 +14,13 @@
 		"array": "c",
 		"string": "c",
 		"string_view": "c",
-		"vector": "c"
+		"vector": "c",
+		"io_log.h": "c",
+		"bootloader.h": "c",
+		"stdint.h": "c",
+		"bootloaderconfig.h": "c",
+		"ios": "c",
+		"main.h": "c"
 	},
+	"cortex-debug.variableUseNaturalFormat": false,
 }

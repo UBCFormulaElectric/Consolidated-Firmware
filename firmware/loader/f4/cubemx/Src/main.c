@@ -27,9 +27,14 @@
 #include "hw_hal.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
+#include "hw_can.h"
+
+#include "io_can.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -70,8 +75,6 @@ CAN_HandleTypeDef hcan1;
 
 CRC_HandleTypeDef hcrc;
 
-UART_HandleTypeDef huart2;
-
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
@@ -79,7 +82,42 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = 128 * 4,
     .priority   = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for canTxTask */
+osThreadId_t         canTxTaskHandle;
+uint32_t             canTxTaskBuffer[512];
+osStaticThreadDef_t  canTxTaskControlBlock;
+const osThreadAttr_t canTxTask_attributes = {
+    .name       = "canTxTask",
+    .cb_mem     = &canTxTaskControlBlock,
+    .cb_size    = sizeof(canTxTaskControlBlock),
+    .stack_mem  = &canTxTaskBuffer[0],
+    .stack_size = sizeof(canTxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
 /* USER CODE BEGIN PV */
+static void canRxOverflow(uint32_t unused)
+{
+    UNUSED(unused);
+    // BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+static void canTxOverflow(uint32_t unused)
+{
+    UNUSED(unused);
+    // BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+static const CanConfig can_config = {
+    .rx_msg_filter        = NULL,
+    .rx_overflow_callback = canRxOverflow,
+    .tx_overflow_callback = canTxOverflow,
+};
+
+CanHandle can = {
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_pushRxMsgToQueue,
+};
+
 static LoaderStatus verifyAppCodeChecksum(void)
 {
     if (*&__app_code_start__ == 0xFFFFFFFF)
@@ -153,10 +191,10 @@ _Noreturn static void modifyStackPointerAndJump(const uint32_t *address)
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CAN1_Init(void);
-static void MX_USART2_UART_Init(void);
+// static void MX_CAN1_Init(void);
 static void MX_CRC_Init(void);
 void        StartDefaultTask(void *argument);
+void        runCanTxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -174,7 +212,6 @@ void        StartDefaultTask(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -190,18 +227,19 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
+    __HAL_RCC_CAN1_CLK_ENABLE();
+    __HAL_RCC_CRC_CLK_ENABLE();
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_CAN1_Init();
-    MX_USART2_UART_Init();
+    // MX_CAN1_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
-    __HAL_RCC_CRC_CLK_ENABLE();
+    // hw_can_init(&can);
+    // io_can_init(&can_config);
 
     LoaderStatus status = verifyAppCodeChecksum();
     HAL_CRC_DeInit(&hcrc);
@@ -237,6 +275,9 @@ int main(void)
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -312,35 +353,34 @@ void SystemClock_Config(void)
  * @param None
  * @retval None
  */
-static void MX_CAN1_Init(void)
-{
-    /* USER CODE BEGIN CAN1_Init 0 */
+// static void MX_CAN1_Init(void)
+// {
+//     /* USER CODE BEGIN CAN1_Init 0 */
+//     /* USER CODE END CAN1_Init 0 */
 
-    /* USER CODE END CAN1_Init 0 */
+//     /* USER CODE BEGIN CAN1_Init 1 */
 
-    /* USER CODE BEGIN CAN1_Init 1 */
+//     /* USER CODE END CAN1_Init 1 */
+//     hcan1.Instance                  = CAN1;
+//     hcan1.Init.Prescaler            = 6;
+//     hcan1.Init.Mode                 = CAN_MODE_NORMAL;
+//     hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
+//     hcan1.Init.TimeSeg1             = CAN_BS1_13TQ;
+//     hcan1.Init.TimeSeg2             = CAN_BS2_2TQ;
+//     hcan1.Init.TimeTriggeredMode    = DISABLE;
+//     hcan1.Init.AutoBusOff           = ENABLE;
+//     hcan1.Init.AutoWakeUp           = DISABLE;
+//     hcan1.Init.AutoRetransmission   = ENABLE;
+//     hcan1.Init.ReceiveFifoLocked    = ENABLE;
+//     hcan1.Init.TransmitFifoPriority = ENABLE;
+//     if (HAL_CAN_Init(&hcan1) != HAL_OK)
+//     {
+//         Error_Handler();
+//     }
+//     /* USER CODE BEGIN CAN1_Init 2 */
 
-    /* USER CODE END CAN1_Init 1 */
-    hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 16;
-    hcan1.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan1.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan1.Init.TimeSeg1             = CAN_BS1_1TQ;
-    hcan1.Init.TimeSeg2             = CAN_BS2_1TQ;
-    hcan1.Init.TimeTriggeredMode    = DISABLE;
-    hcan1.Init.AutoBusOff           = DISABLE;
-    hcan1.Init.AutoWakeUp           = DISABLE;
-    hcan1.Init.AutoRetransmission   = DISABLE;
-    hcan1.Init.ReceiveFifoLocked    = DISABLE;
-    hcan1.Init.TransmitFifoPriority = DISABLE;
-    if (HAL_CAN_Init(&hcan1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CAN1_Init 2 */
-
-    /* USER CODE END CAN1_Init 2 */
-}
+//     /* USER CODE END CAN1_Init 2 */
+// }
 
 /**
  * @brief CRC Initialization Function
@@ -364,37 +404,6 @@ static void MX_CRC_Init(void)
     /* USER CODE BEGIN CRC_Init 2 */
 
     /* USER CODE END CRC_Init 2 */
-}
-
-/**
- * @brief USART2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USART2_UART_Init(void)
-{
-    /* USER CODE BEGIN USART2_Init 0 */
-
-    /* USER CODE END USART2_Init 0 */
-
-    /* USER CODE BEGIN USART2_Init 1 */
-
-    /* USER CODE END USART2_Init 1 */
-    huart2.Instance          = USART2;
-    huart2.Init.BaudRate     = 57600;
-    huart2.Init.WordLength   = UART_WORDLENGTH_8B;
-    huart2.Init.StopBits     = UART_STOPBITS_1;
-    huart2.Init.Parity       = UART_PARITY_NONE;
-    huart2.Init.Mode         = UART_MODE_TX_RX;
-    huart2.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-    if (HAL_UART_Init(&huart2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USART2_Init 2 */
-
-    /* USER CODE END USART2_Init 2 */
 }
 
 /**
@@ -436,6 +445,24 @@ void StartDefaultTask(void *argument)
         osDelay(1);
     }
     /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_runCanTxTask */
+/**
+ * @brief Function implementing the canTxTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runCanTxTask */
+void runCanTxTask(void *argument)
+{
+    /* USER CODE BEGIN runCanTxTask */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END runCanTxTask */
 }
 
 /**

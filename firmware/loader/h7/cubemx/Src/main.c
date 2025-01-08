@@ -27,6 +27,9 @@
 #include "hw_hal.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
+#include "hw_can.h"
+
+#include "io_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,6 +72,8 @@ typedef struct
 
 CRC_HandleTypeDef hcrc;
 
+FDCAN_HandleTypeDef hfdcan1;
+
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
@@ -77,6 +82,29 @@ const osThreadAttr_t defaultTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
+static void canRxOverflow(uint32_t unused)
+{
+    UNUSED(unused);
+    // BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+static void canTxOverflow(uint32_t unused)
+{
+    UNUSED(unused);
+    // BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+static const CanConfig can_config = {
+    .rx_msg_filter        = NULL,
+    .rx_overflow_callback = canRxOverflow,
+    .tx_overflow_callback = canTxOverflow,
+};
+
+CanHandle can = {
+    .can                       = &hfdcan1,
+    .can_msg_received_callback = io_can_pushRxMsgToQueue,
+};
+
 static LoaderStatus verifyAppCodeChecksum(void)
 {
     if (*&__app_code_start__ == 0xFFFFFFFF)
@@ -151,6 +179,7 @@ _Noreturn static void modifyStackPointerAndJump(const uint32_t *address)
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CRC_Init(void);
+static void MX_FDCAN1_Init(void);
 void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -183,15 +212,20 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
+    __HAL_RCC_CRC_CLK_ENABLE();
+    __HAL_RCC_FDCAN_CLK_ENABLE();
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CRC_Init();
+    MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
+
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
-    __HAL_RCC_CRC_CLK_ENABLE();
+    io_can_init(&can_config);
+    hw_can_init(&can);
 
     LoaderStatus status = verifyAppCodeChecksum();
     HAL_CRC_DeInit(&hcrc);
@@ -266,7 +300,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -280,7 +314,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 64;
+    RCC_OscInitStruct.PLL.PLLN       = 24;
     RCC_OscInitStruct.PLL.PLLP       = 1;
     RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
@@ -297,14 +331,14 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 |
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV2;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
     {
         Error_Handler();
     }
@@ -342,31 +376,69 @@ static void MX_CRC_Init(void)
 }
 
 /**
+ * @brief FDCAN1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_FDCAN1_Init(void)
+{
+    /* USER CODE BEGIN FDCAN1_Init 0 */
+
+    /* USER CODE END FDCAN1_Init 0 */
+
+    /* USER CODE BEGIN FDCAN1_Init 1 */
+
+    /* USER CODE END FDCAN1_Init 1 */
+    hfdcan1.Instance                  = FDCAN1;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
+    hfdcan1.Init.AutoRetransmission   = ENABLE;
+    hfdcan1.Init.TransmitPause        = DISABLE;
+    hfdcan1.Init.ProtocolException    = DISABLE;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 4;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 1;
+    hfdcan1.Init.DataSyncJumpWidth    = 1;
+    hfdcan1.Init.DataTimeSeg1         = 1;
+    hfdcan1.Init.DataTimeSeg2         = 1;
+    hfdcan1.Init.MessageRAMOffset     = 0;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxBuffersNbr         = 0;
+    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.TxEventsNbr          = 0;
+    hfdcan1.Init.TxBuffersNbr         = 0;
+    hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
+    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN FDCAN1_Init 2 */
+
+    /* USER CODE END FDCAN1_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
  */
 static void MX_GPIO_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LOADER_LED_GPIO_Port, LOADER_LED_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin : LOADER_LED_Pin */
-    GPIO_InitStruct.Pin   = LOADER_LED_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LOADER_LED_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

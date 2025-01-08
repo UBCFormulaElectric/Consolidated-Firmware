@@ -18,7 +18,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >loader
+  } >loader_code
 
   /* The loader code and other data into "loader" Rom type memory */
   .text :
@@ -77,7 +77,7 @@ SECTIONS
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
     . = ALIGN(4);
-  } >loader
+  } >loader_code
 
   .fini_array :
   {

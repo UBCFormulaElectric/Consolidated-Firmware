@@ -10,6 +10,7 @@ IF ("${TARGET}" STREQUAL "binary")
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     )
 
     set(COMMON_INCLUDE_DIRS
@@ -54,7 +55,8 @@ IF ("${TARGET}" STREQUAL "binary")
         # Board-specific CAN/FDCAN configuration
         if("${BOARD}" STREQUAL "h7")
             list(APPEND STM32_HAL_SRCS "stm32h7xx_hal_crc_ex.c")
-            # set(BOARD_SPECIFIC_CAN_SRC "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c")
+            list(APPEND STM32_HAL_SRCS "stm32h7xx_hal_fdcan.c")
+            set(BOARD_SPECIFIC_CAN_SRC "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c")
 
             stm32h733xx_cube_library(
                 "${LOADER_NAME}_stm32cube"
@@ -72,7 +74,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
         elseif("${BOARD}" STREQUAL "f4")
             list(APPEND STM32_HAL_SRCS "stm32f4xx_hal_can.c")
-            # set(BOARD_SPECIFIC_CAN_SRC "${SHARED_HW_INCLUDE_DIR}/hw_can.c")
+            set(BOARD_SPECIFIC_CAN_SRC "${SHARED_HW_INCLUDE_DIR}/hw_can.c")
 
             stm32f412rx_cube_library(
                 "${LOADER_NAME}_stm32cube"
@@ -89,7 +91,7 @@ IF ("${TARGET}" STREQUAL "binary")
             )
         endif()
 
-        list(APPEND SRCS ${COMMON_SRCS}) # maybe add ${BOARD_SPECIFIC_CAN_SRC}
+        list(APPEND SRCS ${COMMON_SRCS} ${BOARD_SPECIFIC_CAN_SRC})
         list(APPEND INCLUDE_DIRS ${COMMON_INCLUDE_DIRS})
 
         set(ARM_CORE "${ARM_CORE}")
