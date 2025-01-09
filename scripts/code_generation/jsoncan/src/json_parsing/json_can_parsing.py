@@ -1,6 +1,7 @@
 """
 Module for parsing CAN JSON, and returning a CanDatabase object. 
 """
+from __future__ import annotations
 
 import json
 import os
@@ -40,7 +41,7 @@ def calc_signal_scale_and_offset(
 class JsonCanParser:
     def __init__(self, can_data_dir: str):
         self._bus_cfg: list[CanBusConfig] = []  # List of bus configurations
-        self._nodes: list[str] = []  # List of node names
+        self._nodes: List[CanNode] = []  # List of node names
         self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
         self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
         self._shared_enums: list[CanEnum] = []  # Set of shared enums
@@ -67,9 +68,16 @@ class JsonCanParser:
         """
         Load all CAN JSON data from specified directory.
         """
+        
         # Load shared JSON data
         # Parse bus data
         bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
+        # dynamic validation of bus data
+        for bus in self._bus_cfg:
+            if bus.default_mode not in bus.modes:
+                raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
+            
+        # store bus data
         self._bus_cfg = [
             CanBusConfig(
                 name=bus["name"],
@@ -80,13 +88,12 @@ class JsonCanParser:
             )
             for bus in bus_json_data
         ]
-        for bus in self._bus_cfg:
-            if bus.default_mode not in bus.modes:
-                raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
 
+        # load shared enum data
         shared_enum_json_data = validate_enum_json(
             self._load_json_file(f"{can_data_dir}/shared_enum")
         )
+       
         # Parse shared enum JSON
         for enum_name, enum_entries in shared_enum_json_data.items():
             # Check if this enum name is a duplicate
@@ -101,8 +108,8 @@ class JsonCanParser:
             self._shared_enums.append(can_enum)
 
         # Parse node's TX, ALERTS, and ENUM JSON
-        self._nodes = [f.name for f in os.scandir(can_data_dir) if f.is_dir()]
-        for node in self._nodes:
+        nodes = [f.name for f in os.scandir(can_data_dir) if f.is_dir()]
+        for node in nodes:
             # Parse ENUM
             node_enum_json_data = validate_enum_json(
                 self._load_json_file(f"{can_data_dir}/{node}/{node}_enum")
@@ -179,6 +186,10 @@ class JsonCanParser:
                         for alert in faults.signals
                     },
                 }
+                
+            # Add node to list of nodes
+            node_obj = CanNode(name=node, )
+            self._nodes.append(node)
 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         for node in self._nodes:
@@ -420,6 +431,11 @@ class JsonCanParser:
             specified_start_bit,
         )
 
+    def _build_node_obj(self, node: str):
+        """
+        Build a CanNode object from the parsed JSON data.
+        """
+        return CanNode(name=node)
     @staticmethod
     def _get_parsed_can_enum(enum_name: str, enum_entries: dict[str, int]) -> CanEnum:
         """
@@ -576,7 +592,7 @@ class JsonCanParser:
         )
 
         return alerts_msgs, (faults_meta_data, warnings_meta_data)
-
+    
     @staticmethod
     def _node_alert_signals(
         node: str, alerts: dict[str, AlertsEntry], alert_type: CanAlertType
@@ -635,6 +651,15 @@ class JsonCanParser:
             for i, alert in enumerate(alerts)
         ]
 
+    
+    
+    @staticmethod
+    def _build_node_obj(node: str, ) -> CanNode:
+        """
+        Build a CanNode object from the parsed JSON data.
+        """
+        return CanNode(name=node)
+    
     @staticmethod
     def _load_json_file(file_path: str) -> Dict:
         """

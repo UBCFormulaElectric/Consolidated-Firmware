@@ -141,6 +141,7 @@ alerts_schema = Schema(
             "warnings_counts_id": And(int, lambda x: x >= 0),
             "faults_id": And(int, lambda x: x >= 0),
             "faults_counts_id": And(int, lambda x: x >= 0),
+            "bus": list[str],
             "warnings": Or(
                 {},
                 {
