@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Union
+from typing import Dict, List, Set, Union
 
 from strenum import StrEnum
 
@@ -51,6 +51,11 @@ class CanEnum:
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
 
+    def __str__(self):
+        return self.name
+    
+    def __hash__(self):
+        return hash(self.name)
 
 class CanSignalDatatype(StrEnum):
     """
@@ -62,7 +67,7 @@ class CanSignalDatatype(StrEnum):
     UINT = "uint32_t"
     FLOAT = "float"
 
-@dataclass(frozen=True)
+@dataclass()
 class CanBusConfig:
     """
     Dataclass for holding bus config.
@@ -73,6 +78,17 @@ class CanBusConfig:
     modes: List[str]
     default_mode: str
     name: str
+    nodes: List[CanNode] # List of nodes on this bus
+
+    def __init__(self, bus_speed: int, modes: List[str], default_mode: str, name: str):
+        self.bus_speed = bus_speed
+        self.modes = modes
+        self.default_mode = default_mode
+        self.name = name
+        self.nodes = []
+    
+    def __hash__(self):
+        return hash(self.name)
 
 
 
@@ -94,6 +110,7 @@ class CanSignal:
     unit: str  # Signal's unit
     signed: bool  # Whether or not signal is represented as signed or unsigned
     description: str = "N/A"  # Description of signal
+    message : CanMessage = None # Message this signal belongs to
 
     def represent_as_integer(self):
         """
@@ -167,10 +184,13 @@ class CanSignal:
 
     def __str__(self):
         return self.name
+    
+    def __hash__(self):
+        return hash(self.name)
 
 
 
-@dataclass(frozen=True)
+@dataclass()
 class CanMessage:
     """
     Dataclass for fully describing a CAN message.
@@ -180,13 +200,15 @@ class CanMessage:
     id: int  # Message ID
     description: str  # Message description
     cycle_time: Union[int, None]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
-    signals: List[CanSignal]  # All signals that make up this message
-    bus: List[CanBusConfig]  # List of buses this message is transmitted on
+    signals: Set[CanSignal]  # All signals that make up this message
+    bus: Set[CanBusConfig]  # List of buses this message is transmitted on
     tx_node: CanNode  # Node which transmits this message
-    modes: List[str]  # List of modes which this message should be transmitted in
     log_cycle_time: Union[int, None]  # Interval that this message should be logged to disk at (None if don't capture this msg)
     telem_cycle_time: Union[int, None]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
+    
+
+    
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -222,6 +244,12 @@ class CanMessage:
 
     def bytes_macro(self):
         return f"CANMSG_{self.snake_name().upper()}_BYTES"
+    
+    def __str__(self):
+        return self.name
+    
+    def __hash__(self):
+        return hash(self.id)
 
         
 
@@ -242,17 +270,31 @@ class CanAlert:
 
     name: str
     alert_type: CanAlertType
-
+@dataclass()
 class CanNode:
     """
     Dataclass for fully describing a CAN node.
     """
     
     name: str  # Name of this CAN node
-    tx_msgs: List[CanMessage]  
-    rx_msgs: List[CanMessage]  
+    tx_msgs: Set[CanMessage]  
+    rx_msgs: Set[CanMessage]  
     alerts: Dict[CanAlert, AlertsEntry]  # Dictionary of alert to alert entry
-    buses : List[CanBusConfig]  # List of buses this node is on
+    buses : Set[CanBusConfig]  # List of buses this node is on
+    
+    def __init__(self, name: str):
+        self.name = name
+        self.tx_msgs = []
+        self.rx_msgs = []
+        self.alerts = {}
+        self.buses = []
+        
+    
+    def __hash__(self):
+        return hash(self.name)
+    
+    def __str__(self):
+        return self.name
         
 
 @dataclass(frozen=True)
