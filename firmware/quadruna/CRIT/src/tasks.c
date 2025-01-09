@@ -28,7 +28,7 @@
 #include "app_commitInfo.h"
 // hw
 #include "hw_gpio.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_uart.h"
 #include "hw_utils.h"
 #include "hw_bootup.h"
@@ -36,11 +36,6 @@
 #include "hw_watchdogConfig.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
-
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern UART_HandleTypeDef huart2;
-extern CAN_HandleTypeDef  hcan1;
 
 static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
@@ -324,8 +319,8 @@ const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_NCHIMERA]             = &n_chimera_pin,
 };
 
-const AdcChannel id_to_adc[] = {
-    [CRIT_AdcNetName_REGEN_3V3] = ADC1_IN14_REGEN,
+const AdcChannel *id_to_adc[] = {
+    [CRIT_AdcNetName_REGEN_3V3] = &regen,
 };
 
 static const UART debug_uart = { .handle = &huart2 };
@@ -352,52 +347,6 @@ static const Switches switch_config = {
     .torquevec_switch = &torquevec_switch,
 };
 
-// CRIT rellies on BMS, VC, RSM, FSM
-static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
-    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
-};
-
-// heartbeatGetters - get heartbeat signals from other boards
-static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
 static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = inertia_sen_pin };
 
@@ -414,8 +363,7 @@ void tasks_init(void)
     LOG_INFO("VC reset!");
 
     // Start DMA/TIM3 for the ADC.
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    hw_adcs_chipsInit();
 
     io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);
 
@@ -437,10 +385,6 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
-
-    app_heartbeatMonitor_init(
-        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
-        heartbeatFaultSetters, heartbeatFaultGetters);
 
     app_stateMachine_init(app_mainState_get());
 
