@@ -244,8 +244,6 @@ class IoCanTxModule(CModule):
     # FIXME: need node on what bus, need to know each message's bus. Need to fix a lot of parsing scripts. so I will fix here for now.
     
     #FIXME: assume all node on all buses for now
-    
-    
     def header_template(self):
         template = load_template("io_canTx.h.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])

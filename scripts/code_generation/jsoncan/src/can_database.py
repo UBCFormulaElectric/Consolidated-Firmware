@@ -1,6 +1,7 @@
 """
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
+from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
@@ -9,13 +10,8 @@ from typing import Dict, List, Union
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +61,19 @@ class CanSignalDatatype(StrEnum):
     INT = "int"
     UINT = "uint32_t"
     FLOAT = "float"
+
+@dataclass(frozen=True)
+class CanBusConfig:
+    """
+    Dataclass for holding bus config.
+    """
+
+    default_receiver: str
+    bus_speed: int
+    modes: List[str]
+    default_mode: str
+    name: str
+
 
 
 @dataclass(frozen=True)
@@ -160,6 +169,7 @@ class CanSignal:
         return self.name
 
 
+
 @dataclass(frozen=True)
 class CanMessage:
     """
@@ -169,20 +179,13 @@ class CanMessage:
     name: str  # Name of this CAN message
     id: int  # Message ID
     description: str  # Message description
-    cycle_time: Union[
-        int, None
-    ]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
+    cycle_time: Union[int, None]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
     signals: List[CanSignal]  # All signals that make up this message
-    bus: List[str]  # List of buses this message is transmitted on
-    tx_node: str  # The node that transmits this message
-    rx_nodes: List[str]  # All nodes which receive this message
+    bus: List[CanBusConfig]  # List of buses this message is transmitted on
+    tx_node: CanNode  # Node which transmits this message
     modes: List[str]  # List of modes which this message should be transmitted in
-    log_cycle_time: Union[
-        int, None
-    ]  # Interval that this message should be logged to disk at (None if don't capture this msg)
-    telem_cycle_time: Union[
-        int, None
-    ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
+    log_cycle_time: Union[int, None]  # Interval that this message should be logged to disk at (None if don't capture this msg)
+    telem_cycle_time: Union[int, None]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
     def bytes(self):
         """
@@ -220,23 +223,7 @@ class CanMessage:
     def bytes_macro(self):
         return f"CANMSG_{self.snake_name().upper()}_BYTES"
 
-
-@dataclass(frozen=True)
-class CanBusConfig:
-    """
-    Dataclass for holding bus config.
-    """
-
-    default_receiver: str
-    bus_speed: int
-    modes: List[str]
-    default_mode: str
-    name: str
-
-    @staticmethod
-    def get_list_of_bus(config) -> List[str]:
-        return [bus["name"] for bus in config["buses"]]
-
+        
 
 class CanAlertType(StrEnum):
     """
@@ -256,22 +243,29 @@ class CanAlert:
     name: str
     alert_type: CanAlertType
 
+class CanNode:
+    """
+    Dataclass for fully describing a CAN node.
+    """
+    
+    name: str  # Name of this CAN node
+    tx_msgs: List[CanMessage]  
+    rx_msgs: List[CanMessage]  
+    alerts: Dict[CanAlert, AlertsEntry]  # Dictionary of alert to alert entry
+    buses : List[CanBusConfig]  # List of buses this node is on
+        
 
 @dataclass(frozen=True)
 class CanDatabase:
     """
     Dataclass for fully describing a CAN bus, its nodes, and their messages.
     """
-
-    nodes: List[str]  # List of names of the nodes on the bus
-    bus_config: List[CanBusConfig]  # Various bus params
-    msgs: Dict[
-        int, CanMessage
-    ]  # All messages being sent to the bus (dict of (ID to message)
+    # TODO: change to a list of CanNode
+    nodes: Dict[str,CanNode]  # List of names of the nodes on the bus
+    bus_config: Dict[str,CanBusConfig]  # Various bus params
+    msgs: Dict[int, CanMessage]  # All messages being sent to the bus (dict of (ID to message)
     shared_enums: List[CanEnum]  # Enums used by all nodes
-    alerts: Dict[
-        str, Dict[CanAlert, AlertsEntry]
-    ]  # Dictionary of node to list of alerts set by node
+    alerts: Dict[str, Dict[CanAlert, AlertsEntry]]  # Dictionary of node to list of alerts set by node
 
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
