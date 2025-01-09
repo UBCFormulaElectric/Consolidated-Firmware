@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "hw_can.h"
+#include "io_can.h"
 #include "hw_utils.h"
 #include "io_canQueue.h"
 #include "io_log.h"
@@ -134,7 +134,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     assert(hfdcan == &hfdcan1);
     UNUSED(RxFifo0ITs);
     CanMsg rx_msg;
-    if (!hw_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
+    if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&cq, &rx_msg);
@@ -145,7 +145,7 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     assert(hfdcan == &hfdcan1);
     UNUSED(RxFifo1ITs);
     CanMsg rx_msg;
-    if (!hw_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
+    if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&cq, &rx_msg);
@@ -184,7 +184,7 @@ int main(void)
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
-    hw_can_init(&can);
+    io_can_init(&can);
     io_canQueue_init(&cq);
     /* USER CODE END 2 */
 

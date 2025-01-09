@@ -1,5 +1,6 @@
 #pragma once
-#include "hw_can.h"
+#include "io_canMsg.h"
+#include <stdbool.h>
 
 /**
  * Creates a new message queue for storing telem messages

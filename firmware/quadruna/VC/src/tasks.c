@@ -19,11 +19,12 @@
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
+#include "io_cans.h"
+#include "io_chimera.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdogConfig.h"
-#include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_stackWaterMarkConfig.h"
 
@@ -38,12 +39,6 @@ void tasks_preInitWatchdog(void)
         io_canLogging_init();
 }
 
-static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
-{
-    const CanMsg c = io_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&canQueue1, &c);
-}
-
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
@@ -52,22 +47,15 @@ void tasks_init(void)
     LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
-
     hw_hardFaultHandler_init();
-    hw_can_init(&can1);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-
     hw_adcs_chipsInit();
-
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).
     HAL_ADC_Start_IT(&hadc3);
 
-    io_canTx_init(jsoncan_transmit_func); // TODO
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_canQueue_init(&canQueue1);
+    // TODO hw_chimera??
     io_chimera_init(GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag);
-    io_telemMessage_init();
 
     jobs_init();
 
@@ -227,7 +215,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     CanMsg rx_msg;
 
     assert(hfdcan == &hfdcan1);
-    if (!hw_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
+    if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&canQueue1, &rx_msg);
@@ -239,7 +227,7 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     CanMsg rx_msg;
 
     assert(hfdcan == &hfdcan1);
-    if (!hw_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
+    if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&canQueue1, &rx_msg);

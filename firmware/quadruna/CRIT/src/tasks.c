@@ -371,7 +371,7 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_hardFaultHandler_init();
-    hw_can_init(&can);
+    io_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

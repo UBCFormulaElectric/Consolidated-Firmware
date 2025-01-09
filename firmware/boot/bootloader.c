@@ -17,7 +17,7 @@
 #include "hw_utils.h"
 #include "hw_crc.h"
 #include "hw_hal.h"
-#include "hw_can.h"
+#include "io_can.h"
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
@@ -248,7 +248,7 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&cq);
-        hw_can_transmit(&can, &tx_msg);
+        io_can_transmit(&can, &tx_msg);
     }
 }
 

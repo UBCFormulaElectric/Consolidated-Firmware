@@ -1,7 +1,7 @@
 #pragma once
 
 #include "io_canRx.h"
-#include "hw_can.h"
+#include "io_canMsg.h"
 
 /**
  * Helper functions to interface our hw-level CAN driver (hw_can.h/c)

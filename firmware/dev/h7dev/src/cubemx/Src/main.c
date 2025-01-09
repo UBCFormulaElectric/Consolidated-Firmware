@@ -191,7 +191,7 @@ int main(void)
 
     io_can_init(&can_config);
     hw_hardFaultHandler_init();
-    hw_can_init(&can);
+    io_can_init(&can);
 
     if (sd_inited)
     {

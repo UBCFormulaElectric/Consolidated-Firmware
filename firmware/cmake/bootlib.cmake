@@ -53,9 +53,9 @@ function(stm32f4_boot_binary
     # Add shared files.
     list(APPEND SRCS
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+            "${SHARED_IO_INCLUDE_DIR}/io_can.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
@@ -132,9 +132,9 @@ function(stm32h7_boot_binary
     # Add shared files.
     list(APPEND SRCS
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+            "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"

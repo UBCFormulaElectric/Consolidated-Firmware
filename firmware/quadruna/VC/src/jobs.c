@@ -23,6 +23,13 @@
 #include "io_telemMessage.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
+#include "io_cans.h"
+
+static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
+{
+    const CanMsg c = io_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&canQueue1, &c);
+}
 
 void jobs_init()
 {
@@ -53,6 +60,12 @@ void jobs_init()
         app_canAlerts_VC_Warning_ImuInitFailed_set(true);
         LOG_INFO("Imu initialization failed");
     }
+
+    io_can_init(&can1);
+    io_canTx_init(jsoncan_transmit_func);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canQueue_init(&canQueue1);
+    io_telemMessage_init();
 }
 
 void jobs_run1Hz_tick(void)
@@ -86,7 +99,7 @@ void jobs_run1kHz_tick(void)
 void jobs_runCanTx_tick(void)
 {
     CanMsg tx_msg = io_canQueue_popTx(&canQueue1);
-    hw_can_transmit(&can1, &tx_msg); // TODO make HW -> IO CAN
+    io_can_transmit(&can1, &tx_msg); // TODO make HW -> IO CAN
 
     // ReSharper disable once CppRedundantCastExpression
     if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)tx_msg.std_id, io_time_getCurrentMs()))

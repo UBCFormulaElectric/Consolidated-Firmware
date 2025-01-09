@@ -140,7 +140,7 @@ int main(void)
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
-    hw_can_init(&can);
+    io_can_init(&can);
     /* USER CODE END 2 */
 
     /* Init scheduler */
