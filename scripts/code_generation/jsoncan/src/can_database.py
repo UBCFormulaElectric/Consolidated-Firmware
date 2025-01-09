@@ -200,9 +200,10 @@ class CanMessage:
     id: int  # Message ID
     description: str  # Message description
     cycle_time: Union[int, None]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
-    signals: Set[CanSignal]  # All signals that make up this message
-    bus: Set[CanBusConfig]  # List of buses this message is transmitted on
+    signals: List[CanSignal]  # All signals that make up this message
+    bus: List[CanBusConfig]  # List of buses this message is transmitted on
     tx_node: CanNode  # Node which transmits this message
+    rx_nodes: List[CanNode]  # List of nodes which receive this message
     log_cycle_time: Union[int, None]  # Interval that this message should be logged to disk at (None if don't capture this msg)
     telem_cycle_time: Union[int, None]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
@@ -277,10 +278,10 @@ class CanNode:
     """
     
     name: str  # Name of this CAN node
-    tx_msgs: Set[CanMessage]  
-    rx_msgs: Set[CanMessage]  
+    tx_msgs: List[CanMessage]  
+    rx_msgs: List[CanMessage]  
     alerts: Dict[CanAlert, AlertsEntry]  # Dictionary of alert to alert entry
-    buses : Set[CanBusConfig]  # List of buses this node is on
+    buses : List[CanBusConfig]  # List of buses this node is on
     
     def __init__(self, name: str):
         self.name = name
