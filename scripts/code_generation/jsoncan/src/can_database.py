@@ -9,8 +9,13 @@ from typing import Dict, List, Union
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (bits_for_uint, bits_to_bytes, is_int,
-                    pascal_to_screaming_snake_case, pascal_to_snake_case)
+from .utils import (
+    bits_for_uint,
+    bits_to_bytes,
+    is_int,
+    pascal_to_screaming_snake_case,
+    pascal_to_snake_case,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +48,12 @@ class CanEnum:
         Number of bits needed to store this value table.
         """
         return bits_for_uint(self.max_val())
-    
+
     def snake_name(self):
         return pascal_to_snake_case(self.name)
-    
+
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
-    
 
 
 class CanSignalDatatype(StrEnum):
@@ -114,7 +118,7 @@ class CanSignal:
                 return CanSignalDatatype.INT
         else:
             return CanSignalDatatype.FLOAT
-    
+
     def datatype(self):
         """
         The name the datatype this signal should be stored as (specific to C).
@@ -130,29 +134,28 @@ class CanSignal:
                 return CanSignalDatatype.INT
         else:
             return CanSignalDatatype.FLOAT
-    
+
     def snake_name(self):
         return pascal_to_snake_case(self.name)
-    
-   
+
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
-    
+
     def start_val_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_START_VAL"
-    
+
     def max_val_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_MAX_VAL"
-    
+
     def min_val_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
-    
+
     def scale_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_SCALE"
-    
+
     def offset_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_OFFSET"
-    
+
     def __str__(self):
         return self.name
 
@@ -166,15 +169,21 @@ class CanMessage:
     name: str  # Name of this CAN message
     id: int  # Message ID
     description: str  # Message description
-    cycle_time: Union[int, None]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
+    cycle_time: Union[
+        int, None
+    ]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
     signals: List[CanSignal]  # All signals that make up this message
-    bus: List[str] # List of buses this message is transmitted on
+    bus: List[str]  # List of buses this message is transmitted on
     tx_node: str  # The node that transmits this message
     rx_nodes: List[str]  # All nodes which receive this message
     modes: List[str]  # List of modes which this message should be transmitted in
-    log_cycle_time: Union[int, None]  # Interval that this message should be logged to disk at (None if don't capture this msg)
-    telem_cycle_time: Union[int, None]  # Interval that this message should be sent via telem at (None if don't capture this msg)
-    
+    log_cycle_time: Union[
+        int, None
+    ]  # Interval that this message should be logged to disk at (None if don't capture this msg)
+    telem_cycle_time: Union[
+        int, None
+    ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
+
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -191,28 +200,25 @@ class CanMessage:
         If this signal is periodic, i.e. should be continuously transmitted at a certain cycle time.
         """
         return self.cycle_time is not None
-    
-    
+
     def snake_name(self):
         return pascal_to_snake_case(self.name)
-    
-    
+
     def scremming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
-    
+
     # type of the message
     def c_type(self):
         return self.name + "_Signals"
-    
+
     def id_macro(self):
         return f"CANMSG_{self.snake_name().upper()}_ID"
-    
+
     def cycle_time_macro(self):
         return f"CANMSG_{self.snake_name().upper()}_CYCLE_TIME"
-    
+
     def bytes_macro(self):
         return f"CANMSG_{self.snake_name().upper()}_BYTES"
-    
 
 
 @dataclass(frozen=True)
@@ -226,6 +232,10 @@ class CanBusConfig:
     modes: List[str]
     default_mode: str
     name: str
+
+    @staticmethod
+    def get_list_of_bus(config) -> List[str]:
+        return [bus["name"] for bus in config["buses"]]
 
 
 class CanAlertType(StrEnum):
@@ -322,24 +332,18 @@ class CanDatabase:
             elif info == {}:
                 new_dict[alert.name] = {}
         return new_dict
-    
-    
+
     def get_board_node(self):
         nodes_with_alerts = [
             node
             for node in self.nodes
             if any(
-                [
-                    self.node_has_alert(node, alert_type)
-                    for alert_type in CanAlertType
-                ]
+                [self.node_has_alert(node, alert_type) for alert_type in CanAlertType]
             )
         ]
-        
+
         return nodes_with_alerts
-    
-    
-        
+
     def node_alerts_all_description(self):
         """Returns a dictionary containing a the alert names as the key and a description and as the item"""
 
@@ -370,7 +374,7 @@ class CanDatabase:
                 for alert in self.node_alerts(tx_node, alert_type)
                 if rx_node in alert_msg.rx_nodes
             ]
-    
+
     def node_rx_alerts(self, node: str, type) -> List[str]:
         """
         Return list of alerts received by a node, of a specific type.
@@ -378,7 +382,7 @@ class CanDatabase:
         rte = []
         for tx_node in self.get_board_node():
             if tx_node == node:
-                continue # Skip self-transmitted alerts
+                continue  # Skip self-transmitted alerts
             for alert, alert_entry in self.alerts[tx_node].items():
                 rte.append(alert.name)
         return rte
