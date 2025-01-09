@@ -48,6 +48,8 @@ extern uint32_t __app_code_size__;
 extern uint32_t __boot_code_start__;
 extern uint32_t __boot_code_size__;
 
+__attribute__((section(".boot_flag"))) uint8_t boot_flag;
+
 typedef enum
 {
     LOADER_STATUS_APP_VALID,
@@ -229,13 +231,13 @@ int main(void)
 
     LoaderStatus status = verifyAppCodeChecksum();
     HAL_CRC_DeInit(&hcrc);
-    if (status == LOADER_STATUS_APP_VALID)
+    if (status == LOADER_STATUS_APP_INVALID || boot_flag == 0x01)
     {
-        modifyStackPointerAndJump(&__app_code_start__);
+        modifyStackPointerAndJump(&__boot_code_start__);
     }
     else
     {
-        modifyStackPointerAndJump(&__boot_code_start__);
+        modifyStackPointerAndJump(&__app_code_start__);
     }
     /* USER CODE END 2 */
 

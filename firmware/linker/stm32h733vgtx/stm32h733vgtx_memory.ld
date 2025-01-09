@@ -7,6 +7,16 @@ MEMORY
   app_code     (rx)    : ORIGIN = 0x8020400,  LENGTH = 895K
 }
 
+SECTIONS
+{
+  .boot_flag (NOLOAD) :
+  {
+    . = ALIGN(4);
+    KEEP(*(.boot_flag))
+    . = ALIGN(4);
+  } >ram
+}
+
 __loader_code_start__  = ORIGIN(loader_code);
 __loader_code_size__   = LENGTH(loader_code);
 __boot_code_start__    = ORIGIN(boot_code);
