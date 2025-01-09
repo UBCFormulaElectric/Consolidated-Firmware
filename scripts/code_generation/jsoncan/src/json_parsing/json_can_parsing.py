@@ -104,7 +104,7 @@ class JsonCanParser:
 
 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
-        for node in self._nodes:
+        for node, node_obj in self._nodes.items():
             node_rx_json_data = self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
             node_rx_msgs = node_rx_json_data["messages"]
 
@@ -117,7 +117,19 @@ class JsonCanParser:
 
                 rx_msg = self._messages[tx_node_msg_name]
                 if rx_msg not in rx_msg.rx_nodes:
-                    rx_msg.rx_nodes.append(node)
+                    rx_msg.rx_nodes.append(node_obj)
+        
+        # find all message transmitting on one bus but received in another bus
+        for message in self._messages.values():
+            if len(message.rx_nodes) > 0:
+                bus = message.bus[0]
+                for rx_node in message.rx_nodes:
+                    if bus not in rx_node.buses:
+                        raise InvalidCanJson(
+                            f"Message '{message.name}' is transmitted on bus '{bus.name}', but received by node '{rx_node.name}' which is not on this bus."
+                        )          
+        
+        print("placeholder")
 
     
     def _build_relations(self):
@@ -185,7 +197,7 @@ class JsonCanParser:
             CanNode(name=node, )
             for node in node_names
         }
-        self._nodes = node_names
+        self._nodes = node_objs
         return node_objs
     
     def _parse_json_node_enum_data(self, can_data_dir, node) ->  Dict[str,CanMessage]:
@@ -303,9 +315,9 @@ class JsonCanParser:
         description, _ = self._get_optional_value(msg_json_data, "description", "")
         msg_cycle_time = msg_json_data["cycle_time"]
         bus_names = msg_json_data["bus"]
-        bus_objs = {
+        bus_objs = [
             bus for _, bus in self._bus_cfg.items() if bus.name in bus_names
-        }
+        ]
         # will use mode from bus if none 
         msg_modes, _ = self._get_optional_value(
             msg_json_data, "allowed_modes", []
@@ -382,6 +394,7 @@ class JsonCanParser:
             bus=bus_objs,
             cycle_time=msg_cycle_time,
             tx_node=node, 
+            rx_nodes=[],
             # modes=msg_modes,
             log_cycle_time=log_cycle_time,
             telem_cycle_time=telem_cycle_time,
@@ -621,6 +634,7 @@ class JsonCanParser:
                 log_cycle_time=cycle_time,
                 telem_cycle_time=cycle_time,
                 signals=signals,
+                rx_nodes=[], # will be updated later
                 tx_node=node,
                 
                 # FIXME: bus=,
