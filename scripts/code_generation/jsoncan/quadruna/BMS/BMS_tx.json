@@ -1,6 +1,6 @@
 {
     "Vitals": {
-        "bus" : ["bus1", "bus2"],
+        "bus" : ["bus1"],
         "msg_id": 100,
         "cycle_time": 100,
         "description": "Vitals message for the BMS.",
@@ -15,7 +15,7 @@
     },
     "AlertsContext": {
       "msg_id": 104,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "cycle_time": 1000,
       "description": "Context info for BMS alerts",
       "signals": {
@@ -38,7 +38,7 @@
     },
     "ImdStatus": {
       "msg_id": 105,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "cycle_time": 100,
       "description": "BMS IMD Messages",
       "signals": {
@@ -73,7 +73,7 @@
     },
     "ImdData": {
       "msg_id": 106,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "cycle_time": 1000,
       "description": "BMS IMD Measurement Data Values",
       "signals": {
@@ -101,7 +101,7 @@
     },
     "Charger": {
       "msg_id": 107,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "cycle_time": 100,
       "description": "Charger infomation for the BMS to broadcast to other boards",
       "signals": {
@@ -112,7 +112,7 @@
     },
     "BrusaControls": {
       "msg_id": 1560,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "cycle_time": 100,
       "description": "Flags and parameters for controlling the BRUSA charger",
       "signals": {
@@ -146,7 +146,7 @@
     },
     "OkStatuses": {
       "msg_id": 111,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "cycle_time": 100,
       "description": "BMS OK status flags",
       "signals": {
@@ -172,7 +172,7 @@
     },
     "Contactors": {
       "msg_id": 112,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "cycle_time": 100,
       "description": "BMS AIR state statuses",
       "signals": {
@@ -190,7 +190,7 @@
     "CellTemperatures": {
       "msg_id": 120,
       "cycle_time": 1000,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "BMS Cell Temperature readings",
       "signals": {
         "MinCellTemperature": {
@@ -210,7 +210,7 @@
     "VoltageAndChargeStats": {
       "msg_id": 121,
       "cycle_time": 100,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "BMS Cell Voltage readings",
       "signals": {
         "PackVoltage": {
@@ -245,7 +245,7 @@
     "CellStats": {
       "msg_id": 123,
       "cycle_time": 100,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "BMS Cell Stats",
       "signals": {
         "MinCellVoltageSegment": {
@@ -293,7 +293,7 @@
     "TractiveSystem": {
       "msg_id": 130,
       "cycle_time": 100,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "BMS Tractive System Data",
       "signals": {
         "TractiveSystemVoltage": {
@@ -328,7 +328,7 @@
     "CommitInfo": {
       "msg_id": 140,
       "cycle_time": 100,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "BMS Current Running Git Commit Info",
       "signals": {
         "Hash": {
@@ -342,7 +342,7 @@
     "OWC_Segment0to2_Status": {
       "msg_id": 141,
       "cycle_time": 100,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "Open Wire Check Segment 0 to 2 Status",
       "signals": {
         "Segment0_OWC_Cells_Status": {
@@ -359,7 +359,7 @@
     "OWC_Segment3to4_Status": {
       "msg_id": 142,
       "cycle_time": 100,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "Open Wire Check Segment 3 to 4 Status",
       "signals": {
         "Segment3_OWC_Cells_Status": {
@@ -373,7 +373,7 @@
     "BMSShdnNodeStatus": {
       "msg_id": 143,
       "cycle_time": 100,
-      "bus": ["bus1", "bus2"],
+      "bus": ["bus1"],
       "description": "BMS Shutdown Node Status",
       "signals": {
         "HVDShdnOKStatus": {
