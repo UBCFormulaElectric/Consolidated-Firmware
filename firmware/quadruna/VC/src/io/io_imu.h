@@ -14,18 +14,18 @@ bool io_imu_init();
  * @param x_acceleration value of x acceleration
  * @return if successful read
  */
-bool io_imu_getLinearAccelerationX(float *x_acceleration);
+bool io_imu_getLinearAccelerationX(float* x_acceleration);
 
 /**
  * @brief gets the linear acceleration in the y direction
  * @param y_acceleration value of y acceleration
  * @return if successful read
  */
-bool io_imu_getLinearAccelerationY(float *y_acceleration);
+bool io_imu_getLinearAccelerationY(float* y_acceleration);
 
 /**
  * @brief gets the linear acceleration in the y direction
  * @param z_acceleration value of z acceleration
  * @return if successful read
  */
-bool io_imu_getLinearAccelerationZ(float *z_acceleration);
+bool io_imu_getLinearAccelerationZ(float* z_acceleration);

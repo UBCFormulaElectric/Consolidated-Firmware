@@ -1,20 +1,15 @@
 #include "KeyTranslator.h"
-extern "C"
-{
+extern "C" {
 #include "app_canRx.h"
 }
 
-bool KeyTranslator::eventFilter(QObject *watched, QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
-    {
-        const auto keyEvent = dynamic_cast<QKeyEvent *>(event);
+bool KeyTranslator::eventFilter(QObject* watched, QEvent* event) {
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+        const auto keyEvent = dynamic_cast<QKeyEvent*>(event);
         const auto dse      = DimSwitchEmitter::getInstance();
         bool       handled  = true;
-        if (event->type() == QEvent::KeyPress)
-        {
-            switch (keyEvent->key())
-            {
+        if (event->type() == QEvent::KeyPress) {
+            switch (keyEvent->key()) {
                 case Qt::Key_Escape:
                     emit dse->outButtonPressed();
                     break;
@@ -43,11 +38,8 @@ bool KeyTranslator::eventFilter(QObject *watched, QEvent *event)
                     handled = false;
                     break;
             }
-        }
-        else if (event->type() == QEvent::KeyRelease)
-        {
-            switch (keyEvent->key())
-            {
+        } else if (event->type() == QEvent::KeyRelease) {
+            switch (keyEvent->key()) {
                 case Qt::Key_Escape:
                     emit dse->outButtonReleased();
                     break;
@@ -70,8 +62,7 @@ bool KeyTranslator::eventFilter(QObject *watched, QEvent *event)
                     handled = false;
                     break;
             }
-        }
-        else
+        } else
             handled = false;
         if (handled)
             qDebug() << "text" << keyEvent->text() << "key" << keyEvent->key() << "modifiers" << keyEvent->modifiers();

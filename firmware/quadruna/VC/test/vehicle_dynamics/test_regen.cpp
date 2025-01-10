@@ -3,8 +3,7 @@
 
 #include "test_vcBaseStateMachineTest.h"
 
-extern "C"
-{
+extern "C" {
 #include "app_units.h"
 #include "app_regen.h"
 #include "app_powerLimiting.h"
@@ -12,12 +11,9 @@ extern "C"
 #include "app_vehicleDynamics.h"
 }
 
-class TestRegen : public VcBaseStateMachineTest
-{
-};
+class TestRegen : public VcBaseStateMachineTest {};
 
-TEST_F(TestRegen, active_differential_regen)
-{
+TEST_F(TestRegen, active_differential_regen) {
     float steering_angle = 20.0f * APPROX_STEERING_TO_WHEEL_ANGLE;
     float expected_delta = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle)) / (2 * WHEELBASE_mm);
     float cl             = (1 + expected_delta);
@@ -38,8 +34,7 @@ TEST_F(TestRegen, active_differential_regen)
     ASSERT_FLOAT_EQ(expected_right_torque_request, regenAttributes.right_inverter_torque_Nm);
 }
 
-TEST_F(TestRegen, active_differential_exceeds_max)
-{
+TEST_F(TestRegen, active_differential_exceeds_max) {
     float steering_angle = 20.0f * APPROX_STEERING_TO_WHEEL_ANGLE;
     float expected_delta = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle)) / (2 * WHEELBASE_mm);
     float cl             = (1 + expected_delta);
@@ -65,8 +60,7 @@ TEST_F(TestRegen, active_differential_exceeds_max)
     ASSERT_FLOAT_EQ(expected_right_torque_request, regenAttributes.right_inverter_torque_Nm);
 }
 
-TEST_F(TestRegen, battery_over_temp_torque_request)
-{
+TEST_F(TestRegen, battery_over_temp_torque_request) {
     TearDown();
     SetUp();
 
@@ -107,8 +101,7 @@ TEST_F(TestRegen, battery_over_temp_torque_request)
 }
 
 // same test as battery_over_temp_torque_request just different safety failure
-TEST_F(TestRegen, vehicle_under_speed_torque_request)
-{
+TEST_F(TestRegen, vehicle_under_speed_torque_request) {
     TearDown();
     SetUp();
 
@@ -143,8 +136,7 @@ TEST_F(TestRegen, vehicle_under_speed_torque_request)
     ASSERT_FALSE(app_canTx_VC_RegenEnabled_get());
 }
 
-TEST_F(TestRegen, battery_full_torque_request)
-{
+TEST_F(TestRegen, battery_full_torque_request) {
     static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
     static ActiveDifferential_Inputs inputs;
 
@@ -168,8 +160,7 @@ TEST_F(TestRegen, battery_full_torque_request)
     ASSERT_FLOAT_EQ(inputs.motor_speed_right_rpm, expected_motor_speed_right_rpm);
 }
 
-TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state)
-{
+TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state) {
     TearDown();
     SetUp();
 
@@ -244,8 +235,7 @@ TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state)
 }
 
 // tapers torque request due to being too close to a full battery
-TEST_F(TestRegen, taper_torque_request)
-{
+TEST_F(TestRegen, taper_torque_request) {
     float pedal_percentage      = -0.5f;
     float steering_angle        = 21.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(30.0f);
@@ -295,8 +285,7 @@ TEST_F(TestRegen, taper_torque_request)
 }
 
 // tapers torque request due in 5-10kph range, exceed max regen
-TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
-{
+TEST_F(TestRegen, taper_torque_request_max_regen_exceed) {
     float pedal_percentage      = -1.0f;
     float steering_angle        = 0.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(9.0f);
@@ -350,8 +339,7 @@ TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
 }
 
 // tapers torque request due in 5-10kph, in max regen range
-TEST_F(TestRegen, taper_torque_request_transition_point)
-{
+TEST_F(TestRegen, taper_torque_request_transition_point) {
     float pedal_percentage      = -1.0f;
     float steering_angle        = -15.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(5.5f);

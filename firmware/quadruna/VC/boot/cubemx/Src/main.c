@@ -97,9 +97,9 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CRC_Init(void);
 static void MX_FDCAN1_Init(void);
-void        runInterfaceTask(void *argument);
-void        runTickTask(void *argument);
-void        runCanTxTask(void *argument);
+void        runInterfaceTask(void* argument);
+void        runTickTask(void* argument);
+void        runCanTxTask(void* argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -108,36 +108,13 @@ void        runCanTxTask(void *argument);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 CanHandle can = { .hcan = &hfdcan1 };
-
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
-{
-    assert(hfdcan == &hfdcan1);
-    UNUSED(RxFifo0ITs);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
-
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
-{
-    assert(hfdcan == &hfdcan1);
-    UNUSED(RxFifo1ITs);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
 /* USER CODE END 0 */
 
 /**
  * @brief  The application entry point.
  * @retval int
  */
-int main(void)
-{
+int main(void) {
     /* USER CODE BEGIN 1 */
     bootloader_preInit();
     /* USER CODE END 1 */
@@ -211,8 +188,7 @@ int main(void)
     /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1)
-    {
+    while (1) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -224,8 +200,7 @@ int main(void)
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void)
-{
+void SystemClock_Config(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -237,8 +212,7 @@ void SystemClock_Config(void)
      */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
-    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
-    {
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {
     }
 
     /** Initializes the RCC Oscillators according to the specified parameters
@@ -256,8 +230,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
     RCC_OscInitStruct.PLL.PLLFRACN   = 0;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         Error_Handler();
     }
 
@@ -273,8 +246,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-    {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
         Error_Handler();
     }
 }
@@ -284,8 +256,7 @@ void SystemClock_Config(void)
  * @param None
  * @retval None
  */
-static void MX_CRC_Init(void)
-{
+static void MX_CRC_Init(void) {
     /* USER CODE BEGIN CRC_Init 0 */
 
     /* USER CODE END CRC_Init 0 */
@@ -299,8 +270,7 @@ static void MX_CRC_Init(void)
     hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
     hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
     hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
+    if (HAL_CRC_Init(&hcrc) != HAL_OK) {
         Error_Handler();
     }
     /* USER CODE BEGIN CRC_Init 2 */
@@ -313,8 +283,7 @@ static void MX_CRC_Init(void)
  * @param None
  * @retval None
  */
-static void MX_FDCAN1_Init(void)
-{
+static void MX_FDCAN1_Init(void) {
     /* USER CODE BEGIN FDCAN1_Init 0 */
 
     /* USER CODE END FDCAN1_Init 0 */
@@ -350,8 +319,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
-    {
+    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK) {
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN1_Init 2 */
@@ -364,8 +332,7 @@ static void MX_FDCAN1_Init(void)
  * @param None
  * @retval None
  */
-static void MX_GPIO_Init(void)
-{
+static void MX_GPIO_Init(void) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
@@ -454,8 +421,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_runInterfaceTask */
-void runInterfaceTask(void *argument)
-{
+void runInterfaceTask(void* argument) {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     bootloader_runInterfaceTask();
@@ -469,8 +435,7 @@ void runInterfaceTask(void *argument)
  * @retval None
  */
 /* USER CODE END Header_runTickTask */
-void runTickTask(void *argument)
-{
+void runTickTask(void* argument) {
     /* USER CODE BEGIN runTickTask */
     UNUSED(argument);
     bootloader_runTickTask();
@@ -484,8 +449,7 @@ void runTickTask(void *argument)
  * @retval None
  */
 /* USER CODE END Header_runCanTxTask */
-void runCanTxTask(void *argument)
-{
+void runCanTxTask(void* argument) {
     /* USER CODE BEGIN runCanTxTask */
     UNUSED(argument);
     bootloader_runCanTxTask();
@@ -500,13 +464,11 @@ void runCanTxTask(void *argument)
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM6)
-    {
+    if (htim->Instance == TIM6) {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
@@ -518,13 +480,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void)
-{
+void Error_Handler(void) {
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
-    while (1)
-    {
+    while (1) {
     }
     /* USER CODE END Error_Handler_Debug */
 }
@@ -537,8 +497,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line)
-{
+void assert_failed(uint8_t* file, uint32_t line) {
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
        ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

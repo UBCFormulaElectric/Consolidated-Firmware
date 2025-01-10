@@ -8,8 +8,7 @@
 #include "fake_io_wheels.hpp"
 #include "fake_io_loadCell.hpp"
 
-extern "C"
-{
+extern "C" {
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -27,11 +26,9 @@ extern "C"
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
 
-class FsmBaseStateMachineTest : public BaseStateMachineTest
-{
+class FsmBaseStateMachineTest : public BaseStateMachineTest {
   protected:
-    void SetUp() override
-    {
+    void SetUp() override {
         BaseStateMachineTest::SetUp();
 
         app_canTx_init();
@@ -41,8 +38,7 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         app_stateMachine_init(app_mainState_get());
     }
 
-    void TearDown() override
-    {
+    void TearDown() override {
         // Reset fakes
         fake_io_apps_init_reset();
         fake_io_apps_getPrimary_reset();

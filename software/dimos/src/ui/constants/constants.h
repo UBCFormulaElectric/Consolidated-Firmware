@@ -9,8 +9,7 @@
     Q_PROPERTY(type name MEMBER name CONSTANT)
 
 // ReSharper disable once CppClassCanBeFinal
-class Constants : public QObject
-{
+class Constants : public QObject {
     Q_OBJECT
     QML_ELEMENT
 

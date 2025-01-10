@@ -14,10 +14,10 @@
  * Convert own driver-level CAN message type to a jsoncan message.
  * @param msg message to convert
  */
-JsonCanMsg io_jsoncan_copyFromCanMsg(const CanMsg *msg);
+JsonCanMsg io_jsoncan_copyFromCanMsg(const CanMsg* msg);
 
 /**
  * Convert a jsoncan message to own driver-level CAN message type.
  * @param msg message to convert
  */
-CanMsg io_jsoncan_copyToCanMsg(const JsonCanMsg *msg);
+CanMsg io_jsoncan_copyToCanMsg(const JsonCanMsg* msg);

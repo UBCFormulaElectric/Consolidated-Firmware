@@ -71,14 +71,12 @@ extern TIM_HandleTypeDef   htim6;
 /**
  * @brief This function handles Non maskable interrupt.
  */
-void NMI_Handler(void)
-{
+void NMI_Handler(void) {
     /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
     /* USER CODE END NonMaskableInt_IRQn 0 */
     /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-    while (1)
-    {
+    while (1) {
     }
     /* USER CODE END NonMaskableInt_IRQn 1 */
 }
@@ -86,13 +84,11 @@ void NMI_Handler(void)
 /**
  * @brief This function handles Hard fault interrupt.
  */
-void HardFault_Handler(void)
-{
+void HardFault_Handler(void) {
     /* USER CODE BEGIN HardFault_IRQn 0 */
     hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
-    while (1)
-    {
+    while (1) {
         /* USER CODE BEGIN W1_HardFault_IRQn 0 */
         /* USER CODE END W1_HardFault_IRQn 0 */
     }
@@ -101,13 +97,11 @@ void HardFault_Handler(void)
 /**
  * @brief This function handles Memory management fault.
  */
-void MemManage_Handler(void)
-{
+void MemManage_Handler(void) {
     /* USER CODE BEGIN MemoryManagement_IRQn 0 */
 
     /* USER CODE END MemoryManagement_IRQn 0 */
-    while (1)
-    {
+    while (1) {
         /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
         /* USER CODE END W1_MemoryManagement_IRQn 0 */
     }
@@ -116,13 +110,11 @@ void MemManage_Handler(void)
 /**
  * @brief This function handles Pre-fetch fault, memory access fault.
  */
-void BusFault_Handler(void)
-{
+void BusFault_Handler(void) {
     /* USER CODE BEGIN BusFault_IRQn 0 */
 
     /* USER CODE END BusFault_IRQn 0 */
-    while (1)
-    {
+    while (1) {
         /* USER CODE BEGIN W1_BusFault_IRQn 0 */
         /* USER CODE END W1_BusFault_IRQn 0 */
     }
@@ -131,13 +123,11 @@ void BusFault_Handler(void)
 /**
  * @brief This function handles Undefined instruction or illegal state.
  */
-void UsageFault_Handler(void)
-{
+void UsageFault_Handler(void) {
     /* USER CODE BEGIN UsageFault_IRQn 0 */
 
     /* USER CODE END UsageFault_IRQn 0 */
-    while (1)
-    {
+    while (1) {
         /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
         /* USER CODE END W1_UsageFault_IRQn 0 */
     }
@@ -146,8 +136,7 @@ void UsageFault_Handler(void)
 /**
  * @brief This function handles Debug monitor.
  */
-void DebugMon_Handler(void)
-{
+void DebugMon_Handler(void) {
     /* USER CODE BEGIN DebugMonitor_IRQn 0 */
 
     /* USER CODE END DebugMonitor_IRQn 0 */
@@ -166,8 +155,7 @@ void DebugMon_Handler(void)
 /**
  * @brief This function handles FDCAN2 interrupt 0.
  */
-void FDCAN2_IT0_IRQHandler(void)
-{
+void FDCAN2_IT0_IRQHandler(void) {
     /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
 
     /* USER CODE END FDCAN2_IT0_IRQn 0 */
@@ -180,8 +168,7 @@ void FDCAN2_IT0_IRQHandler(void)
 /**
  * @brief This function handles FDCAN2 interrupt 1.
  */
-void FDCAN2_IT1_IRQHandler(void)
-{
+void FDCAN2_IT1_IRQHandler(void) {
     /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
 
     /* USER CODE END FDCAN2_IT1_IRQn 0 */
@@ -194,8 +181,7 @@ void FDCAN2_IT1_IRQHandler(void)
 /**
  * @brief This function handles SDMMC1 global interrupt.
  */
-void SDMMC1_IRQHandler(void)
-{
+void SDMMC1_IRQHandler(void) {
     /* USER CODE BEGIN SDMMC1_IRQn 0 */
 
     /* USER CODE END SDMMC1_IRQn 0 */
@@ -208,8 +194,7 @@ void SDMMC1_IRQHandler(void)
 /**
  * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
  */
-void TIM6_DAC_IRQHandler(void)
-{
+void TIM6_DAC_IRQHandler(void) {
     /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
 
     /* USER CODE END TIM6_DAC_IRQn 0 */
@@ -222,8 +207,7 @@ void TIM6_DAC_IRQHandler(void)
 /**
  * @brief This function handles USB On The Go HS global interrupt.
  */
-void OTG_HS_IRQHandler(void)
-{
+void OTG_HS_IRQHandler(void) {
     /* USER CODE BEGIN OTG_HS_IRQn 0 */
 
     /* USER CODE END OTG_HS_IRQn 0 */

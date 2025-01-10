@@ -6,12 +6,11 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 
-typedef struct
-{
-    const AdcChannel *rear_brake;
-    const AdcChannel *front_brake;
-    const Gpio       *brake_hardware_ocsc;
-    const Gpio       *nbspd_brake_pressed;
+typedef struct {
+    const AdcChannel* rear_brake;
+    const AdcChannel* front_brake;
+    const Gpio*       brake_hardware_ocsc;
+    const Gpio*       nbspd_brake_pressed;
 } BrakeConfig;
 
 #else
@@ -23,7 +22,7 @@ EMPTY_STRUCT(BrakeConfig)
  * Sets up configuration for ADC pins in brake io layer
  * @param brake_config wrapper around brake adc pins
  */
-void io_brake_init(const BrakeConfig *brake_config);
+void io_brake_init(const BrakeConfig* brake_config);
 
 /**
  * Check if the brake is actuated, by getting the digital signal from the comparator on the FSM

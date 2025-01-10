@@ -1,21 +1,18 @@
 #pragma once
 
-typedef struct
-{
+typedef struct {
     float (*get_value)(void);
     float min_value;
     float max_value;
 } RangeCheck;
 
-typedef enum
-{
+typedef enum {
     VALUE_IN_RANGE,
     VALUE_UNDERFLOW,
     VALUE_OVERFLOW,
 } RangeCheckStatus;
 
-typedef struct
-{
+typedef struct {
     RangeCheckStatus status;
     float            clamped_value;
 } RangeCheckStatusMetaData;
@@ -32,4 +29,4 @@ typedef struct
  *         VALUE_UNDERFLOW if the value is below the specified range
  *         VALUE_OVERFLOW if the value is above the specified range
  */
-RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck *check, float value);
+RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck* check, float value);

@@ -3,8 +3,7 @@
 #include "app_canAlerts.h"
 #include "io_currentSensing.h"
 
-void app_currentSensing_broadcast(void)
-{
+void app_currentSensing_broadcast(void) {
     app_canAlerts_VC_Warning_AccumulatorRailOvercurrentFault_set(io_currentSensing_hasAccumulatorFault());
     app_canAlerts_VC_Warning_BatteryRailOvercurrentFault_set(io_currentSensing_hasBatteryFault());
     app_canTx_VC_AccCurrent_set(io_currentSensing_getAccumulatorCurrent());

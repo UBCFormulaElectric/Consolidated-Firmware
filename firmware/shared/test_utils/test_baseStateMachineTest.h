@@ -3,18 +3,15 @@
 #include <gtest/gtest.h>
 #include "fake_io_time.hpp"
 
-extern "C"
-{
+extern "C" {
 #include "app_utils.h"
 #include "app_stateMachine.h"
 #include "app_timer.h"
 }
 
-class BaseStateMachineTest : public testing::Test
-{
+class BaseStateMachineTest : public testing::Test {
   protected:
-    void SetUp() override
-    {
+    void SetUp() override {
         // At t = 0ms, every on-tick function will be executed because of how we
         // decide which on-tick function(s) to run at each tick:
         //
@@ -44,17 +41,13 @@ class BaseStateMachineTest : public testing::Test
         fake_io_time_getCurrentMs_returns(current_time_ms);
     }
 
-    void LetTimePass(uint32_t time_ms)
-    {
-        for (uint32_t ms = 0; ms < time_ms; ms++)
-        {
-            if (current_time_ms % 1000 == 0)
-            {
+    void LetTimePass(uint32_t time_ms) {
+        for (uint32_t ms = 0; ms < time_ms; ms++) {
+            if (current_time_ms % 1000 == 0) {
                 app_stateMachine_tick1Hz();
             }
 
-            if (current_time_ms % 10 == 0)
-            {
+            if (current_time_ms % 10 == 0) {
                 app_stateMachine_tick100Hz();
             }
 

@@ -3,13 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct
-{
-    ADC_HandleTypeDef *const hadc;
-    TIM_HandleTypeDef *const htim;
+typedef struct {
+    ADC_HandleTypeDef* const hadc;
+    TIM_HandleTypeDef* const htim;
 
-    uint16_t *raw_adc_values;
-    float    *adc_voltages;
+    uint16_t* raw_adc_values;
+    float*    adc_voltages;
     uint16_t  channel_count;
     bool      is_differential;
 } AdcChip;
@@ -18,13 +17,13 @@ typedef struct
  * Initializes the given AdcChip (with DMA)
  * @param adc_c adc chip in question
  */
-void hw_adcchip_init(const AdcChip *adc_c);
+void hw_adcchip_init(const AdcChip* adc_c);
 
 /**
  * Triggers the ADC chip to update it's values from the buffer
  * @param adc_c adc chip in question
  */
-void hw_adcchip_updateCallback(const AdcChip *adc_c);
+void hw_adcchip_updateCallback(const AdcChip* adc_c);
 
 /**
  * Returns a pointer which represents the value of a given ADC channel, which is updated/populated by the chip
@@ -32,11 +31,10 @@ void hw_adcchip_updateCallback(const AdcChip *adc_c);
  * @param channel the desired channel
  * @return A pointer to the value provided by the channel
  */
-float *hw_adcchip_getChannel(const AdcChip *adc_c, uint32_t channel);
+float* hw_adcchip_getChannel(const AdcChip* adc_c, uint32_t channel);
 
-typedef struct
-{
-    float *voltage;
+typedef struct {
+    float* voltage;
 } AdcChannel;
 
 /**
@@ -44,4 +42,4 @@ typedef struct
  * @param c channel in question
  * @return The voltage measured at the specified ADC channel, in volts.
  */
-float hw_adc_getVoltage(const AdcChannel *c);
+float hw_adc_getVoltage(const AdcChannel* c);

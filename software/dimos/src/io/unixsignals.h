@@ -9,12 +9,11 @@
 // A UnixSignalHandler catches a particular Unix signal (e.g. SIGTERM) and emits
 // a Qt signal which can be connected to a slot.  Note that a process cannot
 // catch SIGKILL - a handler for SIGKILL will never emit.
-class UnixSignalHandler : public QObject
-{
+class UnixSignalHandler : public QObject {
     Q_OBJECT
 
   public:
-    explicit UnixSignalHandler(int signal, QObject *parent = nullptr);
+    explicit UnixSignalHandler(int signal, QObject* parent = nullptr);
 
     static const int max_signal = 32;
 

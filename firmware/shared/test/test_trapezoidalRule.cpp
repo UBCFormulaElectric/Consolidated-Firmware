@@ -1,13 +1,11 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
-extern "C"
-{
+extern "C" {
 #include "app_math.h"
 }
 
-TEST(VoltageSenseTest, tractive_system_voltage_calculation)
-{
+TEST(VoltageSenseTest, tractive_system_voltage_calculation) {
     double integral = 0.0f;
     float  prev_fx  = 0.0f;
 
@@ -18,8 +16,7 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
     // Expected value calculated using Wolfram's Trapezium Rule MyAlevelMathsTutor
     std::vector<float> expected_val{ 0.0, 0.27768, 0.948059, 1.61844, 1.896119, 1.61844, 0.948059, 0.27768, 0.0 };
 
-    for (std::size_t i = 0, e = x_vec.size(); i != e; i++)
-    {
+    for (std::size_t i = 0, e = x_vec.size(); i != e; i++) {
         app_math_trapezoidalRule(&integral, &prev_fx, sin(x_vec[i]), M_PI_4);
         ASSERT_NEAR(integral, expected_val[i], 1e-4);
     }

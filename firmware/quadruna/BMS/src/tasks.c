@@ -56,14 +56,12 @@ static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = &t
                                                 .ts_isense_high_res_channel = &ts_isns_75a,
                                                 .ts_isense_low_res_channel  = &ts_isns_400a };
 
-void tasks_preInit(void)
-{
+void tasks_preInit(void) {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_init(void)
-{
+void tasks_init(void) {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
@@ -89,19 +87,17 @@ void tasks_init(void)
     app_globals_init();
 }
 
-_Noreturn void tasks_run1Hz(void)
-{
+_Noreturn void tasks_run1Hz(void) {
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
@@ -118,19 +114,17 @@ _Noreturn void tasks_run1Hz(void)
     }
 }
 
-_Noreturn void tasks_run100Hz(void)
-{
+_Noreturn void tasks_run100Hz(void) {
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -143,19 +137,17 @@ _Noreturn void tasks_run100Hz(void)
     }
 }
 
-_Noreturn void tasks_run1kHz(void)
-{
+_Noreturn void tasks_run1kHz(void) {
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
 
@@ -165,8 +157,7 @@ _Noreturn void tasks_run1kHz(void)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
         // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
-        {
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms) {
             hw_watchdog_checkIn(watchdog);
         }
 
@@ -175,26 +166,20 @@ _Noreturn void tasks_run1kHz(void)
     }
 }
 
-_Noreturn void tasks_runCanTx(void)
-{
+_Noreturn void tasks_runCanTx(void) {
     io_chimera_sleepTaskIfEnabled();
 
-    for (;;)
-        jobs_runCanTx_tick();
+    for (;;) jobs_runCanTx_tick();
 }
 
-_Noreturn void tasks_runCanRx(void)
-{
+_Noreturn void tasks_runCanRx(void) {
     io_chimera_sleepTaskIfEnabled();
 
-    for (;;)
-        jobs_runCanRx_tick();
+    for (;;) jobs_runCanRx_tick();
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
+    if (huart == debug_uart.handle) {
         io_chimera_msgRxCallback();
     }
 }

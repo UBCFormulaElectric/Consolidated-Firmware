@@ -5,8 +5,7 @@
 #include <map>
 #include <string>
 
-enum class gpio_input
-{
+enum class gpio_input {
     GPIO1,
     GPIO2,
     GPIO3,
@@ -17,8 +16,7 @@ enum class gpio_input
     GPIO8,
 };
 
-enum class gpio_output
-{
+enum class gpio_output {
     GPIO_PROGRAM,
 };
 
@@ -32,8 +30,7 @@ const std::array<gpio_input, GPIO_IN_COUNT> gpio_inputs   = { gpio_input::GPIO1,
 constexpr int                                 GPIO_OUT_COUNT = 1;
 const std::array<gpio_output, GPIO_OUT_COUNT> gpio_outputs   = { gpio_output::GPIO_PROGRAM };
 
-typedef struct
-{
+typedef struct {
     std::string name, enum_name;
 } gpio_info;
 
@@ -54,13 +51,8 @@ const std::map<gpio_output, gpio_info> gpio_outputs_metadata{
 
 std::map<gpio_input, bool> gpio_init();
 
-enum class gpio_edge
-{
-    RISING_EDGE,
-    FALLING_EDGE
-};
-enum class line_read_error
-{
+enum class gpio_edge { RISING_EDGE, FALLING_EDGE };
+enum class line_read_error {
     LINE_READ_SYSTEM_ERROR, // caused by not requesting?
     DEV_DUMMY_DATA,         // returned on dev gpio
     TIMEOUT,
@@ -77,11 +69,7 @@ const std::map<line_read_error, std::string> line_read_error_str{ { line_read_er
  */
 Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i);
 
-enum class gpio_level
-{
-    LOW,
-    HIGH
-};
+enum class gpio_level { LOW, HIGH };
 /**
  * Reads the instantaneous value of the gpio input
  * @param i the gpio input to read
@@ -89,8 +77,5 @@ enum class gpio_level
  */
 Result<gpio_level, line_read_error> read_gpio(const gpio_input i);
 
-enum class line_write_error
-{
-    UNKNOWN_ERROR
-};
+enum class line_write_error { UNKNOWN_ERROR };
 Result<std::monostate, line_write_error> write_gpio(const gpio_output i, bool level);

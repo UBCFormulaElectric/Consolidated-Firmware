@@ -39,8 +39,7 @@
 // using platform-specific OS ticks.
 typedef uint32_t Tick_t;
 
-typedef struct
-{
+typedef struct {
     // Is this watchdog ready to be used?
     bool initialized;
     // The tick period of the task being monitored.
@@ -60,13 +59,13 @@ typedef struct
  *        operations prior to the reset of the microcontroller. For example, a
  *        message may be written to a log file.
  */
-void hw_watchdog_init(void (*refresh_hardware_watchdog)(), void (*timeout_callback)(WatchdogHandle *));
+void hw_watchdog_init(void (*refresh_hardware_watchdog)(), void (*timeout_callback)(WatchdogHandle*));
 
 /**
  * Allocate memory for a software watchdog (if there's space left).
  * @return Handle to the allocated software watchdog
  */
-WatchdogHandle *hw_watchdog_allocateWatchdog(void);
+WatchdogHandle* hw_watchdog_allocateWatchdog(void);
 
 /**
  * Initialize a software watchdog. Once a software watchdog is initialized, it
@@ -75,14 +74,14 @@ WatchdogHandle *hw_watchdog_allocateWatchdog(void);
  * @param task_id: ID to identify the task this watchdog is monitoring
  * @param period_in_ticks: Period of the task in OS ticks
  */
-void hw_watchdog_initWatchdog(WatchdogHandle *watchdog, uint8_t task_id, Tick_t period_in_ticks);
+void hw_watchdog_initWatchdog(WatchdogHandle* watchdog, uint8_t task_id, Tick_t period_in_ticks);
 
 /**
  * Every periodic task monitored by a software watchdog must call this at the
  * end of each period.
  * @param watchdog: Handle to the software watchdog
  */
-void hw_watchdog_checkIn(WatchdogHandle *watchdog);
+void hw_watchdog_checkIn(WatchdogHandle* watchdog);
 
 /**
  * Check if any software watchdog has expired.
@@ -99,4 +98,4 @@ void hw_watchdog_checkForTimeouts(void);
  * @param watchdog: Handle to the software watchdog
  * @return ID of the software watchdog
  */
-uint8_t hw_watchdog_getTaskId(WatchdogHandle *watchdog);
+uint8_t hw_watchdog_getTaskId(WatchdogHandle* watchdog);

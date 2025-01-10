@@ -10,8 +10,8 @@
  * @param right_wheel_speed_config pwm config for right wheel speed sensor
  */
 void io_wheels_init(
-    const PwmInputFreqOnlyConfig *left_wheel_speed_config,
-    const PwmInputFreqOnlyConfig *right_wheel_speed_config);
+    const PwmInputFreqOnlyConfig* left_wheel_speed_config,
+    const PwmInputFreqOnlyConfig* right_wheel_speed_config);
 
 /**
  * Update the frequency for the left and right wheel speed sensors.
@@ -19,7 +19,7 @@ void io_wheels_init(
  * @param htim The handle of the timer that triggered the input capture callback
  * function
  */
-void io_wheels_inputCaptureCallback(TIM_HandleTypeDef *htim);
+void io_wheels_inputCaptureCallback(TIM_HandleTypeDef* htim);
 #endif
 
 /**

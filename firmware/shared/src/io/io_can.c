@@ -29,8 +29,7 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-void io_can_init(const CanHandle *can_handle)
-{
+void io_can_init(const CanHandle* can_handle) {
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
     filter.FilterMode           = CAN_FILTERMODE_IDMASK;
@@ -56,14 +55,12 @@ void io_can_init(const CanHandle *can_handle)
     assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
 }
 
-void io_can_deinit(const CanHandle *can_handle)
-{
+void io_can_deinit(const CanHandle* can_handle) {
     assert(HAL_CAN_Stop(can_handle->hcan) == HAL_OK);
     assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
-{
+bool io_can_transmit(const CanHandle* can_handle, CanMsg* msg) {
     CAN_TxHeaderTypeDef tx_header;
 
     tx_header.DLC   = msg->dlc;
@@ -95,11 +92,9 @@ bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     return return_status == HAL_OK;
 }
 
-bool io_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
-{
+bool io_can_receive(const CanHandle* can_handle, const uint32_t rx_fifo, CanMsg* msg) {
     CAN_RxHeaderTypeDef header;
-    if (HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
-    {
+    if (HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK) {
         return false;
     }
 

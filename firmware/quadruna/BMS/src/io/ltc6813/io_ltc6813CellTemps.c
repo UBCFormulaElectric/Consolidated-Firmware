@@ -29,15 +29,14 @@
 
 // clang-format on
 
-typedef enum
-{
+typedef enum {
     AUX_REGISTER_GROUP_A = 0U,
     AUX_REGISTER_GROUP_B,
     AUX_REGISTER_GROUP_C,
     NUM_OF_AUX_REGISTER_GROUPS
 } AuxiliaryRegisterGroup;
 
-extern const SpiInterface *ltc6813_spi;
+extern const SpiInterface* ltc6813_spi;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
@@ -67,10 +66,8 @@ static const uint16_t aux_reg_group_cmds[NUM_OF_AUX_REGISTER_GROUPS] = {
     [AUX_REGISTER_GROUP_C] = RDAUXC,
 };
 
-struct LTC6813TempStatistics
-{
-    struct
-    {
+struct LTC6813TempStatistics {
+    struct {
         uint8_t  segment;
         uint8_t  thermistor;
         uint16_t temp;
@@ -79,8 +76,7 @@ struct LTC6813TempStatistics
     float avg;
 };
 
-typedef struct
-{
+typedef struct {
     struct LTC6813TempStatistics stats;
     uint16_t cell[ACCUMULATOR_NUM_SEGMENTS][NUM_OF_AUX_REGISTER_GROUPS][NUM_OF_READINGS_PER_REG_GROUP];
 } LTC6813Temperatures;
@@ -90,8 +86,7 @@ static LTC6813Temperatures ltc6813_temp = { 0U };
  * A function that can be called to update min/max cell voltages, segment
  * voltages, and pack voltage
  */
-static void updateCellTemperatureStatistics(void)
-{
+static void updateCellTemperatureStatistics(void) {
     struct LTC6813TempStatistics temp_stats = {
         .min = { .segment = 0U, .thermistor = 0U, .temp = UINT16_MAX, },
         .max = { .segment = 0U, .thermistor = 0U, .temp = 0x0000U, },
@@ -100,14 +95,10 @@ static void updateCellTemperatureStatistics(void)
 
     uint32_t sum_temp = 0U;
 
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
-    {
-        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
-        {
-            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++)
-            {
-                if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
-                {
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++) {
+        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++) {
+            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++) {
+                if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor)) {
                     const uint16_t curr_cell_temp = ltc6813_temp.cell[curr_segment][curr_reg_group][curr_thermistor];
                     uint8_t        curr_cell_index =
                         (uint8_t)(curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_thermistor);
@@ -126,16 +117,14 @@ static void updateCellTemperatureStatistics(void)
                         curr_cell_index = 7;
 
                     // Get the minimum cell voltage
-                    if (curr_cell_temp < temp_stats.min.temp)
-                    {
+                    if (curr_cell_temp < temp_stats.min.temp) {
                         temp_stats.min.temp       = curr_cell_temp;
                         temp_stats.min.segment    = curr_segment;
                         temp_stats.min.thermistor = curr_cell_index;
                     }
 
                     // Get the maximum cell voltage
-                    if (curr_cell_temp > temp_stats.max.temp)
-                    {
+                    if (curr_cell_temp > temp_stats.max.temp) {
                         temp_stats.max.temp       = curr_cell_temp;
                         temp_stats.max.segment    = curr_segment;
                         temp_stats.max.thermistor = curr_cell_index;
@@ -159,8 +148,7 @@ static void updateCellTemperatureStatistics(void)
  * @param raw_thermistor_voltage The voltage measured across the thermistor
  * @return The thermistor temp in deci degC
  */
-static uint16_t calculateThermistorTempDeciDegC(uint16_t raw_thermistor_voltage)
-{
+static uint16_t calculateThermistorTempDeciDegC(uint16_t raw_thermistor_voltage) {
     // The following configuration is now the thermistor temperature is
     // calculated
     //
@@ -198,8 +186,7 @@ static uint16_t calculateThermistorTempDeciDegC(uint16_t raw_thermistor_voltage)
 
     // Check that the thermistor resistance is in range
     if ((thermistor_resistance <= temp_resistance_lut[0]) &&
-        (thermistor_resistance >= temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT - 1U]))
-    {
+        (thermistor_resistance >= temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT - 1U])) {
         // Find the index corresponding to the calculated thermistor
         // resistance
         uint8_t therm_lut_index = 0U;
@@ -228,36 +215,29 @@ static uint16_t calculateThermistorTempDeciDegC(uint16_t raw_thermistor_voltage)
  * @param rx_buffer The buffer containing cell temperature data
  * @return True if cell temperatures are read back correctly, otherwise false.
  */
-static bool parseCellTempFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
-{
+static bool parseCellTempFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]) {
     bool status = true;
 
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
-    {
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++) {
         // Set the starting index to read cell voltages for the current segment
         // from rx_buffer
         uint8_t start_index = (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
 
         // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t *)&rx_buffer[start_index]);
+        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t*)&rx_buffer[start_index]);
 
         // Read PEC15 from the rx_buffer
         const uint16_t recv_pec15 = rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
 
-        if (recv_pec15 == calc_pec15)
-        {
-            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++)
-            {
+        if (recv_pec15 == calc_pec15) {
+            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++) {
                 // Skip the reference voltage of AUX register group B
-                if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
-                {
+                if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor)) {
                     ltc6813_temp.cell[curr_segment][curr_reg_group][curr_thermistor] =
                         calculateThermistorTempDeciDegC(rx_buffer[start_index + curr_thermistor]);
                 }
             }
-        }
-        else
-        {
+        } else {
             status = false;
         }
     }
@@ -265,22 +245,18 @@ static bool parseCellTempFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buf
     return status;
 }
 
-bool io_ltc6813CellTemps_startAdcConversion(void)
-{
+bool io_ltc6813CellTemps_startAdcConversion(void) {
     return io_ltc6813Shared_sendCommand(ADAX);
 }
 
-bool io_ltc6813CellTemps_readTemperatures(void)
-{
+bool io_ltc6813CellTemps_readTemperatures(void) {
     bool status = false;
 
-    if (io_ltc6813Shared_pollAdcConversions())
-    {
+    if (io_ltc6813Shared_pollAdcConversions()) {
         uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS] = { 0U };
 
         // Read thermistor voltages stored in the AUX register groups
-        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
-        {
+        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++) {
             uint16_t tx_cmd[NUM_CMD_WORDS] = {
                 [CMD_WORD]  = aux_reg_group_cmds[curr_reg_group],
                 [CMD_PEC15] = 0U,
@@ -288,10 +264,8 @@ bool io_ltc6813CellTemps_readTemperatures(void)
             io_ltc6813Shared_packCmdPec15(tx_cmd);
 
             if (hw_spi_transmitThenReceive(
-                    ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
-            {
-                if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
-                {
+                    ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t*)rx_buffer, NUM_REG_GROUP_RX_BYTES)) {
+                if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer)) {
                     // Update min/max cell segment, index and voltages and update pack
                     // voltage and segment voltages
                     updateCellTemperatureStatistics();
@@ -304,26 +278,22 @@ bool io_ltc6813CellTemps_readTemperatures(void)
     return status;
 }
 
-float io_ltc6813CellTemps_getMinTempDegC(uint8_t *segment, uint8_t *therm)
-{
+float io_ltc6813CellTemps_getMinTempDegC(uint8_t* segment, uint8_t* therm) {
     *segment = ltc6813_temp.stats.min.segment;
     *therm   = ltc6813_temp.stats.min.thermistor;
     return (float)ltc6813_temp.stats.min.temp * DECI_DEGC_TO_DEGC;
 }
 
-float io_ltc6813CellTemps_getMaxTempDegC(uint8_t *segment, uint8_t *therm)
-{
+float io_ltc6813CellTemps_getMaxTempDegC(uint8_t* segment, uint8_t* therm) {
     *segment = ltc6813_temp.stats.max.segment;
     *therm   = ltc6813_temp.stats.max.thermistor;
     return (float)ltc6813_temp.stats.max.temp * DECI_DEGC_TO_DEGC;
 }
 
-float io_ltc6813CellTemps_getAverageTempDegC(void)
-{
+float io_ltc6813CellTemps_getAverageTempDegC(void) {
     return ltc6813_temp.stats.avg;
 }
 
-float io_ltc6813CellTemperatures_getSpecificCellTempDegC(uint8_t segment, uint8_t reg_group, uint8_t thermistor)
-{
+float io_ltc6813CellTemperatures_getSpecificCellTempDegC(uint8_t segment, uint8_t reg_group, uint8_t thermistor) {
     return ltc6813_temp.cell[segment][reg_group][thermistor] * DECI_DEGC_TO_DEGC;
 }

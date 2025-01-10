@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "fake_io_time.hpp"
-extern "C"
-{
+extern "C" {
 #include "app_heartbeatBoard.h"
 }
 
@@ -17,14 +16,12 @@ HeartbeatBoard a_hbmonitor              = {
     .fault_getter                       = []() { return MOCK_BOARD_CAN_FAULT; },
 };
 
-class HeartbeatMonitorTest : public testing::Test
-{
+class HeartbeatMonitorTest : public testing::Test {
   protected:
     void SetUp() override { app_heartbeatBoard_init(&a_hbmonitor); }
 };
 
-TEST_F(HeartbeatMonitorTest, test_create)
-{
+TEST_F(HeartbeatMonitorTest, test_create) {
     // assert status, checked in, to check, getters, updaters, and fault setters all set correctly
     ASSERT_FALSE(a_hbmonitor.status);
     ASSERT_FALSE(a_hbmonitor.heartbeat_checked_in);
@@ -32,8 +29,7 @@ TEST_F(HeartbeatMonitorTest, test_create)
     ASSERT_TRUE(a_hbmonitor.fault_getter());
 }
 
-TEST_F(HeartbeatMonitorTest, test_broadcast_faults)
-{
+TEST_F(HeartbeatMonitorTest, test_broadcast_faults) {
     // broadcast all good
     a_hbmonitor.status = true;
     app_heartbeatBoard_broadcastFaults(&a_hbmonitor);
@@ -44,8 +40,7 @@ TEST_F(HeartbeatMonitorTest, test_broadcast_faults)
     ASSERT_TRUE(MOCK_BOARD_CAN_FAULT);
 }
 
-TEST_F(HeartbeatMonitorTest, test_check_in_and_tick)
-{
+TEST_F(HeartbeatMonitorTest, test_check_in_and_tick) {
     /* test tick and check in functions*/
     fake_io_time_getCurrentMs_returns(0);
 

@@ -10,8 +10,8 @@
 #define RX_QUEUE_SIZE 128
 #define TX_QUEUE_BYTES sizeof(CanMsg) * TX_QUEUE_SIZE
 #define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
-char                      *tx_name;
-char                      *rx_name;
+char*                      tx_name;
+char*                      rx_name;
 osMessageQueueId_t         tx_queue_id;
 osMessageQueueId_t         rx_queue_id;
 StaticQueue_t              tx_queue_control_block;
@@ -42,16 +42,14 @@ __weak void canTxQueueOverflowClearCallback() {}
 __weak void canRxQueueOverflowCallBack(const uint32_t overflow_count) {}
 __weak void canRxQueueOverflowClearCallback() {}
 
-void io_canQueue_init()
-{
+void io_canQueue_init() {
     // Initialize CAN queues.
     tx_queue_id   = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsg), &tx_queue_attr);
     rx_queue_id   = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(CanMsg), &rx_queue_attr);
     init_complete = true;
 }
 
-void io_canQueue_pushTx(const CanMsg *tx_msg)
-{
+void io_canQueue_pushTx(const CanMsg* tx_msg) {
     assert(init_complete);
     static uint32_t  tx_overflow_count = 0;
     const osStatus_t s                 = osMessageQueuePut(tx_queue_id, tx_msg, 0, 0);
@@ -63,8 +61,7 @@ void io_canQueue_pushTx(const CanMsg *tx_msg)
         canTxQueueOverflowClearCallback();
 }
 
-CanMsg io_canQueue_popTx()
-{
+CanMsg io_canQueue_popTx() {
     assert(init_complete);
     CanMsg msg;
     // Pop a msg of the TX queue
@@ -73,8 +70,7 @@ CanMsg io_canQueue_popTx()
     return msg;
 }
 
-void io_canQueue_pushRx(const CanMsg *rx_msg)
-{
+void io_canQueue_pushRx(const CanMsg* rx_msg) {
     assert(init_complete);
     static uint32_t rx_overflow_count = 0;
 
@@ -86,8 +82,7 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
         canRxQueueOverflowClearCallback();
 }
 
-CanMsg io_canQueue_popRx()
-{
+CanMsg io_canQueue_popRx() {
     assert(init_complete);
     CanMsg msg;
     // Pop a message off the RX queue.

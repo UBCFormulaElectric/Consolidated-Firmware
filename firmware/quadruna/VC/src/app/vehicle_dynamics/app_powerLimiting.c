@@ -9,19 +9,15 @@
  * the battery power limit (calculated by BMS), and accelerator pedal position.
  * @return A float for the maximum power allowed from the motor,
  */
-float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
-{
+float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs* inputs) {
     float max_motor_temp = fmaxf(inputs->left_motor_temp_C, inputs->right_motor_temp_C);
 
     // ============== Calculate max powers =================
     // 1. Motor Temps
     float P_max_motor_temps = inputs->power_limit_kW;
-    if (max_motor_temp - MOTOR_TEMP_CUTOFF_c >= 30.0f)
-    {
+    if (max_motor_temp - MOTOR_TEMP_CUTOFF_c >= 30.0f) {
         P_max_motor_temps = 0.0;
-    }
-    else if (max_motor_temp > MOTOR_TEMP_CUTOFF_c)
-    {
+    } else if (max_motor_temp > MOTOR_TEMP_CUTOFF_c) {
         P_max_motor_temps =
             inputs->power_limit_kW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) * MOTOR_TEMP_POWER_DECREMENTING_RATIO;
     }

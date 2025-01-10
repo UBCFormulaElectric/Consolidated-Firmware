@@ -5,20 +5,17 @@
 #include "hw_hal.hpp"
 #endif
 
-namespace hw::can
-{
+namespace hw::can {
 #define CAN_PAYLOAD_BYTES 8
 
-struct CanMsg
-{
+struct CanMsg {
     uint32_t std_id;
     uint32_t dlc; // data length range : [0, 8]
     uint8_t  data[CAN_PAYLOAD_BYTES];
 };
 
-class CanBus
-{
-    void (*const can_msg_received_callback)(const CanMsg *rx_msg);
+class CanBus {
+    void (*const can_msg_received_callback)(const CanMsg* rx_msg);
 
 #ifdef TARGET_EMBEDDED
 #ifdef CANFD
@@ -29,7 +26,7 @@ class CanBus
     typedef CAN_HandleTypeDef USEDCAN_HandleTypeDef;
 #endif
   private:
-    USEDCAN_HandleTypeDef *const handle;
+    USEDCAN_HandleTypeDef* const handle;
 
   public:
     /**
@@ -37,10 +34,8 @@ class CanBus
      * @param can_handle STM32 HAL CAN handle.
      * @param can_msg_received_callback Callback function to be called when a CAN message is received.
      */
-    explicit CanBus(USEDCAN_HandleTypeDef *can_handle_in, void (*can_msg_received_callback_in)(const CanMsg *))
-      : can_msg_received_callback(can_msg_received_callback_in), handle(can_handle_in)
-    {
-    }
+    explicit CanBus(USEDCAN_HandleTypeDef* can_handle_in, void (*can_msg_received_callback_in)(const CanMsg*))
+      : can_msg_received_callback(can_msg_received_callback_in), handle(can_handle_in) {}
 #endif
   public:
     /**
@@ -55,7 +50,7 @@ class CanBus
      * @param msg CAN msg to be TXed.
      * @return Whether or not the transmission was successful.
      */
-    bool transmit(const CanMsg *msg) const;
+    bool transmit(const CanMsg* msg) const;
     /**
      * Receive a CAN msg from the bus, returning whether or not a message is available.
      * This function also passes up the CanMsg to a callback function.

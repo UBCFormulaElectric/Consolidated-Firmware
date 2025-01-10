@@ -61,8 +61,7 @@
 /**
  * Initializes the Global MSP.
  */
-void HAL_MspInit(void)
-{
+void HAL_MspInit(void) {
     /* USER CODE BEGIN MspInit 0 */
 
     /* USER CODE END MspInit 0 */
@@ -85,11 +84,9 @@ void HAL_MspInit(void)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
-{
+void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (hcan->Instance == CAN1)
-    {
+    if (hcan->Instance == CAN1) {
         /* USER CODE BEGIN CAN1_MspInit 0 */
 
         /* USER CODE END CAN1_MspInit 0 */
@@ -125,10 +122,8 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
-{
-    if (hcan->Instance == CAN1)
-    {
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan) {
+    if (hcan->Instance == CAN1) {
         /* USER CODE BEGIN CAN1_MspDeInit 0 */
 
         /* USER CODE END CAN1_MspDeInit 0 */
@@ -156,10 +151,8 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
-{
-    if (hcrc->Instance == CRC)
-    {
+void HAL_CRC_MspInit(CRC_HandleTypeDef* hcrc) {
+    if (hcrc->Instance == CRC) {
         /* USER CODE BEGIN CRC_MspInit 0 */
 
         /* USER CODE END CRC_MspInit 0 */
@@ -177,10 +170,8 @@ void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
-{
-    if (hcrc->Instance == CRC)
-    {
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc) {
+    if (hcrc->Instance == CRC) {
         /* USER CODE BEGIN CRC_MspDeInit 0 */
 
         /* USER CODE END CRC_MspDeInit 0 */

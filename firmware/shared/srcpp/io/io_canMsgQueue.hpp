@@ -25,16 +25,14 @@
  * 3. Pop msgs off the RX queue via `io_can_dequeueRxMsg`, which blocks until a CAN RX msg is successfully dequeued.
  */
 
-namespace io
-{
+namespace io {
 // Sizes of CAN TX and RX queues.
 #define TX_QUEUE_SIZE 128
 #define RX_QUEUE_SIZE 128
 #define TX_QUEUE_BYTES (sizeof(hw::can::CanMsg) * TX_QUEUE_SIZE)
 #define RX_QUEUE_BYTES (sizeof(hw::can::CanMsg) * RX_QUEUE_SIZE)
 
-class CanMsgQueue
-{
+class CanMsgQueue {
     osMessageQueueId_t tx_queue_id{};
     osMessageQueueId_t rx_queue_id{};
     StaticQueue_t      tx_queue_control_block{};
@@ -56,7 +54,7 @@ class CanMsgQueue
 
   public:
     explicit CanMsgQueue(
-        const std::string &name,
+        const std::string& name,
         void (*in_tx_overflow_callback)(uint32_t),
         void (*in_rx_overflow_callback)(uint32_t),
         void (*in_tx_overflow_clear_callback)(),
@@ -73,7 +71,7 @@ class CanMsgQueue
      * Does not block, calls `tx_overflow_callback` if queue is full.
      * @param msg CAN msg to be TXed.
      */
-    void pushTxMsgToQueue(const hw::can::CanMsg *msg);
+    void pushTxMsgToQueue(const hw::can::CanMsg* msg);
 
     /**
      * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
@@ -90,7 +88,7 @@ class CanMsgQueue
      * Callback fired by config-specific interrupts to receive a message from a given FIFO.
      * @param rx_msg CAN msg to be populated by RXed msg.
      */
-    void pushRxMsgToQueue(const hw::can::CanMsg *rx_msg);
+    void pushRxMsgToQueue(const hw::can::CanMsg* rx_msg);
 #endif
 };
 } // namespace io

@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include "app_timer.h"
 
-typedef struct
-{
+typedef struct {
     // gives if the heartbeat is checked in.
     // unmonitored heartbeats should be false.
     bool heartbeat_checked_in;
@@ -34,26 +33,26 @@ typedef struct
     bool (*const fault_getter)(void);
 } HeartbeatBoard;
 
-void app_heartbeatBoard_init(HeartbeatBoard *hb);
+void app_heartbeatBoard_init(HeartbeatBoard* hb);
 
 /**
  * Populates heartbeats_checked_in
  */
-void app_heartbeatBoard_checkIn(HeartbeatBoard *hb);
+void app_heartbeatBoard_checkIn(HeartbeatBoard* hb);
 
 /**
  * Gets state to broadcast via can, and can callbacks to use to broadcast
  */
-void app_heartbeatBoard_broadcastFaults(const HeartbeatBoard *hb);
+void app_heartbeatBoard_broadcastFaults(const HeartbeatBoard* hb);
 
 /**
  * @return Whether the heartbeat monitor for the current board has detected any fault
  */
-bool app_heartbeatBoard_isSendingMissingHeartbeatFault(const HeartbeatBoard *hb);
+bool app_heartbeatBoard_isSendingMissingHeartbeatFault(const HeartbeatBoard* hb);
 
 #ifdef TARGET_TEST
 /**
  * Resets faults as to report as false, useful for test environments
  */
-void app_heartbeatBoard_clearFaults(const HeartbeatBoard *hb);
+void app_heartbeatBoard_clearFaults(const HeartbeatBoard* hb);
 #endif

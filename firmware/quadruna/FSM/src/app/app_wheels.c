@@ -13,8 +13,7 @@ static const RangeCheck right_wheel_speed_in_range_check = {
     .max_value = MAX_RIGHT_WHEEL_SPEED_KPH,
 };
 
-void app_wheels_broadcast(void)
-{
+void app_wheels_broadcast(void) {
     float                    left_wheel_speed = io_wheels_getLeftSpeedKph();
     RangeCheckStatusMetaData left_wheel_status =
         app_rangeCheck_getValue(&left_wheel_speed_in_range_check, left_wheel_speed);

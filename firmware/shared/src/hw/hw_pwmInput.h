@@ -23,19 +23,17 @@
  * falling_edge_tim_channel: The falling edge channel of the timer measuring
  * the PWM input
  */
-typedef struct
-{
-    TIM_HandleTypeDef *htim;
+typedef struct {
+    TIM_HandleTypeDef* htim;
     float              timer_frequency_hz;
     uint32_t           rising_edge_tim_channel;
     uint32_t           falling_edge_tim_channel;
 } PwmInputConfig;
 
-typedef struct
-{
+typedef struct {
     float                 duty_cycle;
     float                 frequency_hz;
-    const PwmInputConfig *config;
+    const PwmInputConfig* config;
 } PwmInput;
 
 /**
@@ -43,24 +41,24 @@ typedef struct
  * @param pwm_input PWM input instance.
  * @param config Configuration struct.
  */
-void io_pwmInput_init(PwmInput *pwm_input, const PwmInputConfig *config);
+void io_pwmInput_init(PwmInput* pwm_input, const PwmInputConfig* config);
 
 /**
  * Update the frequency and duty cycle for the given PWM input
  * @param pwm_input: The PWM input to update for
  */
-void hw_pwmInput_tick(PwmInput *pwm_input);
+void hw_pwmInput_tick(PwmInput* pwm_input);
 
 /**
  * Get the duty cycle for the given PWM input
  * @param pwm_input: The PWM input to get duty cycle for
  * @return The duty cycle for the given PWM input
  */
-float hw_pwmInput_getDutyCycle(const PwmInput *pwm_input);
+float hw_pwmInput_getDutyCycle(const PwmInput* pwm_input);
 
 /**
  * Get the frequency for the given PWM input
  * @param pwm_input: The PWM input to get frequency for
  * @return The frequency for the given PWM input
  */
-float hw_pwmInput_getFrequency(const PwmInput *pwm_input);
+float hw_pwmInput_getFrequency(const PwmInput* pwm_input);

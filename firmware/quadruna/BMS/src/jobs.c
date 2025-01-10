@@ -13,14 +13,12 @@
 #include "io_cans.h"
 #include "io_jsoncan.h"
 
-static void jsoncan_transmit(const JsonCanMsg *tx_msg)
-{
+static void jsoncan_transmit(const JsonCanMsg* tx_msg) {
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
 
-void jobs_init(void)
-{
+void jobs_init(void) {
     io_can_init(&can1);
     io_canQueue_init();
     io_canTx_init(jsoncan_transmit);
@@ -44,14 +42,12 @@ void jobs_run1Hz_tick(void) {}
 void jobs_run100Hz_tick(void) {}
 void jobs_run1kHz_tick(void) {}
 
-void jobs_runCanTx_tick(void)
-{
+void jobs_runCanTx_tick(void) {
     CanMsg tx_msg = io_canQueue_popTx();
     io_can_transmit(&can1, &tx_msg);
 }
 
-void jobs_runCanRx_tick(void)
-{
+void jobs_runCanRx_tick(void) {
     const CanMsg rx_msg         = io_canQueue_popRx();
     JsonCanMsg   jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
 

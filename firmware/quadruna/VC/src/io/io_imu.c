@@ -8,23 +8,19 @@ const float SENSITIVITY = 0.061f;
 
 static I2cInterface imu = { .i2c_handle = &hi2c2, .target_address = 0x6B, .timeout_ms = 100 };
 
-bool io_imu_init()
-{
-    if (hw_i2c_isTargetReady(&imu))
-    {
+bool io_imu_init() {
+    if (hw_i2c_isTargetReady(&imu)) {
         uint8_t buffer = 0x40; // turn on accelerometer to normal mode
         return hw_i2c_memWrite(&imu, 0x10, &buffer, 1);
     }
     return false;
 }
 
-bool io_imu_getLinearAccelerationX(float *x_acceleration)
-{
+bool io_imu_getLinearAccelerationX(float* x_acceleration) {
     uint8_t x_data[2];
     bool    is_read_successful = hw_i2c_memRead(&imu, 0x28, x_data, 2);
 
-    if (!is_read_successful)
-    {
+    if (!is_read_successful) {
         return false;
     }
 
@@ -34,13 +30,11 @@ bool io_imu_getLinearAccelerationX(float *x_acceleration)
     return true;
 }
 
-bool io_imu_getLinearAccelerationY(float *y_acceleration)
-{
+bool io_imu_getLinearAccelerationY(float* y_acceleration) {
     uint8_t y_data[2];
     bool    is_read_successful = hw_i2c_memRead(&imu, 0x2A, y_data, 2);
 
-    if (!is_read_successful)
-    {
+    if (!is_read_successful) {
         return false;
     }
 
@@ -50,13 +44,11 @@ bool io_imu_getLinearAccelerationY(float *y_acceleration)
     return true;
 }
 
-bool io_imu_getLinearAccelerationZ(float *z_acceleration)
-{
+bool io_imu_getLinearAccelerationZ(float* z_acceleration) {
     uint8_t z_data[2];
     bool    is_read_successful = hw_i2c_memRead(&imu, 0x2C, z_data, 2);
 
-    if (!is_read_successful)
-    {
+    if (!is_read_successful) {
         return false;
     }
 

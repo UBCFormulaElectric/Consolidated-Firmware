@@ -42,38 +42,31 @@
 
 static PwmInputFreqOnly flow_meter;
 
-void io_coolant_init(const PwmInputFreqOnlyConfig *config)
-{
+void io_coolant_init(const PwmInputFreqOnlyConfig* config) {
     hw_pwmInputFreqOnly_init(&flow_meter, config);
 }
 
-void io_coolant_inputCaptureCallback(const TIM_HandleTypeDef *htim)
-{
+void io_coolant_inputCaptureCallback(const TIM_HandleTypeDef* htim) {
     if (htim == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
-        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
-    {
+        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter)) {
         hw_pwmInputFreqOnly_tick(&flow_meter);
     }
 }
 
-float io_coolant_getFlowRate(void)
-{
+float io_coolant_getFlowRate(void) {
     const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter);
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
-void io_coolant_checkIfFlowMeterActive(void)
-{
+void io_coolant_checkIfFlowMeterActive(void) {
     hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter);
 }
 
-bool temperature_ocsc(const float v)
-{
+bool temperature_ocsc(const float v) {
     return v < TEMPERATURE_VOLTAGE_MIN || v > TEMPERATURE_VOLTAGE_MAX;
 }
 
-float io_coolant_getTemperatureA(void)
-{
+float io_coolant_getTemperatureA(void) {
     const float v_read = hw_adc_getVoltage(&coolant_temp_1);
     app_canTx_RSM_Warning_CoolantTempAOCSC_set(temperature_ocsc(v_read));
     const float v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
@@ -86,8 +79,7 @@ float io_coolant_getTemperatureA(void)
     return coolant_temp_cel;
 }
 
-float io_coolant_getTemperatureB(void)
-{
+float io_coolant_getTemperatureB(void) {
     const float v_read = hw_adc_getVoltage(&coolant_temp_2);
     app_canTx_RSM_Warning_CoolantTempBOCSC_set(temperature_ocsc(v_read));
     const float v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
@@ -100,35 +92,30 @@ float io_coolant_getTemperatureB(void)
     return coolant_temp_cel;
 }
 
-bool pressure_ocsc(const float v)
-{
+bool pressure_ocsc(const float v) {
     return v < PRESSURE_VOLTAGE_MIN || v > PRESSURE_VOLTAGE_MAX;
 }
 
-float io_coolant_getPressureA(void)
-{
+float io_coolant_getPressureA(void) {
     const float water_pressure_A = VOLTAGE_PRESSURE_CONVERSION(hw_adc_getVoltage(&coolant_pressure_1));
     app_canTx_RSM_Warning_CoolantPressureAOCSC_set(io_coolant_PressureAOCSC());
 
     return CLAMP(water_pressure_A, 0.0f, PRESSURE_PSI_MAX);
 }
 
-bool io_coolant_PressureAOCSC(void)
-{
+bool io_coolant_PressureAOCSC(void) {
     return PRESSURE_VOLTAGE_MIN > hw_adc_getVoltage(&coolant_pressure_1) ||
            PRESSURE_VOLTAGE_MAX < hw_adc_getVoltage(&coolant_pressure_1);
 }
 
-float io_coolant_getPressureB(void)
-{
+float io_coolant_getPressureB(void) {
     const float water_pressure_B = VOLTAGE_PRESSURE_CONVERSION(hw_adc_getVoltage(&coolant_pressure_2));
     app_canTx_RSM_Warning_CoolantPressureBOCSC_set(io_coolant_PressureBOCSC());
 
     return CLAMP(water_pressure_B, 0.0f, PRESSURE_PSI_MAX);
 }
 
-bool io_coolant_PressureBOCSC(void)
-{
+bool io_coolant_PressureBOCSC(void) {
     return PRESSURE_VOLTAGE_MIN > hw_adc_getVoltage(&coolant_pressure_2) ||
            PRESSURE_VOLTAGE_MAX < hw_adc_getVoltage(&coolant_pressure_1);
 }

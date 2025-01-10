@@ -9,14 +9,12 @@ static const RangeCheck steering_angle_in_range_check = {
     .max_value = MAX_STEERING_ANGLE_DEG,
 };
 
-void app_steering_broadcast(void)
-{
+void app_steering_broadcast(void) {
     app_canTx_FSM_SteeringAngle_set(io_steering_getAngleDegrees());
 
     bool steering_sensor_ocsc = io_steering_sensorOCSC();
     app_canAlerts_FSM_Warning_SteeringAngleOCSC_set(steering_sensor_ocsc);
-    if (steering_sensor_ocsc)
-    {
+    if (steering_sensor_ocsc) {
         app_canTx_FSM_SteeringAngle_set(0);
     }
 

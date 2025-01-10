@@ -3,8 +3,7 @@
 #include "can.h"
 #include "can_tasks.h"
 
-extern "C"
-{
+extern "C" {
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "app_canRx.h"
@@ -21,44 +20,39 @@ static constexpr uint16_t TASK_INTERVAL_1HZ   = 1000;
 QTimer tx100Hz{}, tx1Hz{};
 QMutex can_table_mutex{};
 
-class CanRxTask final : public QThread
-{
-    QMutex *can_table_mutex;
+class CanRxTask final : public QThread {
+    QMutex* can_table_mutex;
 
   public:
-    explicit CanRxTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+    explicit CanRxTask(QMutex* can_table_mutex) : can_table_mutex{ can_table_mutex } {};
     void run() override;
 } rxworker{ &can_table_mutex };
 
-class CanTxPeriodicTask final : public QThread
-{
-    QMutex *can_table_mutex;
+class CanTxPeriodicTask final : public QThread {
+    QMutex* can_table_mutex;
 
   public:
     void run() override;
-    explicit CanTxPeriodicTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+    explicit CanTxPeriodicTask(QMutex* can_table_mutex) : can_table_mutex{ can_table_mutex } {};
 } txperiodicworker{ &can_table_mutex };
 
-class CanTx100HzTask final : public QObject
-{
-    QMutex *can_table_mutex;
+class CanTx100HzTask final : public QObject {
+    QMutex* can_table_mutex;
 
   public slots:
     void run();
-    explicit CanTx100HzTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+    explicit CanTx100HzTask(QMutex* can_table_mutex) : can_table_mutex{ can_table_mutex } {};
 } tx100Hzworker{ &can_table_mutex };
 
-class CanTx1HzTask final : public QObject
-{
-    QMutex *can_table_mutex;
+class CanTx1HzTask final : public QObject {
+    QMutex* can_table_mutex;
 
   public slots:
     void run();
-    explicit CanTx1HzTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+    explicit CanTx1HzTask(QMutex* can_table_mutex) : can_table_mutex{ can_table_mutex } {};
 } tx1Hzworker{ &can_table_mutex };
 
-Result<std::monostate, CanTask::CAN_setup_errors> CanTask::setup()
-{
+Result<std::monostate, CanTask::CAN_setup_errors> CanTask::setup() {
     Can_Init();
     // tx 100hz
     // tx100Hz.setInterval(TASK_INTERVAL_100HZ);
@@ -78,16 +72,12 @@ Result<std::monostate, CanTask::CAN_setup_errors> CanTask::setup()
     return std::monostate{};
 }
 
-void CanRxTask::run()
-{
+void CanRxTask::run() {
     qInfo("Starting CanRXTask thread");
-    while (!QThread::currentThread()->isInterruptionRequested())
-    {
+    while (!QThread::currentThread()->isInterruptionRequested()) {
         Result<JsonCanMsg, CanReadError> can_read_res = Can_Read();
-        if (can_read_res.has_error())
-        {
-            switch (can_read_res.get_error())
-            {
+        if (can_read_res.has_error()) {
+            switch (can_read_res.get_error()) {
                 case CanReadError::ReadInterfaceNotCreated:
                     qWarning("Can interface not created");
                     return;
@@ -124,12 +114,10 @@ void CanRxTask::run()
     qInfo("KILL CanRXTask thread");
 }
 
-void CanTxPeriodicTask::run()
-{
+void CanTxPeriodicTask::run() {
     using namespace std::chrono;
     qInfo("Starting CanPeriodicTXTask thread");
-    while (!QThread::currentThread()->isInterruptionRequested())
-    {
+    while (!QThread::currentThread()->isInterruptionRequested()) {
         auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
         can_table_mutex->lock();
         io_canTx_enqueueOtherPeriodicMsgs(ms.count());
@@ -139,22 +127,19 @@ void CanTxPeriodicTask::run()
     qInfo("KILL CanPeriodicTXTask thread");
 }
 
-void CanTx100HzTask::run()
-{
+void CanTx100HzTask::run() {
     can_table_mutex->lock();
     io_canTx_enqueue100HzMsgs();
     can_table_mutex->unlock();
 }
 
-void CanTx1HzTask::run()
-{
+void CanTx1HzTask::run() {
     can_table_mutex->lock();
     io_canTx_enqueue1HzMsgs();
     can_table_mutex->unlock();
 }
 
-Result<std::monostate, CanTask::CAN_teardown_errors> CanTask::teardown()
-{
+Result<std::monostate, CanTask::CAN_teardown_errors> CanTask::teardown() {
     rxworker.requestInterruption();
     txperiodicworker.requestInterruption();
     tx100Hz.stop();

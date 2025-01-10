@@ -8,8 +8,7 @@
  * However, it'd take 50 days for that to happen, so nothing to worry about :)
  */
 
-typedef enum
-{
+typedef enum {
     TIMER_STATE_IDLE,    // Idle: Timer is stopped.
     TIMER_STATE_RUNNING, // Running: Timer is running, but its duration hasn't elapsed yet.
     TIMER_STATE_EXPIRED, // Expired: Timer ran, and has completed its duration.
@@ -19,8 +18,7 @@ typedef enum
  * TimerChannel struct is used to store all of a timer's data.
  * Note: Do not interact with member vars directly! Instead, use the functions defined later in this file.
  */
-typedef struct
-{
+typedef struct {
     uint32_t   duration_ms;   // Timer's duration, in milliseconds
     TimerState state;         // Current timer state
     uint32_t   start_time_ms; // Time that timer last started running, in ms
@@ -31,19 +29,19 @@ typedef struct
  * @param timer The timer in question
  * @param duration_ms The duration of this timer, in milliseconds
  */
-void app_timer_init(TimerChannel *const timer, uint32_t duration_ms);
+void app_timer_init(TimerChannel* const timer, uint32_t duration_ms);
 
 /**
  * Restart a timer, i.e. set the elapsed time back to 0. Leaves the timer in TIMER_STATE_RUNNING.
  * @param timer The timer in question
  */
-void app_timer_restart(TimerChannel *const timer);
+void app_timer_restart(TimerChannel* const timer);
 
 /**
  * Stop a timer. Leaves the timer in TIMER_STATE_IDLE.
  * @param timer The timer in question
  */
-void app_timer_stop(TimerChannel *const timer);
+void app_timer_stop(TimerChannel* const timer);
 
 /**
  * Update a timer and return the current state its in. Possible states are:
@@ -54,7 +52,7 @@ void app_timer_stop(TimerChannel *const timer);
  * @param timer The timer in question
  * @return The updated state of the timer
  */
-TimerState app_timer_updateAndGetState(TimerChannel *const timer);
+TimerState app_timer_updateAndGetState(TimerChannel* const timer);
 
 /**
  * If condition is true and timer isn't running, restart the timer. If condition is true and timer
@@ -63,7 +61,7 @@ TimerState app_timer_updateAndGetState(TimerChannel *const timer);
  * @param condition Whether or not to run timer
  * @return The updated state of the timer
  */
-TimerState app_timer_runIfCondition(TimerChannel *const timer, bool condition);
+TimerState app_timer_runIfCondition(TimerChannel* const timer, bool condition);
 
 /**
  * Get the elapsed time since timer started, in milliseconds. Note that if timer is TIMER_STATE_IDLE, the elapsed time
@@ -71,4 +69,4 @@ TimerState app_timer_runIfCondition(TimerChannel *const timer, bool condition);
  * @param timer The timer in question
  * @return Elapsed time
  */
-uint32_t app_timer_getElapsedTime(const TimerChannel *const timer);
+uint32_t app_timer_getElapsedTime(const TimerChannel* const timer);

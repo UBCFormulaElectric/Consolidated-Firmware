@@ -5,8 +5,7 @@
 #include "app_switches.h"
 #include "app_heartbeatMonitors.h"
 
-static void mainStateRunOnTick100Hz(void)
-{
+static void mainStateRunOnTick100Hz(void) {
     app_leds_update();
     app_switches_broadcast();
     app_driveMode_broadcast();
@@ -21,8 +20,7 @@ static void mainStateRunOnEntry(void) {}
 static void mainStateRunOnTick1Hz(void) {}
 static void mainStateRunOnExit(void) {}
 
-const State *app_mainState_get(void)
-{
+const State* app_mainState_get(void) {
     static const State main_state = {
         .name              = "MAIN",
         .run_on_entry      = mainStateRunOnEntry,

@@ -57,11 +57,10 @@ static float papps_max_angle;
 static float sapps_rest_angle;
 static float sapps_max_angle;
 
-static const AppsConfig *config = NULL;
+static const AppsConfig* config = NULL;
 
 // max and min angle calculation for PAPPS/SAPPS
-static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_law_denominator)
-{
+static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_law_denominator) {
     // clamping input of acos from cos law ((a^2 + b^2 - c^2) / 2ab))
     float acosf_input = CLAMP((cos_law_coefficent - (powf(pot_len, 2) / cos_law_denominator)), -1.0f, 1.0f);
 
@@ -70,8 +69,7 @@ static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_la
     return angle;
 }
 
-void io_apps_init(const AppsConfig *apps_config)
-{
+void io_apps_init(const AppsConfig* apps_config) {
     config = apps_config;
 
     papps_rest_angle = calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_UNPRESSED_MM, PAPPS_COS_LAW_DENOMINATOR);
@@ -85,8 +83,7 @@ void io_apps_init(const AppsConfig *apps_config)
         calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_FULLY_PRESSED_MM, SAPPS_COS_LAW_DENOMINATOR);
 }
 
-float io_apps_getPrimary(void)
-{
+float io_apps_getPrimary(void) {
     float pedal_voltage = hw_adc_getVoltage(config->papps);
 
     // Length calculated via voltage reading from PAPPS
@@ -97,8 +94,7 @@ float io_apps_getPrimary(void)
 
     float pedal_percentage_raw = (pedal_angle / papps_max_angle) * 100.0f;
 
-    if (pedal_percentage_raw <= DEAD_ZONE_PERCENT)
-    {
+    if (pedal_percentage_raw <= DEAD_ZONE_PERCENT) {
         return 0;
     }
 
@@ -107,15 +103,13 @@ float io_apps_getPrimary(void)
     return CLAMP(pedal_percentage, 0.0f, 100.0f);
 }
 
-bool io_apps_isPrimaryOCSC(void)
-{
+bool io_apps_isPrimaryOCSC(void) {
     float pedal_voltage = hw_adc_getVoltage(config->papps);
 
     return !(PAPPS_MIN_V <= pedal_voltage && pedal_voltage <= PAPPS_MAX_V);
 }
 
-float io_apps_getSecondary(void)
-{
+float io_apps_getSecondary(void) {
     float pedal_voltage = hw_adc_getVoltage(config->sapps);
 
     // length calc from SAPPS voltage reading
@@ -128,8 +122,7 @@ float io_apps_getSecondary(void)
 
     float pedal_percentage_raw = (pedal_angle / sapps_max_angle) * 100.0f;
 
-    if (pedal_percentage_raw <= DEAD_ZONE_PERCENT)
-    {
+    if (pedal_percentage_raw <= DEAD_ZONE_PERCENT) {
         return 0;
     }
 
@@ -138,8 +131,7 @@ float io_apps_getSecondary(void)
     return CLAMP(pedal_percentage, 0.0f, 100.0f);
 }
 
-bool io_apps_isSecondaryOCSC(void)
-{
+bool io_apps_isSecondaryOCSC(void) {
     float pedal_voltage = hw_adc_getVoltage(config->sapps);
 
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);

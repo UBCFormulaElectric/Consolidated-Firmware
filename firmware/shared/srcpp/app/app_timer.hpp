@@ -2,18 +2,15 @@
 
 #include <cstdint>
 
-namespace app
-{
+namespace app {
 
 /**
  * Note: This driver does nothing to deal with integer overflow!
  * However, it'd take 50 days for that to happen, so nothing to worry about :)
  */
-class Timer
-{
+class Timer {
   public:
-    enum class TimerState
-    {
+    enum class TimerState {
         IDLE,    // Idle: Timer is stopped.
         RUNNING, // Running: Timer is running, but its duration hasn't elapsed yet.
         EXPIRED, // Expired: Timer ran, and has completed its duration.

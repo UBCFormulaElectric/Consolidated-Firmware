@@ -5,7 +5,7 @@ constexpr static double rad_deg_factor = 180 / M_PI;
 #define RAD_TO_DEG(x) ((x) * rad_deg_factor)
 
 // ReSharper disable once CppPossiblyUninitializedMember
-Squircle::Squircle(QQuickItem *parent) : QQuickPaintedItem(parent) {} // NOLINT(*-pro-type-member-init)
+Squircle::Squircle(QQuickItem* parent) : QQuickPaintedItem(parent) {} // NOLINT(*-pro-type-member-init)
 
 /**
  * \brief Draws a squircle with the given painter.
@@ -13,8 +13,7 @@ Squircle::Squircle(QQuickItem *parent) : QQuickPaintedItem(parent) {} // NOLINT(
  * possible radius.
  * \param p painter to draw with
  */
-void Squircle::paint(QPainter *p)
-{
+void Squircle::paint(QPainter* p) {
     p->setPen(Qt::NoPen);
     p->setBrush(QBrush(m_color));
     // clamp radius
@@ -22,17 +21,14 @@ void Squircle::paint(QPainter *p)
     const double radius =
         std::clamp(static_cast<double>(this->m_radius), 0.0, std::min(bounds.width(), bounds.height()) / 2.0);
     const double smoothness = std::clamp(this->m_smoothness, 0.0, 1.0); // todo find a better clamp (depending on R)
-    if (radius == 0 || smoothness == 0)
-    {
+    if (radius == 0 || smoothness == 0) {
         qWarning() << "Squircle used without corner radius or smoothness, falling back to rounded rect.";
         return p->drawRoundedRect(bounds, radius, radius);
     }
 
     if (const SquircleSettings newSettings = { bounds.width(), bounds.height(), radius, smoothness };
-        !cachedSquirclePath.has_value() || !cachedSettings.has_value() || cachedSettings.value() != newSettings)
-    {
-        if (cachedSettings.has_value())
-        {
+        !cachedSquirclePath.has_value() || !cachedSettings.has_value() || cachedSettings.value() != newSettings) {
+        if (cachedSettings.has_value()) {
             qInfo() << "Rerendering Squircle With new " << cachedSettings.value() << " to the new " << newSettings;
         }
         cachedSettings = newSettings;
@@ -43,8 +39,7 @@ void Squircle::paint(QPainter *p)
     p->drawPath(cachedSquirclePath.value());
 }
 
-void Squircle::updateCachedPathFromCachedSettings(QPainter *p)
-{
+void Squircle::updateCachedPathFromCachedSettings(QPainter* p) {
     assert(cachedSettings.has_value());
     const auto [w, h, radius, smoothness] = cachedSettings.value();
     const double corner_dim = radius * (1 + smoothness), straightWidthLength = w - 2 * corner_dim,
@@ -65,8 +60,7 @@ void Squircle::updateCachedPathFromCachedSettings(QPainter *p)
                            { false, w, h, -1, -1, 270 },
                            { true, 0, h, 1, -1, 180 },
                            { false, 0, 0, 1, 1, 90 } };
-         const auto [isH, bx, by, xt, yt, angleOffset] : edgeInfo)
-    {
+         const auto [isH, bx, by, xt, yt, angleOffset] : edgeInfo) {
         // horizontal travel
         const QPointF startPos = path.currentPosition();
         path.lineTo(startPos.x() + isH * straightWidthLength * -xt, startPos.y() + !isH * straightHeightLength * -yt);
@@ -83,8 +77,7 @@ void Squircle::updateCachedPathFromCachedSettings(QPainter *p)
         // assert(path.currentPosition() == p1_1);
 
         // draw
-        if (isH)
-        {
+        if (isH) {
             path.cubicTo(p2_1, p3_1, p4_1);
             path.arcTo(
                 bx + (xt - 1) * radius, by + (yt - 1) * radius, radius * 2, radius * 2, arcAngle + angleOffset,
@@ -93,9 +86,7 @@ void Squircle::updateCachedPathFromCachedSettings(QPainter *p)
             // assert(pow(finishArcPos.x() - p4_2.x(), 2) + pow(finishArcPos.y() -
             // p4_2.y(), 2) < pow(0.5, 2)); // ensure delta < 1/2 of pixel
             path.cubicTo(p3_2, p2_2, p1_2);
-        }
-        else
-        {
+        } else {
             path.cubicTo(p2_2, p3_2, p4_2);
             path.arcTo(
                 bx + (xt - 1) * radius, by + (yt - 1) * radius, radius * 2, radius * 2, arcAngle + angleOffset,

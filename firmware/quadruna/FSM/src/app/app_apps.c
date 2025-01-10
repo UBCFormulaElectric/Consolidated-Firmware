@@ -9,8 +9,7 @@ static Signal papps_ocsc_signal;
 static Signal sapps_ocsc_signal;
 static Signal papps_sapps_disagreement_signal;
 
-void app_apps_init(void)
-{
+void app_apps_init(void) {
     app_signal_init(&papps_ocsc_signal, APPS_OCSC_TIME_TO_FAULT, APPS_OCSC_TIME_TO_CLEAR);
     app_signal_init(&sapps_ocsc_signal, APPS_OCSC_TIME_TO_FAULT, APPS_OCSC_TIME_TO_CLEAR);
     app_signal_init(
@@ -18,8 +17,7 @@ void app_apps_init(void)
         PAPPS_SAPPS_DISAGREEMENT_TIME_TO_CLEAR);
 }
 
-void app_apps_broadcast(void)
-{
+void app_apps_broadcast(void) {
     float papps_pedal_percentage = io_apps_getPrimary();
     float sapps_pedal_percentage = io_apps_getSecondary();
 
@@ -51,13 +49,10 @@ void app_apps_broadcast(void)
     app_canTx_FSM_SappsRawPedalPercentage_set(sapps_pedal_percentage);
 
     // set mapped apps to 0 if anything went wrong
-    if (papps_ocsc_active || sapps_ocsc_active || papps_sapps_disagreement_active)
-    {
+    if (papps_ocsc_active || sapps_ocsc_active || papps_sapps_disagreement_active) {
         app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
         app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
-    }
-    else
-    {
+    } else {
         app_canTx_FSM_PappsMappedPedalPercentage_set(papps_pedal_percentage);
         app_canTx_FSM_SappsMappedPedalPercentage_set(sapps_pedal_percentage);
     }

@@ -3,8 +3,7 @@
 #include <assert.h>
 #include "io_log.h"
 
-void io_can_init(const CanHandle *can_handle)
-{
+void io_can_init(const CanHandle* can_handle) {
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
     filter.IdType       = FDCAN_STANDARD_ID; // 11 bit ID
@@ -27,14 +26,12 @@ void io_can_init(const CanHandle *can_handle)
     assert(HAL_FDCAN_Start(can_handle->hcan) == HAL_OK);
 }
 
-void io_can_deinit(const CanHandle *can_handle)
-{
+void io_can_deinit(const CanHandle* can_handle) {
     assert(HAL_FDCAN_Stop(can_handle->hcan) == HAL_OK);
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
-{
+bool io_can_transmit(const CanHandle* can_handle, CanMsg* msg) {
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
     tx_header.IdType              = FDCAN_STANDARD_ID;
@@ -52,11 +49,9 @@ bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
 }
 
-bool io_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
-{
+bool io_can_receive(const CanHandle* can_handle, const uint32_t rx_fifo, CanMsg* msg) {
     FDCAN_RxHeaderTypeDef header;
-    if (HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
-    {
+    if (HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK) {
         return false;
     }
 
@@ -67,16 +62,13 @@ bool io_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
 }
 
 // ReSharper disable once CppParameterMayBeConst
-void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
-{
+void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef* hfdcan, uint32_t ErrorStatusITs) {
     // assert(hfdcan == can_handle->hcan);
     LOG_INFO("FDCAN detected an error");
-    if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
-    {
+    if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET) {
         FDCAN_ProtocolStatusTypeDef protocolStatus;
         HAL_FDCAN_GetProtocolStatus(hfdcan, &protocolStatus);
-        if (protocolStatus.BusOff)
-        {
+        if (protocolStatus.BusOff) {
             CLEAR_BIT(hfdcan->Instance->CCCR, FDCAN_CCCR_INIT);
         }
     }

@@ -29,16 +29,13 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-namespace hw::can
-{
-CanBus::~CanBus()
-{
+namespace hw::can {
+CanBus::~CanBus() {
     assert(HAL_CAN_Stop(handle) == HAL_OK);
     assert(HAL_CAN_DeInit(handle) == HAL_OK);
 }
 
-void CanBus::init() const
-{
+void CanBus::init() const {
     // Configure a single filter bank that accepts any message.
     const CAN_FilterTypeDef filter = { .FilterIdHigh         = MASKMODE_16BIT_ID_OPEN,
                                        .FilterIdLow          = MASKMODE_16BIT_ID_OPEN,
@@ -63,8 +60,7 @@ void CanBus::init() const
     assert(HAL_CAN_Start(handle) == HAL_OK);
 }
 
-bool CanBus::transmit(const CanMsg *msg) const
-{
+bool CanBus::transmit(const CanMsg* msg) const {
     CAN_TxHeaderTypeDef tx_header = {
         .StdId = msg->std_id,
 
@@ -98,12 +94,10 @@ bool CanBus::transmit(const CanMsg *msg) const
     return return_status == HAL_OK;
 }
 
-void CanBus::receive(uint32_t rx_fifo) const
-{
+void CanBus::receive(uint32_t rx_fifo) const {
     CAN_RxHeaderTypeDef header;
     CanMsg              msg{};
-    if (HAL_CAN_GetRxMessage(handle, rx_fifo, &header, msg.data) != HAL_OK)
-    {
+    if (HAL_CAN_GetRxMessage(handle, rx_fifo, &header, msg.data) != HAL_OK) {
         LOG_WARN("Failed to receive CAN message.");
         return;
     }

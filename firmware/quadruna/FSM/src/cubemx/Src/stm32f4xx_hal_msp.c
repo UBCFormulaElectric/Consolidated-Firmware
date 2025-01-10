@@ -62,8 +62,7 @@ extern DMA_HandleTypeDef hdma_adc1;
 /**
  * Initializes the Global MSP.
  */
-void HAL_MspInit(void)
-{
+void HAL_MspInit(void) {
     /* USER CODE BEGIN MspInit 0 */
 
     /* USER CODE END MspInit 0 */
@@ -86,11 +85,9 @@ void HAL_MspInit(void)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
-{
+void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (hadc->Instance == ADC1)
-    {
+    if (hadc->Instance == ADC1) {
         /* USER CODE BEGIN ADC1_MspInit 0 */
 
         /* USER CODE END ADC1_MspInit 0 */
@@ -138,8 +135,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         hdma_adc1.Init.Mode                = DMA_CIRCULAR;
         hdma_adc1.Init.Priority            = DMA_PRIORITY_LOW;
         hdma_adc1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-        if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
-        {
+        if (HAL_DMA_Init(&hdma_adc1) != HAL_OK) {
             Error_Handler();
         }
 
@@ -157,10 +153,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
-{
-    if (hadc->Instance == ADC1)
-    {
+void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc) {
+    if (hadc->Instance == ADC1) {
         /* USER CODE BEGIN ADC1_MspDeInit 0 */
 
         /* USER CODE END ADC1_MspDeInit 0 */
@@ -198,11 +192,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
-{
+void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (hcan->Instance == CAN1)
-    {
+    if (hcan->Instance == CAN1) {
         /* USER CODE BEGIN CAN1_MspInit 0 */
 
         /* USER CODE END CAN1_MspInit 0 */
@@ -238,10 +230,8 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
-{
-    if (hcan->Instance == CAN1)
-    {
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan) {
+    if (hcan->Instance == CAN1) {
         /* USER CODE BEGIN CAN1_MspDeInit 0 */
 
         /* USER CODE END CAN1_MspDeInit 0 */
@@ -269,10 +259,8 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
-{
-    if (htim_base->Instance == TIM3)
-    {
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
+    if (htim_base->Instance == TIM3) {
         /* USER CODE BEGIN TIM3_MspInit 0 */
 
         /* USER CODE END TIM3_MspInit 0 */
@@ -293,11 +281,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
  * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
-{
+void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* htim_ic) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (htim_ic->Instance == TIM12)
-    {
+    if (htim_ic->Instance == TIM12) {
         /* USER CODE BEGIN TIM12_MspInit 0 */
 
         /* USER CODE END TIM12_MspInit 0 */
@@ -331,10 +317,8 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
-{
-    if (htim_base->Instance == TIM3)
-    {
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
+    if (htim_base->Instance == TIM3) {
         /* USER CODE BEGIN TIM3_MspDeInit 0 */
 
         /* USER CODE END TIM3_MspDeInit 0 */
@@ -355,10 +339,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
  * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
-{
-    if (htim_ic->Instance == TIM12)
-    {
+void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* htim_ic) {
+    if (htim_ic->Instance == TIM12) {
         /* USER CODE BEGIN TIM12_MspDeInit 0 */
 
         /* USER CODE END TIM12_MspDeInit 0 */
@@ -385,11 +367,9 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
-{
+void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (huart->Instance == USART1)
-    {
+    if (huart->Instance == USART1) {
         /* USER CODE BEGIN USART1_MspInit 0 */
 
         /* USER CODE END USART1_MspInit 0 */
@@ -423,10 +403,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART1)
-    {
+void HAL_UART_MspDeInit(UART_HandleTypeDef* huart) {
+    if (huart->Instance == USART1) {
         /* USER CODE BEGIN USART1_MspDeInit 0 */
 
         /* USER CODE END USART1_MspDeInit 0 */

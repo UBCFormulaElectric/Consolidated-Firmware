@@ -6,33 +6,27 @@
 
 static TimerChannel timer;
 
-static void inverterOnStateRunOnEntry(void)
-{
+static void inverterOnStateRunOnEntry(void) {
     app_canTx_BMS_State_set(BMS_INVERTER_ON_STATE);
     app_timer_init(&timer, INVERTER_BOOTUP_TIME_MS);
     app_timer_restart(&timer);
 }
 
-static void inverterOnStateRunOnTick1Hz(void)
-{
+static void inverterOnStateRunOnTick1Hz(void) {
     app_allStates_runOnTick1Hz();
 }
 
-static void inverterOnStateRunOnTick100Hz(void)
-{
-    if (app_allStates_runOnTick100Hz())
-    {
+static void inverterOnStateRunOnTick100Hz(void) {
+    if (app_allStates_runOnTick100Hz()) {
         TimerState timer_state = app_timer_updateAndGetState(&timer);
 
-        if (timer_state == TIMER_STATE_EXPIRED)
-        {
+        if (timer_state == TIMER_STATE_EXPIRED) {
             app_stateMachine_setNextState(app_prechargeState_get());
         }
     }
 }
 
-const State *app_inverterOnState_get(void)
-{
+const State* app_inverterOnState_get(void) {
     static State inverter_state = {
         .name              = "INVERTER_ON",
         .run_on_entry      = inverterOnStateRunOnEntry,

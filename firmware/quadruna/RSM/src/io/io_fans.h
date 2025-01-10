@@ -5,7 +5,7 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
-void io_fan_init(const Gpio *acc_fan_in, const Gpio *rad_fan_in);
+void io_fan_init(const Gpio* acc_fan_in, const Gpio* rad_fan_in);
 #endif
 
 void io_acc_fan_set(bool on);

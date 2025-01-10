@@ -25,14 +25,12 @@ extern TIM_HandleTypeDef htim6;
 // Need these to be created an initialized elsewhere
 extern CanHandle can;
 
-void canRxQueueOverflowCallBack(const uint32_t unused)
-{
+void canRxQueueOverflowCallBack(const uint32_t unused) {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-void canTxQueueOverflowCallBack(const uint32_t unused)
-{
+void canTxQueueOverflowCallBack(const uint32_t unused) {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
 }
@@ -47,21 +45,14 @@ extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
-typedef struct
-{
+typedef struct {
     uint32_t checksum;
     uint32_t size_bytes;
 } Metadata;
 
-typedef enum
-{
-    BOOT_STATUS_APP_VALID,
-    BOOT_STATUS_APP_INVALID,
-    BOOT_STATUS_NO_APP
-} BootStatus;
+typedef enum { BOOT_STATUS_APP_VALID, BOOT_STATUS_APP_INVALID, BOOT_STATUS_NO_APP } BootStatus;
 
-_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
-{
+_Noreturn static void modifyStackPointerAndStartApp(const uint32_t* address) {
     // Disable interrupts before jumping.
     __disable_irq();
 
@@ -71,8 +62,7 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // Clear all pending interrupts by setting all ICPRs (Interrupt Clear Pending Register)
     // to 0xFFFFFFFF. This is done so no interrupts are queued up when we jump to the app.
     // (There are 8 registers on the Cortex-M4)
-    for (uint32_t i = 0; i < 8; i++)
-    {
+    for (uint32_t i = 0; i < 8; i++) {
         NVIC->ICPR[i] = 0xFFFFFFFF;
     }
 
@@ -104,22 +94,18 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 
     // Should never get here!
     BREAK_IF_DEBUGGER_CONNECTED()
-    for (;;)
-    {
+    for (;;) {
     }
 }
 
-static BootStatus verifyAppCodeChecksum(void)
-{
-    if (__app_code_start__ == 0xFFFFFFFF)
-    {
+static BootStatus verifyAppCodeChecksum(void) {
+    if (__app_code_start__ == 0xFFFFFFFF) {
         // If app initial stack pointer is all 0xFF, assume app is not present.
         return BOOT_STATUS_NO_APP;
     }
 
-    const Metadata *metadata = (Metadata *)&__app_metadata_start__;
-    if (metadata->size_bytes > (uint32_t)&__app_code_size__)
-    {
+    const Metadata* metadata = (Metadata*)&__app_metadata_start__;
+    if (metadata->size_bytes > (uint32_t)&__app_code_size__) {
         // App binary size field is invalid.
         return BOOT_STATUS_APP_INVALID;
     }
@@ -139,15 +125,13 @@ static const Gpio bootloader_pin = {
 static uint32_t current_address;
 static bool     update_in_progress;
 
-void bootloader_preInit(void)
-{
+void bootloader_preInit(void) {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("Bootloader reset!");
 }
 
-void bootloader_init(void)
-{
+void bootloader_init(void) {
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
@@ -166,8 +150,7 @@ void bootloader_init(void)
 #ifndef BOOT_AUTO
         && hw_gpio_readPin(&bootloader_pin)
 #endif
-    )
-    {
+    ) {
         // Deinit peripherals.
 #ifndef BOOT_AUTO
         HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
@@ -180,14 +163,11 @@ void bootloader_init(void)
     }
 }
 
-_Noreturn void bootloader_runInterfaceTask(void)
-{
-    for (;;)
-    {
+_Noreturn void bootloader_runInterfaceTask(void) {
+    for (;;) {
         const CanMsg command = io_canQueue_popRx();
 
-        if (command.std_id == START_UPDATE_ID)
-        {
+        if (command.std_id == START_UPDATE_ID) {
             // Reset current address to program and update state.
             current_address    = (uint32_t)&__app_metadata_start__;
             update_in_progress = true;
@@ -195,9 +175,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Send ACK message that programming has started.
             const CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
             io_canQueue_pushTx(&reply);
-        }
-        else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
-        {
+        } else if (command.std_id == ERASE_SECTOR_ID && update_in_progress) {
             // Erase a flash sector.
             const uint8_t sector = command.data[0];
             hw_flash_eraseSector(sector);
@@ -208,16 +186,12 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .dlc    = 0,
             };
             io_canQueue_pushTx(&reply);
-        }
-        else if (command.std_id == PROGRAM_ID && update_in_progress)
-        {
+        } else if (command.std_id == PROGRAM_ID && update_in_progress) {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+            bootloader_boardSpecific_program(current_address, *(uint64_t*)command.data);
             current_address += sizeof(uint64_t);
-        }
-        else if (command.std_id == VERIFY_ID && update_in_progress)
-        {
+        } else if (command.std_id == VERIFY_ID && update_in_progress) {
             // Verify received checksum matches the one saved in flash.
             CanMsg reply = {
                 .std_id = APP_VALIDITY_ID,
@@ -232,12 +206,10 @@ _Noreturn void bootloader_runInterfaceTask(void)
     }
 }
 
-_Noreturn void bootloader_runTickTask(void)
-{
+_Noreturn void bootloader_runTickTask(void) {
     uint32_t start_ticks = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         // Broadcast a message at 1Hz so we can check status over CAN.
         CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 5 };
         status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
@@ -254,10 +226,8 @@ _Noreturn void bootloader_runTickTask(void)
     }
 }
 
-_Noreturn void bootloader_runCanTxTask(void)
-{
-    for (;;)
-    {
+_Noreturn void bootloader_runCanTxTask(void) {
+    for (;;) {
         CanMsg tx_msg = io_canQueue_popTx();
         io_can_transmit(&can, &tx_msg);
     }

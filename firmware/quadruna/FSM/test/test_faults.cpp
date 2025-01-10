@@ -2,12 +2,9 @@
 #include "app_apps.h"
 #include <cmath>
 
-class FsmFaultsTest : public FsmBaseStateMachineTest
-{
-};
+class FsmFaultsTest : public FsmBaseStateMachineTest {};
 
-TEST_F(FsmFaultsTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero)
-{
+TEST_F(FsmFaultsTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero) {
     // For the following test we will select a secondary APPS sensor
     // value such that the difference between the primary and secondary APPS
     // is within 10%. This prevents the APPS has disagreement callback from
@@ -53,8 +50,7 @@ TEST_F(FsmFaultsTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero)
     ASSERT_FALSE(app_canAlerts_FSM_Fault_PappsOCSC_get());
 }
 
-TEST_F(FsmFaultsTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero)
-{
+TEST_F(FsmFaultsTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero) {
     // For the following test we will select a secondary APPS sensor
     // value such that the difference between the primary and secondary APPS
     // is within 10%. This prevents the APPS has disagreement callback from
@@ -100,10 +96,8 @@ TEST_F(FsmFaultsTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero)
     ASSERT_FALSE(app_canAlerts_FSM_Fault_SappsOCSC_get());
 }
 
-TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_sets_fault)
-{
-    struct
-    {
+TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_sets_fault) {
+    struct {
         float papps_percentage;
         float sapps_percentage;
         bool  expect_fault;
@@ -154,8 +148,7 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
 
     int test_params_len = sizeof(test_params) / sizeof(test_params[0]);
 
-    for (int i = 0; i < test_params_len; i++)
-    {
+    for (int i = 0; i < test_params_len; i++) {
         TearDown();
         SetUp();
 
@@ -167,8 +160,7 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
         ASSERT_NEAR(test_params[i].sapps_percentage, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
         ASSERT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
 
-        if (test_params[i].expect_fault)
-        {
+        if (test_params[i].expect_fault) {
             // Signal debounce has elapsed, expect fault
             LetTimePass(1);
             ASSERT_EQ(0, app_canTx_FSM_PappsMappedPedalPercentage_get());
@@ -195,9 +187,7 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
             ASSERT_NEAR(test_params[i].papps_percentage, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
             ASSERT_NEAR(test_params[i].papps_percentage, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
             ASSERT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
-        }
-        else
-        {
+        } else {
             // No fault condition, confirm no fault is set
             LetTimePass(1000);
             ASSERT_NEAR(test_params[i].papps_percentage, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
@@ -207,8 +197,7 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
     }
 }
 
-TEST_F(FsmFaultsTest, steering_sensor_ocsc_sets_warning)
-{
+TEST_F(FsmFaultsTest, steering_sensor_ocsc_sets_warning) {
     LetTimePass(10);
     ASSERT_FALSE(app_canAlerts_FSM_Warning_SteeringAngleOCSC_get());
 

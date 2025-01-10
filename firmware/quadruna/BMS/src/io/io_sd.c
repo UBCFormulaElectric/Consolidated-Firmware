@@ -1,13 +1,11 @@
 #include "io_sd.h"
 
-static const SdGpio *sd = NULL;
+static const SdGpio* sd = NULL;
 
-void io_sdGpio_init(const SdGpio *sdGpio)
-{
+void io_sdGpio_init(const SdGpio* sdGpio) {
     sd = sdGpio;
 }
 
-bool io_sdGpio_checkSdPresent()
-{
+bool io_sdGpio_checkSdPresent() {
     return !hw_gpio_readPin(&sd->sd_present);
 }

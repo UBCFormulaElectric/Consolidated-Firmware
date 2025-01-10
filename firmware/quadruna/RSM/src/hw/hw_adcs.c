@@ -22,13 +22,11 @@ const AdcChannel coolant_pressure_1 = { .voltage = &adc1_adc_voltages[7] };
 const AdcChannel rad_fan_i_sns      = { .voltage = &adc1_adc_voltages[8] };
 const AdcChannel acc_fan_i_sns      = { .voltage = &adc1_adc_voltages[9] };
 
-void hw_adcs_chipsInit()
-{
+void hw_adcs_chipsInit() {
     hw_adcchip_init(&adc1);
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
     if (hadc == adc1.hadc)
         hw_adcchip_updateCallback(&adc1);
 }

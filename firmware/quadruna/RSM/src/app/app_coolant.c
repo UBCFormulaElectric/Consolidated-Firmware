@@ -12,13 +12,11 @@ static const RangeCheck flow_rate_in_range_check = {
 };
 static Signal flow_in_range_signal;
 
-void app_coolant_init(void)
-{
+void app_coolant_init(void) {
     app_signal_init(&flow_in_range_signal, FLOW_METER_TIME_TO_FAULT, FLOW_METER_TIME_TO_CLEAR);
 }
 
-void app_coolant_broadcast(void)
-{
+void app_coolant_broadcast(void) {
     app_canTx_RSM_CoolantTemperatureA_set(io_coolant_getTemperatureA());
     app_canTx_RSM_CoolantTemperatureB_set(io_coolant_getTemperatureB());
     app_canTx_RSM_CoolantPressureA_set(io_coolant_getPressureA());

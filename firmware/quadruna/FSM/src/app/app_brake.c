@@ -10,8 +10,7 @@ static const RangeCheck front_pressure_in_range_check = { .min_value = MIN_BRAKE
 static const RangeCheck rear_pressure_in_range_check  = { .min_value = MIN_BRAKE_PRESSURE_PSI,
                                                           .max_value = MAX_BRAKE_PRESSURE_PSI };
 
-void app_brake_broadcast(void)
-{
+void app_brake_broadcast(void) {
     const bool brake_pressed = io_brake_isActuated();
     app_canTx_FSM_BrakeActuated_set(brake_pressed);
 

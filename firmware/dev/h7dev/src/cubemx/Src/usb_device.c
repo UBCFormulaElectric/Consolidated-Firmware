@@ -61,27 +61,22 @@ USBD_HandleTypeDef hUsbDeviceHS;
  * Init USB device Library, add supported class and start the library
  * @retval None
  */
-void MX_USB_DEVICE_Init(void)
-{
+void MX_USB_DEVICE_Init(void) {
     /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
 
     /* USER CODE END USB_DEVICE_Init_PreTreatment */
 
     /* Init Device Library, add supported class and start the library. */
-    if (USBD_Init(&hUsbDeviceHS, &HS_Desc, DEVICE_HS) != USBD_OK)
-    {
+    if (USBD_Init(&hUsbDeviceHS, &HS_Desc, DEVICE_HS) != USBD_OK) {
         Error_Handler();
     }
-    if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_CDC) != USBD_OK)
-    {
+    if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_CDC) != USBD_OK) {
         Error_Handler();
     }
-    if (USBD_CDC_RegisterInterface(&hUsbDeviceHS, &USBD_Interface_fops_HS) != USBD_OK)
-    {
+    if (USBD_CDC_RegisterInterface(&hUsbDeviceHS, &USBD_Interface_fops_HS) != USBD_OK) {
         Error_Handler();
     }
-    if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
-    {
+    if (USBD_Start(&hUsbDeviceHS) != USBD_OK) {
         Error_Handler();
     }
 

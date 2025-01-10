@@ -11,8 +11,7 @@
 
 #include <gtest/gtest.h>
 
-extern "C"
-{
+extern "C" {
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
 #include "app_vehicleDynamicsConstants.h"
@@ -22,11 +21,9 @@ extern "C"
 #include "app_canTx.h"
 }
 
-class TorqueVectoringTest : public testing::Test
-{
+class TorqueVectoringTest : public testing::Test {
   protected:
-    void SetUp() override
-    {
+    void SetUp() override {
         app_canTx_init();
         app_canRx_init();
         app_torqueVectoring_init();
@@ -54,8 +51,7 @@ class TorqueVectoringTest : public testing::Test
 //     ASSERT_FLOAT_EQ(expected_torque_left_nM, actual_torque_left_nM);
 //     ASSERT_FLOAT_EQ(expected_torque_right_nM, actual_torque_right_nM);
 // }
-TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed)
-{
+TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed) {
     app_canRx_FSM_LeftWheelSpeed_update(50.0);
     app_canRx_FSM_RightWheelSpeed_update(50.0);
     app_canRx_INVL_MotorSpeed_update(135);
@@ -138,8 +134,7 @@ TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed)
 //     ASSERT_FLOAT_EQ(expected_torque_left_nM, actual_torque_left_nM);
 //     ASSERT_FLOAT_EQ(expected_torque_right_nM, actual_torque_right_nM);
 // }
-TEST_F(TorqueVectoringTest, check_torques_are_less_than_limit)
-{
+TEST_F(TorqueVectoringTest, check_torques_are_less_than_limit) {
     app_canRx_FSM_LeftWheelSpeed_update(50.0);
     app_canRx_FSM_RightWheelSpeed_update(50.0);
     app_canRx_INVL_MotorSpeed_update(135);

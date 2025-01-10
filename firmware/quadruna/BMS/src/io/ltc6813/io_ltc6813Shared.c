@@ -37,21 +37,19 @@
 
 #define PEC15_LUT_SIZE (256U)
 
-typedef enum
-{
+typedef enum {
     CONFIG_REG_A = 0U,
     CONFIG_REG_B,
     NUM_OF_CFG_REGS,
 } ConfigurationRegister;
 
-typedef struct
-{
+typedef struct {
     uint8_t  default_cfg_reg[NUM_REG_GROUP_PAYLOAD_BYTES];
     uint16_t cfg_reg_cmds;
 } LTC6813Configurations;
 
-extern const SpiInterface *ltc6813_spi;
-const SpiInterface        *ltc6813_spi = NULL;
+extern const SpiInterface* ltc6813_spi;
+const SpiInterface*        ltc6813_spi = NULL;
 
 static LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
 {
@@ -114,16 +112,14 @@ static bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CE
  * @param size The size of the data buffer payload
  * @return The PEC15 code
  */
-static uint16_t calculatePec15(const uint8_t *data_buffer, uint8_t size)
-{
+static uint16_t calculatePec15(const uint8_t* data_buffer, uint8_t size) {
     // Initialize the value of the PEC15 remainder to 16
     uint16_t remainder = 16U;
     uint8_t  index     = 0U;
 
     // Refer to PEC15 calculation in the 'PEC Calculation' of the LTC6813
     // datasheet
-    for (size_t i = 0U; i < size; i++)
-    {
+    for (size_t i = 0U; i < size; i++) {
         index     = ((uint8_t)(remainder >> 7U) ^ data_buffer[i]) & 0xFFU;
         remainder = (uint16_t)((remainder << 8U) ^ pec15_lut[index]);
     }
@@ -142,11 +138,9 @@ static uint16_t calculatePec15(const uint8_t *data_buffer, uint8_t size)
 static void prepareCfgRegBytes(
     uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES],
     bool    enable_balance,
-    uint8_t curr_cfg_reg)
-{
+    uint8_t curr_cfg_reg) {
     // Write to the configuration registers of each segment
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
-    {
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++) {
         // Data used to configure the last segment on the daisy chain needs to
         // be sent first
         const uint8_t tx_cfg_idx = (uint8_t)(ACCUMULATOR_NUM_SEGMENTS - curr_segment - 1);
@@ -157,22 +151,17 @@ static void prepareCfgRegBytes(
         // Get dcc bits to write for the current segment (which cells to balance)
         uint32_t dcc_bits = 0U;
 
-        if (enable_balance == true)
-        {
-            for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
-            {
+        if (enable_balance == true) {
+            for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
                 dcc_bits |= (uint32_t)(cells_to_balance[curr_segment][cell] << cell);
             }
         }
 
         // Write to configuration registers DCC bits
-        if (curr_cfg_reg == CONFIG_REG_A)
-        {
+        if (curr_cfg_reg == CONFIG_REG_A) {
             tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_4] |= SET_CFGRA4_DCC_BITS(dcc_bits);
             tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_5] |= SET_CFGRA5_DCC_BITS(dcc_bits);
-        }
-        else
-        {
+        } else {
             tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_0] |= SET_CFGRB0_DCC_BITS(dcc_bits);
         }
 
@@ -182,40 +171,34 @@ static void prepareCfgRegBytes(
     }
 }
 
-void io_ltc6813Shared_init(const SpiInterface *spi)
-{
+void io_ltc6813Shared_init(const SpiInterface* spi) {
     assert(spi != NULL);
 
     // Initialize the SPI interface to communicate with the LTC6813
     ltc6813_spi = spi;
 }
 
-uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer)
-{
+uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t* data_buffer) {
     return CHANGE_WORD_ENDIANNESS(calculatePec15(data_buffer, NUM_REG_GROUP_PAYLOAD_BYTES));
 }
 
-void io_ltc6813Shared_packCmdPec15(uint16_t *tx_cmd)
-{
+void io_ltc6813Shared_packCmdPec15(uint16_t* tx_cmd) {
     // Pack the PEC15 byte into tx_cmd in big endian format
-    *(tx_cmd + CMD_PEC15) = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t *)tx_cmd, CMD_SIZE_BYTES));
+    *(tx_cmd + CMD_PEC15) = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t*)tx_cmd, CMD_SIZE_BYTES));
 }
 
-void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg)
-{
-    *(uint16_t *)(tx_cfg + NUM_REG_GROUP_PAYLOAD_BYTES) = io_ltc6813Shared_calculateRegGroupPec15(tx_cfg);
+void io_ltc6813Shared_packRegisterGroupPec15(uint8_t* tx_cfg) {
+    *(uint16_t*)(tx_cfg + NUM_REG_GROUP_PAYLOAD_BYTES) = io_ltc6813Shared_calculateRegGroupPec15(tx_cfg);
 }
 
-bool io_ltc6813Shared_sendCommand(uint16_t cmd)
-{
+bool io_ltc6813Shared_sendCommand(uint16_t cmd) {
     uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-    return hw_spi_transmit(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
+    return hw_spi_transmit(ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES);
 }
 
-bool io_ltc6813Shared_pollAdcConversions(void)
-{
+bool io_ltc6813Shared_pollAdcConversions(void) {
     uint8_t num_attempts = 0U;
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
@@ -225,13 +208,11 @@ bool io_ltc6813Shared_pollAdcConversions(void)
 
     // All chips on the daisy chain have finished converting cell voltages when
     // data read back != 0xFF.
-    while (rx_data == ADC_CONV_INCOMPLETE)
-    {
+    while (rx_data == ADC_CONV_INCOMPLETE) {
         const bool is_status_ok =
-            hw_spi_transmitThenReceive(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+            hw_spi_transmitThenReceive(ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
-        if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
-        {
+        if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS)) {
             return false;
         }
 
@@ -241,10 +222,8 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     return true;
 }
 
-bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
-{
-    for (uint8_t curr_cfg_reg = 0U; curr_cfg_reg < NUM_OF_CFG_REGS; curr_cfg_reg++)
-    {
+bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance) {
+    for (uint8_t curr_cfg_reg = 0U; curr_cfg_reg < NUM_OF_CFG_REGS; curr_cfg_reg++) {
         // Command used to write to a configuration register
         uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = ltc6813_configs[curr_cfg_reg].cfg_reg_cmds, [CMD_PEC15] = 0U };
 
@@ -260,10 +239,8 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
 
         // Write to configuration registers
         hw_spi_setNssLow(ltc6813_spi);
-        if (hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES))
-        {
-            if (!hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cfg, NUM_REG_GROUP_RX_BYTES))
-            {
+        if (hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES)) {
+            if (!hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t*)tx_cfg, NUM_REG_GROUP_RX_BYTES)) {
                 hw_spi_setNssHigh(ltc6813_spi);
                 return false;
             }
@@ -274,8 +251,7 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
     return true;
 }
 
-bool io_ltc6813Shared_setCfgRegsToDefaultSettings(void)
-{
+bool io_ltc6813Shared_setCfgRegsToDefaultSettings(void) {
     // Send command on the isoSpi line to wake up the chip
     io_ltc6813Shared_writeConfigurationRegisters(false);
 
@@ -283,17 +259,14 @@ bool io_ltc6813Shared_setCfgRegsToDefaultSettings(void)
     return io_ltc6813Shared_writeConfigurationRegisters(false);
 }
 
-bool io_ltc6813Shared_enableBalance(void)
-{
+bool io_ltc6813Shared_enableBalance(void) {
     return io_ltc6813Shared_sendCommand(UNMUTE);
 }
 
-bool io_ltc6813Shared_disableBalance(void)
-{
+bool io_ltc6813Shared_disableBalance(void) {
     return io_ltc6813Shared_sendCommand(MUTE);
 }
 
-void io_ltc6813Shared_markCellForDischarge(uint8_t segment, uint8_t cell, bool needs_discharging)
-{
+void io_ltc6813Shared_markCellForDischarge(uint8_t segment, uint8_t cell, bool needs_discharging) {
     cells_to_balance[segment][cell] = needs_discharging;
 }

@@ -1,8 +1,7 @@
 #include "app_pid.h"
 #include "app_utils.h"
 
-void app_pid_init(PID *pid, const PID_Config *conf)
-{
+void app_pid_init(PID* pid, const PID_Config* conf) {
     pid->Kp         = conf->Kp;
     pid->Ki         = conf->Ki;
     pid->Kd         = conf->Kd;
@@ -19,8 +18,7 @@ void app_pid_init(PID *pid, const PID_Config *conf)
  * @param input also "measurement"/"process variable"
  * @return controller output/"effort"
  */
-float app_pid_compute(PID *pid, float setpoint, float input)
-{
+float app_pid_compute(PID* pid, float setpoint, float input) {
     pid->error = setpoint - input;
     pid->integral += pid->error;
     pid->derivative = (input - pid->prev_input);
@@ -31,8 +29,7 @@ float app_pid_compute(PID *pid, float setpoint, float input)
     return output;
 }
 
-void app_pid_requestReset(PID *pid)
-{
+void app_pid_requestReset(PID* pid) {
     pid->prev_input = 0.0f;
     pid->integral   = 0.0f;
 }

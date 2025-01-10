@@ -61,8 +61,7 @@
 /**
  * Initializes the Global MSP.
  */
-void HAL_MspInit(void)
-{
+void HAL_MspInit(void) {
     /* USER CODE BEGIN MspInit 0 */
 
     /* USER CODE END MspInit 0 */
@@ -85,11 +84,9 @@ void HAL_MspInit(void)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
-{
+void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (hadc->Instance == ADC1)
-    {
+    if (hadc->Instance == ADC1) {
         /* USER CODE BEGIN ADC1_MspInit 0 */
 
         /* USER CODE END ADC1_MspInit 0 */
@@ -130,10 +127,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
-{
-    if (hadc->Instance == ADC1)
-    {
+void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc) {
+    if (hadc->Instance == ADC1) {
         /* USER CODE BEGIN ADC1_MspDeInit 0 */
 
         /* USER CODE END ADC1_MspDeInit 0 */
@@ -168,18 +163,15 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED = 0;
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
-{
+void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (hcan->Instance == CAN1)
-    {
+    if (hcan->Instance == CAN1) {
         /* USER CODE BEGIN CAN1_MspInit 0 */
 
         /* USER CODE END CAN1_MspInit 0 */
         /* Peripheral clock enable */
         HAL_RCC_CAN1_CLK_ENABLED++;
-        if (HAL_RCC_CAN1_CLK_ENABLED == 1)
-        {
+        if (HAL_RCC_CAN1_CLK_ENABLED == 1) {
             __HAL_RCC_CAN1_CLK_ENABLE();
         }
 
@@ -203,16 +195,13 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
         /* USER CODE BEGIN CAN1_MspInit 1 */
 
         /* USER CODE END CAN1_MspInit 1 */
-    }
-    else if (hcan->Instance == CAN2)
-    {
+    } else if (hcan->Instance == CAN2) {
         /* USER CODE BEGIN CAN2_MspInit 0 */
 
         /* USER CODE END CAN2_MspInit 0 */
         /* Peripheral clock enable */
         HAL_RCC_CAN1_CLK_ENABLED++;
-        if (HAL_RCC_CAN1_CLK_ENABLED == 1)
-        {
+        if (HAL_RCC_CAN1_CLK_ENABLED == 1) {
             __HAL_RCC_CAN1_CLK_ENABLE();
         }
         __HAL_RCC_CAN2_CLK_ENABLE();
@@ -246,10 +235,8 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
-{
-    if (hcan->Instance == CAN1)
-    {
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan) {
+    if (hcan->Instance == CAN1) {
         /* USER CODE BEGIN CAN1_MspDeInit 0 */
 
         /* USER CODE END CAN1_MspDeInit 0 */
@@ -268,16 +255,13 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
         /* USER CODE BEGIN CAN1_MspDeInit 1 */
 
         /* USER CODE END CAN1_MspDeInit 1 */
-    }
-    else if (hcan->Instance == CAN2)
-    {
+    } else if (hcan->Instance == CAN2) {
         /* USER CODE BEGIN CAN2_MspDeInit 0 */
 
         /* USER CODE END CAN2_MspDeInit 0 */
         /* Peripheral clock disable */
         HAL_RCC_CAN1_CLK_ENABLED--;
-        if (HAL_RCC_CAN1_CLK_ENABLED == 0)
-        {
+        if (HAL_RCC_CAN1_CLK_ENABLED == 0) {
             __HAL_RCC_CAN1_CLK_DISABLE();
         }
         __HAL_RCC_CAN2_CLK_DISABLE();
@@ -303,12 +287,10 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
-{
+void HAL_SD_MspInit(SD_HandleTypeDef* hsd) {
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hsd->Instance == SDIO)
-    {
+    if (hsd->Instance == SDIO) {
         /* USER CODE BEGIN SDIO_MspInit 0 */
 
         /* USER CODE END SDIO_MspInit 0 */
@@ -318,8 +300,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDIO | RCC_PERIPHCLK_CLK48;
         PeriphClkInitStruct.Clk48ClockSelection  = RCC_CLK48CLKSOURCE_PLLQ;
         PeriphClkInitStruct.SdioClockSelection   = RCC_SDIOCLKSOURCE_CLK48;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
             Error_Handler();
         }
 
@@ -370,10 +351,8 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
-{
-    if (hsd->Instance == SDIO)
-    {
+void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd) {
+    if (hsd->Instance == SDIO) {
         /* USER CODE BEGIN SDIO_MspDeInit 0 */
 
         /* USER CODE END SDIO_MspDeInit 0 */
@@ -406,11 +385,9 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
-{
+void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (huart->Instance == USART2)
-    {
+    if (huart->Instance == USART2) {
         /* USER CODE BEGIN USART2_MspInit 0 */
 
         /* USER CODE END USART2_MspInit 0 */
@@ -441,10 +418,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART2)
-    {
+void HAL_UART_MspDeInit(UART_HandleTypeDef* huart) {
+    if (huart->Instance == USART2) {
         /* USER CODE BEGIN USART2_MspDeInit 0 */
 
         /* USER CODE END USART2_MspDeInit 0 */

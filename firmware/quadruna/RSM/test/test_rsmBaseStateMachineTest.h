@@ -8,8 +8,7 @@
 #include "fake_io_fans.hpp"
 #include "fake_io_brake_light.hpp"
 
-extern "C"
-{
+extern "C" {
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -24,11 +23,9 @@ extern "C"
 }
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
-class RsmBaseStateMachineTest : public BaseStateMachineTest
-{
+class RsmBaseStateMachineTest : public BaseStateMachineTest {
   protected:
-    void SetUp() override
-    {
+    void SetUp() override {
         BaseStateMachineTest::SetUp();
 
         app_canTx_init();
@@ -38,8 +35,7 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         app_stateMachine_init(app_mainState_get());
     }
 
-    void TearDown() override
-    {
+    void TearDown() override {
         fake_io_coolant_getFlowRate_reset();
         fake_io_coolant_checkIfFlowMeterActive_reset();
         fake_io_coolant_getTemperatureA_reset();

@@ -3,10 +3,9 @@
 #include <cassert>
 #include "io_log.hpp"
 
-namespace io
-{
+namespace io {
 CanMsgQueue::CanMsgQueue(
-    const std::string &name,
+    const std::string& name,
     void (*const in_tx_overflow_callback)(uint32_t),
     void (*const in_rx_overflow_callback)(uint32_t),
     void (*const in_tx_overflow_clear_callback)(),
@@ -30,38 +29,29 @@ CanMsgQueue::CanMsgQueue(
         .cb_size   = sizeof(StaticQueue_t),
         .mq_mem    = rx_queue_buf,
         .mq_size   = RX_QUEUE_BYTES,
-    })
-{
-}
+    }) {}
 
-void CanMsgQueue::init()
-{
+void CanMsgQueue::init() {
     // Initialize CAN queues.
     tx_queue_id = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(hw::can::CanMsg), &tx_queue_attr);
     rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(hw::can::CanMsg), &rx_queue_attr);
 }
 
-void CanMsgQueue::pushTxMsgToQueue(const hw::can::CanMsg *msg)
-{
-    if (const osStatus_t s = osMessageQueuePut(tx_queue_id, msg, 0, 0); s != osOK)
-    {
+void CanMsgQueue::pushTxMsgToQueue(const hw::can::CanMsg* msg) {
+    if (const osStatus_t s = osMessageQueuePut(tx_queue_id, msg, 0, 0); s != osOK) {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
-        if (!tx_overflow_flag)
-        {
+        if (!tx_overflow_flag) {
             LOG_WARN("TX queue overflow: %d", s);
             tx_overflow_flag = true;
         }
         tx_overflow_callback(++tx_overflow_count);
-    }
-    else
-    {
+    } else {
         tx_overflow_clear_callback();
         tx_overflow_flag = false;
     }
 }
 
-hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue() const
-{
+hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue() const {
     hw::can::CanMsg msg{};
     // Pop a msg of the TX queue
     const osStatus_t s = osMessageQueueGet(tx_queue_id, &msg, NULL, osWaitForever);
@@ -69,8 +59,7 @@ hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue() const
     return msg;
 }
 
-hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue() const
-{
+hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue() const {
     hw::can::CanMsg msg{};
     // Pop a message off the RX queue.
     const osStatus_t s = osMessageQueueGet(rx_queue_id, &msg, NULL, osWaitForever);
@@ -78,22 +67,17 @@ hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue() const
     return msg;
 }
 
-void CanMsgQueue::pushRxMsgToQueue(const hw::can::CanMsg *rx_msg)
-{
+void CanMsgQueue::pushRxMsgToQueue(const hw::can::CanMsg* rx_msg) {
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)
-    {
-        if (!rx_overflow_flag)
-        {
+    if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK) {
+        if (!rx_overflow_flag) {
             LOG_WARN("RX queue overflow");
             rx_overflow_flag = true;
         }
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         rx_overflow_callback(++rx_overflow_count);
-    }
-    else
-    {
+    } else {
         rx_overflow_clear_callback();
         rx_overflow_flag = false;
     }

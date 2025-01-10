@@ -38,24 +38,20 @@ TIM_HandleTypeDef htim6;
  * @param  TickPriority: Tick interrupt priority.
  * @retval HAL status
  */
-HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
-{
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     RCC_ClkInitTypeDef clkconfig;
     uint32_t           uwTimclock, uwAPB1Prescaler;
 
     uint32_t uwPrescalerValue;
     uint32_t pFLatency;
     /*Configure the TIM6 IRQ priority */
-    if (TickPriority < (1UL << __NVIC_PRIO_BITS))
-    {
+    if (TickPriority < (1UL << __NVIC_PRIO_BITS)) {
         HAL_NVIC_SetPriority(TIM6_DAC_IRQn, TickPriority, 0);
 
         /* Enable the TIM6 global Interrupt */
         HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
         uwTickPrio = TickPriority;
-    }
-    else
-    {
+    } else {
         return HAL_ERROR;
     }
 
@@ -66,12 +62,9 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     /* Get APB1 prescaler */
     uwAPB1Prescaler = clkconfig.APB1CLKDivider;
     /* Compute TIM6 clock */
-    if (uwAPB1Prescaler == RCC_HCLK_DIV1)
-    {
+    if (uwAPB1Prescaler == RCC_HCLK_DIV1) {
         uwTimclock = HAL_RCC_GetPCLK1Freq();
-    }
-    else
-    {
+    } else {
         uwTimclock = 2UL * HAL_RCC_GetPCLK1Freq();
     }
 
@@ -93,8 +86,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     htim6.Init.ClockDivision = 0;
     htim6.Init.CounterMode   = TIM_COUNTERMODE_UP;
 
-    if (HAL_TIM_Base_Init(&htim6) == HAL_OK)
-    {
+    if (HAL_TIM_Base_Init(&htim6) == HAL_OK) {
         /* Start the TIM time Base generation in interrupt mode */
         return HAL_TIM_Base_Start_IT(&htim6);
     }
@@ -109,8 +101,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
  * @param  None
  * @retval None
  */
-void HAL_SuspendTick(void)
-{
+void HAL_SuspendTick(void) {
     /* Disable TIM6 update Interrupt */
     __HAL_TIM_DISABLE_IT(&htim6, TIM_IT_UPDATE);
 }
@@ -121,8 +112,7 @@ void HAL_SuspendTick(void)
  * @param  None
  * @retval None
  */
-void HAL_ResumeTick(void)
-{
+void HAL_ResumeTick(void) {
     /* Enable TIM6 Update interrupt */
     __HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
 }

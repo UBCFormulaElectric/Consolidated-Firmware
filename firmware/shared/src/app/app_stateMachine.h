@@ -2,8 +2,7 @@
 
 #define MAX_STATE_NAME_LENGTH 16
 
-typedef struct
-{
+typedef struct {
     // A newline terminated string containing the name of this state
     char name[MAX_STATE_NAME_LENGTH];
 
@@ -18,7 +17,7 @@ typedef struct
  * @param state_machine The state machine to initialize
  * @param initial_state The initial state to start the state machine in
  */
-void app_stateMachine_init(const State *initial_state);
+void app_stateMachine_init(const State* initial_state);
 
 /**
  * Get the currently running state in the given state machine
@@ -26,14 +25,14 @@ void app_stateMachine_init(const State *initial_state);
  *                      from
  * @return The currently running state from the given state machine
  */
-const State *app_stateMachine_getCurrentState(void);
+const State* app_stateMachine_getCurrentState(void);
 
 /**
  * Set the next state the state machine should go to
  * @param state_machine The state machine to set the next state on
  * @param next_state The next state
  */
-void app_stateMachine_setNextState(const State *next_state);
+void app_stateMachine_setNextState(const State* next_state);
 
 /**
  * Tick the 1hz function of the given state machine

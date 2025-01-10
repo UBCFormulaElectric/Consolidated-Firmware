@@ -14,8 +14,8 @@
 #error "Could not determine what CPU this is being compiled for."
 #endif
 
-static const State *next_state;
-static const State *current_state;
+static const State* next_state;
+static const State* current_state;
 
 #ifdef __arm__
 static StaticSemaphore_t state_tick_mutex_storage;
@@ -32,8 +32,7 @@ static HANDLE state_tick_mutex;
  *
  * @param tick_function The tick function to run over the state machine
  */
-void runTickFunction(void (*tick_function)())
-{
+void runTickFunction(void (*tick_function)()) {
 #ifdef __arm__
     xSemaphoreTake(state_tick_mutex, portMAX_DELAY);
 #elif __unix__ || __APPLE__
@@ -42,23 +41,19 @@ void runTickFunction(void (*tick_function)())
     WaitForSingleObject(state_tick_mutex, INFINITE);
 #endif
 
-    if (tick_function != NULL)
-    {
+    if (tick_function != NULL) {
         tick_function();
     }
 
     // Check if we should transition states
-    if (next_state != current_state)
-    {
-        if (current_state->run_on_exit != NULL)
-        {
+    if (next_state != current_state) {
+        if (current_state->run_on_exit != NULL) {
             current_state->run_on_exit();
         }
 
         current_state = next_state;
 
-        if (current_state->run_on_entry != NULL)
-        {
+        if (current_state->run_on_entry != NULL) {
             current_state->run_on_entry();
         }
     }
@@ -76,13 +71,11 @@ void runTickFunction(void (*tick_function)())
 #endif
 }
 
-void app_stateMachine_init(const State *initial_state)
-{
+void app_stateMachine_init(const State* initial_state) {
     current_state = initial_state;
     next_state    = initial_state;
 
-    if (current_state->run_on_entry != NULL)
-    {
+    if (current_state->run_on_entry != NULL) {
         current_state->run_on_entry();
     }
 
@@ -95,22 +88,18 @@ void app_stateMachine_init(const State *initial_state)
 #endif
 }
 
-const State *app_stateMachine_getCurrentState(void)
-{
+const State* app_stateMachine_getCurrentState(void) {
     return current_state;
 }
 
-void app_stateMachine_setNextState(const State *const state)
-{
+void app_stateMachine_setNextState(const State* const state) {
     next_state = state;
 }
 
-void app_stateMachine_tick1Hz(void)
-{
+void app_stateMachine_tick1Hz(void) {
     runTickFunction(current_state->run_on_tick_1Hz);
 }
 
-void app_stateMachine_tick100Hz(void)
-{
+void app_stateMachine_tick100Hz(void) {
     runTickFunction(current_state->run_on_tick_100Hz);
 }

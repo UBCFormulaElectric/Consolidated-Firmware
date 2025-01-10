@@ -23,8 +23,7 @@
 
 static uint16_t heartbeat_cycles = 0;
 
-void app_allStates_runOnTick100Hz(void)
-{
+void app_allStates_runOnTick100Hz(void) {
     // Enable PCM if HV up.
     const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     io_pcm_set(bms_in_drive);
@@ -43,8 +42,7 @@ void app_allStates_runOnTick100Hz(void)
     bool has_lin_accel_y = io_imu_getLinearAccelerationY(&lin_accel_y);
     bool has_lin_accel_z = io_imu_getLinearAccelerationZ(&lin_accel_z);
 
-    if (has_lin_accel_x && has_lin_accel_y && has_lin_accel_z)
-    {
+    if (has_lin_accel_x && has_lin_accel_y && has_lin_accel_z) {
         app_canTx_VC_ImuAccelerationX_set(lin_accel_x);
         app_canTx_VC_ImuAccelerationY_set(lin_accel_y);
         app_canTx_VC_ImuAccelerationZ_set(lin_accel_z);
@@ -63,8 +61,7 @@ void app_allStates_runOnTick100Hz(void)
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
 }
 
-void app_allStates_runOnTick1Hz(void)
-{
+void app_allStates_runOnTick1Hz(void) {
     app_canTx_VC_FlowRate_set(app_pumpControl_getFlowRate());
 
     // Update SD card logging related signals.

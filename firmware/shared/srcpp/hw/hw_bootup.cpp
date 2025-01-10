@@ -5,10 +5,8 @@
 // Defined in linker script.
 extern uint32_t __app_code_start__;
 
-namespace hw::bootup
-{
-void enableInterruptsForApp()
-{
+namespace hw::bootup {
+void enableInterruptsForApp() {
     // Set vector table offset register.
     // The startup handler sets the VTOR to the default value (0x8000000), so even though we update it
     // in the bootloader, we have to update it again here.

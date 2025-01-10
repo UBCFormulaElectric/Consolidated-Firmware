@@ -1,19 +1,13 @@
 #include "test_bmsBaseStateMachineTest.h"
 
-class BmsFaultTest : public BmsBaseStateMachineTest
-{
-};
+class BmsFaultTest : public BmsBaseStateMachineTest {};
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Test that any cell can cause an overvoltage fault
-        for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
-        {
-            for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
-            {
+        for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
+            for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
                 // Reset test
                 TearDown();
                 SetUp();
@@ -27,8 +21,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
                 fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE_NOMINAL + 0.1f);
                 LetTimePass(OVER_VOLTAGE_DEBOUNCE_DURATION_MS);
 
-                if (debounce_expires[i])
-                {
+                if (debounce_expires[i]) {
                     // Let fault debounce expire, fault should be set.
                     LetTimePass(10);
                     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -43,9 +36,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
                     LetTimePass(20);
                     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
-                }
-                else
-                {
+                } else {
                     // Clear fault before it expires, fault should not set.
                     fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE_NOMINAL - 0.1f);
                     LetTimePass(10);
@@ -61,16 +52,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undervoltage) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Test that any cell can cause an undervoltage fault
-        for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
-        {
-            for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
-            {
+        for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
+            for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
                 // Reset test
                 TearDown();
                 SetUp();
@@ -84,8 +71,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
                 fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MIN_CELL_VOLTAGE - 0.1f);
                 LetTimePass(UNDER_VOLTAGE_DEBOUNCE_DURATION_MS);
 
-                if (debounce_expires[i])
-                {
+                if (debounce_expires[i]) {
                     // Let fault debounce expire, fault should be set.
                     LetTimePass(10);
                     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -100,9 +86,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
                     LetTimePass(20);
                     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
-                }
-                else
-                {
+                } else {
                     // Clear fault before it expires, fault should not set.
                     fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MIN_CELL_VOLTAGE + 0.1f);
                     LetTimePass(10);
@@ -118,11 +102,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_init_state)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_init_state) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Reset test
         TearDown();
         SetUp();
@@ -142,8 +124,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_DISCHARGE_TEMP_DEGC + 1.0f);
         LetTimePass(OVER_TEMP_DEBOUNCE_DURATION_MS);
 
-        if (debounce_expires[i])
-        {
+        if (debounce_expires[i]) {
             // Let fault debounce expire, fault should be set.
             LetTimePass(10);
             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -161,9 +142,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
             LetTimePass(10);
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
-        }
-        else
-        {
+        } else {
             // Clear fault before it expires, fault should not set.
             fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_DISCHARGE_TEMP_DEGC - 1.0f);
             LetTimePass(10);
@@ -177,11 +156,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_charge_state)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_charge_state) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Reset test
         TearDown();
         SetUp();
@@ -204,8 +181,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_CHARGE_TEMP_DEGC + 1.0f);
         LetTimePass(OVER_TEMP_DEBOUNCE_DURATION_MS);
 
-        if (debounce_expires[i])
-        {
+        if (debounce_expires[i]) {
             // Let fault debounce expire, fault should be set.
             LetTimePass(10);
             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -222,9 +198,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
             LetTimePass(10);
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
-        }
-        else
-        {
+        } else {
             // Clear fault before it expires, fault should not set.
             fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_CHARGE_TEMP_DEGC - 1.0f);
             LetTimePass(10);
@@ -238,11 +212,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_init_state)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_init_state) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Reset test
         TearDown();
         SetUp();
@@ -264,8 +236,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
         fake_io_ltc6813CellTemps_getMinTempDegC_returnsForAnyArgs(MIN_CELL_DISCHARGE_TEMP_DEGC - 1.0f);
         LetTimePass(UNDER_TEMP_DEBOUNCE_DURATION_MS);
 
-        if (debounce_expires[i])
-        {
+        if (debounce_expires[i]) {
             // Let fault debounce expire, fault should be set.
             LetTimePass(10);
             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -282,9 +253,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
             LetTimePass(10);
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndertemp_get());
-        }
-        else
-        {
+        } else {
             // Clear fault before it expires, fault should not set.
             fake_io_ltc6813CellTemps_getMinTempDegC_returnsForAnyArgs(MIN_CELL_DISCHARGE_TEMP_DEGC + 1.0f);
             LetTimePass(10);
@@ -298,11 +267,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_charge_state)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_charge_state) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Reset test
         TearDown();
         SetUp();
@@ -324,8 +291,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
         fake_io_ltc6813CellTemps_getMinTempDegC_returnsForAnyArgs(MIN_CELL_CHARGE_TEMP_DEGC - 1.0f);
         LetTimePass(UNDER_TEMP_DEBOUNCE_DURATION_MS);
 
-        if (debounce_expires[i])
-        {
+        if (debounce_expires[i]) {
             // Let fault debounce expire, fault should be set.
             LetTimePass(10);
             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -342,9 +308,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
             LetTimePass(10);
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndertemp_get());
-        }
-        else
-        {
+        } else {
             // Clear fault before it expires, fault should not set.
             fake_io_ltc6813CellTemps_getMinTempDegC_returnsForAnyArgs(MIN_CELL_CHARGE_TEMP_DEGC + 1.0f);
             LetTimePass(10);
@@ -358,11 +322,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_discharge_overcurrent)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_discharge_overcurrent) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Reset test
         TearDown();
         SetUp();
@@ -379,8 +341,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
         fake_io_tractiveSystem_getCurrentLowResolution_returns(MAX_TS_DISCHARGE_CURRENT_AMPS - 1.0f);
         LetTimePass(TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
 
-        if (debounce_expires[i])
-        {
+        if (debounce_expires[i]) {
             // Let fault debounce expire, fault should be set.
             LetTimePass(10);
             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -397,9 +358,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
             LetTimePass(10);
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_FALSE(app_canAlerts_BMS_Fault_TractiveSystemOvercurrent_get());
-        }
-        else
-        {
+        } else {
             // Clear fault before it expires, fault should not set.
             fake_io_tractiveSystem_getCurrentHighResolution_returns(MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f);
             fake_io_tractiveSystem_getCurrentLowResolution_returns(MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f);
@@ -414,11 +373,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_charge_overcurrent)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_charge_overcurrent) {
     bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
-    {
+    for (int i = 0; i < sizeof(debounce_expires); i++) {
         // Reset test
         TearDown();
         SetUp();
@@ -442,8 +399,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
         fake_io_tractiveSystem_getCurrentLowResolution_returns(MAX_TS_CHARGE_CURRENT_AMPS + 1.0f);
         LetTimePass(TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
 
-        if (debounce_expires[i])
-        {
+        if (debounce_expires[i]) {
             // Let fault debounce expire, fault should be set.
             LetTimePass(10);
             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
@@ -461,9 +417,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
             LetTimePass(10);
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_FALSE(app_canAlerts_BMS_Fault_TractiveSystemOvercurrent_get());
-        }
-        else
-        {
+        } else {
             // Clear fault before it expires, fault should not set.
             fake_io_tractiveSystem_getCurrentHighResolution_returns(MAX_TS_CHARGE_CURRENT_AMPS - 1.0f);
             fake_io_tractiveSystem_getCurrentLowResolution_returns(MAX_TS_CHARGE_CURRENT_AMPS - 1.0f);
@@ -478,15 +432,13 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
-{
+TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault) {
     SetInitialState(app_initState_get());
 
     // reset ts_voltage to 0 so state will transition from init to pre-charge
     fake_io_tractiveSystem_getVoltage_returns(0);
 
-    for (int i = 1; i <= 3; i++)
-    {
+    for (int i = 1; i <= 3; i++) {
         // Close negative contactor with charger disconnected, precharge should start
         app_canRx_BRUSA_IsConnected_update(false);
         fake_io_airs_isNegativeClosed_returns(true);
@@ -502,17 +454,14 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
 
         LetTimePass(210U);
 
-        if (i < 3)
-        {
+        if (i < 3) {
             // 3x precharge attempts haven't been exceeded, so back to init
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_FALSE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
 
             // reset ts_voltage to 0 so state will transition from init to pre-charge
             fake_io_tractiveSystem_getVoltage_returns(0);
-        }
-        else
-        {
+        } else {
             // 3x precharge attempts have failed, so back transition to fault state indefinitely
             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
             ASSERT_TRUE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
@@ -525,8 +474,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
     }
 }
 
-TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
-{
+TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok) {
     fake_io_faultLatch_setCurrentStatus_reset();
 
     // Let accumulator startup count expire

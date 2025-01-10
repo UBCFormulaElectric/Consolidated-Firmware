@@ -61,8 +61,7 @@
 /**
  * Initializes the Global MSP.
  */
-void HAL_MspInit(void)
-{
+void HAL_MspInit(void) {
     /* USER CODE BEGIN MspInit 0 */
 
     /* USER CODE END MspInit 0 */
@@ -84,10 +83,8 @@ void HAL_MspInit(void)
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
-{
-    if (hcrc->Instance == CRC)
-    {
+void HAL_CRC_MspInit(CRC_HandleTypeDef* hcrc) {
+    if (hcrc->Instance == CRC) {
         /* USER CODE BEGIN CRC_MspInit 0 */
 
         /* USER CODE END CRC_MspInit 0 */
@@ -105,10 +102,8 @@ void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
-{
-    if (hcrc->Instance == CRC)
-    {
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc) {
+    if (hcrc->Instance == CRC) {
         /* USER CODE BEGIN CRC_MspDeInit 0 */
 
         /* USER CODE END CRC_MspDeInit 0 */
@@ -126,12 +121,10 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
-{
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan) {
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hfdcan->Instance == FDCAN2)
-    {
+    if (hfdcan->Instance == FDCAN2) {
         /* USER CODE BEGIN FDCAN2_MspInit 0 */
 
         /* USER CODE END FDCAN2_MspInit 0 */
@@ -140,8 +133,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
         PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
             Error_Handler();
         }
 
@@ -177,10 +169,8 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
-{
-    if (hfdcan->Instance == FDCAN2)
-    {
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* hfdcan) {
+    if (hfdcan->Instance == FDCAN2) {
         /* USER CODE BEGIN FDCAN2_MspDeInit 0 */
 
         /* USER CODE END FDCAN2_MspDeInit 0 */

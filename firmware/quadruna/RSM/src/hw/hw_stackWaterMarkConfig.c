@@ -17,28 +17,23 @@ extern TaskHandle_t TaskCanTxHandle;
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
-{
+static void logWaterMarkAboveThresholdTask1kHz(uint8_t error) {
     app_canAlerts_RSM_Warning_StackWaterMarkHighTask1kHz_set(true);
 }
 
-static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
-{
+static void logWaterMarkAboveThresholdTask100Hz(uint8_t error) {
     app_canAlerts_RSM_Warning_StackWaterMarkHighTask100Hz_set(true);
 }
 
-static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
-{
+static void logWaterMarkAboveThresholdTask1Hz(uint8_t error) {
     app_canAlerts_RSM_Warning_StackWaterMarkHighTask1Hz_set(true);
 }
 
-static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
-{
+static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error) {
     app_canAlerts_RSM_Warning_StackWaterMarkHighTaskCanRx_set(true);
 }
 
-static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
-{
+static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error) {
     app_canAlerts_RSM_Warning_StackWaterMarkHighTaskCanTx_set(true);
 }
 
@@ -76,7 +71,6 @@ static StackWaterMark stack_watermarks[] = {
     },
 };
 
-void hw_stackWaterMarkConfig_check(void)
-{
+void hw_stackWaterMarkConfig_check(void) {
     hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

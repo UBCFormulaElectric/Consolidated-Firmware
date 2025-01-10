@@ -40,25 +40,21 @@
 
 static const CanHandle can = { .hcan = &hcan1 };
 
-void canRxQueueOverflowCallBack(const uint32_t overflow_count)
-{
+void canRxQueueOverflowCallBack(const uint32_t overflow_count) {
     app_canTx_FSM_RxOverflowCount_set(overflow_count);
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowCallBack(const uint32_t overflow_count)
-{
+void canTxQueueOverflowCallBack(const uint32_t overflow_count) {
     app_canTx_FSM_TxOverflowCount_set(overflow_count);
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowClearCallback(void)
-{
+void canTxQueueOverflowClearCallback(void) {
     app_canAlerts_FSM_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback(void)
-{
+void canRxQueueOverflowClearCallback(void) {
     app_canAlerts_FSM_Warning_RxOverflow_set(false);
 }
 
@@ -85,19 +81,16 @@ static const PwmInputFreqOnlyConfig right_wheel_config = { .htim                
                                                            .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
                                                            .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
-void tasks_preInit(void)
-{
+void tasks_preInit(void) {
     hw_bootup_enableInterruptsForApp();
 }
 
-static void jsoncan_transmit(const JsonCanMsg *tx_msg)
-{
+static void jsoncan_transmit(const JsonCanMsg* tx_msg) {
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
 
-void tasks_init(void)
-{
+void tasks_init(void) {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
@@ -132,19 +125,17 @@ void tasks_init(void)
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-_Noreturn void tasks_run1Hz(void)
-{
+_Noreturn void tasks_run1Hz(void) {
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
@@ -161,19 +152,17 @@ _Noreturn void tasks_run1Hz(void)
     }
 }
 
-_Noreturn void tasks_run100Hz(void)
-{
+_Noreturn void tasks_run100Hz(void) {
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -186,19 +175,17 @@ _Noreturn void tasks_run100Hz(void)
     }
 }
 
-_Noreturn void tasks_run1kHz(void)
-{
+_Noreturn void tasks_run1kHz(void) {
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
@@ -207,8 +194,7 @@ _Noreturn void tasks_run1kHz(void)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
         // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
-        {
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms) {
             hw_watchdog_checkIn(watchdog);
         }
 
@@ -217,38 +203,31 @@ _Noreturn void tasks_run1kHz(void)
     }
 }
 
-_Noreturn void tasks_runCanTx(void)
-{
+_Noreturn void tasks_runCanTx(void) {
     io_chimera_sleepTaskIfEnabled();
 
-    for (;;)
-    {
+    for (;;) {
         CanMsg tx_msg = io_canQueue_popTx();
         io_can_transmit(&can, &tx_msg);
     }
 }
 
-_Noreturn void tasks_runCanRx(void)
-{
+_Noreturn void tasks_runCanRx(void) {
     io_chimera_sleepTaskIfEnabled();
 
-    for (;;)
-    {
+    for (;;) {
         CanMsg     rx_msg         = io_canQueue_popRx();
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
+    if (huart == debug_uart.handle) {
         io_chimera_msgRxCallback();
     }
 }
 
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim) {
     io_wheels_inputCaptureCallback(htim);
 }

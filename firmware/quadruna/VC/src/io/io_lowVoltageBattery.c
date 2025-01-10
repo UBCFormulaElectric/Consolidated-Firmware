@@ -13,30 +13,25 @@
 #define VBOOST_VOLTAGE_DIV (3.1e3f / (20e3f + 3.1e3f))
 #define VACC_VOLTAGE_DIV (3.1e3f / (20e3f + 3.1e3f))
 
-bool io_lowVoltageBattery_hasChargeFault(void)
-{
+bool io_lowVoltageBattery_hasChargeFault(void) {
     // FAULT pin on LT3650 2-cell Li-Ion battery charger is pulled low when the chip detects a fault.
     return !hw_gpio_readPin(&nchrg_fault);
 }
 
-bool io_lowVoltageBattery_hasBoostControllerFault(void)
-{
+bool io_lowVoltageBattery_hasBoostControllerFault(void) {
     // PGOOD pin on LTC3786 boost converter is pulled low when the output voltage is more than ±10 % away from the
     // regulated output voltage.
     return !hw_gpio_readPin(&pgood);
 }
 
-float io_lowVoltageBattery_getBatVoltage(void)
-{
+float io_lowVoltageBattery_getBatVoltage(void) {
     return hw_adc_getVoltage(&vbat_sns) * VBAT_R_ERROR_COMPENSATION / VBAT_VOLTAGE_DIV;
 }
 
-float io_lowVoltageBattery_getBoostVoltage(void)
-{
+float io_lowVoltageBattery_getBoostVoltage(void) {
     return hw_adc_getVoltage(&boost_22v_sns) * VBOOST_R_ERROR_COMPENSATION / VBOOST_VOLTAGE_DIV;
 }
 
-float io_lowVoltageBattery_getAccVoltage(void)
-{
+float io_lowVoltageBattery_getAccVoltage(void) {
     return hw_adc_getVoltage(&acc_24v_sns) * VACC_R_ERROR_COMPENSATION / VACC_VOLTAGE_DIV;
 }

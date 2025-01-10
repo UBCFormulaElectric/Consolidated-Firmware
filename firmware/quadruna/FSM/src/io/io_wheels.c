@@ -13,48 +13,40 @@ static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
 static PwmInputFreqOnly left_wheel_speed_sensor, right_wheel_speed_sensor;
 
 void io_wheels_init(
-    const PwmInputFreqOnlyConfig *left_wheel_speed_config,
-    const PwmInputFreqOnlyConfig *right_wheel_speed_config)
-{
+    const PwmInputFreqOnlyConfig* left_wheel_speed_config,
+    const PwmInputFreqOnlyConfig* right_wheel_speed_config) {
     hw_pwmInputFreqOnly_init(&left_wheel_speed_sensor, right_wheel_speed_config);
     hw_pwmInputFreqOnly_init(&right_wheel_speed_sensor, left_wheel_speed_config);
 }
 
-void io_wheels_inputCaptureCallback(TIM_HandleTypeDef *htim)
-{
+void io_wheels_inputCaptureCallback(TIM_HandleTypeDef* htim) {
     if (htim == hw_pwmInputFreqOnly_getTimerHandle(&left_wheel_speed_sensor) &&
-        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&left_wheel_speed_sensor))
-    {
+        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&left_wheel_speed_sensor)) {
         hw_pwmInputFreqOnly_tick(&left_wheel_speed_sensor);
     }
 
     else if (
         htim == hw_pwmInputFreqOnly_getTimerHandle(&right_wheel_speed_sensor) &&
-        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&right_wheel_speed_sensor))
-    {
+        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&right_wheel_speed_sensor)) {
         hw_pwmInputFreqOnly_tick(&right_wheel_speed_sensor);
     }
 }
 
 // TODO: on thruna, speeds were halved from the real amounts, to be fixed after physical constants added
-float io_wheels_getLeftSpeedKph(void)
-{
+float io_wheels_getLeftSpeedKph(void) {
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *
            hw_pwmInputFreqOnly_getFrequency(&left_wheel_speed_sensor);
 }
 
-float io_wheels_getRightSpeedKph(void)
-{
+float io_wheels_getRightSpeedKph(void) {
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *
            hw_pwmInputFreqOnly_getFrequency(&right_wheel_speed_sensor);
 }
 
-void io_wheels_checkIfLeftSensorActive(void)
-{
+void io_wheels_checkIfLeftSensorActive(void) {
     hw_pwmInputFreqOnly_checkIfPwmIsActive(&left_wheel_speed_sensor);
 }
 
-void io_wheels_checkIfRightSensorActive(void)
-{
+void io_wheels_checkIfRightSensorActive(void) {
     hw_pwmInputFreqOnly_checkIfPwmIsActive(&right_wheel_speed_sensor);
 }

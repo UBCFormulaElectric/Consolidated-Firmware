@@ -5,8 +5,7 @@
 #include "app_canAlerts.h"
 #include "io_suspension.h"
 
-void app_suspension_broadcast(void)
-{
+void app_suspension_broadcast(void) {
     // float const left_travel  = io_suspension_getRearLeftTravel();
     // float const right_travel = io_suspension_getRearRightTravel();
 

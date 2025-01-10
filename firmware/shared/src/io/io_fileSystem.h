@@ -3,8 +3,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef enum
-{
+typedef enum {
     FILE_OK            = 0,
     FILE_ERROR         = -1, // general error
     FILE_CORRUPTED     = -2, // file system corrupted
@@ -27,7 +26,7 @@ FileSystemError io_fileSystem_init(void);
  * @param path path in question
  * @return a file descriptor
  */
-int io_fileSystem_open(const char *path);
+int io_fileSystem_open(const char* path);
 
 /**
  * writes to file descriptor for some size into the buffer
@@ -36,7 +35,7 @@ int io_fileSystem_open(const char *path);
  * @param size size in questino
  * @return
  */
-FileSystemError io_fileSystem_write(int fd, void *buf, size_t size);
+FileSystemError io_fileSystem_write(int fd, void* buf, size_t size);
 
 /**
  * reads from file descriptor for some size into the buffer
@@ -45,7 +44,7 @@ FileSystemError io_fileSystem_write(int fd, void *buf, size_t size);
  * @param size size in questino
  * @return success of operation
  */
-FileSystemError io_fileSystem_read(int fd, void *buf, size_t size);
+FileSystemError io_fileSystem_read(int fd, void* buf, size_t size);
 
 /**
  * Closes file given file descriptor

@@ -1,42 +1,34 @@
 #include "test_bmsBaseStateMachineTest.h"
 #include "test_imd.h"
 
-class BmsStateMachineTest : public BmsBaseStateMachineTest
-{
-};
+class BmsStateMachineTest : public BmsBaseStateMachineTest {};
 
-TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
-{
+TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can) {
     SetInitialState(app_initState_get());
     EXPECT_EQ(BMS_INIT_STATE, app_canTx_BMS_State_get());
 }
 
-TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
-{
+TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can) {
     SetInitialState(app_driveState_get());
     EXPECT_EQ(BMS_DRIVE_STATE, app_canTx_BMS_State_get());
 }
 
-TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
-{
+TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can) {
     SetInitialState(app_faultState_get());
     EXPECT_EQ(BMS_FAULT_STATE, app_canTx_BMS_State_get());
 }
 
-TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
-{
+TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can) {
     SetInitialState(app_chargeState_get());
     EXPECT_EQ(BMS_CHARGE_STATE, app_canTx_BMS_State_get());
 }
 
-TEST_F(BmsStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
-{
+TEST_F(BmsStateMachineTest, check_inverter_on_state_is_broadcasted_over_can) {
     SetInitialState(app_inverterOnState_get());
     EXPECT_EQ(BMS_INVERTER_ON_STATE, app_canTx_BMS_State_get());
 }
 
-TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge)
-{
+TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge) {
     app_canRx_BRUSA_IsConnected_update(false);
     fake_io_tractiveSystem_getVoltage_returns(2.0f);
     fake_io_airs_isNegativeClosed_returns(true);
@@ -49,12 +41,10 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_prec
     EXPECT_EQ(BMS_PRECHARGE_STATE, app_canTx_BMS_State_get()) << "Expected state: BMS_PRECHARGE_STATE";
 }
 
-TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
-{
+TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states) {
     float fake_frequency = 0.0f;
 
-    for (const auto &state : GetAllStates())
-    {
+    for (const auto& state : GetAllStates()) {
         SetInitialState(state);
         fake_io_imd_getFrequency_returns(fake_frequency);
         LetTimePass(10);
@@ -66,12 +56,10 @@ TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_s
     }
 }
 
-TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_states)
-{
+TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_states) {
     float fake_duty_cycle = 0.0f;
 
-    for (const auto &state : GetAllStates())
-    {
+    for (const auto& state : GetAllStates()) {
         SetInitialState(state);
         fake_io_imd_getDutyCycle_returns(fake_duty_cycle);
 
@@ -84,10 +72,8 @@ TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_
     }
 }
 
-TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
+TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states) {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
         test_imd_setImdCondition(IMD_CONDITION_NORMAL);
 
@@ -107,10 +93,8 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
     }
 }
 
-TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
+TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states) {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
         test_imd_setImdCondition(IMD_CONDITION_UNDERVOLTAGE_DETECTED);
 
@@ -130,10 +114,8 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_
     }
 }
 
-TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
+TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states) {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
         test_imd_setImdCondition(IMD_CONDITION_SST);
 
@@ -162,10 +144,8 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
     }
 }
 
-TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
+TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states) {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
         fake_io_imd_getTimeSincePowerOn_returns(123);
         LetTimePass(10);
@@ -173,10 +153,8 @@ TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over
     }
 }
 
-TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
+TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states) {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
 
         app_canRx_BRUSA_IsConnected_update(true);
@@ -189,13 +167,11 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
     }
 }
 
-TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
-{
+TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states) {
     // Enable BMS_OK
     fake_io_faultLatch_getCurrentStatus_returnsForArgs(&bms_ok_latch, true);
 
-    for (auto &state : GetAllStates())
-    {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
 
         // Make sure the state machine sets the CAN signal for BMS_OK
@@ -207,13 +183,11 @@ TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
-TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
-{
+TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states) {
     // Enable IMD_OK
     fake_io_faultLatch_getCurrentStatus_returnsForArgs(&imd_ok_latch, true);
 
-    for (auto &state : GetAllStates())
-    {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
 
         // Make sure the state machine sets the CAN signal for IMD_OK
@@ -225,13 +199,11 @@ TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
-TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
-{
+TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states) {
     // Enable BSPD_OK
     fake_io_faultLatch_getCurrentStatus_returnsForArgs(&bspd_ok_latch, true);
 
-    for (auto &state : GetAllStates())
-    {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
 
         // Make sure the state machine sets the CAN signal for BSPD_OK
@@ -243,8 +215,7 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
-TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state)
-{
+TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {
     SetInitialState(app_chargeState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -263,10 +234,8 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_
     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
+TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states) {
+    for (auto& state : GetAllStates()) {
         SetInitialState(state);
 
         fake_io_airs_isNegativeClosed_returns(false);
@@ -299,16 +268,14 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
     }
 }
 
-TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state)
-{
+TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state) {
     fake_io_airs_openPositive_reset();
 
     SetInitialState(app_faultState_get());
     ASSERT_EQ(fake_io_airs_openPositive_callCount(), 1);
 }
 
-TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set)
-{
+TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set) {
     // Assume no AIR shutdown faults have been set
     SetInitialState(app_faultState_get());
 
@@ -323,8 +290,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     ASSERT_EQ(BMS_INIT_STATE, app_canTx_BMS_State_get());
 }
 
-TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_negative_open)
-{
+TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_negative_open) {
     SetInitialState(app_faultState_get());
 
     // Check that state machine remains in FaultState with AIR- closed
@@ -340,8 +306,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     ASSERT_EQ(BMS_INIT_STATE, app_canTx_BMS_State_get());
 }
 
-TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
-{
+TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state) {
     SetInitialState(app_initState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -353,8 +318,7 @@ TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
-{
+TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state) {
     SetInitialState(app_initState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -367,8 +331,7 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
     ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state)
-{
+TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state) {
     SetInitialState(app_initState_get());
     fake_io_airs_isNegativeClosed_returns(true);
     app_heartbeatMonitor_blockFaults(&hb_monitor, false);
@@ -379,8 +342,7 @@ TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state)
     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
-{
+TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays) {
     SetInitialState(app_initState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -403,8 +365,7 @@ TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
     ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
-{
+TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts) {
     SetInitialState(app_chargeState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -421,8 +382,7 @@ TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
     ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
-{
+TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg) {
     SetInitialState(app_chargeState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -438,8 +398,7 @@ TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, fault_from_charger_fault)
-{
+TEST_F(BmsStateMachineTest, fault_from_charger_fault) {
     SetInitialState(app_chargeState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -454,13 +413,12 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
 
     // Charger faults are ignored for 5s upon charge state entry
     LetTimePass(5010);
-    const State *currentState = app_stateMachine_getCurrentState();
+    const State* currentState = app_stateMachine_getCurrentState();
 
     ASSERT_EQ(app_faultState_get(), currentState);
 }
 
-TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
-{
+TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging) {
     SetInitialState(app_chargeState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
@@ -487,8 +445,7 @@ TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)
-{
+TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init) {
     SetInitialState(app_initState_get());
 
     // Let accumulator startup count expire
@@ -505,8 +462,7 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
 
     // Check that state machine remains in fault state without cycling to init state for long period of time
-    for (int i = 0; i < 100; i++)
-    {
+    for (int i = 0; i < 100; i++) {
         LetTimePass(10);
         ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
     }
@@ -517,10 +473,8 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_status)
-{
-    struct
-    {
+TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_status) {
+    struct {
         bool  air_negative_closes;
         float initial_ts_voltage;
         float precharge_duration;
@@ -568,8 +522,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .expect_precharge_successful = false,
                          } };
 
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         TearDown();
         SetUp();
 
@@ -580,8 +533,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         fake_io_airs_isNegativeClosed_returns(test_params[i].air_negative_closes);
         fake_io_tractiveSystem_getVoltage_returns(test_params[i].initial_ts_voltage);
 
-        if (test_params[i].expect_precharge_starts)
-        {
+        if (test_params[i].expect_precharge_starts) {
             // Precharge should start
             LetTimePass(INVERTER_BOOTUP_TIME_MS + 10U);
             ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState());
@@ -597,8 +549,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                 3.8f * (float)ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT);
 
             LetTimePass(10);
-            if (test_params[i].expect_precharge_successful)
-            {
+            if (test_params[i].expect_precharge_successful) {
                 // Precharge successful, enter drive
                 ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 1);
@@ -606,9 +557,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                 LetTimePass(1000);
                 ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 1);
-            }
-            else
-            {
+            } else {
                 // Precharge failed, back to init to try again
                 ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
@@ -617,9 +566,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                 ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
             }
-        }
-        else
-        {
+        } else {
             // Precharge doesn't start, stay in init indefinitely
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
             ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);

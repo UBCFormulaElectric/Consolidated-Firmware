@@ -4,18 +4,16 @@
 #include <stdint.h>
 #include "app_timer.h"
 
-typedef enum
-{
+typedef enum {
     SIGNAL_STATE_CLEAR,  // Exit: Alert is not active.
     SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
 } SignalState;
 
-typedef struct
-{
+typedef struct {
     // A flag used to indicate if the callback function is triggered
     bool is_signal_active;
     // The world associated with this signal
-    struct World *world;
+    struct World* world;
 
     // State of the signal
     SignalState state;
@@ -31,7 +29,7 @@ typedef struct
  * @param exit_time Amount of time required for the exit condition to be true to enter it
  * @return The created signal, whose ownership is given to the caller
  */
-void app_signal_init(Signal *signal, uint32_t entry_time, uint32_t exit_time);
+void app_signal_init(Signal* signal, uint32_t entry_time, uint32_t exit_time);
 
 /**
  * Update the internal state of the given signal. If the entry condition for the
@@ -45,4 +43,4 @@ void app_signal_init(Signal *signal, uint32_t entry_time, uint32_t exit_time);
  * @param signal The signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-SignalState app_signal_getState(Signal *signal, bool entry_condition_high, bool exit_condition_high);
+SignalState app_signal_getState(Signal* signal, bool entry_condition_high, bool exit_condition_high);

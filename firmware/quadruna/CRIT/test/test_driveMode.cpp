@@ -3,8 +3,7 @@
 #include "test_critBaseStateMachineTest.h"
 #include <stdint.h>
 
-class DriveModeTest : public CritBaseStateMachineTest
-{
+class DriveModeTest : public CritBaseStateMachineTest {
   protected:
     void SetUp() override { fake_io_driveMode_readPins_reset(); }
 
@@ -20,8 +19,7 @@ class DriveModeTest : public CritBaseStateMachineTest
     // }
 };
 
-TEST_F(DriveModeTest, ReadSingleDriveMode)
-{
+TEST_F(DriveModeTest, ReadSingleDriveMode) {
     // Test reading a single drive mode value
     uint16_t expectedValue = 0b0001;
     fake_io_driveMode_readPins_returns(expectedValue);
@@ -31,8 +29,7 @@ TEST_F(DriveModeTest, ReadSingleDriveMode)
     ASSERT_EQ(1u, fake_io_driveMode_readPins_callCount());
 }
 
-TEST_F(DriveModeTest, ReadMultipleDriveModes)
-{
+TEST_F(DriveModeTest, ReadMultipleDriveModes) {
     // Setting up the fake to return different values on consecutive calls
 
     uint16_t firstValue = 0b0010;
@@ -48,8 +45,7 @@ TEST_F(DriveModeTest, ReadMultipleDriveModes)
     ASSERT_EQ(2u, fake_io_driveMode_readPins_callCount());
 }
 
-TEST_F(DriveModeTest, VerifyDriveModeConsistency)
-{
+TEST_F(DriveModeTest, VerifyDriveModeConsistency) {
     // Verifying that the drive mode value is consistent across multiple reads
     uint16_t consistentValue = 0b1010;
     fake_io_driveMode_readPins_returns(consistentValue);
@@ -61,8 +57,7 @@ TEST_F(DriveModeTest, VerifyDriveModeConsistency)
     ASSERT_EQ(2u, fake_io_driveMode_readPins_callCount());
 }
 
-TEST_F(DriveModeTest, ReadsPinStateZeroCorrectly)
-{
+TEST_F(DriveModeTest, ReadsPinStateZeroCorrectly) {
     // Setup the fake to return 0 (all pins low in a 4-bit system: 0000 binary)
     fake_io_driveMode_readPins_returns(0);
 
@@ -71,16 +66,14 @@ TEST_F(DriveModeTest, ReadsPinStateZeroCorrectly)
     ASSERT_EQ(result, 0);
 }
 
-TEST_F(DriveModeTest, ReadsPinStateZeroCANMessage)
-{
+TEST_F(DriveModeTest, ReadsPinStateZeroCANMessage) {
     // Setup the fake to return 0 (all pins low in a 4-bit system: 0000 binary)
     fake_io_driveMode_readPins_returns(0);
     LetTimePass(10);
     ASSERT_EQ(app_canTx_CRIT_DriveMode_get(), 0);
 }
 
-TEST_F(DriveModeTest, ReadsPinStateFifteenCorrectly)
-{
+TEST_F(DriveModeTest, ReadsPinStateFifteenCorrectly) {
     // Setup the fake to return 15 (all pins high in a 4-bit system: 1111 binary)
     fake_io_driveMode_readPins_returns(15);
 
@@ -89,8 +82,7 @@ TEST_F(DriveModeTest, ReadsPinStateFifteenCorrectly)
     ASSERT_EQ(result, 15);
 }
 
-TEST_F(DriveModeTest, ReadsPinStateFifteenCANMessage)
-{
+TEST_F(DriveModeTest, ReadsPinStateFifteenCANMessage) {
     // Setup the fake to return 0 (all pins low in a 4-bit system: 0000 binary)
     fake_io_driveMode_readPins_returns(15);
     LetTimePass(10);

@@ -19,13 +19,11 @@
 
 void tasks_preInit() {}
 
-static void canTransmit(const JsonCanMsg *msg)
-{
+static void canTransmit(const JsonCanMsg* msg) {
     UNUSED(msg);
 }
 
-void tasks_init()
-{
+void tasks_init() {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
@@ -45,34 +43,28 @@ void tasks_init()
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_runCanTx()
-{
+void tasks_runCanTx() {
     // Setup tasks.
-    for (;;)
-    {
+    for (;;) {
     }
 }
 
-void tasks_runCanRx()
-{
+void tasks_runCanRx() {
     // Setup tasks.
-    for (;;)
-    {
+    for (;;) {
         JsonCanMsg jsoncan_rx_msg;
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 
-void tasks_run1Hz()
-{
+void tasks_run1Hz() {
     // Setup tasks.
     static const TickType_t period_ms = 1000U;
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         // hw_stackWaterMarkConfig_check();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -84,24 +76,21 @@ void tasks_run1Hz()
     }
 }
 
-void tasks_run100Hz()
-{
+void tasks_run100Hz() {
     // Setup tasks.
     static const TickType_t period_ms = 10;
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;)
-    {
+    for (;;) {
         io_canTx_enqueue100HzMsgs();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
 
-void tasks_run1kHz()
-{
+void tasks_run1kHz() {
     // Setup tasks.
     static const TickType_t period_ms = 1;
 
@@ -109,8 +98,7 @@ void tasks_run1kHz()
     start_ticks                 = osKernelGetTickCount();
 
     /* Infinite loop */
-    for (;;)
-    {
+    for (;;) {
         // Check in for timeouts for all RTOS tasks
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
@@ -118,8 +106,7 @@ void tasks_run1kHz()
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
         // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
-        {
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms) {
         }
 
         start_ticks += period_ms;

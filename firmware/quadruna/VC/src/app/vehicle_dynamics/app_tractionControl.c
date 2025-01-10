@@ -6,9 +6,8 @@
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 
-void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs)
-{
-    PID *pid = inputs->pid;
+void app_tractionControl_computeTorque(TractionControl_Inputs* inputs, TractionControl_Outputs* outputs) {
+    PID* pid = inputs->pid;
 
     // float wheel_speed_front_left_rpm  = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_left_kph);
     // float wheel_speed_front_right_rpm = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_right_kph);
@@ -35,7 +34,6 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     outputs->torque_right_final_Nm = (1.0f + k) * inputs->torque_right_Nm;
 }
 
-float app_tractionControl_computeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
-{
+float app_tractionControl_computeSlip(float motor_speed_rpm, float front_wheel_speed_rpm) {
     return (motor_speed_rpm / GEAR_RATIO - front_wheel_speed_rpm) / (front_wheel_speed_rpm + SMALL_EPSILON);
 }

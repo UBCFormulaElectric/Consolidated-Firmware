@@ -11,15 +11,13 @@
 // current at this stage)
 #define MAX_CHARGING_CURRENT (15.0f)
 
-static uint16_t canMsgEndianSwap(uint16_t can_signal)
-{
+static uint16_t canMsgEndianSwap(uint16_t can_signal) {
     uint16_t swapped_signal = (uint16_t)(can_signal >> 8) | (uint16_t)(can_signal << 8);
 
     return swapped_signal;
 }
 
-static float translateChargingParams(float charging_value)
-{
+static float translateChargingParams(float charging_value) {
     charging_value              = charging_value * 10.0f;
     uint16_t charging_value_int = (uint16_t)charging_value;
 
@@ -30,8 +28,7 @@ static float translateChargingParams(float charging_value)
     return charging_value_translated;
 }
 
-static void chargeStateRunOnEntry(void)
-{
+static void chargeStateRunOnEntry(void) {
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
     app_canTx_BMS_ChargerEnable_set(true);
 
@@ -47,33 +44,26 @@ static void chargeStateRunOnEntry(void)
     app_canTx_BMS_ChargingCurrent_set(batt_current);
 }
 
-static void chargeStateRunOnTick1Hz(void)
-{
+static void chargeStateRunOnTick1Hz(void) {
     app_allStates_runOnTick1Hz();
 }
 
-static void chargeStateRunOnTick100Hz(void)
-{
-    if (app_allStates_runOnTick100Hz())
-    {
+static void chargeStateRunOnTick100Hz(void) {
+    if (app_allStates_runOnTick100Hz()) {
         const bool external_shutdown_occurred = !io_airs_isNegativeClosed();
         const bool charging_enabled           = app_canRx_Debug_StartCharging_get();
         const bool is_charger_connected       = app_canRx_BRUSA_IsConnected_get();
 
         bool has_charger_faulted = false;
-        if (globals->ignore_charger_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT)
-        {
+        if (globals->ignore_charger_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT) {
             has_charger_faulted = app_canRx_BRUSA_Error_get();
-        }
-        else
-        {
+        } else {
             globals->ignore_charger_fault_counter++;
         }
 
         app_canAlerts_BMS_Fault_ChargerReportedError_set(has_charger_faulted);
 
-        if (has_charger_faulted)
-        {
+        if (has_charger_faulted) {
             app_stateMachine_setNextState(app_faultState_get());
         }
 
@@ -82,8 +72,7 @@ static void chargeStateRunOnTick100Hz(void)
         // been set back to true.
         globals->charger_connected_counter++;
         // If it has been more than a second
-        if (!globals->disable_charger_connected_hb_check && globals->charger_connected_counter >= 100)
-        {
+        if (!globals->disable_charger_connected_hb_check && globals->charger_connected_counter >= 100) {
             // Set the local rx value of charger connected to false, reset the counter
             // and lock the functionality of broadcasting if the charger is connected
             app_canRx_BRUSA_IsConnected_update(false);
@@ -91,35 +80,29 @@ static void chargeStateRunOnTick100Hz(void)
             globals->broadcast_charger_connected = false;
         }
         // If it has been more than half a second
-        else if (globals->charger_connected_counter >= 50)
-        {
+        else if (globals->charger_connected_counter >= 50) {
             // Check to see if the BRUSA has set the connected signal back to true
             // and unlock the functionality to broadcast charger connected on CAN
             globals->broadcast_charger_connected = true;
-            if (!is_charger_connected)
-            {
+            if (!is_charger_connected) {
                 app_stateMachine_setNextState(app_faultState_get());
                 app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_set(!is_charger_connected);
             }
         }
 
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
-        if (external_shutdown_occurred)
-        {
+        if (external_shutdown_occurred) {
             app_stateMachine_setNextState(app_faultState_get());
             app_canAlerts_BMS_Fault_ChargerShutdownLoopOpen_set(external_shutdown_occurred);
         }
         // If charging is disabled over CAN go back to init state.
-        if (!charging_enabled)
-        {
+        if (!charging_enabled) {
             // Charger must be diabled and given time to shut down before air positive is opened
             globals->charger_exit_counter++;
-            if (globals->charger_exit_counter >= PREMATURE_EXIT_FILTER_THRESHOLD)
-            {
+            if (globals->charger_exit_counter >= PREMATURE_EXIT_FILTER_THRESHOLD) {
                 app_canTx_BMS_ChargerEnable_set(false);
             }
-            if (globals->charger_exit_counter >= CHARGER_SHUTDOWN_TIMEOUT)
-            {
+            if (globals->charger_exit_counter >= CHARGER_SHUTDOWN_TIMEOUT) {
                 app_stateMachine_setNextState(app_initState_get());
             }
         }
@@ -129,8 +112,7 @@ static void chargeStateRunOnTick100Hz(void)
                                            ? app_canRx_Debug_ChargingCurrentTargetValue_get()
                                            : INITIAL_CHARGING_VOLTAGE;
 
-        if (IS_IN_RANGE(0.0f, MAX_CHARGING_CURRENT, charging_current))
-        {
+        if (IS_IN_RANGE(0.0f, MAX_CHARGING_CURRENT, charging_current)) {
             app_canTx_BMS_ChargingCurrent_set(translateChargingParams(charging_current));
         }
 
@@ -138,15 +120,13 @@ static void chargeStateRunOnTick100Hz(void)
                                            ? app_canRx_Debug_ChargingVoltageTargetValue_get()
                                            : INITIAL_CHARGING_VOLTAGE;
 
-        if (IS_IN_RANGE(0.0f, MAX_CHARGING_VOLTAGE, charging_voltage))
-        {
+        if (IS_IN_RANGE(0.0f, MAX_CHARGING_VOLTAGE, charging_voltage)) {
             app_canTx_BMS_ChargingVoltage_set(translateChargingParams(charging_voltage));
         }
     }
 }
 
-static void chargeStateRunOnExit(void)
-{
+static void chargeStateRunOnExit(void) {
     globals->broadcast_charger_connected  = true;
     globals->charger_connected_counter    = 0;
     globals->charger_exit_counter         = 0;
@@ -157,8 +137,7 @@ static void chargeStateRunOnExit(void)
     app_canTx_BMS_ChargerEnable_set(false);
 }
 
-const State *app_chargeState_get(void)
-{
+const State* app_chargeState_get(void) {
     static State charge_state = {
         .name              = "CHARGE",
         .run_on_entry      = chargeStateRunOnEntry,

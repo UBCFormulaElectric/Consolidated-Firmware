@@ -40,15 +40,13 @@ static const PowerStateConfig power_manager_drive_init = {
     },
 };
 
-void transmitTorqueRequests(float apps_pedal_percentage)
-{
+void transmitTorqueRequests(float apps_pedal_percentage) {
     const float bms_available_power   = (float)app_canRx_BMS_AvailablePower_get();
     const float right_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
     const float left_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
     float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
 
-    if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
-    {
+    if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f) {
         // Estimate the maximum torque request to draw the maximum power available from the BMS
         const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
         const float combined_motor_speed_rads = RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm);
@@ -66,8 +64,7 @@ void transmitTorqueRequests(float apps_pedal_percentage)
     app_canTx_VC_RightInverterTorqueCommand_set(torque_request);
 }
 
-static void driveStateRunOnEntry(void)
-{
+static void driveStateRunOnEntry(void) {
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
@@ -83,26 +80,22 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
 
-    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
-    {
+    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON) {
         app_torqueVectoring_init();
         torque_vectoring_switch_is_on = true;
     }
 
-    if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
-    {
+    if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON) {
         app_regen_init();
         regen_switch_is_on = true;
     }
 }
 
-static void driveStateRunOnTick1Hz(void)
-{
+static void driveStateRunOnTick1Hz(void) {
     app_allStates_runOnTick1Hz();
 }
 
-static void driveStateRunOnTick100Hz(void)
-{
+static void driveStateRunOnTick100Hz(void) {
     // All states module checks for faults, and returns whether or not a fault was detected.
     const bool any_board_has_fault = app_faultCheck_checkBoards();
     const bool inverter_has_fault  = app_faultCheck_checkInverters();
@@ -120,32 +113,26 @@ static void driveStateRunOnTick100Hz(void)
        or not before using closed loop features */
 
     // Regen + TV LEDs and update warnings
-    if (turn_regen_led)
-    {
+    if (turn_regen_led) {
         app_canTx_VC_RegenEnabled_set(true);
         app_canTx_VC_Warning_RegenNotAvailable_set(false);
     }
 
-    if (!regen_switch_is_on)
-    {
+    if (!regen_switch_is_on) {
         app_canTx_VC_RegenEnabled_set(false);
         app_canTx_VC_Warning_RegenNotAvailable_set(true);
     }
 
-    if (exit_drive_to_init)
-    {
+    if (exit_drive_to_init) {
         app_stateMachine_setNextState(app_initState_get());
         return;
-    }
-    else if (exit_drive_to_inverter_on)
-    {
+    } else if (exit_drive_to_inverter_on) {
         app_stateMachine_setNextState(app_inverterOnState_get());
         return;
     }
 
     // Disable drive buzzer after 2 seconds.
-    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
-    {
+    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED) {
         io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
         app_canTx_VC_BuzzerOn_set(false);
     }
@@ -153,35 +140,26 @@ static void driveStateRunOnTick100Hz(void)
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
     float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
-    if (regen_switch_is_on)
-    {
+    if (regen_switch_is_on) {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
         sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
     }
 
     app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
-    if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
-    {
+    if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage)) {
         // If bspd warning is true, set torque to 0.0
         app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
         app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
-    }
-    else if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
-    {
+    } else if (apps_pedal_percentage < 0.0f && regen_switch_is_on) {
         app_regen_run(apps_pedal_percentage);
-    }
-    else if (torque_vectoring_switch_is_on)
-    {
+    } else if (torque_vectoring_switch_is_on) {
         app_torqueVectoring_run(apps_pedal_percentage);
-    }
-    else
-    {
+    } else {
         transmitTorqueRequests(apps_pedal_percentage);
     }
 }
 
-static void driveStateRunOnExit(void)
-{
+static void driveStateRunOnExit(void) {
     // Disable inverters and apply zero torque upon exiting drive state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -213,8 +191,7 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_TorqueVectoringEnabled_set(false);
 }
 
-const State *app_driveState_get(void)
-{
+const State* app_driveState_get(void) {
     static State drive_state = {
         .name              = "DRIVE",
         .run_on_entry      = driveStateRunOnEntry,
