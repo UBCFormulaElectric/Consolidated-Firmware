@@ -15,7 +15,8 @@
 typedef enum
 {
     BMS_ALERT_BOARD = 0,
-    VC_ALERT_BOARD = 1,
+    FSM_ALERT_BOARD = 1,
+    VC_ALERT_BOARD = 2,
     
 } CanAlertBoard;
 
