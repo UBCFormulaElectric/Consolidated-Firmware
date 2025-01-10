@@ -14,7 +14,7 @@ GET_BOARD_FAULT_CODE = "app_canAlerts_{alert_type}Info"
 
 
 class AppCanAlertsModule(CModule):
-    def __init__(self, db: CanDatabase, node: CanNode):
+    def __init__(self, db: CanDatabase, node: str):
         self._db = db
         self._node = node
 
