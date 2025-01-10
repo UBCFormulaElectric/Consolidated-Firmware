@@ -18,7 +18,7 @@ MSG_CYCLE_TIME_2_FREQ = {
 class IoCanTxModule(CModule):
     def __init__(self, db: CanDatabase, node: str):
         self._db = db
-        self._node = node
+        self._node = db.nodes
         self._public_functions, self._static_functions = self._functions()
 
     def _functions(self) -> List[CFunc]:
@@ -64,7 +64,7 @@ class IoCanTxModule(CModule):
                 comment=f"Enqeue periodic CAN msgs of period {cycle_time}ms.",
             )
 
-            for msg in self._db.tx_msgs_for_node(self._node):
+            for msg in self._node.:
                 if msg.is_periodic() and msg.cycle_time == cycle_time:
                     func.body.add_line(
                         f"{CFuncsConfig.IO_TX_SEND.format(msg=msg.name, mode='Periodic')}();"
