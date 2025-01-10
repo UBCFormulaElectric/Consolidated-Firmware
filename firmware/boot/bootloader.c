@@ -22,8 +22,20 @@
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
-// Need these to be created an initlized elsewhere
+// Need these to be created an initialized elsewhere
 extern CanHandle can;
+
+void canRxQueueOverflowCallBack(const uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+void canTxQueueOverflowCallBack(const uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
 
 // App code block. Start/size included from the linker script.
 extern uint32_t __app_metadata_start__; // NOLINT(*-reserved-identifier)

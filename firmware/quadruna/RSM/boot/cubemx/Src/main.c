@@ -91,18 +91,6 @@ const osThreadAttr_t tickTask_attributes = {
 /* USER CODE BEGIN PV */
 CanHandle can = { .hcan = &hcan1 };
 
-void canRxQueueOverflowCallBack(const uint32_t unused)
-{
-    UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
-}
-
-void canTxQueueOverflowCallBack(const uint32_t unused)
-{
-    UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
-}
-
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
