@@ -26,9 +26,9 @@ typedef struct
 typedef enum
 {
 
-    Bus_bus1 = 0,
+    Bus_ = 0,
 
-    Bus_bus2 = 1,
+    Bus_ = 1,
 
 } BusEnum;
 
@@ -36,17 +36,13 @@ typedef enum
 
 typedef enum
 {
-    CanMode_bus1_default = 1 << 0,
-    CanMode_bus1_debug = 1 << 1,
     
-} CanMode_bus1;
+} CanMode_;
 
 typedef enum
 {
-    CanMode_bus2_default = 1 << 0,
-    CanMode_bus2_debug = 1 << 1,
     
-} CanMode_bus2;
+} CanMode_;
 
 
 
