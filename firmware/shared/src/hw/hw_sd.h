@@ -43,8 +43,8 @@ SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks
  * @return  SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_write(const uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
-SdCardStatus hw_sd_writeDma(const uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_writeDma(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   Read interface with offset and size arguement, interface for littlefs
@@ -71,7 +71,7 @@ SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offs
  * @return SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_writeOffset(const uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
  * @brief Erase data from the sd card [start_addr, end_addr] inclusive
