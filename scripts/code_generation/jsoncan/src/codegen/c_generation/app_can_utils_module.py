@@ -71,11 +71,12 @@ class AppCanUtilsModule(CModule):
         )
 
     def header_template(self):
-        can_enums = self._db.shared_enums
+        can_enums = list(self._db.shared_enums.values())
         for msg in self._db.msgs_for_node(self._node):
             for signal in msg.signals:
                 if signal.enum and signal.enum not in can_enums:
                     can_enums.append(signal.enum)
+                    
 
         template = load_template("app_canUtils.h.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader)
