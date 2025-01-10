@@ -103,10 +103,9 @@ void rx_overflow_callback(const uint32_t unused)
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan, const uint32_t RxFifo0ITs)
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
-    UNUSED(RxFifo0ITs);
     CanMsg rx_msg;
     if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
@@ -114,10 +113,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan, const uint32_t R
     io_canQueue_pushRx(&rx_msg);
 }
 
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan, const uint32_t RxFifo1ITs)
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
-    UNUSED(RxFifo1ITs);
     CanMsg rx_msg;
     if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
