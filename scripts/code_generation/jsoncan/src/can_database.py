@@ -288,10 +288,16 @@ class CanNode:
     """
 
     name: str  # Name of this CAN node
-    tx_msgs: List[CanMessage]
-    rx_msgs: List[CanMessage]
+    tx_msgs: Dict[str, CanMessage]
+    rx_msgs: Dict[str, CanMessage]
     alerts: Dict[CanAlert, AlertsEntry]  # Dictionary of alert to alert entry
-    buses: List[CanBusConfig]  # List of buses this node is on
+    buses: Dict[str, CanBusConfig]  # List of buses this node is on
+
+    def get_all_messages(self):
+        rx = list(self.rx_msgs.values())
+        tx = list(self.tx_msgs.values())
+        return rx + tx
+    
 
     def __init__(self, name: str):
         self.name = name
@@ -328,13 +334,15 @@ class CanDatabase:
         """
         Return list of all CAN messages transmitted by a specific node.
         """
-        return [msg for msg in self.msgs.values() if tx_node == msg.tx_node]
+        node = self.nodes[tx_node]
+        return node.tx_msgs
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
-        return [msg for msg in self.msgs.values() if rx_node in msg.rx_nodes]
+        node = self.nodes[rx_node]
+        return node.rx_msgs
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """

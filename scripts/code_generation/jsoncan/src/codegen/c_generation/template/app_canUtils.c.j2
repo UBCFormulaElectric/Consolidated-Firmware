@@ -82,7 +82,6 @@ void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg
     }
     
     {% for signal in msg.signals %}
-    {%- set signal_big_name =  signal.scremming_snake_name() -%}
     {%- set raw_type =  "int32_t" if signal.signed else "uint32_t" -%}
     {%- set DECORD_MACRO = "CAN_SIGNED_ENCODE" if signal.signed else "CAN_ENCODE" -%}
     // Pack {{ signal.bits }}-bit signal {{ signal.name }} into payload at [ bit {{ signal.start_bit }} to bit {{ signal.start_bit + signal.bits }} ).
