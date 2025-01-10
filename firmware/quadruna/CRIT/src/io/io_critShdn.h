@@ -8,8 +8,8 @@
 
 typedef struct
 {
-    const Gpio cockpit_estop_gpio;
-    const Gpio inertia_sen_ok_gpio;
+    const Gpio *cockpit_estop_gpio;
+    const Gpio *inertia_sen_ok_gpio;
 } CritShdnConfig;
 #else
 EMPTY_STRUCT(CritShdnConfig);
