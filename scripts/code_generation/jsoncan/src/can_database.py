@@ -11,13 +11,8 @@ from typing import Dict, List, Set, Union
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 
@@ -301,10 +296,10 @@ class CanNode:
 
     def __init__(self, name: str):
         self.name = name
-        self.tx_msgs = []
-        self.rx_msgs = []
+        self.tx_msgs = {}
+        self.rx_msgs = {}
         self.alerts = {}
-        self.buses = []
+        self.buses = {}
 
     def __hash__(self):
         return hash(self.name)
@@ -325,7 +320,7 @@ class CanDatabase:
     msgs: Dict[
         int, CanMessage
     ]  # All messages being sent to the bus (dict of (ID to message)
-    shared_enums: List[CanEnum]  # Enums used by all nodes
+    shared_enums: Dict[str,CanEnum]  # Enums used by all nodes
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
@@ -335,14 +330,14 @@ class CanDatabase:
         Return list of all CAN messages transmitted by a specific node.
         """
         node = self.nodes[tx_node]
-        return node.tx_msgs
+        return list(node.tx_msgs.values())
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
         node = self.nodes[rx_node]
-        return node.rx_msgs
+        return list(node.rx_msgs.values())
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
