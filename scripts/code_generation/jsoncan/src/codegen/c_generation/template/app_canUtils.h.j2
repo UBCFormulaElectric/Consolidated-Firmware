@@ -39,7 +39,6 @@
 {% endfor %}
 {% endfor %}
 // Scale/offset values for encoding/decoding signals
-#define CANSIG_BMS_VITALS_BMS_HEARTBEAT_SCALE (1)
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
@@ -62,14 +61,14 @@
 
 /* -------------------------------- Enums --------------------------------- */
 
-{% for enum in enums %}
+{% for name, enum in enums.items() %}
 
 typedef enum
 { 
     {%  for key, value in enum.items.items() -%}
     {{ value }} = {{ key }},
     {% endfor %}
-} {{ enum.name }};
+} {{ name }};
 {%- endfor %}
 
 
