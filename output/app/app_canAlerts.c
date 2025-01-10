@@ -519,6 +519,66 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
             break;
         }
         
+        case FSM_ALERT_BOARD :
+        {
+            if (app_canRx_FSM_Warning_WatchdogTimeout_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_TxOverflow_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_RxOverflow_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_StackWaterMarkHighTask1Hz_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_StackWaterMarkHighTask100Hz_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_StackWaterMarkHighTask1kHz_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_StackWaterMarkHighTaskCanRx_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_StackWaterMarkHighTaskCanTx_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_SteeringAngleOCSC_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_SteeringAngleOutOfRange_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_LeftWheelSpeedOutOfRange_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_RightWheelSpeedOutOfRange_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_AppsDisagreement_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_FrontBrakePressureOutOfRange_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_RearBrakePressureOutOfRange_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_FrontBrakePressureOcSc_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_RearBrakePressureOcSc_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Warning_BrakeOcScNotOk_get()) 
+            {
+                return true;
+            }
+            break;
+        }
+        
         case VC_ALERT_BOARD :
         {
             if (app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_get()) 
@@ -633,6 +693,18 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
             {
                 return true;
             }if (app_canTx_BMS_Fault_PrechargeFailure_get()) 
+            {
+                return true;
+            }
+            break;
+        }
+        
+        case FSM_ALERT_BOARD :
+        {
+            if (app_canRx_FSM_Fault_PappsOCSC_get()) 
+            {
+                return true;
+            }if (app_canRx_FSM_Fault_SappsOCSC_get()) 
             {
                 return true;
             }
@@ -807,6 +879,115 @@ uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
         alert_array[element_num].id = 115;
         element_num++;
     }
+    if (app_canRx_FSM_Warning_WatchdogTimeout_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_WatchdogTimeout";
+        alert_array[element_num].description = "Watchdog timed out.";
+        alert_array[element_num].id = 301;
+        element_num++;
+    }if (app_canRx_FSM_Warning_TxOverflow_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_TxOverflow";
+        alert_array[element_num].description = "CanTx queue overflowed.";
+        alert_array[element_num].id = 302;
+        element_num++;
+    }if (app_canRx_FSM_Warning_RxOverflow_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_RxOverflow";
+        alert_array[element_num].description = "CanRx queue overflowed.";
+        alert_array[element_num].id = 303;
+        element_num++;
+    }if (app_canRx_FSM_Warning_StackWaterMarkHighTask1Hz_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_StackWaterMarkHighTask1Hz";
+        alert_array[element_num].description = "Stack watermark failed on 1Hz task.";
+        alert_array[element_num].id = 304;
+        element_num++;
+    }if (app_canRx_FSM_Warning_StackWaterMarkHighTask100Hz_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_StackWaterMarkHighTask100Hz";
+        alert_array[element_num].description = "Stack watermark failed on 100Hz task.";
+        alert_array[element_num].id = 305;
+        element_num++;
+    }if (app_canRx_FSM_Warning_StackWaterMarkHighTask1kHz_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_StackWaterMarkHighTask1kHz";
+        alert_array[element_num].description = "Stack watermark failed on 1kHz task.";
+        alert_array[element_num].id = 306;
+        element_num++;
+    }if (app_canRx_FSM_Warning_StackWaterMarkHighTaskCanRx_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_StackWaterMarkHighTaskCanRx";
+        alert_array[element_num].description = "Stack watermark failed on canRx task.";
+        alert_array[element_num].id = 307;
+        element_num++;
+    }if (app_canRx_FSM_Warning_StackWaterMarkHighTaskCanTx_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_StackWaterMarkHighTaskCanTx";
+        alert_array[element_num].description = "Stack watermark failed on canTx task.";
+        alert_array[element_num].id = 308;
+        element_num++;
+    }if (app_canRx_FSM_Warning_SteeringAngleOCSC_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_SteeringAngleOCSC";
+        alert_array[element_num].description = "Steering sensor voltage out of acceptable range (OCSC).";
+        alert_array[element_num].id = 309;
+        element_num++;
+    }if (app_canRx_FSM_Warning_SteeringAngleOutOfRange_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_SteeringAngleOutOfRange";
+        alert_array[element_num].description = "Steering angle out of range.";
+        alert_array[element_num].id = 310;
+        element_num++;
+    }if (app_canRx_FSM_Warning_LeftWheelSpeedOutOfRange_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_LeftWheelSpeedOutOfRange";
+        alert_array[element_num].description = "Left wheel speed out of range.";
+        alert_array[element_num].id = 311;
+        element_num++;
+    }if (app_canRx_FSM_Warning_RightWheelSpeedOutOfRange_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_RightWheelSpeedOutOfRange";
+        alert_array[element_num].description = "Right wheel speed out of range.";
+        alert_array[element_num].id = 312;
+        element_num++;
+    }if (app_canRx_FSM_Warning_AppsDisagreement_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_AppsDisagreement";
+        alert_array[element_num].description = "Conflict between primary and secondary accelerator pedals.";
+        alert_array[element_num].id = 313;
+        element_num++;
+    }if (app_canRx_FSM_Warning_FrontBrakePressureOutOfRange_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_FrontBrakePressureOutOfRange";
+        alert_array[element_num].description = "Front brake pressure out of range.";
+        alert_array[element_num].id = 314;
+        element_num++;
+    }if (app_canRx_FSM_Warning_RearBrakePressureOutOfRange_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_RearBrakePressureOutOfRange";
+        alert_array[element_num].description = "Rear brake pressure out of range.";
+        alert_array[element_num].id = 315;
+        element_num++;
+    }if (app_canRx_FSM_Warning_FrontBrakePressureOcSc_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_FrontBrakePressureOcSc";
+        alert_array[element_num].description = "Front brake pressure sensor voltage out of acceptable range (OCSC).";
+        alert_array[element_num].id = 316;
+        element_num++;
+    }if (app_canRx_FSM_Warning_RearBrakePressureOcSc_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_RearBrakePressureOcSc";
+        alert_array[element_num].description = "Rear brake pressure sensor voltage out of acceptable range (OCSC).";
+        alert_array[element_num].id = 322;
+        element_num++;
+    }if (app_canRx_FSM_Warning_BrakeOcScNotOk_get()) // rx FSM faults
+    {
+        alert_array[element_num].name = "FSM_Warning_BrakeOcScNotOk";
+        alert_array[element_num].description = "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK.";
+        alert_array[element_num].id = 323;
+        element_num++;
+    }
     if (app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_get()) // rx VC faults
     {
         alert_array[element_num].name = "VC_Warning_StackWaterMarkHighTask1Hz";
@@ -935,6 +1116,7 @@ uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
     // tx faults
+    
     
     
     return element_num;

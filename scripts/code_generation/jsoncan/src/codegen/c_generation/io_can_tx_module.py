@@ -240,21 +240,26 @@ class IoCanTxModule(CModule):
     #         cw.add_line()
 
     #     return str(cw)
-    
+
     # FIXME: need node on what bus, need to know each message's bus. Need to fix a lot of parsing scripts. so I will fix here for now.
-    
-    #FIXME: assume all node on all buses for now
+
+    # FIXME: assume all node on all buses for now
     def header_template(self):
+        node_obj = self._db.nodes[self._node]
         template = load_template("io_canTx.h.j2")
-        j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
+        j2_env = j2.Environment(
+            loader=j2.BaseLoader, extensions=["jinja2.ext.loopcontrols"]
+        )
         template = j2_env.from_string(template)
-        return template.render(buses = self._db.bus_config)
-    
+        return template.render(node=node_obj)
+
     def source_template(self):
+        node_obj = self._db.nodes[self._node]
         template = load_template("io_canTx.c.j2")
-        j2_env = j2.Environment(loader=j2.BaseLoader, extensions=['jinja2.ext.loopcontrols'])
+        j2_env = j2.Environment(
+            loader=j2.BaseLoader, extensions=["jinja2.ext.loopcontrols"]
+        )
         template = j2_env.from_string(template)
-        return template.render(buses = self._db.bus_config,
-                                messages = self._db.tx_msgs_for_node(self._node),
-                                node = self._node
-                               )
+        return template.render(
+            messages=self._db.tx_msgs_for_node(self._node), node=node_obj
+        )

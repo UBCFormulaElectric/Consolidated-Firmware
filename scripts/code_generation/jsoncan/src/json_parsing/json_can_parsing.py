@@ -126,9 +126,6 @@ class JsonCanParser:
 
         print("placeholder")
 
-    def _build_relations(self):
-        pass
-
     def _parse_json_bus_data(self, can_data_dir) -> List[CanBusConfig]:
         """
         Parse bus JSON data from specified directory.
