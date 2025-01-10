@@ -6,9 +6,9 @@
 #include "hw_gpios.h"
 typedef struct
 {
-    const Gpio* current_status_gpio;
-    const Gpio* latch_status_gpio;
-    const bool read_only; // Certain fault latches can only be read from.
+    const Gpio *current_status_gpio;
+    const Gpio *latch_status_gpio;
+    const bool  read_only; // Certain fault latches can only be read from.
 } FaultLatch;
 #else
 #include "app_utils.h"

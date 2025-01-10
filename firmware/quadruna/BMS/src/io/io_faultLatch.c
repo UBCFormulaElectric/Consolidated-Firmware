@@ -2,18 +2,18 @@
 
 const FaultLatch bms_ok_latch = {
     .current_status_gpio = &bms_ok_current_status_gpio,
-    .latch_status_gpio = &bms_ok_latch_status_gpio,
-    .read_only = false,
+    .latch_status_gpio   = &bms_ok_latch_status_gpio,
+    .read_only           = false,
 };
 const FaultLatch imd_ok_latch = {
     .current_status_gpio = &imd_ok_current_status_gpio,
-    .latch_status_gpio = &imd_ok_latch_status_gpio,
-    .read_only = true,
+    .latch_status_gpio   = &imd_ok_latch_status_gpio,
+    .read_only           = true,
 };
 const FaultLatch bspd_ok_latch = {
     .current_status_gpio = &bspd_ok_current_status_gpio,
-    .latch_status_gpio = &bspd_ok_latch_status_gpio,
-    .read_only = true,
+    .latch_status_gpio   = &bspd_ok_latch_status_gpio,
+    .read_only           = true,
 };
 
 void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const bool status)

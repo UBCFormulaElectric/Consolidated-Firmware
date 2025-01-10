@@ -23,6 +23,6 @@ const Gpio imd_ok_current_status_gpio  = { .port = IMD_OK_3V3_GPIO_Port, .pin = 
 const Gpio imd_ok_latch_status_gpio    = { .port = IMD_LATCH_GPIO_Port, .pin = IMD_LATCH_Pin };
 const Gpio bspd_ok_current_status_gpio = { .port = BSPD_OK_3V3_GPIO_Port, .pin = BSPD_OK_3V3_Pin };
 const Gpio bspd_ok_latch_status_gpio   = { .port = BSPD_LATCH_GPIO_Port, .pin = BSPD_LATCH_Pin };
-const Gpio test_enable_gpio    = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin };
+const Gpio test_enable_gpio            = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin };
 const Gpio n_high_current_gpio = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin = nHIGH_CURRENT_BSPD_3V3_Pin };
-const Gpio present_gpio = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
+const Gpio present_gpio        = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
