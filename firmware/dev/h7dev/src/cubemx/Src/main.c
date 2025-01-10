@@ -26,14 +26,13 @@
 #include "pb_decode.h"
 #include "sample.pb.h"
 #include "string.h"
-#include "string.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_can.h"
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
 #include "io_can.h"
-#include "io_canLogging.h"
+#include "io_canQueue.h"
+#include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
 #include "hw_gpio.h"
 #include "io_log.h"
@@ -103,20 +102,14 @@ const osThreadAttr_t canRxTask_attributes = {
 };
 /* USER CODE BEGIN PV */
 
-int         write_num    = 0;
-int         read_num     = 0;
-int         overflow_num = 0;
-static void callback(uint32_t i)
-{
-    overflow_num++;
-    // BREAK_IF_DEBUGGER_CONNECTED();
-}
-
-static CanConfig can_config = {
-    .rx_msg_filter        = NULL,
-    .tx_overflow_callback = callback,
-    .rx_overflow_callback = callback,
-};
+int write_num    = 0;
+int read_num     = 0;
+int overflow_num = 0;
+// static void callback(uint32_t i)
+// {
+// overflow_num++;
+// BREAK_IF_DEBUGGER_CONNECTED();
+// }
 
 /* USER CODE END PV */
 
@@ -132,13 +125,13 @@ void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-static void can_msg_received_callback(CanMsg *rx_msg);
+// static void can_msg_received_callback(CanMsg *rx_msg);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan2, .can_msg_received_callback = can_msg_received_callback };
+CanHandle can = { .hcan = &hfdcan2 };
 SdCard    sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
 
 Gpio sd_present = {
@@ -189,16 +182,16 @@ int main(void)
     /* USER CODE BEGIN 2 */
     // __HAL_DBGMCU_FREEZE_IWDG();
 
-    io_can_init(&can_config);
     hw_hardFaultHandler_init();
     io_can_init(&can);
+    io_canQueue_init();
 
     if (sd_inited)
     {
         sd1.hsd     = &hsd1;
         sd1.timeout = osWaitForever;
         int err     = io_fileSystem_init();
-        io_canLogging_init(&can_config);
+        io_canLogging_init();
     }
 
     SEGGER_SYSVIEW_Conf();
@@ -449,7 +442,6 @@ static void MX_SDMMC1_SD_Init(void)
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
     sd_inited = true;
-    hw_sd_init(&sd1);
     /* USER CODE END SDMMC1_Init 2 */
 }
 
@@ -539,16 +531,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-static void can_msg_received_callback(CanMsg *rx_msg)
-{
-    // TODO: check gpio present
-    static uint32_t id = 0;
-    rx_msg->std_id     = id;
-    id++;
-    io_can_pushRxMsgToQueue(rx_msg);
-    io_canLogging_loggingQueuePush(rx_msg);
-}
 
 /* USER CODE END 4 */
 
