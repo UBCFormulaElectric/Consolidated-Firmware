@@ -109,26 +109,18 @@ void        runCanTxTask(void *argument);
 /* USER CODE BEGIN 0 */
 CanHandle can = { .hcan = &hfdcan1 };
 
-static void canRxOverflow(const uint32_t unused)
+void tx_overflow_callback(const uint32_t unused)
 {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-static void canTxOverflow(const uint32_t unused)
+void rx_overflow_callback(const uint32_t unused)
 {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-CanQueue cq = {
-    .tx_overflow_callback       = canRxOverflow,
-    .rx_overflow_callback       = canTxOverflow,
-    .tx_overflow_clear_callback = NULL,
-    .rx_overflow_clear_callback = NULL,
-    .can_number                 = 1,
-    .init_complete              = false,
-};
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     assert(hfdcan == &hfdcan1);
@@ -137,7 +129,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&cq, &rx_msg);
+    io_canQueue_pushRx(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
@@ -148,7 +140,7 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&cq, &rx_msg);
+    io_canQueue_pushRx(&rx_msg);
 }
 /* USER CODE END 0 */
 
@@ -185,7 +177,7 @@ int main(void)
     /* USER CODE BEGIN 2 */
     bootloader_init();
     io_can_init(&can);
-    io_canQueue_init(&cq);
+    io_canQueue_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */

@@ -10,9 +10,6 @@
 #include "app_canDataCapture.h"
 
 #include "io_log.h"
-#include "io_canRx.h"
-#include "io_jsoncan.h"
-#include "io_canQueues.h"
 #include "io_canLoggingQueue.h"
 #include "io_telemMessage.h"
 #include "io_chimera.h"
@@ -20,7 +17,7 @@
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
 #include "io_cans.h"
-#include "io_chimera.h"
+#include "io_canQueue.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -218,7 +215,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&canQueue1, &rx_msg);
+    io_canQueue_pushRx(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
@@ -230,5 +227,5 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&canQueue1, &rx_msg);
+    io_canQueue_pushRx(&rx_msg);
 }

@@ -24,7 +24,6 @@ extern TIM_HandleTypeDef htim6;
 
 // Need these to be created an initlized elsewhere
 extern CanHandle can;
-extern CanQueue  cq;
 
 // App code block. Start/size included from the linker script.
 extern uint32_t __app_metadata_start__; // NOLINT(*-reserved-identifier)
@@ -173,7 +172,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
 {
     for (;;)
     {
-        const CanMsg command = io_canQueue_popRx(&cq);
+        const CanMsg command = io_canQueue_popRx();
 
         if (command.std_id == START_UPDATE_ID)
         {
@@ -183,7 +182,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
             // Send ACK message that programming has started.
             const CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
-            io_canQueue_pushTx(&cq, &reply);
+            io_canQueue_pushTx(&reply);
         }
         else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
         {
@@ -196,7 +195,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = ERASE_SECTOR_COMPLETE_ID,
                 .dlc    = 0,
             };
-            io_canQueue_pushTx(&cq, &reply);
+            io_canQueue_pushTx(&reply);
         }
         else if (command.std_id == PROGRAM_ID && update_in_progress)
         {
@@ -213,7 +212,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .dlc    = 1,
             };
             reply.data[0] = (uint8_t)verifyAppCodeChecksum();
-            io_canQueue_pushTx(&cq, &reply);
+            io_canQueue_pushTx(&reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
@@ -234,7 +233,7 @@ _Noreturn void bootloader_runTickTask(void)
         status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
         status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
         status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
-        io_canQueue_pushTx(&cq, &status_msg);
+        io_canQueue_pushTx(&status_msg);
 
         bootloader_boardSpecific_tick();
 
@@ -247,7 +246,7 @@ _Noreturn void bootloader_runCanTxTask(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx(&cq);
+        CanMsg tx_msg = io_canQueue_popTx();
         io_can_transmit(&can, &tx_msg);
     }
 }

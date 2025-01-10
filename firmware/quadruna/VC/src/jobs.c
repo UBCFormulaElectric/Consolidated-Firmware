@@ -19,7 +19,7 @@
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
 #include "io_jsoncan.h"
-#include "io_canQueues.h"
+#include "io_canQueue.h"
 #include "io_telemMessage.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
@@ -28,7 +28,7 @@
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg c = io_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&canQueue1, &c);
+    io_canQueue_pushTx(&c);
 }
 
 void jobs_init()
@@ -64,7 +64,7 @@ void jobs_init()
     io_can_init(&can1);
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_canQueue_init(&canQueue1);
+    io_canQueue_init();
     io_telemMessage_init();
 }
 
@@ -98,7 +98,7 @@ void jobs_run1kHz_tick(void)
 
 void jobs_runCanTx_tick(void)
 {
-    CanMsg tx_msg = io_canQueue_popTx(&canQueue1);
+    CanMsg tx_msg = io_canQueue_popTx();
     io_can_transmit(&can1, &tx_msg); // TODO make HW -> IO CAN
 
     // ReSharper disable once CppRedundantCastExpression
@@ -111,7 +111,7 @@ void jobs_runCanTx_tick(void)
 
 void jobs_runCanRx_tick(void)
 {
-    const CanMsg rx_msg = io_canQueue_popRx(&canQueue1);
+    const CanMsg rx_msg = io_canQueue_popRx();
     if (io_canRx_filterMessageId(rx_msg.std_id))
     {
         JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
