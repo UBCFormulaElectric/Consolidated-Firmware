@@ -172,6 +172,90 @@ bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms)
             break;
 
         }
+        case CANMSG_FSM_VITALS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_ALERTS_CONTEXT_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_COMMIT_INFO_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_STEERING_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_WHEELS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_APPS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_BRAKE_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_FSM_SHDN_NODE_STATUS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_WARNINGS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_FAULTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_WARNINGS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_FAULTS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
         case CANMSG_VC_VITALS_ID:
         {
             if (time_ms > VC_Vitals_next_log_time_ms)
@@ -524,6 +608,90 @@ bool app_dataCapture_needsTelem(uint16_t msg_id, uint32_t time_ms)
 
         }
         case CANMSG_BMS_FAULTS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_VITALS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_ALERTS_CONTEXT_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_COMMIT_INFO_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_STEERING_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_WHEELS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_APPS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_BRAKE_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_FSM_SHDN_NODE_STATUS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_WARNINGS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_FAULTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_WARNINGS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_FSM_FAULTS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;

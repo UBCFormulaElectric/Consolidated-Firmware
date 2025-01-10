@@ -9,6 +9,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#ifndef THREAD_SAFE_CAN_PACKING
+void io_canTx_set_lockfunction(
+    void (*lock)(void),
+    void (*unlock)(void)
+);
+#endif
 
 /* ------------------------------- Structs -------------------------------- */
 
@@ -25,13 +31,13 @@ typedef struct
 /* -------------------------------- Enums --------------------------------- */
 typedef enum
 {
-{% for bus in buses %}
+{% for bus in node.buses %}
     Bus_{{bus.name}} = {{loop.index0}},
 {% endfor %}
 } BusEnum;
 
 
-{% for bus in buses %}
+{% for bus in node.buses %}
 typedef enum
 {
     {% for mode in bus.modes -%}
@@ -47,7 +53,11 @@ typedef enum
 /**
  * Initialzie the IO CAN TX module.
  */
-void io_canTx_init(void (*transmit_tx_msg_func)(const JsonCanMsg*));
+void io_canTx_init(
+    {% for bus in node.buses -%}
+    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
+    {%- endfor %}
+);
 
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
