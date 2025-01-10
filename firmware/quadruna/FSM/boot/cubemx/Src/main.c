@@ -96,7 +96,7 @@ void canRxQueueOverflowCallBack(const uint32_t unused)
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-void canRxQueueOverflowCallBack(const uint32_t unused)
+void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();

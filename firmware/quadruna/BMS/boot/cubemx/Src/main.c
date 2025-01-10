@@ -109,13 +109,14 @@ void        runCanTxTask(void *argument);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 CanHandle can = { .hcan = &hfdcan1 };
-void      canRxQueueOverflowCallBack(const uint32_t unused)
+
+void canRxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-void canRxQueueOverflowCallBack(const uint32_t unused)
+void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
