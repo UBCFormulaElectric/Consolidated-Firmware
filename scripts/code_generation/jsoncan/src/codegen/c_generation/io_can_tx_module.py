@@ -18,7 +18,7 @@ MSG_CYCLE_TIME_2_FREQ = {
 class IoCanTxModule(CModule):
     def __init__(self, db: CanDatabase, node: str):
         self._db = db
-        self._node = db.nodes
+        self._node = node
         # self._public_functions, self._static_functions = self._functions()
 
     # def _functions(self) -> List[CFunc]:
