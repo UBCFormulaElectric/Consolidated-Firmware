@@ -109,25 +109,3 @@ bool io_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
     msg->dlc    = header.DLC;
     return true;
 }
-
-//  void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-// {
-//      UNUSED(hcan);
-//      CanMsg rx_msg;
-//      if (!io_can_receive(CAN_RX_FIFO0, &rx_msg))
-//          // Early return if RX msg is unavailable.
-//          return;
-//
-//      can_handle->hcan_msg_received_callback(&rx_msg);
-//  }
-//
-//  void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
-// {
-//      UNUSED(hcan);
-//      CanMsg rx_msg;
-//      if (!io_can_receive(CAN_RX_FIFO1, &rx_msg))
-//          // Early return if RX msg is unavailable.
-//          return;
-//
-//      can_handle->hcan_msg_received_callback(&rx_msg);
-//  }

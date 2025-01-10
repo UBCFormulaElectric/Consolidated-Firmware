@@ -23,9 +23,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "hw_can.h"
+#include "io_canQueue.h"
 #include "io_can.h"
 #include "hw_error.h"
+#include "hw_utils.h"
+
+#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,10 +89,41 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = {
-    .can                       = &hcan1,
-    .can_msg_received_callback = io_can_pushRxMsgToQueue,
-};
+CanHandle can = { .hcan = &hcan1 };
+
+void tx_overflow_callback(const uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+void rx_overflow_callback(const uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan, const uint32_t RxFifo0ITs)
+{
+    assert(hcan == can.hcan);
+    UNUSED(RxFifo0ITs);
+    CanMsg rx_msg;
+    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
+}
+
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan, const uint32_t RxFifo1ITs)
+{
+    assert(hcan == can.hcan);
+    UNUSED(RxFifo1ITs);
+    CanMsg rx_msg;
+    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
+}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
