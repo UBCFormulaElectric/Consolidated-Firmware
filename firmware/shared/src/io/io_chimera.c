@@ -57,6 +57,7 @@ static const Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
         default:
         {
             assert(false);
+            return NULL;
         }
     }
 }
@@ -88,6 +89,7 @@ static const AdcChannel *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
         default:
         {
             assert(false);
+            return NULL;
         }
     }
 }
