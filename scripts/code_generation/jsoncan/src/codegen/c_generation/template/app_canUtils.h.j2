@@ -34,8 +34,8 @@
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-#define {{ signal.start_val_macro() }} ({{ signal.start_val }}) {% if signal.unit and signal.unit != "" %}// {{ signal.unit }}
-{% endif %}
+#define {{ signal.start_val_macro() }} ({{ signal.start_val }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
 {% endfor %}
 {% endfor %}
 // Scale/offset values for encoding/decoding signals
@@ -43,7 +43,9 @@
 // {{msg.name}}
 {% for signal in msg.signals -%}
 #define {{ signal.scale_macro() }} ({{ signal.scale }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
 #define {{ signal.offset_macro() }} ({{ signal.offset }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
 {% endfor %}
 {% endfor %}
 
@@ -54,22 +56,22 @@
 // {{msg.name}}
 {% for signal in msg.signals -%}
 #define {{ signal.min_val_macro() }} ({{ signal.min_val }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
 #define {{ signal.max_val_macro() }} ({{ signal.max_val }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
 {% endfor %}
 {% endfor %}
 
 
 /* -------------------------------- Enums --------------------------------- */
-
-{% for name, enum in enums.items() %}
-
+{%- for enum in enums %}
 typedef enum
 { 
     {%  for key, value in enum.items.items() -%}
     {{ value }} = {{ key }},
     {% endfor %}
-} {{ name }};
-{%- endfor %}
+} {{ enum.name }};
+{% endfor %}
 
 
 /* ------------------------------- Structs -------------------------------- */

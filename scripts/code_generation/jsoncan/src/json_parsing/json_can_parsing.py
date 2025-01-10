@@ -12,13 +12,9 @@ from typing import Any, Tuple
 from ..can_database import *
 from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
-from .schema_validation import (
-    AlertsJson,
-    validate_alerts_json,
-    validate_bus_json,
-    validate_enum_json,
-    validate_tx_json,
-)
+from .schema_validation import (AlertsJson, validate_alerts_json,
+                                validate_bus_json, validate_enum_json,
+                                validate_tx_json)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -118,6 +114,11 @@ class JsonCanParser:
                 rx_msg = self._messages[tx_node_msg_name]
                 if rx_msg not in rx_msg.rx_nodes:
                     rx_msg.rx_nodes.append(node_obj)
+                
+                # add the message to the node's rx messages
+                rx_node = self._nodes[node]
+                rx_node.rx_msgs[tx_node_msg_name] = rx_msg
+                    
 
         # find all message transmitting on one bus but received in another bus
         reroute = self._fine_reroute(self._messages.values())
