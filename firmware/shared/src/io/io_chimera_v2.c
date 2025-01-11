@@ -3,7 +3,7 @@
 
 /*
     CHIMERA Packet Format:
-    [Non-zero indicator][ low length byte ][ high length byte ][... content bytes * length ...]
+    [  Non-zero Byte   ][ length low byte  ][ length high byte ][  content bytes   ]...
 */
 
 void io_chimera_main(
@@ -30,12 +30,14 @@ void io_chimera_main(
         // Populate buffer.
         uint8_t *buf = malloc(length * sizeof(uint8_t));
         for (int i = 0; i < length; i += 1)
-        {
             buf[i] = hw_usb_recieve();
-        }
 
-        // TODO: PROCESS BUFFER
+        io_chimera_handleBuf(buf, length);
 
         free(buf);
     }
 };
+
+void io_chimera_handleBuf(buf, length) {
+
+}
