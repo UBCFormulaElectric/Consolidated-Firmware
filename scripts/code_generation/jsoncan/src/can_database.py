@@ -324,7 +324,8 @@ class CanDatabase:
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
-
+    reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
+    
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages transmitted by a specific node.
