@@ -3,7 +3,7 @@
 
 typedef struct
 {
-  Gpio *src;
+    Gpio *src;
 } Fans;
 
 void io_fan_set(Fans *fans, bool on);

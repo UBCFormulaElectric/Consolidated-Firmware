@@ -53,11 +53,17 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define LED_Pin GPIO_PIN_13
+#define LED_GPIO_Port GPIOC
+#define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_9
+#define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
+#define FR_STBY_Pin GPIO_PIN_6
+#define FR_STBY_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

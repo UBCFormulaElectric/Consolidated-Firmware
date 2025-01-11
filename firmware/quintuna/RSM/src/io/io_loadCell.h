@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include "hw_adcs.h"
 
-typedef struct 
+typedef struct
 {
-  Adc *src;
+    Adc *src;
 } LoadCell;
 
 bool  is_ocsc(LoadCell *loadCell);

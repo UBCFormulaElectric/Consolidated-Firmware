@@ -6,8 +6,8 @@
 #define LOADCELL_MINVOLT (0.0f)
 #define LOADCELL_MAXVOLT (0.0f)
 
-const LoadCell sensor3 = {lc3_out};
-const LoadCell sensor4 = {lc4_out};
+const LoadCell sensor3 = { lc3_out };
+const LoadCell sensor4 = { lc4_out };
 
 bool loadCell_OCSC(LoadCell *loadCell)
 {
@@ -26,7 +26,3 @@ float loadCell_voltageToMechancialLoad(LoadCell *loadCell, float voltage)
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/
     return 0.0;
 }
-
-
-
-
