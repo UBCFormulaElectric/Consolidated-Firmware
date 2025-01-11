@@ -9,7 +9,6 @@
 
 #include "cmsis_os.h"
 #include "io_fileSystem.h"
-#include "io_time.h"
 
 // batch message buffer
 #define BATCH_SIZE 10
@@ -45,7 +44,7 @@ static const osMessageQueueAttr_t queue_attr = {
 static void convertCanMsgToLog(const CanMsg* msg, CanMsgLog* log) {
     log->id        = msg->std_id;
     log->dlc       = msg->dlc;
-    log->timestamp = io_time_getCurrentMs();
+    log->timestamp = msg->timestamp;
     memcpy(log->data, msg->data, 8);
 }
 

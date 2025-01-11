@@ -1,7 +1,6 @@
 #include "io_telemMessage.h"
 #include "telem.pb.h"
 #include "pb_encode.h"
-#include "io_time.h"
 #include "cmsis_os.h"
 #include "io_log.h"
 #include "hw_uarts.h"
@@ -58,17 +57,16 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg* rx_msg) {
     // Filling in fields
     if (rx_msg->dlc > 8)
         return false;
-    t_message.can_id    = (int32_t)(rx_msg->std_id);
-    t_message.message_0 = rx_msg->data[0];
-    t_message.message_1 = rx_msg->data[1];
-    t_message.message_2 = rx_msg->data[2];
-    t_message.message_3 = rx_msg->data[3];
-    t_message.message_4 = rx_msg->data[4];
-    t_message.message_5 = rx_msg->data[5];
-    t_message.message_6 = rx_msg->data[6];
-    t_message.message_7 = rx_msg->data[7];
-
-    t_message.time_stamp = (int32_t)io_time_getCurrentMs();
+    t_message.can_id     = (int32_t)(rx_msg->std_id);
+    t_message.message_0  = rx_msg->data[0];
+    t_message.message_1  = rx_msg->data[1];
+    t_message.message_2  = rx_msg->data[2];
+    t_message.message_3  = rx_msg->data[3];
+    t_message.message_4  = rx_msg->data[4];
+    t_message.message_5  = rx_msg->data[5];
+    t_message.message_6  = rx_msg->data[6];
+    t_message.message_7  = rx_msg->data[7];
+    t_message.time_stamp = (int32_t)rx_msg->timestamp;
     // encoding message
 
     proto_status                         = pb_encode(&stream, TelemMessage_fields, &t_message);
@@ -91,8 +89,7 @@ bool io_telemMessage_broadcastMsgFromQueue(void) {
     proto_out[49]                    = 0;
 
     // Start timing for measuring transmission speeds
-    uint32_t start_time = io_time_getCurrentMs();
-
+    SEGGER_SYSVIEW_MarkStart(0);
     if (modem_900_choice) {
         hw_uart_transmitPoll(modem.modem900M, &proto_out_length, UART_LENGTH, UART_LENGTH);
         hw_uart_transmitPoll(modem.modem900M, proto_out, (uint8_t)sizeof(proto_out), 100);
@@ -101,9 +98,7 @@ bool io_telemMessage_broadcastMsgFromQueue(void) {
         hw_uart_transmitPoll(modem.modem2_4G, &proto_msg_length, UART_LENGTH, UART_LENGTH);
         hw_uart_transmitPoll(modem.modem2_4G, proto_out, (uint8_t)sizeof(proto_out), 100);
     }
-
-    uint32_t end_time          = io_time_getCurrentMs();
-    uint32_t transmission_time = end_time - start_time;
+    SEGGER_SYSVIEW_MarkStop(0);
 
     return true;
 }

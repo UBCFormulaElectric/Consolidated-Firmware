@@ -1,6 +1,7 @@
 #include "io_can.h"
 #undef NDEBUG
 #include <assert.h>
+#include "io_time.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -83,8 +84,7 @@ bool io_can_transmit(const CanHandle* can_handle, CanMsg* msg) {
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
-        ;
+    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U);
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t                mailbox       = 0;
@@ -100,7 +100,9 @@ bool io_can_receive(const CanHandle* can_handle, const uint32_t rx_fifo, CanMsg*
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
-    msg->std_id = header.StdId;
-    msg->dlc    = header.DLC;
+    msg->std_id    = header.StdId;
+    msg->dlc       = header.DLC;
+    msg->timestamp = io_time_getCurrentMs();
+
     return true;
 }
