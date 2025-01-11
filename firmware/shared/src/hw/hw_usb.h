@@ -6,7 +6,7 @@
 #define RX_QUEUE_SIZE 2048
 
 // initialize the usb peripheral
-void hw_usb_init();
+void hw_usb_init(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
 
 // checks if the usb port is connected
 bool hw_usb_checkConnection();
@@ -22,7 +22,7 @@ uint8_t hw_usb_recieve();
 void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len);
 
 // runs an example loop where the message "hello" is tx-ed repeatedly
-void hw_usb_transmit_example();
+void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
 
 // runs an example loop that logs all received bytes as chars
-void hw_usb_recieve_example();
+void hw_usb_recieve_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
