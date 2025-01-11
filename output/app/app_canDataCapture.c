@@ -32,6 +32,34 @@ bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms)
 {
     switch (msg_id)
     {
+        case CANMSG_BMS_WARNINGS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_BMS_FAULTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_BMS_WARNINGS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_BMS_FAULTS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
         case CANMSG_BMS_VITALS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
@@ -144,28 +172,28 @@ bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms)
             break;
 
         }
-        case CANMSG_BMS_WARNINGS_ID:
+        case CANMSG_FSM_WARNINGS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_BMS_FAULTS_ID:
+        case CANMSG_FSM_FAULTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_BMS_WARNINGS_COUNTS_ID:
+        case CANMSG_FSM_WARNINGS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_BMS_FAULTS_COUNTS_ID:
+        case CANMSG_FSM_FAULTS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
@@ -228,28 +256,28 @@ bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms)
             break;
 
         }
-        case CANMSG_FSM_WARNINGS_ID:
+        case CANMSG_VC_WARNINGS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_FSM_FAULTS_ID:
+        case CANMSG_VC_FAULTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_FSM_WARNINGS_COUNTS_ID:
+        case CANMSG_VC_WARNINGS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_FSM_FAULTS_COUNTS_ID:
+        case CANMSG_VC_FAULTS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
@@ -433,34 +461,6 @@ bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms)
             break;
 
         }
-        case CANMSG_VC_WARNINGS_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
-        case CANMSG_VC_FAULTS_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
-        case CANMSG_VC_WARNINGS_COUNTS_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
-        case CANMSG_VC_FAULTS_COUNTS_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
 
         default:
         {
@@ -474,6 +474,34 @@ bool app_dataCapture_needsTelem(uint16_t msg_id, uint32_t time_ms)
 {
     switch (msg_id)
     {
+        case CANMSG_BMS_WARNINGS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_BMS_FAULTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_BMS_WARNINGS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
+        case CANMSG_BMS_FAULTS_COUNTS_ID:
+        {
+        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
+            return true;
+            break;
+
+        }
         case CANMSG_BMS_VITALS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
@@ -586,28 +614,28 @@ bool app_dataCapture_needsTelem(uint16_t msg_id, uint32_t time_ms)
             break;
 
         }
-        case CANMSG_BMS_WARNINGS_ID:
+        case CANMSG_FSM_WARNINGS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_BMS_FAULTS_ID:
+        case CANMSG_FSM_FAULTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_BMS_WARNINGS_COUNTS_ID:
+        case CANMSG_FSM_WARNINGS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_BMS_FAULTS_COUNTS_ID:
+        case CANMSG_FSM_FAULTS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
@@ -670,28 +698,28 @@ bool app_dataCapture_needsTelem(uint16_t msg_id, uint32_t time_ms)
             break;
 
         }
-        case CANMSG_FSM_WARNINGS_ID:
+        case CANMSG_VC_WARNINGS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_FSM_FAULTS_ID:
+        case CANMSG_VC_FAULTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_FSM_WARNINGS_COUNTS_ID:
+        case CANMSG_VC_WARNINGS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
             break;
 
         }
-        case CANMSG_FSM_FAULTS_COUNTS_ID:
+        case CANMSG_VC_FAULTS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;
@@ -869,34 +897,6 @@ bool app_dataCapture_needsTelem(uint16_t msg_id, uint32_t time_ms)
 
         }
         case CANMSG_VC_PEDAL_PERCENTAGE_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
-        case CANMSG_VC_WARNINGS_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
-        case CANMSG_VC_FAULTS_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
-        case CANMSG_VC_WARNINGS_COUNTS_ID:
-        {
-        // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
-            return true;
-            break;
-
-        }
-        case CANMSG_VC_FAULTS_COUNTS_ID:
         {
         // This message is captured at its normal cycle time. So, just assume the messages are received at that rate and should be captured.
             return true;

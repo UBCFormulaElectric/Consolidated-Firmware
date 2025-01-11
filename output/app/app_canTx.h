@@ -378,6 +378,214 @@ void app_canTx_VC_FirstFaultNode_set(ShutdownNode value);
  * Update value stored in TX table of signal VC_MappedPedalPercentage in msg VC_PedalPercentage.
  */
 void app_canTx_VC_MappedPedalPercentage_set(float value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1Hz in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTask1Hz_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100Hz in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTask100Hz_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHz in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTask1kHz_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRx in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanRx_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTx in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanTx_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_WatchdogTimeout in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_WatchdogTimeout_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_TxOverflow in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_TxOverflow_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_RxOverflow in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_RxOverflow_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_RegenNotAvailable in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_RegenNotAvailable_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_ImuInitFailed in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_ImuInitFailed_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_FlowRateInputOutOfRange in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_FlowRateInputOutOfRange_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFault in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_BatteryRailOvercurrentFault_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFault in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_AccumulatorRailOvercurrentFault_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_LvChargeFault in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_LvChargeFault_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_BoostControllerFault in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_BoostControllerFault_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogs in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_HighNumberOfCanDataLogs_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresent in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_CanLoggingSdCardNotPresent_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_CanLoggingErrored in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_CanLoggingErrored_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_BrakeAppsDisagreement in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_BrakeAppsDisagreement_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_SbgInitFailed in msg VC_Warnings.
+ */
+void app_canTx_VC_Warning_SbgInitFailed_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingBMSHeartbeat in msg VC_Faults.
+ */
+void app_canTx_VC_Fault_MissingBMSHeartbeat_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingFSMHeartbeat in msg VC_Faults.
+ */
+void app_canTx_VC_Fault_MissingFSMHeartbeat_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingRSMHeartbeat in msg VC_Faults.
+ */
+void app_canTx_VC_Fault_MissingRSMHeartbeat_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingCRITHeartbeat in msg VC_Faults.
+ */
+void app_canTx_VC_Fault_MissingCRITHeartbeat_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Fault_LeftInverterFault in msg VC_Faults.
+ */
+void app_canTx_VC_Fault_LeftInverterFault_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Fault_RightInverterFault in msg VC_Faults.
+ */
+void app_canTx_VC_Fault_RightInverterFault_set(bool value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1HzCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTask1HzCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100HzCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTask100HzCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHzCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTask1kHzCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRxCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanRxCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTxCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanTxCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_WatchdogTimeoutCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_WatchdogTimeoutCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_TxOverflowCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_TxOverflowCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_RxOverflowCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_RxOverflowCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_RegenNotAvailableCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_RegenNotAvailableCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_ImuInitFailedCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_ImuInitFailedCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_FlowRateInputOutOfRangeCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_FlowRateInputOutOfRangeCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFaultCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_BatteryRailOvercurrentFaultCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFaultCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_AccumulatorRailOvercurrentFaultCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_LvChargeFaultCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_LvChargeFaultCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_BoostControllerFaultCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_BoostControllerFaultCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogsCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_HighNumberOfCanDataLogsCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresentCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_CanLoggingSdCardNotPresentCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_CanLoggingErroredCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_CanLoggingErroredCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_BrakeAppsDisagreementCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_BrakeAppsDisagreementCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Warning_SbgInitFailedCount in msg VC_WarningsCounts.
+ */
+void app_canTx_VC_Warning_SbgInitFailedCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingBMSHeartbeatCount in msg VC_FaultsCounts.
+ */
+void app_canTx_VC_Fault_MissingBMSHeartbeatCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingFSMHeartbeatCount in msg VC_FaultsCounts.
+ */
+void app_canTx_VC_Fault_MissingFSMHeartbeatCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingRSMHeartbeatCount in msg VC_FaultsCounts.
+ */
+void app_canTx_VC_Fault_MissingRSMHeartbeatCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Fault_MissingCRITHeartbeatCount in msg VC_FaultsCounts.
+ */
+void app_canTx_VC_Fault_MissingCRITHeartbeatCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Fault_LeftInverterFaultCount in msg VC_FaultsCounts.
+ */
+void app_canTx_VC_Fault_LeftInverterFaultCount_set(uint32_t value);
+/**
+ * Update value stored in TX table of signal VC_Fault_RightInverterFaultCount in msg VC_FaultsCounts.
+ */
+void app_canTx_VC_Fault_RightInverterFaultCount_set(uint32_t value);
 
 
 /**
@@ -740,6 +948,214 @@ ShutdownNode app_canTx_VC_GlobalShdnNodeStatus_VC_FirstFaultNode_get(void);
  * Get value stored in TX table of signal VC_MappedPedalPercentage in msg VC_PedalPercentage.
  */
 float app_canTx_VC_PedalPercentage_VC_MappedPedalPercentage_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1Hz in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1Hz_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100Hz in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask100Hz_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHz in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1kHz_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRx in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanRx_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTx in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanTx_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_WatchdogTimeout in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_WatchdogTimeout_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_TxOverflow in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_TxOverflow_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_RxOverflow in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_RxOverflow_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_RegenNotAvailable in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_RegenNotAvailable_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_ImuInitFailed in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_ImuInitFailed_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_FlowRateInputOutOfRange in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_FlowRateInputOutOfRange_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFault in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_BatteryRailOvercurrentFault_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFault in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_AccumulatorRailOvercurrentFault_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_LvChargeFault in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_LvChargeFault_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_BoostControllerFault in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_BoostControllerFault_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogs in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_HighNumberOfCanDataLogs_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresent in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_CanLoggingSdCardNotPresent_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_CanLoggingErrored in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_CanLoggingErrored_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_BrakeAppsDisagreement in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_BrakeAppsDisagreement_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_SbgInitFailed in msg VC_Warnings.
+ */
+bool app_canTx_VC_Warnings_VC_Warning_SbgInitFailed_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingBMSHeartbeat in msg VC_Faults.
+ */
+bool app_canTx_VC_Faults_VC_Fault_MissingBMSHeartbeat_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingFSMHeartbeat in msg VC_Faults.
+ */
+bool app_canTx_VC_Faults_VC_Fault_MissingFSMHeartbeat_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingRSMHeartbeat in msg VC_Faults.
+ */
+bool app_canTx_VC_Faults_VC_Fault_MissingRSMHeartbeat_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingCRITHeartbeat in msg VC_Faults.
+ */
+bool app_canTx_VC_Faults_VC_Fault_MissingCRITHeartbeat_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_LeftInverterFault in msg VC_Faults.
+ */
+bool app_canTx_VC_Faults_VC_Fault_LeftInverterFault_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_RightInverterFault in msg VC_Faults.
+ */
+bool app_canTx_VC_Faults_VC_Fault_RightInverterFault_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1HzCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1HzCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask100HzCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask100HzCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTask1kHzCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1kHzCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanRxCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanRxCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_StackWaterMarkHighTaskCanTxCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanTxCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_WatchdogTimeoutCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_WatchdogTimeoutCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_TxOverflowCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_TxOverflowCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_RxOverflowCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RxOverflowCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_RegenNotAvailableCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RegenNotAvailableCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_ImuInitFailedCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_ImuInitFailedCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_FlowRateInputOutOfRangeCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_FlowRateInputOutOfRangeCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_BatteryRailOvercurrentFaultCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BatteryRailOvercurrentFaultCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_AccumulatorRailOvercurrentFaultCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_AccumulatorRailOvercurrentFaultCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_LvChargeFaultCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_LvChargeFaultCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_BoostControllerFaultCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BoostControllerFaultCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_HighNumberOfCanDataLogsCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_HighNumberOfCanDataLogsCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_CanLoggingSdCardNotPresentCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingSdCardNotPresentCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_CanLoggingErroredCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingErroredCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_BrakeAppsDisagreementCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BrakeAppsDisagreementCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Warning_SbgInitFailedCount in msg VC_WarningsCounts.
+ */
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_SbgInitFailedCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingBMSHeartbeatCount in msg VC_FaultsCounts.
+ */
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingBMSHeartbeatCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingFSMHeartbeatCount in msg VC_FaultsCounts.
+ */
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingFSMHeartbeatCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingRSMHeartbeatCount in msg VC_FaultsCounts.
+ */
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingRSMHeartbeatCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_MissingCRITHeartbeatCount in msg VC_FaultsCounts.
+ */
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingCRITHeartbeatCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_LeftInverterFaultCount in msg VC_FaultsCounts.
+ */
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_LeftInverterFaultCount_get(void);
+/**
+ * Get value stored in TX table of signal VC_Fault_RightInverterFaultCount in msg VC_FaultsCounts.
+ */
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_RightInverterFaultCount_get(void);
 
 
 /**
@@ -846,6 +1262,22 @@ VC_GlobalShdnNodeStatus_Signals* app_canTx_VC_GlobalShdnNodeStatus_getData();
  * Get pointer to value stored in TX table of msg VC_PedalPercentage.
  */
 VC_PedalPercentage_Signals* app_canTx_VC_PedalPercentage_getData();
+/**
+ * Get pointer to value stored in TX table of msg VC_Warnings.
+ */
+VC_Warnings_Signals* app_canTx_VC_Warnings_getData();
+/**
+ * Get pointer to value stored in TX table of msg VC_Faults.
+ */
+VC_Faults_Signals* app_canTx_VC_Faults_getData();
+/**
+ * Get pointer to value stored in TX table of msg VC_WarningsCounts.
+ */
+VC_WarningsCounts_Signals* app_canTx_VC_WarningsCounts_getData();
+/**
+ * Get pointer to value stored in TX table of msg VC_FaultsCounts.
+ */
+VC_FaultsCounts_Signals* app_canTx_VC_FaultsCounts_getData();
 
 
 

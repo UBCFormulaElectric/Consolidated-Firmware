@@ -685,6 +685,106 @@ static void io_canTx_VC_PedalPercentage_sendPeriodic()
     }
     
 }
+static void io_canTx_VC_Warnings_sendPeriodic()
+{
+    JsonCanMsg tx_msg;
+    memset(&tx_msg, 0, sizeof(JsonCanMsg));
+    tx_msg.std_id = CANMSG_VC_WARNINGS_ID;
+    tx_msg.dlc = CANMSG_VC_WARNINGS_BYTES;
+    #ifndef THREAD_SAFE_CAN_PACKING
+    lock();
+    #endif
+    app_canUtils_VC_Warnings_pack(app_canTx_VC_Warnings_getData(), tx_msg.data);
+    #ifndef THREAD_SAFE_CAN_PACKING
+    unlock();
+    #endif
+    
+    if (can_mode_bus1 & (CanMode_bus1_default))
+    {
+        transmit_func_bus1(&tx_msg);
+    }
+    
+    if (can_mode_bus2 & (CanMode_bus2_default))
+    {
+        transmit_func_bus2(&tx_msg);
+    }
+    
+}
+static void io_canTx_VC_Faults_sendPeriodic()
+{
+    JsonCanMsg tx_msg;
+    memset(&tx_msg, 0, sizeof(JsonCanMsg));
+    tx_msg.std_id = CANMSG_VC_FAULTS_ID;
+    tx_msg.dlc = CANMSG_VC_FAULTS_BYTES;
+    #ifndef THREAD_SAFE_CAN_PACKING
+    lock();
+    #endif
+    app_canUtils_VC_Faults_pack(app_canTx_VC_Faults_getData(), tx_msg.data);
+    #ifndef THREAD_SAFE_CAN_PACKING
+    unlock();
+    #endif
+    
+    if (can_mode_bus1 & (CanMode_bus1_default))
+    {
+        transmit_func_bus1(&tx_msg);
+    }
+    
+    if (can_mode_bus2 & (CanMode_bus2_default))
+    {
+        transmit_func_bus2(&tx_msg);
+    }
+    
+}
+static void io_canTx_VC_WarningsCounts_sendPeriodic()
+{
+    JsonCanMsg tx_msg;
+    memset(&tx_msg, 0, sizeof(JsonCanMsg));
+    tx_msg.std_id = CANMSG_VC_WARNINGS_COUNTS_ID;
+    tx_msg.dlc = CANMSG_VC_WARNINGS_COUNTS_BYTES;
+    #ifndef THREAD_SAFE_CAN_PACKING
+    lock();
+    #endif
+    app_canUtils_VC_WarningsCounts_pack(app_canTx_VC_WarningsCounts_getData(), tx_msg.data);
+    #ifndef THREAD_SAFE_CAN_PACKING
+    unlock();
+    #endif
+    
+    if (can_mode_bus1 & (CanMode_bus1_default))
+    {
+        transmit_func_bus1(&tx_msg);
+    }
+    
+    if (can_mode_bus2 & (CanMode_bus2_default))
+    {
+        transmit_func_bus2(&tx_msg);
+    }
+    
+}
+static void io_canTx_VC_FaultsCounts_sendPeriodic()
+{
+    JsonCanMsg tx_msg;
+    memset(&tx_msg, 0, sizeof(JsonCanMsg));
+    tx_msg.std_id = CANMSG_VC_FAULTS_COUNTS_ID;
+    tx_msg.dlc = CANMSG_VC_FAULTS_COUNTS_BYTES;
+    #ifndef THREAD_SAFE_CAN_PACKING
+    lock();
+    #endif
+    app_canUtils_VC_FaultsCounts_pack(app_canTx_VC_FaultsCounts_getData(), tx_msg.data);
+    #ifndef THREAD_SAFE_CAN_PACKING
+    unlock();
+    #endif
+    
+    if (can_mode_bus1 & (CanMode_bus1_default))
+    {
+        transmit_func_bus1(&tx_msg);
+    }
+    
+    if (can_mode_bus2 & (CanMode_bus2_default))
+    {
+        transmit_func_bus2(&tx_msg);
+    }
+    
+}
 
 
 
@@ -740,6 +840,8 @@ void io_canTx_enqueue1HzMsgs()
     io_canTx_VC_SlipRatios_sendPeriodic();
     io_canTx_VC_ActiveDiffOutputs_sendPeriodic();
     io_canTx_VC_CoolantPumpFlowRate_sendPeriodic();
+    io_canTx_VC_Warnings_sendPeriodic();
+    io_canTx_VC_WarningsCounts_sendPeriodic();
 }
 
 void io_canTx_enqueue100HzMsgs()
@@ -814,6 +916,16 @@ void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms)
         io_canTx_BMS_Vitals_sendPeriodic();
     }
     if (time_ms % CANMSG_VC_PEDAL_PERCENTAGE_CYCLE_TIME == 0)
+    {
+        io_canTx_BMS_Vitals_sendPeriodic();
+    }
+    
+    if (time_ms % CANMSG_VC_FAULTS_CYCLE_TIME == 0)
+    {
+        io_canTx_BMS_Vitals_sendPeriodic();
+    }
+    
+    if (time_ms % CANMSG_VC_FAULTS_COUNTS_CYCLE_TIME == 0)
     {
         io_canTx_BMS_Vitals_sendPeriodic();
     }
