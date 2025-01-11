@@ -16,7 +16,7 @@
         "--dbc_output",
         "output/quadruna_can.dbc"
       ],
-    }
+    },
     {
       "name": "Debug Embedded: VC (Quadruna)",
       "cwd": "${workspaceRoot}",
