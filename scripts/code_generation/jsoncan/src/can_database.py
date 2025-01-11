@@ -76,19 +76,11 @@ class CanBusConfig:
     Dataclass for holding bus config.
     """
 
-    default_receiver: str
     bus_speed: int
     modes: List[str]
     default_mode: str
     name: str
     nodes: List[CanNode]  # List of nodes on this bus
-
-    def __init__(self, bus_speed: int, modes: List[str], default_mode: str, name: str):
-        self.bus_speed = bus_speed
-        self.modes = modes
-        self.default_mode = default_mode
-        self.name = name
-        self.nodes = []
 
     def __hash__(self):
         return hash(self.name)
@@ -293,14 +285,6 @@ class CanNode:
         tx = list(self.tx_msgs.values())
         return rx + tx
     
-
-    def __init__(self, name: str):
-        self.name = name
-        self.tx_msgs = {}
-        self.rx_msgs = {}
-        self.alerts = {}
-        self.buses = {}
-
     def __hash__(self):
         return hash(self.name)
 
