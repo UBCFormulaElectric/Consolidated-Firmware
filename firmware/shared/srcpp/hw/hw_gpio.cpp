@@ -1,4 +1,4 @@
-#include "hw_gpio.h"
+#include "hw_gpio.hpp"
 
 void hw::Gpio::writePin(bool value) const
 {

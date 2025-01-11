@@ -3,7 +3,7 @@
 #include "cmsis_os.h"
 
 #include "hw_can.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_bootup.h"
@@ -45,16 +45,6 @@
 
 #include "shared.pb.h"
 #include "BMS.pb.h"
-
-extern ADC_HandleTypeDef   hadc1;
-extern FDCAN_HandleTypeDef hfdcan1;
-extern SPI_HandleTypeDef   hspi2;
-extern TIM_HandleTypeDef   htim1;
-extern TIM_HandleTypeDef   htim3;
-extern TIM_HandleTypeDef   htim15;
-extern UART_HandleTypeDef  huart1;
-extern SD_HandleTypeDef    hsd1;
-extern CRC_HandleTypeDef   hcrc;
 
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -142,7 +132,7 @@ static const ThermistorsConfig thermistors_config = {.mux_0_gpio = {
                                        .port = AUX_TSENSE_MUX3_GPIO_Port,
                                        .pin  = AUX_TSENSE_MUX3_Pin,
                                    },
-                                   .thermistor_adc_channel = ADC1_IN4_AUX_TSENSE
+                                   .thermistor_adc_channel = &aux_tsns
                                    };
 
 static const AirsConfig airs_config = { .air_p_gpio = {
@@ -159,10 +149,10 @@ static const AirsConfig airs_config = { .air_p_gpio = {
                                    }
 };
 
-static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = ADC1_IN10_TS_VSENSE_P,
-                                                .ts_vsense_channel_N        = ADC1_IN11_TS_VSENSE_N,
-                                                .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_75A,
-                                                .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
+static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = &ts_vsense_p,
+                                                .ts_vsense_channel_N        = &ts_vsense_n,
+                                                .ts_isense_high_res_channel = &ts_isns_75a,
+                                                .ts_isense_low_res_channel  = &ts_isns_400a
 
 };
 
@@ -211,41 +201,6 @@ static const GlobalsConfig globals_config = { .bms_ok_latch  = &bms_ok_latch,
                                               .imd_ok_latch  = &imd_ok_latch,
                                               .bspd_ok_latch = &bspd_ok_latch };
 
-// config for heartbeat monitor (can funcs and flags)
-// BMS relies on VC
-static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = false,
-    [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
-};
-
-// heartbeatGetters - get heartbeat signals from other boards
-static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_get,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_BMS_Warning_MissingVCHeartbeat_set,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_BMS_Warning_MissingVCHeartbeat_get,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
 const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_pin,
                              [BMS_GpioNetName_AIR_P_EN]               = &airs_config.air_p_gpio,
                              [BMS_GpioNetName_AUX_TSENSE_MUX0]        = &thermistors_config.mux_0_gpio,
@@ -270,10 +225,10 @@ const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
                              [BMS_GpioNetName_SD_CD]                  = &sd_cd_pin,
                              [BMS_GpioNetName_SPI_CS]                 = &spi_cs_pin };
 
-const AdcChannel id_to_adc[] = {
-    [BMS_AdcNetName_AUX_TSENSE] = ADC1_IN4_AUX_TSENSE,       [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
-    [BMS_AdcNetName_TS_ISENSE_75A] = ADC1_IN5_TS_ISENSE_75A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
-    [BMS_AdcNetName_TS_VSENSE_N] = ADC1_IN11_TS_VSENSE_N,
+const AdcChannel *id_to_adc[] = {
+    [BMS_AdcNetName_AUX_TSENSE] = &aux_tsns,       [BMS_AdcNetName_TS_ISENSE_400A] = &ts_isns_400a,
+    [BMS_AdcNetName_TS_ISENSE_75A] = &ts_isns_75a, [BMS_AdcNetName_TS_VSENSE_P] = &ts_vsense_p,
+    [BMS_AdcNetName_TS_VSENSE_N] = &ts_vsense_n,
 };
 
 static const UART debug_uart = { .handle = &huart1 };
@@ -299,9 +254,9 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
     HAL_TIM_Base_Start(&htim15);
+
+    hw_adcs_chipsInit();
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
@@ -334,10 +289,6 @@ void tasks_init(void)
     app_soc_init();
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
-
-    app_heartbeatMonitor_init(
-        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
-        heartbeatFaultSetters, heartbeatFaultGetters);
 
     // broadcast commit info
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);

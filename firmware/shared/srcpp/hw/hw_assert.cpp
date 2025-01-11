@@ -1,7 +1,7 @@
 #include <cstdio>
-#include "app_utils.h"
-#include "hw_utils.h"
-#include "io_log.h"
+#include "app_utils.hpp"
+#include "hw_utils.hpp"
+#include "io_log.hpp"
 
 static char buffer[100];
 
