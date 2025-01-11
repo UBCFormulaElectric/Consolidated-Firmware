@@ -91,10 +91,11 @@ class JsonCanParser:
             alerts = self._parse_json_alert_data(can_data_dir, node_obj)
             # Parse TX messages
             tx_msgs = self._parse_json_tx_data(can_data_dir, node_obj)
-            tx_msgs[alerts[0].name] = alerts[0]
-            tx_msgs[alerts[1].name] = alerts[1]
-            tx_msgs[alerts[2].name] = alerts[2]
-            tx_msgs[alerts[3].name] = alerts[3]
+            if(alerts is not None):
+                tx_msgs[alerts[0].name] = alerts[0]
+                tx_msgs[alerts[1].name] = alerts[1]
+                tx_msgs[alerts[2].name] = alerts[2]
+                tx_msgs[alerts[3].name] = alerts[3]
 
             # update node object
             node_obj.buses = {
