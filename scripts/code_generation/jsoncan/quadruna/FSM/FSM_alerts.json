@@ -3,7 +3,7 @@
   "faults_id": 397,
   "warnings_counts_id": 398,
   "faults_counts_id": 399,
-  "bus": ["bus1", "bus2"],
+  "bus": ["bus2"],
   "warnings": {
     "WatchdogTimeout": {
       "id": 301,

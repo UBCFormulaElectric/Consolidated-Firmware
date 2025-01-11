@@ -14,6 +14,7 @@ from src.codegen.c_generation.app_can_data_capture_module import \
 from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
 from src.codegen.c_generation.app_can_tx_module import AppCanTxModule
 from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
+from src.codegen.c_generation.io_can_reroute_module import IoCanRerouteModule
 from src.codegen.c_generation.io_can_rx_module import IoCanRxModule
 from src.codegen.c_generation.io_can_tx_module import IoCanTxModule
 from src.codegen.dbc_generation.dbc_generation import DbcGenerator
@@ -46,6 +47,7 @@ if __name__ == "__main__":
         IoCanTxModule(can_db, args.board): os.path.join("io", "io_canTx"),
         IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
         AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"), 
+        IoCanRerouteModule(can_db, args.board): os.path.join("io", "io_canReroute"),
     }
     for module, module_path in modules.items():
         module_full_path = os.path.join(args.output_dir, module_path)
