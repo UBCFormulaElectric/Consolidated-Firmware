@@ -1,22 +1,15 @@
 #pragma once
-namespace io::loadCell
+#include <stdio.h>
+#include "hw_adcs.h"
+
+typedef struct 
 {
+  Adc *src;
+} LoadCell;
 
-class LoadCell
-{
-    hw::Adc *src;
+bool  is_ocsc(LoadCell *loadCell);
+float loadCell_getMechanicalLoad(LoadCell *loadCell);
+float voltageToMechancialLoad(LoadCell *loadCell, float voltage);
 
-  public:
-    bool  is_ocsc();
-    float getMechanicalLoad();
-
-    inline LoadCell(hw::Adc *src) { this->src = src; }
-
-  private:
-    float voltageToMechancialLoad(float voltage);
-
-}
-
-static extern const LoadCell sensor3;
-static extern const LoadCell sensor4;
-} // namespace io::loadCell
+extern const LoadCell sensor3;
+extern const LoadCell sensor4;
