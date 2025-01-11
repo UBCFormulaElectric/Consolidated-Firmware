@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include "app_timer.h"
 
-typedef struct {
+typedef struct
+{
     // State variables.
     uint32_t     cell_monitor_settle_count;
     uint32_t     num_precharge_failures;
@@ -17,7 +18,7 @@ typedef struct {
     bool         disable_charger_connected_hb_check;
 } Globals;
 
-extern Globals* const globals;
+extern Globals *const globals;
 
 /**
  * Initialize the globals module.

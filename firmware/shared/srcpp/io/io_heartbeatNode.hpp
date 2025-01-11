@@ -1,8 +1,10 @@
 #pragma once
 #include "app_timer.hpp"
 
-namespace io::heartbeat {
-class node {
+namespace io::heartbeat
+{
+class node
+{
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 200U
   public:
     // gives if the heartbeat is checked in.

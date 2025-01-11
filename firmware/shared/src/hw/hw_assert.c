@@ -5,7 +5,8 @@
 
 static char buffer[100];
 
-void __assert_func(const char* file, int line, const char* func, const char* failedexpr) {
+void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
+{
     // Store the message into a buffer so we can easily inspect it using a
     // debugger even without SEGGER RTT set up
     snprintf(buffer, sizeof(buffer), "%s:%d %s: Assertion `%s' failed\r\n", __BASENAME__(file), line, func, failedexpr);
@@ -13,7 +14,8 @@ void __assert_func(const char* file, int line, const char* func, const char* fai
 
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    for (;;) {
+    for (;;)
+    {
         // Trap in a infinite loop, waiting for the hardware watchdog to reset
     }
 }

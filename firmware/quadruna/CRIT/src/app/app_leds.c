@@ -3,47 +3,61 @@
 #include "app_canAlerts.h"
 #include "io_leds.h"
 
-static BoardLEDStatus worstBoardStatus(CanAlertBoard board) {
+static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
+{
     bool is_missing_heartbeat;
-    switch (board) {
-        case BMS_ALERT_BOARD: {
+    switch (board)
+    {
+        case BMS_ALERT_BOARD:
+        {
             is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
             break;
         }
-        case CRIT_ALERT_BOARD: {
+        case CRIT_ALERT_BOARD:
+        {
             is_missing_heartbeat = false; // lmao like
             break;
         }
-        case FSM_ALERT_BOARD: {
+        case FSM_ALERT_BOARD:
+        {
             is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
             break;
         }
-        case RSM_ALERT_BOARD: {
+        case RSM_ALERT_BOARD:
+        {
             is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
             break;
         }
-        case VC_ALERT_BOARD: {
+        case VC_ALERT_BOARD:
+        {
             is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
             break;
         }
-        default: {
+        default:
+        {
             is_missing_heartbeat = false;
             break;
         }
     }
 
-    if (is_missing_heartbeat) {
+    if (is_missing_heartbeat)
+    {
         return BOARD_LED_STATUS_MISSING_HEARTBEAT;
-    } else if (app_canAlerts_BoardHasFault(board)) {
+    }
+    else if (app_canAlerts_BoardHasFault(board))
+    {
         return BOARD_LED_STATUS_FAULT;
-    } else if (app_canAlerts_BoardHasWarning(board)) {
+    }
+    else if (app_canAlerts_BoardHasWarning(board))
+    {
         return BOARD_LED_STATUS_WARNING;
     }
 
     return BOARD_LED_STATUS_OK;
 }
 
-void app_leds_update(void) {
+void app_leds_update(void)
+{
     const bool imd_fault_latched = app_canRx_BMS_ImdLatchedFault_get();
     io_led_imd_set(imd_fault_latched);
     const bool bspd_fault_latched = app_canRx_BMS_BspdLatchedFault_get();

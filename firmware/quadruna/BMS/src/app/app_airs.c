@@ -2,7 +2,8 @@
 #include "app_canTx.h"
 #include "io_airs.h"
 
-void app_airs_broadcast() {
+void app_airs_broadcast()
+{
     const bool negative_closed  = io_airs_isNegativeClosed();
     const bool positive_closed  = io_airs_isPositiveClosed();
     const bool precharge_closed = io_airs_isPrechargeClosed();

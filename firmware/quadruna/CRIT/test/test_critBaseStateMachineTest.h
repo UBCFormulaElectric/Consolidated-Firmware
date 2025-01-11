@@ -4,7 +4,8 @@
 #include "fake_io_leds.hpp"
 #include "fake_io_switches.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -18,9 +19,11 @@ extern "C" {
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
 
-class CritBaseStateMachineTest : public BaseStateMachineTest {
+class CritBaseStateMachineTest : public BaseStateMachineTest
+{
   protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         BaseStateMachineTest::SetUp();
 
         app_canTx_init();
@@ -35,7 +38,8 @@ class CritBaseStateMachineTest : public BaseStateMachineTest {
         app_heartbeatMonitor_clearFaults(&hb_monitor);
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         // Reset fakes.
         fake_io_time_getCurrentMs_reset();
         fake_io_led_imd_set_reset();

@@ -6,16 +6,19 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
-extern "C" {
+extern "C"
+{
 #include "io_canTx.h"
 }
 
 static std::optional<int> CanInterface;
 
-Result<std::monostate, CanConnectionError> Can_Init() {
+Result<std::monostate, CanConnectionError> Can_Init()
+{
     // Create a socket
     CanInterface = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-    if (CanInterface < 0) {
+    if (CanInterface < 0)
+    {
         CanInterface = std::nullopt;
         return CanConnectionError::SocketError;
     }
@@ -30,13 +33,14 @@ Result<std::monostate, CanConnectionError> Can_Init() {
         .can_family  = AF_CAN,
         .can_ifindex = ifr.ifr_ifindex,
     };
-    if (bind(CanInterface.value(), reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) < 0)
+    if (bind(CanInterface.value(), reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) < 0)
         return CanConnectionError::BindError;
 
     return std::monostate{};
 }
 
-Result<JsonCanMsg, CanReadError> Can_Read() {
+Result<JsonCanMsg, CanReadError> Can_Read()
+{
     if (!CanInterface.has_value())
         return CanReadError::ReadInterfaceNotCreated;
 
@@ -56,18 +60,24 @@ Result<JsonCanMsg, CanReadError> Can_Read() {
     return out;
 }
 
-Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg* msg) {
-    if (!CanInterface.has_value()) {
+Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
+{
+    if (!CanInterface.has_value())
+    {
         qInfo("Can interface not created error!!");
         return CanWriteError::WriteInterfaceNotCreated;
     }
 
-    try {
-        if (write(CanInterface.value(), msg, sizeof(can_frame)) < 0) {
+    try
+    {
+        if (write(CanInterface.value(), msg, sizeof(can_frame)) < 0)
+        {
             qInfo("Socket Write Error");
             return CanWriteError::SocketWriteError;
         }
-    } catch (...) {
+    }
+    catch (...)
+    {
         return CanWriteError::SocketWriteError;
     }
     return std::monostate{};

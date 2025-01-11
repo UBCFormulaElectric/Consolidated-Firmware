@@ -19,38 +19,47 @@
 // Value of shunt resistor
 #define AIR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
-bool io_airs_isNegativeClosed(void) {
+bool io_airs_isNegativeClosed(void)
+{
     return hw_gpio_readPin(&air_n_gpio);
 }
 
-void io_airs_closePositive(void) {
+void io_airs_closePositive(void)
+{
     hw_gpio_writePin(&air_p_gpio, true);
 }
 
-void io_airs_openPositive(void) {
+void io_airs_openPositive(void)
+{
     hw_gpio_writePin(&air_p_gpio, false);
 }
 
-bool io_airs_isPositiveClosed(void) {
+bool io_airs_isPositiveClosed(void)
+{
     return hw_gpio_readPin(&air_p_gpio);
 }
 
-void io_airs_closePrecharge(void) {
+void io_airs_closePrecharge(void)
+{
     hw_gpio_writePin(&precharge_gpio, true);
 }
 
-void io_airs_openPrecharge(void) {
+void io_airs_openPrecharge(void)
+{
     hw_gpio_writePin(&precharge_gpio, false);
 }
 
-bool io_airs_isPrechargeClosed(void) {
+bool io_airs_isPrechargeClosed(void)
+{
     return hw_gpio_readPin(&precharge_gpio);
 }
 
-float io_airs_getLoopCurrent() {
+float io_airs_getLoopCurrent()
+{
     const float adc_voltage = hw_adc_getVoltage(NULL); // TODO fix!!!
 
-    if (adc_voltage < 0.0f) {
+    if (adc_voltage < 0.0f)
+    {
         return NAN;
     }
 

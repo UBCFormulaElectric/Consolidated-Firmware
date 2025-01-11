@@ -1,6 +1,7 @@
 #include "setup.h"
 #include "can.h"
-extern "C" {
+extern "C"
+{
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_commitInfo.h"
@@ -9,7 +10,8 @@ extern "C" {
 
 #include <QThread>
 
-void set_qt_environment() {
+void set_qt_environment()
+{
     qputenv("QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT", "1");
     // qputenv("QT_QUICK_CONTROLS_CONF", ":/qtquickcontrols2.conf");
 #ifdef Q_OS_WIN
@@ -21,8 +23,9 @@ void set_qt_environment() {
     );
 }
 
-void init_json_can() {
-    io_canTx_init(reinterpret_cast<void (*)(const JsonCanMsg*)>(Can_Write));
+void init_json_can()
+{
+    io_canTx_init(reinterpret_cast<void (*)(const JsonCanMsg *)>(Can_Write));
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();

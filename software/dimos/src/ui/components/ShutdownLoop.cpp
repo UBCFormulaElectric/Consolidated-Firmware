@@ -38,17 +38,24 @@ const std::map<ShutdownLoop::ShutdownLoopNode, ShutdownLoop::LoopNodeMetadata> S
     { ShutdownLoopNode::HVDInterlock, { 0.953, "HVD Interlock", TextCenterAnchor::Left } },
 };
 
-ShutdownLoop::ShutdownLoop(QQuickItem* parent) : QQuickPaintedItem(parent) {
+ShutdownLoop::ShutdownLoop(QQuickItem *parent) : QQuickPaintedItem(parent)
+{
     loopBackgroundPen = QPen(inactiveColour, loopPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     loopForegroundPen = QPen(activeColour, loopPenWidth, Qt::CustomDashLine, Qt::RoundCap, Qt::RoundJoin);
 }
 
 void ShutdownLoop::drawShutdownLoopNode(
-    QPainter*              p,
+    QPainter              *p,
     const double           percentage,
-    const QString&         label,
-    const TextCenterAnchor center_anchor) const {
-    enum class LoopNodeState { inactive, active, error };
+    const QString         &label,
+    const TextCenterAnchor center_anchor) const
+{
+    enum class LoopNodeState
+    {
+        inactive,
+        active,
+        error
+    };
 
     constexpr bool      isNodeError = false;
     const LoopNodeState active      = isNodeError                  ? LoopNodeState::error
@@ -83,7 +90,8 @@ void ShutdownLoop::drawShutdownLoopNode(
         loopLabelsFontMetrics.horizontalAdvance(label), loopLabelsFontMetrics.height(), 0, label);
 }
 
-QPainterPath ShutdownLoop::renderShutdownLoopPath(const QRectF& loopBounds) {
+QPainterPath ShutdownLoop::renderShutdownLoopPath(const QRectF &loopBounds)
+{
     qInfo() << "Rerendering Shutdown Loop Path";
     QPainterPath  loop;
     const QPointF start(loopBounds.left(), loopBounds.center().y() - batteryHeight / 2.0 - 10);
@@ -101,7 +109,8 @@ QPainterPath ShutdownLoop::renderShutdownLoopPath(const QRectF& loopBounds) {
     return loop;
 }
 
-void ShutdownLoop::drawShutdownLoopPath(QPainter* p) {
+void ShutdownLoop::drawShutdownLoopPath(QPainter *p)
+{
     assert(loopPath.has_value());
     p->setPen(loopBackgroundPen);
     p->drawPath(loopPath.value());
@@ -117,7 +126,8 @@ void ShutdownLoop::drawShutdownLoopPath(QPainter* p) {
 #endif
 }
 
-void ShutdownLoop::paint(QPainter* p) {
+void ShutdownLoop::paint(QPainter *p)
+{
     // set up painter
     p->setRenderHint(QPainter::Antialiasing, true);
     const QRectF bounds = boundingRect();
@@ -135,7 +145,8 @@ void ShutdownLoop::paint(QPainter* p) {
         loopPath = renderShutdownLoopPath(loopBounds);
     drawShutdownLoopPath(p);
 
-    for (const auto& [node, lnmd] : node_thresholds) {
+    for (const auto &[node, lnmd] : node_thresholds)
+    {
         drawShutdownLoopNode(p, lnmd.percentage, QString::fromStdString(lnmd.name), lnmd.center_anchor);
 #ifdef QT_DEBUG
         static std::map<ShutdownLoopNode, QColor> colorMap = {
@@ -153,8 +164,10 @@ void ShutdownLoop::paint(QPainter* p) {
     }
 }
 
-double ShutdownLoop::getShutdownLoopNodePercentage(int n) {
-    if (n == -1) {
+double ShutdownLoop::getShutdownLoopNodePercentage(int n)
+{
+    if (n == -1)
+    {
         return 1;
     }
     return node_thresholds.at(static_cast<ShutdownLoopNode>(n)).percentage;

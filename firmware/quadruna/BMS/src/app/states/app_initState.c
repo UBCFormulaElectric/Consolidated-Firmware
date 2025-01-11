@@ -10,7 +10,8 @@
 
 extern uint32_t iso_spi_state_counter;
 
-static void initStateRunOnEntry(void) {
+static void initStateRunOnEntry(void)
+{
     app_canTx_BMS_State_set(BMS_INIT_STATE);
     app_accumulator_writeDefaultConfig();
     io_faultLatch_setCurrentStatus(&bms_ok_latch, true);
@@ -23,24 +24,31 @@ static void initStateRunOnEntry(void) {
     iso_spi_state_counter = 0;
 }
 
-static void initStateRunOnTick1Hz(void) {
+static void initStateRunOnTick1Hz(void)
+{
     app_allStates_runOnTick1Hz();
 
     // // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-    if (app_canRx_Debug_ResetSoc_MinCellV_get()) {
+    if (app_canRx_Debug_ResetSoc_MinCellV_get())
+    {
         app_soc_resetSocFromVoltage();
-    } else if (app_canRx_Debug_ResetSoc_CustomEnable_get()) {
+    }
+    else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
+    {
         app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
     }
 }
 
-static void initStateRunOnTick100Hz(void) {
-    if (app_allStates_runOnTick100Hz()) {
+static void initStateRunOnTick100Hz(void)
+{
+    if (app_allStates_runOnTick100Hz())
+    {
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
         const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
 
-        if (air_negative_closed && ts_discharged) {
+        if (air_negative_closed && ts_discharged)
+        {
             const bool charger_connected         = app_canRx_BRUSA_IsConnected_get();
             const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
             const bool external_charging_request = app_canRx_Debug_StartCharging_get();
@@ -51,18 +59,24 @@ static void initStateRunOnTick100Hz(void) {
             const bool precharge_for_charging = charger_connected && external_charging_request;
             const bool precharge_for_driving  = !charger_connected && !cell_balancing_enabled && !missing_hb;
 
-            if (precharge_for_charging) {
+            if (precharge_for_charging)
+            {
                 app_stateMachine_setNextState(app_prechargeState_get());
-            } else if (precharge_for_driving) {
+            }
+            else if (precharge_for_driving)
+            {
                 app_stateMachine_setNextState(app_inverterOnState_get());
-            } else if (cell_balancing_enabled) {
+            }
+            else if (cell_balancing_enabled)
+            {
                 app_stateMachine_setNextState(app_balancingState_get());
             }
         }
     }
 }
 
-const State* app_initState_get(void) {
+const State *app_initState_get(void)
+{
     static State init_state = {
         .name              = "INIT",
         .run_on_entry      = initStateRunOnEntry,

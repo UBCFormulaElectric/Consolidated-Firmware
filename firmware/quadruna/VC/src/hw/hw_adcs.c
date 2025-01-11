@@ -32,17 +32,20 @@ const AdcChannel vbat_sns        = { .voltage = &adc1_adc_voltages[8] };
 const AdcChannel aux_pwr_i_sns   = { .voltage = &adc3_adc_voltages[0] };
 const AdcChannel pump_pwr_i_sns  = { .voltage = &adc3_adc_voltages[1] };
 
-void hw_adcs_chipsInit() {
+void hw_adcs_chipsInit()
+{
     hw_adcchip_init(&adc1);
     hw_adcchip_init(&adc3);
 }
 
 static uint8_t ADC3_PTR = 0;
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
     if (hadc == adc1.hadc)
         hw_adcchip_updateCallback(&adc1);
-    else if (hadc == adc3.hadc) {
+    else if (hadc == adc3.hadc)
+    {
         /* On the STM32H733xx MCU, the ADC3 peripheral uses the BDMA peripheral to handle DMA transfers (not the regular
         DMA peripheral). Unfortunately, the BDMA can only transfer data to/from specific sections of memory (not regular
         RAM, where `raw_adc_values` will be placed. This means we can't use DMA for the 2 ADC3 channels, without editing

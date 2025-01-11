@@ -26,28 +26,29 @@
                    " b hw_hardFaultHandler_logInfo   \n");
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-/**
- * @brief Add the naked attributes to HardFault_Handler function declaration.
- * @note  The compiler will not generate prologue and epilogue sequences for
- *        naked functions because they are embedded assembly functions.
- */
-__attribute__((naked)) void HardFault_Handler(void);
+    /**
+     * @brief Add the naked attributes to HardFault_Handler function declaration.
+     * @note  The compiler will not generate prologue and epilogue sequences for
+     *        naked functions because they are embedded assembly functions.
+     */
+    __attribute__((naked)) void HardFault_Handler(void);
 
-/**
- * @brief Enable the desired exceptions.
- * @note  Try to call this as early as possible to catch as many exceptions as
- *        possible.
- */
-void hw_hardFaultHandler_init(void);
+    /**
+     * @brief Enable the desired exceptions.
+     * @note  Try to call this as early as possible to catch as many exceptions as
+     *        possible.
+     */
+    void hw_hardFaultHandler_init(void);
 
-/**
- * @brief Log information that can help us identify what caused the hard fault.
- * @param fault_stack Pointer to the stack that was used when the hard fault
- *        occurred.
- */
-void hw_hardFaultHandler_logInfo(uint32_t* fault_stack);
+    /**
+     * @brief Log information that can help us identify what caused the hard fault.
+     * @param fault_stack Pointer to the stack that was used when the hard fault
+     *        occurred.
+     */
+    void hw_hardFaultHandler_logInfo(uint32_t *fault_stack);
 #ifdef __cplusplus
 }
 #endif

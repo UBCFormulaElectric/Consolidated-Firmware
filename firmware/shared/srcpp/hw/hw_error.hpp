@@ -12,9 +12,10 @@
 #define Error_Handler1(unused) Error_Handler(unused)
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-void hw_error(const char* file, int line, const char* func);
+    void hw_error(const char *file, int line, const char *func);
 #ifdef __cplusplus
 }
 #endif

@@ -2,14 +2,18 @@
 
 #include <gtest/gtest.h>
 
-extern "C" {
+extern "C"
+{
 #include "app_pid.h"
 #include "app_torqueVectoring.h"
 }
 
-class PIDTest : public testing::Test {};
+class PIDTest : public testing::Test
+{
+};
 
-TEST(PIDTest, values_are_as_expected_after_initialization) {
+TEST(PIDTest, values_are_as_expected_after_initialization)
+{
     PID        test_pid;
     PID_Config test_pid_config = { 1.0, 1.0, 1.0, 0.0, 0.0 };
     app_pid_init(&test_pid, &test_pid_config);
@@ -26,7 +30,8 @@ TEST(PIDTest, values_are_as_expected_after_initialization) {
     ASSERT_NEAR(test_pid.out_max, 0.0, 0.000001);
 }
 
-TEST(PIDTest, values_are_as_expected_after_computing_pid_values) {
+TEST(PIDTest, values_are_as_expected_after_computing_pid_values)
+{
     PID        test_pid;
     PID_Config test_pid_config = { 1.0, 1.0, 1.0, 0.0, 10.0 };
     app_pid_init(&test_pid, &test_pid_config);
@@ -37,7 +42,8 @@ TEST(PIDTest, values_are_as_expected_after_computing_pid_values) {
     ASSERT_NEAR(actual_output, expected_output, 0.000001);
 }
 
-TEST(PIDTest, values_are_as_expected_after_initialization_with_non_zero_error) {
+TEST(PIDTest, values_are_as_expected_after_initialization_with_non_zero_error)
+{
     PID        test_pid;
     PID_Config test_pid_config = { 2.0, 3.0, 1.0, -10.0, 10.0 };
     app_pid_init(&test_pid, &test_pid_config);

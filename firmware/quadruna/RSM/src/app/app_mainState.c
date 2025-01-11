@@ -11,7 +11,8 @@
 #include "io_fans.h"
 #include "io_brake_light.h"
 
-void mainStateRunOnTick100Hz(void) {
+void mainStateRunOnTick100Hz(void)
+{
     app_coolant_broadcast();
     app_loadcell_broadcast();
     app_suspension_broadcast();
@@ -24,7 +25,8 @@ void mainStateRunOnTick100Hz(void) {
     io_rad_fan_set(hv_on);
 }
 
-const State* app_mainState_get(void) {
+const State *app_mainState_get(void)
+{
     static State main_state = {
         .name              = "MAIN STATE",
         .run_on_entry      = NULL,

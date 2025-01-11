@@ -13,12 +13,13 @@
 #define UART_LENGTH 1
 #define QUEUE_SIZE 50
 static bool modem_900_choice;
-typedef struct {
-    const UART* modem900M;
-    const UART* modem2_4G;
+typedef struct
+{
+    const UART *modem900M;
+    const UART *modem2_4G;
 } Modem;
 static const Modem modem = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
-#define QUEUE_BYTES CAN_DATA_LENGTH* QUEUE_SIZE
+#define QUEUE_BYTES CAN_DATA_LENGTH *QUEUE_SIZE
 
 static bool               proto_status;
 static uint8_t            proto_msg_length;
@@ -38,17 +39,20 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-void io_telemMessage_init() {
+void io_telemMessage_init()
+{
     modem_900_choice = true; // if false, then using the 2.4GHz,
     message_queue_id = osMessageQueueNew(CAN_DATA_LENGTH, QUEUE_SIZE, &queue_attr);
 }
 
-bool io_telemMessage_pushMsgtoQueue(const CanMsg* rx_msg) {
+bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
+{
     uint8_t proto_buffer[QUEUE_SIZE] = { 0 };
 
     // filter messages, rn for faults and warnings and bms (to verify working when running normally)
     if (rx_msg->std_id != 111 && rx_msg->std_id != 397 && rx_msg->std_id != 205 && rx_msg->std_id != 206 &&
-        rx_msg->std_id != 207 && rx_msg->std_id != 208) {
+        rx_msg->std_id != 207 && rx_msg->std_id != 208)
+    {
         return false;
     }
     // send it over the correct UART functionality
@@ -74,14 +78,16 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg* rx_msg) {
     proto_buffer[49]                     = proto_msg_length;
     static uint32_t telem_overflow_count = 0;
     osStatus_t      s                    = osMessageQueuePut(message_queue_id, &proto_buffer, 0U, 0U);
-    if (s != osOK) {
+    if (s != osOK)
+    {
         telem_overflow_count++;
         LOG_WARN("queue problem");
     }
     return true;
 }
 
-bool io_telemMessage_broadcastMsgFromQueue(void) {
+bool io_telemMessage_broadcastMsgFromQueue(void)
+{
     uint8_t    proto_out[QUEUE_SIZE] = { 0 };
     uint8_t    zero_test             = 0;
     osStatus_t status                = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
@@ -90,11 +96,14 @@ bool io_telemMessage_broadcastMsgFromQueue(void) {
 
     // Start timing for measuring transmission speeds
     SEGGER_SYSVIEW_MarkStart(0);
-    if (modem_900_choice) {
+    if (modem_900_choice)
+    {
         hw_uart_transmitPoll(modem.modem900M, &proto_out_length, UART_LENGTH, UART_LENGTH);
         hw_uart_transmitPoll(modem.modem900M, proto_out, (uint8_t)sizeof(proto_out), 100);
         // hw_uart_transmitPoll(modem->modem900M, &zero_test, UART_LENGT/H, UART_LENGTH);
-    } else {
+    }
+    else
+    {
         hw_uart_transmitPoll(modem.modem2_4G, &proto_msg_length, UART_LENGTH, UART_LENGTH);
         hw_uart_transmitPoll(modem.modem2_4G, proto_out, (uint8_t)sizeof(proto_out), 100);
     }

@@ -1,7 +1,8 @@
 #include "test_rsmBaseStateMachineTest.h"
 #include <cmath>
 
-class RsmAppTest : public RsmBaseStateMachineTest {
+class RsmAppTest : public RsmBaseStateMachineTest
+{
   protected:
     template <typename T>
     void CheckInRangeCanSignals(
@@ -30,7 +31,8 @@ class RsmAppTest : public RsmBaseStateMachineTest {
         ASSERT_TRUE(alert_getter());
     }
 
-    void CheckBinaryStatusCanSignal(void (*fake_setter)(bool), bool (*can_signal_getter)()) {
+    void CheckBinaryStatusCanSignal(void (*fake_setter)(bool), bool (*can_signal_getter)())
+    {
         fake_setter(true);
         LetTimePass(10);
         ASSERT_TRUE(can_signal_getter());
@@ -42,33 +44,38 @@ class RsmAppTest : public RsmBaseStateMachineTest {
 };
 
 // check flowrate signal in range
-TEST_F(RsmAppTest, check_flowrate_can_signals) {
+TEST_F(RsmAppTest, check_flowrate_can_signals)
+{
     CheckInRangeCanSignals(
         MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, fake_io_coolant_getFlowRate_returns,
         app_canTx_RSM_CoolantFlowRate_get, app_canTx_RSM_Warning_FlowRateOutOfRange_get);
 }
 
-TEST_F(RsmAppTest, check_temperatuereA_can_signals) {
+TEST_F(RsmAppTest, check_temperatuereA_can_signals)
+{
     fake_io_coolant_getTemperatureA_returns(21.2);
     LetTimePass(10);
     ASSERT_NEAR(app_canTx_RSM_CoolantTemperatureA_get(), 21.2, 0.0001);
 }
 
-TEST_F(RsmAppTest, check_temperatuereB_can_signals) {
+TEST_F(RsmAppTest, check_temperatuereB_can_signals)
+{
     fake_io_coolant_getTemperatureB_returns(50.0);
     LetTimePass(10);
     ASSERT_EQ(app_canTx_RSM_CoolantTemperatureB_get(), 50.0);
 }
 
 // Transfer functio is not written yet, just testing voltage value
-TEST_F(RsmAppTest, check_pressureA_can_signals) {
+TEST_F(RsmAppTest, check_pressureA_can_signals)
+{
     fake_io_coolant_getPressureA_returns(0.1);
     LetTimePass(10);
     ASSERT_NEAR(app_canTx_RSM_CoolantPressureA_get(), 0.1, 0.0001);
 }
 
 // Transfer functio is not written yet, just testing voltage value
-TEST_F(RsmAppTest, check_pressureB_can_signals) {
+TEST_F(RsmAppTest, check_pressureB_can_signals)
+{
     fake_io_coolant_getPressureB_returns(0.8);
     LetTimePass(10);
     ASSERT_NEAR(app_canTx_RSM_CoolantPressureB_get(), 0.8, 0.00001);

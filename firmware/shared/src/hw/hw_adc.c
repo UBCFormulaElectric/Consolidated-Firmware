@@ -6,10 +6,12 @@
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
 
 static float
-    rawAdcValueToVoltage(const ADC_HandleTypeDef* hadc, const bool is_differential, const uint16_t raw_adc_value) {
+    rawAdcValueToVoltage(const ADC_HandleTypeDef *hadc, const bool is_differential, const uint16_t raw_adc_value)
+{
     uint16_t full_scale = MAX_12_BITS_VALUE;
 
-    switch (hadc->Init.Resolution) {
+    switch (hadc->Init.Resolution)
+    {
         case ADC_RESOLUTION_6B:
             full_scale = MAX_6_BITS_VALUE;
             break;
@@ -46,20 +48,24 @@ static float
     return scale * (float)raw_adc_value / (float)full_scale;
 }
 
-void hw_adcchip_init(const AdcChip* adc_c) {
-    HAL_ADC_Start_DMA(adc_c->hadc, (uint32_t*)adc_c->raw_adc_values, adc_c->hadc->Init.NbrOfConversion);
+void hw_adcchip_init(const AdcChip *adc_c)
+{
+    HAL_ADC_Start_DMA(adc_c->hadc, (uint32_t *)adc_c->raw_adc_values, adc_c->hadc->Init.NbrOfConversion);
     HAL_TIM_Base_Start(adc_c->htim);
 }
 
-void hw_adcchip_updateCallback(const AdcChip* adc_c) {
+void hw_adcchip_updateCallback(const AdcChip *adc_c)
+{
     for (uint16_t ch = 0; ch < adc_c->channel_count; ch++)
         adc_c->adc_voltages[ch] = rawAdcValueToVoltage(adc_c->hadc, adc_c->is_differential, adc_c->raw_adc_values[ch]);
 }
 
-float* hw_adcchip_getChannel(const AdcChip* adc_c, const uint32_t channel) {
+float *hw_adcchip_getChannel(const AdcChip *adc_c, const uint32_t channel)
+{
     return &adc_c->adc_voltages[channel];
 }
 
-float hw_adc_getVoltage(const AdcChannel* c) {
+float hw_adc_getVoltage(const AdcChannel *c)
+{
     return *c->voltage;
 }

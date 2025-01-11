@@ -5,7 +5,8 @@
 #include "app_units.h"
 #include "io_sbgEllipse.h"
 
-void app_sbgEllipse_broadcast() {
+void app_sbgEllipse_broadcast()
+{
     /* Enable these back when you turn this on in the SBG, otherwise it's still sending
        CAN messages because another message in the signal is being used */
 

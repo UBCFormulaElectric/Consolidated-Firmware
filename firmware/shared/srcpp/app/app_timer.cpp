@@ -1,17 +1,21 @@
 #include "app_timer.hpp"
 #include "io_time.hpp"
 
-namespace app {
-void Timer::restart() {
+namespace app
+{
+void Timer::restart()
+{
     start_time_ms = io::time::getCurrentMs();
     state         = TimerState::RUNNING;
 }
 
-void Timer::stop() {
+void Timer::stop()
+{
     state = TimerState::IDLE;
 }
 
-Timer::TimerState Timer::updateAndGetState() {
+Timer::TimerState Timer::updateAndGetState()
+{
     // If timer running and duration has elapsed, set it to expired
     // Otherwise, leave the timer alone
     if (state == TimerState::RUNNING && getElapsedTime() >= duration_ms)
@@ -19,7 +23,8 @@ Timer::TimerState Timer::updateAndGetState() {
     return state;
 }
 
-Timer::TimerState Timer::runIfCondition(bool condition) {
+Timer::TimerState Timer::runIfCondition(bool condition)
+{
     // If condition is false, stop the timer
     if (!condition)
         stop();
@@ -33,16 +38,20 @@ Timer::TimerState Timer::runIfCondition(bool condition) {
     return state;
 }
 
-uint32_t Timer::getElapsedTime() const {
+uint32_t Timer::getElapsedTime() const
+{
     uint32_t elapsed_time;
-    switch (state) {
-        case TimerState::RUNNING: {
+    switch (state)
+    {
+        case TimerState::RUNNING:
+        {
             // Get elapsed time, but clamp to duration
             uint32_t total_elapsed_time = io::time::getCurrentMs() - start_time_ms;
             elapsed_time                = (total_elapsed_time > duration_ms) ? duration_ms : total_elapsed_time;
             break;
         }
-        case TimerState::EXPIRED: {
+        case TimerState::EXPIRED:
+        {
             // Timer expired, so elapsed time is just the duration
             // It'd be confusing if elapsed time continued to run after expiry, since these timers are supposed to be
             // akin to stopwatches
@@ -50,7 +59,8 @@ uint32_t Timer::getElapsedTime() const {
             break;
         }
         case TimerState::IDLE:
-        default: {
+        default:
+        {
             // Timer is stopped, assume no time elapsed
             elapsed_time = 0;
             break;

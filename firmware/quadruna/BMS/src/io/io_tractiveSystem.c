@@ -35,13 +35,15 @@
 #define OUTPUT2_CHARGING_ERROR_SLOPE (0.2324f)
 #define OUTPUT2_CHARGING_ERROR_OFFSET (2.4038f)
 
-static const TractiveSystemConfig* config = NULL;
+static const TractiveSystemConfig *config = NULL;
 
-void io_tractiveSystem_init(const TractiveSystemConfig* ts_config) {
+void io_tractiveSystem_init(const TractiveSystemConfig *ts_config)
+{
     config = ts_config;
 }
 
-float io_tractiveSystem_getVoltage() {
+float io_tractiveSystem_getVoltage()
+{
     // The tractive system voltage is divided down by several resistors, then
     // fed through an amplifier.
     //
@@ -75,18 +77,23 @@ float io_tractiveSystem_getVoltage() {
     const float ts_vsense_N = hw_adc_getVoltage(config->ts_vsense_channel_N);
     const float ts_vsense   = ts_vsense_P - ts_vsense_N;
 
-    if (ts_vsense < 0.0f) {
+    if (ts_vsense < 0.0f)
+    {
         return 0.0f;
-    } else {
+    }
+    else
+    {
         float real_voltage = ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
         return real_voltage;
     }
 }
 
-float io_tractiveSystem_getCurrentHighResolution() {
+float io_tractiveSystem_getCurrentHighResolution()
+{
     float adc_voltage = hw_adc_getVoltage(config->ts_isense_high_res_channel);
 
-    if (adc_voltage < 0.0f) {
+    if (adc_voltage < 0.0f)
+    {
         adc_voltage = 0.0f;
     }
 
@@ -119,20 +126,25 @@ float io_tractiveSystem_getCurrentHighResolution() {
 
     // Error Calibration for High Resolution Current Sensor (based on calibration data)
     float high_res_curr_calibration = 0.0f;
-    if (high_res_current > -0.2f) {
+    if (high_res_current > -0.2f)
+    {
         high_res_curr_calibration =
             high_res_current * OUTPUT1_DISCHARGING_ERROR_SLOPE + OUTPUT1_DISCHARGING_ERROR_OFFSET;
-    } else {
+    }
+    else
+    {
         high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
     }
 
     return -(high_res_current + high_res_curr_calibration);
 }
 
-float io_tractiveSystem_getCurrentLowResolution() {
+float io_tractiveSystem_getCurrentLowResolution()
+{
     float adc_voltage = hw_adc_getVoltage(config->ts_isense_low_res_channel);
 
-    if (adc_voltage < 0.0f) {
+    if (adc_voltage < 0.0f)
+    {
         adc_voltage = 0.0f;
     }
 
@@ -165,9 +177,12 @@ float io_tractiveSystem_getCurrentLowResolution() {
 
     // Error Calibration for Low Resolution Current Sensor (based on calibration data)
     float low_res_curr_calibration = 0.0f;
-    if (low_res_current > -0.2f) {
+    if (low_res_current > -0.2f)
+    {
         low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
-    } else {
+    }
+    else
+    {
         low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
     }
 

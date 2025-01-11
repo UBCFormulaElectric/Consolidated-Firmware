@@ -2,7 +2,8 @@
 
 #include <stdbool.h>
 
-typedef enum {
+typedef enum
+{
     // FR_STBY1
     EFUSE_CHANNEL_SHDN,
     EFUSE_CHANNEL_LV,

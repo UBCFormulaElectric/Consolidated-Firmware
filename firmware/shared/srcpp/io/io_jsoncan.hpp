@@ -2,7 +2,8 @@
 
 #include "io_canMsgQueue.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "io_canTx.h"
 }
 
@@ -13,18 +14,19 @@ extern "C" {
  * to/from jsoncan messages.
  */
 
-namespace io::jsoncan {
+namespace io::jsoncan
+{
 /**
  * Convert a jsoncan message to our own driver-level CAN message type.
  * @param src Pointer to jsoncan message to be copied from.
  * @param dest Pointer to CAN message to be copied to.
  */
-void copyToCanMsg(const JsonCanMsg* src, hw::can::CanMsg* dest);
+void copyToCanMsg(const JsonCanMsg *src, hw::can::CanMsg *dest);
 
 /**
  * Convert own driver-level CAN message type to a jsoncan message.
  * @param src Pointer to CAN message to be copied from.
  * @param dest Pointer to jsoncan message to be copied to.
  */
-void copyFromCanMsg(const hw::can::CanMsg* src, JsonCanMsg* dest);
+void copyFromCanMsg(const hw::can::CanMsg *src, JsonCanMsg *dest);
 } // namespace io::jsoncan

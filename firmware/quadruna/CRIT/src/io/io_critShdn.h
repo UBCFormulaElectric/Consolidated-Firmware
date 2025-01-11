@@ -5,9 +5,10 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
 
-typedef struct {
-    const Gpio* cockpit_estop_gpio;
-    const Gpio* inertia_sen_ok_gpio;
+typedef struct
+{
+    const Gpio *cockpit_estop_gpio;
+    const Gpio *inertia_sen_ok_gpio;
 } CritShdnConfig;
 #else
 #include "app_utils.h"
@@ -16,7 +17,7 @@ EMPTY_STRUCT(CritShdnConfig);
 
 #define CRIT_SHDN_NODE_COUNT 2
 
-void io_critShdn_init(const CritShdnConfig* crit_shdn_config);
+void io_critShdn_init(const CritShdnConfig *crit_shdn_config);
 
 bool io_critShdn_COCKPIT_ESTOP_OK_get(void);
 

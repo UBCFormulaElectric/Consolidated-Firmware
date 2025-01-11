@@ -13,9 +13,10 @@
 
 template <typename T>
 inline static void report_task_errors(
-    const Result<std::monostate, T>& res,
-    const std::map<T, std::string>&  err_string_map,
-    const std::string&               sys) {
+    const Result<std::monostate, T> &res,
+    const std::map<T, std::string>  &err_string_map,
+    const std::string               &sys)
+{
     if (!res.has_error())
         return;
     if (const auto can_err_kv = err_string_map.find(res.get_error()); can_err_kv == err_string_map.end())
@@ -24,7 +25,8 @@ inline static void report_task_errors(
         qWarning("%s Setup Error: %s", sys.c_str(), can_err_kv->second.c_str());
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     set_qt_environment();
     init_json_can();
 

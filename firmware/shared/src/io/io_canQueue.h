@@ -41,7 +41,7 @@ void io_canQueue_init();
  * Does not block, calls `tx_overflow_callback` if queue is full.
  * @param tx_msg CAN msg to be TXed.
  */
-void io_canQueue_pushTx(const CanMsg* tx_msg);
+void io_canQueue_pushTx(const CanMsg *tx_msg);
 
 /**
  * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
@@ -52,7 +52,7 @@ CanMsg io_canQueue_popTx();
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.
  * @param rx_msg CAN msg to be populated by RXed msg.
  */
-void io_canQueue_pushRx(const CanMsg* rx_msg);
+void io_canQueue_pushRx(const CanMsg *rx_msg);
 
 /**
  * Dequeue a received CAN msg. Blocks until a msg can be dequeued.

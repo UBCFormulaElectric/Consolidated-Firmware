@@ -3,7 +3,7 @@
 #include "hw_uarts.h"
 #include "shared.pb.h"
 
-const Gpio* id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_pin,
+const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_pin,
                              [BMS_GpioNetName_AIR_P_EN]               = &air_p_gpio,
                              [BMS_GpioNetName_AUX_TSENSE_MUX0]        = &mux_0_gpio,
                              [BMS_GpioNetName_AUX_TSENSE_MUX1]        = &mux_1_gpio,
@@ -27,11 +27,11 @@ const Gpio* id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
                              [BMS_GpioNetName_SD_CD]                  = &sd_cd_pin,
                              [BMS_GpioNetName_SPI_CS]                 = &spi_cs_pin };
 
-const AdcChannel* id_to_adc[] = {
+const AdcChannel *id_to_adc[] = {
     [BMS_AdcNetName_AUX_TSENSE] = &aux_tsns,       [BMS_AdcNetName_TS_ISENSE_400A] = &ts_isns_400a,
     [BMS_AdcNetName_TS_ISENSE_75A] = &ts_isns_75a, [BMS_AdcNetName_TS_VSENSE_P] = &ts_vsense_p,
     [BMS_AdcNetName_TS_VSENSE_N] = &ts_vsense_n,
 };
 
-const UART* chimera_uart   = &debug_uart;
-const Gpio* n_chimera_gpio = &n_chimera_pin;
+const UART *chimera_uart   = &debug_uart;
+const Gpio *n_chimera_gpio = &n_chimera_pin;

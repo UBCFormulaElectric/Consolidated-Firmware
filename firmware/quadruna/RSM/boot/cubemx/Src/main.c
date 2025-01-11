@@ -91,7 +91,8 @@ const osThreadAttr_t tickTask_attributes = {
 /* USER CODE BEGIN PV */
 CanHandle can = { .hcan = &hcan1 };
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
     assert(hcan == can.hcan);
     CanMsg rx_msg;
     if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
@@ -100,7 +101,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
     io_canQueue_pushRx(&rx_msg);
 }
 
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef* hcan) {
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
     assert(hcan == can.hcan);
     CanMsg rx_msg;
     if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
@@ -115,9 +117,9 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_CRC_Init(void);
-void        runInterfaceTask(void* argument);
-void        runCanTxTask(void* argument);
-void        runTickTask(void* argument);
+void        runInterfaceTask(void *argument);
+void        runCanTxTask(void *argument);
+void        runTickTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -131,7 +133,8 @@ void        runTickTask(void* argument);
  * @brief  The application entry point.
  * @retval int
  */
-int main(void) {
+int main(void)
+{
     /* USER CODE BEGIN 1 */
     bootloader_preInit();
     /* USER CODE END 1 */
@@ -204,7 +207,8 @@ int main(void) {
     /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1) {
+    while (1)
+    {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -216,7 +220,8 @@ int main(void) {
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -237,7 +242,8 @@ void SystemClock_Config(void) {
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ       = 2;
     RCC_OscInitStruct.PLL.PLLR       = 2;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -249,7 +255,8 @@ void SystemClock_Config(void) {
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    {
         Error_Handler();
     }
 }
@@ -259,7 +266,8 @@ void SystemClock_Config(void) {
  * @param None
  * @retval None
  */
-static void MX_CAN1_Init(void) {
+static void MX_CAN1_Init(void)
+{
     /* USER CODE BEGIN CAN1_Init 0 */
 
     /* USER CODE END CAN1_Init 0 */
@@ -279,7 +287,8 @@ static void MX_CAN1_Init(void) {
     hcan1.Init.AutoRetransmission   = ENABLE;
     hcan1.Init.ReceiveFifoLocked    = ENABLE;
     hcan1.Init.TransmitFifoPriority = ENABLE;
-    if (HAL_CAN_Init(&hcan1) != HAL_OK) {
+    if (HAL_CAN_Init(&hcan1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
@@ -292,7 +301,8 @@ static void MX_CAN1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_CRC_Init(void) {
+static void MX_CRC_Init(void)
+{
     /* USER CODE BEGIN CRC_Init 0 */
 
     /* USER CODE END CRC_Init 0 */
@@ -301,7 +311,8 @@ static void MX_CRC_Init(void) {
 
     /* USER CODE END CRC_Init 1 */
     hcrc.Instance = CRC;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK) {
+    if (HAL_CRC_Init(&hcrc) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN CRC_Init 2 */
@@ -314,7 +325,8 @@ static void MX_CRC_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_GPIO_Init(void) {
+static void MX_GPIO_Init(void)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
@@ -376,7 +388,8 @@ static void MX_GPIO_Init(void) {
  * @retval None
  */
 /* USER CODE END Header_runInterfaceTask */
-void runInterfaceTask(void* argument) {
+void runInterfaceTask(void *argument)
+{
     /* USER CODE BEGIN 5 */
     bootloader_runInterfaceTask();
     /* USER CODE END 5 */
@@ -389,7 +402,8 @@ void runInterfaceTask(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_runCanTxTask */
-void runCanTxTask(void* argument) {
+void runCanTxTask(void *argument)
+{
     /* USER CODE BEGIN runCanTxTask */
     bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
@@ -402,7 +416,8 @@ void runCanTxTask(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_runTickTask */
-void runTickTask(void* argument) {
+void runTickTask(void *argument)
+{
     /* USER CODE BEGIN runTickTask */
     bootloader_runTickTask();
     /* USER CODE END runTickTask */
@@ -416,11 +431,13 @@ void runTickTask(void* argument) {
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM6) {
+    if (htim->Instance == TIM6)
+    {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
@@ -432,11 +449,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
-    while (1) {
+    while (1)
+    {
     }
     /* USER CODE END Error_Handler_Debug */
 }
@@ -449,7 +468,8 @@ void Error_Handler(void) {
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t* file, uint32_t line) {
+void assert_failed(uint8_t *file, uint32_t line)
+{
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
        ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

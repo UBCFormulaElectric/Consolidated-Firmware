@@ -4,9 +4,12 @@
 #include "app_suspension.h"
 #include <cmath>
 
-class RsmFaultsTest : public RsmBaseStateMachineTest {};
+class RsmFaultsTest : public RsmBaseStateMachineTest
+{
+};
 
-TEST_F(RsmFaultsTest, primary_flow_rate_underflow_sets_fault) {
+TEST_F(RsmFaultsTest, primary_flow_rate_underflow_sets_fault)
+{
     app_canRx_VC_State_update(VC_DRIVE_STATE);
     // Flow rate underflow threshold is 1.0 L/min
     const float underflow_threshold = 1.0f;

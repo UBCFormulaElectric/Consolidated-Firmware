@@ -40,7 +40,8 @@ static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
 
-void app_torqueVectoring_init(void) {
+void app_torqueVectoring_init(void)
+{
     app_canTx_VC_TorqueVectoringEnabled_set(true);
     app_pid_init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
     app_pid_init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
@@ -49,7 +50,8 @@ void app_torqueVectoring_init(void) {
     app_timer_init(&pid_timeout, PID_TIMEOUT_ms);
 }
 
-void app_torqueVectoring_run(float accelerator_pedal_percentage) {
+void app_torqueVectoring_run(float accelerator_pedal_percentage)
+{
     // Read data from CAN
     // NOTE: Pedal percent CAN is in range 0.0-100.0%
     accelerator_pedal_percent   = accelerator_pedal_percentage;
@@ -63,18 +65,23 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage) {
     right_motor_temp_C          = app_canRx_INVR_MotorTemperature_get();
     steering_angle_deg          = app_canRx_FSM_SteeringAngle_get();
 
-    if (accelerator_pedal_percent > 0.0f) {
+    if (accelerator_pedal_percent > 0.0f)
+    {
         app_torqueVectoring_handleAcceleration();
-    } else {
+    }
+    else
+    {
         app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
         app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
     }
 }
 // Read data from CAN
-void app_torqueVectoring_handleAcceleration(void) {
+void app_torqueVectoring_handleAcceleration(void)
+{
     // Reset control loops if timeout elapsed
     TimerState timeout = app_timer_updateAndGetState(&pid_timeout);
-    if (timeout == TIMER_STATE_EXPIRED) {
+    if (timeout == TIMER_STATE_EXPIRED)
+    {
         app_pid_requestReset(&pid_power_correction);
         app_pid_requestReset(&pid_traction_control);
     }
@@ -103,7 +110,8 @@ void app_torqueVectoring_handleAcceleration(void) {
      *  TRACTION CONTROL NOT TESTED ON CAR YET
      */
     // Traction Control
-    if (run_traction_control) {
+    if (run_traction_control)
+    {
         traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
         traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
         traction_control_inputs.torque_left_Nm              = active_differential_outputs.torque_left_Nm;
@@ -116,16 +124,20 @@ void app_torqueVectoring_handleAcceleration(void) {
     // Inverter Torque Request
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-    if (run_traction_control) {
+    if (run_traction_control)
+    {
         torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;
         torque_right_final_Nm = traction_control_outputs.torque_right_final_Nm;
-    } else {
+    }
+    else
+    {
         torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
         torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
     }
 
     // Limit asymptotic torques at zero speed
-    if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM) {
+    if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
+    {
         torque_left_final_Nm  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
         torque_right_final_Nm = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     }

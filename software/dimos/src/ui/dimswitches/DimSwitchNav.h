@@ -6,60 +6,70 @@
 #include <qquickitem.h>
 
 // ReSharper disable once CppClassCanBeFinal
-class DimSwitchNav : public QObject {
+class DimSwitchNav : public QObject
+{
     Q_OBJECT
     QML_ELEMENT
 
-    QQuickItem* out      = nullptr;
-    QQuickItem* err      = nullptr;
-    QQuickItem* settings = nullptr;
-    QQuickItem* f1       = nullptr;
-    QQuickItem* f2       = nullptr;
-    QQuickItem* leftRot  = nullptr;
-    QQuickItem* rightRot = nullptr;
-    QQuickItem* pushRot  = nullptr;
+    QQuickItem *out      = nullptr;
+    QQuickItem *err      = nullptr;
+    QQuickItem *settings = nullptr;
+    QQuickItem *f1       = nullptr;
+    QQuickItem *f2       = nullptr;
+    QQuickItem *leftRot  = nullptr;
+    QQuickItem *rightRot = nullptr;
+    QQuickItem *pushRot  = nullptr;
 
-    Q_PROPERTY(QQuickItem* out MEMBER out)
-    Q_PROPERTY(QQuickItem* err MEMBER err)
-    Q_PROPERTY(QQuickItem* settings MEMBER settings)
-    Q_PROPERTY(QQuickItem* f1 MEMBER f1)
-    Q_PROPERTY(QQuickItem* f2 MEMBER f2)
-    Q_PROPERTY(QQuickItem* leftRot MEMBER leftRot)
-    Q_PROPERTY(QQuickItem* rightRot MEMBER rightRot)
-    Q_PROPERTY(QQuickItem* pushRot MEMBER pushRot)
+    Q_PROPERTY(QQuickItem *out MEMBER out)
+    Q_PROPERTY(QQuickItem *err MEMBER err)
+    Q_PROPERTY(QQuickItem *settings MEMBER settings)
+    Q_PROPERTY(QQuickItem *f1 MEMBER f1)
+    Q_PROPERTY(QQuickItem *f2 MEMBER f2)
+    Q_PROPERTY(QQuickItem *leftRot MEMBER leftRot)
+    Q_PROPERTY(QQuickItem *rightRot MEMBER rightRot)
+    Q_PROPERTY(QQuickItem *pushRot MEMBER pushRot)
 
   private slots:
-    void handleOutPressed() const {
+    void handleOutPressed() const
+    {
         qInfo() << "forcing active focus on" << out;
-        if (out != nullptr) {
+        if (out != nullptr)
+        {
             out->forceActiveFocus();
         }
     }
-    void handleErrPressed() const {
+    void handleErrPressed() const
+    {
         if (err != nullptr)
             err->forceActiveFocus();
     }
-    void handleSettingsPressed() const {
+    void handleSettingsPressed() const
+    {
         if (settings != nullptr)
             settings->forceActiveFocus();
     }
-    void handleF1Pressed() const {
+    void handleF1Pressed() const
+    {
         if (f1 != nullptr)
             f1->forceActiveFocus();
     }
-    void handleF2Pressed() const {
+    void handleF2Pressed() const
+    {
         if (f2 != nullptr)
             f2->forceActiveFocus();
     }
-    void handleLeftRot() const {
+    void handleLeftRot() const
+    {
         if (leftRot != nullptr)
             leftRot->forceActiveFocus();
     }
-    void handleRightRot() const {
+    void handleRightRot() const
+    {
         if (rightRot != nullptr)
             rightRot->forceActiveFocus();
     }
-    void handlePushRot() const {
+    void handlePushRot() const
+    {
         if (pushRot != nullptr)
             pushRot->forceActiveFocus();
     }
@@ -67,7 +77,8 @@ class DimSwitchNav : public QObject {
     void logTest() const { qInfo() << out << err << settings << f1 << f2 << leftRot << rightRot << pushRot; }
 
   public:
-    explicit DimSwitchNav(QObject* parent = nullptr) : QObject(parent) {
+    explicit DimSwitchNav(QObject *parent = nullptr) : QObject(parent)
+    {
         const auto dse = DimSwitchEmitter::getInstance();
         connect(dse, &DimSwitchEmitter::outButtonPressed, this, &DimSwitchNav::handleOutPressed);
         connect(dse, &DimSwitchEmitter::errButtonPressed, this, &DimSwitchNav::handleErrPressed);

@@ -25,7 +25,8 @@
 #define __STM32F4xx_HAL_CONF_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Exported types ------------------------------------------------------------*/
@@ -37,7 +38,7 @@ extern "C" {
  */
 #define HAL_MODULE_ENABLED
 
-/* #define HAL_CRYP_MODULE_ENABLED */
+    /* #define HAL_CRYP_MODULE_ENABLED */
 /* #define HAL_ADC_MODULE_ENABLED */
 /* #define HAL_CAN_MODULE_ENABLED */
 /* #define HAL_CRC_MODULE_ENABLED */
@@ -231,7 +232,7 @@ extern "C" {
 #define PHY_READ_TO 0x0000FFFFU
 #define PHY_WRITE_TO 0x0000FFFFU
 
-/* Section 3: Common PHY Registers */
+    /* Section 3: Common PHY Registers */
 
 #define PHY_BCR ((uint16_t)0x0000U) /*!< Transceiver Basic Control Register   */
 #define PHY_BSR ((uint16_t)0x0001U) /*!< Transceiver Basic Status Register    */
@@ -257,19 +258,19 @@ extern "C" {
 #define PHY_SPEED_STATUS ((uint16_t))  /*!< PHY Speed mask                                  */
 #define PHY_DUPLEX_STATUS ((uint16_t)) /*!< PHY Duplex mask                                 */
 
-/* ################## SPI peripheral configuration ########################## */
+    /* ################## SPI peripheral configuration ########################## */
 
-/* CRC FEATURE: Use to activate CRC feature inside HAL SPI Driver
- * Activated: CRC code is present inside driver
- * Deactivated: CRC code cleaned from driver
- */
+    /* CRC FEATURE: Use to activate CRC feature inside HAL SPI Driver
+     * Activated: CRC code is present inside driver
+     * Deactivated: CRC code cleaned from driver
+     */
 
 #define USE_SPI_CRC 0U
 
-/* Includes ------------------------------------------------------------------*/
-/**
- * @brief Include module's header file
- */
+    /* Includes ------------------------------------------------------------------*/
+    /**
+     * @brief Include module's header file
+     */
 
 #ifdef HAL_RCC_MODULE_ENABLED
 #include "stm32f4xx_hal_rcc.h"
@@ -473,17 +474,17 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef USE_FULL_ASSERT
-/**
- * @brief  The assert_param macro is used for function's parameters check.
- * @param  expr If expr is false, it calls assert_failed function
- *         which reports the name of the source file and the source
- *         line number of the call that failed.
- *         If expr is true, it returns no value.
- * @retval None
- */
-#define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t*)__FILE__, __LINE__))
-/* Exported functions ------------------------------------------------------- */
-void assert_failed(uint8_t* file, uint32_t line);
+    /**
+     * @brief  The assert_param macro is used for function's parameters check.
+     * @param  expr If expr is false, it calls assert_failed function
+     *         which reports the name of the source file and the source
+     *         line number of the call that failed.
+     *         If expr is true, it returns no value.
+     * @retval None
+     */
+#define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
+    /* Exported functions ------------------------------------------------------- */
+    void assert_failed(uint8_t *file, uint32_t line);
 #else
 #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */

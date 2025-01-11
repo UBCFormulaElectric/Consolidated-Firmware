@@ -51,7 +51,7 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 
 # self-explanatory. for(;;) operation;
-AllowShortLoopsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
 
 # break long strings into multiple lines and then align the strings
 AlwaysBreakBeforeMultilineStrings: false
@@ -79,7 +79,7 @@ BreakBeforeBinaryOperators: None
 # forces each operand to a new line
 BreakBeforeTernaryOperators: true
 
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Allman
 
 # self-explanatory
 ColumnLimit: 120
@@ -128,7 +128,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 # "Left"   : Leave the pointer character in a variable declaration to the left (e.g. int* a)
 # "Right"  : Align pointer to right (e.g. int *a)
 # "Middle" : Align pointer between type and var name (e.g. int * a)
-PointerAlignment: Left
+PointerAlignment: Right
 
 # if "None", no namespaces are indented
 # if "Inner", only inner namespaces are indented

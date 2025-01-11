@@ -20,11 +20,13 @@ const AdcChannel apps1          = { .voltage = &adc1_adc_voltages[6] };
 const AdcChannel lc1            = { .voltage = &adc1_adc_voltages[7] };
 const AdcChannel bps_b          = { .voltage = &adc1_adc_voltages[8] };
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
     if (hadc == adc1.hadc)
         hw_adcchip_updateCallback(&adc1);
 }
 
-void hw_adcs_chipsInit(void) {
+void hw_adcs_chipsInit(void)
+{
     hw_adcchip_init(&adc1);
 }

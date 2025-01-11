@@ -7,13 +7,15 @@
 
 #define HW_DEVICE_SECTOR_SIZE 512
 
-typedef struct {
-    SD_HandleTypeDef* hsd;          // the HAL SD handle that will hold the state of the SD card
+typedef struct
+{
+    SD_HandleTypeDef *hsd;          // the HAL SD handle that will hold the state of the SD card
     uint32_t          timeout;      // the timeout for the SD card operations
-    const Gpio*       present_gpio; // gpio for sd_cd
+    const Gpio       *present_gpio; // gpio for sd_cd
 } SdCard;                           // struct that included all the state about SDIO and SD card
 
-typedef enum {
+typedef enum
+{
     SD_CARD_OK      = HAL_OK,
     SD_CARD_ERROR   = HAL_ERROR,
     SD_CARD_BUSY    = HAL_BUSY,
@@ -30,7 +32,7 @@ typedef enum {
  * @return  SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_read(uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 /**
  * @brief   write to sd card. The data size will be num_blocks * BlockSize
  * @param   sd the state struct of sd card
@@ -41,8 +43,8 @@ SdCardStatus hw_sd_read(uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks
  * @return  SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_write(uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks);
-SdCardStatus hw_sd_writeDma(uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_writeDma(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   Read interface with offset and size arguement, interface for littlefs
@@ -55,7 +57,7 @@ SdCardStatus hw_sd_writeDma(uint8_t* pdata, uint32_t block_addr, uint32_t num_bl
  * @return SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_readOffset(uint8_t* pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
  * @brief   write interface with offset and size, interface for littlefs
@@ -69,7 +71,7 @@ SdCardStatus hw_sd_readOffset(uint8_t* pdata, uint32_t block_addr, uint32_t offs
  * @return SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_writeOffset(uint8_t* pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
  * @brief Erase data from the sd card [start_addr, end_addr] inclusive

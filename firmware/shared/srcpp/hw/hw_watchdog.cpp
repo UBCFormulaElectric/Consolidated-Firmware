@@ -4,14 +4,18 @@
 
 #include <array>
 
-namespace hw::watchdog::monitor {
+namespace hw::watchdog::monitor
+{
 #define MAX_WATCHDOG_INSTANCES 10
-std::array<WatchdogInstance*, MAX_WATCHDOG_INSTANCES> watchdogs{ nullptr };
-bool                                                  timeout_detected = false;
+std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{ nullptr };
+bool                                                   timeout_detected = false;
 
-void registerWatchdogInstance(WatchdogInstance* watchdog_instance) {
-    for (WatchdogInstance*& instance : watchdogs) {
-        if (instance == nullptr) {
+void registerWatchdogInstance(WatchdogInstance *watchdog_instance)
+{
+    for (WatchdogInstance *&instance : watchdogs)
+    {
+        if (instance == nullptr)
+        {
             instance = watchdog_instance;
             return;
         }
@@ -27,18 +31,22 @@ void registerWatchdogInstance(WatchdogInstance* watchdog_instance) {
  * @note  This function must be called periodically. It is good practice to call
  *        it from the system tick handler.
  */
-void checkForTimeouts() {
+void checkForTimeouts()
+{
     // If a timeout is detected, let the hardware watchdog timeout reset the
     // system. We don't reboot immediately because we need some time to log
     // information for further debugging.
-    for (WatchdogInstance* watchdog_instance : watchdogs) {
+    for (WatchdogInstance *watchdog_instance : watchdogs)
+    {
         // Only check for timeout if the watchdog has been initialized
         if (!watchdog_instance->initialized)
             continue;
 
-        if (osKernelGetTickCount() >= watchdog_instance->deadline) {
+        if (osKernelGetTickCount() >= watchdog_instance->deadline)
+        {
             // Check if the check-in status is set
-            if (watchdog_instance->check_in_status) {
+            if (watchdog_instance->check_in_status)
+            {
                 // Clear the check-in status
                 watchdog_instance->check_in_status = false;
 
@@ -46,7 +54,9 @@ void checkForTimeouts() {
                 watchdog_instance->deadline += watchdog_instance->period;
 
                 hw::watchdogConfig::refresh_hardware_watchdog();
-            } else {
+            }
+            else
+            {
                 hw::watchdogConfig::timeout_callback(watchdog_instance);
                 timeout_detected = true;
                 break;

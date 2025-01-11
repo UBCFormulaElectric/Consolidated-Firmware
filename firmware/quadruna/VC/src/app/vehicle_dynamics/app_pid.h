@@ -1,6 +1,7 @@
 #pragma once
 
-typedef struct {
+typedef struct
+{
     float Kp;
     float Ki;
     float Kd;
@@ -12,7 +13,8 @@ typedef struct {
     float out_max;
 } PID;
 
-typedef struct {
+typedef struct
+{
     const float Kp;
     const float Ki;
     const float Kd;
@@ -20,8 +22,8 @@ typedef struct {
     const float out_max;
 } PID_Config;
 
-void app_pid_init(PID* pid, const PID_Config* conf);
+void app_pid_init(PID *pid, const PID_Config *conf);
 
-float app_pid_compute(PID* pid, float setpoint, float input);
+float app_pid_compute(PID *pid, float setpoint, float input);
 
-void app_pid_requestReset(PID* pid);
+void app_pid_requestReset(PID *pid);

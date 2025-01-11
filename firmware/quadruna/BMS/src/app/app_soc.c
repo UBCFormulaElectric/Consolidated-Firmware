@@ -28,14 +28,16 @@
 
 // Macro to convert a uint32_t variable to a uint8_t array
 #define UINT32_TO_ARRAY(value, array)          \
-    do {                                       \
+    do                                         \
+    {                                          \
         (array)[0] = (uint8_t)((value) >> 24); \
         (array)[1] = (uint8_t)((value) >> 16); \
         (array)[2] = (uint8_t)((value) >> 8);  \
         (array)[3] = (uint8_t)(value);         \
     } while (0)
 
-typedef struct {
+typedef struct
+{
     // charge in cell in coulombs
     double charge_c;
 
@@ -54,34 +56,41 @@ extern bool     sd_inited;
 #ifndef TARGET_EMBEDDED
 
 // ONLY FOR USE IN OFF-TARGET TESTING
-void app_soc_setPrevCurrent(float current) {
+void app_soc_setPrevCurrent(float current)
+{
     stats.prev_current_A = current;
 }
 
 #endif
 
-float app_soc_getSocFromOcv(float voltage) {
+float app_soc_getSocFromOcv(float voltage)
+{
     uint8_t lut_index = 0;
 
-    while ((voltage > ocv_soc_lut[lut_index]) && (lut_index < V_TO_SOC_LUT_SIZE)) {
+    while ((voltage > ocv_soc_lut[lut_index]) && (lut_index < V_TO_SOC_LUT_SIZE))
+    {
         lut_index++;
     }
 
-    if (lut_index == V_TO_SOC_LUT_SIZE) {
+    if (lut_index == V_TO_SOC_LUT_SIZE)
+    {
         // Ensures that the index is in the LUT range
         lut_index--;
     }
     return LUT_BASE_SOC + lut_index * 0.5f;
 }
 
-float app_soc_getOcvFromSoc(float soc_percent) {
+float app_soc_getOcvFromSoc(float soc_percent)
+{
     uint8_t lut_index = 0;
 
-    while ((LUT_BASE_SOC + lut_index * 0.5f < soc_percent) && (lut_index < V_TO_SOC_LUT_SIZE)) {
+    while ((LUT_BASE_SOC + lut_index * 0.5f < soc_percent) && (lut_index < V_TO_SOC_LUT_SIZE))
+    {
         lut_index++;
     }
 
-    if (lut_index == V_TO_SOC_LUT_SIZE) {
+    if (lut_index == V_TO_SOC_LUT_SIZE)
+    {
         // Ensures that the index is in the LUT range
         lut_index--;
     }
@@ -89,7 +98,8 @@ float app_soc_getOcvFromSoc(float soc_percent) {
     return ocv_soc_lut[lut_index];
 }
 
-void app_soc_init(void) {
+void app_soc_init(void)
+{
     stats.prev_current_A = 0.0f;
 
     // SOC assumed corrupt until proven otherwise
@@ -103,14 +113,16 @@ void app_soc_init(void) {
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
-bool app_soc_getCorrupt(void) {
+bool app_soc_getCorrupt(void)
+{
     return stats.is_corrupt;
 }
 
-void app_soc_updateSocStats(void) {
+void app_soc_updateSocStats(void)
+{
     // NOTE current sign is relative to current into the battery
-    double* charge_c     = &stats.charge_c;
-    float*  prev_current = &stats.prev_current_A;
+    double *charge_c     = &stats.charge_c;
+    float  *prev_current = &stats.prev_current_A;
     float   current      = app_tractiveSystem_getCurrent();
 
     double elapsed_time_s = (double)app_timer_getElapsedTime(&stats.soc_timer) * MS_TO_S;
@@ -120,23 +132,27 @@ void app_soc_updateSocStats(void) {
     app_math_trapezoidalRule(charge_c, prev_current, current, elapsed_time_s);
 }
 
-float app_soc_getMinSocCoulombs(void) {
+float app_soc_getMinSocCoulombs(void)
+{
     // return SOC in Coulombs
     return (float)stats.charge_c;
 }
 
-float app_soc_getMinSocPercent(void) {
+float app_soc_getMinSocPercent(void)
+{
     // return SOC in %
     float soc_percent = ((float)stats.charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
     return soc_percent;
 }
 
-float app_soc_getMinOcvFromSoc(void) {
+float app_soc_getMinOcvFromSoc(void)
+{
     float soc_percent = app_soc_getMinSocPercent();
     return app_soc_getOcvFromSoc(soc_percent);
 }
 
-void app_soc_resetSocFromVoltage(void) {
+void app_soc_resetSocFromVoltage(void)
+{
     const float min_cell_voltage = app_accumulator_getMinCellVoltage(NULL, NULL);
     const float soc_percent      = app_soc_getSocFromOcv(min_cell_voltage);
 
@@ -148,7 +164,8 @@ void app_soc_resetSocFromVoltage(void) {
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
-void app_soc_resetSocCustomValue(float soc_percent) {
+void app_soc_resetSocCustomValue(float soc_percent)
+{
     stats.charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
 
     // Mark SOC as corrupt anytime SOC is reset

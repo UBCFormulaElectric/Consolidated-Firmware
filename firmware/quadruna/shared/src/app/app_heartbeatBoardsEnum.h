@@ -1,6 +1,7 @@
 #pragma once
 
-typedef enum {
+typedef enum
+{
     BMS_HEARTBEAT_BOARD,
     VC_HEARTBEAT_BOARD,
     RSM_HEARTBEAT_BOARD,

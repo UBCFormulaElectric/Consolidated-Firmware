@@ -3,7 +3,8 @@
 
 #define CAN_PAYLOAD_BYTES 8
 
-typedef struct {
+typedef struct
+{
     uint32_t std_id;
     uint32_t dlc; // data length range : [0, 8]
     uint32_t timestamp;

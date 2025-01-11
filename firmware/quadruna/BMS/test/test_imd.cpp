@@ -1,9 +1,11 @@
 #include "test_imd.h"
 
-TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditions) {
+TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditions)
+{
     std::vector<ImdConditionName> condition_names = { IMD_CONDITION_NORMAL, IMD_CONDITION_UNDERVOLTAGE_DETECTED };
 
-    for (auto& condition_name : condition_names) {
+    for (auto &condition_name : condition_names)
+    {
         test_imd_setImdCondition(condition_name);
 
         // From ISOMETER® IR155-3203/IR155-3204 manual:
@@ -37,7 +39,8 @@ TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditio
     }
 }
 
-TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition) {
+TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
+{
     test_imd_setImdCondition(IMD_CONDITION_SST);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
@@ -86,7 +89,8 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition) {
     ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
 }
 
-TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition) {
+TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
+{
     test_imd_setImdCondition(IMD_CONDITION_DEVICE_ERROR);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
@@ -108,7 +112,8 @@ TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition) {
     ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
 }
 
-TEST_F(ImdTest, check_pwm_encoding_for_ground_fault_condition) {
+TEST_F(ImdTest, check_pwm_encoding_for_ground_fault_condition)
+{
     test_imd_setImdCondition(IMD_CONDITION_GROUND_FAULT);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
@@ -130,8 +135,10 @@ TEST_F(ImdTest, check_pwm_encoding_for_ground_fault_condition) {
     ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
 }
 
-TEST_F(ImdTest, check_mapping_for_frequency_to_condition) {
-    struct ConditionLut {
+TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
+{
+    struct ConditionLut
+    {
         float            frequency;
         ImdConditionName condition_name;
     };
@@ -171,7 +178,8 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition) {
         { 53.0f, IMD_CONDITION_INVALID },
     };
 
-    for (auto& entry : lookup_table) {
+    for (auto &entry : lookup_table)
+    {
         fake_io_imd_getFrequency_returns(entry.frequency);
         ASSERT_EQ(app_imd_getCondition().name, entry.condition_name);
     }

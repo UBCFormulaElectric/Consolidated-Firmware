@@ -62,7 +62,8 @@ extern DMA_HandleTypeDef hdma_adc1;
 /**
  * Initializes the Global MSP.
  */
-void HAL_MspInit(void) {
+void HAL_MspInit(void)
+{
     /* USER CODE BEGIN MspInit 0 */
 
     /* USER CODE END MspInit 0 */
@@ -84,9 +85,11 @@ void HAL_MspInit(void) {
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
+void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (hadc->Instance == ADC1) {
+    if (hadc->Instance == ADC1)
+    {
         /* USER CODE BEGIN ADC1_MspInit 0 */
 
         /* USER CODE END ADC1_MspInit 0 */
@@ -125,7 +128,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
         hdma_adc1.Init.Mode                = DMA_CIRCULAR;
         hdma_adc1.Init.Priority            = DMA_PRIORITY_LOW;
         hdma_adc1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-        if (HAL_DMA_Init(&hdma_adc1) != HAL_OK) {
+        if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -143,8 +147,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc) {
-    if (hadc->Instance == ADC1) {
+void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
         /* USER CODE BEGIN ADC1_MspDeInit 0 */
 
         /* USER CODE END ADC1_MspDeInit 0 */
@@ -177,8 +183,10 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc) {
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspInit(CRC_HandleTypeDef* hcrc) {
-    if (hcrc->Instance == CRC) {
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
+{
+    if (hcrc->Instance == CRC)
+    {
         /* USER CODE BEGIN CRC_MspInit 0 */
 
         /* USER CODE END CRC_MspInit 0 */
@@ -196,8 +204,10 @@ void HAL_CRC_MspInit(CRC_HandleTypeDef* hcrc) {
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc) {
-    if (hcrc->Instance == CRC) {
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
+{
+    if (hcrc->Instance == CRC)
+    {
         /* USER CODE BEGIN CRC_MspDeInit 0 */
 
         /* USER CODE END CRC_MspDeInit 0 */
@@ -215,10 +225,12 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc) {
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan) {
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hfdcan->Instance == FDCAN1) {
+    if (hfdcan->Instance == FDCAN1)
+    {
         /* USER CODE BEGIN FDCAN1_MspInit 0 */
 
         /* USER CODE END FDCAN1_MspInit 0 */
@@ -227,7 +239,8 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan) {
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
         PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -263,8 +276,10 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan) {
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* hfdcan) {
-    if (hfdcan->Instance == FDCAN1) {
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
+{
+    if (hfdcan->Instance == FDCAN1)
+    {
         /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
 
         /* USER CODE END FDCAN1_MspDeInit 0 */
@@ -292,10 +307,12 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* hfdcan) {
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspInit(SD_HandleTypeDef* hsd) {
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hsd->Instance == SDMMC1) {
+    if (hsd->Instance == SDMMC1)
+    {
         /* USER CODE BEGIN SDMMC1_MspInit 0 */
 
         /* USER CODE END SDMMC1_MspInit 0 */
@@ -304,7 +321,8 @@ void HAL_SD_MspInit(SD_HandleTypeDef* hsd) {
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDMMC;
         PeriphClkInitStruct.SdmmcClockSelection  = RCC_SDMMCCLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -350,8 +368,10 @@ void HAL_SD_MspInit(SD_HandleTypeDef* hsd) {
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd) {
-    if (hsd->Instance == SDMMC1) {
+void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
+{
+    if (hsd->Instance == SDMMC1)
+    {
         /* USER CODE BEGIN SDMMC1_MspDeInit 0 */
 
         /* USER CODE END SDMMC1_MspDeInit 0 */
@@ -384,10 +404,12 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd) {
  * @param hspi: SPI handle pointer
  * @retval None
  */
-void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi) {
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hspi->Instance == SPI2) {
+    if (hspi->Instance == SPI2)
+    {
         /* USER CODE BEGIN SPI2_MspInit 0 */
 
         /* USER CODE END SPI2_MspInit 0 */
@@ -404,7 +426,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi) {
         PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
         PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
         PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL2;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -443,8 +466,10 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi) {
  * @param hspi: SPI handle pointer
  * @retval None
  */
-void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi) {
-    if (hspi->Instance == SPI2) {
+void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
+{
+    if (hspi->Instance == SPI2)
+    {
         /* USER CODE BEGIN SPI2_MspDeInit 0 */
 
         /* USER CODE END SPI2_MspDeInit 0 */
@@ -470,9 +495,11 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi) {
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (htim_base->Instance == TIM1) {
+    if (htim_base->Instance == TIM1)
+    {
         /* USER CODE BEGIN TIM1_MspInit 0 */
 
         /* USER CODE END TIM1_MspInit 0 */
@@ -505,7 +532,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
         /* USER CODE BEGIN TIM1_MspInit 1 */
 
         /* USER CODE END TIM1_MspInit 1 */
-    } else if (htim_base->Instance == TIM3) {
+    }
+    else if (htim_base->Instance == TIM3)
+    {
         /* USER CODE BEGIN TIM3_MspInit 0 */
 
         /* USER CODE END TIM3_MspInit 0 */
@@ -526,9 +555,11 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
  * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* htim_ic) {
+void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (htim_ic->Instance == TIM15) {
+    if (htim_ic->Instance == TIM15)
+    {
         /* USER CODE BEGIN TIM15_MspInit 0 */
 
         /* USER CODE END TIM15_MspInit 0 */
@@ -558,8 +589,10 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* htim_ic) {
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
-    if (htim_base->Instance == TIM1) {
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM1)
+    {
         /* USER CODE BEGIN TIM1_MspDeInit 0 */
 
         /* USER CODE END TIM1_MspDeInit 0 */
@@ -579,7 +612,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
         /* USER CODE BEGIN TIM1_MspDeInit 1 */
 
         /* USER CODE END TIM1_MspDeInit 1 */
-    } else if (htim_base->Instance == TIM3) {
+    }
+    else if (htim_base->Instance == TIM3)
+    {
         /* USER CODE BEGIN TIM3_MspDeInit 0 */
 
         /* USER CODE END TIM3_MspDeInit 0 */
@@ -600,8 +635,10 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
  * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* htim_ic) {
-    if (htim_ic->Instance == TIM15) {
+void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
+{
+    if (htim_ic->Instance == TIM15)
+    {
         /* USER CODE BEGIN TIM15_MspDeInit 0 */
 
         /* USER CODE END TIM15_MspDeInit 0 */
@@ -625,10 +662,12 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* htim_ic) {
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
+void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (huart->Instance == USART1) {
+    if (huart->Instance == USART1)
+    {
         /* USER CODE BEGIN USART1_MspInit 0 */
 
         /* USER CODE END USART1_MspInit 0 */
@@ -637,7 +676,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
          */
         PeriphClkInitStruct.PeriphClockSelection  = RCC_PERIPHCLK_USART1;
         PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16910CLKSOURCE_D2PCLK2;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -671,8 +711,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspDeInit(UART_HandleTypeDef* huart) {
-    if (huart->Instance == USART1) {
+void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART1)
+    {
         /* USER CODE BEGIN USART1_MspDeInit 0 */
 
         /* USER CODE END USART1_MspDeInit 0 */

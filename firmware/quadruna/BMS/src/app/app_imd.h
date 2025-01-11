@@ -7,16 +7,24 @@
 #define NUM_OF_IMD_CONDITIONS 6
 
 // States for speed start measurement
-typedef enum { SST_GOOD, SST_BAD, SST_INVALID } ImdSst;
+typedef enum
+{
+    SST_GOOD,
+    SST_BAD,
+    SST_INVALID
+} ImdSst;
 
 // The IMD has an PWM output that encodes information about the IMD condition:
 //   - The frequency encodes a name
 //   - The duty cycle encodes additional information (where applicable)
-typedef struct {
+typedef struct
+{
     ImdConditionName name;
-    struct {
+    struct
+    {
         bool valid_duty_cycle;
-        union {
+        union
+        {
             // 10 and 20Hz: Insulation measurement DCP
             uint16_t insulation_measurement_dcp_kohms;
             // 30Hz: Speed Start Measurement

@@ -1,2 +1,2 @@
 #include "DimSwitchEmitter.h"
-DimSwitchEmitter* DimSwitchEmitter::instance = nullptr;
+DimSwitchEmitter *DimSwitchEmitter::instance = nullptr;

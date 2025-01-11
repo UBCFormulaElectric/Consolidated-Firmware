@@ -25,16 +25,19 @@
 #include "hw_adcs.h"
 #include "hw_stackWaterMarkConfig.h"
 
-void tasks_preInit(void) {
+void tasks_preInit(void)
+{
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_preInitWatchdog(void) {
+void tasks_preInitWatchdog(void)
+{
     if (io_fileSystem_init() == FILE_OK)
         io_canLogging_init();
 }
 
-void tasks_init(void) {
+void tasks_init(void)
+{
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
@@ -58,15 +61,19 @@ void tasks_init(void) {
     // hw_gpio_writePin(&inv_r_program, true);
 }
 
-_Noreturn void tasks_run1Hz(void) {
+_Noreturn void tasks_run1Hz(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
-    const uint32_t start_ticks = osKernelGetTickCount();
-    forever {
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
         hw_stackWaterMarkConfig_check();
         jobs_run1Hz_tick();
 
@@ -74,38 +81,48 @@ _Noreturn void tasks_run1Hz(void) {
         // task to sleep.
         hw_watchdog_checkIn(watchdog);
 
-        osDelayUntil(start_ticks + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
-_Noreturn void tasks_run100Hz(void) {
+_Noreturn void tasks_run100Hz(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
-    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
-    const uint32_t start_ticks = osKernelGetTickCount();
-    forever {
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
         jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         hw_watchdog_checkIn(watchdog);
 
-        osDelayUntil(start_ticks + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
-_Noreturn void tasks_run1kHz(void) {
+_Noreturn void tasks_run1kHz(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1U;
-    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
-    const uint32_t start_ticks = osKernelGetTickCount();
-    forever {
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
         const uint32_t task_start_ms = io_time_getCurrentMs();
 
         hw_watchdog_checkForTimeouts();
@@ -117,45 +134,56 @@ _Noreturn void tasks_run1kHz(void) {
         if (io_time_getCurrentMs() - task_start_ms <= period_ms)
             hw_watchdog_checkIn(watchdog);
 
-        osDelayUntil(start_ticks + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
-_Noreturn void tasks_runCanTx(void) {
+_Noreturn void tasks_runCanTx(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
-    forever {
+    for (;;)
+    {
         jobs_runCanTx_tick();
     }
 }
 
-_Noreturn void tasks_runCanRx(void) {
+_Noreturn void tasks_runCanRx(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
-    forever {
+    for (;;)
+    {
         jobs_runCanRx_tick();
     }
 }
 
-_Noreturn void tasks_runTelem(void) {
-    forever {
+_Noreturn void tasks_runTelem(void)
+{
+    for (;;)
+    {
         io_telemMessage_broadcastMsgFromQueue();
     }
 }
 
-_Noreturn void tasks_runLogging(void) {
-    if (!io_fileSystem_ready()) {
+_Noreturn void tasks_runLogging(void)
+{
+    if (!io_fileSystem_ready())
+    {
         // queue shouldn't populate, so this is just an extra precaution
         osThreadSuspend(osThreadGetId());
     }
 
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
-    forever {
+    for (;;)
+    {
         io_canLogging_recordMsgFromQueue();
         message_batch_count++;
         write_count++;
-        if (message_batch_count > 256) {
+        if (message_batch_count > 256)
+        {
             io_canLogging_sync();
             message_batch_count = 0;
         }
@@ -166,30 +194,36 @@ _Noreturn void tasks_runLogging(void) {
  * INTERRUPTS
  */
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-    if (huart == &huart1) {
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == &huart1)
+    {
         io_chimera_msgRxCallback();
-    } else if (huart == &huart2) {
+    }
+    else if (huart == &huart2)
+    {
         io_sbgEllipse_msgRxCallback();
     }
 }
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef* hfdcan, const uint32_t RxFifo0ITs) {
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
+{
     UNUSED(RxFifo0ITs);
     CanMsg rx_msg;
 
-    assert(hfdcan == can1.hcan);
+    assert(hfdcan == &hfdcan1);
     if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&rx_msg);
 }
 
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef* hfdcan, const uint32_t RxFifo1ITs) {
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
+{
     UNUSED(RxFifo1ITs);
     CanMsg rx_msg;
 
-    assert(hfdcan == can1.hcan);
+    assert(hfdcan == &hfdcan1);
     if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
         // Early return if RX msg is unavailable.
         return;

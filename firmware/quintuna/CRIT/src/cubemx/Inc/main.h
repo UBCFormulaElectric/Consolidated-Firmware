@@ -23,7 +23,8 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -32,42 +33,42 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "cmsis_os.h"
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-/* USER CODE END ET */
+    /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-extern ADC_HandleTypeDef  hadc1;
-extern DMA_HandleTypeDef  hdma_adc1;
-extern CAN_HandleTypeDef  hcan1;
-extern IWDG_HandleTypeDef hiwdg;
-extern TIM_HandleTypeDef  htim3;
-extern UART_HandleTypeDef huart2;
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef  hadc1;
+    extern DMA_HandleTypeDef  hdma_adc1;
+    extern CAN_HandleTypeDef  hcan1;
+    extern IWDG_HandleTypeDef hiwdg;
+    extern TIM_HandleTypeDef  htim3;
+    extern UART_HandleTypeDef huart2;
 
-extern osThreadId_t Task1HzHandle;
-extern osThreadId_t Task100HzHandle;
-extern osThreadId_t Task1kHzHandle;
-extern osThreadId_t TaskCanRxHandle;
-extern osThreadId_t TaskCanTxHandle;
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
 
-extern const osThreadAttr_t Task1Hz_attributes;
-extern const osThreadAttr_t Task100Hz_attributes;
-extern const osThreadAttr_t Task1kHz_attributes;
-extern const osThreadAttr_t TaskCanRx_attributes;
-extern const osThreadAttr_t TaskCanTx_attributes;
-/* USER CODE END EC */
+    extern const osThreadAttr_t Task1Hz_attributes;
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+    /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -171,9 +172,9 @@ void Error_Handler(void);
 #define REGEN_LED_Pin GPIO_PIN_9
 #define REGEN_LED_GPIO_Port GPIOB
 
-/* USER CODE BEGIN Private defines */
+    /* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+    /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

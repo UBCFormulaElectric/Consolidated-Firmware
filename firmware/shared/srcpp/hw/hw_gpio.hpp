@@ -1,19 +1,22 @@
 #pragma once
 #ifdef TARGET_EMBEDDED
-extern "C" {
+extern "C"
+{
 #include "hw_hal.hpp"
 }
 #endif
 
-namespace hw {
-class Gpio {
+namespace hw
+{
+class Gpio
+{
 #ifdef TARGET_EMBEDDED
   private:
-    GPIO_TypeDef* const port;
+    GPIO_TypeDef *const port;
     const uint16_t      pin;
 
   public:
-    explicit Gpio(GPIO_TypeDef* const port_in, const uint16_t pin_in) : port(port_in), pin(pin_in) {}
+    explicit Gpio(GPIO_TypeDef *const port_in, const uint16_t pin_in) : port(port_in), pin(pin_in) {}
 #endif
   public:
     [[nodiscard]] bool readPin() const;

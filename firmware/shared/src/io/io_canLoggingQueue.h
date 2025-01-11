@@ -16,7 +16,8 @@
 // then the time will be ~1s. Proceed with caution creating a significant amount of logs above this threshold.
 #define HIGH_NUMBER_OF_LOGS_THRESHOLD (200U)
 
-typedef struct {
+typedef struct
+{
     uint32_t id : 11;
     uint32_t dlc : 4;        // Data length code [0,8]
     uint32_t timestamp : 17; // sum up to 32 bits
@@ -33,7 +34,7 @@ int io_canLogging_init(void);
 /**
  * Populate queue with another item
  */
-bool io_canLogging_loggingQueuePush(const CanMsg* rx_msg);
+bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg);
 
 /**
  * write the can message to the sdcard

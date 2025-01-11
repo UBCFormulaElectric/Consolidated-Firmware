@@ -120,9 +120,9 @@ static void MX_FDCAN2_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_UART9_Init(void);
-void        runDefaultTask(void* argument);
-void        runCanTxTask(void* argument);
-void        runCanRxTask(void* argument);
+void        runDefaultTask(void *argument);
+void        runCanTxTask(void *argument);
+void        runCanRxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 // static void can_msg_received_callback(CanMsg *rx_msg);
@@ -146,7 +146,8 @@ bool sd_inited;
  * @brief  The application entry point.
  * @retval int
  */
-int main(void) {
+int main(void)
+{
     /* USER CODE BEGIN 1 */
     hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
@@ -185,7 +186,8 @@ int main(void) {
     io_can_init(&can);
     io_canQueue_init();
 
-    if (sd_inited) {
+    if (sd_inited)
+    {
         sd1.hsd     = &hsd1;
         sd1.timeout = osWaitForever;
         int err     = io_fileSystem_init();
@@ -239,7 +241,8 @@ int main(void) {
     /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1) {
+    while (1)
+    {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -251,7 +254,8 @@ int main(void) {
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -263,7 +267,8 @@ void SystemClock_Config(void) {
      */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
 
-    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
+    {
     }
 
     /** Initializes the RCC Oscillators according to the specified parameters
@@ -281,7 +286,8 @@ void SystemClock_Config(void) {
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
     RCC_OscInitStruct.PLL.PLLFRACN   = 0;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -297,7 +303,8 @@ void SystemClock_Config(void) {
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV4;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+    {
         Error_Handler();
     }
 }
@@ -307,7 +314,8 @@ void SystemClock_Config(void) {
  * @param None
  * @retval None
  */
-static void MX_FDCAN1_Init(void) {
+static void MX_FDCAN1_Init(void)
+{
     /* USER CODE BEGIN FDCAN1_Init 0 */
 
     /* USER CODE END FDCAN1_Init 0 */
@@ -343,7 +351,8 @@ static void MX_FDCAN1_Init(void) {
     hfdcan1.Init.TxFifoQueueElmtsNbr  = 0;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK) {
+    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN1_Init 2 */
@@ -356,7 +365,8 @@ static void MX_FDCAN1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_FDCAN2_Init(void) {
+static void MX_FDCAN2_Init(void)
+{
     /* USER CODE BEGIN FDCAN2_Init 0 */
 
     /* USER CODE END FDCAN2_Init 0 */
@@ -392,7 +402,8 @@ static void MX_FDCAN2_Init(void) {
     hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK) {
+    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN2_Init 2 */
@@ -405,9 +416,11 @@ static void MX_FDCAN2_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_SDMMC1_SD_Init(void) {
+static void MX_SDMMC1_SD_Init(void)
+{
     /* USER CODE BEGIN SDMMC1_Init 0 */
-    if (hw_gpio_readPin(&sd_present)) {
+    if (hw_gpio_readPin(&sd_present))
+    {
         sd_inited = false;
         return;
     }
@@ -423,7 +436,8 @@ static void MX_SDMMC1_SD_Init(void) {
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
     hsd1.Init.ClockDiv            = 9;
-    if (HAL_SD_Init(&hsd1) != HAL_OK) {
+    if (HAL_SD_Init(&hsd1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
@@ -436,7 +450,8 @@ static void MX_SDMMC1_SD_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_UART9_Init(void) {
+static void MX_UART9_Init(void)
+{
     /* USER CODE BEGIN UART9_Init 0 */
 
     /* USER CODE END UART9_Init 0 */
@@ -455,16 +470,20 @@ static void MX_UART9_Init(void) {
     huart9.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
     huart9.Init.ClockPrescaler         = UART_PRESCALER_DIV1;
     huart9.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart9) != HAL_OK) {
+    if (HAL_UART_Init(&huart9) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetTxFifoThreshold(&huart9, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK) {
+    if (HAL_UARTEx_SetTxFifoThreshold(&huart9, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetRxFifoThreshold(&huart9, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK) {
+    if (HAL_UARTEx_SetRxFifoThreshold(&huart9, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart9) != HAL_OK) {
+    if (HAL_UARTEx_DisableFifoMode(&huart9) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN UART9_Init 2 */
@@ -477,7 +496,8 @@ static void MX_UART9_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_GPIO_Init(void) {
+static void MX_GPIO_Init(void)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
@@ -521,12 +541,14 @@ static void MX_GPIO_Init(void) {
  * @retval None
  */
 /* USER CODE END Header_runDefaultTask */
-void runDefaultTask(void* argument) {
+void runDefaultTask(void *argument)
+{
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
-    for (;;) {
+    for (;;)
+    {
         // UART modem_uart = { .handle = &huart9 };
         // /* Infinite loop */
         // // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
@@ -573,13 +595,16 @@ void runDefaultTask(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_runCanTxTask */
-void runCanTxTask(void* argument) {
+void runCanTxTask(void *argument)
+{
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
 
-    for (unsigned int i = 0; i < 10000; i++) {
+    for (unsigned int i = 0; i < 10000; i++)
+    {
         CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        for (int j = 0; j < 6; j++) {
+        for (int j = 0; j < 6; j++)
+        {
             read_num++;
             // io_canLogging_pushTxMsgToQueue(&msg);
         }
@@ -597,18 +622,21 @@ void runCanTxTask(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_runCanRxTask */
-void runCanRxTask(void* argument) {
+void runCanRxTask(void *argument)
+{
     /* USER CODE BEGIN runCanRxTask */
     /* Infinite loop */
     static uint32_t count = 0;
-    for (;;) {
+    for (;;)
+    {
         // CanMsg msg;
         // io_can_popRxMsgFromQueue(&msg);
         io_canLogging_recordMsgFromQueue();
         write_num++;
         count++;
 
-        if (count > 256) {
+        if (count > 256)
+        {
             io_canLogging_sync();
             count = 0;
         }
@@ -624,11 +652,13 @@ void runCanRxTask(void* argument) {
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM6) {
+    if (htim->Instance == TIM6)
+    {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
@@ -640,11 +670,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
-    while (1) {
+    while (1)
+    {
     }
     /* USER CODE END Error_Handler_Debug */
 }
@@ -657,7 +689,8 @@ void Error_Handler(void) {
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t* file, uint32_t line) {
+void assert_failed(uint8_t *file, uint32_t line)
+{
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
        ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

@@ -6,7 +6,8 @@
 #include "fake_io_sbgEllipse.hpp"
 #include "fake_io_pcm.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -28,9 +29,11 @@ extern "C" {
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
 
-class VcBaseStateMachineTest : public BaseStateMachineTest {
+class VcBaseStateMachineTest : public BaseStateMachineTest
+{
   protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         BaseStateMachineTest::SetUp();
 
         app_canTx_init();
@@ -50,7 +53,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest {
         fake_io_sbgEllipse_getEkfNavPositionData_returns(&fake_sensor_data.ekf_nav_data.position);
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         // Reset fakes.
         fake_io_time_getCurrentMs_reset();
         fake_io_lowVoltageBattery_hasChargeFault_reset();
@@ -72,12 +76,14 @@ class VcBaseStateMachineTest : public BaseStateMachineTest {
         fake_io_sbgEllipse_getEkfNavPositionData_reset();
     }
 
-    void SetInitialState(const State* const initial_state) {
+    void SetInitialState(const State *const initial_state)
+    {
         app_stateMachine_init(initial_state);
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
-    void SetStateToDrive() {
+    void SetStateToDrive()
+    {
         app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
         app_canRx_BMS_State_update(BMS_DRIVE_STATE);
         app_canRx_FSM_BrakeActuated_update(true);
@@ -86,8 +92,9 @@ class VcBaseStateMachineTest : public BaseStateMachineTest {
     }
 
     // configs for efuse messages over can
-    std::vector<const State*> GetAllStates(void) {
-        return std::vector<const State*>{ app_initState_get(), app_driveState_get() };
+    std::vector<const State *> GetAllStates(void)
+    {
+        return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
     }
 
     SensorData fake_sensor_data;

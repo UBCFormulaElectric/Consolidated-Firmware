@@ -10,12 +10,14 @@ static bool checkPrechargeFaults(
     bool is_charger_connected,
     bool is_ts_rising_slowly,
     bool is_ts_rising_quickly,
-    bool is_air_negative_open) {
+    bool is_air_negative_open)
+{
     bool has_precharge_fault =
         (is_charger_connected) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
     has_precharge_fault |= is_air_negative_open;
 
-    if (has_precharge_fault && globals->num_precharge_failures < MAX_PRECHARGE_ATTEMPTS) {
+    if (has_precharge_fault && globals->num_precharge_failures < MAX_PRECHARGE_ATTEMPTS)
+    {
         globals->num_precharge_failures++;
     }
 
@@ -25,7 +27,8 @@ static bool checkPrechargeFaults(
     return has_precharge_fault;
 }
 
-static void preChargeStateRunOnEntry(void) {
+static void preChargeStateRunOnEntry(void)
+{
     app_canTx_BMS_State_set(BMS_PRECHARGE_STATE);
     io_airs_closePrecharge();
 
@@ -34,12 +37,15 @@ static void preChargeStateRunOnEntry(void) {
     app_timer_restart(&globals->precharge_upper_bound_timer);
 }
 
-static void preChargeStateRunOnTick1Hz(void) {
+static void preChargeStateRunOnTick1Hz(void)
+{
     app_allStates_runOnTick1Hz();
 }
 
-static void preChargeStateRunOnTick100Hz(void) {
-    if (app_allStates_runOnTick100Hz()) {
+static void preChargeStateRunOnTick100Hz(void)
+{
+    if (app_allStates_runOnTick100Hz())
+    {
         float ts_voltage        = app_tractiveSystem_getVoltage();
         float threshold_voltage = app_accumulator_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 
@@ -58,21 +64,29 @@ static void preChargeStateRunOnTick100Hz(void) {
         // If there is a pre-charge fault and there were no more than three previous pre-charge faults
         // Go back to Init State, add one to the pre-charge failed counter and set the CAN charging message to false
         // Else go to Fault State, reset the pre-charge failed counter and set the CAN charging message to false
-        if (has_precharge_fault) {
-            if (globals->precharge_limit_exceeded) {
+        if (has_precharge_fault)
+        {
+            if (globals->precharge_limit_exceeded)
+            {
                 app_stateMachine_setNextState(app_faultState_get());
-            } else {
+            }
+            else
+            {
                 app_stateMachine_setNextState(app_initState_get());
             }
         }
         // If there is no precharge fault and the charger is connected
         // Close the AIRs+, reset fault counter and go to Charge State
         // Else close the AIRs+, reset fault counter and go to Drive State
-        else if (ts_voltage >= threshold_voltage) {
-            const State* next_state;
-            if (is_charger_connected) {
+        else if (ts_voltage >= threshold_voltage)
+        {
+            const State *next_state;
+            if (is_charger_connected)
+            {
                 next_state = app_chargeState_get();
-            } else {
+            }
+            else
+            {
                 next_state = app_driveState_get();
             }
 
@@ -81,7 +95,8 @@ static void preChargeStateRunOnTick100Hz(void) {
             io_airs_closePositive();
         }
 
-        if (is_air_negative_open && is_charger_connected) {
+        if (is_air_negative_open && is_charger_connected)
+        {
             // TODO: Consider reworking this transition.
             app_stateMachine_setNextState(app_faultState_get());
             app_canRx_Debug_StartCharging_update(false);
@@ -90,7 +105,8 @@ static void preChargeStateRunOnTick100Hz(void) {
     }
 }
 
-static void preChargeStateRunOnExit(void) {
+static void preChargeStateRunOnExit(void)
+{
     // If we entered precharge to charge, disable this request on exit.
     app_canRx_Debug_StartCharging_update(false);
 
@@ -98,7 +114,8 @@ static void preChargeStateRunOnExit(void) {
     io_airs_openPrecharge();
 }
 
-const State* app_prechargeState_get(void) {
+const State *app_prechargeState_get(void)
+{
     static State pre_charge_state = {
         .name              = "PRECHARGE",
         .run_on_entry      = preChargeStateRunOnEntry,

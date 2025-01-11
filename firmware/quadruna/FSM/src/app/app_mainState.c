@@ -9,7 +9,8 @@
 #include "app_loadCell.h"
 #include "app_shdnLoop.h"
 
-void mainStateRunOnTick100Hz(void) {
+void mainStateRunOnTick100Hz(void)
+{
     app_canTx_FSM_Heartbeat_set(true);
 
     app_apps_broadcast();
@@ -21,7 +22,8 @@ void mainStateRunOnTick100Hz(void) {
     app_shdnLoop_broadcast();
 }
 
-const State* app_mainState_get(void) {
+const State *app_mainState_get(void)
+{
     static State main_state = {
         .name              = "MAIN STATE",
         .run_on_entry      = NULL,

@@ -1,7 +1,8 @@
 #include <stdbool.h>
 #include "io_efuse.h"
 
-typedef struct {
+typedef struct
+{
     bool efuses[NUM_EFUSE_CHANNELS];
 } PowerStateConfig;
 

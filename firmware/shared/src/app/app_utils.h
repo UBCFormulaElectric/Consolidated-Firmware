@@ -44,11 +44,13 @@
 #define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
 
 #define EMPTY_STRUCT(name)     \
-    typedef struct {           \
+    typedef struct             \
+    {                          \
         unsigned char _unused; \
     } name;
 
-typedef enum {
+typedef enum
+{
     EXIT_CODE_OK = 0,
     EXIT_CODE_INVALID_ARGS,
     EXIT_CODE_OUT_OF_RANGE,

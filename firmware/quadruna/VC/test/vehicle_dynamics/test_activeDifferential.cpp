@@ -8,7 +8,8 @@
 
 #include <gtest/gtest.h>
 
-extern "C" {
+extern "C"
+{
 #include "app_utils.h"
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
@@ -18,9 +19,12 @@ extern "C" {
 #include "app_units.h"
 }
 
-class ActiveDifferentialTest : public testing::Test {};
+class ActiveDifferentialTest : public testing::Test
+{
+};
 
-TEST_F(ActiveDifferentialTest, torques_do_not_exceed_motor_torque_limit_while_turning_at_max_torque_request) {
+TEST_F(ActiveDifferentialTest, torques_do_not_exceed_motor_torque_limit_while_turning_at_max_torque_request)
+{
     struct ActiveDifferential_Inputs  active_diff_inputs_t1;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t1;
     float                             wheel_angle_t1          = 30.0;
@@ -44,7 +48,8 @@ TEST_F(ActiveDifferentialTest, torques_do_not_exceed_motor_torque_limit_while_tu
     float expected_torque_right_t1 = cr_t1 * torque_t1;
     float max_torque_t1            = fmaxf(expected_torque_left_t1, expected_torque_right_t1);
 
-    if (max_torque_t1 > torque_lim_t1) {
+    if (max_torque_t1 > torque_lim_t1)
+    {
         scale = torque_lim_t1 / max_torque_t1;
     }
 
@@ -72,7 +77,8 @@ TEST_F(ActiveDifferentialTest, torques_do_not_exceed_motor_torque_limit_while_tu
     ASSERT_FLOAT_EQ(expected_ratio_t1, actual_ratio_t1);
 };
 
-TEST_F(ActiveDifferentialTest, no_torques_while_turning_at_zero_power_limit) {
+TEST_F(ActiveDifferentialTest, no_torques_while_turning_at_zero_power_limit)
+{
     struct ActiveDifferential_Inputs  active_diff_inputs_t2;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t2;
     float                             wheel_angle_t2          = 30.0;
@@ -86,7 +92,8 @@ TEST_F(ActiveDifferentialTest, no_torques_while_turning_at_zero_power_limit) {
     ASSERT_FLOAT_EQ(0.0, actual_active_diff_outputs_t2.torque_right_Nm);
 };
 
-TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_right_at_nonzero_power_limit) {
+TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_right_at_nonzero_power_limit)
+{
     struct ActiveDifferential_Inputs  active_diff_inputs_t3;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t3;
     float                             wheel_angle_t3          = 30.0;
@@ -110,7 +117,8 @@ TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_right
     float expected_torque_right_t3 = cr_t3 * torque_t3;
     float max_torque_t3            = fmaxf(expected_torque_left_t3, expected_torque_right_t3);
 
-    if (max_torque_t3 > torque_lim_t3) {
+    if (max_torque_t3 > torque_lim_t3)
+    {
         scale = torque_lim_t3 / max_torque_t3;
     }
 
@@ -128,7 +136,8 @@ TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_right
     ASSERT_TRUE(actual_active_diff_outputs_t3.torque_left_Nm > actual_active_diff_outputs_t3.torque_right_Nm);
 };
 
-TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_left_at_nonzero_power_limit) {
+TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_left_at_nonzero_power_limit)
+{
     struct ActiveDifferential_Inputs  active_diff_inputs_t4;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t4;
     float                             wheel_angle_t4          = -30.0;
@@ -152,7 +161,8 @@ TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_left_
     float expected_torque_right_t4 = cr_t4 * torque_t4;
     float max_torque_t4            = fmaxf(expected_torque_left_t4, expected_torque_right_t4);
 
-    if (max_torque_t4 > torque_lim_t4) {
+    if (max_torque_t4 > torque_lim_t4)
+    {
         scale = torque_lim_t4 / max_torque_t4;
     }
 

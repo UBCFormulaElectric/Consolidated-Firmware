@@ -23,47 +23,48 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+    /* Private includes ----------------------------------------------------------*/
+    /* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-/* USER CODE END ET */
+    /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-extern ADC_HandleTypeDef   hadc1;
-extern ADC_HandleTypeDef   hadc3;
-extern DMA_HandleTypeDef   hdma_adc1;
-extern FDCAN_HandleTypeDef hfdcan1;
-extern I2C_HandleTypeDef   hi2c1;
-extern I2C_HandleTypeDef   hi2c2;
-extern IWDG_HandleTypeDef  hiwdg1;
-extern SD_HandleTypeDef    hsd1;
-extern TIM_HandleTypeDef   htim3;
-extern UART_HandleTypeDef  huart7;
-extern UART_HandleTypeDef  huart1;
-extern UART_HandleTypeDef  huart2;
-extern UART_HandleTypeDef  huart3;
-extern DMA_HandleTypeDef   hdma_usart2_rx;
-/* USER CODE END EC */
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef   hadc1;
+    extern ADC_HandleTypeDef   hadc3;
+    extern DMA_HandleTypeDef   hdma_adc1;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern I2C_HandleTypeDef   hi2c1;
+    extern I2C_HandleTypeDef   hi2c2;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern SD_HandleTypeDef    hsd1;
+    extern TIM_HandleTypeDef   htim3;
+    extern UART_HandleTypeDef  huart7;
+    extern UART_HandleTypeDef  huart1;
+    extern UART_HandleTypeDef  huart2;
+    extern UART_HandleTypeDef  huart3;
+    extern DMA_HandleTypeDef   hdma_usart2_rx;
+    /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+    /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -160,9 +161,9 @@ void Error_Handler(void);
 #define FR_STBY3_Pin GPIO_PIN_1
 #define FR_STBY3_GPIO_Port GPIOE
 
-/* USER CODE BEGIN Private defines */
+    /* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+    /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

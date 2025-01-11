@@ -5,7 +5,8 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
 
-typedef struct {
+typedef struct
+{
     const Gpio sd_present;
 } SdGpio;
 #else
@@ -17,7 +18,7 @@ EMPTY_STRUCT(SdGpio);
  * @brief Initialize SD Gpio struct.
  * @param sdGpio SD GPIO struct.
  */
-void io_sdGpio_init(const SdGpio* sdGpio);
+void io_sdGpio_init(const SdGpio *sdGpio);
 
 /**
  * Return whether or not a SD Card is present

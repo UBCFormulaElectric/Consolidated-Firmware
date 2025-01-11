@@ -14,7 +14,8 @@
 #include "fake_io_thermistors.hpp"
 #include "fake_io_tractiveSystem.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"
@@ -33,9 +34,11 @@ extern "C" {
 #include "app_globals.h"
 }
 
-class BmsBaseStateMachineTest : public BaseStateMachineTest {
+class BmsBaseStateMachineTest : public BaseStateMachineTest
+{
   protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         BaseStateMachineTest::SetUp();
 
         app_canTx_init();
@@ -71,7 +74,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest {
         app_stateMachine_init(app_initState_get());
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         fake_io_ltc6813CellTemps_getMinTempDegC_reset();
         fake_io_ltc6813CellTemps_getMaxTempDegC_reset();
         fake_io_ltc6813CellVoltages_getCellVoltage_reset();
@@ -89,15 +93,17 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest {
         fake_io_faultLatch_setCurrentStatus_reset();
     }
 
-    void SetInitialState(const State* const initial_state) {
+    void SetInitialState(const State *const initial_state)
+    {
         app_stateMachine_init(initial_state);
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
-    std::vector<const State*> GetAllStates(void) {
-        return std::vector<const State*>{ app_initState_get(),     app_prechargeState_get(), app_driveState_get(),
-                                          app_chargeState_get(),   app_faultState_get(),     app_inverterOnState_get(),
-                                          app_balancingState_get() };
+    std::vector<const State *> GetAllStates(void)
+    {
+        return std::vector<const State *>{ app_initState_get(),     app_prechargeState_get(), app_driveState_get(),
+                                           app_chargeState_get(),   app_faultState_get(),     app_inverterOnState_get(),
+                                           app_balancingState_get() };
     }
 
     const TractiveSystemConfig ts_config = {};

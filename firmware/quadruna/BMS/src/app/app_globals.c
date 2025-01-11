@@ -3,9 +3,10 @@
 #include "states/app_prechargeState.h"
 
 Globals        bms_globals;
-Globals* const globals = &bms_globals;
+Globals *const globals = &bms_globals;
 
-void app_globals_init() {
+void app_globals_init()
+{
     memset(globals, 0U, sizeof(Globals));
     app_timer_init(&globals->precharge_lower_bound_timer, PRECHARGE_COMPLETION_LOWER_BOUND);
     app_timer_init(&globals->precharge_upper_bound_timer, PRECHARGE_COMPLETION_UPPER_BOUND);

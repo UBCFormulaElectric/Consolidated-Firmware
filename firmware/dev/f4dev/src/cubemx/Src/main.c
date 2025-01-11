@@ -41,7 +41,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-SdCard* sd;
+SdCard *sd;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -72,7 +72,7 @@ static void MX_CAN1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN2_Init(void);
 static void MX_USART2_UART_Init(void);
-void        StartDefaultTask(void* argument);
+void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -138,7 +138,8 @@ void        StartDefaultTask(void* argument);
  * @brief  The application entry point.
  * @retval int
  */
-int main(void) {
+int main(void)
+{
     /* USER CODE BEGIN 1 */
     /* USER CODE END 1 */
 
@@ -242,7 +243,8 @@ int main(void) {
     /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1) {
+    while (1)
+    {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -254,7 +256,8 @@ int main(void) {
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -275,7 +278,8 @@ void SystemClock_Config(void) {
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -287,7 +291,8 @@ void SystemClock_Config(void) {
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    {
         Error_Handler();
     }
 }
@@ -297,7 +302,8 @@ void SystemClock_Config(void) {
  * @param None
  * @retval None
  */
-static void MX_ADC1_Init(void) {
+static void MX_ADC1_Init(void)
+{
     /* USER CODE BEGIN ADC1_Init 0 */
 
     /* USER CODE END ADC1_Init 0 */
@@ -320,7 +326,8 @@ static void MX_ADC1_Init(void) {
     hadc1.Init.NbrOfConversion       = 1;
     hadc1.Init.DMAContinuousRequests = DISABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    if (HAL_ADC_Init(&hadc1) != HAL_OK) {
+    if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN ADC1_Init 2 */
@@ -333,7 +340,8 @@ static void MX_ADC1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_CAN1_Init(void) {
+static void MX_CAN1_Init(void)
+{
     /* USER CODE BEGIN CAN1_Init 0 */
 
     /* USER CODE END CAN1_Init 0 */
@@ -353,7 +361,8 @@ static void MX_CAN1_Init(void) {
     hcan1.Init.AutoRetransmission   = ENABLE;
     hcan1.Init.ReceiveFifoLocked    = ENABLE;
     hcan1.Init.TransmitFifoPriority = ENABLE;
-    if (HAL_CAN_Init(&hcan1) != HAL_OK) {
+    if (HAL_CAN_Init(&hcan1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
@@ -366,7 +375,8 @@ static void MX_CAN1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_CAN2_Init(void) {
+static void MX_CAN2_Init(void)
+{
     /* USER CODE BEGIN CAN2_Init 0 */
 
     /* USER CODE END CAN2_Init 0 */
@@ -386,7 +396,8 @@ static void MX_CAN2_Init(void) {
     hcan2.Init.AutoRetransmission   = ENABLE;
     hcan2.Init.ReceiveFifoLocked    = ENABLE;
     hcan2.Init.TransmitFifoPriority = ENABLE;
-    if (HAL_CAN_Init(&hcan2) != HAL_OK) {
+    if (HAL_CAN_Init(&hcan2) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN CAN2_Init 2 */
@@ -399,7 +410,8 @@ static void MX_CAN2_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_SDIO_SD_Init(void) {
+static void MX_SDIO_SD_Init(void)
+{
     /* USER CODE BEGIN SDIO_Init 0 */
 
     /* USER CODE END SDIO_Init 0 */
@@ -414,10 +426,12 @@ static void MX_SDIO_SD_Init(void) {
     hsd.Init.BusWide             = SDIO_BUS_WIDE_4B;
     hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
     hsd.Init.ClockDiv            = 0;
-    if (HAL_SD_Init(&hsd) != HAL_OK) {
+    if (HAL_SD_Init(&hsd) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B) != HAL_OK) {
+    if (HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN SDIO_Init 2 */
@@ -429,7 +443,8 @@ static void MX_SDIO_SD_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_USART2_UART_Init(void) {
+static void MX_USART2_UART_Init(void)
+{
     /* USER CODE BEGIN USART2_Init 0 */
 
     /* USER CODE END USART2_Init 0 */
@@ -445,7 +460,8 @@ static void MX_USART2_UART_Init(void) {
     huart2.Init.Mode         = UART_MODE_TX_RX;
     huart2.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-    if (HAL_UART_Init(&huart2) != HAL_OK) {
+    if (HAL_UART_Init(&huart2) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN USART2_Init 2 */
@@ -458,7 +474,8 @@ static void MX_USART2_UART_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_GPIO_Init(void) {
+static void MX_GPIO_Init(void)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
@@ -509,7 +526,8 @@ static void MX_GPIO_Init(void) {
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void* argument) {
+void StartDefaultTask(void *argument)
+{
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
@@ -521,9 +539,11 @@ void StartDefaultTask(void* argument) {
     predicData[1] = 13;
     predicData[2] = 10;
     //  uint8_t = message [8]; //use this if you want fun string
-    for (;;) {
+    for (;;)
+    {
         // hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100); // fun string
-        for (num = 48; num < 57; num++) {
+        for (num = 48; num < 57; num++)
+        {
             predicData[0] = num;
             hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
             // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
@@ -541,11 +561,13 @@ void StartDefaultTask(void* argument) {
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM6) {
+    if (htim->Instance == TIM6)
+    {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
@@ -557,7 +579,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
 
@@ -572,7 +595,8 @@ void Error_Handler(void) {
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t* file, uint32_t line) {
+void assert_failed(uint8_t *file, uint32_t line)
+{
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
        tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

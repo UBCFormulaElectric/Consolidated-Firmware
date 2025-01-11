@@ -45,18 +45,23 @@
 
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
-    if ((is_pec_ok)) {                                      \
+    if ((is_pec_ok))                                        \
+    {                                                       \
         (num_comm_tries) = 0U;                              \
-    } else {                                                \
+    }                                                       \
+    else                                                    \
+    {                                                       \
         (num_comm_tries)++;                                 \
     }
 
-typedef enum {
+typedef enum
+{
     GET_CELL_VOLTAGE_STATE = 0U,
     GET_CELL_TEMP_STATE,
 } AccumulatorMonitorState;
 
-typedef enum {
+typedef enum
+{
     START_OPEN_WIRE_CHECK = 0U,
     GET_PU_CELL_VOLTAGE_STATE,
     GET_PD_CELL_VOLTAGE_STATE,
@@ -64,26 +69,30 @@ typedef enum {
     IDLE_STATE,
 } AccumulatorOpenWireCheckState;
 
-typedef struct {
+typedef struct
+{
     uint8_t segment;
     uint8_t cell;
     float   voltage;
 } CellVoltage;
 
-typedef struct {
+typedef struct
+{
     CellVoltage min_voltage;
     CellVoltage max_voltage;
     float       segment_voltages[ACCUMULATOR_NUM_SEGMENTS];
     float       pack_voltage;
 } VoltageStats;
 
-typedef struct {
+typedef struct
+{
     uint16_t owc_status[ACCUMULATOR_NUM_SEGMENTS];
     bool     owc_fault_gnd[ACCUMULATOR_NUM_SEGMENTS];
     bool     owc_global_fault;
 } OWCFaults;
 
-typedef struct {
+typedef struct
+{
     // Cells information
     uint32_t                num_comm_tries;
     VoltageStats            voltage_stats;
@@ -109,27 +118,32 @@ static TimerChannel over_voltage_fault_timer;
 static TimerChannel under_temp_fault_timer;
 static TimerChannel over_temp_fault_timer;
 
-static void app_accumulator_calculateVoltageStats(void) {
+static void app_accumulator_calculateVoltageStats(void)
+{
     VoltageStats temp_voltage_stats = { .min_voltage      = { .segment = 0U, .cell = 0U, .voltage = FLT_MAX },
                                         .max_voltage      = { .segment = 0U, .cell = 0U, .voltage = 0.0f },
                                         .segment_voltages = { 0U },
                                         .pack_voltage     = 0U };
 
     // Find the min and max voltages
-    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
-        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
             // Collect each cell voltage to find the min/max
             const float cell_voltage = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
 
             // Get the minimum cell voltage
-            if (cell_voltage < temp_voltage_stats.min_voltage.voltage) {
+            if (cell_voltage < temp_voltage_stats.min_voltage.voltage)
+            {
                 temp_voltage_stats.min_voltage.voltage = cell_voltage;
                 temp_voltage_stats.min_voltage.segment = segment;
                 temp_voltage_stats.min_voltage.cell    = cell;
             }
 
             // Get the maximum cell voltage
-            if (cell_voltage > temp_voltage_stats.max_voltage.voltage) {
+            if (cell_voltage > temp_voltage_stats.max_voltage.voltage)
+            {
                 temp_voltage_stats.max_voltage.voltage = cell_voltage;
                 temp_voltage_stats.max_voltage.segment = segment;
                 temp_voltage_stats.max_voltage.cell    = cell;
@@ -146,28 +160,34 @@ static void app_accumulator_calculateVoltageStats(void) {
     data.voltage_stats = temp_voltage_stats;
 }
 
-void app_accumulator_calculateCellsToBalance(void) {
+void app_accumulator_calculateCellsToBalance(void)
+{
     float target_voltage = data.voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
     target_voltage = app_canRx_Debug_CellBalancingOverrideTarget_get()
                          ? app_canRx_Debug_CellBalancingOverrideTargetValue_get()
                          : target_voltage;
-    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
-        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
             const bool needs_discharging = (io_ltc6813CellVoltages_getCellVoltage(segment, cell) > target_voltage);
             io_ltc6813Shared_markCellForDischarge(segment, cell, needs_discharging);
         }
     }
 }
 
-void app_accumulator_balanceCells(void) {
-    if (!data.balance_enabled) {
+void app_accumulator_balanceCells(void)
+{
+    if (!data.balance_enabled)
+    {
         io_ltc6813Shared_disableBalance();
         return;
     }
 
     // Exit early if ADC conversion fails
-    if (!io_ltc6813Shared_pollAdcConversions()) {
+    if (!io_ltc6813Shared_pollAdcConversions())
+    {
         return;
     }
 
@@ -187,22 +207,27 @@ void app_accumulator_balanceCells(void) {
     uint32_t balance_ticks_on  = (uint32_t)(1.0f / balance_pwm_freq * (float)balance_pwm_duty);
     uint32_t balance_ticks_off = (uint32_t)(1.0f / balance_pwm_freq * (float)(100 - balance_pwm_duty));
 
-    if (data.balance_pwm_high) {
+    if (data.balance_pwm_high)
+    {
         // Enable cell discharging
         io_ltc6813Shared_enableBalance();
         data.balance_pwm_ticks += 1;
 
-        if (data.balance_pwm_ticks >= balance_ticks_on) {
+        if (data.balance_pwm_ticks >= balance_ticks_on)
+        {
             // Cell discharging enabled duty cycle portion is finished
             data.balance_pwm_high  = false;
             data.balance_pwm_ticks = 0;
         }
-    } else {
+    }
+    else
+    {
         // Disable cell discharging
         io_ltc6813Shared_disableBalance();
         data.balance_pwm_ticks += 1;
 
-        if (data.balance_pwm_ticks >= balance_ticks_off) {
+        if (data.balance_pwm_ticks >= balance_ticks_off)
+        {
             // Cell discharging disabled duty cycle portion is finished
             data.balance_pwm_high  = true;
             data.balance_pwm_ticks = 0;
@@ -210,7 +235,8 @@ void app_accumulator_balanceCells(void) {
     }
 }
 
-void app_accumulator_init(void) {
+void app_accumulator_init(void)
+{
     // Cell voltage monitoring functions
     data.num_comm_tries = 0U;
 
@@ -233,14 +259,18 @@ void app_accumulator_init(void) {
     app_timer_init(&over_temp_fault_timer, OVER_TEMP_DEBOUNCE_DURATION_MS);
 }
 
-void app_accumulator_writeDefaultConfig(void) {
+void app_accumulator_writeDefaultConfig(void)
+{
     // Configure the cell monitoring chips. Disable discharge at startup
     io_ltc6813Shared_setCfgRegsToDefaultSettings();
 }
 
-void app_accumulator_runCellMeasurements(void) {
-    switch (data.state) {
-        case GET_CELL_VOLTAGE_STATE: {
+void app_accumulator_runCellMeasurements(void)
+{
+    switch (data.state)
+    {
+        case GET_CELL_VOLTAGE_STATE:
+        {
             // Attempt to read voltages from the LTCs, write output to cell voltages array
             UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellVoltages_readVoltages(), data.num_comm_tries);
 
@@ -252,7 +282,8 @@ void app_accumulator_runCellMeasurements(void) {
             data.state = GET_CELL_TEMP_STATE;
             break;
         }
-        case GET_CELL_TEMP_STATE: {
+        case GET_CELL_TEMP_STATE:
+        {
             UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellTemps_readTemperatures(), data.num_comm_tries)
 
             // Start cell voltage conversions for the next cycle
@@ -261,25 +292,34 @@ void app_accumulator_runCellMeasurements(void) {
             data.state = GET_CELL_VOLTAGE_STATE;
             break;
         }
-        default: {
+        default:
+        {
             break;
         }
     }
 }
 
-static void app_accumulator_owcCalculateFaults(void) {
+static void app_accumulator_owcCalculateFaults(void)
+{
     OWCFaults owcFaults = { .owc_status = { 0U }, .owc_fault_gnd = { 0U }, .owc_global_fault = 0U };
 
     owcFaults.owc_global_fault = io_ltc6813CellVoltages_getGlobalOpenWireFault();
 
-    if (owcFaults.owc_global_fault) {
-        for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
-            if (io_ltc6813CellVoltages_getOpenWireFault(segment, 0)) {
+    if (owcFaults.owc_global_fault)
+    {
+        for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+        {
+            if (io_ltc6813CellVoltages_getOpenWireFault(segment, 0))
+            {
                 owcFaults.owc_fault_gnd[segment] = true;
                 owcFaults.owc_status[segment]    = (uint16_t)1;
-            } else {
-                for (uint8_t cell = 1; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
-                    if (io_ltc6813CellVoltages_getOpenWireFault(segment, cell)) {
+            }
+            else
+            {
+                for (uint8_t cell = 1; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+                {
+                    if (io_ltc6813CellVoltages_getOpenWireFault(segment, cell))
+                    {
                         owcFaults.owc_status[segment] |= ((uint16_t)(1 << cell));
                     }
                 }
@@ -290,11 +330,14 @@ static void app_accumulator_owcCalculateFaults(void) {
     data.owc_faults = owcFaults;
 }
 
-bool app_accumulator_runOpenWireCheck(void) {
+bool app_accumulator_runOpenWireCheck(void)
+{
     bool is_finished = false;
 
-    switch (data.owc_state) {
-        case START_OPEN_WIRE_CHECK: {
+    switch (data.owc_state)
+    {
+        case START_OPEN_WIRE_CHECK:
+        {
             // update the number of commands that've been run already before starting Open Wire Check
             open_wire_pu_readings = 0;
             open_wire_pd_readings = 0;
@@ -303,38 +346,48 @@ bool app_accumulator_runOpenWireCheck(void) {
             // Set up or acquire the Mutex for iso-SPI
             bool Mutex_Acquired = true; // this line is just a reminder to fix it with proper code
 
-            if (Mutex_Acquired) {
+            if (Mutex_Acquired)
+            {
                 io_ltc6813CellVoltages_owcStart(PULL_UP);
                 open_wire_pu_readings++;
                 data.owc_state = GET_PU_CELL_VOLTAGE_STATE;
             }
             break;
         }
-        case GET_PU_CELL_VOLTAGE_STATE: {
-            if (open_wire_pu_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS) {
+        case GET_PU_CELL_VOLTAGE_STATE:
+        {
+            if (open_wire_pu_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
+            {
                 UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellVoltages_owcReadVoltages(PULL_UP), data.num_comm_tries);
 
                 io_ltc6813CellVoltages_owcStart(PULL_DOWN);
                 open_wire_pd_readings++;
                 data.owc_state = GET_PD_CELL_VOLTAGE_STATE;
-            } else {
+            }
+            else
+            {
                 io_ltc6813CellVoltages_owcStart(PULL_UP);
                 open_wire_pu_readings++;
             }
             break;
         }
-        case GET_PD_CELL_VOLTAGE_STATE: {
-            if (open_wire_pd_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS) {
+        case GET_PD_CELL_VOLTAGE_STATE:
+        {
+            if (open_wire_pd_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
+            {
                 UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellVoltages_owcReadVoltages(PULL_DOWN), data.num_comm_tries);
 
                 data.owc_state = CHECK_OPEN_WIRE_FAULT_STATE;
-            } else {
+            }
+            else
+            {
                 io_ltc6813CellVoltages_owcStart(PULL_DOWN);
                 open_wire_pd_readings++;
             }
             break;
         }
-        case CHECK_OPEN_WIRE_FAULT_STATE: {
+        case CHECK_OPEN_WIRE_FAULT_STATE:
+        {
             io_ltc6813CellVoltages_checkOpenWireStatus();
             data.owc_state = IDLE_STATE;
 
@@ -342,19 +395,24 @@ bool app_accumulator_runOpenWireCheck(void) {
 
             break;
         }
-        case IDLE_STATE: {
+        case IDLE_STATE:
+        {
             owc_idle_cycles++;
 
-            if (owc_idle_cycles >= OPEN_WIRE_CHECK_IDLE_CYCLES) {
+            if (owc_idle_cycles >= OPEN_WIRE_CHECK_IDLE_CYCLES)
+            {
                 data.owc_state = START_OPEN_WIRE_CHECK;
                 is_finished    = true;
-            } else {
+            }
+            else
+            {
                 data.owc_state = IDLE_STATE;
             }
 
             break;
         }
-        default: {
+        default:
+        {
             break;
         }
     }
@@ -362,7 +420,8 @@ bool app_accumulator_runOpenWireCheck(void) {
     return is_finished;
 }
 
-void app_accumulator_broadcast(void) {
+void app_accumulator_broadcast(void)
+{
     // Broadcast pack voltage.
     app_canTx_BMS_PackVoltage_set(data.voltage_stats.pack_voltage);
 
@@ -406,7 +465,8 @@ void app_accumulator_broadcast(void) {
     app_canTx_BMS_AvailablePower_set((uint32_t)available_power);
 }
 
-bool app_accumulator_checkFaults(void) {
+bool app_accumulator_checkFaults(void)
+{
     uint8_t throwaway_segment = 0U;
     uint8_t throwaway_loc     = 0U;
 
@@ -414,12 +474,13 @@ bool app_accumulator_checkFaults(void) {
     float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
 
     // if we are charging, max cell temp is 45C not 60C
-    if (app_canRx_BRUSA_IsConnected_get()) {
+    if (app_canRx_BRUSA_IsConnected_get())
+    {
         max_allowable_cell_temp = MAX_CELL_CHARGE_TEMP_DEGC;
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
     }
 
-    const State* current_state = app_stateMachine_getCurrentState();
+    const State *current_state = app_stateMachine_getCurrentState();
 
     // Check if balancing is enabled. For safety reasons, also check if current state is charge state, as we do not want
     // to adjust max cell voltage thresholds if actively charging.
@@ -471,32 +532,40 @@ bool app_accumulator_checkFaults(void) {
     return acc_fault;
 }
 
-void app_accumulator_enableBalancing(bool enabled) {
+void app_accumulator_enableBalancing(bool enabled)
+{
     data.balance_enabled = enabled;
 }
 
-float app_accumulator_getPackVoltage(void) {
+float app_accumulator_getPackVoltage(void)
+{
     return data.voltage_stats.pack_voltage;
 }
 
-float app_accumulator_getMinCellVoltage(uint8_t* segment, uint8_t* cell) {
-    if (segment != NULL) {
+float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell)
+{
+    if (segment != NULL)
+    {
         *segment = data.voltage_stats.min_voltage.segment;
     }
 
-    if (cell != NULL) {
+    if (cell != NULL)
+    {
         *cell = data.voltage_stats.min_voltage.cell;
     }
 
     return data.voltage_stats.min_voltage.voltage;
 }
 
-float app_accumulator_getMaxCellVoltage(uint8_t* segment, uint8_t* cell) {
-    if (segment != NULL) {
+float app_accumulator_getMaxCellVoltage(uint8_t *segment, uint8_t *cell)
+{
+    if (segment != NULL)
+    {
         *segment = data.voltage_stats.max_voltage.segment;
     }
 
-    if (cell != NULL) {
+    if (cell != NULL)
+    {
         *cell = data.voltage_stats.max_voltage.cell;
     }
 

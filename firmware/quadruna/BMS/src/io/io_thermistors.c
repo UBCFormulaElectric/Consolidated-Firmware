@@ -29,14 +29,16 @@ static const float temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT] = {
     1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
 };
 
-void io_thermistors_muxSelect(const uint8_t channel) {
+void io_thermistors_muxSelect(const uint8_t channel)
+{
     hw_gpio_writePin(&mux_0_gpio, channel & 1 << 0);
     hw_gpio_writePin(&mux_1_gpio, channel & 1 << 1);
     hw_gpio_writePin(&mux_2_gpio, channel & 1 << 2);
     hw_gpio_writePin(&mux_3_gpio, channel & 1 << 3);
 }
 
-float io_thermistors_readSelectedTemp(void) {
+float io_thermistors_readSelectedTemp(void)
+{
     const float raw_voltage = hw_adc_getVoltage(&aux_tsns);
 
     // The following configuration is now the thermistor temperature is
@@ -76,7 +78,8 @@ float io_thermistors_readSelectedTemp(void) {
 
     // Check that the thermistor resistance is in range
     if ((thermistor_resistance <= temp_resistance_lut[0]) &&
-        (thermistor_resistance >= temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT - 1U])) {
+        (thermistor_resistance >= temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT - 1U]))
+    {
         // Find the index corresponding to the calculated thermistor
         // resistance
         uint8_t therm_lut_index = 0U;

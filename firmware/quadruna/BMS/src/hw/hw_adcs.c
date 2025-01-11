@@ -16,11 +16,13 @@ const AdcChannel ts_isns_400a = { .voltage = &adc1_adc_voltages[2] };
 const AdcChannel ts_vsense_p  = { .voltage = &adc1_adc_voltages[3] };
 const AdcChannel ts_vsense_n  = { .voltage = &adc1_adc_voltages[4] };
 
-void hw_adcs_chipsInit(void) {
+void hw_adcs_chipsInit(void)
+{
     hw_adcchip_init(&adc1);
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
     if (hadc == adc1.hadc)
         hw_adcchip_updateCallback(&adc1);
 }

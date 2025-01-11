@@ -8,12 +8,14 @@
  * @param pwm_input: The PWM input to set frequency for
  * @param frequency_hz: Frequency, in Hz
  */
-static void setFrequency(PwmInputFreqOnly* pwm_input, float frequency_hz) {
+static void setFrequency(PwmInputFreqOnly *pwm_input, float frequency_hz)
+{
     assert(frequency_hz >= 0.0f);
     pwm_input->frequency_hz = frequency_hz;
 }
 
-void hw_pwmInputFreqOnly_init(PwmInputFreqOnly* pwm_input, const PwmInputFreqOnlyConfig* config) {
+void hw_pwmInputFreqOnly_init(PwmInputFreqOnly *pwm_input, const PwmInputFreqOnlyConfig *config)
+{
     assert((*config).htim != NULL);
     assert(pwm_input != NULL);
 
@@ -28,19 +30,23 @@ void hw_pwmInputFreqOnly_init(PwmInputFreqOnly* pwm_input, const PwmInputFreqOnl
     HAL_TIM_Base_Start_IT((*config).htim);
 }
 
-float hw_pwmInputFreqOnly_getFrequency(const PwmInputFreqOnly* const pwm_input) {
+float hw_pwmInputFreqOnly_getFrequency(const PwmInputFreqOnly *const pwm_input)
+{
     return pwm_input->frequency_hz;
 }
 
-TIM_HandleTypeDef* hw_pwmInputFreqOnly_getTimerHandle(const PwmInputFreqOnly* const pwm_input) {
+TIM_HandleTypeDef *hw_pwmInputFreqOnly_getTimerHandle(const PwmInputFreqOnly *const pwm_input)
+{
     return (*(pwm_input->config)).htim;
 }
 
-HAL_TIM_ActiveChannel hw_pwmInputFreqOnly_getTimerActiveChannel(const PwmInputFreqOnly* const pwm_input) {
+HAL_TIM_ActiveChannel hw_pwmInputFreqOnly_getTimerActiveChannel(const PwmInputFreqOnly *const pwm_input)
+{
     return (*(pwm_input->config)).tim_active_channel;
 }
 
-void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly* const pwm_input) {
+void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly *const pwm_input)
+{
     // Reset the timer overflow count to indicate that the PWM signal is active
     pwm_input->tim_overflow_count = 0U;
 
@@ -48,11 +54,14 @@ void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly* const pwm_input) {
     // The difference between these two counter values is used to compute the
     // frequency of the PWM input signal.
 
-    if (pwm_input->first_tick) {
+    if (pwm_input->first_tick)
+    {
         pwm_input->curr_rising_edge =
             HAL_TIM_ReadCapturedValue((*(pwm_input->config)).htim, (*(pwm_input->config)).tim_channel);
         pwm_input->first_tick = false;
-    } else {
+    }
+    else
+    {
         pwm_input->prev_rising_edge = pwm_input->curr_rising_edge;
         pwm_input->curr_rising_edge =
             HAL_TIM_ReadCapturedValue((*(pwm_input->config)).htim, (*(pwm_input->config)).tim_channel);
@@ -61,14 +70,19 @@ void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly* const pwm_input) {
         const uint32_t prev_rising_edge = pwm_input->prev_rising_edge;
         const uint32_t curr_rising_edge = pwm_input->curr_rising_edge;
 
-        if (curr_rising_edge > prev_rising_edge) {
+        if (curr_rising_edge > prev_rising_edge)
+        {
             rising_edge_delta = curr_rising_edge - prev_rising_edge;
             setFrequency(pwm_input, (*(pwm_input->config)).tim_frequency_hz / (float)rising_edge_delta);
-        } else if (curr_rising_edge < prev_rising_edge) {
+        }
+        else if (curr_rising_edge < prev_rising_edge)
+        {
             // Occurs when the counter rolls over
             rising_edge_delta = (*(pwm_input->config)).tim_auto_reload_reg - prev_rising_edge + curr_rising_edge + 1;
             setFrequency(pwm_input, (*(pwm_input->config)).tim_frequency_hz / (float)rising_edge_delta);
-        } else {
+        }
+        else
+        {
             // Occurs when the counter rolls over (i.e. The PWM frequency being
             // measured is too low), or either when a tick arrives before the
             // counter can upcount (i.e. The PWM frequency being measured is
@@ -78,10 +92,12 @@ void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly* const pwm_input) {
     }
 }
 
-void hw_pwmInputFreqOnly_checkIfPwmIsActive(PwmInputFreqOnly* const pwm_input) {
+void hw_pwmInputFreqOnly_checkIfPwmIsActive(PwmInputFreqOnly *const pwm_input)
+{
     // If the timer overflows twice without a rising edge, the PWM signal is
     // likely inactive (i.e. DC signal) and its frequency can't be computed
-    if (++pwm_input->tim_overflow_count == 2U) {
+    if (++pwm_input->tim_overflow_count == 2U)
+    {
         setFrequency(pwm_input, 0.0f);
     }
 }

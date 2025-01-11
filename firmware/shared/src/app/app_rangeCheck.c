@@ -1,7 +1,8 @@
 #include "app_rangeCheck.h"
 #include "app_utils.h"
 
-RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck* check, float value) {
+RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck *check, float value)
+{
     RangeCheckStatus status;
     if (value < check->min_value)
         status = VALUE_UNDERFLOW;

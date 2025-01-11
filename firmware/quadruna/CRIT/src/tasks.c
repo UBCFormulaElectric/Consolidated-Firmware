@@ -40,23 +40,27 @@
 
 static const CanHandle can = { .hcan = &hcan1 };
 
-void canTxQueueOverflowCallback(uint32_t overflow_count) {
+void canTxQueueOverflowCallback(uint32_t overflow_count)
+{
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_TxOverflow_set(true);
     BREAK_IF_DEBUGGER_CONNECTED()
 }
 
-void canRxQueueOverflowCallback(uint32_t overflow_count) {
+void canRxQueueOverflowCallback(uint32_t overflow_count)
+{
     app_canTx_CRIT_RxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_RxOverflow_set(true);
     BREAK_IF_DEBUGGER_CONNECTED()
 }
 
-void canTxQueueOverflowClearCallback(void) {
+void canTxQueueOverflowClearCallback(void)
+{
     app_canAlerts_CRIT_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback(void) {
+void canRxQueueOverflowClearCallback(void)
+{
     app_canAlerts_CRIT_Warning_RxOverflow_set(false);
 }
 
@@ -200,7 +204,7 @@ static const DriveMode drive_mode = { .n_drive_mode_0_pin = &n_drive_mode_0_pin,
                                       .n_drive_mode_2_pin = &n_drive_mode_2_pin,
                                       .n_drive_mode_3_pin = &n_drive_mode_3_pin };
 
-const Gpio* id_to_gpio[] = {
+const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_TORQUE_VECTORING_LED] = &torque_vectoring_led_pin,
     [CRIT_GpioNetName_START_LED]            = &start_led_pin,
     [CRIT_GpioNetName_REGEN_LED]            = &regen_led_pin,
@@ -241,14 +245,14 @@ const Gpio* id_to_gpio[] = {
     [CRIT_GpioNetName_NCHIMERA]             = &n_chimera_pin,
 };
 
-const AdcChannel* id_to_adc[] = {
+const AdcChannel *id_to_adc[] = {
     [CRIT_AdcNetName_REGEN_3V3] = &regen,
 };
 
 static const UART debug_uart = { .handle = &huart2 };
 
-const UART* chimera_uart   = &debug_uart;
-const Gpio* n_chimera_gpio = &n_chimera_pin;
+const UART *chimera_uart   = &debug_uart;
+const Gpio *n_chimera_gpio = &n_chimera_pin;
 
 static const Leds led_config = {
     .imd_led         = &imd_led,
@@ -275,16 +279,19 @@ static const Switches switch_config = {
 static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = &shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = &inertia_sen_pin };
 
-void tasks_preInit(void) {
+void tasks_preInit(void)
+{
     hw_bootup_enableInterruptsForApp();
 }
 
-static void jsoncan_transmit(const JsonCanMsg* tx_msg) {
+static void jsoncan_transmit(const JsonCanMsg *tx_msg)
+{
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
 
-void tasks_init(void) {
+void tasks_init(void)
+{
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
@@ -321,18 +328,20 @@ void tasks_init(void) {
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-_Noreturn void tasks_run100Hz(void) {
+_Noreturn void tasks_run100Hz(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     // Setup tasks.
     static const TickType_t period_ms = 10;
-    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;) {
+    for (;;)
+    {
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -345,40 +354,46 @@ _Noreturn void tasks_run100Hz(void) {
     }
 }
 
-_Noreturn void tasks_runCanTx(void) {
+_Noreturn void tasks_runCanTx(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     // Setup tasks.
-    for (;;) {
+    for (;;)
+    {
         CanMsg tx_msg = io_canQueue_popTx();
         io_can_transmit(&can, &tx_msg);
     }
 }
 
-_Noreturn void tasks_runCanRx(void) {
+_Noreturn void tasks_runCanRx(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     // Setup tasks.
-    for (;;) {
+    for (;;)
+    {
         CanMsg     rx_msg         = io_canQueue_popRx(&rx_msg);
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 
-_Noreturn void tasks_run1kHz(void) {
+_Noreturn void tasks_run1kHz(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     // Setup tasks.
     static const TickType_t period_ms = 1;
-    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
     /* Infinite loop */
-    for (;;) {
+    for (;;)
+    {
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
 
@@ -388,7 +403,8 @@ _Noreturn void tasks_run1kHz(void) {
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
         // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms) {
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
+        {
             hw_watchdog_checkIn(watchdog);
         }
 
@@ -397,18 +413,20 @@ _Noreturn void tasks_run1kHz(void) {
     }
 }
 
-_Noreturn void tasks_run1Hz(void) {
+_Noreturn void tasks_run1Hz(void)
+{
     io_chimera_sleepTaskIfEnabled();
 
     // Setup tasks.
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle*         watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;) {
+    for (;;)
+    {
         hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
@@ -425,8 +443,10 @@ _Noreturn void tasks_run1Hz(void) {
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-    if (huart == debug_uart.handle) {
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == debug_uart.handle)
+    {
         io_chimera_msgRxCallback();
     }
 }

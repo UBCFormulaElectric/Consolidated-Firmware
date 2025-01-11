@@ -17,7 +17,7 @@
 #define QUEUE_MAX_SIZE 32       // 128 * 32 = 4096 which is SBG_ECOM_MAX_BUFFER_SIZE
 
 /* --------------------------------- Variables ---------------------------------- */
-static const UART*   chimera_uart = &sbg_uart;
+static const UART   *chimera_uart = &sbg_uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -39,18 +39,18 @@ static const osMessageQueueAttr_t sensor_rx_queue_attr = {
 
 /* ------------------------- Static Function Prototypes -------------------------- */
 
-static void         io_sbgEllipse_createSerialInterface(SbgInterface* interface);
-static SbgErrorCode io_sbgEllipse_read(SbgInterface* interface, void* buffer, size_t* read_bytes, size_t bytes_to_read);
+static void         io_sbgEllipse_createSerialInterface(SbgInterface *interface);
+static SbgErrorCode io_sbgEllipse_read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
 static SbgErrorCode io_sbgEllipse_logReceivedCallback(
-    SbgEComHandle*          handle,
+    SbgEComHandle          *handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
-    const SbgBinaryLogData* log_data,
-    void*                   user_arg);
-static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData* log_data);
-static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData* log_data);
-static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData* log_data);
-static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData* log_data);
+    const SbgBinaryLogData *log_data,
+    void                   *user_arg);
+static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data);
+static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data);
+static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data);
+static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 /*
@@ -62,7 +62,8 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData* log
  * operations, such as reading, writing, flushing, etc. These I/O operations will use STM32's HAL drivers to communicate
  * to the sensor. We only need read operations, so that's all we provide here.
  */
-static void io_sbgEllipse_createSerialInterface(SbgInterface* interface) {
+static void io_sbgEllipse_createSerialInterface(SbgInterface *interface)
+{
     sbgInterfaceNameSet(interface, "SBG Ellipse N Sensor");
 
     interface->type          = SBG_IF_TYPE_UNKNOW;
@@ -78,8 +79,8 @@ static void io_sbgEllipse_createSerialInterface(SbgInterface* interface) {
 /*
  * Function called by SBG's library to read some amount of data.
  */
-static SbgErrorCode
-    io_sbgEllipse_read(SbgInterface* interface, void* buffer, size_t* read_bytes, size_t bytes_to_read) {
+static SbgErrorCode io_sbgEllipse_read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read)
+{
     UNUSED(interface);
 
     // Disable interrupts so UART RX callback won't push data to the queue while we're reading from it
@@ -91,19 +92,22 @@ static SbgErrorCode
     size_t  i = 0;
     uint8_t packet[UART_RX_PACKET_SIZE];
 
-    while (*read_bytes < bytes_to_read) {
-        if (osMessageQueueGetCount(sensor_rx_queue_id) == 0) {
+    while (*read_bytes < bytes_to_read)
+    {
+        if (osMessageQueueGetCount(sensor_rx_queue_id) == 0)
+        {
             break;
         }
 
-        if (osMessageQueueGet(sensor_rx_queue_id, packet, NULL, osWaitForever) != osOK) {
+        if (osMessageQueueGet(sensor_rx_queue_id, packet, NULL, osWaitForever) != osOK)
+        {
             break;
         }
 
         size_t bytes_to_copy =
             (bytes_to_read - *read_bytes) < UART_RX_PACKET_SIZE ? (bytes_to_read - *read_bytes) : UART_RX_PACKET_SIZE;
 
-        memcpy((uint8_t*)buffer + *read_bytes, packet, bytes_to_copy);
+        memcpy((uint8_t *)buffer + *read_bytes, packet, bytes_to_copy);
         *read_bytes += bytes_to_copy;
     }
 
@@ -116,35 +120,43 @@ static SbgErrorCode
  * Callback called when a log is successfully received and parsed.
  */
 SbgErrorCode io_sbgEllipse_logReceivedCallback(
-    SbgEComHandle*          handle,
+    SbgEComHandle          *handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
-    const SbgBinaryLogData* log_data,
-    void*                   user_arg) {
+    const SbgBinaryLogData *log_data,
+    void                   *user_arg)
+{
     assert(log_data);
 
     UNUSED(handle);
     UNUSED(user_arg);
 
-    if (msg_class == SBG_ECOM_CLASS_LOG_ECOM_0) {
-        switch (msg_id) {
-            case SBG_ECOM_LOG_IMU_DATA: {
+    if (msg_class == SBG_ECOM_CLASS_LOG_ECOM_0)
+    {
+        switch (msg_id)
+        {
+            case SBG_ECOM_LOG_IMU_DATA:
+            {
                 io_sbgEllipse_processMsg_Imu(log_data);
                 break;
             }
-            case SBG_ECOM_LOG_EKF_EULER: {
+            case SBG_ECOM_LOG_EKF_EULER:
+            {
                 io_sbgEllipse_processMsg_eulerAngles(log_data);
                 break;
             }
-            case SBG_ECOM_LOG_STATUS: {
+            case SBG_ECOM_LOG_STATUS:
+            {
                 io_sbgEllipse_processMsg_status(log_data);
                 break;
             }
-            case SBG_ECOM_LOG_EKF_NAV: {
+            case SBG_ECOM_LOG_EKF_NAV:
+            {
                 io_sbgEllipse_processMsg_EkfNavVelandPos(log_data);
                 break;
             }
-            default: {
+            default:
+            {
                 // Do nothing
                 break;
             }
@@ -155,7 +167,8 @@ SbgErrorCode io_sbgEllipse_logReceivedCallback(
 /*
  * Process and save a new IMU data msg.
  */
-static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData* log_data) {
+static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data)
+{
     // Save acceleration, in m/s^2
     sensor_data.imu_data.acceleration.x = log_data->imuData.accelerometers[0];
     sensor_data.imu_data.acceleration.y = log_data->imuData.accelerometers[1];
@@ -170,7 +183,8 @@ static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData* log_data) {
 /*
  * Process and save a new euler angles msg.
  */
-static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData* log_data) {
+static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data)
+{
     // Save euler angles, in deg
     sensor_data.ekf_euler_data.euler_angles.roll  = RAD_TO_DEG(log_data->ekfEulerData.euler[0]);
     sensor_data.ekf_euler_data.euler_angles.pitch = RAD_TO_DEG(log_data->ekfEulerData.euler[1]);
@@ -180,7 +194,8 @@ static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData* log_dat
 /*
  * Process and save a new status msg.
  */
-static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData* log_data) {
+static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
+{
     sensor_data.status_data.timestamp_us   = log_data->statusData.timeStamp;
     sensor_data.status_data.general_status = log_data->statusData.generalStatus;
     sensor_data.status_data.com_status     = log_data->statusData.comStatus;
@@ -189,7 +204,8 @@ static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData* log_data) {
 /*
  * Process and save relevant EKF Navigation Velocity and Position information.
  */
-static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData* log_data) {
+static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data)
+{
     // TODO: uncomment after initial testing, if this occurs skip reading data
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
@@ -232,7 +248,8 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData* log
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool io_sbgEllipse_init() {
+bool io_sbgEllipse_init()
+{
     memset(&sensor_data, 0, sizeof(SensorData));
 
     // Initialize the SBG serial interface handle
@@ -241,7 +258,8 @@ bool io_sbgEllipse_init() {
     SbgErrorCode sbgEComInitCode = sbgEComInit(&com_handle, &sbg_interface);
 
     // Init SBG's communication protocol handle
-    if (sbgEComInitCode != SBG_NO_ERROR) {
+    if (sbgEComInitCode != SBG_NO_ERROR)
+    {
         LOG_INFO("%d", sbgEComInitCode);
         return false;
     }
@@ -259,58 +277,71 @@ bool io_sbgEllipse_init() {
     return true;
 }
 
-void io_sbgEllipse_handleLogs(void) {
+void io_sbgEllipse_handleLogs(void)
+{
     // Handle logs. Calls the pReadFunc set in sbgInterfaceSerialCreate to read data and parses
     // all logs found in the data. Upon successfully parsing a log, the the receive log callback function set in init is
     // triggered. Incomplete log data will be saved to a buffer in SBG's library to be used once more data is received.
     SbgErrorCode errorCode = sbgEComHandle(&com_handle);
     char         buffer[256];
     sbgEComErrorToString(errorCode, buffer);
-    if (errorCode != SBG_NO_ERROR) {
+    if (errorCode != SBG_NO_ERROR)
+    {
         // handle error
         LOG_INFO("%s", buffer);
     }
 }
 
-uint32_t io_sbgEllipse_getTimestampUs(void) {
+uint32_t io_sbgEllipse_getTimestampUs(void)
+{
     return sensor_data.status_data.timestamp_us;
 }
 
-uint16_t io_sbgEllipse_getGeneralStatus(void) {
+uint16_t io_sbgEllipse_getGeneralStatus(void)
+{
     return sensor_data.status_data.general_status;
 }
 
-uint32_t io_sbgEllipse_getComStatus(void) {
+uint32_t io_sbgEllipse_getComStatus(void)
+{
     return sensor_data.status_data.com_status;
 }
 
-uint32_t io_sbgEllipse_getOverflowCount(void) {
+uint32_t io_sbgEllipse_getOverflowCount(void)
+{
     return sbg_queue_overflow_count;
 }
 
-Vector3* io_sbgEllipse_getImuAccelerations() {
+Vector3 *io_sbgEllipse_getImuAccelerations()
+{
     return &sensor_data.imu_data.acceleration;
 }
 
-Attitude* io_sbgEllipse_getImuAngularVelocities() {
+Attitude *io_sbgEllipse_getImuAngularVelocities()
+{
     return &sensor_data.imu_data.angular_velocity;
 }
 
-Attitude* io_sbgEllipse_getEkfEulerAngles() {
+Attitude *io_sbgEllipse_getEkfEulerAngles()
+{
     return &sensor_data.ekf_euler_data.euler_angles;
 }
 
-VelocityData* io_sbgEllipse_getEkfNavVelocityData() {
+VelocityData *io_sbgEllipse_getEkfNavVelocityData()
+{
     return &sensor_data.ekf_nav_data.velocity;
 }
 
-PositionData* io_sbgEllipse_getEkfNavPositionData() {
+PositionData *io_sbgEllipse_getEkfNavPositionData()
+{
     return &sensor_data.ekf_nav_data.position;
 }
 
-void io_sbgEllipse_msgRxCallback(void) {
+void io_sbgEllipse_msgRxCallback(void)
+{
     sbg_queue_overflow_count = 0;
-    if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer, 0, 0) != osOK) {
+    if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer, 0, 0) != osOK)
+    {
         sbg_queue_overflow_count++;
     }
     LOG_INFO("%d", sbg_queue_overflow_count);

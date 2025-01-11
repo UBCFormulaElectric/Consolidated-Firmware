@@ -23,44 +23,45 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+    /* Private includes ----------------------------------------------------------*/
+    /* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-/* USER CODE END ET */
+    /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-extern ADC_HandleTypeDef   hadc1;
-extern DMA_HandleTypeDef   hdma_adc1;
-extern CRC_HandleTypeDef   hcrc;
-extern FDCAN_HandleTypeDef hfdcan1;
-extern IWDG_HandleTypeDef  hiwdg1;
-extern SD_HandleTypeDef    hsd1;
-extern SPI_HandleTypeDef   hspi2;
-extern TIM_HandleTypeDef   htim1;
-extern TIM_HandleTypeDef   htim3;
-extern TIM_HandleTypeDef   htim15;
-extern UART_HandleTypeDef  huart1;
-/* USER CODE END EC */
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef   hadc1;
+    extern DMA_HandleTypeDef   hdma_adc1;
+    extern CRC_HandleTypeDef   hcrc;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern SD_HandleTypeDef    hsd1;
+    extern SPI_HandleTypeDef   hspi2;
+    extern TIM_HandleTypeDef   htim1;
+    extern TIM_HandleTypeDef   htim3;
+    extern TIM_HandleTypeDef   htim15;
+    extern UART_HandleTypeDef  huart1;
+    /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+    /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -141,9 +142,9 @@ void Error_Handler(void);
 #define AUX_TSENSE_MUX3_Pin GPIO_PIN_6
 #define AUX_TSENSE_MUX3_GPIO_Port GPIOD
 
-/* USER CODE BEGIN Private defines */
+    /* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+    /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

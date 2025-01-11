@@ -3,7 +3,7 @@
 #include "hw_adcs.h"
 #include "hw_uarts.h"
 
-const Gpio* id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
+const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
                              [VC_GpioNetName_LED]              = &led_gpio,
                              [VC_GpioNetName_TELEM_PWR_EN]     = &telem_pwr_en,
@@ -31,7 +31,7 @@ const Gpio* id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
                              [VC_GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
 
-const AdcChannel* id_to_adc[] = {
+const AdcChannel *id_to_adc[] = {
     [VC_AdcNetName_INV_R_PWR_I_SNS]  = &inv_r_pwr_i_sns,
     [VC_AdcNetName_INV_L_PWR_I_SNS]  = &inv_l_pwr_i_sns,
     [VC_AdcNetName_AUX_PWR_I_SNS]    = &aux_pwr_i_sns,
@@ -44,5 +44,5 @@ const AdcChannel* id_to_adc[] = {
     [VC_AdcNetName_PUMP_PWR_I_SNS]   = &pump_pwr_i_sns,
 };
 
-const UART* chimera_uart   = &debug_uart;
-const Gpio* n_chimera_gpio = &n_chimera_pin;
+const UART *chimera_uart   = &debug_uart;
+const Gpio *n_chimera_gpio = &n_chimera_pin;

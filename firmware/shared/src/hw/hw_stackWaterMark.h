@@ -5,8 +5,9 @@
 #include <stdbool.h>
 
 /** @brief The information needed to check the stack watermark of a task. */
-typedef struct {
-    TaskHandle_t* handle; // We can't use TaskHandle as a compile-time constant,
+typedef struct
+{
+    TaskHandle_t *handle; // We can't use TaskHandle as a compile-time constant,
                           // so instead we use a pointer to it.
     uint32_t stack_size;
     float    watermark_threshold;
@@ -20,4 +21,4 @@ typedef struct {
  * @param stacks An array of stacks whose watermarks we are checking for.
  * @param num_of_stacks Number of stacks in the array.
  */
-void hw_stackWaterMark_check(StackWaterMark* stacks, size_t num_of_stacks);
+void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks);

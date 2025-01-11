@@ -4,9 +4,10 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.h"
 
-typedef struct {
-    const AdcChannel* front_left_suspension;
-    const AdcChannel* front_right_suspension;
+typedef struct
+{
+    const AdcChannel *front_left_suspension;
+    const AdcChannel *front_right_suspension;
 } SuspensionConfig;
 
 #else
@@ -18,7 +19,7 @@ EMPTY_STRUCT(SuspensionConfig)
  * Set up adc pins for suspension sensors
  * @param suspension_config wrapper around ADC pins for suspension sensors
  */
-void io_suspension_init(const SuspensionConfig* suspension_config);
+void io_suspension_init(const SuspensionConfig *suspension_config);
 
 /**
  * Get the travel of the front left suspension

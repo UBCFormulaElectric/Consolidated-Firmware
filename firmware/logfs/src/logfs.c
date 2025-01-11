@@ -5,7 +5,8 @@
 #include "utils.h"
 #include <assert.h>
 
-inline static void logfs_init(LogFs* fs, const LogFsCfg* cfg) {
+inline static void logfs_init(LogFs *fs, const LogFsCfg *cfg)
+{
     assert(cfg->block_size > sizeof(LogFsBlock_File));
     assert(cfg->block_size > sizeof(LogFsBlock_Metadata));
     assert(cfg->block_size > sizeof(LogFsBlock_Data));
@@ -27,16 +28,18 @@ inline static void logfs_init(LogFs* fs, const LogFsCfg* cfg) {
     fs->cache_data     = fs->cfg->cache;
 }
 
-inline static void logfs_initFile(LogFsFile* file, const LogFsFileCfg* cfg, LogFsOpenFlags flags) {
+inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, LogFsOpenFlags flags)
+{
     file->cache.cached_addr = LOGFS_INVALID_BLOCK;
     file->cache.buf         = cfg->cache;
-    file->cache_data        = (LogFsBlock_Data*)cfg->cache;
+    file->cache_data        = (LogFsBlock_Data *)cfg->cache;
     file->is_open           = false;
     file->flags             = flags;
     strcpy(file->path, cfg->path);
 }
 
-static LogFsErr logfs_createNewFile(LogFs* fs, LogFsFile* file, LogFsFileCfg* cfg) {
+static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
 
@@ -64,7 +67,8 @@ static LogFsErr logfs_createNewFile(LogFs* fs, LogFsFile* file, LogFsFileCfg* cf
     file->cache.cached_addr          = new_data_block;
     RET_ERR(disk_syncCache(fs, &file->cache));
 
-    if (fs->head_file_addr != LOGFS_INVALID_BLOCK) {
+    if (fs->head_file_addr != LOGFS_INVALID_BLOCK)
+    {
         // Update previous file to point to the new one.
         LogFsPair prev_file_pair;
         RET_ERR(disk_fetchPair(fs, &prev_file_pair, fs->head_file_addr));
@@ -83,14 +87,16 @@ static LogFsErr logfs_createNewFile(LogFs* fs, LogFsFile* file, LogFsFileCfg* cf
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_format(LogFs* fs, const LogFsCfg* cfg) {
+LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
+{
     CHECK_ARG(fs);
     CHECK_ARG(cfg);
 
     // Shared initialization.
     logfs_init(fs, cfg);
 
-    if (fs->cfg->rd_only) {
+    if (fs->cfg->rd_only)
+    {
         return LOGFS_ERR_RD_ONLY;
     }
 
@@ -103,7 +109,8 @@ LogFsErr logfs_format(LogFs* fs, const LogFsCfg* cfg) {
     return logfs_createNewFile(fs, &fs->root_file, &root_cfg);
 }
 
-LogFsErr logfs_mount(LogFs* fs, const LogFsCfg* cfg) {
+LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
+{
     CHECK_ARG(fs);
     CHECK_ARG(cfg);
 
@@ -115,14 +122,18 @@ LogFsErr logfs_mount(LogFs* fs, const LogFsCfg* cfg) {
     uint32_t  cur_head = LOGFS_ORIGIN + LOGFS_PAIR_SIZE;
     LogFsPair cur_file_pair;
 
-    while (true) {
+    while (true)
+    {
         // Read file.
         LogFsErr err = disk_fetchPair(fs, &cur_file_pair, cur_file);
-        if (err == LOGFS_ERR_CORRUPT && cur_file != LOGFS_ORIGIN) {
+        if (err == LOGFS_ERR_CORRUPT && cur_file != LOGFS_ORIGIN)
+        {
             // Next file is corrupt, assume it is the end (this will be fixed
             // upon creating a new file).
             break;
-        } else if (IS_ERR(err)) {
+        }
+        else if (IS_ERR(err))
+        {
             // Other read error, return.
             return err;
         }
@@ -134,10 +145,13 @@ LogFsErr logfs_mount(LogFs* fs, const LogFsCfg* cfg) {
         cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 2);
         cur_head = MAX(cur_head, fs->cache_file->metadata_addr + 2);
 
-        if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK) {
+        if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK)
+        {
             // Reached end of file linked-list, return.
             break;
-        } else {
+        }
+        else
+        {
             cur_file = fs->cache_file->next_file_addr;
         }
     }
@@ -149,7 +163,8 @@ LogFsErr logfs_mount(LogFs* fs, const LogFsCfg* cfg) {
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_open(LogFs* fs, LogFsFile* file, LogFsFileCfg* cfg, uint32_t flags) {
+LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg, uint32_t flags)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
     CHECK_ARG(cfg);
@@ -164,25 +179,32 @@ LogFsErr logfs_open(LogFs* fs, LogFsFile* file, LogFsFileCfg* cfg, uint32_t flag
     uint32_t  cur_file = LOGFS_ORIGIN;
     LogFsPair cur_file_pair;
 
-    while (true) {
+    while (true)
+    {
         const LogFsErr err = disk_fetchPair(fs, &cur_file_pair, cur_file);
-        if (err == LOGFS_ERR_CORRUPT) {
+        if (err == LOGFS_ERR_CORRUPT)
+        {
             // Next file is corrupt (can create a new one in its place).
             break;
-        } else if (IS_ERR(err)) {
+        }
+        else if (IS_ERR(err))
+        {
             // Other read error, return.
             return err;
         }
 
         // Fetch file from disk.
         RET_ERR(disk_readPair(fs, &cur_file_pair));
-        if (strcmp(fs->cache_file->path, cfg->path) == 0) {
+        if (strcmp(fs->cache_file->path, cfg->path) == 0)
+        {
             // File name matches, find data head address.
             file->head_data_addr = fs->cache_file->head_data_addr;
-            if (IS_ERR(disk_exchangeCache(fs, &file->cache, fs->cache_file->head_data_addr, false, true))) {
+            if (IS_ERR(disk_exchangeCache(fs, &file->cache, fs->cache_file->head_data_addr, false, true)))
+            {
                 file->head_data_addr = fs->cache_file->prev_head_addr;
                 if (fs->cache_file->prev_head_addr == LOGFS_INVALID_BLOCK ||
-                    IS_ERR(disk_exchangeCache(fs, &file->cache, fs->cache_file->prev_head_addr, false, true))) {
+                    IS_ERR(disk_exchangeCache(fs, &file->cache, fs->cache_file->prev_head_addr, false, true)))
+                {
                     // If both the head and backup are corrupt, file can't be opened.
                     return LOGFS_ERR_CORRUPT;
                 }
@@ -198,22 +220,27 @@ LogFsErr logfs_open(LogFs* fs, LogFsFile* file, LogFsFileCfg* cfg, uint32_t flag
             return LOGFS_ERR_OK;
         }
 
-        if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK) {
+        if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK)
+        {
             // Invalid block, means we've reached the end of the filesystem
             // linked-list without finding the file.
             break;
-        } else {
+        }
+        else
+        {
             // Jump to the next file in the list.
             cur_file = fs->cache_file->next_file_addr;
         }
     }
 
-    if (!(file->flags & LOGFS_OPEN_CREATE)) {
+    if (!(file->flags & LOGFS_OPEN_CREATE))
+    {
         // File doesn't exist.
         return LOGFS_ERR_DNE;
     }
 
-    if (fs->cfg->rd_only) {
+    if (fs->cfg->rd_only)
+    {
         // Filesystem is read-only, can't create a new file.
         return LOGFS_ERR_RD_ONLY;
     }
@@ -221,13 +248,15 @@ LogFsErr logfs_open(LogFs* fs, LogFsFile* file, LogFsFileCfg* cfg, uint32_t flag
     return logfs_createNewFile(fs, file, cfg);
 }
 
-LogFsErr logfs_close(LogFs* fs, LogFsFile* file) {
+LogFsErr logfs_close(LogFs *fs, LogFsFile *file)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
     CHECK_FS(fs);
     CHECK_FILE(file);
 
-    if (!fs->cfg->rd_only && file->flags & LOGFS_OPEN_WR_ONLY) {
+    if (!fs->cfg->rd_only && file->flags & LOGFS_OPEN_WR_ONLY)
+    {
         // Only write to disk if file isn't read-only.
         RET_ERR(logfs_sync(fs, file));
     }
@@ -236,13 +265,15 @@ LogFsErr logfs_close(LogFs* fs, LogFsFile* file) {
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_sync(LogFs* fs, LogFsFile* file) {
+LogFsErr logfs_sync(LogFs *fs, LogFsFile *file)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
     CHECK_FS(fs);
     CHECK_FILE(file);
 
-    if (fs->cfg->rd_only || !(file->flags & LOGFS_OPEN_WR_ONLY)) {
+    if (fs->cfg->rd_only || !(file->flags & LOGFS_OPEN_WR_ONLY))
+    {
         // File is read only, fail.
         return LOGFS_ERR_RD_ONLY;
     }
@@ -250,14 +281,16 @@ LogFsErr logfs_sync(LogFs* fs, LogFsFile* file) {
     return disk_syncCache(fs, &file->cache);
 }
 
-LogFsErr logfs_write(LogFs* fs, LogFsFile* file, void* buf, uint32_t size) {
+LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
     CHECK_ARG(buf);
     CHECK_FS(fs);
     CHECK_FILE(file);
 
-    if (fs->cfg->rd_only || !(file->flags & LOGFS_OPEN_WR_ONLY)) {
+    if (fs->cfg->rd_only || !(file->flags & LOGFS_OPEN_WR_ONLY))
+    {
         // File is read only, fail.
         return LOGFS_ERR_RD_ONLY;
     }
@@ -269,8 +302,10 @@ LogFsErr logfs_write(LogFs* fs, LogFsFile* file, void* buf, uint32_t size) {
     RET_ERR(disk_exchangeCache(fs, &file->cache, cur_data, true, true));
 
     uint32_t num_written = 0;
-    while (num_written < size) {
-        if (new_block) {
+    while (num_written < size)
+    {
+        if (new_block)
+        {
             // Writes to new blocks are done at the head.
             cur_data = fs->head_addr;
             RET_ERR(disk_exchangeCache(fs, &file->cache, cur_data, true, false));
@@ -283,14 +318,15 @@ LogFsErr logfs_write(LogFs* fs, LogFsFile* file, void* buf, uint32_t size) {
 
         // Write new data to disk.
         const uint32_t num_available = MIN(fs->eff_block_size_bytes - file->cache_data->num_bytes, size - num_written);
-        memcpy(&file->cache_data->data + file->cache_data->num_bytes, ((uint8_t*)buf) + num_written, num_available);
+        memcpy(&file->cache_data->data + file->cache_data->num_bytes, ((uint8_t *)buf) + num_written, num_available);
         file->cache_data->num_bytes += num_available;
         num_written += num_available;
 
         // After a new block, update state. Update here, because if a previous
         // read/write failed, changing filesystem state
         // prematurely could leave it in a bad state.
-        if (new_block) {
+        if (new_block)
+        {
             // If creating a new block, update the last block to point to the
             // new one. The file's "head block" will still point to the last
             // block.
@@ -308,7 +344,8 @@ LogFsErr logfs_write(LogFs* fs, LogFsFile* file, void* buf, uint32_t size) {
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_read(LogFs* fs, LogFsFile* file, void* buf, uint32_t size, LogFsReadFlags flags, uint32_t* num_read) {
+LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsReadFlags flags, uint32_t *num_read)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
     CHECK_ARG(buf);
@@ -316,12 +353,14 @@ LogFsErr logfs_read(LogFs* fs, LogFsFile* file, void* buf, uint32_t size, LogFsR
     CHECK_FS(fs);
     CHECK_FILE(file);
 
-    if (!(file->flags & LOGFS_OPEN_RD_ONLY)) {
+    if (!(file->flags & LOGFS_OPEN_RD_ONLY))
+    {
         // File is write only, fail.
         return LOGFS_ERR_WR_ONLY;
     }
 
-    if (flags == LOGFS_READ_END || !file->read_iter_init) {
+    if (flags == LOGFS_READ_END || !file->read_iter_init)
+    {
         // Set read iterator state variables to start of file.
         file->read_iter_data_addr = file->head_data_addr;
         file->read_iter_data_byte = 0;
@@ -329,14 +368,16 @@ LogFsErr logfs_read(LogFs* fs, LogFsFile* file, void* buf, uint32_t size, LogFsR
     }
 
     // Sync whatever is currently in the cache.
-    if (!fs->cfg->rd_only) {
+    if (!fs->cfg->rd_only)
+    {
         // TODO: Check if this data is from a read or a write. If it's from a write, we need to sync it, but if its from
         // a read, we don't!
         RET_ERR(disk_syncCache(fs, &file->cache));
     }
 
     *num_read = 0;
-    while (*num_read < size && file->read_iter_data_addr != LOGFS_INVALID_BLOCK) {
+    while (*num_read < size && file->read_iter_data_addr != LOGFS_INVALID_BLOCK)
+    {
         // Read current block.
         RET_ERR(disk_exchangeCache(fs, &file->cache, file->read_iter_data_addr, false, true));
 
@@ -346,41 +387,46 @@ LogFsErr logfs_read(LogFs* fs, LogFsFile* file, void* buf, uint32_t size, LogFsR
         uint32_t       num_available    = MIN(num_left_to_read, num_in_block);
 
         // Read out data from cached block.
-        uint8_t* const buf_end   = (uint8_t*)buf + size - *num_read;
-        uint8_t* const cache_end = &file->cache_data->data + file->cache_data->num_bytes - file->read_iter_data_byte;
+        uint8_t *const buf_end   = (uint8_t *)buf + size - *num_read;
+        uint8_t *const cache_end = &file->cache_data->data + file->cache_data->num_bytes - file->read_iter_data_byte;
         memcpy(buf_end - num_available, cache_end - num_available, num_available);
         *num_read += num_available;
 
         // Move to next block if we've read all bytes from the current block.
         file->read_iter_data_byte += num_available;
 
-        if (file->read_iter_data_byte >= file->cache_data->num_bytes) {
+        if (file->read_iter_data_byte >= file->cache_data->num_bytes)
+        {
             file->read_iter_data_byte = 0;
             file->read_iter_data_addr = file->cache_data->prev_data_addr;
         }
     }
 
-    if (*num_read < size) {
+    if (*num_read < size)
+    {
         // Re-align read data if buffer is only partially full.
-        memmove(buf, (uint8_t*)buf + size - *num_read, *num_read);
+        memmove(buf, (uint8_t *)buf + size - *num_read, *num_read);
     }
 
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_writeMetadata(LogFs* fs, LogFsFile* file, void* buf, uint32_t size) {
+LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
     CHECK_ARG(buf);
     CHECK_FS(fs);
     CHECK_FILE(file);
 
-    if (fs->cfg->rd_only || !(file->flags & LOGFS_OPEN_WR_ONLY)) {
+    if (fs->cfg->rd_only || !(file->flags & LOGFS_OPEN_WR_ONLY))
+    {
         // File is read only, fail.
         return LOGFS_ERR_RD_ONLY;
     }
 
-    if (size > fs->eff_block_size_bytes) {
+    if (size > fs->eff_block_size_bytes)
+    {
         // We only allocate a single block to metadata.
         return LOGFS_ERR_NOMEM;
     }
@@ -392,14 +438,16 @@ LogFsErr logfs_writeMetadata(LogFs* fs, LogFsFile* file, void* buf, uint32_t siz
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_readMetadata(LogFs* fs, LogFsFile* file, void* buf, uint32_t size, uint32_t* num_read) {
+LogFsErr logfs_readMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint32_t *num_read)
+{
     CHECK_ARG(fs);
     CHECK_ARG(file);
     CHECK_ARG(buf);
     CHECK_FS(fs);
     CHECK_FILE(file);
 
-    if (!(file->flags & LOGFS_OPEN_RD_ONLY)) {
+    if (!(file->flags & LOGFS_OPEN_RD_ONLY))
+    {
         // File is write only, fail.
         return LOGFS_ERR_WR_ONLY;
     }
@@ -411,7 +459,8 @@ LogFsErr logfs_readMetadata(LogFs* fs, LogFsFile* file, void* buf, uint32_t size
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_firstPath(LogFs* fs, LogFsPath* path) {
+LogFsErr logfs_firstPath(LogFs *fs, LogFsPath *path)
+{
     CHECK_ARG(fs);
     CHECK_ARG(path);
     CHECK_FS(fs);
@@ -427,12 +476,14 @@ LogFsErr logfs_firstPath(LogFs* fs, LogFsPath* path) {
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_nextPath(LogFs* fs, LogFsPath* path) {
+LogFsErr logfs_nextPath(LogFs *fs, LogFsPath *path)
+{
     CHECK_ARG(fs);
     CHECK_ARG(path);
     CHECK_FS(fs);
 
-    if (path->next_file_addr == LOGFS_INVALID_BLOCK) {
+    if (path->next_file_addr == LOGFS_INVALID_BLOCK)
+    {
         // Reached end of files.
         return LOGFS_ERR_NO_MORE_FILES;
     }

@@ -25,12 +25,14 @@
 #include "io_fileSystem.h"
 #include "io_cans.h"
 
-static void jsoncan_transmit_func(const JsonCanMsg* tx_msg) {
+static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
+{
     const CanMsg c = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&c);
 }
 
-void jobs_init() {
+void jobs_init()
+{
     app_canTx_init();
     app_canRx_init();
     app_canDataCapture_init();
@@ -48,11 +50,13 @@ void jobs_init() {
 
     app_faultCheck_init();
 
-    if (!io_sbgEllipse_init()) {
+    if (!io_sbgEllipse_init())
+    {
         app_canAlerts_VC_Warning_SbgInitFailed_set(true);
         LOG_INFO("Sbg initialization failed");
     }
-    if (!io_imu_init()) {
+    if (!io_imu_init())
+    {
         app_canAlerts_VC_Warning_ImuInitFailed_set(true);
         LOG_INFO("Imu initialization failed");
     }
@@ -64,7 +68,8 @@ void jobs_init() {
     io_telemMessage_init();
 }
 
-void jobs_run1Hz_tick(void) {
+void jobs_run1Hz_tick(void)
+{
     // VERY IMPORTANT that allstates after state machine
     // this is because there are fault overrides in allStates
     app_stateMachine_tick1Hz();
@@ -75,7 +80,8 @@ void jobs_run1Hz_tick(void) {
     io_canTx_enqueue1HzMsgs();
 }
 
-void jobs_run100Hz_tick(void) {
+void jobs_run100Hz_tick(void)
+{
     // VERY IMPORTANT that allstates after state machine
     // this is because there are fault overrides in allStates
     app_stateMachine_tick100Hz();
@@ -84,14 +90,16 @@ void jobs_run100Hz_tick(void) {
     io_canTx_enqueue100HzMsgs();
 }
 
-void jobs_run1kHz_tick(void) {
+void jobs_run1kHz_tick(void)
+{
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 }
 
-void jobs_runCanTx_tick(void) {
+void jobs_runCanTx_tick(void)
+{
     CanMsg tx_msg = io_canQueue_popTx();
-    io_can_transmit(&can1, &tx_msg);
+    io_can_transmit(&can1, &tx_msg); // TODO make HW -> IO CAN
 
     // ReSharper disable once CppRedundantCastExpression
     if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)tx_msg.std_id, tx_msg.timestamp))
@@ -101,9 +109,11 @@ void jobs_runCanTx_tick(void) {
         io_telemMessage_pushMsgtoQueue(&tx_msg);
 }
 
-void jobs_runCanRx_tick(void) {
+void jobs_runCanRx_tick(void)
+{
     const CanMsg rx_msg = io_canQueue_popRx();
-    if (io_canRx_filterMessageId(rx_msg.std_id)) {
+    if (io_canRx_filterMessageId(rx_msg.std_id))
+    {
         JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_can_msg);
     }

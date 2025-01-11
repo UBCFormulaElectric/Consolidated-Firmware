@@ -10,7 +10,7 @@
  * Initialize the PWM input for measuring the IMD's PWM output
  * @param pwm_input_config The config for measuring the IMD's PWM output.
  */
-void io_imd_init(const PwmInputConfig* pwm_input_config);
+void io_imd_init(const PwmInputConfig *pwm_input_config);
 #endif
 
 /**
@@ -32,7 +32,7 @@ float io_imd_getDutyCycle(void);
  * @param htim The handle of the timer that triggered the input capture callback
  *             function
  */
-void io_imd_inputCaptureCallback(TIM_HandleTypeDef* htim);
+void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
 #endif
 
 /**

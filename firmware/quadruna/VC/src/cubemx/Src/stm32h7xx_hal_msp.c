@@ -64,7 +64,8 @@ extern DMA_HandleTypeDef hdma_usart2_rx;
 /**
  * Initializes the Global MSP.
  */
-void HAL_MspInit(void) {
+void HAL_MspInit(void)
+{
     /* USER CODE BEGIN MspInit 0 */
 
     /* USER CODE END MspInit 0 */
@@ -86,10 +87,12 @@ void HAL_MspInit(void) {
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
+void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hadc->Instance == ADC1) {
+    if (hadc->Instance == ADC1)
+    {
         /* USER CODE BEGIN ADC1_MspInit 0 */
 
         /* USER CODE END ADC1_MspInit 0 */
@@ -139,7 +142,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
         hdma_adc1.Init.Mode                = DMA_CIRCULAR;
         hdma_adc1.Init.Priority            = DMA_PRIORITY_LOW;
         hdma_adc1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-        if (HAL_DMA_Init(&hdma_adc1) != HAL_OK) {
+        if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -148,7 +152,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
         /* USER CODE END ADC1_MspInit 1 */
-    } else if (hadc->Instance == ADC3) {
+    }
+    else if (hadc->Instance == ADC3)
+    {
         /* USER CODE BEGIN ADC3_MspInit 0 */
 
         /* USER CODE END ADC3_MspInit 0 */
@@ -165,7 +171,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
         PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
         PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
         PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -196,8 +203,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc) {
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc) {
-    if (hadc->Instance == ADC1) {
+void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
         /* USER CODE BEGIN ADC1_MspDeInit 0 */
 
         /* USER CODE END ADC1_MspDeInit 0 */
@@ -227,7 +236,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc) {
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
         /* USER CODE END ADC1_MspDeInit 1 */
-    } else if (hadc->Instance == ADC3) {
+    }
+    else if (hadc->Instance == ADC3)
+    {
         /* USER CODE BEGIN ADC3_MspDeInit 0 */
 
         /* USER CODE END ADC3_MspDeInit 0 */
@@ -248,10 +259,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc) {
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan) {
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hfdcan->Instance == FDCAN1) {
+    if (hfdcan->Instance == FDCAN1)
+    {
         /* USER CODE BEGIN FDCAN1_MspInit 0 */
 
         /* USER CODE END FDCAN1_MspInit 0 */
@@ -260,7 +273,8 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan) {
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
         PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -296,8 +310,10 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan) {
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* hfdcan) {
-    if (hfdcan->Instance == FDCAN1) {
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
+{
+    if (hfdcan->Instance == FDCAN1)
+    {
         /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
 
         /* USER CODE END FDCAN1_MspDeInit 0 */
@@ -325,10 +341,12 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* hfdcan) {
  * @param hi2c: I2C handle pointer
  * @retval None
  */
-void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c) {
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hi2c->Instance == I2C1) {
+    if (hi2c->Instance == I2C1)
+    {
         /* USER CODE BEGIN I2C1_MspInit 0 */
 
         /* USER CODE END I2C1_MspInit 0 */
@@ -337,7 +355,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c) {
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
         PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C1235CLKSOURCE_D2PCLK1;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -358,7 +377,9 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c) {
         /* USER CODE BEGIN I2C1_MspInit 1 */
 
         /* USER CODE END I2C1_MspInit 1 */
-    } else if (hi2c->Instance == I2C2) {
+    }
+    else if (hi2c->Instance == I2C2)
+    {
         /* USER CODE BEGIN I2C2_MspInit 0 */
 
         /* USER CODE END I2C2_MspInit 0 */
@@ -367,7 +388,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c) {
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C2;
         PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C1235CLKSOURCE_D2PCLK1;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -397,8 +419,10 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c) {
  * @param hi2c: I2C handle pointer
  * @retval None
  */
-void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c) {
-    if (hi2c->Instance == I2C1) {
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
+{
+    if (hi2c->Instance == I2C1)
+    {
         /* USER CODE BEGIN I2C1_MspDeInit 0 */
 
         /* USER CODE END I2C1_MspDeInit 0 */
@@ -416,7 +440,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c) {
         /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
         /* USER CODE END I2C1_MspDeInit 1 */
-    } else if (hi2c->Instance == I2C2) {
+    }
+    else if (hi2c->Instance == I2C2)
+    {
         /* USER CODE BEGIN I2C2_MspDeInit 0 */
 
         /* USER CODE END I2C2_MspDeInit 0 */
@@ -443,10 +469,12 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c) {
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspInit(SD_HandleTypeDef* hsd) {
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hsd->Instance == SDMMC1) {
+    if (hsd->Instance == SDMMC1)
+    {
         /* USER CODE BEGIN SDMMC1_MspInit 0 */
 
         /* USER CODE END SDMMC1_MspInit 0 */
@@ -455,7 +483,8 @@ void HAL_SD_MspInit(SD_HandleTypeDef* hsd) {
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDMMC;
         PeriphClkInitStruct.SdmmcClockSelection  = RCC_SDMMCCLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -498,8 +527,10 @@ void HAL_SD_MspInit(SD_HandleTypeDef* hsd) {
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd) {
-    if (hsd->Instance == SDMMC1) {
+void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
+{
+    if (hsd->Instance == SDMMC1)
+    {
         /* USER CODE BEGIN SDMMC1_MspDeInit 0 */
 
         /* USER CODE END SDMMC1_MspDeInit 0 */
@@ -530,8 +561,10 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd) {
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
-    if (htim_base->Instance == TIM3) {
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM3)
+    {
         /* USER CODE BEGIN TIM3_MspInit 0 */
 
         /* USER CODE END TIM3_MspInit 0 */
@@ -552,8 +585,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
-    if (htim_base->Instance == TIM3) {
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM3)
+    {
         /* USER CODE BEGIN TIM3_MspDeInit 0 */
 
         /* USER CODE END TIM3_MspDeInit 0 */
@@ -574,10 +609,12 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
+void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+{
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (huart->Instance == UART7) {
+    if (huart->Instance == UART7)
+    {
         /* USER CODE BEGIN UART7_MspInit 0 */
 
         /* USER CODE END UART7_MspInit 0 */
@@ -586,7 +623,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
          */
         PeriphClkInitStruct.PeriphClockSelection      = RCC_PERIPHCLK_UART7;
         PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -611,7 +649,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
         /* USER CODE BEGIN UART7_MspInit 1 */
 
         /* USER CODE END UART7_MspInit 1 */
-    } else if (huart->Instance == USART1) {
+    }
+    else if (huart->Instance == USART1)
+    {
         /* USER CODE BEGIN USART1_MspInit 0 */
 
         /* USER CODE END USART1_MspInit 0 */
@@ -620,7 +660,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
          */
         PeriphClkInitStruct.PeriphClockSelection  = RCC_PERIPHCLK_USART1;
         PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16910CLKSOURCE_D2PCLK2;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -644,7 +685,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
         /* USER CODE BEGIN USART1_MspInit 1 */
 
         /* USER CODE END USART1_MspInit 1 */
-    } else if (huart->Instance == USART2) {
+    }
+    else if (huart->Instance == USART2)
+    {
         /* USER CODE BEGIN USART2_MspInit 0 */
 
         /* USER CODE END USART2_MspInit 0 */
@@ -653,7 +696,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
          */
         PeriphClkInitStruct.PeriphClockSelection      = RCC_PERIPHCLK_USART2;
         PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -684,7 +728,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
         hdma_usart2_rx.Init.Mode                = DMA_CIRCULAR;
         hdma_usart2_rx.Init.Priority            = DMA_PRIORITY_LOW;
         hdma_usart2_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-        if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK) {
+        if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -693,7 +738,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
         /* USER CODE BEGIN USART2_MspInit 1 */
 
         /* USER CODE END USART2_MspInit 1 */
-    } else if (huart->Instance == USART3) {
+    }
+    else if (huart->Instance == USART3)
+    {
         /* USER CODE BEGIN USART3_MspInit 0 */
 
         /* USER CODE END USART3_MspInit 0 */
@@ -702,7 +749,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
          */
         PeriphClkInitStruct.PeriphClockSelection      = RCC_PERIPHCLK_USART3;
         PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
             Error_Handler();
         }
 
@@ -743,8 +791,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart) {
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspDeInit(UART_HandleTypeDef* huart) {
-    if (huart->Instance == UART7) {
+void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == UART7)
+    {
         /* USER CODE BEGIN UART7_MspDeInit 0 */
 
         /* USER CODE END UART7_MspDeInit 0 */
@@ -762,7 +812,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart) {
         /* USER CODE BEGIN UART7_MspDeInit 1 */
 
         /* USER CODE END UART7_MspDeInit 1 */
-    } else if (huart->Instance == USART1) {
+    }
+    else if (huart->Instance == USART1)
+    {
         /* USER CODE BEGIN USART1_MspDeInit 0 */
 
         /* USER CODE END USART1_MspDeInit 0 */
@@ -780,7 +832,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart) {
         /* USER CODE BEGIN USART1_MspDeInit 1 */
 
         /* USER CODE END USART1_MspDeInit 1 */
-    } else if (huart->Instance == USART2) {
+    }
+    else if (huart->Instance == USART2)
+    {
         /* USER CODE BEGIN USART2_MspDeInit 0 */
 
         /* USER CODE END USART2_MspDeInit 0 */
@@ -798,7 +852,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart) {
         /* USER CODE BEGIN USART2_MspDeInit 1 */
 
         /* USER CODE END USART2_MspDeInit 1 */
-    } else if (huart->Instance == USART3) {
+    }
+    else if (huart->Instance == USART3)
+    {
         /* USER CODE BEGIN USART3_MspDeInit 0 */
 
         /* USER CODE END USART3_MspDeInit 0 */

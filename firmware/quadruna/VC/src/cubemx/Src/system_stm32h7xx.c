@@ -179,7 +179,8 @@ const uint8_t D1CorePrescTable[16] = { 0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7,
  * @param  None
  * @retval None
  */
-void SystemInit(void) {
+void SystemInit(void)
+{
 #if defined(DATA_IN_D2_SRAM)
     __IO uint32_t tmpreg;
 #endif /* DATA_IN_D2_SRAM */
@@ -191,7 +192,8 @@ void SystemInit(void) {
     /* Reset the RCC clock configuration to the default reset state ------------*/
 
     /* Increasing the CPU frequency */
-    if (FLASH_LATENCY_DEFAULT > (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))) {
+    if (FLASH_LATENCY_DEFAULT > (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
+    {
         /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
         MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
     }
@@ -206,7 +208,8 @@ void SystemInit(void) {
     RCC->CR &= 0xEAF6ED7FU;
 
     /* Decreasing the number of wait states because of lower CPU frequency */
-    if (FLASH_LATENCY_DEFAULT < (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))) {
+    if (FLASH_LATENCY_DEFAULT < (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
+    {
         /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
         MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
     }
@@ -260,10 +263,11 @@ void SystemInit(void) {
 
 #if (STM32H7_DEV_ID == 0x450UL)
     /* dual core CM7 or single core line */
-    if ((DBGMCU->IDCODE & 0xFFFF0000U) < 0x20000000U) {
+    if ((DBGMCU->IDCODE & 0xFFFF0000U) < 0x20000000U)
+    {
         /* if stm32h7 revY*/
         /* Change  the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
-        *((__IO uint32_t*)0x51008108) = 0x000000001U;
+        *((__IO uint32_t *)0x51008108) = 0x000000001U;
     }
 #endif /* STM32H7_DEV_ID */
 
@@ -342,14 +346,16 @@ void SystemInit(void) {
  * @param  None
  * @retval None
  */
-void SystemCoreClockUpdate(void) {
+void SystemCoreClockUpdate(void)
+{
     uint32_t pllp, pllsource, pllm, pllfracen, hsivalue, tmp;
     uint32_t common_system_clock;
     float_t  fracn1, pllvco;
 
     /* Get SYSCLK source -------------------------------------------------------*/
 
-    switch (RCC->CFGR & RCC_CFGR_SWS) {
+    switch (RCC->CFGR & RCC_CFGR_SWS)
+    {
         case RCC_CFGR_SWS_HSI: /* HSI used as system clock source */
             common_system_clock = (uint32_t)(HSI_VALUE >> ((RCC->CR & RCC_CR_HSIDIV) >> 3));
             break;
@@ -372,8 +378,10 @@ void SystemCoreClockUpdate(void) {
             pllfracen = ((RCC->PLLCFGR & RCC_PLLCFGR_PLL1FRACEN) >> RCC_PLLCFGR_PLL1FRACEN_Pos);
             fracn1    = (float_t)(uint32_t)(pllfracen * ((RCC->PLL1FRACR & RCC_PLL1FRACR_FRACN1) >> 3));
 
-            if (pllm != 0U) {
-                switch (pllsource) {
+            if (pllm != 0U)
+            {
+                switch (pllsource)
+                {
                     case RCC_PLLCKSELR_PLLSRC_HSI: /* HSI used as PLL clock source */
 
                         hsivalue = (HSI_VALUE >> ((RCC->CR & RCC_CR_HSIDIV) >> 3));
@@ -404,7 +412,9 @@ void SystemCoreClockUpdate(void) {
                 }
                 pllp                = (((RCC->PLL1DIVR & RCC_PLL1DIVR_P1) >> 9) + 1U);
                 common_system_clock = (uint32_t)(float_t)(pllvco / (float_t)pllp);
-            } else {
+            }
+            else
+            {
                 common_system_clock = 0U;
             }
             break;

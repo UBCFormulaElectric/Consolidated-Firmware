@@ -127,11 +127,11 @@ static void MX_CAN1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_IWDG_Init(void);
-void        StartTask1kHz(void* argument);
-void        RunTask100Hz(void* argument);
-void        RunTaskCanRx(void* argument);
-void        RunTaskCanTx(void* argument);
-void        RunTask1Hz(void* argument);
+void        StartTask1kHz(void *argument);
+void        RunTask100Hz(void *argument);
+void        RunTaskCanRx(void *argument);
+void        RunTaskCanTx(void *argument);
+void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -146,7 +146,8 @@ void        RunTask1Hz(void* argument);
  * @brief  The application entry point.
  * @retval int
  */
-int main(void) {
+int main(void)
+{
     /* USER CODE BEGIN 1 */
     tasks_preInit();
     /* USER CODE END 1 */
@@ -228,7 +229,8 @@ int main(void) {
     /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1) {
+    while (1)
+    {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -240,7 +242,8 @@ int main(void) {
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -262,7 +265,8 @@ void SystemClock_Config(void) {
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ       = 2;
     RCC_OscInitStruct.PLL.PLLR       = 2;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -274,7 +278,8 @@ void SystemClock_Config(void) {
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    {
         Error_Handler();
     }
 }
@@ -284,7 +289,8 @@ void SystemClock_Config(void) {
  * @param None
  * @retval None
  */
-static void MX_ADC1_Init(void) {
+static void MX_ADC1_Init(void)
+{
     /* USER CODE BEGIN ADC1_Init 0 */
 
     /* USER CODE END ADC1_Init 0 */
@@ -309,7 +315,8 @@ static void MX_ADC1_Init(void) {
     hadc1.Init.NbrOfConversion       = 10;
     hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    if (HAL_ADC_Init(&hadc1) != HAL_OK) {
+    if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -318,7 +325,8 @@ static void MX_ADC1_Init(void) {
     sConfig.Channel      = ADC_CHANNEL_0;
     sConfig.Rank         = 1;
     sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -326,7 +334,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_1;
     sConfig.Rank    = 2;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -334,7 +343,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_2;
     sConfig.Rank    = 3;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -342,7 +352,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_3;
     sConfig.Rank    = 4;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -350,7 +361,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_4;
     sConfig.Rank    = 5;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -358,7 +370,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_10;
     sConfig.Rank    = 6;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -366,7 +379,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_11;
     sConfig.Rank    = 7;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -374,7 +388,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_12;
     sConfig.Rank    = 8;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -382,7 +397,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_14;
     sConfig.Rank    = 9;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -390,7 +406,8 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_15;
     sConfig.Rank    = 10;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN ADC1_Init 2 */
@@ -403,7 +420,8 @@ static void MX_ADC1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_CAN1_Init(void) {
+static void MX_CAN1_Init(void)
+{
     /* USER CODE BEGIN CAN1_Init 0 */
 
     /* USER CODE END CAN1_Init 0 */
@@ -423,7 +441,8 @@ static void MX_CAN1_Init(void) {
     hcan1.Init.AutoRetransmission   = ENABLE;
     hcan1.Init.ReceiveFifoLocked    = ENABLE;
     hcan1.Init.TransmitFifoPriority = ENABLE;
-    if (HAL_CAN_Init(&hcan1) != HAL_OK) {
+    if (HAL_CAN_Init(&hcan1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
@@ -436,7 +455,8 @@ static void MX_CAN1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_IWDG_Init(void) {
+static void MX_IWDG_Init(void)
+{
     /* USER CODE BEGIN IWDG_Init 0 */
 
     /* USER CODE END IWDG_Init 0 */
@@ -447,7 +467,8 @@ static void MX_IWDG_Init(void) {
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
-    if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
@@ -460,7 +481,8 @@ static void MX_IWDG_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_TIM3_Init(void) {
+static void MX_TIM3_Init(void)
+{
     /* USER CODE BEGIN TIM3_Init 0 */
 
     /* USER CODE END TIM3_Init 0 */
@@ -477,19 +499,22 @@ static void MX_TIM3_Init(void) {
     htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_IC_Init(&htim3) != HAL_OK) {
+    if (HAL_TIM_IC_Init(&htim3) != HAL_OK)
+    {
         Error_Handler();
     }
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK) {
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
         Error_Handler();
     }
     sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
     sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
     sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
     sConfigIC.ICFilter    = 0;
-    if (HAL_TIM_IC_ConfigChannel(&htim3, &sConfigIC, TIM_CHANNEL_1) != HAL_OK) {
+    if (HAL_TIM_IC_ConfigChannel(&htim3, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN TIM3_Init 2 */
@@ -502,7 +527,8 @@ static void MX_TIM3_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_USART1_UART_Init(void) {
+static void MX_USART1_UART_Init(void)
+{
     /* USER CODE BEGIN USART1_Init 0 */
 
     /* USER CODE END USART1_Init 0 */
@@ -518,7 +544,8 @@ static void MX_USART1_UART_Init(void) {
     huart1.Init.Mode         = UART_MODE_TX_RX;
     huart1.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-    if (HAL_UART_Init(&huart1) != HAL_OK) {
+    if (HAL_UART_Init(&huart1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN USART1_Init 2 */
@@ -529,7 +556,8 @@ static void MX_USART1_UART_Init(void) {
 /**
  * Enable DMA controller clock
  */
-static void MX_DMA_Init(void) {
+static void MX_DMA_Init(void)
+{
     /* DMA controller clock enable */
     __HAL_RCC_DMA2_CLK_ENABLE();
 
@@ -544,7 +572,8 @@ static void MX_DMA_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_GPIO_Init(void) {
+static void MX_GPIO_Init(void)
+{
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
@@ -612,7 +641,8 @@ static void MX_GPIO_Init(void) {
  * @retval None
  */
 /* USER CODE END Header_StartTask1kHz */
-void StartTask1kHz(void* argument) {
+void StartTask1kHz(void *argument)
+{
     /* USER CODE BEGIN 5 */
     tasks_run1kHz();
     /* USER CODE END 5 */
@@ -625,7 +655,8 @@ void StartTask1kHz(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void* argument) {
+void RunTask100Hz(void *argument)
+{
     /* USER CODE BEGIN RunTask100Hz */
     /* Infinite loop */
     tasks_run100Hz();
@@ -639,7 +670,8 @@ void RunTask100Hz(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void* argument) {
+void RunTaskCanRx(void *argument)
+{
     /* USER CODE BEGIN RunTaskCanRx */
     /* Infinite loop */
     tasks_runCanRx();
@@ -653,7 +685,8 @@ void RunTaskCanRx(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void* argument) {
+void RunTaskCanTx(void *argument)
+{
     /* USER CODE BEGIN RunTaskCanTx */
     tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
@@ -666,7 +699,8 @@ void RunTaskCanTx(void* argument) {
  * @retval None
  */
 /* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void* argument) {
+void RunTask1Hz(void *argument)
+{
     /* USER CODE BEGIN RunTask1Hz */
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
@@ -680,11 +714,13 @@ void RunTask1Hz(void* argument) {
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM6) {
+    if (htim->Instance == TIM6)
+    {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
@@ -696,11 +732,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
-    while (1) {
+    while (1)
+    {
     }
     /* USER CODE END Error_Handler_Debug */
 }
@@ -713,7 +751,8 @@ void Error_Handler(void) {
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t* file, uint32_t line) {
+void assert_failed(uint8_t *file, uint32_t line)
+{
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
        ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

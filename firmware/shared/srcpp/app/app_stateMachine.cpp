@@ -20,9 +20,10 @@ static pthread_mutex_t state_tick_mutex;
 static HANDLE state_tick_mutex;
 #endif
 
-namespace app {
-const State* state;
-const State* next_state;
+namespace app
+{
+const State *state;
+const State *next_state;
 
 /**
  * Run the given tick function over the given state machine if the tick function
@@ -30,7 +31,8 @@ const State* next_state;
  *
  * @param tick_function The tick function to run over the state machine
  */
-void runTickFunction(void (*tick_function)()) {
+void runTickFunction(void (*tick_function)())
+{
 #ifdef __arm__
     xSemaphoreTake(state_tick_mutex, portMAX_DELAY);
 #elif __unix__ || __APPLE__
@@ -39,19 +41,23 @@ void runTickFunction(void (*tick_function)()) {
     WaitForSingleObject(state_tick_mutex, INFINITE);
 #endif
 
-    if (tick_function != NULL) {
+    if (tick_function != NULL)
+    {
         tick_function();
     }
 
     // Check if we should transition states
-    if (next_state != state) {
-        if (state->run_on_exit != NULL) {
+    if (next_state != state)
+    {
+        if (state->run_on_exit != NULL)
+        {
             state->run_on_exit();
         }
 
         state = next_state;
 
-        if (state->run_on_entry != NULL) {
+        if (state->run_on_entry != NULL)
+        {
             state->run_on_entry();
         }
     }
@@ -69,12 +75,15 @@ void runTickFunction(void (*tick_function)()) {
 #endif
 }
 
-namespace StateMachine {
-    void init(const State* const initial_state) {
+namespace StateMachine
+{
+    void init(const State *const initial_state)
+    {
         state      = initial_state;
         next_state = initial_state;
 
-        if (state->run_on_entry != NULL) {
+        if (state->run_on_entry != NULL)
+        {
             state->run_on_entry();
         }
 
@@ -87,19 +96,23 @@ namespace StateMachine {
 #endif
     }
 
-    void tick1Hz() {
+    void tick1Hz()
+    {
         runTickFunction(state->run_on_tick_1Hz);
     }
 
-    void tick100Hz() {
+    void tick100Hz()
+    {
         runTickFunction(state->run_on_tick_100Hz);
     }
 
-    const State* get_current_state() {
+    const State *get_current_state()
+    {
         return state;
     }
 
-    void set_next_state(const State* const in_next_state) {
+    void set_next_state(const State *const in_next_state)
+    {
         next_state = in_next_state;
     }
 } // namespace StateMachine

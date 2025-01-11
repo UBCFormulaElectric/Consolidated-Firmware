@@ -37,7 +37,8 @@
 
 // clang-format on
 
-typedef enum {
+typedef enum
+{
     CELL_V_REG_GROUP_A = 0U,
     CELL_V_REG_GROUP_B,
     CELL_V_REG_GROUP_C,
@@ -47,7 +48,7 @@ typedef enum {
     NUM_OF_CELL_V_REG_GROUPS
 } CellVoltageRegGroup;
 
-extern const SpiInterface* ltc6813_spi;
+extern const SpiInterface *ltc6813_spi;
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -69,21 +70,24 @@ static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] = {
  * @param cell_voltages Buffer to write out the read voltages to
  * @return True if the data is read back successfully. Else, false
  */
-static bool parseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]) {
+static bool parseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
+{
     bool status = true;
 
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++) {
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
+    {
         // Set the starting index to read cell voltages for the current segment
         // from rx_buffer
         uint8_t start_index = (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
 
         // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t*)&rx_buffer[start_index]);
+        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t *)&rx_buffer[start_index]);
 
         // Read PEC15 from the rx_buffer
         const uint16_t recv_pec15 = rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
 
-        if (recv_pec15 == calc_pec15) {
+        if (recv_pec15 == calc_pec15)
+        {
             // Ignore cells 17 and 18 if reading back from group F. Only read
             // single word. Otherwise read all bytes stored in rx_buffer
             const uint8_t num_bytes_to_copy =
@@ -91,7 +95,7 @@ static bool parseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_
 
             // Store register group data into a temporary array reg_group_data
             uint16_t reg_group_data[NUM_OF_READINGS_PER_REG_GROUP] = { 0 };
-            memcpy((uint8_t*)reg_group_data, (uint8_t*)&rx_buffer[start_index], num_bytes_to_copy);
+            memcpy((uint8_t *)reg_group_data, (uint8_t *)&rx_buffer[start_index], num_bytes_to_copy);
 
             // Write out voltage readings
             const float reading_0_voltage = CONVERT_100UV_TO_VOLTAGE(reg_group_data[REG_GROUP_READING_0]);
@@ -102,18 +106,23 @@ static bool parseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_
             const int reading_1_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_1;
             const int reading_2_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_2;
 
-            if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+            if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            {
                 cell_voltages[curr_segment][reading_0_cell_idx] = reading_0_voltage;
             }
 
-            if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+            if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            {
                 cell_voltages[curr_segment][reading_1_cell_idx] = reading_1_voltage;
             }
 
-            if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+            if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            {
                 cell_voltages[curr_segment][reading_2_cell_idx] = reading_2_voltage;
             }
-        } else {
+        }
+        else
+        {
             status = false;
         }
     }
@@ -121,16 +130,19 @@ static bool parseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_
     return status;
 }
 
-bool io_ltc6813CellVoltages_readVoltages(void) {
+bool io_ltc6813CellVoltages_readVoltages(void)
+{
     // Exit early if ADC conversion fails
-    if (!io_ltc6813Shared_pollAdcConversions()) {
+    if (!io_ltc6813Shared_pollAdcConversions())
+    {
         return false;
     }
 
     bool     status                            = true;
     uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS] = { 0U };
 
-    for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++) {
+    for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
+    {
         // Prepare the command used to read data back from a register group
         uint16_t tx_cmd[NUM_CMD_WORDS] = {
             [CMD_WORD]  = cv_read_cmds[curr_reg_group],
@@ -140,7 +152,7 @@ bool io_ltc6813CellVoltages_readVoltages(void) {
 
         // Transmit the command and receive data stored in register group.
         bool voltage_read_success = hw_spi_transmitThenReceive(
-            ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t*)rx_buffer, NUM_REG_GROUP_RX_BYTES);
+            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments(curr_reg_group, rx_buffer);
 
         // If SPI communication or parsing fails, save result but continue to update data for remaining cell register
@@ -151,11 +163,13 @@ bool io_ltc6813CellVoltages_readVoltages(void) {
     return status;
 }
 
-bool io_ltc6813CellVoltages_startAdcConversion(void) {
+bool io_ltc6813CellVoltages_startAdcConversion(void)
+{
     return io_ltc6813Shared_sendCommand(ADCV);
 }
 
-float io_ltc6813CellVoltages_getCellVoltage(uint8_t segement, uint8_t cell) {
+float io_ltc6813CellVoltages_getCellVoltage(uint8_t segement, uint8_t cell)
+{
     return cell_voltages[segement][cell];
 }
 
@@ -170,21 +184,24 @@ float io_ltc6813CellVoltages_getCellVoltage(uint8_t segement, uint8_t cell) {
 static bool parseCellVoltageFromAllSegments_owc(
     uint8_t  curr_reg_group,
     uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
-    bool     pull_up) {
+    bool     pull_up)
+{
     bool status = true;
 
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++) {
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
+    {
         // Set the starting index to read cell voltages for the current segment
         // from rx_buffer
         uint8_t start_index = (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
 
         // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t*)&rx_buffer[start_index]);
+        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t *)&rx_buffer[start_index]);
 
         // Read PEC15 from the rx_buffer
         const uint16_t recv_pec15 = rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
 
-        if (recv_pec15 == calc_pec15) {
+        if (recv_pec15 == calc_pec15)
+        {
             // Ignore cells 17 and 18 if reading back from group F. Only read
             // single word. Otherwise read all bytes stored in rx_buffer
             const uint8_t num_bytes_to_copy =
@@ -192,7 +209,7 @@ static bool parseCellVoltageFromAllSegments_owc(
 
             // Store register group data into a temporary array reg_group_data
             uint16_t reg_group_data[NUM_OF_READINGS_PER_REG_GROUP] = { 0 };
-            memcpy((uint8_t*)reg_group_data, (uint8_t*)&rx_buffer[start_index], num_bytes_to_copy);
+            memcpy((uint8_t *)reg_group_data, (uint8_t *)&rx_buffer[start_index], num_bytes_to_copy);
 
             // Write out voltage readings
             const float reading_0_voltage = CONVERT_100UV_TO_VOLTAGE(reg_group_data[REG_GROUP_READING_0]);
@@ -203,32 +220,43 @@ static bool parseCellVoltageFromAllSegments_owc(
             const int reading_1_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_1;
             const int reading_2_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_2;
 
-            if (pull_up) {
-                if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+            if (pull_up)
+            {
+                if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+                {
                     owc_cell_V_PU[curr_segment][reading_0_cell_idx] = reading_0_voltage;
                 }
 
-                if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+                if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+                {
                     owc_cell_V_PU[curr_segment][reading_1_cell_idx] = reading_1_voltage;
                 }
 
-                if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+                if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+                {
                     owc_cell_V_PU[curr_segment][reading_2_cell_idx] = reading_2_voltage;
                 }
-            } else {
-                if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+            }
+            else
+            {
+                if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+                {
                     owc_cell_V_PD[curr_segment][reading_0_cell_idx] = reading_0_voltage;
                 }
 
-                if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+                if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+                {
                     owc_cell_V_PD[curr_segment][reading_1_cell_idx] = reading_1_voltage;
                 }
 
-                if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+                if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+                {
                     owc_cell_V_PD[curr_segment][reading_2_cell_idx] = reading_2_voltage;
                 }
             }
-        } else {
+        }
+        else
+        {
             status = false;
         }
     }
@@ -236,24 +264,31 @@ static bool parseCellVoltageFromAllSegments_owc(
     return status;
 }
 
-bool io_ltc6813CellVoltages_owcStart(bool pull_up) {
-    if (pull_up) {
+bool io_ltc6813CellVoltages_owcStart(bool pull_up)
+{
+    if (pull_up)
+    {
         return io_ltc6813Shared_sendCommand(ADOW_PU_FIL);
-    } else {
+    }
+    else
+    {
         return io_ltc6813Shared_sendCommand(ADOW_PD_FIL);
     }
 }
 
-bool io_ltc6813CellVoltages_owcReadVoltages(bool pull_up) {
+bool io_ltc6813CellVoltages_owcReadVoltages(bool pull_up)
+{
     // Exit early if ADC conversion fails
-    if (!io_ltc6813Shared_pollAdcConversions()) {
+    if (!io_ltc6813Shared_pollAdcConversions())
+    {
         return false;
     }
 
     bool     status                            = true;
     uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS] = { 0U };
 
-    for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++) {
+    for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
+    {
         // Prepare the command used to read data back from a register group
         uint16_t tx_cmd[NUM_CMD_WORDS] = {
             [CMD_WORD]  = cv_read_cmds[curr_reg_group],
@@ -263,7 +298,7 @@ bool io_ltc6813CellVoltages_owcReadVoltages(bool pull_up) {
 
         // Transmit the command and receive data stored in register group.
         bool voltage_read_success = hw_spi_transmitThenReceive(
-            ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t*)rx_buffer, NUM_REG_GROUP_RX_BYTES);
+            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments_owc(curr_reg_group, rx_buffer, pull_up);
 
         // If SPI communication or parsing fails, save result but continue to update data for remaining cell register
@@ -274,16 +309,19 @@ bool io_ltc6813CellVoltages_owcReadVoltages(bool pull_up) {
     return status;
 }
 
-void io_ltc6813CellVoltages_checkOpenWireStatus(void) {
+void io_ltc6813CellVoltages_checkOpenWireStatus(void)
+{
     float cell_voltage_delta[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
-    for (int segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
+    for (int segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
         // Check for cell 0
         owc_status[segment][0] = (owc_cell_V_PU[segment][0] < OPEN_WIRE_CHECK_CELL_0_THRESHOLD_V);
         owc_fault |= owc_status[segment][0];
 
         // Check for cell 1 to 14
-        for (uint8_t cell = 1; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT - 1; cell++) {
+        for (uint8_t cell = 1; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT - 1; cell++)
+        {
             cell_voltage_delta[segment][cell] = owc_cell_V_PD[segment][cell] - owc_cell_V_PD[segment][cell];
             owc_status[segment][cell]         = cell_voltage_delta[segment][cell] < OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V;
 
@@ -301,10 +339,12 @@ void io_ltc6813CellVoltages_checkOpenWireStatus(void) {
     }
 }
 
-bool io_ltc6813CellVoltages_getGlobalOpenWireFault(void) {
+bool io_ltc6813CellVoltages_getGlobalOpenWireFault(void)
+{
     return owc_fault;
 }
 
-bool io_ltc6813CellVoltages_getOpenWireFault(uint8_t segment, uint8_t cell) {
+bool io_ltc6813CellVoltages_getOpenWireFault(uint8_t segment, uint8_t cell)
+{
     return owc_status[segment][cell];
 }

@@ -15,13 +15,15 @@ static volatile bool dma_tx_completed = true;
  */
 extern SdCard sd1;
 
-SdCardStatus hw_sd_read(uint8_t* pdata, const uint32_t block_addr, const uint32_t num_blocks) {
+SdCardStatus hw_sd_read(uint8_t *pdata, const uint32_t block_addr, const uint32_t num_blocks)
+{
     while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
     return (SdCardStatus)HAL_SD_ReadBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
 }
 
-SdCardStatus hw_sd_readOffset(uint8_t* pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size) {
+SdCardStatus hw_sd_readOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
+{
     if (size == 0)
         return SD_CARD_OK;
     if (OFFSET_SIZE_VALID(offset, size)) // easy case
@@ -29,13 +31,15 @@ SdCardStatus hw_sd_readOffset(uint8_t* pdata, const uint32_t block_addr, const u
     return SD_CARD_ERROR;
 }
 
-SdCardStatus hw_sd_write(uint8_t* pdata, const uint32_t block_addr, const uint32_t num_blocks) {
+SdCardStatus hw_sd_write(uint8_t *pdata, const uint32_t block_addr, const uint32_t num_blocks)
+{
     while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
     return (SdCardStatus)HAL_SD_WriteBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
 }
 
-SdCardStatus hw_sd_writeOffset(uint8_t* pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size) {
+SdCardStatus hw_sd_writeOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
+{
     if (size == 0)
         return SD_CARD_OK;
     if (OFFSET_SIZE_VALID(offset, size)) // easy case
@@ -43,13 +47,15 @@ SdCardStatus hw_sd_writeOffset(uint8_t* pdata, const uint32_t block_addr, const 
     return SD_CARD_ERROR;
 }
 
-SdCardStatus hw_sd_erase(const uint32_t start_addr, const uint32_t end_addr) {
+SdCardStatus hw_sd_erase(const uint32_t start_addr, const uint32_t end_addr)
+{
     while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
     return (SdCardStatus)HAL_SD_Erase(sd1.hsd, start_addr, end_addr);
 }
 
-SdCardStatus hw_sd_writeDma(uint8_t* pdata, const uint32_t block_addr, const uint32_t num_blocks) {
+SdCardStatus hw_sd_writeDma(uint8_t *pdata, const uint32_t block_addr, const uint32_t num_blocks)
+{
     while (!dma_tx_completed)
         ;
     while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
@@ -59,25 +65,30 @@ SdCardStatus hw_sd_writeDma(uint8_t* pdata, const uint32_t block_addr, const uin
     return (SdCardStatus)HAL_SD_WriteBlocks_DMA(sd1.hsd, pdata, block_addr, num_blocks);
 }
 
-void HAL_SD_TxCpltCallback(SD_HandleTypeDef* hsd) {
+void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
+{
     assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
 
-void HAL_SD_RxCpltCallback(SD_HandleTypeDef* hsd) {
+void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
+{
     assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
 
-void HAL_SD_ErrorCallback(SD_HandleTypeDef* hsd) {
+void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
+{
     assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
-void HAL_SD_AbortCallback(SD_HandleTypeDef* hsd) {
+void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
+{
     assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
 
-bool hw_sd_present() {
+bool hw_sd_present()
+{
     return hw_gpio_readPin(sd1.present_gpio);
 }

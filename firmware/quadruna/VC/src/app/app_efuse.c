@@ -28,17 +28,21 @@ static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
 
-void app_efuse_broadcast(void) {
+void app_efuse_broadcast(void)
+{
     // run through each efuse, and broadcast the channel status and current
-    for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse += 1) {
+    for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse += 1)
+    {
         bool  enabled = io_efuse_isChannelEnabled((EfuseChannel)efuse);
         float current = io_efuse_getChannelCurrent((EfuseChannel)efuse);
 
-        if (efuse_enabled_can_setters[efuse] != NULL) {
+        if (efuse_enabled_can_setters[efuse] != NULL)
+        {
             efuse_enabled_can_setters[efuse](enabled);
         }
 
-        if (efuse_current_can_setters[efuse] != NULL) {
+        if (efuse_current_can_setters[efuse] != NULL)
+        {
             efuse_current_can_setters[efuse](current);
         }
     }

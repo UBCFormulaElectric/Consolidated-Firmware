@@ -32,8 +32,10 @@
 #include <cstdint>
 #include <cassert>
 
-namespace hw::watchdog {
-struct WatchdogInstance {
+namespace hw::watchdog
+{
+struct WatchdogInstance
+{
     // Is this watchdog ready to be used?
     bool initialized;
     // The tick period of the task being monitored.
@@ -50,14 +52,17 @@ struct WatchdogInstance {
         period(period_in_ticks),
         deadline(period_in_ticks),
         check_in_status(true),
-        task_id(in_task_id) {}
+        task_id(in_task_id)
+    {
+    }
 
     /**
      * Every periodic task monitored by a software watchdog must call this at the
      * end of each period.
      * @param watchdog: Handle to the software watchdog
      */
-    void checkIn() {
+    void checkIn()
+    {
         assert(initialized == true);
         check_in_status = true;
     }
@@ -69,7 +74,8 @@ struct WatchdogInstance {
  * If you are getting linking issues with these functions make sure they are defined in hw/hw_wachdogs.cpp
  * TODO find a more elegant way of doing this?? I think this is pretty good
  */
-namespace hw::watchdogConfig {
+namespace hw::watchdogConfig
+{
 /**
  * Function to refresh the hardware watchdog
  */
@@ -79,15 +85,16 @@ extern void refresh_hardware_watchdog();
  * Callback function used to perform additional operations prior to the reset of the microcontroller.
  * For example, a message may be written to a log file.
  */
-extern void timeout_callback(hw::watchdog::WatchdogInstance* watchdog);
+extern void timeout_callback(hw::watchdog::WatchdogInstance *watchdog);
 } // namespace hw::watchdogConfig
 
-namespace hw::watchdog::monitor {
+namespace hw::watchdog::monitor
+{
 /**
  * Register a software watchdog instance to the monitor.
  * @param watchdog_instance - Handle to the software watchdog
  */
-void registerWatchdogInstance(WatchdogInstance* watchdog_instance);
+void registerWatchdogInstance(WatchdogInstance *watchdog_instance);
 
 /**
  * Check if any software watchdog has expired.

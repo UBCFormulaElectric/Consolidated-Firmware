@@ -2,7 +2,8 @@
 #include <QQuickPaintedItem>
 
 // ReSharper disable once CppClassCanBeFinal because of QML
-class CircleProgressBar : public QQuickPaintedItem {
+class CircleProgressBar : public QQuickPaintedItem
+{
     Q_OBJECT
     QML_ELEMENT
 
@@ -24,21 +25,23 @@ class CircleProgressBar : public QQuickPaintedItem {
     // angles
     Q_PROPERTY(bool turn_right MEMBER m_turn_right)
   public:
-    explicit CircleProgressBar(QQuickItem* parent = nullptr);
-    void paint(QPainter* p) override;
+    explicit CircleProgressBar(QQuickItem *parent = nullptr);
+    void paint(QPainter *p) override;
 
   private:
     /**
      * @brief -1 -> 1 value
      */
     [[nodiscard]] float get_m_percentage() const { return m_percentage; }
-    void                set_m_percentage(const float v) {
+    void                set_m_percentage(const float v)
+    {
         m_percentage = v;
         update();
     }
     float                m_percentage;
     std::optional<float> m_bg_percentage = std::nullopt;
-    [[nodiscard]] float  get_bg_percentage() const {
+    [[nodiscard]] float  get_bg_percentage() const
+    {
         assert(m_bg_percentage.has_value());
         return m_bg_percentage.value();
     }
@@ -49,7 +52,8 @@ class CircleProgressBar : public QQuickPaintedItem {
      */
     int                m_stroke_width;
     std::optional<int> m_bg_stroke_width = std::nullopt;
-    [[nodiscard]] int  get_bg_stroke_width() const {
+    [[nodiscard]] int  get_bg_stroke_width() const
+    {
         assert(m_bg_stroke_width.has_value());
         return m_bg_stroke_width.value();
     }
@@ -64,12 +68,14 @@ class CircleProgressBar : public QQuickPaintedItem {
     int                m_end_angle;
     std::optional<int> m_bg_start_angle = std::nullopt;
     std::optional<int> m_bg_end_angle   = std::nullopt;
-    [[nodiscard]] int  get_bg_start_angle() const {
+    [[nodiscard]] int  get_bg_start_angle() const
+    {
         assert(m_bg_start_angle.has_value());
         return m_bg_start_angle.value();
     }
     void              set_bg_start_angle(int v) { m_bg_start_angle = v; }
-    [[nodiscard]] int get_bg_end_angle() const {
+    [[nodiscard]] int get_bg_end_angle() const
+    {
         assert(m_bg_end_angle.has_value());
         return m_bg_end_angle.value();
     }
@@ -82,7 +88,8 @@ class CircleProgressBar : public QQuickPaintedItem {
 
     QColor                m_bar_color;
     std::optional<QColor> m_bg_color = std::nullopt;
-    [[nodiscard]] QColor  get_bg_color() const {
+    [[nodiscard]] QColor  get_bg_color() const
+    {
         assert(m_bg_color.has_value());
         return m_bg_color.value();
     }
