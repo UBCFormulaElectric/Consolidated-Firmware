@@ -35,9 +35,7 @@ void io_canReroute(const JsonCanMsg* rx_msg)
         case CANMSG_BMS_VITALS_ID:
         {
             // Reroute message from BMS to FSM
-            // via bus2
             transmit_func_bus2(rx_msg);
-            
         }
         
 
