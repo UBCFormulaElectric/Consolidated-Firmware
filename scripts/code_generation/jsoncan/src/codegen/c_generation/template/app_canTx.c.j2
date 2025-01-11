@@ -20,7 +20,7 @@ typedef struct
     {%- for msg in messages %}
     {{ msg.c_type() }} {{ msg.name }}_signals;
     {%- endfor %}
-} {{node}}_TxMsgs;
+} {{node.name}}_TxMsgs;
 
 /* -------------------------- Private Variables --------------------------- */
 
@@ -68,7 +68,7 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
 
 {%- for msg in messages %}
 {%- for signal in msg.signals %}
-{{ signal.datatype() }} app_canTx_{{ msg.name }}_{{ signal.name }}_get(void)
+{{ signal.datatype() }} app_canTx_{{ signal.name }}_get(void)
 {
     return tx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
 }

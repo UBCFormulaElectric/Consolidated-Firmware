@@ -85,7 +85,7 @@ static void io_canTx_VC_LeftInverterCommand_sendPeriodic()
     }
     
 }
-staic void io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic()
+void io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic()
 {
     JsonCanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(JsonCanMsg));
@@ -135,7 +135,7 @@ static void io_canTx_VC_RightInverterCommand_sendPeriodic()
     }
     
 }
-staic void io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic()
+void io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic()
 {
     JsonCanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(JsonCanMsg));

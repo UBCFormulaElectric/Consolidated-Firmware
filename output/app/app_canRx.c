@@ -61,11 +61,6 @@ void app_canRx_init()
     
 }
 
-void app_canRx_BRUSA_IsConnected_update(bool value)
-{
-    rx_table.BRUSA_Vitals_signals.BRUSA_IsConnected_value = value;
-}
-
 void app_canRx_BMS_TractiveSystemVoltage_update(float value)
 {
     if (value == NAN)
@@ -490,6 +485,4 @@ BmsState app_canRx_BMS_State_get()
 {
     return rx_table.BMS_Vitals_signals.BMS_State_value;
 }
-
-
 
