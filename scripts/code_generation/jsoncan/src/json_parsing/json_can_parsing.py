@@ -12,9 +12,13 @@ from typing import Any, Tuple
 from ..can_database import *
 from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
-from .schema_validation import (AlertsJson, validate_alerts_json,
-                                validate_bus_json, validate_enum_json,
-                                validate_tx_json)
+from .schema_validation import (
+    AlertsJson,
+    validate_alerts_json,
+    validate_bus_json,
+    validate_enum_json,
+    validate_tx_json,
+)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -50,6 +54,7 @@ class JsonCanParser:
             {}
         )  # Dict of node names to node's alerts
         self._reroute: List[CanForward] = []
+        self._forwarder_node: CanNode = None
         self._parse_json_data(can_data_dir=can_data_dir)
 
     def make_database(self) -> CanDatabase:
@@ -72,10 +77,10 @@ class JsonCanParser:
         """
         # Load shared JSON data
 
+        nodes = self._parse_json_node_data(can_data_dir)
         bus_configs = self._parse_json_bus_data(can_data_dir)
         shared_enums = self._parse_json_shared_enum_data(can_data_dir)
 
-        nodes = self._parse_json_node_data(can_data_dir)
         # Parse node's TX, ALERTS, and ENUM JSON
         for node, node_obj in nodes.items():
 
@@ -86,17 +91,10 @@ class JsonCanParser:
             # Parse ALERTS
             alerts = self._parse_json_alert_data(can_data_dir, node_obj)
 
-            # finished parsing node data, now analyze it
-            node_bus = self._find_node_bus(tx_msgs.values())
-
             # update node object
-            node_obj.buses = node_bus
+            node_obj.buses = [bus for bus in self._bus_cfg.values() if node_obj in bus.nodes]
             node_obj.tx_msgs = tx_msgs
             node_obj.alerts = alerts
-
-            # update bus objects
-            for bus in node_bus:
-                bus.nodes.append(node_obj)
 
             print("palceholder")
 
@@ -115,11 +113,10 @@ class JsonCanParser:
                 rx_msg = self._messages[tx_node_msg_name]
                 if rx_msg not in rx_msg.rx_nodes:
                     rx_msg.rx_nodes.append(node_obj)
-                
+
                 # add the message to the node's rx messages
                 rx_node = self._nodes[node]
                 rx_node.rx_msgs[tx_node_msg_name] = rx_msg
-                    
 
         # find all message transmitting on one bus but received in another bus
         reroute = self._find_reroute(self._messages.values())
@@ -131,9 +128,11 @@ class JsonCanParser:
         """
         Parse bus JSON data from specified directory.
         """
+        assert self._nodes is not None # need nodes to be parsed first
         bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
         # dynamic validation of bus data
-        for bus in bus_json_data:
+        buses = bus_json_data["buses"]
+        for bus in buses:
             if bus["default_mode"] not in bus["modes"]:
                 raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
 
@@ -143,11 +142,13 @@ class JsonCanParser:
                 default_mode=bus["default_mode"],
                 modes=bus["modes"],
                 bus_speed=bus["bus_speed"],
+                nodes=[self._nodes[node] for node in bus["nodes"]],  # string for now
             )
-            for bus in bus_json_data
+            for bus in buses
         }
 
         self._bus_cfg = bus
+        self._forwarder_node = bus_json_data["forwarder"]
         return bus
 
     def _parse_json_shared_enum_data(self, can_data_dir) -> List[CanEnum]:
@@ -183,9 +184,14 @@ class JsonCanParser:
         Parse node JSON data from specified directory.
         """
         node_names = [f.name for f in os.scandir(can_data_dir) if f.is_dir()]
+        # leave other node empty for now
         node_objs = {
             node: CanNode(
                 name=node,
+                buses=[],
+                tx_msgs={},
+                rx_msgs={},
+                alerts={},
             )
             for node in node_names
         }
@@ -297,10 +303,10 @@ class JsonCanParser:
     def _find_reroute(self, message: Set[CanMessage]) -> List[CanForward]:
 
         # TODO: hardcode VC for now
-        assert self._nodes["VC"] is not None
-        
-        forwarder_node = self._nodes["VC"] # the only node that can reroute messages
-        
+        assert self._forwarder_node is not None
+
+        forwarder_node = self._forwarder_node  # the only node that can reroute messages
+
         message_to_reroute = []
         for message in self._messages.values():
             tx_bus = message.bus
@@ -342,17 +348,6 @@ class JsonCanParser:
             telem_cycle_time, _ = self._get_optional_value(
                 msg_json_data["data_capture"], "telem_cycle_time", msg_cycle_time
             )
-
-        # if len(msg_modes) == 0:
-        #     raise InvalidCanJson(
-        #         f"Message '{msg_name}' transmitted by '{node}' doesn't specify any allowed modes."
-        #     )
-
-        # for mode in msg_modes:
-        #     if mode not in self._bus_cfg.modes:
-        #         raise InvalidCanJson(
-        #             f"Mode '{mode}' for message '{msg_name}' transmitted by '{node}' is not a valid mode. You may need to add it in the 'bus.json' file."
-        #         )
 
         # Check if message ID is unique
 
