@@ -1,6 +1,6 @@
 {
-    "FsmState": {
-        "STATE_IDLE": 0,
-        "STATE_DRIVE": 1
+    "FSMState": {
+      "FSM_INIT_STATE": 0,
+      "FSM_DRIVE_STATE": 1
     }
 }
