@@ -1,5 +1,12 @@
-#include <stdlib.h>
 #include "hw_usb.h"
+
+#include <stdlib.h>
+
+#include <pb_decode.h>
+#include <pb_encode.h>
+
+#include "io_log.h"
+
 
 /*
     CHIMERA Packet Format:
@@ -33,11 +40,21 @@ void io_chimera_main(
             buf[i] = hw_usb_recieve();
 
         io_chimera_handleBuf(buf, length);
-
         free(buf);
     }
 };
 
-void io_chimera_handleBuf(buf, length) {
+void io_chimera_handleBuf(uint8_t *buf, uint16_t length) {
+
+    // Receive message.
+    DebugMessage message = DebugMessage_init_zero;
+    pb_istream_t stream = pb_istream_from_buffer(buf, length);
+    bool status = pb_decode(&stream, DebugMessage_fields, &message);
+    if (!status) {
+        LOG_ERROR("Error decoding chimera message stream");
+        return;
+    }
+
+    // TODO: Handle debug message.
 
 }
