@@ -1,6 +1,6 @@
 #include "io_loadCell.h"
 #include "hw_adc.h"
-#include "hw_adcs.h"
+//#include "hw_adcs.h"
 
 // TODO: Find actual max and min values
 #define LOADCELL_MINVOLT (0.0f)

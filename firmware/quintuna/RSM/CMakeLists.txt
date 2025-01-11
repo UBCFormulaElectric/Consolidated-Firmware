@@ -5,33 +5,35 @@ set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 set(SYSTEM_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
     ""
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR_CPP}")
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
     ""
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-    ""
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
 )
 set(HW_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR_CPP}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+    "${SHARED_HW_INCLUDE_DIR}"
 )
-if ("${TARGET}" STREQUAL "binary")
+
+if("${TARGET}" STREQUAL "binary")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
 
@@ -42,7 +44,6 @@ if ("${TARGET}" STREQUAL "binary")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-
 
     # Bootloader files.
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
@@ -61,22 +62,22 @@ if ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code("RSM" "${IOC_PATH}")
 
     set(STM32_HAL_SRCS
-    "stm32f4xx_hal_adc_ex.c"
-    "stm32f4xx_hal_adc.c"
-    "stm32f4xx_hal_cortex.c"
-    "stm32f4xx_hal_dma_ex.c"
-    "stm32f4xx_hal_dma.c"
-    "stm32f4xx_hal_exti.c"
-    "stm32f4xx_hal_can.c"
-    "stm32f4xx_hal_gpio.c"
-    "stm32f4xx_hal_iwdg.c"
-    "stm32f4xx_hal_pwr_ex.c"
-    "stm32f4xx_hal_rcc_ex.c"
-    "stm32f4xx_hal_rcc.c"
-    "stm32f4xx_hal_tim_ex.c"
-    "stm32f4xx_hal_tim.c"
-    "stm32f4xx_hal_uart.c"
-    "stm32f4xx_hal.c"
+        "stm32f4xx_hal_adc_ex.c"
+        "stm32f4xx_hal_adc.c"
+        "stm32f4xx_hal_cortex.c"
+        "stm32f4xx_hal_dma_ex.c"
+        "stm32f4xx_hal_dma.c"
+        "stm32f4xx_hal_exti.c"
+        "stm32f4xx_hal_can.c"
+        "stm32f4xx_hal_gpio.c"
+        "stm32f4xx_hal_iwdg.c"
+        "stm32f4xx_hal_pwr_ex.c"
+        "stm32f4xx_hal_rcc_ex.c"
+        "stm32f4xx_hal_rcc.c"
+        "stm32f4xx_hal_tim_ex.c"
+        "stm32f4xx_hal_tim.c"
+        "stm32f4xx_hal_uart.c"
+        "stm32f4xx_hal.c"
     )
 
     stm32f412rx_cube_library(
@@ -94,9 +95,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     # CommitInfo
     commit_info_library(
-            "quintuna_RSM_app.elf"
-            "quintuna_RSM_commit_info"
-            "${CMAKE_CURRENT_BINARY_DIR}/app"
+        "quintuna_RSM_app.elf"
+        "quintuna_RSM_commit_info"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
     target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "debug_modules")
@@ -109,5 +110,5 @@ if ("${TARGET}" STREQUAL "binary")
         "quintuna_RSM_boot.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_boot.hex"
     )
-elseif ("${TARGET}" STREQUAL "test")
-endif ()
+elseif("${TARGET}" STREQUAL "test")
+endif()

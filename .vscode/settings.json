@@ -15,6 +15,7 @@
 		"hw_adcs.h": "c",
 		"main.h": "c",
 		"io_fans.h": "c",
-		"io_leds.h": "c"
+		"io_leds.h": "c",
+		"hw_gpios.h": "c"
 	},
 }

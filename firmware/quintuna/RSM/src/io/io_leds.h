@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    Gpio *src;
+    const Gpio *src;
 } BinaryLed;
 
 extern const BinaryLed brake_light;
