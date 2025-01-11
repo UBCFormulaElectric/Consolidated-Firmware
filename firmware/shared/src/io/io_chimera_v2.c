@@ -160,9 +160,17 @@ void io_chimera_v2_handleBuf(uint8_t *buf, uint16_t length)
     // Encode and send reply.
     pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
     assert(pb_encode(&out_stream, DebugMessage_fields, &msg));
-    uint8_t response_packet_size = (uint8_t)out_stream.bytes_written;
+    uint16_t response_data_size = (uint16_t)out_stream.bytes_written;
 
-    uint8_t response_packet[response_packet_size];
-    memcpy(response_packet, msg, response_packet_size);
+    // Construct respopnse packet.
+    // CHIMERA Packet Format:
+    // [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
+    uint16_t response_packet_size = 3 + response_data_size;
+    uint8_t  response_packet[response_packet_size];
+    response_packet[0] = 0x01;
+    response_packet[1] = response_data_size & 0x0f;
+    response_packet[2] = response_data_size & 0xf0 >> 8;
+    memcpy(&response_packet[3], msg, response_data_size);
+
     hw_usb_transmit(response_packet, response_packet_size);
 }
