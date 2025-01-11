@@ -34,6 +34,8 @@ typedef enum
 
     Bus_bus1 = 0,
 
+    Bus_bus2 = 1,
+
 } BusEnum;
 
 
@@ -45,6 +47,13 @@ typedef enum
     
 } CanMode_bus1;
 
+typedef enum
+{
+    CanMode_bus2_default = 1 << 0,
+    CanMode_bus2_debug = 1 << 1,
+    
+} CanMode_bus2;
+
 
 
 
@@ -54,7 +63,7 @@ typedef enum
  * Initialzie the IO CAN TX module.
  */
 void io_canTx_init(
-    void (*transmit_bus1_msg_func)(const JsonCanMsg*)
+    void (*transmit_bus1_msg_func)(const JsonCanMsg*),void (*transmit_bus2_msg_func)(const JsonCanMsg*)
 );
 
 /**

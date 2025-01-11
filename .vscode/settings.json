@@ -20,7 +20,8 @@
     "type_traits": "c",
     "utility": "c",
     "variant": "c",
-    "freertos.h": "c"
+    "freertos.h": "c",
+    "io_canrx.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

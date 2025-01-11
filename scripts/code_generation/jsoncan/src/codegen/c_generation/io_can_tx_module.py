@@ -242,7 +242,6 @@ class IoCanTxModule(CModule):
     #     return str(cw)
 
     # FIXME: need node on what bus, need to know each message's bus. Need to fix a lot of parsing scripts. so I will fix here for now.
-
     # FIXME: assume all node on all buses for now
     def header_template(self):
         node_obj = self._db.nodes[self._node]
