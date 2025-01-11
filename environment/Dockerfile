@@ -29,17 +29,19 @@ RUN apt update -y && apt install -y \
     libxrender1 \
     protobuf-compiler
 
-COPY . /root/environment/
-
 # Install python package dependencies.
-WORKDIR /root/environment/scripts
-RUN pip3 install -r ../requirements.txt
+WORKDIR /root/environment
+COPY requirements.txt /root/environment/
+RUN pip3 install -r requirements.txt
 
 # Install GNU ARM Embedded Toolchain, for compiling/debugging on embedded.
-RUN /bin/sh install_gcc_arm_none_eabi.sh /usr/local
+COPY scripts/install_gcc_arm_none_eabi.sh /root/environment/
+RUN /bin/sh ./install_gcc_arm_none_eabi.sh /usr/local
 
 # Install STM32CubeMX for auto-generating code.
-RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.stm32cubemx-lin-v6-9-2.zip
+COPY scripts/install_stm32cubemx.py /root/environment/
+COPY data/en.stm32cubemx-lin-v6-12-0.zip /root/environment
+RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip en.stm32cubemx-lin-v6-12-0.zip
 
 # Cleanup copied directory.
 WORKDIR /root/

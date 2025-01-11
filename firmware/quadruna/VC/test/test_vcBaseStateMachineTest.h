@@ -1,13 +1,10 @@
 #include <gtest/gtest.h>
 #include "test_baseStateMachineTest.h"
 
-#include "fake_io_time.hpp"
 #include "fake_io_lowVoltageBattery.hpp"
 #include "fake_io_efuse.hpp"
-#include "fake_io_led.hpp"
 #include "fake_io_sbgEllipse.hpp"
 #include "fake_io_pcm.hpp"
-#include "fake_io_canLogging.hpp"
 
 extern "C"
 {
@@ -26,6 +23,7 @@ extern "C"
 #include "app_efuse.h"
 #include "app_faultCheck.h"
 #include "app_regen.h"
+#include "app_heartbeatMonitors.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -41,24 +39,18 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_canTx_init();
         app_canRx_init();
 
-        app_heartbeatMonitor_init(
-            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
-            heartbeatFaultSetters, heartbeatFaultGetters);
-        // app_globals_init(&globals_config);
-
         // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
 
-        // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
-        // re-enable the heartbeat monitor.
-        app_heartbeatMonitor_blockFaults(true);
         app_faultCheck_init();
 
         memset(&fake_sensor_data, 0U, sizeof(fake_sensor_data));
 
         fake_io_sbgEllipse_getImuAccelerations_returns(&fake_sensor_data.imu_data.acceleration);
         fake_io_sbgEllipse_getImuAngularVelocities_returns(&fake_sensor_data.imu_data.angular_velocity);
-        fake_io_sbgEllipse_getEulerAngles_returns(&fake_sensor_data.euler_data.euler_angles);
+        fake_io_sbgEllipse_getEkfEulerAngles_returns(&fake_sensor_data.ekf_euler_data.euler_angles);
+        fake_io_sbgEllipse_getEkfNavVelocityData_returns(&fake_sensor_data.ekf_nav_data.velocity);
+        fake_io_sbgEllipse_getEkfNavPositionData_returns(&fake_sensor_data.ekf_nav_data.position);
     }
 
     void TearDown() override
@@ -79,7 +71,9 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_pcm_set_reset();
         fake_io_sbgEllipse_getImuAccelerations_reset();
         fake_io_sbgEllipse_getImuAngularVelocities_reset();
-        fake_io_sbgEllipse_getEulerAngles_reset();
+        fake_io_sbgEllipse_getEkfEulerAngles_reset();
+        fake_io_sbgEllipse_getEkfNavVelocityData_reset();
+        fake_io_sbgEllipse_getEkfNavPositionData_reset();
     }
 
     void SetInitialState(const State *const initial_state)
@@ -94,7 +88,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_BMS_State_update(BMS_DRIVE_STATE);
         app_canRx_FSM_BrakeActuated_update(true);
         SetInitialState(app_driveState_get());
-        app_heartbeatMonitor_clearFaults();
+        app_heartbeatMonitor_clearFaults(&hb_monitor);
     }
 
     // configs for efuse messages over can
@@ -102,55 +96,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     {
         return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
     }
-
-    // config for heartbeat monitor (can funcs and flags)
-    // VC relies on FSM, RSM, BMS, CRIT
-    bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-        [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = true,
-        [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = true
-    };
-
-    // heartbeatGetters - get heartbeat signals from other boards
-    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                          [VC_HEARTBEAT_BOARD]   = NULL,
-                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                          [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
-
-    // heartbeatUpdaters - update local CAN table with heartbeat status
-    void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-        [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-        [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-        [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-        [DIM_HEARTBEAT_BOARD]  = NULL,
-        [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
-    };
-
-    // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-    void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-        [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
-        [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
-        [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_set,
-        [DIM_HEARTBEAT_BOARD]  = NULL,
-        [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_set
-    };
-
-    // heartbeatFaultGetters - gets fault statuses over CAN
-    bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-        [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
-        [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
-        [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
-        [DIM_HEARTBEAT_BOARD]  = NULL,
-        [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
-    };
-
-    // const GlobalsConfig globals_config = {
-    //     .a = 0
-    // };
 
     SensorData fake_sensor_data;
 };

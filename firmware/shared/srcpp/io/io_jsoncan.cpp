@@ -1,5 +1,5 @@
-#include "io_jsoncan.h"
-#include "hw_can.h"
+#include "io_jsoncan.hpp"
+#include "hw_can.hpp"
 #include <cstring>
 
 namespace io::jsoncan

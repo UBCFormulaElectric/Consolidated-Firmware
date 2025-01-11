@@ -8,6 +8,7 @@ file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
         "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
@@ -34,7 +35,7 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
@@ -106,20 +107,19 @@ IF ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # JSONCAN
-    jsoncan_embedded_library(CRIT quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(CRIT quadruna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
             "quadruna_CRIT_app.elf"
             "quadruna_CRIT_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_CRIT_jsoncan" PRIVATE "quadruna_CRIT_stm32cube")
     target_link_libraries("quadruna_CRIT_app.elf" PRIVATE "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quadruna_CRIT_boot.elf" PRIVATE "quadruna_CRIT_commit_info")
 

@@ -1,18 +1,15 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
-#include "string.h"
 #include "shared.pb.h"
 
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
-#include "app_heartbeatMonitor.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
 #include "app_commitInfo.h"
-#include "app_powerManager.h"
 #include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
@@ -40,18 +37,8 @@
 #include "hw_gpio.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_sd.h"
-
-extern ADC_HandleTypeDef   hadc1;
-extern ADC_HandleTypeDef   hadc3;
-extern FDCAN_HandleTypeDef hfdcan1;
-extern UART_HandleTypeDef  huart7;
-extern TIM_HandleTypeDef   htim3;
-extern UART_HandleTypeDef  huart2;
-extern UART_HandleTypeDef  huart1;
-extern UART_HandleTypeDef  huart3;
-extern SD_HandleTypeDef    hsd1;
 
 static uint32_t can_logging_overflow_count = 0;
 static uint32_t read_count                 = 0; // TODO debugging variables
@@ -61,6 +48,13 @@ static bool     sd_card_present            = true;
 static void canRxCallback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
+
+    // Log the message if it needs to be logged
+    if (sd_card_present && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
+    {
+        io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
+        read_count++;
+    }
 }
 
 SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };
@@ -173,24 +167,24 @@ const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
                              [VC_GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
 
-const AdcChannel id_to_adc[] = {
-    [VC_AdcNetName_INV_R_PWR_I_SNS]  = ADC1_IN10_INV_R_PWR_I_SNS,
-    [VC_AdcNetName_INV_L_PWR_I_SNS]  = ADC1_IN11_INV_L_PWR_I_SNS,
-    [VC_AdcNetName_AUX_PWR_I_SNS]    = ADC3_IN0_AUX_PWR_I_SNS,
-    [VC_AdcNetName_SHDN_PWR_I_SNS]   = ADC1_IN18_SHDN_PWR_I_SNS,
-    [VC_AdcNetName_VBAT_SENSE]       = ADC1_IN19_VBAT_SENSE,
-    [VC_AdcNetName__24V_ACC_SENSE]   = ADC1_IN3_24V_ACC_SENSE,
-    [VC_AdcNetName__22V_BOOST_SENSE] = ADC1_IN7_22V_BOOST_SENSE,
-    [VC_AdcNetName_LV_PWR_I_SNS]     = ADC1_IN4_LV_PWR_I_SNS,
-    [VC_AdcNetName_ACC_I_SENSE]      = ADC1_IN5_ACC_I_SENSE,
-    [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
+const AdcChannel *const id_to_adc[] = {
+    [VC_AdcNetName_INV_R_PWR_I_SNS]  = &inv_r_pwr_i_sns,
+    [VC_AdcNetName_INV_L_PWR_I_SNS]  = &inv_l_pwr_i_sns,
+    [VC_AdcNetName_AUX_PWR_I_SNS]    = &aux_pwr_i_sns,
+    [VC_AdcNetName_SHDN_PWR_I_SNS]   = &shdn_pwr_i_sns,
+    [VC_AdcNetName_VBAT_SENSE]       = &vbat_sns,
+    [VC_AdcNetName__24V_ACC_SENSE]   = &acc_24v_sns,
+    [VC_AdcNetName__22V_BOOST_SENSE] = &boost_22v_sns,
+    [VC_AdcNetName_LV_PWR_I_SNS]     = &lv_pwr_i_sns,
+    [VC_AdcNetName_ACC_I_SENSE]      = &acc_i_sns,
+    [VC_AdcNetName_PUMP_PWR_I_SNS]   = &pump_pwr_i_sns,
 };
 
 static const CurrentSensingConfig current_sensing_config = {
     .bat_fault_gpio  = bat_i_sns_nflt,
     .acc_fault_gpio  = acc_i_sns_nflt,
-    .bat_current_adc = ADC1_IN14_BAT_I_SNS,
-    .acc_current_adc = ADC1_IN5_ACC_I_SENSE,
+    .bat_current_adc = &bat_i_sns,
+    .acc_current_adc = &acc_i_sns,
 };
 
 static const VcShdnConfig shutdown_config = { .tsms_gpio                   = &tsms_shdn_sns,
@@ -209,42 +203,42 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_SHDN] = {
         .enable_gpio = &shdn_pwr_en,
         .stby_reset_gpio = &fr_stby1,
-        .cur_sns_adc_channel = ADC1_IN18_SHDN_PWR_I_SNS,
+        .cur_sns_adc_channel = &shdn_pwr_i_sns,
     },
     [EFUSE_CHANNEL_LV] = {
         .enable_gpio = &lv_pwr_en,
         .stby_reset_gpio = &fr_stby1,
-        .cur_sns_adc_channel = ADC1_IN4_LV_PWR_I_SNS,
+        .cur_sns_adc_channel = &lv_pwr_i_sns,
     },
     [EFUSE_CHANNEL_PUMP] = {
         .enable_gpio = &pump_pwr_en,
         .stby_reset_gpio = &fr_stby2,
-        .cur_sns_adc_channel = ADC3_IN1_PUMP_PWR_I_SNS
+        .cur_sns_adc_channel = &pump_pwr_i_sns
     },
     [EFUSE_CHANNEL_AUX] = {
         .enable_gpio = &aux_pwr_en,
         .stby_reset_gpio = &fr_stby2,
-        .cur_sns_adc_channel = ADC3_IN0_AUX_PWR_I_SNS
+        .cur_sns_adc_channel = &aux_pwr_i_sns
     },
     [EFUSE_CHANNEL_INV_R] = {
         .enable_gpio = &inv_r_pwr_en,
         .stby_reset_gpio = &fr_stby3,
-        .cur_sns_adc_channel = ADC1_IN10_INV_R_PWR_I_SNS
+        .cur_sns_adc_channel = &inv_r_pwr_i_sns
     },
     [EFUSE_CHANNEL_INV_L] = {
         .enable_gpio = &inv_l_pwr_en,
         .stby_reset_gpio = &fr_stby3,
-        .cur_sns_adc_channel = ADC1_IN11_INV_L_PWR_I_SNS
+        .cur_sns_adc_channel = &inv_l_pwr_i_sns
     },
     [EFUSE_CHANNEL_TELEM] = {
         .enable_gpio = &telem_pwr_en,
         .stby_reset_gpio = NULL,
-        .cur_sns_adc_channel = NO_ADC_CHANNEL
+        .cur_sns_adc_channel = NULL
     },
     [EFUSE_CHANNEL_BUZZER] = {
         .enable_gpio = &buzzer_pwr_en,
         .stby_reset_gpio = NULL,
-        .cur_sns_adc_channel = NO_ADC_CHANNEL
+        .cur_sns_adc_channel = NULL
     }
 };
 
@@ -255,51 +249,6 @@ static const UART  sbg_uart      = { .handle = &huart2 };
 static const UART  modem2G4_uart = { .handle = &huart3 };
 static const UART  modem900_uart = { .handle = &huart1 };
 static const Modem modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
-
-// config for heartbeat monitor (can funcs and flags)
-// VC relies on FSM, RSM, BMS, CRIT
-const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = true,
-    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = true
-};
-
-// heartbeatGetters - get heartbeat signals from other boards
-bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                                [VC_HEARTBEAT_BOARD]   = NULL,
-                                                                [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                                [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                                [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                                [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
-};
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_set,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_set
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
-};
 
 void tasks_preInit(void)
 {
@@ -337,8 +286,7 @@ void tasks_init(void)
     hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    hw_adcs_chipsInit();
 
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).
@@ -355,15 +303,15 @@ void tasks_init(void)
     io_efuse_init(efuse_configs);
     io_pcm_init(&pcm_config);
 
-    // Comment out for now, not using sbg
-    // if (!io_sbgEllipse_init(&sbg_uart))
-    // {
-    //     Error_Handler();
-    // }
-
+    if (!io_sbgEllipse_init(&sbg_uart))
+    {
+        app_canAlerts_VC_Warning_SbgInitFailed_set(true);
+        LOG_INFO("Sbg initialization failed");
+    }
     if (!io_imu_init())
     {
         app_canAlerts_VC_Warning_ImuInitFailed_set(true);
+        LOG_INFO("Imu initialization failed");
     }
 
     app_canTx_init();
@@ -376,9 +324,6 @@ void tasks_init(void)
     app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
     app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!sd_card_present);
 
-    app_heartbeatMonitor_init(
-        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
-        heartbeatFaultSetters, heartbeatFaultGetters);
     app_stateMachine_init(app_initState_get());
     io_telemMessage_init(&modem);
 
@@ -522,13 +467,6 @@ _Noreturn void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
-
-        // Log the message if it needs to be logged
-        if (sd_card_present && app_dataCapture_needsLog((uint16_t)rx_msg.std_id, io_time_getCurrentMs()))
-        {
-            io_canLogging_loggingQueuePush(&rx_msg); // push to logging queue
-            read_count++;
-        }
     }
 }
 

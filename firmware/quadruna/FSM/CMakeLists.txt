@@ -35,7 +35,7 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
@@ -108,20 +108,19 @@ IF ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # JSONCAN
-    jsoncan_embedded_library(FSM quadruna "${CMAKE_CURRENT_BINARY_DIR}" "${ARM_CORE}")
+    jsoncan_embedded_library(FSM quadruna ${CMAKE_CURRENT_BINARY_DIR})
 
     # CommitInfo
     commit_info_library(
             "quadruna_FSM_app.elf"
             "quadruna_FSM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_FSM_jsoncan" PRIVATE "quadruna_FSM_stm32cube")
     target_link_libraries("quadruna_FSM_app.elf" PRIVATE "quadruna_FSM_stm32cube" "quadruna_FSM_jsoncan" "quadruna_FSM_commit_info" "debug_modules" "m")
     target_link_libraries("quadruna_FSM_boot.elf" PRIVATE "quadruna_FSM_commit_info")
 
