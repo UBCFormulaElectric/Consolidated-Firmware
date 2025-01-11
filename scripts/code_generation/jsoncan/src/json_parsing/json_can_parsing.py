@@ -62,6 +62,7 @@ class JsonCanParser:
             msgs={msg.id: msg for msg in self._messages.values()},
             shared_enums=self._shared_enums,
             alerts=self._alerts,
+            reroute_msgs=self._reroute,
         )
 
     def _parse_json_data(self, can_data_dir: str):
@@ -121,7 +122,7 @@ class JsonCanParser:
                     
 
         # find all message transmitting on one bus but received in another bus
-        reroute = self._fine_reroute(self._messages.values())
+        reroute = self._find_reroute(self._messages.values())
         self._reroute = reroute
 
         print("placeholder")
@@ -293,13 +294,14 @@ class JsonCanParser:
             bus.update(msg.bus)
         return bus
 
-    def _fine_reroute(self, message: Set[CanMessage]) -> List[CanForward]:
+    def _find_reroute(self, message: Set[CanMessage]) -> List[CanForward]:
 
         # TODO: hardcode VC for now
         assert self._nodes["VC"] is not None
-
+        
+        forwarder_node = self._nodes["VC"] # the only node that can reroute messages
+        
         message_to_reroute = []
-        all_bus_set = set(self._bus_cfg.keys())
         for message in self._messages.values():
             tx_bus = message.bus
             for rx_node in message.rx_nodes:
@@ -310,8 +312,9 @@ class JsonCanParser:
                 rx_bus_set = set(rx_bus)
                 tx_bus_set = set(tx_bus)
                 # so if mutually exclusive then we have to reroute the message
-                if not rx_bus_set.isdisjoint(tx_bus_set):
-                    forward = CanForward(message=message, forwarder=self._nodes["VC"])
+                if rx_bus_set.isdisjoint(tx_bus_set):
+                    forward = CanForward(message=message, forwarder=forwarder_node)
+                    message_to_reroute.append(forward)
 
         return message_to_reroute
 

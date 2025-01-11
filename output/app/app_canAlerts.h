@@ -32,272 +32,272 @@ typedef struct
 
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_set(bool set_alert);
+void app_canAlerts_VC_Warning_StackWaterMarkHighTask1Hz_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_StackWaterMarkHighTask100Hz_set(bool set_alert);
+void app_canAlerts_VC_Warning_StackWaterMarkHighTask100Hz_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_set(bool set_alert);
+void app_canAlerts_VC_Warning_StackWaterMarkHighTask1kHz_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanRx_set(bool set_alert);
+void app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanRx_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanTx_set(bool set_alert);
+void app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanTx_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_WatchdogTimeout_set(bool set_alert);
+void app_canAlerts_VC_Warning_WatchdogTimeout_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_TxOverflow_set(bool set_alert);
+void app_canAlerts_VC_Warning_TxOverflow_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_RxOverflow_set(bool set_alert);
+void app_canAlerts_VC_Warning_RxOverflow_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_OpenWireCheckFault_set(bool set_alert);
+void app_canAlerts_VC_Warning_RegenNotAvailable_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_OpenWireCheck_Segment0_GND_set(bool set_alert);
+void app_canAlerts_VC_Warning_ImuInitFailed_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_OpenWireCheck_Segment1_GND_set(bool set_alert);
+void app_canAlerts_VC_Warning_FlowRateInputOutOfRange_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_OpenWireCheck_Segment2_GND_set(bool set_alert);
+void app_canAlerts_VC_Warning_BatteryRailOvercurrentFault_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_OpenWireCheck_Segment3_GND_set(bool set_alert);
+void app_canAlerts_VC_Warning_AccumulatorRailOvercurrentFault_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_OpenWireCheck_Segment4_GND_set(bool set_alert);
+void app_canAlerts_VC_Warning_LvChargeFault_set(bool set_alert);
 
 /**
- * Set or clear an warning for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Warning_MissingVCHeartbeat_set(bool set_alert);
-
-
-
+void app_canAlerts_VC_Warning_BoostControllerFault_set(bool set_alert);
 
 /**
- * Set or clear an fault for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Fault_StateMachine_set(bool set_alert);
+void app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(bool set_alert);
 
 /**
- * Set or clear an fault for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Fault_CellUndervoltage_set(bool set_alert);
+void app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(bool set_alert);
 
 /**
- * Set or clear an fault for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Fault_CellOvervoltage_set(bool set_alert);
+void app_canAlerts_VC_Warning_CanLoggingErrored_set(bool set_alert);
 
 /**
- * Set or clear an fault for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Fault_ModuleCommunicationError_set(bool set_alert);
+void app_canAlerts_VC_Warning_BrakeAppsDisagreement_set(bool set_alert);
 
 /**
- * Set or clear an fault for BMS board.
+ * Set or clear an warning for VC board.
  */
-void app_canAlerts_BMS_Fault_CellUndertemp_set(bool set_alert);
-
-/**
- * Set or clear an fault for BMS board.
- */
-void app_canAlerts_BMS_Fault_CellOvertemp_set(bool set_alert);
-
-/**
- * Set or clear an fault for BMS board.
- */
-void app_canAlerts_BMS_Fault_ChargerReportedError_set(bool set_alert);
-
-/**
- * Set or clear an fault for BMS board.
- */
-void app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_set(bool set_alert);
-
-/**
- * Set or clear an fault for BMS board.
- */
-void app_canAlerts_BMS_Fault_ChargerShutdownLoopOpen_set(bool set_alert);
-
-/**
- * Set or clear an fault for BMS board.
- */
-void app_canAlerts_BMS_Fault_TractiveSystemOvercurrent_set(bool set_alert);
-
-/**
- * Set or clear an fault for BMS board.
- */
-void app_canAlerts_BMS_Fault_PrechargeFailure_set(bool set_alert);
+void app_canAlerts_VC_Warning_SbgInitFailed_set(bool set_alert);
 
 
 
 
 /**
- * Return whether or not a specific warning transmitted by BMS is set.
+ * Set or clear an fault for VC board.
  */
-bool app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_get(void);
+void app_canAlerts_VC_Fault_MissingBMSHeartbeat_set(bool set_alert);
 
 /**
- * Return whether or not a specific warning transmitted by BMS is set.
+ * Set or clear an fault for VC board.
  */
-bool app_canAlerts_BMS_Warning_StackWaterMarkHighTask100Hz_get(void);
+void app_canAlerts_VC_Fault_MissingFSMHeartbeat_set(bool set_alert);
 
 /**
- * Return whether or not a specific warning transmitted by BMS is set.
+ * Set or clear an fault for VC board.
  */
-bool app_canAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_get(void);
+void app_canAlerts_VC_Fault_MissingRSMHeartbeat_set(bool set_alert);
 
 /**
- * Return whether or not a specific warning transmitted by BMS is set.
+ * Set or clear an fault for VC board.
  */
-bool app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanRx_get(void);
+void app_canAlerts_VC_Fault_MissingCRITHeartbeat_set(bool set_alert);
 
 /**
- * Return whether or not a specific warning transmitted by BMS is set.
+ * Set or clear an fault for VC board.
  */
-bool app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanTx_get(void);
+void app_canAlerts_VC_Fault_LeftInverterFault_set(bool set_alert);
 
 /**
- * Return whether or not a specific warning transmitted by BMS is set.
+ * Set or clear an fault for VC board.
  */
-bool app_canAlerts_BMS_Warning_WatchdogTimeout_get(void);
+void app_canAlerts_VC_Fault_RightInverterFault_set(bool set_alert);
 
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_TxOverflow_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_RxOverflow_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_OpenWireCheckFault_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_OpenWireCheck_Segment0_GND_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_OpenWireCheck_Segment1_GND_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_OpenWireCheck_Segment2_GND_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_OpenWireCheck_Segment3_GND_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_OpenWireCheck_Segment4_GND_get(void);
-
-/**
- * Return whether or not a specific warning transmitted by BMS is set.
- */
-bool app_canAlerts_BMS_Warning_MissingVCHeartbeat_get(void);
 
 
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_StateMachine_get(void);
+bool app_canAlerts_VC_Warning_StackWaterMarkHighTask1Hz_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_CellUndervoltage_get(void);
+bool app_canAlerts_VC_Warning_StackWaterMarkHighTask100Hz_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_CellOvervoltage_get(void);
+bool app_canAlerts_VC_Warning_StackWaterMarkHighTask1kHz_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_ModuleCommunicationError_get(void);
+bool app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanRx_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_CellUndertemp_get(void);
+bool app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanTx_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_CellOvertemp_get(void);
+bool app_canAlerts_VC_Warning_WatchdogTimeout_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_ChargerReportedError_get(void);
+bool app_canAlerts_VC_Warning_TxOverflow_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_get(void);
+bool app_canAlerts_VC_Warning_RxOverflow_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_ChargerShutdownLoopOpen_get(void);
+bool app_canAlerts_VC_Warning_RegenNotAvailable_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_TractiveSystemOvercurrent_get(void);
+bool app_canAlerts_VC_Warning_ImuInitFailed_get(void);
 
 /**
- * Return whether or not a specific fault transmitted by BMS is set.
+ * Return whether or not a specific warning transmitted by VC is set.
  */
-bool app_canAlerts_BMS_Fault_PrechargeFailure_get(void);
+bool app_canAlerts_VC_Warning_FlowRateInputOutOfRange_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_BatteryRailOvercurrentFault_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_AccumulatorRailOvercurrentFault_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_LvChargeFault_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_BoostControllerFault_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_CanLoggingErrored_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_BrakeAppsDisagreement_get(void);
+
+/**
+ * Return whether or not a specific warning transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Warning_SbgInitFailed_get(void);
+
+
+
+/**
+ * Return whether or not a specific fault transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Fault_MissingBMSHeartbeat_get(void);
+
+/**
+ * Return whether or not a specific fault transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Fault_MissingFSMHeartbeat_get(void);
+
+/**
+ * Return whether or not a specific fault transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Fault_MissingRSMHeartbeat_get(void);
+
+/**
+ * Return whether or not a specific fault transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Fault_MissingCRITHeartbeat_get(void);
+
+/**
+ * Return whether or not a specific fault transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Fault_LeftInverterFault_get(void);
+
+/**
+ * Return whether or not a specific fault transmitted by VC is set.
+ */
+bool app_canAlerts_VC_Fault_RightInverterFault_get(void);
 
 
 /**
