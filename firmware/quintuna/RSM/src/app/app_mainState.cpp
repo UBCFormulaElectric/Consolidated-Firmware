@@ -17,10 +17,11 @@ static void mainStateRunOnTick100Hz(void)()
 {
     // add coolant broadcast
     // add suspension broadcast
-    app::loadCell::broadcast();
+    // app::loadCell::broadcast();
     // app_heartbeatMonitor_checkIn();
     // app_heartbeatMonitor_broadcastFaults();
 
+    
     io::leds::brake_light_set(app_canRx_FSM_BrakeActuated_get());
 
     const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
