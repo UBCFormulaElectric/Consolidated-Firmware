@@ -43,6 +43,10 @@ typedef struct
     VC_VCShdnNodeStatus_Signals VC_VCShdnNodeStatus_signals;
     VC_GlobalShdnNodeStatus_Signals VC_GlobalShdnNodeStatus_signals;
     VC_PedalPercentage_Signals VC_PedalPercentage_signals;
+    VC_Warnings_Signals VC_Warnings_signals;
+    VC_Faults_Signals VC_Faults_signals;
+    VC_WarningsCounts_Signals VC_WarningsCounts_signals;
+    VC_FaultsCounts_Signals VC_FaultsCounts_signals;
 } VC_TxMsgs;
 
 /* -------------------------- Private Variables --------------------------- */
@@ -144,6 +148,58 @@ void app_canTx_init()
     app_canTx_VC_SplitterBoxInterlockOKStatus_set(CANSIG_VC_SPLITTER_BOX_INTERLOCK_OK_STATUS_START_VAL);
     app_canTx_VC_FirstFaultNode_set(CANSIG_VC_FIRST_FAULT_NODE_START_VAL);
     app_canTx_VC_MappedPedalPercentage_set(CANSIG_VC_MAPPED_PEDAL_PERCENTAGE_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTask1Hz_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTask100Hz_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTask1kHz_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTaskCanRx_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTaskCanTx_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_START_VAL);
+    app_canTx_VC_Warning_WatchdogTimeout_set(CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_START_VAL);
+    app_canTx_VC_Warning_TxOverflow_set(CANSIG_VC_WARNING_TX_OVERFLOW_START_VAL);
+    app_canTx_VC_Warning_RxOverflow_set(CANSIG_VC_WARNING_RX_OVERFLOW_START_VAL);
+    app_canTx_VC_Warning_RegenNotAvailable_set(CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_START_VAL);
+    app_canTx_VC_Warning_ImuInitFailed_set(CANSIG_VC_WARNING_IMU_INIT_FAILED_START_VAL);
+    app_canTx_VC_Warning_FlowRateInputOutOfRange_set(CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_START_VAL);
+    app_canTx_VC_Warning_BatteryRailOvercurrentFault_set(CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_START_VAL);
+    app_canTx_VC_Warning_AccumulatorRailOvercurrentFault_set(CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_START_VAL);
+    app_canTx_VC_Warning_LvChargeFault_set(CANSIG_VC_WARNING_LV_CHARGE_FAULT_START_VAL);
+    app_canTx_VC_Warning_BoostControllerFault_set(CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_START_VAL);
+    app_canTx_VC_Warning_HighNumberOfCanDataLogs_set(CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_START_VAL);
+    app_canTx_VC_Warning_CanLoggingSdCardNotPresent_set(CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_START_VAL);
+    app_canTx_VC_Warning_CanLoggingErrored_set(CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_START_VAL);
+    app_canTx_VC_Warning_BrakeAppsDisagreement_set(CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_START_VAL);
+    app_canTx_VC_Warning_SbgInitFailed_set(CANSIG_VC_WARNING_SBG_INIT_FAILED_START_VAL);
+    app_canTx_VC_Fault_MissingBMSHeartbeat_set(CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_START_VAL);
+    app_canTx_VC_Fault_MissingFSMHeartbeat_set(CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_START_VAL);
+    app_canTx_VC_Fault_MissingRSMHeartbeat_set(CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_START_VAL);
+    app_canTx_VC_Fault_MissingCRITHeartbeat_set(CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_START_VAL);
+    app_canTx_VC_Fault_LeftInverterFault_set(CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_START_VAL);
+    app_canTx_VC_Fault_RightInverterFault_set(CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTask1HzCount_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTask100HzCount_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTask1kHzCount_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTaskCanRxCount_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_START_VAL);
+    app_canTx_VC_Warning_StackWaterMarkHighTaskCanTxCount_set(CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_START_VAL);
+    app_canTx_VC_Warning_WatchdogTimeoutCount_set(CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_COUNT_START_VAL);
+    app_canTx_VC_Warning_TxOverflowCount_set(CANSIG_VC_WARNING_TX_OVERFLOW_COUNT_START_VAL);
+    app_canTx_VC_Warning_RxOverflowCount_set(CANSIG_VC_WARNING_RX_OVERFLOW_COUNT_START_VAL);
+    app_canTx_VC_Warning_RegenNotAvailableCount_set(CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_COUNT_START_VAL);
+    app_canTx_VC_Warning_ImuInitFailedCount_set(CANSIG_VC_WARNING_IMU_INIT_FAILED_COUNT_START_VAL);
+    app_canTx_VC_Warning_FlowRateInputOutOfRangeCount_set(CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_COUNT_START_VAL);
+    app_canTx_VC_Warning_BatteryRailOvercurrentFaultCount_set(CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_COUNT_START_VAL);
+    app_canTx_VC_Warning_AccumulatorRailOvercurrentFaultCount_set(CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_COUNT_START_VAL);
+    app_canTx_VC_Warning_LvChargeFaultCount_set(CANSIG_VC_WARNING_LV_CHARGE_FAULT_COUNT_START_VAL);
+    app_canTx_VC_Warning_BoostControllerFaultCount_set(CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_COUNT_START_VAL);
+    app_canTx_VC_Warning_HighNumberOfCanDataLogsCount_set(CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_COUNT_START_VAL);
+    app_canTx_VC_Warning_CanLoggingSdCardNotPresentCount_set(CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_COUNT_START_VAL);
+    app_canTx_VC_Warning_CanLoggingErroredCount_set(CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_COUNT_START_VAL);
+    app_canTx_VC_Warning_BrakeAppsDisagreementCount_set(CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_COUNT_START_VAL);
+    app_canTx_VC_Warning_SbgInitFailedCount_set(CANSIG_VC_WARNING_SBG_INIT_FAILED_COUNT_START_VAL);
+    app_canTx_VC_Fault_MissingBMSHeartbeatCount_set(CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_COUNT_START_VAL);
+    app_canTx_VC_Fault_MissingFSMHeartbeatCount_set(CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_COUNT_START_VAL);
+    app_canTx_VC_Fault_MissingRSMHeartbeatCount_set(CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_COUNT_START_VAL);
+    app_canTx_VC_Fault_MissingCRITHeartbeatCount_set(CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_COUNT_START_VAL);
+    app_canTx_VC_Fault_LeftInverterFaultCount_set(CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_COUNT_START_VAL);
+    app_canTx_VC_Fault_RightInverterFaultCount_set(CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_START_VAL);
 }
 void app_canTx_VC_Heartbeat_set(bool value)
 {
@@ -1499,6 +1555,682 @@ void app_canTx_VC_MappedPedalPercentage_set(float value)
         value = CANSIG_VC_MAPPED_PEDAL_PERCENTAGE_MIN_VAL;
     }
 }
+void app_canTx_VC_Warning_StackWaterMarkHighTask1Hz_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask1Hz_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTask100Hz_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask100Hz_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTask1kHz_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask1kHz_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanRx_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTaskCanRx_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanTx_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTaskCanTx_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_WatchdogTimeout_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_WatchdogTimeout_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_TxOverflow_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_TxOverflow_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_TX_OVERFLOW_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_TX_OVERFLOW_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_TX_OVERFLOW_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_TX_OVERFLOW_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_RxOverflow_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_RxOverflow_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_RX_OVERFLOW_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_RX_OVERFLOW_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_RX_OVERFLOW_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_RX_OVERFLOW_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_RegenNotAvailable_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_RegenNotAvailable_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_ImuInitFailed_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_ImuInitFailed_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_IMU_INIT_FAILED_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_IMU_INIT_FAILED_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_IMU_INIT_FAILED_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_IMU_INIT_FAILED_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_FlowRateInputOutOfRange_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_FlowRateInputOutOfRange_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_BatteryRailOvercurrentFault_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_BatteryRailOvercurrentFault_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_AccumulatorRailOvercurrentFault_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_AccumulatorRailOvercurrentFault_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_LvChargeFault_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_LvChargeFault_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_LV_CHARGE_FAULT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_LV_CHARGE_FAULT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_LV_CHARGE_FAULT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_LV_CHARGE_FAULT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_BoostControllerFault_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_BoostControllerFault_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_HighNumberOfCanDataLogs_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_HighNumberOfCanDataLogs_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_CanLoggingSdCardNotPresent_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_CanLoggingSdCardNotPresent_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_CanLoggingErrored_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_CanLoggingErrored_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_BrakeAppsDisagreement_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_BrakeAppsDisagreement_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_SbgInitFailed_set(bool value)
+{
+    tx_table.VC_Warnings_signals.VC_Warning_SbgInitFailed_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_SBG_INIT_FAILED_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_SBG_INIT_FAILED_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_SBG_INIT_FAILED_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_SBG_INIT_FAILED_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingBMSHeartbeat_set(bool value)
+{
+    tx_table.VC_Faults_signals.VC_Fault_MissingBMSHeartbeat_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingFSMHeartbeat_set(bool value)
+{
+    tx_table.VC_Faults_signals.VC_Fault_MissingFSMHeartbeat_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingRSMHeartbeat_set(bool value)
+{
+    tx_table.VC_Faults_signals.VC_Fault_MissingRSMHeartbeat_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingCRITHeartbeat_set(bool value)
+{
+    tx_table.VC_Faults_signals.VC_Fault_MissingCRITHeartbeat_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_LeftInverterFault_set(bool value)
+{
+    tx_table.VC_Faults_signals.VC_Fault_LeftInverterFault_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_RightInverterFault_set(bool value)
+{
+    tx_table.VC_Faults_signals.VC_Fault_RightInverterFault_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTask1HzCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask1HzCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTask100HzCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask100HzCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTask1kHzCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask1kHzCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanRxCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTaskCanRxCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_StackWaterMarkHighTaskCanTxCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTaskCanTxCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_WatchdogTimeoutCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_WatchdogTimeoutCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_TxOverflowCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_TxOverflowCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_TX_OVERFLOW_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_TX_OVERFLOW_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_TX_OVERFLOW_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_TX_OVERFLOW_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_RxOverflowCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_RxOverflowCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_RX_OVERFLOW_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_RX_OVERFLOW_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_RX_OVERFLOW_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_RX_OVERFLOW_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_RegenNotAvailableCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_RegenNotAvailableCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_ImuInitFailedCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_ImuInitFailedCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_IMU_INIT_FAILED_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_IMU_INIT_FAILED_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_IMU_INIT_FAILED_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_IMU_INIT_FAILED_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_FlowRateInputOutOfRangeCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_FlowRateInputOutOfRangeCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_BatteryRailOvercurrentFaultCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_BatteryRailOvercurrentFaultCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_AccumulatorRailOvercurrentFaultCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_AccumulatorRailOvercurrentFaultCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_LvChargeFaultCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_LvChargeFaultCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_LV_CHARGE_FAULT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_LV_CHARGE_FAULT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_LV_CHARGE_FAULT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_LV_CHARGE_FAULT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_BoostControllerFaultCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_BoostControllerFaultCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_HighNumberOfCanDataLogsCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_HighNumberOfCanDataLogsCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_CanLoggingSdCardNotPresentCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_CanLoggingSdCardNotPresentCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_CanLoggingErroredCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_CanLoggingErroredCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_BrakeAppsDisagreementCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_BrakeAppsDisagreementCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Warning_SbgInitFailedCount_set(uint32_t value)
+{
+    tx_table.VC_WarningsCounts_signals.VC_Warning_SbgInitFailedCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_WARNING_SBG_INIT_FAILED_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_WARNING_SBG_INIT_FAILED_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_WARNING_SBG_INIT_FAILED_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_WARNING_SBG_INIT_FAILED_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingBMSHeartbeatCount_set(uint32_t value)
+{
+    tx_table.VC_FaultsCounts_signals.VC_Fault_MissingBMSHeartbeatCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingFSMHeartbeatCount_set(uint32_t value)
+{
+    tx_table.VC_FaultsCounts_signals.VC_Fault_MissingFSMHeartbeatCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingRSMHeartbeatCount_set(uint32_t value)
+{
+    tx_table.VC_FaultsCounts_signals.VC_Fault_MissingRSMHeartbeatCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_MissingCRITHeartbeatCount_set(uint32_t value)
+{
+    tx_table.VC_FaultsCounts_signals.VC_Fault_MissingCRITHeartbeatCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_LeftInverterFaultCount_set(uint32_t value)
+{
+    tx_table.VC_FaultsCounts_signals.VC_Fault_LeftInverterFaultCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_COUNT_MIN_VAL;
+    }
+}
+void app_canTx_VC_Fault_RightInverterFaultCount_set(uint32_t value)
+{
+    tx_table.VC_FaultsCounts_signals.VC_Fault_RightInverterFaultCount_value = value; // Set value
+    // Clamp value to min/max
+    if (value > CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_MAX_VAL)
+    {
+        value = CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_MAX_VAL;
+    }
+    if (value < CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_MIN_VAL)
+    {
+        value = CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_MIN_VAL;
+    }
+}
 bool app_canTx_VC_Vitals_VC_Heartbeat_get(void)
 {
     return tx_table.VC_Vitals_signals.VC_Heartbeat_value;
@@ -1859,6 +2591,214 @@ float app_canTx_VC_PedalPercentage_VC_MappedPedalPercentage_get(void)
 {
     return tx_table.VC_PedalPercentage_signals.VC_MappedPedalPercentage_value;
 }
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1Hz_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask1Hz_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask100Hz_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask100Hz_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1kHz_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask1kHz_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanRx_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTaskCanRx_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanTx_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTaskCanTx_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_WatchdogTimeout_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_WatchdogTimeout_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_TxOverflow_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_TxOverflow_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_RxOverflow_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_RxOverflow_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_RegenNotAvailable_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_RegenNotAvailable_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_ImuInitFailed_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_ImuInitFailed_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_FlowRateInputOutOfRange_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_FlowRateInputOutOfRange_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_BatteryRailOvercurrentFault_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_BatteryRailOvercurrentFault_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_AccumulatorRailOvercurrentFault_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_AccumulatorRailOvercurrentFault_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_LvChargeFault_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_LvChargeFault_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_BoostControllerFault_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_BoostControllerFault_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_HighNumberOfCanDataLogs_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_HighNumberOfCanDataLogs_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_CanLoggingSdCardNotPresent_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_CanLoggingSdCardNotPresent_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_CanLoggingErrored_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_CanLoggingErrored_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_BrakeAppsDisagreement_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_BrakeAppsDisagreement_value;
+}
+bool app_canTx_VC_Warnings_VC_Warning_SbgInitFailed_get(void)
+{
+    return tx_table.VC_Warnings_signals.VC_Warning_SbgInitFailed_value;
+}
+bool app_canTx_VC_Faults_VC_Fault_MissingBMSHeartbeat_get(void)
+{
+    return tx_table.VC_Faults_signals.VC_Fault_MissingBMSHeartbeat_value;
+}
+bool app_canTx_VC_Faults_VC_Fault_MissingFSMHeartbeat_get(void)
+{
+    return tx_table.VC_Faults_signals.VC_Fault_MissingFSMHeartbeat_value;
+}
+bool app_canTx_VC_Faults_VC_Fault_MissingRSMHeartbeat_get(void)
+{
+    return tx_table.VC_Faults_signals.VC_Fault_MissingRSMHeartbeat_value;
+}
+bool app_canTx_VC_Faults_VC_Fault_MissingCRITHeartbeat_get(void)
+{
+    return tx_table.VC_Faults_signals.VC_Fault_MissingCRITHeartbeat_value;
+}
+bool app_canTx_VC_Faults_VC_Fault_LeftInverterFault_get(void)
+{
+    return tx_table.VC_Faults_signals.VC_Fault_LeftInverterFault_value;
+}
+bool app_canTx_VC_Faults_VC_Fault_RightInverterFault_get(void)
+{
+    return tx_table.VC_Faults_signals.VC_Fault_RightInverterFault_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1HzCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask1HzCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask100HzCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask100HzCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1kHzCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask1kHzCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanRxCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTaskCanRxCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanTxCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTaskCanTxCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_WatchdogTimeoutCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_WatchdogTimeoutCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_TxOverflowCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_TxOverflowCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RxOverflowCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_RxOverflowCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RegenNotAvailableCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_RegenNotAvailableCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_ImuInitFailedCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_ImuInitFailedCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_FlowRateInputOutOfRangeCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_FlowRateInputOutOfRangeCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BatteryRailOvercurrentFaultCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_BatteryRailOvercurrentFaultCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_AccumulatorRailOvercurrentFaultCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_AccumulatorRailOvercurrentFaultCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_LvChargeFaultCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_LvChargeFaultCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BoostControllerFaultCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_BoostControllerFaultCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_HighNumberOfCanDataLogsCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_HighNumberOfCanDataLogsCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingSdCardNotPresentCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_CanLoggingSdCardNotPresentCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingErroredCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_CanLoggingErroredCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BrakeAppsDisagreementCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_BrakeAppsDisagreementCount_value;
+}
+uint32_t app_canTx_VC_WarningsCounts_VC_Warning_SbgInitFailedCount_get(void)
+{
+    return tx_table.VC_WarningsCounts_signals.VC_Warning_SbgInitFailedCount_value;
+}
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingBMSHeartbeatCount_get(void)
+{
+    return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingBMSHeartbeatCount_value;
+}
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingFSMHeartbeatCount_get(void)
+{
+    return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingFSMHeartbeatCount_value;
+}
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingRSMHeartbeatCount_get(void)
+{
+    return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingRSMHeartbeatCount_value;
+}
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingCRITHeartbeatCount_get(void)
+{
+    return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingCRITHeartbeatCount_value;
+}
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_LeftInverterFaultCount_get(void)
+{
+    return tx_table.VC_FaultsCounts_signals.VC_Fault_LeftInverterFaultCount_value;
+}
+uint32_t app_canTx_VC_FaultsCounts_VC_Fault_RightInverterFaultCount_get(void)
+{
+    return tx_table.VC_FaultsCounts_signals.VC_Fault_RightInverterFaultCount_value;
+}
 VC_Vitals_Signals* app_canTx_VC_Vitals_getData()
 {
     return &tx_table.VC_Vitals_signals;
@@ -1962,4 +2902,20 @@ VC_GlobalShdnNodeStatus_Signals* app_canTx_VC_GlobalShdnNodeStatus_getData()
 VC_PedalPercentage_Signals* app_canTx_VC_PedalPercentage_getData()
 {
     return &tx_table.VC_PedalPercentage_signals;
+}
+VC_Warnings_Signals* app_canTx_VC_Warnings_getData()
+{
+    return &tx_table.VC_Warnings_signals;
+}
+VC_Faults_Signals* app_canTx_VC_Faults_getData()
+{
+    return &tx_table.VC_Faults_signals;
+}
+VC_WarningsCounts_Signals* app_canTx_VC_WarningsCounts_getData()
+{
+    return &tx_table.VC_WarningsCounts_signals;
+}
+VC_FaultsCounts_Signals* app_canTx_VC_FaultsCounts_getData()
+{
+    return &tx_table.VC_FaultsCounts_signals;
 }
