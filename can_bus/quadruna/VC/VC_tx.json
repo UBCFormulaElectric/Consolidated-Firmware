@@ -1,5 +1,6 @@
 {
   "Vitals": {
+    "bus": ["CAN1"],
     "msg_id": 200,
     "cycle_time": 100,
     "description": "VC vitals message.",
@@ -26,6 +27,7 @@
     }
   },
   "LeftInverterCommand": {
+    "bus": ["CAN1"],
     "msg_id": 32,
     "cycle_time": 10,
     "signals": {
@@ -85,6 +87,7 @@
     }
   },
   "INVL_ReadWriteParamCommand": {
+    "bus": ["CAN1"],
     "msg_id": 33,
     "cycle_time": null,
     "signals": {
@@ -106,6 +109,7 @@
     }
   },
   "RightInverterCommand": {
+    "bus": ["CAN1"],
     "msg_id": 82,
     "cycle_time": 10,
     "signals": {
@@ -165,6 +169,7 @@
     }
   },
   "INVR_ReadWriteParamCommand": {
+    "bus": ["CAN1"],
     "msg_id": 83,
     "cycle_time": null,
     "signals": {
@@ -186,6 +191,7 @@
     }
   },
   "AlertsContext": {
+    "bus": ["CAN1"],
     "msg_id": 202,
     "cycle_time": 10,
     "signals": {
@@ -204,6 +210,7 @@
     }
   },
   "EllipseStatus": {
+    "bus": ["CAN1"],
     "msg_id": 223,
     "cycle_time": 100,
     "description": "Status of the SBG Ellipse N sensor.",
@@ -223,6 +230,7 @@
     }
   },
   "EllipseTime": {
+    "bus": ["CAN1"],
     "msg_id": 209,
     "cycle_time": 100,
     "description": "Timestamp from the SBG Ellipse N sensor.",
@@ -234,6 +242,7 @@
     }
   },
   "EllipseAcceleration": {
+    "bus": ["CAN1"],
     "disabled": true,
     "msg_id": 201,
     "cycle_time": 1000,
@@ -260,6 +269,7 @@
     }
   },
   "EllipseAngularVelocity": {
+    "bus": ["CAN1"],
     "disabled": true,
     "msg_id": 203,
     "cycle_time": 1000,
@@ -286,6 +296,7 @@
     }
   },
   "EllipseEulerAngles": {
+    "bus": ["CAN1"],
     "msg_id": 222,
     "cycle_time": 1000,
     "description": "Euler angles from the SBG Ellipse N sensor.",
@@ -311,6 +322,7 @@
     }
   },
   "CommitInfo": {
+    "bus": ["CAN1"],
     "msg_id": 204,
     "cycle_time": 100,
     "description": "VC Current Running Git Commit Info",
@@ -324,6 +336,7 @@
     }
   },
   "PowerEstimate": {
+    "bus": ["CAN1"],
     "msg_id": 211,
     "cycle_time": 1000,
     "description": "Debug Power Messages",
@@ -341,6 +354,7 @@
     }
   },
   "PowerEstimatePID": {
+    "bus": ["CAN1"],
     "msg_id": 212,
     "cycle_time": 1000,
     "description": "Debug messages for the PID power estimate controller",
@@ -384,6 +398,7 @@
     }
   },
   "PIDSlipRatio": {
+    "bus": ["CAN1"],
     "msg_id": 213,
     "cycle_time": 1000,
     "description": "Debug messages for the PID slip ratio controller",
@@ -427,6 +442,7 @@
     }
   },
   "SlipRatios": {
+    "bus": ["CAN1"],
     "msg_id": 214,
     "cycle_time": 1000,
     "description": "Debug Messages for the Traction Control component of Torque Vectoring",
@@ -450,6 +466,7 @@
     }
   },
   "ActiveDiffOutputs": {
+    "bus": ["CAN1"],
     "msg_id": 215,
     "cycle_time": 1000,
     "description": "Debug Messages for the Active Differential component of Torque Vectoring",
@@ -467,6 +484,7 @@
     }
   },
   "PowerLimit": {
+    "bus": ["CAN1"],
     "msg_id": 216,
     "cycle_time": 10,
     "description": "Debug Power Messages for Power Limit ",
@@ -484,6 +502,7 @@
     }
   },
   "VehicleDynamics": {
+    "bus": ["CAN1"],
     "msg_id": 226,
     "cycle_time": 100,
     "description": "Vehicle dynamics info",
@@ -499,16 +518,11 @@
         "min": -150,
         "max": 150,
         "unit": "km/h"
-      },
-      "VehicleVelocityCalculated": {
-        "resolution": 0.01,
-        "min": -150,
-        "max": 150,
-        "unit": "km/h"
       }
     }
   },
   "EllipseEkfNavPosition": {
+    "bus": ["CAN1"],
     "disabled": true,
     "msg_id": 217,
     "cycle_time": 100,
@@ -553,6 +567,7 @@
     }
   },
   "EllipseEkfNavVelocity": {
+    "bus": ["CAN1"],
     "msg_id": 218,
     "cycle_time": 100,
     "description": "Car Velocity info",
@@ -596,6 +611,7 @@
     }
   },
   "Voltages": {
+    "bus": ["CAN1"],
     "msg_id": 219,
     "cycle_time": 100,
     "description": "VC voltages.",
@@ -621,6 +637,7 @@
     }
   },
   "CurrentSensing": {
+    "bus": ["CAN1"],
     "msg_id": 220,
     "cycle_time": 100,
     "description": "Battery and accumulator currents.",
@@ -640,6 +657,7 @@
     }
   },
   "Efuse": {
+    "bus": ["CAN1"],
     "msg_id": 221,
     "cycle_time": 100,
     "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
@@ -700,57 +718,34 @@
       }
     }
   },
-  "ImuData": {
+  "ImuLinearAcceleration": {
+    "bus": ["CAN1"],
     "msg_id": 225,
-    "cycle_time": 10,
-    "description": "Linear Acceleration x, y and z direction from the IMU",
+    "cycle_time": 100,
+    "description": "Linear acceleration in x, y and z direction from the IMU",
     "signals": {
       "ImuAccelerationX": {
-        "resolution": 0.001,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "resolution": 0.1,
+        "min": 0,
+        "max": 20,
+        "unit": "m/s"
       },
       "ImuAccelerationY": {
-        "resolution": 0.001,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
+        "resolution": 0.1,
+        "min": 0,
+        "max": 20,
+        "unit": "m/s"
       },
       "ImuAccelerationZ": {
-        "resolution": 0.001,
-        "min": -50,
-        "max": 50,
-        "unit": "m/s^2"
-      }
-    }
-  },
-  "ImuAngularData": {
-    "msg_id": 227,
-    "cycle_time": 10,
-    "description": "Angular Velocity in x, y and z direction from the IMU",
-    "signals": {
-      "ImuAngularVelocityRoll": {
         "resolution": 0.1,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "ImuAngularVelocityPitch": {
-        "resolution": 0.1,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
-      },
-      "ImuAngularVelocityYaw": {
-        "resolution": 0.1,
-        "min": -360,
-        "max": 360,
-        "unit": "deg/s"
+        "min": 0,
+        "max": 20,
+        "unit": "m/s"
       }
     }
   },
   "CoolantPumpFlowRate": {
+    "bus": ["CAN1"],
     "msg_id": 224,
     "cycle_time": 1000,
     "description": "Broadcast flow rate of coolant pump.",
@@ -764,6 +759,7 @@
     }
   },
   "VCShdnNodeStatus": {
+    "bus": ["CAN1"],
     "msg_id": 228,
     "cycle_time": 100,
     "description": "VC Shutdown Node Status",
@@ -783,6 +779,7 @@
     }
   },
   "GlobalShdnNodeStatus": {
+    "bus": ["CAN1"],
     "msg_id": 229,
     "cycle_time": 100,
     "description": "Global Shutdown Node Status",
@@ -793,6 +790,7 @@
     }
   },
   "PedalPercentage": {
+    "bus": ["CAN1"],
     "msg_id": 230,
     "cycle_time": 100,
     "description": "Pedal percentage info",
