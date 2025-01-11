@@ -9,6 +9,8 @@ static uint8_t            rx_queue_buf[RX_QUEUE_SIZE];
 static osMessageQueueId_t rx_queue_id = NULL;
 static USBD_HandleTypeDef hUsbDeviceFS;
 
+uint8_t (*usb_transmit_handle)(uint8_t *Buf, uint16_t Len) = NULL;
+
 static const osMessageQueueAttr_t rx_queue_attr = { .name      = "USB RX Queue",
                                                     .attr_bits = 0,
                                                     .cb_mem    = &rx_queue_control_block,
@@ -16,8 +18,9 @@ static const osMessageQueueAttr_t rx_queue_attr = { .name      = "USB RX Queue",
                                                     .mq_mem    = rx_queue_buf,
                                                     .mq_size   = sizeof(rx_queue_buf) };
 
-void hw_usb_init()
+void hw_usb_init(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
 {
+    usb_transmit_handle = transmit_handle;
     if (rx_queue_id == NULL)
     {
         rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(uint8_t), &rx_queue_attr);
@@ -59,10 +62,10 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len)
     }
 }
 
-void hw_usb_transmit_example()
+void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
 {
     // init usb peripheral
-    hw_usb_init();
+    hw_usb_init(transmit_handle);
     osDelay(1000);
 
     int msg_count = 0;
@@ -80,10 +83,10 @@ void hw_usb_transmit_example()
     }
 }
 
-void hw_usb_recieve_example()
+void hw_usb_recieve_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
 {
     // init usb peripheral
-    hw_usb_init();
+    hw_usb_init(usb_transmit_handle);
 
     // dump the queue.
     for (int i = 0; true; i += 1)
