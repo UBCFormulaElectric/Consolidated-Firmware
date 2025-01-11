@@ -36,7 +36,7 @@ static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
 {%- if msg.cycle_time != None -%}
 static void io_canTx_{{msg.name}}_sendPeriodic()
 {%- else -%}
-staic void io_canTx_{{msg.name}}_sendAperiodic()
+void io_canTx_{{msg.name}}_sendAperiodic()
 {%- endif %}
 {
     JsonCanMsg tx_msg;

@@ -32,7 +32,7 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value);
 /**
  * Get value stored in TX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-{{ signal.datatype() }} app_canTx_{{ msg.name }}_{{ signal.name }}_get(void);
+{{ signal.datatype() }} app_canTx_{{ signal.name }}_get(void);
 {% endfor -%}
 {% endfor %}
 

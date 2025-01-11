@@ -2,8 +2,8 @@
   "forwarder": "VC",
   "buses": [
     {
-      "name": "CAN1",
-      "nodes": [
+      "name": "Can",
+      "nodes": [  
         "VC",
         "BMS",
         "FSM",
@@ -17,8 +17,8 @@
         "BRUSA"
       ],
       "bus_speed": 500,
-      "modes": ["default", "debug"],
-      "default_mode": "default"
+      "modes": ["DEFAULT", "DEBUG"],
+      "default_mode": "DEFAULT"
     }
   ]
 }
