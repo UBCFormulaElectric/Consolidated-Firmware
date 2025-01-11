@@ -34,7 +34,7 @@ bool hw_usb_checkConnection()
 
 void hw_usb_transmit(uint8_t *msg, uint16_t len)
 {
-    CDC_Transmit_FS(msg, len);
+    usb_transmit_handle(msg, len);
 }
 
 uint8_t hw_usb_recieve()
