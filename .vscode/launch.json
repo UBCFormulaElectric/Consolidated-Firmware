@@ -10,7 +10,7 @@
         "--board",
         "VC",
         "--can_data_dir",
-        "scripts/code_generation/jsoncan/quadruna",
+        "scripts/code_generation/jsoncan/example_json",
         "--output_dir",
         "output",
         "--dbc_output",

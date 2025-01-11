@@ -57,9 +57,8 @@ void io_canReroute(const JsonCanMsg* rx_msg)
             {%- set buses = r.receive_node.buses.values() -%}
             {% for bus in buses %}
             {% if loop.first -%}
-                // via {{ bus.name }}
             transmit_func_{{ bus.name }}(rx_msg);
-            {% endif -%}
+            {%- endif -%}
             {% endfor %}
         }
         {% endfor %}
