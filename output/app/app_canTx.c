@@ -2231,571 +2231,571 @@ void app_canTx_VC_Fault_RightInverterFaultCount_set(uint32_t value)
         value = CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_MIN_VAL;
     }
 }
-bool app_canTx_VC_Vitals_VC_Heartbeat_get(void)
+bool app_canTx_VC_Heartbeat_get(void)
 {
     return tx_table.VC_Vitals_signals.VC_Heartbeat_value;
 }
-VcState app_canTx_VC_Vitals_VC_State_get(void)
+VcState app_canTx_VC_State_get(void)
 {
     return tx_table.VC_Vitals_signals.VC_State_value;
 }
-bool app_canTx_VC_Vitals_VC_BuzzerOn_get(void)
+bool app_canTx_VC_BuzzerOn_get(void)
 {
     return tx_table.VC_Vitals_signals.VC_BuzzerOn_value;
 }
-uint32_t app_canTx_VC_Vitals_VC_NumberOfCanDataLogs_get(void)
+uint32_t app_canTx_VC_NumberOfCanDataLogs_get(void)
 {
     return tx_table.VC_Vitals_signals.VC_NumberOfCanDataLogs_value;
 }
-uint32_t app_canTx_VC_Vitals_VC_CanLoggingRemainingErrors_get(void)
+uint32_t app_canTx_VC_CanLoggingRemainingErrors_get(void)
 {
     return tx_table.VC_Vitals_signals.VC_CanLoggingRemainingErrors_value;
 }
-float app_canTx_VC_LeftInverterCommand_VC_LeftInverterTorqueCommand_get(void)
+float app_canTx_VC_LeftInverterTorqueCommand_get(void)
 {
     return tx_table.VC_LeftInverterCommand_signals.VC_LeftInverterTorqueCommand_value;
 }
-int app_canTx_VC_LeftInverterCommand_VC_LeftInverterSpeedCommand_get(void)
+int app_canTx_VC_LeftInverterSpeedCommand_get(void)
 {
     return tx_table.VC_LeftInverterCommand_signals.VC_LeftInverterSpeedCommand_value;
 }
-InverterDirection app_canTx_VC_LeftInverterCommand_VC_LeftInverterDirectionCommand_get(void)
+InverterDirection app_canTx_VC_LeftInverterDirectionCommand_get(void)
 {
     return tx_table.VC_LeftInverterCommand_signals.VC_LeftInverterDirectionCommand_value;
 }
-bool app_canTx_VC_LeftInverterCommand_VC_LeftInverterEnable_get(void)
+bool app_canTx_VC_LeftInverterEnable_get(void)
 {
     return tx_table.VC_LeftInverterCommand_signals.VC_LeftInverterEnable_value;
 }
-bool app_canTx_VC_LeftInverterCommand_VC_LeftInverterEnableDischarge_get(void)
+bool app_canTx_VC_LeftInverterEnableDischarge_get(void)
 {
     return tx_table.VC_LeftInverterCommand_signals.VC_LeftInverterEnableDischarge_value;
 }
-bool app_canTx_VC_LeftInverterCommand_VC_LeftInverterEnableSpeedMode_get(void)
+bool app_canTx_VC_LeftInverterEnableSpeedMode_get(void)
 {
     return tx_table.VC_LeftInverterCommand_signals.VC_LeftInverterEnableSpeedMode_value;
 }
-float app_canTx_VC_LeftInverterCommand_VC_LeftInverterTorqueLimit_get(void)
+float app_canTx_VC_LeftInverterTorqueLimit_get(void)
 {
     return tx_table.VC_LeftInverterCommand_signals.VC_LeftInverterTorqueLimit_value;
 }
-uint32_t app_canTx_VC_INVL_ReadWriteParamCommand_VC_INVL_CommandParameterAddress_get(void)
+uint32_t app_canTx_VC_INVL_CommandParameterAddress_get(void)
 {
     return tx_table.VC_INVL_ReadWriteParamCommand_signals.VC_INVL_CommandParameterAddress_value;
 }
-InverterReadWriteCommand app_canTx_VC_INVL_ReadWriteParamCommand_VC_INVL_CommandReadWrite_get(void)
+InverterReadWriteCommand app_canTx_VC_INVL_CommandReadWrite_get(void)
 {
     return tx_table.VC_INVL_ReadWriteParamCommand_signals.VC_INVL_CommandReadWrite_value;
 }
-uint32_t app_canTx_VC_INVL_ReadWriteParamCommand_VC_INVL_CommandData_get(void)
+uint32_t app_canTx_VC_INVL_CommandData_get(void)
 {
     return tx_table.VC_INVL_ReadWriteParamCommand_signals.VC_INVL_CommandData_value;
 }
-float app_canTx_VC_RightInverterCommand_VC_RightInverterTorqueCommand_get(void)
+float app_canTx_VC_RightInverterTorqueCommand_get(void)
 {
     return tx_table.VC_RightInverterCommand_signals.VC_RightInverterTorqueCommand_value;
 }
-int app_canTx_VC_RightInverterCommand_VC_RightInverterSpeedCommand_get(void)
+int app_canTx_VC_RightInverterSpeedCommand_get(void)
 {
     return tx_table.VC_RightInverterCommand_signals.VC_RightInverterSpeedCommand_value;
 }
-InverterDirection app_canTx_VC_RightInverterCommand_VC_RightInverterDirectionCommand_get(void)
+InverterDirection app_canTx_VC_RightInverterDirectionCommand_get(void)
 {
     return tx_table.VC_RightInverterCommand_signals.VC_RightInverterDirectionCommand_value;
 }
-bool app_canTx_VC_RightInverterCommand_VC_RightInverterEnable_get(void)
+bool app_canTx_VC_RightInverterEnable_get(void)
 {
     return tx_table.VC_RightInverterCommand_signals.VC_RightInverterEnable_value;
 }
-bool app_canTx_VC_RightInverterCommand_VC_RightInverterEnableDischarge_get(void)
+bool app_canTx_VC_RightInverterEnableDischarge_get(void)
 {
     return tx_table.VC_RightInverterCommand_signals.VC_RightInverterEnableDischarge_value;
 }
-bool app_canTx_VC_RightInverterCommand_VC_RightInverterEnableSpeedMode_get(void)
+bool app_canTx_VC_RightInverterEnableSpeedMode_get(void)
 {
     return tx_table.VC_RightInverterCommand_signals.VC_RightInverterEnableSpeedMode_value;
 }
-float app_canTx_VC_RightInverterCommand_VC_RightInverterTorqueLimit_get(void)
+float app_canTx_VC_RightInverterTorqueLimit_get(void)
 {
     return tx_table.VC_RightInverterCommand_signals.VC_RightInverterTorqueLimit_value;
 }
-uint32_t app_canTx_VC_INVR_ReadWriteParamCommand_VC_INVR_CommandParameterAddress_get(void)
+uint32_t app_canTx_VC_INVR_CommandParameterAddress_get(void)
 {
     return tx_table.VC_INVR_ReadWriteParamCommand_signals.VC_INVR_CommandParameterAddress_value;
 }
-InverterReadWriteCommand app_canTx_VC_INVR_ReadWriteParamCommand_VC_INVR_CommandReadWrite_get(void)
+InverterReadWriteCommand app_canTx_VC_INVR_CommandReadWrite_get(void)
 {
     return tx_table.VC_INVR_ReadWriteParamCommand_signals.VC_INVR_CommandReadWrite_value;
 }
-uint32_t app_canTx_VC_INVR_ReadWriteParamCommand_VC_INVR_CommandData_get(void)
+uint32_t app_canTx_VC_INVR_CommandData_get(void)
 {
     return tx_table.VC_INVR_ReadWriteParamCommand_signals.VC_INVR_CommandData_value;
 }
-bool app_canTx_VC_AlertsContext_VC_WatchdogTimeout_get(void)
+bool app_canTx_VC_WatchdogTimeout_get(void)
 {
     return tx_table.VC_AlertsContext_signals.VC_WatchdogTimeout_value;
 }
-RtosTaskName app_canTx_VC_AlertsContext_VC_WatchdogTimeoutTaskName_get(void)
+RtosTaskName app_canTx_VC_WatchdogTimeoutTaskName_get(void)
 {
     return tx_table.VC_AlertsContext_signals.VC_WatchdogTimeoutTaskName_value;
 }
-uint32_t app_canTx_VC_AlertsContext_VC_TxOverflowCount_get(void)
+uint32_t app_canTx_VC_TxOverflowCount_get(void)
 {
     return tx_table.VC_AlertsContext_signals.VC_TxOverflowCount_value;
 }
-uint32_t app_canTx_VC_AlertsContext_VC_RxOverflowCount_get(void)
+uint32_t app_canTx_VC_RxOverflowCount_get(void)
 {
     return tx_table.VC_AlertsContext_signals.VC_RxOverflowCount_value;
 }
-uint32_t app_canTx_VC_EllipseStatus_VC_EllipseGeneralStatusBitmask_get(void)
+uint32_t app_canTx_VC_EllipseGeneralStatusBitmask_get(void)
 {
     return tx_table.VC_EllipseStatus_signals.VC_EllipseGeneralStatusBitmask_value;
 }
-uint32_t app_canTx_VC_EllipseStatus_VC_EllipseComStatusBitmask_get(void)
+uint32_t app_canTx_VC_EllipseComStatusBitmask_get(void)
 {
     return tx_table.VC_EllipseStatus_signals.VC_EllipseComStatusBitmask_value;
 }
-VcEkfStatus app_canTx_VC_EllipseStatus_VC_EkfSolutionMode_get(void)
+VcEkfStatus app_canTx_VC_EkfSolutionMode_get(void)
 {
     return tx_table.VC_EllipseStatus_signals.VC_EkfSolutionMode_value;
 }
-uint32_t app_canTx_VC_EllipseTime_VC_EllipseTimestamp_get(void)
+uint32_t app_canTx_VC_EllipseTimestamp_get(void)
 {
     return tx_table.VC_EllipseTime_signals.VC_EllipseTimestamp_value;
 }
-float app_canTx_VC_EllipseEulerAngles_VC_EulerAnglesRoll_get(void)
+float app_canTx_VC_EulerAnglesRoll_get(void)
 {
     return tx_table.VC_EllipseEulerAngles_signals.VC_EulerAnglesRoll_value;
 }
-float app_canTx_VC_EllipseEulerAngles_VC_EulerAnglesPitch_get(void)
+float app_canTx_VC_EulerAnglesPitch_get(void)
 {
     return tx_table.VC_EllipseEulerAngles_signals.VC_EulerAnglesPitch_value;
 }
-float app_canTx_VC_EllipseEulerAngles_VC_EulerAnglesYaw_get(void)
+float app_canTx_VC_EulerAnglesYaw_get(void)
 {
     return tx_table.VC_EllipseEulerAngles_signals.VC_EulerAnglesYaw_value;
 }
-uint32_t app_canTx_VC_CommitInfo_VC_Hash_get(void)
+uint32_t app_canTx_VC_Hash_get(void)
 {
     return tx_table.VC_CommitInfo_signals.VC_Hash_value;
 }
-bool app_canTx_VC_CommitInfo_VC_Clean_get(void)
+bool app_canTx_VC_Clean_get(void)
 {
     return tx_table.VC_CommitInfo_signals.VC_Clean_value;
 }
-float app_canTx_VC_PowerEstimate_VC_PowerEstimateValue_get(void)
+float app_canTx_VC_PowerEstimateValue_get(void)
 {
     return tx_table.VC_PowerEstimate_signals.VC_PowerEstimateValue_value;
 }
-float app_canTx_VC_PowerEstimate_VC_PowerEstimateMeasuredValue_get(void)
+float app_canTx_VC_PowerEstimateMeasuredValue_get(void)
 {
     return tx_table.VC_PowerEstimate_signals.VC_PowerEstimateMeasuredValue_value;
 }
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateOutput_get(void)
+float app_canTx_VC_PIDPowerEstimateOutput_get(void)
 {
     return tx_table.VC_PowerEstimatePID_signals.VC_PIDPowerEstimateOutput_value;
 }
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateError_get(void)
+float app_canTx_VC_PIDPowerEstimateError_get(void)
 {
     return tx_table.VC_PowerEstimatePID_signals.VC_PIDPowerEstimateError_value;
 }
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateDerivative_get(void)
+float app_canTx_VC_PIDPowerEstimateDerivative_get(void)
 {
     return tx_table.VC_PowerEstimatePID_signals.VC_PIDPowerEstimateDerivative_value;
 }
-float app_canTx_VC_PowerEstimatePID_VC_PIDPowerEstimateIntegral_get(void)
+float app_canTx_VC_PIDPowerEstimateIntegral_get(void)
 {
     return tx_table.VC_PowerEstimatePID_signals.VC_PIDPowerEstimateIntegral_value;
 }
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioOutput_get(void)
+float app_canTx_VC_PIDSlipRatioOutput_get(void)
 {
     return tx_table.VC_PIDSlipRatio_signals.VC_PIDSlipRatioOutput_value;
 }
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioError_get(void)
+float app_canTx_VC_PIDSlipRatioError_get(void)
 {
     return tx_table.VC_PIDSlipRatio_signals.VC_PIDSlipRatioError_value;
 }
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioDerivative_get(void)
+float app_canTx_VC_PIDSlipRatioDerivative_get(void)
 {
     return tx_table.VC_PIDSlipRatio_signals.VC_PIDSlipRatioDerivative_value;
 }
-float app_canTx_VC_PIDSlipRatio_VC_PIDSlipRatioIntegral_get(void)
+float app_canTx_VC_PIDSlipRatioIntegral_get(void)
 {
     return tx_table.VC_PIDSlipRatio_signals.VC_PIDSlipRatioIntegral_value;
 }
-float app_canTx_VC_SlipRatios_VC_SlipRatioLeft_get(void)
+float app_canTx_VC_SlipRatioLeft_get(void)
 {
     return tx_table.VC_SlipRatios_signals.VC_SlipRatioLeft_value;
 }
-float app_canTx_VC_SlipRatios_VC_SlipRatioRight_get(void)
+float app_canTx_VC_SlipRatioRight_get(void)
 {
     return tx_table.VC_SlipRatios_signals.VC_SlipRatioRight_value;
 }
-float app_canTx_VC_ActiveDiffOutputs_VC_ActiveDiffTorqueLeft_get(void)
+float app_canTx_VC_ActiveDiffTorqueLeft_get(void)
 {
     return tx_table.VC_ActiveDiffOutputs_signals.VC_ActiveDiffTorqueLeft_value;
 }
-float app_canTx_VC_ActiveDiffOutputs_VC_ActiveDiffTorqueRight_get(void)
+float app_canTx_VC_ActiveDiffTorqueRight_get(void)
 {
     return tx_table.VC_ActiveDiffOutputs_signals.VC_ActiveDiffTorqueRight_value;
 }
-float app_canTx_VC_PowerLimit_VC_PowerLimitValue_get(void)
+float app_canTx_VC_PowerLimitValue_get(void)
 {
     return tx_table.VC_PowerLimit_signals.VC_PowerLimitValue_value;
 }
-float app_canTx_VC_PowerLimit_VC_PowerLimitValueAtFullThrottle_get(void)
+float app_canTx_VC_PowerLimitValueAtFullThrottle_get(void)
 {
     return tx_table.VC_PowerLimit_signals.VC_PowerLimitValueAtFullThrottle_value;
 }
-bool app_canTx_VC_VehicleDynamics_VC_RegenEnabled_get(void)
+bool app_canTx_VC_RegenEnabled_get(void)
 {
     return tx_table.VC_VehicleDynamics_signals.VC_RegenEnabled_value;
 }
-bool app_canTx_VC_VehicleDynamics_VC_TorqueVectoringEnabled_get(void)
+bool app_canTx_VC_TorqueVectoringEnabled_get(void)
 {
     return tx_table.VC_VehicleDynamics_signals.VC_TorqueVectoringEnabled_value;
 }
-float app_canTx_VC_VehicleDynamics_VC_VehicleVelocity_get(void)
+float app_canTx_VC_VehicleVelocity_get(void)
 {
     return tx_table.VC_VehicleDynamics_signals.VC_VehicleVelocity_value;
 }
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityNorth_get(void)
+float app_canTx_VC_VelocityNorth_get(void)
 {
     return tx_table.VC_EllipseEkfNavVelocity_signals.VC_VelocityNorth_value;
 }
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityNorthAccuracy_get(void)
+float app_canTx_VC_VelocityNorthAccuracy_get(void)
 {
     return tx_table.VC_EllipseEkfNavVelocity_signals.VC_VelocityNorthAccuracy_value;
 }
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityEast_get(void)
+float app_canTx_VC_VelocityEast_get(void)
 {
     return tx_table.VC_EllipseEkfNavVelocity_signals.VC_VelocityEast_value;
 }
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityEastAccuracy_get(void)
+float app_canTx_VC_VelocityEastAccuracy_get(void)
 {
     return tx_table.VC_EllipseEkfNavVelocity_signals.VC_VelocityEastAccuracy_value;
 }
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityDown_get(void)
+float app_canTx_VC_VelocityDown_get(void)
 {
     return tx_table.VC_EllipseEkfNavVelocity_signals.VC_VelocityDown_value;
 }
-float app_canTx_VC_EllipseEkfNavVelocity_VC_VelocityDownAccuracy_get(void)
+float app_canTx_VC_VelocityDownAccuracy_get(void)
 {
     return tx_table.VC_EllipseEkfNavVelocity_signals.VC_VelocityDownAccuracy_value;
 }
-float app_canTx_VC_Voltages_VC_BatVoltage_get(void)
+float app_canTx_VC_BatVoltage_get(void)
 {
     return tx_table.VC_Voltages_signals.VC_BatVoltage_value;
 }
-float app_canTx_VC_Voltages_VC_BoostVoltage_get(void)
+float app_canTx_VC_BoostVoltage_get(void)
 {
     return tx_table.VC_Voltages_signals.VC_BoostVoltage_value;
 }
-float app_canTx_VC_Voltages_VC_AccVoltage_get(void)
+float app_canTx_VC_AccVoltage_get(void)
 {
     return tx_table.VC_Voltages_signals.VC_AccVoltage_value;
 }
-float app_canTx_VC_CurrentSensing_VC_AccCurrent_get(void)
+float app_canTx_VC_AccCurrent_get(void)
 {
     return tx_table.VC_CurrentSensing_signals.VC_AccCurrent_value;
 }
-float app_canTx_VC_CurrentSensing_VC_BatCurrent_get(void)
+float app_canTx_VC_BatCurrent_get(void)
 {
     return tx_table.VC_CurrentSensing_signals.VC_BatCurrent_value;
 }
-float app_canTx_VC_Efuse_VC_ShdnCurrent_get(void)
+float app_canTx_VC_ShdnCurrent_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_ShdnCurrent_value;
 }
-bool app_canTx_VC_Efuse_VC_ShdnStatus_get(void)
+bool app_canTx_VC_ShdnStatus_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_ShdnStatus_value;
 }
-float app_canTx_VC_Efuse_VC_LvCurrent_get(void)
+float app_canTx_VC_LvCurrent_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_LvCurrent_value;
 }
-bool app_canTx_VC_Efuse_VC_LvStatus_get(void)
+bool app_canTx_VC_LvStatus_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_LvStatus_value;
 }
-float app_canTx_VC_Efuse_VC_PumpCurrent_get(void)
+float app_canTx_VC_PumpCurrent_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_PumpCurrent_value;
 }
-bool app_canTx_VC_Efuse_VC_PumpStatus_get(void)
+bool app_canTx_VC_PumpStatus_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_PumpStatus_value;
 }
-float app_canTx_VC_Efuse_VC_AuxCurrent_get(void)
+float app_canTx_VC_AuxCurrent_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_AuxCurrent_value;
 }
-bool app_canTx_VC_Efuse_VC_AuxStatus_get(void)
+bool app_canTx_VC_AuxStatus_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_AuxStatus_value;
 }
-float app_canTx_VC_Efuse_VC_InvRCurrent_get(void)
+float app_canTx_VC_InvRCurrent_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_InvRCurrent_value;
 }
-bool app_canTx_VC_Efuse_VC_InvRStatus_get(void)
+bool app_canTx_VC_InvRStatus_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_InvRStatus_value;
 }
-float app_canTx_VC_Efuse_VC_InvLCurrent_get(void)
+float app_canTx_VC_InvLCurrent_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_InvLCurrent_value;
 }
-bool app_canTx_VC_Efuse_VC_InvLStatus_get(void)
+bool app_canTx_VC_InvLStatus_get(void)
 {
     return tx_table.VC_Efuse_signals.VC_InvLStatus_value;
 }
-float app_canTx_VC_ImuLinearAcceleration_VC_ImuAccelerationX_get(void)
+float app_canTx_VC_ImuAccelerationX_get(void)
 {
     return tx_table.VC_ImuLinearAcceleration_signals.VC_ImuAccelerationX_value;
 }
-float app_canTx_VC_ImuLinearAcceleration_VC_ImuAccelerationY_get(void)
+float app_canTx_VC_ImuAccelerationY_get(void)
 {
     return tx_table.VC_ImuLinearAcceleration_signals.VC_ImuAccelerationY_value;
 }
-float app_canTx_VC_ImuLinearAcceleration_VC_ImuAccelerationZ_get(void)
+float app_canTx_VC_ImuAccelerationZ_get(void)
 {
     return tx_table.VC_ImuLinearAcceleration_signals.VC_ImuAccelerationZ_value;
 }
-float app_canTx_VC_CoolantPumpFlowRate_VC_FlowRate_get(void)
+float app_canTx_VC_FlowRate_get(void)
 {
     return tx_table.VC_CoolantPumpFlowRate_signals.VC_FlowRate_value;
 }
-bool app_canTx_VC_VCShdnNodeStatus_VC_LEStopOKStatus_get(void)
+bool app_canTx_VC_LEStopOKStatus_get(void)
 {
     return tx_table.VC_VCShdnNodeStatus_signals.VC_LEStopOKStatus_value;
 }
-bool app_canTx_VC_VCShdnNodeStatus_VC_REStopOKStatus_get(void)
+bool app_canTx_VC_REStopOKStatus_get(void)
 {
     return tx_table.VC_VCShdnNodeStatus_signals.VC_REStopOKStatus_value;
 }
-bool app_canTx_VC_VCShdnNodeStatus_VC_TSMSOKStatus_get(void)
+bool app_canTx_VC_TSMSOKStatus_get(void)
 {
     return tx_table.VC_VCShdnNodeStatus_signals.VC_TSMSOKStatus_value;
 }
-bool app_canTx_VC_VCShdnNodeStatus_VC_SplitterBoxInterlockOKStatus_get(void)
+bool app_canTx_VC_SplitterBoxInterlockOKStatus_get(void)
 {
     return tx_table.VC_VCShdnNodeStatus_signals.VC_SplitterBoxInterlockOKStatus_value;
 }
-ShutdownNode app_canTx_VC_GlobalShdnNodeStatus_VC_FirstFaultNode_get(void)
+ShutdownNode app_canTx_VC_FirstFaultNode_get(void)
 {
     return tx_table.VC_GlobalShdnNodeStatus_signals.VC_FirstFaultNode_value;
 }
-float app_canTx_VC_PedalPercentage_VC_MappedPedalPercentage_get(void)
+float app_canTx_VC_MappedPedalPercentage_get(void)
 {
     return tx_table.VC_PedalPercentage_signals.VC_MappedPedalPercentage_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1Hz_get(void)
+bool app_canTx_VC_Warning_StackWaterMarkHighTask1Hz_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask1Hz_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask100Hz_get(void)
+bool app_canTx_VC_Warning_StackWaterMarkHighTask100Hz_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask100Hz_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTask1kHz_get(void)
+bool app_canTx_VC_Warning_StackWaterMarkHighTask1kHz_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTask1kHz_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanRx_get(void)
+bool app_canTx_VC_Warning_StackWaterMarkHighTaskCanRx_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTaskCanRx_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_StackWaterMarkHighTaskCanTx_get(void)
+bool app_canTx_VC_Warning_StackWaterMarkHighTaskCanTx_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_StackWaterMarkHighTaskCanTx_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_WatchdogTimeout_get(void)
+bool app_canTx_VC_Warning_WatchdogTimeout_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_WatchdogTimeout_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_TxOverflow_get(void)
+bool app_canTx_VC_Warning_TxOverflow_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_TxOverflow_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_RxOverflow_get(void)
+bool app_canTx_VC_Warning_RxOverflow_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_RxOverflow_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_RegenNotAvailable_get(void)
+bool app_canTx_VC_Warning_RegenNotAvailable_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_RegenNotAvailable_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_ImuInitFailed_get(void)
+bool app_canTx_VC_Warning_ImuInitFailed_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_ImuInitFailed_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_FlowRateInputOutOfRange_get(void)
+bool app_canTx_VC_Warning_FlowRateInputOutOfRange_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_FlowRateInputOutOfRange_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_BatteryRailOvercurrentFault_get(void)
+bool app_canTx_VC_Warning_BatteryRailOvercurrentFault_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_BatteryRailOvercurrentFault_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_AccumulatorRailOvercurrentFault_get(void)
+bool app_canTx_VC_Warning_AccumulatorRailOvercurrentFault_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_AccumulatorRailOvercurrentFault_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_LvChargeFault_get(void)
+bool app_canTx_VC_Warning_LvChargeFault_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_LvChargeFault_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_BoostControllerFault_get(void)
+bool app_canTx_VC_Warning_BoostControllerFault_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_BoostControllerFault_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_HighNumberOfCanDataLogs_get(void)
+bool app_canTx_VC_Warning_HighNumberOfCanDataLogs_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_HighNumberOfCanDataLogs_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_CanLoggingSdCardNotPresent_get(void)
+bool app_canTx_VC_Warning_CanLoggingSdCardNotPresent_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_CanLoggingSdCardNotPresent_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_CanLoggingErrored_get(void)
+bool app_canTx_VC_Warning_CanLoggingErrored_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_CanLoggingErrored_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_BrakeAppsDisagreement_get(void)
+bool app_canTx_VC_Warning_BrakeAppsDisagreement_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_BrakeAppsDisagreement_value;
 }
-bool app_canTx_VC_Warnings_VC_Warning_SbgInitFailed_get(void)
+bool app_canTx_VC_Warning_SbgInitFailed_get(void)
 {
     return tx_table.VC_Warnings_signals.VC_Warning_SbgInitFailed_value;
 }
-bool app_canTx_VC_Faults_VC_Fault_MissingBMSHeartbeat_get(void)
+bool app_canTx_VC_Fault_MissingBMSHeartbeat_get(void)
 {
     return tx_table.VC_Faults_signals.VC_Fault_MissingBMSHeartbeat_value;
 }
-bool app_canTx_VC_Faults_VC_Fault_MissingFSMHeartbeat_get(void)
+bool app_canTx_VC_Fault_MissingFSMHeartbeat_get(void)
 {
     return tx_table.VC_Faults_signals.VC_Fault_MissingFSMHeartbeat_value;
 }
-bool app_canTx_VC_Faults_VC_Fault_MissingRSMHeartbeat_get(void)
+bool app_canTx_VC_Fault_MissingRSMHeartbeat_get(void)
 {
     return tx_table.VC_Faults_signals.VC_Fault_MissingRSMHeartbeat_value;
 }
-bool app_canTx_VC_Faults_VC_Fault_MissingCRITHeartbeat_get(void)
+bool app_canTx_VC_Fault_MissingCRITHeartbeat_get(void)
 {
     return tx_table.VC_Faults_signals.VC_Fault_MissingCRITHeartbeat_value;
 }
-bool app_canTx_VC_Faults_VC_Fault_LeftInverterFault_get(void)
+bool app_canTx_VC_Fault_LeftInverterFault_get(void)
 {
     return tx_table.VC_Faults_signals.VC_Fault_LeftInverterFault_value;
 }
-bool app_canTx_VC_Faults_VC_Fault_RightInverterFault_get(void)
+bool app_canTx_VC_Fault_RightInverterFault_get(void)
 {
     return tx_table.VC_Faults_signals.VC_Fault_RightInverterFault_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1HzCount_get(void)
+uint32_t app_canTx_VC_Warning_StackWaterMarkHighTask1HzCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask1HzCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask100HzCount_get(void)
+uint32_t app_canTx_VC_Warning_StackWaterMarkHighTask100HzCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask100HzCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTask1kHzCount_get(void)
+uint32_t app_canTx_VC_Warning_StackWaterMarkHighTask1kHzCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTask1kHzCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanRxCount_get(void)
+uint32_t app_canTx_VC_Warning_StackWaterMarkHighTaskCanRxCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTaskCanRxCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_StackWaterMarkHighTaskCanTxCount_get(void)
+uint32_t app_canTx_VC_Warning_StackWaterMarkHighTaskCanTxCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_StackWaterMarkHighTaskCanTxCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_WatchdogTimeoutCount_get(void)
+uint32_t app_canTx_VC_Warning_WatchdogTimeoutCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_WatchdogTimeoutCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_TxOverflowCount_get(void)
+uint32_t app_canTx_VC_Warning_TxOverflowCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_TxOverflowCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RxOverflowCount_get(void)
+uint32_t app_canTx_VC_Warning_RxOverflowCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_RxOverflowCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_RegenNotAvailableCount_get(void)
+uint32_t app_canTx_VC_Warning_RegenNotAvailableCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_RegenNotAvailableCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_ImuInitFailedCount_get(void)
+uint32_t app_canTx_VC_Warning_ImuInitFailedCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_ImuInitFailedCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_FlowRateInputOutOfRangeCount_get(void)
+uint32_t app_canTx_VC_Warning_FlowRateInputOutOfRangeCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_FlowRateInputOutOfRangeCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BatteryRailOvercurrentFaultCount_get(void)
+uint32_t app_canTx_VC_Warning_BatteryRailOvercurrentFaultCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_BatteryRailOvercurrentFaultCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_AccumulatorRailOvercurrentFaultCount_get(void)
+uint32_t app_canTx_VC_Warning_AccumulatorRailOvercurrentFaultCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_AccumulatorRailOvercurrentFaultCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_LvChargeFaultCount_get(void)
+uint32_t app_canTx_VC_Warning_LvChargeFaultCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_LvChargeFaultCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BoostControllerFaultCount_get(void)
+uint32_t app_canTx_VC_Warning_BoostControllerFaultCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_BoostControllerFaultCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_HighNumberOfCanDataLogsCount_get(void)
+uint32_t app_canTx_VC_Warning_HighNumberOfCanDataLogsCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_HighNumberOfCanDataLogsCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingSdCardNotPresentCount_get(void)
+uint32_t app_canTx_VC_Warning_CanLoggingSdCardNotPresentCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_CanLoggingSdCardNotPresentCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_CanLoggingErroredCount_get(void)
+uint32_t app_canTx_VC_Warning_CanLoggingErroredCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_CanLoggingErroredCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_BrakeAppsDisagreementCount_get(void)
+uint32_t app_canTx_VC_Warning_BrakeAppsDisagreementCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_BrakeAppsDisagreementCount_value;
 }
-uint32_t app_canTx_VC_WarningsCounts_VC_Warning_SbgInitFailedCount_get(void)
+uint32_t app_canTx_VC_Warning_SbgInitFailedCount_get(void)
 {
     return tx_table.VC_WarningsCounts_signals.VC_Warning_SbgInitFailedCount_value;
 }
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingBMSHeartbeatCount_get(void)
+uint32_t app_canTx_VC_Fault_MissingBMSHeartbeatCount_get(void)
 {
     return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingBMSHeartbeatCount_value;
 }
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingFSMHeartbeatCount_get(void)
+uint32_t app_canTx_VC_Fault_MissingFSMHeartbeatCount_get(void)
 {
     return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingFSMHeartbeatCount_value;
 }
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingRSMHeartbeatCount_get(void)
+uint32_t app_canTx_VC_Fault_MissingRSMHeartbeatCount_get(void)
 {
     return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingRSMHeartbeatCount_value;
 }
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_MissingCRITHeartbeatCount_get(void)
+uint32_t app_canTx_VC_Fault_MissingCRITHeartbeatCount_get(void)
 {
     return tx_table.VC_FaultsCounts_signals.VC_Fault_MissingCRITHeartbeatCount_value;
 }
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_LeftInverterFaultCount_get(void)
+uint32_t app_canTx_VC_Fault_LeftInverterFaultCount_get(void)
 {
     return tx_table.VC_FaultsCounts_signals.VC_Fault_LeftInverterFaultCount_value;
 }
-uint32_t app_canTx_VC_FaultsCounts_VC_Fault_RightInverterFaultCount_get(void)
+uint32_t app_canTx_VC_Fault_RightInverterFaultCount_get(void)
 {
     return tx_table.VC_FaultsCounts_signals.VC_Fault_RightInverterFaultCount_value;
 }
