@@ -92,7 +92,9 @@ class JsonCanParser:
             alerts = self._parse_json_alert_data(can_data_dir, node_obj)
 
             # update node object
-            node_obj.buses = [bus for bus in self._bus_cfg.values() if node_obj in bus.nodes]
+            node_obj.buses = {
+                bus.name: bus for bus in self._bus_cfg.values() if node_obj in bus.nodes
+            }
             node_obj.tx_msgs = tx_msgs
             node_obj.alerts = alerts
 
@@ -128,7 +130,7 @@ class JsonCanParser:
         """
         Parse bus JSON data from specified directory.
         """
-        assert self._nodes is not None # need nodes to be parsed first
+        assert self._nodes is not None  # need nodes to be parsed first
         bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
         # dynamic validation of bus data
         buses = bus_json_data["buses"]
@@ -315,11 +317,13 @@ class JsonCanParser:
 
                 # rx bus and tx bus must be mutually exclusive
                 # which means the message can be received by the rx node
-                rx_bus_set = set(rx_bus)
-                tx_bus_set = set(tx_bus)
+                rx_bus_set = set(rx_bus.values())
+                tx_bus_set = set(tx_bus.values())
                 # so if mutually exclusive then we have to reroute the message
                 if rx_bus_set.isdisjoint(tx_bus_set):
-                    forward = CanForward(message=message, forwarder=forwarder_node)
+                    forward = CanForward(
+                        message=message, forwarder=forwarder_node, receive_node=rx_node
+                    )
                     message_to_reroute.append(forward)
 
         return message_to_reroute
@@ -335,7 +339,9 @@ class JsonCanParser:
         description, _ = self._get_optional_value(msg_json_data, "description", "")
         msg_cycle_time = msg_json_data["cycle_time"]
         bus_names = msg_json_data["bus"]
-        bus_objs = [bus for _, bus in self._bus_cfg.items() if bus.name in bus_names]
+        bus_objs = {
+            bus.name: bus for _, bus in self._bus_cfg.items() if bus.name in bus_names
+        }
         # will use mode from bus if none
         msg_modes, _ = self._get_optional_value(msg_json_data, "allowed_modes", [])
 
