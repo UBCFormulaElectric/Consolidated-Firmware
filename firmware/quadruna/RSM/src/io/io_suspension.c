@@ -9,13 +9,11 @@
 
 float travelFromVoltage(float voltage)
 {
-    // TODO: implement
     return voltage;
 }
 `
 
-    float
-    io_suspension_getRearLeftTravel(void)
+float  io_suspension_getRearLeftTravel(void)
 {
     return hw_adc_getVoltage(ADC1_IN1_SUSP_TRAVEL_RL);
 }
