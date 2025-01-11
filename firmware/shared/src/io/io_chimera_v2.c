@@ -84,8 +84,12 @@ void io_chimera_v2_main(
     uint32_t net_name_gpio,
     uint32_t net_name_adc)
 {
-    // init usb peripheral.
+    // Init usb peripheral.
     hw_usb_init(transmit_handle);
+
+    // If usb is not connected, continue.
+    if (!hw_usb_checkConnection())
+        return;
 
     // dump the queue.
     for (int i = 0; true; i += 1)
