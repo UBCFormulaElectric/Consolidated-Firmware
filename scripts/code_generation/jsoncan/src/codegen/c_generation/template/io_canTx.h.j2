@@ -31,13 +31,13 @@ typedef struct
 /* -------------------------------- Enums --------------------------------- */
 typedef enum
 {
-{% for bus in node.buses %}
+{% for bus in node.buses.values() %}
     Bus_{{bus.name}} = {{loop.index0}},
 {% endfor %}
 } BusEnum;
 
 
-{% for bus in node.buses %}
+{% for bus in node.buses.values() %}
 typedef enum
 {
     {% for mode in bus.modes -%}
@@ -54,7 +54,7 @@ typedef enum
  * Initialzie the IO CAN TX module.
  */
 void io_canTx_init(
-    {% for bus in node.buses -%}
+    {% for bus in node.buses.values() -%}
     void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
     {%- endfor %}
 );
