@@ -49,7 +49,7 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len)
     uint32_t space = osMessageQueueGetSpace(rx_queue_id);
     if (len < space)
     {
-        LOG_WARN("usb message queue overflow")
+        LOG_WARN("usb message queue overflow");
     }
 
     for (uint32_t i = 0; i < len; i += 1)
