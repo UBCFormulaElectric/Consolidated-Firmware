@@ -20,11 +20,11 @@ typedef struct
     {%- for msg in messages %}
     {{ msg.c_type() }} {{ msg.name }}_signals;
     {%- endfor %}
-} {{node.name}}_TxMsgs;
+} {{node}}_TxMsgs;
 
 /* -------------------------- Private Variables --------------------------- */
 
-static {{BMS_BMSShdnNodeStatus_signals}}_TxMsgs tx_table;
+static {{node}}_TxMsgs tx_table;
 
 /* ------------------------- Function Definitions ------------------------- */
 
