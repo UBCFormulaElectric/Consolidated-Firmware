@@ -111,7 +111,7 @@ if ("${TARGET}" STREQUAL "binary")
                 "${ARM_CORE}"
         )
 
-        target_link_libraries("quintuna_DAM_jsoncan" PRIVATE "quintuna_DAM_stm32cube")
+        target_link_libraries("quintuna_DAM_jsoncan" INTERFACE "quintuna_DAM_stm32cube")
         target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "debug_modules")
         target_link_libraries("quintuna_DAM_boot.elf" PRIVATE "quintuna_DAM_commit_info")
 
