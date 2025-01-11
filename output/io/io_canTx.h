@@ -42,17 +42,17 @@ typedef enum
 
 typedef enum
 {
-    CanMode_bus1_default = 1 << 0,
-    CanMode_bus1_debug = 1 << 1,
+    bus1Mode_default = 1 << 0,
+    bus1Mode_debug = 1 << 1,
     
-} CanMode_bus1;
+} bus1Mode;
 
 typedef enum
 {
-    CanMode_bus2_default = 1 << 0,
-    CanMode_bus2_debug = 1 << 1,
+    bus2Mode_default = 1 << 0,
+    bus2Mode_debug = 1 << 1,
     
-} CanMode_bus2;
+} bus2Mode;
 
 
 
@@ -85,3 +85,36 @@ void io_canTx_enqueue100HzMsgs(void);
  * Enqueue periodic CAN messages whose cycle time does is not suitable for other periodic sending functions.
  */
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
+
+
+// send aperiodic messages
+
+
+void io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+
+void io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

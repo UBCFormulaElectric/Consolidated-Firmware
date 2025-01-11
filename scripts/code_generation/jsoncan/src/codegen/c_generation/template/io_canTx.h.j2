@@ -41,9 +41,9 @@ typedef enum
 typedef enum
 {
     {% for mode in bus.modes -%}
-    CanMode_{{bus.name}}_{{mode}} = 1 << {{loop.index0}},
+    {{bus.name.upper()}}_MODE_{{mode}} = 1 << {{loop.index0}},
     {% endfor %}
-} CanMode_{{bus.name}};
+} {{bus.name}}Mode;
 {% endfor %}
 
 
@@ -79,3 +79,10 @@ void io_canTx_enqueue100HzMsgs(void);
  */
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
 
+
+// send aperiodic messages
+{% for msg in messages %}
+{%- if msg.cycle_time == None -%}
+void io_canTx_{{msg.name}}_sendAperiodic();
+{%- endif %}
+{% endfor %}
