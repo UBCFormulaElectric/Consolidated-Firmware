@@ -62,8 +62,9 @@ void io_canTx_init(
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
  */
-void io_canTx_enableMode(CanMode mode, bool enable);
-
+{% for bus in node.buses.values() -%}
+void io_canTx_enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable);
+ {%- endfor %}
 /**
  * Enqeue periodic CAN msgs of period 1000ms.
  */
