@@ -1,5 +1,5 @@
-#include "hw_bootup.h"
-#include "hw_hal.h"
+#include "hw_bootup.hpp"
+#include "hw_hal.hpp"
 #include "FreeRTOS.h"
 
 // Defined in linker script.

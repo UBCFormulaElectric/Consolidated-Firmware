@@ -31,7 +31,7 @@
 #include "hw_watchdogConfig.h"
 #include "hw_stackWaterMark.h" // TODO enable stackwatermark on the FSM
 #include "hw_stackWaterMarkConfig.h"
-#include "hw_adc.h"
+#include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
 #include "hw_pwmInputFreqOnly.h"
@@ -92,29 +92,29 @@ const Gpio *const id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &
                                    [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
                                    [FSM_GpioNetName_FSM_SHDN]                = &fsm_shdn };
 
-const AdcChannel id_to_adc[] = {
-    [FSM_AdcNetName_SUSP_TRAVEL_FR_3V3] = ADC1_IN9_SUSP_TRAVEL_FR,
-    [FSM_AdcNetName_SUSP_TRAVEL_FL_3V3] = ADC1_IN8_SUSP_TRAVEL_FL,
-    [FSM_AdcNetName_LOAD_CELL_2_3V3]    = ADC1_IN1_LOAD_CELL_2,
-    [FSM_AdcNetName_APPS2_3V3]          = ADC1_IN5_APPS2,
-    [FSM_AdcNetName_BPS_F_3V3]          = ADC1_IN7_BPS_F,
-    [FSM_AdcNetName_BPS_B_3V3]          = ADC1_IN15_BPS_B,
-    [FSM_AdcNetName_LOAD_CELL_1_3V3]    = ADC1_IN13_LOAD_CELL_1,
-    [FSM_AdcNetName_APPS1_3V3]          = ADC1_IN12_APPS1,
-    [FSM_AdcNetName_SteeringAngle_3V3]  = ADC1_IN11_STEERING_ANGLE,
+const AdcChannel *id_to_adc[] = {
+    [FSM_AdcNetName_SUSP_TRAVEL_FR_3V3] = &susp_travel_fr,
+    [FSM_AdcNetName_SUSP_TRAVEL_FL_3V3] = &susp_travel_fl,
+    [FSM_AdcNetName_LOAD_CELL_2_3V3]    = &lc2,
+    [FSM_AdcNetName_APPS2_3V3]          = &apps2,
+    [FSM_AdcNetName_BPS_F_3V3]          = &bps_f,
+    [FSM_AdcNetName_BPS_B_3V3]          = &bps_b,
+    [FSM_AdcNetName_LOAD_CELL_1_3V3]    = &lc1,
+    [FSM_AdcNetName_APPS1_3V3]          = &apps1,
+    [FSM_AdcNetName_SteeringAngle_3V3]  = &steering_angle,
 };
 
 static const UART debug_uart = { .handle = &huart1 };
 
-static const AppsConfig       apps_config       = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
-static const BrakeConfig      brake_config      = { .rear_brake          = ADC1_IN15_BPS_B,
-                                                    .front_brake         = ADC1_IN7_BPS_F,
-                                                    .brake_hardware_ocsc = &brake_ocsc_ok_3v3,
-                                                    .nbspd_brake_pressed = &nbspd_brake_pressed_3v3 };
-static const LoadCellConfig   load_cell_config  = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
-static const SteeringConfig   steering_config   = { .steering = ADC1_IN11_STEERING_ANGLE };
-static const SuspensionConfig suspension_config = { .front_left_suspension  = ADC1_IN8_SUSP_TRAVEL_FL,
-                                                    .front_right_suspension = ADC1_IN9_SUSP_TRAVEL_FR };
+static const AppsConfig             apps_config       = { .papps = &apps1, .sapps = &apps2 };
+static const BrakeConfig            brake_config      = { .rear_brake          = &bps_b,
+                                                          .front_brake         = &bps_f,
+                                                          .brake_hardware_ocsc = &brake_ocsc_ok_3v3,
+                                                          .nbspd_brake_pressed = &nbspd_brake_pressed_3v3 };
+static const LoadCellConfig         load_cell_config  = { .cell_1 = &lc1, .cell_2 = &lc2 };
+static const SteeringConfig         steering_config   = { .steering = &steering_angle };
+static const SuspensionConfig       suspension_config = { .front_left_suspension  = &susp_travel_fl,
+                                                          .front_right_suspension = &susp_travel_fr };
 static const PwmInputFreqOnlyConfig left_wheel_config = { .htim                = &htim12,
                                                           .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
                                                           .tim_channel         = TIM_CHANNEL_2,
@@ -143,8 +143,7 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    hw_adcs_chipsInit();
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
