@@ -68,8 +68,9 @@ class JsonCanParser:
             shared_enums=self._shared_enums,
             alerts=self._alerts,
             reroute_msgs=self._reroute,
+            forwarder=self._forwarder_node,
         )
-
+    
     def _parse_json_data(self, can_data_dir: str):
         """
         Load all CAN JSON data from specified directory.

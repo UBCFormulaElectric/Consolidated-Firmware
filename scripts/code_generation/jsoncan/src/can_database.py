@@ -11,8 +11,13 @@ from typing import Dict, List, Set, Union
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (bits_for_uint, bits_to_bytes, is_int,
-                    pascal_to_screaming_snake_case, pascal_to_snake_case)
+from .utils import (
+    bits_for_uint,
+    bits_to_bytes,
+    is_int,
+    pascal_to_screaming_snake_case,
+    pascal_to_snake_case,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -284,7 +289,7 @@ class CanNode:
         rx = list(self.rx_msgs.values())
         tx = list(self.tx_msgs.values())
         return rx + tx
-    
+
     def __hash__(self):
         return hash(self.name)
 
@@ -298,18 +303,18 @@ class CanDatabase:
     Dataclass for fully describing a CAN bus, its nodes, and their messages.
     """
 
-    # TODO: change to a list of CanNode
     nodes: Dict[str, CanNode]  # List of names of the nodes on the bus
     bus_config: Dict[str, CanBusConfig]  # Various bus params
     msgs: Dict[
         int, CanMessage
     ]  # All messages being sent to the bus (dict of (ID to message)
-    shared_enums: Dict[str,CanEnum]  # Enums used by all nodes
+    shared_enums: Dict[str, CanEnum]  # Enums used by all nodes
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
-    
+    forwarder: CanNode  # Node which forwards this message
+
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages transmitted by a specific node.
