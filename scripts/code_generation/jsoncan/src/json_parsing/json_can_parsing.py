@@ -70,7 +70,7 @@ class JsonCanParser:
             reroute_msgs=self._reroute,
             forwarder=self._forwarder_node,
         )
-    
+
     def _parse_json_data(self, can_data_dir: str):
         """
         Load all CAN JSON data from specified directory.
@@ -86,11 +86,15 @@ class JsonCanParser:
         for node, node_obj in nodes.items():
 
             enums = self._parse_json_node_enum_data(can_data_dir, node)
-            # Parse TX messages
-            tx_msgs = self._parse_json_tx_data(can_data_dir, node_obj)
 
             # Parse ALERTS
             alerts = self._parse_json_alert_data(can_data_dir, node_obj)
+            # Parse TX messages
+            tx_msgs = self._parse_json_tx_data(can_data_dir, node_obj)
+            tx_msgs[alerts[0].name] = alerts[0]
+            tx_msgs[alerts[1].name] = alerts[1]
+            tx_msgs[alerts[2].name] = alerts[2]
+            tx_msgs[alerts[3].name] = alerts[3]
 
             # update node object
             node_obj.buses = {
@@ -405,7 +409,7 @@ class JsonCanParser:
             bus=bus_objs,
             cycle_time=msg_cycle_time,
             tx_node=node,
-            rx_nodes=[],
+            rx_nodes=[],  # rx nodes will be updated later
             # modes=msg_modes,
             log_cycle_time=log_cycle_time,
             telem_cycle_time=telem_cycle_time,
@@ -649,8 +653,11 @@ class JsonCanParser:
                 signals=signals,
                 rx_nodes=[],  # will be updated later
                 tx_node=node,
-                # FIXME: bus=,
-                bus=["bus1", "bus2"],
+                bus={
+                    bus.name: bus
+                    for _, bus in self._bus_cfg.items()
+                    if bus.name in alerts_json["bus"]
+                },
             )
             for name, msg_id, description, signals, cycle_time in [
                 (
@@ -683,7 +690,6 @@ class JsonCanParser:
                 ),
             ]
         )
-
         return alerts_msgs, (faults_meta_data, warnings_meta_data)
 
     @staticmethod

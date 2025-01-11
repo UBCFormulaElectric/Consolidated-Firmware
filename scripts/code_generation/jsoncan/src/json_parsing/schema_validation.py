@@ -142,6 +142,7 @@ class AlertsJson(TypedDict):
     warnings_counts_id: int
     faults_id: int
     faults_counts_id: int
+    bus: List[str]
     warnings: Dict[str, AlertsEntry]
     faults: Dict[str, AlertsEntry]
 

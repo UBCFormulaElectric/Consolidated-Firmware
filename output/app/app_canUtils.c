@@ -945,6 +945,329 @@ void app_canUtils_VC_PedalPercentage_pack(const VC_PedalPercentage_Signals* cons
     
     
 }
+ 
+// pack function for VC_Warnings
+void app_canUtils_VC_Warnings_pack(const VC_Warnings_Signals* const in_msg, uint8_t* const out_data)
+{
+    // Pack message VC_Warnings.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|____TSRQ|PONMLKJI|HGFEDCBA|
+    
+    if (in_msg == NULL || out_data == NULL)
+    {
+        return;
+    }
+    
+    // Pack 1-bit signal VC_Warning_StackWaterMarkHighTask1Hz into payload at [ bit 0 to bit 1 ).
+    const bool VC_Warning_StackWaterMarkHighTask1Hz_val = in_msg->VC_Warning_StackWaterMarkHighTask1Hz_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTask1Hz_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTask1Hz_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_OFFSET, uint32_t);
+    out_data[0] |= packShiftRight(VC_Warning_StackWaterMarkHighTask1Hz_raw, 0, 0x1);   // Packs bits _______# of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_StackWaterMarkHighTask100Hz into payload at [ bit 1 to bit 2 ).
+    const bool VC_Warning_StackWaterMarkHighTask100Hz_val = in_msg->VC_Warning_StackWaterMarkHighTask100Hz_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTask100Hz_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTask100Hz_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_StackWaterMarkHighTask100Hz_raw, 1, 0x2);   // Packs bits ______#_ of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_StackWaterMarkHighTask1kHz into payload at [ bit 2 to bit 3 ).
+    const bool VC_Warning_StackWaterMarkHighTask1kHz_val = in_msg->VC_Warning_StackWaterMarkHighTask1kHz_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTask1kHz_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTask1kHz_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_StackWaterMarkHighTask1kHz_raw, 2, 0x4);   // Packs bits _____#__ of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_StackWaterMarkHighTaskCanRx into payload at [ bit 3 to bit 4 ).
+    const bool VC_Warning_StackWaterMarkHighTaskCanRx_val = in_msg->VC_Warning_StackWaterMarkHighTaskCanRx_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTaskCanRx_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTaskCanRx_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_StackWaterMarkHighTaskCanRx_raw, 3, 0x8);   // Packs bits ____#___ of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_StackWaterMarkHighTaskCanTx into payload at [ bit 4 to bit 5 ).
+    const bool VC_Warning_StackWaterMarkHighTaskCanTx_val = in_msg->VC_Warning_StackWaterMarkHighTaskCanTx_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTaskCanTx_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTaskCanTx_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_StackWaterMarkHighTaskCanTx_raw, 4, 0x10);   // Packs bits ___#____ of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_WatchdogTimeout into payload at [ bit 5 to bit 6 ).
+    const bool VC_Warning_WatchdogTimeout_val = in_msg->VC_Warning_WatchdogTimeout_value;
+    const uint32_t VC_Warning_WatchdogTimeout_raw = CAN_ENCODE(VC_Warning_WatchdogTimeout_val, CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_SCALE, CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_WatchdogTimeout_raw, 5, 0x20);   // Packs bits __#_____ of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_TxOverflow into payload at [ bit 6 to bit 7 ).
+    const bool VC_Warning_TxOverflow_val = in_msg->VC_Warning_TxOverflow_value;
+    const uint32_t VC_Warning_TxOverflow_raw = CAN_ENCODE(VC_Warning_TxOverflow_val, CANSIG_VC_WARNING_TX_OVERFLOW_SCALE, CANSIG_VC_WARNING_TX_OVERFLOW_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_TxOverflow_raw, 6, 0x40);   // Packs bits _#______ of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_RxOverflow into payload at [ bit 7 to bit 8 ).
+    const bool VC_Warning_RxOverflow_val = in_msg->VC_Warning_RxOverflow_value;
+    const uint32_t VC_Warning_RxOverflow_raw = CAN_ENCODE(VC_Warning_RxOverflow_val, CANSIG_VC_WARNING_RX_OVERFLOW_SCALE, CANSIG_VC_WARNING_RX_OVERFLOW_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_RxOverflow_raw, 7, 0x80);   // Packs bits #_______ of byte 0 
+    
+    // Pack 1-bit signal VC_Warning_RegenNotAvailable into payload at [ bit 8 to bit 9 ).
+    const bool VC_Warning_RegenNotAvailable_val = in_msg->VC_Warning_RegenNotAvailable_value;
+    const uint32_t VC_Warning_RegenNotAvailable_raw = CAN_ENCODE(VC_Warning_RegenNotAvailable_val, CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_SCALE, CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_OFFSET, uint32_t);
+    out_data[1] |= packShiftRight(VC_Warning_RegenNotAvailable_raw, 0, 0x1);   // Packs bits _______# of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_ImuInitFailed into payload at [ bit 9 to bit 10 ).
+    const bool VC_Warning_ImuInitFailed_val = in_msg->VC_Warning_ImuInitFailed_value;
+    const uint32_t VC_Warning_ImuInitFailed_raw = CAN_ENCODE(VC_Warning_ImuInitFailed_val, CANSIG_VC_WARNING_IMU_INIT_FAILED_SCALE, CANSIG_VC_WARNING_IMU_INIT_FAILED_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_ImuInitFailed_raw, 1, 0x2);   // Packs bits ______#_ of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_FlowRateInputOutOfRange into payload at [ bit 10 to bit 11 ).
+    const bool VC_Warning_FlowRateInputOutOfRange_val = in_msg->VC_Warning_FlowRateInputOutOfRange_value;
+    const uint32_t VC_Warning_FlowRateInputOutOfRange_raw = CAN_ENCODE(VC_Warning_FlowRateInputOutOfRange_val, CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_SCALE, CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_FlowRateInputOutOfRange_raw, 2, 0x4);   // Packs bits _____#__ of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_BatteryRailOvercurrentFault into payload at [ bit 11 to bit 12 ).
+    const bool VC_Warning_BatteryRailOvercurrentFault_val = in_msg->VC_Warning_BatteryRailOvercurrentFault_value;
+    const uint32_t VC_Warning_BatteryRailOvercurrentFault_raw = CAN_ENCODE(VC_Warning_BatteryRailOvercurrentFault_val, CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_SCALE, CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_BatteryRailOvercurrentFault_raw, 3, 0x8);   // Packs bits ____#___ of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_AccumulatorRailOvercurrentFault into payload at [ bit 12 to bit 13 ).
+    const bool VC_Warning_AccumulatorRailOvercurrentFault_val = in_msg->VC_Warning_AccumulatorRailOvercurrentFault_value;
+    const uint32_t VC_Warning_AccumulatorRailOvercurrentFault_raw = CAN_ENCODE(VC_Warning_AccumulatorRailOvercurrentFault_val, CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_SCALE, CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_AccumulatorRailOvercurrentFault_raw, 4, 0x10);   // Packs bits ___#____ of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_LvChargeFault into payload at [ bit 13 to bit 14 ).
+    const bool VC_Warning_LvChargeFault_val = in_msg->VC_Warning_LvChargeFault_value;
+    const uint32_t VC_Warning_LvChargeFault_raw = CAN_ENCODE(VC_Warning_LvChargeFault_val, CANSIG_VC_WARNING_LV_CHARGE_FAULT_SCALE, CANSIG_VC_WARNING_LV_CHARGE_FAULT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_LvChargeFault_raw, 5, 0x20);   // Packs bits __#_____ of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_BoostControllerFault into payload at [ bit 14 to bit 15 ).
+    const bool VC_Warning_BoostControllerFault_val = in_msg->VC_Warning_BoostControllerFault_value;
+    const uint32_t VC_Warning_BoostControllerFault_raw = CAN_ENCODE(VC_Warning_BoostControllerFault_val, CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_SCALE, CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_BoostControllerFault_raw, 6, 0x40);   // Packs bits _#______ of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_HighNumberOfCanDataLogs into payload at [ bit 15 to bit 16 ).
+    const bool VC_Warning_HighNumberOfCanDataLogs_val = in_msg->VC_Warning_HighNumberOfCanDataLogs_value;
+    const uint32_t VC_Warning_HighNumberOfCanDataLogs_raw = CAN_ENCODE(VC_Warning_HighNumberOfCanDataLogs_val, CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_SCALE, CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_HighNumberOfCanDataLogs_raw, 7, 0x80);   // Packs bits #_______ of byte 1 
+    
+    // Pack 1-bit signal VC_Warning_CanLoggingSdCardNotPresent into payload at [ bit 16 to bit 17 ).
+    const bool VC_Warning_CanLoggingSdCardNotPresent_val = in_msg->VC_Warning_CanLoggingSdCardNotPresent_value;
+    const uint32_t VC_Warning_CanLoggingSdCardNotPresent_raw = CAN_ENCODE(VC_Warning_CanLoggingSdCardNotPresent_val, CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_SCALE, CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_OFFSET, uint32_t);
+    out_data[2] |= packShiftRight(VC_Warning_CanLoggingSdCardNotPresent_raw, 0, 0x1);   // Packs bits _______# of byte 2 
+    
+    // Pack 1-bit signal VC_Warning_CanLoggingErrored into payload at [ bit 17 to bit 18 ).
+    const bool VC_Warning_CanLoggingErrored_val = in_msg->VC_Warning_CanLoggingErrored_value;
+    const uint32_t VC_Warning_CanLoggingErrored_raw = CAN_ENCODE(VC_Warning_CanLoggingErrored_val, CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_SCALE, CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_OFFSET, uint32_t);
+    out_data[2] |= packShiftLeft(VC_Warning_CanLoggingErrored_raw, 1, 0x2);   // Packs bits ______#_ of byte 2 
+    
+    // Pack 1-bit signal VC_Warning_BrakeAppsDisagreement into payload at [ bit 18 to bit 19 ).
+    const bool VC_Warning_BrakeAppsDisagreement_val = in_msg->VC_Warning_BrakeAppsDisagreement_value;
+    const uint32_t VC_Warning_BrakeAppsDisagreement_raw = CAN_ENCODE(VC_Warning_BrakeAppsDisagreement_val, CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_SCALE, CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_OFFSET, uint32_t);
+    out_data[2] |= packShiftLeft(VC_Warning_BrakeAppsDisagreement_raw, 2, 0x4);   // Packs bits _____#__ of byte 2 
+    
+    // Pack 1-bit signal VC_Warning_SbgInitFailed into payload at [ bit 19 to bit 20 ).
+    const bool VC_Warning_SbgInitFailed_val = in_msg->VC_Warning_SbgInitFailed_value;
+    const uint32_t VC_Warning_SbgInitFailed_raw = CAN_ENCODE(VC_Warning_SbgInitFailed_val, CANSIG_VC_WARNING_SBG_INIT_FAILED_SCALE, CANSIG_VC_WARNING_SBG_INIT_FAILED_OFFSET, uint32_t);
+    out_data[2] |= packShiftLeft(VC_Warning_SbgInitFailed_raw, 3, 0x8);   // Packs bits ____#___ of byte 2 
+    
+    
+}
+ 
+// pack function for VC_Faults
+void app_canUtils_VC_Faults_pack(const VC_Faults_Signals* const in_msg, uint8_t* const out_data)
+{
+    // Pack message VC_Faults.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|__FEDCBA|
+    
+    if (in_msg == NULL || out_data == NULL)
+    {
+        return;
+    }
+    
+    // Pack 1-bit signal VC_Fault_MissingBMSHeartbeat into payload at [ bit 0 to bit 1 ).
+    const bool VC_Fault_MissingBMSHeartbeat_val = in_msg->VC_Fault_MissingBMSHeartbeat_value;
+    const uint32_t VC_Fault_MissingBMSHeartbeat_raw = CAN_ENCODE(VC_Fault_MissingBMSHeartbeat_val, CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_SCALE, CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_OFFSET, uint32_t);
+    out_data[0] |= packShiftRight(VC_Fault_MissingBMSHeartbeat_raw, 0, 0x1);   // Packs bits _______# of byte 0 
+    
+    // Pack 1-bit signal VC_Fault_MissingFSMHeartbeat into payload at [ bit 1 to bit 2 ).
+    const bool VC_Fault_MissingFSMHeartbeat_val = in_msg->VC_Fault_MissingFSMHeartbeat_value;
+    const uint32_t VC_Fault_MissingFSMHeartbeat_raw = CAN_ENCODE(VC_Fault_MissingFSMHeartbeat_val, CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_SCALE, CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Fault_MissingFSMHeartbeat_raw, 1, 0x2);   // Packs bits ______#_ of byte 0 
+    
+    // Pack 1-bit signal VC_Fault_MissingRSMHeartbeat into payload at [ bit 2 to bit 3 ).
+    const bool VC_Fault_MissingRSMHeartbeat_val = in_msg->VC_Fault_MissingRSMHeartbeat_value;
+    const uint32_t VC_Fault_MissingRSMHeartbeat_raw = CAN_ENCODE(VC_Fault_MissingRSMHeartbeat_val, CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_SCALE, CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Fault_MissingRSMHeartbeat_raw, 2, 0x4);   // Packs bits _____#__ of byte 0 
+    
+    // Pack 1-bit signal VC_Fault_MissingCRITHeartbeat into payload at [ bit 3 to bit 4 ).
+    const bool VC_Fault_MissingCRITHeartbeat_val = in_msg->VC_Fault_MissingCRITHeartbeat_value;
+    const uint32_t VC_Fault_MissingCRITHeartbeat_raw = CAN_ENCODE(VC_Fault_MissingCRITHeartbeat_val, CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_SCALE, CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Fault_MissingCRITHeartbeat_raw, 3, 0x8);   // Packs bits ____#___ of byte 0 
+    
+    // Pack 1-bit signal VC_Fault_LeftInverterFault into payload at [ bit 4 to bit 5 ).
+    const bool VC_Fault_LeftInverterFault_val = in_msg->VC_Fault_LeftInverterFault_value;
+    const uint32_t VC_Fault_LeftInverterFault_raw = CAN_ENCODE(VC_Fault_LeftInverterFault_val, CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_SCALE, CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Fault_LeftInverterFault_raw, 4, 0x10);   // Packs bits ___#____ of byte 0 
+    
+    // Pack 1-bit signal VC_Fault_RightInverterFault into payload at [ bit 5 to bit 6 ).
+    const bool VC_Fault_RightInverterFault_val = in_msg->VC_Fault_RightInverterFault_value;
+    const uint32_t VC_Fault_RightInverterFault_raw = CAN_ENCODE(VC_Fault_RightInverterFault_val, CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_SCALE, CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Fault_RightInverterFault_raw, 5, 0x20);   // Packs bits __#_____ of byte 0 
+    
+    
+}
+ 
+// pack function for VC_WarningsCounts
+void app_canUtils_VC_WarningsCounts_pack(const VC_WarningsCounts_Signals* const in_msg, uint8_t* const out_data)
+{
+    // Pack message VC_WarningsCounts.
+    // |____TTTS|SSRRRQQQ|PPPOOONN|NMMMLLLK|KKJJJIII|HHHGGGFF|FEEEDDDC|CCBBBAAA|
+    
+    if (in_msg == NULL || out_data == NULL)
+    {
+        return;
+    }
+    
+    // Pack 3-bit signal VC_Warning_StackWaterMarkHighTask1HzCount into payload at [ bit 0 to bit 3 ).
+    const uint32_t VC_Warning_StackWaterMarkHighTask1HzCount_val = in_msg->VC_Warning_StackWaterMarkHighTask1HzCount_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTask1HzCount_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTask1HzCount_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_OFFSET, uint32_t);
+    out_data[0] |= packShiftRight(VC_Warning_StackWaterMarkHighTask1HzCount_raw, 0, 0x7);   // Packs bits _____### of byte 0 
+    
+    // Pack 3-bit signal VC_Warning_StackWaterMarkHighTask100HzCount into payload at [ bit 3 to bit 6 ).
+    const uint32_t VC_Warning_StackWaterMarkHighTask100HzCount_val = in_msg->VC_Warning_StackWaterMarkHighTask100HzCount_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTask100HzCount_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTask100HzCount_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_StackWaterMarkHighTask100HzCount_raw, 3, 0x38);   // Packs bits __###___ of byte 0 
+    
+    // Pack 3-bit signal VC_Warning_StackWaterMarkHighTask1kHzCount into payload at [ bit 6 to bit 9 ).
+    const uint32_t VC_Warning_StackWaterMarkHighTask1kHzCount_val = in_msg->VC_Warning_StackWaterMarkHighTask1kHzCount_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTask1kHzCount_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTask1kHzCount_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Warning_StackWaterMarkHighTask1kHzCount_raw, 6, 0xC0);   // Packs bits ##______ of byte 0 
+    out_data[1] |= packShiftRight(VC_Warning_StackWaterMarkHighTask1kHzCount_raw, 2, 0x1);   // Packs bits _______# of byte 1 
+    
+    // Pack 3-bit signal VC_Warning_StackWaterMarkHighTaskCanRxCount into payload at [ bit 9 to bit 12 ).
+    const uint32_t VC_Warning_StackWaterMarkHighTaskCanRxCount_val = in_msg->VC_Warning_StackWaterMarkHighTaskCanRxCount_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTaskCanRxCount_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTaskCanRxCount_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_StackWaterMarkHighTaskCanRxCount_raw, 1, 0xE);   // Packs bits ____###_ of byte 1 
+    
+    // Pack 3-bit signal VC_Warning_StackWaterMarkHighTaskCanTxCount into payload at [ bit 12 to bit 15 ).
+    const uint32_t VC_Warning_StackWaterMarkHighTaskCanTxCount_val = in_msg->VC_Warning_StackWaterMarkHighTaskCanTxCount_value;
+    const uint32_t VC_Warning_StackWaterMarkHighTaskCanTxCount_raw = CAN_ENCODE(VC_Warning_StackWaterMarkHighTaskCanTxCount_val, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_SCALE, CANSIG_VC_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_StackWaterMarkHighTaskCanTxCount_raw, 4, 0x70);   // Packs bits _###____ of byte 1 
+    
+    // Pack 3-bit signal VC_Warning_WatchdogTimeoutCount into payload at [ bit 15 to bit 18 ).
+    const uint32_t VC_Warning_WatchdogTimeoutCount_val = in_msg->VC_Warning_WatchdogTimeoutCount_value;
+    const uint32_t VC_Warning_WatchdogTimeoutCount_raw = CAN_ENCODE(VC_Warning_WatchdogTimeoutCount_val, CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_COUNT_SCALE, CANSIG_VC_WARNING_WATCHDOG_TIMEOUT_COUNT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Warning_WatchdogTimeoutCount_raw, 7, 0x80);   // Packs bits #_______ of byte 1 
+    out_data[2] |= packShiftRight(VC_Warning_WatchdogTimeoutCount_raw, 1, 0x3);   // Packs bits ______## of byte 2 
+    
+    // Pack 3-bit signal VC_Warning_TxOverflowCount into payload at [ bit 18 to bit 21 ).
+    const uint32_t VC_Warning_TxOverflowCount_val = in_msg->VC_Warning_TxOverflowCount_value;
+    const uint32_t VC_Warning_TxOverflowCount_raw = CAN_ENCODE(VC_Warning_TxOverflowCount_val, CANSIG_VC_WARNING_TX_OVERFLOW_COUNT_SCALE, CANSIG_VC_WARNING_TX_OVERFLOW_COUNT_OFFSET, uint32_t);
+    out_data[2] |= packShiftLeft(VC_Warning_TxOverflowCount_raw, 2, 0x1C);   // Packs bits ___###__ of byte 2 
+    
+    // Pack 3-bit signal VC_Warning_RxOverflowCount into payload at [ bit 21 to bit 24 ).
+    const uint32_t VC_Warning_RxOverflowCount_val = in_msg->VC_Warning_RxOverflowCount_value;
+    const uint32_t VC_Warning_RxOverflowCount_raw = CAN_ENCODE(VC_Warning_RxOverflowCount_val, CANSIG_VC_WARNING_RX_OVERFLOW_COUNT_SCALE, CANSIG_VC_WARNING_RX_OVERFLOW_COUNT_OFFSET, uint32_t);
+    out_data[2] |= packShiftLeft(VC_Warning_RxOverflowCount_raw, 5, 0xE0);   // Packs bits ###_____ of byte 2 
+    
+    // Pack 3-bit signal VC_Warning_RegenNotAvailableCount into payload at [ bit 24 to bit 27 ).
+    const uint32_t VC_Warning_RegenNotAvailableCount_val = in_msg->VC_Warning_RegenNotAvailableCount_value;
+    const uint32_t VC_Warning_RegenNotAvailableCount_raw = CAN_ENCODE(VC_Warning_RegenNotAvailableCount_val, CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_COUNT_SCALE, CANSIG_VC_WARNING_REGEN_NOT_AVAILABLE_COUNT_OFFSET, uint32_t);
+    out_data[3] |= packShiftRight(VC_Warning_RegenNotAvailableCount_raw, 0, 0x7);   // Packs bits _____### of byte 3 
+    
+    // Pack 3-bit signal VC_Warning_ImuInitFailedCount into payload at [ bit 27 to bit 30 ).
+    const uint32_t VC_Warning_ImuInitFailedCount_val = in_msg->VC_Warning_ImuInitFailedCount_value;
+    const uint32_t VC_Warning_ImuInitFailedCount_raw = CAN_ENCODE(VC_Warning_ImuInitFailedCount_val, CANSIG_VC_WARNING_IMU_INIT_FAILED_COUNT_SCALE, CANSIG_VC_WARNING_IMU_INIT_FAILED_COUNT_OFFSET, uint32_t);
+    out_data[3] |= packShiftLeft(VC_Warning_ImuInitFailedCount_raw, 3, 0x38);   // Packs bits __###___ of byte 3 
+    
+    // Pack 3-bit signal VC_Warning_FlowRateInputOutOfRangeCount into payload at [ bit 30 to bit 33 ).
+    const uint32_t VC_Warning_FlowRateInputOutOfRangeCount_val = in_msg->VC_Warning_FlowRateInputOutOfRangeCount_value;
+    const uint32_t VC_Warning_FlowRateInputOutOfRangeCount_raw = CAN_ENCODE(VC_Warning_FlowRateInputOutOfRangeCount_val, CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_COUNT_SCALE, CANSIG_VC_WARNING_FLOW_RATE_INPUT_OUT_OF_RANGE_COUNT_OFFSET, uint32_t);
+    out_data[3] |= packShiftLeft(VC_Warning_FlowRateInputOutOfRangeCount_raw, 6, 0xC0);   // Packs bits ##______ of byte 3 
+    out_data[4] |= packShiftRight(VC_Warning_FlowRateInputOutOfRangeCount_raw, 2, 0x1);   // Packs bits _______# of byte 4 
+    
+    // Pack 3-bit signal VC_Warning_BatteryRailOvercurrentFaultCount into payload at [ bit 33 to bit 36 ).
+    const uint32_t VC_Warning_BatteryRailOvercurrentFaultCount_val = in_msg->VC_Warning_BatteryRailOvercurrentFaultCount_value;
+    const uint32_t VC_Warning_BatteryRailOvercurrentFaultCount_raw = CAN_ENCODE(VC_Warning_BatteryRailOvercurrentFaultCount_val, CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_COUNT_SCALE, CANSIG_VC_WARNING_BATTERY_RAIL_OVERCURRENT_FAULT_COUNT_OFFSET, uint32_t);
+    out_data[4] |= packShiftLeft(VC_Warning_BatteryRailOvercurrentFaultCount_raw, 1, 0xE);   // Packs bits ____###_ of byte 4 
+    
+    // Pack 3-bit signal VC_Warning_AccumulatorRailOvercurrentFaultCount into payload at [ bit 36 to bit 39 ).
+    const uint32_t VC_Warning_AccumulatorRailOvercurrentFaultCount_val = in_msg->VC_Warning_AccumulatorRailOvercurrentFaultCount_value;
+    const uint32_t VC_Warning_AccumulatorRailOvercurrentFaultCount_raw = CAN_ENCODE(VC_Warning_AccumulatorRailOvercurrentFaultCount_val, CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_COUNT_SCALE, CANSIG_VC_WARNING_ACCUMULATOR_RAIL_OVERCURRENT_FAULT_COUNT_OFFSET, uint32_t);
+    out_data[4] |= packShiftLeft(VC_Warning_AccumulatorRailOvercurrentFaultCount_raw, 4, 0x70);   // Packs bits _###____ of byte 4 
+    
+    // Pack 3-bit signal VC_Warning_LvChargeFaultCount into payload at [ bit 39 to bit 42 ).
+    const uint32_t VC_Warning_LvChargeFaultCount_val = in_msg->VC_Warning_LvChargeFaultCount_value;
+    const uint32_t VC_Warning_LvChargeFaultCount_raw = CAN_ENCODE(VC_Warning_LvChargeFaultCount_val, CANSIG_VC_WARNING_LV_CHARGE_FAULT_COUNT_SCALE, CANSIG_VC_WARNING_LV_CHARGE_FAULT_COUNT_OFFSET, uint32_t);
+    out_data[4] |= packShiftLeft(VC_Warning_LvChargeFaultCount_raw, 7, 0x80);   // Packs bits #_______ of byte 4 
+    out_data[5] |= packShiftRight(VC_Warning_LvChargeFaultCount_raw, 1, 0x3);   // Packs bits ______## of byte 5 
+    
+    // Pack 3-bit signal VC_Warning_BoostControllerFaultCount into payload at [ bit 42 to bit 45 ).
+    const uint32_t VC_Warning_BoostControllerFaultCount_val = in_msg->VC_Warning_BoostControllerFaultCount_value;
+    const uint32_t VC_Warning_BoostControllerFaultCount_raw = CAN_ENCODE(VC_Warning_BoostControllerFaultCount_val, CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_COUNT_SCALE, CANSIG_VC_WARNING_BOOST_CONTROLLER_FAULT_COUNT_OFFSET, uint32_t);
+    out_data[5] |= packShiftLeft(VC_Warning_BoostControllerFaultCount_raw, 2, 0x1C);   // Packs bits ___###__ of byte 5 
+    
+    // Pack 3-bit signal VC_Warning_HighNumberOfCanDataLogsCount into payload at [ bit 45 to bit 48 ).
+    const uint32_t VC_Warning_HighNumberOfCanDataLogsCount_val = in_msg->VC_Warning_HighNumberOfCanDataLogsCount_value;
+    const uint32_t VC_Warning_HighNumberOfCanDataLogsCount_raw = CAN_ENCODE(VC_Warning_HighNumberOfCanDataLogsCount_val, CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_COUNT_SCALE, CANSIG_VC_WARNING_HIGH_NUMBER_OF_CAN_DATA_LOGS_COUNT_OFFSET, uint32_t);
+    out_data[5] |= packShiftLeft(VC_Warning_HighNumberOfCanDataLogsCount_raw, 5, 0xE0);   // Packs bits ###_____ of byte 5 
+    
+    // Pack 3-bit signal VC_Warning_CanLoggingSdCardNotPresentCount into payload at [ bit 48 to bit 51 ).
+    const uint32_t VC_Warning_CanLoggingSdCardNotPresentCount_val = in_msg->VC_Warning_CanLoggingSdCardNotPresentCount_value;
+    const uint32_t VC_Warning_CanLoggingSdCardNotPresentCount_raw = CAN_ENCODE(VC_Warning_CanLoggingSdCardNotPresentCount_val, CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_COUNT_SCALE, CANSIG_VC_WARNING_CAN_LOGGING_SD_CARD_NOT_PRESENT_COUNT_OFFSET, uint32_t);
+    out_data[6] |= packShiftRight(VC_Warning_CanLoggingSdCardNotPresentCount_raw, 0, 0x7);   // Packs bits _____### of byte 6 
+    
+    // Pack 3-bit signal VC_Warning_CanLoggingErroredCount into payload at [ bit 51 to bit 54 ).
+    const uint32_t VC_Warning_CanLoggingErroredCount_val = in_msg->VC_Warning_CanLoggingErroredCount_value;
+    const uint32_t VC_Warning_CanLoggingErroredCount_raw = CAN_ENCODE(VC_Warning_CanLoggingErroredCount_val, CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_COUNT_SCALE, CANSIG_VC_WARNING_CAN_LOGGING_ERRORED_COUNT_OFFSET, uint32_t);
+    out_data[6] |= packShiftLeft(VC_Warning_CanLoggingErroredCount_raw, 3, 0x38);   // Packs bits __###___ of byte 6 
+    
+    // Pack 3-bit signal VC_Warning_BrakeAppsDisagreementCount into payload at [ bit 54 to bit 57 ).
+    const uint32_t VC_Warning_BrakeAppsDisagreementCount_val = in_msg->VC_Warning_BrakeAppsDisagreementCount_value;
+    const uint32_t VC_Warning_BrakeAppsDisagreementCount_raw = CAN_ENCODE(VC_Warning_BrakeAppsDisagreementCount_val, CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_COUNT_SCALE, CANSIG_VC_WARNING_BRAKE_APPS_DISAGREEMENT_COUNT_OFFSET, uint32_t);
+    out_data[6] |= packShiftLeft(VC_Warning_BrakeAppsDisagreementCount_raw, 6, 0xC0);   // Packs bits ##______ of byte 6 
+    out_data[7] |= packShiftRight(VC_Warning_BrakeAppsDisagreementCount_raw, 2, 0x1);   // Packs bits _______# of byte 7 
+    
+    // Pack 3-bit signal VC_Warning_SbgInitFailedCount into payload at [ bit 57 to bit 60 ).
+    const uint32_t VC_Warning_SbgInitFailedCount_val = in_msg->VC_Warning_SbgInitFailedCount_value;
+    const uint32_t VC_Warning_SbgInitFailedCount_raw = CAN_ENCODE(VC_Warning_SbgInitFailedCount_val, CANSIG_VC_WARNING_SBG_INIT_FAILED_COUNT_SCALE, CANSIG_VC_WARNING_SBG_INIT_FAILED_COUNT_OFFSET, uint32_t);
+    out_data[7] |= packShiftLeft(VC_Warning_SbgInitFailedCount_raw, 1, 0xE);   // Packs bits ____###_ of byte 7 
+    
+    
+}
+ 
+// pack function for VC_FaultsCounts
+void app_canUtils_VC_FaultsCounts_pack(const VC_FaultsCounts_Signals* const in_msg, uint8_t* const out_data)
+{
+    // Pack message VC_FaultsCounts.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|______FF|FEEEDDDC|CCBBBAAA|
+    
+    if (in_msg == NULL || out_data == NULL)
+    {
+        return;
+    }
+    
+    // Pack 3-bit signal VC_Fault_MissingBMSHeartbeatCount into payload at [ bit 0 to bit 3 ).
+    const uint32_t VC_Fault_MissingBMSHeartbeatCount_val = in_msg->VC_Fault_MissingBMSHeartbeatCount_value;
+    const uint32_t VC_Fault_MissingBMSHeartbeatCount_raw = CAN_ENCODE(VC_Fault_MissingBMSHeartbeatCount_val, CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_COUNT_SCALE, CANSIG_VC_FAULT_MISSING_BMS_HEARTBEAT_COUNT_OFFSET, uint32_t);
+    out_data[0] |= packShiftRight(VC_Fault_MissingBMSHeartbeatCount_raw, 0, 0x7);   // Packs bits _____### of byte 0 
+    
+    // Pack 3-bit signal VC_Fault_MissingFSMHeartbeatCount into payload at [ bit 3 to bit 6 ).
+    const uint32_t VC_Fault_MissingFSMHeartbeatCount_val = in_msg->VC_Fault_MissingFSMHeartbeatCount_value;
+    const uint32_t VC_Fault_MissingFSMHeartbeatCount_raw = CAN_ENCODE(VC_Fault_MissingFSMHeartbeatCount_val, CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_COUNT_SCALE, CANSIG_VC_FAULT_MISSING_FSM_HEARTBEAT_COUNT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Fault_MissingFSMHeartbeatCount_raw, 3, 0x38);   // Packs bits __###___ of byte 0 
+    
+    // Pack 3-bit signal VC_Fault_MissingRSMHeartbeatCount into payload at [ bit 6 to bit 9 ).
+    const uint32_t VC_Fault_MissingRSMHeartbeatCount_val = in_msg->VC_Fault_MissingRSMHeartbeatCount_value;
+    const uint32_t VC_Fault_MissingRSMHeartbeatCount_raw = CAN_ENCODE(VC_Fault_MissingRSMHeartbeatCount_val, CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_COUNT_SCALE, CANSIG_VC_FAULT_MISSING_RSM_HEARTBEAT_COUNT_OFFSET, uint32_t);
+    out_data[0] |= packShiftLeft(VC_Fault_MissingRSMHeartbeatCount_raw, 6, 0xC0);   // Packs bits ##______ of byte 0 
+    out_data[1] |= packShiftRight(VC_Fault_MissingRSMHeartbeatCount_raw, 2, 0x1);   // Packs bits _______# of byte 1 
+    
+    // Pack 3-bit signal VC_Fault_MissingCRITHeartbeatCount into payload at [ bit 9 to bit 12 ).
+    const uint32_t VC_Fault_MissingCRITHeartbeatCount_val = in_msg->VC_Fault_MissingCRITHeartbeatCount_value;
+    const uint32_t VC_Fault_MissingCRITHeartbeatCount_raw = CAN_ENCODE(VC_Fault_MissingCRITHeartbeatCount_val, CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_COUNT_SCALE, CANSIG_VC_FAULT_MISSING_CRIT_HEARTBEAT_COUNT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Fault_MissingCRITHeartbeatCount_raw, 1, 0xE);   // Packs bits ____###_ of byte 1 
+    
+    // Pack 3-bit signal VC_Fault_LeftInverterFaultCount into payload at [ bit 12 to bit 15 ).
+    const uint32_t VC_Fault_LeftInverterFaultCount_val = in_msg->VC_Fault_LeftInverterFaultCount_value;
+    const uint32_t VC_Fault_LeftInverterFaultCount_raw = CAN_ENCODE(VC_Fault_LeftInverterFaultCount_val, CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_COUNT_SCALE, CANSIG_VC_FAULT_LEFT_INVERTER_FAULT_COUNT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Fault_LeftInverterFaultCount_raw, 4, 0x70);   // Packs bits _###____ of byte 1 
+    
+    // Pack 3-bit signal VC_Fault_RightInverterFaultCount into payload at [ bit 15 to bit 18 ).
+    const uint32_t VC_Fault_RightInverterFaultCount_val = in_msg->VC_Fault_RightInverterFaultCount_value;
+    const uint32_t VC_Fault_RightInverterFaultCount_raw = CAN_ENCODE(VC_Fault_RightInverterFaultCount_val, CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_SCALE, CANSIG_VC_FAULT_RIGHT_INVERTER_FAULT_COUNT_OFFSET, uint32_t);
+    out_data[1] |= packShiftLeft(VC_Fault_RightInverterFaultCount_raw, 7, 0x80);   // Packs bits #_______ of byte 1 
+    out_data[2] |= packShiftRight(VC_Fault_RightInverterFaultCount_raw, 1, 0x3);   // Packs bits ______## of byte 2 
+    
+    
+}
 
 
 
