@@ -85,12 +85,13 @@ extern "C"
 
     typedef struct
     {
-        LogFsPairHeader pair_hdr;       // Pair data (pairs guarantee power loss resilience, must be first)
-        uint32_t        next_file_addr; // Address of the next file block
-        uint32_t        metadata_addr;  // Address of the file's metadata block
-        uint32_t        head_data_addr; // Address of file's newest data block
-        uint32_t        prev_head_addr; // Address of file's previous head (for redundnacy, if head is corrupted)
-        char            path[1];        // File path string
+        LogFsPairHeader pair_hdr;            // Pair data (pairs guarantee power loss resilience, must be first)
+        uint32_t        next_file_addr;      // Address of the next file block
+        uint32_t        metadata_addr;       // Address of the file's metadata block
+        uint32_t        head_data_addr;      // Address of file's newest data block
+        uint32_t        prev_head_addr;      // Address of file's previous head (for redundnacy, if head is corrupted)
+        uint32_t        num_data_blocks;     // Number of data blocks of this file
+        char            path[1];             // File path string
     } LogFsBlock_File;
 
     typedef struct
@@ -308,6 +309,8 @@ extern "C"
      * @return LOGFS_ERR_OK if successful, LOGFS_ERR_NO_MORE_FILES if traversed all files, or an error code.
      */
     LogFsErr logfs_nextPath(LogFs *fs, LogFsPath *path);
+
+    LogFsErr logfs_size(LogFs *fs, LogFsFile *file, uint32_t* size_bytes);
 
 #ifdef __cplusplus
 }

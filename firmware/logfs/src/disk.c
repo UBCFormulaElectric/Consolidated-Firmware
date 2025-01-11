@@ -69,19 +69,20 @@ inline LogFsErr disk_read(const LogFs *fs, uint32_t block, void *buf)
     return crc_checkBlock(fs, buf) ? LOGFS_ERR_OK : LOGFS_ERR_CORRUPT;
 }
 
-LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bool write_back, bool fetch)
+LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, DiskCacheExchangeFlags flags)
 {
     if (cache->cached_addr != block)
     {
         // A different block is currently in the cache, sync it to disk.
+        const bool write_back = flags & DISK_CACHE_WRITE_BACK;
         if (write_back && cache->cached_addr != LOGFS_INVALID_BLOCK)
         {
             RET_ERR(disk_syncCache(fs, cache));
         }
 
         // Fetch block from disk.
-        if (fetch)
-        {
+        const bool fetch = flags & DISK_CACHE_FETCH;
+        if(fetch) {
             RET_ERR(disk_read(fs, block, cache->buf));
         }
 

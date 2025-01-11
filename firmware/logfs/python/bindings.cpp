@@ -149,6 +149,14 @@ class PyLogFs
         return py::make_tuple(err, path, path_str);
     }
 
+    py::tuple size(PyLogFsFile &file) {
+        uint32_t size_bytes = 0;
+        const LogFsErr err = logfs_size(&fs, &file.file, &size_bytes);
+
+        // Return a tuple of (error, size).
+        return py::make_tuple(err, size_bytes);
+    }
+
   private:
     LogFsCfg   cfg;
     LogFs      fs;
@@ -206,6 +214,7 @@ PYBIND11_MODULE(logfs_src, m)
         .def("write_metadata", &PyLogFs::writeMetadata)
         .def("read_metadata", &PyLogFs::readMetadata)
         .def("first_path", &PyLogFs::firstPath)
-        .def("next_path", &PyLogFs::nextPath);
+        .def("next_path", &PyLogFs::nextPath)
+        .def("size", &PyLogFs::size);
     // clang-format on
 }

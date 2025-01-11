@@ -148,6 +148,15 @@ class LogFsFile:
         """
         _raise_err(self.fs.sync(self.file))
 
+    def size(self) -> int:
+        """
+        Read the size of a file's data in bytes.
+
+        """
+        err, size = self.fs.size(self.file)
+        _raise_err(err)
+        return size
+
     def __enter__(self) -> "LogFsFile":
         """
         Context manager protocol (for use with the `with` statement).

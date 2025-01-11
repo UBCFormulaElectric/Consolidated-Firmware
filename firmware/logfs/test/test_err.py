@@ -8,3 +8,6 @@ def test_mount_empty_fails(fs: LogFs, test_disk: LogFsTestDisk) -> None:
 
     with pytest.raises(Exception):
         fs.mount()
+
+    fs.format()
+    fs.mount()
