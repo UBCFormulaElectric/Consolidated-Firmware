@@ -103,17 +103,29 @@ Bus file schema
 """
 
 
-class BusJson(TypedDict):
+class BusConfigJson(TypedDict):
     default_receiver: str
     bus_speed: int
     modes: list[str]
     default_mode: str
 
 
+class BusJson(TypedDict):
+    forwarder: str
+    buses: list[BusConfigJson]
+
+
 single_bus_schema = Schema(
-    {"default_receiver": str, "bus_speed": int, "modes": [str], "default_mode": str}
+    {
+        "default_receiver": str,
+        "bus_speed": int,
+        "modes": [str],
+        "default_mode": str,
+        "nodes": [str],
+    }
 )
-bus_schema = Schema(Or(list[single_bus_schema], []))
+bus_list = Schema(Or(list[single_bus_schema], []))
+bus_schema = Schema({"forwarder": str, "buses": bus_list})
 
 """
 Alerts file schema
@@ -186,7 +198,7 @@ def validate_enum_json(json: Dict) -> Dict[str, Dict[str, int]]:
     return enum_schema.validate(json)
 
 
-def validate_bus_json(json: Dict) -> List[BusJson]:
+def validate_bus_json(json: Dict) -> BusJson:
     return bus_schema.validate(json)
 
 
