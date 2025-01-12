@@ -1,4 +1,4 @@
 [project]
 name = "chimera_v2"
 version = "0.1"
-dependencies = ["grpcio-tools", "protoletariat"]
+dependencies = ["grpcio-tools", "protoletariat", "pyusb"]
