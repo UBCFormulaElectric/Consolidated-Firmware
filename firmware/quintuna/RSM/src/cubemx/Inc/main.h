@@ -42,7 +42,9 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern ADC_HandleTypeDef hadc1;
+    extern DMA_HandleTypeDef hdma_adc1;
+    extern TIM_HandleTypeDef htim3;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -60,6 +62,8 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
+#define LC3_OUT_Pin GPIO_PIN_1
+#define LC3_OUT_GPIO_Port GPIOB
 #define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_9
 #define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
 #define FR_STBY_Pin GPIO_PIN_6
