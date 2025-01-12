@@ -28,9 +28,9 @@ void mainStateRunOnTick100Hz(void)
 
     const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     io_fan_set(&rad_fan, hv_on);
-    //io_fan_set(&acc_fan, hv_on);
+    // io_fan_set(&acc_fan, hv_on);
     app_canTx_RSM_RadiatorFan_set(hv_on);
-    //app_canTx_RSM_AccumulatorFan_set(hv_on);
+    // app_canTx_RSM_AccumulatorFan_set(hv_on);
 }
 
 const State *app_mainState_get(void)
