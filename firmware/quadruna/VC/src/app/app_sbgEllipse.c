@@ -4,10 +4,8 @@
 #include "app_canRx.h"
 #include "app_utils.h"
 #include "app_units.h"
-#include "io_sbgEllipse.h"
 #include "app_vehicleDynamicsConstants.h"
-
-static VelocityData app_sbgEllipse_calculateVelocity(void);
+#include "io_log.h"
 
 void app_sbgEllipse_broadcast()
 {
@@ -25,8 +23,6 @@ void app_sbgEllipse_broadcast()
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    VcEkfStatus sbgSolutionMode = (VcEkfStatus)io_sbgEllipse_getEkfSolutionMode();
-
     float ekf_vel_N = 0;
     float ekf_vel_E = 0;
     float ekf_vel_D = 0;
@@ -34,6 +30,10 @@ void app_sbgEllipse_broadcast()
     bool is_moving = (app_canRx_INVR_MotorSpeed_get() > 0) || (app_canRx_INVL_MotorSpeed_get() > 0);
 
     VelocityData velocity_calculated;
+
+    velocity_calculated.north = 0;
+    velocity_calculated.east  = 0;
+    velocity_calculated.down  = 0;
 
     if (is_moving)
     {
@@ -61,7 +61,7 @@ void app_sbgEllipse_broadcast()
     const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
     // determines when to use calculated or gps velocity, will be externed later
-    bool use_calculated_velocity = io_sbgEllipse_getEkfSolutionMode() == POSITION;
+    // bool use_calculated_velocity = io_sbgEllipse_getEkfSolutionMode() == POSITION;
 
     app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
     app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
@@ -102,12 +102,10 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
 }
 
-static VelocityData app_sbgEllipse_calculateVelocity()
+VelocityData app_sbgEllipse_calculateVelocity(void)
 {
     // These velocity calculations are not going to be super accurate because it
-    // currently does not compute a proper relative y-axis velocity because no yaw rate
-
-    float wheelRadius = IN_TO_M * (WHEEL_DIAMETER_IN) / 2.0f; // Wheel radius converted to meters
+    // currently does not compute a proper relative y-axis velocity because no yaw rate 
 
     const float rightMotorRPM = (float)-app_canRx_INVR_MotorSpeed_get();
     const float leftMotorRPM  = (float)app_canRx_INVL_MotorSpeed_get();
