@@ -185,7 +185,7 @@ def test_list_dir(fs: LogFs) -> None:
         fs.open(path=file, flags="wx")
 
     assert fs.list_dir() == files
-    assert fs.list_dir(matches="/dir1") == ["/dir1/test3.txt", "/dir1/test4.txt"]
+    assert fs.list_dir(matches="/dir1") == [("/dir1/test3.txt", 0), ("/dir1/test4.txt", 0)]
     assert fs.list_dir(matches="/dir2") == [
         "/dir2/dir3/test5.txt",
         "/dir2/dir3/test6.txt",

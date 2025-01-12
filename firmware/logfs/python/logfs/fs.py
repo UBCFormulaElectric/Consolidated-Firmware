@@ -1,4 +1,4 @@
-from typing import Union, Optional, Type, Any
+from typing import Union, Optional, Type, Any, List, Tuple
 import logging
 from .disk import LogFsDisk
 from logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
@@ -276,7 +276,7 @@ class LogFs:
         _raise_err(self.fs.open(file, path, flags))
         return LogFsFile(file=file, fs=self.fs, block_size=self.block_size)
 
-    def list_dir(self, matches: str = "/"):
+    def list_dir(self, matches: str = "/") -> List[Tuple[str, int]]:
         """
         List contents of the filesystem.
 
@@ -300,8 +300,14 @@ class LogFs:
             paths.remove("/.root")
 
         # Filter by provided prefix.
-        filtered_paths = [path for path in paths if path.startswith(matches)]
-        return filtered_paths
+        # TODO: Find a better way to return these guys...
+        filtered_files = []
+        for path in paths:
+            if path.startswith(matches):
+                file = self.open(path=path, flags="r")
+                filtered_files.append((path, file.metadata_size(), file.size()))
+
+        return filtered_files
 
     def cat(self, path: str) -> None:
         """
