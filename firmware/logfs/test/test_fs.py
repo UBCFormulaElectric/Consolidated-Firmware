@@ -32,7 +32,9 @@ def test_rw_big_file(fs: LogFs, size_bytes) -> None:
 
     # Read data back.
     read_data = file.read()
+
     assert data == read_data
+    assert size_bytes == file.size()
 
 
 @pytest.mark.parametrize(
@@ -53,7 +55,7 @@ def test_rw_multiple_files(
     file_names = [f"/test{i}.txt".encode() for i in range(num_files)]
     file_data = [random_data(size_bytes=data_size) for i in range(num_files)]
     file_handles = [fs.open(path=name, flags="rwx") for name in file_names]
-    files = zip(file_names, file_data, file_handles)
+    files = list(zip(file_names, file_data, file_handles))
 
     # Write multiple files.
     for _, data, handle in files:
@@ -63,6 +65,7 @@ def test_rw_multiple_files(
     for _, data, handle in files:
         read_data = handle.read()
         assert read_data == data
+        assert handle.size() == len(data)
 
     # Repeat for redundancy.
     for _, data, handle in files:
@@ -70,7 +73,8 @@ def test_rw_multiple_files(
 
     for _, data, handle in files:
         read_data = handle.read()
-        assert read_data == handle * 2
+        assert read_data == data * 2
+        assert handle.size() == len(data) * 2
 
     # And once more...
     for _, data, handle in files:
@@ -78,7 +82,8 @@ def test_rw_multiple_files(
 
     for _, data, handle in files:
         read_data = handle.read()
-        assert read_data == handle * 3
+        assert read_data == data * 3
+        assert handle.size() == len(data) * 3
 
 
 @pytest.mark.parametrize("data_size", [1, 10, 100, 1000, 10_000])
@@ -96,6 +101,7 @@ def test_open_existing(fs: LogFs, data_size: int) -> None:
     handle.write(data=data1)
     read_data = handle.read()
     assert read_data == data1
+    assert handle.size() == data_size
     handle.close()
 
     # Try opening the file again, and read data back.
@@ -108,6 +114,7 @@ def test_open_existing(fs: LogFs, data_size: int) -> None:
     new_handle.write(data=data2)
     read_data = new_handle.read()
     assert read_data == data1 + data2
+    assert new_handle.size() == 2 * data_size
     new_handle.close()
 
     # Try opening/reading one more time.
@@ -115,6 +122,7 @@ def test_open_existing(fs: LogFs, data_size: int) -> None:
     newest_handle = fs.open(path=file_name, flags="r")
     read_data = newest_handle.read()
     assert read_data == data1 + data2
+    assert newest_handle.size() == 2 * data_size
 
 
 @pytest.mark.parametrize("data_size", [1, 10, 100, 1000, 10_000])
@@ -129,6 +137,7 @@ def test_mount(fs: LogFs, data_size: int) -> None:
     # Read data back.
     read_data = file.read()
     assert read_data == data
+    assert file.size() == data_size
     file.close()
 
     # Re-mount filesystem.
@@ -139,11 +148,13 @@ def test_mount(fs: LogFs, data_size: int) -> None:
     file = fs.open(path="/test.txt", flags="rw")
     read_data = file.read()
     assert read_data == data
+    assert file.size() == data_size
 
     # Try writing data again.
     file.write(data=data)
     read_data = file.read()
     assert read_data == data + data
+    assert file.size() == data_size * 2
 
 
 @pytest.mark.parametrize("data_size", [1, 10, 100, 1000, 10_000])
@@ -210,4 +221,3 @@ def test_metadata(fs: LogFs, metadata_size: int) -> None:
     file = fs.open(path="/test.txt", flags="r")
     assert file.read() == file_data
     assert file.read_metadata() == data
-    

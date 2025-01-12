@@ -527,8 +527,8 @@ LogFsErr logfs_size(LogFs *fs, LogFsFile *file, uint32_t *size_bytes)
 
     // Read number of data bytes in the head block.
     RET_ERR(disk_exchangeCache(fs, &file->cache, file->head_data_addr, DISK_CACHE_FETCH));
-    const uint32_t head_size_bytes = fs->cache_data->num_bytes;
+    const uint32_t head_size_bytes = file->cache_data->num_bytes;
 
-    *size_bytes = (num_full_blocks + fs->cfg->block_size) + head_size_bytes;
+    *size_bytes = (num_full_blocks * fs->eff_block_size_bytes) + head_size_bytes;
     return LOGFS_ERR_OK;
 }
