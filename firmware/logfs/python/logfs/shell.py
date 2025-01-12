@@ -8,7 +8,7 @@ from logfs.fs import LogFs
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--disk", "-d", help="Path to disk" , required=True)
+    parser.add_argument("--disk", "-d", help="Path to disk", required=True)
     parser.add_argument("--block_size", "-b", help="Block size in bytes", default=512)
     parser.add_argument(
         "--block_count", "-N", help="Number of blocks", default=1024 * 1024
@@ -34,11 +34,11 @@ def main() -> None:
         banner1='A Python shell for interacting with logfs images.\nUse the "fs" object to read/modify the filesystem.',
         exit_msg="Leaving the shell.",
     )
-    
+
     disk = LogFsDiskFactory.create_disk(
         block_size=args.block_size, block_count=args.block_count, disk_path=args.disk
     )
-   
+
     fs = LogFs(
         block_size=args.block_size,
         block_count=args.block_count,
