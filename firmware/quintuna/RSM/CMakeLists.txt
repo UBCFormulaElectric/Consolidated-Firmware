@@ -107,8 +107,6 @@ if ("${TARGET}" STREQUAL "binary")
         "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_app.hex"
         "quintuna_RSM_boot.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_boot.hex"
-        "f4_loader.hex"
-        "${BINARY_ROOT_DIR}/loader/f4_loader.hex"
     )
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

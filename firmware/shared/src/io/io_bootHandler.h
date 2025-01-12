@@ -1,0 +1,4 @@
+#include "io_can.h"
+#pragma once
+
+void io_bootHandler_processBootRequest(CanMsg *msg, void (*deinit_func)(void));

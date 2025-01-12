@@ -245,15 +245,13 @@ function(embedded_binary
 endfunction()
 
 message("  🔃 Registered embedded_image() function")
-# Generate firmware image package (merged app + boot + loader).
+# Generate firmware image package (merged app + boot).
 function(embedded_image
         IMAGE_NAME
         APP_HEX_TARGET
         APP_HEX_PATH
         BOOT_HEX_TARGET
         BOOT_HEX_PATH
-        LOADER_HEX_TARGET
-        LOADER_HEX_PATH
 )
     message("  🖼️ [embedded.cmake, embedded_image()] Creating Embedded Image for ${IMAGE_NAME}")
 
@@ -267,13 +265,12 @@ function(embedded_image
             COMMENT "[Image] Building ${IMAGE_HEX} and ${APP_METADATA_HEX}"
             COMMAND ${PYTHON_COMMAND} ${GENERATE_IMAGE_SCRIPT}
             --app-hex ${APP_HEX_PATH}
-            --loader-hex ${LOADER_HEX_PATH}
             --boot-hex ${BOOT_HEX_PATH}
             --app-metadata-hex-out ${APP_METADATA_HEX_PATH}
             --image-hex-out ${IMAGE_HEX_PATH}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
-            DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${LOADER_HEX_PATH} ${BOOT_HEX_PATH}
+            DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
 
-    add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET} ${LOADER_HEX_TARGET})
+    add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()

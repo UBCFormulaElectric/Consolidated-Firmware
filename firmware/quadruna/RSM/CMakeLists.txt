@@ -129,8 +129,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_RSM_app.hex"
             "quadruna_RSM_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_RSM_boot.hex"
-            "f4_loader.hex"
-            "${BINARY_ROOT_DIR}/loader/f4_loader.hex"
     )
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")

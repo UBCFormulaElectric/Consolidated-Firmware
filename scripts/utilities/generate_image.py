@@ -57,7 +57,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--app-hex", type=str, required=True)
     parser.add_argument("--boot-hex", type=str, required=True)
-    parser.add_argument("--loader-hex", type=str, required=True)
     parser.add_argument("--app-metadata-hex-out", type=str, required=True)
     parser.add_argument("--image-hex-out", type=str, required=True)
 
@@ -66,7 +65,6 @@ if __name__ == "__main__":
     crc32 = Crc32()
     app_hex = intelhex.IntelHex(args.app_hex)
     boot_hex = intelhex.IntelHex(args.boot_hex)
-    loader_hex = intelhex.IntelHex(args.loader_hex)
 
     # Add checksum to app file metadata, so the bootloader can verify the chip has a valid
     # binary before booting. Our bootloader programs 8 bytes at a time (2 4-byte words), so
@@ -88,7 +86,6 @@ if __name__ == "__main__":
         app_hex.tofile(file, format="hex")
 
     # Merge app with metadata and bootloader, creating the final image.
-    app_hex.merge(loader_hex, overlap="replace")
     app_hex.merge(boot_hex, overlap="replace")
     with open(args.image_hex_out, "w") as file:
         app_hex.tofile(file, format="hex")

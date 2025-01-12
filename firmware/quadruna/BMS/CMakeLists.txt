@@ -137,8 +137,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_app.hex"
             "quadruna_BMS_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_boot.hex"
-            "h7_loader.hex"
-            "${BINARY_ROOT_DIR}/loader/h7_loader.hex"
     )
 elseif ("${TARGET}" STREQUAL "test")
     # tests

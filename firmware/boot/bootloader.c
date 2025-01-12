@@ -45,6 +45,9 @@ extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
+// Boot flag from RAM
+__attribute__((section(".boot_flag"))) uint8_t boot_flag;
+
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
 typedef struct
@@ -216,6 +219,20 @@ void bootloader_init(void)
     // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
+
+    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
+    {
+        // Deinit peripherals.
+#ifndef BOOT_AUTO
+        HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
+#endif
+        HAL_TIM_Base_Stop_IT(&htim6);
+        HAL_CRC_DeInit(&hcrc);
+
+        // Jump to app.
+        modifyStackPointerAndStartApp(&__app_code_start__);
+    }
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -269,6 +286,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
         }
         else if (command.std_id == GO_TO_APP && !update_in_progress)
         {
+            boot_flag = 0x0;
             HAL_TIM_Base_Stop_IT(&htim6);
             HAL_CRC_DeInit(&hcrc);
             modifyStackPointerAndStartApp(&__app_code_start__);

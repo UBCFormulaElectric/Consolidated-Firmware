@@ -7,7 +7,7 @@
       "executable": "build_fw_dev/firmware/quadruna/VC/quadruna_VC.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/loader/h7_loader.elf",
+        // "build_fw_dev/firmware/loader/h7_loader.elf",
         "build_fw_dev/firmware/quadruna/VC/quadruna_VC_boot.elf",
         "build_fw_dev/firmware/quadruna/VC/quadruna_VC_app.elf",
       ],
