@@ -65,7 +65,7 @@ void app_allStates_runOnTick100Hz(void)
         app_canTx_VC_ImuAngularVelocityYaw_set(angular_velocity_yaw);
     }
 
-    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_checkIn(&hb_monitor);
 
     if (heartbeat_cycles <= IGNORE_HEARTBEAT_CYCLES) // TODO make this part of the heartbeat monitor
         heartbeat_cycles++;
