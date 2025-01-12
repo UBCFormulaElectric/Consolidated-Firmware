@@ -39,11 +39,13 @@ inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, LogF
     strcpy(file->path, cfg->path);
 }
 
-inline static bool logfs_writeAllowed(LogFs* fs, LogFsFile *file) {
+inline static bool logfs_writeAllowed(LogFs *fs, LogFsFile *file)
+{
     return !fs->cfg->rd_only && (file->flags & LOGFS_OPEN_WR_ONLY);
 }
 
-inline static bool logfs_readAllowed(LogFsFile *file) {
+inline static bool logfs_readAllowed(LogFsFile *file)
+{
     return file->flags & LOGFS_OPEN_RD_ONLY;
 }
 
@@ -462,7 +464,7 @@ LogFsErr logfs_readMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size
     RET_ERR(disk_readPair(fs, &file->metadata_pair));
     size = MIN(size, fs->cache_metadata->num_bytes);
     memcpy(buf, &fs->cache_metadata->data, size);
-    *num_read = fs->cache_metadata->num_bytes;
+    *num_read = size;
     return LOGFS_ERR_OK;
 }
 
@@ -514,6 +516,11 @@ LogFsErr logfs_size(LogFs *fs, LogFsFile *file, uint32_t *size_bytes)
     CHECK_FS(fs);
     CHECK_FILE(file);
 
+    if (!logfs_readAllowed(file))
+    {
+        return LOGFS_ERR_WR_ONLY;
+    }
+
     // Read the number of full blocks the file has used. This will always be one less than the number of blocks, since
     // all will be full except the last.
     RET_ERR(disk_readPair(fs, &file->file_pair));
@@ -530,5 +537,23 @@ LogFsErr logfs_size(LogFs *fs, LogFsFile *file, uint32_t *size_bytes)
     const uint32_t head_size_bytes = file->cache_data->num_bytes;
 
     *size_bytes = (num_full_blocks * fs->eff_block_size_bytes) + head_size_bytes;
+    return LOGFS_ERR_OK;
+}
+
+LogFsErr logfs_metadataSize(LogFs *fs, LogFsFile *file, uint32_t *size_bytes)
+{
+    CHECK_ARG(fs);
+    CHECK_ARG(file);
+    CHECK_ARG(size_bytes);
+    CHECK_FS(fs);
+    CHECK_FILE(file);
+
+    if (!logfs_readAllowed(file))
+    {
+        return LOGFS_ERR_WR_ONLY;
+    }
+
+    RET_ERR(disk_readPair(fs, &file->metadata_pair));
+    *size_bytes = fs->cache_metadata->num_bytes;
     return LOGFS_ERR_OK;
 }

@@ -157,6 +157,15 @@ class LogFsFile:
         _raise_err(err)
         return size
 
+    def metadata_size(self) -> int:
+        """
+        Read the size of a file's metadata in bytes.
+
+        """
+        err, size = self.fs.metadata_size(self.file)
+        _raise_err(err)
+        return size
+
     def __enter__(self) -> "LogFsFile":
         """
         Context manager protocol (for use with the `with` statement).
