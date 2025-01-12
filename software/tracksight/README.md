@@ -81,7 +81,7 @@ Note that if you stop the compose stack, and restart it again, your data will re
 This is the mode for using Tracksight but mocking the CAN bus messages from car. This allows you to develop frontend/backend without the need to be connected to a serial port. To start everything manually:
 
 1. Start the frontend and InfluxDB database with docker. Navigate to `Consolidated-Firmware/software/tracksight` and run `docker compose -f docker/mock.yml up --build`. Note: this can be done without docker but I have issues setting up Influx without it.
-2. Start backend. In a new terminal, navigate to `Consolidated-Firmware/software/tracksight/backend/app`  and run `python app.py --debug --mode mock --data-file mock_data/realistic_data.csv` You will now see data being printed to your console
+2. Start backend. Navigate to `Consolidated-Firmware/software/tracksight/backend/app`  and run `python app.py --debug --mode mock --data-file mock_data/sample_data1.csv` You will now see data being printed to your console
 3. Open new terminal and navigate to  `Consolidated-Firmware/software/tracksight/frontned/` and run `npm run dev`
 
 ## Log Files
