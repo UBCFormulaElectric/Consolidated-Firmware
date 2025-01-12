@@ -20,5 +20,3 @@ float loadCell_getMechanicalLoad(const LoadCell *loadCell)
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/
     return 0.0;
 }
-
-

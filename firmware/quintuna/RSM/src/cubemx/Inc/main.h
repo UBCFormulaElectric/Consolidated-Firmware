@@ -62,10 +62,10 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
-#define LC3_OUT_Pin GPIO_PIN_1
-#define LC3_OUT_GPIO_Port GPIOB
 #define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_9
 #define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
+#define RAD_FAN_EN_Pin GPIO_PIN_5
+#define RAD_FAN_EN_GPIO_Port GPIOB
 #define FR_STBY_Pin GPIO_PIN_6
 #define FR_STBY_GPIO_Port GPIOB
 

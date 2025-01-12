@@ -41,11 +41,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
-DMA_HandleTypeDef hdma_adc1;
-
-TIM_HandleTypeDef htim3;
-
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
@@ -60,9 +55,6 @@ const osThreadAttr_t defaultTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_ADC1_Init(void);
-static void MX_TIM3_Init(void);
 void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -102,9 +94,6 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_DMA_Init();
-    MX_ADC1_Init();
-    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -197,113 +186,6 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief ADC1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_ADC1_Init(void)
-{
-    /* USER CODE BEGIN ADC1_Init 0 */
-
-    /* USER CODE END ADC1_Init 0 */
-
-    ADC_ChannelConfTypeDef sConfig = { 0 };
-
-    /* USER CODE BEGIN ADC1_Init 1 */
-
-    /* USER CODE END ADC1_Init 1 */
-
-    /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-     */
-    hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
-    hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc1.Init.ScanConvMode          = DISABLE;
-    hadc1.Init.ContinuousConvMode    = DISABLE;
-    hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
-    hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 1;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
-    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    if (HAL_ADC_Init(&hadc1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-     */
-    sConfig.Channel      = ADC_CHANNEL_9;
-    sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN ADC1_Init 2 */
-
-    /* USER CODE END ADC1_Init 2 */
-}
-
-/**
- * @brief TIM3 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_TIM3_Init(void)
-{
-    /* USER CODE BEGIN TIM3_Init 0 */
-
-    /* USER CODE END TIM3_Init 0 */
-
-    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
-    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
-
-    /* USER CODE BEGIN TIM3_Init 1 */
-
-    /* USER CODE END TIM3_Init 1 */
-    htim3.Instance               = TIM3;
-    htim3.Init.Prescaler         = 0;
-    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = 65535;
-    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN TIM3_Init 2 */
-
-    /* USER CODE END TIM3_Init 2 */
-}
-
-/**
- * Enable DMA controller clock
- */
-static void MX_DMA_Init(void)
-{
-    /* DMA controller clock enable */
-    __HAL_RCC_DMA2_CLK_ENABLE();
-
-    /* DMA interrupt init */
-    /* DMA2_Stream0_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -316,8 +198,8 @@ static void MX_GPIO_Init(void)
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
@@ -326,7 +208,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5 | FR_STBY_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, RAD_FAN_EN_Pin | FR_STBY_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin : LED_Pin */
     GPIO_InitStruct.Pin   = LED_Pin;
@@ -342,8 +224,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BRAKE_LIGHT_EN_3V3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB5 FR_STBY_Pin */
-    GPIO_InitStruct.Pin   = GPIO_PIN_5 | FR_STBY_Pin;
+    /*Configure GPIO pins : RAD_FAN_EN_Pin FR_STBY_Pin */
+    GPIO_InitStruct.Pin   = RAD_FAN_EN_Pin | FR_STBY_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
