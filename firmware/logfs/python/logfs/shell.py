@@ -25,7 +25,7 @@ def main() -> None:
         "-w",
         action="store_true",
         help="Allow writes to the filesystem",
-        default=True,
+        default=False,
     )
     args = parser.parse_args()
     print(args)

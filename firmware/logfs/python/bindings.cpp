@@ -149,17 +149,19 @@ class PyLogFs
         return py::make_tuple(err, path, path_str);
     }
 
-    py::tuple size(PyLogFsFile &file) {
-        uint32_t size_bytes = 0;
-        const LogFsErr err = logfs_size(&fs, &file.file, &size_bytes);
+    py::tuple size(PyLogFsFile &file)
+    {
+        uint32_t       size_bytes = 0;
+        const LogFsErr err        = logfs_size(&fs, &file.file, &size_bytes);
 
         // Return a tuple of (error, size).
         return py::make_tuple(err, size_bytes);
     }
 
-    py::tuple metadataSize(PyLogFsFile &file) {
-        uint32_t size_bytes = 0;
-        const LogFsErr err = logfs_metadataSize(&fs, &file.file, &size_bytes);
+    py::tuple metadataSize(PyLogFsFile &file)
+    {
+        uint32_t       size_bytes = 0;
+        const LogFsErr err        = logfs_metadataSize(&fs, &file.file, &size_bytes);
 
         // Return a tuple of (error, size).
         return py::make_tuple(err, size_bytes);

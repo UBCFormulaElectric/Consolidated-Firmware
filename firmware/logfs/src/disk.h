@@ -7,8 +7,9 @@ extern "C"
 {
 #endif
 
-    typedef enum {
-        DISK_CACHE_FETCH = 0x01,
+    typedef enum
+    {
+        DISK_CACHE_FETCH      = 0x01,
         DISK_CACHE_WRITE_BACK = 0x02,
     } DiskCacheExchangeFlags;
 

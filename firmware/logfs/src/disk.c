@@ -82,7 +82,8 @@ LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, 
 
         // Fetch block from disk.
         const bool fetch = flags & DISK_CACHE_FETCH;
-        if(fetch) {
+        if (fetch)
+        {
             RET_ERR(disk_read(fs, block, cache->buf));
         }
 
