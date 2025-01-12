@@ -221,7 +221,7 @@ class SignalUtil:
                             )
 
                             cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
-                            s
+                            
                     logger.info("Finished processing file. Restarting...")
         except Exception as e:
             logger.error("Error:", e)
