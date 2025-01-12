@@ -75,7 +75,7 @@ typedef struct
     EkfEulerPacketData ekf_euler_data;
     StatusPacketData   status_data;
     EkfNavPacketData   ekf_nav_data;
-    uint32_t        ekf_solution_status;
+    uint32_t           ekf_solution_status;
 } SensorData;
 
 #ifdef TARGET_EMBEDDED

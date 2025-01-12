@@ -25,7 +25,7 @@ void app_sbgEllipse_broadcast()
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    VcEkfStatus sbgSolutionMode = (VcEkfStatus)io_sbgEllipse_geEkfSolutionMode();
+    VcEkfStatus sbgSolutionMode = (VcEkfStatus)io_sbgEllipse_getEkfSolutionMode();
 
     float ekf_vel_N = 0;
     float ekf_vel_E = 0;
@@ -35,10 +35,11 @@ void app_sbgEllipse_broadcast()
 
     VelocityData velocity_calculated;
 
-    if (is_moving) {
+    if (is_moving)
+    {
         velocity_calculated = app_sbgEllipse_calculateVelocity();
     }
-        
+
     // EKF
     ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
     ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
@@ -56,11 +57,11 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
     app_canTx_VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
 
-    const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+    const float vehicle_velocity            = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
     const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
     // determines when to use calculated or gps velocity, will be externed later
-    bool use_calculated_velocity = io_sbgEllipse_geEkfSolutionMode() == POSITION;
+    bool use_calculated_velocity = io_sbgEllipse_getEkfSolutionMode() == POSITION;
 
     app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
     app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
@@ -104,12 +105,12 @@ void app_sbgEllipse_broadcast()
 static VelocityData app_sbgEllipse_calculateVelocity()
 {
     // These velocity calculations are not going to be super accurate because it
-    // currently does not compute a proper relative y-axis velocity because no yaw rate 
+    // currently does not compute a proper relative y-axis velocity because no yaw rate
 
     float wheelRadius = IN_TO_M * (WHEEL_DIAMETER_IN) / 2.0f; // Wheel radius converted to meters
 
-    const float rightMotorRPM             = (float)-app_canRx_INVR_MotorSpeed_get();
-    const float leftMotorRPM             = (float)app_canRx_INVL_MotorSpeed_get();
+    const float rightMotorRPM = (float)-app_canRx_INVR_MotorSpeed_get();
+    const float leftMotorRPM  = (float)app_canRx_INVL_MotorSpeed_get();
 
     float leftWheelVelocity  = MOTOR_RPM_TO_KMH(leftMotorRPM);
     float rightWheelVelocity = MOTOR_RPM_TO_KMH(rightMotorRPM);
