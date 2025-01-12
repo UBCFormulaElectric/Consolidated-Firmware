@@ -116,28 +116,27 @@ function(stm32f412rx_cube_library
     if(USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
-        list(APPEND STM32CUBE_SRCS 
+        list(APPEND STM32CUBE_SRCS
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
         )
 
-        list(APPEND STM32CUBE_INCLUDE_DIRS 
-            "${USB_MIDDLEWARE_DIR}/Core/Inc" 
+        list(APPEND STM32CUBE_INCLUDE_DIRS
+            "${USB_MIDDLEWARE_DIR}/Core/Inc"
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
         )
     endif()
 
-    embedded_library(
+    embedded_interface_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
             "${STM32CUBE_INCLUDE_DIRS}"
-            "cm4"
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            PUBLIC
+            INTERFACE
             USE_HAL_DRIVER
             STM32F412Rx
     )
@@ -183,7 +182,6 @@ function(stm32h733xx_cube_library
     file(GLOB RTOS_SRCS
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
     )
 
@@ -203,38 +201,36 @@ function(stm32h733xx_cube_library
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
-    # If we want to ever support different device classes, 
+    # If we want to ever support different device classes,
     # you will need to add a argument to this function with the requested class.
     if(USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
-        list(APPEND STM32CUBE_SRCS 
+        list(APPEND STM32CUBE_SRCS
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
         )
 
-        list(APPEND STM32CUBE_INCLUDE_DIRS 
-            "${USB_MIDDLEWARE_DIR}/Core/Inc" 
+        list(APPEND STM32CUBE_INCLUDE_DIRS
+            "${USB_MIDDLEWARE_DIR}/Core/Inc"
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
         )
     endif()
 
-
-    embedded_library(
+    embedded_interface_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
             "${STM32CUBE_INCLUDE_DIRS}"
-            "cm7"
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            PUBLIC
+            INTERFACE
             USE_HAL_DRIVER
             STM32H733xx
             CANFD

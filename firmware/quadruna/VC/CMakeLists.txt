@@ -8,6 +8,7 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
@@ -24,7 +25,6 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_log.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
@@ -43,7 +43,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
@@ -129,18 +129,25 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(VC quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(VC quadruna ${CMAKE_CURRENT_BINARY_DIR})
 
     # CommitInfo
     commit_info_library(
             "quadruna_VC_app.elf"
             "quadruna_VC_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_VC_jsoncan" PRIVATE "quadruna_VC_stm32cube")
-    target_link_libraries("quadruna_VC_app.elf" PRIVATE "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "logfs_cm7" "debug_modules" "m" "telem_proto" "sbg_ecom_cm7")
+    target_link_libraries("quadruna_VC_app.elf" PRIVATE
+            "quadruna_VC_stm32cube"
+            "quadruna_VC_jsoncan"
+            "quadruna_VC_commit_info"
+            "logfs_cm7"
+            "debug_modules"
+            "m"
+            "telem_proto"
+            "sbg_ecom_cm7"
+    )
     target_link_libraries("quadruna_VC_boot.elf" PRIVATE "quadruna_VC_commit_info")
 
     embedded_image(

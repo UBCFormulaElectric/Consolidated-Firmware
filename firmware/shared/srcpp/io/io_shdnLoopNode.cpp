@@ -1,4 +1,4 @@
-#include "io_shdnLoopNode.h"
+#include "io_shdnLoopNode.hpp"
 
 namespace io::shdn
 {

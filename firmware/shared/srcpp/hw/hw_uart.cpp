@@ -1,4 +1,4 @@
-#include "hw_uart.h"
+#include "hw_uart.hpp"
 
 namespace hw
 {

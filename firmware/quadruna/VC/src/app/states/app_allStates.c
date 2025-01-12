@@ -17,6 +17,8 @@
 #include "io_canLogging.h"
 #include "io_pcm.h"
 
+#include <app_heartbeatMonitors.h>
+
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
 static uint16_t heartbeat_cycles = 0;
@@ -68,7 +70,7 @@ void app_allStates_runOnTick100Hz(void)
     if (heartbeat_cycles <= IGNORE_HEARTBEAT_CYCLES) // TODO make this part of the heartbeat monitor
         heartbeat_cycles++;
     else
-        app_heartbeatMonitor_broadcastFaults();
+        app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     io_sbgEllipse_handleLogs();
     app_sbgEllipse_broadcast();

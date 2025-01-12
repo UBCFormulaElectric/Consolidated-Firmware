@@ -93,17 +93,15 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
         "quintuna_VC_app.elf"
         "quintuna_VC_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
-        "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_VC_jsoncan" PRIVATE "quintuna_VC_stm32cube")
     target_link_libraries("quintuna_VC_app.elf" PRIVATE "quintuna_VC_stm32cube" "quintuna_VC_jsoncan" "quintuna_VC_commit_info" "debug_modules")
     target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
 
@@ -114,6 +112,5 @@ if ("${TARGET}" STREQUAL "binary")
         "quintuna_VC_boot.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_boot.hex"
     )
-    
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

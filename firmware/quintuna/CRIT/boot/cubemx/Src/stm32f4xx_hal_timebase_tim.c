@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2023 STMicroelectronics.
+ * Copyright (c) 2024 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -49,10 +49,8 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
     /* Enable TIM6 clock */
     __HAL_RCC_TIM6_CLK_ENABLE();
-
     /* Get clock configuration */
     HAL_RCC_GetClockConfig(&clkconfig, &pFLatency);
-
     /* Get APB1 prescaler */
     uwAPB1Prescaler = clkconfig.APB1CLKDivider;
     /* Compute TIM6 clock */
