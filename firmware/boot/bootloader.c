@@ -111,7 +111,7 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 
 static BootStatus verifyAppCodeChecksum(void)
 {
-    if (__app_code_start__ == 0xFFFFFFFF)
+    if (*&__app_code_start__ == 0xFFFFFFFF)
     {
         // If app initial stack pointer is all 0xFF, assume app is not present.
         return BOOT_STATUS_NO_APP;
