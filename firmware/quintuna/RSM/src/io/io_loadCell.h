@@ -1,10 +1,12 @@
 #pragma once
 #include <stdio.h>
-#include "hw_adcs.h"
+#include <stdbool.h>
+// #include "hw_adcs.h"
 
 typedef struct
 {
-    Adc *src;
+    // Adc *src;
+    char _unused;
 } LoadCell;
 
 bool  is_ocsc(LoadCell *loadCell);

@@ -3,10 +3,10 @@
 
 typedef struct
 {
-    Gpio *src;
+    const Gpio *src;
 } Fans;
 
 void io_fan_set(Fans *fans, bool on);
 
-extern const Fans acc_fan;
+// extern const Fans acc_fan;
 extern const Fans rad_fan;
