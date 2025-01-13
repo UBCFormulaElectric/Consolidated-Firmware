@@ -105,7 +105,7 @@ void app_sbgEllipse_broadcast()
 VelocityData app_sbgEllipse_calculateVelocity(void)
 {
     // These velocity calculations are not going to be super accurate because it
-    // currently does not compute a proper relative y-axis velocity because no yaw rate 
+    // currently does not compute a proper relative y-axis velocity because no yaw rate
 
     const float rightMotorRPM = (float)-app_canRx_INVR_MotorSpeed_get();
     const float leftMotorRPM  = (float)app_canRx_INVL_MotorSpeed_get();
