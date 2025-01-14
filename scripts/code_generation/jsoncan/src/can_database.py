@@ -11,13 +11,8 @@ from typing import Dict, List, Set, Union
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 
@@ -201,9 +196,6 @@ class CanMessage:
         int, None
     ]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
     signals: List[CanSignal]  # All signals that make up this message
-    bus: List[CanBusConfig]  # List of buses this message is transmitted on
-    tx_node: CanNode  # Node which transmits this message
-    rx_nodes: List[CanNode]  # List of nodes which receive this message
     log_cycle_time: Union[
         int, None
     ]  # Interval that this message should be logged to disk at (None if don't capture this msg)
@@ -211,6 +203,10 @@ class CanMessage:
         int, None
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
+    # forgein key
+    bus: List[str]  # List of buses this message is transmitted on
+    tx_node: str  # Node which transmits this message
+    rx_nodes: List[str]  # List of nodes which receive this message
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -280,10 +276,12 @@ class CanNode:
     """
 
     name: str  # Name of this CAN node
-    tx_msgs: Dict[str, CanMessage]
-    rx_msgs: Dict[str, CanMessage]
-    alerts: Dict[CanAlert, AlertsEntry]  # Dictionary of alert to alert entry
-    buses: Dict[str, CanBusConfig]  # List of buses this node is on
+    
+    # forgein key
+    tx_msgs: List[str]
+    rx_msgs: List[str]
+    alerts: List[AlertsEntry]
+    buses: List[str]
 
     def get_all_messages(self):
         rx = list(self.rx_msgs.values())
