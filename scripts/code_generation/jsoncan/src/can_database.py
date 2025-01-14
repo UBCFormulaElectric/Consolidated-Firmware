@@ -318,14 +318,15 @@ class CanDatabase:
         Return list of all CAN messages transmitted by a specific node.
         """
         node = self.nodes[tx_node]
-        return list(node.tx_msgs.values())
+        
+        return [self.msgs[msg] for msg in node.tx_msgs]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
         node = self.nodes[rx_node]
-        return list(node.rx_msgs.values())
+        return [self.msgs[msg] for msg in node.rx_msgs]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
