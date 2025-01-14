@@ -14,22 +14,20 @@
 
 void mainStateRunOnTick100Hz(void)
 {
-    /*
-    app_coolant_broadcast();
-    app_loadcell_broadcast();
-    app_suspension_broadcast();
-    app_heartbeatMonitor_checkIn(&hb_monitor);
-    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-    */
+    // app_coolant_broadcast();
+    // app_loadcell_broadcast();
+    // app_suspension_broadcast();
+    // app_heartbeatMonitor_checkIn(&hb_monitor);
+    // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    const bool brake_light_on = app_canRx_FSM_BrakeActuated_get();
+    const bool brake_light_on = false; // app_canRx_FSM_BrakeActuated_get();
     io_led_enable(&brake_light, brake_light_on);
     app_canTx_RSM_BrakeLight_set(brake_light_on);
 
-    const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    io_fan_set(&rad_fan, hv_on);
+    // const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    // io_fan_set(&rad_fan, hv_on);
     // io_fan_set(&acc_fan, hv_on);
-    app_canTx_RSM_RadiatorFan_set(hv_on);
+    // app_canTx_RSM_RadiatorFan_set(hv_on);
     // app_canTx_RSM_AccumulatorFan_set(hv_on);
 }
 
