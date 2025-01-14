@@ -2,10 +2,10 @@
 
 typedef struct
 {
-    uint8_t VBAT;
-    uint8_t V_BOOST;
-    uint8_t V_ACC;
-    uint8_t V_EXT;
+    const uint8_t VBAT;
+    const uint8_t V_BOOST;
+    const uint8_t V_ACC;
+    const uint8_t V_EXT;
 } voltage_bus;
 
 bool io_power_monitor_init();
