@@ -1,22 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import Draggable from 'react-draggable'
-import { DropdownMenuCheckboxes } from './FaultFilters'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const initData = { timestamp: 0, name: 'f' }
+const boardNames = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7']
 
 const LiveFault: React.FC = () => {
 	// TODO change the TS type late
-	const [board1, setBoard1] = useState([initData])
-	const [faults, setFaults] = useState<boolean[]>([
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-	])
-	const [warnings, setWarnings] = useState<boolean[]>([
+	const [boards, setBoards] = useState([initData])
+	const [active, setActive] = useState<boolean[]>([
 		false,
 		false,
 		false,
@@ -65,15 +57,15 @@ const LiveFault: React.FC = () => {
 
 		return (
 			<div className='flex justify-center w-full h-4 my-2'>
-				{board1.map((fault, index) => {
+				{boards.map((fault, index) => {
 					const hasFault = fault.name.substring(0, 1) === 'f'
 					const hasWarning = fault.name.substring(0, 1) === 'w'
 
-					if (index < board1.length - 1) {
+					if (index < boards.length - 1) {
 						return (
 							<div>
 								<FaultDisplay
-									width={97 * (board1[index + 1].timestamp - fault.timestamp)}
+									width={97 * (boards[index + 1].timestamp - fault.timestamp)}
 									isFault={hasFault}
 									isWarning={hasWarning}
 								/>
@@ -82,7 +74,7 @@ const LiveFault: React.FC = () => {
 					} else {
 						return (
 							<FaultDisplay
-								width={97 * (count - board1[board1.length - 1].timestamp)}
+								width={97 * (count - boards[boards.length - 1].timestamp)}
 								isFault={hasFault}
 								isWarning={hasWarning}
 							/>
@@ -105,7 +97,7 @@ const LiveFault: React.FC = () => {
 				onClick={() => {
 					toggleFault(index)
 				}}>
-				{index + ': ' + faults[index]}
+				{index + ': ' + active[index]}
 			</button>
 		)
 	}
@@ -117,12 +109,20 @@ const LiveFault: React.FC = () => {
 				<Draggable cancel='.non-draggable'>
 					<div className='flex flex-col pr-9'>
 						{/* Below is the actual faults graph */}
-						{faults.map((fault, index) => {
+						{active.map((fault, index) => {
 							return <FaultBar fault={fault} index={index} key={index} />
 						})}
 					</div>
 				</Draggable>
-				<div className='p-2'>TBD{/* <DropdownMenuCheckboxes /> */}</div>
+				{/* map for easier sync with checkboxes, then use an array of names to match the names too */}
+				{active.map((fault, index) => {
+					return (
+						<div>
+							<p>{boardNames[index]}</p>
+							<Checkbox />
+						</div>
+					)
+				})}
 			</div>
 		</div>
 	)
