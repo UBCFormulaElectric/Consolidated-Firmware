@@ -1,13 +1,17 @@
 #pragma once
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef struct
 {
-    const uint8_t VBAT;
-    const uint8_t V_BOOST;
-    const uint8_t V_ACC;
-    const uint8_t V_EXT;
-} voltage_bus;
+    const uint8_t address;
+} power_rail;
+
+extern const power_rail bat;
+extern const power_rail boost;
+extern const power_rail acc;
+extern const power_rail ext;
 
 bool io_power_monitor_init();
 
-uint8_t io_power_monitor_read(voltage_bus voltage_address);
+uint8_t io_power_monitor_read_voltage(const power_rail* voltage_address);
