@@ -22,7 +22,7 @@ void mainStateRunOnTick100Hz(void)
 
     const bool brake_light_on = false; // app_canRx_FSM_BrakeActuated_get();
     io_led_enable(&brake_light, brake_light_on);
-    app_canTx_RSM_BrakeLight_set(brake_light_on);
+    //app_canTx_RSM_BrakeLight_set(brake_light_on);
 
     // const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     // io_fan_set(&rad_fan, hv_on);

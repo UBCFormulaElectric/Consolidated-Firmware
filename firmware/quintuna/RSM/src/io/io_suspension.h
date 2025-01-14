@@ -1,24 +1,17 @@
 #pragma once
 #include <stdbool.h>
+#include <hw_adcs.h>
 
-/**
- * Get the travel of the rear left suspension
- * @return The travel of the suspension in (TODO: add units)
- */
-float io_suspension_getRearLeftTravel(void);
+extern float travelFromVoltage(float voltage);
 
-/**
- * Get the travel of the rear right suspension
- * @return The travel of the suspension in (TODO: add units)
- */
-float io_suspension_getRearRightTravel(void);
+typedef struct
+{
+    const AdcChannel *src;
+} Suspension;
 
-/**
- * @return whether or not the left suspension sensor is open or short circuit
- */
-bool io_suspension_leftSensorOCSC(void);
+float io_suspension_getTravel(const Suspension *suspension);
 
-/**
- * @return whether or not the right suspension sensor is open or short circuit
- */
-bool io_suspension_rightSensorOCSC(void);
+bool io_suspension_SensorOCSC(const Suspension *suspension);
+
+extern const Suspension right;
+extern const Suspension left;
