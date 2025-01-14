@@ -12,13 +12,9 @@ from typing import Any, Tuple
 from ..can_database import *
 from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
-from .schema_validation import (
-    AlertsJson,
-    validate_alerts_json,
-    validate_bus_json,
-    validate_enum_json,
-    validate_tx_json,
-)
+from .schema_validation import (AlertsJson, validate_alerts_json,
+                                validate_bus_json, validate_enum_json,
+                                validate_tx_json)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -92,15 +88,14 @@ class JsonCanParser:
             # Parse TX messages
             tx_msgs = self._parse_json_tx_data(can_data_dir, node_obj)
             if(alerts is not None):
-                tx_msgs[alerts[0].name] = alerts[0]
-                tx_msgs[alerts[1].name] = alerts[1]
-                tx_msgs[alerts[2].name] = alerts[2]
-                tx_msgs[alerts[3].name] = alerts[3]
+                tx_msgs.append(alerts[0].name)
+                tx_msgs.append(alerts[1].name) 
+                tx_msgs.append(alerts[2].name)
+                tx_msgs.append(alerts[3].name)
+                
 
             # update node object
-            node_obj.buses = {
-                bus.name: bus for bus in self._bus_cfg.values() if node_obj in bus.nodes
-            }
+            node_obj.buses = [bus_configs[bus].name for bus in bus_configs if node in bus_configs[bus].nodes]
             node_obj.tx_msgs = tx_msgs
             node_obj.alerts = alerts
 
@@ -150,7 +145,7 @@ class JsonCanParser:
                 default_mode=bus["default_mode"],
                 modes=bus["modes"],
                 bus_speed=bus["bus_speed"],
-                nodes=[self._nodes[node] for node in bus["nodes"]],  # string for now
+                nodes=bus["nodes"],  # string for now
             )
             for bus in buses
         }
@@ -226,14 +221,14 @@ class JsonCanParser:
             enums[enum_name] = e
         return enums
 
-    def _parse_json_tx_data(self, can_data_dir, node) -> Dict[str, CanMessage]:
+    def _parse_json_tx_data(self, can_data_dir, node) -> List[str]:
 
         node_name = node.name
         node_tx_json_data = validate_tx_json(
             self._load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx")
         )
 
-        m = {}
+        m = []
         for tx_node_msg_name, msg_data in node_tx_json_data.items():
             # Skip if message is disabled
             msg_disabled, _ = self._get_optional_value(
@@ -252,7 +247,7 @@ class JsonCanParser:
             self._messages[tx_node_msg_name] = self._get_parsed_can_message(
                 msg_name=tx_node_msg_name, msg_json_data=msg_data, node=node
             )
-            m[tx_node_msg_name] = self._messages[tx_node_msg_name]
+            m.append(tx_node_msg_name)
 
         return m
 
@@ -345,9 +340,7 @@ class JsonCanParser:
         description, _ = self._get_optional_value(msg_json_data, "description", "")
         msg_cycle_time = msg_json_data["cycle_time"]
         bus_names = msg_json_data["bus"]
-        bus_objs = {
-            bus.name: bus for _, bus in self._bus_cfg.items() if bus.name in bus_names
-        }
+       
         # will use mode from bus if none
         msg_modes, _ = self._get_optional_value(msg_json_data, "allowed_modes", [])
 
@@ -407,7 +400,7 @@ class JsonCanParser:
             id=msg_id,
             description=description,
             signals=signals,
-            bus=bus_objs,
+            bus=bus_names,
             cycle_time=msg_cycle_time,
             tx_node=node,
             rx_nodes=[],  # rx nodes will be updated later
