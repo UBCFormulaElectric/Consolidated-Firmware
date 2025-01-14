@@ -2,35 +2,29 @@
 
 #include <stdbool.h>
 
-#ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
 #include "hw_pwmInputFreqOnly.h"
 #include "hw_adcs.h"
+#include "main.h"
 
-void io_coolant_init(void);
+void io_coolant_init(const PwmInputFreqOnlyConfig *config);
 
 void io_coolant_inputCaptureCallback(void);
 
 float io_coolant_getFlowRate(void);
 void  io_coolant_checkIfFlowMeterActive(void);
 
-bool  io_coolant_temperature_ocsc(float v);
-float io_coolant_getTemperature(void);
-
-bool  io_coolant_pressure_ocsc(float v);
-float io_coolant_getPressureA(void);
-float io_coolant_getPressureB(void);
-
-bool io_coolant_PressureAOCSC(void);
-bool io_coolant_pressureBOCSC(void);
+bool io_coolant_temperature_ocsc(float v);
 
 typedef struct
 {
-    Adc *src;
+    const AdcChannel *src;
 } Coolant;
 
 float io_coolant_getPressure(Coolant *coolant);
-float io_coolant_getTemperature(Coolant *coolant)
+float io_coolant_getTemperature(Coolant *coolant);
+bool  io_coolant_pressureOCSC(Coolant *coolant);
+bool  io_coolant_temperatureOCSC(Coolant *coolant);
 
 extern const Coolant a;
 extern const Coolant b;

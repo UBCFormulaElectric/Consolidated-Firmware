@@ -1,4 +1,4 @@
-#include "io_coolant.h"
+#include "io_coolants.h"
 
 #include <math.h>
 
@@ -18,7 +18,7 @@
 // from the schematic we see that the voltage value coming is passes through a voltage dividor before it is read at the
 // ADC PIN.
 #define PRESSURE_VOLTAGE_DIVIDOR (PRESSURE_BOT_RESISTOR / (PRESSURE_BOT_RESISTOR + PRESSURE_TOP_RESISTOR))
-#define PRESURE_VOLTAGE_MIN (0.5f * PRESSURE_VOLTAGE_DIVIDOR)
+#define PRESSURE_VOLTAGE_MIN (0.5f * PRESSURE_VOLTAGE_DIVIDOR)
 #define PRESSURE_VOLTAGE_MAX (4.5f * PRESSURE_VOLTAGE_DIVIDOR)
 #define PRESSURE_PSI_MAX (100.0f)
 // min pressure is 0 PSI
@@ -44,8 +44,8 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
-const Coolant a = { coolantpressure1_3v3 };
-const Coolant b = { coolantpressure2_3v3 };
+const Coolant a = { .src = &coolantpressure1_3v3 };
+const Coolant b = { .src = &coolantpressure2_3v3 };
 
 static PwmInputFreqOnly flow_meter;
 
@@ -54,35 +54,40 @@ void io_coolant_init(const PwmInputFreqOnlyConfig *config)
     hw_pwmInputFreqOnly_init(&flow_meter, config);
 }
 
-void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim)
+void io_coolant_inputCaptureCallback(void)
 {
-    if (htim == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
-        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
-    {
-        hw_pwmInputFreqOnly_tick(&flow_meter);
-    }
+    // if (htim3 == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
+    // htim3->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
+    // {
+    hw_pwmInputFreqOnly_tick(&flow_meter);
+    // }
 }
 
 float io_coolant_getFlowRate(void)
 {
-    const float freq_read = hw_pwmInputFreqOnly_getFrequency(coolant_config);
+    const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter);
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
 void io_coolant_checkIfFlowMeterActive(void)
 {
-    coolant_config.checkIfPwmIsActive();
+    hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter);
 }
 
-bool io_coolant_temperature_ocsc(float v)
+// bool io_coolant_temperature_ocsc(const float v)
+// {
+//     return v < TEMPERATURE_VOLTAGE_MIN || v > TEMPERATURE_VOLTAGE_MAX;
+// }
+
+bool io_coolant_temperatureOCSC(Coolant *coolant)
 {
-    return v < TEMPERATURE_VOLTAGE_MIN || v > TEMPERATURE_VOLTAGE_MAX;
+    const float voltage = hw_adc_getVoltage(coolant->src);
+    return voltage < TEMPERATURE_VOLTAGE_MIN || voltage > TEMPERATURE_VOLTAGE_MAX;
 }
 
 float io_coolant_getTemperature(Coolant *coolant)
 {
-    const float v_read = hw_adc_getVoltage(&coolant->src);
-    app_canTx_RSM_Warning_CoolantTempAOCSC_set(io_coolant_temperature_ocsc(v_read));
+    const float v_read = hw_adc_getVoltage(coolant->src);
 
     const float v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
     const float r_thermistor = RTHERM(v_out);
@@ -94,28 +99,14 @@ float io_coolant_getTemperature(Coolant *coolant)
     return coolant_temp_cel;
 }
 
-bool io_coolant_pressure_ocsc(float v)
+bool io_coolant_pressureOCSC(Coolant *coolant)
 {
-    return v < PRESSURE_VOLTAGE_MIN || v > PRESSURE_VOLTAGE_MAX;
+    const float voltage = hw_adc_getVoltage(coolant->src);
+    return voltage < PRESSURE_VOLTAGE_MIN || voltage > PRESSURE_VOLTAGE_MAX;
 }
 
 float io_coolant_getPressure(Coolant *coolant)
 {
-    const float water_pressure = hw_adc_getVoltage(&coolant->src);
-    app_canTx_RSM_Warning_CoolantPressureAOCSC_set(io_coolant_pressure_ocsc(water_pressure));
+    const float water_pressure = hw_adc_getVoltage(coolant->src);
     return CLAMP(water_pressure, 0.0f, PRESSURE_PSI_MAX);
-}
-
-bool io_coolant_PressureAOCSC(void)
-{
-    return (
-        PRESSURE_VOLTAGE_MIN > (hw_adc_getVoltage(ADC1_IN12_COOLANT_PRESSURE_1)) ||
-        PRESSURE_VOLTAGE_MAX < (hw_adc_getVoltage(ADC1_IN12_COOLANT_PRESSURE_1)));
-}
-
-bool io_coolant_PressureBOCSC(void)
-{
-    return (
-        PRESSURE_VOLTAGE_MIN > (hw_adc_getVoltage(ADC1_IN12_COOLANT_PRESSURE_2)) ||
-        PRESSURE_VOLTAGE_MAX < (hw_adc_getVoltage(ADC1_IN12_COOLANT_PRESSURE_2)));
 }

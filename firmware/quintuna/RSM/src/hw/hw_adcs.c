@@ -21,6 +21,7 @@ const AdcChannel susp_travel_rl_3v3   = { &adc_voltages[6] };
 const AdcChannel coolanttemp2_3v3     = { &adc_voltages[7] };
 const AdcChannel coolanttemp1_3v3     = { &adc_voltages[8] };
 const AdcChannel regen_3v3_lc3_out    = { &adc_voltages[9] };
+const AdcChannel bps_r_3v3            = { &adc_voltages[10] };
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
