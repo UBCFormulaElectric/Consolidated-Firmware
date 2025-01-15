@@ -27,18 +27,13 @@ void app_sbgEllipse_broadcast()
     float ekf_vel_E = 0;
     float ekf_vel_D = 0;
 
-    bool is_moving = (app_canRx_INVR_MotorSpeed_get() > 0) || (app_canRx_INVL_MotorSpeed_get() > 0);
-
     VelocityData velocity_calculated;
 
     velocity_calculated.north = 0;
     velocity_calculated.east  = 0;
     velocity_calculated.down  = 0;
-
-    if (is_moving)
-    {
-        velocity_calculated = app_sbgEllipse_calculateVelocity();
-    }
+    
+    velocity_calculated = app_sbgEllipse_calculateVelocity();
 
     // EKF
     ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
@@ -60,8 +55,11 @@ void app_sbgEllipse_broadcast()
     const float vehicle_velocity            = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
     const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
+    VcEkfStatus ekf_sol_mode            = io_sbgEllipse_getEkfSolutionMode();
+    app_canTx_VC_EkfSolutionMode_set(ekf_sol_mode);
+
     // determines when to use calculated or gps velocity, will be externed later
-    // bool use_calculated_velocity = io_sbgEllipse_getEkfSolutionMode() == POSITION;
+    // bool        use_calculated_velocity = ekf_sol_mode == POSITION;
 
     app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
     app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
@@ -82,7 +80,6 @@ void app_sbgEllipse_broadcast()
     // app_canTx_VC_AccelerationLateral_set(lateral_accel);
     // app_canTx_VC_AccelerationVertical_set(vertical_accel);
 
-    // Angular velocity msg
     // Angular velocity msg
     // const float ang_vel_roll  = io_sbgEllipse_getImuAngularVelocities()->roll;
     // const float ang_vel_pitch = io_sbgEllipse_getImuAngularVelocities()->pitch;
