@@ -32,7 +32,7 @@ void app_sbgEllipse_broadcast()
     velocity_calculated.north = 0;
     velocity_calculated.east  = 0;
     velocity_calculated.down  = 0;
-    
+
     velocity_calculated = app_sbgEllipse_calculateVelocity();
 
     // EKF
@@ -55,7 +55,7 @@ void app_sbgEllipse_broadcast()
     const float vehicle_velocity            = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
     const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
-    VcEkfStatus ekf_sol_mode            = io_sbgEllipse_getEkfSolutionMode();
+    VcEkfStatus ekf_sol_mode = io_sbgEllipse_getEkfSolutionMode();
     app_canTx_VC_EkfSolutionMode_set(ekf_sol_mode);
 
     // determines when to use calculated or gps velocity, will be externed later
