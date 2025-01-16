@@ -53,28 +53,3 @@ bool io_airs_isPrechargeClosed(void)
 {
     return hw_gpio_readPin(&precharge_gpio);
 }
-
-float io_airs_getLoopCurrent()
-{
-    const float adc_voltage = hw_adc_getVoltage(NULL); // TODO fix!!!
-
-    if (adc_voltage < 0.0f)
-    {
-        return NAN;
-    }
-
-    //   +-------<0.075>-------+
-    //   |                     |
-    //   |  +---------------+  |
-    //   +--| Current Sense |--+
-    //      |   Amplifier   |------
-    //      +---------------+
-    //
-    // Gain = 20V/V
-    //                   ADC Voltage
-    // Current = -----------------------------
-    //              Sense Resistance * Gain
-
-    // return the current corresponding to the ADC voltage
-    return adc_voltage * AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN;
-}
