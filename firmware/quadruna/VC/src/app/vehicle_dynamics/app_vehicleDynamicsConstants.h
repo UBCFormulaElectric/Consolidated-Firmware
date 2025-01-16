@@ -1,6 +1,5 @@
 #pragma once
 #include "app_pid.h"
-
 // Constants
 
 #define SMALL_EPSILON .000001f // to avoid divide by zero error
