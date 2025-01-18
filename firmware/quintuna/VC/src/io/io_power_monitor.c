@@ -3,7 +3,7 @@
 
 #define VOLTAGE_TRANSFER_FACTOR 4.8e-4f;
 
-const power_rail bat_bus {
+const power_rail bat_bus{
     .address = 0x07 // VBUS1
 };
 const power_rail boost_bus = {
@@ -21,7 +21,7 @@ bool io_power_monitor_init()
     return hw_i2c_isTargetReady(&pwr_mon);
 }
 
-float io_power_monitor_read_voltage(const power_rail* voltage_address)
+float io_power_monitor_read_voltage(const power_rail *voltage_address)
 {
     uint16_t buffer[1];
 
@@ -31,9 +31,9 @@ float io_power_monitor_read_voltage(const power_rail* voltage_address)
     buffer[0] = voltage_address->address;
     hw_i2c_transmit(&pwr_mon, buffer, 1); // change register pointer address
 
-    hw_i2c_receive(&pwr_mon, buffer, 1);  // get raw register data and store it in buffer
+    hw_i2c_receive(&pwr_mon, buffer, 1); // get raw register data and store it in buffer
 
-    const float voltage_buffer = (float) buffer[0] * VOLTAGE_TRANSFER_FACTOR;
+    const float voltage_buffer = (float)buffer[0] * VOLTAGE_TRANSFER_FACTOR;
 
     return voltage_buffer;
 }

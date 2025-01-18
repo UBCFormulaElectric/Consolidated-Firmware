@@ -14,4 +14,4 @@ extern const power_rail ext;
 
 bool io_power_monitor_init();
 
-float io_power_monitor_read_voltage(const power_rail* voltage_address);
+float io_power_monitor_read_voltage(const power_rail *voltage_address);
