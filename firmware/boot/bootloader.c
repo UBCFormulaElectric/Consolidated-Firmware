@@ -220,8 +220,11 @@ void bootloader_init(void)
     // other MCUs.
     bootloader_boardSpecific_init();
 
-    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
+    bool is_software_reset = (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != 0);
+    bool is_boot_flag_set  = boot_flag != 1;
+    bool jump_to_app       = !is_software_reset || is_boot_flag_set;
+
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && jump_to_app)
     {
         // Deinit peripherals.
 #ifndef BOOT_AUTO
@@ -229,6 +232,10 @@ void bootloader_init(void)
 #endif
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
+
+        // clear rcc register flag and RAM boot flag
+        __HAL_RCC_CLEAR_RESET_FLAGS();
+        boot_flag = 0x0;
 
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);

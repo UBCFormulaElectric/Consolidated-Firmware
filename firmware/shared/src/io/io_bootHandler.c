@@ -11,6 +11,8 @@
 #include "hw_flash.h"
 #include "io_log.h"
 
+__attribute__((section(".boot_flag"))) uint8_t boot_flag;
+
 #define BOOT_CAN_START 1012
 
 extern uint32_t __boot_code_start__;
@@ -24,8 +26,6 @@ extern UART_HandleTypeDef  huart2;
 extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 extern SD_HandleTypeDef    hsd1;
-
-__attribute__((section(".boot_flag"))) uint8_t boot_flag;
 
 void io_bootHandler_processBootRequest(CanMsg *msg, void (*deinit_func)(void))
 {
