@@ -117,7 +117,6 @@ void tasks_deinit(void)
     HAL_CRC_DeInit(&hcrc);
 }
 
-
 _Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();

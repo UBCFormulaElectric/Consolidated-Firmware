@@ -344,7 +344,6 @@ void tasks_deinit(void)
     HAL_ADC_DeInit(&hadc1);
 }
 
-
 _Noreturn void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
