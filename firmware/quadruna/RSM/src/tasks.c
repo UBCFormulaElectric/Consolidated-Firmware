@@ -127,11 +127,10 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can);
-    io_canQueue_init();
-    io_chimera_init(GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
+    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
+    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag, &n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();
@@ -181,7 +180,7 @@ _Noreturn void tasks_run1Hz(void)
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the

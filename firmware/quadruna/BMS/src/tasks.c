@@ -75,6 +75,10 @@ void tasks_init(void)
     hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
+    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
+    io_bmsShdn_init(&bms_shdn_pin_config);
     io_tractiveSystem_init(&ts_config);
     io_ltc6813Shared_init(&ltc6813_spi);
     io_imd_init(&imd_pwm_input_config);
@@ -130,7 +134,7 @@ _Noreturn void tasks_run1Hz(void)
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
