@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=args.can_data_dir).make_database()
     # Generate DBC file
-    # write_text(DbcGenerator(database=can_db).source(), args.dbc_output)
+    write_text(DbcGenerator(database=can_db).source(), args.dbc_output)
     if args.only_dbc:
         exit()
 
