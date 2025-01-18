@@ -23,22 +23,15 @@ void app_sbgEllipse_broadcast()
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    float ekf_vel_N = 0;
-    float ekf_vel_E = 0;
-    float ekf_vel_D = 0;
-
     VelocityData velocity_calculated;
 
-    velocity_calculated.north = 0;
-    velocity_calculated.east  = 0;
-    velocity_calculated.down  = 0;
-
-    velocity_calculated = app_sbgEllipse_calculateVelocity();
+    // calculating velocity data based on wheel speed
+    app_sbgEllipse_calculateVelocity(&velocity_calculated);
 
     // EKF
-    ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
-    ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
-    ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+    float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
+    float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
+    float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
 
     const float ekf_vel_N_accuracy = io_sbgEllipse_getEkfNavVelocityData()->north_std_dev;
     const float ekf_vel_E_accuracy = io_sbgEllipse_getEkfNavVelocityData()->east_std_dev;
@@ -55,8 +48,12 @@ void app_sbgEllipse_broadcast()
     const float vehicle_velocity            = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
     const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
-    VcEkfStatus ekf_sol_mode = io_sbgEllipse_getEkfSolutionMode();
-    app_canTx_VC_EkfSolutionMode_set(ekf_sol_mode);
+    uint32_t ekf_sol_mode = io_sbgEllipse_getEkfSolutionMode();
+
+    if (ekf_sol_mode < NUM_VC_EKF_STATUS_CHOICES)
+    {
+        app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)ekf_sol_mode);
+    }
 
     // determines when to use calculated or gps velocity, will be externed later
     // bool        use_calculated_velocity = ekf_sol_mode == POSITION;
@@ -99,7 +96,7 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
 }
 
-VelocityData app_sbgEllipse_calculateVelocity(void)
+void app_sbgEllipse_calculateVelocity(VelocityData *velocity)
 {
     // These velocity calculations are not going to be super accurate because it
     // currently does not compute a proper relative y-axis velocity because no yaw rate
@@ -112,15 +109,11 @@ VelocityData app_sbgEllipse_calculateVelocity(void)
 
     float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
 
-    VelocityData velocity;
-
     // This is technically velocity in the x-axis as it is relative
-    velocity.north = velocityX;
+    velocity->north = velocityX;
 
     // This is technically velocity in the y-axis as it is relative
-    velocity.east = 0;
+    velocity->east = 0;
 
-    velocity.down = 0;
-
-    return velocity;
+    velocity->down = 0;
 }

@@ -697,7 +697,7 @@
             }
         }
     },
-    "ImuLinearAcceleration": {
+    "ImuData": {
         "msg_id": 225,
         "cycle_time": 100,
         "description": "Linear Acceleration and Angular Velocity in x, y and z direction from the IMU",

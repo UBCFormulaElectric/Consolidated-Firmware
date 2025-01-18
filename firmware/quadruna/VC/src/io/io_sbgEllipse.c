@@ -10,6 +10,8 @@
 #include "sbgECom.h"
 #include "interfaces/sbgInterfaceSerial.h"
 #include "app_canTx.h"
+#include "app_canUtils.h"
+
 #include "io_time.h"
 #include "io_log.h"
 
@@ -212,22 +214,8 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
 {
     // TODO: uncomment after initial testing, if this occurs skip reading data
 
-    // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
-    // SBG_ECOM_SOL_MODE_NAV_POSITION);
-
-    // uint32_t status = log_data->ekfNavData.status;
-
-    // if (sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) != SBG_ECOM_SOL_MODE_NAV_POSITION)
-    // {
-    // uint32_t status = log_data->ekfNavData.status;
-
-    // bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
-    // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
-
-    // if (is_velocity_invalid) {
-    //     return;
-    // }
-    // }
+    // obtaining ekf solution mode from sbg ellipse and setting it in status field
+    sensor_data.ekf_solution_status = sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status);
 
     // velocity data in m/s
     sensor_data.ekf_nav_data.velocity.north = log_data->ekfNavData.velocity[0];
