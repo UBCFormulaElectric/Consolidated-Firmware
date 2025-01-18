@@ -51,7 +51,7 @@ typedef struct
 
 /* -------------------------- Private Variables --------------------------- */
 
-static _TxMsgs tx_table;
+static VC_TxMsgs tx_table;
 
 /* ------------------------- Function Definitions ------------------------- */
 

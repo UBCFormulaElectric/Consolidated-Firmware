@@ -1272,6 +1272,505 @@ void app_canUtils_VC_FaultsCounts_pack(const VC_FaultsCounts_Signals* const in_m
 
 
 
+// unpack function for BMS_Warnings
+void app_canUtils_BMS_Warnings_unpack(const uint8_t* const in_data, BMS_Warnings_Signals* const out_msg)
+{
+    // Unpack message BMS_Warnings.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_ONMLKJI|HGFEDCBA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTask1Hz_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask1Hz
+    BMS_Warning_StackWaterMarkHighTask1Hz_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask1Hz_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask1Hz_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTask100Hz_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask100Hz
+    BMS_Warning_StackWaterMarkHighTask100Hz_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask100Hz_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask100Hz_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTask1kHz_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask1kHz
+    BMS_Warning_StackWaterMarkHighTask1kHz_raw |= unpackShiftLeft(in_data[0], 2, 0x4); // Unpacks bits _____#__ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask1kHz_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask1kHz_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTaskCanRx_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTaskCanRx
+    BMS_Warning_StackWaterMarkHighTaskCanRx_raw |= unpackShiftLeft(in_data[0], 3, 0x8); // Unpacks bits ____#___ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTaskCanRx_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTaskCanRx_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTaskCanTx_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTaskCanTx
+    BMS_Warning_StackWaterMarkHighTaskCanTx_raw |= unpackShiftLeft(in_data[0], 4, 0x10); // Unpacks bits ___#____ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTaskCanTx_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTaskCanTx_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_WatchdogTimeout_raw = 0; // Temporary raw variable for BMS_Warning_WatchdogTimeout
+    BMS_Warning_WatchdogTimeout_raw |= unpackShiftLeft(in_data[0], 5, 0x20); // Unpacks bits __#_____ from byte 0
+    out_msg->BMS_Warning_WatchdogTimeout_value = CAN_DECODE(BMS_Warning_WatchdogTimeout_raw, CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_SCALE, CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_TxOverflow_raw = 0; // Temporary raw variable for BMS_Warning_TxOverflow
+    BMS_Warning_TxOverflow_raw |= unpackShiftLeft(in_data[0], 6, 0x40); // Unpacks bits _#______ from byte 0
+    out_msg->BMS_Warning_TxOverflow_value = CAN_DECODE(BMS_Warning_TxOverflow_raw, CANSIG_BMS_WARNING_TX_OVERFLOW_SCALE, CANSIG_BMS_WARNING_TX_OVERFLOW_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_RxOverflow_raw = 0; // Temporary raw variable for BMS_Warning_RxOverflow
+    BMS_Warning_RxOverflow_raw |= unpackShiftLeft(in_data[0], 7, 0x80); // Unpacks bits #_______ from byte 0
+    out_msg->BMS_Warning_RxOverflow_value = CAN_DECODE(BMS_Warning_RxOverflow_raw, CANSIG_BMS_WARNING_RX_OVERFLOW_SCALE, CANSIG_BMS_WARNING_RX_OVERFLOW_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheckFault_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheckFault
+    BMS_Warning_OpenWireCheckFault_raw |= unpackShiftRight(in_data[1], 0, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->BMS_Warning_OpenWireCheckFault_value = CAN_DECODE(BMS_Warning_OpenWireCheckFault_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment0_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment0_GND
+    BMS_Warning_OpenWireCheck_Segment0_GND_raw |= unpackShiftLeft(in_data[1], 1, 0x2); // Unpacks bits ______#_ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment0_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment0_GND_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment1_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment1_GND
+    BMS_Warning_OpenWireCheck_Segment1_GND_raw |= unpackShiftLeft(in_data[1], 2, 0x4); // Unpacks bits _____#__ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment1_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment1_GND_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment2_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment2_GND
+    BMS_Warning_OpenWireCheck_Segment2_GND_raw |= unpackShiftLeft(in_data[1], 3, 0x8); // Unpacks bits ____#___ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment2_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment2_GND_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment3_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment3_GND
+    BMS_Warning_OpenWireCheck_Segment3_GND_raw |= unpackShiftLeft(in_data[1], 4, 0x10); // Unpacks bits ___#____ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment3_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment3_GND_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment4_GND_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment4_GND
+    BMS_Warning_OpenWireCheck_Segment4_GND_raw |= unpackShiftLeft(in_data[1], 5, 0x20); // Unpacks bits __#_____ from byte 1
+    out_msg->BMS_Warning_OpenWireCheck_Segment4_GND_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment4_GND_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_MissingVCHeartbeat_raw = 0; // Temporary raw variable for BMS_Warning_MissingVCHeartbeat
+    BMS_Warning_MissingVCHeartbeat_raw |= unpackShiftLeft(in_data[1], 6, 0x40); // Unpacks bits _#______ from byte 1
+    out_msg->BMS_Warning_MissingVCHeartbeat_value = CAN_DECODE(BMS_Warning_MissingVCHeartbeat_raw, CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_SCALE, CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for BMS_Faults
+void app_canUtils_BMS_Faults_unpack(const uint8_t* const in_data, BMS_Faults_Signals* const out_msg)
+{
+    // Unpack message BMS_Faults.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_____KJI|HGFEDCBA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t BMS_Fault_StateMachine_raw = 0; // Temporary raw variable for BMS_Fault_StateMachine
+    BMS_Fault_StateMachine_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->BMS_Fault_StateMachine_value = CAN_DECODE(BMS_Fault_StateMachine_raw, CANSIG_BMS_FAULT_STATE_MACHINE_SCALE, CANSIG_BMS_FAULT_STATE_MACHINE_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellUndervoltage_raw = 0; // Temporary raw variable for BMS_Fault_CellUndervoltage
+    BMS_Fault_CellUndervoltage_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->BMS_Fault_CellUndervoltage_value = CAN_DECODE(BMS_Fault_CellUndervoltage_raw, CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_SCALE, CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellOvervoltage_raw = 0; // Temporary raw variable for BMS_Fault_CellOvervoltage
+    BMS_Fault_CellOvervoltage_raw |= unpackShiftLeft(in_data[0], 2, 0x4); // Unpacks bits _____#__ from byte 0
+    out_msg->BMS_Fault_CellOvervoltage_value = CAN_DECODE(BMS_Fault_CellOvervoltage_raw, CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_SCALE, CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ModuleCommunicationError_raw = 0; // Temporary raw variable for BMS_Fault_ModuleCommunicationError
+    BMS_Fault_ModuleCommunicationError_raw |= unpackShiftLeft(in_data[0], 3, 0x8); // Unpacks bits ____#___ from byte 0
+    out_msg->BMS_Fault_ModuleCommunicationError_value = CAN_DECODE(BMS_Fault_ModuleCommunicationError_raw, CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_SCALE, CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellUndertemp_raw = 0; // Temporary raw variable for BMS_Fault_CellUndertemp
+    BMS_Fault_CellUndertemp_raw |= unpackShiftLeft(in_data[0], 4, 0x10); // Unpacks bits ___#____ from byte 0
+    out_msg->BMS_Fault_CellUndertemp_value = CAN_DECODE(BMS_Fault_CellUndertemp_raw, CANSIG_BMS_FAULT_CELL_UNDERTEMP_SCALE, CANSIG_BMS_FAULT_CELL_UNDERTEMP_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellOvertemp_raw = 0; // Temporary raw variable for BMS_Fault_CellOvertemp
+    BMS_Fault_CellOvertemp_raw |= unpackShiftLeft(in_data[0], 5, 0x20); // Unpacks bits __#_____ from byte 0
+    out_msg->BMS_Fault_CellOvertemp_value = CAN_DECODE(BMS_Fault_CellOvertemp_raw, CANSIG_BMS_FAULT_CELL_OVERTEMP_SCALE, CANSIG_BMS_FAULT_CELL_OVERTEMP_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ChargerReportedError_raw = 0; // Temporary raw variable for BMS_Fault_ChargerReportedError
+    BMS_Fault_ChargerReportedError_raw |= unpackShiftLeft(in_data[0], 6, 0x40); // Unpacks bits _#______ from byte 0
+    out_msg->BMS_Fault_ChargerReportedError_value = CAN_DECODE(BMS_Fault_ChargerReportedError_raw, CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_SCALE, CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ChargerDisconnectedDuringCharge_raw = 0; // Temporary raw variable for BMS_Fault_ChargerDisconnectedDuringCharge
+    BMS_Fault_ChargerDisconnectedDuringCharge_raw |= unpackShiftLeft(in_data[0], 7, 0x80); // Unpacks bits #_______ from byte 0
+    out_msg->BMS_Fault_ChargerDisconnectedDuringCharge_value = CAN_DECODE(BMS_Fault_ChargerDisconnectedDuringCharge_raw, CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_SCALE, CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ChargerShutdownLoopOpen_raw = 0; // Temporary raw variable for BMS_Fault_ChargerShutdownLoopOpen
+    BMS_Fault_ChargerShutdownLoopOpen_raw |= unpackShiftRight(in_data[1], 0, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->BMS_Fault_ChargerShutdownLoopOpen_value = CAN_DECODE(BMS_Fault_ChargerShutdownLoopOpen_raw, CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_SCALE, CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_TractiveSystemOvercurrent_raw = 0; // Temporary raw variable for BMS_Fault_TractiveSystemOvercurrent
+    BMS_Fault_TractiveSystemOvercurrent_raw |= unpackShiftLeft(in_data[1], 1, 0x2); // Unpacks bits ______#_ from byte 1
+    out_msg->BMS_Fault_TractiveSystemOvercurrent_value = CAN_DECODE(BMS_Fault_TractiveSystemOvercurrent_raw, CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_SCALE, CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_PrechargeFailure_raw = 0; // Temporary raw variable for BMS_Fault_PrechargeFailure
+    BMS_Fault_PrechargeFailure_raw |= unpackShiftLeft(in_data[1], 2, 0x4); // Unpacks bits _____#__ from byte 1
+    out_msg->BMS_Fault_PrechargeFailure_value = CAN_DECODE(BMS_Fault_PrechargeFailure_raw, CANSIG_BMS_FAULT_PRECHARGE_FAILURE_SCALE, CANSIG_BMS_FAULT_PRECHARGE_FAILURE_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for BMS_WarningsCounts
+void app_canUtils_BMS_WarningsCounts_unpack(const uint8_t* const in_data, BMS_WarningsCounts_Signals* const out_msg)
+{
+    // Unpack message BMS_WarningsCounts.
+    // |xxxxxxxx|xxxxxxxx|___OOONN|NMMMLLLK|KKJJJIII|HHHGGGFF|FEEEDDDC|CCBBBAAA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTask1HzCount_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask1HzCount
+    BMS_Warning_StackWaterMarkHighTask1HzCount_raw |= unpackShiftRight(in_data[0], 0, 0x7); // Unpacks bits _____### from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask1HzCount_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask1HzCount_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTask100HzCount_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask100HzCount
+    BMS_Warning_StackWaterMarkHighTask100HzCount_raw |= unpackShiftLeft(in_data[0], 3, 0x38); // Unpacks bits __###___ from byte 0
+    out_msg->BMS_Warning_StackWaterMarkHighTask100HzCount_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask100HzCount_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTask1kHzCount_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTask1kHzCount
+    BMS_Warning_StackWaterMarkHighTask1kHzCount_raw |= unpackShiftLeft(in_data[0], 6, 0xC0); // Unpacks bits ##______ from byte 0
+    BMS_Warning_StackWaterMarkHighTask1kHzCount_raw |= unpackShiftRight(in_data[1], 2, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->BMS_Warning_StackWaterMarkHighTask1kHzCount_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTask1kHzCount_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTaskCanRxCount_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTaskCanRxCount
+    BMS_Warning_StackWaterMarkHighTaskCanRxCount_raw |= unpackShiftLeft(in_data[1], 1, 0xE); // Unpacks bits ____###_ from byte 1
+    out_msg->BMS_Warning_StackWaterMarkHighTaskCanRxCount_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTaskCanRxCount_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_StackWaterMarkHighTaskCanTxCount_raw = 0; // Temporary raw variable for BMS_Warning_StackWaterMarkHighTaskCanTxCount
+    BMS_Warning_StackWaterMarkHighTaskCanTxCount_raw |= unpackShiftLeft(in_data[1], 4, 0x70); // Unpacks bits _###____ from byte 1
+    out_msg->BMS_Warning_StackWaterMarkHighTaskCanTxCount_value = CAN_DECODE(BMS_Warning_StackWaterMarkHighTaskCanTxCount_raw, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_SCALE, CANSIG_BMS_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_WatchdogTimeoutCount_raw = 0; // Temporary raw variable for BMS_Warning_WatchdogTimeoutCount
+    BMS_Warning_WatchdogTimeoutCount_raw |= unpackShiftLeft(in_data[1], 7, 0x80); // Unpacks bits #_______ from byte 1
+    BMS_Warning_WatchdogTimeoutCount_raw |= unpackShiftRight(in_data[2], 1, 0x3); // Unpacks bits ______## from byte 2
+    out_msg->BMS_Warning_WatchdogTimeoutCount_value = CAN_DECODE(BMS_Warning_WatchdogTimeoutCount_raw, CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_COUNT_SCALE, CANSIG_BMS_WARNING_WATCHDOG_TIMEOUT_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_TxOverflowCount_raw = 0; // Temporary raw variable for BMS_Warning_TxOverflowCount
+    BMS_Warning_TxOverflowCount_raw |= unpackShiftLeft(in_data[2], 2, 0x1C); // Unpacks bits ___###__ from byte 2
+    out_msg->BMS_Warning_TxOverflowCount_value = CAN_DECODE(BMS_Warning_TxOverflowCount_raw, CANSIG_BMS_WARNING_TX_OVERFLOW_COUNT_SCALE, CANSIG_BMS_WARNING_TX_OVERFLOW_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_RxOverflowCount_raw = 0; // Temporary raw variable for BMS_Warning_RxOverflowCount
+    BMS_Warning_RxOverflowCount_raw |= unpackShiftLeft(in_data[2], 5, 0xE0); // Unpacks bits ###_____ from byte 2
+    out_msg->BMS_Warning_RxOverflowCount_value = CAN_DECODE(BMS_Warning_RxOverflowCount_raw, CANSIG_BMS_WARNING_RX_OVERFLOW_COUNT_SCALE, CANSIG_BMS_WARNING_RX_OVERFLOW_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheckFaultCount_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheckFaultCount
+    BMS_Warning_OpenWireCheckFaultCount_raw |= unpackShiftRight(in_data[3], 0, 0x7); // Unpacks bits _____### from byte 3
+    out_msg->BMS_Warning_OpenWireCheckFaultCount_value = CAN_DECODE(BMS_Warning_OpenWireCheckFaultCount_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_COUNT_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_FAULT_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment0_GNDCount_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment0_GNDCount
+    BMS_Warning_OpenWireCheck_Segment0_GNDCount_raw |= unpackShiftLeft(in_data[3], 3, 0x38); // Unpacks bits __###___ from byte 3
+    out_msg->BMS_Warning_OpenWireCheck_Segment0_GNDCount_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment0_GNDCount_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_COUNT_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT0_GND_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment1_GNDCount_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment1_GNDCount
+    BMS_Warning_OpenWireCheck_Segment1_GNDCount_raw |= unpackShiftLeft(in_data[3], 6, 0xC0); // Unpacks bits ##______ from byte 3
+    BMS_Warning_OpenWireCheck_Segment1_GNDCount_raw |= unpackShiftRight(in_data[4], 2, 0x1); // Unpacks bits _______# from byte 4
+    out_msg->BMS_Warning_OpenWireCheck_Segment1_GNDCount_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment1_GNDCount_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_COUNT_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT1_GND_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment2_GNDCount_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment2_GNDCount
+    BMS_Warning_OpenWireCheck_Segment2_GNDCount_raw |= unpackShiftLeft(in_data[4], 1, 0xE); // Unpacks bits ____###_ from byte 4
+    out_msg->BMS_Warning_OpenWireCheck_Segment2_GNDCount_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment2_GNDCount_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_COUNT_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT2_GND_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment3_GNDCount_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment3_GNDCount
+    BMS_Warning_OpenWireCheck_Segment3_GNDCount_raw |= unpackShiftLeft(in_data[4], 4, 0x70); // Unpacks bits _###____ from byte 4
+    out_msg->BMS_Warning_OpenWireCheck_Segment3_GNDCount_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment3_GNDCount_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_COUNT_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT3_GND_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_OpenWireCheck_Segment4_GNDCount_raw = 0; // Temporary raw variable for BMS_Warning_OpenWireCheck_Segment4_GNDCount
+    BMS_Warning_OpenWireCheck_Segment4_GNDCount_raw |= unpackShiftLeft(in_data[4], 7, 0x80); // Unpacks bits #_______ from byte 4
+    BMS_Warning_OpenWireCheck_Segment4_GNDCount_raw |= unpackShiftRight(in_data[5], 1, 0x3); // Unpacks bits ______## from byte 5
+    out_msg->BMS_Warning_OpenWireCheck_Segment4_GNDCount_value = CAN_DECODE(BMS_Warning_OpenWireCheck_Segment4_GNDCount_raw, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_COUNT_SCALE, CANSIG_BMS_WARNING_OPEN_WIRE_CHECK_SEGMENT4_GND_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Warning_MissingVCHeartbeatCount_raw = 0; // Temporary raw variable for BMS_Warning_MissingVCHeartbeatCount
+    BMS_Warning_MissingVCHeartbeatCount_raw |= unpackShiftLeft(in_data[5], 2, 0x1C); // Unpacks bits ___###__ from byte 5
+    out_msg->BMS_Warning_MissingVCHeartbeatCount_value = CAN_DECODE(BMS_Warning_MissingVCHeartbeatCount_raw, CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_COUNT_SCALE, CANSIG_BMS_WARNING_MISSING_VC_HEARTBEAT_COUNT_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for BMS_FaultsCounts
+void app_canUtils_BMS_FaultsCounts_unpack(const uint8_t* const in_data, BMS_FaultsCounts_Signals* const out_msg)
+{
+    // Unpack message BMS_FaultsCounts.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|_______K|KKJJJIII|HHHGGGFF|FEEEDDDC|CCBBBAAA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t BMS_Fault_StateMachineCount_raw = 0; // Temporary raw variable for BMS_Fault_StateMachineCount
+    BMS_Fault_StateMachineCount_raw |= unpackShiftRight(in_data[0], 0, 0x7); // Unpacks bits _____### from byte 0
+    out_msg->BMS_Fault_StateMachineCount_value = CAN_DECODE(BMS_Fault_StateMachineCount_raw, CANSIG_BMS_FAULT_STATE_MACHINE_COUNT_SCALE, CANSIG_BMS_FAULT_STATE_MACHINE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellUndervoltageCount_raw = 0; // Temporary raw variable for BMS_Fault_CellUndervoltageCount
+    BMS_Fault_CellUndervoltageCount_raw |= unpackShiftLeft(in_data[0], 3, 0x38); // Unpacks bits __###___ from byte 0
+    out_msg->BMS_Fault_CellUndervoltageCount_value = CAN_DECODE(BMS_Fault_CellUndervoltageCount_raw, CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_COUNT_SCALE, CANSIG_BMS_FAULT_CELL_UNDERVOLTAGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellOvervoltageCount_raw = 0; // Temporary raw variable for BMS_Fault_CellOvervoltageCount
+    BMS_Fault_CellOvervoltageCount_raw |= unpackShiftLeft(in_data[0], 6, 0xC0); // Unpacks bits ##______ from byte 0
+    BMS_Fault_CellOvervoltageCount_raw |= unpackShiftRight(in_data[1], 2, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->BMS_Fault_CellOvervoltageCount_value = CAN_DECODE(BMS_Fault_CellOvervoltageCount_raw, CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_COUNT_SCALE, CANSIG_BMS_FAULT_CELL_OVERVOLTAGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ModuleCommunicationErrorCount_raw = 0; // Temporary raw variable for BMS_Fault_ModuleCommunicationErrorCount
+    BMS_Fault_ModuleCommunicationErrorCount_raw |= unpackShiftLeft(in_data[1], 1, 0xE); // Unpacks bits ____###_ from byte 1
+    out_msg->BMS_Fault_ModuleCommunicationErrorCount_value = CAN_DECODE(BMS_Fault_ModuleCommunicationErrorCount_raw, CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_COUNT_SCALE, CANSIG_BMS_FAULT_MODULE_COMMUNICATION_ERROR_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellUndertempCount_raw = 0; // Temporary raw variable for BMS_Fault_CellUndertempCount
+    BMS_Fault_CellUndertempCount_raw |= unpackShiftLeft(in_data[1], 4, 0x70); // Unpacks bits _###____ from byte 1
+    out_msg->BMS_Fault_CellUndertempCount_value = CAN_DECODE(BMS_Fault_CellUndertempCount_raw, CANSIG_BMS_FAULT_CELL_UNDERTEMP_COUNT_SCALE, CANSIG_BMS_FAULT_CELL_UNDERTEMP_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_CellOvertempCount_raw = 0; // Temporary raw variable for BMS_Fault_CellOvertempCount
+    BMS_Fault_CellOvertempCount_raw |= unpackShiftLeft(in_data[1], 7, 0x80); // Unpacks bits #_______ from byte 1
+    BMS_Fault_CellOvertempCount_raw |= unpackShiftRight(in_data[2], 1, 0x3); // Unpacks bits ______## from byte 2
+    out_msg->BMS_Fault_CellOvertempCount_value = CAN_DECODE(BMS_Fault_CellOvertempCount_raw, CANSIG_BMS_FAULT_CELL_OVERTEMP_COUNT_SCALE, CANSIG_BMS_FAULT_CELL_OVERTEMP_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ChargerReportedErrorCount_raw = 0; // Temporary raw variable for BMS_Fault_ChargerReportedErrorCount
+    BMS_Fault_ChargerReportedErrorCount_raw |= unpackShiftLeft(in_data[2], 2, 0x1C); // Unpacks bits ___###__ from byte 2
+    out_msg->BMS_Fault_ChargerReportedErrorCount_value = CAN_DECODE(BMS_Fault_ChargerReportedErrorCount_raw, CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_COUNT_SCALE, CANSIG_BMS_FAULT_CHARGER_REPORTED_ERROR_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ChargerDisconnectedDuringChargeCount_raw = 0; // Temporary raw variable for BMS_Fault_ChargerDisconnectedDuringChargeCount
+    BMS_Fault_ChargerDisconnectedDuringChargeCount_raw |= unpackShiftLeft(in_data[2], 5, 0xE0); // Unpacks bits ###_____ from byte 2
+    out_msg->BMS_Fault_ChargerDisconnectedDuringChargeCount_value = CAN_DECODE(BMS_Fault_ChargerDisconnectedDuringChargeCount_raw, CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_COUNT_SCALE, CANSIG_BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_ChargerShutdownLoopOpenCount_raw = 0; // Temporary raw variable for BMS_Fault_ChargerShutdownLoopOpenCount
+    BMS_Fault_ChargerShutdownLoopOpenCount_raw |= unpackShiftRight(in_data[3], 0, 0x7); // Unpacks bits _____### from byte 3
+    out_msg->BMS_Fault_ChargerShutdownLoopOpenCount_value = CAN_DECODE(BMS_Fault_ChargerShutdownLoopOpenCount_raw, CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_COUNT_SCALE, CANSIG_BMS_FAULT_CHARGER_SHUTDOWN_LOOP_OPEN_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_TractiveSystemOvercurrentCount_raw = 0; // Temporary raw variable for BMS_Fault_TractiveSystemOvercurrentCount
+    BMS_Fault_TractiveSystemOvercurrentCount_raw |= unpackShiftLeft(in_data[3], 3, 0x38); // Unpacks bits __###___ from byte 3
+    out_msg->BMS_Fault_TractiveSystemOvercurrentCount_value = CAN_DECODE(BMS_Fault_TractiveSystemOvercurrentCount_raw, CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_COUNT_SCALE, CANSIG_BMS_FAULT_TRACTIVE_SYSTEM_OVERCURRENT_COUNT_OFFSET, uint32_t);
+    
+    uint32_t BMS_Fault_PrechargeFailureCount_raw = 0; // Temporary raw variable for BMS_Fault_PrechargeFailureCount
+    BMS_Fault_PrechargeFailureCount_raw |= unpackShiftLeft(in_data[3], 6, 0xC0); // Unpacks bits ##______ from byte 3
+    BMS_Fault_PrechargeFailureCount_raw |= unpackShiftRight(in_data[4], 2, 0x1); // Unpacks bits _______# from byte 4
+    out_msg->BMS_Fault_PrechargeFailureCount_value = CAN_DECODE(BMS_Fault_PrechargeFailureCount_raw, CANSIG_BMS_FAULT_PRECHARGE_FAILURE_COUNT_SCALE, CANSIG_BMS_FAULT_PRECHARGE_FAILURE_COUNT_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for FSM_Warnings
+void app_canUtils_FSM_Warnings_unpack(const uint8_t* const in_data, FSM_Warnings_Signals* const out_msg)
+{
+    // Unpack message FSM_Warnings.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|______RQ|PONMLKJI|HGFEDCBA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t FSM_Warning_WatchdogTimeout_raw = 0; // Temporary raw variable for FSM_Warning_WatchdogTimeout
+    FSM_Warning_WatchdogTimeout_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->FSM_Warning_WatchdogTimeout_value = CAN_DECODE(FSM_Warning_WatchdogTimeout_raw, CANSIG_FSM_WARNING_WATCHDOG_TIMEOUT_SCALE, CANSIG_FSM_WARNING_WATCHDOG_TIMEOUT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_TxOverflow_raw = 0; // Temporary raw variable for FSM_Warning_TxOverflow
+    FSM_Warning_TxOverflow_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->FSM_Warning_TxOverflow_value = CAN_DECODE(FSM_Warning_TxOverflow_raw, CANSIG_FSM_WARNING_TX_OVERFLOW_SCALE, CANSIG_FSM_WARNING_TX_OVERFLOW_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RxOverflow_raw = 0; // Temporary raw variable for FSM_Warning_RxOverflow
+    FSM_Warning_RxOverflow_raw |= unpackShiftLeft(in_data[0], 2, 0x4); // Unpacks bits _____#__ from byte 0
+    out_msg->FSM_Warning_RxOverflow_value = CAN_DECODE(FSM_Warning_RxOverflow_raw, CANSIG_FSM_WARNING_RX_OVERFLOW_SCALE, CANSIG_FSM_WARNING_RX_OVERFLOW_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTask1Hz_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTask1Hz
+    FSM_Warning_StackWaterMarkHighTask1Hz_raw |= unpackShiftLeft(in_data[0], 3, 0x8); // Unpacks bits ____#___ from byte 0
+    out_msg->FSM_Warning_StackWaterMarkHighTask1Hz_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTask1Hz_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTask100Hz_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTask100Hz
+    FSM_Warning_StackWaterMarkHighTask100Hz_raw |= unpackShiftLeft(in_data[0], 4, 0x10); // Unpacks bits ___#____ from byte 0
+    out_msg->FSM_Warning_StackWaterMarkHighTask100Hz_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTask100Hz_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTask1kHz_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTask1kHz
+    FSM_Warning_StackWaterMarkHighTask1kHz_raw |= unpackShiftLeft(in_data[0], 5, 0x20); // Unpacks bits __#_____ from byte 0
+    out_msg->FSM_Warning_StackWaterMarkHighTask1kHz_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTask1kHz_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTaskCanRx_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTaskCanRx
+    FSM_Warning_StackWaterMarkHighTaskCanRx_raw |= unpackShiftLeft(in_data[0], 6, 0x40); // Unpacks bits _#______ from byte 0
+    out_msg->FSM_Warning_StackWaterMarkHighTaskCanRx_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTaskCanRx_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTaskCanTx_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTaskCanTx
+    FSM_Warning_StackWaterMarkHighTaskCanTx_raw |= unpackShiftLeft(in_data[0], 7, 0x80); // Unpacks bits #_______ from byte 0
+    out_msg->FSM_Warning_StackWaterMarkHighTaskCanTx_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTaskCanTx_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_SteeringAngleOCSC_raw = 0; // Temporary raw variable for FSM_Warning_SteeringAngleOCSC
+    FSM_Warning_SteeringAngleOCSC_raw |= unpackShiftRight(in_data[1], 0, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->FSM_Warning_SteeringAngleOCSC_value = CAN_DECODE(FSM_Warning_SteeringAngleOCSC_raw, CANSIG_FSM_WARNING_STEERING_ANGLE_OCSC_SCALE, CANSIG_FSM_WARNING_STEERING_ANGLE_OCSC_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_SteeringAngleOutOfRange_raw = 0; // Temporary raw variable for FSM_Warning_SteeringAngleOutOfRange
+    FSM_Warning_SteeringAngleOutOfRange_raw |= unpackShiftLeft(in_data[1], 1, 0x2); // Unpacks bits ______#_ from byte 1
+    out_msg->FSM_Warning_SteeringAngleOutOfRange_value = CAN_DECODE(FSM_Warning_SteeringAngleOutOfRange_raw, CANSIG_FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE_SCALE, CANSIG_FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_LeftWheelSpeedOutOfRange_raw = 0; // Temporary raw variable for FSM_Warning_LeftWheelSpeedOutOfRange
+    FSM_Warning_LeftWheelSpeedOutOfRange_raw |= unpackShiftLeft(in_data[1], 2, 0x4); // Unpacks bits _____#__ from byte 1
+    out_msg->FSM_Warning_LeftWheelSpeedOutOfRange_value = CAN_DECODE(FSM_Warning_LeftWheelSpeedOutOfRange_raw, CANSIG_FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE_SCALE, CANSIG_FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RightWheelSpeedOutOfRange_raw = 0; // Temporary raw variable for FSM_Warning_RightWheelSpeedOutOfRange
+    FSM_Warning_RightWheelSpeedOutOfRange_raw |= unpackShiftLeft(in_data[1], 3, 0x8); // Unpacks bits ____#___ from byte 1
+    out_msg->FSM_Warning_RightWheelSpeedOutOfRange_value = CAN_DECODE(FSM_Warning_RightWheelSpeedOutOfRange_raw, CANSIG_FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_SCALE, CANSIG_FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_AppsDisagreement_raw = 0; // Temporary raw variable for FSM_Warning_AppsDisagreement
+    FSM_Warning_AppsDisagreement_raw |= unpackShiftLeft(in_data[1], 4, 0x10); // Unpacks bits ___#____ from byte 1
+    out_msg->FSM_Warning_AppsDisagreement_value = CAN_DECODE(FSM_Warning_AppsDisagreement_raw, CANSIG_FSM_WARNING_APPS_DISAGREEMENT_SCALE, CANSIG_FSM_WARNING_APPS_DISAGREEMENT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_FrontBrakePressureOutOfRange_raw = 0; // Temporary raw variable for FSM_Warning_FrontBrakePressureOutOfRange
+    FSM_Warning_FrontBrakePressureOutOfRange_raw |= unpackShiftLeft(in_data[1], 5, 0x20); // Unpacks bits __#_____ from byte 1
+    out_msg->FSM_Warning_FrontBrakePressureOutOfRange_value = CAN_DECODE(FSM_Warning_FrontBrakePressureOutOfRange_raw, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE_SCALE, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RearBrakePressureOutOfRange_raw = 0; // Temporary raw variable for FSM_Warning_RearBrakePressureOutOfRange
+    FSM_Warning_RearBrakePressureOutOfRange_raw |= unpackShiftLeft(in_data[1], 6, 0x40); // Unpacks bits _#______ from byte 1
+    out_msg->FSM_Warning_RearBrakePressureOutOfRange_value = CAN_DECODE(FSM_Warning_RearBrakePressureOutOfRange_raw, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE_SCALE, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_FrontBrakePressureOcSc_raw = 0; // Temporary raw variable for FSM_Warning_FrontBrakePressureOcSc
+    FSM_Warning_FrontBrakePressureOcSc_raw |= unpackShiftLeft(in_data[1], 7, 0x80); // Unpacks bits #_______ from byte 1
+    out_msg->FSM_Warning_FrontBrakePressureOcSc_value = CAN_DECODE(FSM_Warning_FrontBrakePressureOcSc_raw, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OC_SC_SCALE, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OC_SC_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RearBrakePressureOcSc_raw = 0; // Temporary raw variable for FSM_Warning_RearBrakePressureOcSc
+    FSM_Warning_RearBrakePressureOcSc_raw |= unpackShiftRight(in_data[2], 0, 0x1); // Unpacks bits _______# from byte 2
+    out_msg->FSM_Warning_RearBrakePressureOcSc_value = CAN_DECODE(FSM_Warning_RearBrakePressureOcSc_raw, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OC_SC_SCALE, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OC_SC_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_BrakeOcScNotOk_raw = 0; // Temporary raw variable for FSM_Warning_BrakeOcScNotOk
+    FSM_Warning_BrakeOcScNotOk_raw |= unpackShiftLeft(in_data[2], 1, 0x2); // Unpacks bits ______#_ from byte 2
+    out_msg->FSM_Warning_BrakeOcScNotOk_value = CAN_DECODE(FSM_Warning_BrakeOcScNotOk_raw, CANSIG_FSM_WARNING_BRAKE_OC_SC_NOT_OK_SCALE, CANSIG_FSM_WARNING_BRAKE_OC_SC_NOT_OK_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for FSM_Faults
+void app_canUtils_FSM_Faults_unpack(const uint8_t* const in_data, FSM_Faults_Signals* const out_msg)
+{
+    // Unpack message FSM_Faults.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|______BA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t FSM_Fault_PappsOCSC_raw = 0; // Temporary raw variable for FSM_Fault_PappsOCSC
+    FSM_Fault_PappsOCSC_raw |= unpackShiftRight(in_data[0], 0, 0x1); // Unpacks bits _______# from byte 0
+    out_msg->FSM_Fault_PappsOCSC_value = CAN_DECODE(FSM_Fault_PappsOCSC_raw, CANSIG_FSM_FAULT_PAPPS_OCSC_SCALE, CANSIG_FSM_FAULT_PAPPS_OCSC_OFFSET, uint32_t);
+    
+    uint32_t FSM_Fault_SappsOCSC_raw = 0; // Temporary raw variable for FSM_Fault_SappsOCSC
+    FSM_Fault_SappsOCSC_raw |= unpackShiftLeft(in_data[0], 1, 0x2); // Unpacks bits ______#_ from byte 0
+    out_msg->FSM_Fault_SappsOCSC_value = CAN_DECODE(FSM_Fault_SappsOCSC_raw, CANSIG_FSM_FAULT_SAPPS_OCSC_SCALE, CANSIG_FSM_FAULT_SAPPS_OCSC_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for FSM_WarningsCounts
+void app_canUtils_FSM_WarningsCounts_unpack(const uint8_t* const in_data, FSM_WarningsCounts_Signals* const out_msg)
+{
+    // Unpack message FSM_WarningsCounts.
+    // |xxxxxxxx|__RRRQQQ|PPPOOONN|NMMMLLLK|KKJJJIII|HHHGGGFF|FEEEDDDC|CCBBBAAA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t FSM_Warning_WatchdogTimeoutCount_raw = 0; // Temporary raw variable for FSM_Warning_WatchdogTimeoutCount
+    FSM_Warning_WatchdogTimeoutCount_raw |= unpackShiftRight(in_data[0], 0, 0x7); // Unpacks bits _____### from byte 0
+    out_msg->FSM_Warning_WatchdogTimeoutCount_value = CAN_DECODE(FSM_Warning_WatchdogTimeoutCount_raw, CANSIG_FSM_WARNING_WATCHDOG_TIMEOUT_COUNT_SCALE, CANSIG_FSM_WARNING_WATCHDOG_TIMEOUT_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_TxOverflowCount_raw = 0; // Temporary raw variable for FSM_Warning_TxOverflowCount
+    FSM_Warning_TxOverflowCount_raw |= unpackShiftLeft(in_data[0], 3, 0x38); // Unpacks bits __###___ from byte 0
+    out_msg->FSM_Warning_TxOverflowCount_value = CAN_DECODE(FSM_Warning_TxOverflowCount_raw, CANSIG_FSM_WARNING_TX_OVERFLOW_COUNT_SCALE, CANSIG_FSM_WARNING_TX_OVERFLOW_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RxOverflowCount_raw = 0; // Temporary raw variable for FSM_Warning_RxOverflowCount
+    FSM_Warning_RxOverflowCount_raw |= unpackShiftLeft(in_data[0], 6, 0xC0); // Unpacks bits ##______ from byte 0
+    FSM_Warning_RxOverflowCount_raw |= unpackShiftRight(in_data[1], 2, 0x1); // Unpacks bits _______# from byte 1
+    out_msg->FSM_Warning_RxOverflowCount_value = CAN_DECODE(FSM_Warning_RxOverflowCount_raw, CANSIG_FSM_WARNING_RX_OVERFLOW_COUNT_SCALE, CANSIG_FSM_WARNING_RX_OVERFLOW_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTask1HzCount_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTask1HzCount
+    FSM_Warning_StackWaterMarkHighTask1HzCount_raw |= unpackShiftLeft(in_data[1], 1, 0xE); // Unpacks bits ____###_ from byte 1
+    out_msg->FSM_Warning_StackWaterMarkHighTask1HzCount_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTask1HzCount_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1_HZ_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTask100HzCount_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTask100HzCount
+    FSM_Warning_StackWaterMarkHighTask100HzCount_raw |= unpackShiftLeft(in_data[1], 4, 0x70); // Unpacks bits _###____ from byte 1
+    out_msg->FSM_Warning_StackWaterMarkHighTask100HzCount_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTask100HzCount_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK100_HZ_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTask1kHzCount_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTask1kHzCount
+    FSM_Warning_StackWaterMarkHighTask1kHzCount_raw |= unpackShiftLeft(in_data[1], 7, 0x80); // Unpacks bits #_______ from byte 1
+    FSM_Warning_StackWaterMarkHighTask1kHzCount_raw |= unpackShiftRight(in_data[2], 1, 0x3); // Unpacks bits ______## from byte 2
+    out_msg->FSM_Warning_StackWaterMarkHighTask1kHzCount_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTask1kHzCount_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK1K_HZ_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTaskCanRxCount_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTaskCanRxCount
+    FSM_Warning_StackWaterMarkHighTaskCanRxCount_raw |= unpackShiftLeft(in_data[2], 2, 0x1C); // Unpacks bits ___###__ from byte 2
+    out_msg->FSM_Warning_StackWaterMarkHighTaskCanRxCount_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTaskCanRxCount_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_RX_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_StackWaterMarkHighTaskCanTxCount_raw = 0; // Temporary raw variable for FSM_Warning_StackWaterMarkHighTaskCanTxCount
+    FSM_Warning_StackWaterMarkHighTaskCanTxCount_raw |= unpackShiftLeft(in_data[2], 5, 0xE0); // Unpacks bits ###_____ from byte 2
+    out_msg->FSM_Warning_StackWaterMarkHighTaskCanTxCount_value = CAN_DECODE(FSM_Warning_StackWaterMarkHighTaskCanTxCount_raw, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_SCALE, CANSIG_FSM_WARNING_STACK_WATER_MARK_HIGH_TASK_CAN_TX_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_SteeringAngleOCSCCount_raw = 0; // Temporary raw variable for FSM_Warning_SteeringAngleOCSCCount
+    FSM_Warning_SteeringAngleOCSCCount_raw |= unpackShiftRight(in_data[3], 0, 0x7); // Unpacks bits _____### from byte 3
+    out_msg->FSM_Warning_SteeringAngleOCSCCount_value = CAN_DECODE(FSM_Warning_SteeringAngleOCSCCount_raw, CANSIG_FSM_WARNING_STEERING_ANGLE_OCSC_COUNT_SCALE, CANSIG_FSM_WARNING_STEERING_ANGLE_OCSC_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_SteeringAngleOutOfRangeCount_raw = 0; // Temporary raw variable for FSM_Warning_SteeringAngleOutOfRangeCount
+    FSM_Warning_SteeringAngleOutOfRangeCount_raw |= unpackShiftLeft(in_data[3], 3, 0x38); // Unpacks bits __###___ from byte 3
+    out_msg->FSM_Warning_SteeringAngleOutOfRangeCount_value = CAN_DECODE(FSM_Warning_SteeringAngleOutOfRangeCount_raw, CANSIG_FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE_COUNT_SCALE, CANSIG_FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_LeftWheelSpeedOutOfRangeCount_raw = 0; // Temporary raw variable for FSM_Warning_LeftWheelSpeedOutOfRangeCount
+    FSM_Warning_LeftWheelSpeedOutOfRangeCount_raw |= unpackShiftLeft(in_data[3], 6, 0xC0); // Unpacks bits ##______ from byte 3
+    FSM_Warning_LeftWheelSpeedOutOfRangeCount_raw |= unpackShiftRight(in_data[4], 2, 0x1); // Unpacks bits _______# from byte 4
+    out_msg->FSM_Warning_LeftWheelSpeedOutOfRangeCount_value = CAN_DECODE(FSM_Warning_LeftWheelSpeedOutOfRangeCount_raw, CANSIG_FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE_COUNT_SCALE, CANSIG_FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RightWheelSpeedOutOfRangeCount_raw = 0; // Temporary raw variable for FSM_Warning_RightWheelSpeedOutOfRangeCount
+    FSM_Warning_RightWheelSpeedOutOfRangeCount_raw |= unpackShiftLeft(in_data[4], 1, 0xE); // Unpacks bits ____###_ from byte 4
+    out_msg->FSM_Warning_RightWheelSpeedOutOfRangeCount_value = CAN_DECODE(FSM_Warning_RightWheelSpeedOutOfRangeCount_raw, CANSIG_FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_COUNT_SCALE, CANSIG_FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_AppsDisagreementCount_raw = 0; // Temporary raw variable for FSM_Warning_AppsDisagreementCount
+    FSM_Warning_AppsDisagreementCount_raw |= unpackShiftLeft(in_data[4], 4, 0x70); // Unpacks bits _###____ from byte 4
+    out_msg->FSM_Warning_AppsDisagreementCount_value = CAN_DECODE(FSM_Warning_AppsDisagreementCount_raw, CANSIG_FSM_WARNING_APPS_DISAGREEMENT_COUNT_SCALE, CANSIG_FSM_WARNING_APPS_DISAGREEMENT_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_FrontBrakePressureOutOfRangeCount_raw = 0; // Temporary raw variable for FSM_Warning_FrontBrakePressureOutOfRangeCount
+    FSM_Warning_FrontBrakePressureOutOfRangeCount_raw |= unpackShiftLeft(in_data[4], 7, 0x80); // Unpacks bits #_______ from byte 4
+    FSM_Warning_FrontBrakePressureOutOfRangeCount_raw |= unpackShiftRight(in_data[5], 1, 0x3); // Unpacks bits ______## from byte 5
+    out_msg->FSM_Warning_FrontBrakePressureOutOfRangeCount_value = CAN_DECODE(FSM_Warning_FrontBrakePressureOutOfRangeCount_raw, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE_COUNT_SCALE, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RearBrakePressureOutOfRangeCount_raw = 0; // Temporary raw variable for FSM_Warning_RearBrakePressureOutOfRangeCount
+    FSM_Warning_RearBrakePressureOutOfRangeCount_raw |= unpackShiftLeft(in_data[5], 2, 0x1C); // Unpacks bits ___###__ from byte 5
+    out_msg->FSM_Warning_RearBrakePressureOutOfRangeCount_value = CAN_DECODE(FSM_Warning_RearBrakePressureOutOfRangeCount_raw, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE_COUNT_SCALE, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_FrontBrakePressureOcScCount_raw = 0; // Temporary raw variable for FSM_Warning_FrontBrakePressureOcScCount
+    FSM_Warning_FrontBrakePressureOcScCount_raw |= unpackShiftLeft(in_data[5], 5, 0xE0); // Unpacks bits ###_____ from byte 5
+    out_msg->FSM_Warning_FrontBrakePressureOcScCount_value = CAN_DECODE(FSM_Warning_FrontBrakePressureOcScCount_raw, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OC_SC_COUNT_SCALE, CANSIG_FSM_WARNING_FRONT_BRAKE_PRESSURE_OC_SC_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_RearBrakePressureOcScCount_raw = 0; // Temporary raw variable for FSM_Warning_RearBrakePressureOcScCount
+    FSM_Warning_RearBrakePressureOcScCount_raw |= unpackShiftRight(in_data[6], 0, 0x7); // Unpacks bits _____### from byte 6
+    out_msg->FSM_Warning_RearBrakePressureOcScCount_value = CAN_DECODE(FSM_Warning_RearBrakePressureOcScCount_raw, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OC_SC_COUNT_SCALE, CANSIG_FSM_WARNING_REAR_BRAKE_PRESSURE_OC_SC_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Warning_BrakeOcScNotOkCount_raw = 0; // Temporary raw variable for FSM_Warning_BrakeOcScNotOkCount
+    FSM_Warning_BrakeOcScNotOkCount_raw |= unpackShiftLeft(in_data[6], 3, 0x38); // Unpacks bits __###___ from byte 6
+    out_msg->FSM_Warning_BrakeOcScNotOkCount_value = CAN_DECODE(FSM_Warning_BrakeOcScNotOkCount_raw, CANSIG_FSM_WARNING_BRAKE_OC_SC_NOT_OK_COUNT_SCALE, CANSIG_FSM_WARNING_BRAKE_OC_SC_NOT_OK_COUNT_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for FSM_FaultsCounts
+void app_canUtils_FSM_FaultsCounts_unpack(const uint8_t* const in_data, FSM_FaultsCounts_Signals* const out_msg)
+{
+    // Unpack message FSM_FaultsCounts.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|__BBBAAA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t FSM_Fault_PappsOCSCCount_raw = 0; // Temporary raw variable for FSM_Fault_PappsOCSCCount
+    FSM_Fault_PappsOCSCCount_raw |= unpackShiftRight(in_data[0], 0, 0x7); // Unpacks bits _____### from byte 0
+    out_msg->FSM_Fault_PappsOCSCCount_value = CAN_DECODE(FSM_Fault_PappsOCSCCount_raw, CANSIG_FSM_FAULT_PAPPS_OCSC_COUNT_SCALE, CANSIG_FSM_FAULT_PAPPS_OCSC_COUNT_OFFSET, uint32_t);
+    
+    uint32_t FSM_Fault_SappsOCSCCount_raw = 0; // Temporary raw variable for FSM_Fault_SappsOCSCCount
+    FSM_Fault_SappsOCSCCount_raw |= unpackShiftLeft(in_data[0], 3, 0x38); // Unpacks bits __###___ from byte 0
+    out_msg->FSM_Fault_SappsOCSCCount_value = CAN_DECODE(FSM_Fault_SappsOCSCCount_raw, CANSIG_FSM_FAULT_SAPPS_OCSC_COUNT_SCALE, CANSIG_FSM_FAULT_SAPPS_OCSC_COUNT_OFFSET, uint32_t);
+    
+    
+}
+
+
 // unpack function for BMS_TractiveSystem
 void app_canUtils_BMS_TractiveSystem_unpack(const uint8_t* const in_data, BMS_TractiveSystem_Signals* const out_msg)
 {
@@ -1434,6 +1933,47 @@ void app_canUtils_BMS_OkStatuses_unpack(const uint8_t* const in_data, BMS_OkStat
     uint32_t BMS_BspdLatchedFault_raw = 0; // Temporary raw variable for BMS_BspdLatchedFault
     BMS_BspdLatchedFault_raw |= unpackShiftLeft(in_data[0], 5, 0x20); // Unpacks bits __#_____ from byte 0
     out_msg->BMS_BspdLatchedFault_value = CAN_DECODE(BMS_BspdLatchedFault_raw, CANSIG_BMS_BSPD_LATCHED_FAULT_SCALE, CANSIG_BMS_BSPD_LATCHED_FAULT_OFFSET, uint32_t);
+    
+    
+}
+
+
+// unpack function for BMS_TractiveSystem
+void app_canUtils_BMS_TractiveSystem_unpack(const uint8_t* const in_data, BMS_TractiveSystem_Signals* const out_msg)
+{
+    // Unpack message BMS_TractiveSystem.
+    // |xxxxxxxx|_EDDDDDD|DDDDDDDD|DDDCCCCC|CCCCCCBB|BBBBBBBB|BBBAAAAA|AAAAAAAA|
+    
+    if (in_data == NULL || out_msg == NULL)
+    {
+        return;
+    }
+    
+    uint32_t BMS_TractiveSystemVoltage_raw = 0; // Temporary raw variable for BMS_TractiveSystemVoltage
+    BMS_TractiveSystemVoltage_raw |= unpackShiftRight(in_data[0], 0, 0xFF); // Unpacks bits ######## from byte 0
+    BMS_TractiveSystemVoltage_raw |= unpackShiftRight(in_data[1], 8, 0x1F); // Unpacks bits ___##### from byte 1
+    out_msg->BMS_TractiveSystemVoltage_value = CAN_DECODE(BMS_TractiveSystemVoltage_raw, CANSIG_BMS_TRACTIVE_SYSTEM_VOLTAGE_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_VOLTAGE_OFFSET, float);
+    
+    uint32_t BMS_TractiveSystemCurrent_raw = 0; // Temporary raw variable for BMS_TractiveSystemCurrent
+    BMS_TractiveSystemCurrent_raw |= unpackShiftLeft(in_data[1], 5, 0xE0); // Unpacks bits ###_____ from byte 1
+    BMS_TractiveSystemCurrent_raw |= unpackShiftRight(in_data[2], 3, 0xFF); // Unpacks bits ######## from byte 2
+    BMS_TractiveSystemCurrent_raw |= unpackShiftRight(in_data[3], 11, 0x3); // Unpacks bits ______## from byte 3
+    out_msg->BMS_TractiveSystemCurrent_value = CAN_DECODE(BMS_TractiveSystemCurrent_raw, CANSIG_BMS_TRACTIVE_SYSTEM_CURRENT_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_CURRENT_OFFSET, float);
+    
+    uint32_t BMS_TractiveSystemPower_raw = 0; // Temporary raw variable for BMS_TractiveSystemPower
+    BMS_TractiveSystemPower_raw |= unpackShiftLeft(in_data[3], 2, 0xFC); // Unpacks bits ######__ from byte 3
+    BMS_TractiveSystemPower_raw |= unpackShiftRight(in_data[4], 6, 0x1F); // Unpacks bits ___##### from byte 4
+    out_msg->BMS_TractiveSystemPower_value = CAN_DECODE(BMS_TractiveSystemPower_raw, CANSIG_BMS_TRACTIVE_SYSTEM_POWER_SCALE, CANSIG_BMS_TRACTIVE_SYSTEM_POWER_OFFSET, float);
+    
+    uint32_t BMS_AvailablePower_raw = 0; // Temporary raw variable for BMS_AvailablePower
+    BMS_AvailablePower_raw |= unpackShiftLeft(in_data[4], 5, 0xE0); // Unpacks bits ###_____ from byte 4
+    BMS_AvailablePower_raw |= unpackShiftRight(in_data[5], 3, 0xFF); // Unpacks bits ######## from byte 5
+    BMS_AvailablePower_raw |= unpackShiftRight(in_data[6], 11, 0x3F); // Unpacks bits __###### from byte 6
+    out_msg->BMS_AvailablePower_value = CAN_DECODE(BMS_AvailablePower_raw, CANSIG_BMS_AVAILABLE_POWER_SCALE, CANSIG_BMS_AVAILABLE_POWER_OFFSET, uint32_t);
+    
+    uint32_t BMS_BSPDCurrentThresholdExceeded_raw = 0; // Temporary raw variable for BMS_BSPDCurrentThresholdExceeded
+    BMS_BSPDCurrentThresholdExceeded_raw |= unpackShiftLeft(in_data[6], 6, 0x40); // Unpacks bits _#______ from byte 6
+    out_msg->BMS_BSPDCurrentThresholdExceeded_value = CAN_DECODE(BMS_BSPDCurrentThresholdExceeded_raw, CANSIG_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_SCALE, CANSIG_BMS_BSPD_CURRENT_THRESHOLD_EXCEEDED_OFFSET, uint32_t);
     
     
 }
