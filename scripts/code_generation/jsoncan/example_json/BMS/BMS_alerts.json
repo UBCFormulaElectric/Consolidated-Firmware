@@ -3,7 +3,7 @@
   "faults_id": 151,
   "warnings_counts_id": 152,
   "faults_counts_id": 153,
-  "bus": ["bus1", "bus2"],
+  "bus": ["bus1"],
   "warnings": {
     "StackWaterMarkHighTask1Hz": {
       "id": 101,
