@@ -47,7 +47,8 @@ bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
 
-    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U);
+    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
+        ;
 
     return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
 }
