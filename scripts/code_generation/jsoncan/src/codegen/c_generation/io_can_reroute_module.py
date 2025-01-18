@@ -32,4 +32,8 @@ class IoCanRerouteModule:
         )
         template = j2_env.from_string(template)
         node_obj = self._db.nodes[self._node]
-        return template.render(reroutes=self._db.reroute_msgs, node=node_obj)
+        return template.render(
+            reroutes=self._db.reroute_msgs,
+            node=node_obj,
+            nodes=self._db.nodes,
+        )
