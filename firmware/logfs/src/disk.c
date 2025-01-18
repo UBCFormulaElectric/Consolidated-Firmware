@@ -75,7 +75,7 @@ LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, 
     {
         // A different block is currently in the cache, sync it to disk.
         const bool write_back = flags & DISK_CACHE_WRITE_BACK;
-        if (write_back && cache->cached_addr != LOGFS_INVALID_BLOCK)
+        if (write_back)
         {
             RET_ERR(disk_syncCache(fs, cache));
         }

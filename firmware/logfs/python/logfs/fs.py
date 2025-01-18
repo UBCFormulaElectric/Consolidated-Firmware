@@ -1,5 +1,7 @@
-from typing import Union, Optional, Type, Any, List, Tuple
+from typing import Union, Optional, Type, Any, Dict
 import logging
+from tabulate import tabulate
+import humanize
 from .disk import LogFsDisk
 from logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
 
@@ -74,7 +76,7 @@ class LogFsFile:
         err = self.fs.write(self.file, data)
         _raise_err(err)
 
-    def read(self, size: Optional[int] = None) -> int:
+    def read(self, size: Optional[int] = None) -> bytes:
         """
         Read data from a file.
 
@@ -276,7 +278,7 @@ class LogFs:
         _raise_err(self.fs.open(file, path, flags))
         return LogFsFile(file=file, fs=self.fs, block_size=self.block_size)
 
-    def list_dir(self, matches: str = "/") -> List[Tuple[str, int]]:
+    def list_dir(self, matches: str = "/") -> Dict:
         """
         List contents of the filesystem.
 
@@ -289,7 +291,7 @@ class LogFs:
         while True:
             err, path, path_str = self.fs.next_path(path)
             if err == LogFsErr.NO_MORE_FILES:
-                # Error code of invalid path indictes no more files.
+                # Error code of invalid path indicates no more files.
                 break
 
             _raise_err(err)
@@ -300,14 +302,31 @@ class LogFs:
             paths.remove("/.root")
 
         # Filter by provided prefix.
-        # TODO: Find a better way to return these guys...
-        filtered_files = []
+        filtered_files = {}
         for path in paths:
             if path.startswith(matches):
                 file = self.open(path=path, flags="r")
-                filtered_files.append((path, file.metadata_size(), file.size()))
+                filtered_files[path] = {
+                    "metadata_size": file.metadata_size(),
+                    "size": file.size(),
+                }
 
         return filtered_files
+
+    def list_dir_table(self, matches: str = "/") -> None:
+        files = self.list_dir(matches=matches)
+
+        data = []
+        for file, file_sizes in files.items():
+            data.append(
+                [
+                    file,
+                    humanize.naturalsize(file_sizes["size"], binary=True),
+                    humanize.naturalsize(file_sizes["metadata_size"], binary=True),
+                ]
+            )
+
+        print(tabulate(data, headers=["File", "Data", "Metadata"], tablefmt="pretty"))
 
     def cat(self, path: str) -> None:
         """

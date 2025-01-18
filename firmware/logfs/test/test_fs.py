@@ -184,15 +184,20 @@ def test_list_dir(fs: LogFs) -> None:
     for file in files:
         fs.open(path=file, flags="wx")
 
-    assert fs.list_dir() == files
-    assert fs.list_dir(matches="/dir1") == [("/dir1/test3.txt", 0), ("/dir1/test4.txt", 0)]
-    assert fs.list_dir(matches="/dir2") == [
+    assert list(fs.list_dir().keys()) == files
+    assert list(fs.list_dir(matches="/dir1").keys()) == [
+        "/dir1/test3.txt",
+        "/dir1/test4.txt",
+    ]
+    assert list(fs.list_dir(matches="/dir2").keys()) == [
         "/dir2/dir3/test5.txt",
         "/dir2/dir3/test6.txt",
     ]
-    assert fs.list_dir(matches="/dir4/dir5/dir6") == ["/dir4/dir5/dir6/test7.txt"]
-    assert fs.list_dir(matches="/test8.txt") == ["/test8.txt"]
-    assert fs.list_dir(matches="mismatch") == []
+    assert list(fs.list_dir(matches="/dir4/dir5/dir6").keys()) == [
+        "/dir4/dir5/dir6/test7.txt"
+    ]
+    assert list(fs.list_dir(matches="/test8.txt").keys()) == ["/test8.txt"]
+    assert list(fs.list_dir(matches="mismatch").keys()) == []
 
 
 @pytest.mark.parametrize("metadata_size", [1, 10, 100])
@@ -223,3 +228,42 @@ def test_metadata(fs: LogFs, metadata_size: int) -> None:
     assert file.read() == file_data
     assert file.read_metadata() == data
     assert file.metadata_size() == metadata_size
+
+
+def test_list_dir_sizes(fs: LogFs, capsys: pytest.CaptureFixture) -> None:
+    files = [
+        ("/test1.txt", b"Hello, world!", ""),
+        ("/test2.txt", b"", "Let's get this money"),
+        ("/test3.txt", b"UBC For", "mula Electric"),
+        ("/test4.txt", b"", b""),
+        ("/test5.txt", bytes([0xAB] * 10_000), b""),
+    ]
+    for file_name, file_data, file_metadata in files:
+        file = fs.open(path=file_name, flags="wrx")
+        file.write(file_data)
+        file.write_metadata(file_metadata)
+        file.close()
+
+    assert fs.list_dir() == {
+        "/test1.txt": {"size": 13, "metadata_size": 0},
+        "/test2.txt": {"size": 0, "metadata_size": 20},
+        "/test3.txt": {"size": 7, "metadata_size": 13},
+        "/test4.txt": {"size": 0, "metadata_size": 0},
+        "/test5.txt": {"size": 10_000, "metadata_size": 0},
+    }
+
+    fs.list_dir_table()
+    captured = capsys.readouterr()
+    assert (
+        captured.out.strip()
+        == """\
++------------+----------+----------+
+|    File    | Metadata |   Data   |
++------------+----------+----------+
+| /test1.txt | 13 Bytes | 0 Bytes  |
+| /test2.txt | 0 Bytes  | 20 Bytes |
+| /test3.txt | 7 Bytes  | 13 Bytes |
+| /test4.txt | 0 Bytes  | 0 Bytes  |
+| /test5.txt | 9.8 KiB  | 0 Bytes  |
++------------+----------+----------+"""
+    )

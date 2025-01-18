@@ -35,7 +35,7 @@ inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, LogF
     file->cache.buf         = cfg->cache;
     file->cache_data        = (LogFsBlock_Data *)cfg->cache;
     file->is_open           = false;
-    file->flags             = flags;
+    file->flags = flags;
     strcpy(file->path, cfg->path);
 }
 
@@ -379,7 +379,8 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
         file->read_iter_init      = true;
     }
 
-    // Write back whatever is currently in the cache.
+    // Write back whatever is currently in the cache. Need to actually force a
+    // sync here, instead of exchange, since the later reads don't write back.
     if (logfs_writeAllowed(fs, file))
     {
         RET_ERR(disk_syncCache(fs, &file->cache));
@@ -529,7 +530,7 @@ LogFsErr logfs_size(LogFs *fs, LogFsFile *file, uint32_t *size_bytes)
     // Write back whatever is currently in the cache.
     if (logfs_writeAllowed(fs, file))
     {
-        RET_ERR(disk_syncCache(fs, &file->cache));
+        RET_ERR(disk_exchangeCache(fs, &file->cache, file->head_data_addr, DISK_CACHE_WRITE_BACK | DISK_CACHE_FETCH));
     }
 
     // Read number of data bytes in the head block.
