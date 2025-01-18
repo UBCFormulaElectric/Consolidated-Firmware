@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    const uint8_t address;
+    const uint16_t address;
 } power_rail;
 
 extern const power_rail bat;
@@ -14,4 +14,4 @@ extern const power_rail ext;
 
 bool io_power_monitor_init();
 
-uint8_t io_power_monitor_read_voltage(const power_rail* voltage_address);
+float io_power_monitor_read_voltage(const power_rail* voltage_address);
