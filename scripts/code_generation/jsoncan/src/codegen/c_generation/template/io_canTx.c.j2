@@ -93,9 +93,9 @@ void io_canTx_enableMode_{{bus}}({{bus}}Mode mode, bool enable)
 void io_canTx_enqueue1HzMsgs()
 {
     {%- for msg in messages %}
-    {%- if msg.cycle_time == 1000 %}
+    {%- if msg.cycle_time == 1000 -%}
     io_canTx_{{msg.name}}_sendPeriodic();
-    {%- endif -%}
+    {%- endif %}
     {% endfor %}
 }
 
@@ -116,7 +116,7 @@ void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms)
     {
         io_canTx_{{msg.name}}_sendPeriodic();
     }
-    {%- endif %}
+    {%- endif -%}
     {% endfor %}
 }
 
