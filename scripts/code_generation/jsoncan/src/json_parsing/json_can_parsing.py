@@ -90,7 +90,6 @@ class JsonCanParser:
 
             # Parse ALERTS
             alerts = self._parse_json_alert_data(can_data_dir, node)
-            alerts_messages.extend(alerts)  # save for RX parsing
             # Parse TX messages
             tx_msgs = self._parse_json_tx_data(can_data_dir, node_obj)
             if alerts is not None:
@@ -98,6 +97,7 @@ class JsonCanParser:
                 tx_msgs.append(alerts[1].name)
                 tx_msgs.append(alerts[2].name)
                 tx_msgs.append(alerts[3].name)
+                alerts_messages.extend(alerts)  # save for RX parsing
 
             # update node object
             node_obj.buses = [
@@ -307,20 +307,21 @@ class JsonCanParser:
             node_rx_json_data = self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
             node_rx_msgs = node_rx_json_data["messages"]
 
-            for tx_node_msg_name in node_rx_msgs:
+            for rx_msg_name in node_rx_msgs:
                 # Check if this message is defined
-                if tx_node_msg_name not in self._messages:
+                if rx_msg_name not in self._messages:
                     raise InvalidCanJson(
-                        f"Message '{tx_node_msg_name}' received by '{node}' is not defined. Make sure it is correctly defined in the TX JSON."
+                        f"Message '{rx_msg_name}' received by '{node}' is not defined. Make sure it is correctly defined in the TX JSON."
                     )
 
-                rx_msg = self._messages[tx_node_msg_name]
-                if rx_msg not in rx_msg.rx_nodes:
+                rx_msg = self._messages[rx_msg_name]
+                if node not in rx_msg.rx_nodes:
                     rx_msg.rx_nodes.append(node)
 
                 # add the message to the node's rx messages
                 rx_node = self._nodes[node]
-                rx_node.rx_msgs.append(rx_msg.name)
+                if(rx_msg.name not in rx_node.rx_msgs):
+                    rx_node.rx_msgs.append(rx_msg.name)
 
         
     def _find_node_bus(self, tx_msg: Set[CanMessage]) -> Set[CanBusConfig]:

@@ -324,8 +324,8 @@ class CanDatabase:
         Return list of all CAN messages transmitted by a specific node.
         """
         node = self.nodes[tx_node]
-
-        return [self.msgs[msg] for msg in node.tx_msgs]
+        tx = [self.msgs[msg] for msg in node.tx_msgs]
+        return tx
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
@@ -338,7 +338,10 @@ class CanDatabase:
         """
         Return list of all CAN messages either transmitted or received by a specific node.
         """
-        return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
+        tx= self.tx_msgs_for_node(tx_node=node) 
+        rx = self.rx_msgs_for_node(rx_node=node)
+        a = tx + rx 
+        return a
 
     def node_has_tx_msgs(self, node: str) -> bool:
         """

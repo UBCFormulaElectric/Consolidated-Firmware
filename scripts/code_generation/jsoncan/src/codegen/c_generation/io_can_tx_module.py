@@ -28,7 +28,9 @@ class IoCanTxModule(CModule):
         )
         template = j2_env.from_string(template)
         return template.render(
-            node=node_obj, messages=self._db.tx_msgs_for_node(self._node)
+            node=node_obj,
+            messages=self._db.tx_msgs_for_node(self._node),
+            bus_config=self._db.bus_config,
         )
 
     def source_template(self):
@@ -39,5 +41,7 @@ class IoCanTxModule(CModule):
         )
         template = j2_env.from_string(template)
         return template.render(
-            messages=self._db.tx_msgs_for_node(self._node), node=node_obj
+            messages=self._db.tx_msgs_for_node(self._node),
+            node=node_obj,
+            bus_config=self._db.bus_config,
         )
