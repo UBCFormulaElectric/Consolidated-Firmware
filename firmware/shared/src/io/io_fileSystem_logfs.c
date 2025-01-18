@@ -180,10 +180,11 @@ int io_fileSystem_open(const char *path)
 FileSystemError io_fileSystem_read(const int fd, void *buf, const size_t size)
 {
     CHECK_FILE_DESCRIPTOR(fd)
-    uint32_t num_read;
-    if (logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read) != LOGFS_ERR_OK || num_read != size)
+    uint32_t       num_read;
+    const LogFsErr err = logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read);
+    if (err != LOGFS_ERR_OK || num_read != size)
     {
-        return logfsErrorToFsError(logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read));
+        return logfsErrorToFsError(err);
     }
 
     return FILE_OK;
