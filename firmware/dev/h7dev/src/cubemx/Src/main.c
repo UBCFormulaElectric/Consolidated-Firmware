@@ -125,7 +125,6 @@ void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-// static void can_msg_received_callback(CanMsg *rx_msg);
 
 /* USER CODE END PFP */
 
@@ -531,6 +530,33 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void can_msg_received_callback(CanMsg *rx_msg)
+{
+    // TODO: check gpio present
+    static uint32_t id = 0;
+    rx_msg->std_id     = id;
+    id++;
+    io_canQueue_pushRx(rx_msg);
+    io_canLogging_loggingQueuePush(rx_msg);
+}
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
+{
+    UNUSED(RxFifo0ITs);
+    CanMsg rx_msg;
+    if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    can_msg_received_callback(&rx_msg);
+}
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
+{
+    UNUSED(RxFifo1ITs);
+    CanMsg rx_msg;
+    if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    can_msg_received_callback(&rx_msg);
+}
 
 /* USER CODE END 4 */
 

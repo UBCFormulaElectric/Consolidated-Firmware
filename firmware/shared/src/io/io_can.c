@@ -1,5 +1,5 @@
 #include "io_can.h"
-#undef NDEBUG
+#undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
 #include "io_time.h"
 
@@ -87,7 +87,8 @@ bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U);
+    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
+        ;
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t                mailbox       = 0;
