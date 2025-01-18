@@ -31,6 +31,8 @@ requests = "*"
 rich = "*"
 schema = "*"
 strenum = "*"
+tabulate = "*"
+humanize = "*"
 
 [dev-packages]
 setuptools = "*"
