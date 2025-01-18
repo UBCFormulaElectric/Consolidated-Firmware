@@ -39,6 +39,7 @@ void io_bootHandler_processBootRequest(CanMsg *msg, void (*deinit_func)(void))
         }
 
         // acknowledge the msg sent by boot
+        // TODO: maybe dont need this
         CanMsg reply = { .std_id = BOOT_CAN_START, .dlc = 0 };
         io_can_pushTxMsgToQueue(&reply);
 
