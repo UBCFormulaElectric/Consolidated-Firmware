@@ -117,7 +117,6 @@ class JsonCanParser:
         reroute = self._find_reroute(self._messages.values())
         self._reroute = reroute
 
-        print("placeholder")
 
     def _parse_json_bus_data(self, can_data_dir) -> List[CanBusConfig]:
         """
