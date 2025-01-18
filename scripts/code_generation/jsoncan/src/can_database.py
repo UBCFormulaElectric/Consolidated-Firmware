@@ -11,8 +11,13 @@ from typing import Dict, List, Set, Union
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (bits_for_uint, bits_to_bytes, is_int,
-                    pascal_to_screaming_snake_case, pascal_to_snake_case)
+from .utils import (
+    bits_for_uint,
+    bits_to_bytes,
+    is_int,
+    pascal_to_screaming_snake_case,
+    pascal_to_snake_case,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -207,6 +212,7 @@ class CanMessage:
     bus: List[str]  # List of buses this message is transmitted on
     tx_node: str  # Node which transmits this message
     rx_nodes: List[str]  # List of nodes which receive this message
+
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -276,7 +282,7 @@ class CanNode:
     """
 
     name: str  # Name of this CAN node
-    
+
     # forgein key
     tx_msgs: List[str]
     rx_msgs: List[str]
@@ -303,8 +309,8 @@ class CanDatabase:
 
     nodes: Dict[str, CanNode]  # List of names of the nodes on the bus
     bus_config: Dict[str, CanBusConfig]  # Various bus params
-    msgs: Dict[
-        int, CanMessage
+    msgs: dict[
+        str, CanMessage
     ]  # All messages being sent to the bus (dict of (ID to message)
     shared_enums: Dict[str, CanEnum]  # Enums used by all nodes
     alerts: Dict[
@@ -318,7 +324,7 @@ class CanDatabase:
         Return list of all CAN messages transmitted by a specific node.
         """
         node = self.nodes[tx_node]
-        
+
         return [self.msgs[msg] for msg in node.tx_msgs]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
