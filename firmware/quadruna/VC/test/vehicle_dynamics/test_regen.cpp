@@ -219,8 +219,19 @@ TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl;
-    float expected_right_torque_request = torque_lim_Nm * cr;
+    float torque_left_Nm  = torque_lim_Nm * cl;
+    float torque_right_Nm = torque_lim_Nm * cr;
+
+    float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
+
+    float scale = 1;
+    if (torque_negative_max_Nm < MAX_REGEN_Nm)
+    {
+        scale *= MAX_REGEN_Nm / torque_negative_max_Nm;
+    }
+
+    float expected_left_torque_request  = torque_left_Nm * scale;
+    float expected_right_torque_request = torque_right_Nm * scale;
 
     LetTimePass(10);
 
