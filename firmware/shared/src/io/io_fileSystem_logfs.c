@@ -160,21 +160,18 @@ FileSystemError io_fileSystem_init(void)
 
 int io_fileSystem_open(const char *path)
 {
-    if (allocateFd() < 0)
+    const int fd = allocateFd();
+    if (fd < 0)
     {
         return FILE_NOT_FOUND;
     }
-
-    files_cfg[allocateFd()].path = path;
-    if (logfs_open(&fs, &files[allocateFd()], &files_cfg[allocateFd()], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE) !=
-        LOGFS_ERR_OK)
+    files_cfg[fd].path = path;
+    if (logfs_open(&fs, &files[fd], &files_cfg[fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE) != LOGFS_ERR_OK)
     {
-        files_opened[allocateFd()] = false;
-        return logfsErrorToFsError(
-            logfs_open(&fs, &files[allocateFd()], &files_cfg[allocateFd()], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE));
+        files_opened[fd] = false;
+        return logfsErrorToFsError(logfs_open(&fs, &files[fd], &files_cfg[fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE));
     }
-
-    return allocateFd();
+    return fd;
 }
 
 FileSystemError io_fileSystem_read(const int fd, void *buf, const size_t size)
