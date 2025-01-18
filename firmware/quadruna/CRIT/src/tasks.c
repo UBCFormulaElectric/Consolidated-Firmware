@@ -338,7 +338,7 @@ void tasks_deinit(void)
     HAL_UART_DeInit(&huart2);
 
     HAL_DMA_Abort_IT(&hdma_adc1);
-    HAL_UART_DeInit(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_adc1);
 
     HAL_ADC_Stop_IT(&hadc1);
     HAL_ADC_DeInit(&hadc1);

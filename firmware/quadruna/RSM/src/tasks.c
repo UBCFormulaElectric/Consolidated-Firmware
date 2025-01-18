@@ -161,7 +161,7 @@ void tasks_deinit(void)
     HAL_ADC_DeInit(&hadc1);
 
     HAL_DMA_Abort_IT(&hdma_adc1);
-    HAL_UART_DeInit(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_adc1);
 }
 
 _Noreturn void tasks_run1Hz(void)
