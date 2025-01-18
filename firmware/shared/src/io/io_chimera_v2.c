@@ -168,8 +168,8 @@ void io_chimera_v2_handleBuf(uint8_t *buf, uint16_t length)
     uint16_t response_packet_size = 3 + response_data_size;
     uint8_t  response_packet[response_packet_size];
     response_packet[0] = 0x01;
-    response_packet[1] = response_data_size & 0x0f;
-    response_packet[2] = response_data_size & 0xf0 >> 8;
+    response_packet[1] = response_data_size & 0xff;
+    response_packet[2] = response_data_size >> 8;
     memcpy(&response_packet[3], msg, response_data_size);
 
     hw_usb_transmit(response_packet, response_packet_size);
