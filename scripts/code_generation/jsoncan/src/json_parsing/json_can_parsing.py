@@ -108,7 +108,6 @@ class JsonCanParser:
             node_obj.tx_msgs = tx_msgs
             node_obj.alerts = []
 
-            print("palceholder")
 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         self._parse_json_rx_data(can_data_dir, node, alerts_messages)
