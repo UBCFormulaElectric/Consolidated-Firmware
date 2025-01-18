@@ -20,8 +20,8 @@
     Call 2. function in the canRx callback
  #}
 
-{% for bus in node.buses.values() -%}
-static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
+{% for bus in node.buses -%}
+static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
 {% endfor -%}
 
 {# static void do_transmit(const JsonCanMsg* tx_msg)
@@ -37,12 +37,12 @@ static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
 
 void io_canReroute_init( 
     {% for bus in node.buses -%}
-    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
+    void (*transmit_func_{{bus}})(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
     {% endfor %}
 )
 {
     {% for bus in node.buses -%}
-    transmit_func_{{bus.name}} = transmit_{{bus.name}}_msg_func;
+    transmit_func_{{bus}} = transmit_func_{{bus}};
     {% endfor %}
 }
 
@@ -53,11 +53,11 @@ void io_canReroute(const JsonCanMsg* rx_msg)
         {% for r in reroutes -%}
         case {{ r.message.id_macro() }}:
         {
-            // Reroute message from {{r.message.tx_node.name}} to {{ r.receive_node.name }}
-            {%- set buses = r.receive_node.buses.values() -%}
+            // Reroute message from {{r.message.tx_node}} to {{ r.receive_node }}
+            {%- set buses = nodes[r.receive_node].buses -%}
             {% for bus in buses %}
             {% if loop.first -%}
-            transmit_func_{{ bus.name }}(rx_msg);
+            transmit_func_{{ bus }}(rx_msg);
             {%- endif -%}
             {% endfor %}
         }

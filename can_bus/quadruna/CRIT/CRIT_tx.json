@@ -1,6 +1,6 @@
 {
   "Vitals": {
-    "bus": ["CAN1"],
+    "bus": ["Can"],
     "msg_id": 502,
     "cycle_time": 100,
     "description": "CRIT vitals message.",
@@ -15,7 +15,8 @@
   },
   "Switches": {
     "msg_id": 503,
-    "bus": ["CAN1"],"bus": ["CAN1"],
+    "bus": ["Can"],
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "States of the switches on the CRIT.",
     "signals": {
@@ -33,7 +34,7 @@
   "DriveMode": {
     "msg_id": 504,
     "cycle_time": 100,
-    "bus": ["CAN1"],
+    "bus": ["Can"],
     "description": "Drive Mode.",
     "signals": {
       "DriveMode": {
@@ -44,7 +45,7 @@
   "AlertsContext": {
     "msg_id": 505,
     "cycle_time": 1000,
-    "bus": ["CAN1"],
+    "bus": ["Can"],
     "description": "Context info for CRIT alerts",
     "signals": {
       "TxOverflowCount": {
@@ -61,7 +62,7 @@
   "CommitInfo": {
     "msg_id": 506,
     "cycle_time": 100,
-    "bus": ["CAN1"],
+    "bus": ["Can"],
     "description": "CRIT Current Running Git Commit Info",
     "signals": {
       "Hash": {
@@ -73,7 +74,7 @@
     }
   },
   "CRITShdnNodeStatus": {
-    "bus": ["CAN1"],
+    "bus": ["Can"],
     "msg_id": 507,
     "cycle_time": 100,
     "description": "CRIT Shutdown Node Status",

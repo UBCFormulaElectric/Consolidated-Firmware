@@ -1,22 +1,22 @@
 {
-    "Vitals": {
-      "bus": ["CAN1"],
-      "msg_id": 1552,
-      "cycle_time": 100,
-      "description": "Flags relaying BMS Charger Faults",
-      "signals": {
-        "IsConnected": {
-          "start_bit": 7,
-          "bits": 1
-        },
-        "Error": {
-          "start_bit": 6,
-          "bits": 1
-        },
-        "PowerLimitedWarning": {
-          "start_bit": 5,
-          "bits": 1
-        }
+  "Vitals": {
+    "bus": ["Can"],
+    "msg_id": 1552,
+    "cycle_time": 100,
+    "description": "Flags relaying BMS Charger Faults",
+    "signals": {
+      "IsConnected": {
+        "start_bit": 7,
+        "bits": 1
+      },
+      "Error": {
+        "start_bit": 6,
+        "bits": 1
+      },
+      "PowerLimitedWarning": {
+        "start_bit": 5,
+        "bits": 1
       }
     }
+  }
 }
