@@ -1,6 +1,6 @@
 {
-	"CommitInfo": {
-    "bus": ["CAN1"],
+  "CommitInfo": {
+    "bus": ["Can"],
     "msg_id": 819,
     "cycle_time": 100,
     "description": "Dimos Current Running Commit Info",

@@ -1,7 +1,7 @@
 {
   "warnings_id": 800,
   "faults_id": 801,
-  "bus": ["CAN1"],
+  "bus": ["Can"],
   "warnings_counts_id": 850,
   "faults_counts_id": 851,
   "warnings": {},
