@@ -10,7 +10,7 @@
 #include "app_canTx.h"
 #include "app_canUtils.h"
 
-#ifndef THREAD_SAFE_CAN_PACKING
+#ifdef THREAD_SAFE_CAN_PACKING
 void (*lock)(void);
 void (*unlock)(void); 
 
@@ -43,11 +43,11 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     memset(&tx_msg, 0, sizeof(JsonCanMsg));
     tx_msg.std_id = {{msg.id_macro()}};
     tx_msg.dlc = {{msg.bytes_macro()}};
-    #ifndef THREAD_SAFE_CAN_PACKING
+    #ifdef THREAD_SAFE_CAN_PACKING
     lock();
     #endif
     app_canUtils_{{msg.name}}_pack(app_canTx_{{msg.name}}_getData(), tx_msg.data);
-    #ifndef THREAD_SAFE_CAN_PACKING
+    #ifdef THREAD_SAFE_CAN_PACKING
     unlock();
     #endif
     {% for bus in node.buses %}
