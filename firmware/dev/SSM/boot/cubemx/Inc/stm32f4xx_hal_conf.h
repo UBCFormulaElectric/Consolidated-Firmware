@@ -40,8 +40,8 @@ extern "C"
 
     /* #define HAL_CRYP_MODULE_ENABLED */
 /* #define HAL_ADC_MODULE_ENABLED */
-/* #define HAL_CAN_MODULE_ENABLED */
-/* #define HAL_CRC_MODULE_ENABLED */
+#define HAL_CAN_MODULE_ENABLED
+#define HAL_CRC_MODULE_ENABLED
 /* #define HAL_CAN_LEGACY_MODULE_ENABLED */
 /* #define HAL_DAC_MODULE_ENABLED */
 /* #define HAL_DCMI_MODULE_ENABLED */
@@ -64,7 +64,7 @@ extern "C"
 /* #define HAL_SD_MODULE_ENABLED */
 /* #define HAL_MMC_MODULE_ENABLED */
 /* #define HAL_SPI_MODULE_ENABLED */
-/* #define HAL_TIM_MODULE_ENABLED */
+#define HAL_TIM_MODULE_ENABLED
 /* #define HAL_UART_MODULE_ENABLED */
 /* #define HAL_USART_MODULE_ENABLED */
 /* #define HAL_IRDA_MODULE_ENABLED */
@@ -97,8 +97,8 @@ extern "C"
  *        (when HSE is used as system clock source, directly or through the PLL).
  */
 #if !defined(HSE_VALUE)
-#define HSE_VALUE 25000000U /*!< Value of the External oscillator in Hz */
-#endif                      /* HSE_VALUE */
+#define HSE_VALUE 8000000U /*!< Value of the External oscillator in Hz */
+#endif                     /* HSE_VALUE */
 
 #if !defined(HSE_STARTUP_TIMEOUT)
 #define HSE_STARTUP_TIMEOUT 100U /*!< Time out for HSE start up, in ms */
@@ -215,7 +215,7 @@ extern "C"
 #define MAC_ADDR5 0U
 
 /* Definition of the Ethernet driver buffers size and count */
-#define ETH_RX_BUF_SIZE                     /* buffer size for receive               */
+#define ETH_RX_BUF_SIZE ETH_MAX_PACKET_SIZE /* buffer size for receive               */
 #define ETH_TX_BUF_SIZE ETH_MAX_PACKET_SIZE /* buffer size for transmit              */
 #define ETH_RXBUFNB 4U                      /* 4 Rx buffers of size ETH_RX_BUF_SIZE  */
 #define ETH_TXBUFNB 4U                      /* 4 Tx buffers of size ETH_TX_BUF_SIZE  */
