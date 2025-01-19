@@ -7,6 +7,7 @@
 #include "app_stateMachine.h"
 #include "states/app_initState.h"
 #include "app_commitInfo.h"
+#include "app_heartbeatMonitors.h"
 
 #include "io_canMsg.h"
 #include "io_canQueue.h"
@@ -35,6 +36,7 @@ void jobs_init(void)
     app_soc_init();
 
     app_stateMachine_init(app_initState_get());
+    app_heartbeatMonitor_init(&hb_monitor);
 
     // broadcast commit info
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);

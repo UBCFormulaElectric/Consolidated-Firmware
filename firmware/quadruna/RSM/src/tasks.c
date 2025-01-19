@@ -8,6 +8,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_coolant.h"
+#include "app_heartbeatMonitors.h"
 
 #include "io_jsoncan.h"
 #include "io_canTx.h"

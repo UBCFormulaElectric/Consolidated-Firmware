@@ -13,6 +13,7 @@
 #include "app_stateMachine.h"
 #include "states/app_initState.h"
 #include "states/app_allStates.h"
+#include "app_heartbeatMonitors.h"
 
 #include "io_time.h"
 #include "io_log.h"
@@ -44,6 +45,7 @@ void jobs_init()
     app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!io_fileSystem_ready());
 
     app_stateMachine_init(app_initState_get());
+    app_heartbeatMonitor_init(&hb_monitor);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
