@@ -37,7 +37,6 @@ void hw_adcs_chipsInit()
 {
     hw_adcchip_init(&adc1);
     hw_adcchip_init(&adc2);
-
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
