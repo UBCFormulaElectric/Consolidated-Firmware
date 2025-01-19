@@ -72,6 +72,9 @@ jobs:
           - board: VC
             ioc_dir: firmware/quintuna/VC/src/cubemx
             env_version: cube_6_12_0
+          - board: DAM
+            ioc_dir: firmware/quintuna/DAM/src/cubemx
+            env_version: cube_6_12_0
 
     container:
       image: ubcformulaelectric/environment:${{ matrix.env_version }}
