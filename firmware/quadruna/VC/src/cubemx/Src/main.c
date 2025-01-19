@@ -24,7 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_error.h"
-#include "hw_gpio.h"
+#include "hw_gpios.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -150,10 +150,7 @@ const osThreadAttr_t TaskTelem_attributes = {
     .priority   = (osPriority_t)osPriorityLow,
 };
 /* USER CODE BEGIN PV */
-Gpio sd_present = {
-    .pin  = GPIO_PIN_8,
-    .port = GPIOA,
-};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
