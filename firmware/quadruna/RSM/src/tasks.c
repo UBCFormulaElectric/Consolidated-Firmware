@@ -8,7 +8,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_coolant.h"
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -147,6 +147,7 @@ void tasks_init(void)
     io_brake_light_init(&brake_light);
     app_coolant_init();
 
+    app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(app_mainState_get());
 
     app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);
