@@ -101,6 +101,13 @@ if ("${TARGET}" STREQUAL "binary")
      target_link_libraries("quintuna_SSM_app.elf" PRIVATE "quintuna_SSM_stm32cube" "quintuna_SSM_jsoncan" "quintuna_SSM_commit_info" "debug_modules")
      target_link_libraries("quintuna_SSM_boot.elf" PRIVATE "quintuna_SSM_commit_info")
 
+     embedded_image(
+        "quintuna_SSM"
+        "quintuna_SSM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_SSM_app.hex"
+        "quintuna_SSM_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_SSM_boot.hex"
+)
 
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
