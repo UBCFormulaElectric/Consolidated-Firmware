@@ -7,11 +7,11 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 list(APPEND EMBEDDED_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
@@ -63,6 +63,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_sd_ex.c"
             "stm32h7xx_hal_sd.c"
             "stm32h7xx_hal.c"
+            "stm32h7xx_hal_pcd.c"
+            "stm32h7xx_hal_pcd_ex.c"
+            "stm32h7xx_ll_usb.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
@@ -73,6 +76,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            TRUE
     )
 
     embedded_binary(

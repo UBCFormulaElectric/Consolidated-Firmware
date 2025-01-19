@@ -14,8 +14,10 @@
 // io
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
-#include "io_canLogging.h"
+#include "io_canLoggingQueue.h"
 #include "io_pcm.h"
+
+#include <app_heartbeatMonitors.h>
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -48,16 +50,30 @@ void app_allStates_runOnTick100Hz(void)
         app_canTx_VC_ImuAccelerationZ_set(lin_accel_z);
     }
 
-    app_heartbeatMonitor_checkIn();
+    float angular_velocity_roll  = 0.0f;
+    float angular_velocity_pitch = 0.0f;
+    float angular_velocity_yaw   = 0.0f;
+
+    bool has_ang_vel_roll  = io_imu_getAngularVelocityRoll(&angular_velocity_roll);
+    bool has_ang_vel_pitch = io_imu_getAngularVelocityPitch(&angular_velocity_pitch);
+    bool has_ang_vel_yaw   = io_imu_getAngularVelocityYaw(&angular_velocity_yaw);
+
+    if (has_ang_vel_roll && has_ang_vel_pitch && has_ang_vel_yaw)
+    {
+        app_canTx_VC_ImuAngularVelocityRoll_set(angular_velocity_roll);
+        app_canTx_VC_ImuAngularVelocityPitch_set(angular_velocity_pitch);
+        app_canTx_VC_ImuAngularVelocityYaw_set(angular_velocity_yaw);
+    }
+
+    app_heartbeatMonitor_checkIn(&hb_monitor);
 
     if (heartbeat_cycles <= IGNORE_HEARTBEAT_CYCLES) // TODO make this part of the heartbeat monitor
         heartbeat_cycles++;
     else
-        app_heartbeatMonitor_broadcastFaults();
+        app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    // Comment out for now - SBG Ellipse is not currently used.
-    // io_sbgEllipse_handleLogs();
-    // app_sbgEllipse_broadcast();
+    io_sbgEllipse_handleLogs();
+    app_sbgEllipse_broadcast();
 
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
 }
