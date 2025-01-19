@@ -18,6 +18,7 @@
 #include "io_leds.h"
 #include "io_switches.h"
 #include "io_canQueue.h"
+#include "io_bootHandler.h"
 // can
 #include "io_jsoncan.h"
 #include "io_can.h"
@@ -278,6 +279,8 @@ static const Switches switch_config = {
 
 static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = &shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = &inertia_sen_pin };
+
+void tasks_deinit(void) {}
 
 void tasks_preInit(void)
 {

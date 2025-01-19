@@ -66,6 +66,7 @@ typedef enum
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
+<<<<<<< HEAD
     // Disable interrupts before jumping.
     __disable_irq();
 
@@ -111,6 +112,16 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     for (;;)
     {
     }
+=======
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+static void canTxOverflow(uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+>>>>>>> e0772d26c (cleaned up repo (removed func pointers))
 }
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
@@ -220,10 +231,6 @@ void bootloader_init(void)
     // other MCUs.
     bootloader_boardSpecific_init();
 
-    bool is_software_reset = (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != 0);
-    bool is_boot_flag_set  = boot_flag != 1;
-    bool jump_to_app       = !is_software_reset || is_boot_flag_set;
-
     if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && jump_to_app)
     {
         // Deinit peripherals.
@@ -233,9 +240,9 @@ void bootloader_init(void)
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
 
-        // clear rcc register flag and RAM boot flag
+        // clear RCC register flag and RAM boot flag
         __HAL_RCC_CLEAR_RESET_FLAGS();
-        boot_flag = 0x0;
+        boot_flag = 0;
 
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);

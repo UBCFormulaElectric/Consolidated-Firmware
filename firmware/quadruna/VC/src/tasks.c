@@ -212,7 +212,7 @@ _Noreturn void tasks_runCanRx(void)
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
 
-        io_bootHandler_processBootRequest(&rx_msg, tasks_deinit);
+        io_bootHandler_processBootRequest(&rx_msg);
 
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);

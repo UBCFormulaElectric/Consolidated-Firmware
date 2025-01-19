@@ -8,7 +8,6 @@ to verify the app's code before booting.
 is the full program running on a microcontroller on the car.
 
 """
-
 import argparse
 import intelhex
 import math
@@ -59,7 +58,6 @@ if __name__ == "__main__":
     parser.add_argument("--boot-hex", type=str, required=True)
     parser.add_argument("--app-metadata-hex-out", type=str, required=True)
     parser.add_argument("--image-hex-out", type=str, required=True)
-
     args = parser.parse_args()
 
     crc32 = Crc32()
@@ -74,6 +72,7 @@ if __name__ == "__main__":
         app_hex[i] for i in range(app_hex.minaddr(), app_hex.minaddr() + app_size_bytes)
     ]
     checksum = crc32.calculate(app_code)
+
     # Add checksum and app size (in bytes) to the app's metadata region.
     # Keep update to date with the "Metadata" struct in firmware/boot/shared/bootloader.c.
     metadata_bytes = struct.pack("<LL", checksum, app_size_bytes)

@@ -23,6 +23,7 @@
 #include "io_suspension.h"
 #include "io_loadCell.h"
 #include "io_apps.h"
+#include "io_bootHandler.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -84,6 +85,10 @@ static const PwmInputFreqOnlyConfig right_wheel_config = { .htim                
                                                            .tim_channel         = TIM_CHANNEL_1,
                                                            .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
                                                            .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
+
+static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
+
+void tasks_deinit(void) {}
 
 void tasks_preInit(void)
 {

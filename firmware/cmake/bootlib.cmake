@@ -5,7 +5,7 @@ IF(NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ stmlib.cmake must be included before bootlib.cmake")
 ENDIF()
 message("")
-message("🥾 Configuring boot binary generation")
+message("🥾 Configuring bootloader binary generation")
 
 message("  🔃 Registered stm32f4_boot_binary() function")
 function(stm32f4_boot_binary
