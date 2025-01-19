@@ -139,6 +139,8 @@ jobs:
             env_version: cube_6_12_0
           - board: quintuna_VC
             env_version: cube_6_12_0
+          - board: quintuna_DAM
+            env_version: cube_6_12_0
 
     container:
       image: ubcformulaelectric/environment:${{ matrix.env_version }}
