@@ -49,6 +49,7 @@ void jobs_init()
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_VC_Heartbeat_set(true);
 
     app_faultCheck_init();
 

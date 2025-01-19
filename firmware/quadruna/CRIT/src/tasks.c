@@ -327,6 +327,7 @@ void tasks_init(void)
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_CRIT_Heartbeat_set(true);
 }
 
 _Noreturn void tasks_run100Hz(void)

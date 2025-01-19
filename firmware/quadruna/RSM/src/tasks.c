@@ -147,6 +147,7 @@ void tasks_init(void)
 
     app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_RSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_RSM_Heartbeat_set(true);
 }
 
 _Noreturn void tasks_run1Hz(void)
