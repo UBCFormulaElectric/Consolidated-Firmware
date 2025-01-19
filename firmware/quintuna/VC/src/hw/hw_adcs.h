@@ -22,5 +22,8 @@ extern const AdcChannel inv_l_pwr_i_sns;
 extern const AdcChannel pump_rl_pwr_i_sns;
 extern const AdcChannel pump_rr_pwr_i_sns;
 extern const AdcChannel pump_f_pwr_i_sns;
+extern const AdcChannel l_rad_fan_i_sns;
+extern const AdcChannel r_rad_fan_i_sns;
+extern const AdcChannel extra_i_sns;
 
 void hw_adcs_chipsInit();
