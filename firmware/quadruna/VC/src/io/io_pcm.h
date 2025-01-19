@@ -1,16 +1,5 @@
-#ifdef TARGET_EMBEDDED
-#include "hw_gpio.h"
-typedef struct
-{
-    const Gpio *pcm_gpio;
-} PcmConfig;
-
-/**
- * Initialize the IO PCM module.
- * @param in_config PCM config struct.
- */
-void io_pcm_init(const PcmConfig *const in_config);
-#endif
+#pragma once
+#include <stdbool.h>
 
 /**
  * Enable the PCM.

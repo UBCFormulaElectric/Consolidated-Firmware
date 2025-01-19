@@ -1,5 +1,13 @@
 #include "app_heartbeatMonitor.h"
 
+void app_heartbeatMonitor_init(const HeartbeatMonitor *hbm)
+{
+    for (int i = 0; i < hbm->board_count; i++)
+    {
+        app_heartbeatBoard_init(&hbm->boards[i]);
+    }
+}
+
 void app_heartbeatMonitor_checkIn(const HeartbeatMonitor *hbm)
 {
     hbm->own_heartbeat(true);

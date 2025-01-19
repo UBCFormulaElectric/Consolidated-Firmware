@@ -8,15 +8,17 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_coolant.h"
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
 
 #include "io_jsoncan.h"
-#include "io_canRx.h"
+#include "io_canTx.h"
+#include "io_can.h"
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_coolant.h"
 #include "io_fans.h"
 #include "io_brake_light.h"
+#include "io_canQueue.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -32,7 +34,7 @@
 #include "shared.pb.h"
 #include "RSM.pb.h"
 
-static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
+static const CanHandle can = { .hcan = &hcan1 };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -56,14 +58,6 @@ void canRxQueueOverflowClearCallback(void)
     app_canAlerts_RSM_Warning_RxOverflow_set(false);
 }
 
-static const CanConfig can_config = {
-    .rx_msg_filter              = io_canRx_filterMessageId,
-    .tx_overflow_callback       = canTxQueueOverflowCallBack,
-    .rx_overflow_callback       = canRxQueueOverflowCallBack,
-    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
-    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
-};
-
 static const Gpio n_chimera_pin      = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const Gpio led_pin            = { .port = LED_GPIO_Port, .pin = LED_Pin };
 static const Gpio rad_fan_en_pin     = { .port = RAD_FAN_EN_GPIO_Port, .pin = RAD_FAN_EN_Pin };
@@ -71,19 +65,11 @@ static const Gpio fr_stby_pin        = { .port = FR_STBY_GPIO_Port, .pin = FR_ST
 static const Gpio brake_light_en_pin = { .port = BRAKE_LIGHT_EN_3V3_GPIO_Port, .pin = BRAKE_LIGHT_EN_3V3_Pin };
 static const Gpio acc_fan_en_pin     = { .port = ACC_FAN_EN_GPIO_Port, .pin = ACC_FAN_EN_Pin };
 static const Gpio n_program_pin      = { .port = NProgram_3V3_GPIO_Port, .pin = NProgram_3V3_Pin };
-static const Gpio acc_fan_pin        = {
-           .port = ACC_FAN_EN_GPIO_Port,
-           .pin  = RAD_FAN_EN_Pin,
-};
-static const Gpio rad_fan_pin = {
-    .port = RAD_FAN_EN_GPIO_Port,
-    .pin  = ACC_FAN_EN_Pin,
-};
+static const Gpio acc_fan_pin        = { .port = ACC_FAN_EN_GPIO_Port, .pin = RAD_FAN_EN_Pin };
+static const Gpio rad_fan_pin        = { .port = RAD_FAN_EN_GPIO_Port, .pin = ACC_FAN_EN_Pin };
+static const Gpio brake_light_pin    = { .port = BRAKE_LIGHT_EN_3V3_GPIO_Port, .pin = BRAKE_LIGHT_EN_3V3_Pin };
 
-static const BinaryLed brake_light = { .gpio = {
-                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
-                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
-                                       } };
+static const BinaryLed brake_light = { .gpio = &brake_light_pin };
 
 const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_pin,
                              [RSM_GpioNetName_LED]                = &led_pin,
@@ -114,9 +100,18 @@ PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
 
 static const UART debug_uart = { .handle = &huart1 };
 
+const UART *chimera_uart   = &debug_uart;
+const Gpio *n_chimera_gpio = &n_chimera_pin;
+
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
+}
+
+static void jsoncan_transmit(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&msg);
 }
 
 void tasks_init(void)
@@ -131,13 +126,13 @@ void tasks_init(void)
     hw_adcs_chipsInit();
 
     hw_hardFaultHandler_init();
-    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag, &n_chimera_pin);
+    io_can_init(&can);
+    io_canQueue_init();
+    io_chimera_init(GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
 
     app_canTx_init();
     app_canRx_init();
@@ -147,6 +142,7 @@ void tasks_init(void)
     io_brake_light_init(&brake_light);
     app_coolant_init();
 
+    app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(app_mainState_get());
 
     app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);
@@ -244,9 +240,8 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        CanMsg tx_msg;
-        io_can_popTxMsgFromQueue(&tx_msg);
-        io_can_transmitMsgFromQueue(&tx_msg);
+        CanMsg tx_msg = io_canQueue_popTx();
+        io_can_transmit(&can, &tx_msg);
     }
 }
 
@@ -255,10 +250,8 @@ _Noreturn void tasks_runCanRx(void)
     io_chimera_sleepTaskIfEnabled();
     for (;;)
     {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        CanMsg     rx_msg         = io_canQueue_popRx();
+        JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

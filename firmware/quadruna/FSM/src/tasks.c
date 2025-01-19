@@ -14,6 +14,7 @@
 #include "io_canRx.h"
 #include "io_log.h"
 #include "io_can.h"
+#include "io_canQueue.h"
 #include "io_led.h"
 #include "io_chimera.h"
 #include "io_steering.h"
@@ -21,7 +22,6 @@
 #include "io_brake.h"
 #include "io_suspension.h"
 #include "io_loadCell.h"
-#include "io_fsmShdn.h"
 #include "io_apps.h"
 
 #include "hw_bootup.h"
@@ -32,28 +32,21 @@
 #include "hw_stackWaterMark.h" // TODO enable stackwatermark on the FSM
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_adcs.h"
-#include "hw_gpio.h"
-#include "hw_uart.h"
+#include "hw_gpios.h"
+#include "hw_uarts.h"
 #include "hw_pwmInputFreqOnly.h"
 
 #include "shared.pb.h"
-#include "FSM.pb.h"
 
-extern ADC_HandleTypeDef hadc1;
-extern TIM_HandleTypeDef htim3;
-extern CAN_HandleTypeDef hcan1;
-extern TIM_HandleTypeDef htim12;
+static const CanHandle can = { .hcan = &hcan1 };
 
-static const CanHandle    can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
-extern UART_HandleTypeDef huart1;
-
-void canRxQueueOverflowCallBack(uint32_t overflow_count)
+void canRxQueueOverflowCallBack(const uint32_t overflow_count)
 {
     app_canTx_FSM_RxOverflowCount_set(overflow_count);
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowCallBack(uint32_t overflow_count)
+void canTxQueueOverflowCallBack(const uint32_t overflow_count)
 {
     app_canTx_FSM_TxOverflowCount_set(overflow_count);
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
@@ -69,42 +62,7 @@ void canRxQueueOverflowClearCallback(void)
     app_canAlerts_FSM_Warning_RxOverflow_set(false);
 }
 
-const CanConfig can_config = {
-    .rx_msg_filter              = io_canRx_filterMessageId,
-    .tx_overflow_callback       = canTxQueueOverflowCallBack,
-    .rx_overflow_callback       = canRxQueueOverflowCallBack,
-    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
-    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
-};
-
-static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
-static const Gpio      n_chimera_pin           = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
-static const BinaryLed led                     = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
-static const Gpio      nbspd_brake_pressed_3v3 = { .port = NBSPD_BRAKE_PRESSED_3V3_GPIO_Port,
-                                                   .pin  = NBSPD_BRAKE_PRESSED_3V3_Pin };
-static const Gpio      nprogram_3v3            = { .port = NPROGRAM_3V3_GPIO_Port, .pin = NPROGRAM_3V3_Pin };
-static const Gpio      fsm_shdn                = { .port = FSM_SHDN_GPIO_Port, .pin = FSM_SHDN_Pin };
-
-const Gpio *const id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &brake_ocsc_ok_3v3,
-                                   [FSM_GpioNetName_NCHIMERA]                = &n_chimera_pin,
-                                   [FSM_GpioNetName_LED]                     = &led.gpio,
-                                   [FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3] = &nbspd_brake_pressed_3v3,
-                                   [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
-                                   [FSM_GpioNetName_FSM_SHDN]                = &fsm_shdn };
-
-const AdcChannel *id_to_adc[] = {
-    [FSM_AdcNetName_SUSP_TRAVEL_FR_3V3] = &susp_travel_fr,
-    [FSM_AdcNetName_SUSP_TRAVEL_FL_3V3] = &susp_travel_fl,
-    [FSM_AdcNetName_LOAD_CELL_2_3V3]    = &lc2,
-    [FSM_AdcNetName_APPS2_3V3]          = &apps2,
-    [FSM_AdcNetName_BPS_F_3V3]          = &bps_f,
-    [FSM_AdcNetName_BPS_B_3V3]          = &bps_b,
-    [FSM_AdcNetName_LOAD_CELL_1_3V3]    = &lc1,
-    [FSM_AdcNetName_APPS1_3V3]          = &apps1,
-    [FSM_AdcNetName_SteeringAngle_3V3]  = &steering_angle,
-};
-
-static const UART debug_uart = { .handle = &huart1 };
+static const BinaryLed led = { .gpio = &led_gpio_pin };
 
 static const AppsConfig             apps_config       = { .papps = &apps1, .sapps = &apps2 };
 static const BrakeConfig            brake_config      = { .rear_brake          = &bps_b,
@@ -132,7 +90,11 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 }
 
-static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
+static void jsoncan_transmit(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&msg);
+}
 
 void tasks_init(void)
 {
@@ -146,14 +108,13 @@ void tasks_init(void)
     hw_adcs_chipsInit();
 
     hw_hardFaultHandler_init();
-    hw_can_init(&can);
+    io_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, &n_chimera_pin);
-    io_fsmShdn_init(&fsm_shdn_pin_config);
+    io_can_init(&can);
+    io_chimera_init(GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
     app_canTx_init();
     app_canRx_init();
 
@@ -262,9 +223,8 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        CanMsg tx_msg;
-        io_can_popTxMsgFromQueue(&tx_msg);
-        io_can_transmitMsgFromQueue(&tx_msg);
+        CanMsg tx_msg = io_canQueue_popTx();
+        io_can_transmit(&can, &tx_msg);
     }
 }
 
@@ -274,11 +234,8 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        CanMsg     rx_msg         = io_canQueue_popRx();
+        JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
