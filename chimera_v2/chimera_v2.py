@@ -9,21 +9,23 @@ class UsbDevice:
     # Vendor and product ID can be found in STM32 CubeMX.
     def __init__(self, idVendor: int, idProduct: int):
         self._device = usb.core.find(idVendor=idVendor, idProduct=idProduct)
-        self._interface = self.device[0][(1,0)]
-        self._endpoint_write = self.interface[0]
-        self._endpoint_read = self.interface[1]
+        self._interface = self._device[0][(1,0)]
+        self._endpoint_write = self._interface[0]
+        self._endpoint_read = self._interface[1]
 
-        # If the kernel is _attachted to another driver, detach it.
-        if self._device.is_kernel_driver_active(self._interface.bInterfaceNumber):
-            self._device.detach_kernel_driver(self._interface.bInterfaceNumber)
+        # TODO: MacOS won't give perms to do this - see if this is needed on WSL/windows.
+        # If the kernel is attached to another driver, detach it.
+        # if self._device.is_kernel_driver_active(self._interface.bInterfaceNumber):
+        #     self._device.detach_kernel_driver(self._interface.bInterfaceNumber)
 
-            # TODO: Investigate if claiming the interface explictly is needed.
-            usb.util.claim_interface(self._device, self._interface.bInterfaceNumber)
+        #     # TODO: Investigate if claiming the interface explictly is needed.
+        #     usb.util.claim_interface(self._device, self._interface.bInterfaceNumber)
 
     def __exit__(self):
         # Release the interface explictly.
         # TODO: Investigate if releasing the interface explictly is needed.
-        usb.util.release_interface(self._device, self._interface.bInterfaceNumber)
+        # usb.util.release_interface(self._device, self._interface.bInterfaceNumber)
+        pass
 
     # Write bytes over usb.
     def write(self, buffer: bytes):
@@ -35,7 +37,7 @@ class UsbDevice:
         res = []
         while len(res) < length:
             res.extend(self._device.read(
-                self._endpoint_write.bEndpointAddress, 
+                self._endpoint_read.bEndpointAddress, 
                 length - len(res)
             ))
         return bytes(res)

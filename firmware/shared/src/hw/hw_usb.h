@@ -25,4 +25,4 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len);
 void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
 
 // runs an example loop that logs all received bytes as chars
-void hw_usb_recieve_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
+void hw_usb_receive_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));

@@ -50,7 +50,7 @@ uint8_t hw_usb_recieve()
 void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len)
 {
     uint32_t space = osMessageQueueGetSpace(rx_queue_id);
-    if (len < space)
+    if (len > space)
     {
         LOG_WARN("usb message queue overflow");
     }
@@ -83,16 +83,16 @@ void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t L
     }
 }
 
-void hw_usb_recieve_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
+void hw_usb_receive_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
 {
     // init usb peripheral
     hw_usb_init(usb_transmit_handle);
 
-    // dump the queue.
-    for (int i = 0; true; i += 1)
+    // dump the queue
+    for (;;)
     {
         uint8_t result = hw_usb_recieve();
-        LOG_INFO("char %d: %c", i, (char)result);
-        osDelay(1000);
+        _LOG_PRINTF("%c", (char)result);
+        osDelay(100);
     }
 }
