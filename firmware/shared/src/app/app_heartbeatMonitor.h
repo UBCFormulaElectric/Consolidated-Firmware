@@ -10,7 +10,7 @@ typedef struct
     void (*own_heartbeat)(bool);
 } HeartbeatMonitor;
 
-void app_heartbeatMonitor_init(const HeartbeatMonitor* hbm);
+void app_heartbeatMonitor_init(const HeartbeatMonitor *hbm);
 
 void app_heartbeatMonitor_checkIn(const HeartbeatMonitor *hbm);
 
