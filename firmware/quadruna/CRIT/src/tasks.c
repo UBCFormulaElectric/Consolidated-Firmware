@@ -5,7 +5,7 @@
 #include "shared.pb.h"
 #include "CRIT.pb.h"
 // app
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 // io
@@ -321,6 +321,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
+    app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(app_mainState_get());
 
     // broadcast commit info

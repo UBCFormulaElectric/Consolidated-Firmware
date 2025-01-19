@@ -8,6 +8,9 @@
 
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
+#include "app_commitInfo.h"
+#include "app_faultCheck.h"
+#include "app_heartbeatMonitors.h"
 
 #include "io_log.h"
 #include "io_canLoggingQueue.h"

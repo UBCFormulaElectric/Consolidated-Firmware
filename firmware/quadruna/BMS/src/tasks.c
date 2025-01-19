@@ -31,6 +31,7 @@
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
+#include "app_heartbeatMonitors.h"
 
 #include "shared.pb.h"
 
