@@ -7,8 +7,8 @@
 
 typedef struct
 {
-    AdcChannel cell_1;
-    AdcChannel cell_2;
+    const AdcChannel *cell_1;
+    const AdcChannel *cell_2;
 } LoadCellConfig;
 
 #else

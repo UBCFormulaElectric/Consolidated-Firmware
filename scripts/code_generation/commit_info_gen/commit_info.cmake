@@ -34,6 +34,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
                 --output-header ${header_location}
                 --output-source ${src_location}
                 WORKING_DIRECTORY ${REPO_ROOT_DIR}
+                PRE_BUILD
         )
     ENDIF ()
 endfunction()
