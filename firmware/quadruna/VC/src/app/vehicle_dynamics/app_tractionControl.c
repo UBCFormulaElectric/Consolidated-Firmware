@@ -18,10 +18,24 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     float slip_ratio_left = app_tractionControl_computeSlip(inputs->motor_speed_left_rpm, wheel_speed_front_left_rpm);
     float slip_ratio_right =
         app_tractionControl_computeSlip(inputs->motor_speed_right_rpm, wheel_speed_front_right_rpm);
+        
 
-    float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
-    float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+        // corrected as we should correct the wheel that deviates most from the ideal slip ratio rather than just the one with the highest slip ratio
+    // ex. left wheel = 0.04 slip ratio and right wheel = 0.03, our old logic would correct left wheel due to max(left wheel, right wheel)
+    // however we should correct the left wheel first to get it in ideal operating range
 
+    float slip_ratio_error_left = (float)fabs(slip_ratio_left - SLIP_RATIO_IDEAL); 
+    float slip_ratio_error_right = (float)fabs(slip_ratio_right - SLIP_RATIO_IDEAL); 
+
+    float k; 
+
+    if( slip_ratio_error_left <= slip_ratio_error_right){
+        k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_right);
+
+    }
+    else{
+        k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_left);
+    }
     // Send debug messages over CAN
     app_canTx_VC_SlipRatioLeft_set(slip_ratio_left);
     app_canTx_VC_SlipRatioRight_set(slip_ratio_right);
