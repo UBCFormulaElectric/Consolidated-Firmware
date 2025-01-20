@@ -132,6 +132,23 @@ void tasks_init(void)
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
 }
 
+void tasks_deinit(void)
+{
+    HAL_TIM_Base_Stop_IT(&htim3);
+    HAL_TIM_Base_DeInit(&htim3);
+    HAL_TIM_Base_Stop_IT(&htim12);
+    HAL_TIM_Base_DeInit(&htim12);
+
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_DeInit(&huart1);
+
+    HAL_DMA_Abort_IT(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_adc1);
+
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_DeInit(&hadc1);
+}
+
 _Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
