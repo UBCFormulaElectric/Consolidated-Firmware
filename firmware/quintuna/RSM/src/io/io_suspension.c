@@ -8,8 +8,8 @@
 #define MIN_SUSPENSION_VOLTAGE (0.2f)
 #define MAX_SUSPENSION_VOLTAGE (3.5f)
 
-const Suspension right = { .src = &susp_travel_rr_3v3};
-const Suspension left = { .src = &susp_travel_rl_3v3};
+const Suspension right = { .src = &susp_travel_rr_3v3 };
+const Suspension left  = { .src = &susp_travel_rl_3v3 };
 
 float travelFromVoltage(float voltage)
 {
