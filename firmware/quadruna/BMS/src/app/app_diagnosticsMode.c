@@ -54,29 +54,6 @@ void (*cellVoltageSetters[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS
     }
 };
 
-void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
-{
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
-    {
-        float sum_segment_temp = 0U;
-
-        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
-        {
-            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++)
-            {
-                if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
-                {
-                    const float curr_cell_temp = io_ltc6813CellTemperatures_getSpecificCellTempDegC(
-                        curr_segment, curr_reg_group, curr_thermistor);
-                    sum_segment_temp += curr_cell_temp;
-                }
-            }
-        }
-
-        segment_temps[curr_segment] = (uint8_t)(sum_segment_temp / NUM_OF_THERMISTORS_PER_SEGMENT);
-    }
-}
-
 // Helper function to process a segment
 void processSegment(uint8_t segment)
 {
@@ -103,7 +80,24 @@ void app_diagnosticsMode_broadcast(void)
     }
 
     // Calculate and update all segment temperatures
-    app_diagnosticsMode_calculateDiagnosticTemperatureStats();
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
+    {
+        float sum_segment_temp = 0U;
+        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
+        {
+            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++)
+            {
+                if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
+                {
+                    const float curr_cell_temp = io_ltc6813CellTemperatures_getSpecificCellTempDegC(
+                        curr_segment, curr_reg_group, curr_thermistor);
+                    sum_segment_temp += curr_cell_temp;
+                }
+            }
+        }
+
+        segment_temps[curr_segment] = (uint8_t)(sum_segment_temp / NUM_OF_THERMISTORS_PER_SEGMENT);
+    }
     app_canTx_BMS_Seg0_Temp_set(segment_temps[0]);
     app_canTx_BMS_Seg1_Temp_set(segment_temps[1]);
     app_canTx_BMS_Seg2_Temp_set(segment_temps[2]);
