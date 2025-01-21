@@ -1,18 +1,12 @@
 #include "io_bspdTest.h"
+#include "hw_gpios.h"
 
-static const BSPDTestConfig *config = NULL;
-
-void io_bspdTest_init(const BSPDTestConfig *bspd_test_config)
+void io_bspdTest_enable(const bool enable)
 {
-    config = bspd_test_config;
-}
-
-void io_bspdTest_enable(bool enable)
-{
-    hw_gpio_writePin(&config->test_enable_gpio, enable);
+    hw_gpio_writePin(&test_enable_gpio, enable);
 }
 
 bool io_bspdTest_isCurrentThresholdExceeded(void)
 {
-    return !hw_gpio_readPin(&config->n_high_current_gpio);
+    return !hw_gpio_readPin(&n_high_current_gpio);
 }

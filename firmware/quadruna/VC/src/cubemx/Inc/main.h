@@ -44,13 +44,18 @@ extern "C"
     /* USER CODE BEGIN EC */
     extern ADC_HandleTypeDef   hadc1;
     extern ADC_HandleTypeDef   hadc3;
+    extern DMA_HandleTypeDef   hdma_adc1;
     extern FDCAN_HandleTypeDef hfdcan1;
-    extern UART_HandleTypeDef  huart7;
-    extern TIM_HandleTypeDef   htim3;
-    extern UART_HandleTypeDef  huart2;
-    extern UART_HandleTypeDef  huart1;
-    extern UART_HandleTypeDef  huart3;
+    extern I2C_HandleTypeDef   hi2c1;
+    extern I2C_HandleTypeDef   hi2c2;
+    extern IWDG_HandleTypeDef  hiwdg1;
     extern SD_HandleTypeDef    hsd1;
+    extern TIM_HandleTypeDef   htim3;
+    extern UART_HandleTypeDef  huart7;
+    extern UART_HandleTypeDef  huart1;
+    extern UART_HandleTypeDef  huart2;
+    extern UART_HandleTypeDef  huart3;
+    extern DMA_HandleTypeDef   hdma_usart2_rx;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
