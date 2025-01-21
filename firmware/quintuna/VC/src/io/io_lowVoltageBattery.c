@@ -23,10 +23,10 @@ bool io_lowVoltageBattery_init()
 bool io_lowVoltageBattery_getPackVoltage(uint16_t *packVoltage)
 {
     // 1 & 2. Write lower byte of command to 0x3E and upper byte of command to 0x3F
-    uint8_t buffer[2];
-    buffer[0] = 0x36;
-    buffer[1] = 0x37;
-    if (!hw_i2c_memWrite(&lvBatMon, COMMAND_ADDRESS, buffer, sizeof(buffer)))
+    uint8_t command_buffer[2];
+    command_buffer[0] = 0x36;
+    command_buffer[1] = 0x37;
+    if (!hw_i2c_memWrite(&lvBatMon, COMMAND_ADDRESS, command_buffer, sizeof(command_buffer)))
     {
         return false;
     }
@@ -40,12 +40,9 @@ bool io_lowVoltageBattery_getPackVoltage(uint16_t *packVoltage)
         uint8_t rx_buffer[2];
         if (hw_i2c_memRead(&lvBatMon, COMMAND_ADDRESS, rx_buffer, sizeof(rx_buffer)))
         {
-            if (rx_buffer[0] == buffer[0] && rx_buffer[1] == buffer[1])
+            if (rx_buffer[0] == command_buffer[0] && rx_buffer[1] == command_buffer[1])
             {
                 readDataReady = true;
-            } else
-            {
-                // continue waiting for subcommand to complete
             }
         }
     }
@@ -56,7 +53,11 @@ bool io_lowVoltageBattery_getPackVoltage(uint16_t *packVoltage)
     {
         return false;
     }
-    // 5. Read buffer starting at 0x40 for expected length
+    if (responseLength > sizeof(uint16_t))
+    {
+        return false; // Response length too large, not 16-bits
+    }
+    // 5. Read buffer starting at 0x40 using responseLength
     uint16_t voltageBuffer;
     if (!hw_i2c_memRead(&lvBatMon, 0x40, &voltageBuffer, responseLength))
     {
