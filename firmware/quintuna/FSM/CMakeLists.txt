@@ -1,5 +1,6 @@
 message("")
 message("⚙️ Configuring FSM (Quintuna)")
+
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
@@ -92,6 +93,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # JSONCAN
@@ -105,7 +107,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_FSM_jsoncan" PRIVATE "quintuna_FSM_stm32cube")
+    target_link_libraries("quintuna_FSM_jsoncan" INTERFACE "quintuna_FSM_stm32cube")
     target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32cube" "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "debug_modules")
     target_link_libraries("quintuna_FSM_boot.elf" PRIVATE "quintuna_FSM_commit_info")
 
