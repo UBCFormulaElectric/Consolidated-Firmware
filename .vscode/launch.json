@@ -65,7 +65,7 @@
         "serverpath": "JLinkGDBServer",
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCL",
       },
       "serverArgs": [
         "-speed",

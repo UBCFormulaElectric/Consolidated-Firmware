@@ -1,28 +1,8 @@
 #pragma once
-#include "app_utils.h"
 
-#ifdef TARGET_EMBEDDED
-#include "hw_gpio.h"
-#include "hw_adc.h"
-
-typedef struct
-{
-    const Gpio *tsms_gpio;
-    const Gpio *LE_stop_gpio;
-    const Gpio *RE_stop_gpio;
-    const Gpio *splitter_box_interlock_gpio;
-} VcShdnConfig;
-#else
-EMPTY_STRUCT(VcShdnConfig);
-#endif
+#include <stdbool.h>
 
 #define VC_SHDN_NODE_COUNT 4
-
-/*
- * Initialize config for shutdown gpio pins
- * @param config with shutdown gpio pins
- */
-void io_vcShdn_init(const VcShdnConfig *shutdown_config);
 
 /*
  * Get the status of the tsms shutdown pin

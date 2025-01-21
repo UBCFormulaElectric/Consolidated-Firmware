@@ -1,16 +1,16 @@
 #pragma once
 #include <stdbool.h>
-#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.h"
 
 typedef struct
 {
-    AdcChannel steering;
+    const AdcChannel *steering;
 } SteeringConfig;
 
 #else
+#include "app_utils.h"
 EMPTY_STRUCT(SteeringConfig)
 #endif
 
