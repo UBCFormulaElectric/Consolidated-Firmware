@@ -11,41 +11,47 @@
 
 static uint8_t segment_temps[ACCUMULATOR_NUM_SEGMENTS];
 
-void (*cellVoltageSetters[])(float) = {
-    app_canTx_BMS_Seg0_Cell0_Voltage_set,  app_canTx_BMS_Seg0_Cell1_Voltage_set,  app_canTx_BMS_Seg0_Cell2_Voltage_set,
-    app_canTx_BMS_Seg0_Cell3_Voltage_set,  app_canTx_BMS_Seg0_Cell4_Voltage_set,  app_canTx_BMS_Seg0_Cell5_Voltage_set,
-    app_canTx_BMS_Seg0_Cell6_Voltage_set,  app_canTx_BMS_Seg0_Cell7_Voltage_set,  app_canTx_BMS_Seg0_Cell8_Voltage_set,
-    app_canTx_BMS_Seg0_Cell9_Voltage_set,  app_canTx_BMS_Seg0_Cell10_Voltage_set, app_canTx_BMS_Seg0_Cell11_Voltage_set,
-    app_canTx_BMS_Seg0_Cell12_Voltage_set, app_canTx_BMS_Seg0_Cell13_Voltage_set, app_canTx_BMS_Seg0_Cell14_Voltage_set,
-    app_canTx_BMS_Seg0_Cell15_Voltage_set,
-
-    app_canTx_BMS_Seg1_Cell0_Voltage_set,  app_canTx_BMS_Seg1_Cell1_Voltage_set,  app_canTx_BMS_Seg1_Cell2_Voltage_set,
-    app_canTx_BMS_Seg1_Cell3_Voltage_set,  app_canTx_BMS_Seg1_Cell4_Voltage_set,  app_canTx_BMS_Seg1_Cell5_Voltage_set,
-    app_canTx_BMS_Seg1_Cell6_Voltage_set,  app_canTx_BMS_Seg1_Cell7_Voltage_set,  app_canTx_BMS_Seg1_Cell8_Voltage_set,
-    app_canTx_BMS_Seg1_Cell9_Voltage_set,  app_canTx_BMS_Seg1_Cell10_Voltage_set, app_canTx_BMS_Seg1_Cell11_Voltage_set,
-    app_canTx_BMS_Seg1_Cell12_Voltage_set, app_canTx_BMS_Seg1_Cell13_Voltage_set, app_canTx_BMS_Seg1_Cell14_Voltage_set,
-    app_canTx_BMS_Seg1_Cell15_Voltage_set,
-
-    app_canTx_BMS_Seg2_Cell0_Voltage_set,  app_canTx_BMS_Seg2_Cell1_Voltage_set,  app_canTx_BMS_Seg2_Cell2_Voltage_set,
-    app_canTx_BMS_Seg2_Cell3_Voltage_set,  app_canTx_BMS_Seg2_Cell4_Voltage_set,  app_canTx_BMS_Seg2_Cell5_Voltage_set,
-    app_canTx_BMS_Seg2_Cell6_Voltage_set,  app_canTx_BMS_Seg2_Cell7_Voltage_set,  app_canTx_BMS_Seg2_Cell8_Voltage_set,
-    app_canTx_BMS_Seg2_Cell9_Voltage_set,  app_canTx_BMS_Seg2_Cell10_Voltage_set, app_canTx_BMS_Seg2_Cell11_Voltage_set,
-    app_canTx_BMS_Seg2_Cell12_Voltage_set, app_canTx_BMS_Seg2_Cell13_Voltage_set, app_canTx_BMS_Seg2_Cell14_Voltage_set,
-    app_canTx_BMS_Seg2_Cell15_Voltage_set,
-
-    app_canTx_BMS_Seg3_Cell0_Voltage_set,  app_canTx_BMS_Seg3_Cell1_Voltage_set,  app_canTx_BMS_Seg3_Cell2_Voltage_set,
-    app_canTx_BMS_Seg3_Cell3_Voltage_set,  app_canTx_BMS_Seg3_Cell4_Voltage_set,  app_canTx_BMS_Seg3_Cell5_Voltage_set,
-    app_canTx_BMS_Seg3_Cell6_Voltage_set,  app_canTx_BMS_Seg3_Cell7_Voltage_set,  app_canTx_BMS_Seg3_Cell8_Voltage_set,
-    app_canTx_BMS_Seg3_Cell9_Voltage_set,  app_canTx_BMS_Seg3_Cell10_Voltage_set, app_canTx_BMS_Seg3_Cell11_Voltage_set,
-    app_canTx_BMS_Seg3_Cell12_Voltage_set, app_canTx_BMS_Seg3_Cell13_Voltage_set, app_canTx_BMS_Seg3_Cell14_Voltage_set,
-    app_canTx_BMS_Seg3_Cell15_Voltage_set,
-
-    app_canTx_BMS_Seg4_Cell0_Voltage_set,  app_canTx_BMS_Seg4_Cell1_Voltage_set,  app_canTx_BMS_Seg4_Cell2_Voltage_set,
-    app_canTx_BMS_Seg4_Cell3_Voltage_set,  app_canTx_BMS_Seg4_Cell4_Voltage_set,  app_canTx_BMS_Seg4_Cell5_Voltage_set,
-    app_canTx_BMS_Seg4_Cell6_Voltage_set,  app_canTx_BMS_Seg4_Cell7_Voltage_set,  app_canTx_BMS_Seg4_Cell8_Voltage_set,
-    app_canTx_BMS_Seg4_Cell9_Voltage_set,  app_canTx_BMS_Seg4_Cell10_Voltage_set, app_canTx_BMS_Seg4_Cell11_Voltage_set,
-    app_canTx_BMS_Seg4_Cell12_Voltage_set, app_canTx_BMS_Seg4_Cell13_Voltage_set, app_canTx_BMS_Seg4_Cell14_Voltage_set,
-    app_canTx_BMS_Seg4_Cell15_Voltage_set
+void (*cellVoltageSetters[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])(float) = {
+    {
+        app_canTx_BMS_Seg0_Cell0_Voltage_set,  app_canTx_BMS_Seg0_Cell1_Voltage_set,  app_canTx_BMS_Seg0_Cell2_Voltage_set,
+        app_canTx_BMS_Seg0_Cell3_Voltage_set,  app_canTx_BMS_Seg0_Cell4_Voltage_set,  app_canTx_BMS_Seg0_Cell5_Voltage_set,
+        app_canTx_BMS_Seg0_Cell6_Voltage_set,  app_canTx_BMS_Seg0_Cell7_Voltage_set,  app_canTx_BMS_Seg0_Cell8_Voltage_set,
+        app_canTx_BMS_Seg0_Cell9_Voltage_set,  app_canTx_BMS_Seg0_Cell10_Voltage_set, app_canTx_BMS_Seg0_Cell11_Voltage_set,
+        app_canTx_BMS_Seg0_Cell12_Voltage_set, app_canTx_BMS_Seg0_Cell13_Voltage_set, app_canTx_BMS_Seg0_Cell14_Voltage_set,
+        app_canTx_BMS_Seg0_Cell15_Voltage_set
+    },
+    {
+        app_canTx_BMS_Seg1_Cell0_Voltage_set,  app_canTx_BMS_Seg1_Cell1_Voltage_set,  app_canTx_BMS_Seg1_Cell2_Voltage_set,
+        app_canTx_BMS_Seg1_Cell3_Voltage_set,  app_canTx_BMS_Seg1_Cell4_Voltage_set,  app_canTx_BMS_Seg1_Cell5_Voltage_set,
+        app_canTx_BMS_Seg1_Cell6_Voltage_set,  app_canTx_BMS_Seg1_Cell7_Voltage_set,  app_canTx_BMS_Seg1_Cell8_Voltage_set,
+        app_canTx_BMS_Seg1_Cell9_Voltage_set,  app_canTx_BMS_Seg1_Cell10_Voltage_set, app_canTx_BMS_Seg1_Cell11_Voltage_set,
+        app_canTx_BMS_Seg1_Cell12_Voltage_set, app_canTx_BMS_Seg1_Cell13_Voltage_set, app_canTx_BMS_Seg1_Cell14_Voltage_set,
+        app_canTx_BMS_Seg1_Cell15_Voltage_set
+    },
+    {
+        app_canTx_BMS_Seg2_Cell0_Voltage_set,  app_canTx_BMS_Seg2_Cell1_Voltage_set,  app_canTx_BMS_Seg2_Cell2_Voltage_set,
+        app_canTx_BMS_Seg2_Cell3_Voltage_set,  app_canTx_BMS_Seg2_Cell4_Voltage_set,  app_canTx_BMS_Seg2_Cell5_Voltage_set,
+        app_canTx_BMS_Seg2_Cell6_Voltage_set,  app_canTx_BMS_Seg2_Cell7_Voltage_set,  app_canTx_BMS_Seg2_Cell8_Voltage_set,
+        app_canTx_BMS_Seg2_Cell9_Voltage_set,  app_canTx_BMS_Seg2_Cell10_Voltage_set, app_canTx_BMS_Seg2_Cell11_Voltage_set,
+        app_canTx_BMS_Seg2_Cell12_Voltage_set, app_canTx_BMS_Seg2_Cell13_Voltage_set, app_canTx_BMS_Seg2_Cell14_Voltage_set,
+        app_canTx_BMS_Seg2_Cell15_Voltage_set
+    },
+    {
+        app_canTx_BMS_Seg3_Cell0_Voltage_set,  app_canTx_BMS_Seg3_Cell1_Voltage_set,  app_canTx_BMS_Seg3_Cell2_Voltage_set,
+        app_canTx_BMS_Seg3_Cell3_Voltage_set,  app_canTx_BMS_Seg3_Cell4_Voltage_set,  app_canTx_BMS_Seg3_Cell5_Voltage_set,
+        app_canTx_BMS_Seg3_Cell6_Voltage_set,  app_canTx_BMS_Seg3_Cell7_Voltage_set,  app_canTx_BMS_Seg3_Cell8_Voltage_set,
+        app_canTx_BMS_Seg3_Cell9_Voltage_set,  app_canTx_BMS_Seg3_Cell10_Voltage_set, app_canTx_BMS_Seg3_Cell11_Voltage_set,
+        app_canTx_BMS_Seg3_Cell12_Voltage_set, app_canTx_BMS_Seg3_Cell13_Voltage_set, app_canTx_BMS_Seg3_Cell14_Voltage_set,
+        app_canTx_BMS_Seg3_Cell15_Voltage_set
+    },
+    {
+        app_canTx_BMS_Seg4_Cell0_Voltage_set,  app_canTx_BMS_Seg4_Cell1_Voltage_set,  app_canTx_BMS_Seg4_Cell2_Voltage_set,
+        app_canTx_BMS_Seg4_Cell3_Voltage_set,  app_canTx_BMS_Seg4_Cell4_Voltage_set,  app_canTx_BMS_Seg4_Cell5_Voltage_set,
+        app_canTx_BMS_Seg4_Cell6_Voltage_set,  app_canTx_BMS_Seg4_Cell7_Voltage_set,  app_canTx_BMS_Seg4_Cell8_Voltage_set,
+        app_canTx_BMS_Seg4_Cell9_Voltage_set,  app_canTx_BMS_Seg4_Cell10_Voltage_set, app_canTx_BMS_Seg4_Cell11_Voltage_set,
+        app_canTx_BMS_Seg4_Cell12_Voltage_set, app_canTx_BMS_Seg4_Cell13_Voltage_set, app_canTx_BMS_Seg4_Cell14_Voltage_set,
+        app_canTx_BMS_Seg4_Cell15_Voltage_set
+    }
 };
 
 void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
@@ -72,19 +78,19 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 }
 
 // Helper function to process a segment
-void processSegment(uint8_t segment, uint16_t baseIndex)
+void processSegment(uint8_t segment)
 {
-    for (uint8_t i = 0; i < 16; i++)
+    for (uint8_t cell = 0; cell < 16; cell++)
     {
-        cellVoltageSetters[baseIndex + i](io_ltc6813CellVoltages_getCellVoltage(segment, i));
+        cellVoltageSetters[segment][cell](io_ltc6813CellVoltages_getCellVoltage(segment, cell));
     }
 }
 
-void invalidateSegment(uint8_t segment, uint16_t baseIndex)
+void invalidateSegment(uint8_t segment)
 {
-    for (uint8_t i = 0; i < 16; i++)
+    for (uint8_t cell = 0; cell < 16; cell++)
     {
-        cellVoltageSetters[baseIndex + i]((float)-0.1);
+        cellVoltageSetters[segment][cell]((float)-0.1);
     }
 }
 
@@ -93,7 +99,7 @@ void app_diagnosticsMode_broadcast(void)
     // Update all cell voltages
     for (uint8_t segment = 0; segment < 5; segment++)
     {
-        processSegment(segment, segment * 16);
+        processSegment(segment);
     }
 
     // Calculate and update all segment temperatures
@@ -109,7 +115,7 @@ void app_diagnosticsMode_invalidateValues(void)
 {
     for (uint8_t segment = 0; segment < 5; segment++)
     {
-        invalidateSegment(segment, segment * 16);
+        invalidateSegment(segment);
     }
 
     app_canTx_BMS_Seg0_Temp_set(-1);
