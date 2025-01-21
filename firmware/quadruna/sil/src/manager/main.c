@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <czmq.h>
+#include <stdint.h>
 
 #include "sil_board.h"
 #include "sil_manager.h"

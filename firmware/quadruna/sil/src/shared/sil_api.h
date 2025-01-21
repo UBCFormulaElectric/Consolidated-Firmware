@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <czmq.h>
+#include <stdint.h>
 
 // can topic.
 // Sent from boards, each message denotes a JsonCanMsg.
@@ -132,3 +133,27 @@ sil_api_TimeReq *sil_api_timeReq_rx(zmsg_t *zmqMsg);
 
 // Destroy a time request.
 void sil_api_timeReq_destroy(sil_api_TimeReq *msg);
+
+// Sent from supervisor indicating what procedure to invoke for what board
+#define SIL_API_PROCEDURE_TOPIC ("board_procedure")
+
+// struct pointing to the appropriate board prcedure
+typedef struct sil_api_Procedure
+{
+    const char *board_procedure;
+    void (*board_procedure_ptr)(void);
+} sil_api_Procedure;
+
+typedef struct BoardFunctionMapping
+{
+    const char        *board_name;
+    sil_api_Procedure *table;
+} BoardFunctionMapping;
+
+// creating a new message rx/tx and destroy
+// sil_api_Procedure *sil_api_procedure_new(char board_procedure);
+sil_api_Procedure *sil_api_procedure_new(void (*board_procedure)(void));
+
+int                sil_api_procedure_tx(sil_api_Procedure *msg, zsock_t *socket);
+sil_api_Procedure *sil_api_procedure_rx(zmsg_t *zmqMsg);
+void               sil_api_procedure_destroy(sil_api_Procedure *msg);

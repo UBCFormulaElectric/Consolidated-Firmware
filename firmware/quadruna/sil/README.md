@@ -13,6 +13,7 @@ To be able to run the firmware of multiple boards on our local machines, we use 
 - `time_resp`
 - `can`
 - `ready`
+- `procedure`
 
 ## Navigating Software In Loop Source Code
 TODO.
