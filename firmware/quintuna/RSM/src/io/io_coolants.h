@@ -7,15 +7,6 @@
 #include "hw_adcs.h"
 #include "main.h"
 
-void io_coolant_init(const PwmInputFreqOnlyConfig *config);
-
-void io_coolant_inputCaptureCallback(void);
-
-float io_coolant_getFlowRate(void);
-void  io_coolant_checkIfFlowMeterActive(void);
-
-bool io_coolant_temperature_ocsc(float v);
-
 typedef struct
 {
     const AdcChannel *src;
@@ -28,3 +19,16 @@ bool  io_coolant_temperatureOCSC(const Coolant *coolant);
 
 extern const Coolant a;
 extern const Coolant b;
+
+typedef struct
+{
+    const PwmInputFreqOnly *src;
+    
+} CoolantFlowMeter;
+
+void io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *coolant_flow);
+void io_coolant_inputCaptureCallback(CoolantFlowMeter *coolant_flow);
+void io_coolant_checkIfFlowMeterActive (CoolantFlowMeter *coolant_flow);
+float io_coolant_getFlowRate(CoolantFlowMeter *coolant_flow);
+
+extern const CoolantFlowMeter coolant_flow_meter;
