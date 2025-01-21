@@ -121,15 +121,5 @@
                 "bits": 1
             }
         }
-    },
-    "CellDiagnostics": {
-        "msg_id": 707,
-        "cycle_time": 1000,
-        "description": "Signals ",
-        "signals": {
-            "BMSDiagnosticsRequest": {
-                "bits": 1
-            }
-        }
     }
 }
