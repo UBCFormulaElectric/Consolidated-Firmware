@@ -9,6 +9,8 @@
 #include "app_utils.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
+#define TRACTION_CONTROL_LOWER_BOUND -10.0f
+#define TRACTION_CONTROL_UPPER_BOUND 10.0f
 static TimerChannel pid_timeout;
 
 static PowerLimiting_Inputs       power_limiting_inputs = { .power_limit_kW = POWER_LIMIT_CAR_kW };
@@ -16,6 +18,7 @@ static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
 static TractionControl_Outputs    traction_control_outputs;
+static Torque_to_Inverters        torque_to_inverters; 
 
 static bool run_traction_control = false;
 
@@ -96,7 +99,47 @@ void app_torqueVectoring_handleAcceleration(void)
     // Power limit correction
     float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
-    // Active Differential
+    // initializing active diff outputs
+    active_differential_outputs.torque_left_Nm = 0.0; 
+    active_differential_outputs.torque_right_Nm = 0.0;
+
+    // initializing active diff outputs
+    traction_control_outputs.torque_left_Nm = 0.0; 
+    traction_control_outputs.torque_right_Nm = 0.0;
+
+
+
+    // new control architecture
+    if(TRACTION_CONTROL_LOWER_BOUND <= steering_angle_deg && steering_angle_deg <= TRACTION_CONTROL_UPPER_BOUND)
+    {
+
+        float torque_lim = app_torqueVectoring_powerToTorque(power_limit,
+                                                             motor_speed_left_rpm, 
+                                                             motor_speed_right_rpm,
+                                                             1,
+                                                             1);
+
+    /**
+     *  TRACTION CONTROL NOT TESTED ON CAR YET
+     */
+    // Traction Control
+
+    if (run_traction_control)
+    {
+        traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
+        traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
+        traction_control_inputs.torque_limit                = torque_lim;
+        traction_control_inputs.torque_left_Nm              = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        traction_control_inputs.torque_right_Nm             = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        traction_control_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
+        traction_control_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
+        app_tractionControl_computeTorque(&traction_control_inputs, &traction_control_outputs);
+    }
+    }
+    
+    else
+    {
+        // Active Differential
     active_differential_inputs.power_max_kW          = power_limit;
     active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
@@ -105,48 +148,31 @@ void app_torqueVectoring_handleAcceleration(void)
     app_activeDifferential_computeTorque(&active_differential_inputs, &active_differential_outputs);
     app_canTx_VC_ActiveDiffTorqueLeft_set(active_differential_outputs.torque_left_Nm);
     app_canTx_VC_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
-
-    /**
-     *  TRACTION CONTROL NOT TESTED ON CAR YET
-     */
-    // Traction Control
-    if (run_traction_control)
-    {
-        traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
-        traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
-        traction_control_inputs.torque_left_Nm              = active_differential_outputs.torque_left_Nm;
-        traction_control_inputs.torque_right_Nm             = active_differential_outputs.torque_right_Nm;
-        traction_control_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
-        traction_control_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
-        app_tractionControl_computeTorque(&traction_control_inputs, &traction_control_outputs);
     }
 
-    // Inverter Torque Request
-    float torque_left_final_Nm;
-    float torque_right_final_Nm;
     if (run_traction_control)
     {
-        torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;
-        torque_right_final_Nm = traction_control_outputs.torque_right_final_Nm;
+        torque_to_inverters.torque_left_final_Nm  = traction_control_outputs.torque_left_Nm + active_differential_outputs.torque_left_Nm;
+        torque_to_inverters.torque_right_final_Nm = traction_control_outputs.torque_right_Nm + active_differential_outputs.torque_right_Nm;
     }
     else
     {
-        torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
-        torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
+        torque_to_inverters.torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
+        torque_to_inverters.torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
     }
 
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
     {
-        torque_left_final_Nm  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-        torque_right_final_Nm = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        torque_to_inverters.torque_left_final_Nm  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        torque_to_inverters.torque_right_final_Nm = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     }
 
     // CLAMPS for safety only - should never exceed torque limit
-    torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
-    torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_LeftInverterTorqueCommand_set(torque_left_final_Nm);
-    app_canTx_VC_RightInverterTorqueCommand_set(torque_right_final_Nm);
+    torque_to_inverters.torque_left_final_Nm  = CLAMP(torque_to_inverters.torque_left_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
+    torque_to_inverters.torque_right_final_Nm = CLAMP(torque_to_inverters.torque_right_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_LeftInverterTorqueCommand_set(torque_to_inverters.torque_left_final_Nm);
+    app_canTx_VC_RightInverterTorqueCommand_set(torque_to_inverters.torque_right_final_Nm);
 
     // Calculate power correction PID
     float power_consumed_measured = battery_voltage * current_consumption;
@@ -157,7 +183,8 @@ void app_torqueVectoring_handleAcceleration(void)
     //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
 
     float power_consumed_ideal =
-        (motor_speed_left_rpm * torque_left_final_Nm + motor_speed_right_rpm * torque_right_final_Nm) /
+        (motor_speed_left_rpm * torque_to_inverters.torque_left_final_Nm + 
+        motor_speed_right_rpm * torque_to_inverters.torque_right_final_Nm) /
         POWER_TO_TORQUE_CONVERSION_FACTOR;
     float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
     pid_power_correction_factor -=
@@ -169,4 +196,15 @@ void app_torqueVectoring_handleAcceleration(void)
     app_canTx_VC_PIDPowerEstimateError_set(pid_power_correction.error);
     app_canTx_VC_PIDPowerEstimateDerivative_set(pid_power_correction.derivative);
     app_canTx_VC_PIDPowerEstimateIntegral_set(pid_power_correction.integral);
+}
+
+float app_torqueVectoring_powerToTorque(
+    float power_kW,
+    float left_motor_speed_rpm,
+    float right_motor_speed_rpm,
+    float cl,
+    float cr)
+{
+    return (POWER_TO_TORQUE_CONVERSION_FACTOR * power_kW) /
+           (left_motor_speed_rpm * cl + right_motor_speed_rpm * cr + SMALL_EPSILON);
 }

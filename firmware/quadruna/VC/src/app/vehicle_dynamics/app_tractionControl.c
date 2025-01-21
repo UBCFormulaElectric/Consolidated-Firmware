@@ -18,9 +18,27 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     float slip_ratio_left = app_tractionControl_computeSlip(inputs->motor_speed_left_rpm, wheel_speed_front_left_rpm);
     float slip_ratio_right =
         app_tractionControl_computeSlip(inputs->motor_speed_right_rpm, wheel_speed_front_right_rpm);
+    
+    float error_slip_left = (float)fabs(SLIP_RATIO_IDEAL - slip_ratio_left);
+    float error_slip_right = (float)fabs(SLIP_RATIO_IDEAL - slip_ratio_right);
 
-    float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
-    float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+    float k; 
+
+    // correcting based on most deviance from ideal torque 
+
+    if(error_slip_left < error_slip_right)
+    {
+
+        k = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_right);
+        outputs->torque_right_Nm = inputs->torque_right_Nm - k;
+        outputs->torque_left_Nm = inputs->torque_left_Nm;
+    }
+    else
+    {
+        k = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_left);
+        outputs->torque_left_Nm = inputs->torque_left_Nm - k; 
+        outputs->torque_right_Nm = inputs->torque_right_Nm;
+    }
 
     // Send debug messages over CAN
     app_canTx_VC_SlipRatioLeft_set(slip_ratio_left);
@@ -30,9 +48,6 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     app_canTx_VC_PIDSlipRatioDerivative_set(pid->derivative);
     app_canTx_VC_PIDSlipRatioIntegral_set(pid->integral);
 
-    // NOTE: k strictly in range [-1 0] to prevent exceeding power limit
-    outputs->torque_left_final_Nm  = (1.0f + k) * inputs->torque_left_Nm;
-    outputs->torque_right_final_Nm = (1.0f + k) * inputs->torque_right_Nm;
 }
 
 float app_tractionControl_computeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)

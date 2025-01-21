@@ -15,6 +15,7 @@ typedef struct TractionControl_Inputs
 {
     float torque_left_Nm;
     float torque_right_Nm;
+    float torque_limit;
     float motor_speed_left_rpm;
     float motor_speed_right_rpm;
     float wheel_speed_front_left_kph;
@@ -24,8 +25,8 @@ typedef struct TractionControl_Inputs
 
 typedef struct TractionControl_Outputs
 {
-    float torque_left_final_Nm;
-    float torque_right_final_Nm;
+    float torque_left_Nm;
+    float torque_right_Nm;
 } TractionControl_Outputs;
 
 typedef struct ActiveDifferential_Inputs
@@ -51,3 +52,9 @@ typedef struct PowerLimiting_Inputs
     const float power_limit_kW;
     float       accelerator_pedal_percent;
 } PowerLimiting_Inputs;
+
+typedef struct Torque_to_Inverters
+{
+    float torque_left_final_Nm;
+    float torque_right_final_Nm;
+}Torque_to_Inverters; 
