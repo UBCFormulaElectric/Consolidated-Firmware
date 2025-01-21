@@ -9,10 +9,7 @@
 #include <string.h>
 #include <float.h>
 
-static struct
-{
-    uint8_t segment_temps[ACCUMULATOR_NUM_SEGMENTS];
-} data;
+static uint8_t segment_temps[ACCUMULATOR_NUM_SEGMENTS];
 
 void (*cellVoltageSetters[])(float) = {
     app_canTx_BMS_Seg0_Cell0_Voltage_set,  app_canTx_BMS_Seg0_Cell1_Voltage_set,  app_canTx_BMS_Seg0_Cell2_Voltage_set,
@@ -70,7 +67,7 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
             }
         }
 
-        data.segment_temps[curr_segment] = (uint8_t)(sum_segment_temp / NUM_OF_THERMISTORS_PER_SEGMENT);
+        segment_temps[curr_segment] = (uint8_t)(sum_segment_temp / NUM_OF_THERMISTORS_PER_SEGMENT);
     }
 }
 
@@ -101,11 +98,11 @@ void app_diagnosticsMode_broadcast(void)
 
     // Calculate and update all segment temperatures
     app_diagnosticsMode_calculateDiagnosticTemperatureStats();
-    app_canTx_BMS_Seg0_Temp_set(data.segment_temps[0]);
-    app_canTx_BMS_Seg1_Temp_set(data.segment_temps[1]);
-    app_canTx_BMS_Seg2_Temp_set(data.segment_temps[2]);
-    app_canTx_BMS_Seg3_Temp_set(data.segment_temps[3]);
-    app_canTx_BMS_Seg4_Temp_set(data.segment_temps[4]);
+    app_canTx_BMS_Seg0_Temp_set(segment_temps[0]);
+    app_canTx_BMS_Seg1_Temp_set(segment_temps[1]);
+    app_canTx_BMS_Seg2_Temp_set(segment_temps[2]);
+    app_canTx_BMS_Seg3_Temp_set(segment_temps[3]);
+    app_canTx_BMS_Seg4_Temp_set(segment_temps[4]);
 }
 
 void app_diagnosticsMode_invalidateValues(void)
