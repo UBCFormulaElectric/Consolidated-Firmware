@@ -4,11 +4,27 @@ import usb
 # Can be any non-zero byte.
 START_RPC_BYTE = 0x01
 
+# Debug util for listing avaiable usb devices
+def log_usb_devices():
+    devices = usb.core.find(find_all=True)
+    for device in devices:
+        print(f"Manufacturer: {device.manufacturer}, Product: {device.product}")
+
 class UsbDevice:
     # Abstraction around a USB CDC (communcations device class) device.
     # Vendor and product ID can be found in STM32 CubeMX.
     def __init__(self, idVendor: int, idProduct: int):
         self._device = usb.core.find(idVendor=idVendor, idProduct=idProduct)
+
+        # If the device was not found.
+        if self._device == None:
+
+            # Error out, and list all devices.
+            print("Error: Specified USB device not found.")
+            print("Devices found:")
+            log_usb_devices()
+            exit(1)
+
         self._interface = self._device[0][(1,0)]
         self._endpoint_write = self._interface[0]
         self._endpoint_read = self._interface[1]
