@@ -54,32 +54,8 @@ void (*cellVoltageSetters[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS
     }
 };
 
-// Helper function to process a segment
-void processSegment(uint8_t segment)
+void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 {
-    for (uint8_t cell = 0; cell < 16; cell++)
-    {
-        cellVoltageSetters[segment][cell](io_ltc6813CellVoltages_getCellVoltage(segment, cell));
-    }
-}
-
-void invalidateSegment(uint8_t segment)
-{
-    for (uint8_t cell = 0; cell < 16; cell++)
-    {
-        cellVoltageSetters[segment][cell]((float)-0.1);
-    }
-}
-
-void app_diagnosticsMode_broadcast(void)
-{
-    // Update all cell voltages
-    for (uint8_t segment = 0; segment < 5; segment++)
-    {
-        processSegment(segment);
-    }
-
-    // Calculate and update all segment temperatures
     for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
     {
         float sum_segment_temp = 0U;
@@ -98,6 +74,29 @@ void app_diagnosticsMode_broadcast(void)
 
         segment_temps[curr_segment] = (uint8_t)(sum_segment_temp / NUM_OF_THERMISTORS_PER_SEGMENT);
     }
+}
+
+void invalidateSegment(uint8_t segment)
+{
+    for (uint8_t cell = 0; cell < 16; cell++)
+    {
+        cellVoltageSetters[segment][cell]((float)-0.1);
+    }
+}
+
+void app_diagnosticsMode_broadcast(void)
+{
+    // Update all cell voltages
+    for (uint8_t segment = 0; segment < 5; segment++)
+    {
+        for (uint8_t cell = 0; cell < 16; cell++)
+        {
+            cellVoltageSetters[segment][cell](io_ltc6813CellVoltages_getCellVoltage(segment, cell));
+        }
+    }
+
+    // Calculate and update all segment temperatures
+    app_diagnosticsMode_calculateDiagnosticTemperatureStats();
     app_canTx_BMS_Seg0_Temp_set(segment_temps[0]);
     app_canTx_BMS_Seg1_Temp_set(segment_temps[1]);
     app_canTx_BMS_Seg2_Temp_set(segment_temps[2]);
