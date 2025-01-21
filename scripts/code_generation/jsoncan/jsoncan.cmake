@@ -60,19 +60,12 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
     IF (${USE_IO})
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
-                ${APP_CAN_TX_HEADER_OUTPUT}
                 ${IO_CAN_TX_SRC_OUTPUT}
-                ${IO_CAN_TX_HEADER_OUTPUT}
                 ${APP_CAN_RX_SRC_OUTPUT}
-                ${APP_CAN_RX_HEADER_OUTPUT}
                 ${IO_CAN_RX_SRC_OUTPUT}
-                ${IO_CAN_RX_HEADER_OUTPUT}
                 ${APP_CAN_UTILS_SRC_OUTPUT}
-                ${APP_CAN_UTILS_HEADER_OUTPUT}
                 ${APP_CAN_ALERTS_SRC_OUTPUT}
-                ${APP_CAN_ALERTS_HEADER_OUTPUT}
                 ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
-                ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
                 PARENT_SCOPE
         )
         set(CAN_INCLUDE_DIRS
@@ -83,15 +76,10 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
     ELSE ()
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
-                ${APP_CAN_TX_HEADER_OUTPUT}
                 ${APP_CAN_RX_SRC_OUTPUT}
-                ${APP_CAN_RX_HEADER_OUTPUT}
                 ${APP_CAN_UTILS_SRC_OUTPUT}
-                ${APP_CAN_UTILS_HEADER_OUTPUT}
                 ${APP_CAN_ALERTS_SRC_OUTPUT}
-                ${APP_CAN_ALERTS_HEADER_OUTPUT}
                 ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
-                ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
                 PARENT_SCOPE
         )
         set(CAN_INCLUDE_DIRS
@@ -121,6 +109,7 @@ function(log_bus_load CAR)
 endfunction()
 
 log_bus_load("quadruna")
+log_bus_load("quintuna")
 
 
 

@@ -3,15 +3,16 @@
 #include <assert.h>
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
-#include "queue.h"
-
 #include "main.h"
 #include "app_units.h"
 #include "sbgECom.h"
 #include "interfaces/sbgInterfaceSerial.h"
 #include "app_canTx.h"
+#include "app_canUtils.h"
+
 #include "io_time.h"
 #include "io_log.h"
+#include "hw_uarts.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
@@ -19,9 +20,7 @@
 #define QUEUE_MAX_SIZE 32       // 128 * 32 = 4096 which is SBG_ECOM_MAX_BUFFER_SIZE
 
 /* --------------------------------- Variables ---------------------------------- */
-extern UART_HandleTypeDef huart2;
-
-static const UART   *uart = NULL;
+static const UART   *chimera_uart = &sbg_uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -211,23 +210,9 @@ static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
 static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data)
 {
     // TODO: uncomment after initial testing, if this occurs skip reading data
-    // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
-    // SBG_ECOM_SOL_MODE_NAV_POSITION);
 
-    app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
-
-    // uint32_t status = log_data->ekfNavData.status;
-
-    // if (sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) != SBG_ECOM_SOL_MODE_NAV_POSITION)
-    // {
-    //     uint32_t status = log_data->ekfNavData.status;
-
-    //     bool is_velocity_valid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
-    //     bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
-
-    //     if (!is_velocity_valid & !is_position_valid)
-    //         return;
-    // }
+    // obtaining ekf solution mode from sbg ellipse and setting it in status field
+    sensor_data.ekf_solution_status = sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status);
 
     // velocity data in m/s
     sensor_data.ekf_nav_data.velocity.north = log_data->ekfNavData.velocity[0];
@@ -252,11 +237,9 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool io_sbgEllipse_init(const UART *sbg_uart)
+bool io_sbgEllipse_init()
 {
     memset(&sensor_data, 0, sizeof(SensorData));
-
-    uart = sbg_uart;
 
     // Initialize the SBG serial interface handle
     io_sbgEllipse_createSerialInterface(&sbg_interface);
@@ -278,7 +261,7 @@ bool io_sbgEllipse_init(const UART *sbg_uart)
     assert(sensor_rx_queue_id != NULL);
 
     // Start waiting for UART packets
-    hw_uart_receiveDma(uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
+    hw_uart_receiveDma(chimera_uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }
@@ -316,6 +299,11 @@ uint32_t io_sbgEllipse_getComStatus(void)
 uint32_t io_sbgEllipse_getOverflowCount(void)
 {
     return sbg_queue_overflow_count;
+}
+
+uint32_t io_sbgEllipse_getEkfSolutionMode(void)
+{
+    return sensor_data.ekf_solution_status;
 }
 
 Vector3 *io_sbgEllipse_getImuAccelerations()

@@ -1,27 +1,5 @@
 #pragma once
 #include <stdbool.h>
-#include "app_utils.h"
-
-#ifdef TARGET_EMBEDDED
-#include "hw_gpio.h"
-#include "hw_adc.h"
-
-typedef struct
-{
-    const Gpio        bat_fault_gpio;
-    const Gpio        acc_fault_gpio;
-    const AdcChannel *bat_current_adc;
-    const AdcChannel *acc_current_adc;
-} CurrentSensingConfig;
-#else
-EMPTY_STRUCT(CurrentSensingConfig);
-#endif
-
-/*
- * Initialize config for curent sensing pins
- * @param current_sensing_config config with shutdown gpio pins
- */
-void io_currentSensing_init(const CurrentSensingConfig *current_sensing_config);
 
 /**
  * Gets current from battery (BAT_I_SNS pin)
