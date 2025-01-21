@@ -1,6 +1,5 @@
 #pragma once
 #include "io_led.h"
-#include "hw_gpios.h"
 
 extern const BinaryLed brake_light;
 extern const BinaryLed led;

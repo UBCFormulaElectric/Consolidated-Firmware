@@ -2,8 +2,6 @@
 #include <stdbool.h>
 #include <hw_adcs.h>
 
-extern float travelFromVoltage(float voltage);
-
 typedef struct
 {
     const AdcChannel *src;
@@ -11,7 +9,7 @@ typedef struct
 
 float io_suspension_getTravel(const Suspension *suspension);
 
-bool io_suspension_SensorOCSC(const Suspension *suspension);
+bool io_suspension_OCSC(const Suspension *suspension);
 
 extern const Suspension right;
 extern const Suspension left;

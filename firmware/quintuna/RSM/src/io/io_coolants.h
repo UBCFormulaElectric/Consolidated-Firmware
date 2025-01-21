@@ -21,10 +21,10 @@ typedef struct
     const AdcChannel *src;
 } Coolant;
 
-float io_coolant_getPressure(Coolant *coolant);
-float io_coolant_getTemperature(Coolant *coolant);
-bool  io_coolant_pressureOCSC(Coolant *coolant);
-bool  io_coolant_temperatureOCSC(Coolant *coolant);
+float io_coolant_getPressure(const Coolant *coolant);
+float io_coolant_getTemperature(const Coolant *coolant);
+bool  io_coolant_pressureOCSC(const Coolant *coolant);
+bool  io_coolant_temperatureOCSC(const Coolant *coolant);
 
 extern const Coolant a;
 extern const Coolant b;

@@ -9,7 +9,7 @@ typedef struct
 
 } LoadCell;
 
-bool  is_ocsc(const LoadCell *loadCell);
-float loadCell_getMechanicalLoad(const LoadCell *loadCell);
+bool  io_loadCell_OCSC(const LoadCell *loadCell);
+float io_loadCell_getMechanicalLoad(const LoadCell *loadCell);
 
 extern const LoadCell sensor3;

@@ -8,13 +8,13 @@
 
 const LoadCell sensor3 = { .src = &lc3_out };
 
-bool loadCell_OCSC(const LoadCell *loadCell)
+bool io_loadCell_OCSC(const LoadCell *loadCell)
 {
     const float voltage = hw_adc_getVoltage(loadCell->src);
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
-float loadCell_getMechanicalLoad(const LoadCell *loadCell)
+float io_loadCell_getMechanicalLoad(const LoadCell *loadCell)
 {
     // TODO: find transfer function (no spec sheet so far just this amazon link:
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/

@@ -5,11 +5,9 @@
 #include "hw_pwmInputFreqOnly.h"
 #include "hw_adc.h"
 #include "app_utils.h"
-#include "app_canTx.h"
 #include "io_log.h"
 #include "hw_pwms.h"
 #include "hw_adcs.h"
-#include "app_utils.h"
 #include "app_canTx.h"
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
