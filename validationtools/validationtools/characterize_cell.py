@@ -2,26 +2,30 @@ from validationtools.loadBank._loadBank import *
 from validationtools.powerSupply._powerSupply import *
 from validationtools.logger.logger import *
 
-totalCellCapacity = 2.600 # Ah From datasheet on google drive
-chargingRate      = 2.6      # 1C Rate in amps 
+
+# Accoding to datasheet, cell has a peak charging voltage of 4.2V and a cutoff voltage of 2.5V
+maxChargingVoltage= 4.2
+minDischargingVoltage = 2.5
+totalCellCapacity = 2.800 # Ah From datasheet on google drive
+chargingRate      = 2.8   # 1C Rate in amps 
+restingTimeSeconds = 30 
+activeTimeSeconds = 30
 
 
 def getCoulombs( current, timeStepSeconds)->float:
     coulombsAh = current * timeStepSeconds /3600 # seconds to hrs conversion
     return coulombsAh
 
-def getCellSOC(accumulatedCoulombs):
-    return accumulatedCoulombs / totalCellCapacity * 100 # In percent
-
 def getChargingRow(logger, powerSupply):
     lastRow = logger.getLastRow
     voltage = powerSupply.measure_voltage
     current = powerSupply.measure_current
     if lastRow is not None:
-        chargingCoulombs = getCoulombs(current, logger.getTimeIncrement()) + lastRow[5] # Charging Coulombs Col
+        chargingCoulombs = getCoulombs(current, logger.getTimeIncrement()) + lastRow["Charging Coulombs [Ah]"] # Charging Coulombs Col
+        dischargingCoulombs = lastRow["Discharging Coulombs [Ah]"]
     else:
         chargingCoulombs = 0
-    dischargingCoulombs = None
+        dischargingCoulombs = None
     soc = chargingCoulombs / totalCellCapacity * 100
 
     row = [voltage, current, chargingCoulombs, dischargingCoulombs, soc]
@@ -61,36 +65,38 @@ def main()->None:
 
     logger = Logger(r"C:\Users\lkevi\OneDrive\Desktop\Coding\UBCFE\Data", loggingCols)
 
-    while(soc < 100):
+    # According to INR-18650-P28A datasheets, the cells capacity can range from standard of 2800mAh to 2600mAh
+    # (or 2700mAh minimum depending on the datasheet consulted). So a cutoff voltage is set to avoid overcharge and discharge
+    while(soc < 100 and loadBank.measure_voltage() < maxChargingVoltage):
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
         powerSupply.enable_output()
         powerSupply.set_current(chargingRate)
 
-        time.sleep(30)
+        time.sleep(activeTimeSeconds)
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
         powerSupply.enable_output()
 
 
-        time.sleep(30)
+        time.sleep(restingTimeSeconds)
         soc = row[-1]
 
     loadBank.set_current(chargingRate)
 
-    while(soc > 0):
+    while(soc > 0 and loadBank.measure_voltage() > minDischargingVoltage):
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         loadBank.enable_load()
         loadBank.set_current(chargingRate)
         
 
-        time.sleep(30)
+        time.sleep(activeTimeSeconds)
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         loadBank.disable_load()
 
-        time.sleep(30)
+        time.sleep(restingTimeSeconds)
         soc = row[-1]
 
     loadBank.disable_load()
