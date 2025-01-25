@@ -42,11 +42,11 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    CAN_HandleTypeDef hcan2;
-    SPI_HandleTypeDef hspi2;
-    SPI_HandleTypeDef hspi3;
-    TIM_HandleTypeDef htim4;
-    TIM_HandleTypeDef htim12;
+    extern CAN_HandleTypeDef hcan2;
+    extern SPI_HandleTypeDef hspi2;
+    extern SPI_HandleTypeDef hspi3;
+    extern TIM_HandleTypeDef htim4;
+    extern TIM_HandleTypeDef htim12;
 
     extern osThreadId_t Task1HzHandle;
     extern osThreadId_t Task100HzHandle;
