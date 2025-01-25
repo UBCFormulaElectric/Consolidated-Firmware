@@ -88,6 +88,9 @@ if ("${TARGET}" STREQUAL "binary")
                 "stm32h7xx_hal.c"
                 "stm32h7xx_hal_i2c.c"
                 "stm32h7xx_hal_i2c_ex.c"
+                "stm32h7xx_hal_pcd.c"
+                "stm32h7xx_hal_pcd_ex.c"
+                "stm32h7xx_ll_usb.c"
         )
 
         stm32h733xx_cube_library(

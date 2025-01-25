@@ -104,6 +104,13 @@
             ]
         },
         {
+          "label": "Build Embedded: DAM (Quintuna)",
+          "group": "build",
+          "type": "cmake",
+          "command": "build",
+          "targets": ["quintuna_DAM.hex", "can_bus_load_quintuna"]
+        },
+        {
             "label": "Build Embedded: f4dev",
             "group": "build",
             "type": "cmake",
