@@ -115,10 +115,7 @@ function(embedded_library
 
         # Suppress source file warnings for third-party code.
 #        list(APPEND COMPILER_FLAGS -w)
-        set_source_files_properties(
-                ${LIB_SRCS}
-                PROPERTIES COMPILE_FLAGS "-w"
-        )
+        embedded_no_checks(${LIB_SRCS})
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
 #        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})
@@ -283,4 +280,12 @@ function(embedded_image
     )
 
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
+endfunction()
+
+function (embedded_no_checks SRCS)
+    message("  🚫 [embedded.cmake, embedded_no_checks()] Disabling Warnings for ${SRCS}")
+    set_source_files_properties(
+            ${SRCS}
+            PROPERTIES COMPILE_FLAGS "-w"
+    )
 endfunction()
