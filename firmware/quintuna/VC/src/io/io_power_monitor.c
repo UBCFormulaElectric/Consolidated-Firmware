@@ -6,9 +6,9 @@
 #define SENSE_RESISTOR 2.0e6f;
 #define FSC 5.00e-8f // Full-Scale Current
 
-//const power_rail bat_bus{
-//    .address = 0x07 // VBUS1 got removed?
-//};
+// const power_rail bat_bus{
+//     .address = 0x07 // VBUS1 got removed?
+// };
 const power_rail boost = {
     .address = 0x08 // VBUS2
 };
@@ -56,8 +56,7 @@ float io_power_monitor_read_current(const power_rail *current_address)
 
     const float voltage_sense_buffer = (float)buffer[0] * VOLTAGE_SENSE_TRANSFER_FACTOR;
 
-    return FSC * (voltage_sense_buffer/65536.0f);
+    return FSC * (voltage_sense_buffer / 65536.0f); // FSC * (Vsense/denom)
 }
-
 
 // Make alert detection thingy
