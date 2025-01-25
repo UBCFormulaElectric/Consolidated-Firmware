@@ -21,12 +21,11 @@ __attribute__((section(".boot_flag"))) uint8_t boot_flag;
 extern uint32_t __boot_code_start__;
 extern void     tasks_deinit(void);
 
-void io_bootHandler_processBootRequest(CanMsg *msg)
+void io_bootHandler_processBootRequest(const CanMsg *msg)
 {
     if (msg->std_id == BOOT_CAN_START)
     {
         boot_flag = 1;
-
         tasks_deinit();
 
         __disable_irq(); // disable interrupts
@@ -38,7 +37,6 @@ void io_bootHandler_processBootRequest(CanMsg *msg)
         {
             NVIC->ICPR[i] = 0xFFFFFFFF;
         }
-
         NVIC_SystemReset();
     }
 }

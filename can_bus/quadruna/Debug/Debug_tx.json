@@ -121,5 +121,14 @@
                 "bits": 1
             }
         }
+    },
+    "StartBootloaderCAN": {
+        "msg_id" :1012,
+        "cycle_time": null,
+        "signals":{
+            "Start_Boot_Flag":{
+                "bits": 1
+            }
+        }
     }
 }

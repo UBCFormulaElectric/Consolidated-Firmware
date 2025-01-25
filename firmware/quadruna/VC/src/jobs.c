@@ -25,6 +25,7 @@
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
 #include "io_cans.h"
+#include "io_bootHandler.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -114,11 +115,15 @@ void jobs_runCanTx_tick(void)
 void jobs_runCanRx_tick(void)
 {
     const CanMsg rx_msg = io_canQueue_popRx();
+
     if (io_canRx_filterMessageId(rx_msg.std_id))
     {
         JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_can_msg);
     }
+
+    // check and process CAN msg for bootloader start msg
+    io_bootHandler_processBootRequest(&rx_msg);
 
     // Log the message if it needs to be logged
     // ReSharper disable once CppRedundantCastExpression

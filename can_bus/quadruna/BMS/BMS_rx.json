@@ -6,6 +6,7 @@
         "Debug_CanMode",
         "Debug_CellBalancing",
         "Debug_ResetSoc",
-        "Debug_SetBSPDTestCurrent"
+        "Debug_SetBSPDTestCurrent",
+        "Debug_StartBootloaderCAN"
     ]
 }

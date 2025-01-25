@@ -1,7 +1,7 @@
 MEMORY
 {
-  ram  (xrw)    : ORIGIN = 0x24000000,   LENGTH = 0x4FFFC
-  boot_flag_ram (xrw) : ORIGIN = 0x2404FFFC, LENGTH = 0x4 
+  ram  (xrw)    : ORIGIN = 0x24000000,   LENGTH = 0x4FFFF
+  boot_flag_ram (xrw) : ORIGIN = 0x2404FFFF, LENGTH = 0x1
   boot_code    (rx)    : ORIGIN = 0x8000000,   LENGTH = 128K
   app_metadata    (rx)    : ORIGIN = 0x8020000,   LENGTH = 1K
   app_code     (rx)    : ORIGIN = 0x8020400,  LENGTH = 895K

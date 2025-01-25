@@ -88,14 +88,5 @@
                 "enum": "BootStatus"
             }
         }
-    },
-    "Begin": {
-        "msg_id" :1012,
-        "cycle_time":100,
-        "signals":{
-            "Boot_Status":{
-                "enum":"BootStatus"
-            }
-        }
     }
 }

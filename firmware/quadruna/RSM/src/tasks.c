@@ -18,11 +18,8 @@
 #include "io_coolant.h"
 #include "io_fans.h"
 #include "io_brake_light.h"
-<<<<<<< HEAD
 #include "io_canQueue.h"
-    =======
 #include "io_bootHandler.h"
-    >>>>>>> e0772d26c (cleaned up repo (removed func pointers))
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -38,7 +35,7 @@
 #include "shared.pb.h"
 #include "RSM.pb.h"
 
-    static const CanHandle can = { .hcan = &hcan1 };
+static const CanHandle can = { .hcan = &hcan1 };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -269,18 +266,10 @@ _Noreturn void tasks_runCanRx(void)
     io_chimera_sleepTaskIfEnabled();
     for (;;)
     {
-<<<<<<< HEAD
         CanMsg     rx_msg         = io_canQueue_popRx();
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
-=======
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
 
         io_bootHandler_processBootRequest(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
->>>>>>> e0772d26c (cleaned up repo (removed func pointers))
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

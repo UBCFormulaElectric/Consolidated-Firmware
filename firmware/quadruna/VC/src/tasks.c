@@ -21,7 +21,7 @@
 #include "io_fileSystem.h"
 #include "io_cans.h"
 #include "io_canQueue.h"
-#include "io_bootHandler.h"
+#include "io_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -199,24 +199,6 @@ _Noreturn void tasks_runTelem(void)
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
-    }
-}
-
-_Noreturn void tasks_runCanRx(void)
-{
-    io_chimera_sleepTaskIfEnabled();
-
-    for (;;)
-    {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-        io_telemMessage_pushMsgtoQueue(&rx_msg);
-
-        io_bootHandler_processBootRequest(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 

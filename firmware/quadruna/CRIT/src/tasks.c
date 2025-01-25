@@ -280,8 +280,6 @@ static const Switches switch_config = {
 static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = &shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = &inertia_sen_pin };
 
-void tasks_deinit(void) {}
-
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -394,6 +392,8 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg     rx_msg         = io_canQueue_popRx(&rx_msg);
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+
+        io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

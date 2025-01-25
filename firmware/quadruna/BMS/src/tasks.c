@@ -26,11 +26,7 @@
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_bmsShdn.h"
-<<<<<<< HEAD
-=======
 #include "io_bspdTest.h"
-#include "io_bootHandler.h"
-    >>>>>>> e0772d26c (cleaned up repo (removed func pointers))
 
 #include "app_canRx.h"
 #include "app_accumulator.h"
@@ -40,12 +36,12 @@
 
 #include "shared.pb.h"
 
-    static const PwmInputConfig imd_pwm_input_config = {
-        .htim                     = &htim1,
-        .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
-        .rising_edge_tim_channel  = TIM_CHANNEL_1,
-        .falling_edge_tim_channel = TIM_CHANNEL_2,
-    };
+static const PwmInputConfig imd_pwm_input_config = {
+    .htim                     = &htim1,
+    .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
+    .rising_edge_tim_channel  = TIM_CHANNEL_1,
+    .falling_edge_tim_channel = TIM_CHANNEL_2,
+};
 
 static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
@@ -61,8 +57,6 @@ static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = &t
                                                 .ts_vsense_channel_N        = &ts_vsense_n,
                                                 .ts_isense_high_res_channel = &ts_isns_75a,
                                                 .ts_isense_low_res_channel  = &ts_isns_400a };
-
-void tasks_deinit(void) {}
 
 void tasks_preInit(void)
 {

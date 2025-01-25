@@ -16,6 +16,7 @@
 #include "io_can.h"
 #include "io_canQueue.h"
 #include "io_led.h"
+#include "io_fsmShdn.h"
 #include "io_chimera.h"
 #include "io_steering.h"
 #include "io_wheels.h"
@@ -85,10 +86,6 @@ static const PwmInputFreqOnlyConfig right_wheel_config = { .htim                
                                                            .tim_channel         = TIM_CHANNEL_1,
                                                            .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
                                                            .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
-
-static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
-
-void tasks_deinit(void) {}
 
 void tasks_preInit(void)
 {
@@ -256,7 +253,9 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
-        CanMsg     rx_msg         = io_canQueue_popRx();
+        CanMsg rx_msg = io_canQueue_popRx();
+        io_bootHandler_processBootRequest(&rx_msg);
+
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
