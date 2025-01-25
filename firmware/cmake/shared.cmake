@@ -35,20 +35,17 @@ function(commit_info_library
     OUTPUT_PATH
 )
     commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
-    IF("${TARGET}" STREQUAL "binary")
+    IF(${TARGET} STREQUAL "binary")
         embedded_interface_library(
             "${LIB_NAME}"
             "${COMMIT_INFO_SRC}"
             "${COMMIT_INFO_INCLUDE_DIR}"
             FALSE
         )
-    ELSEIF("${TARGET}" STREQUAL "test")
+    ELSEIF(${TARGET} STREQUAL "test")
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
-        # TODO make this an interface library as well
-        add_library(
-            "${LIB_NAME}" INTERFACE
-            "${COMMIT_INFO_SRC}"
-        )
+        add_library(${LIB_NAME} INTERFACE)
+        target_sources(${LIB_NAME} INTERFACE ${COMMIT_INFO_SRC})
         target_include_directories("${LIB_NAME}" INTERFACE "${HEADER_DIR}")
     ENDIF()
 endfunction()
