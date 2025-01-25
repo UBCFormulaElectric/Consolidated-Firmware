@@ -2,6 +2,9 @@ import pytest
 from logfs import LogFs, LogFsDisk, LogFsRamDisk, LogFsUnixDisk, LogFsError
 from .conftest import LogFsTestDisk, random_data
 
+# TODO: Add "recovery" tests: Tests that check that if, for ex, writes to a
+# block fail then the filesystem doesn't get corrupted.
+
 SMALL_BLOCK_COUNT = 11
 SMALL_WRITE_CYCLES = 10
 
