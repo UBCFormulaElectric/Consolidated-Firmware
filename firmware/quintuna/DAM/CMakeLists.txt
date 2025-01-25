@@ -96,7 +96,7 @@ if ("${TARGET}" STREQUAL "binary")
                 "${STM32_HAL_SRCS}"
                 "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
                 "${MD5_LOCATION}"
-                FALSE
+                TRUE
         )
   
 

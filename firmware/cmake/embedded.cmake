@@ -13,7 +13,17 @@ option(BUILD_ASM "Build the assembly files" OFF)
 
 # STM32CUBEMX Binary Path
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-    set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
+    # check if you have the STM32CubeMX_PATH environment variable set 
+    if(NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
+        set(STM32CUBEMX_BIN_PATH "$ENV{STM32CubeMX_PATH}/STM32CubeMX.exe")
+    else()
+    # if not, guess the you have it here
+        set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
+        # check if the file exists
+        if(NOT EXISTS ${STM32CUBEMX_BIN_PATH})
+            message(FATAL_ERROR "❌ STM32CubeMX not found at ${STM32CUBEMX_BIN_PATH}")
+        endif()
+    endif()
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
@@ -152,7 +162,7 @@ function(embedded_interface_library
     target_sources(${LIB_NAME} INTERFACE ${LIB_SRCS})
 
     IF (${THIRD_PARTY})
-        # Suppress header file warnings for third-party code by marking them as system includes.
+        # Suppress header file warnings for third-party code by marking them as system includes
         target_include_directories(${LIB_NAME} SYSTEM
                 INTERFACE
                 ${LIB_INCLUDE_DIRS}
