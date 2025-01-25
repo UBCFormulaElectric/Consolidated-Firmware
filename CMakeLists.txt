@@ -86,8 +86,6 @@ IF ("${PLATFORM}" STREQUAL "firmware")
 
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
-    ELSEIF ("${TARGET}" STREQUAL "binary")
-        add_subdirectory(chimera_v2)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)

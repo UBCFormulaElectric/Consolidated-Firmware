@@ -8,7 +8,9 @@ CHIMERA_V2_DIR="$(dirname "$0")"
 
 cd $CHIMERA_V2_DIR
     # Clear old autogenned files.
-    rm ./proto_autogen/*
+    rm -rf ./proto_autogen/*
+
+    # For each proto file,
     for file in ./proto/*.proto
     do
         # Generate proto python lib.

@@ -15,11 +15,7 @@ variables, so the following changes are made:
 * Any Altium pin name starting wtih a numeric character has an added _ to the beginning
 */
 
-import "VC.proto";
-import "BMS.proto";
-import "FSM.proto";
-import "RSM.proto";
-import "CRIT.proto";
+import "f4dev.proto";
 
 enum GpioValue {
   GPIO_VALUE_UNSPECIFIED = 0;
@@ -29,11 +25,7 @@ enum GpioValue {
 
 message GpioNetName {
     oneof name {
-        VC.GpioNetName vc_net_name = 1;
-        BMS.GpioNetName bms_net_name = 2;
-        FSM.GpioNetName fsm_net_name = 3;
-        RSM.GpioNetName rsm_net_name = 4;
-        CRIT.GpioNetName crit_net_name = 5;
+        f4dev.GpioNetName f4dev_net_name = 1;
     }
 }
 
@@ -49,11 +41,7 @@ message GpioWrite {
 
 message AdcNetName {
     oneof name {
-      VC.AdcNetName vc_net_name = 1;
-      BMS.AdcNetName bms_net_name = 2;
-      FSM.AdcNetName fsm_net_name = 3;
-      RSM.AdcNetName rsm_net_name = 4;
-      CRIT.AdcNetName crit_net_name = 5;
+      f4dev.AdcNetName f4dev_net_name = 1;
     }
 }
 

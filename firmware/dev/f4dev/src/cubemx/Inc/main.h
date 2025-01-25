@@ -54,11 +54,13 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define GPIO_6_Pin GPIO_PIN_13
+#define GPIO_6_GPIO_Port GPIOC
 
     /* USER CODE BEGIN Private defines */
 

@@ -1,6 +1,8 @@
 import proto_autogen
 import usb
 
+import proto_autogen.f4dev_pb2
+
 # Can be any non-zero byte.
 START_RPC_BYTE = 0x01
 
@@ -133,37 +135,9 @@ class Board:
         response = self.read()
         return response.adc.value
     
-class VC(Board):
+class F4Dev(Board):
     def __init__(self, usb_device: UsbDevice) -> None:
         super().__init__(usb_device)
-        self.board_lib = proto_autogen.VC_pb2
-        self.gpio_net_name = "vc_net_name"
-        self.adc_net_name = "vc_net_name"
-
-class BMS(Board):
-    def __init__(self, usb_device: UsbDevice) -> None:
-        super().__init__(usb_device)
-        self.board_lib = proto_autogen.BMS_pb2
-        self.gpio_net_name = "bms_net_name"
-        self.adc_net_name = "bms_net_name"
-
-class FSM(Board):
-    def __init__(self, usb_device: UsbDevice) -> None:
-        super().__init__(usb_device)
-        self.board_lib = proto_autogen.FSM_pb2
-        self.gpio_net_name = "fsm_net_name"
-        self.adc_net_name = "fsm_net_name"
-
-class RSM(Board):
-    def __init__(self, com_port: str) -> None:
-        super().__init__(com_port)
-        self.board_lib = proto_autogen.RSM_pb2
-        self.gpio_net_name = "rsm_net_name"
-        self.adc_net_name = "rsm_net_name"
-
-class CRIT(Board):
-    def __init__(self, usb_device: UsbDevice) -> None:
-        super().__init__(usb_device)
-        self.board_lib = proto_autogen.CRIT_pb2
-        self.gpio_net_name = "crit_net_name"
-        self.adc_net_name = "crit_net_name"
+        self.board_lib = proto_autogen.f4dev_pb2
+        self.gpio_net_name = "f4dev_net_name"
+        self.adc_net_name = "f4dev_net_name"

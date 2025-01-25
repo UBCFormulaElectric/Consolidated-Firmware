@@ -29,6 +29,9 @@
 #include "hw_bootup.h"
 #include "hw_uart.h"
 #include "hw_usb.h"
+#include "shared.pb.h"
+#include "f4dev.pb.h"
+#include "io_chimera_v2.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +67,11 @@ const osThreadAttr_t defaultTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
+static Gpio gpio_6_pin = { .port = GPIO_6_GPIO_Port, .pin = GPIO_6_Pin };
+Gpio *id_to_gpio[] = {
+    [f4dev_GpioNetName_GPIO_6] = &gpio_6_pin,
+};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -483,11 +491,21 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : GPIO_6_Pin */
+    GPIO_InitStruct.Pin   = GPIO_6_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIO_6_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PA5 PA6 PA7 */
     GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
@@ -533,7 +551,12 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    hw_usb_receive_example(CDC_Transmit_FS);
+    io_chimera_v2_main(
+        id_to_gpio,
+        NULL,
+        CDC_Transmit_FS,
+        0, 0
+    );
     /* USER CODE END 5 */
 }
 

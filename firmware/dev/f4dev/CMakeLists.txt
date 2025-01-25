@@ -10,9 +10,15 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
 )
 list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
-set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}")
+set(EMBEDDED_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}"
+)
 
 IF ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
@@ -70,5 +76,5 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info")
+    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "chimera_v2_proto_cm4")
 ENDIF ()
