@@ -35,7 +35,7 @@ inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, LogF
     file->cache.buf         = cfg->cache;
     file->cache_data        = (LogFsBlock_Data *)cfg->cache;
     file->is_open           = false;
-    file->flags = flags;
+    file->flags             = flags;
     strcpy(file->path, cfg->path);
 }
 
@@ -184,7 +184,7 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
     fs->mounted        = true;
 
     // Use INC_HEAD to do a NOMEM check.
-    fs->head_addr      = 0;
+    fs->head_addr = 0;
     INC_HEAD(fs, cur_head);
 
     return LOGFS_ERR_OK;
