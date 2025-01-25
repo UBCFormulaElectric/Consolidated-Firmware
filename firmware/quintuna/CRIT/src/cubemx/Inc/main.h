@@ -42,12 +42,11 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern ADC_HandleTypeDef  hadc1;
-    extern DMA_HandleTypeDef  hdma_adc1;
-    extern CAN_HandleTypeDef  hcan1;
-    extern IWDG_HandleTypeDef hiwdg;
-    extern TIM_HandleTypeDef  htim3;
-    extern UART_HandleTypeDef huart2;
+    CAN_HandleTypeDef hcan2;
+    SPI_HandleTypeDef hspi2;
+    SPI_HandleTypeDef hspi3;
+    TIM_HandleTypeDef htim4;
+    TIM_HandleTypeDef htim12;
 
     extern osThreadId_t Task1HzHandle;
     extern osThreadId_t Task100HzHandle;
@@ -67,6 +66,8 @@ extern "C"
 
     /* USER CODE END EM */
 
+    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
@@ -75,102 +76,52 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TASK_100HZ_STACK_SIZE 512
-#define TASK_CANRX_STACK_SIZE 512
-#define TASK_CANTX_STACK_SIZE 512
-#define TIM3_PRESCALER 8
-#define TIM12_PWM_MINIMUM_FREQUENCY 1
-#define IWDG_RESET_FREQUENCY 5
-#define ADC_FREQUENCY 1000
-#define TIMx_FREQUENCY 96000000
-#define TIM12_PRESCALER (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TIM12_PWM_MINIMUM_FREQUENCY)
-#define TASK_1HZ_STACK_SIZE 512
-#define TASK_1KHZ_STACK_SIZE 512
-#define TIM12_AUTO_RELOAD_REG 0xFFFF
-#define IWDG_PRESCALER 4
-#define LSI_FREQUENCY 32000
-#define NDRIVE_MODE_1b_Pin GPIO_PIN_13
-#define NDRIVE_MODE_1b_GPIO_Port GPIOC
-#define NCHIMERA_Pin GPIO_PIN_15
-#define NCHIMERA_GPIO_Port GPIOC
-#define NDRIVE_MODE_0b_Pin GPIO_PIN_0
-#define NDRIVE_MODE_0b_GPIO_Port GPIOC
-#define NDRIVE_MODE_3b_Pin GPIO_PIN_1
-#define NDRIVE_MODE_3b_GPIO_Port GPIOC
-#define NDRIVE_MODE_2b_Pin GPIO_PIN_2
-#define NDRIVE_MODE_2b_GPIO_Port GPIOC
-#define SHDN_G_Pin GPIO_PIN_3
-#define SHDN_G_GPIO_Port GPIOC
-#define SHDN_R_Pin GPIO_PIN_0
-#define SHDN_R_GPIO_Port GPIOA
-#define BMS_B_Pin GPIO_PIN_1
-#define BMS_B_GPIO_Port GPIOA
-#define UART_TX_Pin GPIO_PIN_2
-#define UART_TX_GPIO_Port GPIOA
-#define UART_RX_Pin GPIO_PIN_3
-#define UART_RX_GPIO_Port GPIOA
-#define BMS_G_Pin GPIO_PIN_4
-#define BMS_G_GPIO_Port GPIOA
-#define BSPD_R_Pin GPIO_PIN_5
-#define BSPD_R_GPIO_Port GPIOA
-#define BMS_R_Pin GPIO_PIN_7
-#define BMS_R_GPIO_Port GPIOA
-#define REGEN_3V3_Pin GPIO_PIN_4
-#define REGEN_3V3_GPIO_Port GPIOC
-#define VC_G_Pin GPIO_PIN_5
-#define VC_G_GPIO_Port GPIOC
-#define VC_R_Pin GPIO_PIN_0
-#define VC_R_GPIO_Port GPIOB
-#define AUX_DB_B_Pin GPIO_PIN_1
-#define AUX_DB_B_GPIO_Port GPIOB
-#define AUX_DB_G_Pin GPIO_PIN_2
-#define AUX_DB_G_GPIO_Port GPIOB
-#define AUX_DB_R_Pin GPIO_PIN_10
-#define AUX_DB_R_GPIO_Port GPIOB
-#define CRIT_DB_B_Pin GPIO_PIN_12
-#define CRIT_DB_B_GPIO_Port GPIOB
-#define CRIT_DB_G_Pin GPIO_PIN_13
-#define CRIT_DB_G_GPIO_Port GPIOB
-#define CRIT_DB_R_Pin GPIO_PIN_14
-#define CRIT_DB_R_GPIO_Port GPIOB
-#define RSM_B_Pin GPIO_PIN_15
-#define RSM_B_GPIO_Port GPIOB
-#define RSM_G_Pin GPIO_PIN_6
-#define RSM_G_GPIO_Port GPIOC
-#define RSM_R_Pin GPIO_PIN_7
-#define RSM_R_GPIO_Port GPIOC
-#define FSM_B_Pin GPIO_PIN_8
-#define FSM_B_GPIO_Port GPIOC
-#define FSM_G_Pin GPIO_PIN_9
-#define FSM_G_GPIO_Port GPIOC
-#define FSM_R_Pin GPIO_PIN_8
-#define FSM_R_GPIO_Port GPIOA
-#define NPROGRAM_3V3_Pin GPIO_PIN_9
-#define NPROGRAM_3V3_GPIO_Port GPIOA
-#define VC_B_Pin GPIO_PIN_10
-#define VC_B_GPIO_Port GPIOA
-#define LED_Pin GPIO_PIN_15
+#define BOOT_Pin GPIO_PIN_4
+#define BOOT_GPIO_Port GPIOA
+#define LED_Pin GPIO_PIN_5
 #define LED_GPIO_Port GPIOA
-#define INERTIA_SEN_Pin GPIO_PIN_10
-#define INERTIA_SEN_GPIO_Port GPIOC
-#define SHDN_SEN_Pin GPIO_PIN_11
-#define SHDN_SEN_GPIO_Port GPIOC
-#define IMD_R_Pin GPIO_PIN_12
-#define IMD_R_GPIO_Port GPIOC
-#define AMS_R_Pin GPIO_PIN_2
-#define AMS_R_GPIO_Port GPIOD
-#define START_LED_Pin GPIO_PIN_4
-#define START_LED_GPIO_Port GPIOB
-#define START_SIG_Pin GPIO_PIN_5
-#define START_SIG_GPIO_Port GPIOB
-#define TORQUE_VECTORING_LED_Pin GPIO_PIN_6
-#define TORQUE_VECTORING_LED_GPIO_Port GPIOB
-#define REGEN_SIG_Pin GPIO_PIN_7
-#define REGEN_SIG_GPIO_Port GPIOB
-#define TORQUE_VECTORING_SIG_Pin GPIO_PIN_8
+#define TELEM_SIG_Pin GPIO_PIN_6
+#define TELEM_SIG_GPIO_Port GPIOA
+#define PUSH_DRIVE_SIG_Pin GPIO_PIN_7
+#define PUSH_DRIVE_SIG_GPIO_Port GPIOA
+#define ROT_S_Pin GPIO_PIN_4
+#define ROT_S_GPIO_Port GPIOC
+#define ROT_B_Pin GPIO_PIN_5
+#define ROT_B_GPIO_Port GPIOC
+#define ROT_A_Pin GPIO_PIN_0
+#define ROT_A_GPIO_Port GPIOB
+#define LAUNCH_CONTROL_SIG_Pin GPIO_PIN_1
+#define LAUNCH_CONTROL_SIG_GPIO_Port GPIOB
+#define TORQUE_VECTORING_SIG_Pin GPIO_PIN_2
 #define TORQUE_VECTORING_SIG_GPIO_Port GPIOB
-#define REGEN_LED_Pin GPIO_PIN_9
-#define REGEN_LED_GPIO_Port GPIOB
+#define REGEN_SIG_Pin GPIO_PIN_10
+#define REGEN_SIG_GPIO_Port GPIOB
+#define LED_DIMMING_Pin GPIO_PIN_14
+#define LED_DIMMING_GPIO_Port GPIOB
+#define LED_SERIN_Pin GPIO_PIN_15
+#define LED_SERIN_GPIO_Port GPIOB
+#define LED_RCK_Pin GPIO_PIN_6
+#define LED_RCK_GPIO_Port GPIOC
+#define LED_SRCK_Pin GPIO_PIN_7
+#define LED_SRCK_GPIO_Port GPIOC
+#define USB_D_N_Pin GPIO_PIN_11
+#define USB_D_N_GPIO_Port GPIOA
+#define USB_D_P_Pin GPIO_PIN_12
+#define USB_D_P_GPIO_Port GPIOA
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define SEVEN_SEG_SRCK_Pin GPIO_PIN_10
+#define SEVEN_SEG_SRCK_GPIO_Port GPIOC
+#define SEVEN_SEG_SERIN_Pin GPIO_PIN_12
+#define SEVEN_SEG_SERIN_GPIO_Port GPIOC
+#define SWO_Pin GPIO_PIN_3
+#define SWO_GPIO_Port GPIOB
+#define SEVEN_SEG_RCK_Pin GPIO_PIN_4
+#define SEVEN_SEG_RCK_GPIO_Port GPIOB
+#define SEVEN_SEG_DIMMING_Pin GPIO_PIN_6
+#define SEVEN_SEG_DIMMING_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
