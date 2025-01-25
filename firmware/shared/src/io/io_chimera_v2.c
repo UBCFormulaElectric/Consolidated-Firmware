@@ -12,7 +12,7 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 
-static Gpio **id_to_gpio;
+static Gpio       **id_to_gpio;
 static AdcChannel **id_to_adc;
 
 static const Gpio *io_chimera_v2_parseNetLabelGpio(const GpioNetName *net_name)
@@ -112,16 +112,15 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
 }
 
 void io_chimera_v2_main(
-    Gpio *gpio_conf[],
+    Gpio       *gpio_conf[],
     AdcChannel *adc_conf[],
     uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len),
     uint32_t net_name_gpio,
     uint32_t net_name_adc)
 {
-
     // Store adc and gpio tables.
     id_to_gpio = gpio_conf;
-    id_to_adc = adc_conf;
+    id_to_adc  = adc_conf;
 
     // Init usb peripheral.
     hw_usb_init(transmit_handle);
