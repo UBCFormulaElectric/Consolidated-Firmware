@@ -84,7 +84,6 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, LogFsFileCfg *cf
         // Update previous file to point to the new one.
         LogFsPair prev_file_pair;
         RET_ERR(disk_fetchPair(fs, &prev_file_pair, fs->head_file_addr));
-        RET_ERR(disk_readPair(fs, &prev_file_pair));
         fs->cache_file->next_file_addr = new_file_block;
         RET_ERR(disk_writePair(fs, &prev_file_pair, false));
     }
@@ -150,12 +149,24 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
             return err;
         }
 
-        RET_ERR(disk_readPair(fs, &cur_file_pair));
+        // Find the most significant address occupied by this file. It's
+        // either:
+        // 1. Following the file pair.
+        cur_head = MAX(cur_head, cur_file_pair.addrs[0] + 2);
+
+        // 2. Following the last data block.
         cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 1);
 
-        // Address of first item in pair, so need to add 2 to get first unused block.
-        cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 2);
-        cur_head = MAX(cur_head, fs->cache_file->metadata_addr + 2);
+        // 3. Following the metadata block.
+        {
+            LogFsPair metadata_pair;
+            RET_ERR(disk_fetchPair(fs, &metadata_pair, fs->cache_file->metadata_addr));
+            cur_head = MAX(cur_head, metadata_pair.addrs[0] + 2);
+        }
+
+        // Read current file pair again, since reading the metadata pair
+        // overwrote the cache.
+        RET_ERR(disk_fetchPair(fs, &cur_file_pair, cur_file));
 
         if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK)
         {
@@ -170,8 +181,12 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
 
     // Successfully found the the head file, update state variables.
     fs->head_file_addr = cur_file;
-    fs->head_addr      = cur_head;
     fs->mounted        = true;
+
+    // Use INC_HEAD to do a NOMEM check.
+    fs->head_addr      = 0;
+    INC_HEAD(fs, cur_head);
+
     return LOGFS_ERR_OK;
 }
 
@@ -478,7 +493,6 @@ LogFsErr logfs_firstPath(LogFs *fs, LogFsPath *path)
     // Try to fetch root file from disk.
     LogFsPair file_pair;
     RET_ERR(disk_fetchPair(fs, &file_pair, LOGFS_ORIGIN));
-    RET_ERR(disk_readPair(fs, &file_pair));
 
     path->file_addr      = LOGFS_ORIGIN;
     path->next_file_addr = fs->cache_file->next_file_addr;

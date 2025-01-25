@@ -64,7 +64,7 @@ extern "C"
     void disk_newPair(LogFsPair *pair, uint32_t block);
 
     /**
-     * Fetch a pair's state from the disk.
+     * Fetch a pair's state from the disk, and read it.
      *
      * @param fs Filesystem object.
      * @param pair Pair object to fetch to.

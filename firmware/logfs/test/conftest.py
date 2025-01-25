@@ -1,7 +1,8 @@
 from typing import Optional
 import pytest
 from logfs import LogFs, LogFsDisk, LogFsRamDisk, LogFsUnixDisk
-
+import random
+import string
 
 SD_BLOCK_SIZE = 512
 FS_SIZE_BYTES = 2 * 1024 * 1024  # 1 MB
@@ -85,3 +86,9 @@ def fs(disk: LogFsDisk, block_size: int, block_count: int) -> LogFs:
         disk=disk,
         format=True,
     )
+
+
+def random_data(size_bytes: int) -> bytes:
+    data = "".join(random.choices(string.ascii_uppercase + string.digits, k=size_bytes))
+    data = data.encode()
+    return data

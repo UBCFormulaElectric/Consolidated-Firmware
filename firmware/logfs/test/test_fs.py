@@ -1,13 +1,6 @@
 import pytest
-import random
-import string
 from logfs import LogFs
-
-
-def random_data(size_bytes: int) -> bytes:
-    data = "".join(random.choices(string.ascii_uppercase + string.digits, k=size_bytes))
-    data = data.encode()
-    return data
+from .conftest import random_data
 
 
 @pytest.mark.parametrize(
@@ -258,7 +251,7 @@ def test_list_dir_sizes(fs: LogFs, capsys: pytest.CaptureFixture) -> None:
         captured.out.strip()
         == """\
 +------------+----------+----------+
-|    File    | Metadata |   Data   |
+|    File    |   Data   | Metadata |
 +------------+----------+----------+
 | /test1.txt | 13 Bytes | 0 Bytes  |
 | /test2.txt | 0 Bytes  | 20 Bytes |

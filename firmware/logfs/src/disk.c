@@ -1,5 +1,6 @@
 #include "disk.h"
 #include "crc.h"
+#include "logfs.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
@@ -48,7 +49,7 @@ static inline LogFsErr disk_replacePair(LogFs *fs, LogFsPair *pair)
 
     // Update pair state, so pair replacements are abstracted away from the programmer.
     memcpy(pair, &replacement_pair, sizeof(LogFsPair));
-    fs->head_addr += LOGFS_PAIR_SIZE;
+    INC_HEAD(fs, LOGFS_PAIR_SIZE);
 
     // Restore new pair to the cache, since it was in the cache at the start of this function and changing the cache is
     // not an obvious side-effect.
@@ -172,6 +173,8 @@ LogFsErr disk_fetchPair(const LogFs *fs, LogFsPair *pair, uint32_t block)
 
     // Successfully fetched pair from disk.
     pair->seq_num_on_disk = true;
+
+    RET_ERR(disk_readPair(fs, pair));
     return LOGFS_ERR_OK;
 }
 
