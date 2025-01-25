@@ -3,7 +3,6 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_signal.h"
-#include "io_log.h"
 
 static Signal apps_brake_disagreement_signal;
 

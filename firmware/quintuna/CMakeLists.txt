@@ -1,5 +1,7 @@
 set(QUINTUNA_DIR "${FIRMWARE_DIR}/quintuna")
 add_subdirectory(CRIT)
+add_subdirectory(FSM)
+add_subdirectory(DAM)
 add_subdirectory(RSM)
 add_subdirectory(VC)
 add_subdirectory(BMS)
