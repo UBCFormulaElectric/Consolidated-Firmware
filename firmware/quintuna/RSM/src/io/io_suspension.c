@@ -9,11 +9,11 @@
 const Suspension right = { .src = &susp_travel_rr_3v3 };
 const Suspension left  = { .src = &susp_travel_rl_3v3 };
 
-static float travelFromVoltage(float voltage)
-{
+/*static float travelFromVoltage(float voltage)
+//{
     // TODO: implement
     return voltage;
-}
+} */
 
 float io_suspension_getTravel(const Suspension *suspension)
 {

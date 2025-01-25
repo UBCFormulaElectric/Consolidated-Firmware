@@ -8,7 +8,6 @@ typedef struct
 } Suspension;
 
 float io_suspension_getTravel(const Suspension *suspension);
-
 bool io_suspension_OCSC(const Suspension *suspension);
 
 extern const Suspension right;

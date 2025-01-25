@@ -50,7 +50,7 @@ const Coolant b = { .src = &coolantpressure2_3v3 };
 const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter};
 
 
-void io_coolant_init(CoolantFlowMeter *coolant_flow_meter)
+void io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *coolant_flow_meter)
 {
     hw_pwmInputFreqOnly_init(coolant_flow_meter->src, coolant_config);
 }

@@ -23,6 +23,7 @@ extern const Coolant b;
 typedef struct
 {
     const PwmInputFreqOnly *src;
+    const PwmInputFreqOnlyConfig *config;
     
 } CoolantFlowMeter;
 
