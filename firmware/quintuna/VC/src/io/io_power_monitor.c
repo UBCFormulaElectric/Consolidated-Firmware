@@ -26,7 +26,7 @@ bool io_power_monitor_init()
 
 float io_power_monitor_read_voltage(const power_rail *voltage_address)
 {
-    uint16_t buffer[1];
+    uint8_t buffer[1];
 
     buffer[0] = 0x1F;
     hw_i2c_transmit(&pwr_mon, buffer, 1); // refresh
@@ -44,7 +44,7 @@ float io_power_monitor_read_voltage(const power_rail *voltage_address)
 float io_power_monitor_read_current(const power_rail *current_address)
 {
     // This repeat gets the Vsense value
-    uint16_t buffer[1];
+    uint8_t buffer[1];
 
     buffer[0] = 0x1F;
     hw_i2c_transmit(&pwr_mon, buffer, 1); // refresh
@@ -59,4 +59,4 @@ float io_power_monitor_read_current(const power_rail *current_address)
     return FSC * (voltage_sense_buffer / 65536.0f); // FSC * (Vsense/denom)
 }
 
-// Make alert detection thingy
+// check alert bit function
