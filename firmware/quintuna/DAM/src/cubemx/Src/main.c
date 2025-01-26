@@ -19,7 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -43,13 +42,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-FDCAN_HandleTypeDef hfdcan1;
+FDCAN_HandleTypeDef hfdcan2;
 
 RTC_HandleTypeDef hrtc;
 
 MMC_HandleTypeDef hmmc1;
 
-UART_HandleTypeDef huart3;
+UART_HandleTypeDef huart2;
 
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
@@ -65,10 +64,10 @@ const osThreadAttr_t defaultTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_FDCAN1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SDMMC1_MMC_Init(void);
-static void MX_USART3_UART_Init(void);
+static void MX_FDCAN2_Init(void);
+static void MX_USART2_UART_Init(void);
 void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -108,10 +107,10 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_FDCAN1_Init();
     MX_RTC_Init();
     MX_SDMMC1_MMC_Init();
-    MX_USART3_UART_Init();
+    MX_FDCAN2_Init();
+    MX_USART2_UART_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -224,54 +223,54 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief FDCAN1 Initialization Function
+ * @brief FDCAN2 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_FDCAN1_Init(void)
+static void MX_FDCAN2_Init(void)
 {
-    /* USER CODE BEGIN FDCAN1_Init 0 */
+    /* USER CODE BEGIN FDCAN2_Init 0 */
 
-    /* USER CODE END FDCAN1_Init 0 */
+    /* USER CODE END FDCAN2_Init 0 */
 
-    /* USER CODE BEGIN FDCAN1_Init 1 */
+    /* USER CODE BEGIN FDCAN2_Init 1 */
 
-    /* USER CODE END FDCAN1_Init 1 */
-    hfdcan1.Instance                  = FDCAN1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
-    hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = DISABLE;
-    hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 2;
-    hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 0;
-    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.RxBuffersNbr         = 0;
-    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.TxEventsNbr          = 0;
-    hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 0;
-    hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
+    /* USER CODE END FDCAN2_Init 1 */
+    hfdcan2.Instance                  = FDCAN2;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
+    hfdcan2.Init.AutoRetransmission   = DISABLE;
+    hfdcan2.Init.TransmitPause        = DISABLE;
+    hfdcan2.Init.ProtocolException    = DISABLE;
+    hfdcan2.Init.NominalPrescaler     = 16;
+    hfdcan2.Init.NominalSyncJumpWidth = 1;
+    hfdcan2.Init.NominalTimeSeg1      = 2;
+    hfdcan2.Init.NominalTimeSeg2      = 2;
+    hfdcan2.Init.DataPrescaler        = 1;
+    hfdcan2.Init.DataSyncJumpWidth    = 1;
+    hfdcan2.Init.DataTimeSeg1         = 1;
+    hfdcan2.Init.DataTimeSeg2         = 1;
+    hfdcan2.Init.MessageRAMOffset     = 0;
+    hfdcan2.Init.StdFiltersNbr        = 0;
+    hfdcan2.Init.ExtFiltersNbr        = 0;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 0;
+    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxBuffersNbr         = 0;
+    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.TxEventsNbr          = 0;
+    hfdcan2.Init.TxBuffersNbr         = 0;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 0;
+    hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
+    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN FDCAN1_Init 2 */
+    /* USER CODE BEGIN FDCAN2_Init 2 */
 
-    /* USER CODE END FDCAN1_Init 2 */
+    /* USER CODE END FDCAN2_Init 2 */
 }
 
 /**
@@ -366,49 +365,49 @@ static void MX_SDMMC1_MMC_Init(void)
 }
 
 /**
- * @brief USART3 Initialization Function
+ * @brief USART2 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_USART3_UART_Init(void)
+static void MX_USART2_UART_Init(void)
 {
-    /* USER CODE BEGIN USART3_Init 0 */
+    /* USER CODE BEGIN USART2_Init 0 */
 
-    /* USER CODE END USART3_Init 0 */
+    /* USER CODE END USART2_Init 0 */
 
-    /* USER CODE BEGIN USART3_Init 1 */
+    /* USER CODE BEGIN USART2_Init 1 */
 
-    /* USER CODE END USART3_Init 1 */
-    huart3.Instance                    = USART3;
-    huart3.Init.BaudRate               = 115200;
-    huart3.Init.WordLength             = UART_WORDLENGTH_8B;
-    huart3.Init.StopBits               = UART_STOPBITS_1;
-    huart3.Init.Parity                 = UART_PARITY_NONE;
-    huart3.Init.Mode                   = UART_MODE_TX_RX;
-    huart3.Init.HwFlowCtl              = UART_HWCONTROL_RTS_CTS;
-    huart3.Init.OverSampling           = UART_OVERSAMPLING_16;
-    huart3.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
-    huart3.Init.ClockPrescaler         = UART_PRESCALER_DIV1;
-    huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart3) != HAL_OK)
+    /* USER CODE END USART2_Init 1 */
+    huart2.Instance                    = USART2;
+    huart2.Init.BaudRate               = 115200;
+    huart2.Init.WordLength             = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits               = UART_STOPBITS_1;
+    huart2.Init.Parity                 = UART_PARITY_NONE;
+    huart2.Init.Mode                   = UART_MODE_TX_RX;
+    huart2.Init.HwFlowCtl              = UART_HWCONTROL_RTS_CTS;
+    huart2.Init.OverSampling           = UART_OVERSAMPLING_16;
+    huart2.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
+    huart2.Init.ClockPrescaler         = UART_PRESCALER_DIV1;
+    huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    if (HAL_UART_Init(&huart2) != HAL_OK)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+    if (HAL_UARTEx_SetTxFifoThreshold(&huart2, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+    if (HAL_UARTEx_SetRxFifoThreshold(&huart2, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
+    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN USART3_Init 2 */
+    /* USER CODE BEGIN USART2_Init 2 */
 
-    /* USER CODE END USART3_Init 2 */
+    /* USER CODE END USART2_Init 2 */
 }
 
 /**
@@ -423,42 +422,48 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOE, nTSIM_GRN_EN_Pin | TSIM_RED_EN_Pin | LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_Pin | SD_FAIL_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, BUZZER_PWR_EN_Pin | TELEM_PWR_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOE, TELEM_PWR_EN_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, SD_FAIL_Pin | BOOT_Pin | INOUT_900M_GPIO_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOD, nTSIM_GRN_EN_Pin | TSIM_RED_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : nTSIM_GRN_EN_Pin TSIM_RED_EN_Pin LED_Pin */
-    GPIO_InitStruct.Pin   = nTSIM_GRN_EN_Pin | TSIM_RED_EN_Pin | LED_Pin;
+    /*Configure GPIO pins : LED_Pin SD_FAIL_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | SD_FAIL_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BOOT_Pin SPLITTER_SHDN_SENSE_Pin L_SHDN_SENSE_Pin */
+    GPIO_InitStruct.Pin  = BOOT_Pin | SPLITTER_SHDN_SENSE_Pin | L_SHDN_SENSE_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : TELEM_PWR_EN_Pin BUZZER_PWR_EN_Pin */
+    GPIO_InitStruct.Pin   = TELEM_PWR_EN_Pin | BUZZER_PWR_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BUZZER_PWR_EN_Pin TELEM_PWR_EN_Pin */
-    GPIO_InitStruct.Pin   = BUZZER_PWR_EN_Pin | TELEM_PWR_EN_Pin;
+    /*Configure GPIO pins : nTSIM_GRN_EN_Pin TSIM_RED_EN_Pin */
+    GPIO_InitStruct.Pin   = nTSIM_GRN_EN_Pin | TSIM_RED_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : SD_FAIL_Pin BOOT_Pin INOUT_900M_GPIO_Pin */
-    GPIO_InitStruct.Pin   = SD_FAIL_Pin | BOOT_Pin | INOUT_900M_GPIO_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pin : SD_CD_Pin */
     GPIO_InitStruct.Pin  = SD_CD_Pin;
@@ -466,11 +471,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(SD_CD_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PE0 SPLITTER_SHDN_SENSE_Pin */
-    GPIO_InitStruct.Pin  = GPIO_PIN_0 | SPLITTER_SHDN_SENSE_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    /*Configure GPIO pins : USB_D_N_Pin PA12 */
+    GPIO_InitStruct.Pin   = USB_D_N_Pin | GPIO_PIN_12;
+    GPIO_InitStruct.Mode  = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -489,8 +495,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-    /* init code for USB_DEVICE */
-    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
     for (;;)
