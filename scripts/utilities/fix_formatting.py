@@ -62,28 +62,15 @@ def find_all_files(
     print(f"Found {len(source_files)} files to format.")
     return source_files
 
-
 def run_clang_format(source_files: list[str], base_cmd: list[str]) -> bool:
     """
-    Run clang format against a C/C++ source file, returning True if successful.
-
-    Note: `source_file` needs to be first because pool.map passes the iterable
+    Run clang format against a list of C/C++ source files, returning True if successful.
+    Note: `source_files` needs to be first because pool.map passes the iterable
     """
-    # Append the requisite .exe file ending for Windows
-    # Construct and invoke clang-format
-    # if platform == "windows":
-    #     command = f'"{cmd} {source_file}"'
-    # else:
-    #     command = f'{cmd} "{source_file}"'
     try:
         return subprocess.run(base_cmd + source_files).returncode == 0
     except KeyboardInterrupt:
         return False
-
-
-# def build_cmd(bin: str) -> str:
-#     return bin + CLANG_FORMAT_OPTIONS
-
 
 def fix_formatting(local: str | None):
     # Change into the DIRECTORY OF THIS PYTHON FILE is in so we can use relative paths
@@ -111,11 +98,6 @@ def fix_formatting(local: str | None):
     )
 
     # Build clang-format command.
-    # if local is not None:
-    #     cmd = build_cmd(local)
-    # else:
-    #     cmd = build_cmd(CLANG_FORMAT_BINARY)
-
     executable_name = local if local is not None else CLANG_FORMAT_BINARY
     n = 400
     pool = multiprocessing.Pool()  # Start a multiprocessing pool to speed up formatting
