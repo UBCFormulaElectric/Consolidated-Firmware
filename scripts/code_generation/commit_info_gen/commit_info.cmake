@@ -28,6 +28,14 @@ function(commit_info_generate_sources bind_target commit_info_directory)
         )
         message("  📚 [commit_info.cmake, commit_info_generate_sources()] Registered rules for files at ${directory_location_relative}")
     ELSEIF (${USE_COMMIT_INFO} STREQUAL "ON")
+        execute_process(
+                COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
+                --output-header ${header_location}
+                --output-source ${src_location}
+                WORKING_DIRECTORY ${REPO_ROOT_DIR}
+                COMMAND_ERROR_IS_FATAL ANY
+        )
+        message("  📚 [commit_info.cmake, commit_info_generate_sources()] Generated commit info files at ${directory_location_relative}")
         add_custom_command( # we create this one so that it updates the file every build
                 TARGET ${bind_target}
                 COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
