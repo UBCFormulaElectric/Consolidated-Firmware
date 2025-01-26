@@ -32,7 +32,7 @@ extern "C"
 
     /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -56,6 +56,13 @@ extern "C"
     extern UART_HandleTypeDef  huart2;
     extern UART_HandleTypeDef  huart3;
     extern DMA_HandleTypeDef   hdma_usart2_rx;
+
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+    extern osThreadId_t TaskLoggingHandle;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

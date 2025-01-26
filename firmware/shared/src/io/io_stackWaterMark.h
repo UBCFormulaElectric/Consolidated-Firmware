@@ -1,16 +1,15 @@
 #pragma once
 
-#include <FreeRTOS.h>
-#include <task.h>
-#include <stdbool.h>
+#include <stdint.h>
+#include <cmsis_os.h>
 
 /** @brief The information needed to check the stack watermark of a task. */
 typedef struct
 {
-    TaskHandle_t *handle; // We can't use TaskHandle as a compile-time constant,
+    osThreadId_t *handle; // We can't use TaskHandle as a compile-time constant,
                           // so instead we use a pointer to it.
-    uint32_t stack_size;
-    float    watermark_threshold;
+    const uint32_t stack_size;
+    const float    watermark_threshold;
     void (*log_error)(uint8_t);
 } StackWaterMark;
 
@@ -21,4 +20,4 @@ typedef struct
  * @param stacks An array of stacks whose watermarks we are checking for.
  * @param num_of_stacks Number of stacks in the array.
  */
-void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks);
+void hw_stackWaterMark_check(const StackWaterMark *stacks, size_t num_of_stacks);
