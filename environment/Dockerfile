@@ -44,6 +44,7 @@ RUN apt update -y && apt install -y \
     protobuf-compiler
 
 # Install python package dependencies.
+RUN echo "[global]\n break-system-packages = true" > /etc/pip.conf
 COPY requirements.txt .
-RUN pip3 install -r requirements.txt --break-system-packages
+RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
