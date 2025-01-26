@@ -63,6 +63,16 @@ extern "C"
     extern osThreadId_t TaskCanRxHandle;
     extern osThreadId_t TaskCanTxHandle;
     extern osThreadId_t TaskLoggingHandle;
+    extern osThreadId_t TaskTelemHandle;
+
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
+    extern const osThreadAttr_t TaskLogging_attributes;
+    extern const osThreadAttr_t TaskTelem_attributes;
+
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

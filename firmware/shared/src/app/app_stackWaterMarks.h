@@ -7,4 +7,4 @@
  * this function at 1Hz to minimize overhead. If any stack watermark threshold
  * is exceeded, we log the error.
  */
-void app_stackWaterMarkConfig_check(void);
+void app_stackWaterMark_check(void);

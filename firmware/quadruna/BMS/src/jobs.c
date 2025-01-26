@@ -45,7 +45,7 @@ void jobs_init(void)
 }
 void jobs_run1Hz_tick(void)
 {
-    app_stackWaterMarkConfig_check();
+    app_stackWaterMark_check();
 }
 void jobs_run100Hz_tick(void) {}
 void jobs_run1kHz_tick(void) {}

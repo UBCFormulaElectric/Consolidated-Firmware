@@ -443,7 +443,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        app_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
