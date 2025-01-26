@@ -1,4 +1,4 @@
-FROM --platform=amd64 ubuntu:22.04
+FROM debian:12.9-slim
 
 # Install dependencies:
 # wget: Downloading files from the internet
@@ -20,13 +20,13 @@ RUN apt update -y && apt install -y \
     pip \
     git \
     git-lfs \
-    xvfb \
+#    xvfb \
     libncurses5 \
     valgrind \
-    libgtk-3-0 \
-    libxi6 \
-    libxtst6 \
-    libxrender1 \
+#    libgtk-3-0 \
+#    libxi6 \
+#    libxtst6 \
+#    libxrender1 \
     protobuf-compiler
 
 # Install python package dependencies.
@@ -39,9 +39,9 @@ COPY scripts/install_gcc_arm_none_eabi.sh /root/environment/
 RUN /bin/sh ./install_gcc_arm_none_eabi.sh /usr/local
 
 # Install STM32CubeMX for auto-generating code.
-COPY scripts/install_stm32cubemx.py /root/environment/
-COPY data/en.stm32cubemx-lin-v6-12-0.zip /root/environment
-RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip en.stm32cubemx-lin-v6-12-0.zip
+#COPY scripts/install_stm32cubemx.py /root/environment/
+#COPY data/en.stm32cubemx-lin-v6-12-0.zip /root/environment
+#RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip en.stm32cubemx-lin-v6-12-0.zip
 
 # Cleanup copied directory.
 WORKDIR /root/
