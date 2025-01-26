@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cmsis_os.h>
-
 /** @brief The information needed to check the stack watermark of a task. */
 #ifdef TARGET_EMBEDDED
+#include <cmsis_os.h>
 typedef struct
 {
     osThreadId_t *handle; // We can't use TaskHandle as a compile-time constant,
