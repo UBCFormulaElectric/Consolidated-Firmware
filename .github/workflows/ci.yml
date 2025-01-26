@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -64,9 +64,9 @@ jobs:
 
     container:
       image: ubcformulaelectric/environment:no_cube
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -117,9 +117,9 @@ jobs:
 
     container:
       image: ubcformulaelectric/environment:no_cube
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.docker_token }}
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.docker_token }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -149,10 +149,10 @@ jobs:
             car: quadruna
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
@@ -183,10 +183,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
@@ -217,10 +217,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
@@ -250,10 +250,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
