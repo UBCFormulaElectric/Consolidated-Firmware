@@ -17,8 +17,8 @@ RUN ls /usr/local/bin
 FROM debian:12.9-slim AS environment
 
 # COPY over builds from builder
-COPY --from=builder /usr/local/bin/arm-none-eabi/ /usr/local/bin
-#COPY --from=builder /usr/local/STM32CubeMX /usr/local
+COPY --from=builder /usr/local/bin/arm-none-eabi/ /usr/local/bin/arm-none-eabi/
+#COPY --from=builder /usr/local/STM32CubeMX /usr/local/STM32CubeMX
 
 # pip: For installing python packages
 # git: For pulling external repos, invoked via cmake
