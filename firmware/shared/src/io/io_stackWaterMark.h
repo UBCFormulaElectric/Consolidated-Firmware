@@ -20,4 +20,4 @@ typedef struct
  * @param stacks An array of stacks whose watermarks we are checking for.
  * @param num_of_stacks Number of stacks in the array.
  */
-void hw_stackWaterMark_check(const StackWaterMark *stacks, size_t num_of_stacks);
+void io_stackWaterMark_check(const StackWaterMark *stacks, size_t num_of_stacks);

@@ -1,20 +1,9 @@
-#include <assert.h>
+#include "app_stackWaterMarks.h"
 
-#include "hw_stackWaterMarkConfig.h"
+#include "io_stackWaterMark.h"
 #include "main.h"
-
 #include "app_utils.h"
-#include "app_canTx.h"
 #include "app_canAlerts.h"
-
-#include "hw_stackWaterMark.h"
-
-// We check the stack water mark for the following tasks
-extern TaskHandle_t Task1HzHandle;
-extern TaskHandle_t Task100HzHandle;
-extern TaskHandle_t Task1kHzHandle;
-extern TaskHandle_t TaskCanRxHandle;
-extern TaskHandle_t TaskCanTxHandle;
 
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
@@ -78,7 +67,7 @@ static StackWaterMark stack_watermarks[] = {
     },
 };
 
-void hw_stackWaterMarkConfig_check(void)
+void app_stackWaterMarkConfig_check(void)
 {
-    hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    io_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

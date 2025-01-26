@@ -14,6 +14,7 @@
 #include "states/app_initState.h"
 #include "states/app_allStates.h"
 #include "app_heartbeatMonitors.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_time.h"
 #include "io_log.h"
@@ -25,7 +26,6 @@
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
 #include "io_cans.h"
-#include "io_stackWaterMarks.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -81,7 +81,7 @@ void jobs_run1Hz_tick(void)
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
-    io_stackWaterMarkConfig_check();
+    app_stackWaterMarkConfig_check();
 }
 
 void jobs_run100Hz_tick(void)

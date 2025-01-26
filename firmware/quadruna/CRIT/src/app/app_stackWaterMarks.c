@@ -1,45 +1,36 @@
-#include "hw_stackWaterMark.h"
-#include "main.h"
-#include "app_utils.h"
-#include "hw_stackWaterMark.h"
-#include "main.h"
-#include "app_utils.h"
-#include "hw_stackWaterMarkConfig.h"
-#include "app_canAlerts.h"
-#include "app_canAlerts.h"
+#include "app_stackWaterMarks.h"
 
-extern TaskHandle_t Task1HzHandle;
-extern TaskHandle_t Task100HzHandle;
-extern TaskHandle_t Task1kHzHandle;
-extern TaskHandle_t TaskCanRxHandle;
-extern TaskHandle_t TaskCanTxHandle;
+#include "io_stackWaterMark.h"
+#include "main.h"
+#include "app_utils.h"
+#include "app_canAlerts.h"
 
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
+static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    app_canAlerts_RSM_Warning_StackWaterMarkHighTask1kHz_set(true);
+    app_canAlerts_CRIT_Warning_StackWaterMarkHighTask1Hz_set(true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    app_canAlerts_RSM_Warning_StackWaterMarkHighTask100Hz_set(true);
+    app_canAlerts_CRIT_Warning_StackWaterMarkHighTask100Hz_set(true);
 }
 
-static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
+static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    app_canAlerts_RSM_Warning_StackWaterMarkHighTask1Hz_set(true);
+    app_canAlerts_CRIT_Warning_StackWaterMarkHighTask1kHz_set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    app_canAlerts_RSM_Warning_StackWaterMarkHighTaskCanRx_set(true);
+    app_canAlerts_CRIT_Warning_StackWaterMarkHighTaskCanRx_set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    app_canAlerts_RSM_Warning_StackWaterMarkHighTaskCanTx_set(true);
+    app_canAlerts_CRIT_Warning_StackWaterMarkHighTaskCanTx_set(true);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
@@ -76,7 +67,7 @@ static StackWaterMark stack_watermarks[] = {
     },
 };
 
-void hw_stackWaterMarkConfig_check(void)
+void app_stackWaterMarkConfig_check(void)
 {
-    hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    io_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

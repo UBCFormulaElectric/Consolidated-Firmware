@@ -32,7 +32,7 @@ extern "C"
 
     /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -49,6 +49,12 @@ extern "C"
     extern TIM_HandleTypeDef  htim3;
     extern TIM_HandleTypeDef  htim12;
     extern UART_HandleTypeDef huart1;
+
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

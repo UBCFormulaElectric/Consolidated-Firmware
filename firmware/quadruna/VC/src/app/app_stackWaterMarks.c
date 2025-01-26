@@ -80,7 +80,7 @@ static StackWaterMark stack_watermarks[] = {
     },
 };
 
-void io_stackWaterMarkConfig_check(void)
+void app_stackWaterMarkConfig_check(void)
 {
-    hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    io_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

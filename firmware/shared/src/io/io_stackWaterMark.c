@@ -23,7 +23,7 @@ static bool stackAboveWatermarkThreshold(osThreadId_t xTask, const uint32_t stac
     return 1 - free_space > watermark_threshold;
 }
 
-void hw_stackWaterMark_check(const StackWaterMark *stacks, const size_t num_of_stacks)
+void io_stackWaterMark_check(const StackWaterMark *stacks, const size_t num_of_stacks)
 {
     for (size_t i = 0; i < num_of_stacks; i++)
         if (stackAboveWatermarkThreshold(stacks[i].handle, stacks[i].stack_size, stacks[i].watermark_threshold))
