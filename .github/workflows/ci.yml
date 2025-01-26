@@ -78,8 +78,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate Log4J file
-        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
+      # should not need this
+      #      - name: Generate Log4J file
+      #        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
 
       # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we
       # we also generate a checksum from the .ioc file when code is generated during builds.
