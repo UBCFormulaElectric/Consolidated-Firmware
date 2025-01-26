@@ -9,8 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"hw_gpio.h": "c",
-		"hw_adc.h": "c"
-	},
 }

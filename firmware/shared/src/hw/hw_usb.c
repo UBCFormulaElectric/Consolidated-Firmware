@@ -34,7 +34,9 @@ bool hw_usb_checkConnection()
 
 void hw_usb_transmit(uint8_t *msg, uint16_t len)
 {
-    usb_transmit_handle(msg, len);
+    uint8_t handle_status = usb_transmit_handle(msg, len);
+    if (handle_status != 0)
+        LOG_WARN("Chimera: USB handle returned %d status code instead of 0", handle_status);
 }
 
 uint8_t hw_usb_recieve()
@@ -42,8 +44,13 @@ uint8_t hw_usb_recieve()
     // receive pops off the byte queue and returns
     uint8_t    res    = 0;
     osStatus_t status = osMessageQueueGet(rx_queue_id, &res, NULL, 100);
+
     if (status == osOK)
         return res;
+    else if (status == osErrorTimeout)
+        return 0;
+
+    LOG_WARN("usb queue pop returned non-ok status %d", status);
     return 0;
 }
 

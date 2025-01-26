@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "io_log.h"
 #include <assert.h>
+#include "io_log.h"
 
 // Protobuf.
 #include <pb_decode.h>
@@ -14,6 +15,8 @@
 
 static Gpio       **id_to_gpio;
 static AdcChannel **id_to_adc;
+
+static pb_byte_t out_buffer[10000];
 
 static const Gpio *io_chimera_v2_parseNetLabelGpio(const GpioNetName *net_name)
 {
@@ -88,7 +91,6 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
     }
 
     // Encode protobuf to bytes.
-    pb_byte_t    out_buffer[10000];
     pb_ostream_t out_stream = pb_ostream_from_buffer(out_buffer, sizeof(out_buffer));
     if (!pb_encode(&out_stream, DebugMessage_fields, &msg))
     {
@@ -108,6 +110,12 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
     memcpy(&response_packet[3], out_buffer, response_data_size);
 
     // Transmit.
+    LOG_INFO("Chimera: Sending response packet of size %d", response_packet_size);
+    LOG_INFO("Chimera: Response packet:");
+    for (int i = 0; i < response_packet_size; i += 1)
+        _LOG_PRINTF("%02x ", response_packet[i]);
+    _LOG_PRINTF("\n");
+
     hw_usb_transmit(response_packet, response_packet_size);
 }
 
@@ -129,25 +137,40 @@ void io_chimera_v2_main(
     if (!hw_usb_checkConnection())
         return;
 
+    int requests_processed = 0;
+
     // dump the queue.
     for (;;)
     {
         // CHIMERA Packet Format:
         // [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
-        if (hw_usb_recieve() == 0x00)
+        uint8_t test_byte = hw_usb_recieve();
+        if (test_byte == 0x00)
+        {
+            LOG_INFO("Chimera: Waiting for message...");
             continue;
+        }
+        LOG_INFO("Chimera: Received start byte %02x", test_byte);
 
         // Length-delimination sent with little-endian.
-        uint16_t low  = (uint16_t)hw_usb_recieve();
-        uint16_t high = (uint16_t)hw_usb_recieve();
-
+        uint16_t low    = (uint16_t)hw_usb_recieve();
+        uint16_t high   = (uint16_t)hw_usb_recieve();
         uint16_t length = (uint16_t)(low + (high << 8));
+        LOG_INFO("Chimera: RPC packet received of length %d", length);
 
         // Populate content.
         uint8_t content[length];
         for (int i = 0; i < length; i += 1)
             content[i] = hw_usb_recieve();
 
+        LOG_INFO("Chimera: RPC content bytes (without Chimera header):");
+        for (int i = 0; i < length; i += 1)
+            _LOG_PRINTF("%02x ", content[i]);
+        _LOG_PRINTF("\n");
+
         io_chimera_v2_handleContent(content, length, net_name_gpio, net_name_adc);
+
+        requests_processed += 1;
+        LOG_INFO("Chimera: Processed %d requests", requests_processed);
     }
 }

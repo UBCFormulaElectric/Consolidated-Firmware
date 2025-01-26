@@ -1,10 +1,15 @@
-import proto_autogen
 import usb
 
 import proto_autogen.f4dev_pb2
+import proto_autogen.shared_pb2
+import time
 
 # Can be any non-zero byte.
 START_RPC_BYTE = 0x01
+
+# 24 hours in ms.
+# Useful for setting practically infinite timeouts.
+TIMEOUT_ONE_DAY = 86400000
 
 # Debug util for listing avaiable usb devices
 def log_usb_devices():
@@ -30,20 +35,23 @@ class UsbDevice:
         self._interface = self._device[0][(1,0)]
         self._endpoint_write = self._interface[0]
         self._endpoint_read = self._interface[1]
+        self._read_chunk_size = self._endpoint_read.wMaxPacketSize
 
-        # TODO: MacOS won't give perms to do this - see if this is needed on WSL/windows.
+        # Buffer for read bytes.
+        # We have to read in chunks of _read_chunk_size, so if we read too much, 
+        # this buffer stores the data for the next call.
+        self._read_buf = b''
+
         # If the kernel is attached to another driver, detach it.
-        # if self._device.is_kernel_driver_active(self._interface.bInterfaceNumber):
-        #     self._device.detach_kernel_driver(self._interface.bInterfaceNumber)
-
-        #     # TODO: Investigate if claiming the interface explictly is needed.
-        #     usb.util.claim_interface(self._device, self._interface.bInterfaceNumber)
+        if self._device.is_kernel_driver_active(self._interface.bInterfaceNumber):
+            self._device.detach_kernel_driver(self._interface.bInterfaceNumber)
+            
+            # Claim the interface explictly.
+            usb.util.claim_interface(self._device, self._interface.bInterfaceNumber)
 
     def __exit__(self):
         # Release the interface explictly.
-        # TODO: Investigate if releasing the interface explictly is needed.
-        # usb.util.release_interface(self._device, self._interface.bInterfaceNumber)
-        pass
+        usb.util.release_interface(self._device, self._interface.bInterfaceNumber)
 
     # Write bytes over usb.
     def write(self, buffer: bytes):
@@ -52,13 +60,19 @@ class UsbDevice:
     # Read length bytes over usb.
     # Will block until length bytes are received.
     def read(self, length: int) -> bytes:
-        res = []
-        while len(res) < length:
-            res.extend(self._device.read(
+
+        # Read bytes until there are a sufficent amount.
+        while len(self._read_buf) < length:
+            self._read_buf += bytes(self._device.read(
                 self._endpoint_read.bEndpointAddress, 
-                length - len(res)
+                self._read_chunk_size,
+                100000000
             ))
-        return bytes(res)
+
+        # Remove the first length bytes from the buffer.
+        res = self._read_buf[:length]
+        self._read_buf = self._read_buf[length:]
+        return res
 
 class Board:
     # Abstraction around rpc-communicating boards.
@@ -69,7 +83,7 @@ class Board:
     # [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
 
     # Write an RPC message over the provided usb device.
-    def _write(self, msg: str):
+    def _write(self, msg: proto_autogen.shared_pb2.DebugMessage):
         # Get data.
         data = msg.SerializeToString()
         data_size = len(data)
@@ -78,19 +92,19 @@ class Board:
         packet_size_bytes = [data_size & 0xff, data_size >> 8]
 
         # Format and send packet.
-        packet = bytes([START_RPC_BYTE, *packet_size_bytes, *data.split('')])
+        packet = bytes([START_RPC_BYTE, *packet_size_bytes, *data])
         self._usb_device.write(packet)
     
     # Read and return an RPC message over the provided usb device.
-    def _read(self) -> int:
+    def _read(self) -> proto_autogen.shared_pb2.DebugMessage:
         # Consume bytes until a non-zero start byte is found.
         start_bytes = self._usb_device.read(1)
         while start_bytes[0] == 0x00:
             start_bytes = self._usb_device.read(1)
-        
+
         # Extract data size.
         data_size_bytes = self._usb_device.read(2)
-        data_size = data_size_bytes[0] + data_size_bytes[1] << 8
+        data_size = int.from_bytes(data_size_bytes, byteorder='little')
 
         # Extract rpc message.
         msg = proto_autogen.shared_pb2.DebugMessage()
@@ -121,7 +135,7 @@ class Board:
         self._write(msg)
 
         # Wait for response, and validate that the request was the same.
-        response = self.read(msg)
+        response = self._read()
         assert(response.SerializeToString() == msg.SerializeToString())
 
     def adc_read(self, net_name: str) -> float:

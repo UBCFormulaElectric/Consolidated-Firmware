@@ -15,6 +15,7 @@ bool hw_usb_checkConnection();
 void hw_usb_transmit(uint8_t *msg, uint16_t len);
 
 // receive a single byte over usb
+// returns 0 if no byte is received within 100 ms
 uint8_t hw_usb_recieve();
 
 // pushes a message onto the internal usb queue,
