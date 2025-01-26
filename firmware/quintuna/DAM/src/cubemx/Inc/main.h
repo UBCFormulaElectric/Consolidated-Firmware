@@ -72,8 +72,8 @@ extern "C"
 #define BOOT_GPIO_Port GPIOB
 #define LED_Pin GPIO_PIN_12
 #define LED_GPIO_Port GPIOE
-#define _900M_GPIO_Pin GPIO_PIN_12
-#define _900M_GPIO_GPIO_Port GPIOB
+#define INOUT_900M_GPIO_Pin GPIO_PIN_12
+#define INOUT_900M_GPIO_GPIO_Port GPIOB
 #define TO_900M_TX_Pin GPIO_PIN_8
 #define TO_900M_TX_GPIO_Port GPIOD
 #define FROM_900M_RX_Pin GPIO_PIN_9
@@ -90,8 +90,6 @@ extern "C"
 #define SWCLK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-#define L_SHDN_SENSE_Pin GPIO_PIN_0
-#define L_SHDN_SENSE_GPIO_Port GPIOE
 #define SPLITTER_SHDN_SENSE_Pin GPIO_PIN_1
 #define SPLITTER_SHDN_SENSE_GPIO_Port GPIOE
 

@@ -104,7 +104,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+CanHandle can = { .hcan = &hfdcan1 };
 /* USER CODE END 0 */
 
 /**
@@ -138,7 +138,8 @@ int main(void)
     MX_CRC_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
-
+    io_can_init(&can);
+    bootloader_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
