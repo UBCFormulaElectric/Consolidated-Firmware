@@ -62,21 +62,21 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(STM32_HAL_SRCS
     "stm32f4xx_hal_adc_ex.c"
-    "stm32f4xx_hal_adc.c"
-    "stm32f4xx_hal_cortex.c"
-    "stm32f4xx_hal_dma_ex.c"
-    "stm32f4xx_hal_dma.c"
-    "stm32f4xx_hal_exti.c"
-    "stm32f4xx_hal_can.c"
-    "stm32f4xx_hal_gpio.c"
-    "stm32f4xx_hal_iwdg.c"
-    "stm32f4xx_hal_pwr_ex.c"
-    "stm32f4xx_hal_rcc_ex.c"
-    "stm32f4xx_hal_rcc.c"
-    "stm32f4xx_hal_tim_ex.c"
-    "stm32f4xx_hal_tim.c"
-    "stm32f4xx_hal_uart.c"
-    "stm32f4xx_hal.c"
+            "stm32f4xx_hal_adc.c"
+            "stm32f4xx_hal_cortex.c"
+            "stm32f4xx_hal_dma_ex.c"
+            "stm32f4xx_hal_dma.c"
+            "stm32f4xx_hal_exti.c"
+            "stm32f4xx_hal_can.c"
+            "stm32f4xx_hal_gpio.c"
+            "stm32f4xx_hal_iwdg.c"
+            "stm32f4xx_hal_pwr_ex.c"
+            "stm32f4xx_hal_rcc_ex.c"
+            "stm32f4xx_hal_rcc.c"
+            "stm32f4xx_hal_tim_ex.c"
+            "stm32f4xx_hal_tim.c"
+            "stm32f4xx_hal_uart.c"
+            "stm32f4xx_hal.c"
     )
 
     stm32f412rx_cube_library(
@@ -88,7 +88,6 @@ if ("${TARGET}" STREQUAL "binary")
         FALSE
     )
 
-    # JSONCAN
     # JSONCAN
     jsoncan_embedded_library(RSM quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 

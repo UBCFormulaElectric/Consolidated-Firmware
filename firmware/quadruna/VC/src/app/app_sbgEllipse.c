@@ -1,9 +1,11 @@
 #include <assert.h>
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_utils.h"
 #include "app_units.h"
-#include "io_sbgEllipse.h"
+#include "app_vehicleDynamicsConstants.h"
+#include "io_log.h"
 
 void app_sbgEllipse_broadcast()
 {
@@ -21,10 +23,15 @@ void app_sbgEllipse_broadcast()
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    // Velocity EKF
-    const float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
-    const float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
-    const float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+    VelocityData velocity_calculated;
+
+    // calculating velocity data based on wheel speed
+    app_sbgEllipse_calculateVelocity(&velocity_calculated);
+
+    // EKF
+    float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
+    float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
+    float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
 
     const float ekf_vel_N_accuracy = io_sbgEllipse_getEkfNavVelocityData()->north_std_dev;
     const float ekf_vel_E_accuracy = io_sbgEllipse_getEkfNavVelocityData()->east_std_dev;
@@ -38,9 +45,21 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
     app_canTx_VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
 
-    const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+    const float vehicle_velocity            = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+    const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
-    app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
+    uint32_t ekf_sol_mode = io_sbgEllipse_getEkfSolutionMode();
+
+    if (ekf_sol_mode < NUM_VC_EKF_STATUS_CHOICES)
+    {
+        app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)ekf_sol_mode);
+    }
+
+    // determines when to use calculated or gps velocity, will be externed later
+    // bool        use_calculated_velocity = ekf_sol_mode == POSITION;
+
+    app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
+    app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
 
     // Position EKF
     // const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
@@ -75,4 +94,26 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_EulerAnglesRoll_set(euler_roll);
     app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
+}
+
+void app_sbgEllipse_calculateVelocity(VelocityData *velocity)
+{
+    // These velocity calculations are not going to be super accurate because it
+    // currently does not compute a proper relative y-axis velocity because no yaw rate
+
+    const float rightMotorRPM = (float)-app_canRx_INVR_MotorSpeed_get();
+    const float leftMotorRPM  = (float)app_canRx_INVL_MotorSpeed_get();
+
+    float leftWheelVelocity  = MOTOR_RPM_TO_KMH(leftMotorRPM);
+    float rightWheelVelocity = MOTOR_RPM_TO_KMH(rightMotorRPM);
+
+    float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
+
+    // This is technically velocity in the x-axis as it is relative
+    velocity->north = velocityX;
+
+    // This is technically velocity in the y-axis as it is relative
+    velocity->east = 0;
+
+    velocity->down = 0;
 }

@@ -3,6 +3,7 @@
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 #include "io_brake.h"
+#include <math.h>
 
 static const RangeCheck front_pressure_in_range_check = { .min_value = MIN_BRAKE_PRESSURE_PSI,
                                                           .max_value = MAX_BRAKE_PRESSURE_PSI };
