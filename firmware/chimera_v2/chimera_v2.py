@@ -146,7 +146,7 @@ class Board:
         self._write(msg)
 
         # Wait for response and return.
-        response = self.read()
+        response = self._read()
         return response.adc.value
     
 class F4Dev(Board):

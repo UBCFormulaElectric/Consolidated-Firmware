@@ -83,7 +83,6 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     ENDIF ()
 
     add_subdirectory(firmware)
-
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
     ENDIF ()

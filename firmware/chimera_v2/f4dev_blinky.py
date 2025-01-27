@@ -1,10 +1,11 @@
 import time;
 import chimera_v2;
 
+# Init device.
 usb_device = chimera_v2.UsbDevice(0x0483, 0x5740)
-
 chimera_device = chimera_v2.F4Dev(usb_device)
 
+# Main loop.
 while True:
     print("On")
     chimera_device.gpio_write("GPIO_6", True)
