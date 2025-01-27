@@ -1,21 +1,61 @@
+"use client"
 import React, { useState, useEffect } from 'react'
-import Draggable from 'react-draggable'
+// import Draggable from 'react-draggable'
 // import { Checkbox } from '@/components/ui/checkbox'
 
-const initData = { timestamp: 0, name: '' }
-const boardNames = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7']
+// const boardNames = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7']
 
-const LiveFault: React.FC = () => {
-	const [boards, setBoards] = useState([initData])
-	const [active, setActive] = useState<boolean[]>([
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-	])
+function FaultDisplay({ width, tag }: { width: number, tag: "f" | "w" | "a" }) {
+	switch (tag) {
+		case 'f':
+			return (
+				<p
+					className='bg-red-500 px-6 py-2 h-1 '
+					style={{ width: `${width}px` }} />
+			)
+		case 'w':
+			return (
+				<p
+					className='bg-orange-500 px-6 py-2 h-1 '
+					style={{ width: `${width}px` }} />
+			)
+		case 'a':
+			return (
+				<p
+					className='bg-yellow-500-500 px-6 py-2 h-1 '
+					style={{ width: `${width}px` }} />
+			)
+		default:
+			return (
+				<p className='px-6 py-2 h-1 ' style={{ width: `${width}px` }} />
+			)
+	}
+}
+
+function FaultBar({ boards, count }: { boards: { timestamp: number, name: string }[], count: number }) {
+	return (
+		<div className='flex justify-center w-full h-4 my-2'>
+			{boards.map((fault, index) => {
+				const tag = fault.name.substring(0, 1) as "f" | "w" | "a"
+				if (index < boards.length - 1) {
+					return (
+						<div>
+							<FaultDisplay width={97 * (boards[index + 1].timestamp - fault.timestamp)} tag={tag} key={index} />
+						</div>
+					)
+				} else {
+					return (
+						<FaultDisplay width={97 * (count - boards[boards.length - 1].timestamp)} tag={tag} key={index} />
+					)
+				}
+			})}
+		</div>
+	)
+}
+
+export default function LiveFault() {
+	const [boards, setBoards] = useState([{ timestamp: 0, name: '' }])
+	const [active, setActive] = useState<boolean[]>([false, false, false, false, false, false, false])
 	const [count, setCount] = useState<number>(-1)
 
 	useEffect(() => {
@@ -28,67 +68,6 @@ const LiveFault: React.FC = () => {
 			clearInterval(interval)
 		}
 	}, [])
-
-	const FaultBar: React.FC = () => {
-		const FaultDisplay: React.FC<{
-			width: number
-			tag: String
-		}> = ({ width, tag }) => {
-			switch (tag) {
-				case 'f':
-					return (
-						<p
-							className='bg-red-500 px-6 py-2 h-1 '
-							style={{ width: `${width}px` }}
-						/>
-					)
-				case 'w':
-					return (
-						<p
-							className='bg-orange-500 px-6 py-2 h-1 '
-							style={{ width: `${width}px` }}
-						/>
-					)
-				case 'a':
-					return (
-						<p
-							className='bg-yellow-500-500 px-6 py-2 h-1 '
-							style={{ width: `${width}px` }}
-						/>
-					)
-				default:
-					return (
-						<p className='px-6 py-2 h-1 ' style={{ width: `${width}px` }} />
-					)
-			}
-		}
-
-		return (
-			<div className='flex justify-center w-full h-4 my-2'>
-				{boards.map((fault, index) => {
-					const tag = fault.name.substring(0, 1)
-
-					if (index < boards.length - 1) {
-						return (
-							<div>
-								<FaultDisplay
-									width={97 * (boards[index + 1].timestamp - fault.timestamp)}
-									tag={tag}
-								/>
-							</div>
-						)
-					} else {
-						return (
-							<FaultDisplay
-								width={97 * (count - boards[boards.length - 1].timestamp)}
-								tag={tag}
-							/>
-						)
-					}
-				})}
-			</div>
-		)
-	}
 
 	// const FilterFaults: React.FC<{ fault: boolean; index: number }> = ({
 	// 	fault,
@@ -104,21 +83,18 @@ const LiveFault: React.FC = () => {
 	// 		</button>
 	// 	)
 	// }
-
 	return (
 		<div className='bg-gray-200 dark:bg-gray-700 w-full h-18 overflow-hidden'>
 			<div className='flex flex-col justify-end'>
-				<Draggable cancel='.non-draggable'>
-					<div className='flex flex-col pr-9'>
-						{/* Below is the actual faults graph */}
-						{active.map((fault, index) => {
-							return <FaultBar fault={fault} index={index} key={index} />
-						})}
-					</div>
-				</Draggable>
+				{/* <Draggable cancel='.non-draggable'> */}
+				<div className='flex flex-col pr-9'>
+					{/* Below is the actual faults graph */}
+					{active.map((fault, k) => {
+						return <FaultBar boards={boards} count={count} key={k} />
+					})}
+				</div>
+				{/* </Draggable> */}
 			</div>
 		</div>
 	)
 }
-
-export default LiveFault

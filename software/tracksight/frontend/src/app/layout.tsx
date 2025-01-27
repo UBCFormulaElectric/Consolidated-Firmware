@@ -53,7 +53,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <main className="min-h-screen bg-white text-[#121212] dark:bg-[#121212] dark:text-white">
+          <main className="min-h-screen bg-white text-black dark:bg-neutral-900 dark:text-white">
             <NavBar />
             {children}
           </main>

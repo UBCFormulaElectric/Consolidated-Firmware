@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
 	:root {
@@ -59,15 +58,6 @@
 	}
 }
 
-@layer base {
-	* {
-		@apply border-border;
-	}
-	body {
-		@apply bg-background text-foreground;
-	}
-}
-
 :root {
 	--max-width: 1100px;
 	--border-radius: 12px;
@@ -109,7 +99,7 @@ a {
 	}
 }
 
-.layout {
+/* .layout {
 	@apply mt-2 p-[2%];
 }
 
@@ -165,4 +155,4 @@ x .time-item-enter {
 	transition:
 		opacity 500ms,
 		transform 500ms;
-}
+} */

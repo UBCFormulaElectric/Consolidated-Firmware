@@ -2,51 +2,23 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { useContext } from 'react'
-import { Menu, Switch } from 'antd'
 import { Theme, ThemeContext } from './ThemeProvider'
+import Link from 'next/link'
 
 export default function NavBar() {
-	const { theme, setTheme } = useContext(ThemeContext)
-	const router = useRouter()
+	const { setTheme } = useContext(ThemeContext)
 	const path = usePathname()
 
 	return (
 		<>
-			<nav className='p-0 fixed top-0 left-0 right-0 mb-0'>
-				<Menu
-					theme={theme ? 'dark' : 'light'}
-					mode='horizontal'
-					defaultSelectedKeys={[path.split('/')[1] || 'home']}
-					onClick={(e) => {
-						switch (e.key) {
-							case 'home':
-								return router.push('/')
-							case 'visualize':
-								return router.push('/visualize')
-							case 'dashboard':
-								return router.push('/dashboard')
-							case 'testing':
-								return router.push('/testing')
-							case 'theme':
-								break
-						}
-					}}
-					className='flex-grow'>
-					<Menu.Item key='home'>Home</Menu.Item>
-					<Menu.Item key='visualize'>Visualize</Menu.Item>
-					<Menu.Item key='dashboard'>Dashboards</Menu.Item>
-					<Menu.Item key='testing'>Testing</Menu.Item>
-					<div className='order-10'>
-						<Switch
-							checked={theme === Theme.DARK}
-							onChange={(checked: boolean) =>
-								setTheme(checked ? Theme.DARK : Theme.LIGHT)
-							}
-							checkedChildren='Dark'
-							unCheckedChildren='Light'
-						/>
-					</div>
-				</Menu>
+			<nav className='fixed top-0 left-0 right-0 h-11 bg-white dark:bg-white/20 z-10'>
+				<div className='flex flex-row items-center gap-x-4 h-full'>
+					<Link className="data-[selected=true]:font-bold" data-selected={path == '/'} href="/">Home</Link>
+					<Link className="data-[selected=true]:font-bold" data-selected={path == '/visualize'} href="/visualize">Visualize</Link>
+					<Link className="data-[selected=true]:font-bold" data-selected={path == '/dashboard'} href="/dashboard">Dashboard</Link>
+					<Link className="data-[selected=true]:font-bold" data-selected={path == '/testing'} href="/testing">Testing</Link>
+					<button type="button" onClick={() => setTheme(Theme.LIGHT)}>Set Dark Theme</button>
+				</div>
 			</nav>
 			<div className='h-11'></div>
 		</>
