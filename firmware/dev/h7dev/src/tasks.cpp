@@ -10,7 +10,6 @@ extern "C"
 #include "io_canLoggingQueue.h"
 #include "hw_hardFaultHandler.h"
 #include "io_fileSystem.h"
-#include "hw_sds.h"
 #include "main.h"
 }
 
