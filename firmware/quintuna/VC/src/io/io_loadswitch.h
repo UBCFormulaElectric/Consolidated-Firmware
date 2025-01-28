@@ -2,7 +2,7 @@
  
 #include <stdbool.h>
 
-//#ifdef TARGET_EMBEDDED
+#ifdef TARGET_EMBEDDED
 
 #include "hw_gpios.h"
 #include "hw_adcs.h"
@@ -17,13 +17,13 @@ typedef struct
     const Gpio       *enable_gpio;
     const AdcChannel *cur_sns_adc_channel;
 } Efuse;
-//#else
+#else
 
-// #include "app_utils.h"
-// EMPTY_STRUCT(LoadSwitch)
-// EMPTY_STRUCT(Efuse)
+#include "app_utils.h"
+EMPTY_STRUCT(LoadSwitch)
+EMPTY_STRUCT(Efuse)
 
-//#endif
+#endif
 
 extern const LoadSwitch loadswitch_front;
 extern const LoadSwitch loadswitch_rear;
