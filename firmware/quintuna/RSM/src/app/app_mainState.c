@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include "app_mainState.h"
-#include "io_fans.h"
 #include "io_leds.h"
 
 void mainStateRunOnTick100Hz(void)
