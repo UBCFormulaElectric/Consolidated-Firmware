@@ -42,6 +42,7 @@ void jobs_init(void)
     // broadcast commit info
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_BMS_Heartbeat_set(true);
 }
 void jobs_run1Hz_tick(void)
 {

@@ -295,7 +295,7 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("CRIT reset!");
 
     // Start DMA/TIM3 for the ADC.
     hw_adcs_chipsInit();
@@ -327,6 +327,7 @@ void tasks_init(void)
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_CRIT_Heartbeat_set(true);
 }
 
 void tasks_deinit(void)

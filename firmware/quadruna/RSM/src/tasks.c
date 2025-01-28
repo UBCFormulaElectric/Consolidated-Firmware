@@ -118,7 +118,7 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("RSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -146,6 +146,7 @@ void tasks_init(void)
 
     app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_RSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_RSM_Heartbeat_set(true);
 }
 
 void tasks_deinit(void)
