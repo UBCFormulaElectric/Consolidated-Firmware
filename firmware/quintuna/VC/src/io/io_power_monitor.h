@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    const uint16_t address;
+    const uint8_t address;
 } power_rail;
 
 extern const power_rail bat;

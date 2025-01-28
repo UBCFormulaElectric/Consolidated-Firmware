@@ -67,7 +67,8 @@ uint32_t io_power_monitor_alert_status()
 
     hw_i2c_receive(&pwr_mon, buffer, 3); // Gets all the alert statuses
 
-    const uint32_t alert_buffer = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2]; // 23:0 bits for alert (datasheet)
+    const uint32_t alert_buffer =
+        (uint32_t)((buffer[0] << 16) | (buffer[1] << 8) | buffer[2]); // 23:0 bits for alert (datasheet)
 
     return alert_buffer;
 }
