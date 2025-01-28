@@ -1,15 +1,14 @@
 #include "io_imu.h"
 #include "hw_i2c.h"
-#include <math.h>
 #include <stdio.h>
+#include "main.h"
 
 // Default accelerometer sensitivity for LSM6DSM is 0.061 mg/digit
 const float ACCEL_SENSITIVITY = 0.061f;
 // Default gyroscope sensitivity for LSM6DSM is 8.75 mdeg/digit
 const float GYRO_SENSITIVITY = 8.75f;
 
-extern I2C_HandleTypeDef hi2c2;
-static I2cInterface      imu = { .i2c_handle = &hi2c2, .target_address = 0x6B, .timeout_ms = 100 };
+static I2cInterface imu = { .i2c_handle = &hi2c2, .target_address = 0x6B, .timeout_ms = 100 };
 
 bool io_imu_init()
 {
