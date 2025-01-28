@@ -43,7 +43,6 @@ float io_power_monitor_read_voltage(const power_rail *voltage_address)
 
 float io_power_monitor_read_current(const power_rail *current_address)
 {
-    // This repeat gets the Vsense value
     uint8_t buffer[1];
 
     buffer[0] = 0x1F;
@@ -59,4 +58,16 @@ float io_power_monitor_read_current(const power_rail *current_address)
     return FSC * (voltage_sense_buffer / 65536.0f); // FSC * (Vsense/denom)
 }
 
-// check alert bit function
+uint32_t io_power_monitor_alert_status()
+{
+    uint8_t buffer[3]; // Does not require a REFRESH
+
+    buffer[0] = 0x26; // ALERT_STATUS address
+    hw_i2c_transmit(&pwr_mon, buffer, 1);
+
+    hw_i2c_receive(&pwr_mon, buffer, 3); // Gets all the alert statuses
+
+    const uint32_t alert_buffer = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2]; // 23:0 bits for alert (datasheet)
+
+    return alert_buffer;
+}
