@@ -8,6 +8,7 @@
 #include "app_heartbeatMonitors.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
+#include "app_stackWaterMarks.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -35,7 +36,6 @@
 #include "hw_bootup.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
 
 static const CanHandle can = { .hcan = &hcan1 };
@@ -443,7 +443,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();

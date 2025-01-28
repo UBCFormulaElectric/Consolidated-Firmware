@@ -3,12 +3,12 @@
 #include "cmsis_os.h"
 
 #include "app_mainState.h"
-
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_apps.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -29,8 +29,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMark.h" // TODO enable stackwatermark on the FSM
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_uarts.h"
@@ -162,7 +160,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();

@@ -4,34 +4,28 @@
 #include "cmsis_os.h"
 
 #include "hw_adcs.h"
-#include "hw_gpios.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_spi.h"
 #include "hw_pwmInput.h"
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_watchdog.h"
 #include "hw_uarts.h"
-#include "hw_sd.h"
 #include "hw_crc.h"
 
 #include "io_canTx.h"
 #include "io_sd.h"
-#include "io_faultLatch.h"
 #include "io_imd.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "io_tractiveSystem.h"
 #include "io_log.h"
 #include "io_chimera.h"
-#include "io_bmsShdn.h"
 
 #include "app_canRx.h"
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
-#include "app_heartbeatMonitors.h"
 
 #include "shared.pb.h"
 
@@ -130,7 +124,6 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
