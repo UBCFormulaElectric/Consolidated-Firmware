@@ -25,14 +25,8 @@
 #include <string.h>
 #include "tasks.h"
 
-#include "hw_hardFaultHandler.h"
-#include "hw_sd.h"
 #include "hw_bootup.h"
-#include "io_can.h"
-#include "io_canQueue.h"
-#include "io_canLoggingQueue.h"
-#include "io_fileSystem.h"
-#include "hw_gpio.h"
+#include "hw_sd.h"
 #include "io_log.h"
 /* USER CODE END Includes */
 
@@ -128,14 +122,6 @@ void        runCanRxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .hcan = &hfdcan2 };
-SdCard    sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
-
-Gpio sd_present = {
-    .pin  = GPIO_PIN_8,
-    .port = GPIOA,
-};
-bool sd_inited;
 
 /* USER CODE END 0 */
 
@@ -181,20 +167,6 @@ int main(void)
     MX_UART9_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
-
-    // __HAL_DBGMCU_FREEZE_IWDG();
-
-    hw_hardFaultHandler_init();
-    io_can_init(&can);
-    io_canQueue_init();
-
-    if (sd_inited)
-    {
-        sd1.hsd     = &hsd1;
-        sd1.timeout = osWaitForever;
-        int err     = io_fileSystem_init();
-        io_canLogging_init();
-    }
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -264,7 +236,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -278,7 +250,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 24;
+    RCC_OscInitStruct.PLL.PLLN       = 64;
     RCC_OscInitStruct.PLL.PLLP       = 1;
     RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
@@ -444,9 +416,8 @@ static void MX_FDCAN2_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-    if (hw_gpio_readPin(&sd_present))
+    if (!hw_sd_present())
     {
-        sd_inited = false;
         return;
     }
 
@@ -466,7 +437,6 @@ static void MX_SDMMC1_SD_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
-    sd_inited = true;
     /* USER CODE END SDMMC1_Init 2 */
 }
 
@@ -556,33 +526,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-static void can_msg_received_callback(CanMsg *rx_msg)
-{
-    // TODO: check gpio present
-    static uint32_t id = 0;
-    rx_msg->std_id     = id;
-    id++;
-    io_canQueue_pushRx(rx_msg);
-    io_canLogging_loggingQueuePush(rx_msg);
-}
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
-{
-    UNUSED(RxFifo0ITs);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    can_msg_received_callback(&rx_msg);
-}
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
-{
-    UNUSED(RxFifo1ITs);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    can_msg_received_callback(&rx_msg);
-}
 
 /* USER CODE END 4 */
 
