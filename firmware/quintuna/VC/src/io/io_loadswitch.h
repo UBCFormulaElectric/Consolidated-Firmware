@@ -28,3 +28,11 @@ EMPTY_STRUCT(Efuse)
 extern const LoadSwitch loadswitch_front;
 extern const LoadSwitch loadswitch_rear;
 extern const LoadSwitch loadswitch_inverter;
+
+void io_loadswitch_setChannel(const Efuse *channel, const bool enabled);
+
+bool io_loadswitch_isChannelEnabled(const Efuse *channel);
+
+float io_loadswitch_getChannelCurrent(const Efuse *channel);
+
+void io_loadswitch_standbyReset(const LoadSwitch *loadswitch);
