@@ -42,9 +42,9 @@ static uint8_t ADC3_PTR = 0;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (hadc == &hadc1)
+    if (hadc == adc1.hadc)
         hw_adcchip_updateCallback(&adc1);
-    else if (hadc == &hadc3)
+    else if (hadc == adc3.hadc)
     {
         /* On the STM32H733xx MCU, the ADC3 peripheral uses the BDMA peripheral to handle DMA transfers (not the regular
         DMA peripheral). Unfortunately, the BDMA can only transfer data to/from specific sections of memory (not regular

@@ -18,11 +18,8 @@ extern "C"
 {
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_canAlerts.h"
-#include "app_canUtils.h"
 #include "app_heartbeatMonitors.h"
 #include "app_stateMachine.h"
-#include "app_utils.h"
 #include "states/app_initState.h"
 #include "states/app_prechargeState.h"
 #include "states/app_driveState.h"
@@ -55,7 +52,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         app_tractiveSystem_init();
         app_thermistors_init();
         app_soc_init();
-        app_globals_init(&globals_config);
+        app_globals_init();
 
         app_soc_resetSocCustomValue(100.0f);
 
@@ -109,16 +106,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
                                            app_balancingState_get() };
     }
 
-    const ThermistorsConfig    thermistors_config = {};
-    const AirsConfig           airs_config        = {};
-    const TractiveSystemConfig ts_config          = {};
-    const FaultLatch           bms_ok_latch       = {};
-    const FaultLatch           imd_ok_latch       = {};
-    const FaultLatch           bspd_ok_latch      = {};
-
-    const GlobalsConfig globals_config = {
-        .bms_ok_latch  = &bms_ok_latch,
-        .imd_ok_latch  = &imd_ok_latch,
-        .bspd_ok_latch = &bspd_ok_latch,
-    };
+    const TractiveSystemConfig ts_config = {};
 };
+inline const FaultLatch bms_ok_latch  = {};
+inline const FaultLatch imd_ok_latch  = {};
+inline const FaultLatch bspd_ok_latch = {};

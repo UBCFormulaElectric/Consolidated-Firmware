@@ -65,6 +65,7 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx):
     if os.name == "nt":
         cube_gen_args = [f"{cubemx_dir}/jre/bin/java.exe", "-jar", *cube_gen_args]
 
+    print(cube_gen_args)
     proc = subprocess.Popen(cube_gen_args)
     try:
         proc.wait(timeout_sec)

@@ -18,14 +18,14 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOUR
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_log.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
@@ -36,7 +36,6 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
@@ -176,7 +175,7 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     # FakeIO
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_log.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_canLogging.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"

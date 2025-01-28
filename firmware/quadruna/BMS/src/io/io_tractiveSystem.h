@@ -1,7 +1,5 @@
 #pragma once
 
-#include "app_utils.h"
-
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.h"
 
@@ -13,6 +11,7 @@ typedef struct
     const AdcChannel *ts_isense_low_res_channel;
 } TractiveSystemConfig;
 #else
+#include "app_utils.h"
 EMPTY_STRUCT(TractiveSystemConfig);
 #endif
 
