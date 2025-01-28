@@ -1,7 +1,7 @@
 #include "hw_gpios.h"
 #include "io_fans.h"
 
-const Fans rad_fan = { .src = &rad_fan_en_pin }; //rad fans potentially not a thing anymore 
+const Fans rad_fan = { .src = &rad_fan_en_pin }; // rad fans potentially not a thing anymore
 
 void io_fan_set(const Fans *fans, bool on)
 {

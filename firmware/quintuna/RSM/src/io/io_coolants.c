@@ -42,13 +42,11 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
-
 static PwmInputFreqOnly flow_meter;
 
-const Coolant a = { .src = &coolantpressure1_3v3 };
-const Coolant b = { .src = &coolantpressure2_3v3 };
-const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter};
-
+const Coolant          a                  = { .src = &coolantpressure1_3v3 };
+const Coolant          b                  = { .src = &coolantpressure2_3v3 };
+const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter };
 
 void io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *coolant_flow_meter)
 {

@@ -22,14 +22,14 @@ extern const Coolant b;
 
 typedef struct
 {
-    const PwmInputFreqOnly *src;
+    const PwmInputFreqOnly       *src;
     const PwmInputFreqOnlyConfig *config;
-    
+
 } CoolantFlowMeter;
 
-void io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *coolant_flow);
-void io_coolant_inputCaptureCallback(CoolantFlowMeter *coolant_flow);
-void io_coolant_checkIfFlowMeterActive (CoolantFlowMeter *coolant_flow);
+void  io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *coolant_flow);
+void  io_coolant_inputCaptureCallback(CoolantFlowMeter *coolant_flow);
+void  io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *coolant_flow);
 float io_coolant_getFlowRate(CoolantFlowMeter *coolant_flow);
 
 extern const CoolantFlowMeter coolant_flow_meter;
