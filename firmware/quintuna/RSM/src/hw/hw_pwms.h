@@ -3,4 +3,4 @@
 #include "hw_pwmInputFreqOnly.h"
 #include <stdint.h>
 
-extern const PwmInputFreqOnly coolant_config;
+extern const PwmInputFreqOnly flow_meter_5v5;

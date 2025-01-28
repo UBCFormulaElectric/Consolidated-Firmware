@@ -13,13 +13,9 @@
 // determines the order in which the DMA writes data to our raw_adc_values
 // buffer.
 
-extern const AdcChannel acc_fan_i_sns;
-extern const AdcChannel rad_fan_i_sns;
-extern const AdcChannel coolantpressure1_3v3;
-extern const AdcChannel coolantpressure2_3v3;
-extern const AdcChannel lc3_out;
 extern const AdcChannel susp_travel_rr_3v3;
 extern const AdcChannel susp_travel_rl_3v3;
-extern const AdcChannel coolanttemp2_3v3;
-extern const AdcChannel coolanttemp1_3v3;
-extern const AdcChannel regen_3v3_lc3_out;
+extern const AdcChannel susp_travel_rr_ocsc;
+extern const AdcChannel susp_travel_rl_ocsc;
+extern const AdcChannel lc3_out;
+extern const AdcChannel bps_3v3;
