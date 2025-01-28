@@ -8,7 +8,7 @@ typedef struct
 {
     const AdcChannel *src;
 } Suspension;
-#else 
+#else
 #include "app_utils.h"
 EMPTY_STRUCT(Suspension);
 #endif
