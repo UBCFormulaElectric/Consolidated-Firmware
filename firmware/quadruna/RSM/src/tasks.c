@@ -9,6 +9,7 @@
 #include "app_commitInfo.h"
 #include "app_coolant.h"
 #include "app_heartbeatMonitors.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_jsoncan.h"
 #include "io_canTx.h"
@@ -24,8 +25,6 @@
 #include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
-#include "hw_stackWaterMark.h" // TODO setup stack watermark on RSM
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_adcs.h"
 #include "hw_gpio.h"
@@ -150,6 +149,21 @@ void tasks_init(void)
     app_canTx_RSM_Heartbeat_set(true);
 }
 
+void tasks_deinit(void)
+{
+    HAL_TIM_Base_Stop_IT(&htim3);
+    HAL_TIM_Base_DeInit(&htim3);
+
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_DeInit(&huart1);
+
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_DeInit(&hadc1);
+
+    HAL_DMA_Abort_IT(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_adc1);
+}
+
 _Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
@@ -163,7 +177,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
