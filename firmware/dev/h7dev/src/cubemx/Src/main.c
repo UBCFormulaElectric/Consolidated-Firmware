@@ -132,6 +132,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     if (GPIO_Pin == GPIO_PIN_0)
     {
         // CHANGE: enter standby mode on button press
+
+        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
         HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2); // use PA2 as wakeup pin
         HAL_PWR_EnterSTANDBYMode();               // enter standby mode
 
@@ -172,6 +174,7 @@ int main(void)
     PeriphCommonClock_Config();
 
     /* USER CODE BEGIN SysInit */
+    __HAL_RCC_PWR_CLK_ENABLE();
     if (__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET)
     {
         LOG_INFO("System resumed from standby mode");
