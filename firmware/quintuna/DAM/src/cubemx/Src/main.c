@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -471,13 +472,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(SD_CD_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : USB_D_N_Pin USB_D_P_Pin */
-    GPIO_InitStruct.Pin   = USB_D_N_Pin | USB_D_P_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -495,6 +489,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
+    /* init code for USB_DEVICE */
+    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
     for (;;)

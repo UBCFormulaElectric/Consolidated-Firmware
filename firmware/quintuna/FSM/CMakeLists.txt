@@ -5,35 +5,35 @@ set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-        "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
-        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR_CPP}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-	""
+        ""
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-	""
+        ""
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${SHARED_HW_INCLUDE_DIR}"
 )
 
 if ("${TARGET}" STREQUAL "binary")
@@ -65,7 +65,7 @@ if ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code("FSM" "${IOC_PATH}")
 
     set(STM32_HAL_SRCS
-        "stm32f4xx_hal.c" #add more hal library here if needed
+            "stm32f4xx_hal.c" #add more hal library here if needed
     )
 
     set(STM32_HAL_SRCS
