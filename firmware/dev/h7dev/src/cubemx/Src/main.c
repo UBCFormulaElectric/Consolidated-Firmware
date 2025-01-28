@@ -174,7 +174,7 @@ int main(void)
     PeriphCommonClock_Config();
 
     /* USER CODE BEGIN SysInit */
-    __HAL_RCC_PWR_CLK_ENABLE();
+    // __HAL_RCC_PWR_CLK_ENABLE();
     if (__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET)
     {
         LOG_INFO("System resumed from standby mode");
@@ -184,6 +184,13 @@ int main(void)
     {
         LOG_INFO("System started from reset");
     }
+
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+    LOG_INFO("Entering standby");
+    HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2); // use PA2 as wakeup pin
+    HAL_PWR_EnterSTANDBYMode();               // enter standby mode
+
+    LOG_ERROR("Should not reach here!");
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -625,6 +632,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
