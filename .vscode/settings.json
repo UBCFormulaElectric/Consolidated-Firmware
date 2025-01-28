@@ -9,15 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"io_loadcell.h": "c",
-		"hw_adc.h": "c",
-		"hw_adcs.h": "c",
-		"main.h": "c",
-		"io_fans.h": "c",
-		"io_leds.h": "c",
-		"hw_gpios.h": "c",
-		"hw_pwms.h": "c",
-		"io_led.h": "c"
-	},
 }
