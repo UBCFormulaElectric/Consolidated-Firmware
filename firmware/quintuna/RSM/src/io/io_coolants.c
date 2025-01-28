@@ -21,7 +21,7 @@
 #define PRESSURE_PSI_MAX (100.0f)
 // min pressure is 0 PSI
 #define VOLTAGE_PRESSURE_CONVERSION(voltage) \
-    (((voltage)-PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
+    (((voltage) - PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
 
 // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
 #define TEMPERATURE_VOLTAGE_MIN (0.0f)
@@ -42,65 +42,29 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
-static PwmInputFreqOnly flow_meter;
+const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter_5v5 };
 
-const Coolant          a                  = { .src = &coolantpressure1_3v3 };
-const Coolant          b                  = { .src = &coolantpressure2_3v3 };
-const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter };
-
-void io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *coolant_flow_meter)
+void io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *flow_meter)
 {
-    hw_pwmInputFreqOnly_init(coolant_flow_meter->src, coolant_config);
+    hw_pwmInputFreqOnly_init(flow_meter->src, config);
 }
 
-void io_coolant_inputCaptureCallback(CoolantFlowMeter *coolant_flow_meter)
+void io_coolant_inputCaptureCallback(CoolantFlowMeter *flow_meter)
 {
     // if (htim3 == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
     // htim3->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
     // {
-    hw_pwmInputFreqOnly_tick(coolant_flow_meter->src);
+    hw_pwmInputFreqOnly_tick(flow_meter->src);
     // }
 }
 
-float io_coolant_getFlowRate(CoolantFlowMeter *coolant_flow_meter)
+float io_coolant_getFlowRate(CoolantFlowMeter *flow_meter)
 {
-    const float freq_read = hw_pwmInputFreqOnly_getFrequency(coolant_flow_meter->src);
+    const float freq_read = hw_pwmInputFreqOnly_getFrequency(flow_meter->src);
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
-void io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *coolant_flow_meter)
+void io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *flow_meter)
 {
-    hw_pwmInputFreqOnly_checkIfPwmIsActive(coolant_flow_meter->src);
-}
-
-bool io_coolant_temperatureOCSC(Coolant *coolant)
-{
-    const float voltage = hw_adc_getVoltage(coolant->src);
-    return voltage < TEMPERATURE_VOLTAGE_MIN || voltage > TEMPERATURE_VOLTAGE_MAX;
-}
-
-float io_coolant_getTemperature(Coolant *coolant)
-{
-    const float v_read = hw_adc_getVoltage(coolant->src);
-
-    const float v_out        = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
-    const float r_thermistor = RTHERM(v_out);
-    float       b_term       = BTERM_STEIN_EQN(r_thermistor);
-    float       coolant_temp =
-        (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
-    float coolant_temp_cel = coolant_temp - 273.15f;
-
-    return coolant_temp_cel;
-}
-
-bool io_coolant_pressureOCSC(Coolant *coolant)
-{
-    const float voltage = hw_adc_getVoltage(coolant->src);
-    return voltage < PRESSURE_VOLTAGE_MIN || voltage > PRESSURE_VOLTAGE_MAX;
-}
-
-float io_coolant_getPressure(Coolant *coolant)
-{
-    const float water_pressure = hw_adc_getVoltage(coolant->src);
-    return CLAMP(water_pressure, 0.0f, PRESSURE_PSI_MAX);
+    hw_pwmInputFreqOnly_checkIfPwmIsActive(flow_meter->src);
 }
