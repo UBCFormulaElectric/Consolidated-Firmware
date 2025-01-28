@@ -64,6 +64,10 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_pcd.c"
             "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_ll_usb.c"
+                "stm32h7xx_ll_rtc.c"
+                "stm32h7xx_hal_rtc.c"
+                "stm32h7xx_hal_pwr.c"
+                "stm32h7xx_hal_pwr_ex.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
