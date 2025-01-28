@@ -471,8 +471,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(SD_CD_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : USB_D_N_Pin PA12 */
-    GPIO_InitStruct.Pin   = USB_D_N_Pin | GPIO_PIN_12;
+    /*Configure GPIO pins : USB_D_N_Pin USB_D_P_Pin */
+    GPIO_InitStruct.Pin   = USB_D_N_Pin | USB_D_P_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

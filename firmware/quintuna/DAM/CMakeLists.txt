@@ -88,6 +88,8 @@ if ("${TARGET}" STREQUAL "binary")
                 "stm32h7xx_hal.c"
                 "stm32h7xx_hal_i2c.c"
                 "stm32h7xx_hal_i2c_ex.c"
+		"stm32h7xx_hal_pcd.c"
+		"stm32h7xx_hal_pcd_ex.c"
         )
 
         stm32h733xx_cube_library(
@@ -112,7 +114,6 @@ if ("${TARGET}" STREQUAL "binary")
                 "${ARM_CORE}"
         )
 
-        target_link_libraries("quintuna_DAM_jsoncan" INTERFACE "quintuna_DAM_stm32cube")
         target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "debug_modules")
         target_link_libraries("quintuna_DAM_boot.elf" PRIVATE "quintuna_DAM_commit_info")
 
