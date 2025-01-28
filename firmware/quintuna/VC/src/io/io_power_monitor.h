@@ -2,16 +2,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef TARGET_EMBEDDED
 typedef struct
 {
     const uint8_t address;
-} power_rail;
+} PowerRail;
 
-extern const power_rail bat;
-extern const power_rail boost;
-extern const power_rail acc;
-extern const power_rail ext;
+#else
+#include "app_utils.h"
+EMPTY_STRUCT(PowerRail)
+#endif
+
+extern const PowerRail bat;
+extern const PowerRail boost;
+extern const PowerRail acc;
+extern const PowerRail ext;
 
 bool io_power_monitor_init();
 
-float io_power_monitor_read_voltage(const power_rail *voltage_address);
+float io_power_monitor_read_voltage(const PowerRail *voltage_address);
