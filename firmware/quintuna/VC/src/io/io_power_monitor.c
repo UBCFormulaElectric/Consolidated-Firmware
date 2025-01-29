@@ -8,9 +8,9 @@
 #define REFRESH 0x1F
 #define ALERT_STATUS 0x26
 
-const PowerRail boost = {.bus_address = 0x07, .sense_address = 0x0B};
-const PowerRail acc = {.bus_address = 0x08, .sense_address = 0x0C};
-const PowerRail ext = {.bus_address = 0x09, .sense_address = 0x0D};
+const PowerRail boost = { .bus_address = 0x07, .sense_address = 0x0B };
+const PowerRail acc   = { .bus_address = 0x08, .sense_address = 0x0C };
+const PowerRail ext   = { .bus_address = 0x09, .sense_address = 0x0D };
 
 bool io_power_monitor_init()
 {
@@ -46,8 +46,7 @@ float io_power_monitor_read_current(const PowerRail *current_address)
 
     hw_i2c_receive(&pwr_mon, buffer, 2); // get raw register data and store it in buffer
 
-    const float voltage_sense_buffer =
-        (float)((buffer[0] << 8) | buffer[1]) * VOLTAGE_SENSE_TRANSFER_FACTOR;
+    const float voltage_sense_buffer = (float)((buffer[0] << 8) | buffer[1]) * VOLTAGE_SENSE_TRANSFER_FACTOR;
 
     return FSC * (voltage_sense_buffer / 65536.0f); // FSC * (Vsense/denom)
 }
