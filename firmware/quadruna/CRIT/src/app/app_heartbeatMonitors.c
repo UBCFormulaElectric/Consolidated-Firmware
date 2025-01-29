@@ -31,7 +31,4 @@ static HeartbeatBoard heartbeat_boards[4] = {
       .timeout_ms   = 200 }
 };
 
-HeartbeatMonitor hb_monitor = { .boards        = heartbeat_boards,
-                                .board_count   = 4,
-                                .block_faults  = false,
-                                .own_heartbeat = app_canTx_CRIT_Heartbeat_set };
+HeartbeatMonitor hb_monitor = { .boards = heartbeat_boards, .board_count = 4, .block_faults = false };

@@ -8,6 +8,7 @@
 #include "app_heartbeatMonitors.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
+#include "app_stackWaterMarks.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -35,7 +36,6 @@
 #include "hw_bootup.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
 
 static const CanHandle can = { .hcan = &hcan1 };
@@ -295,7 +295,7 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("CRIT reset!");
 
     // Start DMA/TIM3 for the ADC.
     hw_adcs_chipsInit();
@@ -327,6 +327,7 @@ void tasks_init(void)
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_CRIT_Heartbeat_set(true);
 }
 
 void tasks_deinit(void)
@@ -443,7 +444,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
