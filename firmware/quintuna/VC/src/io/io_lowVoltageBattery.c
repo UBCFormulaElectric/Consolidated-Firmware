@@ -2,7 +2,8 @@
 #include "hw_i2c.h"
 #include "hw_hal.h"
 
-const uint8_t TARGET_ADDRESS = 0x10;
+const uint8_t VOLTAGE_TARGET_ADDRESS = 0x10;
+const uint8_t CHARGE_TARGET_ADRESS = 0x0076;
 const uint8_t COMMAND_ADDRESS = 0x3E;
 
 // const uint8_t CELL0_VOLTAGE_COMMAND[] = {0x14, 0x15};
@@ -13,11 +14,91 @@ const uint8_t COMMAND_ADDRESS = 0x3E;
 
 extern I2C_HandleTypeDef hi2c1;
 
-static I2cInterface lvBatMon = { &hi2c1, TARGET_ADDRESS, 100 };
+static I2cInterface lvBatMon = { &hi2c1, VOLTAGE_TARGET_ADDRESS, 100 };
 
 bool io_lowVoltageBattery_init()
 {
     return hw_i2c_isTargetReady(&lvBatMon);
+}
+
+void waitForResponse(uint8_t upperByte, uint8_t lowerByte) 
+{
+    bool readDataReady = false;
+        while (!readDataReady)
+        {
+            uint8_t rx_buffer[2];
+            if (hw_i2c_memRead(&lvBatMon, COMMAND_ADDRESS, rx_buffer, sizeof(rx_buffer)))
+            {
+                if (rx_buffer[0] == upperByte && rx_buffer[1] == lowerByte)
+                {
+                    readDataReady = true;
+                }
+            }
+        }
+}
+
+uint8_t readResponseLength() 
+{
+    uint8_t responseLength;
+    if (!hw_i2c_memRead(&lvBatMon, 0x61, &responseLength, sizeof(responseLength)))
+    {
+        return 0;
+    }
+    if (responseLength > sizeof(uint8_t))
+    {
+        return 0; 
+    }
+    return responseLength;
+}
+
+bool validateResponse(uint8_t* response)
+{
+    uint8_t checkSum;
+    if (!hw_i2c_memRead(&lvBatMon, 0x60, &checkSum, sizeof(checkSum)))
+    {
+        return false;
+    }
+    if (checkSum != response) {
+        return false;
+    }
+    return true;
+}
+
+bool io_lowVoltageBattery_getPackCharge(uint8_t* packCharge)
+{
+    // 1. Write command upper byte.
+    uint8_t upperByte = 0x76;
+    if (!hw_i2c_memWrite(&lvBatMon, 0x3F, upperByte, sizeof(upperByte)))
+    {
+        return false;
+    }
+
+    // 2. Write command lower byte.
+    uint8_t lowerByte = 0x00;
+    if (!hw_i2c_memWrite(&lvBatMon, 0x3F, lowerByte, sizeof(lowerByte)))
+    {
+        return false;
+    }
+
+    // 3. Wait for response.
+    waitForResponse(upperByte, lowerByte);
+
+    // 4. Read the response length.
+    uint8_t responseLength = readResponseLength();
+   
+    // 5. Read the response.
+    uint8_t* response;
+    if (!hw_i2c_memRead(&lvBatMon, 0x40, &response, responseLength))
+    {
+        return false;
+    }
+
+    // 6. Validate the response.
+    if(validateResponse(response))
+    {
+        packCharge = response;
+        return true;
+    }
 }
 
 bool io_lowVoltageBattery_getPackVoltage(uint16_t *packVoltage)
