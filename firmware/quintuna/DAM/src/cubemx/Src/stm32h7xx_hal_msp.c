@@ -161,69 +161,91 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
 }
 
 /**
- * @brief RTC MSP Initialization
+ * @brief I2C MSP Initialization
  * This function configures the hardware resources used in this example
- * @param hrtc: RTC handle pointer
+ * @param hi2c: I2C handle pointer
  * @retval None
  */
-void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
+    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hrtc->Instance == RTC)
+    if (hi2c->Instance == I2C1)
     {
-        /* USER CODE BEGIN RTC_MspInit 0 */
+        /* USER CODE BEGIN I2C1_MspInit 0 */
 
-        /* USER CODE END RTC_MspInit 0 */
+        /* USER CODE END I2C1_MspInit 0 */
 
         /** Initializes the peripherals clock
          */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-        PeriphClkInitStruct.RTCClockSelection    = RCC_RTCCLKSOURCE_LSI;
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
+        PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C1235CLKSOURCE_D2PCLK1;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
         }
 
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        /**I2C1 GPIO Configuration
+        PB6     ------> I2C1_SCL
+        PB7     ------> I2C1_SDA
+        */
+        GPIO_InitStruct.Pin       = RTC_I2C_SCL_Pin | RTC_I2C_SDA_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
         /* Peripheral clock enable */
-        __HAL_RCC_RTC_ENABLE();
-        /* USER CODE BEGIN RTC_MspInit 1 */
+        __HAL_RCC_I2C1_CLK_ENABLE();
+        /* USER CODE BEGIN I2C1_MspInit 1 */
 
-        /* USER CODE END RTC_MspInit 1 */
+        /* USER CODE END I2C1_MspInit 1 */
     }
 }
 
 /**
- * @brief RTC MSP De-Initialization
+ * @brief I2C MSP De-Initialization
  * This function freeze the hardware resources used in this example
- * @param hrtc: RTC handle pointer
+ * @param hi2c: I2C handle pointer
  * @retval None
  */
-void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 {
-    if (hrtc->Instance == RTC)
+    if (hi2c->Instance == I2C1)
     {
-        /* USER CODE BEGIN RTC_MspDeInit 0 */
+        /* USER CODE BEGIN I2C1_MspDeInit 0 */
 
-        /* USER CODE END RTC_MspDeInit 0 */
+        /* USER CODE END I2C1_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_RTC_DISABLE();
-        /* USER CODE BEGIN RTC_MspDeInit 1 */
+        __HAL_RCC_I2C1_CLK_DISABLE();
 
-        /* USER CODE END RTC_MspDeInit 1 */
+        /**I2C1 GPIO Configuration
+        PB6     ------> I2C1_SCL
+        PB7     ------> I2C1_SDA
+        */
+        HAL_GPIO_DeInit(RTC_I2C_SCL_GPIO_Port, RTC_I2C_SCL_Pin);
+
+        HAL_GPIO_DeInit(RTC_I2C_SDA_GPIO_Port, RTC_I2C_SDA_Pin);
+
+        /* USER CODE BEGIN I2C1_MspDeInit 1 */
+
+        /* USER CODE END I2C1_MspDeInit 1 */
     }
 }
 
 /**
- * @brief MMC MSP Initialization
+ * @brief SD MSP Initialization
  * This function configures the hardware resources used in this example
- * @param hmmc: MMC handle pointer
+ * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_MMC_MspInit(MMC_HandleTypeDef *hmmc)
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 {
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hmmc->Instance == SDMMC1)
+    if (hsd->Instance == SDMMC1)
     {
         /* USER CODE BEGIN SDMMC1_MspInit 0 */
 
@@ -272,14 +294,14 @@ void HAL_MMC_MspInit(MMC_HandleTypeDef *hmmc)
 }
 
 /**
- * @brief MMC MSP De-Initialization
+ * @brief SD MSP De-Initialization
  * This function freeze the hardware resources used in this example
- * @param hmmc: MMC handle pointer
+ * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_MMC_MspDeInit(MMC_HandleTypeDef *hmmc)
+void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
 {
-    if (hmmc->Instance == SDMMC1)
+    if (hsd->Instance == SDMMC1)
     {
         /* USER CODE BEGIN SDMMC1_MspDeInit 0 */
 
@@ -302,6 +324,67 @@ void HAL_MMC_MspDeInit(MMC_HandleTypeDef *hmmc)
         /* USER CODE BEGIN SDMMC1_MspDeInit 1 */
 
         /* USER CODE END SDMMC1_MspDeInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_IC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param htim_ic: TIM_IC handle pointer
+ * @retval None
+ */
+void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    if (htim_ic->Instance == TIM15)
+    {
+        /* USER CODE BEGIN TIM15_MspInit 0 */
+
+        /* USER CODE END TIM15_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM15_CLK_ENABLE();
+
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+        /**TIM15 GPIO Configuration
+        PE5     ------> TIM15_CH1
+        */
+        GPIO_InitStruct.Pin       = nRTC_INT1_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF4_TIM15;
+        HAL_GPIO_Init(nRTC_INT1_GPIO_Port, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN TIM15_MspInit 1 */
+
+        /* USER CODE END TIM15_MspInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_IC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param htim_ic: TIM_IC handle pointer
+ * @retval None
+ */
+void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
+{
+    if (htim_ic->Instance == TIM15)
+    {
+        /* USER CODE BEGIN TIM15_MspDeInit 0 */
+
+        /* USER CODE END TIM15_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM15_CLK_DISABLE();
+
+        /**TIM15 GPIO Configuration
+        PE5     ------> TIM15_CH1
+        */
+        HAL_GPIO_DeInit(nRTC_INT1_GPIO_Port, nRTC_INT1_Pin);
+
+        /* USER CODE BEGIN TIM15_MspDeInit 1 */
+
+        /* USER CODE END TIM15_MspDeInit 1 */
     }
 }
 

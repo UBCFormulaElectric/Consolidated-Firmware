@@ -45,9 +45,11 @@
 
 FDCAN_HandleTypeDef hfdcan2;
 
-RTC_HandleTypeDef hrtc;
+I2C_HandleTypeDef hi2c1;
 
-MMC_HandleTypeDef hmmc1;
+SD_HandleTypeDef hsd1;
+
+TIM_HandleTypeDef htim15;
 
 UART_HandleTypeDef huart2;
 
@@ -64,11 +66,13 @@ const osThreadAttr_t defaultTask_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
+static void MPU_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_RTC_Init(void);
-static void MX_SDMMC1_MMC_Init(void);
+static void MX_SDMMC1_SD_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C1_Init(void);
+static void MX_TIM15_Init(void);
 void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -90,6 +94,9 @@ int main(void)
 
     /* USER CODE END 1 */
 
+    /* MPU Configuration--------------------------------------------------------*/
+    MPU_Config();
+
     /* MCU Configuration--------------------------------------------------------*/
 
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -108,10 +115,11 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_RTC_Init();
-    MX_SDMMC1_MMC_Init();
+    MX_SDMMC1_SD_Init();
     MX_FDCAN2_Init();
     MX_USART2_UART_Init();
+    MX_I2C1_Init();
+    MX_TIM15_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -187,9 +195,8 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -275,65 +282,49 @@ static void MX_FDCAN2_Init(void)
 }
 
 /**
- * @brief RTC Initialization Function
+ * @brief I2C1 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_RTC_Init(void)
+static void MX_I2C1_Init(void)
 {
-    /* USER CODE BEGIN RTC_Init 0 */
+    /* USER CODE BEGIN I2C1_Init 0 */
 
-    /* USER CODE END RTC_Init 0 */
+    /* USER CODE END I2C1_Init 0 */
 
-    RTC_TimeTypeDef sTime = { 0 };
-    RTC_DateTypeDef sDate = { 0 };
+    /* USER CODE BEGIN I2C1_Init 1 */
 
-    /* USER CODE BEGIN RTC_Init 1 */
+    /* USER CODE END I2C1_Init 1 */
+    hi2c1.Instance              = I2C1;
+    hi2c1.Init.Timing           = 0x60404E72;
+    hi2c1.Init.OwnAddress1      = 0;
+    hi2c1.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
+    hi2c1.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
+    hi2c1.Init.OwnAddress2      = 0;
+    hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+    hi2c1.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
+    hi2c1.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+    {
+        Error_Handler();
+    }
 
-    /* USER CODE END RTC_Init 1 */
-
-    /** Initialize RTC Only
+    /** Configure Analogue filter
      */
-    hrtc.Instance            = RTC;
-    hrtc.Init.HourFormat     = RTC_HOURFORMAT_24;
-    hrtc.Init.AsynchPrediv   = 127;
-    hrtc.Init.SynchPrediv    = 255;
-    hrtc.Init.OutPut         = RTC_OUTPUT_DISABLE;
-    hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-    hrtc.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
-    hrtc.Init.OutPutRemap    = RTC_OUTPUT_REMAP_NONE;
-    if (HAL_RTC_Init(&hrtc) != HAL_OK)
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
     {
         Error_Handler();
     }
 
-    /* USER CODE BEGIN Check_RTC_BKUP */
-
-    /* USER CODE END Check_RTC_BKUP */
-
-    /** Initialize RTC and set the Time and Date
+    /** Configure Digital filter
      */
-    sTime.Hours          = 0x0;
-    sTime.Minutes        = 0x0;
-    sTime.Seconds        = 0x0;
-    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+    if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
     {
         Error_Handler();
     }
-    sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-    sDate.Month   = RTC_MONTH_JANUARY;
-    sDate.Date    = 0x1;
-    sDate.Year    = 0x0;
+    /* USER CODE BEGIN I2C1_Init 2 */
 
-    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN RTC_Init 2 */
-
-    /* USER CODE END RTC_Init 2 */
+    /* USER CODE END I2C1_Init 2 */
 }
 
 /**
@@ -341,7 +332,7 @@ static void MX_RTC_Init(void)
  * @param None
  * @retval None
  */
-static void MX_SDMMC1_MMC_Init(void)
+static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
 
@@ -350,19 +341,66 @@ static void MX_SDMMC1_MMC_Init(void)
     /* USER CODE BEGIN SDMMC1_Init 1 */
 
     /* USER CODE END SDMMC1_Init 1 */
-    hmmc1.Instance                 = SDMMC1;
-    hmmc1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
-    hmmc1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hmmc1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
-    hmmc1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hmmc1.Init.ClockDiv            = 0;
-    if (HAL_MMC_Init(&hmmc1) != HAL_OK)
+    hsd1.Instance                 = SDMMC1;
+    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+    hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
+    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+    hsd1.Init.ClockDiv            = 0;
+    if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
 
     /* USER CODE END SDMMC1_Init 2 */
+}
+
+/**
+ * @brief TIM15 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM15_Init(void)
+{
+    /* USER CODE BEGIN TIM15_Init 0 */
+
+    /* USER CODE END TIM15_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+
+    /* USER CODE BEGIN TIM15_Init 1 */
+
+    /* USER CODE END TIM15_Init 1 */
+    htim15.Instance               = TIM15;
+    htim15.Init.Prescaler         = 0;
+    htim15.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim15.Init.Period            = 65535;
+    htim15.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim15.Init.RepetitionCounter = 0;
+    htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_IC_Init(&htim15) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim15, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim15, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM15_Init 2 */
+
+    /* USER CODE END TIM15_Init 2 */
 }
 
 /**
@@ -423,15 +461,18 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOC, LED_Pin | SD_FAIL_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(_900M_GPIO_GPIO_Port, _900M_GPIO_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOE, TELEM_PWR_EN_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
@@ -451,6 +492,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : _900M_GPIO_Pin */
+    GPIO_InitStruct.Pin   = _900M_GPIO_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(_900M_GPIO_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : TELEM_PWR_EN_Pin BUZZER_PWR_EN_Pin */
     GPIO_InitStruct.Pin   = TELEM_PWR_EN_Pin | BUZZER_PWR_EN_Pin;
@@ -498,6 +546,56 @@ void StartDefaultTask(void *argument)
         osDelay(1);
     }
     /* USER CODE END 5 */
+}
+
+/* MPU Configuration */
+
+void MPU_Config(void)
+{
+    MPU_Region_InitTypeDef MPU_InitStruct = { 0 };
+
+    /* Disables the MPU */
+    HAL_MPU_Disable();
+
+    /** Initializes and configures the Region and the memory to be protected
+     */
+    MPU_InitStruct.Enable           = MPU_REGION_ENABLE;
+    MPU_InitStruct.Number           = MPU_REGION_NUMBER0;
+    MPU_InitStruct.BaseAddress      = 0x0;
+    MPU_InitStruct.Size             = MPU_REGION_SIZE_4GB;
+    MPU_InitStruct.SubRegionDisable = 0x87;
+    MPU_InitStruct.TypeExtField     = MPU_TEX_LEVEL0;
+    MPU_InitStruct.AccessPermission = MPU_REGION_NO_ACCESS;
+    MPU_InitStruct.DisableExec      = MPU_INSTRUCTION_ACCESS_DISABLE;
+    MPU_InitStruct.IsShareable      = MPU_ACCESS_SHAREABLE;
+    MPU_InitStruct.IsCacheable      = MPU_ACCESS_NOT_CACHEABLE;
+    MPU_InitStruct.IsBufferable     = MPU_ACCESS_NOT_BUFFERABLE;
+
+    HAL_MPU_ConfigRegion(&MPU_InitStruct);
+    /* Enables the MPU */
+    HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
+}
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM2 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+    if (htim->Instance == TIM2)
+    {
+        HAL_IncTick();
+    }
+    /* USER CODE BEGIN Callback 1 */
+
+    /* USER CODE END Callback 1 */
 }
 
 /**

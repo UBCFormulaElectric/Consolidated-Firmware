@@ -58,6 +58,8 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define nRTC_INT1_Pin GPIO_PIN_5
+#define nRTC_INT1_GPIO_Port GPIOE
 #define LED_Pin GPIO_PIN_0
 #define LED_GPIO_Port GPIOC
 #define BOOT_Pin GPIO_PIN_1
@@ -72,6 +74,8 @@ extern "C"
 #define TO_900M_TX_GPIO_Port GPIOA
 #define FROM_900M_RX_Pin GPIO_PIN_3
 #define FROM_900M_RX_GPIO_Port GPIOA
+#define _900M_GPIO_Pin GPIO_PIN_4
+#define _900M_GPIO_GPIO_Port GPIOA
 #define TELEM_PWR_EN_Pin GPIO_PIN_9
 #define TELEM_PWR_EN_GPIO_Port GPIOE
 #define BUZZER_PWR_EN_Pin GPIO_PIN_15
@@ -96,6 +100,10 @@ extern "C"
 #define SWCLK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define RTC_I2C_SCL_Pin GPIO_PIN_6
+#define RTC_I2C_SCL_GPIO_Port GPIOB
+#define RTC_I2C_SDA_Pin GPIO_PIN_7
+#define RTC_I2C_SDA_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
