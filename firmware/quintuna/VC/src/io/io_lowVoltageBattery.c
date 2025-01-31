@@ -2,9 +2,17 @@
 #include "hw_i2c.h"
 #include "hw_hal.h"
 
-const uint8_t VOLTAGE_TARGET_ADDRESS = 0x10;
-const uint8_t CHARGE_TARGET_ADRESS = 0x0076;
+const uint8_t BQ76922_I2C_ADDR = 0x10; // 7-bit I2C address
+const uint16_t CMD_DASTATUS6 = 0x0076; // Subcommand for accumulated charge
 const uint8_t COMMAND_ADDRESS = 0x3E;
+const uint8_t REG_SUBCOMMAND_LSB = 0x3E;
+const uint8_t REG_SUBCOMMAND_MSB = 0x3F;
+const uint8_t REG_DATA_BUFFER = 0x40;
+const uint8_t REG_CHECKSUM = 0x60;
+const uint8_t REG_RESPONSE_LENGTH = 0x61;
+
+#define R_SENSE 2.0f  // Sense resistor in mΩ
+#define Q_FULL  2000.0f // Battery full charge capacity in mAh
 
 // const uint8_t CELL0_VOLTAGE_COMMAND[] = {0x14, 0x15};
 // const uint8_t CELL1_VOLTAGE_COMMAND[] = {0x16, 0x17};
@@ -14,33 +22,45 @@ const uint8_t COMMAND_ADDRESS = 0x3E;
 
 extern I2C_HandleTypeDef hi2c1;
 
-static I2cInterface lvBatMon = { &hi2c1, VOLTAGE_TARGET_ADDRESS, 100 };
+static I2cInterface lvBatMon = { &hi2c1, BQ76922_I2C_ADDR, 100 };
 
 bool io_lowVoltageBattery_init()
 {
     return hw_i2c_isTargetReady(&lvBatMon);
 }
 
-void waitForResponse(uint8_t upperByte, uint8_t lowerByte) 
+bool writeSubcommand(uint16_t subcommand) 
 {
+    uint8_t data[2] = { subcommand & 0xFF, (subcommand >> 8) & 0xFF };
+    if(!hw_i2c_memWrite(&hi2c1, REG_SUBCOMMAND_LSB, data, 2))
+    {
+        return false;
+    }
+    
     bool readDataReady = false;
-        while (!readDataReady)
+    int timeout = 1000;
+     while (!readDataReady && timeout > 0)
+    {
+        uint8_t rxBuffer[2] = {0};
+
+        if (hw_i2c_memRead(&lvBatMon, COMMAND_ADDRESS, rxBuffer, sizeof(rxBuffer)))
         {
-            uint8_t rx_buffer[2];
-            if (hw_i2c_memRead(&lvBatMon, COMMAND_ADDRESS, rx_buffer, sizeof(rx_buffer)))
+            if (rxBuffer[0] == data[0] && rxBuffer[1] == data[1])
             {
-                if (rx_buffer[0] == upperByte && rx_buffer[1] == lowerByte)
-                {
-                    readDataReady = true;
-                }
+                readDataReady = true;
             }
         }
+
+        timeout--;
+    }
+
+    return readDataReady;
 }
 
 uint8_t readResponseLength() 
 {
     uint8_t responseLength;
-    if (!hw_i2c_memRead(&lvBatMon, 0x61, &responseLength, sizeof(responseLength)))
+    if (!hw_i2c_memRead(&lvBatMon, REG_RESPONSE_LENGTH, &responseLength, sizeof(responseLength)))
     {
         return 0;
     }
@@ -51,54 +71,68 @@ uint8_t readResponseLength()
     return responseLength;
 }
 
-bool validateResponse(uint8_t* response)
+bool readCharge(uint32_t *charge, uint16_t *time)
 {
-    uint8_t checkSum;
-    if (!hw_i2c_memRead(&lvBatMon, 0x60, &checkSum, sizeof(checkSum)))
+    uint8_t responseLen = readResponseLength();
+
+    if (responseLen != 6) {
+        return false;
+    }
+
+    uint8_t buffer[6];
+
+    if (!hw_i2c_memRead(&hi2c1, REG_DATA_BUFFER, buffer, 6)) 
     {
         return false;
     }
-    if (checkSum != response) {
+
+    uint8_t checksum;
+    if (!hw_i2c_memRead(&hi2c1, REG_CHECKSUM, &checksum, 1)) {
         return false;
     }
+
+    uint8_t calculated_checksum = (CMD_DASTATUS6 & 0xFF) + (CMD_DASTATUS6 >> 8) + responseLen;
+    for (int i = 0; i < responseLen; i++) {
+        calculated_checksum += buffer[i];
+    }
+    calculated_checksum = ~calculated_checksum; // Invert bits
+
+    if (calculated_checksum != checksum) {
+        return false;
+    }
+
+    *charge = (buffer[0] | (buffer[1] << 8) | (buffer[2] << 16));
+    *time = (buffer[3] | (buffer[4] << 8));
+
     return true;
 }
 
-bool io_lowVoltageBattery_getPackCharge(uint8_t* packCharge)
+float calculateSOC(uint32_t charge) 
 {
-    // 1. Write command upper byte.
-    uint8_t upperByte = 0x76;
-    if (!hw_i2c_memWrite(&lvBatMon, 0x3F, upperByte, sizeof(upperByte)))
+    float CC_GAIN = 7.4768f / R_SENSE;
+    float charge_mAh = (charge * CC_GAIN) / 3600.0f;
+    return (charge_mAh / Q_FULL) * 100.0f;
+}
+
+bool io_lowVoltageBattery_getPackCharge(float *SOC)
+{
+
+    uint32_t *charge;
+    uint16_t *time;
+
+    if(!writeSubcommand(CMD_DASTATUS6))
+    {
+        return false;
+    }
+    
+    if (!readCharge(charge, time))
     {
         return false;
     }
 
-    // 2. Write command lower byte.
-    uint8_t lowerByte = 0x00;
-    if (!hw_i2c_memWrite(&lvBatMon, 0x3F, lowerByte, sizeof(lowerByte)))
-    {
-        return false;
-    }
+    *SOC = calculateSOC(charge);
 
-    // 3. Wait for response.
-    waitForResponse(upperByte, lowerByte);
-
-    // 4. Read the response length.
-    uint8_t responseLength = readResponseLength();
-   
-    // 5. Read the response.
-    uint8_t* response;
-    if (!hw_i2c_memRead(&lvBatMon, 0x40, &response, responseLength))
-    {
-        return false;
-    }
-
-    // 6. Validate the response.
-    if(validateResponse(response))
-    {
-        packCharge = response;
-        return true;
-    }
+    return true;
 }
 
 bool io_lowVoltageBattery_getPackVoltage(uint16_t *packVoltage)
