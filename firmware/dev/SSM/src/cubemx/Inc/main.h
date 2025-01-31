@@ -86,6 +86,10 @@ extern "C"
 #define INT2_GPIO_Port GPIOB
 #define isoSPI_SCLK_Pin GPIO_PIN_10
 #define isoSPI_SCLK_GPIO_Port GPIOB
+#define DOUT3_Pin GPIO_PIN_6
+#define DOUT3_GPIO_Port GPIOC
+#define DOUT4_Pin GPIO_PIN_7
+#define DOUT4_GPIO_Port GPIOC
 #define Boot_LED_Pin GPIO_PIN_8
 #define Boot_LED_GPIO_Port GPIOC
 #define Debug_LED_Pin GPIO_PIN_9
