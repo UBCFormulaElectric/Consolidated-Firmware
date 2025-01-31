@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+'use client'
+import React, { useState, useEffect, useCallback } from 'react'
 
 interface StateHistoryItem {
 	state: string
