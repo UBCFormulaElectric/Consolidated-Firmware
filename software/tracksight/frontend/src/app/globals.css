@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
@@ -71,11 +71,11 @@
 	/* Dark background */
 }
 
-* {
+/* * {
 	box-sizing: border-box;
 	padding: 0;
 	margin: 0;
-}
+} */
 
 html,
 body {

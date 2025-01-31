@@ -50,10 +50,10 @@ const TestingPage = () => {
 				currentTime={currentTime}
 				enumStates={enumStates}
 			/>
-			<NumericalGraph
+			{/* <NumericalGraph
 				numericalSignals={numericalSignals}
 				currentTime={currentTime}
-			/>
+			/> */}
 		</div>
 	)
 }
