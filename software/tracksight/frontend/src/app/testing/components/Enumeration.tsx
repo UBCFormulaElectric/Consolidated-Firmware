@@ -8,7 +8,6 @@ interface StateHistoryItem {
 interface StateBar {
 	state: string
 	startTime: number
-	left: number
 	width: number
 }
 
@@ -22,75 +21,84 @@ const stateColors: string[] = [
 	// TODO add a few more colours
 ]
 
+function useSignalMetadata(signalName: string) {
+	// todo logic to fetch signalName
+	return {
+		enumVals: [
+			'VC_INIT_STATE',
+			'VC_PCM_STATE',
+			'VC_HV_STATE',
+			'VC_DRIVE_STATE',
+			'VC_VD_STATE',
+		]
+	}
+}
+
+function useSignal(signalName: string) {
+	const enumStates = [
+		'VC_INIT_STATE',
+		'VC_PCM_STATE',
+		'VC_HV_STATE',
+		'VC_DRIVE_STATE',
+		'VC_VD_STATE',
+	]
+	useEffect(() => {
+		const stateInterval = setInterval(() => {
+			setCurrentEnumVal(() => {
+				const nextIndex = Math.floor(Math.random() * enumStates.length)
+				return enumStates[nextIndex]
+			})
+		}, 4000)
+		return () => {
+			clearInterval(stateInterval)
+		}
+	}, [])
+
+	const [currentEnumVal, setCurrentEnumVal] = useState(enumStates[0])
+	return { currentEnumVal }
+}
+
 export default function EnumerationGraph({
-	signalName,
-	currentState,
 	currentTime,
-	enumStates,
+	signalName
 }: {
-	signalName: string
-	currentState: string
 	currentTime: number
-	enumStates: string[]
+	signalName: string
 }) {
-	const containerRef = useRef<HTMLDivElement>(null)
 	const [stateHistory, setStateHistory] = useState<StateHistoryItem[]>([])
+	const { enumVals } = useSignalMetadata(signalName)
+	const { currentEnumVal } = useSignal(signalName)
 
 	// Define the total time window displayed on the graph (e.g., last 60 seconds)
-	const timeWindow = 11 * 1000 // milliseconds
 
 	useEffect(() => {
 		// Update state history when currentState changes
 		setStateHistory((prevHistory) => {
 			const lastState = prevHistory[prevHistory.length - 1]
-			if (!lastState || lastState.state !== currentState) {
+			if (!lastState || lastState.state !== currentEnumVal) {
 				// If state changed, add new state with current time
-				return [...prevHistory, { state: currentState, startTime: currentTime }]
+				return [...prevHistory, { state: currentEnumVal, startTime: currentTime }]
 			}
 			// State didn't change, return previous history
 			return prevHistory
 		})
-	}, [currentState])
-
-	// useEffect(() => {
-	// 	// Remove states that end before the current time window
-	// 	setStateHistory((prevHistory) =>
-	// 		prevHistory.filter((state, index) => {
-	// 			const nextState = prevHistory[index + 1]
-	// 			const endTime = nextState ? nextState.startTime : currentTime
-	// 			return endTime > currentTime - timeWindow
-	// 		})
-	// 	)
-	// }, [currentTime])
+	}, [currentEnumVal])
 
 	// TODO: actual signals will have variable width based on time window,
 	// will return data points at unspecified intervals and will need to be interpolated
+	const timeWindow_ms = 5 * 1000
 	const containerWidth = window.innerWidth
-	const pixelsPerMs = containerWidth / timeWindow
-
+	const pixelsPerMs = containerWidth / timeWindow_ms
 	const stateBars: StateBar[] = stateHistory.map((state, index) => {
 		const nextState = stateHistory[index + 1]
-
-		const stateStartTime = state.startTime
-		const stateEndTime = nextState ? nextState.startTime : currentTime
-
-		// const barStartTime = Math.max(stateStartTime, currentTime - timeWindow)
-		// const barEndTime = Math.min(stateEndTime, currentTime)
-
-		const startOffset =
-			(stateStartTime - (currentTime - timeWindow)) * pixelsPerMs
-		const duration = stateEndTime - stateStartTime
-		const width = duration * pixelsPerMs
-
 		return {
 			...state,
-			left: startOffset,
-			width,
+			width: ((nextState ? nextState.startTime : currentTime) - state.startTime) * pixelsPerMs,
 		}
 	})
 
 	const getStateColor = useCallback((state: string): string => {
-		const index = enumStates.indexOf(state)
+		const index = enumVals.indexOf(state)
 		return stateColors[index % stateColors.length] // Wrap around if more states
 	}, [])
 
@@ -101,18 +109,16 @@ export default function EnumerationGraph({
 		[stateBars]
 	)
 
-	console.log(stateBars.length)
-
 	return (
-		<div className='w-min-screen my-1'>
+		<>
 			{/* Signal Name and Legend */}
-			<div className='mx-4 flex gap-5 items-center'>
+			<div className='left-4 inline-flex gap-5 items-center sticky'>
 				<div className='font-bold my-1 px-2 py-1 text-white bg-blue-500 rounded-full inline-block text-sm '>
 					{signalName}
 				</div>
 				{/* Legend */}
 				<div className='my-1 text-xs flex gap-4'>
-					{enumStates.map((state, index) => (
+					{enumVals.map((state, index) => (
 						<div key={index} className='flex items-center mb-1'>
 							<span
 								className='w-3 h-3 inline-block mr-2'
@@ -128,24 +134,24 @@ export default function EnumerationGraph({
 				</div>
 			</div>
 			{/* Graph */}
-			<span className='h-6 bg-gray-100 min-w-full' ref={containerRef}>
-				{stateBars.map((bar, index) => {
-					// console.log(bar.state)
-					return (
-						<span
-							key={index}
-							className='h-6 inline-block'
-							style={{
-								// left: `${bar.left}px`,
-								width: `${bar.width}px`,
-								backgroundColor: getStateColor(bar.state),
-							}}
-							title={`${bar.state} (${new Date(
-								bar.startTime
-							).toLocaleTimeString()})`}></span>
-					)
-				})}
-			</span>
-		</div>
+			<div className='h-6 bg-gray-100 min-w-screen inline-block'>
+				<div className="flex flex-row flex-nowrap">
+					{stateBars.map((bar, index) => {
+						return (
+							<div
+								key={index}
+								className='h-6 shrink-0'
+								style={{
+									width: `${bar.width}px`,
+									backgroundColor: getStateColor(bar.state),
+								}}
+								title={`${bar.state} (${new Date(
+									bar.startTime
+								).toLocaleTimeString()})`} />
+						)
+					})}
+				</div>
+			</div>
+		</>
 	)
 }
