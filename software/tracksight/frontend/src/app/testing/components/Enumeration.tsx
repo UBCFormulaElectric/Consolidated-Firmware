@@ -46,27 +46,26 @@ export default function EnumerationGraph({
 			if (!lastState || lastState.state !== currentState) {
 				// If state changed, add new state with current time
 				return [...prevHistory, { state: currentState, startTime: currentTime }]
-			} else {
-				// State didn't change, return previous history
-				return prevHistory
 			}
+			// State didn't change, return previous history
+			return prevHistory
 		})
 	}, [currentState])
 
-	useEffect(() => {
-		// Remove states that end before the current time window
-		setStateHistory((prevHistory) =>
-			prevHistory.filter((state, index) => {
-				const nextState = prevHistory[index + 1]
-				const endTime = nextState ? nextState.startTime : currentTime
-				return endTime > currentTime - timeWindow
-			})
-		)
-	}, [currentTime])
+	// useEffect(() => {
+	// 	// Remove states that end before the current time window
+	// 	setStateHistory((prevHistory) =>
+	// 		prevHistory.filter((state, index) => {
+	// 			const nextState = prevHistory[index + 1]
+	// 			const endTime = nextState ? nextState.startTime : currentTime
+	// 			return endTime > currentTime - timeWindow
+	// 		})
+	// 	)
+	// }, [currentTime])
 
 	// TODO: actual signals will have variable width based on time window,
 	// will return data points at unspecified intervals and will need to be interpolated
-	const containerWidth = containerRef.current?.offsetWidth || window.innerWidth
+	const containerWidth = window.innerWidth
 	const pixelsPerMs = containerWidth / timeWindow
 
 	const stateBars: StateBar[] = stateHistory.map((state, index) => {
@@ -75,12 +74,12 @@ export default function EnumerationGraph({
 		const stateStartTime = state.startTime
 		const stateEndTime = nextState ? nextState.startTime : currentTime
 
-		const barStartTime = Math.max(stateStartTime, currentTime - timeWindow)
-		const barEndTime = Math.min(stateEndTime, currentTime)
+		// const barStartTime = Math.max(stateStartTime, currentTime - timeWindow)
+		// const barEndTime = Math.min(stateEndTime, currentTime)
 
 		const startOffset =
-			(barStartTime - (currentTime - timeWindow)) * pixelsPerMs
-		const duration = barEndTime - barStartTime
+			(stateStartTime - (currentTime - timeWindow)) * pixelsPerMs
+		const duration = stateEndTime - stateStartTime
 		const width = duration * pixelsPerMs
 
 		return {
@@ -101,6 +100,8 @@ export default function EnumerationGraph({
 		},
 		[stateBars]
 	)
+
+	console.log(stateBars.length)
 
 	return (
 		<div className='w-min-screen my-1'>
@@ -127,26 +128,24 @@ export default function EnumerationGraph({
 				</div>
 			</div>
 			{/* Graph */}
-			<div className='h-6 bg-gray-100 flex flex-row' ref={containerRef}>
+			<span className='h-6 bg-gray-100 min-w-full' ref={containerRef}>
 				{stateBars.map((bar, index) => {
 					// console.log(bar.state)
 					return (
-						bar.width > 0 && (
-							<div
-								key={index}
-								className='h-full'
-								style={{
-									left: `${bar.left}px`,
-									width: `${bar.width}px`,
-									backgroundColor: getStateColor(bar.state),
-								}}
-								title={`${bar.state} (${new Date(
-									bar.startTime
-								).toLocaleTimeString()})`}></div>
-						)
+						<span
+							key={index}
+							className='h-6 inline-block'
+							style={{
+								// left: `${bar.left}px`,
+								width: `${bar.width}px`,
+								backgroundColor: getStateColor(bar.state),
+							}}
+							title={`${bar.state} (${new Date(
+								bar.startTime
+							).toLocaleTimeString()})`}></span>
 					)
 				})}
-			</div>
+			</span>
 		</div>
 	)
 }

@@ -7,7 +7,7 @@ import Live from './components/Live'
 import EnumerationGraph from './components/Enumeration'
 import NumericalGraph from './components/Numerical'
 
-const TestingPage = () => {
+export default function TestingPage() {
 	const [currentTime, setCurrentTime] = useState(Date.now())
 	const [currentState, setCurrentState] = useState('VC_INIT_STATE')
 	const enumStates = [
@@ -39,23 +39,23 @@ const TestingPage = () => {
 	}, [])
 
 	return (
-		<div>
+		<>
 			<Live />
-			{/* <MouseTest /> */}
-			<Timer />
-			<LiveFault />
-			<EnumerationGraph
-				signalName='VC_STATE'
-				currentState={currentState}
-				currentTime={currentTime}
-				enumStates={enumStates}
-			/>
-			{/* <NumericalGraph
-				numericalSignals={numericalSignals}
-				currentTime={currentTime}
-			/> */}
-		</div>
+			<div className='overflow-x-scroll'>
+				{/* <MouseTest /> */}
+				<Timer />
+				<LiveFault />
+				<EnumerationGraph
+					signalName='VC_STATE'
+					currentState={currentState}
+					currentTime={currentTime}
+					enumStates={enumStates}
+				/>
+				{/* <NumericalGraph
+                    numericalSignals={numericalSignals}
+                    currentTime={currentTime}
+                /> */}
+			</div>
+		</>
 	)
 }
-
-export default TestingPage
