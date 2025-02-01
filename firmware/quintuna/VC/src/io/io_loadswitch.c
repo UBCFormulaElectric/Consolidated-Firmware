@@ -4,7 +4,7 @@
 
 
 const Efuse bms_en_switch = {.enable_gpio = &bms_en,.cur_sns_adc_channel = &bms_i_sns};
-const Efuse front_en_switch = {.enable_gpio = &front_en, .cur_sns_adc_channel = &front_i_sns};
+const Efuse front_en_switch = {.enable_gpio = &front_en,.cur_sns_adc_channel = &front_i_sns};
 const Efuse dam_en_switch = {.enable_gpio = &dam_en,.cur_sns_adc_channel = &dam_i_sns,};
 const Efuse rsm_en_switch = {.enable_gpio = &rsm_en,.cur_sns_adc_channel = &rsm_i_sns};
 const Efuse inv_l_pwr_switch = {.enable_gpio = &l_inv_en,.cur_sns_adc_channel = &inv_l_pwr_i_sns,};
