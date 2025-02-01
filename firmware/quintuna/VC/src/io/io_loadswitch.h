@@ -1,5 +1,5 @@
 #pragma once
- 
+
 #include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
@@ -49,6 +49,6 @@ bool io_loadswitch_isChannelEnabled(const Efuse *channel);
 float io_loadswitch_getChannelCurrent(const Efuse *channel);
 /**
  * Enable or disable the provided efuse channel.
- * @param loadswitch Reset the hardfault set by loadswitch 
+ * @param loadswitch Reset the hardfault set by loadswitch
  */
 void io_loadswitch_standbyReset(const LoadSwitch *loadswitch);
