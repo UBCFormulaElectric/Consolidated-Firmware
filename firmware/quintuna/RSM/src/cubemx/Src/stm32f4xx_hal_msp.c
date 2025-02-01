@@ -102,6 +102,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOA_CLK_ENABLE();
         /**ADC1 GPIO Configuration
         PC2     ------> ADC1_IN12
+        PA0     ------> ADC1_IN0
         PA5     ------> ADC1_IN5
         PA6     ------> ADC1_IN6
         PA7     ------> ADC1_IN7
@@ -112,7 +113,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
+        GPIO_InitStruct.Pin  = LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -141,6 +142,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /**ADC1 GPIO Configuration
         PC2     ------> ADC1_IN12
+        PA0     ------> ADC1_IN0
         PA5     ------> ADC1_IN5
         PA6     ------> ADC1_IN6
         PA7     ------> ADC1_IN7
@@ -148,7 +150,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         */
         HAL_GPIO_DeInit(GPIOC, BPS_R_3V3_Pin | SUSP_TRAVEL_RR_OCSC_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin);
+        HAL_GPIO_DeInit(GPIOA, LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin);
 
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
@@ -372,12 +374,12 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim)
         /**TIM4 GPIO Configuration
         PB8     ------> TIM4_CH3
         */
-        GPIO_InitStruct.Pin       = FLOW_METER_SIG_Pin;
+        GPIO_InitStruct.Pin       = FLOW_METER_5V_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
         GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
-        HAL_GPIO_Init(FLOW_METER_SIG_GPIO_Port, &GPIO_InitStruct);
+        HAL_GPIO_Init(FLOW_METER_5V_GPIO_Port, &GPIO_InitStruct);
 
         /* USER CODE BEGIN TIM4_MspPostInit 1 */
 

@@ -62,6 +62,8 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
+#define LC3_OUT_Pin GPIO_PIN_0
+#define LC3_OUT_GPIO_Port GPIOA
 #define RL_INT_3V3_SENS_Pin GPIO_PIN_4
 #define RL_INT_3V3_SENS_GPIO_Port GPIOA
 #define SUSP_TRAVEL_RL_3V3_Pin GPIO_PIN_5
@@ -100,8 +102,8 @@ extern "C"
 #define IMU_SCL_GPIO_Port GPIOB
 #define IMU_SDA_Pin GPIO_PIN_7
 #define IMU_SDA_GPIO_Port GPIOB
-#define FLOW_METER_SIG_Pin GPIO_PIN_8
-#define FLOW_METER_SIG_GPIO_Port GPIOB
+#define FLOW_METER_5V_Pin GPIO_PIN_8
+#define FLOW_METER_5V_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
