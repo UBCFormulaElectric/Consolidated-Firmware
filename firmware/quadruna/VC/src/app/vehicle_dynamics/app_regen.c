@@ -122,6 +122,13 @@ static void computeRegenTorqueRequest(
         regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
     }
 
+    float min_motor_speed_rpm = MIN(activeDiffInputs->motor_speed_left_rpm, activeDiffInputs->motor_speed_right_rpm);
+
+    if (min_motor_speed_rpm < 10.0f)
+    {
+        regenAttr->derating_value = regenAttr->derating_value * (min_motor_speed_rpm - SPEED_MIN_kph) / SPEED_MIN_kph;
+    }
+
     activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(powerInputs);
     activeDiffInputs->wheel_angle_deg = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
@@ -181,6 +188,6 @@ float app_regen_pedalRemapping(float apps_pedal_percentage)
     }
     else
     {
-        return apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE - 0.1f);
+        return (apps_pedal_percentage - 0.1f) / (MAX_PEDAL_PERCENT - PEDAL_SCALE - 0.1f);
     }
 }
