@@ -14,6 +14,7 @@
 #include "states/app_initState.h"
 #include "states/app_allStates.h"
 #include "app_heartbeatMonitors.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_time.h"
 #include "io_log.h"
@@ -49,6 +50,7 @@ void jobs_init()
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_VC_Heartbeat_set(true);
 
     app_faultCheck_init();
 
@@ -76,6 +78,7 @@ void jobs_run1Hz_tick(void)
     // this is because there are fault overrides in allStates
     app_stateMachine_tick1Hz();
     app_allStates_runOnTick1Hz();
+    app_stackWaterMark_check();
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
