@@ -86,6 +86,13 @@
           "targets": ["quadruna_VC.hex", "can_bus_load_quadruna"],
         },
         {
+            "label": "Build Embedded: VC (Quintuna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": ["quintuna_VC.hex", "can_bus_load_quintuna"],
+          },
+        {
             "label": "Build Embedded: BMS (Quintuna)",
             "group": "build",
             "type": "cmake",
