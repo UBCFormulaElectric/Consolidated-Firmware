@@ -25,6 +25,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_mechanicalLoad.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
@@ -40,7 +41,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
@@ -149,6 +149,7 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_apps.h"

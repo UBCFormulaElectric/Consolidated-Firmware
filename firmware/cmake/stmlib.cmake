@@ -8,12 +8,14 @@ IF (${CMAKE_HOST_WIN32}) # this is slightly more reliable than WIN32
 ELSE ()
     set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
 ENDIF ()
-message("  📝 Generating log4j.properties at ${LOG4J_PROPERTIES}")
-execute_process(
-        COMMAND ${PYTHON_COMMAND}
-        ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
-        --log4j_properties_output ${LOG4J_PROPERTIES}
-)
+if (NOT EXISTS ${LOG4J_PROPERTIES})
+    execute_process(
+            COMMAND ${PYTHON_COMMAND}
+            ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
+            --log4j_properties_output ${LOG4J_PROPERTIES}
+    )
+endif ()
+message("  📝 log4j.properties generated at ${LOG4J_PROPERTIES}")
 
 file(GLOB_RECURSE NEWLIB_SRCS "${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c")
 
