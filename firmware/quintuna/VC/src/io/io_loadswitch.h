@@ -29,10 +29,26 @@ extern const LoadSwitch loadswitch_front;
 extern const LoadSwitch loadswitch_rear;
 extern const LoadSwitch loadswitch_inverter;
 
+/**
+ * Enable or disable the provided efuse channel.
+ * @param channel Channel to enable/disable
+ * @param enabled Enable if enabled is true, disable if false
+ */
 void io_loadswitch_setChannel(const Efuse *channel, const bool enabled);
-
+/**
+ * Enable or disable the provided efuse channel.
+ * @param channel Channel to enable/disable
+ * @return If loadswitch channel is enabled
+ */
 bool io_loadswitch_isChannelEnabled(const Efuse *channel);
-
+/**
+ * Enable or disable the provided efuse channel.
+ * @param channel Channel to enable/disable
+ * @return The current read from the provided channel, in A
+ */
 float io_loadswitch_getChannelCurrent(const Efuse *channel);
-
+/**
+ * Enable or disable the provided efuse channel.
+ * @param loadswitch Reset the hardfault set by loadswitch 
+ */
 void io_loadswitch_standbyReset(const LoadSwitch *loadswitch);
