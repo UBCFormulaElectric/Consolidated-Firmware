@@ -8,7 +8,7 @@ const float ACCEL_SENSITIVITY = 0.061f;
 // Default gyroscope sensitivity for LSM6DSM is 8.75 mdeg/digit
 const float GYRO_SENSITIVITY = 8.75f;
 
-static I2cInterface imu = { .i2c_handle = &hi2c2, .target_address = 0x6B, .timeout_ms = 100 };
+static I2cDevice imu = { .bus = HW_I2C_BUS_2, .target_address = 0x6B, .timeout_ms = 100 };
 
 bool io_imu_init()
 {

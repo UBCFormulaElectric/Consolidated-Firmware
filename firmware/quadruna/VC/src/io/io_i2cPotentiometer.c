@@ -6,7 +6,7 @@ const uint8_t TARGET_ADDRESS = 0x2F;
 
 extern I2C_HandleTypeDef hi2c1;
 
-static I2cInterface pot = { &hi2c1, TARGET_ADDRESS, 100 };
+static I2cDevice pot = { .bus = HW_I2C_BUS_1, TARGET_ADDRESS, 100 };
 
 bool io_i2cPotentiometer_Init()
 {
