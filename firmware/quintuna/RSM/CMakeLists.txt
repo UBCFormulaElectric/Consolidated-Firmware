@@ -4,35 +4,39 @@ message("⚙️ Configuring RSM (Quintuna)")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-file(GLOB_RECURSE SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+
+file(GLOB CUBEMX_SRCS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+)
+file(GLOB SYSTEM_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
     ""
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR_CPP}")
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
     ""
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
     ""
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${SHARED_HW_INCLUDE_DIR}"
 )
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${CUBEMX_SRCS} ${SYSTEM_SRCS})
+    embedded_no_checks("${CUBEMX_SRCS}")
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
 
     embedded_binary(
@@ -61,15 +65,18 @@ if ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code("RSM" "${IOC_PATH}")
 
     set(STM32_HAL_SRCS
-    "stm32f4xx_hal_adc_ex.c"
+            "stm32f4xx_hal_adc_ex.c"
             "stm32f4xx_hal_adc.c"
+            "stm32f4xx_hal_can.c"
             "stm32f4xx_hal_cortex.c"
             "stm32f4xx_hal_dma_ex.c"
             "stm32f4xx_hal_dma.c"
             "stm32f4xx_hal_exti.c"
-            "stm32f4xx_hal_can.c"
             "stm32f4xx_hal_gpio.c"
+            "stm32f4xx_hal_i2c.c"
             "stm32f4xx_hal_iwdg.c"
+            "stm32f4xx_hal_pcd.c"
+            "stm32f4xx_hal_pcd_ex.c"
             "stm32f4xx_hal_pwr_ex.c"
             "stm32f4xx_hal_rcc_ex.c"
             "stm32f4xx_hal_rcc.c"
@@ -77,6 +84,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_tim.c"
             "stm32f4xx_hal_uart.c"
             "stm32f4xx_hal.c"
+            "stm32f4xx_ll_usb.c"
     )
 
     stm32f412rx_cube_library(
@@ -85,7 +93,7 @@ if ("${TARGET}" STREQUAL "binary")
         "${STM32_HAL_SRCS}"
         "${CMAKE_CURRENT_SORUCE_DIR}"
         "${MD5_LOCATION}"
-        FALSE
+        TRUE
     )
 
     # JSONCAN
