@@ -1,6 +1,0 @@
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.cpp:34:6:void app::runTickFunction(void (*)())	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.cpp:80:10:void app::StateMachine::init(const app::State*)	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.cpp:99:10:void app::StateMachine::tick1Hz()	8	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.cpp:104:10:void app::StateMachine::tick100Hz()	8	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.cpp:109:18:const app::State* app::StateMachine::get_current_state()	4	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.cpp:114:10:void app::StateMachine::set_next_state(const app::State*)	16	static

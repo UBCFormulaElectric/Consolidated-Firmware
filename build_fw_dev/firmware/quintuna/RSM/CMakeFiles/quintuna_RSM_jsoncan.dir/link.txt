@@ -1,2 +1,0 @@
-/usr/local/bin/arm-none-eabi-ar qc libquintuna_RSM_jsoncan.a CMakeFiles/quintuna_RSM_jsoncan.dir/app/app_canTx.c.obj CMakeFiles/quintuna_RSM_jsoncan.dir/io/io_canTx.c.obj CMakeFiles/quintuna_RSM_jsoncan.dir/app/app_canRx.c.obj CMakeFiles/quintuna_RSM_jsoncan.dir/io/io_canRx.c.obj CMakeFiles/quintuna_RSM_jsoncan.dir/app/app_canUtils.c.obj CMakeFiles/quintuna_RSM_jsoncan.dir/app/app_canAlerts.c.obj CMakeFiles/quintuna_RSM_jsoncan.dir/app/app_canDataCapture.c.obj
-/usr/local/bin/arm-none-eabi-ranlib libquintuna_RSM_jsoncan.a

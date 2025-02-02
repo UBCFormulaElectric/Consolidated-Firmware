@@ -1,4 +1,0 @@
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_can.c:33:6:io_can_init	56	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_can.c:60:6:io_can_deinit	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_can.c:66:6:io_can_transmit	48	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_can.c:99:6:io_can_receive	56	static

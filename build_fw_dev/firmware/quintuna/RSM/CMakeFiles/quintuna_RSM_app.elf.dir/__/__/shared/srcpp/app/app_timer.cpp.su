@@ -1,5 +1,0 @@
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_timer.cpp:6:6:void app::Timer::restart()	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_timer.cpp:12:6:void app::Timer::stop()	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_timer.cpp:17:19:app::Timer::TimerState app::Timer::updateAndGetState()	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_timer.cpp:26:19:app::Timer::TimerState app::Timer::runIfCondition(bool)	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_timer.cpp:41:10:uint32_t app::Timer::getElapsedTime() const	24	static

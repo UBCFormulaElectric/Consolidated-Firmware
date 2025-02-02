@@ -1,3 +1,0 @@
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canDataCapture.c:22:6:app_canDataCapture_init	4	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canDataCapture.c:29:6:app_dataCapture_needsLog	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canDataCapture.c:312:6:app_dataCapture_needsTelem	16	static

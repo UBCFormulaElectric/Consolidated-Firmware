@@ -1,9 +1,0 @@
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:40:13:canTxQueueOverflowCallBack	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:41:13:canTxQueueOverflowClearCallback	4	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:42:13:canRxQueueOverflowCallBack	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:43:13:canRxQueueOverflowClearCallback	4	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:45:6:io_canQueue_init	8	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:53:6:io_canQueue_pushTx	24	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:66:8:io_canQueue_popTx	56	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:76:6:io_canQueue_pushRx	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/io/io_canQueue.c:89:8:io_canQueue_popRx	56	static

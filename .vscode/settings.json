@@ -9,4 +9,9 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"hw_pwms.h": "c",
+		"main.h": "c",
+		"hw_i2c.h": "c"
+	},
 }

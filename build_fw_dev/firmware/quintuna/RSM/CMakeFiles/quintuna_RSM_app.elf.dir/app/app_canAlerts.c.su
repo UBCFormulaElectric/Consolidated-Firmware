@@ -1,8 +1,0 @@
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:16:6:app_canAlerts_RSM_Fault_DummyFault_set	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:28:6:app_canAlerts_RSM_Fault_DummyFault_get	8	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:33:6:app_canAlerts_BoardHasWarning	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:91:6:app_canAlerts_BoardHasFault	16	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:165:6:app_canAlerts_AnyBoardHasWarning	8	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:175:6:app_canAlerts_AnyBoardHasFault	8	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:205:9:app_canAlerts_WarningInfo	24	static
-/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canAlerts.c:277:9:app_canAlerts_FaultInfo	24	static

@@ -1,2 +1,0 @@
-/usr/local/bin/arm-none-eabi-ar qc libquintuna_RSM_commit_info.a CMakeFiles/quintuna_RSM_commit_info.dir/app/app_commitInfo.c.obj
-/usr/local/bin/arm-none-eabi-ranlib libquintuna_RSM_commit_info.a
