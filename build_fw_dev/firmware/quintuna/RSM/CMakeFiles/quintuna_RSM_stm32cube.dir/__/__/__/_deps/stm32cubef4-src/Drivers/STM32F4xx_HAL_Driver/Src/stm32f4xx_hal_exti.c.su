@@ -1,0 +1,9 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:326:19:HAL_EXTI_SetConfigLine	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:327:19:HAL_EXTI_GetConfigLine	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:328:19:HAL_EXTI_ClearConfigLine	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:329:19:HAL_EXTI_RegisterCallback	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:330:19:HAL_EXTI_GetHandle	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:340:6:HAL_EXTI_IRQHandler	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:341:10:HAL_EXTI_GetPending	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:342:6:HAL_EXTI_ClearPending	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h:343:6:HAL_EXTI_GenerateSWI	24	static

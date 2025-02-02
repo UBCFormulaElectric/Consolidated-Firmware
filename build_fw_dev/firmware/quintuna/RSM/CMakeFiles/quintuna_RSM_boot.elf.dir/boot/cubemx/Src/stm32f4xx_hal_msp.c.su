@@ -1,0 +1,5 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:221:6:HAL_MspInit	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h:647:6:HAL_CAN_MspInit	48	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h:648:6:HAL_CAN_MspDeInit	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_crc.h:140:6:HAL_CRC_MspInit	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_crc.h:141:6:HAL_CRC_MspDeInit	16	static

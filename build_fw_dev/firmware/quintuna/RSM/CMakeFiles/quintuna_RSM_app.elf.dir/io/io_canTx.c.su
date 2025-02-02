@@ -1,0 +1,10 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:25:13:io_canTx_RSM_Vitals_sendPeriodic	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:49:13:io_canTx_RSM_Warnings_sendPeriodic	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:73:13:io_canTx_RSM_Faults_sendPeriodic	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:97:13:io_canTx_RSM_WarningsCounts_sendPeriodic	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:121:13:io_canTx_RSM_FaultsCounts_sendPeriodic	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:147:6:io_canTx_init	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:152:6:io_canTx_enableMode	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:165:6:io_canTx_enqueue1HzMsgs	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:171:6:io_canTx_enqueue100HzMsgs	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canTx.c:175:6:io_canTx_enqueueOtherPeriodicMsgs	16	static

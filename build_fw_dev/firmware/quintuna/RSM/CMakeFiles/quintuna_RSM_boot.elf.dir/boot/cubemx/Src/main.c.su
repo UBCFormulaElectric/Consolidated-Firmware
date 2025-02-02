@@ -1,0 +1,10 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:111:5:main	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:198:6:SystemClock_Config	88	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:244:13:MX_CAN1_Init	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:279:13:MX_CRC_Init	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:303:13:MX_GPIO_Init	48	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:366:6:runInterfaceTask	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:384:6:runCanTxTask	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Src/main.c:402:6:runTickTask	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:2068:6:HAL_TIM_PeriodElapsedCallback	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/main.h:54:10:Error_Handler	4	static

@@ -1,0 +1,14 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:33:6:app_canTx_init	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:42:6:app_canTx_RSM_Heartbeat_set	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:47:6:app_canTx_RSM_State_set	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:52:6:app_canTx_RSM_Fault_DummyFault_set	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:57:6:app_canTx_RSM_Fault_DummyFaultCount_set	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:62:6:app_canTx_RSM_Heartbeat_get	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:67:11:app_canTx_RSM_State_get	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:72:6:app_canTx_RSM_Fault_DummyFault_get	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:77:10:app_canTx_RSM_Fault_DummyFaultCount_get	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:82:27:app_canTx_RSM_Vitals_getData	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:87:29:app_canTx_RSM_Warnings_getData	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:92:27:app_canTx_RSM_Faults_getData	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:97:35:app_canTx_RSM_WarningsCounts_getData	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canTx.c:102:33:app_canTx_RSM_FaultsCounts_getData	4	static

@@ -1,0 +1,5 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/hw/hw_flash.c:8:6:hw_flash_programByte	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/hw/hw_flash.c:16:6:hw_flash_programHalfWord	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/hw/hw_flash.c:24:6:hw_flash_programWord	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/hw/hw_flash.c:32:6:hw_flash_program	40	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/src/hw/hw_flash.c:62:6:hw_flash_eraseSector	48	static

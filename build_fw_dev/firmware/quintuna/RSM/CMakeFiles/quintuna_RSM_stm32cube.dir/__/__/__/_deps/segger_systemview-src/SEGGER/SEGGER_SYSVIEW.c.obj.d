@@ -1,0 +1,37 @@
+firmware/quintuna/RSM/CMakeFiles/quintuna_RSM_stm32cube.dir/__/__/__/_deps/segger_systemview-src/SEGGER/SEGGER_SYSVIEW.c.obj: \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/SEGGER/SEGGER_SYSVIEW.c \
+ /usr/local/arm-none-eabi/include/string.h \
+ /usr/local/arm-none-eabi/include/_ansi.h \
+ /usr/local/arm-none-eabi/include/newlib-nano/newlib.h \
+ /usr/local/arm-none-eabi/include/_newlib_version.h \
+ /usr/local/arm-none-eabi/include/sys/config.h \
+ /usr/local/arm-none-eabi/include/machine/ieeefp.h \
+ /usr/local/arm-none-eabi/include/sys/features.h \
+ /usr/local/arm-none-eabi/include/sys/reent.h \
+ /usr/local/arm-none-eabi/include/_ansi.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stddef.h \
+ /usr/local/arm-none-eabi/include/sys/_types.h \
+ /usr/local/arm-none-eabi/include/machine/_types.h \
+ /usr/local/arm-none-eabi/include/machine/_default_types.h \
+ /usr/local/arm-none-eabi/include/sys/lock.h \
+ /usr/local/arm-none-eabi/include/assert.h \
+ /usr/local/arm-none-eabi/include/sys/cdefs.h \
+ /usr/local/arm-none-eabi/include/sys/_locale.h \
+ /usr/local/arm-none-eabi/include/strings.h \
+ /usr/local/arm-none-eabi/include/sys/string.h \
+ /usr/local/arm-none-eabi/include/stdlib.h \
+ /usr/local/arm-none-eabi/include/machine/stdlib.h \
+ /usr/local/arm-none-eabi/include/alloca.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stdarg.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/SEGGER/SEGGER_SYSVIEW_Int.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/SEGGER/SEGGER_SYSVIEW.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/SEGGER/SEGGER.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/Config/Global.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/SEGGER/SEGGER_SYSVIEW_ConfDefaults.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/third_party/sysview/SEGGER_SYSVIEW_Conf.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/Config/SEGGER_RTT_Conf.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/segger_systemview-src/SEGGER/SEGGER_RTT.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h \
+ /usr/local/arm-none-eabi/include/stdint.h \
+ /usr/local/arm-none-eabi/include/sys/_intsup.h \
+ /usr/local/arm-none-eabi/include/sys/_stdint.h

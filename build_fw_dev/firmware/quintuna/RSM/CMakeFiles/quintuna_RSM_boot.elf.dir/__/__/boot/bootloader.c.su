@@ -1,0 +1,11 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:28:6:canRxQueueOverflowCallBack	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:34:6:canTxQueueOverflowCallBack	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:63:23:modifyStackPointerAndStartApp	48	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:112:19:verifyAppCodeChecksum	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:142:6:bootloader_preInit	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:149:6:bootloader_init	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:183:16:bootloader_runInterfaceTask	112	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:235:16:bootloader_runTickTask	40	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:257:16:bootloader_runCanTxTask	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:266:13:bootloader_boardSpecific_init	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/boot/bootloader.c:268:13:bootloader_boardSpecific_tick	4	static

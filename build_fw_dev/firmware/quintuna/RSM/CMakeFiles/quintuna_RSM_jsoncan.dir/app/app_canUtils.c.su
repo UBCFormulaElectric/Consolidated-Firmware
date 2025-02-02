@@ -1,0 +1,16 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:14:23:packShiftLeft	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:22:23:packShiftRight	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:38:24:unpackShiftRight	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:68:6:app_canUtils_RSM_Vitals_pack	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:90:6:app_canUtils_RSM_Warnings_pack	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:95:6:app_canUtils_RSM_Faults_pack	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:112:6:app_canUtils_RSM_WarningsCounts_pack	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:117:6:app_canUtils_RSM_FaultsCounts_pack	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:134:6:app_canUtils_BMS_Warnings_unpack	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:146:6:app_canUtils_BMS_Faults_unpack	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:164:6:app_canUtils_FSM_Warnings_unpack	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:176:6:app_canUtils_FSM_Faults_unpack	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:194:6:app_canUtils_CRIT_Warnings_unpack	80	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:254:6:app_canUtils_CRIT_Faults_unpack	48	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:290:6:app_canUtils_VC_Warnings_unpack	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.c:302:6:app_canUtils_VC_Faults_unpack	24	static

@@ -1,0 +1,5 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/list.h:345:6:vListInitialise	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/list.h:356:6:vListInitialiseItem	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/list.h:390:6:vListInsertEnd	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/list.h:369:6:vListInsert	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/list.h:405:13:uxListRemove	24	static

@@ -1,0 +1,14 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1245:19:HAL_RCC_DeInit	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1246:19:HAL_RCC_OscConfig	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1247:19:HAL_RCC_ClockConfig	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1256:10:HAL_RCC_MCOConfig	56	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1257:10:HAL_RCC_EnableCSS	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1258:10:HAL_RCC_DisableCSS	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1259:10:HAL_RCC_GetSysClockFreq	96	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1260:10:HAL_RCC_GetHCLKFreq	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1261:10:HAL_RCC_GetPCLK1Freq	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1262:10:HAL_RCC_GetPCLK2Freq	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1263:10:HAL_RCC_GetOscConfig	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1264:10:HAL_RCC_GetClockConfig	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1267:6:HAL_RCC_NMI_IRQHandler	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:1270:6:HAL_RCC_CSSCallback	4	static

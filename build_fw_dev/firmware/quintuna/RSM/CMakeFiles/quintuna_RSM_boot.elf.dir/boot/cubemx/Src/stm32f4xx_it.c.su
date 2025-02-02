@@ -1,0 +1,9 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:50:10:NMI_Handler	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:51:10:HardFault_Handler	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:52:10:MemManage_Handler	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:53:10:BusFault_Handler	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:54:10:UsageFault_Handler	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:55:10:DebugMon_Handler	4	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:56:10:CAN1_RX0_IRQHandler	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:57:10:CAN1_RX1_IRQHandler	8	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/boot/cubemx/Inc/stm32f4xx_it.h:58:10:TIM6_IRQHandler	8	static

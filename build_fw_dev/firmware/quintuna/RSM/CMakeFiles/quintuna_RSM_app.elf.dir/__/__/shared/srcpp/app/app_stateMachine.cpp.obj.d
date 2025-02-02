@@ -1,0 +1,22 @@
+firmware/quintuna/RSM/CMakeFiles/quintuna_RSM_app.elf.dir/__/__/shared/srcpp/app/app_stateMachine.cpp.obj: \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.cpp \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/shared/srcpp/app/app_stateMachine.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stddef.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h \
+ /usr/local/arm-none-eabi/include/stdint.h \
+ /usr/local/arm-none-eabi/include/machine/_default_types.h \
+ /usr/local/arm-none-eabi/include/sys/features.h \
+ /usr/local/arm-none-eabi/include/_newlib_version.h \
+ /usr/local/arm-none-eabi/include/sys/_intsup.h \
+ /usr/local/arm-none-eabi/include/sys/_stdint.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/firmware/quintuna/RSM/src/cubemx/Inc/FreeRTOSConfig.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/portable.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/task.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Middlewares/Third_Party/FreeRTOS/Source/include/list.h

@@ -1,0 +1,28 @@
+firmware/quintuna/RSM/CMakeFiles/quintuna_RSM_app.elf.dir/app/app_canRx.c.obj: \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canRx.c \
+ /usr/local/arm-none-eabi/include/math.h \
+ /usr/local/arm-none-eabi/include/sys/reent.h \
+ /usr/local/arm-none-eabi/include/_ansi.h \
+ /usr/local/arm-none-eabi/include/newlib.h \
+ /usr/local/arm-none-eabi/include/_newlib_version.h \
+ /usr/local/arm-none-eabi/include/sys/config.h \
+ /usr/local/arm-none-eabi/include/machine/ieeefp.h \
+ /usr/local/arm-none-eabi/include/sys/features.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stddef.h \
+ /usr/local/arm-none-eabi/include/sys/_types.h \
+ /usr/local/arm-none-eabi/include/machine/_types.h \
+ /usr/local/arm-none-eabi/include/machine/_default_types.h \
+ /usr/local/arm-none-eabi/include/sys/lock.h \
+ /usr/local/arm-none-eabi/include/sys/cdefs.h \
+ /usr/local/arm-none-eabi/include/_ansi.h \
+ /usr/local/arm-none-eabi/include/string.h \
+ /usr/local/arm-none-eabi/include/sys/_locale.h \
+ /usr/local/arm-none-eabi/include/strings.h \
+ /usr/local/arm-none-eabi/include/sys/string.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canRx.h \
+ /Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/app/app_canUtils.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h \
+ /usr/local/arm-none-eabi/include/stdint.h \
+ /usr/local/arm-none-eabi/include/sys/_intsup.h \
+ /usr/local/arm-none-eabi/include/sys/_stdint.h \
+ /usr/local/lib/gcc/arm-none-eabi/10.3.1/include/stdbool.h

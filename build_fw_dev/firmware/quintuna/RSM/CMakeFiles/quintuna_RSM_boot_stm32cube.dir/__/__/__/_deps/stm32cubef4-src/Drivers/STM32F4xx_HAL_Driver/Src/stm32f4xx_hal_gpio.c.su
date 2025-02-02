@@ -1,0 +1,8 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:224:7:HAL_GPIO_Init	40	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:225:7:HAL_GPIO_DeInit	32	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:234:15:HAL_GPIO_ReadPin	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:235:6:HAL_GPIO_WritePin	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:236:6:HAL_GPIO_TogglePin	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:237:19:HAL_GPIO_LockPin	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:238:6:HAL_GPIO_EXTI_IRQHandler	16	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/_deps/stm32cubef4-src/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h:239:6:HAL_GPIO_EXTI_Callback	16	static

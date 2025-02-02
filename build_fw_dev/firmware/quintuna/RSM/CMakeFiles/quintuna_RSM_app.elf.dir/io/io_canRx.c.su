@@ -1,0 +1,2 @@
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canRx.c:14:6:io_canRx_filterMessageId	24	static
+/Users/pranayo/UBCFomulaElectric/Consolidated-Firmware/build_fw_dev/firmware/quintuna/RSM/io/io_canRx.c:41:6:io_canRx_updateRxTableWithMessage	56	static
