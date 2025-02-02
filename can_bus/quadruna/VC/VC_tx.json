@@ -804,5 +804,15 @@
         "unit": "%"
       }
     }
-  }
+  },
+  "TorqueVectoringStateMachine":{
+      "msg_id":231,
+      "cycle_time": 100, 
+      "description": "Torque vectoring internal state info",
+      "signals":{
+          "TVInternalState":{
+              "enum": "TVInteralStates"
+          }
+      }
+    }
 }

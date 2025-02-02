@@ -21,11 +21,11 @@ TEST(TractionControlTest, TractionControl_init)
     PID_Config tc_pid_config = { 0.0, 0.0, 0.0, 0.0, 10.0 };
     PID        tc_pid;
     app_pid_init(&tc_pid, &tc_pid_config);
-    TractionControl_Inputs  test_inputs  = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, &tc_pid };
+    TractionControl_Inputs  test_inputs  = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,&tc_pid };
     TractionControl_Outputs test_outputs = { 0.0, 0.0 };
     app_tractionControl_computeTorque(&test_inputs, &test_outputs);
-    ASSERT_NEAR(test_outputs.torque_left_final_Nm, 0.0, 0.000001);
-    ASSERT_NEAR(test_outputs.torque_right_final_Nm, 0.0, 0.000001);
+    ASSERT_NEAR(test_outputs.torque_left_Nm, 0.0, 0.000001);
+    ASSERT_NEAR(test_outputs.torque_right_Nm, 0.0, 0.000001);
 }
 
 TEST(TractionControlTest, TractionControl_slip)
