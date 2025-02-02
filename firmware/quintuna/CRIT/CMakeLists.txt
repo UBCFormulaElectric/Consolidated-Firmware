@@ -3,9 +3,12 @@ message("⚙️ Configuring CRIT (Quintuna)")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-file(GLOB_RECURSE SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+file(GLOB CUBE_MX_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+)
+
+file(GLOB SYSTEM_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -36,7 +39,7 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS} ${CUBE_MX_FILES})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     embedded_binary(
             "quintuna_CRIT_app"

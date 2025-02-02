@@ -10,7 +10,6 @@ void app_heartbeatMonitor_init(const HeartbeatMonitor *hbm)
 
 void app_heartbeatMonitor_checkIn(const HeartbeatMonitor *hbm)
 {
-    hbm->own_heartbeat(true);
     for (int i = 0; i < hbm->board_count; i++)
         app_heartbeatBoard_checkIn(&hbm->boards[i]);
 }
