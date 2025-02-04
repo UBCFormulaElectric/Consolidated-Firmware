@@ -46,7 +46,8 @@ extern "C"
     extern DMA_HandleTypeDef hdma_adc1;
     extern CAN_HandleTypeDef hcan2;
     extern TIM_HandleTypeDef htim2;
-    // extern I2C_HandleTypeDef hi2c1; ??
+    extern I2C_HandleTypeDef hi2c1;
+    // extern PCD_HandleTypeDef hpcd_USB_OTG_FS; needed??
 
     /* USER CODE END EC */
 
