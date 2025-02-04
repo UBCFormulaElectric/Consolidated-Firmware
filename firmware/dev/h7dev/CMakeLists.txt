@@ -30,6 +30,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
 )
 
 # Bootloader files.
