@@ -11,6 +11,6 @@ float io_taskMonitor_getStackUsage(const TaskMonitor *monitor)
 {
     // WARNING: osThreadGetStackSize is not implemented in FreeRTOS
     // https://github.com/ARM-software/CMSIS-FreeRTOS/blob/dd7793adcbea0c3c0f3524f86b031ab88b9e2193/DoxyGen/General/src/cmsis_freertos.txt#L312
-    const float free_space = (float)osThreadGetStackSpace(monitor->handle) / (float)monitor->attributes->stack_size;
+    const float free_space = (float)osThreadGetStackSpace(*monitor->handle) / (float)monitor->attributes->stack_size;
     return 1 - free_space;
 }
