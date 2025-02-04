@@ -2,6 +2,7 @@ import argparse
 import functools
 import multiprocessing
 import os
+import subprocess
 import sys
 
 
@@ -32,7 +33,7 @@ INCLUDE_FILE_EXTENSIONS = (".c", ".cc", ".cpp", ".h", ".hpp", ".hh")
 
 
 def find_all_files(
-    path_from_root: str, EXCLUDE_FILES: list[str], EXCLUDE_DIRS: list[str]
+        path_from_root: str, EXCLUDE_FILES: list[str], EXCLUDE_DIRS: list[str]
 ) -> list[str]:
     """
     Find and return all files to run formatting on.
@@ -53,7 +54,7 @@ def find_all_files(
 
         # Add all found files, filtering out any that should be excluded
         source_files += [
-            f'"{os.path.join(root, file)}"'
+            f'{os.path.join(root, file)}'
             for file in filenames
             if file.endswith(INCLUDE_FILE_EXTENSIONS) and file not in EXCLUDE_FILES
         ]
@@ -61,29 +62,15 @@ def find_all_files(
     print(f"Found {len(source_files)} files to format.")
     return source_files
 
-
-def run_clang_format(source_file: str, cmd: str) -> bool:
+def run_clang_format(source_files: list[str], base_cmd: list[str]) -> bool:
     """
-    Run clang format against a C/C++ source file, returning True if successful.
-
-    Note: `source_file` needs to be first because pool.map passes the iterable
+    Run clang format against a list of C/C++ source files, returning True if successful.
+    Note: `source_files` needs to be first because pool.map passes the iterable
     """
-    # Append the requisite .exe file ending for Windows
-    # Construct and invoke clang-format
-    if platform == "windows":
-        command = f'"{cmd} {source_file}"'
-    else:
-        command = f'{cmd} "{source_file}"'
-
     try:
-        return os.system(command) == 0
+        return subprocess.run(base_cmd + source_files).returncode == 0
     except KeyboardInterrupt:
         return False
-
-
-def build_cmd(bin: str) -> str:
-    return bin + CLANG_FORMAT_OPTIONS
-
 
 def fix_formatting(local: str | None):
     # Change into the DIRECTORY OF THIS PYTHON FILE is in so we can use relative paths
@@ -109,17 +96,15 @@ def fix_formatting(local: str | None):
             "third_party",
         ],
     )
-    source_files += find_all_files("software/dimos", [], [])
 
     # Build clang-format command.
-    if local is not None:
-        cmd = build_cmd(local)
-    else:
-        cmd = build_cmd(CLANG_FORMAT_BINARY)
-
+    executable_name = local if local is not None else CLANG_FORMAT_BINARY
+    n = 400
     pool = multiprocessing.Pool()  # Start a multiprocessing pool to speed up formatting
     try:
-        results = pool.map(functools.partial(run_clang_format, cmd=cmd), source_files)
+        results = pool.imap(
+            functools.partial(run_clang_format, base_cmd=[executable_name, "-i", "--style=file"]),
+            [source_files[i: i+n] for i in range(0, len(source_files), n)])
         pool.close()
         success = all(results)
         for i, result in enumerate([result for result in results if not result]):
