@@ -53,13 +53,11 @@ function(generate_stm32cube_code
 endfunction()
 
 message("  🔃 Registered stm32f412rx_cube_library() function")
-# HAL_CONF_DIR: src/cubemx/Inc
 # HAL_SRCS: the ones that we want, stripped prefixes
 # SYSCALLS: most of the functions defined inside are weak references, only used to make sure it builds without error.
 # USB_ENABLED: flags if usb middleware should be included.
 function(stm32f412rx_cube_library
         HAL_LIB_NAME
-        HAL_CONF_DIR
         HAL_SRCS
         SYSCALLS
         IOC_CHECKSUM
@@ -147,7 +145,6 @@ endfunction()
 message("  🔃 Registered stm32h733xx_cube_library() function")
 function(stm32h733xx_cube_library
         HAL_LIB_NAME
-        HAL_CONF_DIR
         HAL_SRCS
         SYSCALLS
         IOC_CHECKSUM
@@ -158,7 +155,6 @@ function(stm32h733xx_cube_library
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
-        "${HAL_CONF_DIR}"
         "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
         "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
         "${FREERTOS_DIR}/include"

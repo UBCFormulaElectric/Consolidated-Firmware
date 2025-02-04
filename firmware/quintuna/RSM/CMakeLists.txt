@@ -4,47 +4,49 @@ message("⚙️ Configuring RSM (Quintuna)")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-
 file(GLOB CUBEMX_SRCS
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
+
 file(GLOB SYSTEM_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
+
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-    ""
+        ""
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
+
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-    ""
+        ""
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
+
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-    ""
+        ""
 )
-set(HW_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR}"
-)
+set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
+
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${CUBEMX_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
     embedded_no_checks("${CUBEMX_SRCS}")
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
-        "quintuna_RSM_app"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-        "${ARM_CORE}"
+            "quintuna_RSM_app"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
     )
 
 
@@ -53,12 +55,12 @@ if ("${TARGET}" STREQUAL "binary")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
     stm32f4_boot_binary(
-        "quintuna_RSM_boot"
-        "${BOOT_SRCS}"
-        "${BOOT_INCLUDE_DIRS}"
-        "quintuna_RSM"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/RSM_boot.ioc"
+            "quintuna_RSM_boot"
+            "${BOOT_SRCS}"
+            "${BOOT_INCLUDE_DIRS}"
+            "quintuna_RSM"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/RSM_boot.ioc"
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
@@ -88,12 +90,11 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     stm32f412rx_cube_library(
-        "quintuna_RSM_stm32cube"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
-        "${STM32_HAL_SRCS}"
-        "${CMAKE_CURRENT_SORUCE_DIR}"
-        "${MD5_LOCATION}"
-        TRUE
+            "quintuna_RSM_stm32cube"
+            "${STM32_HAL_SRCS}"
+            "${CMAKE_CURRENT_SORUCE_DIR}"
+            "${MD5_LOCATION}"
+            TRUE
     )
 
     # JSONCAN
@@ -110,11 +111,11 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
 
     embedded_image(
-        "quintuna_RSM"
-        "quintuna_RSM_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_app.hex"
-        "quintuna_RSM_boot.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_boot.hex"
+            "quintuna_RSM"
+            "quintuna_RSM_app.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_app.hex"
+            "quintuna_RSM_boot.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_boot.hex"
     )
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

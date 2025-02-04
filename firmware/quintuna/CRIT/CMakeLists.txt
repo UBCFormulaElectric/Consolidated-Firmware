@@ -3,16 +3,11 @@ message("⚙️ Configuring CRIT (Quintuna)")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-file(GLOB CUBE_MX_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
-)
+file(GLOB CUBE_MX_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
-file(GLOB SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-)
-set(SYSTEM_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
+file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
@@ -39,8 +34,8 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS} ${CUBE_MX_FILES})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBE_MX_FILES})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary(
             "quintuna_CRIT_app"
             "${SRCS}"
@@ -86,7 +81,6 @@ if ("${TARGET}" STREQUAL "binary")
     )
     stm32f412rx_cube_library(
             "quintuna_CRIT_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"

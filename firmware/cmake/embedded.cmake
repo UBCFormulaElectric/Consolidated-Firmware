@@ -115,7 +115,7 @@ function(embedded_library
 
         # Suppress source file warnings for third-party code.
 #        list(APPEND COMPILER_FLAGS -w)
-        embedded_no_checks(${LIB_SRCS})
+        embedded_no_checks("${LIB_SRCS}")
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
 #        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})

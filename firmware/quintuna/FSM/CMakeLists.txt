@@ -4,13 +4,11 @@ message("⚙️ Configuring FSM (Quintuna)")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-file(GLOB_RECURSE SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
-)
-set(SYSTEM_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
+file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
+
+file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
@@ -37,8 +35,8 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
             "quintuna_FSM_app"
@@ -89,7 +87,6 @@ if ("${TARGET}" STREQUAL "binary")
 
     stm32f412rx_cube_library(
             "quintuna_FSM_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"

@@ -35,7 +35,7 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
 
     # Bootloader files.
@@ -76,7 +76,6 @@ if ("${TARGET}" STREQUAL "binary")
 
     stm32f412rx_cube_library(
             "quintuna_SSM_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
