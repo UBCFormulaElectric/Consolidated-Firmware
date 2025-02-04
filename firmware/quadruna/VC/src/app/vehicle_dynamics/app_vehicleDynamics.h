@@ -57,4 +57,4 @@ typedef struct Torque_to_Inverters
 {
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-}Torque_to_Inverters; 
+} Torque_to_Inverters;
