@@ -12,7 +12,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
 )
 list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
-set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}")
+set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 IF ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
@@ -47,7 +47,6 @@ IF ("${TARGET}" STREQUAL "binary")
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
             "f4dev_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
