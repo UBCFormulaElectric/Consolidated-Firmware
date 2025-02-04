@@ -706,19 +706,19 @@
         "resolution": 0.001,
         "min": -50,
         "max": 50,
-        "unit": "m/s"
+        "unit": "m/s^2"
       },
       "ImuAccelerationY": {
         "resolution": 0.001,
         "min": -50,
         "max": 50,
-        "unit": "m/s"
+        "unit": "m/s^2"
       },
       "ImuAccelerationZ": {
         "resolution": 0.001,
         "min": -50,
         "max": 50,
-        "unit": "m/s"
+        "unit": "m/s^2"
       }
     }
   },

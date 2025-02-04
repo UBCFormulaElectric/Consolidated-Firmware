@@ -16,121 +16,155 @@ bool io_imu_init()
 
 #ifdef IMU_ACC_RANGE_2G
 #define ACC_CONFIG_RANGE (0)
-#elifdef IMU_ACC_RANGE_4G
+#endif
+#ifdef IMU_ACC_RANGE_4G
 #define ACC_CONFIG_RANGE (2)
-#elifdef IMU_ACC_RANGE_8G
+#endif
+#ifdef IMU_ACC_RANGE_8G
 #define ACC_CONFIG_RANGE (3)
-#elifdef IMU_ACC_RANGE_16G
+#endif
+#ifdef IMU_ACC_RANGE_16G
 #define ACC_CONFIG_RANGE (1)
-#else
-#error One must be picked
 #endif
 
 #ifdef IMU_ACC_RELOAD_12Hz5
-#define ACC_CONFIG_RESOLUTION (1)
-#elifdef IMU_ACC_RELOAD_26Hz
-#define ACC_CONFIG_RESOLUTION (2)
-#elifdef IMU_ACC_RELOAD_52Hz
-#define ACC_CONFIG_RESOLUTION (3)
-#elifdef IMU_ACC_RELOAD_104Hz
-#define ACC_CONFIG_RESOLUTION (4)
-#elifdef IMU_ACC_RELOAD_208Hz
-#define ACC_CONFIG_RESOLUTION (5)
-#elifdef IMU_ACC_RELOAD_416Hz
-#define ACC_CONFIG_RESOLUTION (6)
-#elifdef IMU_ACC_RELOAD_833Hz
-#define ACC_CONFIG_RESOLUTION (7)
-#elifdef IMU_ACC_RELOAD_1k66Hz
-#define ACC_CONFIG_RESOLUTION (8)
-#elifdef IMU_ACC_RELOAD_3k33Hz
-#define ACC_CONFIG_RESOLUTION (9)
-#elifdef IMU_ACC_RELOAD_6k66Hz
-#define ACC_CONFIG_RESOLUTION (10)
-#elifdef IMU_ACC_RELOAD_1Hz6
-#define ACC_CONFIG_RESOLUTION (11)
-#else
-#error One must be picked
+#define ACC_CONFIG_RELOAD (0x10)
+#endif
+#ifdef IMU_ACC_RELOAD_26Hz
+#define ACC_CONFIG_RELOAD (0x20)
+#endif
+#ifdef IMU_ACC_RELOAD_52Hz
+#define ACC_CONFIG_RELOAD (0x30)
+#endif
+#ifdef IMU_ACC_RELOAD_104Hz
+#define ACC_CONFIG_RELOAD (0x40)
+#endif
+#ifdef IMU_ACC_RELOAD_208Hz
+#define ACC_CONFIG_RELOAD (0x50)
+#endif
+#ifdef IMU_ACC_RELOAD_416Hz
+#define ACC_CONFIG_RELOAD (0x60)
+#endif
+#ifdef IMU_ACC_RELOAD_833Hz
+#define ACC_CONFIG_RELOAD (0x70)
+#endif
+#ifdef IMU_ACC_RELOAD_1k66Hz
+#define ACC_CONFIG_RELOAD (0x80)
+#endif
+#ifdef IMU_ACC_RELOAD_3k33Hz
+#define ACC_CONFIG_RELOAD (0x90)
+#endif
+#ifdef IMU_ACC_RELOAD_6k66Hz
+#define ACC_CONFIG_RELOAD (0xA0)
+#endif
+#ifdef IMU_ACC_RELOAD_1Hz6
+#define ACC_CONFIG_RELOAD (0xB0)
 #endif
 
 #ifdef IMU_GYRO_RESOLUTION_125DPS
 #define GYRO_CONFIG_RESOLUTION (1)
-#elifdef IMU_GYRO_RESOLUTION_250DPS
+#endif
+#ifdef IMU_GYRO_RESOLUTION_250DPS
 #define GYRO_CONFIG_RESOLUTION (0)
-#elifdef IMU_GYRO_RESOLUTION_500DPS
+#endif
+#ifdef IMU_GYRO_RESOLUTION_500DPS
 #define GYRO_CONFIG_RESOLUTION (2)
-#elifdef IMU_GYRO_RESOLUTION_1000DPS
+#endif
+#ifdef IMU_GYRO_RESOLUTION_1000DPS
 #define GYRO_CONFIG_RESOLUTION (4)
-#elifdef IMU_GYRO_RESOLUTION_2000DPS
+#endif
+#ifdef IMU_GYRO_RESOLUTION_2000DPS
 #define GYRO_CONFIG_RESOLUTION (6)
-#else
-#error One must be picked
 #endif
 
 #ifdef IMU_GYRO_RELOAD_12Hz5
-#define GYRO_CONFIG_RELOAD (1)
-#elifdef IMU_GYRO_RELOAD_26Hz
-#define GYRO_CONFIG_RELOAD (2)
-#elifdef IMU_GYRO_RELOAD_52Hz
-#define GYRO_CONFIG_RELOAD (3)
-#elifdef IMU_GYRO_RELOAD_104Hz
-#define GYRO_CONFIG_RELOAD (4)
-#elifdef IMU_GYRO_RELOAD_208Hz
-#define GYRO_CONFIG_RELOAD (5)
-#elifdef IMU_GYRO_RELOAD_416Hz
-#define GYRO_CONFIG_RELOAD (6)
-#elifdef IMU_GYRO_RELOAD_833Hz
-#define GYRO_CONFIG_RELOAD (7)
-#elifdef IMU_GYRO_RELOAD_1k66Hz
-#define GYRO_CONFIG_RELOAD (8)
-#elifdef IMU_GYRO_RELOAD_3k33Hz
-#define GYRO_CONFIG_RELOAD (9)
-#elifdef IMU_GYRO_RELOAD_6k66Hz
-#define GYRO_CONFIG_RELOAD (10)
-#else
-#error One must be picked
+#define GYRO_CONFIG_RELOAD (0x10)
+#endif
+#ifdef IMU_GYRO_RELOAD_26Hz
+#define GYRO_CONFIG_RELOAD (0x20)
+#endif
+#ifdef IMU_GYRO_RELOAD_52Hz
+#define GYRO_CONFIG_RELOAD (0x30)
+#endif
+#ifdef IMU_GYRO_RELOAD_104Hz
+#define GYRO_CONFIG_RELOAD (0x40)
+#endif
+#ifdef IMU_GYRO_RELOAD_208Hz
+#define GYRO_CONFIG_RELOAD (0x50)
+#endif
+#ifdef IMU_GYRO_RELOAD_416Hz
+#define GYRO_CONFIG_RELOAD (0x60)
+#endif
+#ifdef IMU_GYRO_RELOAD_833Hz
+#define GYRO_CONFIG_RELOAD (0x70)
+#endif
+#ifdef IMU_GYRO_RELOAD_1k66Hz
+#define GYRO_CONFIG_RELOAD (0x80)
+#endif
+#ifdef IMU_GYRO_RELOAD_3k33Hz
+#define GYRO_CONFIG_RELOAD (0x90)
+#endif
+#ifdef IMU_GYRO_RELOAD_6k66Hz
+#define GYRO_CONFIG_RELOAD (0xA0)
 #endif
 
-    const uint8_t acc_config  = ACC_CONFIG_RESOLUTION | ACC_CONFIG_RANGE,
+    const uint8_t acc_config  = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE,
                   gyro_config = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
     return hw_i2c_memWrite(&imu, 0x10, &acc_config, 1) && hw_i2c_memWrite(&imu, 0x11, &gyro_config, 1);
 }
 
+/**
+ * Converts raw gyro data to angular velocity in degrees per second
+ * @param gyro_data Raw gyro data, must be 2 bytes long
+ * @return Translated gyro data
+ */
 static float translate_gyro_data(const uint8_t *gyro_data)
 {
 // Default gyroscope sensitivity for IMU is 8.75 mdeg/least significant digit
 #ifdef IMU_GYRO_RESOLUTION_125DPS
-#define GYRO_SENSITIVITY (4.375f)
-#elifdef IMU_GYRO_RESOLUTION_250DPS
-#define GYRO_SENSITIVITY (8.75f)
-#elifdef IMU_GYRO_RESOLUTION_500DPS
-#define GYRO_SENSITIVITY (17.5f)
-#elifdef IMU_GYRO_RESOLUTION_1000DPS
-#define GYRO_SENSITIVITY (35.0f)
-#elifdef IMU_GYRO_RESOLUTION_2000DPS
-#define GYRO_SENSITIVITY (70.0f)
+#define GYRO_SENSITIVITY_MDEG (4.375f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_250DPS
+#define GYRO_SENSITIVITY_MDEG (8.75f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_500DPS
+#define GYRO_SENSITIVITY_MDEG (17.5f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_1000DPS
+#define GYRO_SENSITIVITY_MDEG (35.0f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_2000DPS
+#define GYRO_SENSITIVITY_MDEG (70.0f)
 #endif
 
     // ReSharper disable once CppRedundantCastExpression
     const int16_t raw = (int16_t)(gyro_data[1] << 8 | gyro_data[0]);
-    return (float)raw * GYRO_SENSITIVITY / 1000.0f;
+    return (float)raw * GYRO_SENSITIVITY_MDEG / 1000.0f;
 }
 
+/**
+ * Converts raw acceleration data to acceleration in m/s^2
+ * @param acc_data Raw acceleration data, must be 2 bytes long
+ * @return Translated acceleration data
+ */
 static float translate_acceleration_data(const uint8_t *acc_data)
 {
-    // Default accelerometer sensitivity for IMU is 0.061 mg/least significant digit
 #ifdef IMU_ACC_RANGE_2G
-#define ACC_SENSITIVITY (0.061f)
-#elifdef IMU_ACC_RANGE_4G
-#define ACC_SENSITIVITY (0.122f)
-#elifdef IMU_ACC_RANGE_8G
-#define ACC_SENSITIVITY (0.244f)
-#elifdef IMU_ACC_RANGE_16G
-#define ACC_SENSITIVITY (0.488f)
+#define ACC_SENSITIVITY_MG (0.061f)
+#endif
+#ifdef IMU_ACC_RANGE_4G
+#define ACC_SENSITIVITY_MG (0.122f)
+#endif
+#ifdef IMU_ACC_RANGE_8G
+#define ACC_SENSITIVITY_MG (0.244f)
+#endif
+#ifdef IMU_ACC_RANGE_16G
+#define ACC_SENSITIVITY_MG (0.488f)
 #endif
 
     // ReSharper disable once CppRedundantCastExpression
     const int16_t raw = (int16_t)(acc_data[1] << 8 | acc_data[0]);
-    return (float)raw * ACC_SENSITIVITY * 9.81f / 1000.0f;
+    return (float)raw * ACC_SENSITIVITY_MG * 9.81f / 1000.0f;
 }
 
 bool io_imu_getLinearAccelerationX(float *x_acceleration)
