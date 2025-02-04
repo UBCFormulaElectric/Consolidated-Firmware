@@ -52,7 +52,7 @@ bool hw_i2c_transmit(const I2cInterface *i2c, uint8_t *tx_buffer, uint16_t tx_bu
  * @param rx_buffer_size The size of the rx_data buffer.
  * @return True if data is transmitted successfully, false otherwise
  */
-bool hw_i2c_memRead(const I2cInterface *i2c, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size);
+bool hw_i2c_memRead(const I2cInterface *i2c, uint8_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size);
 
 /**
  * @brief Write an amount of data to a specific memory address
@@ -63,4 +63,4 @@ bool hw_i2c_memRead(const I2cInterface *i2c, uint16_t mem_addr, uint8_t *rx_buff
  * @param tx_buffer_size The size fo the tx_buffer
  * @return True if data is read successfully, false otherwise
  */
-bool hw_i2c_memWrite(const I2cInterface *i2c, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+bool hw_i2c_memWrite(const I2cInterface *i2c, uint8_t mem_addr, const uint8_t *tx_buffer, uint16_t tx_buffer_size);
