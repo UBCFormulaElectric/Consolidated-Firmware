@@ -8,12 +8,14 @@ IF (${CMAKE_HOST_WIN32}) # this is slightly more reliable than WIN32
 ELSE ()
     set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
 ENDIF ()
-message("  📝 Generating log4j.properties at ${LOG4J_PROPERTIES}")
-execute_process(
-        COMMAND ${PYTHON_COMMAND}
-        ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
-        --log4j_properties_output ${LOG4J_PROPERTIES}
-)
+if (NOT EXISTS ${LOG4J_PROPERTIES})
+    execute_process(
+            COMMAND ${PYTHON_COMMAND}
+            ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
+            --log4j_properties_output ${LOG4J_PROPERTIES}
+    )
+endif ()
+message("  📝 log4j.properties generated at ${LOG4J_PROPERTIES}")
 
 file(GLOB_RECURSE NEWLIB_SRCS "${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c")
 
@@ -51,13 +53,11 @@ function(generate_stm32cube_code
 endfunction()
 
 message("  🔃 Registered stm32f412rx_cube_library() function")
-# HAL_CONF_DIR: src/cubemx/Inc
 # HAL_SRCS: the ones that we want, stripped prefixes
 # SYSCALLS: most of the functions defined inside are weak references, only used to make sure it builds without error.
 # USB_ENABLED: flags if usb middleware should be included.
 function(stm32f412rx_cube_library
         HAL_LIB_NAME
-        HAL_CONF_DIR
         HAL_SRCS
         SYSCALLS
         IOC_CHECKSUM
@@ -145,7 +145,6 @@ endfunction()
 message("  🔃 Registered stm32h733xx_cube_library() function")
 function(stm32h733xx_cube_library
         HAL_LIB_NAME
-        HAL_CONF_DIR
         HAL_SRCS
         SYSCALLS
         IOC_CHECKSUM
@@ -156,7 +155,6 @@ function(stm32h733xx_cube_library
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
-        "${HAL_CONF_DIR}"
         "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
         "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
         "${FREERTOS_DIR}/include"
