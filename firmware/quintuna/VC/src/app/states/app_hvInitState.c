@@ -15,11 +15,11 @@ static void hvInitStateRunOnExit(void) {}
 
 const State *app_hvInitState_get(void)
 {
-    static State init_state = { .name              = "HV INIT",
+    static State hvInit_state = { .name              = "HV INIT",
                                 .run_on_entry      = hvInitStateRunOnEntry,
                                 .run_on_tick_1Hz   = hvInitStateRunOnTick1Hz,
                                 .run_on_tick_100Hz = hvInitStateRunOnTick100Hz,
                                 .run_on_exit       = hvInitStateRunOnExit };
 
-    return &init_state;
+    return &hvInit_state;
 }

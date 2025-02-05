@@ -15,11 +15,11 @@ static void driveWarningStateRunOnExit(void) {}
 
 const State *app_driveWarningState_get(void)
 {
-    static State init_state = { .name              = "DRIVE WARNING",
+    static State driveWarning_state = { .name              = "DRIVE WARNING",
                                 .run_on_entry      = driveWarningStateRunOnEntry,
                                 .run_on_tick_1Hz   = driveWarningStateRunOnTick1Hz,
                                 .run_on_tick_100Hz = driveWarningStateRunOnTick100Hz,
                                 .run_on_exit       = driveWarningStateRunOnExit };
 
-    return &init_state;
+    return &driveWarning_state;
 }

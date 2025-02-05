@@ -15,11 +15,11 @@ static void bmsOnStateRunOnExit(void) {}
 
 const State *app_bmsOnStateState_get(void)
 {
-    static State init_state = { .name              = "BMS ON",
+    static State bmsOn_state = { .name              = "BMS ON",
                                 .run_on_entry      = bmsOnStateRunOnEntry,
                                 .run_on_tick_1Hz   = bmsOnStateRunOnTick1Hz,
                                 .run_on_tick_100Hz = bmsOnStateRunOnTick100Hz,
                                 .run_on_exit       = bmsOnStateRunOnExit };
 
-    return &init_state;
+    return &bmsOn_state;
 }
