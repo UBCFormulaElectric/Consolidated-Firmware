@@ -56,9 +56,9 @@ def getDischargingRow(logger: Logger, loadBank: LoadBank):
 
 def main()->None:
     loadBank = LoadBank()
-    powerSupply = PowerSupply()
-    soc = initialSOC #change to match either top of charge or bottom of charge
-    powerSupply.set_voltage(maxVoltage, powerSupplyChannel)
+    # powerSupply = PowerSupply()
+    # powerSupply.set_voltage(maxVoltage, powerSupplyChannel)
+    soc = initialSOC # change to match either top of charge or bottom of charge
 
     loggingCols = \
     [
@@ -79,7 +79,7 @@ def main()->None:
     except Exception as e:
         print(e)
         loadBank.disable_load()
-        powerSupply.disable_output(powerSupplyChannel)
+        # powerSupply.disable_output(powerSupplyChannel)
         raise
     
     

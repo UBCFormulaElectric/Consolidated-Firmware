@@ -35,8 +35,10 @@ class Logger:
                 writer.writerow(row)
 
                 self.lastRow = dict(zip(self.columns, row))
-                print(self.lastRow.keys())
-                print(self.lastRow.values())
+
+                max_key_length = max(len(key) for key in self.lastRow.keys())
+                for key, value in self.lastRow.items():
+                    print(f"{key.ljust(max_key_length)} : {value}")
 
         self.lastRowTime = time.time()
                 
