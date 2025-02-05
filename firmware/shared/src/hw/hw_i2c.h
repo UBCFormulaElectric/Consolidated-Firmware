@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// Board-specific config. Must define:
+// 1. I2cBus: Enum of all the busses used.
+// 2. i2c_bus_handles: Map of bus enum to STM32 handle.
 #include "hw_i2cs.h"
 
 typedef struct

@@ -11,7 +11,7 @@ static inline bool handletoBus(I2C_HandleTypeDef *const handle, I2cBus *bus)
 {
     for (I2cBus i = 0; i < HW_I2C_BUS_COUNT; i++)
     {
-        if (bus_handles[i] == handle)
+        if (i2c_bus_handles[i] == handle)
         {
             *bus = (I2cBus)i;
             return true;
@@ -50,7 +50,7 @@ static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
 bool hw_i2c_isTargetReady(const I2cDevice *device)
 {
     return HAL_I2C_IsDeviceReady(
-               bus_handles[device->bus], (uint16_t)(device->target_address << 1), (uint32_t)NUM_DEVICE_READY_TRIALS,
+               i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), (uint32_t)NUM_DEVICE_READY_TRIALS,
                device->timeout_ms) == HAL_OK;
 }
 
@@ -66,7 +66,7 @@ bool hw_i2c_transmit(const I2cDevice *device, uint8_t *tx_buffer, uint16_t tx_bu
     bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
     if (HAL_I2C_Master_Transmit_IT(
-            bus_handles[device->bus], (uint16_t)(device->target_address << 1), tx_buffer, tx_buffer_size) != HAL_OK)
+            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), tx_buffer, tx_buffer_size) != HAL_OK)
     {
         return false;
     }
@@ -86,7 +86,7 @@ bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buf
     bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
     if (HAL_I2C_Master_Receive_IT(
-            bus_handles[device->bus], (uint16_t)(device->target_address << 1), rx_buffer, rx_buffer_size) != HAL_OK)
+            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), rx_buffer, rx_buffer_size) != HAL_OK)
     {
         return false;
     }
@@ -106,7 +106,7 @@ bool hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_
     bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
     if (HAL_I2C_Mem_Write_IT(
-            bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
+            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
             tx_buffer, tx_buffer_size) != HAL_OK)
     {
         return false;
@@ -127,7 +127,7 @@ bool hw_i2c_memoryRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_b
     bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
     if (HAL_I2C_Mem_Read_IT(
-            bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
+            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
             rx_buffer, rx_buffer_size) != HAL_OK)
     {
         return false;
