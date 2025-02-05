@@ -35,7 +35,7 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
 
     # Bootloader files.
@@ -54,25 +54,28 @@ if ("${TARGET}" STREQUAL "binary")
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_adc_ex.c"
             "stm32f4xx_hal_adc.c"
+            "stm32f4xx_hal_can.c"
             "stm32f4xx_hal_cortex.c"
             "stm32f4xx_hal_dma_ex.c"
             "stm32f4xx_hal_dma.c"
             "stm32f4xx_hal_exti.c"
-            "stm32f4xx_hal_can.c"
             "stm32f4xx_hal_gpio.c"
             "stm32f4xx_hal_iwdg.c"
+            "stm32f4xx_hal_pcd_ex.c"
+            "stm32f4xx_hal_pcd.c"
             "stm32f4xx_hal_pwr_ex.c"
             "stm32f4xx_hal_rcc_ex.c"
             "stm32f4xx_hal_rcc.c"
+            "stm32f4xx_hal_spi.c"
             "stm32f4xx_hal_tim_ex.c"
             "stm32f4xx_hal_tim.c"
             "stm32f4xx_hal_uart.c"
+            "stm32f4xx_ll_usb.c"
             "stm32f4xx_hal.c"
     )
 
     stm32f412rx_cube_library(
             "quintuna_SSM_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"

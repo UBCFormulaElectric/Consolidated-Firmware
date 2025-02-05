@@ -82,6 +82,8 @@ void tasks_init(void)
     io_sdGpio_init(&sd_gpio);
 
     app_globals_init();
+
+    jobs_init();
 }
 
 void tasks_deinit(void)
