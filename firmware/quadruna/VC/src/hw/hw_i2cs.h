@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include "main.h"
 
-
 typedef enum
 {
     HW_I2C_BUS_1,
