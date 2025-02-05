@@ -3,22 +3,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum  {
+typedef enum
+{
     HW_I2C_BUS_1,
     HW_I2C_BUS_2,
     HW_I2C_BUS_COUNT
 } I2cBus;
 
-/**
- * @param i2c_handle The given I2C handler.
- * @param target_address The device's 7 bit address value in the datasheet.
- * @param timeout_ms Timout duration.
- */
 typedef struct
 {
-    I2cBus bus;
-    uint16_t           target_address;
-    uint32_t           timeout_ms;
+    I2cBus   bus;
+    uint8_t  target_address;
+    uint32_t timeout_ms;
 } I2cDevice;
 
 /**
@@ -49,6 +45,17 @@ bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buf
 bool hw_i2c_transmit(const I2cDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size);
 
 /**
+ * @brief Write an amount of data to a specific memory address
+ * @param device The given I2C interface
+ * @param mem_addr The memory address that's going to be read
+ * @param tx_buffer A pointer to the data buffer containing the data transmitted
+ * to the device connected to the I2C interface.
+ * @param tx_buffer_size The size fo the tx_buffer
+ * @return True if data is read successfully, false otherwise
+ */
+bool hw_i2c_memWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+
+/**
  * @brief Read an amount of data from a specific memory address
  * @param device The given I2C interface
  * @param mem_addr The memory address that's going to be read
@@ -59,14 +66,3 @@ bool hw_i2c_transmit(const I2cDevice *device, uint8_t *tx_buffer, uint16_t tx_bu
  * @return True if data is transmitted successfully, false otherwise
  */
 bool hw_i2c_memRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size);
-
-/**
- * @brief Write an amount of data to a specific memory address
- * @param device The given I2C interface
- * @param mem_addr The memory address that's going to be read
- * @param tx_buffer A pointer to the data buffer containing the data transmitted
- * to the device connected to the I2C interface.
- * @param tx_buffer_size The size fo the tx_buffer
- * @return True if data is read successfully, false otherwise
- */
-bool hw_i2c_memWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size);

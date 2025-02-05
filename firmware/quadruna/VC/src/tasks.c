@@ -123,7 +123,7 @@ _Noreturn void tasks_run1kHz(void)
     {
         const uint32_t task_start_ms = io_time_getCurrentMs();
 
-        hw_watchdog_checkForTimeouts();
+        // hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
 
         // Watchdog check-in must be the last function called before putting the

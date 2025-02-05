@@ -1,44 +1,22 @@
 #include "hw_i2c.h"
 #include <assert.h>
-#include "FreeRTOS.h"
-#include "cmsis_os2.h"
 #include "main.h"
-
-typedef struct
-{
-    StaticSemaphore_t sem_ctrl_block;
-    osSemaphoreId_t   sem_id;
-} I2cBusData;
-
-typedef struct
-{
-    I2C_HandleTypeDef *handle;
-    osSemaphoreAttr_t  sem_attr;
-} I2cBusCfg;
-
-static I2cBusData bus_data[HW_I2C_BUS_COUNT];
-
-static const I2cBusCfg bus_cfg[HW_I2C_BUS_COUNT] = {
-    [HW_I2C_BUS_1] = { .handle   = &hi2c1,
-                       .sem_attr = { .name      = "I2C Bus 1 Semaphore",
-                                     .attr_bits = 0,
-                                     .cb_mem    = &bus_data[HW_I2C_BUS_1].sem_ctrl_block,
-                                     .cb_size   = sizeof(StaticSemaphore_t) } },
-    [HW_I2C_BUS_2] = { .handle   = &hi2c2,
-                       .sem_attr = { .name      = "I2C Bus 2 Semaphore",
-                                     .attr_bits = 0,
-                                     .cb_mem    = &bus_data[HW_I2C_BUS_2].sem_ctrl_block,
-                                     .cb_size   = sizeof(StaticSemaphore_t) } },
-};
 
 // Number of attempts made to check if connected device is ready to communicate.
 #define NUM_DEVICE_READY_TRIALS 5
 
-static inline bool handleToI2cBus(I2C_HandleTypeDef *const handle, I2cBus *bus)
+static I2C_HandleTypeDef *const bus_handles[HW_I2C_BUS_COUNT] = {
+    [HW_I2C_BUS_1] = &hi2c1,
+    [HW_I2C_BUS_2] = &hi2c2,
+};
+
+static TaskHandle_t bus_tasks_in_progress[HW_I2C_BUS_COUNT];
+
+static inline bool handletoBus(I2C_HandleTypeDef *const handle, I2cBus *bus)
 {
     for (I2cBus i = 0; i < HW_I2C_BUS_COUNT; i++)
     {
-        if (bus_cfg[i].handle == handle)
+        if (bus_handles[i] == handle)
         {
             *bus = (I2cBus)i;
             return true;
@@ -48,108 +26,133 @@ static inline bool handleToI2cBus(I2C_HandleTypeDef *const handle, I2cBus *bus)
     return false;
 }
 
-void hw_i2c_init(void)
+static bool waitForNotification(const I2cDevice *device)
 {
-    for (I2cBus i = 0U; i < HW_I2C_BUS_COUNT; i++)
-    {
-        bus_data[i].sem_id = osSemaphoreCreate(&bus_cfg[i].sem_attr, 1);
+    // Block until a notification is received.
+    const uint32_t num_notfiications = ulTaskNotifyTake(pdTRUE, device->timeout_ms);
 
-        // Default all semaphores to "acquired."
-        assert(osSemaphoreAcquire(bus_data[i].sem_id, 0U) == osOK);
+    // Mark this transaction as no longer in progress.
+    bus_tasks_in_progress[device->bus] = NULL;
+
+    // Success if a notification is received (otherwise the take timed out).
+    return num_notfiications > 0;
+}
+
+static void callbackHandler(I2C_HandleTypeDef *handle)
+{
+    I2cBus bus;
+    assert(handletoBus(handle, &bus));
+
+    // Notify the task that started the I2C transaction, if there is a transaction in progress.
+    if (bus_tasks_in_progress[bus] != NULL)
+    {
+        BaseType_t higher_priority_task_woken = pdFALSE;
+        vTaskNotifyGiveFromISR(bus_tasks_in_progress[bus], &higher_priority_task_woken);
+        portYIELD_FROM_ISR(higher_priority_task_woken);
     }
 }
 
 bool hw_i2c_isTargetReady(const I2cDevice *device)
 {
     return HAL_I2C_IsDeviceReady(
-               bus_cfg[device->bus].handle, device->target_address << 1, (uint32_t)NUM_DEVICE_READY_TRIALS,
+               bus_handles[device->bus], (uint16_t)(device->target_address << 1), (uint32_t)NUM_DEVICE_READY_TRIALS,
                device->timeout_ms) == HAL_OK;
 }
 
 bool hw_i2c_transmit(const I2cDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
-    if (HAL_I2C_Master_Transmit(
-            bus_cfg[device->bus].handle, device->target_address << 1, tx_buffer, tx_buffer_size, device->timeout_ms) !=
-        HAL_OK)
+    if (bus_tasks_in_progress[device->bus] != NULL)
     {
         return false;
     }
 
-    // Block until semaphore is released by ISR.
-    osSemaphoreAcquire(bus_data[device->bus].sem_id, osWaitForever);
+    // Save current task before starting an I2C transaction.
+    bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
-    return true;
+    if (HAL_I2C_Master_Transmit_IT(
+            bus_handles[device->bus], (uint16_t)(device->target_address << 1), tx_buffer, tx_buffer_size) != HAL_OK)
+    {
+        return false;
+    }
+
+    return waitForNotification(device);
 }
 
 bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size)
 {
-    if (HAL_I2C_Master_Receive(
-            bus_cfg[device->bus].handle, device->target_address << 1, rx_buffer, rx_buffer_size, device->timeout_ms) !=
-        HAL_OK)
+    if (bus_tasks_in_progress[device->bus] != NULL)
     {
         return false;
     }
 
-    // Block until semaphore is released by ISR.
-    osSemaphoreAcquire(bus_data[device->bus].sem_id, osWaitForever);
+    // Save current task before starting an I2C transaction.
+    bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
-    return true;
-}
-
-bool hw_i2c_memRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size)
-{
-    if (HAL_I2C_Mem_Read(
-            bus_cfg[device->bus].handle, device->target_address << 1, mem_addr, I2C_MEMADD_SIZE_8BIT, rx_buffer,
-            rx_buffer_size, device->timeout_ms) != HAL_OK)
+    if (HAL_I2C_Master_Receive_IT(
+            bus_handles[device->bus], (uint16_t)(device->target_address << 1), rx_buffer, rx_buffer_size) != HAL_OK)
     {
         return false;
     }
 
-    // Block until semaphore is released by ISR.
-    osSemaphoreAcquire(bus_data[device->bus].sem_id, osWaitForever);
-
-    return true;
+    return waitForNotification(device);
 }
 
 bool hw_i2c_memWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
-    if (HAL_I2C_Mem_Write(
-            bus_cfg[device->bus].handle, device->target_address << 1, mem_addr, I2C_MEMADD_SIZE_8BIT, tx_buffer,
-            tx_buffer_size, device->timeout_ms) != HAL_OK)
+    if (bus_tasks_in_progress[device->bus] != NULL)
     {
         return false;
     }
 
-    // Block until semaphore is released by ISR.
-    osSemaphoreAcquire(bus_data[device->bus].sem_id, osWaitForever);
+    // Save current task before starting an I2C transaction.
+    bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
-    return true;
+    if (HAL_I2C_Mem_Write_IT(
+            bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
+            tx_buffer, tx_buffer_size) != HAL_OK)
+    {
+        return false;
+    }
+
+    return waitForNotification(device);
+}
+
+bool hw_i2c_memRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size)
+{
+    if (bus_tasks_in_progress[device->bus] != NULL)
+    {
+        return false;
+    }
+
+    // Save current task before starting an I2C transaction.
+    bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
+
+    if (HAL_I2C_Mem_Read_IT(
+            bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
+            rx_buffer, rx_buffer_size) != HAL_OK)
+    {
+        return false;
+    }
+
+    return waitForNotification(device);
 }
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    I2cBus bus;
-    assert(handleToI2cBus(handle, &bus));
-    osSemaphoreRelease(bus_data[bus].sem_id);
+    callbackHandler(handle);
 }
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    I2cBus bus;
-    assert(handleToI2cBus(handle, &bus));
-    osSemaphoreRelease(bus_data[bus].sem_id);
+    callbackHandler(handle);
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    I2cBus bus;
-    assert(handleToI2cBus(handle, &bus));
-    osSemaphoreRelease(bus_data[bus].sem_id);
+    callbackHandler(handle);
 }
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    I2cBus bus;
-    assert(handleToI2cBus(handle, &bus));
-    osSemaphoreRelease(bus_data[bus].sem_id);
+    callbackHandler(handle);
 }
