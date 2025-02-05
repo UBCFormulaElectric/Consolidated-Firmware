@@ -13,7 +13,7 @@ static void pcmOnStateRunOnTick1Hz(void) {}
 static void pcmOnStateRunOnTick100Hz(void) {}
 static void pcmOnStateRunOnExit(void) {}
 
-const State *app_initState_get(void)
+const State *app_pcmOnState_get(void)
 {
     static State init_state = { .name              = "PCM ON",
                                 .run_on_entry      = pcmOntateRunOnEntry,

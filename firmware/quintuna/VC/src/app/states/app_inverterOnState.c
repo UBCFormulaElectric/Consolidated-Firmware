@@ -13,7 +13,7 @@ static void inverterOnStateRunOnTick1Hz(void) {}
 static void inverterOnStateRunOnTick100Hz(void) {}
 static void inverterOnStateRunOnExit(void) {}
 
-const State *app_initState_get(void)
+const State *app_inverterOnState_get(void)
 {
     static State init_state = { .name              = "INVERTER ON",
                                 .run_on_entry      = inverterOnStateRunOnEntry,

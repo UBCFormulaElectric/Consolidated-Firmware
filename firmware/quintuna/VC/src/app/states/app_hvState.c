@@ -13,7 +13,7 @@ static void hvStateRunOnTick1Hz(void) {}
 static void hvStateRunOnTick100Hz(void) {}
 static void hvStateRunOnExit(void) {}
 
-const State *app_initState_get(void)
+const State *app_hvState_get(void)
 {
     static State init_state = { .name              = "HV",
                                 .run_on_entry      = hvStateRunOnEntry,

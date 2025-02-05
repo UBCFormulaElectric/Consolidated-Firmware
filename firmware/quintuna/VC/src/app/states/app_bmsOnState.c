@@ -13,7 +13,7 @@ static void bmsOnStateRunOnTick1Hz(void) {}
 static void bmsOnStateRunOnTick100Hz(void) {}
 static void bmsOnStateRunOnExit(void) {}
 
-const State *app_initState_get(void)
+const State *app_bmsOnStateState_get(void)
 {
     static State init_state = { .name              = "BMS ON",
                                 .run_on_entry      = bmsOnStateRunOnEntry,

@@ -13,7 +13,7 @@ static void driveWarningStateRunOnTick1Hz(void) {}
 static void driveWarningStateRunOnTick100Hz(void) {}
 static void driveWarningStateRunOnExit(void) {}
 
-const State *app_initState_get(void)
+const State *app_driveWarningState_get(void)
 {
     static State init_state = { .name              = "DRIVE WARNING",
                                 .run_on_entry      = driveWarningStateRunOnEntry,
