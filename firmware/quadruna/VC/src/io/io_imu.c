@@ -14,8 +14,9 @@ bool io_imu_init()
 {
     if (hw_i2c_isTargetReady(&imu))
     {
-        uint8_t buffer             = 0x40; // turn on accelerometer/gyroscope to normal mode
-        bool activated_imu_sensors = hw_i2c_memWrite(&imu, 0x10, &buffer, 1) && hw_i2c_memWrite(&imu, 0x11, &buffer, 1);
+        uint8_t buffer = 0x40; // turn on accelerometer/gyroscope to normal mode
+        bool    activated_imu_sensors =
+            hw_i2c_memoryWrite(&imu, 0x10, &buffer, 1) && hw_i2c_memoryWrite(&imu, 0x11, &buffer, 1);
         return activated_imu_sensors;
     }
     return false;
@@ -24,7 +25,7 @@ bool io_imu_init()
 bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x28, x_data, 2);
+    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x28, x_data, 2);
 
     if (!is_read_successful)
     {
@@ -40,7 +41,7 @@ bool io_imu_getLinearAccelerationX(float *x_acceleration)
 bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
     uint8_t y_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x2A, y_data, 2);
+    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x2A, y_data, 2);
 
     if (!is_read_successful)
     {
@@ -56,7 +57,7 @@ bool io_imu_getLinearAccelerationY(float *y_acceleration)
 bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x2C, z_data, 2);
+    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x2C, z_data, 2);
 
     if (!is_read_successful)
     {
@@ -72,7 +73,7 @@ bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x22, roll_data, 2);
+    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x22, roll_data, 2);
 
     if (!is_read_successful)
     {
@@ -88,7 +89,7 @@ bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x24, pitch_data, 2);
+    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x24, pitch_data, 2);
 
     if (!is_read_successful)
     {
@@ -104,7 +105,7 @@ bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x26, yaw_data, 2);
+    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x26, yaw_data, 2);
 
     if (!is_read_successful)
     {

@@ -5,11 +5,6 @@
 // Number of attempts made to check if connected device is ready to communicate.
 #define NUM_DEVICE_READY_TRIALS 5
 
-static I2C_HandleTypeDef *const bus_handles[HW_I2C_BUS_COUNT] = {
-    [HW_I2C_BUS_1] = &hi2c1,
-    [HW_I2C_BUS_2] = &hi2c2,
-};
-
 static TaskHandle_t bus_tasks_in_progress[HW_I2C_BUS_COUNT];
 
 static inline bool handletoBus(I2C_HandleTypeDef *const handle, I2cBus *bus)
@@ -38,7 +33,7 @@ static bool waitForNotification(const I2cDevice *device)
     return num_notfiications > 0;
 }
 
-static void callbackHandler(I2C_HandleTypeDef *handle)
+static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
 {
     I2cBus bus;
     assert(handletoBus(handle, &bus));
@@ -63,6 +58,7 @@ bool hw_i2c_transmit(const I2cDevice *device, uint8_t *tx_buffer, uint16_t tx_bu
 {
     if (bus_tasks_in_progress[device->bus] != NULL)
     {
+        // There is a task currently in progress!
         return false;
     }
 
@@ -82,6 +78,7 @@ bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buf
 {
     if (bus_tasks_in_progress[device->bus] != NULL)
     {
+        // There is a task currently in progress!
         return false;
     }
 
@@ -97,10 +94,11 @@ bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buf
     return waitForNotification(device);
 }
 
-bool hw_i2c_memWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size)
+bool hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
     if (bus_tasks_in_progress[device->bus] != NULL)
     {
+        // There is a task currently in progress!
         return false;
     }
 
@@ -117,10 +115,11 @@ bool hw_i2c_memWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_buf
     return waitForNotification(device);
 }
 
-bool hw_i2c_memRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size)
+bool hw_i2c_memoryRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size)
 {
     if (bus_tasks_in_progress[device->bus] != NULL)
     {
+        // There is a task currently in progress!
         return false;
     }
 
@@ -139,20 +138,20 @@ bool hw_i2c_memRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_buff
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    callbackHandler(handle);
+    transactionCompleteHandler(handle);
 }
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    callbackHandler(handle);
+    transactionCompleteHandler(handle);
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    callbackHandler(handle);
+    transactionCompleteHandler(handle);
 }
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    callbackHandler(handle);
+    transactionCompleteHandler(handle);
 }
