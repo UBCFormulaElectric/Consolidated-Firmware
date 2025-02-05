@@ -17,7 +17,6 @@ static inline bool handletoBus(I2C_HandleTypeDef *const handle, I2cBus *bus)
             return true;
         }
     }
-
     return false;
 }
 
@@ -36,7 +35,10 @@ static bool waitForNotification(const I2cDevice *device)
 static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
 {
     I2cBus bus;
-    assert(handletoBus(handle, &bus));
+    if (!handletoBus(handle, &bus))
+    {
+        return;
+    }
 
     // Notify the task that started the I2C transaction, if there is a transaction in progress.
     if (bus_tasks_in_progress[bus] != NULL)
