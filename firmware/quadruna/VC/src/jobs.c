@@ -94,6 +94,7 @@ void jobs_run1kHz_tick(void)
 {
     static bool init = false;
 
+    // Scheduler needs to have started to call I2C stuff!
     if (!init && !io_imu_init())
     {
         app_canAlerts_VC_Warning_ImuInitFailed_set(true);
