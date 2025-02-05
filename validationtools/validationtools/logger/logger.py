@@ -32,10 +32,11 @@ class Logger:
         with open(self.logFilePath, mode= 'a', newline= '') as csvFile:
                 writer = csv.writer(csvFile, delimiter= ',', quotechar= '|', quoting= csv.QUOTE_MINIMAL)
                 row = [self.getIndex(), self.getTimestamp(), self.getElapsedTime(), self.getTimeIncrement()] + row
-                
                 writer.writerow(row)
 
                 self.lastRow = dict(zip(self.columns, row))
+                print(self.lastRow.keys())
+                print(self.lastRow.values())
 
         self.lastRowTime = time.time()
                 

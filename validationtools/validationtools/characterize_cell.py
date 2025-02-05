@@ -3,15 +3,16 @@ from powerSupply._powerSupply import *
 from logger.logger import *
 
 # Accoding to datasheet, cell has a peak charging voltage of 4.2V and a cutoff voltage of 2.5V
-maxChargingVoltage= 4.2
-minDischargingVoltage = 2.5
+maxVoltage= 4.2
+minVoltage = 2.5
 totalCellCapacity = 2.800 # Ah From datasheet on google drive
 chargingRate      = 2.8   # 1C Rate in amps 
-restingTimeSeconds = 30 
-activeTimeSeconds = 10
+restingTimeSecondsMaxSoc = 180
+restingTimeSecondsMinSoc = 420
+activeTimeSeconds = 70
 # Second channel of the power supply allows for lower voltages, higher current
 powerSupplyChannel = 2
-initialSOC = 55
+initialSOC = 100
 
 
 def getCoulombs( current, timeStepSeconds)->float:
@@ -23,13 +24,13 @@ def getChargingRow(logger: Logger, powerSupply: PowerSupply):
     voltage = powerSupply.measure_voltage(powerSupplyChannel)
     current = powerSupply.measure_current(powerSupplyChannel)
     if lastRow is not None:
-        chargingCoulombs = getCoulombs(current, logger.getTimeIncrement()) + lastRow["Charging Coulombs [Ah]"] # Charging Coulombs Col
+        chargingCoulombs = round(getCoulombs(current, logger.getTimeIncrement()) + lastRow["Charging Coulombs [Ah]"], 7) # Charging Coulombs Col
         dischargingCoulombs = lastRow["Discharging Coulombs [Ah]"]
-        soc = lastRow["SOC"] + chargingCoulombs / totalCellCapacity * 100
+        soc = round(lastRow["Estimated SOC"] + (chargingCoulombs-lastRow["Charging Coulombs [Ah]"]) / totalCellCapacity * 100, 5)
     else:
         chargingCoulombs = 0
         dischargingCoulombs = None
-        soc = initialSOC + chargingCoulombs / totalCellCapacity * 100
+        soc = round(initialSOC + chargingCoulombs / totalCellCapacity * 100, 5)
 
     row = [voltage, current, chargingCoulombs, dischargingCoulombs, soc]
 
@@ -40,13 +41,13 @@ def getDischargingRow(logger: Logger, loadBank: LoadBank):
     voltage = loadBank.measure_voltage()
     current = loadBank.measure_current()
     if lastRow is not None:
-        dischargingCoulombs = getCoulombs(current, logger.getTimeIncrement()) + lastRow["Discharging Coulombs [Ah]"] # Charging Coulombs Col
+        dischargingCoulombs = round(getCoulombs(current, logger.getTimeIncrement()) + lastRow["Discharging Coulombs [Ah]"], 7) # Charging Coulombs Col
         chargingCoulombs = lastRow["Charging Coulombs [Ah]"]
-        soc = lastRow["SOC"] - dischargingCoulombs / totalCellCapacity * 100
+        soc = round(lastRow["Estimated SOC"] - (dischargingCoulombs-lastRow["Discharging Coulombs [Ah]"]) / totalCellCapacity * 100, 5)
     else:
         dischargingCoulombs = 0
         chargingCoulombs = 0
-        soc = initialSOC - dischargingCoulombs / totalCellCapacity * 100
+        soc = round(initialSOC - dischargingCoulombs / totalCellCapacity * 100, 5)
 
     row = [voltage, current, chargingCoulombs, dischargingCoulombs, soc]
 
@@ -57,7 +58,7 @@ def main()->None:
     loadBank = LoadBank()
     powerSupply = PowerSupply()
     soc = initialSOC #change to match either top of charge or bottom of charge
-    powerSupply.set_voltage(maxChargingVoltage, powerSupplyChannel)
+    powerSupply.set_voltage(maxVoltage, powerSupplyChannel)
 
     loggingCols = \
     [
@@ -65,23 +66,31 @@ def main()->None:
         "Current [A]",
         "Charging Coulombs [Ah]",
         "Discharging Coulombs [Ah]",
-        "SOC"
+        "Estimated SOC"
     ]
 
     # Replace with your own data path
     logger = Logger(r"C:\Users\lkevi\OneDrive\Desktop\Coding\UBCFE\Data", loggingCols)
 
-    # According to INR-18650-P28A datasheets, the cells capacity can range from standard of 2800mAh to 2600mAh
-    # (or 2700mAh minimum depending on the datasheet consulted). So a cutoff voltage is set to avoid overcharge and discharge
-    # For now we are on;y doing discharging
-    # chargeCharacterization(loadBank, powerSupply, logger)
-
-    dischargeCharacterization(loadBank, powerSupply, logger)
+    # For now we are only doing discharging
+    # chargeCharacterization(loadBank, powerSupply, logger, soc)
+    try:
+        dischargeCharacterization(loadBank, logger, soc)
+    except Exception as e:
+        print(e)
+        loadBank.disable_load()
+        powerSupply.disable_output(powerSupplyChannel)
+        raise
     
     
      
-def dischargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logger: Logger):
-    while(soc > 0 and loadBank.measure_voltage() > minDischargingVoltage):
+def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
+    startCellVoltage = loadBank.measure_voltage()     # Initial measurement is taken and set as the max cell voltage 
+                                                    # (cell voltage may be above 4.2 slightly or you can start in middle of charge)
+    restingTimeSeconds = restingTimeSecondsMaxSoc   # Resting time is set to resting time at top of charge
+    deltaRestTime = (restingTimeSecondsMinSoc - restingTimeSecondsMaxSoc) / (minVoltage - startCellVoltage) # Slope to linearly interpolate rest time (BoC need more rest time than ToC)
+    while(loadBank.measure_voltage() > minVoltage):
+        restingTimeSeconds = restingTimeSeconds + deltaRestTime * (loadBank.measure_voltage() - startCellVoltage)
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         loadBank.enable_load()
@@ -97,11 +106,17 @@ def dischargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logg
         soc = row[-1]
 
     loadBank.disable_load()
+    row = getDischargingRow(logger, loadBank)
+    logger.storeRow(row)
 
-def chargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logger: Logger):
-        # According to INR-18650-P28A datasheets, the cells capacity can range from standard of 2800mAh to 2600mAh
+def chargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logger: Logger, soc: float):
+    # According to INR-18650-P28A datasheets, the cells capacity can range from standard of 2800mAh to 2600mAh
     # (or 2700mAh minimum depending on the datasheet consulted). So a cutoff voltage is set to avoid overcharge and discharge
-    while(soc < 100 and loadBank.measure_voltage() < maxChargingVoltage):
+    startCellVoltage = powerSupply.measure_voltage(powerSupplyChannel)
+    restingTimeSeconds = restingTimeSecondsMinSoc
+    deltaRestTime = (restingTimeSecondsMaxSoc-restingTimeSecondsMinSoc)/ (startCellVoltage - maxVoltage)
+    while(powerSupply.measure_voltage(powerSupplyChannel) < maxVoltage):
+        restingTimeSeconds = restingTimeSeconds + deltaRestTime * (startCellVoltage - powerSupply.measure_voltage(powerSupplyChannel))
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
         powerSupply.set_current(chargingRate, powerSupplyChannel)
@@ -117,6 +132,8 @@ def chargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logger:
         soc = row[-1]
 
     powerSupply.disable_output(chargingRate)
+    row = getChargingRow(logger, powerSupply)
+    logger.storeRow(row)
 
 
 if __name__ == "__main__":
