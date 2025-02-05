@@ -1,17 +1,17 @@
 #pragma once
 #include <stdbool.h>
-#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.h"
 
 typedef struct
 {
-    AdcChannel front_left_suspension;
-    AdcChannel front_right_suspension;
+    const AdcChannel *front_left_suspension;
+    const AdcChannel *front_right_suspension;
 } SuspensionConfig;
 
 #else
+#include "app_utils.h"
 EMPTY_STRUCT(SuspensionConfig)
 #endif
 

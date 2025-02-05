@@ -32,7 +32,7 @@ extern "C"
 
     /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -42,7 +42,29 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef   hadc1;
+    extern DMA_HandleTypeDef   hdma_adc1;
+    extern CRC_HandleTypeDef   hcrc;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern SD_HandleTypeDef    hsd1;
+    extern SPI_HandleTypeDef   hspi2;
+    extern TIM_HandleTypeDef   htim1;
+    extern TIM_HandleTypeDef   htim3;
+    extern TIM_HandleTypeDef   htim15;
+    extern UART_HandleTypeDef  huart1;
 
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -64,7 +86,7 @@ extern "C"
 #define TIMx_FREQUENCY 512000000
 #define IWDG_RESET_FREQUENCY 5
 #define TASK1KHZ_STACK_SIZE 512
-#define TIM1_FREQUENCY 512000000
+#define TIM1_FREQUENCY 256000000
 #define TASK100HZ_STACK_SIZE 512
 #define TASK1HZ_STACK_SIZE 512
 #define IWDG_WINDOW_DISABLE_VALUE 4095

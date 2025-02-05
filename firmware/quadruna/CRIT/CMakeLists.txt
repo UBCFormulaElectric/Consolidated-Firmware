@@ -4,10 +4,17 @@ message("⚙️ Configuring CRIT")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
+file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
+
+file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
         "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
@@ -20,37 +27,32 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_switch.c"
         "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_rgbLed.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
-)
+file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
-list(REMOVE_ITEM HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
 IF ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary(
             "quadruna_CRIT_app"
             "${SRCS}"
@@ -61,7 +63,6 @@ IF ("${TARGET}" STREQUAL "binary")
 
     # Bootloader files.
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-    list(REMOVE_ITEM BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/sysmem.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     # Build bootloader.
     stm32f4_boot_binary(
@@ -102,24 +103,22 @@ IF ("${TARGET}" STREQUAL "binary")
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
             "quadruna_CRIT_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # JSONCAN
-    jsoncan_embedded_library(CRIT quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(CRIT quadruna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
             "quadruna_CRIT_app.elf"
             "quadruna_CRIT_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_CRIT_jsoncan" PRIVATE "quadruna_CRIT_stm32cube")
     target_link_libraries("quadruna_CRIT_app.elf" PRIVATE "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quadruna_CRIT_boot.elf" PRIVATE "quadruna_CRIT_commit_info")
 
@@ -148,6 +147,7 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_leds.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"

@@ -1,7 +1,7 @@
-#include "io_canMsgQueue.h"
+#include "io_canMsgQueue.hpp"
 
 #include <cassert>
-#include "io_log.h"
+#include "io_log.hpp"
 
 namespace io
 {

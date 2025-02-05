@@ -7,11 +7,11 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 list(APPEND EMBEDDED_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
@@ -30,6 +30,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
 )
 
 # Bootloader files.
@@ -63,16 +64,19 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_sd_ex.c"
             "stm32h7xx_hal_sd.c"
             "stm32h7xx_hal.c"
+            "stm32h7xx_hal_pcd.c"
+            "stm32h7xx_hal_pcd_ex.c"
+            "stm32h7xx_ll_usb.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
             "h7dev_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            TRUE
     )
 
     embedded_binary(

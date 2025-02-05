@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.h"
@@ -9,13 +8,14 @@
 
 typedef struct
 {
-    AdcChannel  rear_brake;
-    AdcChannel  front_brake;
-    const Gpio *brake_hardware_ocsc;
-    const Gpio *nbspd_brake_pressed;
+    const AdcChannel *rear_brake;
+    const AdcChannel *front_brake;
+    const Gpio       *brake_hardware_ocsc;
+    const Gpio       *nbspd_brake_pressed;
 } BrakeConfig;
 
 #else
+#include "app_utils.h"
 EMPTY_STRUCT(BrakeConfig)
 #endif
 

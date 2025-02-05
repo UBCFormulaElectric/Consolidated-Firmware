@@ -1,23 +1,10 @@
 #pragma once
 
 #include <stdint.h>
-#include "io_faultLatch.h"
-#include "io_thermistors.h"
-#include "app_heartbeatMonitor.h"
 #include "app_timer.h"
 
 typedef struct
 {
-    const FaultLatch *bms_ok_latch;
-    const FaultLatch *imd_ok_latch;
-    const FaultLatch *bspd_ok_latch;
-} GlobalsConfig;
-
-typedef struct
-{
-    // Config.
-    const GlobalsConfig *config;
-
     // State variables.
     uint32_t     cell_monitor_settle_count;
     uint32_t     num_precharge_failures;
@@ -37,4 +24,4 @@ extern Globals *const globals;
  * Initialize the globals module.
  * @param config Globals config.
  */
-void app_globals_init(const GlobalsConfig *config);
+void app_globals_init();

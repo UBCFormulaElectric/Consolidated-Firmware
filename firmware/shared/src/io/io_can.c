@@ -1,111 +1,114 @@
 #include "io_can.h"
-#include <string.h>
+#undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
-#include "cmsis_os.h"
+#include "io_time.h"
 
-// Sizes of CAN TX and RX queues.
-#define TX_QUEUE_SIZE 128
-#define RX_QUEUE_SIZE 128
-#define TX_QUEUE_BYTES sizeof(CanMsg) * TX_QUEUE_SIZE
-#define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
+// The following filter IDs/masks must be used with 16-bit Filter Scale
+// (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
+// registers are associated with mask registers specifying which bits of the
+// identifier are handled as "don't care" or as "must match". For each bit in
+// the mask registers, 0 = Don't Care and 1 = Must Match.
+//
+// Bit mapping of a 16-bit identifier register and mask register:
+// Standard CAN ID [15:5] RTR[4] IDE[3] Extended CAN ID [2:0]
+//
+// For example, with the following filter IDs/mask:
+// =======================================================
+// Identifier Register:    [000 0000 0000] [0] [0] [000]
+// Mask Register:          [111 1110 0000] [1] [1] [000]
+// =======================================================
+// The filter will accept incoming messages that match the following criteria:
+// [000 000x xxxx]    [0]    [0]         [xxx]
+// Standard CAN ID    RTR    IDE     Extended CAN ID
+#define INIT_MASKMODE_16BIT_FiRx(std_id, rtr, ide, ext_id)                                                             \
+    ((((uint32_t)(std_id) << 5U) & 0xFFE0) | (((uint32_t)(rtr) << 4U) & 0x0010) | (((uint32_t)(ide) << 3U) & 0x0008) | \
+     (((uint32_t)(ext_id) << 0U) & 0x0007))
 
-// Private globals.
-static const CanConfig *config;
+// Open CAN filter that accepts any CAN message as long as it uses Standard CAN
+// ID and is a data frame.
+#define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it.
+#define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
+#define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-static osMessageQueueId_t tx_queue_id;
-static osMessageQueueId_t rx_queue_id;
-static StaticQueue_t      tx_queue_control_block;
-static StaticQueue_t      rx_queue_control_block;
-static uint8_t            tx_queue_buf[TX_QUEUE_BYTES];
-static uint8_t            rx_queue_buf[RX_QUEUE_BYTES];
-
-static const osMessageQueueAttr_t tx_queue_attr = {
-    .name      = "CAN TX Queue",
-    .attr_bits = 0,
-    .cb_mem    = &tx_queue_control_block,
-    .cb_size   = sizeof(StaticQueue_t),
-    .mq_mem    = tx_queue_buf,
-    .mq_size   = TX_QUEUE_BYTES,
-};
-static const osMessageQueueAttr_t rx_queue_attr = {
-    .name      = "CAN RX Queue",
-    .attr_bits = 0,
-    .cb_mem    = &rx_queue_control_block,
-    .cb_size   = sizeof(StaticQueue_t),
-    .mq_mem    = rx_queue_buf,
-    .mq_size   = RX_QUEUE_BYTES,
-};
-
-void io_can_init(const CanConfig *can_config)
+void io_can_init(const CanHandle *can_handle)
 {
-    assert(can_config != NULL);
-    config = can_config;
+    // Configure a single filter bank that accepts any message.
+    CAN_FilterTypeDef filter;
+    filter.FilterMode           = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale          = CAN_FILTERSCALE_16BIT;
+    filter.FilterActivation     = CAN_FILTER_ENABLE;
+    filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    filter.FilterBank           = 0;
 
-    // Initialize CAN queues.
-    tx_queue_id = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsg), &tx_queue_attr);
-    rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(CanMsg), &rx_queue_attr);
+    // Configure and initialize hardware filter.
+    assert(HAL_CAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
+
+    // Configure interrupt mode for CAN peripheral.
+    assert(
+        HAL_CAN_ActivateNotification(
+            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
+        HAL_OK);
+
+    // Start the CAN peripheral.
+    assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
 }
 
-void io_can_pushTxMsgToQueue(const CanMsg *msg)
+void io_can_deinit(const CanHandle *can_handle)
 {
-    static uint32_t tx_overflow_count = 0;
-
-    const osStatus_t s = osMessageQueuePut(tx_queue_id, msg, 0, 0);
-    if (s != osOK)
-    {
-        // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
-        if (config->tx_overflow_callback)
-            config->tx_overflow_callback(++tx_overflow_count);
-    }
-    else
-    {
-        if (config->tx_overflow_clear_callback)
-            config->tx_overflow_clear_callback();
-    }
+    assert(HAL_CAN_Stop(can_handle->hcan) == HAL_OK);
+    assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-void io_can_popTxMsgFromQueue(CanMsg *msg)
+bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
-    // Pop a msg of the TX queue
-    const osStatus_t s = osMessageQueueGet(tx_queue_id, msg, NULL, osWaitForever);
-    assert(s == osOK);
+    CAN_TxHeaderTypeDef tx_header;
+
+    tx_header.DLC   = msg->dlc;
+    tx_header.StdId = msg->std_id;
+
+    // The standard 11-bit CAN identifier is more than sufficient, so we disable
+    // Extended CAN IDs by setting this field to zero.
+    tx_header.ExtId = CAN_ExtID_NULL;
+
+    // This field can be either Standard CAN or Extended CAN. See .ExtID to see
+    // why we don't want Extended CAN.
+    tx_header.IDE = CAN_ID_STD;
+
+    // This field can be either Data Frame or Remote Frame. For our
+    // purpose, we only ever transmit Data Frames.
+    tx_header.RTR = CAN_RTR_DATA;
+
+    // Enabling this gives us a tick-based timestamp which we do not need. Plus,
+    // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
+    tx_header.TransmitGlobalTime = DISABLE;
+
+    // Spin until a TX mailbox becomes available.
+    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
+        ;
+
+    // Indicates the mailbox used for transmission, not currently used.
+    uint32_t                mailbox       = 0;
+    const HAL_StatusTypeDef return_status = HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox);
+    return return_status == HAL_OK;
 }
 
-void io_can_transmitMsgFromQueue(CanMsg *msg)
+bool io_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
-    // Transmit the tx_msg onto the bus.
-    hw_can_transmit(msg);
-}
-
-void io_can_popRxMsgFromQueue(CanMsg *msg)
-{
-    // Pop a message off the RX queue.
-    const osStatus_t s = osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);
-    assert(s == osOK);
-}
-
-void io_can_pushRxMsgToQueue(CanMsg *rx_msg)
-{
-    static uint32_t rx_overflow_count = 0;
-
-    assert(config != NULL);
-    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
+    CAN_RxHeaderTypeDef header;
+    if (HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
     {
-        // Early return if we don't care about this msg via configured filter func.
-        return;
+        return false;
     }
 
-    // We defer reading the CAN RX message to another task by storing the
-    // message on the CAN RX queue.
-    if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)
-    {
-        // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
-        if (config->rx_overflow_callback != NULL)
-            config->rx_overflow_callback(++rx_overflow_count);
-    }
-    else
-    {
-        if (config->rx_overflow_clear_callback != NULL)
-            config->rx_overflow_clear_callback();
-    }
+    // Copy metadata from HAL's CAN message struct into our custom CAN
+    // message struct
+    msg->std_id    = header.StdId;
+    msg->dlc       = header.DLC;
+    msg->timestamp = io_time_getCurrentMs();
+
+    return true;
 }

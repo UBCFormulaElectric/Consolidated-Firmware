@@ -30,7 +30,7 @@ bool hw_i2c_receive(const I2cInterface *i2c, uint8_t *rx_buffer, uint16_t rx_buf
     return false;
 }
 
-bool hw_i2c_memRead(const I2cInterface *i2c, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size)
+bool hw_i2c_memRead(const I2cInterface *i2c, const uint8_t mem_addr, uint8_t *rx_buffer, const uint16_t rx_buffer_size)
 {
     if (hw_i2c_isTargetReady(i2c))
     {
@@ -41,12 +41,16 @@ bool hw_i2c_memRead(const I2cInterface *i2c, uint16_t mem_addr, uint8_t *rx_buff
     return false;
 }
 
-bool hw_i2c_memWrite(const I2cInterface *i2c, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size)
+bool hw_i2c_memWrite(
+    const I2cInterface *i2c,
+    const uint8_t       mem_addr,
+    const uint8_t      *tx_buffer,
+    const uint16_t      tx_buffer_size)
 {
     if (hw_i2c_isTargetReady(i2c))
     {
         return HAL_I2C_Mem_Write(
-                   i2c->i2c_handle, (i2c->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT, tx_buffer,
+                   i2c->i2c_handle, i2c->target_address << 1, mem_addr, I2C_MEMADD_SIZE_8BIT, (uint8_t *)tx_buffer,
                    tx_buffer_size, i2c->timeout_ms) == HAL_OK;
     }
     return false;

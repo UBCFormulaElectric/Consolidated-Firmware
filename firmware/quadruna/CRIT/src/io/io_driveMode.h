@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdbool.h>
-#include "app_utils.h"
 #include <stdint.h>
 
 #ifdef TARGET_EMBEDDED
@@ -15,6 +13,7 @@ typedef struct
     const Gpio *const n_drive_mode_3_pin;
 } DriveMode;
 #else
+#include "app_utils.h"
 EMPTY_STRUCT(DriveMode);
 #endif
 

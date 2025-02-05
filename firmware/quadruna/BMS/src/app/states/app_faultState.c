@@ -10,7 +10,7 @@ static void faultStateRunOnEntry(void)
     app_canAlerts_BMS_Fault_StateMachine_set(true);
 
     io_airs_openPositive();
-    io_faultLatch_setCurrentStatus(globals->config->bms_ok_latch, false);
+    io_faultLatch_setCurrentStatus(&bms_ok_latch, false);
 }
 
 static void faultStateRunOnTick1Hz(void)

@@ -1,5 +1,5 @@
-#include "hw_can.h"
-#include "io_log.h"
+#include "hw_can.hpp"
+#include "io_log.hpp"
 #include <cassert>
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale

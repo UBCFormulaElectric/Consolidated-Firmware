@@ -6,7 +6,7 @@
 #include "app_canTx.h"
 #include "app_utils.h"
 
-#define HIGH_RES_MAX_CURRENT_READING (75.0f)
+#define HIGH_RES_MAX_CURRENT_READING (50.0f)
 
 // Taken from our cell's datasheet on Confluence:
 // https://ubcformulaelectric.atlassian.net/wiki/pages/viewpageattachments.action?pageId=55214081&preview=%2F55214081%2F55214090%2FSLPB9742126-3.7V-5900mAh-10C-V2018.pdf

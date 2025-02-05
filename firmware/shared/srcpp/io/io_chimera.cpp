@@ -1,4 +1,4 @@
-#include "io_chimera.h"
+#include "io_chimera.hpp"
 
 #include <cstdint>
 #include <cassert>
@@ -10,7 +10,7 @@
 
 #include "cmsis_os.h"
 
-#include "hw_adc.h"
+#include "hw_adc.hpp"
 
 extern const hw::Gpio *id_to_gpio(uint32_t net_name);
 extern const hw::Adc  *id_to_adc(uint32_t net_name);

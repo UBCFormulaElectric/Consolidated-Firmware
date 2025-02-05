@@ -7,11 +7,11 @@ jobs:
     name: Check C Formatting
     runs-on: ubuntu-22.04
 
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+    #    container:
+    #      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Format code
-        run: python3 scripts/utilities/fix_formatting.py
+        run: python3 scripts/utilities/fix_formatting.py # this should just use system dependencies
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
@@ -31,7 +31,6 @@ jobs:
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
-    needs: [ clang-format ]
     strategy:
       fail-fast: false
       matrix:
@@ -50,12 +49,25 @@ jobs:
             ioc_dir: firmware/dev/f4dev/src/cubemx
           - board: h7dev
             ioc_dir: firmware/dev/h7dev/src/cubemx
+          #          - board: BMS
+          #            ioc_dir: firmware/quintuna/BMS/src/cubemx
+          - board: CRIT
+            ioc_dir: firmware/quintuna/CRIT/src/cubemx
+          #          - board: FSM
+          #            ioc_dir: firmware/quintuna/FSM/src/cubemx
+          - board: RSM
+            ioc_dir: firmware/quintuna/RSM/src/cubemx
+          - board: VC
+            ioc_dir: firmware/quintuna/VC/src/cubemx
+          - board: DAM
+            ioc_dir: firmware/quintuna/DAM/src/cubemx
 
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+    # both packages shouldn't need to use python dependences that we need...
+    #    container:
+    #      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -66,8 +78,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate Log4J file
-        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
+      # should not need this
+      #      - name: Generate Log4J file
+      #        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
 
       # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we
       # we also generate a checksum from the .ioc file when code is generated during builds.
@@ -83,26 +96,32 @@ jobs:
         run: git --no-pager diff --color --exit-code
 
   build-firmware:
-    needs: [ clang-format ]
+    needs: [ clang-format, codegen ]
     name: Build Firmware Binaries
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - quadruna_VC
-          - quadruna_BMS
-          - quadruna_FSM
-          - quadruna_RSM
-          - quadruna_CRIT
-          - f4dev
-          - h7dev
+        include:
+          - board: quadruna_VC
+          - board: quadruna_BMS
+          - board: quadruna_FSM
+          - board: quadruna_RSM
+          - board: quadruna_CRIT
+          - board: f4dev
+          - board: h7dev
+          #          - board: quintuna_BMS
+          - board: quintuna_CRIT
+          #          - board: quintuna_FSM
+          - board: quintuna_RSM
+          - board: quintuna_VC
+          - board: quintuna_DAM
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.docker_token }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.docker_token }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -132,10 +151,10 @@ jobs:
             car: quadruna
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
@@ -166,10 +185,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
@@ -200,10 +219,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
@@ -233,10 +252,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ubcformulaelectric/environment:no_cube
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_fw_test
