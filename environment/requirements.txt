@@ -29,3 +29,8 @@ asammdf
 
 # Utils
 lazydocs
+pydocstyle
+
+# Chimera
+pyusb
+libusb-package
