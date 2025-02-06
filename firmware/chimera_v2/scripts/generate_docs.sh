@@ -7,5 +7,9 @@ CACHED_WORKING_DIR=$(pwd)
 CHIMERA_V2_DIR="$(dirname "$0")/.."
 
 cd $CHIMERA_V2_DIR
-    lazydocs --validate .
+    BRANCH="${1:-"master"}"
+    GITHUB_SRC_URL="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/$BRANCH"
+    echo "Generating Chimera V2 docs using $BRANCH branch for base url"
+    lazydocs --validate --src-base-url="$GITHUB_SRC_URL" .
+    
 cd $CACHED_WORKING_DIR
