@@ -1,3 +1,5 @@
+import types
+
 import usb
 
 import proto_autogen.f4dev_pb2
@@ -75,8 +77,11 @@ class UsbDevice:
 
 class Board:
     # Abstraction around rpc-communicating boards.
-    def __init__(self, usb_device: UsbDevice):
+    def __init__(self, usb_device: UsbDevice, gpio_net_name: str, adc_net_name: str, board_module: types.ModuleType):
         self._usb_device = usb_device
+        self.gpio_net_name = gpio_net_name
+        self.adc_net_name = adc_net_name
+        self.board_module = board_module
 
     # CHIMERA Packet Format:
     # [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
@@ -113,7 +118,7 @@ class Board:
     def gpio_read(self, net_name: str) -> int:
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
-        net_name = self.board_lib.GpioNetName.Value(net_name)
+        net_name = self.board_module.GpioNetName.Value(net_name)
         setattr(msg.gpio_read.net_name, self.gpio_net_name, net_name)
         self._write(msg)
         
@@ -126,7 +131,7 @@ class Board:
     def gpio_write(self, net_name: str, value: bool) -> None:
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
-        net_name = self.board_lib.GpioNetName.Value(net_name)
+        net_name = self.board_module.GpioNetName.Value(net_name)
         setattr(msg.gpio_write.net_name, self.gpio_net_name, net_name)
 
         # Add one for enum scale offset.
@@ -140,7 +145,7 @@ class Board:
     def adc_read(self, net_name: str) -> float:
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
-        net_name = self.board_lib.AdcNetName.Value(net_name)
+        net_name = self.board_module.AdcNetName.Value(net_name)
         setattr(msg.adc.net_name, self.adc_net_name, net_name)
         self._write(msg)
 
@@ -149,8 +154,10 @@ class Board:
         return response.adc.value
     
 class F4Dev(Board):
-    def __init__(self, usb_device: UsbDevice) -> None:
-        super().__init__(usb_device)
-        self.board_lib = proto_autogen.f4dev_pb2
-        self.gpio_net_name = "f4dev_net_name"
-        self.adc_net_name = "f4dev_net_name"
+    def __init__(self) -> None:
+        super().__init__(
+            usb_device=UsbDevice(idVendor=0x0483, idProduct=0x5740),
+            gpio_net_name="f4dev_net_name",
+            adc_net_name="f4dev_net_name",
+            board_module=proto_autogen.f4dev_pb2
+        )
