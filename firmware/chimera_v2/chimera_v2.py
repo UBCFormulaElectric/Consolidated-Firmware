@@ -2,9 +2,8 @@
 
 import types
 
-import usb
-
 # Note, we must use libusb_package for Windows support when finding devices.
+import usb
 import libusb_package
 
 import proto_autogen.f4dev_pb2
@@ -12,6 +11,9 @@ import proto_autogen.shared_pb2
 
 # Can be any non-zero byte.
 _START_RPC_BYTE = 0x01
+
+# CHIMERA Packet Format:
+# [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
 
 def log_usb_devices():
     """Debug utility for printing all available usb devices."""
@@ -25,9 +27,14 @@ def log_usb_devices():
         )
 
 class _UsbDevice:
-    # Abstraction around a USB CDC (communcations device class) device.
-    # Vendor and product ID can be found in STM32 CubeMX.
+    """Abstraction around a USB CDC (communcations device class) device."""
+
     def __init__(self, idVendor: int, idProduct: int):
+        """Create a USB device.
+
+        Vendor and product ID can be found in STM32 CubeMX.
+        """
+
         self._device = libusb_package.find(idVendor=idVendor, idProduct=idProduct)
 
         # If the device was not found.
@@ -57,22 +64,26 @@ class _UsbDevice:
             usb.util.claim_interface(self._device, self._interface.bInterfaceNumber)
 
     def __exit__(self):
-        # Release the interface explictly.
+        """Release the interface explictly."""
         usb.util.release_interface(self._device, self._interface.bInterfaceNumber)
 
-    # Write bytes over usb.
     def write(self, buffer: bytes):
+        """Write bytes over usb."""
         self._device.write(self._endpoint_write.bEndpointAddress, buffer)
 
-    # Read length bytes over usb.
-    # Will block until length bytes are received.
     def read(self, length: int) -> bytes:
+        """Read length bytes over usb.
+
+        Will block until length bytes are received.
+        """
 
         # Read bytes until there are a sufficent amount.
         while len(self._read_buf) < length:
             self._read_buf += bytes(self._device.read(
                 self._endpoint_read.bEndpointAddress, 
                 self._read_chunk_size,
+
+                # Set a long timeout.
                 100000000
             ))
 
@@ -82,18 +93,19 @@ class _UsbDevice:
         return res
 
 class _Board:
-    # Abstraction around rpc-communicating boards.
+    """Abstraction around rpc-over-usb-communicating boards."""
+
     def __init__(self, usb_device: _UsbDevice, gpio_net_name: str, adc_net_name: str, board_module: types.ModuleType):
+        """Create a new board."""
+        
         self._usb_device = usb_device
         self.gpio_net_name = gpio_net_name
         self.adc_net_name = adc_net_name
         self.board_module = board_module
 
-    # CHIMERA Packet Format:
-    # [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
-
-    # Write an RPC message over the provided usb device.
     def _write(self, msg: proto_autogen.shared_pb2.DebugMessage):
+        """Write an RPC message over the provided usb device."""
+
         # Get data.
         data = msg.SerializeToString()
         data_size = len(data)
@@ -105,8 +117,9 @@ class _Board:
         packet = bytes([_START_RPC_BYTE, *packet_size_bytes, *data])
         self._usb_device.write(packet)
     
-    # Read and return an RPC message over the provided usb device.
     def _read(self) -> proto_autogen.shared_pb2.DebugMessage:
+        """Read and return an RPC message over the provided usb device."""
+
         # Consume bytes until a non-zero start byte is found.
         start_bytes = self._usb_device.read(1)
         while start_bytes[0] == 0x00:
