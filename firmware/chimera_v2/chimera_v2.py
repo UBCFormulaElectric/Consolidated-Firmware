@@ -2,7 +2,6 @@ import usb
 
 import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
-import time
 
 # Can be any non-zero byte.
 START_RPC_BYTE = 0x01
