@@ -26,3 +26,6 @@ influxdb-client
 tzlocal
 python-dotenv
 asammdf
+
+# Utils
+lazydocs

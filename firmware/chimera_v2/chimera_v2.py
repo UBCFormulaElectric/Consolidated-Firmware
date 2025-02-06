@@ -1,3 +1,7 @@
+"""
+Debug UBC Formula Electric boards with Python over USB.
+"""
+
 import types
 
 import usb
@@ -9,10 +13,12 @@ import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
 
 # Can be any non-zero byte.
-START_RPC_BYTE = 0x01
+_START_RPC_BYTE = 0x01
 
-# Debug util for listing avaiable usb devices
 def log_usb_devices():
+    """
+    Debug utility for printing all available usb devices.
+    """
     devices = libusb_package.find(find_all=True)
     for device in devices:
         print(
@@ -22,7 +28,7 @@ def log_usb_devices():
             f"Vendor ID: {device.idVendor:#x}"
         )
 
-class UsbDevice:
+class _UsbDevice:
     # Abstraction around a USB CDC (communcations device class) device.
     # Vendor and product ID can be found in STM32 CubeMX.
     def __init__(self, idVendor: int, idProduct: int):
@@ -79,9 +85,9 @@ class UsbDevice:
         self._read_buf = self._read_buf[length:]
         return res
 
-class Board:
+class _Board:
     # Abstraction around rpc-communicating boards.
-    def __init__(self, usb_device: UsbDevice, gpio_net_name: str, adc_net_name: str, board_module: types.ModuleType):
+    def __init__(self, usb_device: _UsbDevice, gpio_net_name: str, adc_net_name: str, board_module: types.ModuleType):
         self._usb_device = usb_device
         self.gpio_net_name = gpio_net_name
         self.adc_net_name = adc_net_name
@@ -100,7 +106,7 @@ class Board:
         packet_size_bytes = [data_size & 0xff, data_size >> 8]
 
         # Format and send packet.
-        packet = bytes([START_RPC_BYTE, *packet_size_bytes, *data])
+        packet = bytes([_START_RPC_BYTE, *packet_size_bytes, *data])
         self._usb_device.write(packet)
     
     # Read and return an RPC message over the provided usb device.
@@ -119,7 +125,11 @@ class Board:
         msg.ParseFromString(self._usb_device.read(data_size))
         return msg
     
-    def gpio_read(self, net_name: str) -> int:
+    def gpio_read(self, net_name: str) -> bool:
+        """
+        Read the value of a GPIO pin given the net name of the pin, returns true if high.
+        """
+
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
         net_name = self.board_module.GpioNetName.Value(net_name)
@@ -127,12 +137,16 @@ class Board:
         self._write(msg)
         
         # Wait for response.
-        response = self.read()
+        response = self._read()
 
         # Subtract one for enum scale offset.
-        return response.gpio_read.value - 1
+        return response.gpio_read.value == proto_autogen.shared_pb2.GpioValue.HIGH
 
     def gpio_write(self, net_name: str, value: bool) -> None:
+        """
+        Write a value to the gpio pin indicated by the provided net name, true for high.
+        """
+                
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
         net_name = self.board_module.GpioNetName.Value(net_name)
@@ -147,6 +161,10 @@ class Board:
         assert(response.SerializeToString() == msg.SerializeToString())
 
     def adc_read(self, net_name: str) -> float:
+        """
+        Read the voltage at an adc pin specified by the net name.
+        """
+
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
         net_name = self.board_module.AdcNetName.Value(net_name)
@@ -157,10 +175,14 @@ class Board:
         response = self._read()
         return response.adc.value
     
-class F4Dev(Board):
+class F4Dev(_Board):
+    """
+    Chimera access point to the F4Dev.
+    """
+
     def __init__(self) -> None:
         super().__init__(
-            usb_device=UsbDevice(idVendor=0x0483, idProduct=0x5740),
+            usb_device=_UsbDevice(idVendor=0x0483, idProduct=0x5740),
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2
