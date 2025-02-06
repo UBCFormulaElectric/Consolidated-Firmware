@@ -16,7 +16,12 @@ TIMEOUT_ONE_DAY = 86400000
 def log_usb_devices():
     devices = usb.core.find(find_all=True)
     for device in devices:
-        print(f"Manufacturer: {device.manufacturer}, Product: {device.product}")
+        print(
+            f"Product: {device.product},",
+            f"Manufacturer: {device.manufacturer},",
+            f"Product ID: {device.idProduct:#x},",
+            f"Vendor ID: {device.idVendor:#x}"
+        )
 
 class UsbDevice:
     # Abstraction around a USB CDC (communcations device class) device.
