@@ -7,5 +7,5 @@ CACHED_WORKING_DIR=$(pwd)
 CHIMERA_V2_DIR="$(dirname "$0")/.."
 
 cd $CHIMERA_V2_DIR
-    lazydocs .
+    lazydocs --validate .
 cd $CACHED_WORKING_DIR

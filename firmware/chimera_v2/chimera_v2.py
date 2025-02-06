@@ -1,6 +1,4 @@
-"""
-Debug UBC Formula Electric boards with Python over USB.
-"""
+"""Debug UBC Formula Electric boards with Python over USB."""
 
 import types
 
@@ -16,9 +14,7 @@ import proto_autogen.shared_pb2
 _START_RPC_BYTE = 0x01
 
 def log_usb_devices():
-    """
-    Debug utility for printing all available usb devices.
-    """
+    """Debug utility for printing all available usb devices."""
     devices = libusb_package.find(find_all=True)
     for device in devices:
         print(
@@ -126,9 +122,7 @@ class _Board:
         return msg
     
     def gpio_read(self, net_name: str) -> bool:
-        """
-        Read the value of a GPIO pin given the net name of the pin, returns true if high.
-        """
+        """Read the value of a GPIO pin given the net name of the pin, returns true if high."""
 
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
@@ -143,9 +137,7 @@ class _Board:
         return response.gpio_read.value == proto_autogen.shared_pb2.GpioValue.HIGH
 
     def gpio_write(self, net_name: str, value: bool) -> None:
-        """
-        Write a value to the gpio pin indicated by the provided net name, true for high.
-        """
+        """Write a value to the gpio pin indicated by the provided net name, true for high."""
                 
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
@@ -161,9 +153,7 @@ class _Board:
         assert(response.SerializeToString() == msg.SerializeToString())
 
     def adc_read(self, net_name: str) -> float:
-        """
-        Read the voltage at an adc pin specified by the net name.
-        """
+        """Read the voltage at an adc pin specified by the net name."""
 
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
@@ -176,10 +166,7 @@ class _Board:
         return response.adc.value
     
 class F4Dev(_Board):
-    """
-    Chimera access point to the F4Dev.
-    """
-
+    """Chimera access point for the F4Dev."""
     def __init__(self) -> None:
         super().__init__(
             usb_device=_UsbDevice(idVendor=0x0483, idProduct=0x5740),
