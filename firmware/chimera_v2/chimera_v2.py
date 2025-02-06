@@ -2,19 +2,18 @@ import types
 
 import usb
 
+# Note, we must use libusb_package for Windows support when finding devices.
+import libusb_package
+
 import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
 
 # Can be any non-zero byte.
 START_RPC_BYTE = 0x01
 
-# 24 hours in ms.
-# Useful for setting practically infinite timeouts.
-TIMEOUT_ONE_DAY = 86400000
-
 # Debug util for listing avaiable usb devices
 def log_usb_devices():
-    devices = usb.core.find(find_all=True)
+    devices = libusb_package.find(find_all=True)
     for device in devices:
         print(
             f"Product: {device.product},",
@@ -27,7 +26,7 @@ class UsbDevice:
     # Abstraction around a USB CDC (communcations device class) device.
     # Vendor and product ID can be found in STM32 CubeMX.
     def __init__(self, idVendor: int, idProduct: int):
-        self._device = usb.core.find(idVendor=idVendor, idProduct=idProduct)
+        self._device = libusb_package.find(idVendor=idVendor, idProduct=idProduct)
 
         # If the device was not found.
         if self._device == None:
