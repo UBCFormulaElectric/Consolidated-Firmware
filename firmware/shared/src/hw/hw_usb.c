@@ -60,13 +60,13 @@ bool hw_usb_transmit(uint8_t *msg, uint16_t len)
 
 bool hw_usb_receive(uint8_t *dest, uint32_t len)
 {
-    // loop through every index in the buffer
+    // Loop through every index in the buffer.
     for (uint32_t i = 0; i < len; i += 1)
     {
-        // dump the byte
+        // Dump the byte.
         osStatus_t status = osMessageQueueGet(rx_queue_id, &dest[i], NULL, osWaitForever);
 
-        // check success
+        // Check success.
         if (status != osOK)
         {
             LOG_WARN("usb queue pop returned non-ok status %d", status);
@@ -87,21 +87,20 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len)
 
     for (uint32_t i = 0; i < len; i += 1)
     {
-        // write one byte at a time
-        osStatus_t status = osMessageQueuePut(rx_queue_id, &packet[i], 0, 0);
+        osStatus_t status = osMessageQueuePut(rx_queue_id, &packet[i], 0, osWaitForever);
     }
 }
 
 void hw_usb_transmit_example()
 {
-    // init usb peripheral
+    // Init usb peripheral.
     hw_usb_init();
     osDelay(1000);
 
     int msg_count = 0;
     for (;;)
     {
-        // send hello (without null terminator)
+        // Send hello (without null terminator).
         char     msg[]  = "hello";
         uint8_t *packet = (uint8_t *)msg;
         hw_usb_transmit(packet, 5);
