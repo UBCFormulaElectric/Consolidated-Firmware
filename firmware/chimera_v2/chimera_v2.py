@@ -53,17 +53,6 @@ class _UsbDevice:
         # this buffer stores the data for the next call.
         self._read_buf = b''
 
-        # If the kernel is attached to another driver, detach it.
-        if self._device.is_kernel_driver_active(self._interface.bInterfaceNumber):
-            self._device.detach_kernel_driver(self._interface.bInterfaceNumber)
-            
-            # Claim the interface explictly.
-            usb.util.claim_interface(self._device, self._interface.bInterfaceNumber)
-
-    def __exit__(self):
-        """Release the interface explictly."""
-        usb.util.release_interface(self._device, self._interface.bInterfaceNumber)
-
     def write(self, buffer: bytes):
         """Write bytes over usb."""
         self._device.write(self._endpoint_write.bEndpointAddress, buffer)
