@@ -5,4 +5,4 @@ dependencies = ["grpcio-tools", "protoletariat", "pyusb", "libusb-package"]
 
 [tool.setuptools]
 py-modules=["chimera_v2"]
-packages=["proto", "proto_autogen"]
+packages=["proto_autogen"]
