@@ -12,7 +12,8 @@ void hw_usb_init(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
 bool hw_usb_checkConnection();
 
 // transmits usb message of arbritrary length
-void hw_usb_transmit(uint8_t *msg, uint16_t len);
+// returns false on failure, otherwise true
+bool hw_usb_transmit(uint8_t *msg, uint16_t len);
 
 // receive a buffer of bytes over usb
 // blocks until len bytes are received

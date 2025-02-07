@@ -32,11 +32,17 @@ bool hw_usb_checkConnection()
     return hUsbDeviceFS.dev_state != USBD_STATE_SUSPENDED;
 }
 
-void hw_usb_transmit(uint8_t *msg, uint16_t len)
+bool hw_usb_transmit(uint8_t *msg, uint16_t len)
 {
     uint8_t handle_status = usb_transmit_handle(msg, len);
+
     if (handle_status != 0)
+    {
         LOG_WARN("Chimera: USB handle returned %d status code instead of 0", handle_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool hw_usb_receive(uint8_t *dest, uint32_t len)

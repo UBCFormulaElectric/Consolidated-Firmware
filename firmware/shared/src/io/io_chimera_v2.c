@@ -119,7 +119,8 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
         LOG_PRINTF("%02x ", response_packet[i]);
     LOG_PRINTF("\n");
 
-    hw_usb_transmit(response_packet, response_packet_size);
+    if (!hw_usb_transmit(response_packet, response_packet_size))
+        LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
 void io_chimera_v2_main(
