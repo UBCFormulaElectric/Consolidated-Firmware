@@ -104,7 +104,7 @@ void hw_usb_receive_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Le
     {
         uint8_t result[] = { 0, 0 };
         hw_usb_receive(result, 1);
-        _LOG_PRINTF("%s", (char *)result);
+        LOG_PRINTF("%s", (char *)result);
         osDelay(100);
     }
 }

@@ -112,8 +112,8 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
     LOG_INFO("Chimera: Sending response packet of size %d", response_packet_size);
     LOG_INFO("Chimera: Response packet:");
     for (int i = 0; i < response_packet_size; i += 1)
-        _LOG_PRINTF("%02x ", response_packet[i]);
-    _LOG_PRINTF("\n");
+        LOG_PRINTF("%02x ", response_packet[i]);
+    LOG_PRINTF("\n");
 
     hw_usb_transmit(response_packet, response_packet_size);
 }
@@ -164,8 +164,8 @@ void io_chimera_v2_main(
 
         LOG_INFO("Chimera: Received content bytes (without length header):");
         for (int i = 0; i < length; i += 1)
-            _LOG_PRINTF("%02x ", content[i]);
-        _LOG_PRINTF("\n");
+            LOG_PRINTF("%02x ", content[i]);
+        LOG_PRINTF("\n");
 
         io_chimera_v2_handleContent(content, length, net_name_gpio, net_name_adc);
 
