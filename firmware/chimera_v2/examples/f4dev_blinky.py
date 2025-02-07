@@ -2,7 +2,7 @@ import time
 import chimera_v2
 
 # Config.
-RATE_HZ = 1000.0
+RATE_HZ = 10.0
 DUTY_CYCLE = 0.5
 LED_NET_NAME = "GPIO_6"
 

@@ -9,11 +9,8 @@ import libusb_package
 import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
 
-# Can be any non-zero byte.
-_START_RPC_BYTE = 0x01
-
 # CHIMERA Packet Format:
-# [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
+# [ length low byte  | length high byte | content bytes    | ... ]
 
 def log_usb_devices():
     """Debug utility for printing all available usb devices."""
@@ -114,16 +111,11 @@ class _Board:
         packet_size_bytes = [data_size & 0xff, data_size >> 8]
 
         # Format and send packet.
-        packet = bytes([_START_RPC_BYTE, *packet_size_bytes, *data])
+        packet = bytes([*packet_size_bytes, *data])
         self._usb_device.write(packet)
     
     def _read(self) -> proto_autogen.shared_pb2.DebugMessage:
         """Read and return an RPC message over the provided usb device."""
-
-        # Consume bytes until a non-zero start byte is found.
-        start_bytes = self._usb_device.read(1)
-        while start_bytes[0] == 0x00:
-            start_bytes = self._usb_device.read(1)
 
         # Extract data size.
         data_size_bytes = self._usb_device.read(2)

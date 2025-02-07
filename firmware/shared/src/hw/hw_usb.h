@@ -14,9 +14,11 @@ bool hw_usb_checkConnection();
 // transmits usb message of arbritrary length
 void hw_usb_transmit(uint8_t *msg, uint16_t len);
 
-// receive a single byte over usb
-// returns 0 if no byte is received within 100 ms
-uint8_t hw_usb_recieve();
+// receive a buffer of bytes over usb
+// blocks until len bytes are received
+// dumps into the dest buffer
+// returns -1 on failure
+int hw_usb_receive(uint8_t *dest, uint32_t len);
 
 // pushes a message onto the internal usb queue,
 // for use in CDC_Receive_FS/CDC_Receive_HS

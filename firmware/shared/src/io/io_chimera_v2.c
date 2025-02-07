@@ -101,13 +101,12 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
 
     // Construct respopnse packet.
     // CHIMERA Packet Format:
-    // [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
-    uint16_t response_packet_size = 3 + response_data_size;
+    // [ length low byte  | length high byte | content bytes    | ... ]
+    uint16_t response_packet_size = 2 + response_data_size;
     uint8_t  response_packet[response_packet_size];
-    response_packet[0] = 0x01;
-    response_packet[1] = (uint8_t)(response_data_size & 0xff);
-    response_packet[2] = (uint8_t)(response_data_size >> 8);
-    memcpy(&response_packet[3], out_buffer, response_data_size);
+    response_packet[0] = (uint8_t)(response_data_size & 0xff);
+    response_packet[1] = (uint8_t)(response_data_size >> 8);
+    memcpy(&response_packet[2], out_buffer, response_data_size);
 
     // Transmit.
     LOG_INFO("Chimera: Sending response packet of size %d", response_packet_size);
@@ -135,42 +134,41 @@ void io_chimera_v2_main(
 
     // If usb is not connected, continue.
     if (!hw_usb_checkConnection())
-        return;
-
-    int requests_processed = 0;
-
-    // dump the queue.
-    for (;;)
     {
-        // CHIMERA Packet Format:
-        // [ Non-zero Byte    | length low byte  | length high byte | content bytes    | ... ]
-        uint8_t test_byte = hw_usb_recieve();
-        if (test_byte == 0x00)
-        {
-            LOG_INFO("Chimera: Waiting for message...");
-            continue;
-        }
-        LOG_INFO("Chimera: Received start byte %02x", test_byte);
+        LOG_INFO("Chimera: Skipping Chimera - USB not plugged in");
+        return;
+    }
 
-        // Length-delimination sent with little-endian.
-        uint16_t low    = (uint16_t)hw_usb_recieve();
-        uint16_t high   = (uint16_t)hw_usb_recieve();
+    for (uint32_t requests_processed = 1; true; requests_processed += 1)
+    {
+        LOG_INFO("Chimera: Waiting for message...");
+
+        // CHIMERA Packet Format:
+        // [ length low byte  | length high byte | content bytes    | ... ]
+
+        // Get length bytes.
+        uint8_t length_bytes[2] = { 0, 0 };
+        if (hw_usb_receive(length_bytes, 2) == -1)
+            LOG_ERROR("Chimera: Error receiving length bytes");
+
+        // Compute length (little endian).
+        uint16_t low    = (uint16_t)length_bytes[0];
+        uint16_t high   = (uint16_t)length_bytes[1];
         uint16_t length = (uint16_t)(low + (high << 8));
         LOG_INFO("Chimera: RPC packet received of length %d", length);
 
-        // Populate content.
+        // Receive content.
         uint8_t content[length];
-        for (int i = 0; i < length; i += 1)
-            content[i] = hw_usb_recieve();
+        if (hw_usb_receive(content, length) == -1)
+            LOG_ERROR("Chimera: Error receiving message conent.");
 
-        LOG_INFO("Chimera: RPC content bytes (without Chimera header):");
+        LOG_INFO("Chimera: Received content bytes (without length header):");
         for (int i = 0; i < length; i += 1)
             _LOG_PRINTF("%02x ", content[i]);
         _LOG_PRINTF("\n");
 
         io_chimera_v2_handleContent(content, length, net_name_gpio, net_name_adc);
 
-        requests_processed += 1;
         LOG_INFO("Chimera: Processed %d requests", requests_processed);
     }
 }

@@ -39,18 +39,22 @@ void hw_usb_transmit(uint8_t *msg, uint16_t len)
         LOG_WARN("Chimera: USB handle returned %d status code instead of 0", handle_status);
 }
 
-uint8_t hw_usb_recieve()
+int hw_usb_receive(uint8_t *dest, uint32_t len)
 {
-    // receive pops off the byte queue and returns
-    uint8_t    res    = 0;
-    osStatus_t status = osMessageQueueGet(rx_queue_id, &res, NULL, 100);
+    // loop through every index in the buffer
+    for (uint32_t i = 0; i < len; i += 1)
+    {
+        // dump the byte
+        osStatus_t status = osMessageQueueGet(rx_queue_id, &dest[i], NULL, osWaitForever);
 
-    if (status == osOK)
-        return res;
-    else if (status == osErrorTimeout)
-        return 0;
+        // check success
+        if (status != osOK)
+        {
+            LOG_WARN("usb queue pop returned non-ok status %d", status);
+            return -1;
+        }
+    }
 
-    LOG_WARN("usb queue pop returned non-ok status %d", status);
     return 0;
 }
 
@@ -92,14 +96,15 @@ void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t L
 
 void hw_usb_receive_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
 {
-    // init usb peripheral
+    // Init usb peripheral.
     hw_usb_init(usb_transmit_handle);
 
-    // dump the queue
+    // Dump the queue char by char.
     for (;;)
     {
-        uint8_t result = hw_usb_recieve();
-        _LOG_PRINTF("%c", (char)result);
+        uint8_t result[] = { 0, 0 };
+        hw_usb_receive(result, 1);
+        _LOG_PRINTF("%s", (char *)result);
         osDelay(100);
     }
 }
