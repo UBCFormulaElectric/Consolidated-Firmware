@@ -551,7 +551,7 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    io_chimera_v2_main(id_to_gpio, NULL, CDC_Transmit_FS, 0, 0);
+    io_chimera_v2_main(id_to_gpio, NULL, 0, 0);
     /* USER CODE END 5 */
 }
 

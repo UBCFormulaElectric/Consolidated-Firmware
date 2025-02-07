@@ -3,10 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define RX_QUEUE_SIZE 2048
-
 // initialize the usb peripheral
-void hw_usb_init(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
+void hw_usb_init();
 
 // checks if the usb port is connected
 bool hw_usb_checkConnection();
@@ -26,7 +24,7 @@ bool hw_usb_receive(uint8_t *dest, uint32_t len);
 void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len);
 
 // runs an example loop where the message "hello" is tx-ed repeatedly
-void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
+void hw_usb_transmit_example();
 
 // runs an example loop that logs all received bytes as chars
-void hw_usb_receive_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
+void hw_usb_receive_example();

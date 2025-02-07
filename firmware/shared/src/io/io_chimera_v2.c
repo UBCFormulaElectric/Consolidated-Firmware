@@ -1,7 +1,6 @@
-#include "hw_usb.h"
 #include <stdlib.h>
-#include "io_log.h"
 #include <assert.h>
+#include "hw_usb.h"
 #include "io_log.h"
 
 // Protobuf.
@@ -123,19 +122,14 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
         LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
-void io_chimera_v2_main(
-    Gpio       *gpio_conf[],
-    AdcChannel *adc_conf[],
-    uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len),
-    uint32_t net_name_gpio,
-    uint32_t net_name_adc)
+void io_chimera_v2_main(Gpio *gpio_conf[], AdcChannel *adc_conf[], uint32_t net_name_gpio, uint32_t net_name_adc)
 {
     // Store adc and gpio tables.
     id_to_gpio = gpio_conf;
     id_to_adc  = adc_conf;
 
     // Init usb peripheral.
-    hw_usb_init(transmit_handle);
+    hw_usb_init();
 
     // If usb is not connected, skip Chimera.
     if (!hw_usb_checkConnection())

@@ -3,42 +3,55 @@
 #include "cmsis_os.h"
 #include "io_log.h"
 
-// setup rx queue
-static StaticQueue_t      rx_queue_control_block;
-static uint8_t            rx_queue_buf[RX_QUEUE_SIZE];
-static osMessageQueueId_t rx_queue_id = NULL;
-static USBD_HandleTypeDef hUsbDeviceFS;
+// Select between FS or HS methods.
+// F4s (CM4s) only support FS (Full Speed), while H7s (CM7s) support HS (High Speed).
+// This macro exposes the USB_DEVICE_HANDLER macro (hUsbDeviceFS or hUsbDeviceHS),
+// and the TRANSMIT macro (CDC_Transmit_FS or CDC_Transmit_HS).
+// Everything is derived from usbd_cdc_if.h.
+#if defined(CM4_TARGET)
+#define TRANSMIT(buf, len) (CDC_Transmit_FS(buf, len))
+extern USBD_HandleTypeDef hUsbDeviceFS;
+#define USB_DEVICE_HANDLER (hUsbDeviceFS)
+#elif defined(CM7_TARGET)
+#define TRANSMIT(buf, len) (CDC_Transmit_HS(buf, len))
+extern USBD_HandleTypeDef hUsbDeviceHS;
+#define USB_DEVICE_HANDLER (hUsbDeviceHS)
+#else
+#error Either CM7_TARGET or CM4_TARGET must be defined, \
+        so that hw_usb knows which handlers to use.
+#endif
 
-uint8_t (*usb_transmit_handle)(uint8_t *Buf, uint16_t Len) = NULL;
-
+// Setup the rx queue.
+#define RX_QUEUE_SIZE (2048)
+static StaticQueue_t              rx_queue_control_block;
+static uint8_t                    rx_queue_buffer[RX_QUEUE_SIZE];
 static const osMessageQueueAttr_t rx_queue_attr = { .name      = "USB RX Queue",
                                                     .attr_bits = 0,
                                                     .cb_mem    = &rx_queue_control_block,
                                                     .cb_size   = sizeof(StaticQueue_t),
-                                                    .mq_mem    = rx_queue_buf,
-                                                    .mq_size   = sizeof(rx_queue_buf) };
+                                                    .mq_mem    = rx_queue_buffer,
+                                                    .mq_size   = sizeof(rx_queue_buffer) };
+static osMessageQueueId_t         rx_queue_id   = NULL;
 
-void hw_usb_init(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
+void hw_usb_init()
 {
-    usb_transmit_handle = transmit_handle;
     if (rx_queue_id == NULL)
-    {
         rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(uint8_t), &rx_queue_attr);
-    }
+    else
+        LOG_WARN("RX queue already exists when attempting to init USB driver");
 }
 
 bool hw_usb_checkConnection()
 {
-    return hUsbDeviceFS.dev_state != USBD_STATE_SUSPENDED;
+    return USB_DEVICE_HANDLER.dev_state != USBD_STATE_SUSPENDED;
 }
 
 bool hw_usb_transmit(uint8_t *msg, uint16_t len)
 {
-    uint8_t handle_status = usb_transmit_handle(msg, len);
-
-    if (handle_status != 0)
+    uint8_t status = TRANSMIT(msg, len);
+    if (status != USBD_OK)
     {
-        LOG_WARN("Chimera: USB handle returned %d status code instead of 0", handle_status);
+        LOG_WARN("Chimera: USB handle returned %d status code instead of USBD_OK", status);
         return false;
     }
 
@@ -79,10 +92,10 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len)
     }
 }
 
-void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
+void hw_usb_transmit_example()
 {
     // init usb peripheral
-    hw_usb_init(transmit_handle);
+    hw_usb_init();
     osDelay(1000);
 
     int msg_count = 0;
@@ -100,10 +113,10 @@ void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t L
     }
 }
 
-void hw_usb_receive_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len))
+void hw_usb_receive_example()
 {
     // Init usb peripheral.
-    hw_usb_init(usb_transmit_handle);
+    hw_usb_init();
 
     // Dump the queue char by char.
     for (;;)

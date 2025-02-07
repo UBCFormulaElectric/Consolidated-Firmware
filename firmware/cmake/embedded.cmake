@@ -78,6 +78,7 @@ set(SHARED_LINKER_FLAGS
 
 set(CM4_DEFINES
         -DARM_MATH_CM4
+        -DCM4_TARGET
 )
 # FPU flags are compiler and linker flags
 set(CM4_FPU_FLAGS
@@ -88,6 +89,7 @@ set(CM4_FPU_FLAGS
 
 set(CM7_DEFINES
         -DARM_MATH_CM7
+        -DCM7_TARGET
 )
 # FPU flags are compiler and linker flags
 set(CM7_FPU_FLAGS
