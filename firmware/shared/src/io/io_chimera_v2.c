@@ -155,7 +155,7 @@ void io_chimera_v2_main(
 
         // Get length bytes.
         uint8_t length_bytes[2] = { 0, 0 };
-        if (hw_usb_receive(length_bytes, 2) == -1)
+        if (!hw_usb_receive(length_bytes, 2))
             LOG_ERROR("Chimera: Error receiving length bytes");
 
         // Compute length (little endian).
@@ -166,7 +166,7 @@ void io_chimera_v2_main(
 
         // Receive content.
         uint8_t content[length];
-        if (hw_usb_receive(content, length) == -1)
+        if (!hw_usb_receive(content, length))
             LOG_ERROR("Chimera: Error receiving message conent.");
 
         LOG_INFO("Chimera: Received content bytes (without length header):");

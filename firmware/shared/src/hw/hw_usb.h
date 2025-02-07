@@ -17,8 +17,8 @@ void hw_usb_transmit(uint8_t *msg, uint16_t len);
 // receive a buffer of bytes over usb
 // blocks until len bytes are received
 // dumps into the dest buffer
-// returns -1 on failure
-int hw_usb_receive(uint8_t *dest, uint32_t len);
+// returns false on failure, otherwise true
+bool hw_usb_receive(uint8_t *dest, uint32_t len);
 
 // pushes a message onto the internal usb queue,
 // for use in CDC_Receive_FS/CDC_Receive_HS
