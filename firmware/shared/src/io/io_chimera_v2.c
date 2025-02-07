@@ -16,7 +16,11 @@
 static Gpio       **id_to_gpio;
 static AdcChannel **id_to_adc;
 
-static pb_byte_t out_buffer[10000];
+// Maximum size for the output rpc content we support (2 bytes).
+const uint16_t OUT_BUFFER_SIZE = 0xffff;
+
+// Note: this buffer is allocated at runtime, since on non-Chimera runs we do not want to allocate it.
+static pb_byte_t *out_buffer = NULL;
 
 static const Gpio *io_chimera_v2_parseNetLabelGpio(const GpioNetName *net_name)
 {
@@ -91,7 +95,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
     }
 
     // Encode protobuf to bytes.
-    pb_ostream_t out_stream = pb_ostream_from_buffer(out_buffer, sizeof(out_buffer));
+    pb_ostream_t out_stream = pb_ostream_from_buffer(out_buffer, OUT_BUFFER_SIZE);
     if (!pb_encode(&out_stream, DebugMessage_fields, &msg))
     {
         LOG_ERROR("Error encoding chimera message output");
@@ -132,12 +136,15 @@ void io_chimera_v2_main(
     // Init usb peripheral.
     hw_usb_init(transmit_handle);
 
-    // If usb is not connected, continue.
+    // If usb is not connected, skip Chimera.
     if (!hw_usb_checkConnection())
     {
         LOG_INFO("Chimera: Skipping Chimera - USB not plugged in");
         return;
     }
+
+    // Allocate the output buffer.
+    out_buffer = malloc(OUT_BUFFER_SIZE);
 
     for (uint32_t requests_processed = 1; true; requests_processed += 1)
     {
@@ -171,4 +178,7 @@ void io_chimera_v2_main(
 
         LOG_INFO("Chimera: Processed %d requests", requests_processed);
     }
+
+    free(out_buffer);
+    out_buffer = NULL;
 }
