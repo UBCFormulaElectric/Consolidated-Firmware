@@ -33,9 +33,9 @@ __weak void canRxQueueOverflowClearCallback() {}
 void io_canQueue_init()
 {
     // Initialize CAN queues.
-    tx_queue_id = xMessageBufferCreateStatic(TX_QUEUE_SIZE, tx_queue_buf, &tx_buffer_control_block);
-    rx_queue_id = xMessageBufferCreateStatic(RX_QUEUE_SIZE, rx_queue_buf, &rx_buffer_control_block);
-    init_complete     = true;
+    tx_queue_id   = xMessageBufferCreateStatic(TX_QUEUE_SIZE, tx_queue_buf, &tx_buffer_control_block);
+    rx_queue_id   = xMessageBufferCreateStatic(RX_QUEUE_SIZE, rx_queue_buf, &rx_buffer_control_block);
+    init_complete = true;
 
     if (tx_queue_id == NULL || rx_queue_id == NULL)
     {
@@ -77,7 +77,7 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     // use canQueue rx in isr
-    size_t bytes_sent = xMessageBufferSendFromISR(rx_queue_id, rx_msg, sizeof(CanMsg), 0);
+    size_t bytes_sent = xMessageBufferSend(rx_queue_id, rx_msg, sizeof(CanMsg), 0);
     if (bytes_sent != sizeof(CanMsg))
     {
         canRxQueueOverflowCallBack(++rx_overflow_count);
