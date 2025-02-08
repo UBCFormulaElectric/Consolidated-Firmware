@@ -1,0 +1,4 @@
+#ifndef IO_SUSPENSION_H
+#define IO_SUSPENSION_H
+
+#endif //IO_SUSPENSION_H
