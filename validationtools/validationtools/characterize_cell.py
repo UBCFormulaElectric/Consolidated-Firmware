@@ -9,7 +9,7 @@ totalCellCapacity = 2.800 # Ah From datasheet on google drive
 chargingRate      = 2.8   # 1C Rate in amps 
 restingTimeSecondsMaxSoc = 120 # Change back to 3 mins for 100% soc
 restingTimeSecondsMinSoc = 540 # Ideally we have something like 10-15 mins lol
-activeTimeSeconds = 70
+activeTimeSeconds = 60
 # Second channel of the power supply allows for lower voltages, higher current
 powerSupplyChannel = 2
 initialSOC = 100
@@ -89,7 +89,7 @@ def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
                                                     # (cell voltage may be above 4.2 slightly or you can start in middle of charge)
     restingTimeSeconds = restingTimeSecondsMaxSoc   # Resting time is set to resting time at top of charge
     deltaRestTime = (restingTimeSecondsMinSoc - restingTimeSecondsMaxSoc) / (minVoltage - startCellVoltage) # Slope to linearly interpolate rest time (BoC need more rest time than ToC)
-    while(loadBank.measure_voltage() > minVoltage):
+    while(soc > 12 and loadBank.measure_voltage() > minVoltage):
         restingTimeSeconds = restingTimeSecondsMaxSoc + deltaRestTime * (loadBank.measure_voltage() - startCellVoltage)
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
@@ -108,6 +108,36 @@ def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
     loadBank.disable_load()
     row = getDischargingRow(logger, loadBank)
     logger.storeRow(row)
+
+    print("Reached BoC Portion of Test, Resting for 30 Mins")
+
+    time.sleep(1800) # give half an hour of resting time before BoC portion of the test
+    activeTimeSeconds = 240 # Quadruple the active time for the bottom of charge and have a quarter of charging rate
+    chargingRate = 0.7 # 0.7A is the 0.25C rate for the cell
+
+    print("Starting BoC Portion of Test")
+    while(loadBank.measure_voltage() > minVoltage):
+        restingTimeSeconds = 7200 # For BoC set resting time for two hours
+        row = getDischargingRow(logger, loadBank)
+        logger.storeRow(row)
+        loadBank.enable_load()
+        loadBank.set_current(chargingRate)
+        
+
+        time.sleep(activeTimeSeconds)
+        row = getDischargingRow(logger, loadBank)
+        logger.storeRow(row)
+        loadBank.disable_load()
+
+        time.sleep(restingTimeSeconds)
+        soc = row[-1]
+
+    loadBank.disable_load()
+    row = getDischargingRow(logger, loadBank)
+    logger.storeRow(row)
+
+
+
 
 def chargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logger: Logger, soc: float):
     # According to INR-18650-P28A datasheets, the cells capacity can range from standard of 2800mAh to 2600mAh
