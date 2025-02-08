@@ -18,8 +18,8 @@ static TimerChannel pid_timeout;
 static PowerLimiting_Inputs       power_limiting_inputs = { .power_limit_kW = POWER_LIMIT_CAR_kW };
 static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
-static TractionControl_Inputs     traction_control_inputs;
-static TractionControl_Outputs    traction_control_outputs;
+static TractionControl_Inputs     traction_control_inputs; // TODO: possibly remove this 
+static TractionControl_Outputs    traction_control_outputs; // TODO: possibly remove this
 static Torque_to_Inverters        torque_to_inverters;
 
 static bool            run_traction_control         = true;
