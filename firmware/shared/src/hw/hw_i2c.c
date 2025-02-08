@@ -68,26 +68,6 @@ bool hw_i2c_isTargetReady(const I2cDevice *device)
                device->timeout_ms) == HAL_OK;
 }
 
-bool hw_i2c_transmit(const I2cDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size)
-{
-    if (bus_tasks_in_progress[device->bus] != NULL)
-    {
-        // There is a task currently in progress!
-        return false;
-    }
-
-    // Save current task before starting an I2C transaction.
-    bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
-
-    if (HAL_I2C_Master_Transmit_IT(
-            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), tx_buffer, tx_buffer_size) != HAL_OK)
-    {
-        return false;
-    }
-
-    return waitForNotification(device);
-}
-
 bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size)
 {
     if (bus_tasks_in_progress[device->bus] != NULL)
@@ -108,7 +88,7 @@ bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buf
     return waitForNotification(device);
 }
 
-bool hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_buffer, uint16_t tx_buffer_size)
+bool hw_i2c_transmit(const I2cDevice *device, const uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
     if (bus_tasks_in_progress[device->bus] != NULL)
     {
@@ -119,9 +99,9 @@ bool hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, uint8_t *tx_
     // Save current task before starting an I2C transaction.
     bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
 
-    if (HAL_I2C_Mem_Write_IT(
-            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
-            tx_buffer, tx_buffer_size) != HAL_OK)
+    if (HAL_I2C_Master_Transmit_IT(
+            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), (uint8_t *)tx_buffer,
+            tx_buffer_size) != HAL_OK)
     {
         return false;
     }
@@ -143,6 +123,27 @@ bool hw_i2c_memoryRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_b
     if (HAL_I2C_Mem_Read_IT(
             i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
             rx_buffer, rx_buffer_size) != HAL_OK)
+    {
+        return false;
+    }
+
+    return waitForNotification(device);
+}
+
+bool hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, const uint8_t *tx_buffer, uint16_t tx_buffer_size)
+{
+    if (bus_tasks_in_progress[device->bus] != NULL)
+    {
+        // There is a task currently in progress!
+        return false;
+    }
+
+    // Save current task before starting an I2C transaction.
+    bus_tasks_in_progress[device->bus] = xTaskGetCurrentTaskHandle();
+
+    if (HAL_I2C_Mem_Write_IT(
+            i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
+            (uint8_t *)tx_buffer, tx_buffer_size) != HAL_OK)
     {
         return false;
     }

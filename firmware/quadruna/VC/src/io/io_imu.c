@@ -1,119 +1,230 @@
 #include "io_imu.h"
 #include "hw_i2c.h"
-#include <stdio.h>
-#include "main.h"
 
-// Default accelerometer sensitivity for LSM6DSM is 0.061 mg/digit
-const float ACCEL_SENSITIVITY = 0.061f;
-// Default gyroscope sensitivity for LSM6DSM is 8.75 mdeg/digit
-const float GYRO_SENSITIVITY = 8.75f;
+// IMU ACC Configs
+#define IMU_ACC_RANGE_4G
+#define IMU_ACC_RELOAD_104Hz
+
+// IMU Gyro Configs
+#define IMU_GYRO_RESOLUTION_125DPS
+#define IMU_GYRO_RELOAD_104Hz
 
 static I2cDevice imu = { .bus = HW_I2C_BUS_2, .target_address = 0x6B, .timeout_ms = 100 };
 
 bool io_imu_init()
 {
-    if (hw_i2c_isTargetReady(&imu))
-    {
-        uint8_t buffer = 0x40; // turn on accelerometer/gyroscope to normal mode
-        bool    activated_imu_sensors =
-            hw_i2c_memoryWrite(&imu, 0x10, &buffer, 1) && hw_i2c_memoryWrite(&imu, 0x11, &buffer, 1);
-        return activated_imu_sensors;
-    }
-    return false;
+    if (!hw_i2c_isTargetReady(&imu))
+        return false;
+
+#ifdef IMU_ACC_RANGE_2G
+#define ACC_CONFIG_RANGE (0)
+#endif
+#ifdef IMU_ACC_RANGE_4G
+#define ACC_CONFIG_RANGE (2)
+#endif
+#ifdef IMU_ACC_RANGE_8G
+#define ACC_CONFIG_RANGE (3)
+#endif
+#ifdef IMU_ACC_RANGE_16G
+#define ACC_CONFIG_RANGE (1)
+#endif
+
+#ifdef IMU_ACC_RELOAD_12Hz5
+#define ACC_CONFIG_RELOAD (0x10)
+#endif
+#ifdef IMU_ACC_RELOAD_26Hz
+#define ACC_CONFIG_RELOAD (0x20)
+#endif
+#ifdef IMU_ACC_RELOAD_52Hz
+#define ACC_CONFIG_RELOAD (0x30)
+#endif
+#ifdef IMU_ACC_RELOAD_104Hz
+#define ACC_CONFIG_RELOAD (0x40)
+#endif
+#ifdef IMU_ACC_RELOAD_208Hz
+#define ACC_CONFIG_RELOAD (0x50)
+#endif
+#ifdef IMU_ACC_RELOAD_416Hz
+#define ACC_CONFIG_RELOAD (0x60)
+#endif
+#ifdef IMU_ACC_RELOAD_833Hz
+#define ACC_CONFIG_RELOAD (0x70)
+#endif
+#ifdef IMU_ACC_RELOAD_1k66Hz
+#define ACC_CONFIG_RELOAD (0x80)
+#endif
+#ifdef IMU_ACC_RELOAD_3k33Hz
+#define ACC_CONFIG_RELOAD (0x90)
+#endif
+#ifdef IMU_ACC_RELOAD_6k66Hz
+#define ACC_CONFIG_RELOAD (0xA0)
+#endif
+#ifdef IMU_ACC_RELOAD_1Hz6
+#define ACC_CONFIG_RELOAD (0xB0)
+#endif
+
+#ifdef IMU_GYRO_RESOLUTION_125DPS
+#define GYRO_CONFIG_RESOLUTION (1)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_250DPS
+#define GYRO_CONFIG_RESOLUTION (0)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_500DPS
+#define GYRO_CONFIG_RESOLUTION (2)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_1000DPS
+#define GYRO_CONFIG_RESOLUTION (4)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_2000DPS
+#define GYRO_CONFIG_RESOLUTION (6)
+#endif
+
+#ifdef IMU_GYRO_RELOAD_12Hz5
+#define GYRO_CONFIG_RELOAD (0x10)
+#endif
+#ifdef IMU_GYRO_RELOAD_26Hz
+#define GYRO_CONFIG_RELOAD (0x20)
+#endif
+#ifdef IMU_GYRO_RELOAD_52Hz
+#define GYRO_CONFIG_RELOAD (0x30)
+#endif
+#ifdef IMU_GYRO_RELOAD_104Hz
+#define GYRO_CONFIG_RELOAD (0x40)
+#endif
+#ifdef IMU_GYRO_RELOAD_208Hz
+#define GYRO_CONFIG_RELOAD (0x50)
+#endif
+#ifdef IMU_GYRO_RELOAD_416Hz
+#define GYRO_CONFIG_RELOAD (0x60)
+#endif
+#ifdef IMU_GYRO_RELOAD_833Hz
+#define GYRO_CONFIG_RELOAD (0x70)
+#endif
+#ifdef IMU_GYRO_RELOAD_1k66Hz
+#define GYRO_CONFIG_RELOAD (0x80)
+#endif
+#ifdef IMU_GYRO_RELOAD_3k33Hz
+#define GYRO_CONFIG_RELOAD (0x90)
+#endif
+#ifdef IMU_GYRO_RELOAD_6k66Hz
+#define GYRO_CONFIG_RELOAD (0xA0)
+#endif
+
+    const uint8_t acc_config  = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE,
+                  gyro_config = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
+    return hw_i2c_memoryWrite(&imu, 0x10, &acc_config, 1) && hw_i2c_memoryWrite(&imu, 0x11, &gyro_config, 1);
+}
+
+/**
+ * Converts raw gyro data to angular velocity in degrees per second
+ * @param gyro_data Raw gyro data, must be 2 bytes long
+ * @return Translated gyro data
+ */
+static float translate_gyro_data(const uint8_t *gyro_data)
+{
+// Default gyroscope sensitivity for IMU is 8.75 mdeg/least significant digit
+#ifdef IMU_GYRO_RESOLUTION_125DPS
+#define GYRO_SENSITIVITY_MDEG (4.375f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_250DPS
+#define GYRO_SENSITIVITY_MDEG (8.75f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_500DPS
+#define GYRO_SENSITIVITY_MDEG (17.5f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_1000DPS
+#define GYRO_SENSITIVITY_MDEG (35.0f)
+#endif
+#ifdef IMU_GYRO_RESOLUTION_2000DPS
+#define GYRO_SENSITIVITY_MDEG (70.0f)
+#endif
+
+    // ReSharper disable once CppRedundantCastExpression
+    const int16_t raw = (int16_t)(gyro_data[1] << 8 | gyro_data[0]);
+    return (float)raw * GYRO_SENSITIVITY_MDEG / 1000.0f;
+}
+
+/**
+ * Converts raw acceleration data to acceleration in m/s^2
+ * @param acc_data Raw acceleration data, must be 2 bytes long
+ * @return Translated acceleration data
+ */
+static float translate_acceleration_data(const uint8_t *acc_data)
+{
+#ifdef IMU_ACC_RANGE_2G
+#define ACC_SENSITIVITY_MG (0.061f)
+#endif
+#ifdef IMU_ACC_RANGE_4G
+#define ACC_SENSITIVITY_MG (0.122f)
+#endif
+#ifdef IMU_ACC_RANGE_8G
+#define ACC_SENSITIVITY_MG (0.244f)
+#endif
+#ifdef IMU_ACC_RANGE_16G
+#define ACC_SENSITIVITY_MG (0.488f)
+#endif
+
+    // ReSharper disable once CppRedundantCastExpression
+    const int16_t raw = (int16_t)(acc_data[1] << 8 | acc_data[0]);
+    return (float)raw * ACC_SENSITIVITY_MG * 9.81f / 1000.0f;
 }
 
 bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
-    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x28, x_data, 2);
-
-    if (!is_read_successful)
-    {
+    if (!hw_i2c_memoryRead(&imu, 0x28, x_data, 2))
         return false;
-    }
-
     // Convert raw value to acceleration in m/s^2
-    int16_t x_raw   = (int16_t)(x_data[1] << 8 | x_data[0]);
-    *x_acceleration = x_raw * ACCEL_SENSITIVITY * 9.81f / 1000.0f;
+    *x_acceleration = translate_acceleration_data(x_data);
     return true;
 }
 
 bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
     uint8_t y_data[2];
-    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x2A, y_data, 2);
-
-    if (!is_read_successful)
-    {
+    if (!hw_i2c_memoryRead(&imu, 0x2A, y_data, 2))
         return false;
-    }
-
     // Convert raw value to acceleration in m/s^2
-    int16_t y_raw   = (int16_t)(y_data[1] << 8 | y_data[0]);
-    *y_acceleration = y_raw * ACCEL_SENSITIVITY * 9.81f / 1000.0f;
+    *y_acceleration = translate_acceleration_data(y_data);
     return true;
 }
 
 bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
-    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x2C, z_data, 2);
-
-    if (!is_read_successful)
-    {
+    if (!hw_i2c_memoryRead(&imu, 0x2C, z_data, 2))
         return false;
-    }
-
-    // Convert raw value to acceleration in m/s^2 and subtract force of gravity
-    int16_t z_raw   = (int16_t)(z_data[1] << 8 | z_data[0]);
-    *z_acceleration = z_raw * ACCEL_SENSITIVITY * 9.81f / 1000.0f - 9.81f;
+    // Convert raw value to acceleration in m/s^2
+    *z_acceleration = translate_acceleration_data(z_data);
     return true;
 }
 
 bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
-    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x22, roll_data, 2);
-
-    if (!is_read_successful)
-    {
+    if (!hw_i2c_memoryRead(&imu, 0x22, roll_data, 2))
         return false;
-    }
-
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
-    int16_t roll_raw = (int16_t)(roll_data[1] << 8 | roll_data[0]);
-    *roll_velocity   = roll_raw * GYRO_SENSITIVITY / 1000.0f;
+    *roll_velocity = translate_gyro_data(roll_data);
     return true;
 }
 
 bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
-    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x24, pitch_data, 2);
-
-    if (!is_read_successful)
-    {
+    if (!hw_i2c_memoryRead(&imu, 0x24, pitch_data, 2))
         return false;
-    }
-
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
-    int16_t pitch_raw = (int16_t)(pitch_data[1] << 8 | pitch_data[0]);
-    *pitch_velocity   = pitch_raw * GYRO_SENSITIVITY / 1000.0f;
+    *pitch_velocity = translate_gyro_data(pitch_data);
     return true;
 }
 
 bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
-    bool    is_read_successful = hw_i2c_memoryRead(&imu, 0x26, yaw_data, 2);
-
-    if (!is_read_successful)
-    {
+    if (!hw_i2c_memoryRead(&imu, 0x26, yaw_data, 2))
         return false;
-    }
-
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
-    int16_t yaw_raw = (int16_t)(yaw_data[1] << 8 | yaw_data[0]);
-    *yaw_velocity   = yaw_raw * GYRO_SENSITIVITY / 1000.0f;
+    *yaw_velocity = translate_gyro_data(yaw_data);
     return true;
 }
