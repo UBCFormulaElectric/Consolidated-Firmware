@@ -1,8 +1,12 @@
 #pragma once
 
-#include "hw_uart.h"
+#include "main.h"
 
-extern const UART debug_uart;
-extern const UART sbg_uart;
-extern const UART modem2G4_uart;
-extern const UART modem900_uart;
+typedef enum
+{
+    HW_UART_DEVICE_CHIMERA,
+    HW_UART_DEVICE_SBG_ELLIPSE,
+    HW_UART_DEVICE_MODEM_2G4,
+    HW_UART_DEVICE_MODEM_900K,
+    HW_UART_DEVICE_COUNT,
+} UartDevice;
