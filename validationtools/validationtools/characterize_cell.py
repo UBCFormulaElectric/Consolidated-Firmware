@@ -7,8 +7,8 @@ maxVoltage= 4.2
 minVoltage = 2.5
 totalCellCapacity = 2.800 # Ah From datasheet on google drive
 chargingRate      = 2.8   # 1C Rate in amps 
-restingTimeSecondsMaxSoc = 180
-restingTimeSecondsMinSoc = 420
+restingTimeSecondsMaxSoc = 120 # Change back to 3 mins for 100% soc
+restingTimeSecondsMinSoc = 540 # Ideally we have something like 10-15 mins lol
 activeTimeSeconds = 70
 # Second channel of the power supply allows for lower voltages, higher current
 powerSupplyChannel = 2
@@ -90,7 +90,7 @@ def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
     restingTimeSeconds = restingTimeSecondsMaxSoc   # Resting time is set to resting time at top of charge
     deltaRestTime = (restingTimeSecondsMinSoc - restingTimeSecondsMaxSoc) / (minVoltage - startCellVoltage) # Slope to linearly interpolate rest time (BoC need more rest time than ToC)
     while(loadBank.measure_voltage() > minVoltage):
-        restingTimeSeconds = restingTimeSeconds + deltaRestTime * (loadBank.measure_voltage() - startCellVoltage)
+        restingTimeSeconds = restingTimeSecondsMaxSoc + deltaRestTime * (loadBank.measure_voltage() - startCellVoltage)
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         loadBank.enable_load()
