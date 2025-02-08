@@ -3,12 +3,12 @@
 #include "cmsis_os.h"
 
 #include "app_mainState.h"
-
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_apps.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -31,8 +31,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMark.h" // TODO enable stackwatermark on the FSM
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_uarts.h"
@@ -103,7 +101,7 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("FSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -132,6 +130,7 @@ void tasks_init(void)
 
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_FSM_Heartbeat_set(true);
 }
 
 void tasks_deinit(void)
@@ -164,7 +163,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();

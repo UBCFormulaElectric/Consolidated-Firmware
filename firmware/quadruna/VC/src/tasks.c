@@ -8,9 +8,6 @@
 
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
-#include "app_commitInfo.h"
-#include "app_faultCheck.h"
-#include "app_heartbeatMonitors.h"
 
 #include "io_log.h"
 #include "io_canLoggingQueue.h"
@@ -27,7 +24,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdogConfig.h"
 #include "hw_adcs.h"
-#include "hw_stackWaterMarkConfig.h"
 
 void tasks_preInit(void)
 {
@@ -109,7 +105,6 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
         jobs_run1Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the

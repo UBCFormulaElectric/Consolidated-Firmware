@@ -8,6 +8,7 @@
 #include "states/app_initState.h"
 #include "app_commitInfo.h"
 #include "app_heartbeatMonitors.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_canMsg.h"
 #include "io_canQueue.h"
@@ -42,8 +43,12 @@ void jobs_init(void)
     // broadcast commit info
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_BMS_Heartbeat_set(true);
 }
-void jobs_run1Hz_tick(void) {}
+void jobs_run1Hz_tick(void)
+{
+    app_stackWaterMark_check();
+}
 void jobs_run100Hz_tick(void) {}
 void jobs_run1kHz_tick(void) {}
 

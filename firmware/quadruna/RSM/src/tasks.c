@@ -9,6 +9,7 @@
 #include "app_commitInfo.h"
 #include "app_coolant.h"
 #include "app_heartbeatMonitors.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_jsoncan.h"
 #include "io_canTx.h"
@@ -25,8 +26,6 @@
 #include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
-#include "hw_stackWaterMark.h" // TODO setup stack watermark on RSM
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_adcs.h"
 #include "hw_gpio.h"
@@ -120,7 +119,7 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("RSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -148,6 +147,7 @@ void tasks_init(void)
 
     app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_RSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_RSM_Heartbeat_set(true);
 }
 
 void tasks_deinit(void)
@@ -178,7 +178,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();

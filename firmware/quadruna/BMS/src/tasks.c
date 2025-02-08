@@ -4,22 +4,18 @@
 #include "cmsis_os.h"
 
 #include "hw_adcs.h"
-#include "hw_gpios.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_spi.h"
 #include "hw_pwmInput.h"
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_watchdog.h"
 #include "hw_uarts.h"
-#include "hw_sd.h"
 #include "hw_crc.h"
 
 #include "io_canTx.h"
 #include "io_sd.h"
-#include "io_faultLatch.h"
 #include "io_imd.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "io_tractiveSystem.h"
@@ -32,7 +28,6 @@
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
-#include "app_heartbeatMonitors.h"
 
 #include "shared.pb.h"
 
@@ -89,6 +84,8 @@ void tasks_init(void)
     io_sdGpio_init(&sd_gpio);
 
     app_globals_init();
+
+    jobs_init();
 }
 
 void tasks_deinit(void)
@@ -131,7 +128,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        jobs_run1Hz_tick();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -160,6 +157,7 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
+        jobs_run100Hz_tick();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -187,6 +185,7 @@ _Noreturn void tasks_run1kHz(void)
     {
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
+        jobs_run1kHz_tick();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
