@@ -18,3 +18,5 @@ extern const AdcChannel apps2;
 extern const AdcChannel bps_f;
 extern const AdcChannel str_angle;
 extern const AdcChannel apps1;
+
+void hw_adcs_chipsInit();
