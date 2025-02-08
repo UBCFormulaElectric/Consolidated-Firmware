@@ -19,3 +19,6 @@ extern const AdcChannel susp_travel_rr_ocsc;
 extern const AdcChannel susp_travel_rl_ocsc;
 extern const AdcChannel lc3_out;
 extern const AdcChannel bps_3v3;
+extern const AdcChip adc1;
+
+void hw_adcs_chipsInit();

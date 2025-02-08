@@ -18,6 +18,10 @@ const AdcChannel susp_travel_rl_ocsc = { .voltage = &adc_voltages[3] };
 const AdcChannel bps_3v3             = { .voltage = &adc_voltages[4] };
 const AdcChannel susp_travel_rr_ocsc = { .voltage = &adc_voltages[5] };
 
+void hw_adcs_chipsInit(){
+    hw_adcchip_init(&adc1);
+}
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     assert(hadc == adc1.hadc);

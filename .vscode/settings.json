@@ -12,6 +12,8 @@
 	"files.associations": {
 		"hw_pwms.h": "c",
 		"main.h": "c",
-		"hw_i2c.h": "c"
+		"hw_i2c.h": "c",
+		"io_jsoncan.h": "c",
+		"hw_watchdogconfig.h": "c"
 	},
 }
