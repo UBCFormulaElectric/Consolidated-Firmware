@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "main.h"
 
-/*NOTE: Task notifications are used in this driver, since according to FreeRTOS docs they are a faster alternative to
+/* NOTE: Task notifications are used in this driver, since according to FreeRTOS docs they are a faster alternative to
  * binary semaphores.
  * Source:
  * https://www.freertos.org/Documentation/02-Kernel/02-Kernel-features/03-Direct-to-task-notifications/02-As-binary-semaphore*/

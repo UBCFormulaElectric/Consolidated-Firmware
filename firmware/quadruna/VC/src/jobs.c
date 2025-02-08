@@ -59,6 +59,11 @@ void jobs_init()
         app_canAlerts_VC_Warning_SbgInitFailed_set(true);
         LOG_INFO("Sbg initialization failed");
     }
+    if (!io_imu_init())
+    {
+        app_canAlerts_VC_Warning_ImuInitFailed_set(true);
+        LOG_INFO("Imu initialization failed");
+    }
 
     io_can_init(&can1);
     io_canTx_init(jsoncan_transmit_func);
@@ -73,7 +78,7 @@ void jobs_run1Hz_tick(void)
     // this is because there are fault overrides in allStates
     app_stateMachine_tick1Hz();
     app_allStates_runOnTick1Hz();
-    // app_stackWaterMark_check();
+    app_stackWaterMark_check();
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
@@ -92,16 +97,6 @@ void jobs_run100Hz_tick(void)
 
 void jobs_run1kHz_tick(void)
 {
-    static bool init = false;
-
-    // Scheduler needs to have started to call I2C stuff!
-    if (!init && !io_imu_init())
-    {
-        app_canAlerts_VC_Warning_ImuInitFailed_set(true);
-        LOG_INFO("Imu initialization failed");
-    }
-    init = true;
-
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 }
