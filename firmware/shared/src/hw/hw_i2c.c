@@ -1,5 +1,6 @@
 #include "hw_i2c.h"
 #include <assert.h>
+#include <stdint.h>
 #include "main.h"
 
 // Number of attempts made to check if connected device is ready to communicate.
@@ -22,14 +23,20 @@ static inline bool handletoBus(I2C_HandleTypeDef *const handle, I2cBus *bus)
 
 static bool waitForNotification(const I2cDevice *device)
 {
-    // Block until a notification is received.
-    const uint32_t num_notfiications = ulTaskNotifyTake(pdTRUE, device->timeout_ms);
+    // Block until a notification is received, or timed out.
+    const uint32_t num_notifications     = ulTaskNotifyTake(pdTRUE, device->timeout_ms);
+    const bool     transaction_timed_out = num_notifications == 0;
 
     // Mark this transaction as no longer in progress.
     bus_tasks_in_progress[device->bus] = NULL;
 
-    // Success if a notification is received (otherwise the take timed out).
-    return num_notfiications > 0;
+    if (transaction_timed_out)
+    {
+        // If the transaction didn't complete within the timeout, manually abort it.
+        (void)HAL_I2C_Master_Abort_IT(i2c_bus_handles[device->bus], (uint16_t)(device->target_address << 1));
+    }
+
+    return !transaction_timed_out;
 }
 
 static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
