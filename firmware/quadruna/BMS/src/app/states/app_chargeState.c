@@ -6,7 +6,7 @@
 #define C_RATE_FOR_MAX_CHARGE (0.05f)
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 #define CURRENT_AT_MAX_CHARGE (C_RATE_FOR_MAX_CHARGE * C_RATE_TO_AMPS)
-#define MAX_CHARGING_VOLTAGE (336.0f)
+#define MAX_CHARGING_VOLTAGE (268.8f) // = NUM_SEGMENTS * 4.2V * 16 Cells per segment
 // Each cell can handle 11.8A per the Datasheet, x3 in parallel = 35.4A, Setting as 15A for safety (limited by mains
 // current at this stage)
 #define MAX_CHARGING_CURRENT (15.0f)
@@ -127,7 +127,7 @@ static void chargeStateRunOnTick100Hz(void)
         // Override based on CAN parameters
         const float charging_current = app_canRx_Debug_ChargingCurrentOverride_get()
                                            ? app_canRx_Debug_ChargingCurrentTargetValue_get()
-                                           : INITIAL_CHARGING_VOLTAGE;
+                                           : INITIAL_CHARGING_CURRENT;
 
         if (IS_IN_RANGE(0.0f, MAX_CHARGING_CURRENT, charging_current))
         {
