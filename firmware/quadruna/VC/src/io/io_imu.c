@@ -1,5 +1,6 @@
 #include "io_imu.h"
 #include "hw_i2c.h"
+#include "hw_i2cs.h"
 
 // IMU ACC Configs
 #define IMU_ACC_RANGE_4G
@@ -9,12 +10,12 @@
 #define IMU_GYRO_RESOLUTION_125DPS
 #define IMU_GYRO_RELOAD_104Hz
 
-static I2cDevice imu = { .bus = HW_I2C_BUS_2, .target_address = 0x6B, .timeout_ms = 100 };
-
 bool io_imu_init()
 {
-    if (!hw_i2c_isTargetReady(&imu))
+    if (!hw_i2c_isTargetReady(3))
+    {
         return false;
+    }
 
 #ifdef IMU_ACC_RANGE_2G
 #define ACC_CONFIG_RANGE (0)
@@ -112,7 +113,8 @@ bool io_imu_init()
 
     const uint8_t acc_config  = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE,
                   gyro_config = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
-    return hw_i2c_memoryWrite(&imu, 0x10, &acc_config, 1) && hw_i2c_memoryWrite(&imu, 0x11, &gyro_config, 1);
+    return hw_i2c_memoryWrite(HW_I2C_DEVICE_IMU, 0x10, &acc_config, 1) &&
+           hw_i2c_memoryWrite(HW_I2C_DEVICE_IMU, 0x11, &gyro_config, 1);
 }
 
 /**
@@ -172,7 +174,7 @@ static float translate_acceleration_data(const uint8_t *acc_data)
 bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
-    if (!hw_i2c_memoryRead(&imu, 0x28, x_data, 2))
+    if (!hw_i2c_memoryRead(HW_I2C_DEVICE_IMU, 0x28, x_data, 2))
         return false;
     // Convert raw value to acceleration in m/s^2
     *x_acceleration = translate_acceleration_data(x_data);
@@ -182,7 +184,7 @@ bool io_imu_getLinearAccelerationX(float *x_acceleration)
 bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
     uint8_t y_data[2];
-    if (!hw_i2c_memoryRead(&imu, 0x2A, y_data, 2))
+    if (!hw_i2c_memoryRead(HW_I2C_DEVICE_IMU, 0x2A, y_data, 2))
         return false;
     // Convert raw value to acceleration in m/s^2
     *y_acceleration = translate_acceleration_data(y_data);
@@ -192,7 +194,7 @@ bool io_imu_getLinearAccelerationY(float *y_acceleration)
 bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
-    if (!hw_i2c_memoryRead(&imu, 0x2C, z_data, 2))
+    if (!hw_i2c_memoryRead(HW_I2C_DEVICE_IMU, 0x2C, z_data, 2))
         return false;
     // Convert raw value to acceleration in m/s^2
     *z_acceleration = translate_acceleration_data(z_data);
@@ -202,7 +204,7 @@ bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
-    if (!hw_i2c_memoryRead(&imu, 0x22, roll_data, 2))
+    if (!hw_i2c_memoryRead(HW_I2C_DEVICE_IMU, 0x22, roll_data, 2))
         return false;
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *roll_velocity = translate_gyro_data(roll_data);
@@ -212,7 +214,7 @@ bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
-    if (!hw_i2c_memoryRead(&imu, 0x24, pitch_data, 2))
+    if (!hw_i2c_memoryRead(HW_I2C_DEVICE_IMU, 0x24, pitch_data, 2))
         return false;
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *pitch_velocity = translate_gyro_data(pitch_data);
@@ -222,7 +224,7 @@ bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
-    if (!hw_i2c_memoryRead(&imu, 0x26, yaw_data, 2))
+    if (!hw_i2c_memoryRead(HW_I2C_DEVICE_IMU, 0x26, yaw_data, 2))
         return false;
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *yaw_velocity = translate_gyro_data(yaw_data);
