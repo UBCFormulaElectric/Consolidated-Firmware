@@ -17,7 +17,7 @@ typedef struct
 EMPTY_STRUCT(CoolantFlowMeter);
 #endif
 
-void  io_coolant_init(PwmInputFreqOnlyConfig *config, CoolantFlowMeter *flow_meter);
+void  io_coolant_init(CoolantFlowMeter *flow_meter);
 void  io_coolant_inputCaptureCallback(CoolantFlowMeter *flow_meter);
 void  io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *flow_meter);
 float io_coolant_getFlowRate(CoolantFlowMeter *flow_meter);

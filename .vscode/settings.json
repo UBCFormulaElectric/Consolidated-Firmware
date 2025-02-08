@@ -14,6 +14,11 @@
 		"main.h": "c",
 		"hw_i2c.h": "c",
 		"io_jsoncan.h": "c",
-		"hw_watchdogconfig.h": "c"
+		"hw_watchdogconfig.h": "c",
+		"hw_adcs.h": "c",
+		"assert.h": "c",
+		"app_mainstate.h": "c",
+		"cmsis_os.h": "c",
+		"hw_gpio.h": "c"
 	},
 }
