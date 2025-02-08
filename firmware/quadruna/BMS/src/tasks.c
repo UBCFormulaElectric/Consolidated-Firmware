@@ -126,6 +126,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
+        jobs_run1Hz_tick();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -154,6 +155,7 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
+        jobs_run100Hz_tick();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -181,7 +183,8 @@ _Noreturn void tasks_run1kHz(void)
     {
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
-
+        jobs_run1kHz_tick();
+        
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 
