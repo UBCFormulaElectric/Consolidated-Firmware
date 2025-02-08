@@ -12,7 +12,7 @@
     "POSITION": 4
   },
   "TVInteralStates":{
-    "OFF": 0,
+    "TV_OFF": 0,
     "TRACTION_CONTROL": 1,
     "ACTIVE_DIFF": 2
   },

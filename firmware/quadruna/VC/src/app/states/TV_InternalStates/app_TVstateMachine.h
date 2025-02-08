@@ -4,7 +4,6 @@ typedef struct {
     char name[MAX_NAME_SIZE];
     void (*run_on_entry)();
     void (*run_on_exit)();
-    void (*run_on_tick)(); // TV State machine is only in 100Hz tasks so no need for 1Hz task
 }TVinternalState;
 
 /**
@@ -28,9 +27,3 @@ const TVinternalState *app_TVstateMachine_getCurrentState(void);
  * @param next_state The next state
  */
 void app_TVstateMachine_setNextState(const TVinternalState *next_state);
-
-/**
- * Tick the 100Hz function of the given state machine
- * @param state_machine The state machine to tick
- */
-void app_TVstateMachine_tick100Hz(void);
