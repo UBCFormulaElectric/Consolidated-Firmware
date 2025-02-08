@@ -35,7 +35,7 @@ static HANDLE state_tick_mutex;
 void runTickFunction(void (*tick_function)())
 {
 #ifdef __arm__
-    xSemaphoreTake(state_tick_mutex, portMAX_DELAY);
+    xSemaphoreTake(state_tick_mutex, portMAX_DELAY); // This should be a mutex!
 #elif __unix__ || __APPLE__
     pthread_mutex_lock(&(state_tick_mutex));
 #elif _WIN32

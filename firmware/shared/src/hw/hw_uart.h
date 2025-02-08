@@ -2,62 +2,54 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "hw_hal.h"
 
 // HAL UART type documentation pg 1161:
 // https://www.st.com/resource/en/user_manual/um1725-description-of-stm32f4-hal-and-lowlayer-drivers-stmicroelectronics.pdf
 
+// Board-specific config. Must define:
+// 1. UartDevice: Enum of all the UART devices.
+// 2. uart_device_config: Map of UART device enum to device configs.
+#include "hw_uarts.h"
+
 typedef struct
 {
-    UART_HandleTypeDef *const handle; // pointer to structure containing UART module configuration information
-} UART;
+    UART_HandleTypeDef *uart;
+    uint32_t            polling_timeout_ms;
+    bool                callback_dma;
+    void (*transmit_callback)(void);
+    void (*receive_callback)(void);
+} UartDeviceConfig;
+
+extern UartDeviceConfig uart_device_config[HW_UART_DEVICE_COUNT];
 
 /**
- * Transmits an amount of data in DMA mode (non-blocking).
- * @param uart Pointer to a UART structure.
- * @param pData Pointer to data buffer (u8 or u16 data elements).
- * @param Size Amount of data elements (u8 or u16) to be transmitted.
+ * Transmits an amount of data in blocking mode.
+ * @param device UART device.
+ * @param data Pointer to data buffer.
+ * @param size Number of data bytes.
  */
-void hw_uart_transmitDma(const UART *uart, uint8_t *pData, uint8_t size);
+bool hw_uart_transmit(const UartDevice device, uint8_t *data, uint16_t size);
 
 /**
- * Receives an amount of data in DMA mode (non-blocking).
- * @param uart Pointer to a UART structure.
- * @param pData Pointer to data buffer (u8 or u16 data elements).
- * @param Size Amount of data elements (u8 or u16) to be received.
+ * Receives an amount of data in blocking mode.
+ * @param device UART device.
+ * @param data Pointer to data buffer.
+ * @param size Number of data bytes.
  */
-void hw_uart_receiveDma(const UART *uart, uint8_t *pData, uint8_t size);
+bool hw_uart_receive(const UartDevice device, uint8_t *data, uint16_t size);
 
 /**
- * Transmits an amount of data in polling mode (blocking).
- * @param uart Pointer to a UART structure.
- * @param pData Pointer to data buffer (u8 or u16 data elements).
- * @param Size Amount of data elements (u8 or u16) to be transmitted.
- * @param timeout Timeout duration
+ * Receives an amount of data in inon-blocking mode. Will fire the configured TX callback when complete.
+ * @param uart UART device.
+ * @param pData Pointer to data buffer.
+ * @param Size Amount of data elements to be received.
  */
-void hw_uart_transmitPoll(const UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
+bool hw_uart_transmitCallback(const UartDevice device, uint8_t *data, uint16_t size);
 
 /**
- * Receives an amount of data in polling mode (blocking).
- * @param uart Pointer to a UART structure.
- * @param pData Pointer to data buffer (u8 or u16 data elements).
- * @param Size Amount of data elements (u8 or u16) to be received.
- * @param timeout Timeout duration
+ * Receives an amount of data in non-blocking mode. Will fire the configured RX callback when complete.
+ * @param uart UART device.
+ * @param pData Pointer to data buffer.
+ * @param Size Amount of data elements to be received.
  */
-bool hw_uart_receivePoll(const UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
-
-/**
- * Receives an amount of data in interrupt mode (non-blocking).
- * @param uart Pointer to a UART structure.
- * @param pData Pointer to data buffer (u8 or u16 data elements).
- * @param Size Amount of data elements (u8 or u16) to be received.
- */
-void hw_uart_transmitIt(const UART *uart, uint8_t *pData, uint8_t size);
-
-/**
- * Receives an amount of data in interrupt mode (non-blocking).
- * @param uart Pointer to a UART structure.
- * @param pData Pointer to data buffer (u8 or u16 data elements).
- * @param Size Amount of data elements (u8 or u16) to be received.
- */
-void hw_uart_receiveIt(const UART *uart, uint8_t *pData, uint8_t size);
+bool hw_uart_receiveCallback(const UartDevice device, uint8_t *data, uint16_t size);

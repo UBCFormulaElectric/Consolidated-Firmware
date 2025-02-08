@@ -12,7 +12,7 @@
 
 #include "io_time.h"
 #include "io_log.h"
-#include "hw_uarts.h"
+#include "hw_uart.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
@@ -20,7 +20,6 @@
 #define QUEUE_MAX_SIZE 32       // 128 * 32 = 4096 which is SBG_ECOM_MAX_BUFFER_SIZE
 
 /* --------------------------------- Variables ---------------------------------- */
-static const UART   *chimera_uart = &sbg_uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -261,7 +260,7 @@ bool io_sbgEllipse_init()
     assert(sensor_rx_queue_id != NULL);
 
     // Start waiting for UART packets
-    hw_uart_receiveDma(chimera_uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
+    hw_uart_receiveCallback(HW_UART_DEVICE_SBG_ELLIPSE, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }
