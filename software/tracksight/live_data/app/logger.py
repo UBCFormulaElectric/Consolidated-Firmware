@@ -21,7 +21,6 @@ def _setupLogger():
 
 	# Add the file handler to the logger
 	logger.addHandler(file_handler)
-	logger.addHandler(logging.StreamHandler(sys.stdout))
 	return logger, log_path
 
 logger, log_path = _setupLogger()

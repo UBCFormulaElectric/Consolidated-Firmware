@@ -7,14 +7,14 @@ from influx_handler import InfluxHandler
 # VERIFIED USEFUL
 import logging
 import os
-import threading
 from argparse import ArgumentParser
-from flask_app import app, api, sio
-from write_task.log import run_logging_task
-from write_task.mock import run_mock_mode_task
-from write_task.wireless import run_wireless_mode_task
-from api import run_broadcast_thread
+from flask_app import app
+from api import api, sio
+from write_task.log import get_logging_task
+from write_task.mock import get_mock_task
+from write_task.wireless import get_wireless_task
 from logger import logger, log_path
+from broadcaster import get_websocket_broadcast
 
 def setupInflux():
     dockerized = os.environ.get("IN_DOCKER_CONTAINER") is not None
@@ -85,30 +85,20 @@ if __name__ == "__main__":
     # INFLUX DB
     # setupInflux()
 
-    # STOP EVENT FOR Synchronization
-    stop_event = threading.Event()
-
     # Setup the Message Populate Thread
     if args.mode == "wireless":
-        write_thread = run_wireless_mode_task(stop_event)
+        write_thread = get_wireless_task()
     elif args.mode == "mock":
-        write_thread = run_mock_mode_task(stop_event, args.data_file)
+        write_thread = get_mock_task(args.data_file)
     elif args.mode == "log":
-        write_thread = run_logging_task(stop_event)
+        write_thread = get_logging_task()
     else:
         raise RuntimeError("should be caught by parser")
-
     # Reading Thread
-    read_thread = run_broadcast_thread(stop_event)
+    read_thread = get_websocket_broadcast()
 
-    try:
-        # Initialize the Socket.IO app with the main app.
-        write_thread.start()
-        read_thread.start()
-        sio.run(app, debug = bool(args.debug))
-    except KeyboardInterrupt:
-        logger.info("Exiting")
-        stop_event.set()
-        write_thread.join()
-        read_thread.join()
-        logger.info("Thread stopped")
+    # Initialize the Socket.IO app with the main app.
+    write_thread.start()
+    read_thread.start()
+    sio.run(app, debug = bool(args.debug), port=5000)
+    # on keyboard interrupt, the above handles killing

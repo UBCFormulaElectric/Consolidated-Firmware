@@ -7,11 +7,11 @@ from signal_queue import Signal, signal_queue
 from logger import logger
 from candb import can_db
 
-def read_messages_from_file(stop_event: threading.Event, data_file: str):
+def read_messages_from_file(data_file: str):
 	"""
 	Read messages from a file to simulate receiving from port. Used for testing front end
 	"""
-	while stop_event.isSet():
+	while True:
 		# Read the CSV file into a DataFrame
 		df = pd.read_csv(data_file)
 
@@ -67,12 +67,12 @@ def read_messages_from_file(stop_event: threading.Event, data_file: str):
 			# sleep before emitting next message
 			time.sleep(1)
 
-def run_mock_mode_task(stop_event: threading.Event, data_file: str | None) -> threading.Thread:
+def get_mock_task(data_file: str | None) -> threading.Thread:
     if data_file is None:
         raise RuntimeError("In 'mock' mode, you must specify the data file to read from")
     mock_write_thread = threading.Thread(
         target=read_messages_from_file,
-		args=(stop_event, data_file),
+		args=(data_file, ),
         daemon=True,
     )
     return mock_write_thread

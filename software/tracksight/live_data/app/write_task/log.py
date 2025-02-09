@@ -1,4 +1,4 @@
 import threading
-def run_logging_task(stop_event: threading.Event) -> threading.Thread:
+def get_logging_task() -> threading.Thread:
     pass
 
