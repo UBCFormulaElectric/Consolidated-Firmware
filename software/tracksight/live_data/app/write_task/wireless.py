@@ -19,7 +19,7 @@ def _make_bytes(message):
 		message.message_6, message.message_7
 	]) 
 
-def _read_messages(port: str):
+def _read_messages(stop_event: threading.Event, port: str):
 	"""
 	Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
 	"""
@@ -33,7 +33,7 @@ def _read_messages(port: str):
 	ser.reset_input_buffer()
 	ser.reset_output_buffer()
 
-	while True:
+	while stop_event.isSet():
 		# TODO: Lara: Upload actual signals instead!
 
 		current_time = time.time()
@@ -107,14 +107,14 @@ def _read_messages(port: str):
 			start_time = current_time  # Reset the start time
 	ser.close()
 
-def run_wireless_mode_task(serial_port: str | None) -> threading.Thread:
+def run_wireless_mode_task(stop_event, serial_port: str | None) -> threading.Thread:
     if serial_port is None:
         raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
     wireless_write_thread = threading.Thread(
         target=_read_messages,
-		args=(serial_port),
+		args=(stop_event, serial_port),
         daemon=True,
     )
     return wireless_write_thread

@@ -90,11 +90,11 @@ if __name__ == "__main__":
 
     # Setup the Message Populate Thread
     if args.mode == "wireless":
-        write_thread = run_wireless_mode_task()
+        write_thread = run_wireless_mode_task(stop_event)
     elif args.mode == "mock":
-        write_thread = run_mock_mode_task(args.data_file)
+        write_thread = run_mock_mode_task(stop_event, args.data_file)
     elif args.mode == "log":
-        write_thread = run_logging_task()
+        write_thread = run_logging_task(stop_event)
     else:
         raise RuntimeError("should be caught by parser")
 
