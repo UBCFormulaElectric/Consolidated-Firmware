@@ -128,9 +128,6 @@ void io_chimera_v2_main(Gpio *gpio_conf[], AdcChannel *adc_conf[], uint32_t net_
     id_to_gpio = gpio_conf;
     id_to_adc  = adc_conf;
 
-    // Init usb peripheral.
-    hw_usb_init();
-
     // If usb is not connected, skip Chimera.
     if (!hw_usb_checkConnection())
     {

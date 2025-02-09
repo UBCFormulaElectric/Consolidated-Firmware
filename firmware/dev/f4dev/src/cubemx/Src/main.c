@@ -32,6 +32,7 @@
 #include "shared.pb.h"
 #include "f4dev.pb.h"
 #include "io_chimera_v2.h"
+#include "hw_gpio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -159,6 +160,7 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
+    hw_usb_init();
 
     /* USER CODE END Init */
 

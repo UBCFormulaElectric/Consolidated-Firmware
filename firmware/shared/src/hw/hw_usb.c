@@ -94,9 +94,6 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len)
 void hw_usb_transmit_example()
 {
     // Init usb peripheral.
-    hw_usb_init();
-    osDelay(1000);
-
     int msg_count = 0;
     for (;;)
     {
@@ -114,9 +111,6 @@ void hw_usb_transmit_example()
 
 void hw_usb_receive_example()
 {
-    // Init usb peripheral.
-    hw_usb_init();
-
     // Dump the queue char by char.
     for (;;)
     {

@@ -164,7 +164,7 @@ It should look something like this:
 /* USER CODE END Header */
 ```
 
-Now find the generated `usbd_cdc_if.c` file. At the top, include `hw_usb.h`.
+Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](../shared/src/hw/hw_usb.h).
 ```c
 /* USER CODE BEGIN INCLUDE */
 #include "hw_usb.h"
@@ -189,6 +189,11 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
 }
 ```
 
+In the `main.c` of your board, you will need to initialize the `hw_usb` RX queue. To do this, go to where you init all your peripherals, and call `hw_usb_init()` (you will need to include [`hw_usb.h`](../shared/src/hw/hw_usb.h) in `main.c` well).
+
+We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_main` in your desired task.
+
+> **TODO:** Curently, Chimera V2 is only setup for the dev boards. When Quintuna boards arrive, we will decide how we handle multi-task boards with watchdog.
 
 
 ### Generated Files
