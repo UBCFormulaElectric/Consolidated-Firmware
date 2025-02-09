@@ -296,9 +296,75 @@ static const AdcChannel *io_chimera_v2_parseNetLabelAdc(const AdcNetName *net_na
 ...
 ```
 
-Next, we need to add Chimera-controllable pins to the board. **TODO**.
+Next, we need to add Chimera-controllable pins to the board. Open up the `.proto` file you made named after your board (ie. [`./proto/f4dev.proto`](./proto/f4dev.proto)). Add an item to the enum for whatever type of pin you want to set.
 
-We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_main` in your desired task.
+Eg. For a GPIO on the f4dev,
+```proto
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  GPIO_6 = 1; // < Add a line like this.
+}
+```
+
+Now run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh) again to generate the python proto libraries. Also try to build binaries for your board.
+
+To capture this pins on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `io` level of your board, create files called `io_chimera_v2_config.h`/`io_chimera_v2_config.c`.
+
+`io_chimera_v2_config.h` should look like this,
+
+```c
+#pragma once
+#include "hw_gpio.h"
+#include "hw_adc.h"
+
+extern const Gpio       *id_to_gpio[];
+extern const AdcChannel *id_to_adc[];
+```
+
+`io_chimera_v2_Config.c` should extern declare two tables mapping from the protobuf net name enums, to the actual GPIO pins and ADC channels.
+
+Eg. GPIO 6 on the F4 Dev board,
+```c
+#include "board_name_here.pb.h"
+#include "hw_gpio.h"
+#include "hw_gpio_config.h"
+#include "hw_adc.h"
+#include "hw_adc_config.h"
+
+const Gpio *id_to_gpio[] = {
+    [f4dev_GpioNetName_GPIO_6] = &gpio_6,
+    //..
+};
+
+// TODO: Configure adcs.
+const AdcChannel *id_to_adc[] = { 
+    // ...
+};
+```
+
+
+We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_main` in your desired task (You need to also include `shared.pb.h` at the top of your file).
+
+Eg. For the f4dev,
+```c
+io_chimera_v2_main(id_to_gpio, id_to_adc, GpioNetName_f4dev_net_name_tag, AdcNetName_f4dev_net_name_tag);
+```
+
+Chimera will skip running if no USB is plugged in on boot.
+
+For development, start by changing to [the directory of this README](.), and installing it as a pip package. 
+
+From the root of the project,
+```sh
+cd ./firmware/chimera_v2
+pip install .
+```
+
+This will install a version of `chimera_v2` with all your local changes.
+
+Open the examples directory, and write a quick example script to test Chimera out! See [`./examples/f4dev_blinky.py`](./examples/f4dev_blinky.py) for an example.
+
+Chimera is now ready to go 🥳!
 
 > **TODO:** Curently, Chimera V2 is only setup for the dev boards. When Quintuna boards arrive, we will decide how we handle multi-task boards with watchdog.
 

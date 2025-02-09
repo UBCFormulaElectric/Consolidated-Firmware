@@ -12,8 +12,8 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 
-static Gpio       **id_to_gpio;
-static AdcChannel **id_to_adc;
+static const Gpio       **id_to_gpio;
+static const AdcChannel **id_to_adc;
 
 pb_size_t gpio_net_name_tag = 0;
 pb_size_t adc_net_name_tag  = 0;
@@ -108,7 +108,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
-void io_chimera_v2_main(Gpio *gpio_conf[], AdcChannel *adc_conf[], pb_size_t gpio_tag, pb_size_t adc_tag)
+void io_chimera_v2_main(const Gpio *gpio_conf[], const AdcChannel *adc_conf[], pb_size_t gpio_tag, pb_size_t adc_tag)
 {
     // Set tags.
     gpio_net_name_tag = gpio_tag;

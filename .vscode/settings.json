@@ -9,4 +9,12 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"hw_gpios.h": "c",
+		"hw_gpio_config.h": "c",
+		"hw_adc_config.h": "c",
+		"hw_gpio.h": "c",
+		"hw_adc.h": "c",
+		"f4dev.pb.h": "c"
+	},
 }

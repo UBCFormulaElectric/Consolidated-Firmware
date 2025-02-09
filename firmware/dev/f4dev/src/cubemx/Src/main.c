@@ -33,6 +33,9 @@
 #include "f4dev.pb.h"
 #include "io_chimera_v2.h"
 #include "hw_gpio.h"
+#include "hw_gpio_config.h"
+#include "hw_adc_config.h"
+#include "io_chimera_v2_config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,11 +71,6 @@ const osThreadAttr_t defaultTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-static Gpio gpio_6_pin   = { .port = GPIO_6_GPIO_Port, .pin = GPIO_6_Pin };
-Gpio       *id_to_gpio[] = {
-    [f4dev_GpioNetName_GPIO_6] = &gpio_6_pin,
-};
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -553,7 +551,7 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    io_chimera_v2_main(id_to_gpio, NULL, GpioNetName_f4dev_net_name_tag, AdcNetName_f4dev_net_name_tag);
+    io_chimera_v2_main(id_to_gpio, id_to_adc, GpioNetName_f4dev_net_name_tag, AdcNetName_f4dev_net_name_tag);
     /* USER CODE END 5 */
 }
 

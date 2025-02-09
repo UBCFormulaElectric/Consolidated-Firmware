@@ -5,7 +5,12 @@ set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
+set(HW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/hw")
+set(IO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/io")
+
 file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+
+# Shared sources.
 list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
@@ -14,9 +19,10 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
 )
+
 list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(EMBEDDED_INCLUDE_DIRS 
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${HW_INCLUDE_DIR}" "${IO_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}"
 )
 
