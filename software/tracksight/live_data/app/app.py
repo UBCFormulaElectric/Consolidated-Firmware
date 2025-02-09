@@ -9,7 +9,7 @@ import logging
 import os
 import threading
 from argparse import ArgumentParser
-from initilize_app import app, sio
+from flask_app import app, sio
 from write_task.log import run_logging_task
 from write_task.mock import run_mock_mode_task
 from write_task.wireless import run_wireless_mode_task

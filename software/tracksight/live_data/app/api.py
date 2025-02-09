@@ -7,7 +7,7 @@ from threading import Thread, Event
 VALID_SIGNALS = []
 sub_table = {}
 
-from initilize_app import sio
+from flask_app import app, sio
 
 @sio.on('connect')
 def connect():
@@ -19,10 +19,14 @@ def disconnect():
     print(request.sid)
     logger.info('SocketIO is disconnected')
 
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
+
 def _send_data(stop_event):
     while not stop_event.is_set():  # Continue until stop_event is set
         try:
-            data: Signal = signal_queue.get(timeout=2)
+            data: Signal = signal_queue.get(timeout=5)
         except Empty:
             print("No messages...")
             continue
