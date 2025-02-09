@@ -331,4 +331,4 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
 > Note: F4s and H7s have different exposed USB APIs, since H7s support HS (high speed) and F4s support FS (full speed). If the receive callback on the F4 is called `CDC_Receive_FS`, it will be called `CDC_Receive_HS` on the H7.
 
 ### Linting
-See [`./scripts/lint.sh`](./scripts/lint.sh);
+See [`./scripts/lint.sh`](./scripts/lint.sh).
