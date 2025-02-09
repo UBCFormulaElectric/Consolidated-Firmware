@@ -41,18 +41,23 @@ while True:
 On Windows, you will need to install Zadig. Go to [https://zadig.akeo.ie/](https://zadig.akeo.ie/), and download the latest version.
 
 When you open Zadig, you should see the following,
+
 ![Zadig 1](../../images/chimera/zadig/1.png)
 
 With the board plugged in over USB, click *List All Devices*. This will populate the central dropdown.
+
 ![Zadig 2](../../images/chimera/zadig/2.png)
 
 Select the STM32 device on the dropdown.
+
 ![Zadig 3](../../images/chimera/zadig/3.png)
 
 Then, in the menu pointed to by the green arrow, select *libusb-win32*. You will hae to use the up and down buttons near the box to cycle through your options.
+
 ![Zadig 4](../../images/chimera/zadig/4.png)
 
 Then click Replace Driver.
+
 ![Zadig 5](../../images/chimera/zadig/5.png)
 
 ## User Docs
