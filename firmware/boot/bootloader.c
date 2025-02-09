@@ -132,21 +132,6 @@ static BootStatus verifyAppCodeChecksum(void)
     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
 
-#ifndef BOOT_AUTO
-#include "hw_gpio.h"
-static const Gpio bootloader_pin = {
-    .port = nBOOT_EN_GPIO_Port,
-    .pin  = nBOOT_EN_Pin,
-};
-#endif
-
-#ifdef BOOT_PIN
-static const Gpio bootloader_pin = {
-    .port = nBOOT_EN_GPIO_Port,
-    .pin  = nBOOT_EN_Pin,
-};
-#endif
-
 static uint32_t current_address;
 static bool     update_in_progress;
 
@@ -171,22 +156,19 @@ void bootloader_init(void)
     // other MCUs.
     bootloader_boardSpecific_init();
 
-    bool is_software_reset = (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != 0);
-    bool is_boot_flag_set  = boot_flag != 1;
-    bool jump_to_app       = !is_software_reset || is_boot_flag_set;
+    bool was_software_reset = (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != 0);
+    bool is_boot_flag_set   = boot_flag != 0x1;
+    bool jump_to_app        = !was_software_reset || is_boot_flag_set;
 
     if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && jump_to_app)
     {
         // Deinit peripherals.
-#ifndef BOOT_AUTO
-        HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
-#endif
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
 
-        // clear RCC register flag and RAM boot flag
+        // Clear RCC register flag and RAM boot flag.
         __HAL_RCC_CLEAR_RESET_FLAGS();
-        boot_flag = 0;
+        boot_flag = 0x0;
 
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
