@@ -1,1 +1,0 @@
-INFO:telemetry_logger:Connecting to InfluxDB database at 'http://localhost:8086' with token 'top_secret_token'.
