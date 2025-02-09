@@ -1,7 +1,7 @@
 from flask import request
 from queue import Empty
 from logger import logger
-from message_queue import message_queue
+from signal_queue import signal_queue, Signal
 from threading import Thread, Event
 
 VALID_SIGNALS = []
@@ -16,12 +16,13 @@ def connect():
 
 @sio.on('disconnect')
 def disconnect():
-    logger.info('SocketIO is disconnect')
+    print(request.sid)
+    logger.info('SocketIO is disconnected')
 
 def _send_data(stop_event):
     while not stop_event.is_set():  # Continue until stop_event is set
         try:
-            data = message_queue.get(timeout=1)
+            data: Signal = signal_queue.get(timeout=2)
         except Empty:
             print("No messages...")
             continue
@@ -30,12 +31,11 @@ def _send_data(stop_event):
         # if not isinstance(data, list) or not data or 'signal' not in data[0]:
         #     logger.error("Invalid data format: %s", data)
         #     continue
+
         # Example processing logic
         for sid, signals in sub_table.items():
             if data[0]['signal'] in signals:
                 try:
-                    # sio.emit('data', 'hello')
-                    print('Sending Signal')
                     sio.emit('data', data, to=sid)
                     logger.info(f'Data sent to sid {sid}')
                 except Exception as e:
@@ -45,7 +45,7 @@ def _send_data(stop_event):
 def run_broadcast_thread(stop_event: Event):
     read_thread = Thread(
         target=_send_data,
-        args=(stop_event),
+        args=(stop_event,),
         daemon=True
     )
     return read_thread

@@ -3,7 +3,7 @@ import pandas as pd
 import time
 
 from tzlocal import get_localzone
-from message_queue import message_queue, MessageReceived
+from signal_queue import Signal, signal_queue
 from logger import logger
 from candb import can_db
 
@@ -11,17 +11,20 @@ def read_messages_from_file(data_file: str):
 	"""
 	Read messages from a file to simulate receiving from port. Used for testing front end
 	"""
-	count = True
-
 	while True:
 		# Read the CSV file into a DataFrame
 		df = pd.read_csv(data_file)
 
 		# Iterate over each row (simulate message reception over time)
 		for _i, row in df.iterrows():
-			message_received = MessageReceived(row['Time Stamp'], int(row['Can ID']), int(row['Data'])) # Create message_received instance
-			for single_signal in can_db.unpack(message_received.can_id, bytearray(message_received.data)):
-				print(single_signal)
+			# each message has multiple signals
+			for signal_metadata in can_db.unpack(int(row['Can ID']), bytearray(int(row['Data']))):
+				signal_queue.put(Signal(
+					signal_metadata['name'],
+					signal_metadata['value'],
+					signal_metadata['unit'],
+					""
+				))
 				# Add the time stamp and get name
 				# single_signal["timestamp"] = message_received.time_stamp
 				# signal_name = single_signal["name"] 
@@ -54,10 +57,6 @@ def read_messages_from_file(data_file: str):
 				# 	print(cls.signal_df)
 				# 	data = cls.signal_df.to_dict(orient='records')
 				# 	data[0]['time'] = data[0]['time'].isoformat()
-				# 	message_queue.put(data)
-				# 	if count:
-				# 		logger.info(message_queue.get())
-				# 		count = False
 
 				# 	InfluxHandler.write(
 				# 		cls.signal_df, measurement='live'
