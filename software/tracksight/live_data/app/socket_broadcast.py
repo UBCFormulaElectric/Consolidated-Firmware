@@ -34,7 +34,7 @@ def _send_data(stop_event):
 
         # Example processing logic
         for sid, signals in sub_table.items():
-            if data[0]['signal'] in signals:
+            if data.name in signals:
                 try:
                     sio.emit('data', data, to=sid)
                     logger.info(f'Data sent to sid {sid}')
