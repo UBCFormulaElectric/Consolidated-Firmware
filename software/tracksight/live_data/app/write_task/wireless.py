@@ -1,10 +1,9 @@
 # TODO FINISH
-import threading
-import time
-from tzlocal import get_localzone
-import serial
-import pandas as pd
+# import time
+# from tzlocal import get_localzone
 
+from threading import Thread
+import serial
 from generated import telem_pb2
 from logger import logger
 from candb import can_db
@@ -69,12 +68,12 @@ def _read_messages(port: str):
 		# 	total_data_received = 0  # Reset the counter
 		# 	start_time = current_time  # Reset the start time
 
-def get_wireless_task(serial_port: str | None) -> threading.Thread:
+def get_wireless_task(serial_port: str | None) -> Thread:
     if serial_port is None:
         raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
-    wireless_write_thread = threading.Thread(
+    wireless_write_thread = Thread(
         target=_read_messages,
 		args=(serial_port, ),
         daemon=True,
