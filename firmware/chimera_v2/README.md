@@ -195,7 +195,6 @@ We can finally run chimera. Include the shared `io_chimera_v2.h` library, and ru
 
 > **TODO:** Curently, Chimera V2 is only setup for the dev boards. When Quintuna boards arrive, we will decide how we handle multi-task boards with watchdog.
 
-
 ### Generated Files
 To generate Proto libraries for Chimera, you can run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh). To generate user docs, you can run [`./scripts/generate_docs.sh`](./scripts/generate_docs.sh). Look inside both scripts for details on how they operate.
 
