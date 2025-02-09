@@ -76,5 +76,4 @@ def run_mock_mode_task(data_file: str | None) -> threading.Thread:
 		args=(data_file,),
         daemon=True,
     )
-    mock_write_thread.start()
     return mock_write_thread

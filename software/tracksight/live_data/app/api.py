@@ -48,5 +48,4 @@ def run_broadcast_thread(stop_event: Event):
         args=(stop_event),
         daemon=True
     )
-    read_thread.start()
     return read_thread

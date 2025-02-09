@@ -117,5 +117,4 @@ def run_wireless_mode_task(serial_port: str | None) -> threading.Thread:
 		args=(serial_port),
         daemon=True,
     )
-    wireless_write_thread.start()
     return wireless_write_thread
