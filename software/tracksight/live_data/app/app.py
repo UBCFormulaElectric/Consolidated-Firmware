@@ -2,7 +2,7 @@
 Entrypoint to the telemetry backend
 """
 from dotenv import load_dotenv
-from influx_handler import InfluxHandler
+import influx_handler as InfluxHandler
 
 # VERIFIED USEFUL
 import logging

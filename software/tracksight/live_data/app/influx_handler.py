@@ -14,7 +14,7 @@ from logger import logger
 BASIC_TIMEOUT_MS = 10_000
 QUERY_TIMEOUT_MS = 100_000
 
-_client: influxdb_client.InfluxDbClient
+_client: influxdb_client.InfluxDBClient
 _bucket: str
 _org: str
 
