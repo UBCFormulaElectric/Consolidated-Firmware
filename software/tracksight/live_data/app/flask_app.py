@@ -7,4 +7,4 @@ app = Flask(__name__)
 CORS(app)
 api = Blueprint('api', __name__)
 # SocketIO
-sio = SocketIO(app)
+sio = SocketIO(app, cors_allowed_origins="*")
