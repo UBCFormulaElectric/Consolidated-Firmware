@@ -36,6 +36,10 @@ def subscribe(signal):
 
 @sio.on('unsub')
 def unsubscribe(signal):
+    if signal not in SUB_TABLE[request.sid]:
+        sio.emit("unsub_err", signal, to=request.sid)
+        logger.warning(f"{request.sid} failed to unsubscribe to {signal}")
+        return
     SUB_TABLE[request.sid].remove(signal)
     logger.info(f"{signal} removed from {request.sid}")
 

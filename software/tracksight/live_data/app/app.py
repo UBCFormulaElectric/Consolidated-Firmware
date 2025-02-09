@@ -82,12 +82,10 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(filename=log_path, level=logging.INFO)
 
-    # INFLUX DB
-    # setupInflux()
-
     # Setup the Message Populate Thread
     if args.mode == "wireless":
-        write_thread = get_wireless_task()
+        setupInflux()
+        write_thread = get_wireless_task(args.serial_port)
     elif args.mode == "mock":
         write_thread = get_mock_task(args.data_file)
     elif args.mode == "log":

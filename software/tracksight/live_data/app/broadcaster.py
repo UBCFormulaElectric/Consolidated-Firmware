@@ -10,7 +10,7 @@ def _send_data():
         try:
             data: Signal = signal_queue.get(timeout=5)
         except Empty:
-            print("No messages...")
+            logger.warning("No messages")
             continue
 
         # Example processing logic

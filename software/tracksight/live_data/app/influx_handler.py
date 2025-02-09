@@ -9,15 +9,10 @@ TODO: Implement proper error handling for things like no data available.
 import pandas as pd
 from typing import List, Tuple
 import influxdb_client
-import logging
-
-
-logger = logging.getLogger("telemetry_logger")
-
+from logger import logger
 
 BASIC_TIMEOUT_MS = 10_000
 QUERY_TIMEOUT_MS = 100_000
-
 
 class InfluxHandler:
     is_setup = False
