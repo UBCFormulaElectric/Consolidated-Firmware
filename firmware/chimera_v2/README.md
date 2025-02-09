@@ -52,7 +52,7 @@ Select the STM32 device on the dropdown.
 
 ![Zadig 3](../../images/chimera/zadig/3.png)
 
-Then, in the menu pointed to by the green arrow, select *libusb-win32*. You will hae to use the up and down buttons near the box to cycle through your options.
+Then, in the menu pointed to by the green arrow, select *libusb-win32*. You will have to use the up and down buttons near the box to cycle through your options.
 
 ![Zadig 4](../../images/chimera/zadig/4.png)
 
