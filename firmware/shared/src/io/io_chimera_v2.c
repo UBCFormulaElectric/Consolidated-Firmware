@@ -15,43 +15,41 @@
 static Gpio       **id_to_gpio;
 static AdcChannel **id_to_adc;
 
-// Maximum size for the output rpc content we support (2 bytes).
+pb_size_t gpio_net_name_tag = 0;
+pb_size_t adc_net_name_tag  = 0;
+
+// Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 const uint16_t OUT_BUFFER_SIZE = 0xffff;
 
 // Note: this buffer is allocated at runtime, since on non-Chimera runs we do not want to allocate it.
 static pb_byte_t *out_buffer = NULL;
 
+// Convert a given GpioNetName to a GPIO pin.
 static const Gpio *io_chimera_v2_parseNetLabelGpio(const GpioNetName *net_name)
 {
-    switch (net_name->which_name)
-    {
-        case GpioNetName_f4dev_net_name_tag:
-        {
-            return id_to_gpio[net_name->name.f4dev_net_name];
-        }
-        default:
-        {
-            return 0U;
-        }
-    }
+    if (gpio_net_name_tag != net_name->which_name)
+        LOG_ERROR("Chimera: Expected GPIO net name with tag %d, got %d", gpio_net_name_tag, net_name->which_name);
+
+    if (net_name->which_name == GpioNetName_f4dev_net_name_tag)
+        return id_to_gpio[net_name->name.f4dev_net_name];
+
+    return NULL;
 }
 
+// Convert a given AdcNetName to an ADC channel pin.
 static const AdcChannel *io_chimera_v2_parseNetLabelAdc(const AdcNetName *net_name)
 {
-    switch (net_name->which_name)
-    {
-        case AdcNetName_f4dev_net_name_tag:
-        {
-            return id_to_adc[net_name->name.f4dev_net_name];
-        }
-        default:
-        {
-            return NULL;
-        }
-    }
+    if (adc_net_name_tag != net_name->which_name)
+        LOG_ERROR("Chimera: Expected ADC net name with tag %d, got %d", adc_net_name_tag, net_name->which_name);
+
+    if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
+        return id_to_adc[net_name->name.f4dev_net_name];
+
+    return NULL;
 }
 
-void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net_name_gpio, uint32_t net_name_adc)
+// Handle an rpc message.
+void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
 {
     // Receive message.
     DebugMessage msg            = DebugMessage_init_zero;
@@ -62,35 +60,23 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
         return;
     }
 
-    switch (msg.which_payload)
+    if (msg.which_payload == DebugMessage_gpio_read_tag)
     {
-        // GPIO read message.
-        case DebugMessage_gpio_read_tag:
-        {
-            const Gpio *gpio = io_chimera_v2_parseNetLabelGpio(&msg.payload.gpio_read.net_name);
-
-            // Add one for enum scale offset.
-            msg.payload.gpio_read.value = hw_gpio_readPin(gpio) + 1;
-            break;
-        }
-        // GPIO write message.
-        case DebugMessage_gpio_write_tag:
-        {
-            const Gpio *gpio = io_chimera_v2_parseNetLabelGpio(&msg.payload.gpio_write.net_name);
-
-            // Subtract one for enum scale offset.
-            hw_gpio_writePin(gpio, msg.payload.gpio_write.value - 1);
-            break;
-        }
-        // ADC read message.
-        case DebugMessage_adc_tag:
-        {
-            const AdcChannel *adc_channel = io_chimera_v2_parseNetLabelAdc(&msg.payload.adc.net_name);
-            msg.payload.adc.value         = hw_adc_getVoltage(adc_channel);
-            break;
-        }
-        default:
-            break;
+        // GPIO read.
+        const Gpio *gpio            = io_chimera_v2_parseNetLabelGpio(&msg.payload.gpio_read.net_name);
+        msg.payload.gpio_read.value = hw_gpio_readPin(gpio);
+    }
+    else if (msg.which_payload == DebugMessage_gpio_write_tag)
+    {
+        // GPIO write.
+        const Gpio *gpio = io_chimera_v2_parseNetLabelGpio(&msg.payload.gpio_write.net_name);
+        hw_gpio_writePin(gpio, msg.payload.gpio_write.value);
+    }
+    else if (msg.which_payload == DebugMessage_adc_tag)
+    {
+        // ADC read.
+        const AdcChannel *adc_channel = io_chimera_v2_parseNetLabelAdc(&msg.payload.adc.net_name);
+        msg.payload.adc.value         = hw_adc_getVoltage(adc_channel);
     }
 
     // Encode protobuf to bytes.
@@ -122,8 +108,12 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length, uint32_t net
         LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
-void io_chimera_v2_main(Gpio *gpio_conf[], AdcChannel *adc_conf[], uint32_t net_name_gpio, uint32_t net_name_adc)
+void io_chimera_v2_main(Gpio *gpio_conf[], AdcChannel *adc_conf[], pb_size_t gpio_tag, pb_size_t adc_tag)
 {
+    // Set tags.
+    gpio_net_name_tag = gpio_tag;
+    adc_net_name_tag  = adc_tag;
+
     // Store adc and gpio tables.
     id_to_gpio = gpio_conf;
     id_to_adc  = adc_conf;
@@ -166,7 +156,7 @@ void io_chimera_v2_main(Gpio *gpio_conf[], AdcChannel *adc_conf[], uint32_t net_
             LOG_PRINTF("%02x ", content[i]);
         LOG_PRINTF("\n");
 
-        io_chimera_v2_handleContent(content, length, net_name_gpio, net_name_adc);
+        io_chimera_v2_handleContent(content, length);
 
         LOG_INFO("Chimera: Processed %d requests", requests_processed);
     }

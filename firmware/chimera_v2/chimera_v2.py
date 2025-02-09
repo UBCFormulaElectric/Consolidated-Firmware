@@ -10,6 +10,8 @@ import proto_autogen.shared_pb2
 # CHIMERA Packet Format:
 # [ length low byte  | length high byte | content bytes    | ... ]
 
+_MANUFACTURER = "ubc_formula_electric"
+
 
 def log_usb_devices():
     """Debug utility for printing all available usb devices."""
@@ -30,13 +32,13 @@ class _UsbDevice:
     exposing ``read`` and ``write`` methods for arbritrary length data.
     """
 
-    def __init__(self, idVendor: int, idProduct: int):
+    def __init__(self, product: str):
         """Create a USB device.
 
-        Vendor and product ID can be found in STM32 CubeMX.
+        product name is set in CubeMX.
         """
 
-        self._device = usb.core.find(idVendor=idVendor, idProduct=idProduct)
+        self._device = usb.core.find(manufacturer=_MANUFACTURER, product=product)
 
         # If the device was not found.
         if self._device is None:
@@ -138,8 +140,7 @@ class _Board:
         # Wait for response.
         response = self._read()
 
-        # Subtract one for enum scale offset.
-        return response.gpio_read.value == proto_autogen.shared_pb2.GpioValue.HIGH
+        return response.gpio_read.value
 
     def gpio_write(self, net_name: str, value: bool) -> None:
         """Write a value to the gpio pin indicated by the provided net name, true for high."""
@@ -149,8 +150,7 @@ class _Board:
         net_name = self.board_module.GpioNetName.Value(net_name)
         setattr(msg.gpio_write.net_name, self.gpio_net_name, net_name)
 
-        # Add one for enum scale offset.
-        msg.gpio_write.value = value + 1
+        msg.gpio_write.value = value
         self._write(msg)
 
         # Wait for response, and validate that the request was the same.
@@ -176,7 +176,7 @@ class F4Dev(_Board):
 
     def __init__(self) -> None:
         super().__init__(
-            usb_device=_UsbDevice(idVendor=0x0483, idProduct=0x5740),
+            usb_device=_UsbDevice(product="f4dev"),
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
