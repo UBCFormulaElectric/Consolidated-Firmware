@@ -41,7 +41,7 @@ def _send_data(stop_event):
         for sid, signals in sub_table.items():
             if data.name in signals:
                 try:
-                    sio.emit('data', data, to=sid)
+                    sio.emit('data', data.toJSON(), to=sid)
                     logger.info(f'Data sent to sid {sid}')
                 except Exception as e:
                     logger.error(f'Emit failed for sid {sid}: {e}')
