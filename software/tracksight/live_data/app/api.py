@@ -3,11 +3,12 @@ from queue import Empty
 from logger import logger
 from signal_queue import signal_queue, Signal
 from threading import Thread, Event
+from flask_app import sio, api
+
 
 VALID_SIGNALS = []
 sub_table = {}
 
-from flask_app import app, sio
 
 @sio.on('connect')
 def connect():
@@ -19,7 +20,7 @@ def disconnect():
     print(request.sid)
     logger.info('SocketIO is disconnected')
 
-@app.route("/")
+@api.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 

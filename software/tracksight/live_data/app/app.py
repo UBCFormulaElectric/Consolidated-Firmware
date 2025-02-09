@@ -9,11 +9,11 @@ import logging
 import os
 import threading
 from argparse import ArgumentParser
-from flask_app import app, sio
+from flask_app import app, api, sio
 from write_task.log import run_logging_task
 from write_task.mock import run_mock_mode_task
 from write_task.wireless import run_wireless_mode_task
-from live_data.app.api import run_broadcast_thread
+from api import run_broadcast_thread
 from logger import logger, log_path
 
 def setupInflux():
@@ -41,6 +41,7 @@ def setupInflux():
     )
 
 if __name__ == "__main__":
+    app.register_blueprint(api, url_prefix='/api')
     # ARGPARSER
     parser = ArgumentParser()
     parser.add_argument(
