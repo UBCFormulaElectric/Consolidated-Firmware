@@ -15,6 +15,7 @@ class Signal:
             self,
             default=lambda o: o.__dict__, 
             sort_keys=True,
-            indent=4)
+            indent=4
+		)
 
 signal_queue = Queue()

@@ -105,7 +105,7 @@ if __name__ == "__main__":
         # Initialize the Socket.IO app with the main app.
         write_thread.start()
         read_thread.start()
-        sio.run(app, debug = False)
+        sio.run(app, debug = bool(args.debug))
     except KeyboardInterrupt:
         logger.info("Exiting")
         stop_event.set()
