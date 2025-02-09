@@ -2,9 +2,7 @@
 
 import types
 
-# Note, we must use libusb_package for Windows support when finding devices.
 import usb
-import libusb_package
 
 import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
@@ -12,19 +10,25 @@ import proto_autogen.shared_pb2
 # CHIMERA Packet Format:
 # [ length low byte  | length high byte | content bytes    | ... ]
 
+
 def log_usb_devices():
     """Debug utility for printing all available usb devices."""
-    devices = libusb_package.find(find_all=True)
+    devices = usb.core.find(find_all=True)
     for device in devices:
         print(
             f"Product: {device.product},",
             f"Manufacturer: {device.manufacturer},",
             f"Product ID: {device.idProduct:#x},",
-            f"Vendor ID: {device.idVendor:#x}"
+            f"Vendor ID: {device.idVendor:#x}",
         )
 
+
 class _UsbDevice:
-    """Abstraction around a USB CDC (communcations device class) device."""
+    """Abstraction around a USB CDC (communcations device class) device.
+
+    Converts the fixed bulk endpoint chunk size of CDC devices to a continuous buffer,
+    exposing ``read`` and ``write`` methods for arbritrary length data.
+    """
 
     def __init__(self, idVendor: int, idProduct: int):
         """Create a USB device.
@@ -32,26 +36,25 @@ class _UsbDevice:
         Vendor and product ID can be found in STM32 CubeMX.
         """
 
-        self._device = libusb_package.find(idVendor=idVendor, idProduct=idProduct)
+        self._device = usb.core.find(idVendor=idVendor, idProduct=idProduct)
 
         # If the device was not found.
-        if self._device == None:
-
+        if self._device is None:
             # Error out, and list all devices.
             print("Error: Specified USB device not found.")
             print("Devices found:")
             log_usb_devices()
             exit(1)
 
-        self._interface = self._device[0][(1,0)]
+        self._interface = self._device[0][(1, 0)]
         self._endpoint_write = self._interface[0]
         self._endpoint_read = self._interface[1]
         self._read_chunk_size = self._endpoint_read.wMaxPacketSize
 
         # Buffer for read bytes.
-        # We have to read in chunks of _read_chunk_size, so if we read too much, 
+        # We have to read in chunks of _read_chunk_size, so if we read too much,
         # this buffer stores the data for the next call.
-        self._read_buf = b''
+        self._read_buf = b""
 
     def write(self, buffer: bytes):
         """Write bytes over usb."""
@@ -65,25 +68,33 @@ class _UsbDevice:
 
         # Read bytes until there are a sufficent amount.
         while len(self._read_buf) < length:
-            self._read_buf += bytes(self._device.read(
-                self._endpoint_read.bEndpointAddress, 
-                self._read_chunk_size,
-
-                # Set a long timeout.
-                100000000
-            ))
+            self._read_buf += bytes(
+                self._device.read(
+                    self._endpoint_read.bEndpointAddress,
+                    self._read_chunk_size,
+                    # Set a long timeout.
+                    100000000,
+                )
+            )
 
         # Remove the first length bytes from the buffer.
         res = self._read_buf[:length]
         self._read_buf = self._read_buf[length:]
         return res
 
+
 class _Board:
     """Abstraction around rpc-over-usb-communicating boards."""
 
-    def __init__(self, usb_device: _UsbDevice, gpio_net_name: str, adc_net_name: str, board_module: types.ModuleType):
+    def __init__(
+        self,
+        usb_device: _UsbDevice,
+        gpio_net_name: str,
+        adc_net_name: str,
+        board_module: types.ModuleType,
+    ):
         """Create a new board."""
-        
+
         self._usb_device = usb_device
         self.gpio_net_name = gpio_net_name
         self.adc_net_name = adc_net_name
@@ -95,26 +106,26 @@ class _Board:
         # Get data.
         data = msg.SerializeToString()
         data_size = len(data)
-        
+
         # Get low-endian bytes for packet.
-        packet_size_bytes = [data_size & 0xff, data_size >> 8]
+        packet_size_bytes = [data_size & 0xFF, data_size >> 8]
 
         # Format and send packet.
         packet = bytes([*packet_size_bytes, *data])
         self._usb_device.write(packet)
-    
+
     def _read(self) -> proto_autogen.shared_pb2.DebugMessage:
         """Read and return an RPC message over the provided usb device."""
 
         # Extract data size.
         data_size_bytes = self._usb_device.read(2)
-        data_size = int.from_bytes(data_size_bytes, byteorder='little')
+        data_size = int.from_bytes(data_size_bytes, byteorder="little")
 
         # Extract rpc message.
         msg = proto_autogen.shared_pb2.DebugMessage()
         msg.ParseFromString(self._usb_device.read(data_size))
         return msg
-    
+
     def gpio_read(self, net_name: str) -> bool:
         """Read the value of a GPIO pin given the net name of the pin, returns true if high."""
 
@@ -123,7 +134,7 @@ class _Board:
         net_name = self.board_module.GpioNetName.Value(net_name)
         setattr(msg.gpio_read.net_name, self.gpio_net_name, net_name)
         self._write(msg)
-        
+
         # Wait for response.
         response = self._read()
 
@@ -132,7 +143,7 @@ class _Board:
 
     def gpio_write(self, net_name: str, value: bool) -> None:
         """Write a value to the gpio pin indicated by the provided net name, true for high."""
-                
+
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
         net_name = self.board_module.GpioNetName.Value(net_name)
@@ -144,7 +155,7 @@ class _Board:
 
         # Wait for response, and validate that the request was the same.
         response = self._read()
-        assert(response.SerializeToString() == msg.SerializeToString())
+        assert response.SerializeToString() == msg.SerializeToString()
 
     def adc_read(self, net_name: str) -> float:
         """Read the voltage at an adc pin specified by the net name."""
@@ -158,13 +169,15 @@ class _Board:
         # Wait for response and return.
         response = self._read()
         return response.adc.value
-    
+
+
 class F4Dev(_Board):
     """Chimera access point for the F4Dev."""
+
     def __init__(self) -> None:
         super().__init__(
             usb_device=_UsbDevice(idVendor=0x0483, idProduct=0x5740),
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
-            board_module=proto_autogen.f4dev_pb2
+            board_module=proto_autogen.f4dev_pb2,
         )

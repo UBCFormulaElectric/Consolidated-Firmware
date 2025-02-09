@@ -30,7 +30,7 @@ asammdf
 # Utils
 lazydocs
 pydocstyle
+ruff
 
 # Chimera
 pyusb
-libusb-package

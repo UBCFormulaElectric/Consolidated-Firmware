@@ -1,7 +1,7 @@
 [project]
 name = "chimera_v2"
 version = "0.1"
-dependencies = ["grpcio-tools", "protoletariat", "pyusb", "libusb-package"]
+dependencies = ["grpcio-tools", "protoletariat", "pyusb"]
 
 [tool.setuptools]
 py-modules=["chimera_v2"]
