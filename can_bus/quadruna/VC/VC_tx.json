@@ -340,49 +340,6 @@
       }
     }
   },
-  "PowerEstimatePID": {
-    "msg_id": 212,
-    "cycle_time": 1000,
-    "description": "Debug messages for the PID power estimate controller",
-    "signals": {
-      "PIDPowerEstimateOutput": {
-        "start_bit": 0,
-        "bits": 8,
-        "offset": 0,
-        "signed": true,
-        "min": -1,
-        "max": 1,
-        "scale": 0.01
-      },
-      "PIDPowerEstimateError": {
-        "start_bit": 8,
-        "bits": 16,
-        "offset": 0,
-        "signed": true,
-        "min": -80,
-        "max": 80,
-        "scale": 0.1
-      },
-      "PIDPowerEstimateDerivative": {
-        "start_bit": 24,
-        "bits": 16,
-        "offset": 0,
-        "signed": true,
-        "min": -160,
-        "max": 160,
-        "scale": 0.1
-      },
-      "PIDPowerEstimateIntegral": {
-        "start_bit": 40,
-        "bits": 24,
-        "offset": 0,
-        "signed": true,
-        "min": -21474836,
-        "max": 21474836,
-        "scale": 0.1
-      }
-    }
-  },
   "PIDSlipRatio": {
     "msg_id": 213,
     "cycle_time": 1000,

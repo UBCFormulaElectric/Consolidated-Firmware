@@ -11,7 +11,7 @@
     "VELOCITY": 3,
     "POSITION": 4
   },
-  "TVInteralStates":{
+  "TorqueVectoringStates":{
     "TV_OFF": 0,
     "TRACTION_CONTROL": 1,
     "ACTIVE_DIFF": 2
