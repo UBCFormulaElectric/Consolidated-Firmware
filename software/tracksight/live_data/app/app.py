@@ -1,47 +1,20 @@
 """
 Entrypoint to the telemetry backend
 """
+from dotenv import load_dotenv
+from influx_handler import InfluxHandler
 
+# VERIFIED USEFUL
 import logging
 import os
 import threading
-from datetime import datetime
 from argparse import ArgumentParser
-from flask_cors import CORS
-from dotenv import load_dotenv
-from queue import Queue
-
-
-from initilize_app import create_app, create_sio
-from influx_handler import InfluxHandler
-from signal_util import SignalUtil
-from api import WebSocket
-
-def setupLogger(debug):
-    # Setup logging.
-    time_now = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
-    app_dir = os.path.dirname(os.path.abspath(__file__))
-    log_path = os.path.join(app_dir, "..", "logs", f"Live-Data--{time_now}.log")
-
-    if not os.path.exists(os.path.dirname(log_path)):
-        os.makedirs(os.path.dirname(log_path))
-
-    logger = logging.getLogger("live_data_logger")
-
-    # Set the logging level to DEBUG
-    logger.setLevel(level=logging.DEBUG if debug else logging.INFO)
-
-    # Create a file handler
-    file_handler = logging.FileHandler(log_path)
-    
-    # Create a formatter and set it for the file handler
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-
-    # Add the file handler to the logger
-    logger.addHandler(file_handler)
-
-    return logger, log_path
+from initilize_app import app, sio
+from write_task.log import run_logging_task
+from write_task.mock import run_mock_mode_task
+from write_task.wireless import run_wireless_mode_task
+from api import run_broadcast_thread
+from logger import logger, log_path
 
 def setupInflux():
     dockerized = os.environ.get("IN_DOCKER_CONTAINER") is not None
@@ -65,9 +38,10 @@ def setupInflux():
     influx_token = os.environ.get(required_env_vars["token"])
     InfluxHandler.setup(
         url=influx_url, org=influx_org, bucket=influx_bucket, token=influx_token
-    )    
+    )
 
 if __name__ == "__main__":
+    # ARGPARSER
     parser = ArgumentParser()
     parser.add_argument(
         "--mode",
@@ -100,84 +74,38 @@ if __name__ == "__main__":
     )   
     args = parser.parse_args()
 
-    logger, log_path = setupLogger(args.debug)
-
+    # Set the logging level to DEBUG
+    logger.setLevel(level=logging.DEBUG if args.debug else logging.INFO)
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(filename=log_path, level=logging.INFO)
 
-    if args.mode == "wireless" and args.serial_port is None:
-        raise RuntimeError(
-            "If running telemetry in wireless mode, you must specify the radio serial port!"
-        )
-    elif args.mode != "wireless" and args.mode != "mock":
-        raise RuntimeError("Mode must be either 'wireless' or 'log' or 'mock'")
-    
-    # Setup Influx DB
-    setupInflux()
+    # INFLUX DB
+    # setupInflux()
 
-    _shared_queue = Queue()
+    # STOP EVENT FOR Synchronization
+    stop_event = threading.Event()
 
-    # Setup Flask app and SocketIO.
-    app = create_app()
-    sio = create_sio(app)
-    CORS(app)
-
+    # Setup the Message Populate Thread
     if args.mode == "wireless":
-        SignalUtil.setup(port=args.serial_port, app=app)
-
-        wireless_thread = threading.Thread(
-            target=SignalUtil.read_messages,
-            daemon=True,
-        )
-
-        try:
-            wireless_thread.start()
-            # Initialize the Socket.IO app with the main app.
-            app.run(debug=False, host="0.0.0.0")
-        except KeyboardInterrupt:
-            logger.info("Exiting")
-
-            if wireless_thread is not None:
-                wireless_thread.join()
-
-            logger.info("Thread stopped")
-
+        write_thread = run_wireless_mode_task()
     elif args.mode == "mock":
-        if args.data_file is None:
-            raise RuntimeError("In 'mock' mode, you must specify the data file to read from")
-        
-        SignalUtil.setup(app=app, data_file=args.data_file)
-        WebSocket.setup(sio)
-        stop_event = threading.Event()
+        write_thread = run_mock_mode_task(args.data_file)
+    elif args.mode == "log":
+        write_thread = run_logging_task()
+    else:
+        raise RuntimeError("should be caught by parser")
 
-        write_thread = threading.Thread(
-            target=SignalUtil.read_messages_from_file,
-            args=(_shared_queue,),
-            daemon=True,
-        )
+    # Reading Thread
+    read_thread = run_broadcast_thread(stop_event)
 
-        read_thread = threading.Thread(
-            target=WebSocket.send_data,
-            args=(_shared_queue, stop_event),
-            daemon=True
-        )
-
-        try:
-            write_thread.start()
-            read_thread.start()
-            # Initialize the Socket.IO app with the main app.
-            # app.run(debug=False, host="0.0.0.0")
-            sio.run(app, debug = False)
-        except KeyboardInterrupt:
-            logger.info("Exiting")
-
-            if write_thread is not None:
-                write_thread.join()
-                
-            stop_event.set()
-            if read_thread is not None:
-                read_thread.join()
-
-            logger.info("Thread stopped")
+    try:
+        # Initialize the Socket.IO app with the main app.
+        sio.run(app, debug = False)
+    except KeyboardInterrupt:
+        logger.info("Exiting")
+        stop_event.set()
+        write_thread.join()
+        read_thread.join()
+        logger.info("Thread stopped")

@@ -1,63 +1,52 @@
-from flask import Blueprint, jsonify, request, render_template
-from flask_socketio import emit
-import logging
+from flask import request
 from queue import Empty
-
-logger = logging.getLogger('live_data_logger')
-
-api = Blueprint('api', __name__)
+from logger import logger
+from message_queue import message_queue
+from threading import Thread, Event
 
 VALID_SIGNALS = []
 sub_table = {}
 
-class WebSocket:
-    @classmethod
-    def setup(cls, sio):
-        cls.sio = sio
-        cls.register_sio_events()
+from initilize_app import sio
 
-    @classmethod
-    def register_sio_events(cls):
-        @cls.sio.on('connect')
-        def connect():
-            logger.info('SocketIO connection is established!')
-            sub_table[request.sid] = ['BMS_BmsOk', 'BMS_ImdLatchedFault']
-        
-        @cls.sio.on('disconnect')
-        def disconnect():
-            logger.info('SocketIO is disconnect')
-    
-    @classmethod
-    def send_data(cls, _shared_queue, stop_event):
-        while not stop_event.is_set():  # Continue until stop_event is set
-            try:
-                # Get data from the queue with a timeout
-                data = _shared_queue.get(timeout=1)
-            except Empty:
-                # No data in the queue, check for stop_event and continue
-                continue
+@sio.on('connect')
+def connect():
+    logger.info('SocketIO connection is established!')
+    sub_table[request.sid] = ['BMS_BmsOk', 'BMS_ImdLatchedFault']
 
-            # Process the data
-            # if not isinstance(data, list) or not data or 'signal' not in data[0]:
-            #     logger.error("Invalid data format: %s", data)
-            #     continue
+@sio.on('disconnect')
+def disconnect():
+    logger.info('SocketIO is disconnect')
 
-            # Example processing logic
-            for sid, signals in sub_table.items():
-                if data[0]['signal'] in signals:
-                    print('HEYYYYYY')
-                    try:
-                        cls.sio.emit('data', 'hello')
-                        cls.sio.emit('data', data, to=sid)
-                        logger.info(f'Data sent to sid {sid}')
-                    except Exception as e:
-                        logger.error(f'Emit failed for sid {sid}: {e}')
+def _send_data(stop_event):
+    while not stop_event.is_set():  # Continue until stop_event is set
+        try:
+            data = message_queue.get(timeout=1)
+        except Empty:
+            print("No messages...")
+            continue
 
-        logger.info('Send data thread stopped')
+        # Process the data
+        # if not isinstance(data, list) or not data or 'signal' not in data[0]:
+        #     logger.error("Invalid data format: %s", data)
+        #     continue
+        # Example processing logic
+        for sid, signals in sub_table.items():
+            if data[0]['signal'] in signals:
+                try:
+                    # sio.emit('data', 'hello')
+                    print('Sending Signal')
+                    sio.emit('data', data, to=sid)
+                    logger.info(f'Data sent to sid {sid}')
+                except Exception as e:
+                    logger.error(f'Emit failed for sid {sid}: {e}')
+    logger.info('Send data thread stopped')
 
-@api.route('/home', methods=['POST', 'GET'])
-def home():
-    return render_template('index.html')
-            
-        
-   
+def run_broadcast_thread(stop_event: Event):
+    read_thread = Thread(
+        target=_send_data,
+        args=(stop_event),
+        daemon=True
+    )
+    read_thread.start()
+    return read_thread
