@@ -13,7 +13,7 @@ from flask_app import app, sio
 from write_task.log import run_logging_task
 from write_task.mock import run_mock_mode_task
 from write_task.wireless import run_wireless_mode_task
-from socket_broadcast import run_broadcast_thread
+from live_data.app.api import run_broadcast_thread
 from logger import logger, log_path
 
 def setupInflux():
