@@ -387,7 +387,8 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
     // hook to hw_usb
-    hw_usb_pushRxMsgToQueue(Buf, *Len);
+    if (!hw_usb_pushRxMsgToQueue(Buf, *Len))
+        LOG_ERROR("Error encountered pushing USB RX Message to queue.");
 
     return (USBD_OK);
     /* USER CODE END 6 */

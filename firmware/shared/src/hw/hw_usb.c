@@ -38,7 +38,7 @@ void hw_usb_init()
     if (rx_queue_id == NULL)
         rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(uint8_t), &rx_queue_attr);
     else
-        LOG_WARN("RX queue already exists when attempting to init USB driver");
+        LOG_WARN("USB: RX queue already exists when attempting to init USB driver.");
 }
 
 bool hw_usb_checkConnection()
@@ -51,7 +51,7 @@ bool hw_usb_transmit(uint8_t *msg, uint16_t len)
     uint8_t status = TRANSMIT(msg, len);
     if (status != USBD_OK)
     {
-        LOG_WARN("Chimera: USB handle returned %d status code instead of USBD_OK", status);
+        LOG_WARN("USB: Transmit handle returned %d status code instead of USBD_OK.", status);
         return false;
     }
 
@@ -60,6 +60,12 @@ bool hw_usb_transmit(uint8_t *msg, uint16_t len)
 
 bool hw_usb_receive(uint8_t *dest, uint32_t len)
 {
+    if (rx_queue_id == NULL)
+    {
+        LOG_ERROR("USB: Peripheral not initialized before attempting receive from RX queue.");
+        return false;
+    }
+
     // Loop through every index in the buffer.
     for (uint32_t i = 0; i < len; i += 1)
     {
@@ -77,18 +83,35 @@ bool hw_usb_receive(uint8_t *dest, uint32_t len)
     return true;
 }
 
-void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len)
+bool hw_usb_pushRxMsgToQueue(uint8_t *msg, uint32_t len)
 {
+    if (rx_queue_id == NULL)
+    {
+        LOG_ERROR("USB: Peripheral not initialized before attempting push to RX queue.");
+        return false;
+    }
+
     uint32_t space = osMessageQueueGetSpace(rx_queue_id);
     if (len > space)
     {
-        LOG_WARN("usb message queue overflow");
+        LOG_ERROR("USB: Receiving message that will overflow RX queue.");
+        return false;
     }
 
     for (uint32_t i = 0; i < len; i += 1)
     {
-        osStatus_t status = osMessageQueuePut(rx_queue_id, &packet[i], 0, osWaitForever);
+        osStatus_t status = osMessageQueuePut(rx_queue_id, &msg[i], 0, osWaitForever);
+        if (status != osOK)
+        {
+            LOG_ERROR(
+                "USB: Error status encountered when pushing to RX queue, "
+                "osMessageQueuePut returned %d insteado of osOK.",
+                status);
+            return false;
+        }
     }
+
+    return true;
 }
 
 void hw_usb_transmit_example()

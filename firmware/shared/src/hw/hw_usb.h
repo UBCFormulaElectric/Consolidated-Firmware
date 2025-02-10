@@ -3,28 +3,47 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// Initialize the usb peripheral.
+/**
+ * @brief Initialize the USB CDC peripheral.
+ */
 void hw_usb_init();
 
-// Checks if the usb port is connected.
+/**
+ * @brief Check if the USB port is connected.
+ * @return True if the port is connected, otherwise false.
+ */
 bool hw_usb_checkConnection();
 
-// Transmits usb message of arbritrary length.
-// Returns false on failure, otherwise true.
+/**
+ * @brief Transmit a buffer over USB of arbritrary length.
+ * @param msg A pointer to the message buffer to send.
+ * @param len The length of the buffer.
+ * @return True if data is transmitted successfully, otherwise false.
+ */
 bool hw_usb_transmit(uint8_t *msg, uint16_t len);
 
-// Receive a buffer of bytes over usb.
-// Blocks until len bytes are received.
-// Dumps into the dest buffer.
-// Returns false on failure, otherwise true.
+/**
+ * @brief Receive data from the usb host.
+ * @param dest A pointer to the destination buffer.
+ * @param len Number of bytes to receive.
+ * @return True if data is received successfully, otherwise false.
+ */
 bool hw_usb_receive(uint8_t *dest, uint32_t len);
 
-// Pushes a message onto the internal usb queue,
-// for use in CDC_Receive_FS/CDC_Receive_HS.
-void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len);
+/**
+ * @brief Push a message to the RX queue. To be called from usbd_cdc_if.c, CDC_Receive_FS.
+ * @param msg A pointer to the message buffer to push to the queue.
+ * @param len Number of bytes to receive.
+ * @return True if data is pushed to the queue successfully, otherwise false.
+ */
+bool hw_usb_pushRxMsgToQueue(uint8_t *msg, uint32_t len);
 
-// Runs an example loop where the message "hello" is tx-ed repeatedly.
+/**
+ * @brief Transmits "hello" repeatedly over USB.
+ */
 void hw_usb_transmit_example();
 
-// Runs an example loop that logs all received bytes as chars.
+/**
+ * @brief Logs all received bytes as chars.
+ */
 void hw_usb_receive_example();
