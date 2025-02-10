@@ -11,8 +11,6 @@
 
 void mainStateRunOnTick100Hz(void)
 {
-    app_canTx_FSM_Heartbeat_set(true);
-
     app_apps_broadcast();
     app_brake_broadcast();
     app_steering_broadcast();
