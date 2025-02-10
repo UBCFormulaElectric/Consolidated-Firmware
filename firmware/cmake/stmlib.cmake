@@ -161,7 +161,7 @@ function(stm32h733xx_cube_library
         "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
         "${FREERTOS_DIR}/include"
         "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-        "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
+        "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1"
         "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
         "${DRIVERS_DIR}/CMSIS/Include"
 
@@ -182,7 +182,7 @@ function(stm32h733xx_cube_library
     file(GLOB RTOS_SRCS
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1/port.c"
     )
 
     # SEGGER SystemView sources.
