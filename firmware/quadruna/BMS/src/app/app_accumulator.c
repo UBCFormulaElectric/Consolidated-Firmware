@@ -455,7 +455,7 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.owc_status[1]);
     app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.owc_status[2]);
     app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owc_status[3]);
-    app_canTx_BMS_Segment4_OWC_Cells_Status_set(data.owc_faults.owc_status[4]);
+    // app_canTx_BMS_Segment4_OWC_Cells_Status_set(data.owc_faults.owc_status[4]);
 
     // Calculate and broadcast pack power.
     const float available_power =

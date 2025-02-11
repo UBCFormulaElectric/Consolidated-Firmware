@@ -326,31 +326,28 @@
             }
         }
     },
-    "OWC_Segment0to2_Status": {
+    "OWC_Segment0to1_Status": {
         "msg_id": 141,
         "cycle_time": 100,
-        "description": "Open Wire Check Segment 0 to 2 Status",
+        "description": "Open Wire Check Segment 0 to 1 Status",
         "signals": {
             "Segment0_OWC_Cells_Status": {
                 "bits": 16
             },
             "Segment1_OWC_Cells_Status": {
                 "bits": 16
-            },
-            "Segment2_OWC_Cells_Status": {
-                "bits": 16
             }
         }
     },
-    "OWC_Segment3to4_Status": {
+    "OWC_Segment2to3_Status": {
         "msg_id": 142,
         "cycle_time": 100,
-        "description": "Open Wire Check Segment 3 to 4 Status",
+        "description": "Open Wire Check Segment 2 to 3 Status",
         "signals": {
-            "Segment3_OWC_Cells_Status": {
+            "Segment2_OWC_Cells_Status": {
                 "bits": 16
             },
-            "Segment4_OWC_Cells_Status": {
+            "Segment3_OWC_Cells_Status": {
                 "bits": 16
             }
         }
