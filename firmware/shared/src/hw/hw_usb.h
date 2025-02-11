@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 /**
- * @brief Initialize the USB CDC peripheral.
+ * @brief Initialize the USB CDC peripheral, must be called in the `USER CODE BEGIN RTOS_QUEUES` section.
  */
 void hw_usb_init();
 

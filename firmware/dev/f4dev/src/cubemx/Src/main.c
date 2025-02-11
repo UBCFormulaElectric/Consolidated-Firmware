@@ -36,6 +36,7 @@
 #include "hw_gpio_config.h"
 #include "hw_adc_config.h"
 #include "io_chimera_v2_config.h"
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -158,8 +159,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-    hw_usb_init();
-
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -232,7 +231,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    hw_usb_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */

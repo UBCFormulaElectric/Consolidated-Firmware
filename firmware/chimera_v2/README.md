@@ -37,7 +37,11 @@ while True:
 ```
 *From [`./examples/f4dev_blinky.py`](./examples/f4dev_blinky.py)*
 
-## For Windows Users
+## Platform Instructions
+### For Mac Users
+Make sure you run your Chimera V2 scripts with `sudo`, ie. `sudo python ./examples/f4dev_blinky.py`.
+
+### For Windows Users
 On Windows, you will need to install Zadig. Go to [https://zadig.akeo.ie/](https://zadig.akeo.ie/), and download the latest version.
 
 When you open Zadig, you should see the following,

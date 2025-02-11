@@ -36,9 +36,21 @@ static osMessageQueueId_t         rx_queue_id   = NULL;
 void hw_usb_init()
 {
     if (rx_queue_id == NULL)
+    {
         rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(uint8_t), &rx_queue_attr);
+        if (rx_queue_id == NULL)
+        {
+            LOG_ERROR("USB: Failed to init RX queue.");
+        }
+        else
+        {
+            LOG_INFO("USB: Initialized RX queue.");
+        }
+    }
     else
+    {
         LOG_WARN("USB: RX queue already exists when attempting to init USB driver.");
+    }
 }
 
 bool hw_usb_checkConnection()
@@ -100,7 +112,8 @@ bool hw_usb_pushRxMsgToQueue(uint8_t *msg, uint32_t len)
 
     for (uint32_t i = 0; i < len; i += 1)
     {
-        osStatus_t status = osMessageQueuePut(rx_queue_id, &msg[i], 0, osWaitForever);
+        // Note: timeout cannot be non-zero in an IRQ.
+        osStatus_t status = osMessageQueuePut(rx_queue_id, &msg[i], 0, 0);
         if (status != osOK)
         {
             LOG_ERROR(

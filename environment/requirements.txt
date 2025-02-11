@@ -34,3 +34,4 @@ ruff
 
 # Chimera
 pyusb
+libusb-package

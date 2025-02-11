@@ -2,7 +2,7 @@
 
 import types
 
-import usb
+import libusb_package
 
 import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
@@ -12,10 +12,9 @@ import proto_autogen.shared_pb2
 
 _MANUFACTURER = "ubc_formula_electric"
 
-
 def log_usb_devices():
     """Debug utility for printing all available usb devices."""
-    devices = usb.core.find(find_all=True)
+    devices = libusb_package.find(find_all=True)
     for device in devices:
         print(
             f"Product: {device.product},",
@@ -38,7 +37,7 @@ class _UsbDevice:
         product name is set in CubeMX.
         """
 
-        self._device = usb.core.find(manufacturer=_MANUFACTURER, product=product)
+        self._device = libusb_package.find(manufacturer=_MANUFACTURER, product=product)
 
         # If the device was not found.
         if self._device is None:
