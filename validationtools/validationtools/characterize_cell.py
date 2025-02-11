@@ -6,10 +6,10 @@ from logger.logger import *
 maxVoltage= 4.2
 minVoltage = 2.5
 totalCellCapacity = 2.800 # Ah From datasheet on google drive
-chargingRate      = 2.8   # 1C Rate in amps 
-restingTimeSecondsMaxSoc = 120 # Change back to 3 mins for 100% soc
-restingTimeSecondsMinSoc = 540 # Ideally we have something like 10-15 mins lol
-activeTimeSeconds = 60
+
+restingTimeSecondsMaxSoc = 180 # Change back to 3 mins for 100% soc
+restingTimeSecondsMinSoc = 660 # Ideally we have something like 10-15 mins lol
+
 # Second channel of the power supply allows for lower voltages, higher current
 powerSupplyChannel = 2
 initialSOC = 100
@@ -70,7 +70,7 @@ def main()->None:
     ]
 
     # Replace with your own data path
-    logger = Logger(r"C:\Users\lkevi\OneDrive\Desktop\Coding\UBCFE\Data", loggingCols)
+    logger = Logger(r"C:\Users\Formula Electric\Documents\consolitdated_firm\Consolidated-Firmware\validationtools\validationtools\CellCharacterizationData", loggingCols)
 
     # For now we are only doing discharging
     # chargeCharacterization(loadBank, powerSupply, logger, soc)
@@ -85,6 +85,8 @@ def main()->None:
     
      
 def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
+    activeTimeSeconds = 60
+    chargingRate      = 2.8   # 1C Rate in amps 
     startCellVoltage = loadBank.measure_voltage()     # Initial measurement is taken and set as the max cell voltage 
                                                     # (cell voltage may be above 4.2 slightly or you can start in middle of charge)
     restingTimeSeconds = restingTimeSecondsMaxSoc   # Resting time is set to resting time at top of charge
@@ -112,12 +114,12 @@ def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
     print("Reached BoC Portion of Test, Resting for 30 Mins")
 
     time.sleep(1800) # give half an hour of resting time before BoC portion of the test
-    activeTimeSeconds = 240 # Quadruple the active time for the bottom of charge and have a quarter of charging rate
-    chargingRate = 0.7 # 0.7A is the 0.25C rate for the cell
+    activeTimeSeconds = 480 # Multiply the active time for the bottom of charge by eight and have an eighth of charging rate
+    chargingRate = 0.35 # 0.35A is the 0.125C rate for the cell
+    restingTimeSeconds = 7200 # For BoC set resting time for two hours
 
     print("Starting BoC Portion of Test")
     while(loadBank.measure_voltage() > minVoltage):
-        restingTimeSeconds = 7200 # For BoC set resting time for two hours
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         loadBank.enable_load()
@@ -135,6 +137,12 @@ def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
     loadBank.disable_load()
     row = getDischargingRow(logger, loadBank)
     logger.storeRow(row)
+
+    # ensures we hit our settling voltage
+    for i in range(0, 9):
+        time.sleep(300)
+        row = getDischargingRow(logger, loadBank)
+        logger.storeRow(row)
 
 
 
