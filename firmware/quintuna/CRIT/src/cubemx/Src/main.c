@@ -573,7 +573,6 @@ void StartTask1kHz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    UNUSED(argument);
     tasks_run1kHz();
     /* USER CODE END 5 */
 }
@@ -588,11 +587,7 @@ void StartTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
@@ -606,11 +601,7 @@ void RunTask1Hz(void *argument)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
 
@@ -624,11 +615,7 @@ void RunTask100Hz(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -642,11 +629,7 @@ void RunTaskCanRx(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
