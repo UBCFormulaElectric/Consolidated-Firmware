@@ -12,6 +12,7 @@ import proto_autogen.shared_pb2
 
 _MANUFACTURER = "ubc_formula_electric"
 
+
 def log_usb_devices():
     """Debug utility for printing all available usb devices."""
     devices = libusb_package.find(find_all=True)

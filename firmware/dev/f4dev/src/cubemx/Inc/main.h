@@ -61,6 +61,8 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define GPIO_6_Pin GPIO_PIN_13
 #define GPIO_6_GPIO_Port GPIOC
+#define GPIO_5_Pin GPIO_PIN_14
+#define GPIO_5_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

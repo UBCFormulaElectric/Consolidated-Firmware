@@ -522,6 +522,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /*Configure GPIO pin : GPIO_5_Pin */
+    GPIO_InitStruct.Pin  = GPIO_5_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIO_5_GPIO_Port, &GPIO_InitStruct);
+
     /*Configure GPIO pins : PC6 PC7 */
     GPIO_InitStruct.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;

@@ -6,6 +6,7 @@
 
 const Gpio *id_to_gpio[] = {
     [f4dev_GpioNetName_GPIO_6] = &gpio_6,
+    [f4dev_GpioNetName_GPIO_5] = &gpio_5,
 };
 
 // TODO: Configure adcs.
