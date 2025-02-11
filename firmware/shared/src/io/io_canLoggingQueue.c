@@ -113,6 +113,7 @@ bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
     // Send the full batch to the message buffer
     size_t bytes_sent = xMessageBufferSend(message_buffer_id, &batch_buf, sizeof(struct CanMsgBatch), 0);
     assert(bytes_sent == sizeof(struct CanMsgBatch));
+    return true;
 }
 
 int io_canLogging_sync(void)
