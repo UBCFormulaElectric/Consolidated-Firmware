@@ -2,5 +2,5 @@
 
 void tasks_init(void)
 {
-    return 0;
+    return;
 }
