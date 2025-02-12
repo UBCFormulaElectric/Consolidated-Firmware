@@ -30,6 +30,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
 )
 
 # Bootloader files.
@@ -72,7 +73,6 @@ IF ("${TARGET}" STREQUAL "binary")
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
             "h7dev_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"

@@ -18,4 +18,4 @@ EMPTY_STRUCT(TaskMonitor);
  * @brief Check the stack high watermark for FreeRTOS tasks.
  *        Typically, you would call this function at 1Hz to minimize overhead.
  */
-float io_taskMonitor_getStackUsage(const TaskMonitor *stack);
+float io_taskMonitor_getStackUsage(const TaskMonitor *monitor);

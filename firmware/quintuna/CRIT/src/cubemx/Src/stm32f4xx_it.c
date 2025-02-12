@@ -56,11 +56,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef  hdma_adc1;
-extern CAN_HandleTypeDef  hcan1;
-extern TIM_HandleTypeDef  htim3;
-extern UART_HandleTypeDef huart2;
-extern TIM_HandleTypeDef  htim6;
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
 
@@ -165,62 +162,6 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles CAN1 RX0 interrupts.
- */
-void CAN1_RX0_IRQHandler(void)
-{
-    /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
-
-    /* USER CODE END CAN1_RX0_IRQn 0 */
-    HAL_CAN_IRQHandler(&hcan1);
-    /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
-
-    /* USER CODE END CAN1_RX0_IRQn 1 */
-}
-
-/**
- * @brief This function handles CAN1 RX1 interrupt.
- */
-void CAN1_RX1_IRQHandler(void)
-{
-    /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
-
-    /* USER CODE END CAN1_RX1_IRQn 0 */
-    HAL_CAN_IRQHandler(&hcan1);
-    /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
-
-    /* USER CODE END CAN1_RX1_IRQn 1 */
-}
-
-/**
- * @brief This function handles TIM3 global interrupt.
- */
-void TIM3_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM3_IRQn 0 */
-
-    /* USER CODE END TIM3_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim3);
-    /* USER CODE BEGIN TIM3_IRQn 1 */
-
-    /* USER CODE END TIM3_IRQn 1 */
-}
-
-/**
- * @brief This function handles USART2 global interrupt.
- */
-void USART2_IRQHandler(void)
-{
-    /* USER CODE BEGIN USART2_IRQn 0 */
-
-    /* USER CODE END USART2_IRQn 0 */
-    HAL_UART_IRQHandler(&huart2);
-    /* USER CODE BEGIN USART2_IRQn 1 */
-
-    /* USER CODE END USART2_IRQn 1 */
-}
-
-/**
  * @brief This function handles TIM6 global interrupt.
  */
 void TIM6_IRQHandler(void)
@@ -235,17 +176,17 @@ void TIM6_IRQHandler(void)
 }
 
 /**
- * @brief This function handles DMA2 stream0 global interrupt.
+ * @brief This function handles USB On The Go FS global interrupt.
  */
-void DMA2_Stream0_IRQHandler(void)
+void OTG_FS_IRQHandler(void)
 {
-    /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
+    /* USER CODE BEGIN OTG_FS_IRQn 0 */
 
-    /* USER CODE END DMA2_Stream0_IRQn 0 */
-    HAL_DMA_IRQHandler(&hdma_adc1);
-    /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
+    /* USER CODE END OTG_FS_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+    /* USER CODE BEGIN OTG_FS_IRQn 1 */
 
-    /* USER CODE END DMA2_Stream0_IRQn 1 */
+    /* USER CODE END OTG_FS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

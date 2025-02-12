@@ -129,9 +129,8 @@ void        runCanRxTask(void *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-CanHandle can = { .hcan = &hfdcan2 };
-SdCard    sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
+/* USER CODE BEGIN 0 */ CanHandle can = { .hcan = &hfdcan2 };
+SdCard                            sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
 
 Gpio sd_present = {
     .pin  = GPIO_PIN_8,

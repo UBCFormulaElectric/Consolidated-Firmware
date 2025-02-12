@@ -39,7 +39,6 @@ function(stm32f4_boot_binary
     # Pass syscalls to the cube library so we can build without warnings.
     stm32f412rx_cube_library(
             "${BOOT_NAME}_stm32cube"
-            "${INCLUDE_DIRS}"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -119,7 +118,6 @@ function(stm32h7_boot_binary
     # Pass syscalls to the cube library so we can build without warnings.
     stm32h733xx_cube_library(
             "${BOOT_NAME}_stm32cube"
-            "${INCLUDE_DIRS}"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"

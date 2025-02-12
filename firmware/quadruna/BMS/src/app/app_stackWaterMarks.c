@@ -5,7 +5,7 @@
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-void app_stackWaterMarkConfig_check(void)
+void app_stackWaterMark_check(void)
 {
     app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_set(
         io_taskMonitor_getStackUsage(&task_1_hz_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
