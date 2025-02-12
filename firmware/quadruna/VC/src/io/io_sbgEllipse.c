@@ -272,7 +272,7 @@ void io_sbgEllipse_handleLogs(void)
     // all logs found in the data. Upon successfully parsing a log, the the receive log callback function set in init is
     // triggered. Incomplete log data will be saved to a buffer in SBG's library to be used once more data is received.
     SbgErrorCode errorCode = sbgEComHandle(&com_handle);
-    app_canTx_VC_EllipseErrorCode_set((EllipseErrorCode) errorCode);
+    app_canTx_VC_EllipseErrorCode_set((EllipseErrorCode)errorCode);
     // char         buffer[256];
     // sbgEComErrorToString(errorCode, buffer);
     // if (errorCode != SBG_NO_ERROR)
