@@ -37,10 +37,7 @@ void io_canQueue_init()
     rx_queue_id   = xMessageBufferCreateStatic(RX_QUEUE_SIZE, rx_queue_buf, &rx_buffer_control_block);
     init_complete = true;
 
-    if (tx_queue_id == NULL || rx_queue_id == NULL)
-    {
-        assert(0);
-    }
+    assert(tx_queue_id == NULL || rx_queue_id == NULL);
 }
 
 void io_canQueue_pushTx(const CanMsg *tx_msg)
