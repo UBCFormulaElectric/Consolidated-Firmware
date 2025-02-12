@@ -280,7 +280,6 @@ void io_sbgEllipse_handleLogs(void)
     //     // handle error
     //     LOG_INFO("%s", buffer);
     // }
-
 }
 
 uint32_t io_sbgEllipse_getTimestampUs(void)
