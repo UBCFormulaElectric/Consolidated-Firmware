@@ -8,7 +8,7 @@ minVoltage = 2.5
 totalCellCapacity = 2.800 # Ah From datasheet on google drive
 
 restingTimeSecondsMaxSoc = 180 # Change back to 3 mins for 100% soc
-restingTimeSecondsMinSoc = 660 # Ideally we have something like 10-15 mins lol
+restingTimeSecondsMinSoc = 660 # Ideally we have something like 10-15 mins for the 10-12% soc
 
 # Second channel of the power supply allows for lower voltages, higher current
 powerSupplyChannel = 2
@@ -85,8 +85,8 @@ def main()->None:
     
      
 def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
-    activeTimeSeconds = 60
-    chargingRate      = 2.8   # 1C Rate in amps 
+    activeTimeSeconds = 120
+    chargingRate      = 1.4   # 0.5C Rate in amps 
     startCellVoltage = loadBank.measure_voltage()     # Initial measurement is taken and set as the max cell voltage 
                                                     # (cell voltage may be above 4.2 slightly or you can start in middle of charge)
     restingTimeSeconds = restingTimeSecondsMaxSoc   # Resting time is set to resting time at top of charge
@@ -114,8 +114,8 @@ def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
     print("Reached BoC Portion of Test, Resting for 30 Mins")
 
     time.sleep(1800) # give half an hour of resting time before BoC portion of the test
-    activeTimeSeconds = 480 # Multiply the active time for the bottom of charge by eight and have an eighth of charging rate
-    chargingRate = 0.35 # 0.35A is the 0.125C rate for the cell
+    activeTimeSeconds = 960 # Multiply the active time for the bottom of charge by sixteen and have one-sixteenth of charging rate
+    chargingRate = 0.175 # 0.175A is the 0.0625C rate for the cell
     restingTimeSeconds = 7200 # For BoC set resting time for two hours
 
     print("Starting BoC Portion of Test")
