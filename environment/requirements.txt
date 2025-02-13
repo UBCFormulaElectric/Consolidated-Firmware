@@ -35,3 +35,4 @@ ruff
 # Chimera
 pyusb
 libusb-package
+python-can
