@@ -1,14 +1,15 @@
 """Debug UBC Formula Electric boards with Python over USB."""
 
 import types
+import time
 
 import libusb_package
+import cantools
+import can
 
 import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
 
-# CHIMERA Packet Format:
-# [ length low byte  | length high byte | content bytes    | ... ]
 
 _MANUFACTURER = "ubc_formula_electric"
 
@@ -25,6 +26,71 @@ def log_usb_devices():
         )
 
 
+class _CanDevice:
+    """Abstraction around a CAN bus device.
+
+    Takes in a dbc specification, and dynamically generates functions of the form:
+    ``message_MESSAGENAME_send(**kwargs)``,
+
+    ie.
+    ``message_LeftSuspensionTravel_send(LeftSuspensionTravel=10, RightSuspensionTravel=10)``
+
+    """
+
+    def __init__(self, dbc_str: str, channel: str, bus_type: str):
+        """Create a CAN bus device."""
+        self._db = cantools.database.load_string(dbc_str, database_format="dbc")
+        self._can_bus = can.interface.Bus(channel, bustype=bus_type)
+
+        # Dynamically create the send functions.
+        for message in self._db.messages:
+
+            def message_send(**kwargs):
+                """Send a message specified in the function name, with the provided signals."""
+                data = message.encode(kwargs)
+                self._can_bus.send(
+                    can.Message(arbitration_id=message.frame_id, data=data)
+                )
+
+            setattr(self, f"message_{message.name}_send", message_send)
+
+    def receive_count(self, count: int):
+        """Receives a given number of messages.
+
+        Returns a dictionary mapping the name of a can message to a dictionary of it's last received signals, or None if not received.
+        """
+        res = {}
+
+        for message in self._db.messages:
+            res[message.name] = None
+
+        for _ in range(count):
+            message = self._can_bus.recv()
+            name = self._db.get_message_by_frame_id(message.arbitration_id).name
+            res[name] = self._db.decode_message(name, message.data)
+
+        return res
+
+    def receive_time(self, time_ms: int):
+        """Receives messages over a given time period.
+
+        Returns a dictionary mapping the name of a can message to a dictionary of it's last received signals, or None if not received.
+        """
+
+        res = {}
+
+        for message in self._db.messages:
+            res[message.name] = None
+
+        start = time.clock_gettime()
+        while time.clock_gettime() - start < time_ms:
+            message = self._can_bus.recv()
+            name = self._db.get_message_by_frame_id(message.arbitration_id).name
+            res[name] = self._db.decode_message(name, message.data)
+
+        return res
+
+
 class _UsbDevice:
     """Abstraction around a USB CDC (communcations device class) device.
 
@@ -35,7 +101,7 @@ class _UsbDevice:
     def __init__(self, product: str):
         """Create a USB device.
 
-        product name is set in CubeMX.
+        Product name is set in CubeMX.
         """
 
         self._device = libusb_package.find(manufacturer=_MANUFACTURER, product=product)
@@ -87,6 +153,9 @@ class _UsbDevice:
 
 class _Board:
     """Abstraction around rpc-over-usb-communicating boards."""
+
+    # CHIMERA Packet Format:
+    # [ length low byte  | length high byte | content bytes    | ... ]
 
     def __init__(
         self,
