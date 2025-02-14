@@ -27,7 +27,7 @@ extern const Gpio shdn_en_pin;
 extern const Gpio bms_latch_status_pin;
 extern const Gpio imd_ok_current_status_pin;
 extern const Gpio bspd_ok_latch_status_pin;
-extern const Gpio pre_charge_en_pin;
+extern const Gpio precharge_en_pin;
 extern const Gpio fb_stby_shdn_pin;
 extern const Gpio fan_en_pin;
 extern const Gpio fan_pgood_pin;
