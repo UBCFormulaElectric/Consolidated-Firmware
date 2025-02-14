@@ -27,7 +27,7 @@ const Gpio shdn_en_pin                          = { .port = SHDN_EN_GPIO_Port,  
 const Gpio bms_latch_status_pin                 = { .port = BMS_LATCH_GPIO_Port,                .pin = BMS_LATCH_Pin};
 const Gpio imd_ok_current_status_pin            = { .port = IMD_OK_GPIO_Port,                   .pin = IMD_OK_Pin};
 const Gpio bspd_ok_latch_status_pin             = { .port = BSPD_LATCH_GPIO_Port,               .pin = BSPD_LATCH_Pin};
-const Gpio pre_charge_en_pin                    = { .port = PRE_CHARGE_EN_GPIO_Port,            .pin = PRE_CHARGE_EN_Pin};
+const Gpio precharge_en_pin                    = { .port = PRE_CHARGE_EN_GPIO_Port,            .pin = PRE_CHARGE_EN_Pin};
 const Gpio fb_stby_shdn_pin                     = { .port = FB_STBY_SHDN_GPIO_Port,             .pin = FB_STBY_SHDN_Pin};
 const Gpio fan_en_pin                           = { .port = FAN_EN_GPIO_Port,                   .pin = FAN_EN_Pin};
 const Gpio fan_pgood_pin                        = { .port = FAN_PGOOD_GPIO_Port,                .pin = FAN_PGOOD_Pin};
