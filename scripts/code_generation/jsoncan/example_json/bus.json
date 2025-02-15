@@ -1,9 +1,19 @@
 {
-    "default_receiver": "DEBUG",
-    "bus_speed": 500,
-    "modes": [
-        "default",
-        "debug"
-    ],
-    "default_mode": "default"
+  "forwarder": "VC",
+  "buses": [
+    {
+      "name": "bus1",
+      "nodes": ["VC", "BMS"],
+      "bus_speed": 500,
+      "modes": ["default", "debug"],
+      "default_mode": "default"
+    },
+    {
+      "name": "bus2",
+      "bus_speed": 500,
+      "nodes": ["VC", "FSM"],
+      "modes": ["default", "debug"],
+      "default_mode": "default"
+    }
+  ]
 }

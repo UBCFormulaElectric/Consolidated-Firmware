@@ -1,173 +1,192 @@
 {
-    "PedalPosition": {
-        "msg_id": 13, 
-        "cycle_time": 1000,
-        "signals": {
-            "MappedPedalPercentage": { 
-                "max": 100, 
-                "min": 0, 
-                "bits": 32,
-                "unit": "%" 
-            }
-        }
-    },
-    "TorqueLimiting": {
-        "msg_id": 90, 
-        "cycle_time": 1000,
-        "signals": {
-            "TorqueLimit": { 
-                "max": 150, 
-                "min": 0, 
-                "bits": 32,
-                "unit": "nM" 
-            }
-        }
-    },
-    "Apps": {
-        "msg_id": 151, 
-        "cycle_time": 1000,
-        "signals": {
-            "PappsMappedPedalPercentage": { 
-                "max": 100, 
-                "min": 0, 
-                "bits": 32,
-                "unit": "%" 
-            },
-            "SappsMappedPedalPercentage": { 
-                "max": 100, 
-                "min": 0, 
-                "bits": 32,
-                "unit": "%" 
-            }
-        }
-    },
-    "WarningsTest": {
-        "msg_id": 300, 
-        "cycle_time": 100,
-        "signals": {
-            "PappsOutOfRange": { "bits": 1 },
-            "SappsOutOfRange": { "bits": 1 },
-            "StackWatermarkAboveThresholdTask1Hz": { "bits": 1 },
-            "StackWatermarkAboveThresholdTask1kHz": { "bits": 1 },
-            "StackWatermarkAboveThresholdTaskCanRx": { "bits": 1 },
-            "StackWatermarkAboveThresholdTaskCanTx": { "bits": 1 },
-            "WatchdogFault": { "bits": 1 },
-            "BspdFault": { "bits": 1 },
-            "LeftWheelSpeedOutOfRange": { "bits": 2 },
-            "RightWheelSpeedOutOfRange": { "bits": 2 },
-            "FlowRateOutOfRange": { "bits": 2 },
-            "SteeringAngleOutOfRange": { "bits": 2 },
-            "BrakePressureOutOfRange": { "bits": 2 },
-            "BrakePressureSc": { "bits": 1 },
-            "BrakePressureOc": { "bits": 1 },
-            "SteeringWheelBroke": { "bits": 1 }
-        }
-    }, 
-    "Vitals": {
-        "msg_id": 301,
-        "cycle_time": 1000, 
-        "signals": {
-            "Heartbeat": { "enum": "MissingHeartbeat" }
-        }
-    },
-    "CanFifoOverflow": {
-        "msg_id": 302,
-        "cycle_time": 1000, 
-        "signals": {
-            "TxOverflowCount": { 
-                "bits": 32
-            },
-            "RxOverflowCount": { "bits": 32 }
-        }
-    }, 
-    "WatchdogTimeout": {
-        "msg_id": 304, 
-        "cycle_time": 1000,
-        "signals": {
-            "TaskName": { "bits": 8 }
-        }
-    }, 
-    "StateMachine": {
-        "msg_id": 305, 
-        "cycle_time": 1000,
-        "signals": {
-            "State": { "bits": 8 }
-        }
-    },
-    "FlowMeter": {
-        "msg_id": 307, 
-        "cycle_time": 1000,
-        "signals": {
-            "FlowRate": { 
-                "max": 100,
-                "min": 0,
-                "bits": 8,
-                "unit": "L/min"
-            }
-        }
-    },
-    "Brake": {
-        "msg_id": 14, 
-        "cycle_time": 1000,
-        "signals": {
-            "BrakePressure": { 
-                "max": 2500,
-                "min": 0,
-                "bits": 32,
-                "unit": "psi"
-            },
-            "BrakeIsActuated": { "bits": 1 },
-            "PressureSensorIsOcOrSc": { "bits": 1 }
-        }
-    },
-    "AirShutdownErrors": {
-        "msg_id": 310, 
-        "cycle_time": 1000,
-        "signals": {
-            "MissingHeartbeat": { "bits": 1 }
-        }
-    },
-    "MotorShutdownErrors": {
-        "msg_id": 315, 
-        "cycle_time": 1000,
-        "signals": {
-            "AppsHasDisagreement": { "bits": 1 },
-            "PappsAlarmIsActive": { "bits": 1 },
-            "SappsAlarmIsActive": { "bits": 1 },
-            "FlowMeterHasUnderflow": { "bits": 1 },
-            "TorquePlausibilityCheckFailed": { "bits": 1 }
-        }
-    },
-    "WheelSpeedSensors": {
-        "msg_id": 317, 
-        "cycle_time": 1000,
-        "signals": {
-            "LeftWheelSpeed": { 
-                "max": 150,
-                "min": 0,
-                "bits": 16,
-                "unit": "km/h",
-                "start_bit": 0
-            },
-            "RightWheelSpeed": { 
-                "max": 150,
-                "min": 0,
-                "bits": 16,
-                "unit": "km/h",
-                "start_bit": 32
-            }
-        }
-    },
-    "SteeringAngleSensor": {
-        "msg_id": 318, 
-        "cycle_time": 1000,
-        "signals": {
-            "SteeringAngle": { 
-                "max": 110,
-                "min": -110,
-                "bits": 32,
-                "unit": "km/h"
-            }
-        }
+  "Vitals": {
+    "msg_id": 300,
+    "bus": ["bus2"],
+    "cycle_time": 100,
+    "description": "FSM vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "State": {
+        "enum": "FSMState"
+      }
     }
+  },
+  "AlertsContext": {
+    "msg_id": 301,
+    "cycle_time": 1000,
+    "bus": ["bus2"],
+    "description": "Context info for FSM alerts",
+    "signals": {
+      "WatchdogTimeout": {
+        "bits": 1
+      },
+      "WatchdogTimeoutTaskName": {
+        "enum": "RtosTaskName"
+      },
+      "TxOverflowCount": {
+        "bits": 8
+      },
+      "RxOverflowCount": {
+        "bits": 8
+      }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 302,
+    "cycle_time": 100,
+    "bus": ["bus2"],
+    "description": "FSM Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Steering": {
+    "msg_id": 303,
+    "cycle_time": 100,
+    "bus": ["bus2"],
+    "description": "Steering angle.",
+    "signals": {
+      "SteeringAngle": {
+        "resolution": 0.1,
+        "min": -110,
+        "max": 110,
+        "unit": "deg"
+      }
+    }
+  },
+  "Wheels": {
+    "msg_id": 304,
+    "cycle_time": 100,
+    "bus": ["bus2"],
+    "description": "Front left and right wheel speeds.",
+    "signals": {
+      "LeftWheelSpeed": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 150,
+        "unit": "km/h"
+      },
+      "RightWheelSpeed": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 150,
+        "unit": "km/h"
+      }
+    }
+  },
+  "Apps": {
+    "msg_id": 305,
+    "cycle_time": 10,
+    "bus": ["bus2"],
+    "description": "Primary (P) and secondary (S) accelerator percentages.",
+    "signals": {
+      "PappsMappedPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "SappsMappedPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "PappsRawPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "SappsRawPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    }
+  },
+  "Brake": {
+    "msg_id": 306,
+    "bus": ["bus2"],
+    "cycle_time": 100,
+    "description": "Front and rear brake pressures.",
+    "signals": {
+      "FrontBrakePressure": {
+        "resolution": 1,
+        "min": 0,
+        "max": 2500,
+        "unit": "psi"
+      },
+      "RearBrakePressure": {
+        "resolution": 1,
+        "min": 0,
+        "max": 2500,
+        "unit": "psi"
+      },
+      "BrakeActuated": {
+        "bits": 1
+      }
+    }
+  },
+  "Suspension": {
+    "disabled": true,
+    "msg_id": 307,
+    "bus": ["bus2"],
+    "cycle_time": 100,
+    "description": "Suspension travel.",
+    "signals": {
+      "LeftSuspensionTravel": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 1000,
+        "unit": "cm"
+      },
+      "RightSuspensionTravel": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 1000,
+        "unit": "cm"
+      }
+    }
+  },
+  "LoadCell": {
+    "disabled": true,
+    "msg_id": 308,
+    "cycle_time": 100,
+    "bus": ["bus2"],
+    "description": "Load cell mechanical loads.",
+    "signals": {
+      "LoadCell1": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 1000,
+        "unit": "N"
+      },
+      "LoadCell2": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 1000,
+        "unit": "N"
+      }
+    }
+  },
+  "FSMShdnNodeStatus": {
+    "msg_id": 309,
+    "cycle_time": 100,
+    "bus": ["bus2"],
+    "description": "FSM Shutdown Node Status",
+    "signals": {
+      "BOTSOKStatus": {
+        "bits": 1
+      }
+    }
+  }
 }
