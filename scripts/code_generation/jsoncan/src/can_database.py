@@ -174,7 +174,6 @@ class CanSignal:
 
     def min_val_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
-``
     def scale_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_SCALE"
 
