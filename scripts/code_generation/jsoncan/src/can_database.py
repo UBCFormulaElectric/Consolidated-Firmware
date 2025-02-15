@@ -174,6 +174,7 @@ class CanSignal:
 
     def min_val_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
+
     def scale_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_SCALE"
 
@@ -322,7 +323,10 @@ class CanDatabase:
         """
         Return list of all CAN messages transmitted by a specific node.
         """
-        node = self.nodes[tx_node]
+        try:
+            node = self.nodes[tx_node]
+        except KeyError:
+            return []
         tx = [self.msgs[msg] for msg in node.tx_msgs]
         return tx
 
@@ -330,16 +334,19 @@ class CanDatabase:
         """
         Return list of all CAN messages received by a specific node.
         """
-        node = self.nodes[rx_node]
+        try:
+            node = self.nodes[rx_node]
+        except KeyError:
+            return []
         return [self.msgs[msg] for msg in node.rx_msgs]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages either transmitted or received by a specific node.
         """
-        tx= self.tx_msgs_for_node(tx_node=node) 
+        tx = self.tx_msgs_for_node(tx_node=node)
         rx = self.rx_msgs_for_node(rx_node=node)
-        a = tx + rx 
+        a = tx + rx
         return a
 
     def node_has_tx_msgs(self, node: str) -> bool:
