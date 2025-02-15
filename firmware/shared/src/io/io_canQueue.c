@@ -33,11 +33,11 @@ __weak void canRxQueueOverflowClearCallback() {}
 void io_canQueue_init()
 {
     // Initialize CAN queues.
-    tx_queue_id   = xMessageBufferCreateStatic(TX_QUEUE_SIZE, tx_queue_buf, &tx_buffer_control_block);
-    rx_queue_id   = xMessageBufferCreateStatic(RX_QUEUE_SIZE, rx_queue_buf, &rx_buffer_control_block);
+    tx_queue_id   = xMessageBufferCreateStatic(TX_QUEUE_BYTES, tx_queue_buf, &tx_buffer_control_block);
+    rx_queue_id   = xMessageBufferCreateStatic(RX_QUEUE_BYTES, rx_queue_buf, &rx_buffer_control_block);
     init_complete = true;
 
-    assert(tx_queue_id == NULL || rx_queue_id == NULL);
+    assert(!(tx_queue_id == NULL || rx_queue_id == NULL));
 }
 
 void io_canQueue_pushTx(const CanMsg *tx_msg)

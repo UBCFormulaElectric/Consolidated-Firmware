@@ -128,6 +128,7 @@ FileSystemError io_fileSystem_init(void)
     if (err != LOGFS_ERR_OK)
     {
         // Mounting failed meaning image is corrupted, so format.
+        ready = true;
         err = logfs_format(&fs, &fs_cfg);
         if (err != LOGFS_ERR_OK)
         {
@@ -154,7 +155,6 @@ FileSystemError io_fileSystem_init(void)
         return logfsErrorToFsError(err);
     }
 
-    ready = true;
     return FILE_OK;
 }
 
