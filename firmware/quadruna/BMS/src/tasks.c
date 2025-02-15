@@ -71,10 +71,6 @@ void tasks_init(void)
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_can_init(&can1);
 
-    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
-    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-    io_bmsShdn_init(&bms_shdn_pin_config);
     io_tractiveSystem_init(&ts_config);
     io_imd_init(&imd_pwm_input_config);
     io_chimera_init(GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
