@@ -7,21 +7,5 @@
   ],
   "cmake.configureOnEdit": false,
   "cmake.configureOnOpen": false,
-  "files.associations": {
-    "*.c": "c",
-    "*.html": "html",
-    "array": "c",
-    "charconv": "c",
-    "compare": "c",
-    "complex": "c",
-    "functional": "c",
-    "ratio": "c",
-    "tuple": "c",
-    "type_traits": "c",
-    "utility": "c",
-    "variant": "c",
-    "freertos.h": "c",
-    "io_canrx.h": "c"
-  },
   "C_Cpp.errorSquiggles": "disabled"
 }
