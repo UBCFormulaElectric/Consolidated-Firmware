@@ -54,13 +54,13 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
     rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
     // Clamp value to min/max
     {%- if signal.max_val is defined %}
-    if (value > {{ signal.max_val_macro() }})
+    if (value >= {{ signal.max_val_macro() }})
     {
         value = {{ signal.max_val_macro() }};
     }
     {%- endif %}
     {%- if signal.min_val is defined %}
-    if (value < {{ signal.min_val_macro() }})
+    if (value <= {{ signal.min_val_macro() }})
     {
         value = {{ signal.min_val_macro() }};
     }
