@@ -1,0 +1,19 @@
+jsoncan_sources(
+    "ECU1"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    FALSE
+    "${CMAKE_CURRENT_BINARY_DIR}/jsoncan_test.dbc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/json"
+)
+add_library("jsoncan_test_lib" INTERFACE)
+target_sources("jsoncan_test_lib" INTERFACE ${CAN_SRCS})
+target_include_directories("jsoncan_test_lib" INTERFACE "${CAN_INCLUDE_DIRS}")
+
+file(GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
+compile_gtest_executable(
+        "jsoncan_test"
+        "${SRCS}"
+        "${INCLUDE_DIRS}"
+)
+target_link_libraries("jsoncan_test" "jsoncan_test_lib")

@@ -50,6 +50,8 @@ function(commit_info_library
     ENDIF()
 endfunction()
 
+set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
+
 # Generates library ${CAR}_${BOARD}_jsoncan
 message("  🔃 Registered jsoncan_library() function")
 function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
@@ -57,7 +59,8 @@ function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
             ${BOARD}
             ${JSONCAN_DIR}
             TRUE
-            ${CAR}
+            "${CAN_DIR}/dbcs/${CAR}.dbc"
+            "${CAN_DIR}/${CAR}"
     )
     embedded_interface_library(
             "${CAR}_${BOARD}_jsoncan"
@@ -72,7 +75,8 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
             ${BOARD}
             ${JSONCAN_DIR}
             FALSE
-            ${CAR}
+            "${CAN_DIR}/dbcs/${CAR}.dbc"
+            "${CAN_DIR}/${CAR}"
     )
     add_library(
             "${CAR}_${BOARD}_jsoncan" INTERFACE
