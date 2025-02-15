@@ -313,9 +313,8 @@ void tasks_init(void)
     hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
     io_critShdn_init(&crit_shdn_pin_config);
     io_canQueue_init();
 
