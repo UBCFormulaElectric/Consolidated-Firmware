@@ -11,7 +11,8 @@
         "CRIT",
         "Debug",
         "Boot",
-        "BRUSA"
+        "BRUSA",
+        "DAM"
       ],
       "bus_speed": 500,
       "modes": ["DEFAULT", "DEBUG"],

@@ -1,58 +1,58 @@
 {
-  "warnings_id": 801,
+  "warnings_id": 901,
   "bus": ["Can"],
-  "faults_id": 802,
-  "warnings_counts_id": 803,
-  "faults_counts_id": 804,
+  "faults_id": 902,
+  "warnings_counts_id": 903,
+  "faults_counts_id": 904,
   "warnings": {
     "StackWaterMarkHighTask1Hz": {
-      "id": 801,
+      "id": 901,
       "description": "1Hz task stack watermark exceeded."
     },
     "StackWaterMarkHighTask100Hz": {
-      "id": 802,
+      "id": 902,
       "description": "100Hz task stack watermark exceeded."
     },
     "StackWaterMarkHighTask1kHz": {
-      "id": 803,
+      "id": 903,
       "description": "1kHz task stack watermark exceeded."
     },
     "StackWaterMarkHighTaskCanRx": {
-      "id": 804,
+      "id": 904,
       "description": "CAN RX task stack watermark exceeded."
     },
     "StackWaterMarkHighTaskCanTx": {
-      "id": 805,
+      "id": 905,
       "description": "CAN TX task stack watermark exceeded."
     },
     "WatchdogTimeout": {
-      "id": 806,
+      "id": 906,
       "description": "Watchdog timeout detected."
     },
     "TxOverflow": {
-      "id": 807,
+      "id": 907,
       "description": "CAN TX queue has overflowed."
     },
     "RxOverflow": {
-      "id": 808,
+      "id": 908,
       "description": "CAN RX queue has overflowed."
     }
   },
   "faults": {
     "MissingBMSHeartbeat": {
-      "id": 850,
+      "id": 950,
       "description": "Missing heartbeat signal from the BMS."
     },
     "MissingFSMHeartbeat": {
-      "id": 851,
+      "id": 951,
       "description": "Missing heartbeat signal from the FSM."
     },
     "MissingVCHeartbeat": {
-      "id": 853,
+      "id": 953,
       "description": "Missing heartbeat signal from the VC."
     },
     "MissingRSMHeartbeat": {
-      "id": 852,
+      "id": 952,
       "description": "Missing heartbeat signal from the RSM."
     }
   }
