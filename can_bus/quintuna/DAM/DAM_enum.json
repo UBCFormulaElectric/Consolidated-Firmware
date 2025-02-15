@@ -1,11 +1,3 @@
 {
-    "BmsState": {
-        "BMS_INIT_STATE": 0,
-        "BMS_PRECHARGE_STATE": 1,
-        "BMS_CHARGE_STATE": 2,
-        "BMS_DRIVE_STATE": 3,
-        "BMS_BALANCING_STATE": 4,
-        "BMS_FAULT_STATE": 5,
-        "BMS_INVERTER_ON_STATE": 6
-    }
+   
 }
