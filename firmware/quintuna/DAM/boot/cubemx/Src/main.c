@@ -22,7 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bootloader.h"
+#include "io_canQueue.h"
+#include "io_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,7 +104,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+CanHandle can = { .hcan = &hfdcan1 };
 /* USER CODE END 0 */
 
 /**
@@ -136,7 +138,8 @@ int main(void)
     MX_CRC_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
-
+    io_can_init(&can);
+    bootloader_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -431,7 +434,7 @@ void runInterfaceTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        bootloader_runInterfaceTask();
     }
     /* USER CODE END 5 */
 }
@@ -449,7 +452,7 @@ void runTickTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        bootloader_runTickTask();
     }
     /* USER CODE END runTickTask */
 }
@@ -467,7 +470,7 @@ void runCanTxTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        bootloader_runCanTxTask();
     }
     /* USER CODE END runCanTxTask */
 }
