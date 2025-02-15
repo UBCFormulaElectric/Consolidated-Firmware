@@ -3,17 +3,19 @@ from powerSupply._powerSupply import *
 from logger.logger import *
 
 # Accoding to datasheet, cell has a peak charging voltage of 4.2V and a cutoff voltage of 2.5V
-maxVoltage= 4.2
-minVoltage = 2.5
+# Value of 3.315V for 12% SOC was found through testing
+socVoltageEstimationMap = {12: 3.315, 100: 4.2, 0: 2.5}
 totalCellCapacity = 2.800 # Ah From datasheet on google drive
 
-restingTimeSecondsMaxSoc = 180 # Change back to 3 mins for 100% soc
-restingTimeSecondsMinSoc = 660 # Ideally we have something like 10-15 mins for the 10-12% soc
+minRestingTimeFirstPortion = 180 # Change back to 3 mins for 100% soc
+maxRestingTimeFirstPortion = 660 # Ideally we have something like 10-15 mins for the 10-12% soc
 
 # Second channel of the power supply allows for lower voltages, higher current
 powerSupplyChannel = 2
 initialSOC = 100
+firstPortionCutoffSoc = 12
 
+dataPath = r"C:\Users\Formula Electric\Documents\consolitdated_firm\Consolidated-Firmware\validationtools\validationtools\CellCharacterizationData"
 
 def getCoulombs( current, timeStepSeconds)->float:
     coulombsAh = current * timeStepSeconds /3600 # seconds to hrs conversion
@@ -55,9 +57,12 @@ def getDischargingRow(logger: Logger, loadBank: LoadBank):
 
 
 def main()->None:
+    paramError = checkTestVariables()
+    if paramError:
+        raise Exception(f"Test Variables are not set correctly. {paramError}")
     loadBank = LoadBank()
     # powerSupply = PowerSupply()
-    # powerSupply.set_voltage(maxVoltage, powerSupplyChannel)
+    # powerSupply.set_voltage(socVoltageEstimationMap[100], powerSupplyChannel)
     soc = initialSOC # change to match either top of charge or bottom of charge
 
     loggingCols = \
@@ -70,7 +75,7 @@ def main()->None:
     ]
 
     # Replace with your own data path
-    logger = Logger(r"C:\Users\Formula Electric\Documents\consolitdated_firm\Consolidated-Firmware\validationtools\validationtools\CellCharacterizationData", loggingCols)
+    logger = Logger(dataPath, loggingCols)
 
     # For now we are only doing discharging
     # chargeCharacterization(loadBank, powerSupply, logger, soc)
@@ -82,17 +87,22 @@ def main()->None:
         # powerSupply.disable_output(powerSupplyChannel)
         raise
     
-    
+def checkTestVariables()->Exception:
+    if firstPortionCutoffSoc not in socVoltageEstimationMap.keys():
+        return Exception("First Portion Cutoff SOC is not in the SOC Voltage Estimation Map")
+    if not os.exists(dataPath):
+        return Exception("Data Path does not exist")
+    return None
      
 def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
     activeTimeSeconds = 120
     chargingRate      = 1.4   # 0.5C Rate in amps 
     startCellVoltage = loadBank.measure_voltage()     # Initial measurement is taken and set as the max cell voltage 
                                                     # (cell voltage may be above 4.2 slightly or you can start in middle of charge)
-    restingTimeSeconds = restingTimeSecondsMaxSoc   # Resting time is set to resting time at top of charge
-    deltaRestTime = (restingTimeSecondsMinSoc - restingTimeSecondsMaxSoc) / (minVoltage - startCellVoltage) # Slope to linearly interpolate rest time (BoC need more rest time than ToC)
-    while(soc > 12 and loadBank.measure_voltage() > minVoltage):
-        restingTimeSeconds = restingTimeSecondsMaxSoc + deltaRestTime * (loadBank.measure_voltage() - startCellVoltage)
+    restingTimeSeconds = minRestingTimeFirstPortion   # Resting time is set to resting time at top of charge
+    deltaRestTime = (maxRestingTimeFirstPortion - minRestingTimeFirstPortion) / (socVoltageEstimationMap[firstPortionCutoffSoc] - startCellVoltage) # Slope to linearly interpolate rest time (BoC need more rest time than ToC)
+    while(soc > firstPortionCutoffSoc and loadBank.measure_voltage() > socVoltageEstimationMap[0]):
+        restingTimeSeconds = minRestingTimeFirstPortion + deltaRestTime * (loadBank.measure_voltage() - startCellVoltage)
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         loadBank.enable_load()
@@ -116,10 +126,10 @@ def dischargeCharacterization(loadBank: LoadBank, logger: Logger, soc: float):
     time.sleep(1800) # give half an hour of resting time before BoC portion of the test
     activeTimeSeconds = 960 # Multiply the active time for the bottom of charge by sixteen and have one-sixteenth of charging rate
     chargingRate = 0.175 # 0.175A is the 0.0625C rate for the cell
-    restingTimeSeconds = 7200 # For BoC set resting time for two hours
+    restingTimeSeconds = 10800 # For BoC set resting time for three hours
 
     print("Starting BoC Portion of Test")
-    while(loadBank.measure_voltage() > minVoltage):
+    while(loadBank.measure_voltage() > socVoltageEstimationMap[0]):
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         loadBank.enable_load()
@@ -151,9 +161,9 @@ def chargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logger:
     # According to INR-18650-P28A datasheets, the cells capacity can range from standard of 2800mAh to 2600mAh
     # (or 2700mAh minimum depending on the datasheet consulted). So a cutoff voltage is set to avoid overcharge and discharge
     startCellVoltage = powerSupply.measure_voltage(powerSupplyChannel)
-    restingTimeSeconds = restingTimeSecondsMinSoc
-    deltaRestTime = (restingTimeSecondsMaxSoc-restingTimeSecondsMinSoc)/ (startCellVoltage - maxVoltage)
-    while(powerSupply.measure_voltage(powerSupplyChannel) < maxVoltage):
+    restingTimeSeconds = maxRestingTimeFirstPortion
+    deltaRestTime = (minRestingTimeFirstPortion-maxRestingTimeFirstPortion)/ (startCellVoltage - socVoltageEstimationMap[100])
+    while(powerSupply.measure_voltage(powerSupplyChannel) < socVoltageEstimationMap[100]):
         restingTimeSeconds = restingTimeSeconds + deltaRestTime * (startCellVoltage - powerSupply.measure_voltage(powerSupplyChannel))
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
@@ -176,14 +186,3 @@ def chargeCharacterization(loadBank: LoadBank, powerSupply: PowerSupply, logger:
 
 if __name__ == "__main__":
     main()
-    # l = LoadBank()
-
-    # l.set_current(0.500) # set it to draw 500mA
-    # l.enable_load()
-
-    # time.sleep(5) # sleep for 5 seconds before measurment
-
-    # V_load = l.measure_voltage()
-    # print(V_load)
-
-    # l.disable_load()
