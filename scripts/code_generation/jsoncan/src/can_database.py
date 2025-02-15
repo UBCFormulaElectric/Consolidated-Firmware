@@ -174,7 +174,7 @@ class CanSignal:
 
     def min_val_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
-
+``
     def scale_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_SCALE"
 
@@ -244,7 +244,7 @@ class CanMessage:
         return f"CANMSG_{self.snake_name().upper()}_ID"
 
     def cycle_time_macro(self):
-        return f"CANMSG_{self.snake_name().upper()}_CYCLE_TIME"
+        return f"CANMSG_{self.snake_name().upper()}_CYCLE_TIME_MS"
 
     def bytes_macro(self):
         return f"CANMSG_{self.snake_name().upper()}_BYTES"
