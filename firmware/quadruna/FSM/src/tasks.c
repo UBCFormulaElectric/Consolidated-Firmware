@@ -109,11 +109,10 @@ void tasks_init(void)
     io_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, &n_chimera_pin);
-    io_fsmShdn_init(&fsm_shdn_pin_config);
+    io_can_init(&can);
+    io_chimera_init(GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
     app_canTx_init();
     app_canRx_init();
 
