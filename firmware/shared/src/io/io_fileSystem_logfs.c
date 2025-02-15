@@ -129,7 +129,7 @@ FileSystemError io_fileSystem_init(void)
     {
         // Mounting failed meaning image is corrupted, so format.
         ready = true;
-        err = logfs_format(&fs, &fs_cfg);
+        err   = logfs_format(&fs, &fs_cfg);
         if (err != LOGFS_ERR_OK)
         {
             return logfsErrorToFsError(err);
