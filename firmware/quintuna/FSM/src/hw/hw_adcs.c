@@ -1,5 +1,6 @@
 #include "hw_adcs.h"
 #include "main.h"
+#include <stdbool.h>
 
 static uint16_t adc1_raw_adc_values[6];
 static float    adc1_adc_voltages[6];
@@ -8,7 +9,7 @@ static AdcChip  adc1 = { .hadc            = &hadc1,
                          .raw_adc_values  = adc1_raw_adc_values,
                          .adc_voltages    = adc1_adc_voltages,
                          .channel_count   = 6,
-                         .is_differential = 0 }; // false
+                         .is_differential = false };
 
 const AdcChannel susp_fl   = { .voltage = &adc1_adc_voltages[0] };
 const AdcChannel susp_fr   = { .voltage = &adc1_adc_voltages[1] };
