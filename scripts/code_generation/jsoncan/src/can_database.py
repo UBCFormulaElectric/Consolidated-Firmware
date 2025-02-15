@@ -240,13 +240,13 @@ class CanMessage:
         return self.name + "_Signals"
 
     def id_macro(self):
-        return f"CANMSG_{self.snake_name().upper()}_ID"
+        return f"CAN_MSG_{self.snake_name().upper()}_ID"
 
     def cycle_time_macro(self):
-        return f"CANMSG_{self.snake_name().upper()}_CYCLE_TIME_MS"
+        return f"CAN_MSG_{self.snake_name().upper()}_CYCLE_TIME_MS"
 
     def bytes_macro(self):
-        return f"CANMSG_{self.snake_name().upper()}_BYTES"
+        return f"CAN_MSG_{self.snake_name().upper()}_BYTES"
 
     def __str__(self):
         return self.name
