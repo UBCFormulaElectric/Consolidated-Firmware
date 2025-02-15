@@ -15,7 +15,7 @@ IF("${TARGET}" STREQUAL "test")
     )
 
     # jsoncan lib
-    jsoncan_library("shared" "quadruna" "${CMAKE_CURRENT_BINARY_DIR}")
+#     jsoncan_library("VC" "quadruna" "${CMAKE_CURRENT_BINARY_DIR}")
 
 
     file(GLOB_RECURSE SHARED_TEST_SRCS
@@ -26,5 +26,5 @@ IF("${TARGET}" STREQUAL "test")
     set(INCLUDE_DIRS ${SHARED_APP_INCLUDE_DIR} ${FFF_DIR} ${SHARED_TEST_UTILS_INCLUDE_DIRS})
     compile_gtest_executable("shared_test" "${SRCS}" "${INCLUDE_DIRS}")
 
-    target_link_libraries("shared_test" "quadruna_shared_jsoncan" "shared_fakes")
+    target_link_libraries("shared_test" "quadruna_VC_jsoncan" "shared_fakes")
 ENDIF()
