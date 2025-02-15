@@ -74,12 +74,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
-        app_stateMachine_tick1Hz();
-
-        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
-        io_canTx_enqueue1HzMsgs();
+        jobs_run1Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -209,4 +204,28 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_sbgEllipse_msgRxCallback();
     }
+}
+
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
+{
+    UNUSED(RxFifo0ITs);
+    CanMsg rx_msg;
+
+    assert(hfdcan == &hfdcan1);
+    if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
+}
+
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
+{
+    UNUSED(RxFifo1ITs);
+    CanMsg rx_msg;
+
+    assert(hfdcan == &hfdcan1);
+    if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
 }

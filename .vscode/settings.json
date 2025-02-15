@@ -7,5 +7,17 @@
   ],
   "cmake.configureOnEdit": false,
   "cmake.configureOnOpen": false,
-  "C_Cpp.errorSquiggles": "disabled"
+  "C_Cpp.errorSquiggles": "disabled",
+  "files.associations": {
+    "*.c": "c",
+    "*.html": "html",
+    "io_chimera.h": "c",
+    "io_telemmessage.h": "c",
+    "io_log.h": "c",
+    "app_candatacapture.h": "c",
+    "io_canqueue.h": "c",
+    "io_cans.h": "c",
+    "io_can.h": "c",
+    "stdint.h": "c"
+  }
 }
