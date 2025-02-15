@@ -521,6 +521,12 @@
         "min": -150,
         "max": 150,
         "unit": "km/h"
+      },
+      "VehicleVelocityCalculated": {
+        "resolution": 0.01,
+        "min": -150,
+        "max": 150,
+        "unit": "km/h"
       }
     }
   },
