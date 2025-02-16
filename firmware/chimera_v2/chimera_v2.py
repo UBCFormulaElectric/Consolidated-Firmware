@@ -32,17 +32,16 @@ def log_usb_devices():
 
 
 class CanDevice:
-    def __init__(self, dbc_path: str, channel: str, bus_type: str):
+    def __init__(self, dbc_path: str, bus: can.BusABC):
         """Create an abstraction around a CAN bus device.
 
         Args:
             dbc_path: Path to a dbc file.
-            channel: Channel of the CAN bus.
-            bus_type: Type of the CAN bus.
+            bus: handle to a can bus.
 
         """
         self._db = cantools.database.load(dbc_path, database_format="dbc")
-        self._can_bus = can.interface.Bus(channel, bustype=bus_type)
+        self._can_bus = bus
 
         # Build CAN message tables.
         self.rx_table: Dict[str, Optional[Dict[str, any]]] = {}
