@@ -40,7 +40,7 @@ class CanDevice:
             bus: handle to a can bus.
 
         """
-        self._db = cantools.database.load(dbc_path, database_format="dbc")
+        self._db = cantools.database.load_file(dbc_path, database_format="dbc")
         self._can_bus = bus
 
         # Build CAN message tables.
