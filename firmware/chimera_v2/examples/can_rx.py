@@ -30,4 +30,6 @@ while True:
     # Plot.
     plt.clf()
     plt.plot(timestamps, data)
+    plt.xlabel("Time (s)")
+    plt.ylabel(SIG_NAME)
     plt.pause(FRAME_INTERVAL_SECS)

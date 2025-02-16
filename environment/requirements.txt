@@ -36,3 +36,4 @@ ruff
 pyusb
 libusb-package
 python-can
+matplotlib
