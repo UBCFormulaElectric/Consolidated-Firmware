@@ -1,7 +1,12 @@
-"""Debug UBC Formula Electric boards with Python over USB."""
+"""Debug UBC Formula Electric boards with Python.
+
+Provides tooling to debug devices over USB, CAN, etc.
+
+"""
 
 import types
-import time
+from typing import Dict, Optional
+import threading
 
 import libusb_package
 import cantools
@@ -26,82 +31,71 @@ def log_usb_devices():
         )
 
 
-class _CanDevice:
-    """Abstraction around a CAN bus device.
+class CanDevice:
+    def __init__(self, dbc_path: str, channel: str, bus_type: str):
+        """Create an abstraction around a CAN bus device.
 
-    Takes in a dbc specification, and dynamically generates functions of the form:
-    ``message_MESSAGENAME_send(**kwargs)``,
+        Args:
+            dbc_path: Path to a dbc file.
+            channel: Channel of the CAN bus.
+            bus_type: Type of the CAN bus.
 
-    ie.
-    ``message_LeftSuspensionTravel_send(LeftSuspensionTravel=10, RightSuspensionTravel=10)``
-
-    """
-
-    def __init__(self, dbc_str: str, channel: str, bus_type: str):
-        """Create a CAN bus device."""
-        self._db = cantools.database.load_string(dbc_str, database_format="dbc")
+        """
+        self._db = cantools.database.load(dbc_path, database_format="dbc")
         self._can_bus = can.interface.Bus(channel, bustype=bus_type)
 
-        # Dynamically create the send functions.
-        for message in self._db.messages:
+        # Build CAN message tables.
+        self.rx_table: Dict[str, Optional[Dict[str, any]]] = {}
+        for msg in self._db.messages:
+            self.rx_table[msg.name] = None
 
-            def message_send(**kwargs):
-                """Send a message specified in the function name, with the provided signals."""
-                data = message.encode(kwargs)
-                self._can_bus.send(
-                    can.Message(arbitration_id=message.frame_id, data=data)
-                )
+        # Spin up a loop on a seperate thread to constantly receive messages.
+        def can_rx_loop():
+            while True:
+                raw_msg = self._can_bus.recv()
+                name = self._db.get_message_by_id(raw_msg.arbitration_id).name
+                msg = self._db.decode_message(raw_msg.arbitration_id, raw_msg.data)
+                self.rx_table[name] = msg
 
-            setattr(self, f"message_{message.name}_send", message_send)
+        threading.Thread(target=can_rx_loop)
 
-    def receive_count(self, count: int):
-        """Receives a given number of messages.
+    def get(self, msg_name: str, signal_name: str) -> Optional[any]:
+        """Get a given signal from the last received can message.
 
-        Returns a dictionary mapping the name of a can message to a dictionary of it's last received signals, or None if not received.
-        """
-        res = {}
+        Args:
+            msg_name: Name of the message.
+            signal_name: Name of the signal.
 
-        for message in self._db.messages:
-            res[message.name] = None
+        Returns:
+            The value of the signal, or None of the message name has not been received.
 
-        for _ in range(count):
-            message = self._can_bus.recv()
-            name = self._db.get_message_by_frame_id(message.arbitration_id).name
-            res[name] = self._db.decode_message(name, message.data)
-
-        return res
-
-    def receive_time(self, time_ms: int):
-        """Receives messages over a given time period.
-
-        Returns a dictionary mapping the name of a can message to a dictionary of it's last received signals, or None if not received.
         """
 
-        res = {}
+        if self.rx_table[msg_name] == None:
+            return None
+        return self.rx_table[msg_name][signal_name]
 
-        for message in self._db.messages:
-            res[message.name] = None
+    def transmit(self, msg_name: str, data: Dict[str, any]):
+        """Transmit a message given it's data.
 
-        start = time.clock_gettime()
-        while time.clock_gettime() - start < time_ms:
-            message = self._can_bus.recv()
-            name = self._db.get_message_by_frame_id(message.arbitration_id).name
-            res[name] = self._db.decode_message(name, message.data)
+        Args:
+            msg_name: Name of the message.
+            data: Dictonary containing the signals to send.
 
-        return res
+        """
+        msg_type = self._db.get_message_by_name(msg_name)
+        raw_data = msg_type.encode(data)
+        raw_msg = can.Message(arbitration_id=msg_type.frame_id, data=raw_data)
+        self._can_bus.send(raw_msg)
 
 
 class _UsbDevice:
-    """Abstraction around a USB CDC (communcations device class) device.
-
-    Converts the fixed bulk endpoint chunk size of CDC devices to a continuous buffer,
-    exposing ``read`` and ``write`` methods for arbritrary length data.
-    """
-
     def __init__(self, product: str):
-        """Create a USB device.
+        """Create a USB device abstraction, to talk to Communications-Device-Class (CDC) devices.
 
-        Product name is set in CubeMX.
+        Args:
+            product: Name of the USB product, set in STM32CubeMX. See docs for more info.
+
         """
 
         self._device = libusb_package.find(manufacturer=_MANUFACTURER, product=product)
@@ -125,13 +119,23 @@ class _UsbDevice:
         self._read_buf = b""
 
     def write(self, buffer: bytes):
-        """Write bytes over usb."""
+        """Write bytes over usb.
+
+        Args:
+            buffer: Bytes to send over USB.
+
+        """
         self._device.write(self._endpoint_write.bEndpointAddress, buffer)
 
     def read(self, length: int) -> bytes:
-        """Read length bytes over usb.
+        """Read bytes over usb. Will block until all bytes are received.
 
-        Will block until length bytes are received.
+        Args:
+            length: Number of bytes to receive.
+
+        Returns:
+            Bytes received.
+
         """
 
         # Read bytes until there are a sufficent amount.
@@ -152,8 +156,6 @@ class _UsbDevice:
 
 
 class _Board:
-    """Abstraction around rpc-over-usb-communicating boards."""
-
     # CHIMERA Packet Format:
     # [ length low byte  | length high byte | content bytes    | ... ]
 
@@ -164,7 +166,15 @@ class _Board:
         adc_net_name: str,
         board_module: types.ModuleType,
     ):
-        """Create a new board."""
+        """Create an abstration around a Chimera V2 board.
+
+        Args:
+            usb_device: Interface to the usb device.
+            gpio_net_name: Identifier for the GpioNetName coresponding to your board, defined in shared.proto.
+            adc_net_name: Identifier for the AdcNetName coresponding to your board, defined in shared.proto.
+            board_module: Generated protobuf module, found in proto_autogen.
+
+        """
 
         self._usb_device = usb_device
         self.gpio_net_name = gpio_net_name
@@ -172,7 +182,12 @@ class _Board:
         self.board_module = board_module
 
     def _write(self, msg: proto_autogen.shared_pb2.DebugMessage):
-        """Write an RPC message over the provided usb device."""
+        """Write a protobuf DebugMessage over the provided usb device.
+
+        Args:
+            msg: DebugMessage to send over USB.
+
+        """
 
         # Get data.
         data = msg.SerializeToString()
@@ -186,7 +201,12 @@ class _Board:
         self._usb_device.write(packet)
 
     def _read(self) -> proto_autogen.shared_pb2.DebugMessage:
-        """Read and return an RPC message over the provided usb device."""
+        """Read and return an protobuf DebugMessage over the provided usb device.
+
+        Returns:
+            The debug message received.
+
+        """
 
         # Extract data size.
         data_size_bytes = self._usb_device.read(2)
@@ -198,7 +218,15 @@ class _Board:
         return msg
 
     def gpio_read(self, net_name: str) -> bool:
-        """Read the value of a GPIO pin given the net name of the pin, returns true if high."""
+        """Read the value of a GPIO pin given the net name of the pin.
+
+        Args:
+            net_name: Name of the pin.
+
+        Returns:
+            True if the pin is set high, otherwise false.
+
+        """
 
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
@@ -212,7 +240,13 @@ class _Board:
         return response.gpio_read.value
 
     def gpio_write(self, net_name: str, value: bool) -> None:
-        """Write a value to the gpio pin indicated by the provided net name, true for high."""
+        """Write a value to a GPIO pin.
+
+        Args:
+            net_name: Name of the pin.
+            value: True if high, otherwise false.
+
+        """
 
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
@@ -227,7 +261,15 @@ class _Board:
         assert response.SerializeToString() == msg.SerializeToString()
 
     def adc_read(self, net_name: str) -> float:
-        """Read the voltage at an adc pin specified by the net name."""
+        """Read the voltage at an ADC pin specified by the net name.
+
+        Args:
+            net_name: Name of the ADC pin.
+
+        Returns:
+            Voltage value read over pin.
+
+        """
 
         # Create and send message.
         msg = proto_autogen.shared_pb2.DebugMessage()
@@ -241,9 +283,9 @@ class _Board:
 
 
 class F4Dev(_Board):
-    """Chimera access point for the F4Dev."""
-
     def __init__(self) -> None:
+        """Create an interface to an F4Dev board."""
+
         super().__init__(
             usb_device=_UsbDevice(product="f4dev"),
             gpio_net_name="f4dev_net_name",
