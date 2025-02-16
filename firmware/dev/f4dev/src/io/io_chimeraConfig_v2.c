@@ -1,8 +1,8 @@
 #include "f4dev.pb.h"
 #include "hw_gpio.h"
-#include "hw_gpio_config.h"
+#include "hw_gpios.h"
 #include "hw_adc.h"
-#include "hw_adc_config.h"
+#include "hw_adcs.h"
 
 const Gpio *id_to_gpio[] = {
     [f4dev_GpioNetName_GPIO_6] = &gpio_6,

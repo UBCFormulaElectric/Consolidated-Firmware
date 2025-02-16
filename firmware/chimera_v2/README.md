@@ -313,9 +313,9 @@ enum GpioNetName {
 
 Now run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh) again to generate the python proto libraries. Also try to build binaries for your board.
 
-To capture this pins on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `io` level of your board, create files called `io_chimera_v2_config.h`/`io_chimera_v2_config.c`.
+To capture this pins on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `io` level of your board, create files called `io_chimeraConfig_v2.h`/`io_chimeraConfig_v2.c`.
 
-`io_chimera_v2_config.h` should look like this,
+`io_chimeraConfig_v2.h` should look like this,
 
 ```c
 #pragma once
@@ -326,15 +326,15 @@ extern const Gpio       *id_to_gpio[];
 extern const AdcChannel *id_to_adc[];
 ```
 
-`io_chimera_v2_Config.c` should extern declare two tables mapping from the protobuf net name enums, to the actual GPIO pins and ADC channels.
+`io_chimeraConfig_v2.c` should extern declare two tables mapping from the protobuf net name enums, to the actual GPIO pins and ADC channels.
 
 Eg. GPIO 6 on the F4 Dev board,
 ```c
 #include "board_name_here.pb.h"
 #include "hw_gpio.h"
-#include "hw_gpio_config.h"
+#include "hw_gpios.h"
 #include "hw_adc.h"
-#include "hw_adc_config.h"
+#include "hw_adcs.h"
 
 const Gpio *id_to_gpio[] = {
     [f4dev_GpioNetName_GPIO_6] = &gpio_6,

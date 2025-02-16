@@ -33,9 +33,9 @@
 #include "f4dev.pb.h"
 #include "io_chimera_v2.h"
 #include "hw_gpio.h"
-#include "hw_gpio_config.h"
-#include "hw_adc_config.h"
-#include "io_chimera_v2_config.h"
+#include "hw_gpios.h"
+#include "hw_adcs.h"
+#include "io_chimeraConfig_v2.h"
 #include "io_log.h"
 /* USER CODE END Includes */
 
