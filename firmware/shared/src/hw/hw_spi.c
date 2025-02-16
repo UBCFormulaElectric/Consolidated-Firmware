@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stm32h7xx_hal_def.h>
+#include <stm32h7xx_hal_spi.h>
 #include <string.h>
 
 static TaskHandle_t bus_tasks_in_progress[HW_SPI_BUS_COUNT];
@@ -79,6 +81,26 @@ bool hw_spi_transmitThenReceive(
 {
     const SpiDeviceConfig *const config = &spi_device_config[device];
 
+    // HAL_SPI_TransmitReceive_IT requires tx buffer and rx buffer to be of size equal to number of bytes to transmit
+    // and receive
+    const uint16_t combined_size = tx_buffer_size + rx_buffer_size;
+    uint8_t        padded_tx_buffer[combined_size];
+    uint8_t        padded_rx_buffer[combined_size];
+
+    // Copy tx_buffer into beginning of larger padded_tx_buffer
+    memcpy(padded_tx_buffer, tx_buffer, tx_buffer_size);
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss(device);
+        const bool status = HAL_SPI_TransmitReceive(
+                                spi_bus_handles[config->spi_bus], padded_tx_buffer, padded_rx_buffer, combined_size,
+                                config->timeout_ms) == HAL_OK;
+        disableNss(device);
+        return status;
+    }
+
     if (bus_tasks_in_progress[config->spi_bus] != NULL)
     {
         // There is a task currently in progress!
@@ -87,16 +109,6 @@ bool hw_spi_transmitThenReceive(
 
     // Save current task before starting a SPI transaction.
     bus_tasks_in_progress[config->spi_bus] = xTaskGetCurrentTaskHandle();
-
-    const uint16_t combined_size = tx_buffer_size + rx_buffer_size;
-
-    // HAL_SPI_TransmitReceive_IT requires tx buffer and rx buffer to be of size equal to number of bytes to transmit
-    // and receive
-    uint8_t padded_tx_buffer[combined_size];
-    uint8_t padded_rx_buffer[combined_size];
-
-    // Copy tx_buffer into beginning of larger padded_tx_buffer
-    memcpy(padded_tx_buffer, tx_buffer, tx_buffer_size);
 
     enableNss(device);
 
@@ -114,7 +126,6 @@ bool hw_spi_transmitThenReceive(
 
     /* Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not relevant
     Copy entries at the end of padded_rx_buffer back into rx_buffer */
-
     memcpy(rx_buffer, &padded_rx_buffer[tx_buffer_size], rx_buffer_size);
 
     return status;
@@ -123,6 +134,16 @@ bool hw_spi_transmitThenReceive(
 bool hw_spi_transmit(SpiDevice device, uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
     const SpiDeviceConfig *const config = &spi_device_config[device];
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss(device);
+        const bool status =
+            HAL_SPI_Transmit(spi_bus_handles[config->spi_bus], tx_buffer, tx_buffer_size, config->timeout_ms) == HAL_OK;
+        disableNss(device);
+        return status;
+    }
 
     if (bus_tasks_in_progress[config->spi_bus] != NULL)
     {
@@ -156,6 +177,16 @@ bool hw_spi_receive(SpiDevice device, uint8_t *rx_buffer, uint16_t rx_buffer_siz
     {
         // There is a task currently in progress!
         return false;
+    }
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss(device);
+        const bool status =
+            HAL_SPI_Receive(spi_bus_handles[config->spi_bus], rx_buffer, rx_buffer_size, config->timeout_ms) == HAL_OK;
+        disableNss(device);
+        return status;
     }
 
     // Save current task before starting a SPI transaction.
