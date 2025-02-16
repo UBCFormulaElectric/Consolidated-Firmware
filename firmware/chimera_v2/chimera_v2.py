@@ -56,7 +56,8 @@ class CanDevice:
                 msg = self._db.decode_message(raw_msg.arbitration_id, raw_msg.data)
                 self.rx_table[name] = msg
 
-        threading.Thread(target=can_rx_loop)
+        self.can_rx_thread = threading.Thread(target=can_rx_loop)
+        self.can_rx_thread.start()
 
     def get(self, msg_name: str, signal_name: str) -> Optional[any]:
         """Get a given signal from the last received can message.
