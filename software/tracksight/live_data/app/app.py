@@ -21,7 +21,7 @@ if __name__ == "__main__":
     dockerized = os.environ.get("IN_DOCKER_CONTAINER") == "true"
     if not dockerized:
         # this is only on developer machines
-        influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "live_data.env")
+        influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docker", "live_data.env")
         load_dotenv(dotenv_path=influx_env_path)
 
     # register blueprint for python

@@ -5,3 +5,4 @@ flask-cors == 5.0.0
 python-dotenv == 1.0.1
 flask-socketio == 5.5.1
 pandas == 2.2.3
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@master#egg=jsoncan&subdirectory=scripts/code_generation/jsoncan=jsoncan

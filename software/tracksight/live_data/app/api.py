@@ -18,7 +18,7 @@ def disconnect():
     del SUB_TABLE[request.sid]
     logger.info(f'{request.sid} diconnected')
 
-@api.route("/")
+@api.route("/health")
 def hello_world():
     return "<p>Hello, World!</p>"
 
