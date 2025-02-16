@@ -1,20 +1,6 @@
 import jinja2 as j2
 
-from .c_writer import *
 from .utils import load_template
-
-PACK_SHIFT_LEFT_FUNC = "packShiftLeft"
-PACK_SHIFT_RIGHT_FUNC = "packShiftRight"
-UNPACK_SHIFT_LEFT_FUNC = "unpackShiftLeft"
-UNPACK_SHIFT_RIGHT_FUNC = "unpackShiftRight"
-
-CAN_ENCODE_MACRO = "CAN_ENCODE"
-CAN_SIGNED_ENCODE_MACRO = "CAN_SIGNED_ENCODE"
-CAN_DECODE_MACRO = "CAN_DECODE"
-SIGNED_DECODE_MACRO = "SIGNED_DECODE"
-
-PACK_TEMPLATE = "out_data[{byte_index}] |= {func}({value}, {shift}, {mask});   // Packs bits {bits_comment} of byte {byte_index}"
-UNPACK_TEMPLATE = "{var_name} |= {func}({value}, {shift}, {mask});   // Unpacks bits {bits_comment} of msg byte {byte_index}"
 
 
 def calculate_packing_iterations(signal):

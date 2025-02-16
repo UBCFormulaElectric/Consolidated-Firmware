@@ -9,10 +9,6 @@ from .c_config import *
 from .c_writer import *
 from .utils import load_template
 
-MSG_CYCLE_TIME_2_FREQ = {
-    1000: "1Hz",
-    10: "100Hz",
-}
 
 
 class IoCanTxModule(CModule):
