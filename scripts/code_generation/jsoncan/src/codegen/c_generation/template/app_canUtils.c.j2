@@ -68,19 +68,19 @@ static inline uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t ma
 {% set scale_macro = "CANSIG_{}_{}_SCALE" %}
 {% set offset_macro = "CANSIG_{}_{}_OFFSET" %}
 
-{% for msg in tx_messages -%}
-{% set msg_big_name =  msg.scremming_snake_name() %} 
+{% for msg in messages -%}
+{% set msg_big_name =  msg.scremming_snake_name() %}
 // pack function for {{ msg.name }}
 void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack message {{ msg.name }}.
     // {{ signal_placement_comment(msg) }}
-    
+
     if (in_msg == NULL || out_data == NULL)
     {
         return;
     }
-    
+
     {% for signal in msg.signals %}
     {%- set raw_type =  "int32_t" if signal.signed else "uint32_t" -%}
     {%- set DECORD_MACRO = "CAN_SIGNED_ENCODE" if signal.signed else "CAN_ENCODE" -%}
@@ -89,13 +89,13 @@ void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg
     const {{ raw_type }} {{ signal.name }}_raw = {{ DECORD_MACRO }}({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ raw_type }});
     {% for iteration in iterations(signal) -%}
     {%- set packShift = "packShiftRight" if iteration.shift >= 0 else "packShiftLeft" -%}
-    out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift | abs }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }} 
+    out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift | abs }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }}
     {% endfor %}
     {% endfor %}
 }
 {% endfor %}
 
-{% for msg in rx_messages -%}
+{% for msg in messages -%}
 {% set msg_big_name =  msg.scremming_snake_name() %}
 
 // unpack function for {{ msg.name }}
@@ -103,18 +103,18 @@ void app_canUtils_{{ msg.name }}_unpack(const uint8_t* const in_data, {{ msg.nam
 {
     // Unpack message {{ msg.name }}.
     // {{ signal_placement_comment(msg) }}
-    
+
     if (in_data == NULL || out_msg == NULL)
     {
         return;
     }
-    
+
     {% for signal in msg.signals %}
     {%- set signal_big_name =  signal.scremming_snake_name() -%}
     {%- set DECORD_MACRO = "SIGNED_DECODE" if signal.signed else "CAN_DECODE" -%}
     uint32_t {{ signal.name }}_raw = 0; // Temporary raw variable for {{ signal.name }}
     {% for iteration in iterations(signal) -%}
-    {%- set unpackShift = "unpackShiftRight" if iteration.shift >= 0 else "unpackShiftLeft" -%}
+    {%- set unpackShift = "unpackShiftLeft" if iteration.shift >= 0 else "unpackShiftRight" -%}
     {{ signal.name }}_raw |= {{ unpackShift }}(in_data[{{ iteration.starting_byte }}], {{ iteration.shift | abs }}, {{ iteration.mask_text }}); // Unpacks bits {{ iteration.comment_data }} from byte {{ iteration.starting_byte }}
     {% endfor -%}
     {%- if signal.signed -%}

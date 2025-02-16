@@ -1,7 +1,7 @@
 jsoncan_sources(
     "ECU1"
     "${CMAKE_CURRENT_BINARY_DIR}"
-    FALSE
+    TRUE
     "${CMAKE_CURRENT_BINARY_DIR}/jsoncan_test.dbc"
     "${CMAKE_CURRENT_SOURCE_DIR}/json"
 )

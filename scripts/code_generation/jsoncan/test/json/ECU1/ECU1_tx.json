@@ -1,1 +1,54 @@
-{}
+{
+  "BasicSignalTypes": {
+    "msg_id": 104,
+    "bus": ["bus1", "bus2"],
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "Boolean1": {
+        "bits": 1
+      },
+      "Boolean2": {
+        "bits": 1
+      },
+      "Enum": {
+        "enum": "EnumExample"
+      },
+      "UInt8": {
+        "bits": 8
+      },
+      "UInt16": {
+        "bits": 16
+      },
+      "UInt32": {
+        "bits": 32
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  },
+  "DecimalNumbers": {
+    "msg_id": 105,
+    "bus": ["bus1", "bus2"],
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "Decimal1": {
+        "resolution": 0.1,
+        "min": -100,
+        "max": 100
+      },
+      "Decimal2": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 3
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  }
+}

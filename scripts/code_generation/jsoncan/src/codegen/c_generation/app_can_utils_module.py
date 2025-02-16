@@ -63,8 +63,7 @@ class AppCanUtilsModule(CModule):
         )
         template = j2_env.from_string(template)
         return template.render(
-            tx_messages=self._db.tx_msgs_for_node(self._node),
-            rx_messages=self._db.rx_msgs_for_node(self._node),
+            messages=self._db.msgs_for_node(self._node),
             signal_placement_comment=signal_placement_comment,
             iterations=calculate_packing_iterations,
             max_uint_for_bits=max_uint_for_bits,
@@ -76,7 +75,6 @@ class AppCanUtilsModule(CModule):
             for signal in msg.signals:
                 if signal.enum and signal.enum not in can_enums:
                     can_enums.append(signal.enum)
-                    
 
         template = load_template("app_canUtils.h.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader)
@@ -99,5 +97,3 @@ def signal_placement_comment(msg: CanMessage):
 
     signals = list(reversed(signals))
     return f'|{"|".join("".join(signals[i*8:(i+1)*8]) for i in range(0, 8))}|'
-
-

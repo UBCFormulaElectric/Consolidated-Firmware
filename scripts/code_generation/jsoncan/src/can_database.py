@@ -104,7 +104,8 @@ class CanSignal:
     offset: float  # Offset for encoding/decoding
     min_val: float  # Min allowed value
     max_val: float  # Max allowed value
-    start_val: Union[int, float]  # Default starting value, None if doesn't specify one
+    # Default starting value, None if doesn't specify one
+    start_val: Union[int, float]
     enum: Union[CanEnum, None]  # Value table, None if doesn't specify one
     unit: str  # Signal's unit
     signed: bool  # Whether or not signal is represented as signed or unsigned
@@ -174,6 +175,7 @@ class CanSignal:
 
     def min_val_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
+
     def scale_macro(self):
         return f"CANSIG_{self.snake_name().upper()}_SCALE"
 
@@ -315,7 +317,8 @@ class CanDatabase:
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
-    reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
+    # List of messages to be forwarded to another bus
+    reroute_msgs: List[CanForward]
     forwarder: CanNode  # Node which forwards this message
 
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
@@ -337,9 +340,9 @@ class CanDatabase:
         """
         Return list of all CAN messages either transmitted or received by a specific node.
         """
-        tx= self.tx_msgs_for_node(tx_node=node) 
+        tx = self.tx_msgs_for_node(tx_node=node)
         rx = self.rx_msgs_for_node(rx_node=node)
-        a = tx + rx 
+        a = tx + rx
         return a
 
     def node_has_tx_msgs(self, node: str) -> bool:
@@ -389,7 +392,8 @@ class CanDatabase:
             node
             for node in self.nodes
             if any(
-                [self.node_has_alert(node, alert_type) for alert_type in CanAlertType]
+                [self.node_has_alert(node, alert_type)
+                 for alert_type in CanAlertType]
             )
         ]
 
