@@ -28,54 +28,52 @@
             "IsConnected": {
                 "bits": 1
             },
-            
-            
-            "BypassDetection1": {
-                "bits": 1
-            },
-            "BypassDetection2": {
-                "bits": 1
-            },
-            "LimitedByOutputVoltage": {
-                "bits": 1
-            },
-            "LimitedByOutputCurrent": {
-                "bits": 1
-            },
-            "LimitedByMainsCurrent": {
-                "bits": 1
-            },
-            "LimitedByPowerIndicator": {
+            "LimitedByMaxPower": {
                 "bits": 1
             },
             "LimitedByControlPilot": {
                 "bits": 1
             },
-            "LimitedByMaxPower": {
+            "LimitedByPowerIndicator": {
                 "bits": 1
             },
-            "LimitedByMaxMainsCurrent": {
+            "LimitedByMainsCurrent": {
                 "bits": 1
             },
-            "LimitedByMaxOutputCurrent": {
+            "LimitedByOutputCurrent": {
                 "bits": 1
             },
-            "LimitedByMaxOutputVoltage": {
+            "LimitedByOutputVoltage": {
                 "bits": 1
             },
-            "LimitedByTempCap": {
+            "BypassDetection2": {
                 "bits": 1
             },
-            "LimitedByTempPowerStage": {
+            "BypassDetection1": {
                 "bits": 1
             },
-            "LimitedByTempDiodes": {
+            "LimitedByBatteryTemp": {
                 "bits": 1
             },
             "LimitedByTempTransformer": {
                 "bits": 1
             },
-            "LimitedByBatteryTemp": {
+            "LimitedByTempDiodes": {
+                "bits": 1
+            },
+            "LimitedByTempPowerStage": {
+                "bits": 1
+            },
+            "LimitedByTempCap": {
+                "bits": 1
+            },
+            "LimitedByMaxOutputVoltage": {
+                "bits": 1
+            },
+            "LimitedByMaxOutputCurrent": {
+                "bits": 1
+            },
+            "LimitedByMaxMainsCurrent": {
                 "bits": 1
             },
             "MalloryRandom1": {
