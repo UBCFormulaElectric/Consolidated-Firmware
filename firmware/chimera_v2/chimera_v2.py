@@ -52,7 +52,7 @@ class CanDevice:
         def can_rx_loop():
             while True:
                 raw_msg = self._can_bus.recv()
-                name = self._db.get_message_by_id(raw_msg.arbitration_id).name
+                name = self._db.get_message_by_frame_id(raw_msg.arbitration_id).name
                 msg = self._db.decode_message(raw_msg.arbitration_id, raw_msg.data)
                 self.rx_table[name] = msg
 
