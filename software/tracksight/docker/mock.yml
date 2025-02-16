@@ -4,10 +4,10 @@ services:
     extends:
       file: common.yml
       service: influx
-  # live_data:
-  #   extends:
-  #     file: common.yml
-  #     service: live_data
+  live_data:
+    extends:
+      file: common.yml
+      service: live_data
   # frontend:
   #   extends:
   #     file: common.yml

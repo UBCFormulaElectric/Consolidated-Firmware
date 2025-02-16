@@ -23,7 +23,7 @@ services:
       - "5000:5000"
     env_file: live_data.env
     volumes:
-      - ../backend/logs:/backend/logs
+      - ../live_data/logs:/live_data/logs
     healthcheck:
       # Ping server every 30s in case something breaks.
       test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
