@@ -50,6 +50,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal.c"
             "stm32f4xx_hal_sd.c"
             "stm32f4xx_ll_sdmmc.c"
+            "stm32f4xx_hal_i2c.c"
             "stm32f4xx_hal_pcd.c"
             "stm32f4xx_hal_pcd_ex.c"
             "stm32f4xx_ll_usb.c"

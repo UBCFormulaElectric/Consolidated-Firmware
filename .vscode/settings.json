@@ -10,8 +10,6 @@
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
 	"files.associations": {
-		"hw_adc.h": "c",
-		"hw_gpios.h": "c",
-		"io_chimeraconfig_v2.h": "c"
+		"main.h": "c"
 	}
 }

@@ -14,4 +14,4 @@ const Gpio *id_to_gpio[] = {
 const AdcChannel *id_to_adc[] = { [0] = &adc_tmp };
 
 // TODO: Configure I2Cs.
-const I2cBus id_to_i2c[] = { [0] = HW_I2C_TMP };
+const I2cBus id_to_i2c[] = { [0] = HW_I2C_3 };

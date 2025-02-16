@@ -13,11 +13,12 @@ cd $CHIMERA_V2_DIR
     # For each proto file,
     for file in ./proto/*.proto
     do
-        # Generate proto python lib.
+        # Generate proto python lib and mypy stubs.
         echo "Generating python proto lib for for $file"
         protoc \
             -I proto \
             --python_out $AUTOGEN_DEST \
+            --mypy_out=$AUTOGEN_DEST \
             $file
 
         # Fix import paths.

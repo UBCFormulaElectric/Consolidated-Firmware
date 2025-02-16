@@ -25,7 +25,7 @@ const uint16_t OUT_BUFFER_SIZE = 0xffff;
 static pb_byte_t *out_buffer = NULL;
 
 // Convert a given GpioNetName to a GPIO pin.
-static const Gpio *io_chimera_v2_parseNetLabelGpio(const GpioNetName *net_name)
+static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 {
     if (gpio_net_name_tag != net_name->which_name)
         LOG_ERROR("Chimera: Expected GPIO net name with tag %d, got %d", gpio_net_name_tag, net_name->which_name);
@@ -37,7 +37,7 @@ static const Gpio *io_chimera_v2_parseNetLabelGpio(const GpioNetName *net_name)
 }
 
 // Convert a given AdcNetName to an ADC channel pin.
-static const AdcChannel *io_chimera_v2_parseNetLabelAdc(const AdcNetName *net_name)
+static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 {
     if (adc_net_name_tag != net_name->which_name)
         LOG_ERROR("Chimera: Expected ADC net name with tag %d, got %d", adc_net_name_tag, net_name->which_name);
@@ -51,37 +51,54 @@ static const AdcChannel *io_chimera_v2_parseNetLabelAdc(const AdcNetName *net_na
 // Handle an rpc message.
 void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
 {
-    // Receive message.
-    DebugMessage msg            = DebugMessage_init_zero;
-    pb_istream_t content_stream = pb_istream_from_buffer(content, length);
-    if (!pb_decode(&content_stream, DebugMessage_fields, &msg))
+    // Setup request.
+    ChimeraV2Request request        = ChimeraV2Request_init_zero;
+    pb_istream_t     content_stream = pb_istream_from_buffer(content, length);
+    if (!pb_decode(&content_stream, ChimeraV2Request_fields, &request))
     {
-        LOG_ERROR("Error decoding chimera message stream");
+        LOG_ERROR("Chimera: Error decoding chimera message stream");
         return;
     }
 
-    if (msg.which_payload == DebugMessage_gpio_read_tag)
+    // Setup response.
+    ChimeraV2Response response = ChimeraV2Response_init_zero;
+
+    if (request.which_payload == ChimeraV2Request_gpio_read_tag)
     {
         // GPIO read.
-        const Gpio *gpio            = io_chimera_v2_parseNetLabelGpio(&msg.payload.gpio_read.net_name);
-        msg.payload.gpio_read.value = hw_gpio_readPin(gpio);
+        const Gpio *gpio = io_chimera_v2_getGpio(&request.payload.gpio_read.net_name);
+        bool        data = hw_gpio_readPin(gpio);
+
+        // Format response.
+        response.which_payload              = ChimeraV2Response_gpio_read_tag;
+        response.payload.gpio_read.value    = data;
+        response.payload.gpio_read.net_name = request.payload.gpio_read.net_name;
     }
-    else if (msg.which_payload == DebugMessage_gpio_write_tag)
+    else if (request.which_payload == ChimeraV2Request_gpio_write_tag)
     {
         // GPIO write.
-        const Gpio *gpio = io_chimera_v2_parseNetLabelGpio(&msg.payload.gpio_write.net_name);
-        hw_gpio_writePin(gpio, msg.payload.gpio_write.value);
+        const Gpio *gpio = io_chimera_v2_getGpio(&request.payload.gpio_write.net_name);
+        hw_gpio_writePin(gpio, request.payload.gpio_write.value);
+
+        // Format response.
+        response.which_payload                           = ChimeraV2Response_gpio_write_tag;
+        response.payload.gpio_write.request_confirmation = request.payload.gpio_write;
     }
-    else if (msg.which_payload == DebugMessage_adc_tag)
+    else if (request.which_payload == ChimeraV2Request_adc_read_tag)
     {
         // ADC read.
-        const AdcChannel *adc_channel = io_chimera_v2_parseNetLabelAdc(&msg.payload.adc.net_name);
-        msg.payload.adc.value         = hw_adc_getVoltage(adc_channel);
+        const AdcChannel *adc_channel = io_chimera_v2_getAdc(&request.payload.adc_read.net_name);
+        float             data        = hw_adc_getVoltage(adc_channel);
+
+        // Format response.
+        response.which_payload             = ChimeraV2Response_adc_read_tag;
+        response.payload.adc_read.value    = data;
+        response.payload.adc_read.net_name = request.payload.adc_read.net_name;
     }
 
-    // Encode protobuf to bytes.
+    // Encode response to bytes.
     pb_ostream_t out_stream = pb_ostream_from_buffer(out_buffer, OUT_BUFFER_SIZE);
-    if (!pb_encode(&out_stream, DebugMessage_fields, &msg))
+    if (!pb_encode(&out_stream, ChimeraV2Response_fields, &response))
     {
         LOG_ERROR("Error encoding chimera message output");
         return;

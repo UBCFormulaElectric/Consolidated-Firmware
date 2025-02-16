@@ -43,7 +43,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern I2C_HandleTypeDef hi2c3;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

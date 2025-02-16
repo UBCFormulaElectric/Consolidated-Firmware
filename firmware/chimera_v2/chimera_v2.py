@@ -5,7 +5,7 @@ Provides tooling to debug devices over USB, CAN, etc.
 """
 
 import types
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 import threading
 import signal
 
@@ -45,14 +45,16 @@ class CanDevice:
         self._can_bus = bus
 
         # Build CAN message tables.
-        self.rx_table: Dict[str, Optional[Dict[str, any]]] = {}
-        for msg in self._db.messages:
-            self.rx_table[msg.name] = None
+        self.rx_table: Dict[str, Dict[str, Any]] = {}
+        for msg in self._db.messages:  # type: ignore
+            self.rx_table[msg.name] = {}
+            for sig in msg.signals:
+                self.rx_table[msg.name][sig.name] = None
 
         # Setup exit handler and signal.
         exit_event = threading.Event()
 
-        def exit_handler():
+        def exit_handler(_signalnum: int, _stackframe: Any):
             exit_event.set()
 
         signal.signal(signal.SIGINT, exit_handler)
@@ -72,7 +74,7 @@ class CanDevice:
         self.can_rx_thread = threading.Thread(target=can_rx_loop)
         self.can_rx_thread.start()
 
-    def get(self, msg_name: str, signal_name: str) -> Optional[any]:
+    def get(self, msg_name: str, signal_name: str) -> Optional[Any]:
         """Get a given signal from the last received can message.
 
         Args:
@@ -88,7 +90,7 @@ class CanDevice:
             return None
         return self.rx_table[msg_name][signal_name]
 
-    def transmit(self, msg_name: str, data: Dict[str, any]):
+    def transmit(self, msg_name: str, data: Dict[str, Any]):
         """Transmit a message given it's data.
 
         Args:
@@ -96,7 +98,7 @@ class CanDevice:
             data: Dictonary containing the signals to send.
 
         """
-        msg_type = self._db.get_message_by_name(msg_name)
+        msg_type = self._db.get_message_by_name(msg_name)  # type: ignore
         raw_data = msg_type.encode(data)
         raw_msg = can.Message(arbitration_id=msg_type.frame_id, data=raw_data)
         self._can_bus.send(raw_msg)
@@ -177,14 +179,16 @@ class _Board:
         usb_device: _UsbDevice,
         gpio_net_name: str,
         adc_net_name: str,
+        i2c_net_name: str,
         board_module: types.ModuleType,
     ):
         """Create an abstration around a Chimera V2 board.
 
         Args:
             usb_device: Interface to the usb device.
-            gpio_net_name: Identifier for the GpioNetName coresponding to your board, defined in shared.proto.
-            adc_net_name: Identifier for the AdcNetName coresponding to your board, defined in shared.proto.
+            gpio_net_name: Identifier for the GpioNetName corresponding to your board, defined in shared.proto.
+            i2c_net_name: Identifier for the I2cNetName corresponding to your board, defined in shared.proto.
+            adc_net_name: Identifier for the AdcNetName corresponding to your board, defined in shared.proto.
             board_module: Generated protobuf module, found in proto_autogen.
 
         """
@@ -192,13 +196,14 @@ class _Board:
         self._usb_device = usb_device
         self.gpio_net_name = gpio_net_name
         self.adc_net_name = adc_net_name
+        self.i2c_net_name = i2c_net_name
         self.board_module = board_module
 
-    def _write(self, msg: proto_autogen.shared_pb2.DebugMessage):
-        """Write a protobuf DebugMessage over the provided usb device.
+    def _write(self, msg: proto_autogen.shared_pb2.ChimeraV2Request):
+        """Write a protobuf request to the provided usb device.
 
         Args:
-            msg: DebugMessage to send over USB.
+            msg: request to send over USB.
 
         """
 
@@ -213,11 +218,11 @@ class _Board:
         packet = bytes([*packet_size_bytes, *data])
         self._usb_device.write(packet)
 
-    def _read(self) -> proto_autogen.shared_pb2.DebugMessage:
-        """Read and return an protobuf DebugMessage over the provided usb device.
+    def _read(self) -> proto_autogen.shared_pb2.ChimeraV2Response:
+        """Read and return a response from the usb device.
 
         Returns:
-            The debug message received.
+            The message received.
 
         """
 
@@ -226,7 +231,7 @@ class _Board:
         data_size = int.from_bytes(data_size_bytes, byteorder="little")
 
         # Extract rpc message.
-        msg = proto_autogen.shared_pb2.DebugMessage()
+        msg = proto_autogen.shared_pb2.ChimeraV2Response()
         msg.ParseFromString(self._usb_device.read(data_size))
         return msg
 
@@ -242,14 +247,18 @@ class _Board:
         """
 
         # Create and send message.
-        msg = proto_autogen.shared_pb2.DebugMessage()
-        net_name = self.board_module.GpioNetName.Value(net_name)
-        setattr(msg.gpio_read.net_name, self.gpio_net_name, net_name)
-        self._write(msg)
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.gpio_read.net_name,
+            self.gpio_net_name,
+            self.board_module.GpioNetName.Value(net_name),
+        )
+        self._write(request)
 
         # Wait for response.
         response = self._read()
 
+        assert response.gpio_read.net_name == request.gpio_read.net_name
         return response.gpio_read.value
 
     def gpio_write(self, net_name: str, value: bool) -> None:
@@ -262,16 +271,21 @@ class _Board:
         """
 
         # Create and send message.
-        msg = proto_autogen.shared_pb2.DebugMessage()
-        net_name = self.board_module.GpioNetName.Value(net_name)
-        setattr(msg.gpio_write.net_name, self.gpio_net_name, net_name)
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.gpio_write.net_name,
+            self.gpio_net_name,
+            self.board_module.GpioNetName.Value(net_name),
+        )
+        request.gpio_write.value = value
+        self._write(request)
 
-        msg.gpio_write.value = value
-        self._write(msg)
-
-        # Wait for response, and validate that the request was the same.
+        # Wait for response, and validate that the request was received correctly.
         response = self._read()
-        assert response.SerializeToString() == msg.SerializeToString()
+        assert (
+            response.SerializeToString()
+            == response.gpio_write.request_confirmation.SerializeToString()
+        )
 
     def adc_read(self, net_name: str) -> float:
         """Read the voltage at an ADC pin specified by the net name.
@@ -285,14 +299,18 @@ class _Board:
         """
 
         # Create and send message.
-        msg = proto_autogen.shared_pb2.DebugMessage()
-        net_name = self.board_module.AdcNetName.Value(net_name)
-        setattr(msg.adc.net_name, self.adc_net_name, net_name)
-        self._write(msg)
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.adc_read.net_name,
+            self.adc_net_name,
+            self.board_module.AdcNetName.Value(net_name),
+        )
+        self._write(request)
 
         # Wait for response and return.
         response = self._read()
-        return response.adc.value
+        assert response.adc_read.net_name == request.adc_read.net_name
+        return response.adc_read.value
 
 
 class F4Dev(_Board):
@@ -303,5 +321,6 @@ class F4Dev(_Board):
             usb_device=_UsbDevice(product="f4dev"),
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
+            i2c_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )

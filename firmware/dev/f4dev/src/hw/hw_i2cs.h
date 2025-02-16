@@ -6,7 +6,7 @@
 // TODO: Setup I2Cs.
 typedef enum
 {
-    HW_I2C_TMP,
+    HW_I2C_3,
     HW_I2C_BUS_COUNT
 } I2cBus;
 

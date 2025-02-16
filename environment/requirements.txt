@@ -31,6 +31,9 @@ asammdf
 lazydocs
 pydocstyle
 ruff
+types-protobuf
+mypy
+mypy-protobuf
 
 # Chimera
 pyusb

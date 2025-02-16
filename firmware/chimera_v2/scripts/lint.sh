@@ -5,5 +5,6 @@ CACHED_WORKING_DIR=$(pwd)
 CHIMERA_V2_DIR="$(dirname "$0")/.."
 
 cd $CHIMERA_V2_DIR
+    mypy ./chimera_v2.py
     ruff format .
 cd $CACHED_WORKING_DIR
