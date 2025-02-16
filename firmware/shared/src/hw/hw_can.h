@@ -2,9 +2,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "hw_hal.h"
 #include "io_canMsg.h"
 
+#ifdef TARGET_EMBEDDED
+#include "hw_hal.h"
 #ifdef CANFD
 // STM32 HAL CAN FD handle.
 typedef struct
@@ -18,17 +19,18 @@ typedef struct
     CAN_HandleTypeDef *hcan;
 } CanHandle;
 #endif
+#endif
 
 /**
  * Initialize CAN driver.
  * @param can_handle STM32 HAL CAN handle.
  */
-void io_can_init(const CanHandle *can_handle);
+void hw_can_init(const CanHandle *can_handle);
 
 /**
  * Stop and deinitialize the CAN peripheral.
  */
-void io_can_deinit(const CanHandle *can_handle);
+void hw_can_deinit(const CanHandle *can_handle);
 
 /**
  * Transmit a CAN msg on the bus, blocking until completed.
@@ -36,7 +38,7 @@ void io_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.
@@ -46,4 +48,4 @@ bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg);
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
  */
-bool io_can_receive(const CanHandle *can_handle, uint32_t rx_fifo, CanMsg *msg);
+bool hw_can_receive(const CanHandle *can_handle, uint32_t rx_fifo, CanMsg *msg);

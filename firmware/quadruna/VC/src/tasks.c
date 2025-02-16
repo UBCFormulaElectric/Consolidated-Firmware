@@ -203,27 +203,3 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         io_sbgEllipse_msgRxCallback();
     }
 }
-
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
-{
-    UNUSED(RxFifo0ITs);
-    CanMsg rx_msg;
-
-    assert(hfdcan == &hfdcan1);
-    if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
-
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
-{
-    UNUSED(RxFifo1ITs);
-    CanMsg rx_msg;
-
-    assert(hfdcan == &hfdcan1);
-    if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}

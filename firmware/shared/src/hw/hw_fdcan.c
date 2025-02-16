@@ -1,10 +1,11 @@
-#include "io_can.h"
-#undef NDEBUG
+#include "hw_can.h"
+#undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
 #include "io_log.h"
 #include "io_time.h"
+#include "io_canQueue.h"
 
-void io_can_init(const CanHandle *can_handle)
+void hw_can_init(const CanHandle *can_handle)
 {
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
@@ -28,13 +29,13 @@ void io_can_init(const CanHandle *can_handle)
     assert(HAL_FDCAN_Start(can_handle->hcan) == HAL_OK);
 }
 
-void io_can_deinit(const CanHandle *can_handle)
+void hw_can_deinit(const CanHandle *can_handle)
 {
     assert(HAL_FDCAN_Stop(can_handle->hcan) == HAL_OK);
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
@@ -53,7 +54,7 @@ bool io_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
 }
 
-bool io_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
+bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     FDCAN_RxHeaderTypeDef header;
     if (HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
@@ -82,4 +83,27 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
             CLEAR_BIT(hfdcan->Instance->CCCR, FDCAN_CCCR_INIT);
         }
     }
+}
+
+uint8_t handle_to_bus(FDCAN_HandleTypeDef *hfdcan);
+
+static void handle(FDCAN_HandleTypeDef *hfdcan)
+{
+    CanMsg rx_msg;
+    if (!hw_can_receive(hfdcan, FDCAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
+}
+
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
+{
+    UNUSED(RxFifo0ITs);
+    handle(hfdcan);
+}
+
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
+{
+    UNUSED(RxFifo1ITs);
+    handle(hfdcan);
 }
