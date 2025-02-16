@@ -1,33 +1,31 @@
 {
     "Vitals": {
-      "msg_id": 400,
-      "bus": ["Can"],
-      "cycle_time": 100,
-      "description": "Vitals message for the BMS.",
-      "signals": {
-        "Heartbeat": {
-          "bits": 1
-        },
-        "State": {
-          "enum": "BmsState"
+        "msg_id": 400,
+        "cycle_time": 100,
+        "description": "Vitals message for the BMS.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "BmsState"
+            }
         }
-      }
     },
     "LatchedFaults": {
-      "msg_id": 410,
-      "bus": ["Can"],
-      "cycle_time": 100,
-      "description": "Latched faults for the BMS",
-      "signals": {
-        "BmsLatchedFault": {
-          "bits": 1
-        },
-        "ImdLatchedFault": {
-          "bits": 1
-        },
-        "BspdLatchedFault": {
-          "bits": 1
+        "msg_id": 410,
+        "cycle_time": 100,
+        "description": "Latched faults for the BMS",
+        "signals": {
+            "BmsLatchedFault": {
+                "bits": 1
+            },
+            "ImdLatchedFault": {
+                "bits": 1
+            },
+            "BspdLatchedFault": {
+                "bits": 1
+            }
         }
-      }
     }
 }

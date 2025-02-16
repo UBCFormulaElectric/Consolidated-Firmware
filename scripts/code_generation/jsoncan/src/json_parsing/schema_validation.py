@@ -2,9 +2,9 @@
 Functions to validate the CAN JSON schema.
 """
 
-from typing import Dict, List, TypedDict
+from typing import Dict, TypedDict
 
-from schema import And, Optional, Or, Schema
+from schema import Schema, Optional, Or, And
 
 """
 Tx file schemas
@@ -61,7 +61,6 @@ tx_signal_schema = Schema(
 
 tx_msg_schema = Schema(
     {
-        "bus": list[str],
         "msg_id": And(
             int, lambda x: x >= 0 and x < 2**11
         ),  # Standard CAN uses 11-bit identifiers
@@ -103,29 +102,16 @@ Bus file schema
 """
 
 
-class BusConfigJson(TypedDict):
+class BusJson(TypedDict):
     default_receiver: str
     bus_speed: int
     modes: list[str]
     default_mode: str
 
 
-class BusJson(TypedDict):
-    forwarder: str
-    buses: list[BusConfigJson]
-
-
-single_bus_schema = Schema(
-    {
-        "default_receiver": str,
-        "bus_speed": int,
-        "modes": [str],
-        "default_mode": str,
-        "nodes": [str],
-    }
+bus_schema = Schema(
+    {"default_receiver": str, "bus_speed": int, "modes": [str], "default_mode": str}
 )
-bus_list = Schema(Or(list[single_bus_schema], []))
-bus_schema = Schema({"forwarder": str, "buses": bus_list})
 
 """
 Alerts file schema
@@ -142,7 +128,6 @@ class AlertsJson(TypedDict):
     warnings_counts_id: int
     faults_id: int
     faults_counts_id: int
-    bus: List[str]
     warnings: Dict[str, AlertsEntry]
     faults: Dict[str, AlertsEntry]
 
@@ -154,7 +139,6 @@ alerts_schema = Schema(
             "warnings_counts_id": And(int, lambda x: x >= 0),
             "faults_id": And(int, lambda x: x >= 0),
             "faults_counts_id": And(int, lambda x: x >= 0),
-            "bus": list[str],
             "warnings": Or(
                 {},
                 {

@@ -67,7 +67,7 @@ void jobs_init()
 
     io_can_init(&can1);
     io_canTx_init(jsoncan_transmit_func);
-    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
     io_telemMessage_init();
 }
@@ -81,7 +81,7 @@ void jobs_run1Hz_tick(void)
     app_stackWaterMark_check();
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
+    io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
 }
 

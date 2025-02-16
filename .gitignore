@@ -153,6 +153,3 @@ CMakeUserPresets.json
 build
 
 /can_bus/**/*.plt
-
-# playground
-output/
