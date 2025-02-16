@@ -12,7 +12,7 @@
 
 bool io_imu_init()
 {
-    if (!hw_i2c_isTargetReady(3))
+    if (!hw_i2c_isTargetReady(HW_I2C_DEVICE_IMU))
     {
         return false;
     }
