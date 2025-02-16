@@ -1,4 +1,4 @@
 #pragma once
-#include "io_can.h"
+#include "hw_can.h"
 
 extern const CanHandle can1;

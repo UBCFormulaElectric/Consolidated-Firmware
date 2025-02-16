@@ -17,13 +17,19 @@
 #include "hw_utils.h"
 #include "hw_crc.h"
 #include "hw_hal.h"
-#include "io_can.h"
+#include "hw_can.h"
+#include <assert.h>
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
 // Need these to be created an initialized elsewhere
 extern CanHandle can;
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    assert(hfdcan == can.hcan);
+    return &can;
+}
 
 void canRxQueueOverflowCallBack(const uint32_t unused)
 {
@@ -259,7 +265,7 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        io_can_transmit(&can, &tx_msg);
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 

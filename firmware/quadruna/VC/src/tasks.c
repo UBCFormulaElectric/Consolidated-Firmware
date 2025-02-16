@@ -16,13 +16,13 @@
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
-#include "io_cans.h"
 #include "io_canQueue.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdogConfig.h"
 #include "hw_adcs.h"
+#include "hw_cans.h"
 
 void tasks_preInit(void)
 {
@@ -143,7 +143,8 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        jobs_runCanTx_tick();
+        CanMsg tx_msg = io_canQueue_popTx();
+        hw_can_transmit(&can1, &tx_msg);
     }
 }
 

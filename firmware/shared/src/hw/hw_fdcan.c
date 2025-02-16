@@ -10,7 +10,7 @@
  * @param hfdcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
-CanHandle *hw_can_getHandle(FDCAN_HandleTypeDef *hfdcan);
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan);
 
 void hw_can_init(const CanHandle *can_handle)
 {
