@@ -1,4 +1,8 @@
 #include "hw_i2c.h"
+#include <cmsis_os.h>
+#include <cmsis_os2.h>
+#include <stm32h7xx_hal_def.h>
+#include <stm32h7xx_hal_i2c.h>
 
 /* NOTE: Task notifications are used in this driver, since according to FreeRTOS docs they are a faster alternative to
  * binary semaphores.
@@ -72,6 +76,14 @@ bool hw_i2c_receive(const I2cDevice device, uint8_t *rx_buffer, uint16_t rx_buff
 {
     const I2cDeviceConfig *const config = &i2c_device_config[device];
 
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        return HAL_I2C_Master_Receive(
+                   i2c_bus_handles[config->bus], (uint16_t)(config->target_address << 1), rx_buffer, rx_buffer_size,
+                   config->timeout_ms) == HAL_OK;
+    }
+
     if (bus_tasks_in_progress[config->bus] != NULL)
     {
         // There is a task currently in progress!
@@ -95,6 +107,14 @@ bool hw_i2c_receive(const I2cDevice device, uint8_t *rx_buffer, uint16_t rx_buff
 bool hw_i2c_transmit(const I2cDevice device, const uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
     const I2cDeviceConfig *const config = &i2c_device_config[device];
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        return HAL_I2C_Master_Transmit(
+                   i2c_bus_handles[config->bus], (uint16_t)(config->target_address << 1), (uint8_t *)tx_buffer,
+                   tx_buffer_size, config->timeout_ms) == HAL_OK;
+    }
 
     if (bus_tasks_in_progress[config->bus] != NULL)
     {
@@ -121,6 +141,14 @@ bool hw_i2c_memoryRead(const I2cDevice device, uint16_t mem_addr, uint8_t *rx_bu
 {
     const I2cDeviceConfig *const config = &i2c_device_config[device];
 
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        return HAL_I2C_Mem_Read(
+                   i2c_bus_handles[config->bus], (uint16_t)(config->target_address << 1), mem_addr,
+                   I2C_MEMADD_SIZE_8BIT, rx_buffer, rx_buffer_size, config->timeout_ms) == HAL_OK;
+    }
+
     if (bus_tasks_in_progress[config->bus] != NULL)
     {
         // There is a task currently in progress!
@@ -145,6 +173,14 @@ bool hw_i2c_memoryRead(const I2cDevice device, uint16_t mem_addr, uint8_t *rx_bu
 bool hw_i2c_memoryWrite(const I2cDevice device, uint16_t mem_addr, const uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
     const I2cDeviceConfig *const config = &i2c_device_config[device];
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        return HAL_I2C_Mem_Write(
+                   i2c_bus_handles[config->bus], (uint16_t)(config->target_address << 1), mem_addr,
+                   I2C_MEMADD_SIZE_8BIT, (uint8_t *)tx_buffer, tx_buffer_size, config->timeout_ms) == HAL_OK;
+    }
 
     if (bus_tasks_in_progress[config->bus] != NULL)
     {
