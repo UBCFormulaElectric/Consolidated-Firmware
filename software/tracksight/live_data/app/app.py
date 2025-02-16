@@ -16,32 +16,17 @@ from write_task.wireless import get_wireless_task
 from logger import logger, log_path
 from broadcaster import get_websocket_broadcast
 
-def setupInflux():
-    dockerized = os.environ.get("IN_DOCKER_CONTAINER") is not None
-    if not dockerized:
-        influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "influx.env")
-        load_dotenv(dotenv_path=influx_env_path)
-    #Configs for Influx DB instance.
-    required_env_vars = {
-        "org": "DOCKER_INFLUXDB_INIT_ORG",
-        "bucket": "DOCKER_INFLUXDB_INIT_BUCKET",
-        "token": "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN",
-    }
-    for env_var in required_env_vars.values():
-        if os.environ.get(env_var) is None:
-            raise RuntimeError(f"Required environment variable not set: {env_var}")
-
-    # Setup InfluxDB database.
-    influx_url = f"http://{'influx' if dockerized else 'localhost'}:8086"
-    influx_org = os.environ.get(required_env_vars["org"])
-    influx_bucket = os.environ.get(required_env_vars["bucket"])
-    influx_token = os.environ.get(required_env_vars["token"])
-    InfluxHandler.setup(
-        url=influx_url, org=influx_org, bucket=influx_bucket, token=influx_token
-    )
-
 if __name__ == "__main__":
+    # load env vars
+    dockerized = os.environ.get("IN_DOCKER_CONTAINER") == "true"
+    if not dockerized:
+        # this is only on developer machines
+        influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "live_data.env")
+        load_dotenv(dotenv_path=influx_env_path)
+
+    # register blueprint for python
     app.register_blueprint(api, url_prefix='/api')
+
     # ARGPARSER
     parser = ArgumentParser()
     parser.add_argument(
@@ -84,9 +69,10 @@ if __name__ == "__main__":
 
     # Setup the Message Populate Thread
     if args.mode == "wireless":
-        setupInflux()
+        InfluxHandler.setup(dockerized)
         write_thread = get_wireless_task(args.serial_port)
     elif args.mode == "mock":
+        InfluxHandler.setup(dockerized)
         write_thread = get_mock_task(args.data_file)
     elif args.mode == "log":
         write_thread = get_logging_task()

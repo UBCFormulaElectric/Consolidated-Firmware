@@ -6,6 +6,7 @@ This requires the influx dbrc mapping to have db name == bucket name
 TODO: Implement proper error handling for things like no data available.
 """
 
+import os
 import pandas as pd
 from typing import List, Tuple
 import influxdb_client
@@ -18,26 +19,26 @@ _client: influxdb_client.InfluxDBClient
 _bucket: str
 _org: str
 
-def setup(
-    url: str,
-    token: str,
-    bucket: str = "quadruna",
-    org: str = "ubcformulaelectric",
-):
+def setup(dockerized: bool):
     global _bucket
     global _org
     global _client
 
-    _bucket = bucket
-    _org = org
+    # Setup InfluxDB database.
+    url = f"http://{'influx' if dockerized else 'localhost'}:8086"
+    token = os.environ.get("ADMIN_TOKEN")
+    if token == None:
+        raise Exception("No Token Provided for Influx")
+    _org = os.environ.get("INFLUXDB_ORG") or "ubcformulaelectric"
+    _bucket = os.environ.get("INFLUXDB_BUCKET") or "quadruna"
 
     # Checks if the vehicle bucket exists, and if not, creates it
     logger.info(f"Connecting to InfluxDB database at '{url}' with token '{token}'.")
     _client = influxdb_client.InfluxDBClient(
-        url=url, token=token, org=org, timeout=BASIC_TIMEOUT_MS
+        url=url, token=token, org=_org, timeout=BASIC_TIMEOUT_MS
     )
-    if _client.buckets_api().find_bucket_by_name(bucket_name=bucket) is None:
-        _client.buckets_api().create_bucket(bucket_name=bucket)
+    if _client.buckets_api().find_bucket_by_name(bucket_name=_bucket) is None:
+        _client.buckets_api().create_bucket(bucket_name=_bucket)
 
 def get_measurements(cls) -> list[str]:
     """
