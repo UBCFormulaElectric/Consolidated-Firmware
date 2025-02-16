@@ -7,6 +7,7 @@ Provides tooling to debug devices over USB, CAN, etc.
 import types
 from typing import Dict, Optional
 import threading
+import signal
 
 import libusb_package
 import cantools
@@ -48,13 +49,25 @@ class CanDevice:
         for msg in self._db.messages:
             self.rx_table[msg.name] = None
 
+        # Setup exit handler and signal.
+        exit_event = threading.Event()
+
+        def exit_handler():
+            exit_event.set()
+
+        signal.signal(signal.SIGINT, exit_handler)
+
         # Spin up a loop on a seperate thread to constantly receive messages.
         def can_rx_loop():
             while True:
-                raw_msg = self._can_bus.recv()
-                name = self._db.get_message_by_frame_id(raw_msg.arbitration_id).name
-                msg = self._db.decode_message(raw_msg.arbitration_id, raw_msg.data)
-                self.rx_table[name] = msg
+                raw_msg = self._can_bus.recv(0.1)
+                if raw_msg is not None:
+                    name = self._db.get_message_by_frame_id(raw_msg.arbitration_id).name
+                    msg = self._db.decode_message(raw_msg.arbitration_id, raw_msg.data)
+                    self.rx_table[name] = msg
+
+                if exit_event.is_set():
+                    break
 
         self.can_rx_thread = threading.Thread(target=can_rx_loop)
         self.can_rx_thread.start()

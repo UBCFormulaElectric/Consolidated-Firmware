@@ -2,8 +2,12 @@
 name = "chimera_v2"
 version = "0.1"
 
-# We use libusb-package to get a version of pyusb's usb.core with libusb packaged in.
-dependencies = ["grpcio-tools", "protoletariat", "libusb-package", "cantools", "python-can"]
+dependencies = [
+    "protobuf", "grpcio-tools", "protoletariat", 
+    # We use libusb-package to get a version of pyusb's usb.core with libusb packaged in.
+    "libusb-package", 
+    "cantools", "python-can"
+]
 
 [tool.setuptools]
 py-modules=["chimera_v2"]
