@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include <assert.h>
 // protobufs
 #include "shared.pb.h"
 #include "CRIT.pb.h"
@@ -298,17 +299,16 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT reset!");
 
+    // Re-enable watchdog.
+    __HAL_DBGMCU_FREEZE_IWDG();
+    hw_hardFaultHandler_init();
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
     // Start DMA/TIM3 for the ADC.
     hw_adcs_chipsInit();
 
     io_chimera_init(GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag);
-
-    // Re-enable watchdog.
-    __HAL_DBGMCU_FREEZE_IWDG();
-
-    hw_hardFaultHandler_init();
     io_can_init(&can);
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -469,4 +469,24 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_chimera_msgRxCallback();
     }
+}
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    CanMsg rx_msg;
+    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
+}
+
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    CanMsg rx_msg;
+    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
 }

@@ -122,11 +122,11 @@
             }
         }
     },
-    "StartBootloaderCAN": {
+    "BootloaderCAN": {
         "msg_id" :1012,
         "cycle_time": null,
         "signals":{
-            "Start_Boot_Flag":{
+            "Start_Boot":{
                 "bits": 1
             }
         }

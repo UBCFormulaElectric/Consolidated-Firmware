@@ -9,6 +9,6 @@
         "VC_VehicleDynamics",
         "VC_GlobalShdnNodeStatus",
         "Debug_CanMode",
-        "Debug_StartBootloaderCAN"
+        "Debug_BootloaderCAN"
     ]
 }

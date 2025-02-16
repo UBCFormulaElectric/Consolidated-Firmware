@@ -28,13 +28,13 @@ extern CanHandle can;
 void canRxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.
@@ -46,7 +46,7 @@ extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
 // Boot flag from RAM
-__attribute__((section(".boot_flag"))) uint8_t boot_flag;
+__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
 
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
@@ -156,18 +156,19 @@ void bootloader_init(void)
     // other MCUs.
     bootloader_boardSpecific_init();
 
-    bool was_software_reset = (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != 0);
-    bool is_boot_flag_set   = boot_flag != 0x1;
-    bool jump_to_app        = !was_software_reset || is_boot_flag_set;
+    io_canQueue_init();
 
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && jump_to_app)
+    // bool was_software_reset = (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != 0);
+    // bool is_boot_flag_set = boot_flag == 0x1;
+    // bool jump_to_app      = !was_software_reset || is_boot_flag_set;
+
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
     {
         // Deinit peripherals.
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
 
         // Clear RCC register flag and RAM boot flag.
-        __HAL_RCC_CLEAR_RESET_FLAGS();
         boot_flag = 0x0;
 
         // Jump to app.

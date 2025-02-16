@@ -25,6 +25,6 @@
         "INVR_InternalStates",
         "INVR_MotorPositionInfo",
         "INVR_Temperatures3",
-        "Debug_StartBootloaderCAN"
+        "Debug_BootloaderCAN"
     ]
 }

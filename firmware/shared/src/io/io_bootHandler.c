@@ -16,9 +16,9 @@
 
 #define BOOT_CAN_START 1012
 
-__attribute__((section(".boot_flag"))) uint8_t boot_flag;
+__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
 
-extern uint32_t __boot_code_start__;
+extern uint32_t __boot_code_start__; // NOLINT(*-reserved-identifier)
 extern void     tasks_deinit(void);
 
 void io_bootHandler_processBootRequest(const CanMsg *msg)

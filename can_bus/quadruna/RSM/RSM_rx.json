@@ -5,6 +5,6 @@
         "BMS_Vitals",
         "FSM_Vitals",
         "Debug_CanMode",
-        "Debug_StartBootloaderCAN"
+        "Debug_BootloaderCAN"
     ]
 }
