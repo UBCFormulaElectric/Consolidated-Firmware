@@ -5,6 +5,13 @@
 #include "io_time.h"
 #include "io_canQueue.h"
 
+/**
+ * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
+ * @param hfdcan takes a handle to a STM32 HAL CAN object
+ * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
+ */
+CanHandle *hw_can_getHandle(FDCAN_HandleTypeDef *hfdcan);
+
 void hw_can_init(const CanHandle *can_handle)
 {
     // Configure a single filter bank that accepts any message.
@@ -65,6 +72,7 @@ bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
     msg->std_id    = header.Identifier;
     msg->dlc       = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
     msg->timestamp = io_time_getCurrentMs();
+    msg->bus       = can_handle->bus_num;
 
     return true;
 }
@@ -72,8 +80,7 @@ bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
 // ReSharper disable once CppParameterMayBeConst
 void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
 {
-    // assert(hfdcan == can_handle->hcan);
-    LOG_INFO("FDCAN detected an error");
+    LOG_INFO("FDCAN on bus %d detected an error", hw_can_getHandle(hfdcan)->bus_num);
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {
         FDCAN_ProtocolStatusTypeDef protocolStatus;
@@ -85,12 +92,12 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
     }
 }
 
-uint8_t handle_to_bus(FDCAN_HandleTypeDef *hfdcan);
-
-static void handle(FDCAN_HandleTypeDef *hfdcan)
+static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
 {
+    const CanHandle *handle = hw_can_getHandle(hfdcan);
+
     CanMsg rx_msg;
-    if (!hw_can_receive(hfdcan, FDCAN_RX_FIFO0, &rx_msg))
+    if (!hw_can_receive(handle, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&rx_msg);
@@ -98,12 +105,12 @@ static void handle(FDCAN_HandleTypeDef *hfdcan)
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
-    UNUSED(RxFifo0ITs);
-    handle(hfdcan);
+    UNUSED(RxFifo0ITs); // TODO check if this is used / consistent
+    handle_callback(hfdcan);
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    handle(hfdcan);
+    handle_callback(hfdcan);
 }

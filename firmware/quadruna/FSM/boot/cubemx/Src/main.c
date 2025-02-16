@@ -89,26 +89,6 @@ const osThreadAttr_t tickTask_attributes = {
 };
 /* USER CODE BEGIN PV */
 CanHandle can = { .hcan = &hcan1 };
-
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    assert(hcan == can.hcan);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
-
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    assert(hcan == can.hcan);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

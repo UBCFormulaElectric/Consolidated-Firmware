@@ -2,6 +2,7 @@
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
 #include "io_time.h"
+#include "io_canQueue.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -29,6 +30,13 @@
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it.
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
+
+/**
+ * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
+ * @param hcan takes a handle to a STM32 HAL CAN object
+ * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
+ */
+CanHandle *hw_can_getHandle(CAN_HandleTypeDef *hcan);
 
 void hw_can_init(const CanHandle *can_handle)
 {
@@ -111,4 +119,25 @@ bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
     msg->timestamp = io_time_getCurrentMs();
 
     return true;
+}
+
+static void handle_callback(CAN_HandleTypeDef *hfdcan)
+{
+    const CanHandle *handle = hw_can_getHandle(hfdcan);
+
+    CanMsg rx_msg;
+    if (!hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg))
+        // Early return if RX msg is unavailable.
+        return;
+    io_canQueue_pushRx(&rx_msg);
+}
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    handle_callback(hcan);
+}
+
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    handle_callback(hcan);
 }
