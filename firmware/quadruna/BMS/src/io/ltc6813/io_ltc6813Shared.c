@@ -202,7 +202,7 @@ bool io_ltc6813Shared_sendCommand(uint16_t cmd)
     uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-    return hw_spi_transmit(HW_SPI_DEVICE_LTC6813, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
+    return hw_spi_transmit(&ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
 }
 
 bool io_ltc6813Shared_pollAdcConversions(void)
@@ -218,8 +218,8 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     // data read back != 0xFF.
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
-        const bool is_status_ok = hw_spi_transmitThenReceive(
-            HW_SPI_DEVICE_LTC6813, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+        const bool is_status_ok =
+            hw_spi_transmitThenReceive(&ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
@@ -255,7 +255,7 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
         memcpy(&tx_buffer[TOTAL_NUM_CMD_BYTES], tx_cfg, NUM_REG_GROUP_RX_BYTES);
 
         // Write to configuration registers
-        if (!hw_spi_transmit(HW_SPI_DEVICE_LTC6813, tx_buffer, NUM_REG_GROUP_RX_BYTES))
+        if (!hw_spi_transmit(&ltc6813_spi, tx_buffer, NUM_REG_GROUP_RX_BYTES))
         {
             return false;
         }

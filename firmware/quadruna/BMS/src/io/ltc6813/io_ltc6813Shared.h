@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 // clang-format off
 // Time that a SPI transaction should wait for until until an error is returned
@@ -89,11 +90,6 @@ typedef enum
     REG_GROUP_READING_2,
     NUM_OF_READINGS_PER_REG_GROUP
 } NumReadingsPerRegGroup;
-
-#ifdef TARGET_EMBEDDED
-#include "hw_spi.h"
-extern const SpiDevice ltc6813_spi;
-#endif
 
 /**
  * Calculate and pack PEC15 bytes for commands sent to the LTC6813

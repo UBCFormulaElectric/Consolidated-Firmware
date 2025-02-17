@@ -1,25 +1,22 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "hw_gpio.h"
 #include "main.h"
+
+typedef struct
+{
+    uint32_t   spi_bus;
+    Gpio     nss_pin;
+    uint32_t timeout_ms;
+} SpiDevice;
 
 // Board-specific config. Must define:
 // 1. SpiBus: Enum of all the SPI busses.
 // 2. spi_bus_handles: Map of bus enum to STM32 handle.
-// 3. SpiDevice: Enum of all SPI devices.
-// 4. spi_device_config: Map of device enum to configs.
+// 3. All the used SPI devices.
 #include "hw_spis.h"
-
-typedef struct
-{
-    SpiBus   spi_bus;
-    Gpio     nss_pin;
-    uint32_t timeout_ms;
-} SpiDeviceConfig;
-
-extern SPI_HandleTypeDef *const spi_bus_handles[HW_SPI_BUS_COUNT];
-extern const SpiDeviceConfig    spi_device_config[HW_SPI_DEVICE_COUNT];
 
 /**
  * Transmit data to and receive data from the device connected to the given SPI
@@ -36,7 +33,7 @@ extern const SpiDeviceConfig    spi_device_config[HW_SPI_DEVICE_COUNT];
  * false.
  */
 bool hw_spi_transmitThenReceive(
-    SpiDevice device,
+    const SpiDevice* device,
     uint8_t  *tx_buffer,
     uint16_t  tx_buffer_size,
     uint8_t  *rx_buffer,
@@ -50,7 +47,7 @@ bool hw_spi_transmitThenReceive(
  * @param tx_buffer_size The size of the tx_data buffer.
  * @return True if data is transmitted successfully. Else, return false.
  */
-bool hw_spi_transmit(SpiDevice device, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+bool hw_spi_transmit(const SpiDevice* device, uint8_t *tx_buffer, uint16_t tx_buffer_size);
 
 /**
  * Receive data from the device connected to the given SPI interface.
@@ -60,4 +57,4 @@ bool hw_spi_transmit(SpiDevice device, uint8_t *tx_buffer, uint16_t tx_buffer_si
  * @param rx_buffer_size The size of the rx_data buffer.
  * @return True if data is received successfully. Else, return false.
  */
-bool hw_spi_receive(SpiDevice device, uint8_t *rx_buffer, uint16_t rx_buffer_size);
+bool hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size);
