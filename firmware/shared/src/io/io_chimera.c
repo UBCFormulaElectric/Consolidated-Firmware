@@ -22,7 +22,7 @@
 extern const Gpio *const       id_to_gpio[]; // TODO make these proper functions, rather than implicit list indexing?
 extern const AdcChannel *const id_to_adc[];  // TODO make these proper functions, rather than implicit list indexing?
 extern const Gpio             *n_chimera_gpio;
-extern const UartDevice        chimera_uart_device;
+extern UartDevice             *chimera_uart_device;
 
 static bool     is_mid_debug_msg;
 static uint8_t  data[MAX_DEBUG_BUF_SIZE];

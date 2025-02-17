@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
+#include "hw_uarts.h"
 #include "main.h"
 #include "app_units.h"
 #include "sbgECom.h"
@@ -260,7 +261,7 @@ bool io_sbgEllipse_init()
     assert(sensor_rx_queue_id != NULL);
 
     // Start waiting for UART packets
-    hw_uart_receiveCallback(HW_UART_DEVICE_SBG_ELLIPSE, uart_rx_buffer, UART_RX_PACKET_SIZE);
+    hw_uart_receiveCallback(&sbg_ellipse_uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }

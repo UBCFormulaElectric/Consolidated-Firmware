@@ -28,7 +28,7 @@ static bool waitForNotification(const I2cDevice *device)
 
 static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
 {
-    I2cBus *bus = hw_i2c_getBusFromHandle(handle);
+    const I2cBus *const bus = hw_i2c_getBusFromHandle(handle);
     if (bus == NULL)
     {
         return;
