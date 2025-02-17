@@ -4,18 +4,20 @@
 #include <stdint.h>
 #include "main.h"
 
+typedef struct {
+    I2C_HandleTypeDef* const handle;
+    TaskHandle_t task_in_progress;
+} I2cBus;
+
 typedef struct
 {
-    size_t   bus;
+    I2cBus*   bus;
     uint8_t  target_address;
     uint32_t timeout_ms;
 } I2cDevice;
 
-// Board-specific config. Must define:
-// 1. I2cBus: Enum of all the I2C busses.
-// 2. i2c_bus_handles: Map of bus enum to STM32 handle.
-// 3. All the used I2C devices.
-#include "hw_i2cs.h"
+// Board-specific config: You need to define this function which maps STM32 handle to I2cBus struct!
+I2cBus* hw_i2c_getBusFromHandle(const I2C_HandleTypeDef* handle);
 
 /**
  * @brief Check if device connected to the given I2C interface is ready for communication.
