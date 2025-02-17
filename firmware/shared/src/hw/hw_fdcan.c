@@ -12,8 +12,9 @@
  */
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan);
 
-void hw_can_init(const CanHandle *can_handle)
+void hw_can_init(CanHandle *can_handle)
 {
+    assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
     filter.IdType       = FDCAN_STANDARD_ID; // 11 bit ID
@@ -34,6 +35,7 @@ void hw_can_init(const CanHandle *can_handle)
 
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(can_handle->hcan) == HAL_OK);
+    can_handle->ready = true;
 }
 
 void hw_can_deinit(const CanHandle *can_handle)
@@ -44,6 +46,7 @@ void hw_can_deinit(const CanHandle *can_handle)
 
 bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
+    assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
     tx_header.IdType              = FDCAN_STANDARD_ID;
@@ -63,6 +66,7 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 
 bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
+    assert(can_handle->ready);
     FDCAN_RxHeaderTypeDef header;
     if (HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
     {
@@ -95,8 +99,7 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
 static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
-
-    CanMsg rx_msg;
+    CanMsg           rx_msg;
     if (!hw_can_receive(handle, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;

@@ -12,6 +12,7 @@ typedef struct
 {
     FDCAN_HandleTypeDef *hcan;
     uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    bool ready;
 } CanHandle;
 #else
 // STM32 HAL CAN handle.
@@ -19,6 +20,7 @@ typedef struct
 {
     CAN_HandleTypeDef *hcan;
     uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    bool ready;
 } CanHandle;
 #endif
 #endif
@@ -27,7 +29,7 @@ typedef struct
  * Initialize CAN driver.
  * @param can_handle STM32 HAL CAN handle.
  */
-void hw_can_init(const CanHandle *can_handle);
+void hw_can_init(CanHandle *can_handle);
 
 /**
  * Stop and deinitialize the CAN peripheral.

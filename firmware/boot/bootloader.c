@@ -167,6 +167,9 @@ void bootloader_init(void)
     // other MCUs.
     bootloader_boardSpecific_init();
 
+    hw_can_init(&can);
+    io_canQueue_init();
+
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
     if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
 #ifndef BOOT_AUTO

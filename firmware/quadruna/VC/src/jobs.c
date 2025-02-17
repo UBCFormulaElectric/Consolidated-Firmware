@@ -25,7 +25,6 @@
 #include "io_telemMessage.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
-#include "hw_cans.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -71,7 +70,6 @@ void jobs_init()
         LOG_INFO("Imu initialization failed");
     }
 
-    hw_can_init(&can1);
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();

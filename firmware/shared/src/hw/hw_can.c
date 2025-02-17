@@ -38,8 +38,9 @@
  */
 const CanHandle *hw_can_getHandle(CAN_HandleTypeDef *hcan);
 
-void hw_can_init(const CanHandle *can_handle)
+void hw_can_init(CanHandle *can_handle)
 {
+    assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
     filter.FilterMode           = CAN_FILTERMODE_IDMASK;
@@ -63,6 +64,7 @@ void hw_can_init(const CanHandle *can_handle)
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
+    can_handle->ready = true;
 }
 
 void hw_can_deinit(const CanHandle *can_handle)
@@ -73,6 +75,7 @@ void hw_can_deinit(const CanHandle *can_handle)
 
 bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
+    assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
 
     tx_header.DLC   = msg->dlc;
@@ -106,6 +109,7 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 
 bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
+    assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
     if (HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
     {
