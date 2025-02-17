@@ -39,14 +39,14 @@ void (*cellVoltageSetters[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS
       app_canTx_BMS_Seg3_Cell9_Voltage_set, app_canTx_BMS_Seg3_Cell10_Voltage_set,
       app_canTx_BMS_Seg3_Cell11_Voltage_set, app_canTx_BMS_Seg3_Cell12_Voltage_set,
       app_canTx_BMS_Seg3_Cell13_Voltage_set, app_canTx_BMS_Seg3_Cell14_Voltage_set,
-      app_canTx_BMS_Seg3_Cell15_Voltage_set },
-    { app_canTx_BMS_Seg4_Cell0_Voltage_set, app_canTx_BMS_Seg4_Cell1_Voltage_set, app_canTx_BMS_Seg4_Cell2_Voltage_set,
-      app_canTx_BMS_Seg4_Cell3_Voltage_set, app_canTx_BMS_Seg4_Cell4_Voltage_set, app_canTx_BMS_Seg4_Cell5_Voltage_set,
-      app_canTx_BMS_Seg4_Cell6_Voltage_set, app_canTx_BMS_Seg4_Cell7_Voltage_set, app_canTx_BMS_Seg4_Cell8_Voltage_set,
-      app_canTx_BMS_Seg4_Cell9_Voltage_set, app_canTx_BMS_Seg4_Cell10_Voltage_set,
-      app_canTx_BMS_Seg4_Cell11_Voltage_set, app_canTx_BMS_Seg4_Cell12_Voltage_set,
-      app_canTx_BMS_Seg4_Cell13_Voltage_set, app_canTx_BMS_Seg4_Cell14_Voltage_set,
-      app_canTx_BMS_Seg4_Cell15_Voltage_set }
+      app_canTx_BMS_Seg3_Cell15_Voltage_set }
+    // { app_canTx_BMS_Seg4_Cell0_Voltage_set, app_canTx_BMS_Seg4_Cell1_Voltage_set, app_canTx_BMS_Seg4_Cell2_Voltage_set,
+    //   app_canTx_BMS_Seg4_Cell3_Voltage_set, app_canTx_BMS_Seg4_Cell4_Voltage_set, app_canTx_BMS_Seg4_Cell5_Voltage_set,
+    //   app_canTx_BMS_Seg4_Cell6_Voltage_set, app_canTx_BMS_Seg4_Cell7_Voltage_set, app_canTx_BMS_Seg4_Cell8_Voltage_set,
+    //   app_canTx_BMS_Seg4_Cell9_Voltage_set, app_canTx_BMS_Seg4_Cell10_Voltage_set,
+    //   app_canTx_BMS_Seg4_Cell11_Voltage_set, app_canTx_BMS_Seg4_Cell12_Voltage_set,
+    //   app_canTx_BMS_Seg4_Cell13_Voltage_set, app_canTx_BMS_Seg4_Cell14_Voltage_set,
+    //   app_canTx_BMS_Seg4_Cell15_Voltage_set }
 };
 
 void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
@@ -74,7 +74,7 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 void app_diagnosticsMode_broadcast(void)
 {
     // Update all cell voltages
-    for (uint8_t segment = 0; segment < 5; segment++)
+    for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0; cell < 16; cell++)
         {
@@ -88,5 +88,5 @@ void app_diagnosticsMode_broadcast(void)
     app_canTx_BMS_Seg1_Temp_set(segment_temps[1]);
     app_canTx_BMS_Seg2_Temp_set(segment_temps[2]);
     app_canTx_BMS_Seg3_Temp_set(segment_temps[3]);
-    app_canTx_BMS_Seg4_Temp_set(segment_temps[4]);
+    // app_canTx_BMS_Seg4_Temp_set(segment_temps[4]);
 }
