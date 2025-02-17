@@ -3,9 +3,8 @@ import pandas as pd
 import time
 
 from tzlocal import get_localzone
-from signal_queue import Signal, signal_queue
+from can_msg_queue import CanMsg, can_msg_queue
 from logger import logger
-from candb import can_db
 
 def read_messages_from_file(data_file: str):
 	"""
@@ -18,51 +17,45 @@ def read_messages_from_file(data_file: str):
 		# Iterate over each row (simulate message reception over time)
 		for _i, row in df.iterrows():
 			# each message has multiple signals
-			for signal_metadata in can_db.unpack(int(row['Can ID']), bytearray(int(row['Data']))):
-				signal_queue.put(Signal(
-					signal_metadata['name'],
-					signal_metadata['value'],
-					signal_metadata['unit'],
-					""
-				))
-				# Add the time stamp and get name
-				# single_signal["timestamp"] = message_received.time_stamp
-				# signal_name = single_signal["name"] 
+			can_msg_queue.put(CanMsg(int(row['Can ID']), bytearray(int(row['Data']))))
+			# Add the time stamp and get name
+			# single_signal["timestamp"] = message_received.time_stamp
+			# signal_name = single_signal["name"] 
 
-				# Update the list of availble signals and add it to client signals
-				# if signal_name not in cls.available_signals:
-				# 	cls.available_signals[signal_name] = True
-				# 	cls.client_signals[signal_name] = []
-
-			
-				# Ensure the value is the correct type (convert to float)
-				# value = int(single_signal["value"])
-
-				# Create a DataFrame for the new signal
-				# new_signal_df = pd.DataFrame([{
-				# 	"time": pd.Timestamp.now(tz=get_localzone()),#TODO: Make time more accurate in mili since start
-				# 	"value": value,
-				# 	"unit": single_signal["unit"],
-				# 	"signal": single_signal["name"]
-				# }])
-				# Filter out empty or all-NA columns before concatenation
-				# cls.signal_df = cls.signal_df.dropna(axis=1, how='all')
-				# new_signal_df = new_signal_df.dropna(axis=1, how='all')
-				# Concatenate the new signal DataFrame with the existing one
-				# cls.signal_df = pd.concat([cls.signal_df, new_signal_df], ignore_index=True)
+			# Update the list of availble signals and add it to client signals
+			# if signal_name not in cls.available_signals:
+			# 	cls.available_signals[signal_name] = True
+			# 	cls.client_signals[signal_name] = []
 
 		
-				# Emit the message
-				# if len(cls.signal_df) >= cls.max_df_size:
-				# 	print(cls.signal_df)
-				# 	data = cls.signal_df.to_dict(orient='records')
-				# 	data[0]['time'] = data[0]['time'].isoformat()
+			# Ensure the value is the correct type (convert to float)
+			# value = int(single_signal["value"])
 
-				# 	InfluxHandler.write(
-				# 		cls.signal_df, measurement='live'
-				# 	)
+			# Create a DataFrame for the new signal
+			# new_signal_df = pd.DataFrame([{
+			# 	"time": pd.Timestamp.now(tz=get_localzone()),#TODO: Make time more accurate in mili since start
+			# 	"value": value,
+			# 	"unit": single_signal["unit"],
+			# 	"signal": single_signal["name"]
+			# }])
+			# Filter out empty or all-NA columns before concatenation
+			# cls.signal_df = cls.signal_df.dropna(axis=1, how='all')
+			# new_signal_df = new_signal_df.dropna(axis=1, how='all')
+			# Concatenate the new signal DataFrame with the existing one
+			# cls.signal_df = pd.concat([cls.signal_df, new_signal_df], ignore_index=True)
 
-				# 	cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
+	
+			# Emit the message
+			# if len(cls.signal_df) >= cls.max_df_size:
+			# 	print(cls.signal_df)
+			# 	data = cls.signal_df.to_dict(orient='records')
+			# 	data[0]['time'] = data[0]['time'].isoformat()
+
+			# 	InfluxHandler.write(
+			# 		cls.signal_df, measurement='live'
+			# 	)
+
+			# 	cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
 
 			# sleep before emitting next message
 			time.sleep(1)

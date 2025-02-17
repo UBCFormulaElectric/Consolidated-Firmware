@@ -10,4 +10,3 @@ EXPOSE 5000
 
 ENV IN_DOCKER_CONTAINER=true
 COPY software/tracksight/live_data/app app
-COPY ../../../can_bus/quadruna quadruna

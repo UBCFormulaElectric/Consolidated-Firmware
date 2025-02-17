@@ -6,8 +6,7 @@ from threading import Thread
 import serial
 from generated import telem_pb2
 from logger import logger
-from candb import can_db
-from signal_queue import signal_queue, Signal
+from live_data.app.can_msg_queue import can_msg_queue, CanMsg
 
 def _make_bytes(message):
 	"""
@@ -35,6 +34,7 @@ def _read_messages(port: str):
 
 	while True:
 		# TODO: Lara: Upload actual signals instead!
+		# TODO: what happens with dropped packets??
 		# current_time = time.time()
 		packet_size = int.from_bytes(ser.read(1), byteorder="little")
 		logger.info(f"Received data of size {packet_size}")
@@ -52,15 +52,7 @@ def _read_messages(port: str):
 		# Parse protobuf
 		message_received = telem_pb2.TelemMessage()
 		message_received.ParseFromString(bytes_read)
-		# Unpack the data and add the id and meta data
-		for signal in can_db.unpack(message_received.can_id, _make_bytes(message_received)):
-			# Emit the message
-			signal_queue.put(Signal(
-				signal["name"],
-				int(signal["value"]),
-				signal["unit"],
-				message_received.time_stamp
-			))
+		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received)))
 		
 		# Check if second has passed
 		# if current_time - start_time >= 1.0:
@@ -73,9 +65,8 @@ def get_wireless_task(serial_port: str | None) -> Thread:
         raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
-    wireless_write_thread = Thread(
+    return Thread(
         target=_read_messages,
 		args=(serial_port, ),
         daemon=True,
     )
-    return wireless_write_thread

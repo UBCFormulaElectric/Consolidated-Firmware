@@ -1,12 +1,11 @@
 """
 Entrypoint to the telemetry backend
 """
-from dotenv import load_dotenv
-import influx_handler as InfluxHandler
 
-# VERIFIED USEFUL
 import logging
 import os
+from dotenv import load_dotenv
+import influx_handler as InfluxHandler
 from argparse import ArgumentParser
 from flask_app import app
 from api import api, sio

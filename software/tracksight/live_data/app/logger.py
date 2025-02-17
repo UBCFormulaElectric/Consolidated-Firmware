@@ -1,7 +1,6 @@
 from datetime import datetime
 import os
 import logging
-import sys
 
 # Setup logging.
 def _setupLogger():
@@ -11,7 +10,7 @@ def _setupLogger():
 	if not os.path.exists(os.path.dirname(log_path)):
 		os.makedirs(os.path.dirname(log_path))
 
-	logger = logging.getLogger("live_data_logger")
+	logger = logging.getLogger(__name__)
 
 	# Create a file handler
 	file_handler = logging.FileHandler(log_path)
