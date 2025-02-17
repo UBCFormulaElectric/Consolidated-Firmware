@@ -2,7 +2,7 @@
 #include "main.h"
 #include "ltc6813/io_ltc6813Shared.h"
 
-static SpiBus isospi_bus = { .handle = &hspi2, .task_in_progress = NULL };
+static SpiBus isospi_bus = { .handle = &hspi2 };
 
 const SpiDevice ltc6813_spi = { .bus        = &isospi_bus,
                                 .nss_pin    = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin },

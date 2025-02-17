@@ -1,8 +1,8 @@
 #include "hw_i2cs.h"
 #include "main.h"
 
-static I2cBus i2c_bus_1 = { .handle = &hi2c1, .task_in_progress = NULL };
-static I2cBus i2c_bus_2 = { .handle = &hi2c2, .task_in_progress = NULL };
+static I2cBus i2c_bus_1 = { .handle = &hi2c1 };
+static I2cBus i2c_bus_2 = { .handle = &hi2c2 };
 
 const I2cDevice imu_i2c           = { .bus = &i2c_bus_1, .target_address = 0x6B, .timeout_ms = 100 };
 const I2cDevice potentiometer_i2c = { .bus = &i2c_bus_2, .target_address = 0x2F, .timeout_ms = 100 };
