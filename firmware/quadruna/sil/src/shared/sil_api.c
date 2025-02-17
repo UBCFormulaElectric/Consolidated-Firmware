@@ -94,7 +94,6 @@ void sil_api_ready_destroy(sil_api_Ready *msg)
 }
 
 // time_resp topic.
-
 sil_api_TimeResp *sil_api_timeResp_new(char *boardName, uint32_t timeMs)
 {
     sil_api_TimeResp *res           = malloc(sizeof(sil_api_TimeResp));
@@ -171,6 +170,36 @@ sil_api_TimeReq *sil_api_timeReq_rx(zmsg_t *zmqMsg)
 }
 
 void sil_api_timeReq_destroy(sil_api_TimeReq *msg)
+{
+    free(msg);
+}
+
+sil_api_Procedure *sil_api_procedure_new(void (*board_procedure)(void))
+{
+    sil_api_Procedure *res = malloc(sizeof(sil_api_Procedure));
+    res->board_procedure   = board_procedure;
+    return res;
+}
+
+int sil_api_procedure_tx(sil_api_Procedure *msg, zsock_t *socket)
+{
+    return zsock_send(socket, "sss", SIL_API_PROCEDURE_TOPIC, msg->board_procedure);
+}
+
+sil_api_Procedure *sil_api_procedure_rx(zmsg_t *zmqMsg)
+{
+    // extract topic, board name and procedure
+    char *topic_id   = zmsg_popstr(zmqMsg);
+    char *board_name = zmsg_popstr(zmqMsg);
+    char *procedure  = zmsg_popstr(zmqMsg);
+    if (procedure == NULL)
+        return NULL;
+    sil_api_Procedure *res = malloc(sizeof(sil_api_Procedure));
+    res->board_procedure   = procedure;
+    return res;
+}
+
+void sil_api_procedure_destroy(sil_api_Procedure *msg)
 {
     free(msg);
 }

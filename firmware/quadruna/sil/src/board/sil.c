@@ -6,9 +6,10 @@
 
 #include "sil_atoi.h"
 #include "sil_api.h"
-
+#include "board_procedures.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
+#include "io_log.h"
 
 // Store socket and poll pointers for graceful exit.
 static zsock_t   *socketTx;
@@ -97,6 +98,7 @@ void sil_main(
     }
     zsock_set_subscribe(socketRx, SIL_API_TIME_REQ_TOPIC);
     zsock_set_subscribe(socketRx, SIL_API_CAN_TOPIC);
+    zsock_set_subscribe(socketRx, SIL_API_PROCEDURE_TOPIC);
 
     // Poll the rx socket.
     pollerRx = zpoller_new(socketRx, NULL);
@@ -122,8 +124,14 @@ void sil_main(
     tasks_init();
 
     // Main loop.
-    uint32_t timeMs       = 0;
-    uint32_t targetTimeMs = 0;
+    uint32_t    timeMs       = 0;
+    uint32_t    targetTimeMs = 0;
+    const char *procedure    = "";
+    //     { "VC", VC_functions },
+    //     { "BMS", BMS_functions },
+    //     { NULL, NULL }
+    // };
+
     for (;;)
     {
         // Parent process id becomes 1 when parent dies.
@@ -168,31 +176,47 @@ void sil_main(
                     targetTimeMs = msg->timeMs;
                 sil_api_timeReq_destroy(msg);
             }
+            else if (strcmp(topic, SIL_API_PROCEDURE_TOPIC) == 0)
+            {
+                sil_api_Procedure *msg = sil_api_procedure_rx(zmqMsg);
+                if (msg != NULL)
+                {
+                    procedure = msg->board_procedure;
+                    for (int i = 0; &board_tables[i].board_name != NULL; i++)
+                    {
+                        if (strcmp(&board_tables[i].board_name, boardName) == 0)
+                        {
+                            _LOG_PRINTF("%c", &board_tables[i].table);
+                        }
+                    }
+                }
+                sil_api_procedure_destroy(msg);
 
-            // Free up zmq-allocated memory.
-            free(topic);
-            zmsg_destroy(&zmqMsg);
-        }
-        else if (timeMs < targetTimeMs)
-        {
-            timeMs += 1;
+                // Free up zmq-allocated memory.
+                free(topic);
+                zmsg_destroy(&zmqMsg);
+            }
+            else if (timeMs < targetTimeMs)
+            {
+                timeMs += 1;
 
-            // 1 kHz task.
-            if (timeMs % 1 == 0)
-                tasks_1kHz(timeMs);
+                // 1 kHz task.
+                if (timeMs % 1 == 0)
+                    tasks_1kHz(timeMs);
 
-            // 100 Hz task.
-            if (timeMs % 10 == 0)
-                tasks_100Hz(timeMs);
+                // 100 Hz task.
+                if (timeMs % 10 == 0)
+                    tasks_100Hz(timeMs);
 
-            // 1 Hz task.
-            if (timeMs % 1000 == 0)
-                tasks_1Hz(timeMs);
+                // 1 Hz task.
+                if (timeMs % 1000 == 0)
+                    tasks_1Hz(timeMs);
 
-            // Tell the supervisor what the current time for this board is.
-            sil_api_TimeResp *msg = sil_api_timeResp_new(boardName, timeMs);
-            sil_api_timeResp_tx(msg, socketTx);
-            sil_api_timeResp_destroy(msg);
+                // Tell the supervisor what the current time for this board is.
+                sil_api_TimeResp *msg = sil_api_timeResp_new(boardName, timeMs);
+                sil_api_timeResp_tx(msg, socketTx);
+                sil_api_timeResp_destroy(msg);
+            }
         }
     }
 }
