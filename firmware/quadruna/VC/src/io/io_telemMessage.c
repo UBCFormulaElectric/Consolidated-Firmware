@@ -103,13 +103,13 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     SEGGER_SYSVIEW_MarkStart(0);
     if (modem_900_choice)
     {
-        hw_uart_transmit(HW_UART_DEVICE_MODEM_900K, &proto_out_length, UART_LENGTH);
-        hw_uart_transmit(HW_UART_DEVICE_MODEM_900K, proto_out, (uint8_t)sizeof(proto_out));
+        hw_uart_transmit(&modem_900k_uart, &proto_out_length, UART_LENGTH);
+        hw_uart_transmit(&modem_900k_uart, proto_out, (uint8_t)sizeof(proto_out));
     }
     else
     {
-        hw_uart_transmit(HW_UART_DEVICE_MODEM_2G4, &proto_msg_length, UART_LENGTH);
-        hw_uart_transmit(HW_UART_DEVICE_MODEM_2G4, proto_out, (uint8_t)sizeof(proto_out));
+        hw_uart_transmit(&modem_2g4_uart, &proto_msg_length, UART_LENGTH);
+        hw_uart_transmit(&modem_2g4_uart, proto_out, (uint8_t)sizeof(proto_out));
     }
     SEGGER_SYSVIEW_MarkStop(0);
 
