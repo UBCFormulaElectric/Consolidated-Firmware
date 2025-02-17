@@ -38,8 +38,8 @@
 
 #include <assert.h>
 
-static const CanHandle can = { .hcan = &hcan1 };
-const CanHandle       *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+static CanHandle can = { .hcan = &hcan1 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
     return &can;
@@ -117,10 +117,11 @@ void tasks_init(void)
 
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    hw_can_init((CanHandle *)&can);
+    hw_can_init(&can);
     io_chimera_init(GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
     app_canTx_init();
     app_canRx_init();
+    io_canQueue_init();
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
@@ -246,7 +247,10 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        if (!hw_can_transmit(&can, &tx_msg))
+        {
+            LOG_ERROR("CAN TX failed!");
+        }
     }
 }
 

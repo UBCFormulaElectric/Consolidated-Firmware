@@ -40,8 +40,8 @@
 
 #include <assert.h>
 
-static const CanHandle can = { .hcan = &hcan1 };
-const CanHandle       *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+static CanHandle can = { .hcan = &hcan1 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
     return &can;
@@ -50,14 +50,12 @@ void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_TxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canRxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_RxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_RxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canTxQueueOverflowClearCallback(void)
@@ -385,7 +383,10 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        if (!hw_can_transmit(&can, &tx_msg))
+        {
+            LOG_ERROR("CAN TX failed!");
+        }
     }
 }
 

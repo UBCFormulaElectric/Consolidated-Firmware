@@ -98,8 +98,11 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
+    static const uint16_t TRIES = 1000; // empirically, makes it try for about 1ms
+    for (int i = 0; i < TRIES && HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U; i++)
         ;
+    if (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
+        return false;
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t                mailbox       = 0;

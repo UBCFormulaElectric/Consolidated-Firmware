@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-static const CanHandle can = { .hcan = &hcan1 };
+static CanHandle can = { .hcan = &hcan1 };
 
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
 {

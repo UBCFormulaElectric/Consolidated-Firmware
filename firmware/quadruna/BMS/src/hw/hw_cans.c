@@ -5,7 +5,7 @@
 
 CanHandle can1 = { .hcan = &hfdcan1 };
 
-CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
     assert(hfdcan == can1.hcan);
     return &can1;
