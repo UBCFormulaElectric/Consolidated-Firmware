@@ -2,24 +2,7 @@
 #include "hw_gpio.h"
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stm32h7xx_hal_def.h>
-#include <stm32h7xx_hal_spi.h>
 #include <string.h>
-
-static TaskHandle_t bus_tasks_in_progress[HW_SPI_BUS_COUNT];
-
-static inline bool handletoBus(SPI_HandleTypeDef *const handle, SpiBus *bus)
-{
-    for (SpiBus i = 0; i < HW_SPI_BUS_COUNT; i++)
-    {
-        if (spi_bus_handles[i] == handle)
-        {
-            *bus = (SpiBus)i;
-            return true;
-        }
-    }
-    return false;
-}
 
 static bool waitForNotification(const SpiDevice *device)
 {
@@ -28,12 +11,12 @@ static bool waitForNotification(const SpiDevice *device)
     const bool     transaction_timed_out = num_notifications == 0;
 
     // Mark this transaction as no longer in progress.
-    bus_tasks_in_progress[device->spi_bus] = NULL;
+    device->bus->task_in_progress = NULL;
 
     if (transaction_timed_out)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
-        (void)HAL_SPI_Abort_IT(spi_bus_handles[device->spi_bus]);
+        (void)HAL_SPI_Abort_IT(device->bus->handle);
     }
 
     return !transaction_timed_out;
@@ -41,17 +24,17 @@ static bool waitForNotification(const SpiDevice *device)
 
 static void transactionCompleteHandler(SPI_HandleTypeDef *handle)
 {
-    SpiBus bus;
-    if (!handletoBus(handle, &bus))
+    SpiBus *bus = hw_spi_getBusFromHandle(handle);
+    if (bus == NULL)
     {
         return;
     }
 
     // Notify the task that started the SPI transaction, if there is a transaction in progress.
-    if (bus_tasks_in_progress[bus] != NULL)
+    if (bus->task_in_progress != NULL)
     {
         BaseType_t higher_priority_task_woken = pdFALSE;
-        vTaskNotifyGiveFromISR(bus_tasks_in_progress[bus], &higher_priority_task_woken);
+        vTaskNotifyGiveFromISR(bus->task_in_progress, &higher_priority_task_woken);
         portYIELD_FROM_ISR(higher_priority_task_woken);
     }
 }
@@ -87,29 +70,28 @@ bool hw_spi_transmitThenReceive(
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
-        const bool status = HAL_SPI_TransmitReceive(
-                                spi_bus_handles[device->spi_bus], padded_tx_buffer, padded_rx_buffer, combined_size,
-                                device->timeout_ms) == HAL_OK;
+        const bool status =
+            HAL_SPI_TransmitReceive(
+                device->bus->handle, padded_tx_buffer, padded_rx_buffer, combined_size, device->timeout_ms) == HAL_OK;
         disableNss(device);
         return status;
     }
 
-    if (bus_tasks_in_progress[device->spi_bus] != NULL)
+    if (device->bus->task_in_progress != NULL)
     {
         // There is a task currently in progress!
         return false;
     }
 
     // Save current task before starting a SPI transaction.
-    bus_tasks_in_progress[device->spi_bus] = xTaskGetCurrentTaskHandle();
+    device->bus->task_in_progress = xTaskGetCurrentTaskHandle();
 
     enableNss(device);
 
-    if (HAL_SPI_TransmitReceive_IT(
-            spi_bus_handles[device->spi_bus], padded_tx_buffer, padded_rx_buffer, combined_size) != HAL_OK)
+    if (HAL_SPI_TransmitReceive_IT(device->bus->handle, padded_tx_buffer, padded_rx_buffer, combined_size) != HAL_OK)
     {
         // Mark this transaction as no longer in progress.
-        bus_tasks_in_progress[device->spi_bus] = NULL;
+        device->bus->task_in_progress = NULL;
         disableNss(device);
         return false;
     }
@@ -131,26 +113,26 @@ bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_bu
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
         const bool status =
-            HAL_SPI_Transmit(spi_bus_handles[device->spi_bus], tx_buffer, tx_buffer_size, device->timeout_ms) == HAL_OK;
+            HAL_SPI_Transmit(device->bus->handle, tx_buffer, tx_buffer_size, device->timeout_ms) == HAL_OK;
         disableNss(device);
         return status;
     }
 
-    if (bus_tasks_in_progress[device->spi_bus] != NULL)
+    if (device->bus->task_in_progress != NULL)
     {
         // There is a task currently in progress!
         return false;
     }
 
     // Save current task before starting a SPI transaction.
-    bus_tasks_in_progress[device->spi_bus] = xTaskGetCurrentTaskHandle();
+    device->bus->task_in_progress = xTaskGetCurrentTaskHandle();
 
     enableNss(device);
 
-    if (HAL_SPI_Transmit_IT(spi_bus_handles[device->spi_bus], tx_buffer, tx_buffer_size) != HAL_OK)
+    if (HAL_SPI_Transmit_IT(device->bus->handle, tx_buffer, tx_buffer_size) != HAL_OK)
     {
         // Mark this transaction as no longer in progress.
-        bus_tasks_in_progress[device->spi_bus] = NULL;
+        device->bus->task_in_progress = NULL;
         disableNss(device);
         return false;
     }
@@ -162,7 +144,7 @@ bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_bu
 
 bool hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size)
 {
-    if (bus_tasks_in_progress[device->spi_bus] != NULL)
+    if (device->bus->task_in_progress != NULL)
     {
         // There is a task currently in progress!
         return false;
@@ -173,20 +155,20 @@ bool hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buf
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
         const bool status =
-            HAL_SPI_Receive(spi_bus_handles[device->spi_bus], rx_buffer, rx_buffer_size, device->timeout_ms) == HAL_OK;
+            HAL_SPI_Receive(device->bus->handle, rx_buffer, rx_buffer_size, device->timeout_ms) == HAL_OK;
         disableNss(device);
         return status;
     }
 
     // Save current task before starting a SPI transaction.
-    bus_tasks_in_progress[device->spi_bus] = xTaskGetCurrentTaskHandle();
+    device->bus->task_in_progress = xTaskGetCurrentTaskHandle();
 
     enableNss(device);
 
-    if (HAL_SPI_Receive_IT(spi_bus_handles[device->spi_bus], rx_buffer, rx_buffer_size) != HAL_OK)
+    if (HAL_SPI_Receive_IT(device->bus->handle, rx_buffer, rx_buffer_size) != HAL_OK)
     {
         // Mark this transaction as no longer in progress.
-        bus_tasks_in_progress[device->spi_bus] = NULL;
+        device->bus->task_in_progress = NULL;
         disableNss(device);
         return false;
     }

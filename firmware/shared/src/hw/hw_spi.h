@@ -7,16 +7,19 @@
 
 typedef struct
 {
-    uint32_t spi_bus;
+    SPI_HandleTypeDef *const handle;
+    TaskHandle_t             task_in_progress;
+} SpiBus;
+
+typedef struct
+{
+    SpiBus  *bus;
     Gpio     nss_pin;
     uint32_t timeout_ms;
 } SpiDevice;
 
-// Board-specific config. Must define:
-// 1. SpiBus: Enum of all the SPI busses.
-// 2. spi_bus_handles: Map of bus enum to STM32 handle.
-// 3. All the used SPI devices.
-#include "hw_spis.h"
+// Board-specific config: You need to define this function which maps STM32 handle to SpiBus struct!
+SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle);
 
 /**
  * Transmit data to and receive data from the device connected to the given SPI

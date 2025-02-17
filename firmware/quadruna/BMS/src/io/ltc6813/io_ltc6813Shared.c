@@ -1,6 +1,5 @@
 #include <string.h>
 #include <assert.h>
-#include "hw_spi.h"
 #include "hw_spis.h"
 #include "main.h"
 #include "ltc6813/io_ltc6813Shared.h"

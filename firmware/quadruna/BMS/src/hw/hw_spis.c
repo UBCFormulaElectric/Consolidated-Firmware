@@ -1,11 +1,21 @@
-#include "hw_spi.h"
-
+#include "hw_spis.h"
+#include "main.h"
 #include "ltc6813/io_ltc6813Shared.h"
 
-SPI_HandleTypeDef *const spi_bus_handles[HW_SPI_BUS_COUNT] = {
-    [HW_SPI_BUS_2] = &hspi2,
-};
+static SpiBus isospi_bus = { .handle = &hspi2, .task_in_progress = NULL };
 
-const SpiDevice ltc6813_spi = { .spi_bus    = HW_SPI_BUS_2,
+const SpiDevice ltc6813_spi = { .bus        = &isospi_bus,
                                 .nss_pin    = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin },
                                 .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
+
+SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
+{
+    if (handle == &hspi2)
+    {
+        return &isospi_bus;
+    }
+    else
+    {
+        return NULL;
+    }
+}

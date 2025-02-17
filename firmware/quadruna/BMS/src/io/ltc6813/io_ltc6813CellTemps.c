@@ -1,5 +1,5 @@
 #include <string.h>
-#include "hw_spi.h"
+#include "hw_spis.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "app_accumulator.h"
 
