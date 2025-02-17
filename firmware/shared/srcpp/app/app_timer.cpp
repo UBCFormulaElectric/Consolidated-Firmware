@@ -19,7 +19,9 @@ Timer::TimerState Timer::updateAndGetState()
     // If timer running and duration has elapsed, set it to expired
     // Otherwise, leave the timer alone
     if (state == TimerState::RUNNING && getElapsedTime() >= duration_ms)
+    {
         state = TimerState::EXPIRED;
+    }
     return state;
 }
 
@@ -27,13 +29,19 @@ Timer::TimerState Timer::runIfCondition(bool condition)
 {
     // If condition is false, stop the timer
     if (!condition)
+    {
         stop();
+    }
     // If timer idle and condition is set, start the timer
     else if (state == TimerState::IDLE) // condition is true
+    {
         restart();
+    }
     // Otherwise, just update the timer
     else
+    {
         updateAndGetState();
+    }
 
     return state;
 }

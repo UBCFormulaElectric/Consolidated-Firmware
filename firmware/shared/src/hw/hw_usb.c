@@ -43,7 +43,9 @@ uint8_t hw_usb_recieve()
     uint8_t    res    = 0;
     osStatus_t status = osMessageQueueGet(rx_queue_id, &res, NULL, 100);
     if (status == osOK)
+    {
         return res;
+    }
     return 0;
 }
 

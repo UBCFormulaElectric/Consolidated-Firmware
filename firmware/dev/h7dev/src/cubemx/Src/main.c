@@ -543,8 +543,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     UNUSED(RxFifo0ITs);
     CanMsg rx_msg;
     if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
+    }
     can_msg_received_callback(&rx_msg);
 }
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
@@ -552,8 +554,10 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     UNUSED(RxFifo1ITs);
     CanMsg rx_msg;
     if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
+    }
     can_msg_received_callback(&rx_msg);
 }
 

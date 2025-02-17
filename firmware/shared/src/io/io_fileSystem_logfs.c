@@ -123,7 +123,9 @@ static int allocateFd(void)
 FileSystemError io_fileSystem_init(void)
 {
     if (!hw_sd_present())
+    {
         return FILE_ERROR_IO;
+    }
     LogFsErr err = logfs_mount(&fs, &fs_cfg);
     if (err != LOGFS_ERR_OK)
     {

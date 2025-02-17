@@ -25,9 +25,13 @@ SdCardStatus hw_sd_read(uint8_t *pdata, const uint32_t block_addr, const uint32_
 SdCardStatus hw_sd_readOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
     if (size == 0)
+    {
         return SD_CARD_OK;
+    }
     if (OFFSET_SIZE_VALID(offset, size)) // easy case
+    {
         return hw_sd_read(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
+    }
     return SD_CARD_ERROR;
 }
 
@@ -41,9 +45,13 @@ SdCardStatus hw_sd_write(uint8_t *pdata, const uint32_t block_addr, const uint32
 SdCardStatus hw_sd_writeOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
     if (size == 0)
+    {
         return SD_CARD_OK;
+    }
     if (OFFSET_SIZE_VALID(offset, size)) // easy case
+    {
         return hw_sd_write(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
+    }
     return SD_CARD_ERROR;
 }
 
