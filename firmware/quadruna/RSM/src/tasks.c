@@ -13,7 +13,6 @@
 
 #include "io_jsoncan.h"
 #include "io_canTx.h"
-#include "io_can.h"
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_coolant.h"
@@ -29,11 +28,20 @@
 #include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
+#include "hw_can.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
 
+#include <assert.h>
+
 static const CanHandle can = { .hcan = &hcan1 };
+
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -127,9 +135,9 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
+    hw_can_init((CanHandle *)&can);
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can);
     io_canQueue_init();
     io_chimera_init(GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
 
@@ -256,7 +264,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        io_can_transmit(&can, &tx_msg);
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 

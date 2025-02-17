@@ -25,7 +25,6 @@
 #include "bootloader.h"
 #include "hw_can.h"
 #include "hw_utils.h"
-#include "io_canQueue.h"
 #include "io_log.h"
 #include <assert.h>
 /* USER CODE END Includes */

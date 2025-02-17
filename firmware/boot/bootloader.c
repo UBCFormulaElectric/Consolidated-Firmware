@@ -25,11 +25,6 @@ extern TIM_HandleTypeDef htim6;
 
 // Need these to be created an initialized elsewhere
 extern CanHandle can;
-const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
-{
-    assert(hfdcan == can.hcan);
-    return &can;
-}
 
 void canRxQueueOverflowCallBack(const uint32_t unused)
 {
