@@ -43,7 +43,9 @@ static uint8_t ADC3_PTR = 0;
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     if (hadc == adc1.hadc)
+    {
         hw_adcchip_updateCallback(&adc1);
+    }
     else if (hadc == adc3.hadc)
     {
         /* On the STM32H733xx MCU, the ADC3 peripheral uses the BDMA peripheral to handle DMA transfers (not the regular
@@ -71,9 +73,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
             .OffsetSign   = ADC3_OFFSET_SIGN_NEGATIVE,
         };
         if (ADC3_PTR == 0)
+        {
             config.Channel = ADC_CHANNEL_1;
+        }
         else
+        {
             config.Channel = ADC_CHANNEL_0;
+        }
         ADC3_PTR = 1 - ADC3_PTR;
         HAL_ADC_ConfigChannel(&hadc3, &config);
 

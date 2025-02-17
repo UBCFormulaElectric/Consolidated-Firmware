@@ -68,9 +68,13 @@ void app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
 
     if (heartbeat_cycles <= IGNORE_HEARTBEAT_CYCLES) // TODO make this part of the heartbeat monitor
+    {
         heartbeat_cycles++;
+    }
     else
+    {
         app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+    }
 
     io_sbgEllipse_handleLogs();
     app_sbgEllipse_broadcast();

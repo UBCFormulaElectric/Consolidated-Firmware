@@ -108,10 +108,14 @@ void jobs_runCanTx_tick(void)
 
     // ReSharper disable once CppRedundantCastExpression
     if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)tx_msg.std_id, tx_msg.timestamp))
+    {
         io_canLogging_loggingQueuePush(&tx_msg);
+    }
     // ReSharper disable once CppRedundantCastExpression
     if (app_dataCapture_needsTelem((uint16_t)tx_msg.std_id, tx_msg.timestamp))
+    {
         io_telemMessage_pushMsgtoQueue(&tx_msg);
+    }
 }
 
 void jobs_runCanRx_tick(void)
@@ -126,8 +130,12 @@ void jobs_runCanRx_tick(void)
     // Log the message if it needs to be logged
     // ReSharper disable once CppRedundantCastExpression
     if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)rx_msg.std_id, rx_msg.timestamp))
+    {
         io_canLogging_loggingQueuePush(&rx_msg); // push to logging queue
+    }
     // ReSharper disable once CppRedundantCastExpression
     if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, rx_msg.timestamp))
+    {
         io_telemMessage_pushMsgtoQueue(&rx_msg);
+    }
 }

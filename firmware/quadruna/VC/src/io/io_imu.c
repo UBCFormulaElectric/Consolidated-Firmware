@@ -174,7 +174,9 @@ bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
     if (!hw_i2c_memoryRead(&imu_i2c, 0x28, x_data, 2))
+    {
         return false;
+    }
     // Convert raw value to acceleration in m/s^2
     *x_acceleration = translate_acceleration_data(x_data);
     return true;
@@ -184,7 +186,9 @@ bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
     uint8_t y_data[2];
     if (!hw_i2c_memoryRead(&imu_i2c, 0x2A, y_data, 2))
+    {
         return false;
+    }
     // Convert raw value to acceleration in m/s^2
     *y_acceleration = translate_acceleration_data(y_data);
     return true;
@@ -194,7 +198,9 @@ bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
     if (!hw_i2c_memoryRead(&imu_i2c, 0x2C, z_data, 2))
+    {
         return false;
+    }
     // Convert raw value to acceleration in m/s^2
     *z_acceleration = translate_acceleration_data(z_data);
     return true;
@@ -204,7 +210,9 @@ bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
     if (!hw_i2c_memoryRead(&imu_i2c, 0x22, roll_data, 2))
+    {
         return false;
+    }
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *roll_velocity = translate_gyro_data(roll_data);
     return true;
@@ -214,7 +222,9 @@ bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
     if (!hw_i2c_memoryRead(&imu_i2c, 0x24, pitch_data, 2))
+    {
         return false;
+    }
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *pitch_velocity = translate_gyro_data(pitch_data);
     return true;
@@ -224,7 +234,9 @@ bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
     if (!hw_i2c_memoryRead(&imu_i2c, 0x26, yaw_data, 2))
+    {
         return false;
+    }
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *yaw_velocity = translate_gyro_data(yaw_data);
     return true;

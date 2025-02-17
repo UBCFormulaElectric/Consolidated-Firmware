@@ -200,7 +200,9 @@ _Noreturn void tasks_runCanTx(void)
     io_chimera_sleepTaskIfEnabled();
 
     for (;;)
+    {
         jobs_runCanTx_tick();
+    }
 }
 
 _Noreturn void tasks_runCanRx(void)
@@ -208,7 +210,9 @@ _Noreturn void tasks_runCanRx(void)
     io_chimera_sleepTaskIfEnabled();
 
     for (;;)
+    {
         jobs_runCanRx_tick();
+    }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -226,8 +230,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
 
     assert(hfdcan == &hfdcan1);
     if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
+    }
     io_canQueue_pushRx(&rx_msg);
 }
 
@@ -238,7 +244,9 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
 
     assert(hfdcan == &hfdcan1);
     if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
+    }
     io_canQueue_pushRx(&rx_msg);
 }

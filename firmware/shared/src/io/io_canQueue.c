@@ -57,10 +57,14 @@ void io_canQueue_pushTx(const CanMsg *tx_msg)
     const osStatus_t s                 = osMessageQueuePut(tx_queue_id, tx_msg, 0, 0);
 
     if (s != osOK)
+    {
         // If pushing to the queue failed, the queue is full. Discard the tx_msg and invoke the TX overflow callback.
         canTxQueueOverflowCallBack(++tx_overflow_count);
+    }
     else
+    {
         canTxQueueOverflowClearCallback();
+    }
 }
 
 CanMsg io_canQueue_popTx()
@@ -80,10 +84,14 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)
+    {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         canRxQueueOverflowCallBack(++rx_overflow_count);
+    }
     else
+    {
         canRxQueueOverflowClearCallback();
+    }
 }
 
 CanMsg io_canQueue_popRx()

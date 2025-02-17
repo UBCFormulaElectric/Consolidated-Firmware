@@ -83,7 +83,9 @@ float io_efuse_getChannelCurrent(const EfuseChannel channel)
     assert(channel < NUM_EFUSE_CHANNELS);
     const AdcChannel *a = configs[channel].cur_sns_adc_channel;
     if (a == NULL)
+    {
         return 0;
+    }
     return hw_adc_getVoltage(a) * ADC_VOLTAGE_TO_CURRENT_A;
 }
 
