@@ -46,7 +46,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_adcs_chipsInit();
-    hw_can_init((CanHandle *)&can1); // cast const away in initialization; no mut :(
+    hw_can_init(&can1); // cast const away in initialization; no mut :(
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).
     HAL_ADC_Start_IT(&hadc3);
