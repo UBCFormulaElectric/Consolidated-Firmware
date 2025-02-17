@@ -26,8 +26,6 @@
 #include "hw_can.h"
 #include "hw_error.h"
 #include "hw_utils.h"
-
-#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
