@@ -21,7 +21,6 @@
 #include "io_canQueue.h"
 // can
 #include "io_jsoncan.h"
-#include "io_can.h"
 #include "io_canRx.h"
 #include "io_driveMode.h"
 #include "app_canTx.h"
@@ -37,9 +36,16 @@
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_can.h"
+
+#include <assert.h>
 
 static const CanHandle can = { .hcan = &hcan1 };
-
+const CanHandle       *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
@@ -306,7 +312,7 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_hardFaultHandler_init();
-    io_can_init(&can);
+    hw_can_init((CanHandle *)&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(jsoncan_transmit);
@@ -379,7 +385,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        io_can_transmit(&can, &tx_msg);
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 

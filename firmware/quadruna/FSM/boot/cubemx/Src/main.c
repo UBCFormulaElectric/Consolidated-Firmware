@@ -23,11 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "io_canQueue.h"
-#include "io_can.h"
+#include "hw_can.h"
 #include "hw_utils.h"
-
-#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -140,7 +137,6 @@ int main(void)
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
-    io_can_init(&can);
     /* USER CODE END 2 */
 
     /* Init scheduler */
