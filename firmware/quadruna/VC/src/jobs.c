@@ -64,11 +64,11 @@ void jobs_init()
         app_canAlerts_VC_Warning_SbgInitFailed_set(true);
         LOG_INFO("Sbg initialization failed");
     }
-    // if (!io_imu_init())
-    // {
-    //     app_canAlerts_VC_Warning_ImuInitFailed_set(true);
-    //     LOG_INFO("Imu initialization failed");
-    // }
+    if (!io_imu_init())
+    {
+        app_canAlerts_VC_Warning_ImuInitFailed_set(true);
+        LOG_INFO("Imu initialization failed");
+    }
 
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
