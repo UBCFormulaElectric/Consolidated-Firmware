@@ -13,8 +13,7 @@ if not _dockerized:
             )
         ),
     )
-# from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
-from jsoncan.src.can_database import CanDatabase
+from jsoncan.src.can_database import CanDatabase # type: ignore
 
 def _download_file(commit_sha, file, folder_path, save_dir):
     file_url = f"https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/{commit_sha}/{file['path']}"
@@ -69,6 +68,7 @@ canid_commitinfo: dict[int, str] = {
     906: "CRIT"
 }
 
+# TODO reset this when you lose connection
 ecu_commit: dict[str, str | None] = {
     "BMS": None,
     "VC": None,
@@ -78,4 +78,8 @@ ecu_commit: dict[str, str | None] = {
     "CRIT": None
 }
 
-can_db = CanDatabase()
+# TODO
+# can_db = CanDatabase()
+
+from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+can_db = JsonCanParser(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../can_bus/quadruna"))).make_database()

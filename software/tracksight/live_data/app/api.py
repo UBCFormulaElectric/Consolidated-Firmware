@@ -45,7 +45,6 @@ def unsubscribe(signal):
 
 @api.route("/signal")
 def get_signal_metadata():
-    msgs = can_db.msgs
     return [{
         "name": signal.name,
         "min_val": signal.min_val,
@@ -54,4 +53,4 @@ def get_signal_metadata():
         "enum": signal.enum,
         "tx_node": msg.tx_node,
         "cycle_time_ms": msg.cycle_time
-    } for msg in msgs.values() for signal in msg.signals]
+    } for msg in can_db.msgs.values() for signal in msg.signals]
