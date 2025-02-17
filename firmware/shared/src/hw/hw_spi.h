@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    uint32_t   spi_bus;
+    uint32_t spi_bus;
     Gpio     nss_pin;
     uint32_t timeout_ms;
 } SpiDevice;
@@ -33,11 +33,11 @@ typedef struct
  * false.
  */
 bool hw_spi_transmitThenReceive(
-    const SpiDevice* device,
-    uint8_t  *tx_buffer,
-    uint16_t  tx_buffer_size,
-    uint8_t  *rx_buffer,
-    uint16_t  rx_buffer_size);
+    const SpiDevice *device,
+    uint8_t         *tx_buffer,
+    uint16_t         tx_buffer_size,
+    uint8_t         *rx_buffer,
+    uint16_t         rx_buffer_size);
 
 /**
  * Transmit data to the device connected to the given SPI interface.
@@ -47,7 +47,7 @@ bool hw_spi_transmitThenReceive(
  * @param tx_buffer_size The size of the tx_data buffer.
  * @return True if data is transmitted successfully. Else, return false.
  */
-bool hw_spi_transmit(const SpiDevice* device, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size);
 
 /**
  * Receive data from the device connected to the given SPI interface.
