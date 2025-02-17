@@ -12,7 +12,7 @@ typedef struct
 {
     FDCAN_HandleTypeDef *hcan;
     uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
-    bool ready;
+    bool                 ready;
 } CanHandle;
 #else
 // STM32 HAL CAN handle.
@@ -20,7 +20,7 @@ typedef struct
 {
     CAN_HandleTypeDef *hcan;
     uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
-    bool ready;
+    bool               ready;
 } CanHandle;
 #endif
 #endif
