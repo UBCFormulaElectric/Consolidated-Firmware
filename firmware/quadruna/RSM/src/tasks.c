@@ -135,7 +135,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    hw_can_init((CanHandle *)&can);
+    hw_can_init(&can);
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
