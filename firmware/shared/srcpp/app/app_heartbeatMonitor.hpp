@@ -66,7 +66,9 @@ template <size_t NODE_COUNT> class monitor
     void broadcastFaults() const
     {
         if (block_faults)
+        {
             return;
+        }
 
         for (const io::heartbeat::node *const node : heartbeat_nodes)
         {

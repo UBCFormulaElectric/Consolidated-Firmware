@@ -40,7 +40,9 @@ void checkForTimeouts()
     {
         // Only check for timeout if the watchdog has been initialized
         if (!watchdog_instance->initialized)
+        {
             continue;
+        }
 
         if (osKernelGetTickCount() >= watchdog_instance->deadline)
         {

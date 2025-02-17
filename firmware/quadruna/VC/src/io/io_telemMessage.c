@@ -60,7 +60,9 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
 
     // Filling in fields
     if (rx_msg->dlc > 8)
+    {
         return false;
+    }
     t_message.can_id     = (int32_t)(rx_msg->std_id);
     t_message.message_0  = rx_msg->data[0];
     t_message.message_1  = rx_msg->data[1];

@@ -8,7 +8,7 @@ Language: Cpp
 # this should probably change to "Align" (as described above)
 AlignAfterOpenBracket: AlwaysBreak
 
-# Aligns the assignment operators                     
+# Aligns the assignment operators
 AlignConsecutiveAssignments: true
 
 # Aligns the variable names
@@ -36,18 +36,18 @@ AllowShortBlocksOnASingleLine: Never
 
 # only merge functions defined inside a class, including empty ones
 # Other options include "empty" where onyl empty functions are inline
-# "InlineOnly" which excludes empty functions and "All" which merges 
+# "InlineOnly" which excludes empty functions and "All" which merges
 # all functions fitting on a single line
 AllowShortFunctionsOnASingleLine: Inline
 
 # single line conditionals can be put on a single line
-# if (a) operation; 
+# if (a) operation;
 # vs.
 # if (a)
 #     operation;
 AllowShortIfStatementsOnASingleLine: false
 
-# self-explanatory. 
+# self-explanatory.
 AllowShortCaseLabelsOnASingleLine: false
 
 # self-explanatory. for(;;) operation;
@@ -59,7 +59,7 @@ AlwaysBreakBeforeMultilineStrings: false
 # Forces the params and names following the template decl. to
 # break into multiline
 # e.g.
-# template <typename T> 
+# template <typename T>
 # T foo (int a, int b)
 AlwaysBreakTemplateDeclarations: MultiLine
 
@@ -184,5 +184,7 @@ TabWidth: 4
 
 # self-explanatory
 UseTab: Never
+
+InsertBraces: true
 
 ...

@@ -117,13 +117,21 @@ static void updateCellTemperatureStatistics(void)
                      */
 
                     if (curr_cell_index == 1)
+                    {
                         curr_cell_index = 2;
+                    }
                     else if (curr_cell_index == 2)
+                    {
                         curr_cell_index = 1;
+                    }
                     else if (curr_cell_index == 7)
+                    {
                         curr_cell_index = 8;
+                    }
                     else if (curr_cell_index == 8)
+                    {
                         curr_cell_index = 7;
+                    }
 
                     // Get the minimum cell voltage
                     if (curr_cell_temp < temp_stats.min.temp)

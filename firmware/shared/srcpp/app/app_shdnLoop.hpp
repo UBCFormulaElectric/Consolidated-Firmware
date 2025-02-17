@@ -14,7 +14,9 @@ template <size_t NODES_LEN> class shdnLoop
     void broadcast() const
     {
         for (const io::shdn::node *const &node : nodes)
+        {
             node->broadcast();
+        }
     }
 };
 } // namespace app::shdn

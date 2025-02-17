@@ -23,7 +23,9 @@ const AdcChannel bps_b          = { .voltage = &adc1_adc_voltages[8] };
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     if (hadc == adc1.hadc)
+    {
         hw_adcchip_updateCallback(&adc1);
+    }
 }
 
 void hw_adcs_chipsInit(void)

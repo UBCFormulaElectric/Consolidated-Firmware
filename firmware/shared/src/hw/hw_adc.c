@@ -57,7 +57,9 @@ void hw_adcchip_init(const AdcChip *adc_c)
 void hw_adcchip_updateCallback(const AdcChip *adc_c)
 {
     for (uint16_t ch = 0; ch < adc_c->channel_count; ch++)
+    {
         adc_c->adc_voltages[ch] = rawAdcValueToVoltage(adc_c->hadc, adc_c->is_differential, adc_c->raw_adc_values[ch]);
+    }
 }
 
 float *hw_adcchip_getChannel(const AdcChip *adc_c, const uint32_t channel)

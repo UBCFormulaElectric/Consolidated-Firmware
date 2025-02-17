@@ -32,7 +32,9 @@ void tasks_preInit(void)
 void tasks_preInitWatchdog(void)
 {
     if (io_fileSystem_init() == FILE_OK)
+    {
         io_canLogging_init();
+    }
 }
 
 void tasks_init(void)
@@ -130,7 +132,9 @@ _Noreturn void tasks_run1kHz(void)
         // task to sleep. Prevent check in if the elapsed period is greater or
         // equal to the period ms
         if (io_time_getCurrentMs() - task_start_ms <= period_ms)
+        {
             hw_watchdog_checkIn(watchdog);
+        }
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -211,8 +215,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
 
     assert(hfdcan == &hfdcan1);
     if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
+    }
     io_canQueue_pushRx(&rx_msg);
 }
 
@@ -223,7 +229,9 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
 
     assert(hfdcan == &hfdcan1);
     if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
+    }
     io_canQueue_pushRx(&rx_msg);
 }

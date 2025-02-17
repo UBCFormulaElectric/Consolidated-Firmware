@@ -64,7 +64,9 @@ void hw_watchdog_checkForTimeouts(void)
     {
         // Only check for timeout if the watchdog has been initialized
         if (watchdog_table.watchdogs[i].initialized == false)
+        {
             continue;
+        }
 
         if (osKernelGetTickCount() >= watchdog_table.watchdogs[i].deadline)
         {
