@@ -31,13 +31,6 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-/**
- * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
- * @param hcan takes a handle to a STM32 HAL CAN object
- * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
- */
-CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
-
 void hw_can_init(CanHandle *can_handle)
 {
     assert(!can_handle->ready);
@@ -73,7 +66,7 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+void hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -98,11 +91,8 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    static const uint16_t TRIES = 1000; // empirically, makes it try for about 1ms
-    for (int i = 0; i < TRIES && HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U; i++)
+    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
         ;
-    if (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
-        return false;
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t                mailbox       = 0;

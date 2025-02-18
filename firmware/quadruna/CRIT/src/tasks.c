@@ -383,10 +383,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        if (!hw_can_transmit(&can, &tx_msg))
-        {
-            LOG_ERROR("CAN TX failed!");
-        }
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 

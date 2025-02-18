@@ -5,13 +5,6 @@
 #include "io_time.h"
 #include "io_canQueue.h"
 
-/**
- * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
- * @param hfdcan takes a handle to a STM32 HAL CAN object
- * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
- */
-CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan);
-
 void hw_can_init(CanHandle *can_handle)
 {
     assert(!can_handle->ready);
@@ -44,7 +37,7 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+void hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -58,11 +51,8 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
 
-    static uint16_t TRIES = 1000;
-    for (int i = 0; i < TRIES && HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U; i++)
+    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
-    if (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
-        return false;
 
     return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
 }

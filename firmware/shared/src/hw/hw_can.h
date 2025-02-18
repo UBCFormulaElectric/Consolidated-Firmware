@@ -23,6 +23,13 @@ typedef struct
     bool               ready;
 } CanHandle;
 #endif
+
+/**
+ * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
+ * @param hcan takes a handle to a STM32 HAL CAN object
+ * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
+ */
+CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
 #endif
 
 /**
@@ -42,7 +49,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+void hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.
