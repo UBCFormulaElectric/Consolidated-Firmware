@@ -19,4 +19,4 @@ void jobs_run100Hz_tick(void);
 void jobs_run1kHz_tick(void);
 void jobs_runCanRx_tick(void);
 
-void jobs_canRxCallback(const CanMsg* rx_msg);
+void jobs_canRxCallback(const CanMsg *rx_msg);

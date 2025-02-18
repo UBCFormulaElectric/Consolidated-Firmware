@@ -16,7 +16,7 @@ typedef struct
     STM32_CAN_HANDLE *const hcan;
     const uint8_t           bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     void (*const receive_callback)(const CanMsg *rx_msg);
-    bool              ready;
+    bool ready;
 } CanHandle;
 
 /**
