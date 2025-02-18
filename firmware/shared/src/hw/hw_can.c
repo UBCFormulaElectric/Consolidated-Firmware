@@ -1,5 +1,4 @@
 #include "hw_can.h"
-#include <stm32f4xx_hal_can.h>
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
 #include "io_time.h"
