@@ -12,6 +12,7 @@
 #include "hw_watchdog.h"
 #include "hw_uarts.h"
 #include "hw_crc.h"
+#include "hw_cans.h"
 
 #include "io_canTx.h"
 #include "io_sd.h"
@@ -20,7 +21,6 @@
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_canQueue.h"
-#include "io_cans.h"
 
 #include "app_canRx.h"
 #include "app_accumulator.h"
@@ -69,6 +69,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_can_init(&can1);
 
     io_tractiveSystem_init(&ts_config);
     io_imd_init(&imd_pwm_input_config);
@@ -200,7 +201,10 @@ _Noreturn void tasks_runCanTx(void)
     io_chimera_sleepTaskIfEnabled();
 
     for (;;)
-        jobs_runCanTx_tick();
+    {
+        CanMsg tx_msg = io_canQueue_popTx();
+        hw_can_transmit(&can1, &tx_msg);
+    }
 }
 
 _Noreturn void tasks_runCanRx(void)
@@ -217,28 +221,4 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_chimera_msgRxCallback();
     }
-}
-
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
-{
-    UNUSED(RxFifo0ITs);
-    CanMsg rx_msg;
-
-    assert(hfdcan == &hfdcan1);
-    if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
-
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
-{
-    UNUSED(RxFifo1ITs);
-    CanMsg rx_msg;
-
-    assert(hfdcan == &hfdcan1);
-    if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
 }
