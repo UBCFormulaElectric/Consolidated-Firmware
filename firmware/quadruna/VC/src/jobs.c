@@ -30,12 +30,16 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
-    // ReSharper disable once CppRedundantCastExpression
+
     if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+    {
         io_canLogging_loggingQueuePush(&msg);
-    // ReSharper disable once CppRedundantCastExpression
+    }
+
     if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
+    {
         io_telemMessage_pushMsgtoQueue(&msg);
+    }
 }
 
 void jobs_init()
@@ -107,18 +111,25 @@ void jobs_run1kHz_tick(void)
 
 void jobs_runCanRx_tick(void)
 {
-    const CanMsg rx_msg = io_canQueue_popRx();
-    if (io_canRx_filterMessageId(rx_msg.std_id))
+    const CanMsg rx_msg       = io_canQueue_popRx();
+    JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+    io_canRx_updateRxTableWithMessage(&json_can_msg);
+}
+
+void jobs_canRxCallback(const CanMsg *rx_msg)
+{
+    if (io_canRx_filterMessageId(rx_msg->std_id))
     {
-        JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&json_can_msg);
+        io_canQueue_pushRx(rx_msg);
     }
 
-    // Log the message if it needs to be logged
-    // ReSharper disable once CppRedundantCastExpression
-    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)rx_msg.std_id, rx_msg.timestamp))
-        io_canLogging_loggingQueuePush(&rx_msg); // push to logging queue
-    // ReSharper disable once CppRedundantCastExpression
-    if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, rx_msg.timestamp))
-        io_telemMessage_pushMsgtoQueue(&rx_msg);
+    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    {
+        io_canLogging_loggingQueuePush(rx_msg);
+    }
+
+    if (app_dataCapture_needsTelem((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    {
+        io_telemMessage_pushMsgtoQueue(rx_msg);
+    }
 }

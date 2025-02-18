@@ -1,4 +1,5 @@
 #include "hw_can.h"
+#include <stm32f4xx_hal_can.h>
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
 #include "io_time.h"
@@ -118,23 +119,27 @@ bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
     return true;
 }
 
-static void handle_callback(CAN_HandleTypeDef *hfdcan)
+static void handleCallback(CAN_HandleTypeDef *hfdcan, uint32_t rx_fifo)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
 
     CanMsg rx_msg;
-    if (!hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg))
+    if (!hw_can_receive(handle, rx_fifo, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&rx_msg);
+    }
+
+    assert(handle->receive_callback != NULL);
+    handle->receive_callback(&rx_msg);
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-    handle_callback(hcan);
+    handleCallback(hcan, CAN_RX_FIFO0);
 }
 
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-    handle_callback(hcan);
+    handleCallback(hcan, CAN_RX_FIFO1);
 }
