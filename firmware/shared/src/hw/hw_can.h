@@ -14,6 +14,12 @@ typedef struct
     uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     bool                 ready;
 } CanHandle;
+/**
+ * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
+ * @param hcan takes a handle to a STM32 HAL CAN object
+ * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
+ */
+CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
 #else
 // STM32 HAL CAN handle.
 typedef struct
@@ -22,14 +28,13 @@ typedef struct
     uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     bool               ready;
 } CanHandle;
-#endif
-
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
 CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
+#endif
 #endif
 
 /**
