@@ -19,7 +19,7 @@ typedef struct
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
-CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
 #else
 // STM32 HAL CAN handle.
 typedef struct
@@ -33,7 +33,7 @@ typedef struct
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
-CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
 #endif
 #endif
 
