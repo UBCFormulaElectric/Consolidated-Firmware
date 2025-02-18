@@ -54,7 +54,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-void hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.

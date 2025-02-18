@@ -37,7 +37,7 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-void hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
