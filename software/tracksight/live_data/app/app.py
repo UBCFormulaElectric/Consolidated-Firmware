@@ -81,20 +81,22 @@ if __name__ == "__main__":
 
     # Setup the Message Populate Thread
     if args.mode == "wireless":
-        InfluxHandler.setup(dockerized)
+        InfluxHandler.setup()
         read_thread = get_wireless_task(args.serial_port)
     elif args.mode == "mock":
-        InfluxHandler.setup(dockerized)
+        InfluxHandler.setup()
         read_thread = get_mock_task(args.data_file)
     elif args.mode == "log":
         read_thread = get_log_read_task()
     else:
-        raise RuntimeError("should be caught by parser")
+        raise RuntimeError("Mode must be one of \"wireless\", \"mock\" or \"log\"")
     # Reading Thread
     broadcast_thread = get_websocket_broadcast()
 
     # Initialize the Socket.IO app with the main app.
     read_thread.start()
     broadcast_thread.start()
-    sio.run(app, debug = bool(args.debug), port=5000)
+    
+    # please be adviced, that the 0.0.0.0 is strictly mandatory
+    sio.run(app, debug = bool(args.debug), host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)
     # on keyboard interrupt, the above handles killing

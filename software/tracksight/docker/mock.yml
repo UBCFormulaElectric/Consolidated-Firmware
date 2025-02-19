@@ -16,7 +16,7 @@ services:
         "mock",
         "-f",
         "app/mock_data/sample_data1.csv",
-        "--debug"
+        "--debug",
       ]
   # frontend:
   #   extends:

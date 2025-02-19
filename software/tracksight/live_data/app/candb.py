@@ -62,7 +62,7 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     return save_dir
 
 # TODO
-# from jsoncan.can_database import CanDatabase
+# from jsoncan.src.can_database import CanDatabase
 # can_db = CanDatabase()
-from jsoncan.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
 can_db = JsonCanParser(os.path.join(bus_configs_path, "cde33d9")).make_database()

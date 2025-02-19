@@ -22,12 +22,12 @@ _client: influxdb_client.InfluxDBClient
 _bucket: str = "can_data"
 _org: str
 
-def setup(dockerized: bool):
+def setup():
     global _org
     global _client
 
     # Setup InfluxDB database.
-    url = f"http://{'influx' if dockerized else 'localhost'}:8086"
+    url = f"http://influx:8086"
     token = os.environ.get("ADMIN_TOKEN")
     if token == None:
         raise Exception("No Token Provided for Influx")

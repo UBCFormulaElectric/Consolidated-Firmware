@@ -4,5 +4,7 @@ flask-cors == 5.0.0
 python-dotenv == 1.0.1
 flask-socketio == 5.5.1
 pandas == 2.2.3
-git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@telemMaster#egg=jsoncan&subdirectory=scripts/code_generation/jsoncan
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@telemMaster#egg=ubcfe-codegen&subdirectory=scripts/code_generation
 requests == 2.32.3
+pySerial == 3.5
+protobuf == 5.29.3
