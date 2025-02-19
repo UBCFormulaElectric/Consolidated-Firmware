@@ -1,5 +1,5 @@
 [project]
-name = "ubcfe_codegen"
+name = "ubcfe-codegen"
 version = "0.1"
 dependencies = []
 
