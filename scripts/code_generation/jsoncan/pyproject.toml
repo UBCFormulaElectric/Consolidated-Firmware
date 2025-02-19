@@ -2,3 +2,7 @@
 name = "jsoncan"
 version = "0.1"
 dependencies = []
+
+[tool.setuptools]
+packages = ["jsoncan"]
+package-dir = {"" = "src"}
