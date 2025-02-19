@@ -1,7 +1,7 @@
 [project]
-name = "jsoncan"
+name = "ubcfe-codegen"
 version = "0.1"
 dependencies = ["schema", "StrEnum"]
 
 [tools.setuptools]
-packages = ["jsoncan"]
+packages = ["jsoncan", "jsoncan.src", "jsoncan.src.json_parsing"]
