@@ -6,7 +6,8 @@ extern "C"
 }
 
 #define LSHIFT(value, shift) ((uint64_t)value << shift)
-#define ENCODE(input, scale, offset) ((uint32_t)((input - offset) / scale))
+#define ENCODE(input, scale, offset) (((input - offset) / scale))
+#define TWOS_COMP(input, max) (0xFFFF - input + 1U)
 
 TEST(PackUnpackTests, test_basic_signal_types)
 {
@@ -106,5 +107,54 @@ TEST(PackUnpackTests, test_decimal_numbers)
         app_canUtils_ECU1_DecimalNumbers_unpack(payload, &out_msg);
         ASSERT_NEAR(out_msg.ECU1_Decimal1_value, expected_unpacked[i].ECU1_Decimal1_value, 1e-5);
         ASSERT_NEAR(out_msg.ECU1_Decimal2_value, expected_unpacked[i].ECU1_Decimal2_value, 1e-6);
+    }
+}
+
+TEST(PackUnpackTests, test_signed_numbers)
+{
+    const ECU1_DbcMatching_Signals in_msgs[5] = {
+        { .ECU1_DbcMatchingTemp_value = 0.0f, .ECU1_DbcMatchingRpm_value = 0 },
+        {
+            .ECU1_DbcMatchingTemp_value = 1.0f,
+            .ECU1_DbcMatchingRpm_value  = 1,
+        },
+        {
+            .ECU1_DbcMatchingTemp_value = -1.0f,
+            .ECU1_DbcMatchingRpm_value  = -1,
+        },
+        {
+            .ECU1_DbcMatchingTemp_value = 3276.7f,
+            .ECU1_DbcMatchingRpm_value  = 32767,
+        },
+        {
+            .ECU1_DbcMatchingTemp_value = -3276.8f,
+            .ECU1_DbcMatchingRpm_value  = -32768,
+        },
+    };
+    const uint64_t expected_payloads[5] = {
+        0,
+        0 | LSHIFT(ENCODE(1.0, 0.1, 0), 0) |                        // Temp
+            LSHIFT(ENCODE(1, 1, 0), 32),                            // RPM
+        0 | LSHIFT(TWOS_COMP(ENCODE(1.0, 0.1, 0), 0xFFFF), 0) |     // Temp
+            LSHIFT(TWOS_COMP(ENCODE(1, 1, 0), 0xFFFF), 32),         // RPM
+        0 | LSHIFT(ENCODE(3276.7f, 0.1, 0), 0) |                    // Temp
+            LSHIFT(ENCODE(32767, 1, 0), 32),                        // RPM
+        0 | LSHIFT(TWOS_COMP(ENCODE(3276.8, 0.1, 0), 0xFFFF), 32) | // Temp
+            LSHIFT(TWOS_COMP(ENCODE(32768, 1, 0), 0xFFFF), 0),      // RPM
+    };
+
+    for (int i = 0; i < 4; i++)
+    {
+        uint8_t payload[8] = { 0 };
+        app_canUtils_ECU1_DbcMatching_pack(&in_msgs[i], payload);
+
+        // Confirm encoded payload matches the expected value.
+        ASSERT_EQ(expected_payloads[i], *(uint64_t *)payload);
+
+        // Confirm we can decode the payload, which should match the original message.
+        ECU1_DbcMatching_Signals out_msg;
+        app_canUtils_ECU1_DbcMatching_unpack(payload, &out_msg);
+        ASSERT_NEAR(out_msg.ECU1_DbcMatchingTemp_value, in_msgs[i].ECU1_DbcMatchingTemp_value, 0.1);
+        ASSERT_EQ(out_msg.ECU1_DbcMatchingRpm_value, in_msgs[i].ECU1_DbcMatchingRpm_value);
     }
 }
