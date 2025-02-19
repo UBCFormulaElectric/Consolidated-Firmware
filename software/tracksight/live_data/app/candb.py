@@ -1,18 +1,18 @@
 from concurrent.futures import ThreadPoolExecutor
 import os
-import sys
 import requests
 
-_dockerized = os.environ.get("IN_DOCKER_CONTAINER") == "true"
-if not _dockerized:
-    sys.path.insert(
-        0,
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__), "../../../../scripts/code_generation/"
-            )
-        ),
-    )
+# import sys
+# _dockerized = os.environ.get("IN_DOCKER_CONTAINER") == "true"
+# if not _dockerized:
+#     sys.path.insert(
+#         0,
+#         os.path.abspath(
+#             os.path.join(
+#                 os.path.dirname(__file__), "../../../../scripts/code_generation/"
+#             )
+#         ),
+#     )
 
 def _download_file(commit_sha, file, folder_path, save_dir):
     file_url = f"https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/{commit_sha}/{file['path']}"
@@ -62,7 +62,7 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     return save_dir
 
 # TODO
-# from jsoncan.src.can_database import CanDatabase
+# from jsoncan.can_database import CanDatabase
 # can_db = CanDatabase()
-from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan.json_parsing.json_can_parsing import JsonCanParser
 can_db = JsonCanParser(os.path.join(bus_configs_path, "cde33d9")).make_database()

@@ -6,4 +6,3 @@ RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
 
 EXPOSE 5000
-ENV IN_DOCKER_CONTAINER=true
