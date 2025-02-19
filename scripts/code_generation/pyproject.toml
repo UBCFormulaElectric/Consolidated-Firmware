@@ -2,3 +2,6 @@
 name = "jsoncan"
 version = "0.1"
 dependencies = ["schema", "StrEnum"]
+
+[tools.setuptools]
+packages = ["jsoncan"]
