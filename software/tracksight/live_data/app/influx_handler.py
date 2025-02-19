@@ -11,6 +11,7 @@ import pandas as pd
 from typing import List, Tuple
 import influxdb_client
 from logger import logger
+from urllib3.exceptions import NewConnectionError
 
 BASIC_TIMEOUT_MS = 10_000
 QUERY_TIMEOUT_MS = 100_000
@@ -39,8 +40,11 @@ def setup(dockerized: bool):
     _client = influxdb_client.InfluxDBClient(
         url=url, token=token, org=_org, timeout=BASIC_TIMEOUT_MS
     )
-    if _client.buckets_api().find_bucket_by_name(bucket_name=_bucket) is None:
-        _client.buckets_api().create_bucket(bucket_name=_bucket)
+    try:
+        if _client.buckets_api().find_bucket_by_name(bucket_name=_bucket) is None:
+            _client.buckets_api().create_bucket(bucket_name=_bucket)
+    except NewConnectionError:
+        raise Exception("InfluxDB is not responding. Have you started the influx database docker container?")
 
 def get_measurements(cls) -> list[str]:
     """
