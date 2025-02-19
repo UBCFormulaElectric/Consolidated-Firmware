@@ -9,50 +9,51 @@ link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 """
 
 import os
-from typing import List, Tuple
+from typing import List, LiteralString, NoReturn, Tuple
 import influxdb_client
+from influxdb_client.client.write_api import WriteOptions, WriteType
 from logger import logger
 from urllib3.exceptions import NewConnectionError
 from dataclasses import dataclass
 from threading import Thread
-from queue import Empty, Queue
+from queue import Queue
 from logger import logger
 import datetime
 
 BASIC_TIMEOUT_MS = 10_000
 QUERY_TIMEOUT_MS = 100_000
 
-_client: influxdb_client.InfluxDBClient
-_bucket: str = "can_data"
-_org: str
+_dockerized: bool = os.environ.get("DOCKERIZED") == "1"
+_INFLUX_BUCKET: str = "can_data"
+_INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG") if _dockerized else "ubcformulaelectric"
+_INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN") if _dockerized else "top_secret_token"
+_CAR_NAME: str | None = os.environ.get("CAR_NAME") if _dockerized else "mock_car" # this is ok as it's prescence is checked in app.py, which runs before this
+_INFLUX_URL: LiteralString = f"http://{'influx' if _dockerized else 'localhost'}:8086"
+if _INFLUX_ORG is None:
+	raise Exception("No Influx Organization Provided")
+if _INFLUX_TOKEN is None:
+	raise Exception("No Token Provided for Influx")
+if _CAR_NAME is None:
+	raise Exception("No Car Name is Provided")
 
 def setup():
-	global _org
-	global _client
-
-	# Setup InfluxDB database.
-	url = f"http://influx:8086"
-	token = os.environ.get("ADMIN_TOKEN")
-	if token == None:
-		raise Exception("No Token Provided for Influx")
-	_org = os.environ.get("INFLUXDB_ORG") or "ubcformulaelectric"
-
 	# Checks if the vehicle bucket exists, and if not, creates it
-	logger.info(f"Connecting to InfluxDB database at '{url}' with token '{token}'.")
-	_client = influxdb_client.InfluxDBClient(
-		url=url, token=token, org=_org, timeout=BASIC_TIMEOUT_MS, debug=False
-	)
-	try:
-		# creates the can_data bucket if it doesn't exist yet
-		if _client.buckets_api().find_bucket_by_name(bucket_name=_bucket) is None:
-			_client.buckets_api().create_bucket(bucket_name=_bucket)
-	except NewConnectionError:
-		raise Exception("InfluxDB is not responding. Have you started the influx database docker container?")
+	logger.info(f"Connecting to InfluxDB database at '{_INFLUX_URL}' with token '{_INFLUX_TOKEN}'.")
+	with influxdb_client.InfluxDBClient(
+		url=_INFLUX_URL, token=_INFLUX_TOKEN, org=_INFLUX_ORG, timeout=100_000_000, debug=False
+	) as _client:
+		try:
+			# creates the can_data bucket if it doesn't exist yet
+			if _client.buckets_api().find_bucket_by_name(bucket_name=_INFLUX_BUCKET) is None:
+				_client.buckets_api().create_bucket(bucket_name=_INFLUX_BUCKET)
+		except NewConnectionError:
+			raise Exception("InfluxDB is not responding. Have you started the influx database docker container?")
 
 @dataclass
 class InfluxCanMsg:
 	name: str
 	value: any
+	timestamp: datetime.datetime
 
 
 def get_measurements(cls) -> list[str]:
@@ -66,12 +67,15 @@ def get_measurements(cls) -> list[str]:
 
 	query = f"""
 	import "influxdata/influxdb/schema"
-	schema.measurements(bucket: \"{_bucket}\")"""
+	schema.measurements(bucket: \"{_INFLUX_BUCKET}\")"""
 
-	return [
-		str(i[0])
-		for i in _client.query_api().query(query).to_values(columns=["_value"])
-	]
+	with influxdb_client.InfluxDBClient(
+		url=_INFLUX_URL, token=_INFLUX_TOKEN, org=_INFLUX_ORG, timeout=100_000_000, debug=False
+	) as _client:
+		return [
+			str(i[0])
+			for i in _client.query_api().query(query).to_values(columns=["_value"])
+		]
 
 def get_signals(measurement: str) -> list[str]:
 	"""
@@ -82,7 +86,7 @@ def get_signals(measurement: str) -> list[str]:
 	query = f"""
 	import "influxdata/influxdb/schema"
 	schema.tagValues(
-		bucket: "{_bucket}", 
+		bucket: "{_INFLUX_BUCKET}", 
 		predicate: (r) => r._measurement == "{measurement}",
 		tag: "signal"
 	)"""
@@ -113,7 +117,7 @@ def query(
 	"""
 
 	query = f"""
-	from(bucket:"{_bucket}")
+	from(bucket:"{_INFLUX_BUCKET}")
 		|> range(start: {time_range[0]}, stop: {time_range[1]})
 		|> filter(fn: (r) => 
 			r._measurement == "{measurement}" and 
@@ -133,31 +137,29 @@ def query(
 
 	return query_result
 
-def write_canmsg(signal: InfluxCanMsg) -> None:
-	"""
-	Write a pandas dataframe to the Influx database. The dataframe should have the columns
-	time, value, unit, and signal.
-	:param db: Dataframe to upload.
-	"""
-	car_name = os.environ.get("CAR_NAME")
-	with _client.write_api() as write_api:
-		write_api.write(
-			bucket=_bucket,
-			org=_org,
-			record= {
-				"measurement": car_name,
-				"fields": {signal.name: signal.value},
-				"time": datetime.datetime.now()
-			},
-			write_precision=influxdb_client.WritePrecision.NS,
-		)
 
 influx_queue = Queue()
 
-def _log_influx():
-	while True:
-		write_canmsg(influx_queue.get())
-			
+def _log_influx() -> NoReturn:
+	with influxdb_client.InfluxDBClient(
+		url=_INFLUX_URL, token=_INFLUX_TOKEN, org=_INFLUX_ORG, debug=False
+	) as _client:
+		with _client.write_api(write_options=WriteOptions(
+			write_type=WriteType.synchronous, batch_size=10
+		)) as write_api:
+			while True:
+				signal: InfluxCanMsg = influx_queue.get()
+				write_api.write(
+					bucket=_INFLUX_BUCKET,
+					org=_INFLUX_ORG,
+					record={
+						"measurement": _CAR_NAME,
+						"fields": {signal.name: signal.value},
+						"time": signal.timestamp
+					},
+					write_precision=influxdb_client.WritePrecision.MS,
+				)
+	
 def get_influx_logger_task() -> Thread:
 	return Thread(
 		target=_log_influx,

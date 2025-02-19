@@ -6,3 +6,4 @@ RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
 
 EXPOSE 5000
+ENV DOCKERIZED=1

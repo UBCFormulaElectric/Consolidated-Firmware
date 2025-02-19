@@ -37,9 +37,9 @@ can_msg_queue = Queue()
 def _send_data() -> NoReturn:
 	while True:
 		try:
-			canmsg: CanMsg = can_msg_queue.get(timeout=5)
+			canmsg: CanMsg = can_msg_queue.get(timeout=30)
 		except Empty:
-			logger.warning("No messages (for sockets)")
+			logger.warning("30 second canmsg drought (for sockets)")
 			continue
 
 		# handle commit info updates
@@ -61,7 +61,7 @@ def _send_data() -> NoReturn:
 					except Exception as e:
 						logger.error(f'Emit failed for sid {sid}: {e}')
 			# send to influx logger
-			influx_queue.put(InfluxCanMsg(signal["name"], signal["value"]))
+			influx_queue.put(InfluxCanMsg(signal["name"], signal["value"], canmsg.can_timestamp))
 
 def get_websocket_broadcast() -> Thread:
 	return Thread(target=_send_data, daemon=True)

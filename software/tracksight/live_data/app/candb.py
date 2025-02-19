@@ -2,17 +2,17 @@ from concurrent.futures import ThreadPoolExecutor
 import os
 import requests
 
-# import sys
-# _dockerized = os.environ.get("IN_DOCKER_CONTAINER") == "true"
-# if not _dockerized:
-#     sys.path.insert(
-#         0,
-#         os.path.abspath(
-#             os.path.join(
-#                 os.path.dirname(__file__), "../../../../scripts/code_generation/"
-#             )
-#         ),
-#     )
+_dockerized = os.environ.get("DOCKERIZED") == "1"
+if not _dockerized:
+    import sys
+    sys.path.insert(
+        0,
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__), "../../../../scripts/code_generation/"
+            )
+        ),
+    )
 
 def _download_file(commit_sha, file, folder_path, save_dir):
     file_url = f"https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/{commit_sha}/{file['path']}"

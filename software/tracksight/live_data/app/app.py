@@ -16,14 +16,7 @@ from read_task.wireless import get_wireless_task
 from logger import logger, log_path
 from broadcaster import get_websocket_broadcast
 
-if __name__ == "__main__":
-    # load env vars
-    # dockerized = os.environ.get("IN_DOCKER_CONTAINER") == "true"
-    # if not dockerized:
-    #     # this is only on developer machines
-    #     influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docker", "live_data.env")
-    #     load_dotenv(dotenv_path=influx_env_path)
-
+if __name__ == "__main__": 
     # register blueprint for python
     app.register_blueprint(api, url_prefix='/api')
 
@@ -67,6 +60,12 @@ if __name__ == "__main__":
         help="Specifies which car to log data towards"
     )
     args = parser.parse_args()
+
+    dockerized = os.environ.get("DOCKERIZED") == "1"
+    if not dockerized:
+        # this is only on developer machines
+        influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docker", "live_data.env")
+        load_dotenv(dotenv_path=influx_env_path)
 
     car_name = os.environ.get("CAR_NAME") or args.car_name
     if car_name is None:
