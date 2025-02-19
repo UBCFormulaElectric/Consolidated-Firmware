@@ -8,6 +8,16 @@ services:
     extends:
       file: common.yml
       service: live_data
+    command:
+      [
+        "python3",
+        "app/app.py",
+        "--mode",
+        "mock",
+        "-f",
+        "app/mock_data/sample_data1.csv",
+        "--debug"
+      ]
   # frontend:
   #   extends:
   #     file: common.yml

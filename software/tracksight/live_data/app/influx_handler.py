@@ -4,6 +4,8 @@ Influx database handler class.
 File for handling influxdb queries.
 This requires the influx dbrc mapping to have db name == bucket name
 TODO: Implement proper error handling for things like no data available.
+TODO: explore configuration options for the database
+link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 """
 
 import os
@@ -17,11 +19,10 @@ BASIC_TIMEOUT_MS = 10_000
 QUERY_TIMEOUT_MS = 100_000
 
 _client: influxdb_client.InfluxDBClient
-_bucket: str
+_bucket: str = "can_data"
 _org: str
 
 def setup(dockerized: bool):
-    global _bucket
     global _org
     global _client
 
@@ -31,9 +32,6 @@ def setup(dockerized: bool):
     if token == None:
         raise Exception("No Token Provided for Influx")
     _org = os.environ.get("INFLUXDB_ORG") or "ubcformulaelectric"
-    _bucket = os.environ.get("CAR_NAME")
-    if _bucket is None:
-        raise ValueError("CAR_NAME environment variable must be populated")
 
     # Checks if the vehicle bucket exists, and if not, creates it
     logger.info(f"Connecting to InfluxDB database at '{url}' with token '{token}'.")
@@ -41,6 +39,7 @@ def setup(dockerized: bool):
         url=url, token=token, org=_org, timeout=BASIC_TIMEOUT_MS
     )
     try:
+        # creates the can_data bucket if it doesn't exist yet
         if _client.buckets_api().find_bucket_by_name(bucket_name=_bucket) is None:
             _client.buckets_api().create_bucket(bucket_name=_bucket)
     except NewConnectionError:
@@ -124,22 +123,24 @@ def query(
 
     return query_result
 
-@classmethod
-def write(df: pd.DataFrame, measurement: str) -> None:
+def write_canmsg(signal_value: any, signal_name: str) -> None:
     """
     Write a pandas dataframe to the Influx database. The dataframe should have the columns
     time, value, unit, and signal.
     :param db: Dataframe to upload.
     """
-    # Index is used as source for time.
-    df.set_index("time", inplace=True)
-
+    car_name = os.environ.get("CAR_NAME")
     write_api = _client.write_api()
     write_api.write(
         bucket=_bucket,
         org=_org,
-        record=df,
-        data_frame_measurement_name=measurement,
-        data_frame_tag_columns=["signal"],
-        write_precision=influxdb_client.WritePrecision.NS,
+        data_frame_measurement_name=signal_name,
+        record= {
+            "measurement": "h2o_feet",
+            "tags": {"location": "us-west"},
+            "fields": {"level": 125},
+            "time": 1
+        }
+        # data_frame_tag_columns=["signal"],
+        # write_precision=influxdb_client.WritePrecision.NS,
     )

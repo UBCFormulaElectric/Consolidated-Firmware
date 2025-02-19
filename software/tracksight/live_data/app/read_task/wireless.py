@@ -6,7 +6,7 @@ from threading import Thread
 import serial
 from generated import telem_pb2
 from logger import logger
-from can_msg_queue import can_msg_queue, CanMsg
+from broadcaster import can_msg_queue, CanMsg
 
 def _make_bytes(message):
 	"""

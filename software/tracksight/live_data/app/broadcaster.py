@@ -1,14 +1,18 @@
-from dataclasses import dataclass
-
+import json
 from requests import HTTPError
-from can_msg_queue import can_msg_queue, CanMsg
-from queue import Empty
 from threading import Thread
+
 from logger import logger
 from subtable import SUB_TABLE
-import json
 from candb import can_db, fetch_jsoncan_configs
 from api_socket import sio
+from dataclasses import dataclass
+from queue import Queue, Empty
+
+@dataclass
+class CanMsg:
+	can_id: int
+	data: bytearray
 
 @dataclass
 class Signal:
@@ -24,12 +28,14 @@ class Signal:
             indent=4
 		)
 
+can_msg_queue = Queue()
+
 def _send_data():
     while True:
         try:
             canmsg: CanMsg = can_msg_queue.get(timeout=5)
         except Empty:
-            logger.warning("No messages")
+            logger.warning("No messages (for sockets)")
             continue
 
         # handle commit info updates

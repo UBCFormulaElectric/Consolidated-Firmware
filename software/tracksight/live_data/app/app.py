@@ -57,8 +57,20 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Pass to run in debug mode (logs to console).",
-    )   
+    )
+    parser.add_argument(
+        "--car-name",
+        "-c",
+        type=str,
+        required=False,
+        default="quadruna",
+        help="Specifies which car to log data towards"
+    )
     args = parser.parse_args()
+
+    car_name = os.environ.get("CAR_NAME") or args.car_name
+    if car_name is None:
+        raise ValueError("Please provide CAR_NAME as an environment variable or as a command line argument")
 
     # Set the logging level to DEBUG
     logger.setLevel(level=logging.DEBUG if args.debug else logging.INFO)
