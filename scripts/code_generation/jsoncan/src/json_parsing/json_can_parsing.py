@@ -1,5 +1,5 @@
 """
-Module for parsing CAN JSON, and returning a CanDatabase object. 
+Module for parsing CAN JSON, and returning a CanDatabase object.
 """
 
 import json
@@ -45,8 +45,10 @@ class JsonCanParser:
     def __init__(self, can_data_dir: str):
         self._bus_cfg: CanBusConfig | None = None
         self._nodes: list[str] = []  # List of node names
-        self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
-        self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
+        # Dict of msg names to msg objects
+        self._messages: dict[str, CanMessage] = {}
+        # Dict of enum names to enum objects
+        self._enums: dict[str, CanEnum] = {}
         self._shared_enums: list[CanEnum] = []  # Set of shared enums
         self._alerts: dict[str, dict[CanAlert, AlertsEntry]] = (
             {}
@@ -73,7 +75,8 @@ class JsonCanParser:
         """
         # Load shared JSON data
         # Parse bus data
-        bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
+        bus_json_data = validate_bus_json(
+            self._load_json_file(f"{can_data_dir}/bus"))
         self._bus_cfg = CanBusConfig(
             default_receiver=bus_json_data["default_receiver"],
             bus_speed=bus_json_data["bus_speed"],
@@ -81,7 +84,8 @@ class JsonCanParser:
             default_mode=bus_json_data["default_mode"],
         )
         if self._bus_cfg.default_mode not in self._bus_cfg.modes:
-            raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
+            raise InvalidCanJson(
+                f"Default CAN mode is not in the list of modes.")
 
         shared_enum_json_data = validate_enum_json(
             self._load_json_file(f"{can_data_dir}/shared_enum")
@@ -181,7 +185,8 @@ class JsonCanParser:
 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         for node in self._nodes:
-            node_rx_json_data = self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
+            node_rx_json_data = self._load_json_file(
+                f"{can_data_dir}/{node}/{node}_rx")
             node_rx_msgs = node_rx_json_data["messages"]
 
             for tx_node_msg_name in node_rx_msgs:
@@ -202,7 +207,8 @@ class JsonCanParser:
         Parse JSON data dictionary representing a CAN message.
         """
         msg_id = msg_json_data["msg_id"]
-        description, _ = self._get_optional_value(msg_json_data, "description", "")
+        description, _ = self._get_optional_value(
+            msg_json_data, "description", "")
         msg_cycle_time = msg_json_data["cycle_time"]
         msg_modes, _ = self._get_optional_value(
             msg_json_data, "allowed_modes", [self._bus_cfg.default_mode]
@@ -434,9 +440,6 @@ class JsonCanParser:
 
             items[value] = name
 
-        if 0 not in items:
-            raise InvalidCanJson(f"Enum '{enum_name}' must start at 0.")
-
         return CanEnum(name=enum_name, items=items)
 
     def _parse_node_alerts(self, node: str, alerts_json: AlertsJson):
@@ -516,7 +519,8 @@ class JsonCanParser:
         warnings_counts_signals = self._node_alert_count_signals(
             node, warnings, CanAlertType.WARNING
         )
-        faults_counts_signals = self._node_alert_count_signals(node, faults, "Fault")
+        faults_counts_signals = self._node_alert_count_signals(
+            node, faults, "Fault")
 
         # noinspection PyTypeChecker
         alerts_msgs: tuple[CanMessage, CanMessage, CanMessage, CanMessage] = (

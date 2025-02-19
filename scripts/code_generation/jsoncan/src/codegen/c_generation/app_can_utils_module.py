@@ -203,12 +203,6 @@ class AppCanUtilsModule(CModule):
             enum = CEnum(can_enum.name)
             for item_value, item_name in can_enum.items.items():
                 enum.add_value(CVar(name=item_name, value=item_value))
-            enum.add_value(
-                CVar(
-                    name=f"NUM_{pascal_to_screaming_snake_case(can_enum.name)}_CHOICES",
-                    value=len(can_enum.items),
-                )
-            )
 
             cw.add_enum(enum)
             cw.add_line()

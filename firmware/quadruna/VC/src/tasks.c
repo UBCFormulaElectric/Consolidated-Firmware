@@ -1,9 +1,11 @@
 #include "tasks.h"
+#include "hw_resetReason.h"
 #include "main.h"
 #include "cmsis_os.h"
 #include "shared.pb.h"
 #include "jobs.h"
 
+#include <app_canTx.h>
 #include <assert.h>
 
 #include "app_canAlerts.h"
@@ -23,6 +25,7 @@
 #include "hw_watchdogConfig.h"
 #include "hw_adcs.h"
 #include "hw_cans.h"
+#include "hw_resetReason.h"
 
 void tasks_preInit(void)
 {
@@ -59,6 +62,8 @@ void tasks_init(void)
     // enable these for inverter programming
     // hw_gpio_writePin(&inv_l_program, true);
     // hw_gpio_writePin(&inv_r_program, true);
+
+    app_canTx_VC_ResetReason_set(hw_resetReason_get());
 }
 
 _Noreturn void tasks_run1Hz(void)

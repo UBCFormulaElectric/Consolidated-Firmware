@@ -200,6 +200,9 @@
       },
       "RxOverflowCount": {
         "bits": 16
+      },
+      "ResetReason": {
+        "enum": "ResetReason"
       }
     }
   },

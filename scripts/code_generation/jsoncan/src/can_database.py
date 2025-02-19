@@ -30,12 +30,11 @@ class CanEnum:
         """
         return max(self.items.keys())
 
-    @staticmethod
-    def min_val() -> int:
+    def min_val(self) -> int:
         """
         Minimum value present in this value table's entries.
         """
-        return 0
+        return min(self.items.keys())
 
     def num_bits(self) -> int:
         """
@@ -68,7 +67,8 @@ class CanSignal:
     offset: float  # Offset for encoding/decoding
     min_val: float  # Min allowed value
     max_val: float  # Max allowed value
-    start_val: Union[int, float]  # Default starting value, None if doesn't specify one
+    # Default starting value, None if doesn't specify one
+    start_val: Union[int, float]
     enum: Union[CanEnum, None]  # Value table, None if doesn't specify one
     unit: str  # Signal's unit
     signed: bool  # Whether or not signal is represented as signed or unsigned
@@ -142,7 +142,8 @@ class CanMessage:
     signals: List[CanSignal]  # All signals that make up this message
     tx_node: str  # The node that transmits this message
     rx_nodes: List[str]  # All nodes which receive this message
-    modes: List[str]  # List of modes which this message should be transmitted in
+    # List of modes which this message should be transmitted in
+    modes: List[str]
     log_cycle_time: Union[
         int, None
     ]  # Interval that this message should be logged to disk at (None if don't capture this msg)

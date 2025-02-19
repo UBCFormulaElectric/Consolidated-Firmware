@@ -9,7 +9,8 @@
     "VERTICAL_GYRO": 1,
     "AHRS": 2,
     "VELOCITY": 3,
-    "POSITION": 4
+    "POSITION": 4,
+    "NUM_VC_EKF_STATUS_CHOICES": 5
   },
   "EllipseErrorCode": {
     "ELLIPSE_NO_ERROR": 0,
