@@ -92,10 +92,12 @@ if __name__ == "__main__":
         raise RuntimeError("Mode must be one of \"wireless\", \"mock\" or \"log\"")
     # Reading Thread
     broadcast_thread = get_websocket_broadcast()
+    influx_logger_task = InfluxHandler.get_influx_logger_task()
 
     # Initialize the Socket.IO app with the main app.
     read_thread.start()
     broadcast_thread.start()
+    influx_logger_task.start()
     
     # please be adviced, that the 0.0.0.0 is strictly mandatory
     sio.run(app, debug = bool(args.debug), host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)

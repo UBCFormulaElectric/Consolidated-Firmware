@@ -2,6 +2,7 @@ import threading
 import pandas as pd
 import time
 from broadcaster import CanMsg, can_msg_queue
+from logger import logger
 
 def read_messages_from_file(data_file: str):
 	"""
@@ -14,7 +15,8 @@ def read_messages_from_file(data_file: str):
 		# Iterate over each row (simulate message reception over time)
 		for _i, row in df.iterrows():
 			# each message has multiple signals
-			can_msg_queue.put(CanMsg(int(row['Can ID']), bytearray(int(row['Data']))))
+			can_id, can_value = int(row['can_signal']), bytearray.fromhex(row["can_value"])
+			can_msg_queue.put(CanMsg(can_id, can_value))
 			# Add the time stamp and get name
 			# single_signal["timestamp"] = message_received.time_stamp
 			# signal_name = single_signal["name"] 

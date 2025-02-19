@@ -8,11 +8,12 @@ from candb import can_db, fetch_jsoncan_configs
 from api_socket import sio
 from dataclasses import dataclass
 from queue import Queue, Empty
+from influx_handler import influx_queue, InfluxCanMsg
 
 @dataclass
 class CanMsg:
 	can_id: int
-	data: bytearray
+	can_value: bytearray
 
 @dataclass
 class Signal:
@@ -41,21 +42,23 @@ def _send_data():
         # handle commit info updates
         if canmsg.can_id % 100 == 6: # i.e. the canid is of the form x06, which means it is a commit info message
             try:
-                config_path = fetch_jsoncan_configs("quintuna", canmsg.data.hex())
+                config_path = fetch_jsoncan_configs("quintuna", canmsg.can_value.hex())
                 can_db.update_path(config_path)
             except HTTPError:
-                logger.critical(f"Could not fetch new commit information for quintuna at commit {canmsg.data.hex()}")
+                logger.critical(f"Could not fetch new commit information for quintuna at commit {canmsg.can_value.hex()}")
             finally:
                 continue # do not continue to parse this message
-        
-        for signal in can_db.unpack(canmsg.can_id, canmsg.data):
+
+        for signal in can_db.unpack(canmsg.can_id, canmsg.can_value):
             for sid, signal_names in SUB_TABLE.items():
-                if signal.name in signal_names:
+                if signal["name"] in signal_names:
                     try:
                         sio.emit('data', canmsg.toJSON(), to=sid)
                         logger.info(f'Data sent to sid {sid}')
                     except Exception as e:
                         logger.error(f'Emit failed for sid {sid}: {e}')
+            # send to influx logger
+            influx_queue.put(InfluxCanMsg(signal["name"], signal["value"]))
 
 def get_websocket_broadcast():
     return Thread(target=_send_data, daemon=True)
