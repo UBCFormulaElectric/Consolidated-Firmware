@@ -8,10 +8,11 @@ from dotenv import load_dotenv
 import influx_handler as InfluxHandler
 from argparse import ArgumentParser
 from flask_app import app
-from api import api, sio
-from write_task.log import get_logging_task
-from write_task.mock import get_mock_task
-from write_task.wireless import get_wireless_task
+from api import api
+from api_socket import sio
+from read_task.log import get_log_read_task
+from read_task.mock import get_mock_task
+from read_task.wireless import get_wireless_task
 from logger import logger, log_path
 from broadcaster import get_websocket_broadcast
 
@@ -69,19 +70,19 @@ if __name__ == "__main__":
     # Setup the Message Populate Thread
     if args.mode == "wireless":
         InfluxHandler.setup(dockerized)
-        write_thread = get_wireless_task(args.serial_port)
+        read_thread = get_wireless_task(args.serial_port)
     elif args.mode == "mock":
         InfluxHandler.setup(dockerized)
-        write_thread = get_mock_task(args.data_file)
+        read_thread = get_mock_task(args.data_file)
     elif args.mode == "log":
-        write_thread = get_logging_task()
+        read_thread = get_log_read_task()
     else:
         raise RuntimeError("should be caught by parser")
     # Reading Thread
-    read_thread = get_websocket_broadcast()
+    broadcast_thread = get_websocket_broadcast()
 
     # Initialize the Socket.IO app with the main app.
-    write_thread.start()
     read_thread.start()
+    broadcast_thread.start()
     sio.run(app, debug = bool(args.debug), port=5000)
     # on keyboard interrupt, the above handles killing

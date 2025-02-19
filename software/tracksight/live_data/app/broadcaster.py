@@ -5,10 +5,10 @@ from can_msg_queue import can_msg_queue, CanMsg
 from queue import Empty
 from threading import Thread
 from logger import logger
-from api import sio
 from subtable import SUB_TABLE
 import json
 from candb import can_db, fetch_jsoncan_configs
+from api_socket import sio
 
 @dataclass
 class Signal:
