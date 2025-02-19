@@ -6,10 +6,10 @@ from threading import Thread
 from logger import logger
 from subtable import SUB_TABLE
 from candb import can_db, fetch_jsoncan_configs
-from api_socket import sio
+from api.socket import sio
 from dataclasses import dataclass
 from queue import Queue, Empty
-from influx_handler import influx_queue, InfluxCanMsg
+from tasks.influx_logger import influx_queue, InfluxCanMsg
 from datetime import datetime
 
 @dataclass

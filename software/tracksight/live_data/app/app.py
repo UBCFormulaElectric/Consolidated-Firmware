@@ -2,19 +2,23 @@
 Entrypoint to the telemetry backend
 """
 
-import logging
 import os
 from dotenv import load_dotenv
-import influx_handler as InfluxHandler
 from argparse import ArgumentParser
-from flask_app import app
-from api import api
-from api_socket import sio
-from read_task.log import get_log_read_task
-from read_task.mock import get_mock_task
-from read_task.wireless import get_wireless_task
+import logging
 from logger import logger, log_path
-from broadcaster import get_websocket_broadcast
+
+# apis
+from flask_app import app
+from api.http import api
+from api.socket import sio
+
+# tasks
+import tasks.influx_logger as InfluxHandler
+from tasks.read_task.log import get_log_read_task
+from tasks.read_task.mock import get_mock_task
+from tasks.read_task.wireless import get_wireless_task
+from tasks.broadcaster import get_websocket_broadcast
 
 if __name__ == "__main__": 
     # register blueprint for python

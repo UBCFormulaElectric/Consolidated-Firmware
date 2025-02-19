@@ -1,7 +1,7 @@
 from typing import NoReturn
 import pandas as pd
 import time
-from broadcaster import CanMsg, can_msg_queue
+from tasks.broadcaster import CanMsg, can_msg_queue
 from datetime import datetime
 from logger import logger
 from threading import Thread

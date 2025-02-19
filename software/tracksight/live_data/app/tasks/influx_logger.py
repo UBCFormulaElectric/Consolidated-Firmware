@@ -20,9 +20,6 @@ from queue import Queue
 from logger import logger
 import datetime
 
-BASIC_TIMEOUT_MS = 10_000
-QUERY_TIMEOUT_MS = 100_000
-
 _dockerized: bool = os.environ.get("DOCKERIZED") == "1"
 _INFLUX_BUCKET: str = "can_data"
 _INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG") if _dockerized else "ubcformulaelectric"
@@ -55,89 +52,6 @@ class InfluxCanMsg:
 	value: any
 	timestamp: datetime.datetime
 
-
-def get_measurements(cls) -> list[str]:
-	"""
-	Get all measurements from the database.
-	:param bucket: Name of bucket to fetch data from.
-	:returns List of all measurements.
-	"""
-	if not cls.is_setup:
-		raise RuntimeError("InfluxHandler not initialized.")
-
-	query = f"""
-	import "influxdata/influxdb/schema"
-	schema.measurements(bucket: \"{_INFLUX_BUCKET}\")"""
-
-	with influxdb_client.InfluxDBClient(
-		url=_INFLUX_URL, token=_INFLUX_TOKEN, org=_INFLUX_ORG, timeout=100_000_000, debug=False
-	) as _client:
-		return [
-			str(i[0])
-			for i in _client.query_api().query(query).to_values(columns=["_value"])
-		]
-
-def get_signals(measurement: str) -> list[str]:
-	"""
-	Get all signals from the database.
-	:param bucket: Name of bucket to fetch data from.
-	:returns List of all measurements.
-	"""
-	query = f"""
-	import "influxdata/influxdb/schema"
-	schema.tagValues(
-		bucket: "{_INFLUX_BUCKET}", 
-		predicate: (r) => r._measurement == "{measurement}",
-		tag: "signal"
-	)"""
-
-	return [
-		str(i[0])
-		for i in _client.query_api()
-		.query(query=query)
-		.to_values(columns=["_value"])
-	]
-
-def query(
-	measurement: str,
-	signals: List[str],
-	time_range: Tuple[str, str],
-	max_points: int,
-	ms_resolution: int = 100,  # TODO implement
-) -> dict[str, dict]:
-	"""
-	Make a general query to the database.
-	:param measurement: Measurement to pull data from.
-	:param fields: Fields to fetch.
-	:param time_range: Tuple like (time start, time end) to specify the time interval.
-	:param bucket: Name of bucket to fetch data from.
-	:param max_points: Maximum number of datapoints to fetch.
-	:param ms_resolution: Minimum time delta required before grabbing a new datapoint.
-	:return: A dictionary where the keys are the fields and the values are TimeValue objects.
-	"""
-
-	query = f"""
-	from(bucket:"{_INFLUX_BUCKET}")
-		|> range(start: {time_range[0]}, stop: {time_range[1]})
-		|> filter(fn: (r) => 
-			r._measurement == "{measurement}" and 
-			r._field == "value" and
-			contains(value: r.signal, set: {str(signals).replace("'", '"')}))
-		|> tail(n: {max_points})
-	"""
-
-	query_result = {signal: {"times": [], "values": []} for signal in signals}
-	for signal, value, time in (
-		_client.query_api()
-		.query(query=query)
-		.to_values(columns=["signal", "_value", "_time"])
-	):
-		query_result[signal]["times"].append(str(time))
-		query_result[signal]["values"].append(value)
-
-	return query_result
-
-
 influx_queue = Queue()
 
 def _log_influx() -> NoReturn:
@@ -165,3 +79,87 @@ def get_influx_logger_task() -> Thread:
 		target=_log_influx,
 		daemon=True
 	)
+
+
+# def get_measurements(cls) -> list[str]:
+# 	"""
+# 	Get all measurements from the database.
+# 	:param bucket: Name of bucket to fetch data from.
+# 	:returns List of all measurements.
+# 	"""
+# 	if not cls.is_setup:
+# 		raise RuntimeError("InfluxHandler not initialized.")
+
+# 	query = f"""
+# 	import "influxdata/influxdb/schema"
+# 	schema.measurements(bucket: \"{_INFLUX_BUCKET}\")"""
+
+# 	with influxdb_client.InfluxDBClient(
+# 		url=_INFLUX_URL, token=_INFLUX_TOKEN, org=_INFLUX_ORG, timeout=100_000_000, debug=False
+# 	) as _client:
+# 		return [
+# 			str(i[0])
+# 			for i in _client.query_api().query(query).to_values(columns=["_value"])
+# 		]
+
+# this gets all the signals which are present
+# this does NOT represent the list of valid signals for a given commit
+# def get_signals(measurement: str) -> list[str]:
+# 	"""
+# 	Get all signals from the database.
+# 	:param bucket: Name of bucket to fetch data from.
+# 	:returns List of all measurements.
+# 	"""
+# 	query = f"""
+# 	import "influxdata/influxdb/schema"
+# 	schema.tagValues(
+# 		bucket: "{_INFLUX_BUCKET}", 
+# 		predicate: (r) => r._measurement == "{measurement}",
+# 		tag: "signal"
+# 	)"""
+
+# 	return [
+# 		str(i[0])
+# 		for i in _client.query_api()
+# 		.query(query=query)
+# 		.to_values(columns=["_value"])
+# 	]
+
+# def query(
+# 	measurement: str,
+# 	signals: List[str],
+# 	time_range: Tuple[str, str],
+# 	max_points: int,
+# 	ms_resolution: int = 100,  # TODO implement
+# ) -> dict[str, dict]:
+# 	"""
+# 	Make a general query to the database.
+# 	:param measurement: Measurement to pull data from.
+# 	:param fields: Fields to fetch.
+# 	:param time_range: Tuple like (time start, time end) to specify the time interval.
+# 	:param bucket: Name of bucket to fetch data from.
+# 	:param max_points: Maximum number of datapoints to fetch.
+# 	:param ms_resolution: Minimum time delta required before grabbing a new datapoint.
+# 	:return: A dictionary where the keys are the fields and the values are TimeValue objects.
+# 	"""
+
+# 	query = f"""
+# 	from(bucket:"{_INFLUX_BUCKET}")
+# 		|> range(start: {time_range[0]}, stop: {time_range[1]})
+# 		|> filter(fn: (r) => 
+# 			r._measurement == "{measurement}" and 
+# 			r._field == "value" and
+# 			contains(value: r.signal, set: {str(signals).replace("'", '"')}))
+# 		|> tail(n: {max_points})
+# 	"""
+
+# 	query_result = {signal: {"times": [], "values": []} for signal in signals}
+# 	for signal, value, time in (
+# 		_client.query_api()
+# 		.query(query=query)
+# 		.to_values(columns=["signal", "_value", "_time"])
+# 	):
+# 		query_result[signal]["times"].append(str(time))
+# 		query_result[signal]["values"].append(value)
+
+# 	return query_result
