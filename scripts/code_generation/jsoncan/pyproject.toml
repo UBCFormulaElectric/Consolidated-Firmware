@@ -4,4 +4,4 @@ version = "0.1"
 dependencies = []
 
 [tool.setuptools]
-packages = ["jsoncan"]
+py-modules = ["jsoncan"]
