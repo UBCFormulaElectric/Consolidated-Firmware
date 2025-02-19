@@ -1,5 +1,5 @@
 [project]
-name = "jsoncan"
+name = "ubcfe_codegen"
 version = "0.1"
 dependencies = []
 
