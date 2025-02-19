@@ -151,7 +151,6 @@ def write_canmsg(signal: InfluxCanMsg) -> None:
 			},
 			write_precision=influxdb_client.WritePrecision.NS,
 		)
-		logger.info(f"wrote {signal.value} for {signal.name}")
 
 influx_queue = Queue()
 
