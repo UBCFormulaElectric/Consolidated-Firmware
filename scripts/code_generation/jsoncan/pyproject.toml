@@ -5,4 +5,3 @@ dependencies = []
 
 [tool.setuptools]
 packages = ["jsoncan"]
-package-dir = {"" = "src"}
