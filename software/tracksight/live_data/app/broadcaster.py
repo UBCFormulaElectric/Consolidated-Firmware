@@ -8,7 +8,7 @@ from logger import logger
 from api import sio
 from subtable import SUB_TABLE
 import json
-from candb import can_db, canid_commitinfo, fetch_jsoncan_configs, ecu_commit
+from candb import can_db, fetch_jsoncan_configs
 
 @dataclass
 class Signal:
@@ -33,14 +33,12 @@ def _send_data():
             continue
 
         # handle commit info updates
-        if canmsg.can_id in canid_commitinfo.keys():
+        if canmsg.can_id % 100 == 6: # i.e. the canid is of the form x06, which means it is a commit info message
             try:
-                ecu = canid_commitinfo[canmsg.can_id]
-                ecu_commit[ecu] = canmsg.data.hex()
-                config_path = fetch_jsoncan_configs("quintuna", ecu)
-                can_db.update_path(ecu, config_path)
+                config_path = fetch_jsoncan_configs("quintuna", canmsg.data.hex())
+                can_db.update_path(config_path)
             except HTTPError:
-                logger.critical(f"Could not fetch new commit information for {ecu} at {ecu_commit[ecu]}")
+                logger.critical(f"Could not fetch new commit information for quintuna at commit {canmsg.data.hex()}")
             finally:
                 continue # do not continue to parse this message
         

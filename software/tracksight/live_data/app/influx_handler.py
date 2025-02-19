@@ -30,7 +30,9 @@ def setup(dockerized: bool):
     if token == None:
         raise Exception("No Token Provided for Influx")
     _org = os.environ.get("INFLUXDB_ORG") or "ubcformulaelectric"
-    _bucket = os.environ.get("INFLUXDB_BUCKET") or "quadruna"
+    _bucket = os.environ.get("CAR_NAME")
+    if _bucket is None:
+        raise ValueError("CAR_NAME environment variable must be populated")
 
     # Checks if the vehicle bucket exists, and if not, creates it
     logger.info(f"Connecting to InfluxDB database at '{url}' with token '{token}'.")

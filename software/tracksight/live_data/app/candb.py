@@ -13,7 +13,6 @@ if not _dockerized:
             )
         ),
     )
-from jsoncan.src.can_database import CanDatabase # type: ignore
 
 def _download_file(commit_sha, file, folder_path, save_dir):
     file_url = f"https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/{commit_sha}/{file['path']}"
@@ -30,56 +29,40 @@ def _download_file(commit_sha, file, folder_path, save_dir):
 bus_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../bus_configs")
 )
-def fetch_jsoncan_configs(car: str, ecu: str, force = False) -> str:
+cached_commit_sha: str | None = None
+def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     """
-    Fetches the jsoncan configs for a given car and ecu.
-    REQUIRES: ecu_commit to be populated correctly beforehand. If it is None it throws an error. If it is stale it continues with stale data
+    Fetches the jsoncan configs for a given sha
     RETURNS: the path of the folder containing the jsoncan configs for car/ecu
+    NOTE: this will 
+    NOTE: this determines which car you are driving with an environment variable.
     """
-    commit_sha = ecu_commit[ecu]
-    if commit_sha is None:
-        raise Exception("Make sure to set ecu_commit with the ECUs commit information before fetching")
-    save_dir = os.path.join(bus_path, car, commit_sha, ecu)
+    car = os.environ.get("CAR_NAME")
+    save_dir = os.path.join(bus_path, car, commit_sha)
     # if save_dir is present, assume that it's contents are valid
-    if os.path.exists(save_dir) and not force:
+    if cached_commit_sha == commit_sha and os.path.exists(save_dir) and not force:
         # this is an important optimization as this is the hot branch
         # namely, every time a commit info message comes in, this runs
         return
 
-    folder_path = f"can_bus/{car}/{ecu}"
+    folder_path = f"can_bus/{car}"
     url = f"https://api.github.com/repos/UBCFormulaElectric/Consolidated-Firmware/git/trees/{commit_sha}?recursive=1"
     response = requests.get(url)
     response.raise_for_status()
 
     # Filter for files in the specified folder
     files = [file for file in response.json().get("tree", []) if file["path"].startswith(folder_path) and file["type"] == "blob"]
+
+    # DISK MUTATIONS HERE AND BELOW
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     with ThreadPoolExecutor(max_workers=46) as executor:
         executor.map(lambda file: _download_file(commit_sha, file, folder_path, save_dir), files)
+    cached_commit_sha = commit_sha
     return save_dir
 
-canid_commitinfo: dict[int, str] = {
-    406: "BMS",
-    506: "VC",
-    606: "FSM",
-    706: "RSM",
-    806: "DAM",
-    906: "CRIT"
-}
-
-# TODO reset this when you lose connection
-ecu_commit: dict[str, str | None] = {
-    "BMS": None,
-    "VC": None,
-    "FSM": None,
-    "RSM": None,
-    "DAM": None,
-    "CRIT": None
-}
-
 # TODO
+# from jsoncan.src.can_database import CanDatabase
 # can_db = CanDatabase()
-
 from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
 can_db = JsonCanParser(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../can_bus/quadruna"))).make_database()
