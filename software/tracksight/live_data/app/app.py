@@ -87,7 +87,7 @@ if __name__ == "__main__":
     influx_logger_task = InfluxHandler.get_influx_logger_task()
 
     # Initialize the Socket.IO app with the main app.
-    read_thread.start()
+    # read_thread.start()
     broadcast_thread.start()
     influx_logger_task.start()
     

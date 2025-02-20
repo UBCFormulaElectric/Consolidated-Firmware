@@ -1,10 +1,13 @@
-from typing import NoReturn
 import pandas as pd
 import time
-from tasks.broadcaster import CanMsg, can_msg_queue
 from datetime import datetime
-from logger import logger
 from threading import Thread
+
+# types
+from typing import NoReturn
+
+# ours
+from tasks.broadcaster import CanMsg, can_msg_queue # we pass messages to the socket broadcaster
 
 def read_messages_from_file(data_file: str) -> NoReturn:
 	"""

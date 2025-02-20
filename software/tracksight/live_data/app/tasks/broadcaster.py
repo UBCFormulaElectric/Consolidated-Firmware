@@ -1,16 +1,20 @@
 import json
+from threading import Thread
+from datetime import datetime
+from queue import Queue, Empty
+
+# types
 from typing import NoReturn
 from requests import HTTPError
-from threading import Thread
+from dataclasses import dataclass
 
+# ours
 from logger import logger
 from subtable import SUB_TABLE
 from candb import can_db, fetch_jsoncan_configs
+
 from api.socket import sio
-from dataclasses import dataclass
-from queue import Queue, Empty
-from tasks.influx_logger import influx_queue, InfluxCanMsg
-from datetime import datetime
+from tasks.influx_logger import influx_queue, InfluxCanMsg # for passing the message along
 
 @dataclass
 class CanMsg:

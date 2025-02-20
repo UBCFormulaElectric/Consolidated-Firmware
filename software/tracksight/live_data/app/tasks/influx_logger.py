@@ -9,16 +9,21 @@ link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 """
 
 import os
-from typing import List, LiteralString, NoReturn, Tuple
-import influxdb_client
-from influxdb_client.client.write_api import WriteOptions, WriteType
-from logger import logger
-from urllib3.exceptions import NewConnectionError
-from dataclasses import dataclass
 from threading import Thread
 from queue import Queue
-from logger import logger
 import datetime
+
+# types
+from typing import LiteralString, NoReturn
+from urllib3.exceptions import NewConnectionError
+from dataclasses import dataclass
+
+#influx
+import influxdb_client
+from influxdb_client.client.write_api import WriteOptions, WriteType
+
+# ours
+from logger import logger
 
 _dockerized: bool = os.environ.get("DOCKERIZED") == "1"
 _INFLUX_BUCKET: str = "can_data"
@@ -67,7 +72,7 @@ def _log_influx() -> NoReturn:
 					bucket=_INFLUX_BUCKET,
 					org=_INFLUX_ORG,
 					record={
-						"measurement": _CAR_NAME,
+						"measurement": f"{_CAR_NAME}_live",
 						"fields": {signal.name: signal.value},
 						"time": signal.timestamp
 					},

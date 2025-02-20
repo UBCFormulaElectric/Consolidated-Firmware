@@ -29,7 +29,8 @@ def _download_file(commit_sha, file, folder_path, save_dir):
 bus_configs_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../bus_configs")
 )
-cached_commit_sha: str | None = None
+_cached_commit_sha: str | None = None
+_car = os.environ.get("CAR_NAME")
 def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     """
     Fetches the jsoncan configs for a given sha
@@ -37,15 +38,15 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     NOTE: this will 
     NOTE: this determines which car you are driving with an environment variable.
     """
-    car = os.environ.get("CAR_NAME")
-    save_dir = os.path.join(bus_configs_path, car, commit_sha)
+    global _cached_commit_sha
+    save_dir = os.path.join(bus_configs_path, _car, commit_sha)
     # if save_dir is present, assume that it's contents are valid
-    if cached_commit_sha == commit_sha and os.path.exists(save_dir) and not force:
+    if _cached_commit_sha == commit_sha and os.path.exists(save_dir) and not force:
         # this is an important optimization as this is the hot branch
         # namely, every time a commit info message comes in, this runs
         return
 
-    folder_path = f"can_bus/{car}"
+    folder_path = f"can_bus/{_car}"
     url = f"https://api.github.com/repos/UBCFormulaElectric/Consolidated-Firmware/git/trees/{commit_sha}?recursive=1"
     response = requests.get(url)
     response.raise_for_status()
@@ -58,7 +59,7 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
         os.makedirs(save_dir)
     with ThreadPoolExecutor(max_workers=46) as executor:
         executor.map(lambda file: _download_file(commit_sha, file, folder_path, save_dir), files)
-    cached_commit_sha = commit_sha
+    _cached_commit_sha = commit_sha
     return save_dir
 
 # TODO
