@@ -4,13 +4,13 @@ Entrypoint to the telemetry backend
 
 # Note this must be done first as there are static level os.env gets
 import os
+from dotenv import load_dotenv
 dockerized = os.environ.get("DOCKERIZED") == "1"
 if not dockerized:
     # this is only on developer machines
     influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docker", "live_data.env")
     load_dotenv(dotenv_path=influx_env_path)
 
-from dotenv import load_dotenv
 from argparse import ArgumentParser
 import logging
 from logger import logger, log_path
