@@ -2,7 +2,14 @@
 Entrypoint to the telemetry backend
 """
 
+# Note this must be done first as there are static level os.env gets
 import os
+dockerized = os.environ.get("DOCKERIZED") == "1"
+if not dockerized:
+    # this is only on developer machines
+    influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docker", "live_data.env")
+    load_dotenv(dotenv_path=influx_env_path)
+
 from dotenv import load_dotenv
 from argparse import ArgumentParser
 import logging
@@ -64,12 +71,6 @@ if __name__ == "__main__":
         help="Specifies which car to log data towards"
     )
     args = parser.parse_args()
-
-    dockerized = os.environ.get("DOCKERIZED") == "1"
-    if not dockerized:
-        # this is only on developer machines
-        influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docker", "live_data.env")
-        load_dotenv(dotenv_path=influx_env_path)
 
     # Set the logging level to DEBUG
     logger.setLevel(level=logging.DEBUG if args.debug else logging.INFO)
