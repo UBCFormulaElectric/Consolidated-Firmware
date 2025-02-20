@@ -104,7 +104,8 @@ class CanSignal:
     offset: float  # Offset for encoding/decoding
     min_val: float  # Min allowed value
     max_val: float  # Max allowed value
-    start_val: Union[int, float]  # Default starting value, None if doesn't specify one
+    # Default starting value, None if doesn't specify one
+    start_val: Union[int, float]
     enum: Union[CanEnum, None]  # Value table, None if doesn't specify one
     unit: str  # Signal's unit
     signed: bool  # Whether or not signal is represented as signed or unsigned
@@ -316,7 +317,8 @@ class CanDatabase:
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
-    reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
+    # List of messages to be forwarded to another bus
+    reroute_msgs: List[CanForward]
     forwarder: CanNode  # Node which forwards this message
 
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
@@ -396,7 +398,8 @@ class CanDatabase:
             node
             for node in self.nodes
             if any(
-                [self.node_has_alert(node, alert_type) for alert_type in CanAlertType]
+                [self.node_has_alert(node, alert_type)
+                 for alert_type in CanAlertType]
             )
         ]
 
