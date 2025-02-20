@@ -48,7 +48,6 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
         return;
     }
     {%- endif %}
-    tx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
     // Clamp value to min/max
     {%- if signal.max_val is defined %}
     if (value > {{ signal.max_val_macro() }})
@@ -62,6 +61,8 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
         value = {{ signal.min_val_macro() }};
     }
     {%- endif %}
+
+    tx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
 }
 {%- endfor %}
 {%- endfor %}

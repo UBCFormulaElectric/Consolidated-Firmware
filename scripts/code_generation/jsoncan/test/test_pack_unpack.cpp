@@ -61,7 +61,12 @@ TEST(PackUnpackTests, test_basic_signal_types)
         // Confirm we can decode the payload, which should match the original message.
         ECU1_BasicSignalTypes_Signals out_msg;
         app_canUtils_ECU1_BasicSignalTypes_unpack(payload, &out_msg);
-        ASSERT_TRUE(memcmp(&in_msgs[i], &out_msg, sizeof(ECU1_BasicSignalTypes_Signals)));
+        ASSERT_EQ(in_msgs[i].ECU1_Boolean1_value, out_msg.ECU1_Boolean1_value);
+        ASSERT_EQ(in_msgs[i].ECU1_Boolean2_value, out_msg.ECU1_Boolean2_value);
+        ASSERT_EQ(in_msgs[i].ECU1_Enum_value, out_msg.ECU1_Enum_value);
+        ASSERT_EQ(in_msgs[i].ECU1_UInt8_value, out_msg.ECU1_UInt8_value);
+        ASSERT_EQ(in_msgs[i].ECU1_UInt16_value, out_msg.ECU1_UInt16_value);
+        ASSERT_EQ(in_msgs[i].ECU1_UInt32_value, out_msg.ECU1_UInt32_value);
     }
 }
 
