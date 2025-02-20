@@ -62,14 +62,6 @@ if __name__ == "__main__":
         default=False,
         help="Pass to run in debug mode (logs to console).",
     )
-    parser.add_argument(
-        "--car-name",
-        "-c",
-        type=str,
-        required=False,
-        default="quadruna",
-        help="Specifies which car to log data towards"
-    )
     args = parser.parse_args()
 
     # Set the logging level to DEBUG
