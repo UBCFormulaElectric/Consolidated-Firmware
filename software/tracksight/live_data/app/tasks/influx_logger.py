@@ -22,10 +22,10 @@ import datetime
 
 _dockerized: bool = os.environ.get("DOCKERIZED") == "1"
 _INFLUX_BUCKET: str = "can_data"
-_INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG") if _dockerized else "ubcformulaelectric"
-_INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN") if _dockerized else "top_secret_token"
-_CAR_NAME: str | None = os.environ.get("CAR_NAME") if _dockerized else "mock_car" # this is ok as it's prescence is checked in app.py, which runs before this
 _INFLUX_URL: LiteralString = f"http://{'influx' if _dockerized else 'localhost'}:8086"
+_INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG")
+_INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN")
+_CAR_NAME: str | None = os.environ.get("CAR_NAME")
 if _INFLUX_ORG is None:
 	raise Exception("No Influx Organization Provided")
 if _INFLUX_TOKEN is None:

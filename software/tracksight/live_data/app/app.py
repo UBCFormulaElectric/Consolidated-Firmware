@@ -71,10 +71,6 @@ if __name__ == "__main__":
         influx_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docker", "live_data.env")
         load_dotenv(dotenv_path=influx_env_path)
 
-    car_name = os.environ.get("CAR_NAME") or args.car_name
-    if car_name is None:
-        raise ValueError("Please provide CAR_NAME as an environment variable or as a command line argument")
-
     # Set the logging level to DEBUG
     logger.setLevel(level=logging.DEBUG if args.debug else logging.INFO)
     if args.debug:
