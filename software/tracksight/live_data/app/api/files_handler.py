@@ -6,6 +6,7 @@ from flask import Blueprint
 from logfs import LogFs, LogFsDiskFactory
 import psutil
 from logger import logger
+import sqlite3
 
 sd_api = Blueprint('sd', __name__)
 
@@ -77,13 +78,25 @@ def dump_file(sd_device: str, file_id: str):
 	try:
 		with logfs.open(file_id) as file:
 			raw_data = file.read()
+			metadata = file.read_metadata()
 	except Exception:
 		return {"error": "File Does Not Exist"}, 400
+
 
 	# take each signal in this file and
 	# 1. convert to mf4 and cache to disk
 	# 2. add to influx database
 	# make sure to in the process stream the progress
+
+	# finally, add the file to the historical sqlite db
+	with sqlite3.connect("historical.db") as historical_db:
+		historical_db.execute("INSERT INTO files (file_name, commit_sha, start_iso_time, end_iso_time) VALUES (:file_name, :commit_sha, :start_iso_time, :end_iso_time)", {
+			"file_name": "",
+			"commit_sha": "",
+			"start_iso_time": "",
+			"end_iso_time": ""
+		})
+		historical_db.commit()
 
 	return None, 200
 

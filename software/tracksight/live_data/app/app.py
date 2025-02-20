@@ -4,6 +4,7 @@ Entrypoint to the telemetry backend
 
 # Note this must be done first as there are static level os.env gets
 import os
+from threading import Thread
 from dotenv import load_dotenv
 dockerized = os.environ.get("DOCKERIZED") == "1"
 if not dockerized:
@@ -37,8 +38,8 @@ if __name__ == "__main__":
         "--mode",
         "-m",
         type=str,
-        required=True,
-        help="Mode to run telemetry in, either 'wireless' or 'log'.",
+        required=False,
+        help="Mode to run telemetry in, either 'mock', 'wireless' or 'log'.",
     )
     parser.add_argument(
         "--serial-port",
@@ -81,13 +82,14 @@ if __name__ == "__main__":
     elif args.mode == "log":
         read_thread = get_log_read_task()
     else:
-        raise RuntimeError("Mode must be one of \"wireless\", \"mock\" or \"log\"")
+        logger.critical("Read thread is empty: No Data will be populated. To select a data source, please specify the \"mode\" flag")
+        read_thread = Thread()
     # Reading Thread
     broadcast_thread = get_websocket_broadcast()
     influx_logger_task = InfluxHandler.get_influx_logger_task()
 
     # Initialize the Socket.IO app with the main app.
-    # read_thread.start()
+    read_thread.start()
     broadcast_thread.start()
     influx_logger_task.start()
     
