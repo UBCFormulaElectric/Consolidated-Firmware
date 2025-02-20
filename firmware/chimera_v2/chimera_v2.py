@@ -257,8 +257,7 @@ class _Board:
 
         # Wait for response.
         response = self._read()
-
-        assert response.gpio_read.net_name == request.gpio_read.net_name
+        assert response.WhichOneof("payload") == "gpio_read"
         return response.gpio_read.value
 
     def gpio_write(self, net_name: str, value: bool) -> None:
@@ -280,12 +279,10 @@ class _Board:
         request.gpio_write.value = value
         self._write(request)
 
-        # Wait for response, and validate that the request was received correctly.
+        # Wait for validation response.
         response = self._read()
-        assert (
-            response.SerializeToString()
-            == response.gpio_write.request_confirmation.SerializeToString()
-        )
+        assert response.WhichOneof("payload") == "gpio_write"
+        assert response.gpio_write.success
 
     def adc_read(self, net_name: str) -> float:
         """Read the voltage at an ADC pin specified by the net name.
@@ -309,7 +306,7 @@ class _Board:
 
         # Wait for response and return.
         response = self._read()
-        assert response.adc_read.net_name == request.adc_read.net_name
+        assert response.WhichOneof("payload") == "adc_read"
         return response.adc_read.value
 
 

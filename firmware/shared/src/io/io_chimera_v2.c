@@ -66,13 +66,12 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     if (request.which_payload == ChimeraV2Request_gpio_read_tag)
     {
         // GPIO read.
-        const Gpio *gpio = io_chimera_v2_getGpio(&request.payload.gpio_read.net_name);
-        bool        data = hw_gpio_readPin(gpio);
+        const Gpio *gpio  = io_chimera_v2_getGpio(&request.payload.gpio_read.net_name);
+        bool        value = hw_gpio_readPin(gpio);
 
         // Format response.
-        response.which_payload              = ChimeraV2Response_gpio_read_tag;
-        response.payload.gpio_read.value    = data;
-        response.payload.gpio_read.net_name = request.payload.gpio_read.net_name;
+        response.which_payload           = ChimeraV2Response_gpio_read_tag;
+        response.payload.gpio_read.value = value;
     }
     else if (request.which_payload == ChimeraV2Request_gpio_write_tag)
     {
@@ -81,26 +80,29 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         hw_gpio_writePin(gpio, request.payload.gpio_write.value);
 
         // Format response.
-        response.which_payload                           = ChimeraV2Response_gpio_write_tag;
-        response.payload.gpio_write.request_confirmation = request.payload.gpio_write;
+        response.which_payload              = ChimeraV2Response_gpio_write_tag;
+        response.payload.gpio_write.success = true;
     }
     else if (request.which_payload == ChimeraV2Request_adc_read_tag)
     {
         // ADC read.
         const AdcChannel *adc_channel = io_chimera_v2_getAdc(&request.payload.adc_read.net_name);
-        float             data        = hw_adc_getVoltage(adc_channel);
+        float             value       = hw_adc_getVoltage(adc_channel);
 
         // Format response.
-        response.which_payload             = ChimeraV2Response_adc_read_tag;
-        response.payload.adc_read.value    = data;
-        response.payload.adc_read.net_name = request.payload.adc_read.net_name;
+        response.which_payload          = ChimeraV2Response_adc_read_tag;
+        response.payload.adc_read.value = value;
+    }
+    else
+    {
+        LOG_WARN("Chimera: Unsupported request with tag %d received.", request.which_payload);
     }
 
     // Encode response to bytes.
     pb_ostream_t out_stream = pb_ostream_from_buffer(out_buffer, OUT_BUFFER_SIZE);
     if (!pb_encode(&out_stream, ChimeraV2Response_fields, &response))
     {
-        LOG_ERROR("Error encoding chimera message output");
+        LOG_ERROR("Chimera: Error encoding chimera message output");
         return;
     }
     uint16_t response_data_size = (uint16_t)out_stream.bytes_written;

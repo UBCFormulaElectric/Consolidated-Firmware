@@ -30,8 +30,7 @@ message GpioReadRequest {
 }
 
 message GpioReadResponse {
-  GpioNetName net_name = 1;
-  bool value = 2;
+  bool value = 1;
 }
 
 // GPIO write request/response.
@@ -41,7 +40,7 @@ message GpioWriteRequest {
 }
 
 message GpioWriteResponse {
-  GpioWriteRequest request_confirmation = 2;
+  bool success = 1;
 }
 
 /* ADCs */
@@ -57,8 +56,7 @@ message AdcReadRequest {
 }
 
 message AdcReadResponse {
-  AdcNetName net_name = 1;
-  float value = 2;
+  float value = 1;
 }
 
 /* I2Cs */
@@ -68,19 +66,98 @@ message I2cNetName {
   }
 }
 
-/* Wrapper around all messages */
+// I2C ready check request/response.
+message I2cReadyRequest {
+  I2cNetName net_name = 1;
+}
+
+message I2cReadyResponse {
+  bool ready = 1;
+}
+
+// I2C receive data request/response.
+message I2cReceiveRequest {
+  I2cNetName net_name = 1;
+  uint32 length = 2;
+}
+
+message I2cReceiveResponse {
+  bytes data = 1;
+}
+
+// I2C transmit data request/response.
+message I2cTransmitRequest {
+  I2cNetName net_name = 1;
+  bytes data = 2;
+}
+
+message I2cTransmitResponse {
+  bool success = 1;
+}
+
+// I2C read memory request/response.
+message I2cMemoryReadRequest {
+  I2cNetName net_name = 1;
+  uint32 memory_address = 2;
+  uint32 length = 3;
+}
+
+message I2cMemoryReadResponse {
+  bytes data = 1;
+}
+
+// I2C write memory request/response.
+message I2cMemoryWriteRequest {
+  I2cNetName net_name = 1;
+  uint32 memory_address = 2;
+  uint32 length = 3;
+}
+
+message I2cMemoryWriteResponse {
+  bool success = 1;
+}
+
+/* 
+  Wrapper around all messages 
+
+  There is no RPC support in nanopb, so we construct our own request/response protocol.
+  Some interesting projects to like at in the future if this ever gets too cumbersome are:
+  - https://github.com/EmbeddedRPC/erpc
+  - https://github.com/d21d3q/nanogrpc
+*/
 message ChimeraV2Request {
   oneof payload {
+    // GPIO.
     GpioReadRequest gpio_read = 1;
     GpioWriteRequest gpio_write = 2;
+
+    // ADC.
     AdcReadRequest adc_read = 3;
+
+    // I2C.
+    I2cReadyRequest i2c_ready = 4;
+    I2cReceiveRequest i2c_receive = 5;
+    I2cTransmitRequest i2c_transmit = 6;
+    I2cMemoryReadRequest i2c_memory_read = 7;
+    I2cMemoryWriteRequest i2c_memory_write = 8;
+
   }
 }
 
 message ChimeraV2Response {
   oneof payload {
+    // GPIO.
     GpioReadResponse gpio_read = 1;
     GpioWriteResponse gpio_write = 2;
+
+    // ADC.
     AdcReadResponse adc_read = 3;
+
+    // I2C.
+    I2cReadyResponse i2c_ready = 4;
+    I2cReceiveResponse i2c_receive = 5;
+    I2cTransmitResponse i2c_transmit = 6;
+    I2cMemoryReadResponse i2c_memory_read = 7;
+    I2cMemoryWriteResponse i2c_memory_write = 8;
   }
 }
