@@ -33,15 +33,22 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
       newDataPoint[signalName] = Math.floor(Math.random() * 100);
     });
 
+    //ERIK: KEEP forever -> removing filter
     setData((prevData) => {
-      const timeWindow = 30000; // 30 seconds in milliseconds
-      const cutoffTime = currentTime - timeWindow;
-      const filteredData = prevData.filter((d) => d.time >= cutoffTime);
-      return [...filteredData, newDataPoint];
+      // const timeWindow = 30000; // 30 seconds in milliseconds
+      // const cutoffTime = currentTime - timeWindow;
+      //const filteredData = prevData.filter((d) => d.time >= cutoffTime);
+      //return [...filteredData, newDataPoint];
+      return [...prevData, newDataPoint];
     });
   }, [currentTime, numericalSignals]);
 
   const colors = ["#ff4d4f", "#ffa940", "#36cfc9", "#597ef7", "#73d13d"];
+
+  //ERIK: defined set spacing for data points
+  const pixelPerDataPoint = 50;
+  //ERIK: dynamically readjust chartwidth based on number of data points
+  const chartWidth = Math.max(data.length * pixelPerDataPoint, 100);
 
   return (
     <div className="w-full h-64">
@@ -58,56 +65,56 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
           </div>
         ))}
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
-          <defs>
-            {numericalSignals.map((signalName, index) => (
-              <linearGradient
-                key={signalName}
-                id={`color${signalName}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor={colors[index % colors.length]}
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={colors[index % colors.length]}
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            ))}
-          </defs>
-          <XAxis
-            dataKey="time"
-            type="number"
-            domain={["dataMin", "dataMax"]}
-            hide
-          />
-          <YAxis />
-          <Tooltip
-            labelFormatter={(value) => new Date(value).toLocaleTimeString()}
-            formatter={(value, name) => [`${value}`, `${name}`]}
-          />
-          {numericalSignals.map((signalName, index) => (
-            <Area
-              key={signalName}
-              type="monotone"
-              dataKey={signalName}
-              stroke={colors[index % colors.length]}
-              fillOpacity={1}
-              fill={`url(#color${signalName})`}
-              isAnimationActive={true}
-              animationDuration={updateInterval}
+      {/* ERIK: removed responsivecontainer as it limited the growth of the chart, width grows when new data gets added now */}
+          <AreaChart width={chartWidth} height={256} data={data}>
+            <defs>
+              {numericalSignals.map((signalName, index) => (
+                <linearGradient
+                  key={signalName}
+                  id={`color${signalName}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor={colors[index % colors.length]}
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={colors[index % colors.length]}
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              ))}
+            </defs>
+            <XAxis
+              dataKey="time"
+              type="number"
+              domain={["dataMin", "dataMax"]}
+              hide
             />
-          ))}
-        </AreaChart>
-      </ResponsiveContainer>
+            <YAxis />
+            <Tooltip
+              labelFormatter={(value) => new Date(value).toLocaleTimeString()}
+              formatter={(value, name) => [`${value}`, `${name}`]}
+            />
+            {/* ERIK: removed animation */}
+            {numericalSignals.map((signalName, index) => (
+              <Area
+                key={signalName}
+                type="monotone"
+                dataKey={signalName}
+                stroke={colors[index % colors.length]}
+                fillOpacity={1}
+                fill={`url(#color${signalName})`}
+                isAnimationActive={false}
+                animationDuration={updateInterval}
+              />
+            ))}
+          </AreaChart>
     </div>
   );
 };
