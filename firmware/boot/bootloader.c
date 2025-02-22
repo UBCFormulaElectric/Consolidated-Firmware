@@ -157,8 +157,6 @@ void bootloader_init(void)
     // other MCUs.
     bootloader_boardSpecific_init();
 
-    io_canQueue_init();
-
     // bool was_software_reset = (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != 0);
     // bool is_boot_flag_set = boot_flag == 0x1;
     // bool jump_to_app      = !was_software_reset || is_boot_flag_set;
@@ -176,7 +174,6 @@ void bootloader_init(void)
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
 
-    // We are now officially going to the booter
     hw_can_init(&can);
     io_canQueue_init();
 }

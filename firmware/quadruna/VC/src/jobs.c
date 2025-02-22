@@ -25,7 +25,7 @@
 #include "io_telemMessage.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
-#include "io_cans.h"
+#include "io_canMsg.h"
 #include "io_bootHandler.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
