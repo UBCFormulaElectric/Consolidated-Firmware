@@ -121,5 +121,26 @@
                 "bits": 1
             }
         }
+    },
+    "AMK Setpoints 1 INVFR": {
+        "msg_id": 185,
+        "cycle_time": 5,
+        "signals": {
+            "AMK_Control": {
+                "bits": 16
+            },
+            "AMK_TargetVelocity": {
+                "bits": 16,
+                "signed": true
+            },
+            "AMK_TorqueLimitPositiv": {
+                "bits": 16,
+                "signed": true
+            },
+            "AMK_TorqueLimitNegativ": {
+                "bits": 16,
+                "signed": true
+            }
+        }
     }
 }
