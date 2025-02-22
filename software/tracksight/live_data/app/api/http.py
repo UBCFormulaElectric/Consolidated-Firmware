@@ -37,7 +37,7 @@ def get_signal_metadata():
 @api.route("/signal/<signal_name>", methods=["GET"])
 def get_cached_signals(signal_name: str):
     """
-    Gets the signal name data from the influx DB
+    Gets the signal name data (from the last 5 minutes) from the influx DB
     """
     # query for the signal on the CURRENT LIVE CAR_live for all data points in the last prev_time
     with influxdb_client.InfluxDBClient(

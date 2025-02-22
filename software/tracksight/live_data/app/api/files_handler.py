@@ -7,7 +7,6 @@ from logfs import LogFs, LogFsDiskFactory
 import psutil
 from logger import logger
 import sqlite3
-from candb import JsonCanParser
 
 sd_api = Blueprint('sd', __name__)
 
