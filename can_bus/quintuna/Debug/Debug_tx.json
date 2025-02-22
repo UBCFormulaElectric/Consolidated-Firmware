@@ -122,7 +122,7 @@
             }
         }
     },
-    "AMK Setpoints 1 INVFR": {
+    "AMK_Setpoints_1_INVFR": {
         "msg_id": 185,
         "cycle_time": 5,
         "signals": {
