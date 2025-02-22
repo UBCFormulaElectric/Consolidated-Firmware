@@ -11,12 +11,15 @@
 // Peripheral interfaces.
 #include "hw_adc.h"
 #include "hw_gpio.h"
+#include "hw_i2c.h"
 
 static const Gpio       **id_to_gpio;
 static const AdcChannel **id_to_adc;
+static const I2cBus      *id_to_i2c;
 
-pb_size_t gpio_net_name_tag = 0;
-pb_size_t adc_net_name_tag  = 0;
+pb_size_t gpio_net_name_tag = f4dev_GpioNetName_GPIO_NET_NAME_UNSPECIFIED;
+pb_size_t adc_net_name_tag  = f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED;
+pb_size_t i2c_net_name_tag  = f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED;
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 const uint16_t OUT_BUFFER_SIZE = 0xffff;
@@ -28,11 +31,15 @@ static pb_byte_t *out_buffer = NULL;
 static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 {
     if (gpio_net_name_tag != net_name->which_name)
+    {
         LOG_ERROR("Chimera: Expected GPIO net name with tag %d, got %d", gpio_net_name_tag, net_name->which_name);
+        return NULL;
+    }
 
     if (net_name->which_name == GpioNetName_f4dev_net_name_tag)
         return id_to_gpio[net_name->name.f4dev_net_name];
 
+    LOG_ERROR("Chimera: Received GPIO pin from unsupported board.");
     return NULL;
 }
 
@@ -40,12 +47,32 @@ static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 {
     if (adc_net_name_tag != net_name->which_name)
+    {
         LOG_ERROR("Chimera: Expected ADC net name with tag %d, got %d", adc_net_name_tag, net_name->which_name);
+        return NULL;
+    }
 
     if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
         return id_to_adc[net_name->name.f4dev_net_name];
 
+    LOG_ERROR("Chimera: Received ADC channel from unsupported board.");
     return NULL;
+}
+
+// Convert a given I2C to an I2C bus.
+static I2cBus io_chimera_v2_getI2c(const I2cNetName *net_name)
+{
+    if (adc_net_name_tag != net_name->which_name)
+    {
+        LOG_ERROR("Chimera: Expected I2C net name with tag %d, got %d", i2c_net_name_tag, net_name->which_name);
+        return 0;
+    }
+
+    if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
+        return id_to_i2c[net_name->name.f4dev_net_name];
+
+    LOG_ERROR("Chimera: Received I2C bus from unsupported board.");
+    return 0;
 }
 
 // Handle an rpc message.
@@ -56,7 +83,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     pb_istream_t     content_stream = pb_istream_from_buffer(content, length);
     if (!pb_decode(&content_stream, ChimeraV2Request_fields, &request))
     {
-        LOG_ERROR("Chimera: Error decoding chimera message stream");
+        LOG_ERROR("Chimera: Error decoding chimera message stream.");
         return;
     }
 
@@ -93,6 +120,20 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         response.which_payload          = ChimeraV2Response_adc_read_tag;
         response.payload.adc_read.value = value;
     }
+    else if (request.which_payload == ChimeraV2Request_i2c_ready_tag)
+    {
+        // I2C ready check.
+        const I2cBus bus    = io_chimera_v2_getI2c(&request.payload.i2c_ready.net_name);
+        I2cDevice    device = { .bus            = bus,
+                                .target_address = (uint8_t)request.payload.i2c_ready.device_address,
+                                .timeout_ms     = request.payload.i2c_ready.timeout_ms };
+
+        bool ready = hw_i2c_isTargetReady(&device);
+
+        // Format response.
+        response.which_payload           = ChimeraV2Response_i2c_ready_tag;
+        response.payload.i2c_ready.ready = ready;
+    }
     else
     {
         LOG_WARN("Chimera: Unsupported request with tag %d received.", request.which_payload);
@@ -102,7 +143,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     pb_ostream_t out_stream = pb_ostream_from_buffer(out_buffer, OUT_BUFFER_SIZE);
     if (!pb_encode(&out_stream, ChimeraV2Response_fields, &response))
     {
-        LOG_ERROR("Chimera: Error encoding chimera message output");
+        LOG_ERROR("Chimera: Error encoding chimera message output.");
         return;
     }
     uint16_t response_data_size = (uint16_t)out_stream.bytes_written;
@@ -117,7 +158,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     memcpy(&response_packet[2], out_buffer, response_data_size);
 
     // Transmit.
-    LOG_INFO("Chimera: Sending response packet of size %d", response_packet_size);
+    LOG_INFO("Chimera: Sending response packet of size %d.", response_packet_size);
     LOG_INFO("Chimera: Response packet:");
     for (int i = 0; i < response_packet_size; i += 1)
         LOG_PRINTF("%02x ", response_packet[i]);
@@ -127,20 +168,28 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
-void io_chimera_v2_main(const Gpio *gpio_conf[], const AdcChannel *adc_conf[], pb_size_t gpio_tag, pb_size_t adc_tag)
+void io_chimera_v2_main(
+    pb_size_t         gpio_tag,
+    const Gpio       *gpio_conf[],
+    pb_size_t         adc_tag,
+    const AdcChannel *adc_conf[],
+    pb_size_t         i2c_tag,
+    const I2cBus      i2c_conf[])
 {
     // Set tags.
     gpio_net_name_tag = gpio_tag;
     adc_net_name_tag  = adc_tag;
+    i2c_net_name_tag  = i2c_tag;
 
     // Store adc and gpio tables.
     id_to_gpio = gpio_conf;
     id_to_adc  = adc_conf;
+    id_to_i2c  = i2c_conf;
 
     // If usb is not connected, skip Chimera.
     if (!hw_usb_checkConnection())
     {
-        LOG_INFO("Chimera: Skipping Chimera - USB not plugged in");
+        LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
         return;
     }
 
@@ -157,7 +206,7 @@ void io_chimera_v2_main(const Gpio *gpio_conf[], const AdcChannel *adc_conf[], p
         // Get length bytes.
         uint8_t length_bytes[2] = { 0, 0 };
         if (!hw_usb_receive(length_bytes, 2))
-            LOG_ERROR("Chimera: Error receiving length bytes");
+            LOG_ERROR("Chimera: Error receiving length bytes.");
 
         // Compute length (little endian).
         uint16_t low    = (uint16_t)length_bytes[0];

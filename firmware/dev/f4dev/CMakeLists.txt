@@ -17,6 +17,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
 )
 
@@ -51,6 +52,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_sd.c"
             "stm32f4xx_ll_sdmmc.c"
             "stm32f4xx_hal_i2c.c"
+            "stm32f4xx_hal_i2c_ex.c"
             "stm32f4xx_hal_pcd.c"
             "stm32f4xx_hal_pcd_ex.c"
             "stm32f4xx_ll_usb.c"
