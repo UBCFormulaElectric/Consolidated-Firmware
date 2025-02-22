@@ -303,11 +303,6 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT reset!");
 
-    // Re-enable watchdog.
-    __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-
     // Start DMA/TIM3 for the ADC.
     hw_adcs_chipsInit();
 

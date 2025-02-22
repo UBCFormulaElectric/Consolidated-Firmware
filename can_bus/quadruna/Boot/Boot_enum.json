@@ -2,7 +2,6 @@
     "BootStatus": {
         "BOOT_STATUS_APP_VALID": 0,
         "BOOT_STATUS_APP_INVALID": 1,
-        "BOOT_STATUS_NO_APP": 2,
-        "BOOT_STATUS_CAN_START": 3
+        "BOOT_STATUS_NO_APP": 2
     }
 }
