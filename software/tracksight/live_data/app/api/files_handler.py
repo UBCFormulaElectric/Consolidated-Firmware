@@ -7,6 +7,7 @@ from logfs import LogFs, LogFsDiskFactory
 import psutil
 from logger import logger
 import sqlite3
+from candb import JsonCanParser
 
 sd_api = Blueprint('sd', __name__)
 
@@ -62,7 +63,6 @@ def list_files_in_card(sd_device: str):
 	"""
 	sd_card = find_sd_card(sd_device)
 	# TODO can you get important metadata for the partitions?
-	# is this the correct block_size and block_counts? 
 	logfs = create_logfs(sd_card.mountpoint)
 	files: list[str] = logfs.list_dir()
 	return [file for file in files if file not in ["/bootcount.txt"]]
@@ -90,11 +90,11 @@ def dump_file(sd_device: str, file_id: str):
 
 	# finally, add the file to the historical sqlite db
 	with sqlite3.connect("historical.db") as historical_db:
-		historical_db.execute("INSERT INTO files (file_name, commit_sha, start_iso_time, end_iso_time) VALUES (:file_name, :commit_sha, :start_iso_time, :end_iso_time)", {
+		historical_db.execute("INSERT INTO files (file_name, commit_sha, start_iso_time, duration_iso) VALUES (:file_name, :commit_sha, :start_iso_time, :duration_iso)", {
 			"file_name": "",
 			"commit_sha": "",
 			"start_iso_time": "",
-			"end_iso_time": ""
+			"duration_iso": ""
 		})
 		historical_db.commit()
 

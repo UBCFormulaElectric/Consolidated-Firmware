@@ -5,8 +5,10 @@ historical_api = Blueprint("historical", __name__)
 with sqlite3.connect("historical.db") as _hdb:
 	# check if a table called files exists, if not create it
 	_hdb.execute(
-		"CREATE TABLE IF NOT EXISTS files (file_name TEXT PRIMARY KEY, commit_sha TEXT, start_iso_time TEXT end_iso_time TEXT)"
+		"CREATE TABLE IF NOT EXISTS files (file_name TEXT, commit_sha TEXT, start_iso_time TEXT PRIMARY KEY, duration_iso TEXT)"
 	)
+	_hdb.execute("CREATE UNIQUE INDEX IF NOT EXISTS file_name ON files(file_name);")
+	_hdb.execute('pragma journal_mode=wal')
 	_hdb.commit()
 
 # Viewing Historical Data
@@ -46,6 +48,7 @@ def delete_historical_file(file_name: str):
 	Deletes a file from historical files
 	"""
 	# remember to remove all cached files as well
+	# remmeber to remove the signal values from the influx as well
 	# remove file from db
 	with sqlite3.connect("historical.db") as historical_db:
 		try:

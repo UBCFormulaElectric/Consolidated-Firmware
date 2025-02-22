@@ -7,14 +7,12 @@ TODO: Implement proper error handling for things like no data available.
 TODO: explore configuration options for the database
 link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 """
-
-import os
 from threading import Thread
 from queue import Queue
 import datetime
 
 # types
-from typing import LiteralString, NoReturn
+from typing import NoReturn
 from urllib3.exceptions import NewConnectionError
 from dataclasses import dataclass
 
@@ -24,30 +22,25 @@ from influxdb_client.client.write_api import WriteOptions, WriteType
 
 # ours
 from logger import logger
+from env import INFLUX_ORG, INFLUX_BUCKET, INFLUX_TOKEN, INFLUX_URL, CAR_NAME
 
-_dockerized: bool = os.environ.get("DOCKERIZED") == "1"
-_INFLUX_BUCKET: str = "can_data"
-_INFLUX_URL: LiteralString = f"http://{'influx' if _dockerized else 'localhost'}:8086"
-_INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG")
-_INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN")
-_CAR_NAME: str | None = os.environ.get("CAR_NAME")
-if _INFLUX_ORG is None:
+if INFLUX_ORG is None:
 	raise Exception("No Influx Organization Provided")
-if _INFLUX_TOKEN is None:
+if INFLUX_TOKEN is None:
 	raise Exception("No Token Provided for Influx")
-if _CAR_NAME is None:
+if CAR_NAME is None:
 	raise Exception("No Car Name is Provided")
 
 def setup():
 	# Checks if the vehicle bucket exists, and if not, creates it
-	logger.info(f"Connecting to InfluxDB database at '{_INFLUX_URL}' with token '{_INFLUX_TOKEN}'.")
+	logger.info(f"Connecting to InfluxDB database at '{INFLUX_URL}' with token '{INFLUX_TOKEN}'.")
 	with influxdb_client.InfluxDBClient(
-		url=_INFLUX_URL, token=_INFLUX_TOKEN, org=_INFLUX_ORG, timeout=100_000_000, debug=False
+		url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, timeout=100_000_000, debug=False
 	) as _client:
 		try:
 			# creates the can_data bucket if it doesn't exist yet
-			if _client.buckets_api().find_bucket_by_name(bucket_name=_INFLUX_BUCKET) is None:
-				_client.buckets_api().create_bucket(bucket_name=_INFLUX_BUCKET)
+			if _client.buckets_api().find_bucket_by_name(bucket_name=INFLUX_BUCKET) is None:
+				_client.buckets_api().create_bucket(bucket_name=INFLUX_BUCKET)
 		except NewConnectionError:
 			raise Exception("InfluxDB is not responding. Have you started the influx database docker container?")
 
@@ -61,7 +54,7 @@ influx_queue = Queue()
 
 def _log_influx() -> NoReturn:
 	with influxdb_client.InfluxDBClient(
-		url=_INFLUX_URL, token=_INFLUX_TOKEN, org=_INFLUX_ORG, debug=False
+		url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=False
 	) as _client:
 		with _client.write_api(write_options=WriteOptions(
 			write_type=WriteType.synchronous, batch_size=10
@@ -69,10 +62,10 @@ def _log_influx() -> NoReturn:
 			while True:
 				signal: InfluxCanMsg = influx_queue.get()
 				write_api.write(
-					bucket=_INFLUX_BUCKET,
-					org=_INFLUX_ORG,
+					bucket=INFLUX_BUCKET,
+					org=INFLUX_ORG,
 					record={
-						"measurement": f"{_CAR_NAME}_live",
+						"measurement": f"{CAR_NAME}_live",
 						"fields": {signal.name: signal.value},
 						"time": signal.timestamp
 					},

@@ -52,7 +52,7 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     response.raise_for_status()
 
     # Filter for files in the specified folder
-    files = [file for file in response.json().get("tree", []) if file["path"].startswith(folder_path) and file["type"] == "blob"]
+    files: list[str] = [file for file in response.json().get("tree", []) if file["path"].startswith(folder_path) and file["type"] == "blob"]
 
     # DISK MUTATIONS HERE AND BELOW
     if not os.path.exists(save_dir):
