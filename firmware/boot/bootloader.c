@@ -17,7 +17,8 @@
 #include "hw_utils.h"
 #include "hw_crc.h"
 #include "hw_hal.h"
-#include "io_can.h"
+#include "hw_can.h"
+#include <assert.h>
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
@@ -174,6 +175,10 @@ void bootloader_init(void)
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
+
+    // We are now officially going to the booter
+    hw_can_init(&can);
+    io_canQueue_init();
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -262,7 +267,7 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        io_can_transmit(&can, &tx_msg);
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 

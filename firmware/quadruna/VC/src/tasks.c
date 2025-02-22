@@ -16,7 +16,6 @@
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
-#include "io_cans.h"
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 
@@ -24,6 +23,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdogConfig.h"
 #include "hw_adcs.h"
+#include "hw_cans.h"
 
 void tasks_preInit(void)
 {
@@ -78,6 +78,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_adcs_chipsInit();
+    hw_can_init(&can1); // cast const away in initialization; no mut :(
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).
     HAL_ADC_Start_IT(&hadc3);
@@ -175,7 +176,8 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        jobs_runCanTx_tick();
+        CanMsg tx_msg = io_canQueue_popTx();
+        hw_can_transmit(&can1, &tx_msg);
     }
 }
 
@@ -234,28 +236,4 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_sbgEllipse_msgRxCallback();
     }
-}
-
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
-{
-    UNUSED(RxFifo0ITs);
-    CanMsg rx_msg;
-
-    assert(hfdcan == &hfdcan1);
-    if (!io_can_receive(&can1, FDCAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
-
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
-{
-    UNUSED(RxFifo1ITs);
-    CanMsg rx_msg;
-
-    assert(hfdcan == &hfdcan1);
-    if (!io_can_receive(&can1, FDCAN_RX_FIFO1, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
 }
