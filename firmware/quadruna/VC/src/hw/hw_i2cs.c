@@ -1,4 +1,6 @@
 #include "hw_i2cs.h"
-#include "main.h"
 
-const I2cInterface imu = { .i2c_handle = &hi2c2, .target_address = 0x6B, .timeout_ms = 100 };
+I2C_HandleTypeDef *i2c_bus_handles[HW_I2C_BUS_COUNT] = {
+    [HW_I2C_BUS_1] = &hi2c1,
+    [HW_I2C_BUS_2] = &hi2c2,
+};

@@ -214,6 +214,9 @@
       "EllipseComStatusBitmask": {
         "bits": 32
       },
+      "EllipseErrorCode": {
+        "enum": "EllipseErrorCode"
+      },
       "EkfSolutionMode": {
         "enum": "VcEkfStatus"
       }

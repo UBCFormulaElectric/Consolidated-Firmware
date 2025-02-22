@@ -1,8 +1,17 @@
 #include "bootloader.h"
 #include <string.h>
 #include <stdint.h>
+#include <assert.h>
 #include "hw_flash.h"
 #include "hw_hal.h"
+#include "hw_can.h"
+
+extern CanHandle can;
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    assert(hfdcan == can.hcan);
+    return &can;
+}
 
 #define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t))
 

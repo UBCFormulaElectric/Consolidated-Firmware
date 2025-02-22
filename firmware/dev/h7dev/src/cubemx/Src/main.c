@@ -30,13 +30,15 @@
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
-#include "io_can.h"
+#include "hw_can.h"
 #include "io_canQueue.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
 #include "hw_gpio.h"
 #include "io_log.h"
 #include "hw_utils.h"
+
+#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -129,8 +131,15 @@ void        runCanRxTask(void *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */ CanHandle can = { .hcan = &hfdcan2 };
-SdCard                            sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
+/* USER CODE BEGIN 0 */
+CanHandle        can = { .hcan = &hfdcan2 };
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    assert(hfdcan == can.hcan);
+    return &can;
+}
+
+SdCard sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
 
 Gpio sd_present = {
     .pin  = GPIO_PIN_8,
@@ -181,7 +190,7 @@ int main(void)
     // __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_hardFaultHandler_init();
-    io_can_init(&can);
+    hw_can_init(&can);
     io_canQueue_init();
 
     if (sd_inited)
@@ -529,34 +538,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-static void can_msg_received_callback(CanMsg *rx_msg)
-{
-    // TODO: check gpio present
-    static uint32_t id = 0;
-    rx_msg->std_id     = id;
-    id++;
-    io_canQueue_pushRx(rx_msg);
-    io_canLogging_loggingQueuePush(rx_msg);
-}
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
-{
-    UNUSED(RxFifo0ITs);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    can_msg_received_callback(&rx_msg);
-}
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
-{
-    UNUSED(RxFifo1ITs);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    can_msg_received_callback(&rx_msg);
-}
-
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_runDefaultTask */
@@ -656,6 +637,14 @@ void runCanRxTask(void *argument)
     {
         // CanMsg msg;
         // io_can_popRxMsgFromQueue(&msg);
+
+        // NOTE: this is copied from the previous code, idk what it does.
+        // TODO: check gpio present
+        // static uint32_t id = 0;
+        // rx_msg->std_id     = id;
+        // id++;
+        // io_canLogging_loggingQueuePush(rx_msg);
+
         io_canLogging_recordMsgFromQueue();
         write_num++;
         count++;

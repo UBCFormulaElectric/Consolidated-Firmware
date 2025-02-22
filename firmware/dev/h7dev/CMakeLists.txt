@@ -8,7 +8,6 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
@@ -17,6 +16,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
 )
 list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/sysmem.c")
 
