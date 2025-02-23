@@ -123,21 +123,57 @@
         }
     },
     "AMK_Setpoints_1_INVFR": {
-        "msg_id": 185,
+        "msg_id": 186,
         "cycle_time": 5,
         "signals": {
-            "AMK_Control": {
-                "bits": 16
-            },
+			"AMK_bReserve": {
+				"start_bit": 0,
+				"bits" : 8
+			},
+			"AMK_bSystemReady": {
+				"start_bit": 8,
+				"bits" : 1
+			},
+			"AMK_bError": {
+				"start_bit": 9,
+				"bits" : 1
+			},
+			"AMK_bWarn": {
+				"start_bit": 10,
+				"bits" : 1
+			},
+			"AMK_bQuitDcOn": {
+				"start_bit": 11,
+				"bits" : 1
+			},
+			"AMK_bDcOn": {
+				"start_bit": 12,
+				"bits" : 1
+			},
+			"AMK_bQuitInverterOn": {
+				"start_bit": 13,
+				"bits" : 1
+			},
+			"AMK_bInverterOn": {
+				"start_bit": 14,
+				"bits" : 1
+			},
+			"AMK_bDerating": {
+				"start_bit": 15,
+				"bits" : 1
+			},
             "AMK_TargetVelocity": {
+                "start_bit" : 16,
                 "bits": 16,
                 "signed": true
             },
             "AMK_TorqueLimitPositiv": {
+                "start_bit" : 32,
                 "bits": 16,
                 "signed": true
             },
             "AMK_TorqueLimitNegativ": {
+                "start_bit" : 48,
                 "bits": 16,
                 "signed": true
             }
