@@ -1,4 +1,21 @@
 {
+  "Example": {
+    "msg_id": 200,
+    "bus": ["bus1", "bus2"],
+    "cycle_time": 100,
+    "description": "VC vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 2,
+        "signed": true,
+        "scale": 3.14
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  },
   "Vitals": {
     "msg_id": 200,
     "bus": ["bus1", "bus2"],

@@ -13,12 +13,13 @@ tx_signal_schema = Schema(
     # 4 options to define a signal"s representation...
     Or(
         {
-            # Just bits, and signal will be a uint of X bits, i.e. scale=1, offset=0, min=0, max=(2^bits-1)
+            # Just bits, and signal will be a uint of X bits, i.e. offset=0, min=0, max=(2^bits-1)
             "bits": int,
             Optional("unit"): str,
             Optional("start_value"): int,
             Optional("start_bit"): int,
             Optional("signed"): bool,
+            Optional("scale"): Or(int, float),
         },
         {
             # Bits/min/max, and signal will range from min to max in X bits, scale/offset will be calculated accordingly
@@ -96,8 +97,7 @@ rx_schema = Schema({"messages": [str]})
 """
 Enum file schema
 """
-enum_schema = Schema(Or({str: {str: int}}, {})
-                     )  # If the node doesn"t define any enums
+enum_schema = Schema(Or({str: {str: int}}, {}))  # If the node doesn"t define any enums
 
 """
 Bus file schema
