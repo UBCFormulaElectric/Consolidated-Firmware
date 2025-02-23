@@ -41,25 +41,21 @@
 			},
 			"AMK_ActualVelocity": {
 				"start_bit" : 16,
-				"resolution": 0.01,
-				"min" : 0,
-				"max" : 300,
-				"unit" : "RPM",
+				"bits" : 16,
+				"signed" : true,
 				"start_value": 0
 			},
 			"AMK_TorqueCurrent": {
 				"start_bit" : 32,
-				"resolution": 0.1,
-				"min" : 0,
-				"max" : 3000,
+				"bits" : 16,
+				"signed" : true,
 				"unit" : "A",
 				"start_value": 0
 			},
 			"AMK_MagnetizingCurrent": {
 				"start_bit" : 48,
-				"resolution": 0.1,
-				"min" : 0,
-				"max" : 3000,
+				"bits" : 16,
+				"signed" : true,
 				"unit" : "A",
 				"start_value": 0
 			}
