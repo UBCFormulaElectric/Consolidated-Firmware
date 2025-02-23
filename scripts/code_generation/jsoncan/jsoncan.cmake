@@ -7,7 +7,7 @@
 # Returns
 # CAN_SRCS - List of generated source files
 # CAN_INCLUDE_DIRS - List of include directories
-function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
+function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_DIR)
     file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
     message("  📚 [jsoncan.cmake, jsoncan_source()] Registering JSONCAN sources for ${JSONCAN_PY_BOARD} at ${OUTPUT_DIR_RELATIVE} for ${CAR}")
     set(APP_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/app/app_canTx.c")
@@ -25,11 +25,8 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
     set(APP_CAN_DATA_CAPTURE_SRC_OUTPUT "${OUTPUT_DIR}/app/app_canDataCapture.c")
     set(APP_CAN_DATA_CAPTURE_HEADER_OUTPUT "${OUTPUT_DIR}/app/app_canDataCapture.h")
 
-    set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
-    set(DBC_OUTPUT ${CAN_DIR}/dbcs/${CAR}.dbc)
-    set(CAN_JSON_DIR ${CAN_DIR}/${CAR})
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)
-    file(GLOB_RECURSE CAN_JSON_PY_SRCS ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.py)
+    file(GLOB_RECURSE CAN_JSON_PY_SRCS ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.py ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.j2)
 
     add_custom_command(
             OUTPUT ${APP_CAN_TX_SRC_OUTPUT}
@@ -54,7 +51,7 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
             --dbc_output ${DBC_OUTPUT}
             DEPENDS ${CAN_JSON_SRCS} ${CAN_JSON_PY_SRCS}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
-    )  
+    )
 
 
     IF (${USE_IO})
@@ -87,7 +84,7 @@ endfunction()
 
 
 # post build function to calculate bus load should print the bus load
-# as we are planning to change the bitrates in the future so we can add bit rate as a parameter here 
+# as we are planning to change the bitrates in the future so we can add bit rate as a parameter here
 
 function(log_bus_load CAR)
     # Define CAN directory based on repository root directory
@@ -105,6 +102,3 @@ endfunction()
 
 log_bus_load("quadruna")
 log_bus_load("quintuna")
-
-
-

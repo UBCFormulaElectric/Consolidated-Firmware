@@ -104,7 +104,8 @@ class CanSignal:
     offset: float  # Offset for encoding/decoding
     min_val: float  # Min allowed value
     max_val: float  # Max allowed value
-    start_val: Union[int, float]  # Default starting value, None if doesn't specify one
+    # Default starting value, None if doesn't specify one
+    start_val: Union[int, float]
     enum: Union[CanEnum, None]  # Value table, None if doesn't specify one
     unit: str  # Signal's unit
     signed: bool  # Whether or not signal is represented as signed or unsigned
