@@ -42,17 +42,6 @@ float io_brake_getFrontPressurePsi(void);
 bool io_brake_frontPressureSensorOCSC(void);
 
 /**
- * Get the pressure in psi from the [REAR BRAKE PRESSURE SENSOR]
- * @return The pressure of the secondary brake pressure sensor in psi
- */
-float io_brake_getRearPressurePsi(void);
-
-/**
- * @return whether the rear pressure sensor is open or short circuit
- */
-bool io_brake_rearPressureSensorOCSC(void);
-
-/**
  * @return the hardware overcurrent/short-circuit status for the brake system
  */
 bool io_brake_hwOCSC(void);
