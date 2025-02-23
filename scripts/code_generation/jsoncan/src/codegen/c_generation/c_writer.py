@@ -5,8 +5,8 @@ Provides an API for writing C code, used to generate all C CAN modules.
 from abc import ABC
 from typing import Optional
 
-from .c_config import *
 from ...can_database import *
+from .c_config import *
 
 INDENT_4_SPACES = "    "
 PREAMBLE = """\
@@ -21,11 +21,13 @@ class CModule(ABC):
     ABC for a C module (i.e. pair of header .h and source .c files)
     """
 
-    def header(self) -> str:
-        ...
+    def header(self) -> str: ...
 
-    def source(self) -> str:
-        ...
+    def source(self) -> str: ...
+
+    def header_template(self): ...
+
+    def source_template(self): ...
 
 
 @dataclass
