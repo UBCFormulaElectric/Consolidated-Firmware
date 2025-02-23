@@ -11,7 +11,7 @@ from dataclasses import dataclass
 # ours
 from logger import logger
 from subtable import SUB_TABLE
-from candb import can_db, fetch_jsoncan_configs
+from candb import live_can_db, fetch_jsoncan_configs
 
 from api.socket import sio
 from tasks.influx_logger import influx_queue, InfluxCanMsg # for passing the message along
@@ -50,13 +50,13 @@ def _send_data() -> NoReturn:
 		if canmsg.can_id % 100 == 6: # i.e. the canid is of the form x06, which means it is a commit info message
 			try:
 				config_path = fetch_jsoncan_configs(canmsg.can_value.hex())
-				can_db.update_path(config_path) # TODO not working yet
+				live_can_db.update_path(config_path) # TODO not working yet
 			except HTTPError:
 				logger.critical(f"Could not fetch new commit information for quintuna at commit {canmsg.can_value.hex()}")
 			finally:
 				continue # do not continue to parse this message
 
-		for signal in can_db.unpack(canmsg.can_id, canmsg.can_value):
+		for signal in live_can_db.unpack(canmsg.can_id, canmsg.can_value):
 			for sid, signal_names in SUB_TABLE.items():
 				if signal["name"] in signal_names:
 					try:
