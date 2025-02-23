@@ -96,7 +96,8 @@ rx_schema = Schema({"messages": [str]})
 """
 Enum file schema
 """
-enum_schema = Schema(Or({str: {str: int}}, {}))  # If the node doesn"t define any enums
+enum_schema = Schema(Or({str: {str: int}}, {})
+                     )  # If the node doesn"t define any enums
 
 """
 Bus file schema
