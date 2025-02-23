@@ -13,13 +13,6 @@ void io_suspension_init(const SuspensionConfig *suspension_config)
     config = suspension_config;
 }
 
-// Placeholder conversion: Maps ADC voltage to travel distance.
-// TODO: Implement proper conversion for suspension travel.
-float travelFromVoltage(float voltage)
-{
-    return voltage;
-}
-
 float io_suspension_getLeftTravel(void)
 {
     return hw_adc_getVoltage(config->front_left_suspension); // Return left suspension travel based on the ADC voltage.

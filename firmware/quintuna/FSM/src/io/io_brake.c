@@ -53,18 +53,7 @@ bool io_brake_frontPressureSensorOCSC(void)
     return pressureSensorOCSC(front_pressure_voltage);
 }
 
-float io_brake_getRearPressurePsi(void)
-{
-    return pressureFromVoltage(hw_adc_getVoltage(config->rear_brake)); // Get the rear brake sensor voltage and convert to pressure in Psi
-}
-
-bool io_brake_rearPressureSensorOCSC(void)
-{
-    float rear_pressure_voltage = hw_adc_getVoltage(config->rear_brake);
-    return pressureSensorOCSC(rear_pressure_voltage);
-}
-
-bool io_brake_hwOCSC(void)
+bool io_brake_hwOCSC(void) // idk really know wot this does
 {
     return hw_gpio_readPin(config->brake_hardware_ocsc); // Return the hardware overcurrent/short-circuit status for the brake system
 }

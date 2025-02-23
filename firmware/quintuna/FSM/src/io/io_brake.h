@@ -8,7 +8,6 @@
 
 typedef struct
 {
-  const AdcChannel *rear_brake;
   const AdcChannel *front_brake;
   const Gpio       *brake_hardware_ocsc;
   const Gpio       *nbspd_brake_pressed;
