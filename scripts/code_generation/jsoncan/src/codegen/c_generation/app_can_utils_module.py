@@ -1,5 +1,7 @@
 import jinja2 as j2
 
+
+from .c_writer import *
 from .utils import load_template
 
 
@@ -85,5 +87,3 @@ def signal_placement_comment(msg: CanMessage):
 
     signals = list(reversed(signals))
     return f'|{"|".join("".join(signals[i*8:(i+1)*8]) for i in range(0, 8))}|'
-
-
