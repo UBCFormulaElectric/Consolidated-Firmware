@@ -108,14 +108,12 @@ class JsonCanParser:
             node_obj.tx_msgs = tx_msgs
             node_obj.alerts = []
 
-
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         self._parse_json_rx_data(can_data_dir, node, alerts_messages)
 
         # find all message transmitting on one bus but received in another bus
         reroute = self._find_reroute(self._messages.values())
         self._reroute = reroute
-
 
     def _parse_json_bus_data(self, can_data_dir) -> List[CanBusConfig]:
         """
@@ -291,16 +289,16 @@ class JsonCanParser:
             # add rx nodes to alert messages
             # rx nodes are all node on the same bus
             for tx_bus in tx_buses:
-                tx_bus_obj = self._bus_cfg[tx_bus] # get the bus object
-                for rx_node in tx_bus_obj.nodes: # iterate all nodes on the bus
+                tx_bus_obj = self._bus_cfg[tx_bus]  # get the bus object
+                for rx_node in tx_bus_obj.nodes:  # iterate all nodes on the bus
                     if rx_node == tx_node:
                         continue
                     rx_node_obj = self._nodes[rx_node]
                     if alert.name not in rx_node_obj.rx_msgs:
                         rx_node_obj.rx_msgs.append(alert.name)
-                    if rx_node not in alert.rx_nodes: # add the tx node to the rx nodes
+                    if rx_node not in alert.rx_nodes:  # add the tx node to the rx nodes
                         alert.rx_nodes.append(rx_node)
-            
+
         for node, node_obj in self._nodes.items():
             node_rx_json_data = self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
             node_rx_msgs = node_rx_json_data["messages"]
@@ -318,10 +316,9 @@ class JsonCanParser:
 
                 # add the message to the node's rx messages
                 rx_node = self._nodes[node]
-                if(rx_msg.name not in rx_node.rx_msgs):
+                if rx_msg.name not in rx_node.rx_msgs:
                     rx_node.rx_msgs.append(rx_msg.name)
 
-        
     def _find_node_bus(self, tx_msg: Set[CanMessage]) -> Set[CanBusConfig]:
         """
         Find the all the bus that a node is transmitting on.
@@ -525,7 +522,7 @@ class JsonCanParser:
             else:
                 max_val = max_uint_for_bits(bits)
                 min_val = 0
-            scale = 1
+            scale = self._get_optional_value(signal_json_data, "scale", 1)[0]
             offset = 0
 
         # Otherwise, payload data was not inputted correctly
