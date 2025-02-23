@@ -1,7 +1,7 @@
 {
   "Vitals": {
-    "bus": ["Can"],
     "msg_id": 100,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Vitals message for the BMS.",
     "signals": {
@@ -14,8 +14,8 @@
     }
   },
   "AlertsContext": {
-    "bus": ["Can"],
     "msg_id": 104,
+    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Context info for BMS alerts",
     "signals": {
@@ -37,8 +37,8 @@
     }
   },
   "ImdStatus": {
-    "bus": ["Can"],
     "msg_id": 105,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS IMD Messages",
     "signals": {
@@ -72,8 +72,8 @@
     }
   },
   "ImdData": {
-    "bus": ["Can"],
     "msg_id": 106,
+    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "BMS IMD Measurement Data Values",
     "signals": {
@@ -100,8 +100,8 @@
     }
   },
   "Charger": {
-    "bus": ["Can"],
     "msg_id": 107,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
@@ -111,8 +111,8 @@
     }
   },
   "BrusaControls": {
-    "bus": ["Can"],
     "msg_id": 1560,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Flags and parameters for controlling the BRUSA charger",
     "signals": {
@@ -145,8 +145,8 @@
     }
   },
   "OkStatuses": {
-    "bus": ["Can"],
     "msg_id": 111,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS OK status flags",
     "signals": {
@@ -171,8 +171,8 @@
     }
   },
   "Contactors": {
-    "bus": ["Can"],
     "msg_id": 112,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS AIR state statuses",
     "signals": {
@@ -188,8 +188,8 @@
     }
   },
   "CellTemperatures": {
-    "bus": ["Can"],
     "msg_id": 120,
+    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "BMS Cell Temperature readings",
     "signals": {
@@ -208,8 +208,8 @@
     }
   },
   "VoltageAndChargeStats": {
-    "bus": ["Can"],
     "msg_id": 121,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS Cell Voltage readings",
     "signals": {
@@ -243,8 +243,8 @@
     }
   },
   "CellStats": {
-    "bus": ["Can"],
     "msg_id": 123,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS Cell Stats",
     "signals": {
@@ -291,8 +291,8 @@
     }
   },
   "TractiveSystem": {
-    "bus": ["Can"],
     "msg_id": 130,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS Tractive System Data",
     "signals": {
@@ -326,8 +326,8 @@
     }
   },
   "CommitInfo": {
-    "bus": ["Can"],
     "msg_id": 140,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS Current Running Git Commit Info",
     "signals": {
@@ -339,40 +339,37 @@
       }
     }
   },
-  "OWC_Segment0to2_Status": {
-    "bus": ["Can"],
+  "OWC_Segment0to1_Status": {
     "msg_id": 141,
+    "bus": ["Can"],
     "cycle_time": 100,
-    "description": "Open Wire Check Segment 0 to 2 Status",
+    "description": "Open Wire Check Segment 0 to 1 Status",
     "signals": {
       "Segment0_OWC_Cells_Status": {
         "bits": 16
       },
       "Segment1_OWC_Cells_Status": {
         "bits": 16
-      },
-      "Segment2_OWC_Cells_Status": {
-        "bits": 16
       }
     }
   },
-  "OWC_Segment3to4_Status": {
-    "bus": ["Can"],
+  "OWC_Segment2to3_Status": {
     "msg_id": 142,
+    "bus": ["Can"],
     "cycle_time": 100,
-    "description": "Open Wire Check Segment 3 to 4 Status",
+    "description": "Open Wire Check Segment 2 to 3 Status",
     "signals": {
-      "Segment3_OWC_Cells_Status": {
+      "Segment2_OWC_Cells_Status": {
         "bits": 16
       },
-      "Segment4_OWC_Cells_Status": {
+      "Segment3_OWC_Cells_Status": {
         "bits": 16
       }
     }
   },
   "BMSShdnNodeStatus": {
-    "bus": ["Can"],
     "msg_id": 143,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BMS Shutdown Node Status",
     "signals": {
