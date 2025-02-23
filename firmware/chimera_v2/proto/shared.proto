@@ -16,6 +16,7 @@ variables, so the following changes are made:
 */
 
 import "f4dev.proto";
+import "nanopb.proto";
 
 /* GPIOs */
 message GpioNetName {
@@ -86,14 +87,14 @@ message I2cReceiveRequest {
 }
 
 message I2cReceiveResponse {
-  bytes data = 1;
+  bytes data = 1 [(nanopb).max_size = 1024];
 }
 
 // I2C transmit data request/response.
 message I2cTransmitRequest {
   I2cNetName net_name = 1;
   uint32 device_address = 2;
-  bytes data = 3;
+  bytes data = 3 [(nanopb).max_size = 1024];
   uint32 timeout_ms = 4;
 }
 
@@ -111,7 +112,7 @@ message I2cMemoryReadRequest {
 }
 
 message I2cMemoryReadResponse {
-  bytes data = 1;
+  bytes data = 1 [(nanopb).max_size = 1024];
 }
 
 // I2C write memory request/response.
@@ -119,7 +120,7 @@ message I2cMemoryWriteRequest {
   I2cNetName net_name = 1;
   uint32 device_address = 2;
   uint32 memory_address = 3;
-  uint32 length = 4;
+  bytes data = 4 [(nanopb).max_size = 1024];
   uint32 timeout_ms = 5;
 }
 

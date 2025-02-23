@@ -10,6 +10,10 @@ cd $CHIMERA_V2_DIR
     # Clear old autogenned files.
     rm -rf ./proto_autogen/*
 
+    # Clone nanopb.proto options so that Python has access.
+    curl https://raw.githubusercontent.com/nanopb/nanopb/refs/heads/master/generator/proto/nanopb.proto \
+        > ./proto/nanopb.proto
+
     # For each proto file,
     for file in ./proto/*.proto
     do

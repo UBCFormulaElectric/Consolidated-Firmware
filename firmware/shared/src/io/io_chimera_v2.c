@@ -92,8 +92,11 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
 
     if (request.which_payload == ChimeraV2Request_gpio_read_tag)
     {
+        // Extract payload
+        GpioReadRequest *payload = &request.payload.gpio_read;
+
         // GPIO read.
-        const Gpio *gpio  = io_chimera_v2_getGpio(&request.payload.gpio_read.net_name);
+        const Gpio *gpio  = io_chimera_v2_getGpio(&payload->net_name);
         bool        value = hw_gpio_readPin(gpio);
 
         // Format response.
@@ -102,8 +105,11 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     }
     else if (request.which_payload == ChimeraV2Request_gpio_write_tag)
     {
+        // Extract payload
+        GpioWriteRequest *payload = &request.payload.gpio_write;
+
         // GPIO write.
-        const Gpio *gpio = io_chimera_v2_getGpio(&request.payload.gpio_write.net_name);
+        const Gpio *gpio = io_chimera_v2_getGpio(&payload->net_name);
         hw_gpio_writePin(gpio, request.payload.gpio_write.value);
 
         // Format response.
@@ -112,8 +118,11 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     }
     else if (request.which_payload == ChimeraV2Request_adc_read_tag)
     {
+        // Extract payload
+        AdcReadRequest *payload = &request.payload.adc_read;
+
         // ADC read.
-        const AdcChannel *adc_channel = io_chimera_v2_getAdc(&request.payload.adc_read.net_name);
+        const AdcChannel *adc_channel = io_chimera_v2_getAdc(&payload->net_name);
         float             value       = hw_adc_getVoltage(adc_channel);
 
         // Format response.
@@ -122,17 +131,105 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     }
     else if (request.which_payload == ChimeraV2Request_i2c_ready_tag)
     {
+        // Extract payload
+        I2cReadyRequest *payload = &request.payload.i2c_ready;
+
         // I2C ready check.
-        const I2cBus bus    = io_chimera_v2_getI2c(&request.payload.i2c_ready.net_name);
+        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
         I2cDevice    device = { .bus            = bus,
-                                .target_address = (uint8_t)request.payload.i2c_ready.device_address,
-                                .timeout_ms     = request.payload.i2c_ready.timeout_ms };
+                                .target_address = (uint8_t)payload->device_address,
+                                .timeout_ms     = payload->timeout_ms };
 
         bool ready = hw_i2c_isTargetReady(&device);
 
         // Format response.
         response.which_payload           = ChimeraV2Response_i2c_ready_tag;
         response.payload.i2c_ready.ready = ready;
+    }
+    else if (request.which_payload == ChimeraV2Request_i2c_transmit_tag)
+    {
+        // Extract payload
+        I2cTransmitRequest *payload = &request.payload.i2c_transmit;
+
+        // I2C ready check.
+        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
+        I2cDevice    device = { .bus            = bus,
+                                .target_address = (uint8_t)payload->device_address,
+                                .timeout_ms     = payload->timeout_ms };
+
+        bool success = hw_i2c_transmit(&device, payload->data.bytes, payload->data.size);
+
+        // Format response.
+        response.which_payload                = ChimeraV2Response_i2c_transmit_tag;
+        response.payload.i2c_transmit.success = success;
+    }
+    else if (request.which_payload == ChimeraV2Request_i2c_memory_write_tag)
+    {
+        // Extract payload
+        I2cMemoryWriteRequest *payload = &request.payload.i2c_memory_write;
+
+        // I2C ready check.
+        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
+        I2cDevice    device = { .bus            = bus,
+                                .target_address = (uint8_t)payload->device_address,
+                                .timeout_ms     = payload->timeout_ms };
+
+        bool success =
+            hw_i2c_memoryWrite(&device, (uint16_t)payload->memory_address, payload->data.bytes, payload->data.size);
+
+        // Format response.
+        response.which_payload                    = ChimeraV2Response_i2c_memory_write_tag;
+        response.payload.i2c_memory_write.success = success;
+    }
+    else if (request.which_payload == ChimeraV2Request_i2c_receive_tag)
+    {
+        // Extract payload
+        I2cReceiveRequest *payload = &request.payload.i2c_receive;
+
+        // I2C ready check.
+        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
+        I2cDevice    device = { .bus            = bus,
+                                .target_address = (uint8_t)payload->device_address,
+                                .timeout_ms     = payload->timeout_ms };
+
+        uint8_t data[payload->length];
+        bool    success = hw_i2c_receive(&device, data, (uint16_t)payload->length);
+        if (!success)
+            LOG_ERROR("Chimera: Failed to receive on I2C");
+
+        // Format response.
+        response.which_payload = ChimeraV2Response_i2c_receive_tag;
+
+        response.payload.i2c_receive.data.size = (pb_size_t)payload->length;
+        for (size_t i = 0; i < payload->length; i += 1)
+        {
+            response.payload.i2c_receive.data.bytes[i] = data[i];
+        }
+    }
+    else if (request.which_payload == ChimeraV2Request_i2c_memory_read_tag)
+    {
+        // Extract payload
+        I2cMemoryReadRequest *payload = &request.payload.i2c_memory_read;
+
+        // I2C ready check.
+        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
+        I2cDevice    device = { .bus            = bus,
+                                .target_address = (uint8_t)payload->device_address,
+                                .timeout_ms     = payload->timeout_ms };
+
+        uint8_t data[payload->length];
+        bool success = hw_i2c_memoryRead(&device, (uint16_t)payload->memory_address, data, (uint16_t)payload->length);
+        if (!success)
+            LOG_ERROR("Chimera: Failed to receive on I2C");
+
+        // Format response.
+        response.which_payload = ChimeraV2Response_i2c_memory_read_tag;
+
+        response.payload.i2c_memory_read.data.size = (pb_size_t)payload->length;
+        for (size_t i = 0; i < payload->length; i += 1)
+        {
+            response.payload.i2c_memory_read.data.bytes[i] = data[i];
+        }
     }
     else
     {
