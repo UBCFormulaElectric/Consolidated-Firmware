@@ -34,12 +34,12 @@ float io_suspension_getLeftTravel(void);
 float io_suspension_getRightTravel(void);
 
 /**
- * @return whether or not the left suspension sensor is open or short circuit
+ * @return whether the left suspension sensor is open or short circuit
  */
 bool io_suspension_leftSensorOCSC(void);
 
 /**
- * @return whether or not the right suspension sensor is open or short circuit
+ * @return whether the right suspension sensor is open or short circuit
  */
 bool io_suspension_rightSensorOCSC(void);
 

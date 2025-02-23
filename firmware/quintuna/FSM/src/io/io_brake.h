@@ -49,13 +49,12 @@ bool io_brake_frontPressureSensorOCSC(void);
 float io_brake_getRearPressurePsi(void);
 
 /**
- * @return whether or not the rear pressure sensor is open or short circuit
+ * @return whether the rear pressure sensor is open or short circuit
  */
 bool io_brake_rearPressureSensorOCSC(void);
 
 /**
- *
- * @return
+ * @return the hardware overcurrent/short-circuit status for the brake system
  */
 bool io_brake_hwOCSC(void);
 

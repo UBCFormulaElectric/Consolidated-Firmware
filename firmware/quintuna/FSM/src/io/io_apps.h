@@ -28,7 +28,7 @@ void io_apps_init(const AppsConfig *apps_config);
 float io_apps_getPrimary(void);
 
 /**
- * @return whether or not the primary accelerator pedal sensor is open or short circuit
+ * @return whether the primary accelerator pedal sensor is open or short circuit
  */
 bool io_apps_isPrimaryOCSC(void);
 
@@ -39,6 +39,6 @@ bool io_apps_isPrimaryOCSC(void);
 float io_apps_getSecondary(void);
 
 /**
- * @return whether or not the secondary accelerator pedal sensor is open or short circuit
+ * @return whether the secondary accelerator pedal sensor is open or short circuit
  */
 bool io_apps_isSecondaryOCSC(void);
