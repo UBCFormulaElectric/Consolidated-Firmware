@@ -126,41 +126,29 @@
         "msg_id": 186,
         "cycle_time": 5,
         "signals": {
-			"AMK_bReserve": {
+			"AMK_bReserve1": {
 				"start_bit": 0,
 				"bits" : 8
 			},
-			"AMK_bSystemReady": {
+			"AMK_bInverterOn": {
 				"start_bit": 8,
 				"bits" : 1
 			},
-			"AMK_bError": {
+			"AMK_bDcOn": {
 				"start_bit": 9,
 				"bits" : 1
 			},
-			"AMK_bWarn": {
+			"AMK_bEnable": {
 				"start_bit": 10,
 				"bits" : 1
 			},
-			"AMK_bQuitDcOn": {
+			"AMK_bErrorReset": {
 				"start_bit": 11,
 				"bits" : 1
 			},
-			"AMK_bDcOn": {
+			"AMK_bReserve2": {
 				"start_bit": 12,
-				"bits" : 1
-			},
-			"AMK_bQuitInverterOn": {
-				"start_bit": 13,
-				"bits" : 1
-			},
-			"AMK_bInverterOn": {
-				"start_bit": 14,
-				"bits" : 1
-			},
-			"AMK_bDerating": {
-				"start_bit": 15,
-				"bits" : 1
+				"bits" : 4
 			},
             "AMK_TargetVelocity": {
                 "start_bit" : 16,
