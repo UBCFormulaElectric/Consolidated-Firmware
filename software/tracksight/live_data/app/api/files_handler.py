@@ -61,10 +61,12 @@ def list_files_in_card(sd_device: str):
 	Lists all files within an SD card's filesystem
 	"""
 	sd_card = find_sd_card(sd_device)
-	# TODO can you get important metadata for the partitions?
 	logfs = create_logfs(sd_card.mountpoint)
-	files: list[str] = logfs.list_dir()
-	return [file for file in files if file not in ["/bootcount.txt"]]
+	file_names: list[str] = [file for file in logfs.list_dir() if file not in ["/bootcount.txt"]]
+	return [{
+		"name": "file_1_name",
+		"start_iso_time": "2025-01-06"
+	}]
 
 @sd_api.route("/sd/<sd_device>/files/<file_id>/dump", methods=["POST"])
 def dump_file(sd_device: str, file_id: str):

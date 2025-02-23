@@ -49,7 +49,6 @@ def get_cached_signals(signal_name: str):
             |> range(start: -1m)
             |> filter(fn: (r) => r._measurement == "{CAR_NAME}_live" and r._field == "{signal_name}")
             |> tail(n: {6000})"""
-        logger.info(query)
         table = client.query_api().query(query)
     signals = table.to_json(columns=["_time", "_value"], indent=1)
     return Response(signals, status=200, mimetype='application/json')
