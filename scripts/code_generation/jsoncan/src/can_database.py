@@ -257,6 +257,12 @@ class CanMessage:
         return hash(self.id)
 
 
+@dataclass(frozen=True)
+class CanRxMessages:
+    node: str
+    messages: dict[str, list[str]]  # bus name to message names
+
+
 class CanAlertType(StrEnum):
     """
     Enum for the possible types of CAN alerts.
