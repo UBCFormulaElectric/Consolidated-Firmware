@@ -14,4 +14,5 @@ enum AdcNetName {
 
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
+  I2C_3 = 1;
 }
