@@ -93,7 +93,7 @@ set(CM7_DEFINES
 )
 # FPU flags are compiler and linker flags
 set(CM7_FPU_FLAGS
-        -mcpu=cortex-m4
+        -mcpu=cortex-m7
         -mfloat-abi=hard
         -mfpu=fpv5-d16
 )
