@@ -65,7 +65,7 @@ Then click Replace Driver.
 ![Zadig 5](../../images/chimera/zadig/5.png)
 
 ## User Docs
-For users of the `chimera_v2` Python package, checkout [`./docs/chimera_v2.md`](./docs/chimera_v2.md).
+For users of this package, checkout [`./docs`](./docs).
 
 ## Development
 Chimera V2 has two ends - board side and Python side. Board side code can be found at [`io_chimera_v2.h`](../shared/src/io/io_chimera_v2.h)/[`io_chimera_v2.c`](../shared/src/io/io_chimera_v2.c). Python side code is in the [same directory as this README](.).
