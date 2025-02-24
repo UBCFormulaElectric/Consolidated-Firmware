@@ -92,7 +92,14 @@ class RxSchema(TypedDict):
     messages: list[str]
 
 
-rx_schema = Schema({"messages": [str]})
+rx_schema = Schema(
+    [
+        {
+            "bus": str,
+            "messages": [str],
+        }
+    ]
+)
 
 """
 Enum file schema
