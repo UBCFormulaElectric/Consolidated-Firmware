@@ -1,11 +1,19 @@
-{
-  "messages": [
-    "BMS_TractiveSystem",
-    "BMS_BMSShdnNodeStatus",
-    "BMS_CellTemperatures",
-    "BMS_VoltageAndChargeStats",
-    "BMS_OkStatuses",
-    "BMS_TractiveSystem",
-    "BMS_Vitals"
-  ]
-}
+[
+  {
+    "bus": "Can1",
+    "messages": [
+      "BMS_TractiveSystem",
+      "BMS_BMSShdnNodeStatus",
+      "BMS_CellTemperatures"
+    ]
+  },
+  {
+    "bus": "Can2",
+    "messages": [
+      "BMS_VoltageAndChargeStats",
+      "BMS_OkStatuses",
+      "BMS_TractiveSystem",
+      "BMS_Vitals"
+    ]
+  }
+]
