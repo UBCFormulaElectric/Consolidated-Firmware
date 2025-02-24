@@ -33,7 +33,7 @@ Create an abstraction around a Rigol DL3021 programmable DC electronic load.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/disable_load#L97"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/disable_load#L101"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `disable_load`
 
@@ -45,7 +45,7 @@ Disables the load input.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/enable_load#L93"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/enable_load#L97"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `enable_load`
 
@@ -57,7 +57,7 @@ Enables the load input.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/get_id#L105"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/get_id#L109"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `get_id`
 
@@ -74,7 +74,7 @@ Gets the device identification string.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/measure_current#L73"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/measure_current#L77"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `measure_current`
 
@@ -91,7 +91,7 @@ Measures the input current.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/measure_power#L83"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/measure_power#L87"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `measure_power`
 
@@ -108,7 +108,7 @@ Measures the input power.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/measure_voltage#L62"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/measure_voltage#L66"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `measure_voltage`
 
@@ -125,7 +125,7 @@ Measures the input voltage.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/reset#L101"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/reset#L105"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `reset`
 
@@ -151,11 +151,11 @@ Sets the current for the load in constant current (CC) mode.
 
 **Args:**
  
- - <b>`current`</b>:  float, desired current in Amps. 
+ - <b>`current`</b>:  Desired current in Amps. 
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/set_power#L52"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/set_power#L55"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `set_power`
 
@@ -169,11 +169,11 @@ Sets the power for the load in constant power (CP) mode.
 
 **Args:**
  
- - <b>`power`</b>:  float, desired power in Watts. 
+ - <b>`power`</b>:  Ddesired power in Watts. 
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/set_resistance#L42"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/set_resistance#L44"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `set_resistance`
 
@@ -187,11 +187,11 @@ Sets the resistance for the load in constant resistance (CR) mode.
 
 **Args:**
  
- - <b>`resistance`</b>:  float, desired resistance in Ohms. 
+ - <b>`resistance`</b>:  Desired resistance in Ohms. 
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/set_voltage#L32"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/load_bank/set_voltage#L33"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `set_voltage`
 
@@ -205,7 +205,7 @@ Sets the voltage for the load in constant voltage (CV) mode.
 
 **Args:**
  
- - <b>`voltage`</b>:  float, desired voltage in Volts. 
+ - <b>`voltage`</b>:  Desired voltage in Volts. 
 
 
 

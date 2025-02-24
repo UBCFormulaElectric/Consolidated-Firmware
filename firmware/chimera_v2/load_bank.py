@@ -24,9 +24,10 @@ class DL3021:
         Sets the current for the load in constant current (CC) mode.
 
         Args:
-            current: float, desired current in Amps.
+            current: Desired current in Amps.
 
         """
+
         self.load.write(f":SOUR:CURR {current}")
 
     def set_voltage(self, voltage: float):
@@ -34,9 +35,10 @@ class DL3021:
         Sets the voltage for the load in constant voltage (CV) mode.
 
         Args:
-            voltage: float, desired voltage in Volts.
+            voltage: Desired voltage in Volts.
 
         """
+
         self.load.write(f":SOUR:VOLT {voltage}")
 
     def set_resistance(self, resistance: float):
@@ -44,9 +46,10 @@ class DL3021:
         Sets the resistance for the load in constant resistance (CR) mode.
 
         Args:
-            resistance: float, desired resistance in Ohms.
+            resistance: Desired resistance in Ohms.
 
         """
+
         self.load.write(f":SOUR:RES {resistance}")
 
     def set_power(self, power: float):
@@ -54,9 +57,10 @@ class DL3021:
         Sets the power for the load in constant power (CP) mode.
 
         Args:
-            power: float, desired power in Watts.
+            power: Ddesired power in Watts.
 
         """
+
         self.load.write(f":SOUR:POW {power}")
 
     def measure_voltage(self) -> float:

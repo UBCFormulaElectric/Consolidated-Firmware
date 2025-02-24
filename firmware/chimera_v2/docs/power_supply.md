@@ -128,7 +128,7 @@ Measures the output voltage.
 
 
 **Returns:**
- Measured voltage in Bolts. 
+ Measured voltage in Volts. 
 
 ---
 

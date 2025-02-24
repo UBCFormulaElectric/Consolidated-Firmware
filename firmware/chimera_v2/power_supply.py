@@ -53,7 +53,7 @@ class DP821A:
             channel: Power supply channel number (default is 1).
 
         Returns:
-            Measured voltage in Bolts.
+            Measured voltage in Volts.
 
         """
         self.ps.write(f":INST:NSEL {channel}")
