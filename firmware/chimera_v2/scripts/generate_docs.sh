@@ -14,7 +14,9 @@ cd $CHIMERA_V2_DIR
     pip install .
 
     # Generate docs.
-    lazydocs --validate --src-base-url="$GITHUB_SRC_URL" chimera_v2
+    lazydocs --validate --src-base-url="$GITHUB_SRC_URL" \
+        chimera_v2 \
+        load_bank
 
     # Uninstall this package.
     pip uninstall -y chimera_v2

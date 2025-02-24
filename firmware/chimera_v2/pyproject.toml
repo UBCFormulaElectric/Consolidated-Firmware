@@ -10,9 +10,12 @@ dependencies = [
     "libusb-package", 
 
     # CAN support dependencies.
-    "cantools", "python-can"
+    "cantools", "python-can",
+
+    # Visa peripherals.
+    "pyvisa"
 ]
 
 [tool.setuptools]
-py-modules=["chimera_v2"]
+py-modules=["chimera_v2", "load_bank"]
 packages=["proto_autogen"]

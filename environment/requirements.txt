@@ -40,3 +40,4 @@ pyusb
 libusb-package
 python-can
 matplotlib
+pyvisa
