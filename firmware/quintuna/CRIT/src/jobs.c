@@ -1,14 +1,25 @@
 #include "jobs.h"
+#include "main.h"
 
+// Standard libaray
+#include <assert.h>
+
+// App
 #include "app_commitInfo.h"
 #include "app_utils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 
+// IO
 #include "io_canTx.h"
 #include "io_canRx.h"
-
 #include "io_time.h"
+
+// HW
+#include "hw_cans.h"
+#include "hw_gpios.h"
+#include "hw_watchdog.h"
+#include "hw_watchdogConfig.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
@@ -17,11 +28,16 @@ static void canTransmit(const JsonCanMsg *msg)
 
 void jobs_init(void)
 {
+    // watchdog
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
     // can
+    hw_can_init(&can1);
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
+
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
