@@ -55,6 +55,7 @@ class JsonCanParser:
         )  # Dict of node names to node's alerts
         self._reroute: List[CanForward] = []
         self._forwarder_node: CanNode = None
+        self._can_rx: dict[str, CanRxMessages] = {}
         self._parse_json_data(can_data_dir=can_data_dir)
 
     def make_database(self) -> CanDatabase:
