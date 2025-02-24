@@ -1,3 +1,6 @@
-{
-  "messages": ["VC_Vitals"]
-}
+[
+  {
+    "bus": "bus1",
+    "messages": ["VC_Vitals"]
+  }
+]

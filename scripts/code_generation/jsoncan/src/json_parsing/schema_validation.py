@@ -96,7 +96,7 @@ rx_schema = Schema(
     [
         {
             "bus": str,
-            "messages": [str],
+            "messages": list[str], 
         }
     ]
 )
