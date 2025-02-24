@@ -1,5 +1,3 @@
-#include "app_canUtils.h"
-#include <cstring>
 #include <gtest/gtest.h>
 
 extern "C"
