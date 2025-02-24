@@ -804,5 +804,34 @@
         "unit": "%"
       }
     }
+  },
+  "YawRateController": {
+    "msg_id": 231,
+    "cycle_time": 100,
+    "description": "Yaw Rate Controller Info",
+    "signals": {
+      "ReferenceYawRate": {
+        "min": -360,
+        "max": 360,
+        "resolution": 1,
+        "unit": "deg/s"
+      },
+      "YawMoment": {
+        "min": -360,
+        "max": 360,
+        "resolution": 1,
+        "unit": "deg/s^2"
+      },
+      "YRCTorqueLeft": {
+        "min": 0,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "YRCTorqueRight": {
+        "min": 0,
+        "max": 100,
+        "resolution": 0.1
+      }
+    }
   }
 }

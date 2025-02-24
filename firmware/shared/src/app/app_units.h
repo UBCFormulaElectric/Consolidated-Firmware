@@ -12,6 +12,7 @@
 // Length conversions.
 #define INCH_TO_KM (0.0000254f)
 #define IN_TO_M (0.0254f)
+#define MM_TO_M (0.01f)
 
 // Radial units/conversions.
 #define RAD_TO_DEG(r) (r * 180.0f / M_PI_F)
