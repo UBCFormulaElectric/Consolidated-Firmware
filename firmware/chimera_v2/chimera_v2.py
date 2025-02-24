@@ -454,13 +454,6 @@ class I2cDevice:
 
         """
 
-        """Transmit bytes to the I2C device.
-
-        Args: 
-            data: Bytes to transmit.
-
-        """
-
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(

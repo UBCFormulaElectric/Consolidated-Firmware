@@ -50,8 +50,10 @@ class _I2cNetName:
 class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
+    I2C_3: _I2cNetName.ValueType
 
 class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
+I2C_3: I2cNetName.ValueType
 global___I2cNetName = I2cNetName
