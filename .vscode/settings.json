@@ -9,8 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"main.h": "c",
-		"hw_gpios.h": "c"
-	}
 }
