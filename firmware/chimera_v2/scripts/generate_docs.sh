@@ -16,7 +16,8 @@ cd $CHIMERA_V2_DIR
     # Generate docs.
     lazydocs --validate --src-base-url="$GITHUB_SRC_URL" \
         chimera_v2 \
-        load_bank
+        load_bank \
+        power_supply
 
     # Uninstall this package.
     pip uninstall -y chimera_v2

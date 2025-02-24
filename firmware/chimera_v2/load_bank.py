@@ -3,9 +3,7 @@ import pyvisa as visa
 
 class DL3021:
     def __init__(self):
-        """
-        Create an abstraction around a Rigol DL3021 programmable DC electronic load.
-        """
+        """Create an abstraction around a Rigol DL3021 programmable DC electronic load."""
         resources = visa.ResourceManager()
 
         load_bank_names = list(
