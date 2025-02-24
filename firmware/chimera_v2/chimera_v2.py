@@ -19,6 +19,7 @@ import proto_autogen.f4dev_pb2
 import proto_autogen.shared_pb2
 
 from load_bank import *
+from power_supply import *
 
 
 _MANUFACTURER = "ubc_formula_electric"

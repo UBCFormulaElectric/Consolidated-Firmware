@@ -37,6 +37,35 @@ while True:
 ```
 *From [`./examples/f4dev_blinky.py`](./examples/f4dev_blinky.py)*
 
+If you would like to use the `load_bank` or `power_supply` modules, you will also need to install the [VISA drivers](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html).
+
+```python
+import chimera_v2.power_supply
+import time
+
+# Config.
+CHANNEL = 2
+CURRENT = 1.51
+
+# Setup supply.
+supply = chimera_v2.power_supply.DP821A()
+print(supply.get_id())
+
+# Output current for 5s.
+supply.set_current(CURRENT, CHANNEL)
+supply.enable_output(CHANNEL)
+time.sleep(5)
+
+# Measure voltage and current over channel 2 before disabling output.
+current = supply.measure_current(CHANNEL)
+voltage = supply.measure_voltage(CHANNEL)
+print(f"Voltage: {voltage} V, Current: {current} A")
+
+supply.disable_output()
+```
+
+*From [`./examples/power_supply.py`](./examples/power_supply.py)*
+
 ## Platform Instructions
 ### For Mac Users
 Make sure you run your Chimera V2 scripts with `sudo`, ie. `sudo python ./examples/f4dev_blinky.py`.
