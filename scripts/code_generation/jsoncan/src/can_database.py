@@ -325,6 +325,7 @@ class CanDatabase:
     ]  # Dictionary of node to list of alerts set by node
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
     forwarder: CanNode  # Node which forwards this message
+    rx_msgs: dict[str, CanRxMessages]
 
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """

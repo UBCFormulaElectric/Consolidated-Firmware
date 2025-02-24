@@ -17,6 +17,7 @@ from .schema_validation import (
     validate_alerts_json,
     validate_bus_json,
     validate_enum_json,
+    validate_rx_json,
     validate_tx_json,
 )
 
@@ -70,6 +71,7 @@ class JsonCanParser:
             alerts=self._alerts,
             reroute_msgs=self._reroute,
             forwarder=self._forwarder_node,
+            rx_msgs=self._can_rx,
         )
 
     def _parse_json_data(self, can_data_dir: str):
@@ -110,7 +112,7 @@ class JsonCanParser:
             node_obj.alerts = []
 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
-        self._parse_json_rx_data(can_data_dir, node, alerts_messages)
+        self._parse_json_rx_data(can_data_dir, alerts_messages)
 
         # find all message transmitting on one bus but received in another bus
         reroute = self._find_reroute(self._messages.values())
@@ -283,7 +285,8 @@ class JsonCanParser:
 
             return [warnings, faults, warnings_counts, faults_counts]
 
-    def _parse_json_rx_data(self, can_data_dir, node, alert_messages) -> List[str]:
+    def _parse_json_rx_data(self, can_data_dir, alert_messages) -> List[str]:
+
         for alert in alert_messages:
             tx_node = alert.tx_node
             tx_buses = alert.bus
@@ -301,24 +304,34 @@ class JsonCanParser:
                         alert.rx_nodes.append(rx_node)
 
         for node, node_obj in self._nodes.items():
-            node_rx_json_data = self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
-            node_rx_msgs = node_rx_json_data["messages"]
+            node_rx_json_data = validate_rx_json(
+                self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
+            )
 
-            for rx_msg_name in node_rx_msgs:
-                # Check if this message is defined
-                if rx_msg_name not in self._messages:
-                    raise InvalidCanJson(
-                        f"Message '{rx_msg_name}' received by '{node}' is not defined. Make sure it is correctly defined in the TX JSON."
-                    )
+            rx_msgs_obj_map = {}  # bus name -> list of messages
+            for rx_msg_data in node_rx_json_data:
+                bus = rx_msg_data["bus"]
 
-                rx_msg = self._messages[rx_msg_name]
-                if node not in rx_msg.rx_nodes:
-                    rx_msg.rx_nodes.append(node)
+                messages = rx_msg_data["messages"]
+                for message in messages:
+                    # Check if this message is defined
+                    if message not in self._messages:
+                        raise InvalidCanJson(
+                            f"Message '{message}' received by '{node}' is not defined. Make sure it is correctly defined in the TX JSON."
+                        )
+                    rx_msg = self._messages[message]
+                    if node not in rx_msg.rx_nodes:
+                        rx_msg.rx_nodes.append(node)
 
-                # add the message to the node's rx messages
-                rx_node = self._nodes[node]
-                if rx_msg.name not in rx_node.rx_msgs:
-                    rx_node.rx_msgs.append(rx_msg.name)
+                    # add the message to the node's rx messages
+                    rx_node = self._nodes[node]
+                    if rx_msg.name not in rx_node.rx_msgs:
+                        rx_node.rx_msgs.append(rx_msg.name)
+                rx_msgs_obj_map[bus] = messages
+
+            # make a CanRxMessages object
+            rx_msgs_obj = CanRxMessages(node=node, messages=rx_msgs_obj_map)
+            self._can_rx[node] = rx_msgs_obj
 
     def _find_node_bus(self, tx_msg: Set[CanMessage]) -> Set[CanBusConfig]:
         """
