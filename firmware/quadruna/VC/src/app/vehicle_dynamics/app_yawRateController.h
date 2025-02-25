@@ -36,10 +36,23 @@ typedef struct
     float       k5;
 } YawRateController_Config;
 
+/*
+ * Initializes Yaw Rate Controller
+*/
 void app_yawRateController_init(YawRateController *yrc, PID *pid, const YawRateController_Config *config);
 
+/*
+ * Computes the reference yaw rate based on steering angle and velocity
+*/
 float app_yawRateController_computeRefYawRate(YawRateController *yrc);
 
+/*
+ * Computes a corrective yaw moment using PID based on reference and real yaw rate
+*/
 float app_yawRateController_pid_compute(YawRateController *yrc, float ref_yaw_rate);
 
+/*
+ * Computes the torques to send to the wheels based on the 
+ * corrective yaw moment and reference yaw rate
+*/
 void app_yawRateController_computeTorque(YawRateController *yrc, float ref_yaw_rate, float yaw_moment);
