@@ -141,7 +141,8 @@ static uint16_t calculatePec15(const uint8_t *data_buffer, uint8_t size)
     }
 
     // Set the LSB of the PEC15 remainder to 0.
-    return (uint16_t)(remainder << 1);
+    const uint16_t pec15 = (uint16_t)(remainder << 1);
+    return CHANGE_WORD_ENDIANNESS(pec15);
 }
 
 /**
@@ -152,17 +153,7 @@ static uint16_t calculatePec15(const uint8_t *data_buffer, uint8_t size)
 static void packCmdPec15(LtcCmdPayload *tx_cmd)
 {
     // Pack the PEC15 byte into tx_cmd in big endian format
-    tx_cmd->pec15 = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t *)&tx_cmd->cmd, sizeof(tx_cmd->cmd)));
-}
-
-/**
- * Calculate and pack PEC15 bytes for data written to a given register groups
- * @param tx_cfg The buffer containing data used to calculate and pack PEC15
- * bytes
- */
-static void packRegGroupPec15(LtcRegGroupPayload *tx_cfg)
-{
-    tx_cfg->pec15 = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t *)&tx_cfg->bytes, sizeof(tx_cfg->bytes)));
+    tx_cmd->pec15 = calculatePec15((uint8_t *)&tx_cmd->cmd, sizeof(tx_cmd->cmd));
 }
 
 /**
@@ -203,29 +194,26 @@ static void
             tx_cfg[tx_cfg_idx].bytes[REG_GROUP_BYTE_4] |= SET_CFGRA4_DCC_BITS(dcc_bits);
             tx_cfg[tx_cfg_idx].bytes[REG_GROUP_BYTE_5] |= SET_CFGRA5_DCC_BITS(dcc_bits);
         }
-        else
+        else if (curr_cfg_reg == CONFIG_REG_B)
         {
             tx_cfg[tx_cfg_idx].bytes[REG_GROUP_BYTE_0] |= SET_CFGRB0_DCC_BITS(dcc_bits);
         }
 
         // Calculate and pack the PEC15 bytes into data to write ot the
         // configuration register
-        packRegGroupPec15(&tx_cfg[tx_cfg_idx]);
+        tx_cfg->pec15 = calculatePec15(tx_cfg->bytes, sizeof(tx_cfg->bytes));
     }
 }
 
 bool io_ltc6813Shared_checkRegGroupPec15(const LtcRegGroupPayload *data_buffer)
 {
-    const uint16_t calculated_pec15 =
-        CHANGE_WORD_ENDIANNESS(calculatePec15(data_buffer->bytes, sizeof(data_buffer->bytes)));
-    const uint16_t recv_pec15 = data_buffer->pec15;
-
-    return calculated_pec15 == recv_pec15;
+    const uint16_t calculated_pec15 = calculatePec15(data_buffer->bytes, sizeof(data_buffer->bytes));
+    return calculated_pec15 == data_buffer->pec15;
 }
 
 bool io_ltc6813Shared_sendCommand(uint16_t cmd)
 {
-    LtcCmdPayload tx_cmd = { .cmd = cmd, .pec15 = 0U };
+    LtcCmdPayload tx_cmd = { .cmd = cmd };
     packCmdPec15(&tx_cmd);
 
     return hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(LtcCmdPayload));
@@ -234,7 +222,7 @@ bool io_ltc6813Shared_sendCommand(uint16_t cmd)
 bool io_ltc6813Shared_readRegGroup(uint16_t cmd, LtcRegGroupPayload *rx_buffer)
 {
     // Prepare the command used to read data back from a register group.
-    LtcCmdPayload tx_cmd = { .cmd = cmd, .pec15 = 0U };
+    LtcCmdPayload tx_cmd = { .cmd = cmd };
     packCmdPec15(&tx_cmd);
 
     return hw_spi_transmitThenReceive(
@@ -247,7 +235,7 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
     // Prepare command to get the status of ADC conversions
-    LtcCmdPayload tx_cmd = { .cmd = PLADC, .pec15 = 0U };
+    LtcCmdPayload tx_cmd = { .cmd = PLADC };
     packCmdPec15(&tx_cmd);
 
     // All chips on the daisy chain have finished converting cell voltages when

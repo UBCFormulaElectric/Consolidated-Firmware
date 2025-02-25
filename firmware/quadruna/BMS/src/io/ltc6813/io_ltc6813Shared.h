@@ -7,6 +7,8 @@
 #define LTC6813_SPI_TIMEOUT_MS (10U)
 
 #define ACCUMULATOR_NUM_SEGMENTS 4
+#define ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT (16U)
+#define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
 // Number of readings (cell voltages or temperatures) per each register group
 // Each register group consists of 48 bits, 3x 16 bits for each reading
@@ -29,9 +31,6 @@ typedef struct
     };
     uint16_t pec15;
 } LtcRegGroupPayload;
-
-#define ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT (16U)
-#define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
 // Conversion factor used to convert raw voltages (100µV) to voltages (V)
 #define V_PER_100UV (1E-4f)
