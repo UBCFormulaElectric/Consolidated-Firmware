@@ -176,7 +176,7 @@ int main(void)
     MX_I2C3_Init();
     MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -450,9 +450,9 @@ static void MX_TIM4_Init(void)
 
     /* USER CODE END TIM4_Init 1 */
     htim4.Instance               = TIM4;
-    htim4.Init.Prescaler         = 0;
+    htim4.Init.Prescaler         = TIM4_PRESCALER - 1;
     htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim4.Init.Period            = 65535;
+    htim4.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
@@ -556,11 +556,7 @@ void RunTask1KHz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1kHz();
     /* USER CODE END 5 */
 }
 
@@ -574,11 +570,7 @@ void RunTask1KHz(void *argument)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
 
@@ -592,11 +584,7 @@ void RunTask100Hz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
@@ -610,11 +598,7 @@ void RunTask1Hz(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -628,11 +612,7 @@ void RunTaskCanTx(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 

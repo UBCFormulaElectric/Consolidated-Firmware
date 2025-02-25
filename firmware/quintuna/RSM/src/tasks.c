@@ -106,13 +106,13 @@ _Noreturn void tasks_run1kHz()
     }
 }
 
-_Noreturn void tasks_runCanTx(void)
+void tasks_runCanTx()
 {
-    io_chimera_sleepTaskIfEnabled();
-
+    // Setup tasks.
     for (;;)
     {
-        jobs_runCanTx_tick();
+        CanMsg msg = io_canQueue_popTx();
+        hw_can_transmit(&can1, &msg);
     }
 }
 
