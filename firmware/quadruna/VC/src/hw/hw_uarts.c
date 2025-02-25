@@ -1,4 +1,4 @@
 #include "hw_uarts.h"
 #include "main.h"
 
-const UART debug_uart    = { .handle = &huart7 };
+const UART debug_uart = { .handle = &huart7 };
