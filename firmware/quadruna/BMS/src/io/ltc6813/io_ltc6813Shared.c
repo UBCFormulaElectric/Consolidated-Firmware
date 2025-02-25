@@ -1,3 +1,5 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include <assert.h>
 #include "hw_spis.h"
@@ -37,6 +39,18 @@
 #define ENABLE_ALL_CFGRB_GPIO (0x000FU)       // Enable all GPIOs corresponding to CFGRB
 
 #define PEC15_LUT_SIZE (256U)
+
+// Indexes for data to write/read from the register group in byte format
+typedef enum
+{
+    REG_GROUP_BYTE_0 = 0U,
+    REG_GROUP_BYTE_1,
+    REG_GROUP_BYTE_2,
+    REG_GROUP_BYTE_3,
+    REG_GROUP_BYTE_4,
+    REG_GROUP_BYTE_5,
+    NUM_REG_GROUP_PAYLOAD_BYTES,
+} RegGroupByteFormat;
 
 typedef enum
 {
@@ -131,16 +145,35 @@ static uint16_t calculatePec15(const uint8_t *data_buffer, uint8_t size)
 }
 
 /**
+ * Calculate and pack PEC15 bytes for commands sent to the LTC6813
+ * @param tx_cmd The buffer containing the command used to calculate and pack
+ * PEC15 bytes
+ */
+static void packCmdPec15(LtcCmdPayload *tx_cmd)
+{
+    // Pack the PEC15 byte into tx_cmd in big endian format
+    tx_cmd->pec15 = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t *)&tx_cmd->cmd, sizeof(tx_cmd->cmd)));
+}
+
+/**
+ * Calculate and pack PEC15 bytes for data written to a given register groups
+ * @param tx_cfg The buffer containing data used to calculate and pack PEC15
+ * bytes
+ */
+static void packRegGroupPec15(LtcRegGroupPayload *tx_cfg)
+{
+    tx_cfg->pec15 = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t *)&tx_cfg->bytes, sizeof(tx_cfg->bytes)));
+}
+
+/**
  * A function called to prepare data written to configuration registers
  * @param tx_cfg Buffer containing data to write to the current configuration
  * register
  * @param enable_balance Set to false to disable all cell discharging.
  * @param curr_cfg_reg The current configuration register to configure
  */
-static void prepareCfgRegBytes(
-    uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES],
-    bool    enable_balance,
-    uint8_t curr_cfg_reg)
+static void
+    prepareCfgRegBytes(LtcRegGroupPayload tx_cfg[ACCUMULATOR_NUM_SEGMENTS], bool enable_balance, uint8_t curr_cfg_reg)
 {
     // Write to the configuration registers of each segment
     for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
@@ -150,7 +183,8 @@ static void prepareCfgRegBytes(
         const uint8_t tx_cfg_idx = (uint8_t)(ACCUMULATOR_NUM_SEGMENTS - curr_segment - 1);
 
         // Set default tx_cfg for each segment
-        memcpy(&tx_cfg[tx_cfg_idx], ltc6813_configs[curr_cfg_reg].default_cfg_reg, NUM_REG_GROUP_PAYLOAD_BYTES);
+        memcpy(
+            tx_cfg[tx_cfg_idx].bytes, ltc6813_configs[curr_cfg_reg].default_cfg_reg, sizeof(tx_cfg[tx_cfg_idx].bytes));
 
         // Get dcc bits to write for the current segment (which cells to balance)
         uint32_t dcc_bits = 0U;
@@ -166,42 +200,45 @@ static void prepareCfgRegBytes(
         // Write to configuration registers DCC bits
         if (curr_cfg_reg == CONFIG_REG_A)
         {
-            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_4] |= SET_CFGRA4_DCC_BITS(dcc_bits);
-            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_5] |= SET_CFGRA5_DCC_BITS(dcc_bits);
+            tx_cfg[tx_cfg_idx].bytes[REG_GROUP_BYTE_4] |= SET_CFGRA4_DCC_BITS(dcc_bits);
+            tx_cfg[tx_cfg_idx].bytes[REG_GROUP_BYTE_5] |= SET_CFGRA5_DCC_BITS(dcc_bits);
         }
         else
         {
-            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_0] |= SET_CFGRB0_DCC_BITS(dcc_bits);
+            tx_cfg[tx_cfg_idx].bytes[REG_GROUP_BYTE_0] |= SET_CFGRB0_DCC_BITS(dcc_bits);
         }
 
         // Calculate and pack the PEC15 bytes into data to write ot the
         // configuration register
-        io_ltc6813Shared_packRegisterGroupPec15(tx_cfg[tx_cfg_idx]);
+        packRegGroupPec15(&tx_cfg[tx_cfg_idx]);
     }
 }
 
-uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer)
+bool io_ltc6813Shared_checkRegGroupPec15(const LtcRegGroupPayload *data_buffer)
 {
-    return CHANGE_WORD_ENDIANNESS(calculatePec15(data_buffer, NUM_REG_GROUP_PAYLOAD_BYTES));
-}
+    const uint16_t calculated_pec15 =
+        CHANGE_WORD_ENDIANNESS(calculatePec15(data_buffer->bytes, sizeof(data_buffer->bytes)));
+    const uint16_t recv_pec15 = data_buffer->pec15;
 
-void io_ltc6813Shared_packCmdPec15(uint16_t *tx_cmd)
-{
-    // Pack the PEC15 byte into tx_cmd in big endian format
-    *(tx_cmd + CMD_PEC15) = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t *)tx_cmd, CMD_SIZE_BYTES));
-}
-
-void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg)
-{
-    *(uint16_t *)(tx_cfg + NUM_REG_GROUP_PAYLOAD_BYTES) = io_ltc6813Shared_calculateRegGroupPec15(tx_cfg);
+    return calculated_pec15 == recv_pec15;
 }
 
 bool io_ltc6813Shared_sendCommand(uint16_t cmd)
 {
-    uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
-    io_ltc6813Shared_packCmdPec15(tx_cmd);
+    LtcCmdPayload tx_cmd = { .cmd = cmd, .pec15 = 0U };
+    packCmdPec15(&tx_cmd);
 
-    return hw_spi_transmit(&ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
+    return hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(LtcCmdPayload));
+}
+
+bool io_ltc6813Shared_readRegGroup(uint16_t cmd, LtcRegGroupPayload *rx_buffer)
+{
+    // Prepare the command used to read data back from a register group.
+    LtcCmdPayload tx_cmd = { .cmd = cmd, .pec15 = 0U };
+    packCmdPec15(&tx_cmd);
+
+    return hw_spi_transmitThenReceive(
+        &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(LtcCmdPayload), (uint8_t *)rx_buffer, sizeof(LtcRegGroupPayload));
 }
 
 bool io_ltc6813Shared_pollAdcConversions(void)
@@ -210,15 +247,15 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
     // Prepare command to get the status of ADC conversions
-    uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = PLADC, [CMD_PEC15] = 0U };
-    io_ltc6813Shared_packCmdPec15(tx_cmd);
+    LtcCmdPayload tx_cmd = { .cmd = PLADC, .pec15 = 0U };
+    packCmdPec15(&tx_cmd);
 
     // All chips on the daisy chain have finished converting cell voltages when
     // data read back != 0xFF.
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
-        const bool is_status_ok =
-            hw_spi_transmitThenReceive(&ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+        const bool is_status_ok = hw_spi_transmitThenReceive(
+            &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(LtcCmdPayload), &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
@@ -236,25 +273,19 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
     for (uint8_t curr_cfg_reg = 0U; curr_cfg_reg < NUM_OF_CFG_REGS; curr_cfg_reg++)
     {
         // Command used to write to a configuration register
-        uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = ltc6813_configs[curr_cfg_reg].cfg_reg_cmds, [CMD_PEC15] = 0U };
+        if (!io_ltc6813Shared_sendCommand(ltc6813_configs[curr_cfg_reg].cfg_reg_cmds))
+        {
+            return false;
+        }
 
         // Array containing bytes to write to the configuration register
-        uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES] = { 0U };
-
-        // Prepare command to begin writing to the configuration
-        // register
-        io_ltc6813Shared_packCmdPec15(tx_cmd);
+        LtcRegGroupPayload tx_cfg[ACCUMULATOR_NUM_SEGMENTS];
 
         // Prepare data to write to the configuration register
         prepareCfgRegBytes(tx_cfg, enable_balance, curr_cfg_reg);
 
-        // Copy to buffer to send command and configs
-        uint8_t tx_buffer[TOTAL_NUM_CMD_BYTES + NUM_REG_GROUP_RX_BYTES];
-        memcpy(&tx_buffer[0], tx_cmd, TOTAL_NUM_CMD_BYTES);
-        memcpy(&tx_buffer[TOTAL_NUM_CMD_BYTES], tx_cfg, NUM_REG_GROUP_RX_BYTES);
-
         // Write to configuration registers
-        if (!hw_spi_transmit(&ltc6813_spi, tx_buffer, NUM_REG_GROUP_RX_BYTES))
+        if (!hw_spi_transmit(&ltc6813_spi, (uint8_t *)tx_cfg, sizeof(tx_cfg)))
         {
             return false;
         }

@@ -9,12 +9,18 @@
 #define NUM_OF_THERMISTORS_PER_SEGMENT (8U)
 #define TOTAL_NUM_OF_THERMISTORS       (NUM_OF_THERMISTORS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
-#define IS_CELL_TEMP_READING(curr_reg_group, curr_reading) (((curr_reg_group) != AUX_REGISTER_GROUP_B) || ((curr_reading) != REG_GROUP_READING_2))
+#define IS_CELL_TEMP_READING(curr_reg_group, curr_reading) (((curr_reg_group) != AUX_REGISTER_GROUP_B) || ((curr_reading) != 2))
 
 // Commands used to read from auxiliary register groups A-C
 #define RDAUXA (0x0C00U)
 #define RDAUXB (0x0E00U)
 #define RDAUXC (0x0D00U)
+
+// GPIO Selection for ADC conversion
+#define CHG (0U)
+
+// ADC mode selection
+#define MD (1U)
 
 // Command used to trigger ADC conversions for LTC6813 GPIO inputs
 #define ADAX ((uint16_t)((((MD << 7U) + 0x0060U + CHG) << 8U) | 0x0004U))
@@ -80,7 +86,7 @@ struct LTC6813TempStatistics
 typedef struct
 {
     struct LTC6813TempStatistics stats;
-    uint16_t cell[ACCUMULATOR_NUM_SEGMENTS][NUM_OF_AUX_REGISTER_GROUPS][NUM_OF_READINGS_PER_REG_GROUP];
+    uint16_t                     cell[ACCUMULATOR_NUM_SEGMENTS][NUM_OF_AUX_REGISTER_GROUPS][NUM_READINGS_PER_REG_GROUP];
 } LTC6813Temperatures;
 static LTC6813Temperatures ltc6813_temp = { 0U };
 
@@ -102,13 +108,12 @@ static void updateCellTemperatureStatistics(void)
     {
         for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
         {
-            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++)
+            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_READINGS_PER_REG_GROUP; curr_thermistor++)
             {
                 if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
                 {
                     const uint16_t curr_cell_temp = ltc6813_temp.cell[curr_segment][curr_reg_group][curr_thermistor];
-                    uint8_t        curr_cell_index =
-                        (uint8_t)(curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_thermistor);
+                    uint8_t curr_cell_index = (uint8_t)(curr_reg_group * NUM_READINGS_PER_REG_GROUP + curr_thermistor);
 
                     /*
                      * Physical locations of thermistors 1 and 2 are swapped, as well as 7 and 8
@@ -191,7 +196,7 @@ static uint16_t calculateThermistorTempDeciDegC(uint16_t raw_thermistor_voltage)
     //
 
     uint16_t    cell_temp             = UINT16_MAX;
-    const float gpio_voltage          = (float)raw_thermistor_voltage * V_PER_100UV;
+    const float gpio_voltage          = CONVERT_100UV_TO_VOLTAGE(raw_thermistor_voltage);
     const float thermistor_resistance = (gpio_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - gpio_voltage);
 
     // Check that the thermistor resistance is in range
@@ -226,37 +231,27 @@ static uint16_t calculateThermistorTempDeciDegC(uint16_t raw_thermistor_voltage)
  * @param rx_buffer The buffer containing cell temperature data
  * @return True if cell temperatures are read back correctly, otherwise false.
  */
-static bool parseCellTempFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
+static bool
+    parseCellTempFromAllSegments(uint8_t curr_reg_group, const LtcRegGroupPayload rx_buffer[ACCUMULATOR_NUM_SEGMENTS])
 {
     bool status = true;
 
     for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
     {
-        // Set the starting index to read cell voltages for the current segment
-        // from rx_buffer
-        uint8_t start_index = (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
-
-        // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t *)&rx_buffer[start_index]);
-
-        // Read PEC15 from the rx_buffer
-        const uint16_t recv_pec15 = rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
-
-        if (recv_pec15 == calc_pec15)
-        {
-            for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++)
-            {
-                // Skip the reference voltage of AUX register group B
-                if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
-                {
-                    ltc6813_temp.cell[curr_segment][curr_reg_group][curr_thermistor] =
-                        calculateThermistorTempDeciDegC(rx_buffer[start_index + curr_thermistor]);
-                }
-            }
-        }
-        else
+        if (!io_ltc6813Shared_checkRegGroupPec15(&rx_buffer[curr_segment]))
         {
             status = false;
+            continue;
+        }
+
+        for (uint8_t curr_thermistor = 0U; curr_thermistor < ARRAY_SIZE(rx_buffer->words); curr_thermistor++)
+        {
+            // Skip the reference voltage of AUX register group B
+            if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
+            {
+                ltc6813_temp.cell[curr_segment][curr_reg_group][curr_thermistor] =
+                    calculateThermistorTempDeciDegC(rx_buffer->words[curr_thermistor]);
+            }
         }
     }
 
@@ -270,32 +265,30 @@ bool io_ltc6813CellTemps_startAdcConversion(void)
 
 bool io_ltc6813CellTemps_readTemperatures(void)
 {
-    bool status = false;
-
-    if (io_ltc6813Shared_pollAdcConversions())
+    if (!io_ltc6813Shared_pollAdcConversions())
     {
-        uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS] = { 0U };
+        return false;
+    }
 
-        // Read thermistor voltages stored in the AUX register groups
-        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
+    bool               status = false;
+    LtcRegGroupPayload rx_buffer[ACCUMULATOR_NUM_SEGMENTS];
+
+    // Read thermistor voltages stored in the AUX register groups
+    for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
+    {
+        // Transmit the command and receive data stored in register group.
+        if (!io_ltc6813Shared_readRegGroup(aux_reg_group_cmds[curr_reg_group], rx_buffer))
         {
-            uint16_t tx_cmd[NUM_CMD_WORDS] = {
-                [CMD_WORD]  = aux_reg_group_cmds[curr_reg_group],
-                [CMD_PEC15] = 0U,
-            };
-            io_ltc6813Shared_packCmdPec15(tx_cmd);
+            status = false;
+            continue;
+        }
 
-            if (hw_spi_transmitThenReceive(
-                    &ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
-            {
-                if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
-                {
-                    // Update min/max cell segment, index and voltages and update pack
-                    // voltage and segment voltages
-                    updateCellTemperatureStatistics();
-                    status = true;
-                }
-            }
+        if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
+        {
+            // Update min/max cell segment, index and voltages and update pack
+            // voltage and segment voltages
+            updateCellTemperatureStatistics();
+            status = true;
         }
     }
 

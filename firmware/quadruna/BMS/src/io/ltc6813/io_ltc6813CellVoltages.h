@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /**
  * Read all cell voltages from the LTC6813
  * Note: Io_LTC6813CellVoltages_StartAdcConversion needs to be called to trigger

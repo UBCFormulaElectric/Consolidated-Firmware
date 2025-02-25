@@ -1,7 +1,7 @@
 #pragma once
 #include "math.h"
 
-#define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
+#define ARRAY_SIZE(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
 /* @brief Extract the basename from a file path */
 #define __BASENAME__(path) (__builtin_strrchr(path, '/') ? __builtin_strrchr(path, '/') + 1 : path)

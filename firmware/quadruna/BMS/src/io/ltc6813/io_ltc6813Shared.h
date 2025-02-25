@@ -3,18 +3,32 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// clang-format off
 // Time that a SPI transaction should wait for until until an error is returned
 #define LTC6813_SPI_TIMEOUT_MS (10U)
 
-typedef enum
+#define ACCUMULATOR_NUM_SEGMENTS 4
+
+// Number of readings (cell voltages or temperatures) per each register group
+// Each register group consists of 48 bits, 3x 16 bits for each reading
+#define NUM_READINGS_PER_REG_GROUP 3
+
+// Each command sent includes: 1 cmd word + 1 PEC15 word, which is
+// equal to: 2 cmd bytes + 2 PEC15 bytes
+typedef struct
 {
-    ACCUMULATOR_SEGMENT_0 = 0U,
-    ACCUMULATOR_SEGMENT_1,
-    ACCUMULATOR_SEGMENT_2,
-    ACCUMULATOR_SEGMENT_3,
-    ACCUMULATOR_NUM_SEGMENTS,
-} AccumulatorSegment;
+    uint16_t cmd;
+    uint16_t pec15;
+} LtcCmdPayload;
+
+typedef struct
+{
+    union
+    {
+        uint16_t words[NUM_READINGS_PER_REG_GROUP];
+        uint8_t  bytes[NUM_READINGS_PER_REG_GROUP * 2];
+    };
+    uint16_t pec15;
+} LtcRegGroupPayload;
 
 #define ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT (16U)
 #define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
@@ -23,88 +37,6 @@ typedef enum
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
 
-// Indexes for data to write/read from the register group in byte format
-typedef enum
-{
-    REG_GROUP_BYTE_0 = 0U,
-    REG_GROUP_BYTE_1,
-    REG_GROUP_BYTE_2,
-    REG_GROUP_BYTE_3,
-    REG_GROUP_BYTE_4,
-    REG_GROUP_BYTE_5,
-    NUM_REG_GROUP_PAYLOAD_BYTES,
-} RegGroupByteFormat;
-
-// Number of PEC15 bytes sent/received from the LTC6813 chip
-#define PEC15_SIZE_BYTES (2U)
-
-// Number of bytes sent/read to/from register group: 6 bytes payload + 2 bytes PEC15,
-// which can also be represented as 3 words payload + 1 word PEC15
-#define TOTAL_NUM_REG_GROUP_BYTES (NUM_REG_GROUP_PAYLOAD_BYTES + PEC15_SIZE_BYTES)
-#define TOTAL_NUM_REG_GROUP_WORDS (TOTAL_NUM_REG_GROUP_BYTES >> 1U)
-
-// Reading data back from a register group for all LTC6813's connected in a daisy chain
-#define NUM_REG_GROUP_RX_BYTES (TOTAL_NUM_REG_GROUP_BYTES * ACCUMULATOR_NUM_SEGMENTS)
-#define NUM_REG_GROUP_RX_WORDS (TOTAL_NUM_REG_GROUP_WORDS * ACCUMULATOR_NUM_SEGMENTS)
-
-// Indexing for data to write/read from the register group in word format
-#define REG_GROUP_WORD_PEC_INDEX (3U)
-
-// GPIO Selection for ADC conversion
-#define CHG (0U)
-
-// Discharge permitted
-#define DCP (0U)
-
-// Cell selection for ADC conversion
-#define CH (0U)
-
-// ADC mode selection
-#define MD (1U)
-
-// ADOW mode selection
-#define PUP_PU (1U) // Pull-up current
-#define PUP_PD (0U) // Pull-down current
-
-// clang-format on
-
-// Each command sent includes: 1 cmd word + 1 PEC15 word, which is
-// equal to: 2 cmd bytes + 2 PEC15 bytes
-typedef enum
-{
-    CMD_WORD = 0U,
-    CMD_PEC15,
-    NUM_CMD_WORDS,
-} CmdFormat;
-
-#define CMD_SIZE_BYTES (2U)
-#define PEC15_SIZE_BYTES (2U)
-#define TOTAL_NUM_CMD_BYTES (CMD_SIZE_BYTES + PEC15_SIZE_BYTES)
-
-// Number of readings (cell voltages or temperatures) per each register group
-// Each register group consists of 48 bytes, 3x 16 bytes for each reading
-typedef enum
-{
-    REG_GROUP_READING_0 = 0U,
-    REG_GROUP_READING_1,
-    REG_GROUP_READING_2,
-    NUM_OF_READINGS_PER_REG_GROUP
-} NumReadingsPerRegGroup;
-
-/**
- * Calculate and pack PEC15 bytes for commands sent to the LTC6813
- * @param tx_cmd The buffer containing the command used to calculate and pack
- * PEC15 bytes
- */
-void io_ltc6813Shared_packCmdPec15(uint16_t *tx_cmd);
-
-/**
- * Calculate and pack PEC15 bytes for data written to a given register groups
- * @param tx_cfg The buffer containing data used to calculate and pack PEC15
- * bytes
- */
-void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg);
-
 /**
  * Calculate the PEC15 value for data to write/read back from a register group
  * on the LTC6813
@@ -112,7 +44,7 @@ void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg);
  * PEC15 bytes from
  * @return The PEC15 code generated from the contents of data_buffer
  */
-uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer);
+bool io_ltc6813Shared_checkRegGroupPec15(const LtcRegGroupPayload *data_buffer);
 
 /**
  * Send a command to all LTC6813 chips on the daisy chain
@@ -121,6 +53,8 @@ uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer);
  * @return True if the command was transmitted successfully. Else, false
  */
 bool io_ltc6813Shared_sendCommand(uint16_t cmd);
+
+bool io_ltc6813Shared_readRegGroup(uint16_t cmd, LtcRegGroupPayload *rx_buffer);
 
 /**
  * Wait for the completion of all ADC conversions for the LTC6813 chips on the

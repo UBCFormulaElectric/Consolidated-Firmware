@@ -7,7 +7,7 @@
 
 void app_stackWaterMark_check(void)
 {
-    // io_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    // io_stackWaterMark_check(stack_watermarks, ARRAY_SIZE(stack_watermarks));
     app_canAlerts_CRIT_Warning_StackWaterMarkHighTask1Hz_set(
         io_taskMonitor_getStackUsage(&task_1hz_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
     app_canAlerts_CRIT_Warning_StackWaterMarkHighTask100Hz_set(
