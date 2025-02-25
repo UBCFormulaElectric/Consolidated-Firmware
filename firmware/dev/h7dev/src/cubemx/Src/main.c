@@ -125,6 +125,14 @@ void        runCanRxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+CanHandle        can = { .hcan = &hfdcan2 };
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    assert(hfdcan == can.hcan);
+    return &can;
+}
+
+SdCard sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
 
 // gpio PA0 interrupt callback
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

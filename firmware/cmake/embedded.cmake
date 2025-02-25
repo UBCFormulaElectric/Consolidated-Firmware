@@ -13,7 +13,8 @@ option(BUILD_ASM "Build the assembly files" OFF)
 
 # STM32CUBEMX Binary Path
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-        if(NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
+    # check if you have the STM32CubeMX_PATH environment variable set
+    if(NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
         set(STM32CUBEMX_BIN_PATH "$ENV{STM32CubeMX_PATH}/STM32CubeMX.exe")
     else()
     # if not, guess the you have it here
@@ -90,7 +91,7 @@ set(CM7_DEFINES
 )
 # FPU flags are compiler and linker flags
 set(CM7_FPU_FLAGS
-        -mcpu=cortex-m4
+        -mcpu=cortex-m7
         -mfloat-abi=hard
         -mfpu=fpv5-d16
 )
@@ -114,10 +115,7 @@ function(embedded_library
 
         # Suppress source file warnings for third-party code.
 #        list(APPEND COMPILER_FLAGS -w)
-        set_source_files_properties(
-                ${LIB_SRCS}
-                PROPERTIES COMPILE_FLAGS "-w"
-        )
+        embedded_no_checks("${LIB_SRCS}")
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
 #        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})
@@ -161,7 +159,7 @@ function(embedded_interface_library
     target_sources(${LIB_NAME} INTERFACE ${LIB_SRCS})
 
     IF (${THIRD_PARTY})
-        # Suppress header file warnings for third-party code by marking them as system includes.
+        # Suppress header file warnings for third-party code by marking them as system includes
         target_include_directories(${LIB_NAME} SYSTEM
                 INTERFACE
                 ${LIB_INCLUDE_DIRS}
@@ -282,4 +280,12 @@ function(embedded_image
     )
 
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
+endfunction()
+
+function (embedded_no_checks SRCS)
+    message("  🚫 [embedded.cmake, embedded_no_checks()] Disabling Warnings for ${SRCS}")
+    set_source_files_properties(
+            ${SRCS}
+            PROPERTIES COMPILE_FLAGS "-w"
+    )
 endfunction()

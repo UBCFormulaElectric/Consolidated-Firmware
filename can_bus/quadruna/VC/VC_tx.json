@@ -214,6 +214,9 @@
       "EllipseComStatusBitmask": {
         "bits": 32
       },
+      "EllipseErrorCode": {
+        "enum": "EllipseErrorCode"
+      },
       "EkfSolutionMode": {
         "enum": "VcEkfStatus"
       }
@@ -699,27 +702,33 @@
   },
   "ImuData": {
     "msg_id": 225,
-    "cycle_time": 100,
-    "description": "Linear Acceleration and Angular Velocity in x, y and z direction from the IMU",
+    "cycle_time": 10,
+    "description": "Linear Acceleration  x, y and z direction from the IMU",
     "signals": {
       "ImuAccelerationX": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 20,
-        "unit": "m/s"
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
       },
       "ImuAccelerationY": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 20,
-        "unit": "m/s"
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
       },
       "ImuAccelerationZ": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 20,
-        "unit": "m/s"
-      },
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
+      }
+      }},
+  "ImuAngularData": {
+    "msg_id": 227,
+    "cycle_time": 10,
+    "description": "Angular Velocity in x, y and z direction from the IMU",
+    "signals": {
       "ImuAngularVelocityRoll": {
         "resolution": 0.1,
         "min": -360,

@@ -45,6 +45,7 @@ __weak void canRxQueueOverflowClearCallback() {}
 void io_canQueue_init()
 {
     // Initialize CAN queues.
+    assert(!init_complete);
     tx_queue_id   = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsg), &tx_queue_attr);
     rx_queue_id   = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(CanMsg), &rx_queue_attr);
     init_complete = true;
