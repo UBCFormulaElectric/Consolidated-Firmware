@@ -1,19 +1,16 @@
 #include "tasks.h"
 
-extern "C"
-{
 #include "SEGGER_SYSVIEW.h"
 #include "cmsis_os.h"
 #include "io_log.h"
-#include "io_can.h"
+#include "hw_can.h"
 #include "io_canQueue.h"
 #include "io_canLoggingQueue.h"
 #include "hw_hardFaultHandler.h"
 #include "io_fileSystem.h"
 #include "main.h"
-}
-
 #include "fdcan_spam.h"
+#include <assert.h>
 
 CanHandle can{ .hcan = &hfdcan1 };
 
@@ -22,7 +19,7 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("h7dev reset!");
     hw_hardFaultHandler_init();
-    io_can_init(&can);
+    hw_can_init(&can);
     io_canQueue_init();
     if (io_fileSystem_init() == FILE_OK)
         io_canLogging_init();
@@ -51,7 +48,7 @@ void tasks_canTx()
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx();
-        io_can_transmit(&can, &msg);
+        hw_can_transmit(&can, &msg);
     }
 }
 
@@ -67,8 +64,9 @@ static void can_msg_received_callback(CanMsg *rx_msg)
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs);
+    assert(hfdcan == can.hcan);
     CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
+    if (!hw_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     can_msg_received_callback(&rx_msg);
@@ -76,8 +74,9 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
+    assert(hfdcan == can.hcan);
     CanMsg rx_msg;
-    if (!io_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
+    if (!hw_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     can_msg_received_callback(&rx_msg);

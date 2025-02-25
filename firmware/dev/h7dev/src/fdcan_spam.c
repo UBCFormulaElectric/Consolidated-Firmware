@@ -1,17 +1,13 @@
 #include "fdcan_spam.h"
-#include <cstdint>
-
-extern "C"
-{
+#include <stdint.h>
 #include "io_canQueue.h"
 #include "cmsis_os.h"
-}
 
 void fd_can_demo_tick()
 {
     static uint64_t i = 0;
     uint8_t         i8[8];
-    *reinterpret_cast<uint64_t *>(&i8) = i;
+    *(uint64_t *)&i8 = i;
 
     const CanMsg msg = {
         .std_id    = 0,
