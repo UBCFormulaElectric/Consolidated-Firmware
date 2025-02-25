@@ -9,7 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"hw_cans.h": "c"
-	},
 }
