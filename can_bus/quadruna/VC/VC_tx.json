@@ -723,7 +723,8 @@
         "max": 50,
         "unit": "m/s^2"
       }
-      }},
+      }
+    },
   "ImuAngularData": {
     "msg_id": 227,
     "cycle_time": 10,
