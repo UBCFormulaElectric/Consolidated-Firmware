@@ -3,6 +3,7 @@
     "msg_id": 200,
     "bus": ["bus1", "bus2"],
     "cycle_time": 100,
+    "FD" : true,
     "description": "VC vitals message.",
     "signals": {
       "Heartbeat": {
