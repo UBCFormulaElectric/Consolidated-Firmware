@@ -1,8 +1,4 @@
 #include "jobs.h"
-#include "main.h"
-
-// Standard libaray
-#include <assert.h>
 
 // App
 #include "app_commitInfo.h"
@@ -15,10 +11,6 @@
 #include "io_canRx.h"
 #include "io_time.h"
 
-// HW
-#include "hw_cans.h"
-#include "hw_gpios.h"
-
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
@@ -27,7 +19,6 @@ static void canTransmit(const JsonCanMsg *msg)
 void jobs_init(void)
 {
     // can
-    hw_can_init(&can1);
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     app_canTx_init();
