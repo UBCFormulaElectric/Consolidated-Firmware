@@ -18,8 +18,6 @@
 // HW
 #include "hw_cans.h"
 #include "hw_gpios.h"
-#include "hw_watchdog.h"
-#include "hw_watchdogConfig.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
@@ -28,9 +26,6 @@ static void canTransmit(const JsonCanMsg *msg)
 
 void jobs_init(void)
 {
-    // watchdog
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-
     // can
     hw_can_init(&can1);
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
