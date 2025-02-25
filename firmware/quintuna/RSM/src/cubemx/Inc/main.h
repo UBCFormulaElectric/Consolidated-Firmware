@@ -52,6 +52,8 @@ extern "C"
 
     /* USER CODE END EM */
 
+    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
@@ -60,27 +62,50 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define IWDG_RESET_FREQUENCY 5
-#define TIM12_PRESCALER (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TIM12_PWM_MINIMUM_FREQUENCY)
-#define TASK_CANRX_STACK_SIZE 512
-#define TASK_CANTX_STACK_SIZE 512
-#define TASK_1HZ_STACK_SIZE 512
-#define TASK_1KHZ_STACK_SIZE 512
-#define TIM3_PRESCALER 8
-#define TIM12_PWM_MINIMUM_FREQUENCY 1
-#define TIM12_AUTO_RELOAD_REG 0xFFFF
-#define ADC_FREQUENCY 1000
-#define TASK_100_HZ_STACK_SIZE 512
-#define TIMx_FREQUENCY 96000000
-#define IWDG_PRESCALER 4
-#define IWDG_WINDOW_DISABLE_VALUE 4095
-#define LSI_FREQUENCY 32000
+#define BPS_R_3V3_Pin GPIO_PIN_2
+#define BPS_R_3V3_GPIO_Port GPIOC
+#define LC3_OUT_Pin GPIO_PIN_0
+#define LC3_OUT_GPIO_Port GPIOA
+#define RL_INT_3V3_SENS_Pin GPIO_PIN_4
+#define RL_INT_3V3_SENS_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RL_3V3_Pin GPIO_PIN_5
+#define SUSP_TRAVEL_RL_3V3_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RR_3V3_Pin GPIO_PIN_6
+#define SUSP_TRAVEL_RR_3V3_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RL_OCSC_Pin GPIO_PIN_7
+#define SUSP_TRAVEL_RL_OCSC_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RR_OCSC_Pin GPIO_PIN_4
+#define SUSP_TRAVEL_RR_OCSC_GPIO_Port GPIOC
 #define BOOT_Pin GPIO_PIN_0
 #define BOOT_GPIO_Port GPIOB
 #define LED_Pin GPIO_PIN_1
 #define LED_GPIO_Port GPIOB
-#define LC3_OUT_Pin GPIO_PIN_7
-#define LC3_OUT_GPIO_Port GPIOB
+#define R_PUMP_SDA_Pin GPIO_PIN_9
+#define R_PUMP_SDA_GPIO_Port GPIOC
+#define R_PUMP_SCL_Pin GPIO_PIN_8
+#define R_PUMP_SCL_GPIO_Port GPIOA
+#define USB_D_N_Pin GPIO_PIN_11
+#define USB_D_N_GPIO_Port GPIOA
+#define USB_D_P_Pin GPIO_PIN_12
+#define USB_D_P_GPIO_Port GPIOA
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define IMU_INT1_Pin GPIO_PIN_11
+#define IMU_INT1_GPIO_Port GPIOC
+#define IMU_INT2_Pin GPIO_PIN_12
+#define IMU_INT2_GPIO_Port GPIOC
+#define SWO_Pin GPIO_PIN_3
+#define SWO_GPIO_Port GPIOB
+#define BRAKE_LIGHT_EN_Pin GPIO_PIN_5
+#define BRAKE_LIGHT_EN_GPIO_Port GPIOB
+#define IMU_SCL_Pin GPIO_PIN_6
+#define IMU_SCL_GPIO_Port GPIOB
+#define IMU_SDA_Pin GPIO_PIN_7
+#define IMU_SDA_GPIO_Port GPIOB
+#define FLOW_METER_5V_Pin GPIO_PIN_8
+#define FLOW_METER_5V_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
