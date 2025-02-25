@@ -69,7 +69,7 @@ void app_diagnosticsMode_broadcast(void)
     // Update all cell voltages
     for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
-        for (uint8_t cell = 0; cell < 16; cell++)
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             cellVoltageSetters[segment][cell](io_ltc6813CellVoltages_getCellVoltage(segment, cell));
         }
