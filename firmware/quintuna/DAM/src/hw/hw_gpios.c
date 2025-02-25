@@ -9,5 +9,6 @@ const Gpio r_shdn_sense_pin   = { SPLITTER_SHDN_SENSE_GPIO_Port, SPLITTER_SHDN_S
 const Gpio l_shdn_sense_pin   = { L_SHDN_SENSE_GPIO_Port, L_SHDN_SENSE_Pin };
 const Gpio led_pin            = { LED_GPIO_Port, LED_Pin };
 const Gpio boot_pin           = { BOOT_GPIO_Port, BOOT_Pin };
-const Gpio sd_cd_pin          = { SD_CD_GPIO_Port, SD_CD_Pin };
+const Gpio sd_present         = { SD_CD_GPIO_Port, SD_CD_Pin };
 const Gpio n_rtc_int1_pin     = { nRTC_INT1_GPIO_Port, nRTC_INT1_Pin };
+const Gpio _900m_pin          = { _900M_GPIO_GPIO_Port, _900M_GPIO_Pin };
