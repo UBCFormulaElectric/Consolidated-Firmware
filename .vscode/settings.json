@@ -9,20 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"hw_pwms.h": "c",
-		"main.h": "c",
-		"hw_i2c.h": "c",
-		"io_jsoncan.h": "c",
-		"hw_watchdogconfig.h": "c",
-		"hw_adcs.h": "c",
-		"assert.h": "c",
-		"app_mainstate.h": "c",
-		"cmsis_os.h": "c",
-		"hw_gpio.h": "c",
-		"jobs.h": "c",
-		"io_cans.h": "c",
-		"io_chimera.h": "c",
-		"io_time.h": "c"
-	},
 }
