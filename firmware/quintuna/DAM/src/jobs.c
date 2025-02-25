@@ -1,6 +1,5 @@
 #include "jobs.h"
 
-
 // static void jsoncan_transmit_func(const JsonCanMsg *tx_msg) {}
 
 void jobs_init() {}
