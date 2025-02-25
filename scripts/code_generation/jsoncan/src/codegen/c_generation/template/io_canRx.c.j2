@@ -33,26 +33,9 @@ bool io_canRx_filterMessageId(uint32_t std_id)
     return is_found;
 }
 
+{%- for item in rx_messages.messages.items() %}
 void io_canRx_updateRxTabeWithMessage(JsonCanMsg* msg)
 {
-    switch (msg->std_id)
-    {
-        {%- for msg in messages %}
-        case {{msg.id_macro()}}:
-        {
-            {{msg.name}}_Signals out_msg;
-            app_canUtils_{{msg.name}}_unpack(msg->data, &out_msg);
-            
-            {%- for signal in msg.signals %}
-            app_canRx_{{signal.name}}_update(out_msg.{{signal.name}}_value);
-            {%- endfor %}
-            break;
-        }
-        {%- endfor %}
-        default:
-        {
-            // Do nothing
-            break;
-        }
-    }
+    {# {{item}} #}
 }
+{%- endfor %}
