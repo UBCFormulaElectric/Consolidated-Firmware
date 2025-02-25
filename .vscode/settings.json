@@ -10,8 +10,6 @@
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
 	"files.associations": {
-		"hw_hal.h": "c",
-		"hw_watchdogconfig.h": "c",
-		"assert.h": "c"
+		"hw_cans.h": "c"
 	},
 }
