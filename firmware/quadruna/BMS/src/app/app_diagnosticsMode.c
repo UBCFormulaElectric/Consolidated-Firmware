@@ -81,5 +81,4 @@ void app_diagnosticsMode_broadcast(void)
     app_canTx_BMS_Seg1_Temp_set(segment_temps[1]);
     app_canTx_BMS_Seg2_Temp_set(segment_temps[2]);
     app_canTx_BMS_Seg3_Temp_set(segment_temps[3]);
-    // app_canTx_BMS_Seg4_Temp_set(segment_temps[4]);
 }

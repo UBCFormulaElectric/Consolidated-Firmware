@@ -813,118 +813,6 @@
             }
         }
     },
-    "Segment4_VoltageStats_0": {
-        "msg_id": 162,
-        "cycle_time": 1000,
-        "description": "BMS Segment 4 Voltage Stats Part 0",
-        "allowed_modes": ["debug"],
-        "signals": {
-            "Seg4_Cell0_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell1_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell2_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell3_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell4_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell5_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell6_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell7_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment4_VoltageStats_1": {
-        "msg_id": 163,
-        "cycle_time": 1000,
-        "description": "BMS Segment 4 Voltage Stats Part 1",
-        "allowed_modes": ["debug"],
-        "signals": {
-            "Seg4_Cell8_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell9_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell10_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell11_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell12_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell13_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell14_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell15_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
     "AverageSegmentTemperatureStats": {
         "msg_id": 165,
         "cycle_time": 1000,
@@ -950,12 +838,6 @@
                 "unit": "degC"
             },
             "Seg3_Temp": {
-                "resolution": 1,
-                "min": -1,
-                "max": 100,
-                "unit": "degC"
-            },
-            "Seg4_Temp": {
                 "resolution": 1,
                 "min": -1,
                 "max": 100,
