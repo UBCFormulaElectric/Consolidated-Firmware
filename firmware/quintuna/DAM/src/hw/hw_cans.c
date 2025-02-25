@@ -2,7 +2,7 @@
 #include "main.h"
 #include <assert.h>
 
-CanHandle can1 = { .hcan = &hfdcan1, .bus_num = 0 };
+CanHandle can1 = { .hcan = &hfdcan2, .bus_num = 0 };
 
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
