@@ -26,6 +26,7 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -41,12 +42,65 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-/* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .stack_size = 128 * 4,
+/* Definitions for Task1KHz */
+osThreadId_t         Task1KHzHandle;
+uint32_t             Task1KHzBuffer[512];
+osStaticThreadDef_t  Task1KHzControlBlock;
+const osThreadAttr_t Task1KHz_attributes = {
+    .name       = "Task1KHz",
+    .cb_mem     = &Task1KHzControlBlock,
+    .cb_size    = sizeof(Task1KHzControlBlock),
+    .stack_mem  = &Task1KHzBuffer[0],
+    .stack_size = sizeof(Task1KHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
+/* Definitions for Task100Hz */
+osThreadId_t         Task100HzHandle;
+uint32_t             Task100HzBuffer[512];
+osStaticThreadDef_t  Task100HzControlBlock;
+const osThreadAttr_t Task100Hz_attributes = {
+    .name       = "Task100Hz",
+    .cb_mem     = &Task100HzControlBlock,
+    .cb_size    = sizeof(Task100HzControlBlock),
+    .stack_mem  = &Task100HzBuffer[0],
+    .stack_size = sizeof(Task100HzBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+/* Definitions for TaskCanTx */
+osThreadId_t         TaskCanTxHandle;
+uint32_t             TaskCanTxBuffer[512];
+osStaticThreadDef_t  TaskCanTxControlBlock;
+const osThreadAttr_t TaskCanTx_attributes = {
+    .name       = "TaskCanTx",
+    .cb_mem     = &TaskCanTxControlBlock,
+    .cb_size    = sizeof(TaskCanTxControlBlock),
+    .stack_mem  = &TaskCanTxBuffer[0],
+    .stack_size = sizeof(TaskCanTxBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
+uint32_t             TaskCanRxBuffer[512];
+osStaticThreadDef_t  TaskCanRxControlBlock;
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
+    .cb_mem     = &TaskCanRxControlBlock,
+    .cb_size    = sizeof(TaskCanRxControlBlock),
+    .stack_mem  = &TaskCanRxBuffer[0],
+    .stack_size = sizeof(TaskCanRxBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
 };
 /* USER CODE BEGIN PV */
 
@@ -55,7 +109,11 @@ const osThreadAttr_t defaultTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-void        StartDefaultTask(void *argument);
+void        RunTask1KHz(void *argument);
+void        RunTask100Hz(void *argument);
+void        RunTask1Hz(void *argument);
+void        RunTaskCanTx(void *argument);
+void        RunTaskCanRx(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -118,8 +176,20 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* creation of defaultTask */
-    defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+    /* creation of Task1KHz */
+    Task1KHzHandle = osThreadNew(RunTask1KHz, NULL, &Task1KHz_attributes);
+
+    /* creation of Task100Hz */
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskCanTx */
+    TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
+
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunTaskCanRx, NULL, &TaskCanRx_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -223,14 +293,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_RunTask1KHz */
 /**
- * @brief  Function implementing the defaultTask thread.
+ * @brief  Function implementing the Task1KHz thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_RunTask1KHz */
+void RunTask1KHz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
@@ -239,6 +309,78 @@ void StartDefaultTask(void *argument)
         osDelay(1);
     }
     /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_RunTask100Hz */
+/**
+ * @brief Function implementing the Task100Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void *argument)
+{
+    /* USER CODE BEGIN RunTask100Hz */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTask100Hz */
+}
+
+/* USER CODE BEGIN Header_RunTask1Hz */
+/**
+ * @brief Function implementing the Task1Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void *argument)
+{
+    /* USER CODE BEGIN RunTask1Hz */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskCanTx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void *argument)
+{
+    /* USER CODE BEGIN RunTaskCanRx */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskCanRx */
 }
 
 /**

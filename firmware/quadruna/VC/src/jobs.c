@@ -14,6 +14,7 @@
 #include "states/app_initState.h"
 #include "states/app_allStates.h"
 #include "app_heartbeatMonitors.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_time.h"
 #include "io_log.h"
@@ -24,12 +25,17 @@
 #include "io_telemMessage.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
-#include "io_cans.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
-    const CanMsg c = io_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&c);
+    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&msg);
+    // ReSharper disable once CppRedundantCastExpression
+    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+        io_canLogging_loggingQueuePush(&msg);
+    // ReSharper disable once CppRedundantCastExpression
+    if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
+        io_telemMessage_pushMsgtoQueue(&msg);
 }
 
 void jobs_init()
@@ -49,6 +55,7 @@ void jobs_init()
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_VC_Heartbeat_set(true);
 
     app_faultCheck_init();
 
@@ -63,7 +70,6 @@ void jobs_init()
         LOG_INFO("Imu initialization failed");
     }
 
-    io_can_init(&can1);
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
@@ -76,6 +82,7 @@ void jobs_run1Hz_tick(void)
     // this is because there are fault overrides in allStates
     app_stateMachine_tick1Hz();
     app_allStates_runOnTick1Hz();
+    app_stackWaterMark_check();
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
@@ -96,19 +103,6 @@ void jobs_run1kHz_tick(void)
 {
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
-}
-
-void jobs_runCanTx_tick(void)
-{
-    CanMsg tx_msg = io_canQueue_popTx();
-    io_can_transmit(&can1, &tx_msg); // TODO make HW -> IO CAN
-
-    // ReSharper disable once CppRedundantCastExpression
-    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)tx_msg.std_id, tx_msg.timestamp))
-        io_canLogging_loggingQueuePush(&tx_msg);
-    // ReSharper disable once CppRedundantCastExpression
-    if (app_dataCapture_needsTelem((uint16_t)tx_msg.std_id, tx_msg.timestamp))
-        io_telemMessage_pushMsgtoQueue(&tx_msg);
 }
 
 void jobs_runCanRx_tick(void)

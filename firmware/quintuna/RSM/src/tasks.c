@@ -6,25 +6,20 @@
 #include "io_chimera.h"
 #include "io_time.h"
 
-
-
 #include "hw_pwms.h"
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
-
 
 void tasks_preInit()
 {
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_preInitWatchdog()
-{
-    
-}
+void tasks_preInitWatchdog() {}
 
-void tasks_init() {
+void tasks_init()
+{
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("RSM reset!");
 
@@ -36,11 +31,10 @@ void tasks_init() {
     jobs_init();
 }
 
-void tasks_deinit() {
-   
-}
+void tasks_deinit() {}
 
-_Noreturn void tasks_run1Hz() {
+_Noreturn void tasks_run1Hz()
+{
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
@@ -50,7 +44,8 @@ _Noreturn void tasks_run1Hz() {
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;) {
+    for (;;)
+    {
         hw_stackWaterMarkConfig_check();
         jobs_run1Hz_tick();
 
@@ -61,7 +56,8 @@ _Noreturn void tasks_run1Hz() {
     }
 }
 
-_Noreturn void tasks_run100Hz() {
+_Noreturn void tasks_run100Hz()
+{
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
@@ -71,18 +67,19 @@ _Noreturn void tasks_run100Hz() {
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;) {
+    for (;;)
+    {
         jobs_run100Hz_tick();
-    
+
         hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
-
 }
 
-_Noreturn void tasks_run1kHz() {
+_Noreturn void tasks_run1kHz()
+{
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1U;
@@ -92,9 +89,10 @@ _Noreturn void tasks_run1kHz() {
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    for (;;) {
+    for (;;)
+    {
         const uint32_t task_start_ms = io_time_getCurrentMs();
-        
+
         hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
 
@@ -121,40 +119,26 @@ _Noreturn void tasks_runCanTx(void)
 _Noreturn void tasks_runCanRx(void)
 {
     io_chimera_sleepTaskIfEnabled();
-    
+
     for (;;)
     {
         jobs_runCanRx_tick();
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    
-}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {}
 
 void HAL_TIM_IC_CaptureCallback()
 {
     io_coolant_inputCaptureCallback(&coolant_flow_meter);
 }
 
-void canRxQueueOverflowCallBack(uint32_t overflow_count) {
+void canRxQueueOverflowCallBack(uint32_t overflow_count) {}
 
-}
+void canTxQueueOverflowCallBack(uint32_t overflow_count) {}
 
-void canTxQueueOverflowCallBack(uint32_t overflow_count) {
+void canTxQueueOverflowClearCallback(void) {}
 
-}
+void canRxQueueOverflowClearCallback(void) {}
 
-void canTxQueueOverflowClearCallback(void) {
-
-}
-
-void canRxQueueOverflowClearCallback(void) {
-
-}
-
-static void jsoncan_transmit()
-{
-    
-}
+static void jsoncan_transmit() {}

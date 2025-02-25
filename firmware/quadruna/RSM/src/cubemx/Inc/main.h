@@ -30,9 +30,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -43,6 +43,18 @@ extern "C"
     extern IWDG_HandleTypeDef hiwdg;
     extern TIM_HandleTypeDef  htim3;
     extern UART_HandleTypeDef huart1;
+
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/

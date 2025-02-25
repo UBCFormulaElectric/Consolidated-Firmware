@@ -50,14 +50,72 @@ extern "C"
 
     /* USER CODE END EM */
 
+    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define CS_LS_Pin GPIO_PIN_13
+#define CS_LS_GPIO_Port GPIOC
+#define CS_HS_Pin GPIO_PIN_1
+#define CS_HS_GPIO_Port GPIOC
+#define isoSPI_MISO_Pin GPIO_PIN_2
+#define isoSPI_MISO_GPIO_Port GPIOC
+#define isoSPI_MOSI_Pin GPIO_PIN_3
+#define isoSPI_MOSI_GPIO_Port GPIOC
+#define INT3_Pin GPIO_PIN_1
+#define INT3_GPIO_Port GPIOA
+#define INT4_Pin GPIO_PIN_2
+#define INT4_GPIO_Port GPIOA
+#define nCLR_Pin GPIO_PIN_3
+#define nCLR_GPIO_Port GPIOA
+#define DAC_SCLK_Pin GPIO_PIN_5
+#define DAC_SCLK_GPIO_Port GPIOA
+#define DAC_MISO_Pin GPIO_PIN_6
+#define DAC_MISO_GPIO_Port GPIOA
+#define DAC_MOSI_Pin GPIO_PIN_7
+#define DAC_MOSI_GPIO_Port GPIOA
+#define INT1_Pin GPIO_PIN_1
+#define INT1_GPIO_Port GPIOB
+#define INT2_Pin GPIO_PIN_2
+#define INT2_GPIO_Port GPIOB
+#define isoSPI_SCLK_Pin GPIO_PIN_10
+#define isoSPI_SCLK_GPIO_Port GPIOB
+#define DOUT3_Pin GPIO_PIN_6
+#define DOUT3_GPIO_Port GPIOC
+#define DOUT4_Pin GPIO_PIN_7
+#define DOUT4_GPIO_Port GPIOC
+#define Boot_LED_Pin GPIO_PIN_8
+#define Boot_LED_GPIO_Port GPIOC
+#define Debug_LED_Pin GPIO_PIN_9
+#define Debug_LED_GPIO_Port GPIOC
+#define DOUT1_Pin GPIO_PIN_8
+#define DOUT1_GPIO_Port GPIOA
+#define DOUT2_Pin GPIO_PIN_9
+#define DOUT2_GPIO_Port GPIOA
+#define USB_D__Pin GPIO_PIN_11
+#define USB_D__GPIO_Port GPIOA
+#define USB_D_A12_Pin GPIO_PIN_12
+#define USB_D_A12_GPIO_Port GPIOA
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define INDICATOR1_Pin GPIO_PIN_10
+#define INDICATOR1_GPIO_Port GPIOC
+#define INDICATOR2_Pin GPIO_PIN_11
+#define INDICATOR2_GPIO_Port GPIOC
+#define INDICATOR3_Pin GPIO_PIN_12
+#define INDICATOR3_GPIO_Port GPIOC
+#define SWO_Pin GPIO_PIN_3
+#define SWO_GPIO_Port GPIOB
+#define CSLD_Pin GPIO_PIN_4
+#define CSLD_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
