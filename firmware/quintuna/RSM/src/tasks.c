@@ -25,7 +25,7 @@ void tasks_init()
 
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    //hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_adcs_chipsInit();
 
     jobs_init();
@@ -38,10 +38,10 @@ _Noreturn void tasks_run1Hz()
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    //WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    //hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
-    static uint32_t start_ticks = 0;
+    uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
     for (;;)
@@ -49,7 +49,7 @@ _Noreturn void tasks_run1Hz()
         hw_stackWaterMarkConfig_check();
         jobs_run1Hz_tick();
 
-        hw_watchdog_checkIn(watchdog);
+        //hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -61,17 +61,17 @@ _Noreturn void tasks_run100Hz()
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+    //WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    //hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
-    static uint32_t start_ticks = 0;
+    uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
     for (;;)
     {
         jobs_run100Hz_tick();
 
-        hw_watchdog_checkIn(watchdog);
+        //hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -83,8 +83,8 @@ _Noreturn void tasks_run1kHz()
     io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+    //WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    //hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -93,12 +93,12 @@ _Noreturn void tasks_run1kHz()
     {
         const uint32_t task_start_ms = io_time_getCurrentMs();
 
-        hw_watchdog_checkForTimeouts();
+        //hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
 
         if (io_time_getCurrentMs() - task_start_ms <= period_ms)
         {
-            hw_watchdog_checkIn(watchdog);
+            //hw_watchdog_checkIn(watchdog);
         }
 
         start_ticks += period_ms;
@@ -126,8 +126,6 @@ _Noreturn void tasks_runCanRx(void)
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {}
-
 void HAL_TIM_IC_CaptureCallback()
 {
     io_coolant_inputCaptureCallback(&coolant_flow_meter);
@@ -141,4 +139,3 @@ void canTxQueueOverflowClearCallback(void) {}
 
 void canRxQueueOverflowClearCallback(void) {}
 
-static void jsoncan_transmit() {}
