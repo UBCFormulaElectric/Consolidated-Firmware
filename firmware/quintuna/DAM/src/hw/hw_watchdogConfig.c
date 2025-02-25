@@ -2,9 +2,6 @@
 #include <stm32h7xx.h>
 #include <string.h>
 #include "hw_hal.h"
-#include "app_canAlerts.h"
-#include "app_canTx.h"
-#include "io_canTx.h"
 #include "stm32h7xx_hal_iwdg.h"
 #include "hw_utils.h"
 
