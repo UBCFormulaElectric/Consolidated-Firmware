@@ -208,6 +208,7 @@ class CanMessage:
     telem_cycle_time: Union[
         int, None
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
+    FD: bool  # If this message is sent using CAN FD
 
     # forgein key
     bus: List[str]  # List of buses this message is transmitted on
