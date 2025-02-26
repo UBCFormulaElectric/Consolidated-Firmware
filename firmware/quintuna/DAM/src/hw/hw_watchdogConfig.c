@@ -7,16 +7,16 @@
 
 extern IWDG_HandleTypeDef hiwdg1;
 
-void hw_watchdogConfig_refresh(void)
-{
-    HAL_IWDG_Refresh(&hiwdg1);
-}
+// void hw_watchdogConfig_refresh(void)
+// {
+//     HAL_IWDG_Refresh(&hiwdg1);
+// }
 
-void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)
-{
-    BREAK_IF_DEBUGGER_CONNECTED();
+// void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)
+// {
+//     BREAK_IF_DEBUGGER_CONNECTED();
 
-    // const uint8_t watchdog_id = hw_watchdog_getTaskId(watchdog);
-    // app_canAlerts_VC_Warning_WatchdogTimeout_set(true);
-    // app_canTx_VC_WatchdogTimeoutTaskName_set((RtosTaskName)watchdog_id);
-}
+//     const uint8_t watchdog_id = hw_watchdog_getTaskId(watchdog);
+//     app_canAlerts_VC_Warning_WatchdogTimeout_set(true);
+//     app_canTx_VC_WatchdogTimeoutTaskName_set((RtosTaskName)watchdog_id);
+// }
