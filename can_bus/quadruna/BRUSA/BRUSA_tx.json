@@ -55,7 +55,7 @@
             "LimitedByBatteryTemp": {
                 "bits": 1
             },
-                "LimitedByTempTransformer": {
+            "LimitedByTempTransformer": {
                 "bits": 1
             },
             "LimitedByTempDiodes": {
@@ -103,7 +103,7 @@
             "PlausMainsVolts": {
                 "bits": 1
             },
-                "OutputFuseDefect": {
+            "OutputFuseDefect": {
                 "bits": 1
             },
             "MainFuseDefect": {
