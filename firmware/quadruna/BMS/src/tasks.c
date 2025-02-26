@@ -13,6 +13,7 @@
 #include "hw_watchdog.h"
 #include "hw_uarts.h"
 #include "hw_crc.h"
+#include "hw_cans.h"
 
 #include "io_canTx.h"
 #include "io_sd.h"
@@ -21,6 +22,7 @@
 #include "io_tractiveSystem.h"
 #include "io_log.h"
 #include "io_chimera.h"
+#include "io_canQueue.h"
 
 #include "app_canRx.h"
 #include "app_accumulator.h"
@@ -74,6 +76,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_can_init(&can1);
 
     io_tractiveSystem_init(&ts_config);
     io_ltc6813Shared_init(&ltc6813_spi);
@@ -206,7 +209,10 @@ _Noreturn void tasks_runCanTx(void)
     io_chimera_sleepTaskIfEnabled();
 
     for (;;)
-        jobs_runCanTx_tick();
+    {
+        CanMsg tx_msg = io_canQueue_popTx();
+        hw_can_transmit(&can1, &tx_msg);
+    }
 }
 
 _Noreturn void tasks_runCanRx(void)

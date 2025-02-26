@@ -12,7 +12,6 @@
 
 #include "io_canMsg.h"
 #include "io_canQueue.h"
-#include "io_cans.h"
 #include "io_jsoncan.h"
 
 static void jsoncan_transmit(const JsonCanMsg *tx_msg)
@@ -23,7 +22,6 @@ static void jsoncan_transmit(const JsonCanMsg *tx_msg)
 
 void jobs_init(void)
 {
-    io_can_init(&can1);
     io_canQueue_init();
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
@@ -50,12 +48,6 @@ void jobs_run1Hz_tick(void)
 }
 void jobs_run100Hz_tick(void) {}
 void jobs_run1kHz_tick(void) {}
-
-void jobs_runCanTx_tick(void)
-{
-    CanMsg tx_msg = io_canQueue_popTx();
-    io_can_transmit(&can1, &tx_msg);
-}
 
 void jobs_runCanRx_tick(void)
 {

@@ -33,6 +33,7 @@ __weak void canRxQueueOverflowClearCallback() {}
 void io_canQueue_init()
 {
     // Initialize CAN queues.
+    assert(!init_complete);
     tx_queue_id   = xMessageBufferCreateStatic(TX_QUEUE_BYTES, tx_queue_buf, &tx_buffer_control_block);
     rx_queue_id   = xMessageBufferCreateStatic(RX_QUEUE_BYTES, rx_queue_buf, &rx_buffer_control_block);
     init_complete = true;
