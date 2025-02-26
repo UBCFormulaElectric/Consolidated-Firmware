@@ -342,7 +342,7 @@
             "OWC_Segment2to3_Status": {
         "msg_id": 142,
         "cycle_time": 100,
-        "description": "Open Wire Check Segment 2 to 3  Status",
+        "description": "Open Wire Check Segment 2 to 3 Status",
         "signals": {
             "Segment2_OWC_Cells_Status": {
                 "bits": 16
