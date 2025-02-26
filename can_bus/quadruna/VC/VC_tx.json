@@ -813,13 +813,13 @@
       "ReferenceYawRate": {
         "min": -360,
         "max": 360,
-        "resolution": 1,
+        "resolution": 0.1,
         "unit": "deg/s"
       },
       "YawMoment": {
         "min": -360,
         "max": 360,
-        "resolution": 1,
+        "resolution": 0.1,
         "unit": "deg/s^2"
       },
       "YRCTorqueLeft": {
