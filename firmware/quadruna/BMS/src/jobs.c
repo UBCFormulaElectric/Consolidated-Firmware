@@ -24,7 +24,7 @@ void jobs_init(void)
 {
     io_canQueue_init();
     io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
 
     app_canTx_init();
     app_canRx_init();

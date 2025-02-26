@@ -1,14 +1,14 @@
 {
-  "warnings_id": 401,
-  "faults_id": 402,
-  "bus": ["Can"],
-  "warnings_counts_id": 403,
-  "faults_counts_id": 404,
-  "warnings": {},
-  "faults": {
-    "DummyFault": {
-      "id": 450,
-      "description": "Dummy Fault"
+    "warnings_id": 401,
+    "faults_id": 402,
+    "warnings_counts_id": 403,
+    "faults_counts_id": 404,
+    "warnings": {
+    },
+    "faults": {
+        "DummyFault": {
+            "id": 450,
+            "description": "Dummy Fault"
+        }
     }
-  }
 }

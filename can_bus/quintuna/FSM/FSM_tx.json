@@ -1,16 +1,15 @@
 {
     "Vitals": {
-      "msg_id": 500,
-      "bus": ["Can"],
-      "cycle_time": 100,
-      "description": "FSM vitals message.",
-      "signals": {
-        "Heartbeat": {
-          "bits": 1
-        },
-        "State": {
-          "enum": "FSMState"
+        "msg_id": 500,
+        "cycle_time": 100,
+        "description": "FSM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "FSMState"
+            }
         }
-      }
     }
 }

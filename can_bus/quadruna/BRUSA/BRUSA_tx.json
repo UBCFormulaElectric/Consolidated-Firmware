@@ -1,11 +1,10 @@
 {
-  "Vitals": {
-    "bus": ["Can"],
-    "msg_id": 1552,
-    "cycle_time": 100,
-    "description": "Flags relaying BMS Charger Faults",
-    "signals": {
-      "ControlPilotDetected": {
+    "Vitals": {
+        "msg_id": 1552,
+        "cycle_time": 100,
+        "description": "Flags relaying BMS Charger Faults",
+        "signals": {
+            "ControlPilotDetected": {
                 "bits": 1
             },
             "USAMains240V": {
@@ -27,7 +26,7 @@
                 "bits": 1
             },
             "IsConnected": {
-        "bits": 1
+                "bits": 1
             },
             "LimitedByMaxPower": {
                 "bits": 1
@@ -45,9 +44,9 @@
                 "bits": 1
             },
             "LimitedByOutputVoltage": {
-        "bits": 1
-      },
-      "BypassDetection2": {
+                "bits": 1
+            },
+            "BypassDetection2": {
                 "bits": 1
             },
             "BypassDetection1": {
@@ -56,10 +55,10 @@
             "LimitedByBatteryTemp": {
                 "bits": 1
             },
-        "LimitedByTempTransformer": {
-        "bits": 1
-      },
-      "LimitedByTempDiodes": {
+                "LimitedByTempTransformer": {
+                "bits": 1
+            },
+            "LimitedByTempDiodes": {
                 "bits": 1
             },
             "LimitedByTempPowerStage": {
@@ -104,7 +103,7 @@
             "PlausMainsVolts": {
                 "bits": 1
             },
-        "OutputFuseDefect": {
+                "OutputFuseDefect": {
                 "bits": 1
             },
             "MainFuseDefect": {
@@ -189,8 +188,8 @@
                 "bits": 1
             },
             "CommandValueOutOfRange": {
-        "bits": 1
-      }
+                "bits": 1
+            }
+        }
     }
-  }
 }
