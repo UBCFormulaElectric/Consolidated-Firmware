@@ -4,72 +4,80 @@
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
 
-/* Register Addresses */
-static const uint8_t  BQ76922_I2C_ADDR           = 0x10; 
-static const uint8_t  REG_SUBCOMMAND_LSB         = 0x3E;
-static const uint8_t  REG_SUBCOMMAND_MSB         = 0x3F;
-static const uint8_t  REG_DATA_BUFFER            = 0x40;
-static const uint8_t  REG_CHECKSUM               = 0x60;
-static const uint8_t  REG_RESPONSE_LENGTH        = 0x61;
-static const uint8_t  ALERT_PIN_CONFIG           = 0x56; 
-static const uint8_t  ALARM_ENABLE_REG           = 0x66;  
-static const uint8_t  ALARM_STATUS_REG           = 0x62;  
-static const uint16_t CONFIG_UPDATE_COMMAND      = 0x0090;
-static const uint16_t CONFIG_UPDATE_EXIT_COMMAND = 0x0092;
-static const uint16_t OTP_COMMAND                = 0x00F4;
-static const uint16_t OTP_WR_CHECK               = 0x00A0;
-static const uint16_t OTP_WR                     = 0x00A1;
-static const uint16_t ENABLED_PROTECTIONS_A      = 0x9256;
-static const uint16_t ENABLED_PROTECTIONS_B      = 0x9262;
-static const uint16_t OV_THRESHOLD               = 0x9278;
-static const uint16_t UV_THRESHOLD               = 0x9275;
-static const uint16_t OV_DELAY                   = 0x92AC;
-static const uint16_t UV_DELAY                   = 0x92AE;
-static const uint16_t SCD_THRESHOLD              = 0x92C0;
-static const uint16_t OTC_THRESHOLD              = 0x929A;
-static const uint16_t OCD1_DELAY                 = 0x9283;
-static const uint16_t OCD1_THRESHOLD             = 0x9282;
+typedef enum {
+    BQ76922_I2C_ADDR           = 0x10,
+    REG_SUBCOMMAND_LSB         = 0x3E,
+    REG_SUBCOMMAND_MSB         = 0x3F,
+    REG_DATA_BUFFER            = 0x40,
+    REG_CHECKSUM               = 0x60,
+    REG_RESPONSE_LENGTH        = 0x61,
+    ALERT_PIN_CONFIG           = 0x56,
+    ALARM_ENABLE_REG           = 0x66,
+    ALARM_STATUS_REG           = 0x62
+} register_address_t;
 
+typedef enum {
+    CONFIG_UPDATE_COMMAND      = 0x0090,
+    CONFIG_UPDATE_EXIT_COMMAND = 0x0092,
+    OTP_COMMAND                = 0x00F4,
+    OTP_WR_CHECK               = 0x00A0,
+    OTP_WR                     = 0x00A1
+} config_cmd_t;
 
-/* Voltage Commands */
-const uint16_t CELL0_VOLTAGE_COMMAND = 0x1514;
-const uint16_t CELL1_VOLTAGE_COMMAND = 0x1716;
-const uint16_t CELL2_VOLTAGE_COMMAND = 0x1B1A;
-const uint16_t CELL4_VOLTAGE_COMMAND = 0x1D1C;
-const uint16_t STACK_VOLTAGE_COMMAND = 0x3534;
+typedef enum {
+    ENABLED_PROTECTIONS_A      = 0x9256,
+    ENABLED_PROTECTIONS_B      = 0x9262,
+    OV_THRESHOLD               = 0x9278,
+    UV_THRESHOLD               = 0x9275,
+    OV_DELAY                   = 0x92AC,
+    UV_DELAY                   = 0x92AE,
+    SCD_THRESHOLD              = 0x92C0,
+    OTC_THRESHOLD              = 0x929A,
+    OCD1_DELAY                 = 0x9283,
+    OCD1_THRESHOLD             = 0x9282
+} protection_t;
 
-/* Charge Command */
-const uint16_t ACCUMULATED_CHARGE_COMMAND = 0x0076;   // Subcommand for accumulated charge
+typedef enum {
+    ALARM_CLEAR_CMD            = 0x01,
+    ALERT_ACTIVE_LOW_BIT       = 5,    // Bit position for active-low configuration
+    ALERT_PIN_INTERRUPT_CONFIG = 0x02, // ALERT pin configured as an interrupt output
+    ALARM_ENABLE_VALUE         = 0x82  // Enable ADC scan alerts
+} alarm_config_t;
 
-/* Hardware Configuration and Conversion Factors */
-static const float    R_SENSE                = 3.0f;     // Sense resistor in mΩ
-static const float    Q_FULL                 = 11200.0f; // Battery full charge capacity in mAh
-static const float    SECONDS_PER_HOUR       = 3600.0f;  // Seconds per hour (for charge conversion)
-static const float    PERCENTAGE_FACTOR      = 100.0f;   // To convert SOC to percentage
-static const float    ADC_CALIBRATION_FACTOR = 7.4768f;  // Derived from ADC gain and scaling
+typedef enum {
+    I2C_TIMEOUT_MS             = 100, // Timeout for I2C operations
+    CMD_SUBCOMMAND_SIZE        = 2,   // Two bytes for subcommand
+    RESPONSE_LENGTH_SIZE       = 1,   // One byte for response length and checksum
+    SOC_RESPONSE_LENGTH        = 6,   // Expected response size for SOC command
+    VOLTAGE_RESPONSE_LENGTH    = 2    // Expected response size for voltage command
+} comm_settings_t;
 
-/* Alarm and Alert Settings */
-static const uint8_t  ALARM_CLEAR_CMD            = 0x01;
-static const uint8_t  ALERT_ACTIVE_LOW_BIT       = 5;    // Bit position for active-low configuration
-static const uint8_t  ALERT_PIN_INTERRUPT_CONFIG = 0x02; // ALERT pin configured as an interrupt output
-static const uint8_t  ALARM_ENABLE_VALUE         = 0x82; // Enable ADC scan alerts
+typedef enum {
+    BYTE_MASK  = 0xFF,  // 8-bit mask for lower byte extraction
+    BYTE_SHIFT = 8      // Shift amount for upper byte extraction
+} bit_mod_t;
 
-/* I2C Transaction Parameters */
-static const uint32_t I2C_TIMEOUT_MS = 100; // Timeout for I2C operations
+typedef enum {
+    SUBCOMMAND_PROCESS_DELAY_MS = 1, // Delay after issuing a subcommand
+    POLL_DELAY_MS               = 1  // Delay between polls
+} dalay_t;
 
-/* Response Sizes */
-static const uint8_t  CMD_SUBCOMMAND_SIZE     = 2; // Two bytes for subcommand
-static const uint8_t  RESPONSE_LENGTH_SIZE    = 1; // One byte for response length and checksum
-static const uint8_t  SOC_RESPONSE_LENGTH     = 6; // Expected response size for SOC command
-static const uint8_t  VOLTAGE_RESPONSE_LENGTH = 2; // Expected response size for voltage command
+typedef struct {
+    float r_sense;
+    float q_full;
+    float seconds_per_hour;
+    float percentage_factor;
+    float adc_calibration_factor;
+} HardwareConfig_t;
 
-/* Bit Mask and Shifting Constants */
-static const uint8_t  BYTE_MASK = 0xFF; // 8-bit mask for lower byte extraction
-static const uint8_t  BYTE_SHIFT = 8;   // Shift amount for upper byte extraction
-
-/* Delay Constants (in OS ticks) */
-static const TickType_t SUBCOMMAND_PROCESS_DELAY_MS = 1; // Delay after issuing a subcommand
-static const TickType_t POLL_DELAY_MS               = 1; // Delay between polls
+/* Define the hardware configuration values */
+static const HardwareConfig_t HardwareConfig = {
+    .r_sense = 3.0f,
+    .q_full = 11200.0f,
+    .seconds_per_hour = 3600.0f,
+    .percentage_factor = 100.0f,
+    .adc_calibration_factor = 7.4768f
+};
 
 extern I2C_HandleTypeDef hi2c1;
 
@@ -326,6 +334,10 @@ bool io_lowVoltageBattery_init(void)
     return true;
 }
 
+typedef enum {
+    ACCUMULATED_CHARGE_COMMAND = 0x0076
+} charge_cmd_t
+
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
  *
@@ -358,6 +370,14 @@ float io_lowVoltageBattery_get_SOC(void)
     return (charge_mAh / Q_FULL) * PERCENTAGE_FACTOR;
 }
 
+typedef enum {
+    CELL0_VOLTAGE_COMMAND = 0x1514,
+    CELL1_VOLTAGE_COMMAND = 0x1716,
+    CELL2_VOLTAGE_COMMAND = 0x1B1A,
+    CELL4_VOLTAGE_COMMAND = 0x1D1C,
+    STACK_VOLTAGE_COMMAND = 0x3534
+} voltage_cmd_t;
+
 /**
  * @brief Gets the battery voltage.
  *
@@ -382,4 +402,17 @@ uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd)
 
     uint16_t voltage = buffer[0] | (buffer[1] << BYTE_SHIFT);
     return voltage;
+}
+
+/**
+ * @brief Handles releasing the semaphore after an interupt.
+ * 
+ * @param GPIO_pin from the interupt. 
+ */
+void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin)
+{
+    if(GPIO_pin == BAT_MTR_ALERT_Pin) 
+    {
+        osSemaphoreRelease(bat_mtr_sem);
+    }
 }
