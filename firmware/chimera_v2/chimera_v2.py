@@ -24,6 +24,9 @@ from power_supply import *
 
 _MANUFACTURER = "ubc_formula_electric"
 
+# Roughly 3 years.
+_TIMEOUT_FOREVER_SECS = 100000000
+
 
 def log_usb_devices():
     """Debug utility for printing all available usb devices."""
@@ -158,14 +161,13 @@ class _UsbDevice:
 
         """
 
-        # Read bytes until there are a sufficent amount.
+        # Read bytes until there are a sufficient amount.
         while len(self._read_buf) < length:
             self._read_buf += bytes(
                 self._device.read(
                     self._endpoint_read.bEndpointAddress,
                     self._read_chunk_size,
-                    # Set a long timeout.
-                    100000000,
+                    _TIMEOUT_FOREVER_SECS,
                 )
             )
 

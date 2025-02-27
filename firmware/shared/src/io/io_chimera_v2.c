@@ -245,7 +245,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     }
     uint16_t response_data_size = (uint16_t)out_stream.bytes_written;
 
-    // Construct respopnse packet.
+    // Construct response packet.
     // CHIMERA Packet Format:
     // [ length low byte  | length high byte | content bytes    | ... ]
     uint16_t response_packet_size = 2 + response_data_size;
