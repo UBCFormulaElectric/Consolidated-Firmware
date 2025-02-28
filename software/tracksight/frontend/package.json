@@ -40,6 +40,7 @@
 		"react-plotly.js": "^2.6.0",
 		"react-transition-group": "^4.4.5",
 		"recharts": "^2.15.0",
+		"socket.io-client": "^4.8.1",
 		"sonner": "^1.7.2",
 		"tailwind-merge": "^2.6.0",
 		"tailwindcss": "^4.0.0",
