@@ -7,10 +7,11 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "cmsis_os.h"
+#include "FreeRTOS.h"
+#include "message_buffer.h"
 #include "io_fileSystem.h"
 
-// batch message buffer
+// Batch message buffer
 #define BATCH_SIZE 10
 struct CanMsgBatch
 {
@@ -19,28 +20,19 @@ struct CanMsgBatch
 static struct CanMsgBatch batch_buf;
 static uint32_t           batch_count = 0;
 
-// Message Queue configuration
+// Message Buffer configuration
 #define QUEUE_SIZE 256
 #define PATH_LENGTH 8
-#define QUEUE_BYTES sizeof(CanMsgLog) * QUEUE_SIZE *BATCH_SIZE
+#define QUEUE_BYTES (sizeof(struct CanMsgBatch) * QUEUE_SIZE)
 
 // State
-static osMessageQueueId_t message_queue_id;
-static StaticQueue_t      queue_control_block;
-static uint8_t            queue_buf[QUEUE_BYTES];
-static uint32_t           current_bootcount;
-static int                log_fd; // fd for the log file
-static char               current_path[10];
-static uint8_t            logging_error_remaining = 10; // number of times to error before stopping logging
-
-static const osMessageQueueAttr_t queue_attr = {
-    .name      = "CAN Logging Queue",
-    .attr_bits = 0,
-    .cb_mem    = &queue_control_block,
-    .cb_size   = sizeof(StaticQueue_t),
-    .mq_mem    = queue_buf,
-    .mq_size   = QUEUE_BYTES,
-};
+static MessageBufferHandle_t message_buffer_id;
+static StaticMessageBuffer_t buffer_control_block;
+static uint8_t               buffer_storage[QUEUE_BYTES];
+static uint32_t              current_bootcount;
+static int                   log_fd; // fd for the log file
+static char                  current_path[10];
+static uint8_t               logging_error_remaining = 10; // number of times to error before stopping logging
 
 static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
 {
@@ -55,26 +47,14 @@ static bool isLoggingEnabled(void)
     return logging_error_remaining > 0;
 }
 
-// Push a message to the buffer
-// return true and reset the batch counter if the buffer is full after pushing
-// return false otherwise
-static bool pushToBuffer(const CanMsgLog *msg)
-{
-    // the buffer should always have space for the message
-    assert(batch_count < BATCH_SIZE);
-    batch_buf.msg[batch_count] = *msg;
-    batch_count++;
-    if (batch_count >= BATCH_SIZE)
-    {
-        batch_count = 0;
-        return true;
-    }
-    return false;
-}
-
 int io_canLogging_init()
 {
-    message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg) * BATCH_SIZE, &queue_attr);
+    message_buffer_id = xMessageBufferCreateStatic(QUEUE_BYTES, buffer_storage, &buffer_control_block);
+    if (message_buffer_id == NULL)
+    {
+        logging_error_remaining = 0;
+        return 1;
+    }
 
     // create new folder for this boot
     current_bootcount = io_fileSystem_getBootCount();
@@ -94,9 +74,16 @@ int io_canLogging_recordMsgFromQueue(void)
         return 1;
 
     struct CanMsgBatch tx_msg;
-    osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
+    size_t             bytes_received =
+        xMessageBufferReceive(message_buffer_id, &tx_msg, sizeof(struct CanMsgBatch), portMAX_DELAY);
 
-    if (io_fileSystem_write(log_fd, &tx_msg, sizeof(tx_msg.msg)) < 0 && logging_error_remaining > 0)
+    if (bytes_received != sizeof(struct CanMsgBatch))
+    {
+        assert(0); // Should not fail as we wait indefinitely
+        return 1;
+    }
+
+    if (io_fileSystem_write(log_fd, &tx_msg.msg, sizeof(tx_msg.msg)) < 0 && logging_error_remaining > 0)
     {
         logging_error_remaining--;
         return 1;
@@ -113,13 +100,20 @@ bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
     CanMsgLog       msg_log;
     convertCanMsgToLog(rx_msg, &msg_log);
 
-    // cache the message to the buffer first
-    if (!pushToBuffer(&msg_log))
+    // Add message to batch
+    batch_buf.msg[batch_count] = msg_log;
+    batch_count++;
+
+    // Check if batch is full
+    if (batch_count < BATCH_SIZE)
         return false;
 
-    // We defer reading the CAN RX message to another task by storing the
-    // message on the CAN RX queue.
-    return osMessageQueuePut(message_queue_id, &batch_buf.msg, 0, 0) == osOK;
+    batch_count = 0;
+
+    // Send the full batch to the message buffer
+    size_t bytes_sent = xMessageBufferSend(message_buffer_id, &batch_buf, sizeof(struct CanMsgBatch), 0);
+    assert(bytes_sent == sizeof(struct CanMsgBatch));
+    return true;
 }
 
 int io_canLogging_sync(void)
