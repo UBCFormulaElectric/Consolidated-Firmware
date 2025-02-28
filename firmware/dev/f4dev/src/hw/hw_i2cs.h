@@ -3,10 +3,10 @@
 #include <stdbool.h>
 #include "main.h"
 
+// TODO: Setup I2Cs.
 typedef enum
 {
-    HW_I2C_BUS_1,
-    HW_I2C_BUS_2,
+    HW_I2C_3,
     HW_I2C_BUS_COUNT,
     HW_I2C_UNSPECIFIED
 } I2cBus;

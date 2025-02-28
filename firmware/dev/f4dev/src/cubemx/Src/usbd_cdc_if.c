@@ -27,6 +27,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "hw_usb.h"
+#include "io_log.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -268,8 +269,9 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-    // hook to hw_usb
-    hw_usb_pushRxMsgToQueue(Buf, *Len);
+    // Hook to hw_usb.
+    if (!hw_usb_pushRxMsgToQueue(Buf, *Len))
+        LOG_ERROR("Error encountered pushing USB RX Message to queue.");
 
     return (USBD_OK);
     /* USER CODE END 6 */
