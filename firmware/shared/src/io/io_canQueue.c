@@ -75,7 +75,7 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     // use canQueue rx in isr
-    size_t bytes_sent = xMessageBufferSend(rx_queue_id, rx_msg, sizeof(CanMsg), 0);
+    size_t bytes_sent = xMessageBufferSendFromISR(rx_queue_id, rx_msg, sizeof(CanMsg), 0);
     if (bytes_sent != sizeof(CanMsg))
     {
         canRxQueueOverflowCallBack(++rx_overflow_count);
