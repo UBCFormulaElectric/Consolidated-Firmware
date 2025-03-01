@@ -1,7 +1,7 @@
 // NotificationBar widget
 
-import 'package:dimos/src/widgets/ShutdownLoop.dart';
-import 'package:dimos/src/widgets/NotificationBar.dart';
+import 'package:dimos/ui/low_voltage/widgets/shutdown_loop.dart';
+import 'package:dimos/ui/notificationbar/widgets/NotificationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
