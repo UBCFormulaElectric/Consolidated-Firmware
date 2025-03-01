@@ -122,11 +122,12 @@ static void computeRegenTorqueRequest(
         regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
     }
 
-    float min_motor_speed_rpm = MIN(activeDiffInputs->motor_speed_left_rpm, activeDiffInputs->motor_speed_right_rpm);
+    float min_motor_speed_kmh =
+        MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_left_rpm, activeDiffInputs->motor_speed_right_rpm));
 
-    if (min_motor_speed_rpm < 10.0f)
+    if (min_motor_speed_kmh < 10.0f)
     {
-        regenAttr->derating_value = regenAttr->derating_value * (min_motor_speed_rpm - SPEED_MIN_kph) / SPEED_MIN_kph;
+        regenAttr->derating_value = regenAttr->derating_value * (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
     }
 
     activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(powerInputs);
