@@ -12,8 +12,13 @@ import pandas as pd
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (bits_for_uint, bits_to_bytes, is_int,
-                    pascal_to_screaming_snake_case, pascal_to_snake_case)
+from .utils import (
+    bits_for_uint,
+    bits_to_bytes,
+    is_int,
+    pascal_to_screaming_snake_case,
+    pascal_to_snake_case,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +87,7 @@ class CanBusConfig:
     default_mode: str
     name: str
     nodes: List[CanNode]  # List of nodes on this bus
+    fd: bool  # Whether or not this bus is FD
 
     def __hash__(self):
         return hash(self.name)
@@ -204,7 +210,6 @@ class CanMessage:
     telem_cycle_time: Union[
         int, None
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
-    # FD: bool  # If this message is sent using CAN FD
 
     # forgein key
     bus: List[str]  # List of buses this message is transmitted on
@@ -323,15 +328,12 @@ class CanDatabase:
     ]  # Dictionary of node to list of alerts set by node
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
     forwarder: CanNode  # Node which forwards this message
-    rx_msgs: dict[str, CanRxMessages] # node to CanRxMessages
-    
-    pandas_data = pd.DataFrame()
+    rx_msgs: dict[str, CanRxMessages]  # node to CanRxMessages
 
-    
     # TODO: Add a method to check for consistence of the database
     def consistence_check(self):
         pass
-    
+
     def make_pandas_dataframe(self):
         # Create a pandas dataframe from the messages
         data = []
@@ -353,14 +355,13 @@ class CanDatabase:
                         "description": signal.description,
                         "tx_node": msg.tx_node,
                         "rx_nodes": msg.rx_nodes,
-                        "signal_obj" : signal,
-                        "message_obj" : msg
+                        "signal_obj": signal,
+                        "message_obj": msg,
                     }
                 )
-        self.pandas_data = pd.DataFrame(data)
-        return self.pandas_data
-        
-    
+        pandas_data = pd.DataFrame(data)
+        return pandas_data
+
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages transmitted by a specific node.
@@ -548,6 +549,6 @@ class CanDatabase:
 @dataclass()
 class CanForward:
     message: CanMessage  # Message needed to be forwarded
-    receive_node: CanNode 
+    receive_node: CanNode
     bus: List[CanBusConfig]  # List of buses will be forwarded to
     forwarder: CanNode  # Node which forwards the message
