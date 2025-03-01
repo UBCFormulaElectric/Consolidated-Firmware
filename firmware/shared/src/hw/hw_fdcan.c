@@ -8,6 +8,8 @@
 void hw_can_init(CanHandle *can_handle)
 {
     assert(!can_handle->ready);
+    assert(can_handle->receive_callback != NULL);
+
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
     filter.IdType       = FDCAN_STANDARD_ID; // 11 bit ID
@@ -89,24 +91,29 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
     }
 }
 
-static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
+static void handleCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t rx_fifo)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
-    CanMsg           rx_msg;
-    if (!hw_can_receive(handle, FDCAN_RX_FIFO0, &rx_msg))
+
+    CanMsg rx_msg;
+    if (!hw_can_receive(handle, rx_fifo, &rx_msg))
+    {
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&rx_msg);
+    }
+
+    assert(handle->receive_callback != NULL);
+    handle->receive_callback(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs); // TODO check if this is used / consistent
-    handle_callback(hfdcan);
+    handleCallback(hfdcan, FDCAN_RX_FIFO0);
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    handle_callback(hfdcan);
+    handleCallback(hfdcan, FDCAN_RX_FIFO1);
 }
