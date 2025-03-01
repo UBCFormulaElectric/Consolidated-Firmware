@@ -21,6 +21,6 @@ bool io_canRx_filterMessageId(uint32_t std_id);
 /**
  * Unpack a received message and update the CAN RX table.
  */
-{%- for bus in rx_messages.messages.keys() -%}
+{% for bus in rx_messages.messages.keys() -%}
 void io_canRx_updateRxTableWithMessage_{{bus}}(JsonCanMsg* msg);
-{%-  endfor  %}
+{%  endfor  %}
