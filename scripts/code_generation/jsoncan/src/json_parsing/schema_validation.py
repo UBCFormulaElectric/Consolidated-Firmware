@@ -92,14 +92,20 @@ class RxSchema(TypedDict):
     messages: list[str]
 
 
+from schema import Schema, Or, List
+
 rx_schema = Schema(
-    [
-        {
-            "bus": str,
-            "messages": list[str],
-        }
-    ]
+    Or(
+        [],  # Allow an empty list
+        [
+            {
+                "bus": str,
+                "messages": [str],  # Use schema.List to define a list of strings
+            }
+        ]
+    )
 )
+
 
 """
 Enum file schema
