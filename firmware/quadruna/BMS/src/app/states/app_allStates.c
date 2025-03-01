@@ -163,7 +163,7 @@ bool app_allStates_runOnTick100Hz(void)
     {
         globals->cell_monitor_settle_count++;
     }
-    else if (acc_fault || ts_fault)
+    else if (acc_fault)
     {
         status = false;
         app_stateMachine_setNextState(app_faultState_get());
