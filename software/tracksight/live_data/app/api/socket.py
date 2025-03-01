@@ -3,7 +3,6 @@ from flask_app import app
 from logger import logger
 from subtable import SUB_TABLE
 from flask import request
-import random, time
 
 sio = SocketIO(app, cors_allowed_origins="*")
 

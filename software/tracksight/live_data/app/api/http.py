@@ -8,11 +8,11 @@ from logger import logger
 
 # api blueprints
 from api.historical_handler import historical_api
-# from api.files_handler import sd_api
+from api.files_handler import sd_api
 
 api = Blueprint('api', __name__)
 api.register_blueprint(historical_api)
-# api.register_blueprint(sd_api)
+api.register_blueprint(sd_api)
 
 @api.route("/health", methods=["GET"])
 def hello_world():
