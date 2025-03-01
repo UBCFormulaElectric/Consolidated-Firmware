@@ -10,13 +10,15 @@
 #include "app_canUtils.h"
 
 /* ------------------------- Function Definitions ------------------------- */
-
-bool io_canRx_filterMessageId(uint32_t std_id)
+// each bus has its own filter function
+{% for bus, message_names  in rx_messages.messages.items() %}
+bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id)
 {
     bool is_found = false;
     switch (std_id)
     {
-        {%- for msg in messages %}
+        {%- for msg_name in message_names %}
+        {%- set msg =  messages[msg_name]%}
         case {{msg.id_macro()}}:
         {%- endfor %}
         {
@@ -32,10 +34,29 @@ bool io_canRx_filterMessageId(uint32_t std_id)
     
     return is_found;
 }
+{% endfor %}
 
-{%- for item in rx_messages.messages.items() %}
+
 void io_canRx_updateRxTabeWithMessage(JsonCanMsg* msg)
 {
-    {# {{item}} #}
+    switch (msg->std_id)
+    {
+        {%- for msg in db.rx_msgs_for_node(node) %}
+        case {{msg.id_macro()}}:
+        {
+            {{msg.name}}_Signals out_msg;
+            app_canUtils_{{msg.name}}_unpack(msg->data, &out_msg);
+            
+            {%- for signal in msg.signals %}
+            app_canRx_{{signal.name}}_update(out_msg.{{signal.name}}_value);
+            {%- endfor %}
+            break;
+        }
+        {%- endfor %}
+        default:
+        {
+            // Do nothing
+            break;
+        }
+    }
 }
-{%- endfor %}
