@@ -32,6 +32,11 @@ class AppCanAlertsModule(CModule):
 
     def get_rx_fault(self):
         return self._db.node_rx_alerts(self._node, CanAlertType.FAULT)
+    
+    def get_rx_info(self):
+        return self._db.node_rx_alerts(self._node, CanAlertType.INFO)
+    
+
 
     def source_template(self):
         template = load_template("app_canAlerts.c.j2")
@@ -56,6 +61,7 @@ class AppCanAlertsModule(CModule):
         return template.render(
             tx_faults=self._db.node_alerts(self._node, CanAlertType.FAULT),
             tx_warnings=self._db.node_alerts(self._node, CanAlertType.WARNING),
+            tx_info=self._db.node_alerts(self._node, CanAlertType.INFO),
             boards=self.get_board_node(),
             node=self._node,
         )

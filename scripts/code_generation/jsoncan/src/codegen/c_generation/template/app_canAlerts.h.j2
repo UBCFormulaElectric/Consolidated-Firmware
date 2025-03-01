@@ -34,6 +34,11 @@ typedef struct
  * Set or clear an warning for {{node}} board.
  */
 void app_canAlerts_{{warning}}_set(bool set_alert);
+
+/**
+ * Return whether or not a specific warning transmitted by {{node}} is set.
+ */
+bool app_canAlerts_{{warning}}_get(void);
 {% endfor %}
 
 
@@ -42,21 +47,23 @@ void app_canAlerts_{{warning}}_set(bool set_alert);
  * Set or clear an fault for {{node}} board.
  */
 void app_canAlerts_{{fault}}_set(bool set_alert);
-{% endfor %}
 
-
-{% for warning in tx_warnings %}
-/**
- * Return whether or not a specific warning transmitted by {{node}} is set.
- */
-bool app_canAlerts_{{warning}}_get(void);
-{% endfor %}
-
-{% for fault in tx_faults %}
 /**
  * Return whether or not a specific fault transmitted by {{node}} is set.
  */
 bool app_canAlerts_{{fault}}_get(void);
+{% endfor %}
+
+{% for info in tx_info %}
+/**
+ * Set or clear an info for {{node}} board.
+ */
+void app_canAlerts_{{info}}_set(bool set_alert);
+
+/**
+ * Return whether or not a specific info transmitted by {{node}} is set.
+ */
+bool app_canAlerts_{{info}}_get(void);
 {% endfor %}
 
 /**
@@ -88,4 +95,9 @@ uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array);
  * Return whether or not a board has set a fault.
  */
 uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array);
+
+/**
+ * Return whether or not a board has set a warning.
+ */
+uint8_t app_canAlerts_InfoInfo(Fault_Warning_Info *alert_array);
 
