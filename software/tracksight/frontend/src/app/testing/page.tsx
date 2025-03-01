@@ -33,7 +33,7 @@ export default function TestingPage() {
                     numericalSignals={numericalSignals}
                     currentTime={currentTime}
                 /> */}
-				{/* <NumericalGraph numericalSignals={numericalSignals} currentTime={currentTime} /> */}
+				 {/* <NumericalGraph numericalSignals={numericalSignals} currentTime={currentTime} />  */}
 				<NumberOut numericalSignals={numericalSignals} currentTime={currentTime} />
 				
 			</div>
