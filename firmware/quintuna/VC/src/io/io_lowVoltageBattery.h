@@ -1,9 +1,6 @@
 #pragma once
 
 #include "hw_gpio.h"
-#include "cmsis_os2.h"
-
-extern osSemaphoreId_t bat_mtr_sem;
 
 extern const uint16_t ACCUMULATED_CHARGE_COMMAND;
 extern const uint16_t CELL0_VOLTAGE_COMMAND;
@@ -34,3 +31,10 @@ float io_lowVoltageBattery_get_SOC();
  * @return The battery voltage on success, or -1 on error.
  */
 uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd);
+
+/**
+ * @brief Handles releasing the semaphore after an interupt.
+ * 
+ * @param GPIO_pin from the interupt. 
+ */
+void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);

@@ -25,19 +25,6 @@ typedef enum {
 } config_cmd_t;
 
 typedef enum {
-    ENABLED_PROTECTIONS_A      = 0x9256,
-    ENABLED_PROTECTIONS_B      = 0x9262,
-    OV_THRESHOLD               = 0x9278,
-    UV_THRESHOLD               = 0x9275,
-    OV_DELAY                   = 0x92AC,
-    UV_DELAY                   = 0x92AE,
-    SCD_THRESHOLD              = 0x92C0,
-    OTC_THRESHOLD              = 0x929A,
-    OCD1_DELAY                 = 0x9283,
-    OCD1_THRESHOLD             = 0x9282
-} protection_t;
-
-typedef enum {
     ALARM_CLEAR_CMD            = 0x01,
     ALERT_ACTIVE_LOW_BIT       = 5,    // Bit position for active-low configuration
     ALERT_PIN_INTERRUPT_CONFIG = 0x02, // ALERT pin configured as an interrupt output
@@ -80,7 +67,6 @@ static const HardwareConfig_t HardwareConfig = {
 };
 
 extern I2C_HandleTypeDef hi2c1;
-
 static I2cInterface lvBatMon = { &hi2c1, BQ76922_I2C_ADDR, I2C_TIMEOUT_MS };
 
 osSemaphoreId_t bat_mtr_sem;
@@ -163,6 +149,19 @@ static bool io_lowVoltageBattery_read_response(uint16_t cmd, uint8_t expectedLen
 
     return (calcChecksum == checksum);
 }
+
+typedef enum {
+    ENABLED_PROTECTIONS_A      = 0x9256,
+    ENABLED_PROTECTIONS_B      = 0x9262,
+    OV_THRESHOLD               = 0x9278,
+    UV_THRESHOLD               = 0x9275,
+    OV_DELAY                   = 0x92AC,
+    UV_DELAY                   = 0x92AE,
+    SCD_THRESHOLD              = 0x92C0,
+    OTC_THRESHOLD              = 0x929A,
+    OCD1_DELAY                 = 0x9283,
+    OCD1_THRESHOLD             = 0x9282
+} protection_t;
 
 bool io_lowVoltageBattery_OTP_write(void)
 {
@@ -253,13 +252,6 @@ bool io_lowVoltageBattery_OTP_write(void)
         return false;
     }
 
-    /* Set the OTC threshold to 60 degrees celcius (delay is not applicable for temperature) */
-    uint8_t otc_threshold = 0x3C;
-    if (!hw_i2c_memWrite(&lvBatMon, OTC_THRESHOLD, &otc_threshold, 1))
-    {
-        return false;
-    }
-
     /* Set the OV, UV, and OCD1 delay to 100ms */
     uint8_t ov_u_ocd1_delay = 0x1E; // 100ms in register format
     if (!hw_i2c_memWrite(&lvBatMon, OV_DELAY, &ov_u_ocd1_delay, 1)) 
@@ -292,7 +284,7 @@ bool io_lowVoltageBattery_OTP_write(void)
 
     /* To-do: write hysteresis config */
 
-    /* To-do: Validate config */
+    /* To-do: Validate config (not needed?)*/
 
     /**
      * config end (note that SCD does not need specs)
