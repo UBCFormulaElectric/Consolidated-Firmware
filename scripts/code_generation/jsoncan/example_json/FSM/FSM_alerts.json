@@ -3,6 +3,8 @@
   "faults_id": 397,
   "warnings_counts_id": 398,
   "faults_counts_id": 399,
+  "info_id": 400,
+  "info_counts_id": 401,
   "bus": ["bus2"],
   "warnings": {
     "WatchdogTimeout": {
@@ -106,6 +108,24 @@
     "SappsOCSC": {
       "id": 353,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
+    }
+  },
+  "info": {
+    "BmsHeartbeat": {
+      "id": 351,
+      "description": "BMS heartbeat signal received."
+    },
+    "FsmHeartbeat": {
+      "id": 354,
+      "description": "FSM heartbeat signal received."
+    },
+    "RsmHeartbeat": {
+      "id": 355,
+      "description": "RSM heartbeat signal received."
+    },
+    "CritHeartbeat": {
+      "id": 356,
+      "description": "CRIT heartbeat signal received."
     }
   }
 }
