@@ -26,7 +26,7 @@ const AdcChannel ts_vsense_n  = { .voltage = &adc1_adc_voltages[2] };
 const AdcChannel shdn_isns    = { .voltage = &adc1_adc_voltages[3] };
 const AdcChannel emeter_tsns  = { .voltage = &adc1_adc_voltages[4] };
 const AdcChannel ts_isns_400a = { .voltage = &adc1_adc_voltages[5] };
-const AdcChannel ts_isns_75a  = { .voltage = &adc1_adc_voltages[6] };
+const AdcChannel ts_isns_50a  = { .voltage = &adc1_adc_voltages[6] };
 
 const AdcChannel aux_tsns     = { .voltage = &adc3_adc_voltages[0] };
 
