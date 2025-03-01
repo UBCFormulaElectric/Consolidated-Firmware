@@ -548,6 +548,6 @@ class CanDatabase:
 @dataclass()
 class CanForward:
     message: CanMessage  # Message needed to be forwarded
-    receive_node: CanNode
-    # bus: List[CanBusConfig]  # List of buses will be forwarded to
+    receive_node: CanNode 
+    bus: List[CanBusConfig]  # List of buses will be forwarded to
     forwarder: CanNode  # Node which forwards the message
