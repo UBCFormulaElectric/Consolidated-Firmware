@@ -208,7 +208,7 @@ class CanMessage:
     telem_cycle_time: Union[
         int, None
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
-    FD: bool  # If this message is sent using CAN FD
+    # FD: bool  # If this message is sent using CAN FD
 
     # forgein key
     bus: List[str]  # List of buses this message is transmitted on
@@ -261,7 +261,7 @@ class CanMessage:
 @dataclass(frozen=True)
 class CanRxMessages:
     node: str
-    messages: dict[str, list[str]]  # bus name to message names
+    messages: dict[str, list[str]]  # bus name to list of message names
 
 
 class CanAlertType(StrEnum):
@@ -326,8 +326,13 @@ class CanDatabase:
     ]  # Dictionary of node to list of alerts set by node
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
     forwarder: CanNode  # Node which forwards this message
-    rx_msgs: dict[str, CanRxMessages]
+    rx_msgs: dict[str, CanRxMessages] # node to CanRxMessages
 
+    
+    # TODO: Add a method to check for consistence of the database
+    def consistence_check(self):
+        pass
+    
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages transmitted by a specific node.

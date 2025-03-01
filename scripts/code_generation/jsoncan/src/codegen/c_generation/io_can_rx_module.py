@@ -38,4 +38,5 @@ class IoCanRxModule(CModule):
             rx_messages=self._db.rx_msgs[self._node],
             node=self._node,
             messages=self._db.msgs,
+            db = self._db
         )
