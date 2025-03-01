@@ -37,7 +37,7 @@ bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id)
 {% endfor %}
 
 
-void io_canRx_updateRxTabeWithMessage(JsonCanMsg* msg)
+void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg)
 {
     switch (msg->std_id)
     {
