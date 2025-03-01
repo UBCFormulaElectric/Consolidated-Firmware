@@ -62,7 +62,6 @@ tx_signal_schema = Schema(
 
 tx_msg_schema = Schema(
     {
-        Optional("FD"): Optional(bool),
         "bus": list[str],
         "msg_id": And(
             int, lambda x: x >= 0 and x < 2**11
