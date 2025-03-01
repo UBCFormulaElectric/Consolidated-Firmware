@@ -222,17 +222,6 @@
       }
     }
   },
-  "EllipseTime": {
-    "msg_id": 209,
-    "cycle_time": 100,
-    "description": "Timestamp from the SBG Ellipse N sensor.",
-    "signals": {
-      "EllipseTimestamp": {
-        "bits": 32,
-        "unit": "us"
-      }
-    }
-  },
   "EllipseAcceleration": {
     "disabled": true,
     "msg_id": 201,
@@ -285,31 +274,6 @@
       }
     }
   },
-  "EllipseEulerAngles": {
-    "msg_id": 222,
-    "cycle_time": 1000,
-    "description": "Euler angles from the SBG Ellipse N sensor.",
-    "signals": {
-      "EulerAnglesRoll": {
-        "min": -180,
-        "max": 180,
-        "resolution": 0.1,
-        "unit": "deg"
-      },
-      "EulerAnglesPitch": {
-        "min": -180,
-        "max": 180,
-        "resolution": 0.1,
-        "unit": "deg"
-      },
-      "EulerAnglesYaw": {
-        "min": -180,
-        "max": 180,
-        "resolution": 0.1,
-        "unit": "deg"
-      }
-    }
-  },
   "CommitInfo": {
     "msg_id": 204,
     "cycle_time": 100,
@@ -323,17 +287,28 @@
       }
     }
   },
+  "EllipseTime": {
+    "msg_id": 209,
+    "cycle_time": 100,
+    "description": "Timestamp from the SBG Ellipse N sensor.",
+    "signals": {
+      "EllipseTimestamp": {
+        "bits": 32,
+        "unit": "us"
+      }
+    }
+  },
   "PowerEstimate": {
     "msg_id": 211,
     "cycle_time": 1000,
     "description": "Debug Power Messages",
     "signals": {
-      "PowerEstimateValue": {
+      "PowerConsumedMeasuredValue": {
         "min": 0,
         "max": 120,
         "resolution": 0.1
       },
-      "PowerEstimateMeasuredValue": {
+      "PowerConsumedIdeal": {
         "min": 0,
         "max": 120,
         "resolution": 0.1
@@ -383,7 +358,7 @@
       }
     }
   },
-  "SlipRatios": {
+  "TractionControlOutputs": {
     "msg_id": 214,
     "cycle_time": 1000,
     "description": "Debug Messages for the Traction Control component of Torque Vectoring",
@@ -403,6 +378,16 @@
         "min": -1,
         "max": 1,
         "scale": 0.01
+      },
+      "TractionControlTorqueLeft":{
+        "min": 0,
+        "max": 100.0,
+        "resolution": 0.1
+      },
+      "TractionControlTorqueRight":{
+        "min": 0,
+        "max": 100.0,
+        "resolution": 0.1
       }
     }
   },
@@ -437,31 +422,6 @@
         "min": 0,
         "max": 120,
         "resolution": 0.1
-      }
-    }
-  },
-  "VehicleDynamics": {
-    "msg_id": 226,
-    "cycle_time": 100,
-    "description": "Vehicle dynamics info",
-    "signals": {
-      "RegenEnabled": {
-        "bits": 1
-      },
-      "TorqueVectoringEnabled": {
-        "bits": 1
-      },
-      "VehicleVelocity": {
-        "resolution": 0.01,
-        "min": -150,
-        "max": 150,
-        "unit": "km/h"
-      },
-      "VehicleVelocityCalculated": {
-        "resolution": 0.01,
-        "min": -150,
-        "max": 150,
-        "unit": "km/h"
       }
     }
   },
@@ -657,6 +617,31 @@
       }
     }
   },
+  "EllipseEulerAngles": {
+    "msg_id": 222,
+    "cycle_time": 1000,
+    "description": "Euler angles from the SBG Ellipse N sensor.",
+    "signals": {
+      "EulerAnglesRoll": {
+        "min": -180,
+        "max": 180,
+        "resolution": 0.1,
+        "unit": "deg"
+      },
+      "EulerAnglesPitch": {
+        "min": -180,
+        "max": 180,
+        "resolution": 0.1,
+        "unit": "deg"
+      },
+      "EulerAnglesYaw": {
+        "min": -180,
+        "max": 180,
+        "resolution": 0.1,
+        "unit": "deg"
+      }
+    }
+  },
   "ImuData": {
     "msg_id": 225,
     "cycle_time": 10,
@@ -679,6 +664,31 @@
         "min": -50,
         "max": 50,
         "unit": "m/s^2"
+      }
+    }
+  },
+  "VehicleDynamics": {
+    "msg_id": 226,
+    "cycle_time": 100,
+    "description": "Vehicle dynamics info",
+    "signals": {
+      "RegenEnabled": {
+        "bits": 1
+      },
+      "TorqueVectoringEnabled": {
+        "bits": 1
+      },
+      "VehicleVelocity": {
+        "resolution": 0.01,
+        "min": -150,
+        "max": 150,
+        "unit": "km/h"
+      },
+      "VehicleVelocityCalculated": {
+        "resolution": 0.01,
+        "min": -150,
+        "max": 150,
+        "unit": "km/h"
       }
     }
   },
@@ -766,9 +776,9 @@
       "msg_id":231,
       "cycle_time": 100, 
       "description": "Torque vectoring internal state info",
-      "signals":{
-          "TVInternalState":{
-              "enum": "TVInteralStates"
+      "signals":{ 
+          "TVState":{
+              "enum": "TorqueVectoringStates"
           }
       }
     }

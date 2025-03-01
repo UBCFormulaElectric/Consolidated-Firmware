@@ -1,7 +1,5 @@
 #pragma once
 #include "app_vehicleDynamics.h"
-#include <app_stateMachine.h>
-
 
 void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs);
 
