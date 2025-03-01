@@ -3,8 +3,8 @@
   "faults_id": 206,
   "warnings_counts_id": 207,
   "faults_counts_id": 208,
-  "info_id": 204,
-  "info_counts_id": 203,
+  "info_id": 299,
+  "info_counts_id": 290,
   "bus": ["Can"],
   "warnings": {
     "StackWaterMarkHighTask1Hz": {

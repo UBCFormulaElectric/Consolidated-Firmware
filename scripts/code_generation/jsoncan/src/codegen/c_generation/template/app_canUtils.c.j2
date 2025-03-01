@@ -68,7 +68,7 @@ static inline uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t ma
 {% set scale_macro = "CANSIG_{}_{}_SCALE" %}
 {% set offset_macro = "CANSIG_{}_{}_OFFSET" %}
 
-{% for msg in tx_messages -%}
+{% for msg in messages -%}
 {% set msg_big_name =  msg.scremming_snake_name() %} 
 // pack function for {{ msg.name }}
 void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg, uint8_t* const out_data)

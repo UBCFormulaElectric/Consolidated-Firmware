@@ -16,11 +16,11 @@
 /**
  * Returns true if BMS receives the specified message ID.
  */
-bool io_canRx_filterMessageId(uint32_t std_id);
+{% for bus in rx_messages.messages.keys() -%}
+bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id);
+{%  endfor  %}
 
 /**
  * Unpack a received message and update the CAN RX table.
  */
-{% for bus in rx_messages.messages.keys() -%}
-void io_canRx_updateRxTableWithMessage_{{bus}}(JsonCanMsg* msg);
-{%  endfor  %}
+void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg);
