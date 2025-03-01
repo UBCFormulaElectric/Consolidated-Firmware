@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import LiveFault from './components/LiveFault'
 import Live from './components/Live'
 import EnumerationGraph from './components/Enumeration'
+import NumericalGraph from './components/Numerical'
+import NumberOut from './components/NumberOut'
 
 export default function TestingPage() {
 	const [currentTime, setCurrentTime] = useState(Date.now())
@@ -31,6 +33,9 @@ export default function TestingPage() {
                     numericalSignals={numericalSignals}
                     currentTime={currentTime}
                 /> */}
+				 {/* <NumericalGraph numericalSignals={numericalSignals} currentTime={currentTime} />  */}
+				<NumberOut numericalSignals={numericalSignals} currentTime={currentTime} />
+				
 			</div>
 		</>
 	)

@@ -5,7 +5,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
+  // ResponsiveContainer, // !!! Removed ResponsiveContainer !!!
 } from "recharts";
 
 interface DataPoint {
@@ -27,21 +27,24 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
 
   useEffect(() => {
     const newDataPoint: DataPoint = { time: currentTime };
-
     // currently generating random values for each numerical signal
     numericalSignals.forEach((signalName) => {
       newDataPoint[signalName] = Math.floor(Math.random() * 100);
     });
-
-    setData((prevData) => {
-      const timeWindow = 30000; // 30 seconds in milliseconds
-      const cutoffTime = currentTime - timeWindow;
-      const filteredData = prevData.filter((d) => d.time >= cutoffTime);
-      return [...filteredData, newDataPoint];
-    });
+    // ERIK: KEEP forever -> removing filter
+    setData((prevData) => [...prevData, newDataPoint]);
   }, [currentTime, numericalSignals]);
 
   const colors = ["#ff4d4f", "#ffa940", "#36cfc9", "#597ef7", "#73d13d"];
+
+  const pixelPerDataPoint = 50;
+  const chartWidth = Math.max(data.length * pixelPerDataPoint, 100);
+
+  //Slider to adjust horizontal scaling factor
+  const [scaleFactor, setScaleFactor] = useState("100");
+  //Combines the chartWidth with the slider value
+  const finalChartWidth = chartWidth * (parseInt(scaleFactor) / 100);
+  const [chartHeight, setChartHeight] = useState("256");
 
   return (
     <div className="w-full h-64">
@@ -58,8 +61,46 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
           </div>
         ))}
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
+      <div className="ml-24 mb-2">
+        <label htmlFor="scaleSlider" className="mr-2">
+          Horizontal Scale (%):
+        </label>
+        <input
+          id="scaleSlider"
+          type="range"
+          min="1"
+          max="1000"
+          value={scaleFactor}
+          onChange={(e) => setScaleFactor(e.target.value)}
+        />
+        <span className="ml-2">{scaleFactor}%</span>
+      </div>
+      <div className="ml-24 mb-2">
+        <label htmlFor="heightSlider" className="mr-2">
+          Vertical Scale (px):
+        </label>
+        <input
+          id="heightSlider"
+          type="range"
+          min="1"
+          max="1000"
+          value={chartHeight}
+          onChange={(e) => setChartHeight(e.target.value)}
+        />
+        <span className="ml-2">{chartHeight}px</span>
+      </div>
+      <div
+        style={{
+          width: `${finalChartWidth}px`,
+          height: `${chartHeight}px`,
+          transition: "width 0.3s ease-out" // !!! CSS transition to smooth width changes !!!
+        }}
+      >
+        <AreaChart
+          width={finalChartWidth}
+          height={parseInt(chartHeight)}
+          data={data}
+        >
           <defs>
             {numericalSignals.map((signalName, index) => (
               <linearGradient
@@ -94,6 +135,7 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
             labelFormatter={(value) => new Date(value).toLocaleTimeString()}
             formatter={(value, name) => [`${value}`, `${name}`]}
           />
+          {/* ERIK: removed animation */}
           {numericalSignals.map((signalName, index) => (
             <Area
               key={signalName}
@@ -102,12 +144,12 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
               stroke={colors[index % colors.length]}
               fillOpacity={1}
               fill={`url(#color${signalName})`}
-              isAnimationActive={true}
+              isAnimationActive={false}
               animationDuration={updateInterval}
             />
           ))}
         </AreaChart>
-      </ResponsiveContainer>
+      </div>
     </div>
   );
 };

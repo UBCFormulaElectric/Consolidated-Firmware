@@ -23,9 +23,11 @@ def subscribe(signal):
     if valid_signal:
         SUB_TABLE[request.sid].add(signal)
         logger.info(f"{request.sid} subscribed to {signal}")
+        sio.emit("sub_ack", {"signal": signal, "status": "subscribed"}, to=request.sid) 
         return
     else:
         logger.error(f"{request.sid} failed to subscribe to {signal}")
+        sio.emit("sub_ack", {"signal": signal, "status": "failed"}, to=request.sid)
         return
 
 @sio.on('unsub')

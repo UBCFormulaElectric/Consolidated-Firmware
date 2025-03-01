@@ -25,12 +25,11 @@ def _download_file(commit_sha, file, folder_path, save_dir):
                 f.write(chunk)
     print(f"Downloaded: {file['path']}")
 
-
+_car = os.environ.get("CAR_NAME")
 bus_configs_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../bus_configs")
+    os.path.join(os.path.dirname(__file__), "../bus_configs", _car)
 )
 _cached_commit_sha: str | None = None
-_car = os.environ.get("CAR_NAME")
 def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     """
     Fetches the jsoncan configs for a given sha
