@@ -12,9 +12,9 @@
         "--can_data_dir",
         "${workspaceRoot}/scripts/code_generation/jsoncan/example_json",
         "--output_dir",
-        "output",
+        "temp",
         "--dbc_output",
-        "output/quadruna_can.dbc"
+        "temp/quadruna_can.dbc"
       ]
     },
     {

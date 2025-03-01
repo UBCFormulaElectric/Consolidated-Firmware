@@ -12,9 +12,14 @@ from typing import Any, Tuple
 from ..can_database import *
 from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
-from .schema_validation import (AlertsJson, validate_alerts_json,
-                                validate_bus_json, validate_enum_json,
-                                validate_rx_json, validate_tx_json)
+from .schema_validation import (
+    AlertsJson,
+    validate_alerts_json,
+    validate_bus_json,
+    validate_enum_json,
+    validate_rx_json,
+    validate_tx_json,
+)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -128,20 +133,21 @@ class JsonCanParser:
             if bus["default_mode"] not in bus["modes"]:
                 raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
 
-        bus = {
+        buses = {
             bus["name"]: CanBusConfig(
                 name=bus["name"],
                 default_mode=bus["default_mode"],
                 modes=bus["modes"],
                 bus_speed=bus["bus_speed"],
                 nodes=bus["nodes"],  # string for now
+                fd=bus.get("FD", False),
             )
             for bus in buses
         }
 
-        self._bus_cfg = bus
+        self._bus_cfg = buses
         self._forwarder_node = bus_json_data["forwarder"]
-        return bus
+        return buses
 
     def _parse_json_shared_enum_data(self, can_data_dir) -> List[CanEnum]:
         """
@@ -285,9 +291,7 @@ class JsonCanParser:
                     for alert in faults.signals
                 },
                 **{
-                    CanAlert(alert.name, CanAlertType.INFO): info_meta_data[
-                        alert.name
-                    ]
+                    CanAlert(alert.name, CanAlertType.INFO): info_meta_data[alert.name]
                     for alert in info.signals
                 },
             }
@@ -624,9 +628,9 @@ class JsonCanParser:
             if not self._get_optional_value(data=alert, key="disabled", default=False)[
                 0
             ]
-        }  
-        
-        info= {
+        }
+
+        info = {
             name: alert
             for name, alert in alerts_json["info"].items()
             if not self._get_optional_value(data=alert, key="disabled", default=False)[
@@ -649,7 +653,6 @@ class JsonCanParser:
         faults_counts_id = alerts_json["faults_counts_id"]
         info_id = alerts_json["info_id"]
         info_counts_id = alerts_json["info_counts_id"]
-        
 
         if any(
             msg_id in {msg.id for msg in self._messages.values()}
@@ -707,7 +710,6 @@ class JsonCanParser:
             node_name, info, CanAlertType.INFO
         )
 
-
         # noinspection PyTypeChecker
         alerts_msgs: tuple[CanMessage, CanMessage, CanMessage, CanMessage] = (
             CanMessage(
@@ -756,7 +758,7 @@ class JsonCanParser:
                     info_id,
                     f"Status of info for the {info}.",
                     info_signals,
-                    FAULTS_ALERTS_CYCLE_TIME, # TODO: what will be the cycle time for info?
+                    FAULTS_ALERTS_CYCLE_TIME,  # TODO: what will be the cycle time for info?
                 ),
                 (
                     info_counts_name,
@@ -765,7 +767,6 @@ class JsonCanParser:
                     info_counts_signals,
                     FAULTS_ALERTS_CYCLE_TIME,
                 ),
-                
             ]
         )
         return alerts_msgs, (faults_meta_data, warnings_meta_data, info_meta_data)

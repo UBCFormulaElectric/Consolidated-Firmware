@@ -92,7 +92,7 @@ class RxSchema(TypedDict):
     messages: list[str]
 
 
-from schema import Schema, Or, List
+from schema import List, Or, Schema
 
 rx_schema = Schema(
     Or(
@@ -102,7 +102,7 @@ rx_schema = Schema(
                 "bus": str,
                 "messages": [str],  # Use schema.List to define a list of strings
             }
-        ]
+        ],
     )
 )
 
@@ -136,6 +136,7 @@ single_bus_schema = Schema(
         "modes": [str],
         "default_mode": str,
         "nodes": [str],
+        Optional("FD"): bool,
     }
 )
 bus_list = Schema(Or(list[single_bus_schema], []))
@@ -162,7 +163,6 @@ class AlertsJson(TypedDict):
     warnings: Dict[str, AlertsEntry]
     faults: Dict[str, AlertsEntry]
     info: Dict[str, AlertsEntry]
-    
 
 
 alerts_schema = Schema(
@@ -213,7 +213,7 @@ alerts_schema = Schema(
                         },
                     )
                 },
-            ),  
+            ),
         },
         {},
     )

@@ -3,6 +3,7 @@
   "buses": [
     {
       "name": "bus1",
+      "FD": true,
       "nodes": ["VC", "BMS"],
       "bus_speed": 500,
       "modes": ["default", "debug"],
