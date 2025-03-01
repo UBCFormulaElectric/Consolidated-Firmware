@@ -60,7 +60,6 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
         executor.map(lambda file: _download_file(commit_sha, file, folder_path, save_dir), files)
     _cached_commit_sha = commit_sha
     return save_dir
-#fetch_jsoncan_configs("cde33d9", True)
 
 # TODO
 # from jsoncan.src.can_database import CanDatabase

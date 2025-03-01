@@ -69,8 +69,6 @@ if __name__ == "__main__":
     if args.mode == "wireless":
         InfluxHandler.setup()
         read_thread = get_wireless_task(args.serial_port)
-        #Hardcode for Testing!!! DELETE
-        #read_thread = get_wireless_task('/dev/tty.usbserial-FT76H2U7')
     elif args.mode == "mock":
         InfluxHandler.setup()
         read_thread = get_mock_task(args.data_file)
