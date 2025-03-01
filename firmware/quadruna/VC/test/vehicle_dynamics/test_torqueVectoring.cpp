@@ -214,6 +214,17 @@ TEST_F(TorqueVectoringTest, stateMachineTest)
 
 TEST_F(TorqueVectoringTest, check_torques_are_less_than_limit)
 {
+
+    app_canRx_CRIT_TorqueVecSwitch_update(SWITCH_ON);
+    SetStateToDrive();
+
+    EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
+    ASSERT_TRUE(app_canTx_VC_TorqueVectoringEnabled_get());
+
+    // at init the TV state is set to TV_OFF
+    ASSERT_EQ(app_canTx_VC_TVState_get(), TV_OFF);
+    LetTimePass(10);
+
     app_canRx_FSM_LeftWheelSpeed_update(50.0);
     app_canRx_FSM_RightWheelSpeed_update(50.0);
     app_canRx_INVL_MotorSpeed_update(135);
@@ -223,9 +234,12 @@ TEST_F(TorqueVectoringTest, check_torques_are_less_than_limit)
     app_canRx_INVL_MotorTemperature_update(60);
     app_canRx_INVR_MotorTemperature_update(60);
     app_canRx_BMS_AvailablePower_update(80);
-    app_canRx_FSM_Warning_SteeringAngleOCSC_update(30);
+    app_canRx_FSM_SteeringAngle_update(30);
     app_canRx_FSM_PappsMappedPedalPercentage_update(100.0f);
     app_canRx_FSM_SappsMappedPedalPercentage_update(100.0f);
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_TVState_get(), ACTIVE_DIFF);
     float actual_torque_left_nM  = app_canTx_VC_LeftInverterTorqueCommand_get();
     float actual_torque_right_nM = app_canTx_VC_RightInverterTorqueCommand_get();
     ASSERT_TRUE(actual_torque_left_nM <= MAX_TORQUE_REQUEST_NM);

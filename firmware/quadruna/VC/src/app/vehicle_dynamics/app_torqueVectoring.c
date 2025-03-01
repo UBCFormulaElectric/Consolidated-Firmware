@@ -268,7 +268,7 @@ static void tractionControl_run_on_exit()
     pid_traction_control.Ki       = 0.0f;
     pid_traction_control.integral = 0.0f;
     pid_traction_control.Kd       = 0.0f;
-    tractionControlWeight         = STATE_ON_WEIGHT;
+    tractionControlWeight         = STATE_OFF_WEIGHT;
 }
 
 static void runActiveDiff()
