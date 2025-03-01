@@ -151,9 +151,13 @@ class AlertsJson(TypedDict):
     warnings_counts_id: int
     faults_id: int
     faults_counts_id: int
+    info_id: int
+    info_counts_id: int
     bus: List[str]
     warnings: Dict[str, AlertsEntry]
     faults: Dict[str, AlertsEntry]
+    info: Dict[str, AlertsEntry]
+    
 
 
 alerts_schema = Schema(
@@ -163,6 +167,8 @@ alerts_schema = Schema(
             "warnings_counts_id": And(int, lambda x: x >= 0),
             "faults_id": And(int, lambda x: x >= 0),
             "faults_counts_id": And(int, lambda x: x >= 0),
+            "info_id": And(int, lambda x: x >= 0),
+            "info_counts_id": And(int, lambda x: x >= 0),
             "bus": list[str],
             "warnings": Or(
                 {},
@@ -190,6 +196,19 @@ alerts_schema = Schema(
                     )
                 },
             ),
+            "info": Or(
+                {},
+                {
+                    str: Or(
+                        {},
+                        {
+                            "id": int,
+                            "description": str,
+                            Optional("disabled"): bool,
+                        },
+                    )
+                },
+            ),  
         },
         {},
     )

@@ -3,6 +3,8 @@
   "faults_id": 206,
   "warnings_counts_id": 207,
   "faults_counts_id": 208,
+  "info_id": 209,
+  "info_counts_id": 210,
   "bus": ["bus1", "bus2"],
   "warnings": {
     "StackWaterMarkHighTask1Hz": {
@@ -110,6 +112,24 @@
     "RightInverterFault": {
       "id": 556,
       "description": "Right inverter entered fault state."
+    }
+  },
+  "info": {
+    "BmsHeartbeat": {
+      "id": 551,
+      "description": "BMS heartbeat signal received."
+    },
+    "FsmHeartbeat": {
+      "id": 552,
+      "description": "FSM heartbeat signal received."
+    },
+    "RsmHeartbeat": {
+      "id": 553,
+      "description": "RSM heartbeat signal received."
+    },
+    "CritHeartbeat": {
+      "id": 554,
+      "description": "CRIT heartbeat signal received."
     }
   }
 }

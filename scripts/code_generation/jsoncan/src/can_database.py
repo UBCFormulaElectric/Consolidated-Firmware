@@ -271,6 +271,7 @@ class CanAlertType(StrEnum):
 
     WARNING = "Warning"  # Warnings sent periodically, for notifying driver
     FAULT = "Fault"  # Faults sent periodically, contactors open if a fault is set
+    INFO = "Info"  # Informational alerts, not critical
 
 
 @dataclass(frozen=True)

@@ -3,6 +3,8 @@
   "faults_id": 151,
   "warnings_counts_id": 152,
   "faults_counts_id": 153,
+  "info_id": 154,
+  "info_counts_id": 155,
   "bus": ["bus1"],
   "warnings": {
     "StackWaterMarkHighTask1Hz": {
@@ -110,6 +112,12 @@
     "PrechargeFailure": {
       "id": 164,
       "description": "Precharge failed 3x times."
+    }
+  },
+  "info": {
+    "CellBalancing": {
+      "id": 165,
+      "description": "Cell balancing is active."
     }
   }
 }
