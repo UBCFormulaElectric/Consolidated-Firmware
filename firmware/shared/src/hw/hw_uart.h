@@ -35,7 +35,7 @@ void hw_uart_receiveDma(const UART *uart, uint8_t *pData, uint8_t size);
  * @param Size Amount of data elements (u8 or u16) to be transmitted.
  * @param timeout Timeout duration
  */
-void hw_uart_transmitPoll(const UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
+bool hw_uart_transmitPoll(const UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
 
 /**
  * Receives an amount of data in polling mode (blocking).
