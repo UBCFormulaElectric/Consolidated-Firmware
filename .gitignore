@@ -155,4 +155,4 @@ build
 /can_bus/**/*.plt
 
 # playground
-output/
+temp/
