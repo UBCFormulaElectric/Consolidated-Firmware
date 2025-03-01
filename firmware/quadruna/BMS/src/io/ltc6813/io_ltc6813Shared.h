@@ -1,11 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-
-#ifdef TARGET_EMBEDDED
-#include "hw_hal.h"
-#include "hw_spi.h"
-#endif
+#include <stdint.h>
 
 // clang-format off
 // Time that a SPI transaction should wait for until until an error is returned
@@ -94,14 +90,6 @@ typedef enum
     REG_GROUP_READING_2,
     NUM_OF_READINGS_PER_REG_GROUP
 } NumReadingsPerRegGroup;
-
-#ifdef TARGET_EMBEDDED
-/**
- * Initialize the SPI handle used to communicate with the LTC6813
- * @param spi The given SPI handle for the LTC6813 daisy chain.
- */
-void io_ltc6813Shared_init(const SpiInterface *spi);
-#endif
 
 /**
  * Calculate and pack PEC15 bytes for commands sent to the LTC6813
