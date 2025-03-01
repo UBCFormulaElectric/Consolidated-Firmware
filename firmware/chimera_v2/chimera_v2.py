@@ -316,27 +316,21 @@ class _Board:
         assert response.WhichOneof("payload") == "adc_read"
         return response.adc_read.value
 
-    def i2c_device(
-        self, net_name: str, device_address: int, timeout_ms: int
-    ) -> I2cDevice:
+    def i2c_device(self, net_name: str) -> I2cDevice:
         """Create an abstraction around an I2c device.
 
         Args:
             net_name: Identifier of the I2C device.
-            device_address: Address of the device on the bus.
-            timeout_ms: Milliseconds to timeout on every request to the device.
 
         Returns:
             An I2C device abstraction.
 
         """
-        return I2cDevice(self, net_name, device_address, timeout_ms)
+        return I2cDevice(self, net_name)
 
 
 class I2cDevice:
-    def __init__(
-        self, owner: _Board, net_name: str, device_address: int, timeout_ms: int
-    ):
+    def __init__(self, owner: _Board, net_name: str):
         """Create an abstraction around an I2c device.
 
         This constructor should NEVER be called on its own,
@@ -345,15 +339,11 @@ class I2cDevice:
         Args:
             owner: Owner board.
             net_name: Identifier of the I2C device.
-            device_address: Address of the device on the bus.
-            timeout_ms: Milliseconds to timeout on every request to the device.
 
         """
 
         self._owner = owner
         self._net_name = self._owner.board_module.I2cNetName.Value(net_name)
-        self._device_address = device_address
-        self._timeout_ms = timeout_ms
 
     def is_ready(self) -> bool:
         """Check if an i2c device is ready.
@@ -366,7 +356,6 @@ class I2cDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(request.i2c_ready.net_name, self._owner.i2c_net_name, self._net_name)
-        request.i2c_ready.timeout_ms = self._timeout_ms
         self._owner._write(request)
 
         # Wait for response.
@@ -388,8 +377,6 @@ class I2cDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(request.i2c_receive.net_name, self._owner.i2c_net_name, self._net_name)
-        request.i2c_receive.device_address = self._device_address
-        request.i2c_receive.timeout_ms = self._timeout_ms
         request.i2c_receive.length = length
 
         self._owner._write(request)
@@ -410,8 +397,6 @@ class I2cDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(request.i2c_transmit.net_name, self._owner.i2c_net_name, self._net_name)
-        request.i2c_transmit.device_address = self._device_address
-        request.i2c_transmit.timeout_ms = self._timeout_ms
         request.i2c_transmit.data = data
 
         self._owner._write(request)
@@ -438,8 +423,6 @@ class I2cDevice:
         setattr(
             request.i2c_memory_read.net_name, self._owner.i2c_net_name, self._net_name
         )
-        request.i2c_memory_read.device_address = self._device_address
-        request.i2c_memory_read.timeout_ms = self._timeout_ms
         request.i2c_memory_read.memory_address = memory_address
         request.i2c_memory_read.length = length
 
@@ -464,8 +447,6 @@ class I2cDevice:
         setattr(
             request.i2c_memory_write.net_name, self._owner.i2c_net_name, self._net_name
         )
-        request.i2c_memory_write.device_address = self._device_address
-        request.i2c_memory_write.timeout_ms = self._timeout_ms
         request.i2c_memory_write.memory_address = memory_address
         request.i2c_memory_write.data = data
 

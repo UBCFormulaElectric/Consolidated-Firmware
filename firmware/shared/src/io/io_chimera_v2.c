@@ -15,7 +15,7 @@
 
 static const Gpio       **id_to_gpio;
 static const AdcChannel **id_to_adc;
-static const I2cBus      *id_to_i2c;
+static const I2cDevice  **id_to_i2c;
 
 pb_size_t gpio_net_name_tag = f4dev_GpioNetName_GPIO_NET_NAME_UNSPECIFIED;
 pb_size_t adc_net_name_tag  = f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED;
@@ -59,19 +59,19 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
     return NULL;
 }
 
-// Convert a given I2C to an I2C bus.
-static I2cBus io_chimera_v2_getI2c(const I2cNetName *net_name)
+// Convert a given I2C enum to an I2C device.
+static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 {
     if (adc_net_name_tag != net_name->which_name)
     {
         LOG_ERROR("Chimera: Expected I2C net name with tag %d, got %d", i2c_net_name_tag, net_name->which_name);
-        return 0;
+        return NULL;
     }
 
     if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
         return id_to_i2c[net_name->name.f4dev_net_name];
 
-    LOG_ERROR("Chimera: Received I2C bus from unsupported board.");
+    LOG_ERROR("Chimera: Received I2C device from unsupported board.");
     return 0;
 }
 
@@ -135,12 +135,8 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         I2cReadyRequest *payload = &request.payload.i2c_ready;
 
         // I2C ready check.
-        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
-        I2cDevice    device = { .bus            = bus,
-                                .target_address = (uint8_t)payload->device_address,
-                                .timeout_ms     = payload->timeout_ms };
-
-        bool ready = hw_i2c_isTargetReady(&device);
+        const I2cDevice *device = io_chimera_v2_getI2c(&payload->net_name);
+        bool             ready  = hw_i2c_isTargetReady(device);
 
         // Format response.
         response.which_payload           = ChimeraV2Response_i2c_ready_tag;
@@ -152,12 +148,8 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         I2cTransmitRequest *payload = &request.payload.i2c_transmit;
 
         // I2C ready check.
-        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
-        I2cDevice    device = { .bus            = bus,
-                                .target_address = (uint8_t)payload->device_address,
-                                .timeout_ms     = payload->timeout_ms };
-
-        bool success = hw_i2c_transmit(&device, payload->data.bytes, payload->data.size);
+        const I2cDevice *device  = io_chimera_v2_getI2c(&payload->net_name);
+        bool             success = hw_i2c_transmit(device, payload->data.bytes, payload->data.size);
 
         // Format response.
         response.which_payload                = ChimeraV2Response_i2c_transmit_tag;
@@ -169,13 +161,9 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         I2cMemoryWriteRequest *payload = &request.payload.i2c_memory_write;
 
         // I2C ready check.
-        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
-        I2cDevice    device = { .bus            = bus,
-                                .target_address = (uint8_t)payload->device_address,
-                                .timeout_ms     = payload->timeout_ms };
-
-        bool success =
-            hw_i2c_memoryWrite(&device, (uint16_t)payload->memory_address, payload->data.bytes, payload->data.size);
+        const I2cDevice *device = io_chimera_v2_getI2c(&payload->net_name);
+        bool             success =
+            hw_i2c_memoryWrite(device, (uint16_t)payload->memory_address, payload->data.bytes, payload->data.size);
 
         // Format response.
         response.which_payload                    = ChimeraV2Response_i2c_memory_write_tag;
@@ -186,14 +174,9 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         // Extract payload
         I2cReceiveRequest *payload = &request.payload.i2c_receive;
 
-        // I2C ready check.
-        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
-        I2cDevice    device = { .bus            = bus,
-                                .target_address = (uint8_t)payload->device_address,
-                                .timeout_ms     = payload->timeout_ms };
-
-        uint8_t data[payload->length];
-        bool    success = hw_i2c_receive(&device, data, (uint16_t)payload->length);
+        const I2cDevice *device = io_chimera_v2_getI2c(&payload->net_name);
+        uint8_t          data[payload->length];
+        bool             success = hw_i2c_receive(device, data, (uint16_t)payload->length);
         if (!success)
             LOG_ERROR("Chimera: Failed to receive on I2C");
 
@@ -212,13 +195,10 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         I2cMemoryReadRequest *payload = &request.payload.i2c_memory_read;
 
         // I2C ready check.
-        const I2cBus bus    = io_chimera_v2_getI2c(&payload->net_name);
-        I2cDevice    device = { .bus            = bus,
-                                .target_address = (uint8_t)payload->device_address,
-                                .timeout_ms     = payload->timeout_ms };
+        const I2cDevice *device = io_chimera_v2_getI2c(&payload->net_name);
 
         uint8_t data[payload->length];
-        bool success = hw_i2c_memoryRead(&device, (uint16_t)payload->memory_address, data, (uint16_t)payload->length);
+        bool    success = hw_i2c_memoryRead(device, (uint16_t)payload->memory_address, data, (uint16_t)payload->length);
         if (!success)
             LOG_ERROR("Chimera: Failed to receive on I2C");
 
@@ -271,7 +251,7 @@ void io_chimera_v2_main(
     pb_size_t         adc_tag,
     const AdcChannel *adc_conf[],
     pb_size_t         i2c_tag,
-    const I2cBus      i2c_conf[])
+    const I2cDevice  *i2c_conf[])
 {
     // Set tags.
     gpio_net_name_tag = gpio_tag;

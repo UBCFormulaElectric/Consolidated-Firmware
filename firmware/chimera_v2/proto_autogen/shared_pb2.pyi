@@ -175,22 +175,18 @@ class I2cReadyRequest(google.protobuf.message.Message):
     """I2C ready check request/response."""
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     NET_NAME_FIELD_NUMBER: builtins.int
-    DEVICE_ADDRESS_FIELD_NUMBER: builtins.int
-    TIMEOUT_MS_FIELD_NUMBER: builtins.int
-    device_address: builtins.int
-    timeout_ms: builtins.int
 
     @property
     def net_name(self) -> global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., device_address: builtins.int=..., timeout_ms: builtins.int=...) -> None:
+    def __init__(self, *, net_name: global___I2cNetName | None=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['device_address', b'device_address', 'net_name', b'net_name', 'timeout_ms', b'timeout_ms']) -> None:
+    def ClearField(self, field_name: typing.Literal['net_name', b'net_name']) -> None:
         ...
 global___I2cReadyRequest = I2cReadyRequest
 
@@ -212,24 +208,20 @@ class I2cReceiveRequest(google.protobuf.message.Message):
     """I2C receive data request/response."""
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     NET_NAME_FIELD_NUMBER: builtins.int
-    DEVICE_ADDRESS_FIELD_NUMBER: builtins.int
     LENGTH_FIELD_NUMBER: builtins.int
-    TIMEOUT_MS_FIELD_NUMBER: builtins.int
-    device_address: builtins.int
     length: builtins.int
-    timeout_ms: builtins.int
 
     @property
     def net_name(self) -> global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., device_address: builtins.int=..., length: builtins.int=..., timeout_ms: builtins.int=...) -> None:
+    def __init__(self, *, net_name: global___I2cNetName | None=..., length: builtins.int=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['device_address', b'device_address', 'length', b'length', 'net_name', b'net_name', 'timeout_ms', b'timeout_ms']) -> None:
+    def ClearField(self, field_name: typing.Literal['length', b'length', 'net_name', b'net_name']) -> None:
         ...
 global___I2cReceiveRequest = I2cReceiveRequest
 
@@ -251,24 +243,20 @@ class I2cTransmitRequest(google.protobuf.message.Message):
     """I2C transmit data request/response."""
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     NET_NAME_FIELD_NUMBER: builtins.int
-    DEVICE_ADDRESS_FIELD_NUMBER: builtins.int
     DATA_FIELD_NUMBER: builtins.int
-    TIMEOUT_MS_FIELD_NUMBER: builtins.int
-    device_address: builtins.int
     data: builtins.bytes
-    timeout_ms: builtins.int
 
     @property
     def net_name(self) -> global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., device_address: builtins.int=..., data: builtins.bytes=..., timeout_ms: builtins.int=...) -> None:
+    def __init__(self, *, net_name: global___I2cNetName | None=..., data: builtins.bytes=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['data', b'data', 'device_address', b'device_address', 'net_name', b'net_name', 'timeout_ms', b'timeout_ms']) -> None:
+    def ClearField(self, field_name: typing.Literal['data', b'data', 'net_name', b'net_name']) -> None:
         ...
 global___I2cTransmitRequest = I2cTransmitRequest
 
@@ -290,26 +278,22 @@ class I2cMemoryReadRequest(google.protobuf.message.Message):
     """I2C read memory request/response."""
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     NET_NAME_FIELD_NUMBER: builtins.int
-    DEVICE_ADDRESS_FIELD_NUMBER: builtins.int
     MEMORY_ADDRESS_FIELD_NUMBER: builtins.int
     LENGTH_FIELD_NUMBER: builtins.int
-    TIMEOUT_MS_FIELD_NUMBER: builtins.int
-    device_address: builtins.int
     memory_address: builtins.int
     length: builtins.int
-    timeout_ms: builtins.int
 
     @property
     def net_name(self) -> global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., device_address: builtins.int=..., memory_address: builtins.int=..., length: builtins.int=..., timeout_ms: builtins.int=...) -> None:
+    def __init__(self, *, net_name: global___I2cNetName | None=..., memory_address: builtins.int=..., length: builtins.int=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['device_address', b'device_address', 'length', b'length', 'memory_address', b'memory_address', 'net_name', b'net_name', 'timeout_ms', b'timeout_ms']) -> None:
+    def ClearField(self, field_name: typing.Literal['length', b'length', 'memory_address', b'memory_address', 'net_name', b'net_name']) -> None:
         ...
 global___I2cMemoryReadRequest = I2cMemoryReadRequest
 
@@ -331,26 +315,22 @@ class I2cMemoryWriteRequest(google.protobuf.message.Message):
     """I2C write memory request/response."""
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     NET_NAME_FIELD_NUMBER: builtins.int
-    DEVICE_ADDRESS_FIELD_NUMBER: builtins.int
     MEMORY_ADDRESS_FIELD_NUMBER: builtins.int
     DATA_FIELD_NUMBER: builtins.int
-    TIMEOUT_MS_FIELD_NUMBER: builtins.int
-    device_address: builtins.int
     memory_address: builtins.int
     data: builtins.bytes
-    timeout_ms: builtins.int
 
     @property
     def net_name(self) -> global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., device_address: builtins.int=..., memory_address: builtins.int=..., data: builtins.bytes=..., timeout_ms: builtins.int=...) -> None:
+    def __init__(self, *, net_name: global___I2cNetName | None=..., memory_address: builtins.int=..., data: builtins.bytes=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['data', b'data', 'device_address', b'device_address', 'memory_address', b'memory_address', 'net_name', b'net_name', 'timeout_ms', b'timeout_ms']) -> None:
+    def ClearField(self, field_name: typing.Literal['data', b'data', 'memory_address', b'memory_address', 'net_name', b'net_name']) -> None:
         ...
 global___I2cMemoryWriteRequest = I2cMemoryWriteRequest
 

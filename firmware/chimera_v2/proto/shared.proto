@@ -70,8 +70,6 @@ message I2cNetName {
 // I2C ready check request/response.
 message I2cReadyRequest {
   I2cNetName net_name = 1;
-  uint32 device_address = 2;
-  uint32 timeout_ms = 3;
 }
 
 message I2cReadyResponse {
@@ -81,9 +79,7 @@ message I2cReadyResponse {
 // I2C receive data request/response.
 message I2cReceiveRequest {
   I2cNetName net_name = 1;
-  uint32 device_address = 2;
-  uint32 length = 3;
-  uint32 timeout_ms = 4;
+  uint32 length = 2;
 }
 
 message I2cReceiveResponse {
@@ -93,9 +89,7 @@ message I2cReceiveResponse {
 // I2C transmit data request/response.
 message I2cTransmitRequest {
   I2cNetName net_name = 1;
-  uint32 device_address = 2;
-  bytes data = 3 [(nanopb).max_size = 1024];
-  uint32 timeout_ms = 4;
+  bytes data = 2 [(nanopb).max_size = 1024];
 }
 
 message I2cTransmitResponse {
@@ -105,10 +99,8 @@ message I2cTransmitResponse {
 // I2C read memory request/response.
 message I2cMemoryReadRequest {
   I2cNetName net_name = 1;
-  uint32 device_address = 2;
-  uint32 memory_address = 3;
-  uint32 length = 4;
-  uint32 timeout_ms = 5;
+  uint32 memory_address = 2;
+  uint32 length = 3;
 }
 
 message I2cMemoryReadResponse {
@@ -118,10 +110,8 @@ message I2cMemoryReadResponse {
 // I2C write memory request/response.
 message I2cMemoryWriteRequest {
   I2cNetName net_name = 1;
-  uint32 device_address = 2;
-  uint32 memory_address = 3;
-  bytes data = 4 [(nanopb).max_size = 1024];
-  uint32 timeout_ms = 5;
+  uint32 memory_address = 2;
+  bytes data = 3 [(nanopb).max_size = 1024];
 }
 
 message I2cMemoryWriteResponse {

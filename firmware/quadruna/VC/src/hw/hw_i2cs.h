@@ -1,14 +1,6 @@
 #pragma once
 
-#include <stdbool.h>
-#include "main.h"
+#include "hw_i2c.h"
 
-typedef enum
-{
-    HW_I2C_BUS_1,
-    HW_I2C_BUS_2,
-    HW_I2C_BUS_COUNT,
-    HW_I2C_UNSPECIFIED
-} I2cBus;
-
-extern I2C_HandleTypeDef *i2c_bus_handles[HW_I2C_BUS_COUNT];
+extern const I2cDevice imu_i2c;
+extern const I2cDevice potentiometer_i2c;

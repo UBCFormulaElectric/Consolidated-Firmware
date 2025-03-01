@@ -342,8 +342,8 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
     ...
 }
 
-// Convert a given I2C to an I2C bus.
-static I2cBus io_chimera_v2_getI2c(const I2cNetName *net_name)
+// Convert a given I2C enum to an I2C device.
+static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 {
     ...
 
@@ -352,6 +352,7 @@ static I2cBus io_chimera_v2_getI2c(const I2cNetName *net_name)
 
     ...
 }
+
 
 ...
 ```
@@ -380,7 +381,7 @@ To capture these peripherals on the board side, we need to create a mapping from
 
 extern const Gpio       *id_to_gpio[];
 extern const AdcChannel *id_to_adc[];
-extern const I2cBus      id_to_i2c[];
+extern const I2cDevice  *id_to_i2c[];
 ```
 
 `io_chimeraConfig_v2.c` should extern declare tables mapping from the protobuf net name enums, to the actual peripherals.
@@ -400,44 +401,41 @@ const Gpio *id_to_gpio[] = {
 };
 
 // TODO: Configure adcs.
-const AdcChannel *id_to_adc[] = { 
-    ...
-};
+const AdcChannel *id_to_adc[] = { [f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
 
 // TODO: Configure I2Cs.
-const I2cBus id_to_i2c[] = { 
-    ...
-};
+const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
 ```
 
 > Note: Because chimera rellies on the existance of all of these peripherals, you will need a `hw_i2cs.h`, `hw_gpios.h`, and `hw_i2cs.h` header in every board. This will likely mean you have to add the i2c HAL headers, see other boards on how to do this.
 >
-> If your board has none of a given peripheral, (ie. no ADC channels, or no I2C devices), you can define `id_to_adc` and `id_to_i2c` as follows:
+> If your board has none of a given peripheral, (ie. no ADC channels, or no I2C devices), you can provide an id_to_peripheral table as follows:
 >
 >```c
 > // TODO: Configure adcs.
-> const AdcChannel *id_to_adc[] = { [0] = NULL };
+> const AdcChannel *id_to_adc[] = { [f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
 > 
 > // TODO: Configure I2Cs.
-> const I2cBus id_to_i2c[] = { [0] = HW_I2C_UNSPECIFIED };
+> const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
 >```
 >
 > Since a lot of boards might not have I2C devices, it is sufficent to supply a `hw_i2cs.h` as follows:
 > ```c
 > #pragma once
 > 
-> #include <stdbool.h>
-> #include "main.h"
-> 
-> // TODO: Setup I2Cs.
-> typedef enum
-> {
->     HW_I2C_BUS_COUNT,
->     HW_I2C_UNSPECIFIED
-> } I2cBus;
-> 
+> #include "hw_i2c.h"
 > ```
 >
+> And `hw_i2cs.c` as follows:
+> ```c
+> #include "hw_i2cs.h"
+> #include "main.h"
+> 
+> I2cBus *hw_i2c_getBusFromHandle(const I2C_HandleTypeDef *handle)
+> {
+>     return NULL;
+> }
+> ```
 
 
 We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_main` in your desired task (You need to also include `shared.pb.h` and `io_chimeraConfig_v2.h` at the top of your file).
