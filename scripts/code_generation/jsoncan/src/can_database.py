@@ -8,16 +8,12 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Set, Union
 
+import pandas as pd
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 
@@ -310,7 +306,7 @@ class CanNode:
         return self.name
 
 
-@dataclass(frozen=True)
+@dataclass()
 class CanDatabase:
     """
     Dataclass for fully describing a CAN bus, its nodes, and their messages.
@@ -328,11 +324,42 @@ class CanDatabase:
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
     forwarder: CanNode  # Node which forwards this message
     rx_msgs: dict[str, CanRxMessages] # node to CanRxMessages
+    
+    pandas_data = pd.DataFrame()
 
     
     # TODO: Add a method to check for consistence of the database
     def consistence_check(self):
         pass
+    
+    def make_pandas_dataframe(self):
+        # Create a pandas dataframe from the messages
+        data = []
+        for msg in self.msgs.values():
+            for signal in msg.signals:
+                data.append(
+                    {
+                        "message": msg.name,
+                        "signal": signal.name,
+                        "start_bit": signal.start_bit,
+                        "bits": signal.bits,
+                        "scale": signal.scale,
+                        "offset": signal.offset,
+                        "min_val": signal.min_val,
+                        "max_val": signal.max_val,
+                        "start_val": signal.start_val,
+                        "unit": signal.unit,
+                        "signed": signal.signed,
+                        "description": signal.description,
+                        "tx_node": msg.tx_node,
+                        "rx_nodes": msg.rx_nodes,
+                        "signal_obj" : signal,
+                        "message_obj" : msg
+                    }
+                )
+        self.pandas_data = pd.DataFrame(data)
+        return self.pandas_data
+        
     
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
