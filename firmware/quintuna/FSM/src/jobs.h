@@ -1,4 +1,4 @@
-# pragma once
+#pragma once
 
 /**
  * Anything that needs to be initialized for unit testing must be put here
@@ -12,4 +12,3 @@ void jobs_run1Hz_tick(void);
 void jobs_run100Hz_tick(void);
 void jobs_run1kHz_tick(void);
 void jobs_runCanRx_tick(void);
-
