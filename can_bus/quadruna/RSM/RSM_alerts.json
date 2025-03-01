@@ -3,6 +3,8 @@
   "faults_id": 491,
   "warnings_counts_id": 492,
   "faults_counts_id": 493,
+  "info_id": 489,
+  "info_counts_id": 488,
   "bus": ["Can"],
   "warnings": {
     "WatchdogTimeout": {
@@ -95,5 +97,6 @@
       "id": 454,
       "description": "BMS Missing Heart beat"
     }
-  }
+  },
+  "info": {}
 }

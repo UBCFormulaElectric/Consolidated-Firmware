@@ -2,7 +2,7 @@
   "forwarder": "VC",
   "buses": [
     {
-      "name": "Can",
+      "bus": "Can",
       "nodes": [
         "VC",
         "BMS",

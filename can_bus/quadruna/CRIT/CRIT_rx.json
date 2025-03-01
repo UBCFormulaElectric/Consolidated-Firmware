@@ -1,4 +1,6 @@
-{
+[
+  {
+    "bus": "Can",
     "messages": [
         "BMS_Vitals",
         "FSM_Vitals",
@@ -11,4 +13,5 @@
         "Debug_CanMode",
         "Debug_BootloaderCAN"
     ]
-}
+  }
+]

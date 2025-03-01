@@ -1,4 +1,6 @@
-{
+[
+  {
+    "bus": "Can1",
     "messages": [
         "BMS_TractiveSystem",
         "BMS_BMSShdnNodeStatus",
@@ -27,4 +29,5 @@
         "INVR_Temperatures3",
         "Debug_BootloaderCAN"
     ]
-}
+  }
+]

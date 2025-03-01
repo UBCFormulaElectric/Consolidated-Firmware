@@ -3,6 +3,8 @@
   "faults_id": 206,
   "warnings_counts_id": 207,
   "faults_counts_id": 208,
+  "info_id": 204,
+  "info_counts_id": 203,
   "bus": ["Can"],
   "warnings": {
     "StackWaterMarkHighTask1Hz": {
@@ -111,5 +113,6 @@
       "id": 556,
       "description": "Right inverter entered fault state."
     }
-  }
+  },
+  "info": {}
 }

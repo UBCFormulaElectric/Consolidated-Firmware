@@ -1,4 +1,6 @@
-{
+[
+  {
+    "bus": "Can",
     "messages": [
         "VC_Vitals",
         "BRUSA_Vitals",
@@ -9,4 +11,5 @@
         "Debug_SetBSPDTestCurrent",
         "Debug_BootloaderCAN"
     ]
-}
+  }
+]

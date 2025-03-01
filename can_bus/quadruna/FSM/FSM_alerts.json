@@ -3,6 +3,8 @@
   "faults_id": 397,
   "warnings_counts_id": 398,
   "faults_counts_id": 399,
+  "info_id": 395,
+  "info_counts_id": 394,
   "bus": ["Can"],
   "warnings": {
     "WatchdogTimeout": {
@@ -107,5 +109,6 @@
       "id": 353,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
     }
-  }
+  },
+  "info": {}
 }
