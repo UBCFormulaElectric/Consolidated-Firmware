@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:dimos/src/app.dart';
+import 'package:dimos/ui/low_voltage/widgets/lv_screen.dart';
+import 'package:dimos/ui/notificationbar/widgets/NotificationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -7,6 +8,24 @@ void main() async {
   setupWindow();
 
   runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: new ThemeData(scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0)),
+      home: Scaffold(
+        appBar: NotificationBar(),
+        body: Center(
+          child: LVScreen()
+        ),
+      ),
+    );
+  }
 }
 
 void setupWindow() async {
