@@ -1,6 +1,5 @@
-#include "main.h"
 #include "hw_i2cs.h"
 
-const I2cDevice imu = { .bus            = &hi2c1, // fix this after i2c merge
-                        .target_address = 0x6B,
-                        .timeout_ms     = 40 };
+I2C_HandleTypeDef *i2c_bus_handles[HW_I2C_BUS_COUNT] = {
+    [HW_I2C_BUS_1] = &hi2c1,
+};
