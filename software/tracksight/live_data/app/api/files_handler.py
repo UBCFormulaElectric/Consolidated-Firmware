@@ -61,11 +61,12 @@ def list_files_in_card(sd_device: str):
 	Lists all files within an SD card's filesystem
 	"""
 	sd_card = find_sd_card(sd_device)
-	# TODO can you get important metadata for the partitions?
-	# is this the correct block_size and block_counts? 
 	logfs = create_logfs(sd_card.mountpoint)
-	files: list[str] = logfs.list_dir()
-	return [file for file in files if file not in ["/bootcount.txt"]]
+	file_names: list[str] = [file for file in logfs.list_dir() if file not in ["/bootcount.txt"]]
+	return [{
+		"name": "file_1_name",
+		"start_iso_time": "2025-01-06"
+	}]
 
 @sd_api.route("/sd/<sd_device>/files/<file_id>/dump", methods=["POST"])
 def dump_file(sd_device: str, file_id: str):
@@ -90,11 +91,11 @@ def dump_file(sd_device: str, file_id: str):
 
 	# finally, add the file to the historical sqlite db
 	with sqlite3.connect("historical.db") as historical_db:
-		historical_db.execute("INSERT INTO files (file_name, commit_sha, start_iso_time, end_iso_time) VALUES (:file_name, :commit_sha, :start_iso_time, :end_iso_time)", {
+		historical_db.execute("INSERT INTO files (file_name, commit_sha, start_iso_time, duration_iso) VALUES (:file_name, :commit_sha, :start_iso_time, :duration_iso)", {
 			"file_name": "",
 			"commit_sha": "",
 			"start_iso_time": "",
-			"end_iso_time": ""
+			"duration_iso": ""
 		})
 		historical_db.commit()
 

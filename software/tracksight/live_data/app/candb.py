@@ -51,7 +51,7 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     response.raise_for_status()
 
     # Filter for files in the specified folder
-    files = [file for file in response.json().get("tree", []) if file["path"].startswith(folder_path) and file["type"] == "blob"]
+    files: list[str] = [file for file in response.json().get("tree", []) if file["path"].startswith(folder_path) and file["type"] == "blob"]
 
     # DISK MUTATIONS HERE AND BELOW
     if not os.path.exists(save_dir):
@@ -66,4 +66,4 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
 # from jsoncan.src.can_database import CanDatabase
 # can_db = CanDatabase()
 from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
-can_db = JsonCanParser(os.path.join(bus_configs_path, "cde33d9")).make_database()
+live_can_db = JsonCanParser(os.path.join(bus_configs_path, "cde33d9")).make_database()
