@@ -59,8 +59,8 @@ _Noreturn void tasks_run1Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        // start_ticks += period_ms;
+        // osDelayUntil(start_ticks);
     }
 }
 
@@ -80,8 +80,9 @@ _Noreturn void tasks_run100Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        //     start_ticks += period_ms;
+        //     osDelayUntil(start_ticks);
+        // }
     }
 }
 
@@ -105,8 +106,8 @@ _Noreturn void tasks_run1kHz(void)
         // if (io_time_getCurrentMs() - task_start_ms <= period_ms)
         //     hw_watchdog_checkIn(watchdog);
 
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        // start_ticks += period_ms;
+        // osDelayUntil(start_ticks);
     }
 }
 
