@@ -8,6 +8,7 @@ enum GpioNetName {
   INDICATOR_2 = 2;
   INDICATOR_3 = 3;
   DOUT_4 = 4;
+  DEBUG_LED = 5;
 }
 
 enum AdcNetName {
