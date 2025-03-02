@@ -16,6 +16,7 @@ import cantools
 import can
 
 import proto_autogen.f4dev_pb2
+import proto_autogen.ssm_pb2
 import proto_autogen.shared_pb2
 
 from load_bank import *
@@ -468,4 +469,17 @@ class F4Dev(_Board):
             adc_net_name="f4dev_net_name",
             i2c_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
+        )
+
+
+class SSM(_Board):
+    def __init__(self) -> None:
+        """Create an interface to an SSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="ssm"),
+            gpio_net_name="ssm_net_name",
+            adc_net_name="ssm_net_name",
+            i2c_net_name="ssm_net_name",
+            board_module=proto_autogen.ssm_pb2,
         )

@@ -19,9 +19,14 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "io_chimera_v2.h"
+#include "io_chimeraConfig_v2.h"
+#include "shared.pb.h"
+#include "hw_usb.h"
 
 /* USER CODE END Includes */
 
@@ -47,13 +52,11 @@ SPI_HandleTypeDef hspi2;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
-PCD_HandleTypeDef hpcd_USB_OTG_FS;
-
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
     .name       = "defaultTask",
-    .stack_size = 128 * 4,
+    .stack_size = 512 * 4,
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
@@ -65,7 +68,6 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI2_Init(void);
-static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 void        StartDefaultTask(void *argument);
@@ -109,7 +111,6 @@ int main(void)
     MX_GPIO_Init();
     MX_SPI1_Init();
     MX_SPI2_Init();
-    MX_USB_OTG_FS_PCD_Init();
     MX_TIM1_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
@@ -132,7 +133,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    hw_usb_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -398,40 +399,6 @@ static void MX_TIM3_Init(void)
 }
 
 /**
- * @brief USB_OTG_FS Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_OTG_FS_PCD_Init(void)
-{
-    /* USER CODE BEGIN USB_OTG_FS_Init 0 */
-
-    /* USER CODE END USB_OTG_FS_Init 0 */
-
-    /* USER CODE BEGIN USB_OTG_FS_Init 1 */
-
-    /* USER CODE END USB_OTG_FS_Init 1 */
-    hpcd_USB_OTG_FS.Instance                     = USB_OTG_FS;
-    hpcd_USB_OTG_FS.Init.dev_endpoints           = 6;
-    hpcd_USB_OTG_FS.Init.speed                   = PCD_SPEED_FULL;
-    hpcd_USB_OTG_FS.Init.dma_enable              = DISABLE;
-    hpcd_USB_OTG_FS.Init.phy_itface              = PCD_PHY_EMBEDDED;
-    hpcd_USB_OTG_FS.Init.Sof_enable              = DISABLE;
-    hpcd_USB_OTG_FS.Init.low_power_enable        = DISABLE;
-    hpcd_USB_OTG_FS.Init.lpm_enable              = DISABLE;
-    hpcd_USB_OTG_FS.Init.battery_charging_enable = DISABLE;
-    hpcd_USB_OTG_FS.Init.vbus_sensing_enable     = DISABLE;
-    hpcd_USB_OTG_FS.Init.use_dedicated_ep1       = DISABLE;
-    if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USB_OTG_FS_Init 2 */
-
-    /* USER CODE END USB_OTG_FS_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -499,12 +466,13 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
+    /* init code for USB_DEVICE */
+    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    io_chimera_v2_main(
+        GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc, I2cNetName_ssm_net_name_tag,
+        id_to_i2c);
     /* USER CODE END 5 */
 }
 

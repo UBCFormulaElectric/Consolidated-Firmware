@@ -17,9 +17,9 @@ static const Gpio       **id_to_gpio;
 static const AdcChannel **id_to_adc;
 static const I2cDevice  **id_to_i2c;
 
-pb_size_t gpio_net_name_tag = f4dev_GpioNetName_GPIO_NET_NAME_UNSPECIFIED;
-pb_size_t adc_net_name_tag  = f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED;
-pb_size_t i2c_net_name_tag  = f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED;
+pb_size_t gpio_net_name_tag = 0;
+pb_size_t adc_net_name_tag  = 0;
+pb_size_t i2c_net_name_tag  = 0;
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 const uint16_t OUT_BUFFER_SIZE = 0xffff;
@@ -38,6 +38,8 @@ static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 
     if (net_name->which_name == GpioNetName_f4dev_net_name_tag)
         return id_to_gpio[net_name->name.f4dev_net_name];
+    if (net_name->which_name == GpioNetName_ssm_net_name_tag)
+        return id_to_gpio[net_name->name.ssm_net_name];
 
     LOG_ERROR("Chimera: Received GPIO pin from unsupported board.");
     return NULL;
@@ -54,6 +56,8 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 
     if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
         return id_to_adc[net_name->name.f4dev_net_name];
+    if (net_name->which_name == AdcNetName_ssm_net_name_tag)
+        return id_to_adc[net_name->name.ssm_net_name];
 
     LOG_ERROR("Chimera: Received ADC channel from unsupported board.");
     return NULL;
@@ -68,8 +72,10 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
         return NULL;
     }
 
-    if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
+    if (net_name->which_name == I2cNetName_f4dev_net_name_tag)
         return id_to_i2c[net_name->name.f4dev_net_name];
+    if (net_name->which_name == I2cNetName_ssm_net_name_tag)
+        return id_to_i2c[net_name->name.ssm_net_name];
 
     LOG_ERROR("Chimera: Received I2C device from unsupported board.");
     return 0;

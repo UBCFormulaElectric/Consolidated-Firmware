@@ -171,45 +171,20 @@ stm32f412rx_cube_library(
 ...
 ```
 
+Also make sure to explicitly enable I2C/ADC, even if your board does not have them (Chimera V2 relies on them).
+
+Eg. For the SSM
+```cmake
+target_compile_definitions("ssm.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
+```
+
 Try to build. This will regenerate all the STM32 code, with USB files setup.
 
-At the top of the file, you will need to add the following `#pragma` statements to kill diagnostics on this file.
-```
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-```
-
-It should look something like this:
-```c
-/* USER CODE BEGIN Header */
-/**
- ******************************************************************************
- * @file           : usbd_cdc_if.c
- * @version        : v1.0_Cube
- * @brief          : Usb device for Virtual Com Port.
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2024 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
-
-// Ignore sign conversion errors.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-/* USER CODE END Header */
-```
-
-Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](../shared/src/hw/hw_usb.h).
+Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](../shared/src/hw/hw_usb.h) and [`io_log.h`](../shared/src/io/io_log.h).
 ```c
 /* USER CODE BEGIN INCLUDE */
 #include "hw_usb.h"
+#include "io_log.h"
 /* USER CODE END INCLUDE */
 ```
 
@@ -233,6 +208,9 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
 ```
 
 In the `main.c` of your board, you will need to initialize the `hw_usb` RX queue. To do this, go to where you init all your peripherals, and call `hw_usb_init()` (you will need to include [`hw_usb.h`](../shared/src/hw/hw_usb.h) in `main.c` well).
+
+> Warning! `hw_usb_init()` creates a CMSIS OS Message Queue under the hood. 
+> Make sure to initialize after `osKernelInitialize` is called.
 
 Next, you need to setup the protobuf messages for your board. Go to [`./proto`](./proto), and create a new `.proto` file named after your board. It should look like this:
 
