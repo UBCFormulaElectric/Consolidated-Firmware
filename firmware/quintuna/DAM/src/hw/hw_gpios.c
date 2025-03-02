@@ -12,3 +12,4 @@ const Gpio boot_pin           = { BOOT_GPIO_Port, BOOT_Pin };
 const Gpio sd_present         = { SD_CD_GPIO_Port, SD_CD_Pin };
 const Gpio n_rtc_int1_pin     = { nRTC_INT1_GPIO_Port, nRTC_INT1_Pin };
 const Gpio _900m_pin          = { _900M_GPIO_GPIO_Port, _900M_GPIO_Pin };
+const Gpio sd_fail_pin        = { SD_FAIL_GPIO_Port, SD_FAIL_Pin };

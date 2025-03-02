@@ -25,7 +25,7 @@ void hw_gpio_writePin(const Gpio *gpio, bool state);
 bool hw_gpio_readPin(const Gpio *gpio);
 
 /**
- * Toggle the GPIO Pin
+ * Toggle the state of a GPIO pin.
  * @param gpio The GPIO pin instance.
  */
 void hw_gpio_togglePin(const Gpio *gpio);
