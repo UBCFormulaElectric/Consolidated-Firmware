@@ -8,9 +8,9 @@
 
 typedef struct
 {
-  const AdcChannel *front_brake;
-  const Gpio       *brake_hardware_ocsc;
-  const Gpio       *nbspd_brake_pressed;
+    const AdcChannel *front_brake;
+    const Gpio       *brake_hardware_ocsc;
+    const Gpio       *nbspd_brake_pressed;
 } BrakeConfig;
 
 #else
@@ -45,4 +45,3 @@ bool io_brake_frontPressureSensorOCSC(void);
  * @return the hardware overcurrent/short-circuit status for the brake system
  */
 bool io_brake_hwOCSC(void);
-

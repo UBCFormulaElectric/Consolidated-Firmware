@@ -20,17 +20,22 @@ float io_suspension_getLeftTravel(void)
 
 float io_suspension_getRightTravel(void)
 {
-    return hw_adc_getVoltage(config->front_right_suspension); // Return right suspension travel based on the ADC voltage.
+    return hw_adc_getVoltage(
+        config->front_right_suspension); // Return right suspension travel based on the ADC voltage.
 }
 
 bool io_suspension_leftSensorOCSC(void)
 {
     float leftSensorVoltage = hw_adc_getVoltage(config->front_left_suspension);
-    return !(MIN_SUSPENSION_VOLTAGE <= leftSensorVoltage && leftSensorVoltage <= MAX_SUSPENSION_VOLTAGE); // Check if the left sensor voltage is within the valid range.
+    return !(
+        MIN_SUSPENSION_VOLTAGE <= leftSensorVoltage &&
+        leftSensorVoltage <= MAX_SUSPENSION_VOLTAGE); // Check if the left sensor voltage is within the valid range.
 }
 
 bool io_suspension_rightSensorOCSC(void)
 {
     float rightSensorVoltage = hw_adc_getVoltage(config->front_right_suspension);
-    return !(MIN_SUSPENSION_VOLTAGE <= rightSensorVoltage && rightSensorVoltage <= MAX_SUSPENSION_VOLTAGE); // Check if the right sensor voltage is within the valid range.
+    return !(
+        MIN_SUSPENSION_VOLTAGE <= rightSensorVoltage &&
+        rightSensorVoltage <= MAX_SUSPENSION_VOLTAGE); // Check if the right sensor voltage is within the valid range.
 }

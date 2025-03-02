@@ -19,11 +19,14 @@ void io_steering_init(const SteeringConfig *steering_config)
 float io_steering_getAngleDegrees(void)
 {
     float steering_voltage = hw_adc_getVoltage(config->steering); // Get the ADC voltage for the steering sensor.
-    return DEGREE_PER_VOLT * (steering_voltage - STEERING_ANGLE_VOLTAGE_OFFSET); // Calculate and return the steering angle in degrees.
+    return DEGREE_PER_VOLT *
+           (steering_voltage - STEERING_ANGLE_VOLTAGE_OFFSET); // Calculate and return the steering angle in degrees.
 }
 
 bool io_steering_sensorOCSC(void)
 {
     float steering_voltage = hw_adc_getVoltage(config->steering); // Read the current steering sensor voltage.
-    return !(MIN_STEERING_VOLTAGE <= steering_voltage && steering_voltage <= MAX_STEERING_VOLTAGE); // Return true if the voltage is outside the expected range.
+    return !(
+        MIN_STEERING_VOLTAGE <= steering_voltage &&
+        steering_voltage <= MAX_STEERING_VOLTAGE); // Return true if the voltage is outside the expected range.
 }

@@ -30,9 +30,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -42,6 +42,12 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef hadc1;
+    extern DMA_HandleTypeDef hdma_adc1;
+    extern CAN_HandleTypeDef hcan2;
+    extern TIM_HandleTypeDef htim2;
+    extern I2C_HandleTypeDef hi2c1;
+    // extern PCD_HandleTypeDef hpcd_USB_OTG_FS; needed??
 
     /* USER CODE END EC */
 
@@ -58,6 +64,21 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TASK_100HZ_STACK_SIZE 512
+#define TASKS_1HZ_STACK_SIZE 512
+#define TASK_1KHZ_STACK_SIZE 512
+#define TASK_CANTX_STACK_SIZE 512
+#define TASK_CANRX_STACK_SIZE 512
+#define TIM3_PRESCALER 8
+#define TIM12_PWM_MINIMUM_FREQUENCY 1
+#define ADC_FREQUENCY 1000
+#define TIMx_FREQUENCY 96000000
+#define IWDG_RESET_FREQUENCY 5
+#define TIM12_PRESCALER (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TM12_PWM_MINIMUM_FREQUENCY)
+#define TIM12_AUTO_RELOAD_REG 0xFFFF
+#define IWDG_PRESCALER 4
+#define IWDG_WINDOW_DISABLE_VALUE 4095
+#define LSI_FREQUENCY 32000
 #define STR_ANGLE_3V3_Pin GPIO_PIN_1
 #define STR_ANGLE_3V3_GPIO_Port GPIOC
 #define APPS1_3V3_Pin GPIO_PIN_2

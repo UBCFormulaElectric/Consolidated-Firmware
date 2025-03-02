@@ -6,8 +6,8 @@
 
 typedef struct
 {
-  const AdcChannel *front_left_suspension;
-  const AdcChannel *front_right_suspension;
+    const AdcChannel *front_left_suspension;
+    const AdcChannel *front_right_suspension;
 } SuspensionConfig;
 
 #else
@@ -42,4 +42,3 @@ bool io_suspension_leftSensorOCSC(void);
  * @return whether the right suspension sensor is open or short circuit
  */
 bool io_suspension_rightSensorOCSC(void);
-

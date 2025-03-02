@@ -4,15 +4,16 @@
 #include "app_utils.h"
 
 //=====
-// Geometry and ADC Constants for Pedal Sensors -> PAPPS = primary apps, SAPPS = secondary apps (same as liam's conventions)
+// Geometry and ADC Constants for Pedal Sensors -> PAPPS = primary apps, SAPPS = secondary apps (same as liam's
+// conventions)
 //=====
 
-//TODO: Most numbers (placeholder) are from quadruna and will need to change accordingly in each macro
+// TODO: Most numbers (placeholder) are from quadruna and will need to change accordingly in each macro
 
 // Distances from pedal pivot to sensor (in mm)
-#define PAPPS_LEN_A (175.0f)    // Primary sensor (PAPPS) distance
-#define SAPPS_LEN_A (165.0f)    // Secondary sensor (SAPPS) distance
-#define LEN_B       (90.61f)    // Horizontal distance to sensors
+#define PAPPS_LEN_A (175.0f) // Primary sensor (PAPPS) distance
+#define SAPPS_LEN_A (165.0f) // Secondary sensor (SAPPS) distance
+#define LEN_B (90.61f)       // Horizontal distance to sensors
 
 // Potentiometer length limits (in mm)
 #define MAX_POT_LENGTH (220.0f)
@@ -23,12 +24,12 @@
 // Note: Minimum pot voltage is assumed to be 0V
 
 // Raw Voltage Calibration Values for PAPPS (Primary)
-#define PAPPS_FULL_PRESSED_POT_V (2.57f)  // Fully pressed position voltage
-#define PAPPS_UNPRESSED_POT_V    (0.86f)  // Unpressed position voltage
+#define PAPPS_FULL_PRESSED_POT_V (2.57f) // Fully pressed position voltage
+#define PAPPS_UNPRESSED_POT_V (0.86f)    // Unpressed position voltage
 
 // Raw Voltage Calibration Values for SAPPS (Secondary)
 #define SAPPS_FULL_PRESSED_POT_V (3.08f)
-#define SAPPS_UNPRESSED_POT_V    (1.38f)
+#define SAPPS_UNPRESSED_POT_V (1.38f)
 
 // Cosine Law Pre-computed Parameters for Angle Calculation
 #define PAPPS_COS_LAW_DENOMINATOR (2.0f * PAPPS_LEN_A * LEN_B) // For PAPPS sensor
@@ -38,14 +39,17 @@
 #define SAPPS_COS_LAW_COEFFICIENT ((SAPPS_LEN_A * SAPPS_LEN_A + LEN_B * LEN_B) / SAPPS_COS_LAW_DENOMINATOR)
 
 // Conversion Macros
-#define APPS_VOLTAGE_PER_MM ((MAX_POT_LENGTH - MIN_POT_LENGTH) / MAX_POT_V) // Conversion factor from voltage to change in length (mm per volt)
-#define RAW_VOLTAGE_TO_LEN_MM(voltage) (MAX_POT_LENGTH - ((voltage) * APPS_VOLTAGE_PER_MM)) // Convert a raw voltage reading to a potentiometer length (in mm)
+#define APPS_VOLTAGE_PER_MM \
+    ((MAX_POT_LENGTH - MIN_POT_LENGTH) / MAX_POT_V) // Conversion factor from voltage to change in length (mm per volt)
+#define RAW_VOLTAGE_TO_LEN_MM(voltage) \
+    (MAX_POT_LENGTH -                  \
+     ((voltage) * APPS_VOLTAGE_PER_MM)) // Convert a raw voltage reading to a potentiometer length (in mm)
 
 // Derived calibration lengths for PAPPS and SAPPS
-#define PAPPS_LENGTH_UNPRESSED_MM     RAW_VOLTAGE_TO_LEN_MM(PAPPS_UNPRESSED_POT_V)
-#define PAPPS_LENGTH_FULLY_PRESSED_MM  RAW_VOLTAGE_TO_LEN_MM(PAPPS_FULL_PRESSED_POT_V)
-#define SAPPS_LENGTH_UNPRESSED_MM     RAW_VOLTAGE_TO_LEN_MM(SAPPS_UNPRESSED_POT_V)
-#define SAPPS_LENGTH_FULLY_PRESSED_MM  RAW_VOLTAGE_TO_LEN_MM(SAPPS_FULL_PRESSED_POT_V)
+#define PAPPS_LENGTH_UNPRESSED_MM RAW_VOLTAGE_TO_LEN_MM(PAPPS_UNPRESSED_POT_V)
+#define PAPPS_LENGTH_FULLY_PRESSED_MM RAW_VOLTAGE_TO_LEN_MM(PAPPS_FULL_PRESSED_POT_V)
+#define SAPPS_LENGTH_UNPRESSED_MM RAW_VOLTAGE_TO_LEN_MM(SAPPS_UNPRESSED_POT_V)
+#define SAPPS_LENGTH_FULLY_PRESSED_MM RAW_VOLTAGE_TO_LEN_MM(SAPPS_FULL_PRESSED_POT_V)
 
 // Overcurrent / Short-Circuit (OC/SC) Voltage Bounds
 #define PAPPS_MIN_V (PAPPS_UNPRESSED_POT_V - 0.5f)
@@ -54,8 +58,7 @@
 #define SAPPS_MAX_V (SAPPS_FULL_PRESSED_POT_V + 0.5f)
 
 // Dead Zone Settings
-#define DEAD_ZONE_PERCENT (10.0f)  // Percentage below which the pedal is considered inactive
-
+#define DEAD_ZONE_PERCENT (10.0f) // Percentage below which the pedal is considered inactive
 
 static float papps_rest_angle;
 static float papps_max_angle;
@@ -66,8 +69,10 @@ static const AppsConfig *config = NULL;
 
 static float calcAppsAngle(float cos_law_coefficient, float pot_len, float cos_law_denominator)
 {
-    float value = cos_law_coefficient - ((pot_len * pot_len) / cos_law_denominator); // Calculate the cosine law expression: (a^2 + b^2 - c^2) / (2ab)
-    float acos_input = CLAMP(value, -1.0f, 1.0f);                                    // where c is represented indirectly via the measured length (pot_len)
+    float value =
+        cos_law_coefficient -
+        ((pot_len * pot_len) / cos_law_denominator); // Calculate the cosine law expression: (a^2 + b^2 - c^2) / (2ab)
+    float acos_input = CLAMP(value, -1.0f, 1.0f); // where c is represented indirectly via the measured length (pot_len)
     return acosf(acos_input);
 }
 
@@ -75,12 +80,17 @@ void io_apps_init(const AppsConfig *apps_config)
 {
     config = apps_config;
 
-    // Pre-calculate the rest (unpressed) angle and the maximum angle (difference between rest and fully pressed) for each sensor.
+    // Pre-calculate the rest (unpressed) angle and the maximum angle (difference between rest and fully pressed) for
+    // each sensor.
     papps_rest_angle = calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_UNPRESSED_MM, PAPPS_COS_LAW_DENOMINATOR);
-    papps_max_angle  = papps_rest_angle - calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_FULLY_PRESSED_MM, PAPPS_COS_LAW_DENOMINATOR);
+    papps_max_angle =
+        papps_rest_angle -
+        calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_FULLY_PRESSED_MM, PAPPS_COS_LAW_DENOMINATOR);
 
     sapps_rest_angle = calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_UNPRESSED_MM, SAPPS_COS_LAW_DENOMINATOR);
-    sapps_max_angle  = sapps_rest_angle - calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_FULLY_PRESSED_MM, SAPPS_COS_LAW_DENOMINATOR);
+    sapps_max_angle =
+        sapps_rest_angle -
+        calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_FULLY_PRESSED_MM, SAPPS_COS_LAW_DENOMINATOR);
 }
 
 float io_apps_getPrimary(void)
@@ -90,7 +100,8 @@ float io_apps_getPrimary(void)
     // Convert voltage reading to a potentiometer length (in mm).
     float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
     // Compute the angle difference from the rest (unpressed) position.
-    float pedal_angle = papps_rest_angle - calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, pot_len_mm, PAPPS_COS_LAW_DENOMINATOR);
+    float pedal_angle =
+        papps_rest_angle - calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, pot_len_mm, PAPPS_COS_LAW_DENOMINATOR);
     // Convert the angle to a raw percentage of the maximum travel.
     float pedal_percentage_raw = (pedal_angle / papps_max_angle) * 100.0f;
 
@@ -118,7 +129,8 @@ float io_apps_getSecondary(void)
     // Convert voltage reading to a potentiometer length (in mm).
     float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
     // Compute the angle difference from the rest (unpressed) position.
-    float pedal_angle = sapps_rest_angle - calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, pot_len_mm, SAPPS_COS_LAW_DENOMINATOR);
+    float pedal_angle =
+        sapps_rest_angle - calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, pot_len_mm, SAPPS_COS_LAW_DENOMINATOR);
     // Convert the angle to a raw percentage of the maximum travel.
     float pedal_percentage_raw = (pedal_angle / sapps_max_angle) * 100.0f;
 
@@ -138,5 +150,3 @@ bool io_apps_isSecondaryOCSC(void)
     float pedal_voltage = hw_adc_getVoltage(config->sapps);
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);
 }
-
-
