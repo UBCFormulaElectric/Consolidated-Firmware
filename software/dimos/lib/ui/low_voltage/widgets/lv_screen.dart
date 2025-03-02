@@ -14,8 +14,51 @@ class LVScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SvgPicture.asset('assets/fe_logo.svg')
+    return Center(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        spacing: 50,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            spacing: 50,
+            children: [
+              Center(
+                child: Container( 
+                  width: 200, 
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.blue
+                  )
+                )
+              ),
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: 200,
+                    minWidth: 200,
+                    maxHeight: 200,
+                    maxWidth: 200
+                  ),
+                  child: SvgPicture.asset('assets/fe_logo.svg')
+                )
+              )
+            ]
+          ),
+          ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: 200,
+                minWidth: 200,
+                maxHeight: 200,
+                maxWidth: 200,
+              ),
+              child: ShutdownLoop()
+          )
+        ]
+      )
     );
   }
 }
