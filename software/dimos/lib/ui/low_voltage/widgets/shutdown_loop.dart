@@ -12,20 +12,13 @@ class ShutdownLoop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Container(
-          width: 100.0,
-          height: 100.0,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0x36FB61),
-              width: 5.0,
-            ),
-          ),
-        )
-      ),
+    return Container(
+      width: 200, 
+      height: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+        color: Colors.green
+      )
     );
   }
 }

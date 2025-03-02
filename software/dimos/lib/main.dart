@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dimos/ui/core/themes/themes.dart';
 import 'package:dimos/ui/low_voltage/widgets/lv_screen.dart';
 import 'package:dimos/ui/notificationbar/widgets/NotificationBar.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: new ThemeData(scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0)),
+      theme: AppTheme.darkTheme,
       home: Scaffold(
         appBar: NotificationBar(),
         body: Center(
