@@ -11,6 +11,7 @@
 #include "io_time.h"
 
 // TODO wot da flip is happening
+// TODO changes need to be made for this file (app related stuff)
 
 static void canTransmit(const JsonCanMsg *msg)
 {
