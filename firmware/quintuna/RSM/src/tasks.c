@@ -11,15 +11,14 @@
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
-#include "hw_can.h"
-
+#include "hw_cans.h"
 
 void tasks_preInit()
 {
     hw_bootup_enableInterruptsForApp();
 }
 
-//void tasks_preInitWatchdog() {}
+// void tasks_preInitWatchdog() {}
 
 void tasks_init()
 {
@@ -28,12 +27,13 @@ void tasks_init()
 
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
-    //hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-    
+    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
     jobs_init();
 }
 
-void tasks_deinit() {
+void tasks_deinit()
+{
     HAL_TIM_Base_Start_IT(&htim3);
     HAL_TIM_Base_DeInit(&htim3);
 
@@ -45,14 +45,12 @@ void tasks_deinit() {
 
     HAL_DMA_Abort_IT(&hdma_adc1);
     HAL_DMA_DeInit(&hdma_adc1);
-
 }
 
 _Noreturn void tasks_run1Hz()
 {
-
-    static const TickType_t period_ms = 1000U;
-    uint32_t start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms   = 1000U;
+    uint32_t                start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -64,9 +62,8 @@ _Noreturn void tasks_run1Hz()
 
 _Noreturn void tasks_run100Hz()
 {
-
-    static const TickType_t period_ms = 10;
-    uint32_t start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms   = 10;
+    uint32_t                start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -78,8 +75,8 @@ _Noreturn void tasks_run100Hz()
 
 _Noreturn void tasks_run1kHz()
 {
-    static const TickType_t period_ms = 1;
-    uint32_t start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms   = 1;
+    uint32_t                start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -106,4 +103,3 @@ _Noreturn void tasks_runCanRx(void)
         jobs_runCanRx_tick();
     }
 }
-

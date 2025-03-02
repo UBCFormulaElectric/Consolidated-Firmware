@@ -12,4 +12,4 @@ void jobs_runCanTx_tick() {}
 
 void jobs_runCanRx_tick() {}
 
-//static void jsoncan_transmit() {}
+// static void jsoncan_transmit() {}
