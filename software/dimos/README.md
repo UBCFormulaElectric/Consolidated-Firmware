@@ -1,3 +1,3 @@
 # Dimos
-## Internal Documentation
-> https://ubcformulaelectric.atlassian.net/wiki/x/AYDVCQ
+
+This is the software which runs on the dashboard.
