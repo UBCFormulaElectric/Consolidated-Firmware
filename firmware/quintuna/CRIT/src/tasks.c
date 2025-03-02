@@ -2,6 +2,7 @@
 #include "cmsis_os.h"
 #include "shared.pb.h"
 #include "jobs.h"
+#include "main.h"
 
 // io
 #include "io_log.h"
@@ -26,7 +27,6 @@ void tasks_init()
     hw_hardFaultHandler_init();
 
     hw_can_init(&can1);
-
     jobs_init();
 }
 

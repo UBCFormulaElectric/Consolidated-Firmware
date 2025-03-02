@@ -260,9 +260,9 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 4;
-    RCC_OscInitStruct.PLL.PLLN       = 72;
+    RCC_OscInitStruct.PLL.PLLN       = 96;
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ       = 3;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -277,7 +277,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
         Error_Handler();
     }
@@ -309,15 +309,15 @@ static void MX_CAN2_Init(void)
 
     /* USER CODE END CAN2_Init 1 */
     hcan2.Instance                  = CAN2;
-    hcan2.Init.Prescaler            = 16;
+    hcan2.Init.Prescaler            = 3;
     hcan2.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan2.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan2.Init.TimeSeg1             = CAN_BS1_1TQ;
-    hcan2.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan2.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan2.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan2.Init.TimeSeg2             = CAN_BS2_3TQ;
     hcan2.Init.TimeTriggeredMode    = DISABLE;
-    hcan2.Init.AutoBusOff           = DISABLE;
+    hcan2.Init.AutoBusOff           = ENABLE;
     hcan2.Init.AutoWakeUp           = DISABLE;
-    hcan2.Init.AutoRetransmission   = DISABLE;
+    hcan2.Init.AutoRetransmission   = ENABLE;
     hcan2.Init.ReceiveFifoLocked    = DISABLE;
     hcan2.Init.TransmitFifoPriority = DISABLE;
     if (HAL_CAN_Init(&hcan2) != HAL_OK)
@@ -419,9 +419,9 @@ static void MX_TIM4_Init(void)
 
     /* USER CODE END TIM4_Init 1 */
     htim4.Instance               = TIM4;
-    htim4.Init.Prescaler         = 0;
+    htim4.Init.Prescaler         = PWM_PRESCALER;
     htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim4.Init.Period            = 65535;
+    htim4.Init.Period            = PWM_AUTO_RELOAD;
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
@@ -465,9 +465,9 @@ static void MX_TIM12_Init(void)
 
     /* USER CODE END TIM12_Init 1 */
     htim12.Instance               = TIM12;
-    htim12.Init.Prescaler         = 0;
+    htim12.Init.Prescaler         = PWM_PRESCALER;
     htim12.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim12.Init.Period            = 65535;
+    htim12.Init.Period            = PWM_AUTO_RELOAD;
     htim12.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_PWM_Init(&htim12) != HAL_OK)
