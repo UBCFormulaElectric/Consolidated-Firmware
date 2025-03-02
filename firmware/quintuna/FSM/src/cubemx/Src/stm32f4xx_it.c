@@ -20,8 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_it.h"
-#include "FreeRTOS.h"
-#include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -58,6 +56,12 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
+extern ADC_HandleTypeDef hadc1;
+extern CAN_HandleTypeDef hcan2;
+extern I2C_HandleTypeDef hi2c1;
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+extern TIM_HandleTypeDef htim3;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -153,34 +157,68 @@ void DebugMon_Handler(void)
     /* USER CODE END DebugMonitor_IRQn 1 */
 }
 
-/**
- * @brief This function handles System tick timer.
- */
-void SysTick_Handler(void)
-{
-    /* USER CODE BEGIN SysTick_IRQn 0 */
-
-    /* USER CODE END SysTick_IRQn 0 */
-    HAL_IncTick();
-#if (INCLUDE_xTaskGetSchedulerState == 1)
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
-    {
-#endif /* INCLUDE_xTaskGetSchedulerState */
-        xPortSysTickHandler();
-#if (INCLUDE_xTaskGetSchedulerState == 1)
-    }
-#endif /* INCLUDE_xTaskGetSchedulerState */
-       /* USER CODE BEGIN SysTick_IRQn 1 */
-
-    /* USER CODE END SysTick_IRQn 1 */
-}
-
 /******************************************************************************/
 /* STM32F4xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+ * @brief This function handles ADC1 global interrupt.
+ */
+void ADC_IRQHandler(void)
+{
+    /* USER CODE BEGIN ADC_IRQn 0 */
+
+    /* USER CODE END ADC_IRQn 0 */
+    HAL_ADC_IRQHandler(&hadc1);
+    /* USER CODE BEGIN ADC_IRQn 1 */
+
+    /* USER CODE END ADC_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM3 global interrupt.
+ */
+void TIM3_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM3_IRQn 0 */
+
+    /* USER CODE END TIM3_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim3);
+    /* USER CODE BEGIN TIM3_IRQn 1 */
+
+    /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C1 event interrupt.
+ */
+void I2C1_EV_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C1_EV_IRQn 0 */
+
+    /* USER CODE END I2C1_EV_IRQn 0 */
+    HAL_I2C_EV_IRQHandler(&hi2c1);
+    /* USER CODE BEGIN I2C1_EV_IRQn 1 */
+
+    /* USER CODE END I2C1_EV_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C1 error interrupt.
+ */
+void I2C1_ER_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C1_ER_IRQn 0 */
+
+    /* USER CODE END I2C1_ER_IRQn 0 */
+    HAL_I2C_ER_IRQHandler(&hi2c1);
+    /* USER CODE BEGIN I2C1_ER_IRQn 1 */
+
+    /* USER CODE END I2C1_ER_IRQn 1 */
+}
 
 /**
  * @brief This function handles DMA2 stream0 global interrupt.
@@ -194,6 +232,76 @@ void DMA2_Stream0_IRQHandler(void)
     /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
 
     /* USER CODE END DMA2_Stream0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 TX interrupts.
+ */
+void CAN2_TX_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_TX_IRQn 0 */
+
+    /* USER CODE END CAN2_TX_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_TX_IRQn 1 */
+
+    /* USER CODE END CAN2_TX_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 RX0 interrupts.
+ */
+void CAN2_RX0_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_RX0_IRQn 0 */
+
+    /* USER CODE END CAN2_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_RX0_IRQn 1 */
+
+    /* USER CODE END CAN2_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 RX1 interrupt.
+ */
+void CAN2_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_RX1_IRQn 0 */
+
+    /* USER CODE END CAN2_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_RX1_IRQn 1 */
+
+    /* USER CODE END CAN2_RX1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 SCE interrupt.
+ */
+void CAN2_SCE_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_SCE_IRQn 0 */
+
+    /* USER CODE END CAN2_SCE_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_SCE_IRQn 1 */
+
+    /* USER CODE END CAN2_SCE_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB On The Go FS global interrupt.
+ */
+void OTG_FS_IRQHandler(void)
+{
+    /* USER CODE BEGIN OTG_FS_IRQn 0 */
+
+    /* USER CODE END OTG_FS_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+    /* USER CODE BEGIN OTG_FS_IRQn 1 */
+
+    /* USER CODE END OTG_FS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
