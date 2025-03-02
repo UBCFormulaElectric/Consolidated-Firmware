@@ -1,21 +1,25 @@
 #include "tasks.h"
 #include "jobs.h"
 #include "cmsis_os.h"
+#include "main.h"
 
-#include "io_chimera.h"
 #include "io_time.h"
+#include "io_log.h"
+#include "io_canQueue.h"
 
 #include "hw_pwms.h"
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
+#include "hw_can.h"
+
 
 void tasks_preInit()
 {
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_preInitWatchdog() {}
+//void tasks_preInitWatchdog() {}
 
 void tasks_init()
 {
@@ -24,32 +28,35 @@ void tasks_init()
 
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
-    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-    hw_adcs_chipsInit();
-
+    //hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    
     jobs_init();
 }
 
-void tasks_deinit() {}
+void tasks_deinit() {
+    HAL_TIM_Base_Start_IT(&htim3);
+    HAL_TIM_Base_DeInit(&htim3);
+
+    HAL_TIM_Base_Start_IT(&htim4);
+    HAL_TIM_Base_DeInit(&htim4);
+
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_DeInit(&hadc1);
+
+    HAL_DMA_Abort_IT(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_adc1);
+
+}
 
 _Noreturn void tasks_run1Hz()
 {
-    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-
-    uint32_t start_ticks = 0;
-    start_ticks          = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
         jobs_run1Hz_tick();
-
-        hw_watchdog_checkIn(watchdog);
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -57,21 +64,13 @@ _Noreturn void tasks_run1Hz()
 
 _Noreturn void tasks_run100Hz()
 {
-    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
-    uint32_t start_ticks = 0;
-    start_ticks          = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
         jobs_run100Hz_tick();
-
-        hw_watchdog_checkIn(watchdog);
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -79,27 +78,12 @@ _Noreturn void tasks_run100Hz()
 
 _Noreturn void tasks_run1kHz()
 {
-    io_chimera_sleepTaskIfEnabled();
-
-    static const TickType_t period_ms = 1U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
+    static const TickType_t period_ms = 1;
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
-        const uint32_t task_start_ms = io_time_getCurrentMs();
-
-        hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
-
-        if (io_time_getCurrentMs() - task_start_ms <= period_ms)
-        {
-            hw_watchdog_checkIn(watchdog);
-        }
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -111,26 +95,15 @@ void tasks_runCanTx()
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &msg);
+        hw_can_transmit(&can2, &msg);
     }
 }
 
 _Noreturn void tasks_runCanRx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
     for (;;)
     {
         jobs_runCanRx_tick();
     }
 }
 
-void HAL_TIM_IC_CaptureCallback() {}
-
-void canRxQueueOverflowCallBack(uint32_t overflow_count) {}
-
-void canTxQueueOverflowCallBack(uint32_t overflow_count) {}
-
-void canTxQueueOverflowClearCallback(void) {}
-
-void canRxQueueOverflowClearCallback(void) {}

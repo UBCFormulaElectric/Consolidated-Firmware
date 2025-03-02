@@ -1,6 +1,9 @@
 #pragma once
 #include "hw_i2c.h"
 
+#include <stdbool.h>
+#include "main.h"
+
 typedef enum 
 {
     HW_I2C_BUS_1,

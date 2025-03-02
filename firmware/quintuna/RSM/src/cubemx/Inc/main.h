@@ -47,6 +47,9 @@ extern "C"
     extern TIM_HandleTypeDef htim3;
     extern TIM_HandleTypeDef htim4;
     extern CAN_HandleTypeDef hcan2;
+    extern I2C_HandleTypeDef hi2c1;
+    extern I2C_HandleTypeDef hi2c3;
+    extern CAN_HandleTypeDef hcan2;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
