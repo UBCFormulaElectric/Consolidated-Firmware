@@ -13,6 +13,8 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdogConfig.h"
 #include "hw_cans.h"
+#include "hw_gpios.h"
+#include "hw_gpio.h"
 
 void tasks_preInit(void)
 {
@@ -61,7 +63,8 @@ _Noreturn void tasks_run1Hz(void)
         // hw_watchdog_checkIn(watchdog);
 
         // start_ticks += period_ms;
-        // osDelayUntil(start_ticks);
+        hw_gpio_togglePin(&led_pin);
+        osDelayUntil(1000);
     }
 }
 
@@ -85,7 +88,8 @@ _Noreturn void tasks_run100Hz(void)
         //     hw_watchdog_checkIn(watchdog);
 
         //     start_ticks += period_ms;
-        //     osDelayUntil(start_ticks);
+        hw_gpio_togglePin(&sd_fail_pin);
+        osDelayUntil(10);
         // }
     }
 }
@@ -115,7 +119,7 @@ _Noreturn void tasks_run1kHz(void)
         //     hw_watchdog_checkIn(watchdog);
 
         // start_ticks += period_ms;
-        // osDelayUntil(start_ticks);
+        osDelayUntil(1);
     }
 }
 
