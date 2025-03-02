@@ -7,7 +7,7 @@ static float    adc_voltages[6];
 const AdcChip   adc1 = { .adc_voltages    = adc_voltages,
                          .channel_count   = 6,
                          .hadc            = &hadc1,
-                         .htim            = &htim4,
+                         .htim            = &htim3,
                          .is_differential = false,
                          .raw_adc_values  = raw_adc_values };
 

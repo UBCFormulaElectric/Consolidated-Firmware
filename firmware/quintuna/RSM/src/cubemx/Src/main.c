@@ -51,6 +51,7 @@ CAN_HandleTypeDef hcan2;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
 
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
 /* Definitions for Task1KHz */
@@ -126,6 +127,7 @@ static void MX_CAN2_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM3_Init(void);
 void        RunTask1KHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTask1Hz(void *argument);
@@ -175,6 +177,7 @@ int main(void)
     MX_I2C1_Init();
     MX_I2C3_Init();
     MX_TIM4_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -260,7 +263,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 4;
-    RCC_OscInitStruct.PLL.PLLN       = 100;
+    RCC_OscInitStruct.PLL.PLLN       = 96;
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
@@ -305,15 +308,15 @@ static void MX_ADC1_Init(void)
     hadc1.Instance                   = ADC1;
     hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc1.Init.ScanConvMode          = DISABLE;
+    hadc1.Init.ScanConvMode          = ENABLE;
     hadc1.Init.ContinuousConvMode    = ENABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
+    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 1;
+    hadc1.Init.NbrOfConversion       = 6;
     hadc1.Init.DMAContinuousRequests = ENABLE;
-    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
     {
         Error_Handler();
@@ -321,9 +324,54 @@ static void MX_ADC1_Init(void)
 
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
-    sConfig.Channel      = ADC_CHANNEL_14;
+    sConfig.Channel      = ADC_CHANNEL_0;
     sConfig.Rank         = 1;
     sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_5;
+    sConfig.Rank    = 2;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_6;
+    sConfig.Rank    = 3;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_7;
+    sConfig.Rank    = 4;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_12;
+    sConfig.Rank    = 5;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_14;
+    sConfig.Rank    = 6;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -348,15 +396,15 @@ static void MX_CAN2_Init(void)
 
     /* USER CODE END CAN2_Init 1 */
     hcan2.Instance                  = CAN2;
-    hcan2.Init.Prescaler            = 16;
+    hcan2.Init.Prescaler            = 3;
     hcan2.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan2.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan2.Init.TimeSeg1             = CAN_BS1_2TQ;
-    hcan2.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan2.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan2.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan2.Init.TimeSeg2             = CAN_BS2_3TQ;
     hcan2.Init.TimeTriggeredMode    = DISABLE;
-    hcan2.Init.AutoBusOff           = DISABLE;
+    hcan2.Init.AutoBusOff           = ENABLE;
     hcan2.Init.AutoWakeUp           = DISABLE;
-    hcan2.Init.AutoRetransmission   = DISABLE;
+    hcan2.Init.AutoRetransmission   = ENABLE;
     hcan2.Init.ReceiveFifoLocked    = DISABLE;
     hcan2.Init.TransmitFifoPriority = DISABLE;
     if (HAL_CAN_Init(&hcan2) != HAL_OK)
@@ -430,6 +478,49 @@ static void MX_I2C3_Init(void)
     /* USER CODE BEGIN I2C3_Init 2 */
 
     /* USER CODE END I2C3_Init 2 */
+}
+
+/**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void)
+{
+    /* USER CODE BEGIN TIM3_Init 0 */
+
+    /* USER CODE END TIM3_Init 0 */
+
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance               = TIM3;
+    htim3.Init.Prescaler         = TIM3_PRESCALAR - 1;
+    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALAR / ADC_FREQUENCY) - 1;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
+
+    /* USER CODE END TIM3_Init 2 */
 }
 
 /**

@@ -45,6 +45,8 @@ extern "C"
     extern ADC_HandleTypeDef hadc1;
     extern DMA_HandleTypeDef hdma_adc1;
     extern TIM_HandleTypeDef htim3;
+    extern TIM_HandleTypeDef htim4;
+    extern CAN_HandleTypeDef hcan2;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -62,12 +64,13 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TIMx_FREQUENCY 96000000
-#define TIM4_PWM_MINIMUM_FREQUENCY 1
-#define ADC_FREQUENCY 1000
 #define IWDG_RESET_FREQUENCY 5
-#define TIM4_PRESCALER (TIMx_FREQUENCY / TIM4_AUTO_RELOAD_REG / TIM4_PWM_MINIMUM_FREQUENCY
+#define TIM4_PRESCALER (TIMx_FREQUENCY / TIM4_AUTO_RELOAD_REG / TIM4_PWM_MINIMUM_FREQUENCY)
 #define TIM4_AUTO_RELOAD_REG 0xFFFF
+#define ADC_FREQUENCY 1000
+#define TIM4_PWM_MINIMUM_FREQUENCY 1
+#define TIMx_FREQUENCY 96000000
+#define TIM3_PRESCALAR 8
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0

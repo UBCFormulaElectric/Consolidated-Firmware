@@ -1,4 +1,4 @@
-#include "io_cans.h"
+#include "hw_can.h"
 #include "main.h"
 
 const CanHandle can2 = {
