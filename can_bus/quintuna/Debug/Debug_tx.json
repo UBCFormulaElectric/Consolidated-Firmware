@@ -126,41 +126,86 @@
         "msg_id": 389,
         "cycle_time": 5,
         "signals": {
-            "AMK_bReserve1": {
+            "AMK_bReserve1_INVFR": {
                 "start_bit": 0,
                 "bits": 8
             },
-            "AMK_bInverterOn": {
+            "AMK_bInverterOn_INVFR": {
                 "start_bit": 8,
                 "bits": 1
             },
-            "AMK_bDcOn": {
+            "AMK_bDcOn_INVFR": {
                 "start_bit": 9,
                 "bits": 1
             },
-            "AMK_bEnable": {
+            "AMK_bEnable_INVFR": {
                 "start_bit": 10,
                 "bits": 1
             },
-            "AMK_bErrorReset": {
+            "AMK_bErrorReset_INVFR": {
                 "start_bit": 11,
                 "bits": 1
             },
-            "AMK_bReserve2": {
+            "AMK_bReserve2_INVFR": {
                 "start_bit": 12,
                 "bits": 4
             },
-            "AMK_TargetVelocity": {
+            "AMK_TargetVelocity_INVFR": {
                 "start_bit": 16,
                 "bits": 16,
                 "signed": true
             },
-            "AMK_TorqueLimitPositiv": {
+            "AMK_TorqueLimitPositive_INVFR": {
                 "start_bit": 32,
                 "bits": 16,
                 "signed": true
             },
-            "AMK_TorqueLimitNegativ": {
+            "AMK_TorqueLimitNegative_INVFR": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true
+            }
+        }
+    },
+    "AMK_Setpoints_1_INVFL": {
+        "msg_id": 388,
+        "cycle_time": 5,
+        "signals": {
+            "AMK_bReserve1_INVFL": {
+                "start_bit": 0,
+                "bits": 8
+            },
+            "AMK_bInverterOn_INVFL": {
+                "start_bit": 8,
+                "bits": 1
+            },
+            "AMK_bDcOn_INVFL": {
+                "start_bit": 9,
+                "bits": 1
+            },
+            "AMK_bEnable_INVFL": {
+                "start_bit": 10,
+                "bits": 1
+            },
+            "AMK_bErrorReset_INVFL": {
+                "start_bit": 11,
+                "bits": 1
+            },
+            "AMK_bReserve2_INVFL": {
+                "start_bit": 12,
+                "bits": 4
+            },
+            "AMK_TargetVelocity_INVFL": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true
+            },
+            "AMK_TorqueLimitPositive_INVFL": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true
+            },
+            "AMK_TorqueLimitNegative_INVFL": {
                 "start_bit": 48,
                 "bits": 16,
                 "signed": true
