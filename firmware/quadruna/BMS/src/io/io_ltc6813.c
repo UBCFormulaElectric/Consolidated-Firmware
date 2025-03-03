@@ -56,14 +56,43 @@ static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
 // this way, the mental model is that the data is stored in the order it is written (big endian)
 // I know about scalar_storage_order("big-endian") but you cannot get the address a struct with that attribute
 // that is problematic for pec15 finding
-// see table 30, 35
-typedef struct
+// see table 30
+typedef struct __attribute__((__packed__))
+{
+    uint8_t pec_0;
+    uint8_t pec_1;
+} raw_pec;
+
+static raw_pec build_tx_pec(const uint8_t *data, const uint8_t len)
+{
+    const uint16_t pec = calculate_pec15(data, len);
+    return (raw_pec){
+        .pec_0 = (uint8_t)(pec >> 8),
+        .pec_1 = (uint8_t)pec,
+    };
+}
+
+static uint16_t read_rx_pec(const raw_pec *pec)
+{
+    return (uint16_t)(pec->pec_0 << 8 | pec->pec_1);
+}
+
+// see table 35
+typedef struct __attribute__((__packed__))
 {
     uint8_t cmd_0;
     uint8_t cmd_1;
-    uint8_t cmd_pec_0;
-    uint8_t cmd_pec_1;
-} cmd;
+    raw_pec pec;
+} raw_cmd;
+
+static raw_cmd build_tx_cmd(const uint16_t command)
+{
+    raw_cmd out;
+    out.cmd_0 = (uint8_t)(command >> 8);
+    out.cmd_1 = (uint8_t)command;
+    out.pec   = build_tx_pec((uint8_t *)&out, sizeof(out.cmd_0) + sizeof(out.cmd_1));
+    return out;
+}
 
 /**
  * @param config Configurations that are to be written into the registers
@@ -79,36 +108,36 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         uint8_t adcopt : 1;
         uint8_t dten : 1;
         uint8_t refon : 1;
-        uint8_t gpio : 5;
+        uint8_t gpio_1_5 : 5;
         // byte 2
-        uint8_t vuv_lower;
+        uint8_t vuv_0_7;
         // byte 3
-        uint8_t vuv_upper : 4;
-        uint8_t vov_lower : 4;
+        uint8_t vuv_8_11 : 4;
+        uint8_t vov_0_3 : 4;
         // byte 4
-        uint8_t vov_upper;
+        uint8_t vov_4_11;
         // byte 5
         uint8_t dcc_1_8;
         // byte 6
         uint8_t dcc_9_12 : 4;
         uint8_t dcto : 4;
         // byte 7/8
-        uint8_t pec_0;
-        uint8_t pec_1;
+        raw_pec pec;
     } CFGAR;
     // as per table 33
     struct __attribute__((__packed__))
     {
-        cmd   cmd;
-        CFGAR segment_configs[NUM_SEGMENTS]; // note these must be shifted in backwards (shift register style)
+        raw_cmd cmd;
+        CFGAR   segment_configs[NUM_SEGMENTS]; // note these must be shifted in backwards (shift register style)
     } tx_msg_a;
+    static_assert(sizeof(tx_msg_a) == 36);
 
     // as per table 39
     typedef struct __attribute__((__packed__))
     {
         // byte 1
         uint8_t dcc_13_16 : 4;
-        uint8_t gpio_upper : 4;
+        uint8_t gpio_6_9 : 4;
         // byte 2
         uint8_t mute : 1;
         uint8_t fdrf : 1;
@@ -120,35 +149,18 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         // byte 3-6
         uint32_t reserved;
         // byte 7/8
-        uint8_t pec_0; // these contain bytes 14-7
-        uint8_t pec_1; // these contains bytes 6-0 (extra pad)
+        raw_pec pec;
     } CFGBR;
     // as per table 33`
     struct __attribute__((__packed__))
     {
-        cmd   cmd;
-        CFGBR segment_configs[NUM_SEGMENTS];
+        raw_cmd cmd;
+        CFGBR   segment_configs[NUM_SEGMENTS];
     } tx_msg_b;
-
-    static_assert(sizeof(tx_msg_a) == 36);
     static_assert(sizeof(tx_msg_b) == 36);
 
-    // pack pec
-    {
-        tx_msg_a.cmd.cmd_0 = 0xFF & WRCFGA >> 8;
-        tx_msg_a.cmd.cmd_1 = 0xFF & WRCFGA;
-        const uint16_t pec_15_a =
-            calculate_pec15(&tx_msg_a.cmd.cmd_0, sizeof(tx_msg_a.cmd.cmd_0) + sizeof(tx_msg_a.cmd.cmd_1));
-        tx_msg_a.cmd.cmd_pec_0 = (uint8_t)(pec_15_a >> 8);
-        tx_msg_a.cmd.cmd_pec_1 = (uint8_t)pec_15_a;
-
-        tx_msg_b.cmd.cmd_0 = 0xFF & WRCFGB >> 8;
-        tx_msg_b.cmd.cmd_1 = 0xFF & WRCFGB;
-        const uint16_t pec_15_b =
-            calculate_pec15(&tx_msg_b.cmd.cmd_0, sizeof(tx_msg_b.cmd.cmd_0) + sizeof(tx_msg_b.cmd.cmd_1));
-        tx_msg_b.cmd.cmd_pec_0 = (uint8_t)(pec_15_b >> 8);
-        tx_msg_b.cmd.cmd_pec_1 = (uint8_t)pec_15_b;
-    }
+    tx_msg_a.cmd = build_tx_cmd(WRCFGA);
+    tx_msg_b.cmd = build_tx_cmd(WRCFGB);
 
     for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
     {
@@ -157,11 +169,11 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         CFGAR *const  seg_a      = &tx_msg_a.segment_configs[tx_cfg_idx];
         CFGBR *const  seg_b      = &tx_msg_b.segment_configs[tx_cfg_idx];
 
-        seg_a->gpio       = 0x1F;
-        seg_a->refon      = 1;
-        seg_a->dten       = 1;
-        seg_a->adcopt     = 1;
-        seg_b->gpio_upper = 0xF;
+        seg_a->gpio_1_5 = 0x1F;
+        seg_a->refon    = 1;
+        seg_a->dten     = 1;
+        seg_a->adcopt   = 1;
+        seg_b->gpio_6_9 = 0xF;
 
         // Write to configuration registers DCC bits
         if (config.balance_config != NULL)
@@ -190,12 +202,8 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         }
 
         // Calculate and pack the PEC15 bytes into data to write to the configuration register
-        const uint16_t pec_15_a = calculate_pec15((uint8_t *)seg_a, 6);
-        const uint16_t pec_15_b = calculate_pec15((uint8_t *)seg_a, 6);
-        seg_a->pec_0            = (uint8_t)(pec_15_a >> 8);
-        seg_a->pec_1            = (uint8_t)pec_15_a;
-        seg_b->pec_0            = (uint8_t)(pec_15_b >> 8);
-        seg_b->pec_1            = (uint8_t)pec_15_b;
+        seg_a->pec = build_tx_pec((uint8_t *)seg_a, sizeof(CFGAR) - sizeof(raw_pec));
+        seg_b->pec = build_tx_pec((uint8_t *)seg_b, sizeof(CFGBR) - sizeof(raw_pec));
     }
     // Write to configuration registers
     if (!hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a)))
@@ -207,26 +215,21 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
 
 bool io_ltc6813_sendCommand(const LTCCommand command)
 {
-    cmd tx_cmd;
-    tx_cmd.cmd_0          = (uint8_t)(command >> 8);
-    tx_cmd.cmd_1          = (uint8_t)command;
-    const uint16_t pec_15 = calculate_pec15((uint8_t *)&tx_cmd, 2);
-    tx_cmd.cmd_pec_0      = (uint8_t)(pec_15 >> 8);
-    tx_cmd.cmd_pec_1      = (uint8_t)pec_15;
+    const raw_cmd tx_cmd = build_tx_cmd(command);
     return hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
 }
 
 // VOLTAGE PARSING SEGMENT
 
 // as per table 40-45
-typedef struct
+typedef struct __attribute__((__packed__))
 {
     uint16_t a;
     uint16_t b;
     uint16_t c;
-    uint8_t  pec15_0;
-    uint8_t  pec15_1;
+    raw_pec  pec;
 } VoltageRegisterGroup;
+static_assert(sizeof(VoltageRegisterGroup) == 8);
 
 /**
  * This functions works by iterating through all register groups, and for each register group asking each segment
@@ -254,12 +257,7 @@ void io_ltc6813_readVoltages(
 #define RDCVF (0x0BU)
         static const uint16_t cv_read_cmds[VOLTAGE_REGISTER_GROUPS] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE, RDCVF };
 
-        cmd tx_cmd;
-        tx_cmd.cmd_0       = (uint8_t)(cv_read_cmds[curr_reg_group] >> 8);
-        tx_cmd.cmd_1       = (uint8_t)cv_read_cmds[curr_reg_group];
-        const uint16_t pec = calculate_pec15(&tx_cmd.cmd_0, sizeof(tx_cmd.cmd_0) + sizeof(tx_cmd.cmd_1));
-        tx_cmd.cmd_pec_0   = (uint8_t)(pec >> 8);
-        tx_cmd.cmd_pec_1   = (uint8_t)pec;
+        const raw_cmd tx_cmd = build_tx_cmd(cv_read_cmds[curr_reg_group]);
 
         // Transmit the command and receive data stored in register group.
         VoltageRegisterGroup rx_buffer[NUM_SEGMENTS];
@@ -277,7 +275,7 @@ void io_ltc6813_readVoltages(
         {
             // Calculate PEC15 from the data received on rx_buffer
             const uint16_t calc_pec15 = calculate_pec15((uint8_t *)&rx_buffer[curr_segment], 6);
-            const uint16_t recv_pec15 = (uint16_t)(rx_buffer->pec15_0 << 8 | rx_buffer->pec15_1);
+            const uint16_t recv_pec15 = read_rx_pec(&rx_buffer->pec);
             if (recv_pec15 != calc_pec15)
             {
                 success[curr_segment][curr_reg_group] = false;
@@ -307,14 +305,14 @@ void io_ltc6813_readVoltages(
 
 // TEMPERATURE PARSING SEGMENT
 
-typedef struct
+typedef struct __attribute__((__packed__))
 {
     uint16_t a;
     uint16_t b;
     uint16_t c;
-    uint8_t  pec15_0;
-    uint8_t  pec15_1;
+    raw_pec  pec;
 } AuxRegGroup;
+static_assert(sizeof(AuxRegGroup) == 8);
 
 /**
  * Calculate thermistor temperature
@@ -418,20 +416,12 @@ void io_ltc6813_readTemperatures(
     // Read thermistor voltages stored in the AUX register groups
     for (uint8_t reg_group = 0U; reg_group < THERMISTOR_REGISTER_GROUPS; reg_group++)
     {
-        cmd tx_cmd;
-
         // pack command
 #define RDAUXA (0x000CU)
 #define RDAUXB (0x000EU)
 #define RDAUXC (0x000DU)
         static const uint16_t aux_reg_group_cmds[3] = { RDAUXA, RDAUXB, RDAUXC };
-        tx_cmd.cmd_0                                = (uint8_t)(aux_reg_group_cmds[reg_group] >> 8);
-        tx_cmd.cmd_1                                = (uint8_t)aux_reg_group_cmds[reg_group];
-
-        // pack pec15
-        const uint16_t pec15 = calculate_pec15((uint8_t *)&tx_cmd, 2);
-        tx_cmd.cmd_pec_0     = (uint8_t)(pec15 >> 8);
-        tx_cmd.cmd_pec_1     = (uint8_t)pec15;
+        const raw_cmd         tx_cmd                = build_tx_cmd(aux_reg_group_cmds[reg_group]);
 
         // as per table 46-48
         AuxRegGroup rx_buffer[NUM_SEGMENTS];
@@ -452,7 +442,7 @@ void io_ltc6813_readTemperatures(
             const AuxRegGroup *seg_reg_group = &rx_buffer[(NUM_SEGMENTS - 1) - seg_idx];
 
             const uint16_t calc_pec15 = calculate_pec15((uint8_t *)seg_reg_group, 6);
-            const uint16_t recv_pec15 = (uint16_t)(seg_reg_group->pec15_0 << 8 | seg_reg_group->pec15_1);
+            const uint16_t recv_pec15 = read_rx_pec(&seg_reg_group->pec);
             if (recv_pec15 != calc_pec15)
             {
                 success[seg_idx][reg_group] = false;
@@ -484,13 +474,7 @@ bool io_ltc6813_pollAdcConversions(void)
 {
     // Prepare command to get the status of ADC conversions
 #define PLADC (0x1407U)
-    cmd tx_cmd;
-    tx_cmd.cmd_0         = (uint8_t)(PLADC >> 8);
-    tx_cmd.cmd_1         = (uint8_t)PLADC;
-    const uint16_t pec15 = calculate_pec15(&tx_cmd.cmd_0, 2);
-    tx_cmd.cmd_pec_0     = (uint8_t)(pec15 >> 8);
-    tx_cmd.cmd_pec_1     = (uint8_t)pec15;
-
+    const raw_cmd tx_cmd = build_tx_cmd(PLADC);
     for (uint8_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
     {
         uint8_t rx_data;
