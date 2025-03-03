@@ -77,6 +77,7 @@ static uint16_t read_rx_pec(const raw_pec *pec)
     return (uint16_t)(pec->pec_0 << 8 | pec->pec_1);
 }
 
+// see above about the struct nonsense
 // see table 35
 typedef struct __attribute__((__packed__))
 {
