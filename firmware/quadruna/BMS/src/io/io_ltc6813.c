@@ -1,0 +1,513 @@
+#include "io_ltc6813.h"
+
+#include "app_utils.h"
+#include "hw_spis.h"
+
+#include <assert.h>
+#include <string.h>
+
+static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
+{
+    // TODO ensure this works with little endian data (i'm fairly certain it does not)
+    static const uint16_t pec15_lut[256] = {
+        0x0,    0xC599, 0xCEAB, 0xB32,  0xD8CF, 0x1D56, 0x1664, 0xD3FD, 0xF407, 0x319E, 0x3AAC, 0xFF35, 0x2CC8, 0xE951,
+        0xE263, 0x27FA, 0xAD97, 0x680E, 0x633C, 0xA6A5, 0x7558, 0xB0C1, 0xBBF3, 0x7E6A, 0x5990, 0x9C09, 0x973B, 0x52A2,
+        0x815F, 0x44C6, 0x4FF4, 0x8A6D, 0x5B2E, 0x9EB7, 0x9585, 0x501C, 0x83E1, 0x4678, 0x4D4A, 0x88D3, 0xAF29, 0x6AB0,
+        0x6182, 0xA41B, 0x77E6, 0xB27F, 0xB94D, 0x7CD4, 0xF6B9, 0x3320, 0x3812, 0xFD8B, 0x2E76, 0xEBEF, 0xE0DD, 0x2544,
+        0x2BE,  0xC727, 0xCC15, 0x98C,  0xDA71, 0x1FE8, 0x14DA, 0xD143, 0xF3C5, 0x365C, 0x3D6E, 0xF8F7, 0x2B0A, 0xEE93,
+        0xE5A1, 0x2038, 0x7C2,  0xC25B, 0xC969, 0xCF0,  0xDF0D, 0x1A94, 0x11A6, 0xD43F, 0x5E52, 0x9BCB, 0x90F9, 0x5560,
+        0x869D, 0x4304, 0x4836, 0x8DAF, 0xAA55, 0x6FCC, 0x64FE, 0xA167, 0x729A, 0xB703, 0xBC31, 0x79A8, 0xA8EB, 0x6D72,
+        0x6640, 0xA3D9, 0x7024, 0xB5BD, 0xBE8F, 0x7B16, 0x5CEC, 0x9975, 0x9247, 0x57DE, 0x8423, 0x41BA, 0x4A88, 0x8F11,
+        0x57C,  0xC0E5, 0xCBD7, 0xE4E,  0xDDB3, 0x182A, 0x1318, 0xD681, 0xF17B, 0x34E2, 0x3FD0, 0xFA49, 0x29B4, 0xEC2D,
+        0xE71F, 0x2286, 0xA213, 0x678A, 0x6CB8, 0xA921, 0x7ADC, 0xBF45, 0xB477, 0x71EE, 0x5614, 0x938D, 0x98BF, 0x5D26,
+        0x8EDB, 0x4B42, 0x4070, 0x85E9, 0xF84,  0xCA1D, 0xC12F, 0x4B6,  0xD74B, 0x12D2, 0x19E0, 0xDC79, 0xFB83, 0x3E1A,
+        0x3528, 0xF0B1, 0x234C, 0xE6D5, 0xEDE7, 0x287E, 0xF93D, 0x3CA4, 0x3796, 0xF20F, 0x21F2, 0xE46B, 0xEF59, 0x2AC0,
+        0xD3A,  0xC8A3, 0xC391, 0x608,  0xD5F5, 0x106C, 0x1B5E, 0xDEC7, 0x54AA, 0x9133, 0x9A01, 0x5F98, 0x8C65, 0x49FC,
+        0x42CE, 0x8757, 0xA0AD, 0x6534, 0x6E06, 0xAB9F, 0x7862, 0xBDFB, 0xB6C9, 0x7350, 0x51D6, 0x944F, 0x9F7D, 0x5AE4,
+        0x8919, 0x4C80, 0x47B2, 0x822B, 0xA5D1, 0x6048, 0x6B7A, 0xAEE3, 0x7D1E, 0xB887, 0xB3B5, 0x762C, 0xFC41, 0x39D8,
+        0x32EA, 0xF773, 0x248E, 0xE117, 0xEA25, 0x2FBC, 0x846,  0xCDDF, 0xC6ED, 0x374,  0xD089, 0x1510, 0x1E22, 0xDBBB,
+        0xAF8,  0xCF61, 0xC453, 0x1CA,  0xD237, 0x17AE, 0x1C9C, 0xD905, 0xFEFF, 0x3B66, 0x3054, 0xF5CD, 0x2630, 0xE3A9,
+        0xE89B, 0x2D02, 0xA76F, 0x62F6, 0x69C4, 0xAC5D, 0x7fA0, 0xBA39, 0xB10B, 0x7492, 0x5368, 0x96F1, 0x9DC3, 0x585A,
+        0x8BA7, 0x4E3E, 0x450C, 0x8095
+    };
+
+    // Initialize the value of the PEC15 remainder to 16
+    uint16_t remainder = 16U;
+    uint8_t  index     = 0U;
+
+    // Refer to PEC15 calculation in the 'PEC Calculation' of the LTC6813
+    // datasheet
+    for (size_t i = 0U; i < len; i++)
+    {
+        index     = ((uint8_t)(remainder >> 7U) ^ data[i]) & 0xFF;
+        remainder = (uint16_t)(remainder << 8U ^ pec15_lut[index]);
+    }
+
+    // Set the LSB of the PEC15 remainder to 0.
+    return (uint16_t)(remainder << 1); // TODO make sure the shifting to load into the registers is correct
+}
+
+#define WRCFGA (0x0001)
+#define WRCFGB (0x0024)
+#define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
+#define VOV (0x8CAU) // Over-voltage comparison voltage, VOV * 16 * 100uV
+
+// we wrote it this way to make hide the little endian processor storage of the struct
+// this way, the mental model is that the data is stored in the order it is written (big endian)
+// I know about scalar_storage_order("big-endian") but you cannot get the address a struct with that attribute
+// that is problematic for pec15 finding
+// see table 30, 35
+typedef struct
+{
+    uint8_t cmd_0;
+    uint8_t cmd_1;
+    uint8_t cmd_pec_0;
+    uint8_t cmd_pec_1;
+} cmd;
+
+/**
+ * @param config Configurations that are to be written into the registers
+ * @attention For more information on how to configure the LTC, see table 56
+ * @return Success if both succeeded. Fail if at least one failed.
+ */
+bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
+{
+    // as per table 38
+    typedef struct __attribute__((__packed__))
+    {
+        // byte 1
+        uint8_t adcopt : 1;
+        uint8_t dten : 1;
+        uint8_t refon : 1;
+        uint8_t gpio : 5;
+        // byte 2
+        uint8_t vuv_lower;
+        // byte 3
+        uint8_t vuv_upper : 4;
+        uint8_t vov_lower : 4;
+        // byte 4
+        uint8_t vov_upper;
+        // byte 5
+        uint8_t dcc_1_8;
+        // byte 6
+        uint8_t dcc_9_12 : 4;
+        uint8_t dcto : 4;
+        // byte 7/8
+        uint8_t pec_0;
+        uint8_t pec_1;
+    } CFGAR;
+    // as per table 33
+    struct __attribute__((__packed__))
+    {
+        cmd   cmd;
+        CFGAR segment_configs[NUM_SEGMENTS]; // note these must be shifted in backwards (shift register style)
+    } tx_msg_a;
+
+    // as per table 39
+    typedef struct __attribute__((__packed__))
+    {
+        // byte 1
+        uint8_t dcc_13_16 : 4;
+        uint8_t gpio_upper : 4;
+        // byte 2
+        uint8_t mute : 1;
+        uint8_t fdrf : 1;
+        uint8_t ps : 2;
+        uint8_t dtmen : 1;
+        uint8_t dcc_0 : 1;
+        uint8_t dcc_18 : 1;
+        uint8_t dcc_17 : 1;
+        // byte 3-6
+        uint32_t reserved;
+        // byte 7/8
+        uint8_t pec_0; // these contain bytes 14-7
+        uint8_t pec_1; // these contains bytes 6-0 (extra pad)
+    } CFGBR;
+    // as per table 33`
+    struct __attribute__((__packed__))
+    {
+        cmd   cmd;
+        CFGBR segment_configs[NUM_SEGMENTS];
+    } tx_msg_b;
+
+    static_assert(sizeof(tx_msg_a) == 36);
+    static_assert(sizeof(tx_msg_b) == 36);
+
+    // pack pec
+    {
+        tx_msg_a.cmd.cmd_0 = 0xFF & WRCFGA >> 8;
+        tx_msg_a.cmd.cmd_1 = 0xFF & WRCFGA;
+        const uint16_t pec_15_a =
+            calculate_pec15(&tx_msg_a.cmd.cmd_0, sizeof(tx_msg_a.cmd.cmd_0) + sizeof(tx_msg_a.cmd.cmd_1));
+        tx_msg_a.cmd.cmd_pec_0 = (uint8_t)(pec_15_a >> 8);
+        tx_msg_a.cmd.cmd_pec_1 = (uint8_t)pec_15_a;
+
+        tx_msg_b.cmd.cmd_0 = 0xFF & WRCFGB >> 8;
+        tx_msg_b.cmd.cmd_1 = 0xFF & WRCFGB;
+        const uint16_t pec_15_b =
+            calculate_pec15(&tx_msg_b.cmd.cmd_0, sizeof(tx_msg_b.cmd.cmd_0) + sizeof(tx_msg_b.cmd.cmd_1));
+        tx_msg_b.cmd.cmd_pec_0 = (uint8_t)(pec_15_b >> 8);
+        tx_msg_b.cmd.cmd_pec_1 = (uint8_t)pec_15_b;
+    }
+
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
+    {
+        // Data used to configure the last segment on the daisy chain needs to be sent first
+        const uint8_t tx_cfg_idx = NUM_SEGMENTS - curr_segment - 1;
+        CFGAR *const  seg_a      = &tx_msg_a.segment_configs[tx_cfg_idx];
+        CFGBR *const  seg_b      = &tx_msg_b.segment_configs[tx_cfg_idx];
+
+        seg_a->gpio       = 0x1F;
+        seg_a->refon      = 1;
+        seg_a->dten       = 1;
+        seg_a->adcopt     = 1;
+        seg_b->gpio_upper = 0xF;
+
+        // Write to configuration registers DCC bits
+        if (config.balance_config != NULL)
+        {
+            uint32_t dcc_bits = 0U;
+            // Get dcc bits to write for the current segment (which cells to balance)
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                dcc_bits |= (uint32_t)(*config.balance_config[curr_segment][cell] << cell);
+            }
+            seg_b->dcc_0     = 0;
+            seg_a->dcc_1_8   = dcc_bits & 0xFF;
+            seg_a->dcc_9_12  = dcc_bits >> 8 & 0xF;
+            seg_b->dcc_13_16 = dcc_bits >> 12 & 0xF;
+            seg_b->dcc_17    = 0;
+            seg_b->dcc_18    = 0;
+        }
+        else
+        {
+            seg_b->dcc_0     = 0;
+            seg_a->dcc_1_8   = 0;
+            seg_a->dcc_9_12  = 0;
+            seg_b->dcc_13_16 = 0;
+            seg_b->dcc_17    = 0;
+            seg_b->dcc_18    = 0;
+        }
+
+        // Calculate and pack the PEC15 bytes into data to write to the configuration register
+        const uint16_t pec_15_a = calculate_pec15((uint8_t *)seg_a, 6);
+        const uint16_t pec_15_b = calculate_pec15((uint8_t *)seg_a, 6);
+        seg_a->pec_0            = (uint8_t)(pec_15_a >> 8);
+        seg_a->pec_1            = (uint8_t)pec_15_a;
+        seg_b->pec_0            = (uint8_t)(pec_15_b >> 8);
+        seg_b->pec_1            = (uint8_t)pec_15_b;
+    }
+    // Write to configuration registers
+    if (!hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a)))
+        return false;
+    if (!hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b)))
+        return false;
+    return true;
+}
+
+bool io_ltc6813_sendCommand(const LTCCommand command)
+{
+    cmd tx_cmd;
+    tx_cmd.cmd_0          = (uint8_t)(command >> 8);
+    tx_cmd.cmd_1          = (uint8_t)command;
+    const uint16_t pec_15 = calculate_pec15((uint8_t *)&tx_cmd, 2);
+    tx_cmd.cmd_pec_0      = (uint8_t)(pec_15 >> 8);
+    tx_cmd.cmd_pec_1      = (uint8_t)pec_15;
+    return hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
+}
+
+// VOLTAGE PARSING SEGMENT
+
+// as per table 40-45
+typedef struct
+{
+    uint16_t a;
+    uint16_t b;
+    uint16_t c;
+    uint8_t  pec15_0;
+    uint8_t  pec15_1;
+} VoltageRegisterGroup;
+
+/**
+ * This functions works by iterating through all register groups, and for each register group asking each segment
+ * what is the value of the register group in that segment
+ */
+void io_ltc6813_readVoltages(
+    float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
+{
+    // Exit early if ADC conversion fails
+    if (!io_ltc6813_pollAdcConversions())
+    {
+        memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
+        return;
+    }
+
+    for (uint8_t curr_reg_group = 0U; curr_reg_group < VOLTAGE_REGISTER_GROUPS; curr_reg_group++)
+    {
+        // maps the register group number to the command to read that register group
+#define RDCVA (0x04U)
+#define RDCVB (0x06U)
+#define RDCVC (0x08U)
+#define RDCVD (0x0AU)
+#define RDCVE (0x09U)
+#define RDCVF (0x0BU)
+        static const uint16_t cv_read_cmds[VOLTAGE_REGISTER_GROUPS] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE, RDCVF };
+
+        cmd tx_cmd;
+        tx_cmd.cmd_0       = (uint8_t)(cv_read_cmds[curr_reg_group] >> 8);
+        tx_cmd.cmd_1       = (uint8_t)cv_read_cmds[curr_reg_group];
+        const uint16_t pec = calculate_pec15(&tx_cmd.cmd_0, sizeof(tx_cmd.cmd_0) + sizeof(tx_cmd.cmd_1));
+        tx_cmd.cmd_pec_0   = (uint8_t)(pec >> 8);
+        tx_cmd.cmd_pec_1   = (uint8_t)pec;
+
+        // Transmit the command and receive data stored in register group.
+        VoltageRegisterGroup rx_buffer[NUM_SEGMENTS];
+        static_assert(sizeof(rx_buffer[0]) == 8);
+
+        const bool voltage_read_success = hw_spi_transmitThenReceive(
+            &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
+        if (!voltage_read_success)
+        {
+            memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
+            continue;
+        }
+
+        for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
+        {
+            // Calculate PEC15 from the data received on rx_buffer
+            const uint16_t calc_pec15 = calculate_pec15((uint8_t *)&rx_buffer[curr_segment], 6);
+            const uint16_t recv_pec15 = (uint16_t)(rx_buffer->pec15_0 << 8 | rx_buffer->pec15_1);
+            if (recv_pec15 != calc_pec15)
+            {
+                success[curr_segment][curr_reg_group] = false;
+                continue;
+            }
+
+            // fuck it we already here
+            success[curr_segment][curr_reg_group] = true;
+
+            // Conversion factor used to convert raw voltages (100µV) to voltages (V)
+#define V_PER_100UV (1E-4f)
+#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
+            assert(curr_reg_group * 3 + 0 < CELLS_PER_SEGMENT);
+            cell_voltages[curr_segment][curr_reg_group * 3 + 0] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].a);
+            // only read first cell for group F (cell 16)
+            if (curr_reg_group == 5)
+            {
+                continue;
+            }
+            assert(curr_reg_group * 3 + 1 < CELLS_PER_SEGMENT);
+            cell_voltages[curr_segment][curr_reg_group * 3 + 1] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].b);
+            assert(curr_reg_group * 3 + 2 < CELLS_PER_SEGMENT);
+            cell_voltages[curr_segment][curr_reg_group * 3 + 2] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].c);
+        }
+    }
+}
+
+// TEMPERATURE PARSING SEGMENT
+
+typedef struct
+{
+    uint16_t a;
+    uint16_t b;
+    uint16_t c;
+    uint8_t  pec15_0;
+    uint8_t  pec15_1;
+} AuxRegGroup;
+
+/**
+ * Calculate thermistor temperature
+ * @param raw_thermistor_voltage The voltage measured across the thermistor
+ * @return The thermistor temp in deci degC
+ */
+static uint16_t calculateThermistorTempDeciDegC(const uint16_t raw_thermistor_voltage)
+{
+    // The following configuration is now the thermistor temperature is
+    // calculated
+    //
+    // - VREF is a ~3.0V provided by the LTC6813
+    // - The 10kOhm resistor on top is the bias resistor used to help compute
+    // the resistance across the thermistor
+    //
+    // (1) The thermistor resistance is first determined from the voltage drop
+    // (VTemp - V-) across the thermistor (2) Using the thermistor resistance we
+    // can use the look up table provided to get the temperature of the
+    // thermistor
+    //
+    //
+    //       ┌─── VREF
+    //       │
+    //      ┌┴┐
+    //      │ │
+    //      │ │ 10kOhm
+    //      │ │
+    //      └┬┘
+    //       │----- VTemp
+    //      ┌┴┐
+    //      │ │
+    //      │ │ NTCALUG03A103G thermistor
+    //      │ │
+    //      └┬┘
+    //       │
+    //       └─── V-
+    //
+    //
+
+    // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
+    // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
+    // index represents a 0.5°C increase in temperature.
+    static const float temp_resistance_lut[201] = {
+        32624.2f, 31804.3f, 31007.3f, 30232.8f, 29479.9f, 28747.9f, 28036.3f, 27344.5f, 26671.8f, 26017.6f, 25381.4f,
+        24762.6f, 24160.7f, 23575.3f, 23005.7f, 22451.6f, 21912.4f, 21387.8f, 20877.3f, 20380.5f, 19896.9f, 19426.2f,
+        18968.0f, 18522.0f, 18087.8f, 17664.9f, 17253.2f, 16852.3f, 16461.9f, 16081.6f, 15711.3f, 15350.5f, 14999.0f,
+        14656.6f, 14323.0f, 13998.0f, 13681.2f, 13372.6f, 13071.7f, 12778.5f, 12492.8f, 12214.2f, 11942.6f, 11677.8f,
+        11419.7f, 11168.0f, 10922.5f, 10683.2f, 10449.8f, 10222.0f, 10000.0f, 9783.4f,  9572.1f,  9365.9f,  9164.7f,
+        8968.5f,  8777.0f,  8590.1f,  8407.7f,  8229.7f,  8056.0f,  7886.4f,  7720.8f,  7559.2f,  7401.4f,  7247.4f,
+        7097.0f,  6950.1f,  6806.6f,  6666.6f,  6529.7f,  6396.1f,  6265.6f,  6138.1f,  6013.5f,  5891.8f,  5772.9f,
+        5656.7f,  5543.2f,  5432.3f,  5323.9f,  5217.9f,  5114.4f,  5013.2f,  4914.2f,  4817.5f,  4722.9f,  4630.5f,
+        4540.1f,  4451.7f,  4365.3f,  4280.8f,  4198.1f,  4117.3f,  4038.2f,  3960.9f,  3885.2f,  3811.2f,  3738.8f,
+        3668.0f,  3598.7f,  3530.9f,  3464.6f,  3399.7f,  3336.1f,  3273.9f,  3213.1f,  3153.5f,  3095.2f,  3038.1f,
+        2982.3f,  2927.6f,  2874.0f,  2821.6f,  2770.3f,  2720.0f,  2670.8f,  2622.6f,  2575.3f,  2529.1f,  2483.8f,
+        2439.5f,  2396.0f,  2353.4f,  2311.7f,  2270.9f,  2230.9f,  2191.6f,  2153.2f,  2115.6f,  2078.7f,  2042.5f,
+        2007.1f,  1972.3f,  1938.3f,  1904.9f,  1872.2f,  1840.1f,  1808.7f,  1777.9f,  1747.7f,  1718.0f,  1689.0f,
+        1660.5f,  1632.6f,  1605.2f,  1578.3f,  1552.0f,  1526.1f,  1500.8f,  1475.9f,  1451.5f,  1427.6f,  1404.2f,
+        1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
+    };
+#define BIAS_RESISTOR_OHM (10000.0f)
+#define REFERENCE_VOLTAGE (3.0f)
+#define THERM_INDEX_TO_DEGC (5U)
+
+    const float gpio_voltage          = (float)raw_thermistor_voltage * V_PER_100UV;
+    const float thermistor_resistance = (gpio_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - gpio_voltage);
+
+    // Check that the thermistor resistance is in range
+    if (!(thermistor_resistance <= temp_resistance_lut[0] && thermistor_resistance >= temp_resistance_lut[201 - 1U]))
+    {
+        return UINT16_MAX;
+    }
+
+    // Find the index corresponding to the calculated thermistor resistance
+    // TODO binary search
+    uint8_t therm_lut_index = 0U;
+    for (therm_lut_index = 0U; thermistor_resistance < temp_resistance_lut[therm_lut_index]; therm_lut_index++)
+        ;
+
+    // Divide the index of the thermistor lookup table by 2 as the
+    // temperature lookup table's key has a resolution of 0.5°C.
+    // Multiply the result by 5 as we are storing the temperature
+    // as in deci °C.
+    //
+    //                                 THERMISTOR LUT INDEX * 10
+    // CELL_TEMPERATURES_DECI_DEG_C = ----------------------------
+    //                                            2
+    //
+    return (uint16_t)(therm_lut_index * THERM_INDEX_TO_DEGC);
+}
+
+void io_ltc6813_readTemperatures(
+    float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS])
+{
+    if (!io_ltc6813_pollAdcConversions())
+    {
+        memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
+        return;
+    }
+
+    // Read thermistor voltages stored in the AUX register groups
+    for (uint8_t reg_group = 0U; reg_group < THERMISTOR_REGISTER_GROUPS; reg_group++)
+    {
+        cmd tx_cmd;
+
+        // pack command
+#define RDAUXA (0x000CU)
+#define RDAUXB (0x000EU)
+#define RDAUXC (0x000DU)
+        static const uint16_t aux_reg_group_cmds[3] = { RDAUXA, RDAUXB, RDAUXC };
+        tx_cmd.cmd_0                                = (uint8_t)(aux_reg_group_cmds[reg_group] >> 8);
+        tx_cmd.cmd_1                                = (uint8_t)aux_reg_group_cmds[reg_group];
+
+        // pack pec15
+        const uint16_t pec15 = calculate_pec15((uint8_t *)&tx_cmd, 2);
+        tx_cmd.cmd_pec_0     = (uint8_t)(pec15 >> 8);
+        tx_cmd.cmd_pec_1     = (uint8_t)pec15;
+
+        // as per table 46-48
+        AuxRegGroup rx_buffer[NUM_SEGMENTS];
+        static_assert(sizeof(rx_buffer[0]) == 8);
+
+        // send command and receive data
+        if (!hw_spi_transmitThenReceive(
+                &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer)))
+        {
+            memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
+            continue;
+        }
+
+        // process data
+        for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
+        {
+            // look for data for the current segment from the back
+            const AuxRegGroup *seg_reg_group = &rx_buffer[(NUM_SEGMENTS - 1) - seg_idx];
+
+            const uint16_t calc_pec15 = calculate_pec15((uint8_t *)seg_reg_group, 6);
+            const uint16_t recv_pec15 = (uint16_t)(seg_reg_group->pec15_0 << 8 | seg_reg_group->pec15_1);
+            if (recv_pec15 != calc_pec15)
+            {
+                success[seg_idx][reg_group] = false;
+                continue;
+            }
+
+            // since we are ignoring REF variable, we need to offset all further readings by 1 backwards
+            const int8_t adj                             = reg_group > 1 ? -1 : 0;
+            success[seg_idx][reg_group]                  = true;
+            cell_temps[seg_idx][reg_group * 3 + 0 + adj] = calculateThermistorTempDeciDegC(seg_reg_group->a);
+            cell_temps[seg_idx][reg_group * 3 + 1 + adj] = calculateThermistorTempDeciDegC(seg_reg_group->b);
+            cell_temps[seg_idx][reg_group * 3 + 2 + adj] = calculateThermistorTempDeciDegC(seg_reg_group->c);
+        }
+    }
+}
+
+bool io_ltc6813_startAdcConversion(void)
+{
+// ADC mode selection
+#define MD (1U)
+// GPIO Selection for ADC conversion
+#define CHG (0U)
+#define ADAX ((uint16_t)((((MD << 7U) + 0x0060U + CHG) << 8U) | 0x0004U))
+    return io_ltc6813_sendCommand(ADAX);
+}
+
+#define MAX_NUM_ADC_COMPLETE_CHECKS 10U
+bool io_ltc6813_pollAdcConversions(void)
+{
+    // Prepare command to get the status of ADC conversions
+#define PLADC (0x1407U)
+    cmd tx_cmd;
+    tx_cmd.cmd_0         = (uint8_t)(PLADC >> 8);
+    tx_cmd.cmd_1         = (uint8_t)PLADC;
+    const uint16_t pec15 = calculate_pec15(&tx_cmd.cmd_0, 2);
+    tx_cmd.cmd_pec_0     = (uint8_t)(pec15 >> 8);
+    tx_cmd.cmd_pec_1     = (uint8_t)pec15;
+
+    for (uint8_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
+    {
+        uint8_t rx_data;
+        if (hw_spi_transmitThenReceive(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), &rx_data, sizeof(rx_data)))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool io_ltc6813_sendBalanceCommand(void)
+{
+    return io_ltc6813_sendCommand(UNMUTE);
+}
+
+bool io_ltc6813_sendStopBalanceCommand(void)
+{
+    return io_ltc6813_sendCommand(MUTE);
+}

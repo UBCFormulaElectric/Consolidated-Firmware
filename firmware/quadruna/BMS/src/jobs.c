@@ -9,6 +9,7 @@
 #include "app_commitInfo.h"
 #include "app_heartbeatMonitors.h"
 #include "app_stackWaterMarks.h"
+#include "app_tractiveSystem.h"
 
 #include "io_canMsg.h"
 #include "io_canQueue.h"
