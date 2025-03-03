@@ -47,11 +47,6 @@ static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
     return (uint16_t)(remainder << 1); // TODO make sure the shifting to load into the registers is correct
 }
 
-#define WRCFGA (0x0001)
-#define WRCFGB (0x0024)
-#define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
-#define VOV (0x8CAU) // Over-voltage comparison voltage, VOV * 16 * 100uV
-
 // we wrote it this way to make hide the little endian processor storage of the struct
 // this way, the mental model is that the data is stored in the order it is written (big endian)
 // I know about scalar_storage_order("big-endian") but you cannot get the address a struct with that attribute
@@ -160,6 +155,12 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
     } tx_msg_b;
     static_assert(sizeof(tx_msg_b) == 36);
 
+    // just in case
+    memset(&tx_msg_a, 0, sizeof(tx_msg_a));
+    memset(&tx_msg_b, 0, sizeof(tx_msg_b));
+
+#define WRCFGA (0x0001)
+#define WRCFGB (0x0024)
     tx_msg_a.cmd = build_tx_cmd(WRCFGA);
     tx_msg_b.cmd = build_tx_cmd(WRCFGB);
 
@@ -175,6 +176,13 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         seg_a->dten     = 1;
         seg_a->adcopt   = 1;
         seg_b->gpio_6_9 = 0xF;
+
+#define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
+        seg_a->vuv_0_7  = VUV & 0xFF;
+        seg_a->vuv_8_11 = VUV >> 8 & 0xF;
+#define VOV (0x8CAU) // Over-voltage comparison voltage, VOV * 16 * 100uV
+        seg_a->vov_0_3  = VOV & 0xF;
+        seg_a->vov_4_11 = VOV >> 4 & 0xFF;
 
         // Write to configuration registers DCC bits
         if (config.balance_config != NULL)
@@ -214,7 +222,7 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
     return true;
 }
 
-bool io_ltc6813_sendCommand(const LTCCommand command)
+bool io_ltc6813_sendCommand(const uint16_t command)
 {
     const raw_cmd tx_cmd = build_tx_cmd(command);
     return hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
@@ -489,10 +497,12 @@ bool io_ltc6813_pollAdcConversions(void)
 
 bool io_ltc6813_sendBalanceCommand(void)
 {
+#define UNMUTE 0x2900U
     return io_ltc6813_sendCommand(UNMUTE);
 }
 
 bool io_ltc6813_sendStopBalanceCommand(void)
 {
+#define MUTE 0x2800U
     return io_ltc6813_sendCommand(MUTE);
 }

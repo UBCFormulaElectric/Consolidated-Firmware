@@ -2,14 +2,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// Global Variables
+// physical constants
 #define NUM_SEGMENTS 4
 #define CELLS_PER_SEGMENT 16
-#define VOLTAGE_REGISTER_GROUPS 6
 #define THERMISTORS_PER_SEGMENT 8
+
+// LTC6813 realities
+#define VOLTAGE_REGISTER_GROUPS 6
 #define THERMISTOR_REGISTER_GROUPS 3
-#define TOTAL_NUM_OF_THERMISTORS (NUM_SEGMENTS * THERMISTORS_PER_SEGMENT)
-// #define TOTAL_PACK_CELLS (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
 typedef struct {
   bool (*balance_config)[NUM_SEGMENTS][CELLS_PER_SEGMENT]; // balancing enabled if non-null, otherwise disabled.
@@ -23,18 +23,14 @@ typedef struct {
  */
 bool io_ltc6813_writeConfigurationRegisters(LTCConfig config);
 
-typedef enum
-{
-  MUTE = 0x2800U,
-  UNMUTE = 0x2900U
-} LTCCommand;
 /**
  * Sends a command to all segments on the daisy chain
  * In particular, it sends a single command, which is not shifted. However, it will affect all segments
  * @param command command to send
+ * @note that I decided not to use enums for command, as there are certain commands which need to built on the fly
  * @return success of the operation
  */
-bool io_ltc6813_sendCommand(LTCCommand command);
+bool io_ltc6813_sendCommand(uint16_t command);
 
 /**
  * Reads all voltages from all segments

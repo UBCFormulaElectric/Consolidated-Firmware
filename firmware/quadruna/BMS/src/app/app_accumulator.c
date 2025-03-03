@@ -235,6 +235,7 @@ static void calculateTemperatureStats(void)
         }
     }
     // Calculate the average temperature
+#define TOTAL_NUM_OF_THERMISTORS (NUM_SEGMENTS * THERMISTORS_PER_SEGMENT)
     temp_stats.avg = sum_temp / TOTAL_NUM_OF_THERMISTORS;
 }
 
