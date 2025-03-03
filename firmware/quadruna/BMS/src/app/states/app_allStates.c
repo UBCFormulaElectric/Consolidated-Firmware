@@ -79,7 +79,6 @@ bool app_allStates_runOnTick100Hz(void)
                 if (balancing_enabled)
                 {
                     iso_spi_task_state = RUN_CELL_BALANCING;
-                    // app_accumulator_calculateCellsToBalance();
                 }
             }
 
@@ -94,7 +93,6 @@ bool app_allStates_runOnTick100Hz(void)
                 if (balancing_enabled)
                 {
                     iso_spi_task_state = RUN_CELL_BALANCING;
-                    // app_accumulator_calculateCellsToBalance();
                 }
                 else
                 {
@@ -111,7 +109,7 @@ bool app_allStates_runOnTick100Hz(void)
 
             if (iso_spi_state_counter >= NUM_CYCLES_TO_BALANCE)
             {
-                io_ltc6813_sendBalanceCommand();
+                io_ltc6813_sendStopBalanceCommand();
                 iso_spi_task_state    = RUN_CELL_MEASUREMENTS;
                 iso_spi_state_counter = 0;
             }
