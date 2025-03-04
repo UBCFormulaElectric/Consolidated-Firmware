@@ -373,6 +373,7 @@ void app_accumulator_writeDefaultConfig(void)
 {
     // Configure the cell monitoring chips. Disable discharge at startup
     io_ltc6813_writeConfigurationRegisters((LTCConfig){ .balance_config = NULL });
+    io_ltc6813_writeConfigurationRegisters((LTCConfig){ .balance_config = NULL });
 }
 
 void app_accumulator_runCellMeasurements(void)
