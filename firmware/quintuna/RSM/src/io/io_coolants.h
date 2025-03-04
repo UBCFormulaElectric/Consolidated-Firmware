@@ -9,8 +9,7 @@
 
 typedef struct
 {
-    
-    PwmInputFreqOnly       *src;
+    PwmInputFreqOnly             *src;
     const PwmInputFreqOnlyConfig *config;
 } CoolantFlowMeter;
 #else
