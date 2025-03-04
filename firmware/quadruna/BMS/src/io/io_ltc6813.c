@@ -62,10 +62,10 @@ typedef struct __attribute__((__packed__))
 static raw_pec build_tx_pec(const uint8_t *data, const uint8_t len)
 {
     const uint16_t pec = calculate_pec15(data, len);
-    return (raw_pec){
-        .pec_0 = (uint8_t)(pec >> 8),
-        .pec_1 = (uint8_t)pec,
-    };
+    raw_pec        out = { 0 };
+    out.pec_0          = (uint8_t)(pec >> 8);
+    out.pec_1          = (uint8_t)pec;
+    return out;
 }
 
 static uint16_t read_rx_pec(const raw_pec *pec)
@@ -84,10 +84,10 @@ typedef struct __attribute__((__packed__))
 
 static raw_cmd build_tx_cmd(const uint16_t command)
 {
-    raw_cmd out;
-    out.cmd_0 = (uint8_t)(command >> 8);
-    out.cmd_1 = (uint8_t)command;
-    out.pec   = build_tx_pec((uint8_t *)&out, sizeof(out.cmd_0) + sizeof(out.cmd_1));
+    raw_cmd out = { 0 };
+    out.cmd_0   = (uint8_t)(command >> 8);
+    out.cmd_1   = (uint8_t)command;
+    out.pec     = build_tx_pec((uint8_t *)&out, sizeof(out.cmd_0) + sizeof(out.cmd_1));
     return out;
 }
 
@@ -126,7 +126,7 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
     {
         raw_cmd cmd;
         CFGAR   segment_configs[NUM_SEGMENTS]; // note these must be shifted in backwards (shift register style)
-    } tx_msg_a;
+    } tx_msg_a = { 0 };
     static_assert(sizeof(tx_msg_a) == 4 + 8 * NUM_SEGMENTS);
 
     // as per table 39
@@ -153,7 +153,7 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
     {
         raw_cmd cmd;
         CFGBR   segment_configs[NUM_SEGMENTS];
-    } tx_msg_b;
+    } tx_msg_b = { 0 };
     static_assert(sizeof(tx_msg_b) == 4 + 8 * NUM_SEGMENTS);
 
     // just in case
@@ -249,11 +249,11 @@ void io_ltc6813_readVoltages(
     float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
     bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
 {
+    memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
+    memset(cell_voltages, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
     // Exit early if ADC conversion fails
     if (!io_ltc6813_pollAdcConversions())
     {
-        memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
-        memset(cell_voltages, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
         return;
     }
 
@@ -271,16 +271,12 @@ void io_ltc6813_readVoltages(
         const raw_cmd tx_cmd = build_tx_cmd(cv_read_cmds[curr_reg_group]);
 
         // Transmit the command and receive data stored in register group.
-        VoltageRegisterGroup rx_buffer[NUM_SEGMENTS];
+        VoltageRegisterGroup rx_buffer[NUM_SEGMENTS] = { 0 };
 
         const bool voltage_read_success = hw_spi_transmitThenReceive(
             &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
         if (!voltage_read_success)
         {
-            for (int i = 0; i < NUM_SEGMENTS; i++)
-            {
-                success[i][curr_reg_group] = false;
-            }
             continue;
         }
 
@@ -288,11 +284,9 @@ void io_ltc6813_readVoltages(
         {
             // Calculate PEC15 from the data received on rx_buffer
             const uint16_t calc_pec15 = calculate_pec15((uint8_t *)&rx_buffer[curr_segment], 6);
-            const uint16_t recv_pec15 = read_rx_pec(&rx_buffer->pec);
+            const uint16_t recv_pec15 = read_rx_pec(&rx_buffer[curr_segment].pec);
             if (recv_pec15 != calc_pec15)
             {
-                success[curr_segment][curr_reg_group]       = false;
-                cell_voltages[curr_segment][curr_reg_group] = 0.0f;
                 continue;
             }
 
@@ -302,16 +296,13 @@ void io_ltc6813_readVoltages(
             // Conversion factor used to convert raw voltages (100µV) to voltages (V)
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-            assert(curr_reg_group * 3 + 0 < CELLS_PER_SEGMENT);
             cell_voltages[curr_segment][curr_reg_group * 3 + 0] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].a);
             // only read first cell for group F (cell 16)
             if (curr_reg_group == 5)
             {
                 continue;
             }
-            assert(curr_reg_group * 3 + 1 < CELLS_PER_SEGMENT);
             cell_voltages[curr_segment][curr_reg_group * 3 + 1] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].b);
-            assert(curr_reg_group * 3 + 2 < CELLS_PER_SEGMENT);
             cell_voltages[curr_segment][curr_reg_group * 3 + 2] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].c);
         }
     }
@@ -425,10 +416,10 @@ void io_ltc6813_readTemperatures(
     float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
     bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS])
 {
+    memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
+    memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
     if (!io_ltc6813_pollAdcConversions())
     {
-        memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
-        memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
         return;
     }
 
@@ -443,7 +434,7 @@ void io_ltc6813_readTemperatures(
         const raw_cmd         tx_cmd                = build_tx_cmd(aux_reg_group_cmds[reg_group]);
 
         // as per table 46-48
-        AuxRegGroup rx_buffer[NUM_SEGMENTS];
+        AuxRegGroup rx_buffer[NUM_SEGMENTS] = { 0 };
         static_assert(sizeof(rx_buffer[0]) == 8);
 
         // send command and receive data

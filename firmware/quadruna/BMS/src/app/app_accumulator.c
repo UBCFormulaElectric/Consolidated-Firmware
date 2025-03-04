@@ -208,6 +208,7 @@ static void calculateTemperatureStats(void)
             const float curr_cell_temp = cell_temps[curr_segment][curr_cell_index];
 
             // Physical locations of thermistors 1 and 2 are swapped, as well as 7 and 8
+            // TODO this is bugged
             if (curr_cell_index == 1)
                 curr_cell_index = 2;
             else if (curr_cell_index == 2)

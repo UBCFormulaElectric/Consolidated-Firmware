@@ -11,8 +11,9 @@
 #define VOLTAGE_REGISTER_GROUPS 6
 #define THERMISTOR_REGISTER_GROUPS 3
 
-typedef struct {
-  bool (*balance_config)[NUM_SEGMENTS][CELLS_PER_SEGMENT]; // balancing enabled if non-null, otherwise disabled.
+typedef struct
+{
+    bool (*balance_config)[NUM_SEGMENTS][CELLS_PER_SEGMENT]; // balancing enabled if non-null, otherwise disabled.
 } LTCConfig;
 /**
  * Writes a configuration to all segments on the daisy chain.
@@ -38,7 +39,9 @@ bool io_ltc6813_sendCommand(uint16_t command);
  * @param success This parameter will be assumed to contain all falses at the beginning
  * @return
  */
-void io_ltc6813_readVoltages(float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT], bool success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
+void io_ltc6813_readVoltages(
+    float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
 
 /**
  * Reads all temperatures from all segments
@@ -46,7 +49,9 @@ void io_ltc6813_readVoltages(float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT
  * @param success This parameter will be assumed to contain all falses at the beginning
  * @return
  */
-void io_ltc6813_readTemperatures(float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT], bool success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS]);
+void io_ltc6813_readTemperatures(
+    float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS]);
 
 /**
  *
@@ -66,7 +71,6 @@ bool io_ltc6813_startThermistorsAdcConversion(void);
  */
 bool io_ltc6813_pollAdcConversions();
 
-
 // CONVENIENCE FUNCTIONS
 
 /**
@@ -81,11 +85,10 @@ bool io_ltc6813_sendBalanceCommand(void);
  */
 bool io_ltc6813_sendStopBalanceCommand(void);
 
-
 typedef enum
 {
-  PULL_DOWN,
-  PULL_UP,
+    PULL_DOWN,
+    PULL_UP,
 } PullDirection;
 /**
  * Sends command to initiate open wire check
