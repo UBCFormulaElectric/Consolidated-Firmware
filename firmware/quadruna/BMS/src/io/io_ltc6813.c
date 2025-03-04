@@ -102,15 +102,15 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
     typedef struct __attribute__((__packed__))
     {
         // byte 1
-        uint8_t gpio_1_5 : 5;
-        uint8_t refon : 1;
-        uint8_t dten : 1;
         uint8_t adcopt : 1;
+        uint8_t dten : 1;
+        uint8_t refon : 1;
+        uint8_t gpio_1_5 : 5;
         // byte 2
         uint8_t vuv_0_7;
         // byte 3
-        uint8_t vov_0_3 : 4;
         uint8_t vuv_8_11 : 4;
+        uint8_t vov_0_3 : 4;
         // byte 4
         uint8_t vov_4_11;
         // byte 5
@@ -173,8 +173,8 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         CFGBR *const  seg_b      = &tx_msg_b.segment_configs[tx_cfg_idx];
 
         seg_a->gpio_1_5 = 0x1F;
-        seg_a->refon    = 1;
-        seg_a->dten     = 1;
+        seg_a->refon    = 0;
+        seg_a->dten     = 0;
         seg_a->adcopt   = 1;
         seg_b->gpio_6_9 = 0xF;
 
