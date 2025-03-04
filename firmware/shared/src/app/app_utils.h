@@ -32,6 +32,7 @@
 #define SET_BIT_LOW(input, bit) (input & ~(1U << bit))
 
 #define APPROX_EQUAL(a, b, threshold) ((bool)(fabs((a) - (b)) < threshold))
+#define APPROX_EQUAL_FLOAT(a, b, threshold) ((bool)(fabsf((a) - (b)) < threshold))
 
 // Extra guard because HAL defines the same macro
 #ifndef UNUSED

@@ -22,10 +22,6 @@
 // Number of cool down states after running OWC to let voltage settle down
 #define OPEN_WIRE_CHECK_IDLE_CYCLES (4)
 
-// Open Wire Check Modes
-#define PULL_UP (1U)
-#define PULL_DOWN (0U)
-
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
 #define CELL_FULLY_DERATED_TEMP (60.0f)
@@ -58,9 +54,9 @@ typedef enum
 
 typedef struct
 {
-    uint16_t owc_status[NUM_SEGMENTS];
-    bool     owc_fault_gnd[NUM_SEGMENTS];
-    bool     owc_global_fault;
+    // uint16_t cell_owc_status[NUM_SEGMENTS];
+    bool owc_fault_gnd[NUM_SEGMENTS];
+    bool owc_global_fault;
 } OWCFaults;
 
 static struct
@@ -88,6 +84,12 @@ static bool     voltage_read_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { 
 static bool     temp_read_success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS] = { false };
 static float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+
+static float cell_voltage_pu[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static bool  cell_voltage_pu_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { false };
+static float cell_voltage_pd[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static bool  cell_voltage_pd_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { false };
+static bool  cell_owc_status[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
 typedef struct
 {
@@ -241,33 +243,33 @@ static void calculateTemperatureStats(void)
 
 static void owcCalculateFaults(void)
 {
-    OWCFaults owcFaults = { .owc_status = { 0U }, .owc_fault_gnd = { 0U }, .owc_global_fault = 0U };
-
-    owcFaults.owc_global_fault = io_ltc6813CellVoltages_getGlobalOpenWireFault();
-
-    if (owcFaults.owc_global_fault)
-    {
-        for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
-        {
-            if (io_ltc6813CellVoltages_getOpenWireFault(segment, 0))
-            {
-                owcFaults.owc_fault_gnd[segment] = true;
-                owcFaults.owc_status[segment]    = (uint16_t)1;
-            }
-            else
-            {
-                for (uint8_t cell = 1; cell < CELLS_PER_SEGMENT; cell++)
-                {
-                    if (io_ltc6813CellVoltages_getOpenWireFault(segment, cell))
-                    {
-                        owcFaults.owc_status[segment] |= ((uint16_t)(1 << cell));
-                    }
-                }
-            }
-        }
-    }
-
-    data.owc_faults = owcFaults;
+    // OWCFaults owcFaults = { .cell_owc_status = { 0U }, .owc_fault_gnd = { 0U }, .owc_global_fault = 0U };
+    //
+    // owcFaults.owc_global_fault = io_ltc6813CellVoltages_getGlobalOpenWireFault();
+    //
+    // if (owcFaults.owc_global_fault)
+    // {
+    //     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
+    //     {
+    //         if (io_ltc6813CellVoltages_getOpenWireFault(segment, 0))
+    //         {
+    //             owcFaults.owc_fault_gnd[segment] = true;
+    //             owcFaults.cell_owc_status[segment]    = (uint16_t)1;
+    //         }
+    //         else
+    //         {
+    //             for (uint8_t cell = 1; cell < CELLS_PER_SEGMENT; cell++)
+    //             {
+    //                 if (io_ltc6813CellVoltages_getOpenWireFault(segment, cell))
+    //                 {
+    //                     owcFaults.cell_owc_status[segment] |= ((uint16_t)(1 << cell));
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    //
+    // data.owc_faults = owcFaults;
 }
 
 static void calculateCellsToBalance(bool cells_to_balance[NUM_SEGMENTS][CELLS_PER_SEGMENT])
@@ -400,6 +402,45 @@ void app_accumulator_runCellMeasurements(void)
     io_ltc6813_startAdcConversion();
 }
 
+static void parseOWCData(
+    float owc_cell_V_PU[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    float owc_cell_V_PD[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    bool  owc_status[NUM_SEGMENTS][CELLS_PER_SEGMENT])
+{
+    // For cell 0, cell 0 is open if V_PU(0) = 0V
+#define OPEN_WIRE_CHECK_CELL_0_THRESHOLD_V (0.1f) // 100mV
+
+    // For cell N in 1-15, cell N is open if V_PU(N+1) - V_PD(N+1) < -400mV
+    // * V_PU(N) is pull-up voltage of cell N, i.e. result of ADOW with PUP set to 1
+    // * V_PD(N) is pull-down voltage of cell N, i.e. result of ADOW with PUP set to 0
+#define OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V (-0.4f) // -400mV
+
+    for (int segment = 0; segment < NUM_SEGMENTS; segment++)
+    {
+        // Check for cell idx 0
+        owc_status[segment][0] = (owc_cell_V_PU[segment][0] < OPEN_WIRE_CHECK_CELL_0_THRESHOLD_V);
+        // owc_fault |= cell_owc_status[segment][0];
+
+        // Check for cell idx 1-14
+        for (uint8_t cell = 1; cell < CELLS_PER_SEGMENT - 1; cell++)
+        {
+            const float cell_voltage_delta = owc_cell_V_PU[segment][cell] - owc_cell_V_PD[segment][cell];
+            owc_status[segment][cell]      = cell_voltage_delta < OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V;
+
+            // Secondary Test discovered during testing
+            owc_status[segment][cell] |=
+                APPROX_EQUAL_FLOAT(owc_cell_V_PU[segment][cell], owc_cell_V_PD[segment][cell], 0.01f) &&
+                owc_cell_V_PD[segment][cell] > 5.0f;
+            // owc_fault |= cell_owc_status[segment][cell];
+        }
+
+        // Check for cell idx 15
+        owc_status[segment][CELLS_PER_SEGMENT - 1] =
+            owc_cell_V_PD[segment][CELLS_PER_SEGMENT - 1] < OPEN_WIRE_CHECK_CELL_0_THRESHOLD_V;
+        // owc_fault |= cell_owc_status[segment][15];
+    }
+}
+
 bool app_accumulator_runOpenWireCheck(void)
 {
     bool is_finished = false;
@@ -417,7 +458,7 @@ bool app_accumulator_runOpenWireCheck(void)
             const bool Mutex_Acquired = true; // TODO this line is just a reminder to fix it with proper code
             if (Mutex_Acquired)
             {
-                io_ltc6813CellVoltages_owcStart(PULL_UP);
+                io_ltc6813CellVoltages_owc(PULL_UP);
                 open_wire_pu_readings++;
                 data.owc_state = GET_PU_CELL_VOLTAGE_STATE;
             }
@@ -427,15 +468,14 @@ bool app_accumulator_runOpenWireCheck(void)
         {
             if (open_wire_pu_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
             {
-                UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellVoltages_owcReadVoltages(PULL_UP), conceq_fails);
-
-                io_ltc6813CellVoltages_owcStart(PULL_DOWN);
+                io_ltc6813_readVoltages(cell_voltage_pu, cell_voltage_pu_success);
+                io_ltc6813CellVoltages_owc(PULL_DOWN);
                 open_wire_pd_readings++;
                 data.owc_state = GET_PD_CELL_VOLTAGE_STATE;
             }
             else
             {
-                io_ltc6813CellVoltages_owcStart(PULL_UP);
+                io_ltc6813CellVoltages_owc(PULL_UP);
                 open_wire_pu_readings++;
             }
             break;
@@ -444,24 +484,21 @@ bool app_accumulator_runOpenWireCheck(void)
         {
             if (open_wire_pd_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
             {
-                UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellVoltages_owcReadVoltages(PULL_DOWN), conceq_fails);
-
+                io_ltc6813_readVoltages(cell_voltage_pd, cell_voltage_pd_success);
                 data.owc_state = CHECK_OPEN_WIRE_FAULT_STATE;
             }
             else
             {
-                io_ltc6813CellVoltages_owcStart(PULL_DOWN);
+                io_ltc6813CellVoltages_owc(PULL_DOWN);
                 open_wire_pd_readings++;
             }
             break;
         }
         case CHECK_OPEN_WIRE_FAULT_STATE:
         {
-            io_ltc6813CellVoltages_checkOpenWireStatus();
+            parseOWCData(cell_voltage_pu, cell_voltage_pd, cell_owc_status);
             data.owc_state = IDLE_STATE;
-
             owcCalculateFaults();
-
             break;
         }
         case IDLE_STATE:
@@ -512,10 +549,10 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_MaxTempIdx_set(temp_stats.max_temp_cell.cell);
 
     // Broadcast OWC information
-    app_canTx_BMS_Segment0_OWC_Cells_Status_set(data.owc_faults.owc_status[0]);
-    app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.owc_status[1]);
-    app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.owc_status[2]);
-    app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owc_status[3]);
+    // app_canTx_BMS_Segment0_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[0]);
+    // app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[1]);
+    // app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[2]);
+    // app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[3]);
 
     // Calculate and broadcast pack power.
     const float available_power =
@@ -568,12 +605,12 @@ bool app_accumulator_checkFaults(void)
     app_canTx_BMS_ModuleCommunication_MonitorState_set((CAN_AccumulatorMonitorState)data.measurement_state);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
-    const bool owc_fault = data.owc_faults.owc_global_fault;
-    app_canAlerts_BMS_Warning_OpenWireCheckFault_set(data.owc_faults.owc_global_fault);
-    app_canAlerts_BMS_Warning_OpenWireCheck_Segment0_GND_set(data.owc_faults.owc_fault_gnd[0]);
-    app_canAlerts_BMS_Warning_OpenWireCheck_Segment1_GND_set(data.owc_faults.owc_fault_gnd[1]);
-    app_canAlerts_BMS_Warning_OpenWireCheck_Segment2_GND_set(data.owc_faults.owc_fault_gnd[2]);
-    app_canAlerts_BMS_Warning_OpenWireCheck_Segment3_GND_set(data.owc_faults.owc_fault_gnd[3]);
+    // const bool owc_fault = data.owc_faults.owc_global_fault;
+    // app_canAlerts_BMS_Warning_OpenWireCheckFault_set(data.owc_faults.owc_global_fault);
+    // app_canAlerts_BMS_Warning_OpenWireCheck_Segment0_GND_set(data.owc_faults.owc_fault_gnd[0]);
+    // app_canAlerts_BMS_Warning_OpenWireCheck_Segment1_GND_set(data.owc_faults.owc_fault_gnd[1]);
+    // app_canAlerts_BMS_Warning_OpenWireCheck_Segment2_GND_set(data.owc_faults.owc_fault_gnd[2]);
+    // app_canAlerts_BMS_Warning_OpenWireCheck_Segment3_GND_set(data.owc_faults.owc_fault_gnd[3]);
     // app_canAlerts_BMS_Warning_OpenWireCheck_Segment4_GND_set(data.owc_faults.owc_fault_gnd[4]);
 
     return over_temp_fault || under_temp_fault || over_voltage_fault || under_voltage_fault || communication_fault;

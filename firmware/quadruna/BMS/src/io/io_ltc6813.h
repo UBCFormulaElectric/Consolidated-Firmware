@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 // physical constants
-#define NUM_SEGMENTS 1
+#define NUM_SEGMENTS 4
 #define CELLS_PER_SEGMENT 16
 #define THERMISTORS_PER_SEGMENT 8
 
@@ -75,9 +75,15 @@ bool io_ltc6813_sendBalanceCommand(void);
  */
 bool io_ltc6813_sendStopBalanceCommand(void);
 
-// JUST TO SHUT UP EDITOR ERRORS
-bool io_ltc6813CellVoltages_getGlobalOpenWireFault(void);
-bool io_ltc6813CellVoltages_getOpenWireFault(uint8_t segment, uint8_t cell);
-void io_ltc6813CellVoltages_owcStart(bool a);
-bool io_ltc6813CellVoltages_owcReadVoltages(bool a);
-void io_ltc6813CellVoltages_checkOpenWireStatus();
+
+typedef enum
+{
+  PULL_DOWN,
+  PULL_UP,
+} PullDirection;
+/**
+ * Sends command to initiate open wire check
+ * @param pull_direction The pull up or pull down phase of the open wire check
+ * @return success of operation
+ */
+bool io_ltc6813CellVoltages_owc(PullDirection pull_direction);
