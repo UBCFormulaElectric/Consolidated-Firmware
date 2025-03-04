@@ -126,7 +126,7 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         raw_cmd cmd;
         CFGAR   segment_configs[NUM_SEGMENTS]; // note these must be shifted in backwards (shift register style)
     } tx_msg_a;
-    static_assert(sizeof(tx_msg_a) == 36);
+    static_assert(sizeof(tx_msg_a) == 4 + 8 * NUM_SEGMENTS);
 
     // as per table 39
     typedef struct __attribute__((__packed__))
@@ -153,7 +153,7 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         raw_cmd cmd;
         CFGBR   segment_configs[NUM_SEGMENTS];
     } tx_msg_b;
-    static_assert(sizeof(tx_msg_b) == 36);
+    static_assert(sizeof(tx_msg_b) == 4 + 8 * NUM_SEGMENTS);
 
     // just in case
     memset(&tx_msg_a, 0, sizeof(tx_msg_a));
@@ -510,3 +510,18 @@ bool io_ltc6813_sendStopBalanceCommand(void)
 #define MUTE 0x2800U
     return io_ltc6813_sendCommand(MUTE);
 }
+
+bool io_ltc6813CellVoltages_getGlobalOpenWireFault(void)
+{
+    return true;
+}
+bool io_ltc6813CellVoltages_getOpenWireFault(uint8_t segment, uint8_t cell)
+{
+    return true;
+}
+void io_ltc6813CellVoltages_owcStart(bool a) {}
+bool io_ltc6813CellVoltages_owcReadVoltages(bool a)
+{
+    return true;
+}
+void io_ltc6813CellVoltages_checkOpenWireStatus() {}
