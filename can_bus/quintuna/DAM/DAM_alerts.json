@@ -55,5 +55,8 @@
       "id": 852,
       "description": "Missing heartbeat signal from the RSM."
     }
-  }
+  },
+  "info_id": 805,
+  "info_counts_id": 806,
+  "info": {}
 }

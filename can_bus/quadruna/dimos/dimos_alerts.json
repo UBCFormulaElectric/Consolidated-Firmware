@@ -4,9 +4,9 @@
   "bus": ["Can"],
   "warnings_counts_id": 850,
   "faults_counts_id": 851,
-  "info_id": 900,
-  "info_counts_id": 901,
   "warnings": {},
   "faults": {},
+  "info_id": 900,
+  "info_counts_id": 901,
   "info": {}
 }

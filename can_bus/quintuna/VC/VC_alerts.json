@@ -10,5 +10,8 @@
       "id": 600,
       "description": "Dummy Fault"
     }
-  }
+  },
+  "info_id": 605,
+  "info_counts_id": 606,
+  "info": {}
 }
