@@ -2,7 +2,11 @@
 Module for generating a DBC file from a CanDatabase object.
 TODO: Adding descriptions of messages to DBC
 """
+
 from typing import List
+
+import cantools
+
 from ...can_database import *
 
 DBC_TEMPLATE = """\
@@ -99,12 +103,12 @@ class DbcGenerator:
         )
 
     def _dbc_board_list(self) -> str:
-        """
+        """default_receiver
         Return space-delimitted list of all boards on the bus.
         """
-        return DBC_BOARD_LIST.format(
-            node_names=" ".join(self._db.nodes + [self._db.bus_config.default_receiver])
-        )
+        boards = list(self._db.nodes.keys())+ ["DEBUG"]
+
+        return DBC_BOARD_LIST.format(node_names=" ".join(boards))
 
     def _dbc_message(self, msg: CanMessage, tx_node: str) -> str:
         """

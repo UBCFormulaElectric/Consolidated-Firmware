@@ -1,0 +1,14 @@
+{
+  "VcState": {
+    "VC_INIT_STATE": 0,
+    "VC_INVERTER_ON_STATE": 1,
+    "VC_DRIVE_STATE": 2
+  },
+  "VcEkfStatus": {
+    "UNINITIALIZED": 0,
+    "VERTICAL_GYRO": 1,
+    "AHRS": 2,
+    "VELOCITY": 3,
+    "POSITION": 4
+  }
+}

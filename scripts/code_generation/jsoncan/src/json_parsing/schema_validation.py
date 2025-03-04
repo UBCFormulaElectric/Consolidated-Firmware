@@ -2,9 +2,9 @@
 Functions to validate the CAN JSON schema.
 """
 
-from typing import Dict, TypedDict
+from typing import Dict, List, TypedDict
 
-from schema import Schema, Optional, Or, And
+from schema import And, Optional, Or, Schema
 
 """
 Tx file schemas
@@ -13,12 +13,13 @@ tx_signal_schema = Schema(
     # 4 options to define a signal"s representation...
     Or(
         {
-            # Just bits, and signal will be a uint of X bits, i.e. scale=1, offset=0, min=0, max=(2^bits-1)
+            # Just bits, and signal will be a uint of X bits, i.e. offset=0, min=0, max=(2^bits-1)
             "bits": int,
             Optional("unit"): str,
             Optional("start_value"): int,
             Optional("start_bit"): int,
             Optional("signed"): bool,
+            Optional("scale"): Or(int, float),
         },
         {
             # Bits/min/max, and signal will range from min to max in X bits, scale/offset will be calculated accordingly
@@ -61,6 +62,7 @@ tx_signal_schema = Schema(
 
 tx_msg_schema = Schema(
     {
+        "bus": list[str],
         "msg_id": And(
             int, lambda x: x >= 0 and x < 2**11
         ),  # Standard CAN uses 11-bit identifiers
@@ -90,7 +92,20 @@ class RxSchema(TypedDict):
     messages: list[str]
 
 
-rx_schema = Schema({"messages": [str]})
+from schema import List, Or, Schema
+
+rx_schema = Schema(
+    Or(
+        [],  # Allow an empty list
+        [
+            {
+                "bus": str,
+                "messages": [str],  # Use schema.List to define a list of strings
+            }
+        ],
+    )
+)
+
 
 """
 Enum file schema
@@ -102,16 +117,30 @@ Bus file schema
 """
 
 
-class BusJson(TypedDict):
+class BusConfigJson(TypedDict):
     default_receiver: str
     bus_speed: int
     modes: list[str]
     default_mode: str
 
 
-bus_schema = Schema(
-    {"default_receiver": str, "bus_speed": int, "modes": [str], "default_mode": str}
+class BusJson(TypedDict):
+    forwarder: str
+    buses: list[BusConfigJson]
+
+
+single_bus_schema = Schema(
+    {
+        "default_receiver": str,
+        "bus_speed": int,
+        "modes": [str],
+        "default_mode": str,
+        "nodes": [str],
+        Optional("FD"): bool,
+    }
 )
+bus_list = Schema(Or(list[single_bus_schema], []))
+bus_schema = Schema({"forwarder": str, "buses": bus_list})
 
 """
 Alerts file schema
@@ -128,8 +157,12 @@ class AlertsJson(TypedDict):
     warnings_counts_id: int
     faults_id: int
     faults_counts_id: int
+    info_id: int
+    info_counts_id: int
+    bus: List[str]
     warnings: Dict[str, AlertsEntry]
     faults: Dict[str, AlertsEntry]
+    info: Dict[str, AlertsEntry]
 
 
 alerts_schema = Schema(
@@ -139,6 +172,9 @@ alerts_schema = Schema(
             "warnings_counts_id": And(int, lambda x: x >= 0),
             "faults_id": And(int, lambda x: x >= 0),
             "faults_counts_id": And(int, lambda x: x >= 0),
+            "info_id": And(int, lambda x: x >= 0),
+            "info_counts_id": And(int, lambda x: x >= 0),
+            "bus": list[str],
             "warnings": Or(
                 {},
                 {
@@ -153,6 +189,19 @@ alerts_schema = Schema(
                 },
             ),
             "faults": Or(
+                {},
+                {
+                    str: Or(
+                        {},
+                        {
+                            "id": int,
+                            "description": str,
+                            Optional("disabled"): bool,
+                        },
+                    )
+                },
+            ),
+            "info": Or(
                 {},
                 {
                     str: Or(

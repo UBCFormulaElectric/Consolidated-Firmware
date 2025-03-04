@@ -1,0 +1,19 @@
+{
+  "warnings_id": 100,
+  "faults_id": 101,
+  "warnings_counts_id": 102,
+  "faults_counts_id": 103,
+  "bus": ["bus1", "bus2"],
+  "warnings": {
+    "Warning1": {
+      "id": 100,
+      "description": "N/A"
+    }
+  },
+  "faults": {
+    "Fault1": {
+      "id": 150,
+      "description": "N/A"
+    }
+  }
+}

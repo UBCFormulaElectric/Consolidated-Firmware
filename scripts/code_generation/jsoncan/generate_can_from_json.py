@@ -14,6 +14,7 @@ from src.codegen.c_generation.app_can_data_capture_module import \
 from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
 from src.codegen.c_generation.app_can_tx_module import AppCanTxModule
 from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
+from src.codegen.c_generation.io_can_reroute_module import IoCanRerouteModule
 from src.codegen.c_generation.io_can_rx_module import IoCanRxModule
 from src.codegen.c_generation.io_can_tx_module import IoCanTxModule
 from src.codegen.dbc_generation.dbc_generation import DbcGenerator
@@ -33,6 +34,8 @@ if __name__ == "__main__":
 
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=args.can_data_dir).make_database()
+    pandas = can_db.make_pandas_dataframe()
+    print(pandas)
     # Generate DBC file
     write_text(DbcGenerator(database=can_db).source(), args.dbc_output)
     if args.only_dbc:
@@ -43,11 +46,12 @@ if __name__ == "__main__":
         AppCanTxModule(can_db, args.board): os.path.join("app", "app_canTx"),
         AppCanRxModule(can_db, args.board): os.path.join("app", "app_canRx"),
         AppCanAlertsModule(can_db, args.board): os.path.join("app", "app_canAlerts"),
-        AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"),
         IoCanTxModule(can_db, args.board): os.path.join("io", "io_canTx"),
         IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
+        AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"), 
+        # IoCanRerouteModule(can_db, args.board): os.path.join("io", "io_canReroute"),
     }
     for module, module_path in modules.items():
         module_full_path = os.path.join(args.output_dir, module_path)
-        write_text(module.header(), module_full_path + ".h")
-        write_text(module.source(), module_full_path + ".c")
+        write_text(module.header_template(), module_full_path + ".h")
+        write_text(module.source_template(), module_full_path + ".c")
