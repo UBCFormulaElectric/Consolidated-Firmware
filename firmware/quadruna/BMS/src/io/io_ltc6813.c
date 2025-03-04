@@ -479,7 +479,7 @@ bool io_ltc6813_startAdcConversion(void)
 #define MD (01U)
 // GPIO Selection for ADC conversion
 #define CHG (000U)
-#define ADAX ((uint16_t)((((MD << 7U) + 0x0060U + CHG) << 8U) | 0x0004U))
+#define ADAX (0x460 | MD << 7 | CHG)
     return io_ltc6813_sendCommand(ADAX);
 }
 
