@@ -14,9 +14,9 @@ const AdcChip   adc1 = { .adc_voltages    = adc_voltages,
 const AdcChannel lc3_out             = { .voltage = &adc_voltages[0] };
 const AdcChannel susp_travel_rl_3v3  = { .voltage = &adc_voltages[1] };
 const AdcChannel susp_travel_rr_3v3  = { .voltage = &adc_voltages[2] };
-const AdcChannel susp_travel_rl_ocsc = { .voltage = &adc_voltages[3] };
-const AdcChannel bps_3v3             = { .voltage = &adc_voltages[4] };
-const AdcChannel susp_travel_rr_ocsc = { .voltage = &adc_voltages[5] };
+const AdcChannel susp_travel_rl_ocsc = { .voltage = &adc_voltages[3] };//remove
+const AdcChannel bps_3v3             = { .voltage = &adc_voltages[4] };//to do
+const AdcChannel susp_travel_rr_ocsc = { .voltage = &adc_voltages[5] };//remove
 
 void hw_adcs_chipsInit()
 {

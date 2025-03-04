@@ -21,7 +21,7 @@
 #define PRESSURE_PSI_MAX (100.0f)
 // min pressure is 0 PSI
 #define VOLTAGE_PRESSURE_CONVERSION(voltage) \
-    (((voltage)-PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
+    (((voltage) - PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
 
 // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
 #define TEMPERATURE_VOLTAGE_MIN (0.0f)
@@ -44,27 +44,23 @@
 
 const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter_5v5, .config = &flow_meter_config };
 
-void io_coolant_init(CoolantFlowMeter *flow_meter)
+void io_coolant_init()
 {
-    hw_pwmInputFreqOnly_init(flow_meter->src, flow_meter->config);
+    hw_pwmInputFreqOnly_init(coolant_flow_meter.src, coolant_flow_meter.config);
 }
 
-void io_coolant_inputCaptureCallback(CoolantFlowMeter *flow_meter)
+void io_coolant_inputCaptureCallback()
 {
-    // if (htim3 == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
-    // htim3->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
-    // {
-    hw_pwmInputFreqOnly_tick(flow_meter->src);
-    // }
+    hw_pwmInputFreqOnly_tick(coolant_flow_meter.src);
 }
 
-float io_coolant_getFlowRate(CoolantFlowMeter *flow_meter)
+float io_coolant_getFlowRate()
 {
-    const float freq_read = hw_pwmInputFreqOnly_getFrequency(flow_meter->src);
+    const float freq_read = hw_pwmInputFreqOnly_getFrequency(coolant_flow_meter.src);
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
-void io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *flow_meter)
+void io_coolant_checkIfFlowMeterActive()
 {
-    hw_pwmInputFreqOnly_checkIfPwmIsActive(flow_meter->src);
+    hw_pwmInputFreqOnly_checkIfPwmIsActive(coolant_flow_meter.src);
 }
