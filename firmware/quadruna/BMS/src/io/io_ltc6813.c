@@ -253,7 +253,7 @@ void io_ltc6813_readVoltages(
     if (!io_ltc6813_pollAdcConversions())
     {
         memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
-        memset(cell_voltages, 0.0f, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
+        memset(cell_voltages, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
         return;
     }
 
@@ -272,7 +272,6 @@ void io_ltc6813_readVoltages(
 
         // Transmit the command and receive data stored in register group.
         VoltageRegisterGroup rx_buffer[NUM_SEGMENTS];
-        static_assert(sizeof(rx_buffer[0]) == 8);
 
         const bool voltage_read_success = hw_spi_transmitThenReceive(
             &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
@@ -429,7 +428,7 @@ void io_ltc6813_readTemperatures(
     if (!io_ltc6813_pollAdcConversions())
     {
         memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
-        memset(cell_temps, 0.0f, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
+        memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
         return;
     }
 
@@ -483,7 +482,19 @@ void io_ltc6813_readTemperatures(
     }
 }
 
-bool io_ltc6813_startAdcConversion(void)
+bool io_ltc6813_startCellsAdcConversion(void)
+{
+// ADC mode selection
+#define MD (01U)
+// Cell selection for ADC conversion
+#define CH (000U)
+// Discharge permitted
+#define DCP (0U)
+#define ADCV (0x260 | CH | DCP << 4 | MD << 7)
+    return io_ltc6813_sendCommand(ADCV);
+}
+
+bool io_ltc6813_startThermistorsAdcConversion(void)
 {
 // ADC mode selection
 #define MD (01U)
@@ -517,13 +528,13 @@ bool io_ltc6813_pollAdcConversions(void)
 
 bool io_ltc6813_sendBalanceCommand(void)
 {
-#define UNMUTE 0x2900U
+#define UNMUTE (0x2900U)
     return io_ltc6813_sendCommand(UNMUTE);
 }
 
 bool io_ltc6813_sendStopBalanceCommand(void)
 {
-#define MUTE 0x2800U
+#define MUTE (0x2800U)
     return io_ltc6813_sendCommand(MUTE);
 }
 
@@ -537,10 +548,11 @@ bool io_ltc6813CellVoltages_owc(const PullDirection pull_direction)
 #define DCP (0U)
 
 // Cell selection for ADC conversion
-#define CH (0U)
+#define CH_OWC (0U)
 
-#define ADOW_PU_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PU << 6U) + (DCP << 4U) + CH) << 8U) | 0x0003U))
-#define ADOW_PD_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PD << 6U) + (DCP << 4U) + CH) << 8U) | 0x0003U))
+// TODO make backwards
+#define ADOW_PU_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PU << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
+#define ADOW_PD_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PD << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
 
     return pull_direction == PULL_UP ? io_ltc6813_sendCommand(ADOW_PU_FIL) : io_ltc6813_sendCommand(ADOW_PD_FIL);
 }

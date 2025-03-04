@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 // physical constants
-#define NUM_SEGMENTS 4
+#define NUM_SEGMENTS 3
 #define CELLS_PER_SEGMENT 16
 #define THERMISTORS_PER_SEGMENT 8
 
@@ -52,7 +52,13 @@ void io_ltc6813_readTemperatures(float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_
  *
  * @return success of the operation
  */
-bool io_ltc6813_startAdcConversion(void);
+bool io_ltc6813_startCellsAdcConversion(void);
+
+/**
+ *
+ * @return success of the operation
+ */
+bool io_ltc6813_startThermistorsAdcConversion(void);
 
 /**
  *
