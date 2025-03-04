@@ -26,3 +26,4 @@
     ((int)((kmh) / ((float)WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO)))
 #define WHEEL_KMH_TO_RPM(kmh) ((int)((kmh) / ((float)WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR)))
 #define MPS_TO_KMH(mps) ((mps) * 3.6f)
+#define KMH_TO_MPS(mps) ((mps) / 3.6f)
