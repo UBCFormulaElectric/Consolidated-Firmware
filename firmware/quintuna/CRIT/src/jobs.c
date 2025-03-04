@@ -24,7 +24,7 @@ void jobs_init(void)
 {
     // can
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
 
@@ -38,7 +38,7 @@ void jobs_init(void)
 void jobs_run1Hz_tick(void)
 {
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+    io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
 
     hw_gpio_togglePin(&led);
