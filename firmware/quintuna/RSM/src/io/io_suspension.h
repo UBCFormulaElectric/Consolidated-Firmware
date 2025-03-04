@@ -13,6 +13,7 @@ typedef struct
 EMPTY_STRUCT(Suspension);
 #endif
 
+float io_suspension_travelFromVoltage(float voltage);
 float io_suspension_getTravel(const Suspension *suspension);
 bool  io_suspension_OCSC(const Suspension *suspension);
 

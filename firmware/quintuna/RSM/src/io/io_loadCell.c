@@ -1,5 +1,4 @@
 #include "io_loadCell.h"
-#include "hw_adc.h"
 #include "hw_adcs.h"
 
 // TODO: Find actual max and min values
@@ -8,13 +7,13 @@
 
 const LoadCell sensor3 = { .src = &lc3_out };
 
-bool io_loadCell_OCSC(const LoadCell *loadCell)
+bool io_loadCell_OCSC()
 {
-    const float voltage = hw_adc_getVoltage(loadCell->src);
+    const float voltage = hw_adc_getVoltage(sensor3.src);
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
-float io_loadCell_getMechanicalLoad(const LoadCell *loadCell)
+float io_loadCell_getMechanicalLoad()
 {
     // TODO: find transfer function (no spec sheet so far just this amazon link:
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/

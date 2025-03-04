@@ -9,17 +9,18 @@
 
 typedef struct
 {
+    
     PwmInputFreqOnly       *src;
-    PwmInputFreqOnlyConfig *config;
+    const PwmInputFreqOnlyConfig *config;
 } CoolantFlowMeter;
 #else
 #include "app_utils.h"
 EMPTY_STRUCT(CoolantFlowMeter);
 #endif
 
-void  io_coolant_init(CoolantFlowMeter *flow_meter);
-void  io_coolant_inputCaptureCallback(CoolantFlowMeter *flow_meter);
-void  io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *flow_meter);
-float io_coolant_getFlowRate(CoolantFlowMeter *flow_meter);
+void  io_coolant_init();
+void  io_coolant_inputCaptureCallback();
+void  io_coolant_checkIfFlowMeterActive();
+float io_coolant_getFlowRate();
 
 extern const CoolantFlowMeter coolant_flow_meter;
