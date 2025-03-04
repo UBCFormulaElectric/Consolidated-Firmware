@@ -253,6 +253,7 @@ void io_ltc6813_readVoltages(
     if (!io_ltc6813_pollAdcConversions())
     {
         memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
+        memset(cell_voltages, 0.0f, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
         return;
     }
 
@@ -277,7 +278,10 @@ void io_ltc6813_readVoltages(
             &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
         if (!voltage_read_success)
         {
-            memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
+            for (int i = 0; i < NUM_SEGMENTS; i++)
+            {
+                success[i][curr_reg_group] = false;
+            }
             continue;
         }
 
@@ -288,7 +292,8 @@ void io_ltc6813_readVoltages(
             const uint16_t recv_pec15 = read_rx_pec(&rx_buffer->pec);
             if (recv_pec15 != calc_pec15)
             {
-                success[curr_segment][curr_reg_group] = false;
+                success[curr_segment][curr_reg_group]       = false;
+                cell_voltages[curr_segment][curr_reg_group] = 0.0f;
                 continue;
             }
 
@@ -424,6 +429,7 @@ void io_ltc6813_readTemperatures(
     if (!io_ltc6813_pollAdcConversions())
     {
         memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
+        memset(cell_temps, 0.0f, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
         return;
     }
 
@@ -445,7 +451,11 @@ void io_ltc6813_readTemperatures(
         if (!hw_spi_transmitThenReceive(
                 &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer)))
         {
-            memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
+            // memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
+            for (int i = 0; i < NUM_SEGMENTS; i++)
+            {
+                success[i][reg_group] = false;
+            }
             continue;
         }
 
