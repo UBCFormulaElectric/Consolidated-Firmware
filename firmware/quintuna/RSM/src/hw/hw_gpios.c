@@ -12,7 +12,3 @@ const Gpio rl_int_pin = { .port = RL_INT_3V3_SENS_GPIO_Port, .pin = RL_INT_3V3_S
 const Gpio imu_int1_pin = { .port = IMU_INT1_GPIO_Port, .pin = IMU_INT1_Pin };
 
 const Gpio imu_int2_pin = { .port = IMU_INT2_GPIO_Port, .pin = IMU_INT2_Pin };
-
-
-
-

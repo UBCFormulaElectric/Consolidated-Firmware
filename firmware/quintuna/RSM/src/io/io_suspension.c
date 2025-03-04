@@ -13,7 +13,7 @@ float io_suspension_travelFromVoltage(float voltage)
 {
     // TODO: implement
     return voltage;
-} 
+}
 
 float io_suspension_getTravel(const Suspension *suspension)
 {
