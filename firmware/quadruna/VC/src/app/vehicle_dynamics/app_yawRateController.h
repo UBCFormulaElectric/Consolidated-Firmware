@@ -5,24 +5,24 @@
 /*
  * Yaw Rate Controller
  *
- * This system allows for effective torque vectoring by targeting the 
+ * This system allows for effective torque vectoring by targeting the
  * proper yaw rates desired by the driver. This allows us to create positive
- * yaw moments on corner entry and negative yaw moments on exit. 
- * 
- * Currently adapted for 2 wheel driving, main differences:
- * 
- * lambda is originally intended to create a difference in torques between
- * left and right wheels and then to transition this difference from front 
- * to back. For 2 wheel, it just provides a torque difference to the rear wheels
- * 
- * Only calculating torques for the rear wheels
-*/
+ * yaw moments on corner entry and negative yaw moments on exit.
+ *
+//  * Currently adapted for 2 wheel driving, main differences:
+//  *
+//  * lambda is originally intended to create a difference in torques between
+//  * left and right wheels and then to transition this difference from front
+//  * to back. For 2 wheel, it just provides a torque difference to the rear wheels
+//  *
+//  * Only calculating torques for the rear wheels
+ */
 
 // create static variables?
 
 typedef struct
 {
-    PID  *pid;
+    PID *pid;
     // Tuning constants
     float ku; // Understeer Gradient: ku > 0 for understeerm ku < 0 for oversteer, ku = 0 for neutral steer
     float k4; // Torque distribution constants
@@ -35,8 +35,10 @@ typedef struct
     // Outputs
     float ref_yaw_rate_deg;
     float yaw_moment;
-    float torque_left_Nm;
-    float torque_right_Nm;
+    float torque_fl_Nm;
+    float torque_fr_Nm;
+    float torque_rl_Nm;
+    float torque_rr_Nm;
 } YawRateController;
 
 typedef struct
