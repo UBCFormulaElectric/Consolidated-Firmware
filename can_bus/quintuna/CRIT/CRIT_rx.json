@@ -1,12 +1,15 @@
-{
+[
+  {
+    "bus": "Can",
     "messages": [
-        "BMS_Vitals",
-        "FSM_Vitals",
-        "RSM_Vitals",
-        "VC_Vitals",
-        "BMS_LatchedFaults",
-        "VC_VehicleDynamics",
-        "VC_GlobalShdnNodeStatus",
-        "Debug_CanMode"
+      "BMS_Vitals",
+      "FSM_Vitals",
+      "RSM_Vitals",
+      "VC_Vitals",
+      "BMS_LatchedFaults",
+      "VC_VehicleDynamics",
+      "VC_GlobalShdnNodeStatus",
+      "Debug_CanMode"
     ]
-}
+  }
+]
