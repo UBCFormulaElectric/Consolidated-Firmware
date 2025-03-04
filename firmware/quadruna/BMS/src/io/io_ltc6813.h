@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 // physical constants
-#define NUM_SEGMENTS 3
+#define NUM_SEGMENTS 4
 #define CELLS_PER_SEGMENT 16
 #define THERMISTORS_PER_SEGMENT 8
 
