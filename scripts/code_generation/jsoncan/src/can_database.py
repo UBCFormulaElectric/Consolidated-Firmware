@@ -263,6 +263,13 @@ class CanMessage:
 class CanRxMessages:
     node: str
     messages: dict[str, list[str]]  # bus name to list of message names
+    
+    
+    def find_bus(self, message_name: str):
+        for bus, messages in self.messages.items():
+            if message_name in messages:
+                return bus
+        return None
 
 
 class CanAlertType(StrEnum):
@@ -548,7 +555,6 @@ class CanDatabase:
 
 @dataclass()
 class CanForward:
-    message: CanMessage  # Message needed to be forwarded
-    receive_node: CanNode
-    bus: List[CanBusConfig]  # List of buses will be forwarded to
-    forwarder: CanNode  # Node which forwards the message
+    message: str  # name of the message
+    from_bus: str  # name of the bus the message is forwarded from
+    to_bus: list[str]  # list of buses the message is forwarded to
