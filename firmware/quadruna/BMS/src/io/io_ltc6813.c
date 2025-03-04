@@ -4,6 +4,7 @@
 #include "hw_spis.h"
 
 #include <assert.h>
+#include <io_log.h>
 #include <string.h>
 
 static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
@@ -101,22 +102,22 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
     typedef struct __attribute__((__packed__))
     {
         // byte 1
-        uint8_t adcopt : 1;
-        uint8_t dten : 1;
-        uint8_t refon : 1;
         uint8_t gpio_1_5 : 5;
+        uint8_t refon : 1;
+        uint8_t dten : 1;
+        uint8_t adcopt : 1;
         // byte 2
         uint8_t vuv_0_7;
         // byte 3
-        uint8_t vuv_8_11 : 4;
         uint8_t vov_0_3 : 4;
+        uint8_t vuv_8_11 : 4;
         // byte 4
         uint8_t vov_4_11;
         // byte 5
         uint8_t dcc_1_8;
         // byte 6
-        uint8_t dcc_9_12 : 4;
         uint8_t dcto : 4;
+        uint8_t dcc_9_12 : 4;
         // byte 7/8
         raw_pec pec;
     } CFGAR;
@@ -132,16 +133,16 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
     typedef struct __attribute__((__packed__))
     {
         // byte 1
-        uint8_t dcc_13_16 : 4;
         uint8_t gpio_6_9 : 4;
+        uint8_t dcc_13_16 : 4;
         // byte 2
-        uint8_t mute : 1;
-        uint8_t fdrf : 1;
-        uint8_t ps : 2;
-        uint8_t dtmen : 1;
-        uint8_t dcc_0 : 1;
-        uint8_t dcc_18 : 1;
         uint8_t dcc_17 : 1;
+        uint8_t dcc_18 : 1;
+        uint8_t dcc_0 : 1;
+        uint8_t dtmen : 1;
+        uint8_t ps : 2;
+        uint8_t fdrf : 1;
+        uint8_t mute : 1;
         // byte 3-6
         uint32_t reserved;
         // byte 7/8
@@ -475,9 +476,9 @@ void io_ltc6813_readTemperatures(
 bool io_ltc6813_startAdcConversion(void)
 {
 // ADC mode selection
-#define MD (1U)
+#define MD (01U)
 // GPIO Selection for ADC conversion
-#define CHG (0U)
+#define CHG (000U)
 #define ADAX ((uint16_t)((((MD << 7U) + 0x0060U + CHG) << 8U) | 0x0004U))
     return io_ltc6813_sendCommand(ADAX);
 }
@@ -486,12 +487,17 @@ bool io_ltc6813_startAdcConversion(void)
 bool io_ltc6813_pollAdcConversions(void)
 {
     // Prepare command to get the status of ADC conversions
-#define PLADC (0x1407U)
+#define PLADC (0x0714U)
+#define ADC_CONV_INCOMPLETE (0xFF)
     const raw_cmd tx_cmd = build_tx_cmd(PLADC);
     for (uint8_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
     {
         uint8_t rx_data;
-        if (hw_spi_transmitThenReceive(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), &rx_data, sizeof(rx_data)))
+        if (!hw_spi_transmitThenReceive(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), &rx_data, sizeof(rx_data)))
+        {
+            return false;
+        }
+        if (rx_data != ADC_CONV_INCOMPLETE)
         {
             return true;
         }
