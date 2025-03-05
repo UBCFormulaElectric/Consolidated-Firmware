@@ -116,8 +116,8 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         // byte 5
         uint8_t dcc_1_8;
         // byte 6
-        uint8_t dcto : 4;
         uint8_t dcc_9_12 : 4;
+        uint8_t dcto : 4;
         // byte 7/8
         raw_pec pec;
     } CFGAR;
@@ -519,13 +519,13 @@ bool io_ltc6813_pollAdcConversions(void)
 
 bool io_ltc6813_sendBalanceCommand(void)
 {
-#define UNMUTE (0x2900U)
+#define UNMUTE (0x0029U)
     return io_ltc6813_sendCommand(UNMUTE);
 }
 
 bool io_ltc6813_sendStopBalanceCommand(void)
 {
-#define MUTE (0x2800U)
+#define MUTE (0x0028U)
     return io_ltc6813_sendCommand(MUTE);
 }
 
