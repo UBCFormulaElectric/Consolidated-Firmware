@@ -173,10 +173,10 @@ bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
         CFGBR *const  seg_b      = &tx_msg_b.segment_configs[tx_cfg_idx];
 
         seg_a->gpio_1_5 = 0x1F;
+        seg_b->gpio_6_9 = 0xF;
         seg_a->refon    = 0;
         seg_a->dten     = 0;
         seg_a->adcopt   = 1;
-        seg_b->gpio_6_9 = 0xF;
 
 #define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
         seg_a->vuv_0_7  = VUV & 0xFF;
