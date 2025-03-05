@@ -275,6 +275,7 @@ static void owcCalculateFaults(void)
 
 static void calculateCellsToBalance(bool cells_to_balance[NUM_SEGMENTS][CELLS_PER_SEGMENT])
 {
+#define BALANCE_TOLERANCE (0.01f) // 10mV
     const float target_voltage = app_canRx_Debug_CellBalancingOverrideTarget_get()
                                      ? app_canRx_Debug_CellBalancingOverrideTargetValue_get()
                                      : voltage_stats.min_voltage_cell.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
@@ -282,7 +283,9 @@ static void calculateCellsToBalance(bool cells_to_balance[NUM_SEGMENTS][CELLS_PE
     {
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            cells_to_balance[segment][cell] = cell_voltages[segment][cell] > target_voltage;
+            // this is equivalent to abs(cell_voltages[segment][cell] - target_voltage) > BALANCE_TOLERANCE
+            // as cell_voltages[segment][cell] > target_voltage
+            cells_to_balance[segment][cell] = cell_voltages[segment][cell] - target_voltage > BALANCE_TOLERANCE;
         }
     }
 }
