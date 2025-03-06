@@ -158,11 +158,19 @@
             "AMK_TorqueLimitPositive_INVFR": {
                 "start_bit": 32,
                 "bits": 16,
+                "scale" : 0.1,
+                "min" : -100,
+                "max": 100,
+                "offset" : 0,
                 "signed": true
             },
             "AMK_TorqueLimitNegative_INVFR": {
                 "start_bit": 48,
                 "bits": 16,
+                "min" : -100,
+                "max":  100,
+                "offset" : 0,
+                "scale" : 0.1,
                 "signed": true
             }
         }
