@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdint.h>
 
 // Utility macros to define atoi-style functions for arbritrary uint types.
 // Generates functions of name sil_atoi_TYPE, ie. sil_atoi_uint32_t.
