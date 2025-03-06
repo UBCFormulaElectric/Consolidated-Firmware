@@ -60,7 +60,11 @@ def _send_data() -> NoReturn:
 			for sid, signal_names in SUB_TABLE.items():
 				if signal["name"] in signal_names:
 					try:
-						sio.emit('data', signal['value'], to=sid)
+						sio.emit('data', {
+							'name': signal['name'],
+							'value': signal['value'],
+							'timestamp': canmsg.can_timestamp.isoformat()
+						}, room=sid)
 						logger.info(f'Data sent to sid {sid}')
 					except Exception as e:
 						logger.error(f'Emit failed for sid {sid}: {e}')
