@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 
 interface DataPoint {
-   time: number | string;
-   [signalName: string]: number | string | undefined;
+  name: string;
+  value: number;
+  timestamp: string;
 }
 
 interface SignalMeta {
@@ -35,7 +36,7 @@ const NumberOut: React.FC<NumberOutProps> = ({
         const signalsMeta: SignalMeta[] = signals.map((signal: any) => ({
           name: signal.name,
           unit: signal.unit,
-          cycletime_ms: signal.cycle_time_ms,
+          cycle_time_ms: signal.cycle_time_ms, // still unsure what this cycle_time_ms is for
         }));
         setAvailableSignals(signalsMeta);
         console.log("Fetched available signals:", signalsMeta);
@@ -68,33 +69,23 @@ const NumberOut: React.FC<NumberOutProps> = ({
     }
   }, [socket, selectedSignal, activeSignals]);
 
-  // Handle live data and only log data for subscribed signals.
+  // Handle live data and log detailed fields from incoming data.
   useEffect(() => {
     if (!socket) return;
 
-
     const dataHandler = (incomingData: any) => {
-        // incomingData is expected to be an aggregated object formatted by the broadcaster:
-        // { time: "timestamp", SIGNAL_NAME1: value1, SIGNAL_NAME2: value2, ... }
-        console.log("Full received data:", incomingData);
-        const filteredData: { [key: string]: number } = {};
-        activeSignals.forEach((signal) => {
-          if (incomingData.hasOwnProperty(signal)) {
-            filteredData[signal] = incomingData[signal];
-          }
-        });
-  
-        if (Object.keys(filteredData).length > 0) {
-          console.log("Received data for subscribed signals:", filteredData); // CHANGED
-          // Save the entire aggregated data point
-          setData((prevData) => [...prevData, incomingData]); // CHANGED
-        }
-      };
+      // Only store the data if its name is in activeSignals
+      if (activeSignals.includes(incomingData.name)) {
+        console.log(
+          `Received data for subscribed signal ${incomingData.name}:`,
+          incomingData
+        );
+        setData((prevData) => [...prevData, incomingData]);
+      }
+    };
 
     socket.on("data", dataHandler);
-    
 
-    // Cleanup when activeSignals change or component unmounts.
     return () => {
       socket.off("data", dataHandler);
     };
@@ -103,7 +94,7 @@ const NumberOut: React.FC<NumberOutProps> = ({
   // Unsubscribe when a signal is removed
   const removeSignal = (signalName: string) => {
     if (socket) {
-      console.log("Unsubscribing to signal");
+      console.log("Unsubscribing from signal", signalName);
       socket.emit("unsub", signalName);
     }
     setActiveSignals((prevSignals) =>
@@ -113,39 +104,41 @@ const NumberOut: React.FC<NumberOutProps> = ({
 
   useEffect(() => {
     if (!socket) return;
-  
-    const subAckHandler = (ack: { signal: string; status: string }) => {  // CHANGED
-      console.log(`Subscription acknowledgment received: Signal ${ack.signal} - Status: ${ack.status}`);  // CHANGED
+
+    const subAckHandler = (ack: { signal: string; status: string }) => {
+      console.log(
+        `Subscription acknowledgment received: Signal ${ack.signal} - Status: ${ack.status}`
+      );
     };
-  
-    socket.on("sub_ack", subAckHandler);  // CHANGED
-  
+
+    socket.on("sub_ack", subAckHandler);
+
     return () => {
-      socket.off("sub_ack", subAckHandler);  // CHANGED
+      socket.off("sub_ack", subAckHandler);
     };
   }, [socket]);
-  
+
   return (
     <div className="w-full h-64">
-      <div className="ml-24 mt-4 text-xs flex-column gap-4">
+      <div className="ml-24 mt-4 text-xs flex flex-col gap-4">
         {activeSignals.map((signalName) => {
-          // Retrieve the latest value for this signal from the data array
-          const latestValue =
-            data.length > 0 ? data[data.length - 1][signalName] : undefined;
+          // Find the latest data point for the signal
+          const latestData = data
+            .filter((d) => d.name === signalName)
+            .slice(-1)[0];
           // Find metadata to get the unit
           const meta = availableSignals.find((s) => s.name === signalName);
           return (
             <div key={signalName} className="flex items-center mb-1">
               <span className="text-gray-500">{signalName}: </span>
               <span className="ml-2">
-                {latestValue !== undefined
-                  ? `${latestValue} ${meta ? meta.unit : ""}`
+                {latestData !== undefined
+                  ? `${latestData.value} ${meta ? meta.unit : ""} at (${latestData.timestamp})`
                   : "N/A (no data)"}
               </span>
               <button
                 className="ml-2 text-red-500"
-                onClick={() => removeSignal(signalName)}
-              >
+                onClick={() => removeSignal(signalName)}>
                 Remove
               </button>
             </div>
@@ -157,8 +150,7 @@ const NumberOut: React.FC<NumberOutProps> = ({
         <select
           value={selectedSignal}
           onChange={(e) => setSelectedSignal(e.target.value)}
-          className="mr-2 mb-2 p-2 bg-white border border-gray-300"
-        >
+          className="mr-2 mb-2 p-2 bg-white border border-gray-300">
           <option value="" disabled>
             Select a signal
           </option>

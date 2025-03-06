@@ -7,6 +7,7 @@ import serial
 from generated import telem_pb2
 from logger import logger
 from tasks.broadcaster import can_msg_queue, CanMsg
+import datetime
 
 def _make_bytes(message):
 	"""
@@ -28,7 +29,7 @@ def _read_messages(port: str):
 	total_data_received = 0  # Initialize the data counter
 	# start_time = time.time()  # Start timer for data measurement
 
-	ser = serial.Serial(port=port, baudrate=57600, timeout=1)
+	ser = serial.Serial(port=port, baudrate=57600)
 	ser.reset_input_buffer()
 	ser.reset_output_buffer()
 
@@ -36,25 +37,25 @@ def _read_messages(port: str):
 		# TODO: Lara: Upload actual signals instead!
 		# TODO: what happens with dropped packets??
 		# current_time = time.time()
-		packet_size = int.from_bytes(ser.read(1), byteorder="little")
+		packet_size = int.from_bytes(ser.read(1), byteorder='big', signed=False)
 		logger.info(f"Received data of size {packet_size}")
-		if packet_size in {255, 165, 253}: # idk why this is here
-			continue
-		# the size will be different due to 0 not often being include
-		if last_bit != 0 or packet_size == 0:
-			last_bit = packet_size
-			continue
+		# if packet_size in {255, 165, 253}: # idk why this is here (Not sure if needed now?)
+		# 	continue
+		# # the size will be different due to 0 not often being include
+		# if last_bit != 0 or packet_size == 0:
+		# 	last_bit = packet_size
+		# 	continue
 
 		# Read in UART message
 		bytes_read = ser.read(packet_size)
-		total_data_received += len(bytes_read) + 1  # Including packetsize byte, log how much data
+		#total_data_received += len(bytes_read) + 1  # Including packetsize byte, log how much data
 
 		# Parse protobuf
 		message_received = telem_pb2.TelemMessage()
 		message_received.ParseFromString(bytes_read)
-		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received)))
+		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received), datetime.datetime.now()))
 		
-		# Check if second has passed
+		# Check if second has passed (Not sure if needed now?)
 		# if current_time - start_time >= 1.0:
 		# 	logger.info(f"Total data received in the last second: {total_data_received} bytes")
 		# 	total_data_received = 0  # Reset the counter
