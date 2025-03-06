@@ -16,4 +16,7 @@ sil_api_Procedure VC_functions[] = { { "set_pedal_percentage_50", set_pedal_perc
 
 sil_api_Procedure BMS_functions[] = { { "turn_BMS_light_on", turn_BMS_light_on } };
 
-const BoardFunctionMapping board_tables[] = { { "VC", VC_functions }, { "BMS", BMS_functions }, { NULL, NULL } };
+const BoardFunctionMapping board_tables[] = { { "vc", VC_functions }, { "bms", BMS_functions }, { NULL, NULL } };
+//or define it as const BoardFunctionMapping board_tables[] = { { "vc", VC_functions }, { "bms", BMS_functions }, { NULL, NULL } }.boardName? in a func;
+//board name would be passed in a func
+

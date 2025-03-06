@@ -6,6 +6,8 @@
 #include "sil_board.h"
 #include "sil_manager.h"
 #include "sil_fakes.h"
+#include "board_procedures.h"
+#include "sil_api.h"
 
 int main()
 {
@@ -21,7 +23,16 @@ int main()
     sil_manager_start(NULL, boards);
 
     int a = 2;
+
+    sil_api_Procedure *TestProcedure = {
+        "set_pedal_percentage_50",
+        set_pedal_percentage_50  // No function call, just reference
+    };
+
+
     sil_fakes_set_tx(sil_manager_getSocketTx(), "fsm", "io_apps_abc", &a);
+    
+    sil_api_procedure_tx(TestProcedure, sil_manager_getSocketTx());
 
     printf("--- Waiting 1s, then Running for 1s in Simulation Time ---\n");
     zclock_sleep(1000);
@@ -44,4 +55,11 @@ int main()
     startMs = zclock_mono();
     sil_manager_setTime(1000, boards);
     printf("Real Time Elapsed: %lld ms\n", zclock_mono() - startMs);
+
+    zclock_sleep(1000);
+    sil_manager_setTime(1000, boards);
+    printf("Real Time Elapsed: %lld ms\n", zclock_mono() - startMs);
+
+    printf("--- Waiting 1s, then Running for 1s in Simulation Time. ---\n");
+
 }
