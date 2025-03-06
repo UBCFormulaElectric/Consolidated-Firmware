@@ -44,6 +44,7 @@
       },
     },
     {
+<<<<<<< HEAD
       "name": "Debug Embedded: VC (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
@@ -86,6 +87,8 @@
     },
 
     {
+=======
+>>>>>>> 3edb240a2 (changed small things for initial blinky)
       "name": "Debug Embedded: DAM (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
