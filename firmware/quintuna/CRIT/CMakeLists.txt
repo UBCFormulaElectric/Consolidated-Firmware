@@ -1,7 +1,7 @@
 message("")
 message("⚙️ Configuring CRIT (Quintuna)")
 set(ARM_CORE "cm4")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -89,6 +89,9 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_tim.c"
             "stm32f4xx_hal_tim_ex.c"
             "stm32f4xx_hal_uart.c"
+            "stm32f4xx_hal_flash.c"
+            "stm32f4xx_hal_flash_ex.c"
+            "stm32f4xx_hal_pwr.c"
             "stm32f4xx_ll_usb.c"
     )
     stm32f412rx_cube_library(
