@@ -3,7 +3,7 @@ import io from "socket.io-client";
 
 interface DataPoint {
   name: string;
-  value: number;
+  value: unknown;
   timestamp: string;
 }
 
