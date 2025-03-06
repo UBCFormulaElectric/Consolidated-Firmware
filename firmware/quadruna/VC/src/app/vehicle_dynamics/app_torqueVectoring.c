@@ -4,6 +4,7 @@
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
 #include "app_tractionControl.h"
+#include "app_yawRateController.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_utils.h"
@@ -16,6 +17,7 @@ static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
 static TractionControl_Outputs    traction_control_outputs;
+static YawRateController          yaw_rate_controller;
 
 static bool run_traction_control = false;
 
@@ -28,6 +30,7 @@ static bool run_traction_control = false;
 static PID   pid_power_correction;
 static float pid_power_correction_factor = 0.0f;
 static PID   pid_traction_control;
+static PID   yrc_pid;
 
 static float accelerator_pedal_percent;
 static float wheel_speed_front_left_kph;
@@ -45,6 +48,7 @@ void app_torqueVectoring_init(void)
     app_canTx_VC_TorqueVectoringEnabled_set(true);
     app_pid_init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
     app_pid_init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
+    app_yawRateController_init(&yaw_rate_controller, &yrc_pid, &YAW_RATE_CONTROLLER_CONFIG);
     traction_control_inputs.pid = &pid_traction_control;
 
     app_timer_init(&pid_timeout, PID_TIMEOUT_ms);
@@ -105,6 +109,20 @@ void app_torqueVectoring_handleAcceleration(void)
     app_activeDifferential_computeTorque(&active_differential_inputs, &active_differential_outputs);
     app_canTx_VC_ActiveDiffTorqueLeft_set(active_differential_outputs.torque_left_Nm);
     app_canTx_VC_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
+
+    // Yaw Rate Controller
+    yaw_rate_controller.wheel_angle_deg  = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
+    yaw_rate_controller.requested_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+    yaw_rate_controller.vehicle_velocity = app_canTx_VC_VehicleVelocity_get();
+    yaw_rate_controller.real_yaw_rate    = app_canTx_VC_ImuAngularVelocityYaw_get();
+    float ref_yaw_rate                   = app_yawRateController_computeRefYawRate(&yaw_rate_controller);
+    float yaw_moment                     = app_yawRateController_pid_compute(&yaw_rate_controller, ref_yaw_rate);
+    app_yawRateController_computeTorque(&yaw_rate_controller, ref_yaw_rate, yaw_moment);
+
+    app_canTx_VC_ReferenceYawRate_set(ref_yaw_rate);
+    app_canTx_VC_YawMoment_set(yaw_moment);
+    app_canTx_VC_YRCTorqueLeft_set(yaw_rate_controller.torque_left_Nm);
+    app_canTx_VC_YRCTorqueRight_set(yaw_rate_controller.torque_right_Nm);
 
     /**
      *  TRACTION CONTROL NOT TESTED ON CAR YET

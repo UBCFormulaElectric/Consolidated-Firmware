@@ -47,6 +47,19 @@ void transmitTorqueRequests(float apps_pedal_percentage)
     const float left_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
     float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
 
+    /*
+    PROPOSED RESTRUCTURING:
+    MOVE ALL REGEN AND TV CONDITIONALS HERE
+    TV takes a torque allocation struct in so which takes the output of TV control loops to finally be sent into load transfer torque allocation 
+    torque allocation fucntion is the final function ran before torques are sent to inverters
+    rather than have inverters recieve torque commands from various files (ie if tv is on it sets inverters if not then there is a CAN set here)
+    we consolidate it to  the final torque allocation function
+    Yaw rate control takes in a pointer to a torqueAllocation struct to which it provides the required torques and a front and back moment 
+    the torque allocation 
+    
+    this logic will be implemented after unit testing of load transfer files is done
+    */
+
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
         // Estimate the maximum torque request to draw the maximum power available from the BMS
@@ -112,7 +125,7 @@ static void driveStateRunOnTick100Hz(void)
     const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
     bool       exit_drive_to_init        = bms_not_in_drive;
     bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
-    bool       prev_regen_switch_val     = regen_switch_is_on;
+    bool       prev_regen_switch_val     = regen_switch_is_on; // why do we need this?
     regen_switch_is_on                   = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     bool turn_regen_led                  = regen_switch_is_on && !prev_regen_switch_val;
 
@@ -120,7 +133,7 @@ static void driveStateRunOnTick100Hz(void)
        or not before using closed loop features */
 
     // Regen + TV LEDs and update warnings
-    if (turn_regen_led)
+    if (turn_regen_led)  // only detecting the rising edge so regen doesnt get forced to be on if a fault kicks us out of regen 
     {
         app_canTx_VC_RegenEnabled_set(true);
         app_canTx_VC_Warning_RegenNotAvailable_set(false);
