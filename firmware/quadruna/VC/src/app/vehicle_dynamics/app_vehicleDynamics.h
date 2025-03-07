@@ -58,6 +58,8 @@ typedef struct TorqueAllocationInputs // regardless of if controller is used or 
     // float front_right_motor_torque;  uncomment for 4WD
     float rear_left_motor_torque;
     float rear_right_motor_torque; 
+    float front_yaw_moment; 
+    float rear_yaw_moment; 
  
 } TorqueAllocationInputs;
 

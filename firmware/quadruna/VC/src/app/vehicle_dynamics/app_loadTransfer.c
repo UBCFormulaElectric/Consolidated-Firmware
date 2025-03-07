@@ -2,6 +2,7 @@
 #include <app_vehicleDynamicsConstants.h>
 #include <app_imu.h>
 #include <io_imu.h>
+#include <app_utils.h>
 #include <app_canTx.h>
 
 // https://www.zotero.org/groups/5809911/vehicle_controls_2024/items/N4TQBR67/reader used for load transfer equations 
@@ -18,7 +19,7 @@
 #define ACCELERATION_TERM_KMZ(long_accel) (DIST_FRONT_AXLE_CG + (long_accel) * CG_HEIGHT_FROM_GROUND / GRAVITY)
 
 
-void app_wheelVerticalForce_broadcast(imu_data *imu)
+void app_wheelVerticalForce_broadcast(imuData *imu)
 {
     app_canTx_VC_FrontLeftWheelVerticalForce_set(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 2.0f) - LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
     app_canTx_VC_FrontRightWheelVerticalForce_set(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 2.0f) + LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
@@ -30,18 +31,22 @@ void app_wheelVerticalForce_broadcast(imu_data *imu)
 float app_loadTransferConstant(float long_accel)
 {
     // following formula for Kmz on page 57
-    // Only looks at long shift?? 
+    // long shift only?? I think moment takes care of lat accel load transfer 
    return ((CAR_MASS_AT_CG_KG - (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(long_accel)) / (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(long_accel))));
 }
 
-void torqueAllocation(TorqueAllocationInputs *inputs, float loadTransferConst)
+void app_torqueAllocation(TorqueAllocationInputs inputs, float loadTransferConst)
 {
     // variable is created for debugging 
     // paper divides torque by 2, I assume that has something to do with using 4 motors so I will exclude that
     // rear wheels get same distribution due to weight... yaw rate changes the distribution 
-    float rear_motor = (inputs->rear_left_motor_torque) - (loadTransferConst * inputs->rear_left_motor_torque / (2 * loadTransferConst + 1));
-    app_canTx_VC_RightLoadBasedTorqueReq_set(rear_motor);
-    app_canTx_VC_LeftLoadBasedTorqueReq_set(rear_motor);
+    // this should be the final function seen before any torque goes to the car
+    // future inputs should include front and rear yaw rate 
+    
+    inputs.rear_left_motor_torque = (inputs.rear_left_motor_torque) - (loadTransferConst * inputs.rear_left_motor_torque / (2 * loadTransferConst + 1));
+    inputs.rear_right_motor_torque = (inputs.rear_right_motor_torque) - (loadTransferConst * inputs.rear_left_motor_torque / (2 * loadTransferConst + 1));
+    app_canTx_VC_LeftLoadBasedTorqueReq_set(CLAMP( inputs.rear_left_motor_torque, 0, MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_RightLoadBasedTorqueReq_set(CLAMP(inputs.rear_right_motor_torque, 0, MAX_TORQUE_REQUEST_NM));
 }
 
 
