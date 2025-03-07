@@ -12,6 +12,9 @@
 #include "io_canRx.h"
 #include "io_time.h"
 
+// HW
+#include "hw_gpios.h"
+
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
@@ -37,6 +40,8 @@ void jobs_run1Hz_tick(void)
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
+
+    hw_gpio_togglePin(&led);
 }
 
 void jobs_run100Hz_tick(void)

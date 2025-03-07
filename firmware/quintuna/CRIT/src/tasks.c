@@ -9,7 +9,6 @@
 #include "io_canQueue.h"
 
 // hw
-#include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 
