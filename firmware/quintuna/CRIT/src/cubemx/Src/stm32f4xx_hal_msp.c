@@ -8,7 +8,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2024 STMicroelectronics.
+ * Copyright (c) 2025 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -76,6 +76,20 @@ void HAL_MspInit(void)
     /* PendSV_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
+    /* Peripheral interrupt init */
+    /* PVD_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PVD_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(PVD_IRQn);
+    /* FLASH_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(FLASH_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(FLASH_IRQn);
+    /* RCC_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(RCC_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(RCC_IRQn);
+    /* FPU_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(FPU_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(FPU_IRQn);
+
     /* USER CODE BEGIN MspInit 1 */
 
     /* USER CODE END MspInit 1 */
@@ -111,6 +125,15 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
         GPIO_InitStruct.Alternate = GPIO_AF9_CAN2;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* CAN2 interrupt Init */
+        HAL_NVIC_SetPriority(CAN2_TX_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_TX_IRQn);
+        HAL_NVIC_SetPriority(CAN2_RX0_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_RX0_IRQn);
+        HAL_NVIC_SetPriority(CAN2_RX1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_RX1_IRQn);
+        HAL_NVIC_SetPriority(CAN2_SCE_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_SCE_IRQn);
         /* USER CODE BEGIN CAN2_MspInit 1 */
 
         /* USER CODE END CAN2_MspInit 1 */
@@ -140,6 +163,11 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
         */
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12 | GPIO_PIN_13);
 
+        /* CAN2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(CAN2_TX_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_RX0_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_RX1_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_SCE_IRQn);
         /* USER CODE BEGIN CAN2_MspDeInit 1 */
 
         /* USER CODE END CAN2_MspDeInit 1 */
@@ -183,6 +211,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
         HAL_GPIO_Init(LED_SRCK_GPIO_Port, &GPIO_InitStruct);
 
+        /* SPI2 interrupt Init */
+        HAL_NVIC_SetPriority(SPI2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspInit 1 */
 
         /* USER CODE END SPI2_MspInit 1 */
@@ -207,6 +238,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+        /* SPI3 interrupt Init */
+        HAL_NVIC_SetPriority(SPI3_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI3_IRQn);
         /* USER CODE BEGIN SPI3_MspInit 1 */
 
         /* USER CODE END SPI3_MspInit 1 */
@@ -237,6 +271,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 
         HAL_GPIO_DeInit(LED_SRCK_GPIO_Port, LED_SRCK_Pin);
 
+        /* SPI2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
         /* USER CODE END SPI2_MspDeInit 1 */
@@ -255,6 +291,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         */
         HAL_GPIO_DeInit(GPIOC, SEVEN_SEG_SRCK_Pin | SEVEN_SEG_SERIN_Pin);
 
+        /* SPI3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI3_IRQn);
         /* USER CODE BEGIN SPI3_MspDeInit 1 */
 
         /* USER CODE END SPI3_MspDeInit 1 */
@@ -276,6 +314,9 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim_pwm)
         /* USER CODE END TIM4_MspInit 0 */
         /* Peripheral clock enable */
         __HAL_RCC_TIM4_CLK_ENABLE();
+        /* TIM4 interrupt Init */
+        HAL_NVIC_SetPriority(TIM4_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM4_IRQn);
         /* USER CODE BEGIN TIM4_MspInit 1 */
 
         /* USER CODE END TIM4_MspInit 1 */
@@ -287,6 +328,9 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim_pwm)
         /* USER CODE END TIM12_MspInit 0 */
         /* Peripheral clock enable */
         __HAL_RCC_TIM12_CLK_ENABLE();
+        /* TIM12 interrupt Init */
+        HAL_NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
         /* USER CODE BEGIN TIM12_MspInit 1 */
 
         /* USER CODE END TIM12_MspInit 1 */
@@ -353,6 +397,9 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim_pwm)
         /* USER CODE END TIM4_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_TIM4_CLK_DISABLE();
+
+        /* TIM4 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM4_IRQn);
         /* USER CODE BEGIN TIM4_MspDeInit 1 */
 
         /* USER CODE END TIM4_MspDeInit 1 */
@@ -364,6 +411,9 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim_pwm)
         /* USER CODE END TIM12_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_TIM12_CLK_DISABLE();
+
+        /* TIM12 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn);
         /* USER CODE BEGIN TIM12_MspDeInit 1 */
 
         /* USER CODE END TIM12_MspDeInit 1 */

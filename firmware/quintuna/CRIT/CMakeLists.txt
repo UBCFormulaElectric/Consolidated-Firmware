@@ -1,7 +1,7 @@
 message("")
 message("⚙️ Configuring CRIT (Quintuna)")
 set(ARM_CORE "cm4")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -11,7 +11,9 @@ set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-        ""
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -29,6 +31,9 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_pwmOutput.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -84,6 +89,9 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_tim.c"
             "stm32f4xx_hal_tim_ex.c"
             "stm32f4xx_hal_uart.c"
+            "stm32f4xx_hal_flash.c"
+            "stm32f4xx_hal_flash_ex.c"
+            "stm32f4xx_hal_pwr.c"
             "stm32f4xx_ll_usb.c"
     )
     stm32f412rx_cube_library(
