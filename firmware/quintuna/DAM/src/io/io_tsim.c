@@ -1,29 +1,22 @@
 #include "io_tsim.h"
-#include "hw_gpio.h"
-
-static const TsimLightConfig *config = NULL;
-
-void io_tsim_init(const TsimLightConfig *tsim_config)
-{
-    config = tsim_config;
-}
+#include "hw_gpios.h"
 
 void io_tsim_set_red_high(void)
 {
-    hw_gpio_writePin(config->tsim_red_en, true);
+    hw_gpio_writePin(&tsim_red_en_pin, true);
 }
 
 void io_tsim_set_red_low(void)
 {
-    hw_gpio_writePin(config->tsim_red_en, false);
+    hw_gpio_writePin(&tsim_red_en_pin, false);
 }
 
 void io_tsim_set_green_high(void)
 {
-    hw_gpio_writePin(config->ntsim_green_en, true);
+    hw_gpio_writePin(&ntsim_green_en_pin, true);
 }
 
 void io_tsim_set_green_low(void)
 {
-    hw_gpio_writePin(config->ntsim_green_en, false);
+    hw_gpio_writePin(&ntsim_green_en_pin, false);
 }

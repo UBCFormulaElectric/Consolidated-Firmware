@@ -1,25 +1,16 @@
 #pragma once
 
 #include <stdbool.h>
+// Question: what is redundant here now that the config struct gone?
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
 
-typedef struct
-{
-    const Gpio       *tsim_red_en;
-    const Gpio       *ntsim_green_en;
-} TsimLightConfig;
 
 #else
 #include "app_utils.h"
 EMPTY_STRUCT(TsimLightConfig)
 #endif
-
-/**
- * @param tsim_config wrapper around tsim pins
- */
-void io_tsim_init(const TsimLightConfig *stim_config);
 
 /**
  * Turn on the red light on the TSIM
