@@ -1,10 +1,10 @@
 #include "hw_adcs.h"
 #include "main.h"
 
-static uint16_t      adc1_raw_adc_values[7];
-static float         adc1_adc_voltages[7];
-static uint16_t      adc3_raw_adc_values[1];
-static float         adc3_adc_voltages[1];
+static uint16_t adc1_raw_adc_values[7];
+static float    adc1_adc_voltages[7];
+static uint16_t adc3_raw_adc_values[1];
+static float    adc3_adc_voltages[1];
 
 static const AdcChip adc1 = { .hadc            = &hadc1,
                               .htim            = &htim3,
@@ -28,7 +28,7 @@ const AdcChannel emeter_tsns  = { .voltage = &adc1_adc_voltages[4] };
 const AdcChannel ts_isns_400a = { .voltage = &adc1_adc_voltages[5] };
 const AdcChannel ts_isns_50a  = { .voltage = &adc1_adc_voltages[6] };
 
-const AdcChannel aux_tsns     = { .voltage = &adc3_adc_voltages[0] };
+const AdcChannel aux_tsns = { .voltage = &adc3_adc_voltages[0] };
 
 void hw_adcs_chipsInit(void)
 {
@@ -38,10 +38,12 @@ void hw_adcs_chipsInit(void)
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (hadc == adc1.hadc) {
+    if (hadc == adc1.hadc)
+    {
         hw_adcchip_updateCallback(&adc1);
     }
-    else if (hadc == adc3.hadc) {
+    else if (hadc == adc3.hadc)
+    {
         hw_adcchip_updateCallback(&adc3);
     }
 }
