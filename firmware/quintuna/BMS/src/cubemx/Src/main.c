@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,8 +51,6 @@ CRC_HandleTypeDef hcrc;
 
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
-
-IWDG_HandleTypeDef hiwdg1;
 
 SD_HandleTypeDef hsd1;
 
@@ -144,7 +142,6 @@ static void MX_TIM15_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_CRC_Init(void);
-static void MX_IWDG1_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
@@ -167,7 +164,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    LOG_INFO("BMS Reset");
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -203,9 +200,12 @@ int main(void)
     MX_TIM3_Init();
     MX_FDCAN2_Init();
     MX_CRC_Init();
-    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-
+    while (1)
+    {
+        HAL_GPIO_TogglePin(BMS_OK_GPIO_Port, BMS_OK_Pin);
+        HAL_Delay(100);
+    }
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -291,9 +291,8 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -669,33 +668,6 @@ static void MX_FDCAN2_Init(void)
 }
 
 /**
- * @brief IWDG1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_IWDG1_Init(void)
-{
-    /* USER CODE BEGIN IWDG1_Init 0 */
-
-    /* USER CODE END IWDG1_Init 0 */
-
-    /* USER CODE BEGIN IWDG1_Init 1 */
-
-    /* USER CODE END IWDG1_Init 1 */
-    hiwdg1.Instance       = IWDG1;
-    hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
-    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN IWDG1_Init 2 */
-
-    /* USER CODE END IWDG1_Init 2 */
-}
-
-/**
  * @brief SDMMC1 Initialization Function
  * @param None
  * @retval None
@@ -703,7 +675,7 @@ static void MX_IWDG1_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-
+    return;
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */

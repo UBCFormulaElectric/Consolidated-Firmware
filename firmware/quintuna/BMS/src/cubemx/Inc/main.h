@@ -42,14 +42,14 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern ADC_HandleTypeDef   hadc1;
-    extern ADC_HandleTypeDef   hadc3;
-    extern DMA_HandleTypeDef   hdma_adc1;
-    extern DMA_HandleTypeDef   hdma_adc3;
+    extern ADC_HandleTypeDef hadc1;
+    extern ADC_HandleTypeDef hadc3;
+    extern DMA_HandleTypeDef hdma_adc1;
+    extern DMA_HandleTypeDef hdma_adc3;
     // extern CRC_HandleTypeDef   hcrc;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern FDCAN_HandleTypeDef hfdcan2;
-    extern IWDG_HandleTypeDef  hiwdg1;
+    // extern IWDG_HandleTypeDef  hiwdg1;
     extern SD_HandleTypeDef    hsd1;
     extern SPI_HandleTypeDef   hspi4;
     extern TIM_HandleTypeDef   htim1;

@@ -84,11 +84,7 @@ const osThreadAttr_t canTxTask_attributes = {
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = {
-    .bus_num = 0,
-    .hcan = &hfdcan1,
-    .ready = false
-};
+CanHandle can = { .bus_num = 0, .hcan = &hfdcan1, .ready = false };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
