@@ -10,10 +10,12 @@ const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
     assert(hfdcan == can1.hcan || hfdcan == can2.hcan);
 
-    if (hfdcan == can1.hcan) {
+    if (hfdcan == can1.hcan)
+    {
         return &can1;
     }
-    else {
+    else
+    {
         return &can2;
     }
 }
