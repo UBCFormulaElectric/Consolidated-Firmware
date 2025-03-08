@@ -173,10 +173,9 @@
     {
       "name": "Debug Embedded: RSM (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM.hex",
+      "executable": "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_boot.elf",
         "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf",
       ],
       "preLaunchTask": "Build Embedded: RSM (Quintuna)",
