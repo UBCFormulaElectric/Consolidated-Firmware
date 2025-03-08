@@ -9,4 +9,10 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"cmake.environment": {
+		"PATH": "${env:PATH}"
+	},
+	"cmake.buildEnvironment": {
+		"PATH": "${env:PATH}"
+	},
 }
