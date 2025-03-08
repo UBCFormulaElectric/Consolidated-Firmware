@@ -5,6 +5,7 @@
 #include "app_activeDifferential.h"
 #include "app_tractionControl.h"
 #include "app_yawRateController.h"
+#include "app_sbgEllipse.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_utils.h"
@@ -112,8 +113,7 @@ void app_torqueVectoring_handleAcceleration(void)
 
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_deg      = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
-    yaw_rate_controller.requested_torque     = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    yaw_rate_controller.vehicle_velocity_kmh = app_canTx_VC_VehicleVelocity_get();
+    yaw_rate_controller.vehicle_velocity_kmh = app_sbgEllipse_getVehicleVelocity();
     yaw_rate_controller.real_yaw_rate_deg    = app_canTx_VC_ImuAngularVelocityYaw_get();
     app_yawRateController_computeRefYawRate(&yaw_rate_controller);
     app_yawRateController_pidCompute(&yaw_rate_controller);
@@ -121,12 +121,6 @@ void app_torqueVectoring_handleAcceleration(void)
 
     app_canTx_VC_ReferenceYawRate_set(yaw_rate_controller.ref_yaw_rate_deg);
     app_canTx_VC_YawMoment_set(yaw_rate_controller.yaw_moment);
-    app_canTx_VC_YRCTorqueFL_set(yaw_rate_controller.torque_fl_Nm);
-    app_canTx_VC_YRCTorqueFR_set(yaw_rate_controller.torque_fr_Nm);
-    app_canTx_VC_YRCTorqueRL_set(yaw_rate_controller.torque_rl_Nm);
-    app_canTx_VC_YRCTorqueRR_set(yaw_rate_controller.torque_rr_Nm);
-    // app_canTx_VC_YRCTorqueLeft_set(yaw_rate_controller.torque_rl_Nm);
-    // app_canTx_VC_YRCTorqueRight_set(yaw_rate_controller.torque_rr_Nm);
 
     /**
      *  TRACTION CONTROL NOT TESTED ON CAR YET

@@ -823,32 +823,5 @@
         "unit": "deg/s^2"
       }
     }
-  },
-  "YawRateControllerTorques": {
-    "msg_id": 232,
-    "cycle_time": 100,
-    "description": "Debug messages for torques produced by the yaw rate controller",
-    "signals": {
-      "YRCTorqueFL": {
-        "min": 0,
-        "max": 100,
-        "resolution": 0.1
-      },
-      "YRCTorqueFR": {
-        "min": 0,
-        "max": 100,
-        "resolution": 0.1
-      },
-      "YRCTorqueRL": {
-        "min": 0,
-        "max": 100,
-        "resolution": 0.1
-      },
-      "YRCTorqueRR": {
-        "min": 0,
-        "max": 100,
-        "resolution": 0.1
-      }
-    }
   }
 }

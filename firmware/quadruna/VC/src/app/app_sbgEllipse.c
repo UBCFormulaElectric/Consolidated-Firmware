@@ -7,6 +7,8 @@
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
 
+static float velocity;
+
 void app_sbgEllipse_broadcast()
 {
     /* Enable these back when you turn this on in the SBG, otherwise it's still sending
@@ -57,6 +59,8 @@ void app_sbgEllipse_broadcast()
 
     // determines when to use calculated or gps velocity, will be externed later
     // bool        use_calculated_velocity = ekf_sol_mode == POSITION;
+
+    velocity = vehicle_velocity;
 
     app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
     app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
@@ -116,4 +120,8 @@ void app_sbgEllipse_calculateVelocity(VelocityData *velocity)
     velocity->east = 0;
 
     velocity->down = 0;
+}
+
+float app_sbgEllipse_getVehicleVelocity(void) {
+    return velocity;
 }
