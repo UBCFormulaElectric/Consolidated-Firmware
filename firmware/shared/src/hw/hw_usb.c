@@ -8,16 +8,16 @@
 // This macro exposes the USB_DEVICE_HANDLER macro (hUsbDeviceFS or hUsbDeviceHS),
 // and the TRANSMIT macro (CDC_Transmit_FS or CDC_Transmit_HS).
 // Everything is derived from usbd_cdc_if.h.
-#if defined(CM4_TARGET)
+#if defined(STM32F412Rx)
 #define TRANSMIT(buf, len) (CDC_Transmit_FS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)
-#elif defined(CM7_TARGET)
+#elif defined(STM32H733xx)
 #define TRANSMIT(buf, len) (CDC_Transmit_HS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceHS;
 #define USB_DEVICE_HANDLER (hUsbDeviceHS)
 #else
-#error Either CM7_TARGET or CM4_TARGET must be defined, \
+#error Either STM32H733xx or STM32F412Rx must be defined, \
         so that hw_usb knows which handlers to use.
 #endif
 
