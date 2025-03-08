@@ -223,8 +223,13 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_EVENTS */
     /* add events, ... */
+    while (1)
+    {
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        osDelay(1000);
+    }
     /* USER CODE END RTOS_EVENTS */
-
+    
     /* Start scheduler */
     osKernelStart();
 
