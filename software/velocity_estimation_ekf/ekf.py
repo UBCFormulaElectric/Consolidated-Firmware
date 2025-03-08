@@ -1,6 +1,7 @@
 import numpy as np
 
-# Extended Kalman Filter
+# Discrete Time Extended Kalman Filter:
+# https://en.wikipedia.org/wiki/Extended_Kalman_filter
 
 class EKF:
     def __init__(self, dim_x, dim_z, x, P, f, h, F_jacobian, H_jacobian):
@@ -14,6 +15,15 @@ class EKF:
         self.P = P
 
     def predict(self, u, dt, Q):
+        """
+        Prediction step in the EKF, calculates the predicted state and
+        predicted covariance based on previous state and covariance
+
+        Args:
+            u (np.array): control inputs
+            dt (float): time step
+            Q (np.array): process noise covariance matrix
+        """
         # Compute the predicted state using the process model
         self.x = self.f(self.x, u, dt)
         # Compute the Jacobian of the process model at the current state
@@ -22,6 +32,17 @@ class EKF:
         self.P = F_k @ self.P @ F_k.T + Q
 
     def update(self, z_k, R):
+        """
+        Update step in the EKF, estimates the current state using
+        predicted measurments and state, calculated measurements, 
+        and a computed a kalman gain. Estimates the current covariance
+        using the predicted covariance and measurement covariance
+
+        Args:
+            z_k (np.array): calculated measurements
+            R (np.array): measurement noise covariance
+        """
+        
         # Compute the predicted measurement and its Jacobian
         z_pred = self.h(self.x)
         H_k = self.H_jacobian(self.x)

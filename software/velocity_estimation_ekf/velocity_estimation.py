@@ -3,10 +3,14 @@ import matplotlib.pyplot as plt
 import math
 from ekf import EKF
 
+# Velocity estimator using EKF:
+# http://zotero.org/groups/5809911/vehicle_controls_2024/items/ZKJWDKCJ/reader
 
 def predict_velocity(x, u, dt):
     """
-    Predicts the current velocity given the previous velocity, acceleration, and yaw rate
+    Predicts the current velocity given the previous 
+    velocity, acceleration, and yaw rate 
+    (pg. 39)
 
     Args:
         x (np.array): previous velocity (vx, vy)
@@ -28,7 +32,8 @@ def F_jacobian(x, u, dt):
     """
     Computes the jacobian of the prediction function
     does not use previous velocity, uses yaw rate
-    from control inputs: u[2]
+    from control inputs: u[2] 
+    (pg. 40)
 
     Args:
         x (np.array): previous velocity (vx, vy)
@@ -50,7 +55,8 @@ def predict_measurements(x):
     """
     Calculate the predicted measurements, this function just
     returns the predicted state as there is no transformation
-    needed to convert it into the desired measurements
+    needed to convert it into the desired measurements 
+    (pg. 39)
 
     Args:
         x (np.array): previous state (vx, vy)
@@ -65,6 +71,7 @@ def H_jacobian(x, u, dt):
     """
     Computes the jacobian of the predicted measurement function,
     because it is very simple it just returns an identity matrix
+    (pg. 40)
 
     Args:
         x (np.array): previous state (vx, vy)
@@ -93,6 +100,7 @@ def calculate_measurements(
     """
     Calculates velocity based on various measurements including
     wheel speeds, wheel angle, and yaw rate
+    (pg. 34-35)
 
     Args:
         rpm_rr (float): rpm of rear right wheel
