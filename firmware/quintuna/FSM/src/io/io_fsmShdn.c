@@ -1,3 +1,7 @@
 #include "io_fsmShdn.h"
+#include "hw_gpios.h"
 
-// idk if this is needed or not kinda in the void and clueless bout this.
+bool io_fsmShdn_FSM_SHDN_OK_get(void)
+{
+    return hw_gpio_readPin(&cockpit_shdn_3v3);
+}
