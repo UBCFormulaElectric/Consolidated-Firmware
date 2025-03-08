@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Extended Kalman Filter
 
@@ -42,33 +41,3 @@ class EKF:
         self.predict(u, dt, Q)
         self.update(z, R)
         return self.x, self.P
-
-
-# def predict_vel(x, u, dt):
-#     x[0] = x[0] + dt * (u[0] + x[1] * u[2])
-#     x[1] = x[1] + dt * (u[1] + x[0] * u[2])
-    
-#     return x
-
-# def predict_vel_jacobian(x, u, dt):
-#     F_k = np.ones(x.shape)
-#     F_k[0, 1] = dt * u[2]
-#     F_k[1, 0] = -dt * u[2]   
-    
-#     return F_k
-
-# def calc_meas(v_rr, v_rl, v_fr, v_fl, r, t_f, l):
-#     V_xrl = v_rr - r * t_f
-#     V_yrl = v_rr
-#     V_xrr = v_rl
-#     V_yrr = v_rl
-#     V_xfl = v_fr
-#     V_yfr = v_fr
-#     V_xfr = v_fl
-#     V_yfr = v_fl
-# def main():
-#     print("hi")
-
-
-if __name__ == "__main__":
-    main()
