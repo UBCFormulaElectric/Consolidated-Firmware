@@ -604,9 +604,6 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, BOOT_Pin | LED_Pin | BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, IMU_INT1_Pin | IMU_INT2_Pin, GPIO_PIN_RESET);
-
     /*Configure GPIO pin : RL_INT_3V3_SENS_Pin */
     GPIO_InitStruct.Pin  = RL_INT_3V3_SENS_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -620,11 +617,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin */
-    GPIO_InitStruct.Pin   = IMU_INT1_Pin | IMU_INT2_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    /*Configure GPIO pins : PC11 PC12 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_11 | GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */

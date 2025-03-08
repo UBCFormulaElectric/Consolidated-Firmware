@@ -104,10 +104,6 @@ extern "C"
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
 #define SWCLK_GPIO_Port GPIOA
-#define IMU_INT1_Pin GPIO_PIN_11
-#define IMU_INT1_GPIO_Port GPIOC
-#define IMU_INT2_Pin GPIO_PIN_12
-#define IMU_INT2_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 #define BRAKE_LIGHT_EN_Pin GPIO_PIN_5
