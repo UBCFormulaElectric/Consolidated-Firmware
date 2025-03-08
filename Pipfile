@@ -31,6 +31,9 @@ requests = "*"
 rich = "*"
 schema = "*"
 strenum = "*"
+flask-cors = "*"
+python-dotenv = "*"
+flask-socketio = "*"
 
 [dev-packages]
 setuptools = "*"
