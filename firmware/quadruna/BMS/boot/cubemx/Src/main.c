@@ -26,6 +26,7 @@
 #include "hw_can.h"
 #include "hw_utils.h"
 #include "hw_error.h"
+#include "io_canQueue.h"
 
 #include <assert.h>
 /* USER CODE END Includes */
@@ -107,7 +108,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .hcan = &hfdcan1 };
+CanHandle can = { .hcan = &hfdcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END 0 */
 
 /**
