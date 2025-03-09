@@ -2,8 +2,8 @@
 
 #include "hw_i2c.h"
 
-extern const I2cInterface pwr_mtr;
-extern const I2cInterface imu;
-extern const I2cInterface bat_mtr;
-extern const I2cInterface rears_pump;
-extern const I2cInterface front_pump;
+extern const I2cDevice pwr_mtr;
+extern const I2cDevice imu;
+extern const I2cDevice bat_mtr;
+extern const I2cDevice rears_pump;
+extern const I2cDevice front_pump;

@@ -653,6 +653,48 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 }
 
 /**
+ * @brief TIM_OC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param htim_oc: TIM_OC handle pointer
+ * @retval None
+ */
+void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim_oc)
+{
+    if (htim_oc->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspInit 0 */
+
+        /* USER CODE END TIM3_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM3_CLK_ENABLE();
+        /* USER CODE BEGIN TIM3_MspInit 1 */
+
+        /* USER CODE END TIM3_MspInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_OC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param htim_oc: TIM_OC handle pointer
+ * @retval None
+ */
+void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef *htim_oc)
+{
+    if (htim_oc->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspDeInit 0 */
+
+        /* USER CODE END TIM3_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM3_CLK_DISABLE();
+        /* USER CODE BEGIN TIM3_MspDeInit 1 */
+
+        /* USER CODE END TIM3_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief UART MSP Initialization
  * This function configures the hardware resources used in this example
  * @param huart: UART handle pointer
