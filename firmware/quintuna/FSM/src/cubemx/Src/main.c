@@ -20,6 +20,9 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include <hw_gpio.h>
+#include <hw_gpios.h>
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -176,7 +179,12 @@ int main(void)
     MX_I2C1_Init();
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
-
+    for (;;)
+    {
+        hw_gpio_writePin(&debug_led, true);
+        HAL_Delay(100);
+        hw_gpio_writePin(&debug_led, false);
+    }
     /* USER CODE END 2 */
 
     /* Init scheduler */
