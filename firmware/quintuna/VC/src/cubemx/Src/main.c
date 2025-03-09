@@ -52,6 +52,8 @@ I2C_HandleTypeDef hi2c3;
 I2C_HandleTypeDef hi2c4;
 I2C_HandleTypeDef hi2c5;
 
+TIM_HandleTypeDef htim3;
+
 UART_HandleTypeDef huart8;
 
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
@@ -81,6 +83,7 @@ static void MX_I2C4_Init(void);
 static void MX_UART8_Init(void);
 static void MX_USB_OTG_HS_PCD_Init(void);
 static void MX_I2C5_Init(void);
+static void MX_TIM3_Init(void);
 void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -133,6 +136,7 @@ int main(void)
     MX_UART8_Init();
     MX_USB_OTG_HS_PCD_Init();
     MX_I2C5_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -308,8 +312,8 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ContinuousConvMode       = DISABLE;
     hadc1.Init.NbrOfConversion          = 1;
     hadc1.Init.DiscontinuousConvMode    = DISABLE;
-    hadc1.Init.ExternalTrigConv         = ADC_SOFTWARE_START;
-    hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
+    hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
     hadc1.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc1.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
@@ -684,6 +688,52 @@ static void MX_I2C5_Init(void)
 }
 
 /**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void)
+{
+    /* USER CODE BEGIN TIM3_Init 0 */
+
+    /* USER CODE END TIM3_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_OC_InitTypeDef      sConfigOC     = { 0 };
+
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance               = TIM3;
+    htim3.Init.Prescaler         = 0;
+    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim3.Init.Period            = 65535;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode     = TIM_OCMODE_TIMING;
+    sConfigOC.Pulse      = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_OC_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
+
+    /* USER CODE END TIM3_Init 2 */
+}
+
+/**
  * @brief UART8 Initialization Function
  * @param None
  * @retval None
@@ -909,6 +959,28 @@ void StartDefaultTask(void *argument)
         osDelay(1);
     }
     /* USER CODE END 5 */
+}
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM2 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+    if (htim->Instance == TIM2)
+    {
+        HAL_IncTick();
+    }
+    /* USER CODE BEGIN Callback 1 */
+
+    /* USER CODE END Callback 1 */
 }
 
 /**
