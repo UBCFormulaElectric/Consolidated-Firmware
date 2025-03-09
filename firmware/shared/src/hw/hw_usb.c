@@ -150,9 +150,9 @@ void hw_usb_receive_example()
     // Dump the queue char by char.
     for (;;)
     {
-        uint8_t result[] = { 0, 0 };
-        hw_usb_receive(result, 1);
-        LOG_PRINTF("%s", (char *)result);
+        uint8_t result = 0;
+        hw_usb_receive(&result, 1);
+        LOG_PRINTF("%c", result);
         osDelay(100);
     }
 }

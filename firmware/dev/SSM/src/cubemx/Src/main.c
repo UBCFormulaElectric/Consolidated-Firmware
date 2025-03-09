@@ -28,6 +28,7 @@
 #include "shared.pb.h"
 #include "hw_usb.h"
 #include "hw_gpios.h"
+#include "io_log.h"
 
 /* USER CODE END Includes */
 
@@ -187,9 +188,9 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 4;
-    RCC_OscInitStruct.PLL.PLLN       = 100;
+    RCC_OscInitStruct.PLL.PLLN       = 72;
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ       = 5;
+    RCC_OscInitStruct.PLL.PLLQ       = 3;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -204,7 +205,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
         Error_Handler();
     }
@@ -472,16 +473,25 @@ void StartDefaultTask(void *argument)
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
     bool state = false;
-    for (;;)
-    {
-        osDelay(1000);
-        hw_gpio_writePin(&debug_led, state);
-        state = !state;
-    }
+    hw_gpio_writePin(&indicator_1, false);
+    hw_gpio_writePin(&indicator_2, false);
+    hw_gpio_writePin(&indicator_3, false);
+    hw_gpio_writePin(&dout_4, false);
+    hw_gpio_writePin(&debug_led, false);
 
-    // io_chimera_v2_main(
-    //     GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc,
-    //     I2cNetName_ssm_net_name_tag, id_to_i2c);
+    // for (;;)
+    // {
+    //     LOG_INFO("blinky: %d", state);
+    //     osDelay(1000);
+    //     hw_gpio_writePin(&debug_led, state);
+    //     state = !state;
+    // }
+
+    hw_usb_transmit_example();
+
+    io_chimera_v2_main(
+        GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc, I2cNetName_ssm_net_name_tag,
+        id_to_i2c);
     /* USER CODE END 5 */
 }
 
