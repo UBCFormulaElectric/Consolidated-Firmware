@@ -8,16 +8,16 @@
 // This macro exposes the USB_DEVICE_HANDLER macro (hUsbDeviceFS or hUsbDeviceHS),
 // and the TRANSMIT macro (CDC_Transmit_FS or CDC_Transmit_HS).
 // Everything is derived from usbd_cdc_if.h.
-#if defined(CM4_TARGET)
+#if defined(STM32F412Rx)
 #define TRANSMIT(buf, len) (CDC_Transmit_FS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)
-#elif defined(CM7_TARGET)
+#elif defined(STM32H733xx)
 #define TRANSMIT(buf, len) (CDC_Transmit_HS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceHS;
 #define USB_DEVICE_HANDLER (hUsbDeviceHS)
 #else
-#error Either CM7_TARGET or CM4_TARGET must be defined, \
+#error Either STM32H733xx or STM32F412Rx must be defined, \
         so that hw_usb knows which handlers to use.
 #endif
 
@@ -150,9 +150,9 @@ void hw_usb_receive_example()
     // Dump the queue char by char.
     for (;;)
     {
-        uint8_t result[] = { 0, 0 };
-        hw_usb_receive(result, 1);
-        LOG_PRINTF("%s", (char *)result);
+        uint8_t result = 0;
+        hw_usb_receive(&result, 1);
+        LOG_PRINTF("%c", result);
         osDelay(100);
     }
 }

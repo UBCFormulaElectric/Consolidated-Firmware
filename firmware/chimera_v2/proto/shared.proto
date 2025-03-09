@@ -16,12 +16,14 @@ variables, so the following changes are made:
 */
 
 import "f4dev.proto";
+import "ssm.proto";
 import "nanopb.proto";
 
 /* GPIOs */
 message GpioNetName {
     oneof name {
         f4dev.GpioNetName f4dev_net_name = 1;
+        ssm.GpioNetName ssm_net_name = 2;
     }
 }
 
@@ -48,6 +50,7 @@ message GpioWriteResponse {
 message AdcNetName {
   oneof name {
     f4dev.AdcNetName f4dev_net_name = 1;
+    ssm.AdcNetName ssm_net_name = 2;
   }
 }
 
@@ -64,6 +67,7 @@ message AdcReadResponse {
 message I2cNetName {
   oneof name {
     f4dev.I2cNetName f4dev_net_name = 1;
+    ssm.I2cNetName ssm_net_name = 2;
   }
 }
 

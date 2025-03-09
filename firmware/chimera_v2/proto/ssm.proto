@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package ssm;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  INDICATOR_1 = 1;
+  INDICATOR_2 = 2;
+  INDICATOR_3 = 3;
+  DOUT_4 = 4;
+  DEBUG_LED = 5;
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED = 0;
+}
+
+enum I2cNetName {
+  I2C_NET_NAME_UNSPECIFIED = 0;
+}

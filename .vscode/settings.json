@@ -9,4 +9,10 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"main.h": "c",
+		"hw_i2c.h": "c",
+		"io_chimera_v2.h": "c",
+		"io_chimeraconfig_v2.h": "c"
+	},
 }
