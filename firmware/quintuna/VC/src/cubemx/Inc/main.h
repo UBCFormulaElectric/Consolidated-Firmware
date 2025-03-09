@@ -53,11 +53,14 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define BAT_MTR_ALERT_Pin GPIO_PIN_11
+#define BAT_MTR_ALERT_GPIO_Port GPIOE
+#define BAT_MTR_ALERT_EXTI_IRQn EXTI15_10_IRQn
 
     /* USER CODE BEGIN Private defines */
 
