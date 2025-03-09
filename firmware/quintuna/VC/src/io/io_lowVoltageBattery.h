@@ -1,14 +1,15 @@
 #pragma once
 
 #include <stdbool.h>
-#ifndef TARGET_EMBEDDED
-#include "hw_gpios.h"
-typedef enum{
+#ifdef TARGET_EMBEDDED
+typedef enum
+{
     CURRENT_REGULATING,
     VOLTAGE_REGULATING
-}ChargingStatus;
-#else 
+} ChargingStatus;
+#else
 #include "app_utils.h"
+EMPTY_STRUCT(ChargingStatus)
 #endif
 
 /**
