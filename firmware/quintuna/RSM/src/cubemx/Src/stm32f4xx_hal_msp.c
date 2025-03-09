@@ -106,15 +106,13 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PA0     ------> ADC1_IN0
         PA5     ------> ADC1_IN5
         PA6     ------> ADC1_IN6
-        PA7     ------> ADC1_IN7
-        PC4     ------> ADC1_IN14
         */
-        GPIO_InitStruct.Pin  = BPS_R_3V3_Pin | SUSP_TRAVEL_RR_OCSC_Pin;
+        GPIO_InitStruct.Pin  = BPS_R_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+        HAL_GPIO_Init(BPS_R_3V3_GPIO_Port, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
+        GPIO_InitStruct.Pin  = LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -168,12 +166,10 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PA0     ------> ADC1_IN0
         PA5     ------> ADC1_IN5
         PA6     ------> ADC1_IN6
-        PA7     ------> ADC1_IN7
-        PC4     ------> ADC1_IN14
         */
-        HAL_GPIO_DeInit(GPIOC, BPS_R_3V3_Pin | SUSP_TRAVEL_RR_OCSC_Pin);
+        HAL_GPIO_DeInit(BPS_R_3V3_GPIO_Port, BPS_R_3V3_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin);
+        HAL_GPIO_DeInit(GPIOA, LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin);
 
         /* ADC1 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);

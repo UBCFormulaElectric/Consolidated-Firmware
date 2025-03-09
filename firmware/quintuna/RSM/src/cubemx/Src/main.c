@@ -314,7 +314,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 6;
+    hadc1.Init.NbrOfConversion       = 4;
     hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -352,26 +352,8 @@ static void MX_ADC1_Init(void)
 
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
-    sConfig.Channel = ADC_CHANNEL_7;
-    sConfig.Rank    = 4;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-     */
     sConfig.Channel = ADC_CHANNEL_12;
-    sConfig.Rank    = 5;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-     */
-    sConfig.Channel = ADC_CHANNEL_14;
-    sConfig.Rank    = 6;
+    sConfig.Rank    = 4;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -604,11 +586,17 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, BOOT_Pin | LED_Pin | BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin : RL_INT_3V3_SENS_Pin */
-    GPIO_InitStruct.Pin  = RL_INT_3V3_SENS_Pin;
+    /*Configure GPIO pins : RL_INT_3V3_SENS_Pin SUSP_TRAVEL_RL_OCSC_Pin */
+    GPIO_InitStruct.Pin  = RL_INT_3V3_SENS_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(RL_INT_3V3_SENS_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : SUSP_TRAVEL_RR_OCSC_Pin */
+    GPIO_InitStruct.Pin  = SUSP_TRAVEL_RR_OCSC_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(SUSP_TRAVEL_RR_OCSC_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : BOOT_Pin LED_Pin BRAKE_LIGHT_EN_Pin */
     GPIO_InitStruct.Pin   = BOOT_Pin | LED_Pin | BRAKE_LIGHT_EN_Pin;
@@ -617,8 +605,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PC11 PC12 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_11 | GPIO_PIN_12;
+    /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin */
+    GPIO_InitStruct.Pin  = IMU_INT1_Pin | IMU_INT2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
