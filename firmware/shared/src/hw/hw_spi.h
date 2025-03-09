@@ -7,15 +7,15 @@
 
 typedef struct
 {
-    SPI_HandleTypeDef *const handle;
-    TaskHandle_t             task_in_progress;
+    const SPI_HandleTypeDef *const handle;    
+    TaskHandle_t                   task_in_progress;
 } SpiBus;
 
 typedef struct
 {
-    SpiBus  *bus;
-    Gpio     nss_pin;
-    uint32_t timeout_ms;
+    SpiBus     *bus;
+    const Gpio *nss_pin;
+    uint32_t    timeout_ms;
 } SpiDevice;
 
 // Board-specific config: You need to define this function which maps STM32 handle to SpiBus struct!

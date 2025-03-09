@@ -2,12 +2,12 @@
 
 #define LTC6813_SPI_TIMEOUT_MS (10U)
 
-const SpiInterface ltc6813_spi_ls = { .spi_handle = &hspi4,
-                                             .nss_port   = spi_cs_ls_pin.port,
-                                             .nss_pin    = spi_cs_ls_pin.pin,
-                                             .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
+static SpiBus isospi_bus = { .handle = &hspi4 };
 
-const SpiInterface ltc6813_spi_hs = { .spi_handle = &hspi4,
-                                             .nss_port   = spi_cs_hs_pin.port,
-                                             .nss_pin    = spi_cs_hs_pin.pin,
-                                             .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
+const SpiDevice ltc6813_spi_ls = { .bus        = &isospi_bus,
+                                   .nss_pin    = &spi_cs_ls_pin,
+                                   .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
+
+const SpiDevice ltc6813_spi_hs = { .bus        = &isospi_bus,
+                                   .nss_pin    = &spi_cs_hs_pin,
+                                   .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
