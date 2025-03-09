@@ -32,7 +32,7 @@ extern "C"
 
     /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -49,7 +49,7 @@ extern "C"
     // extern CRC_HandleTypeDef   hcrc;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern FDCAN_HandleTypeDef hfdcan2;
-    // extern IWDG_HandleTypeDef  hiwdg1;
+    extern IWDG_HandleTypeDef  hiwdg1;
     extern SD_HandleTypeDef    hsd1;
     extern SPI_HandleTypeDef   hspi4;
     extern TIM_HandleTypeDef   htim1;
