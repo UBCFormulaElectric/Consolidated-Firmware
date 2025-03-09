@@ -204,6 +204,7 @@ class _Board:
             usb_device: Interface to the usb device.
             gpio_net_name: Identifier for the GpioNetName corresponding to your board, defined in shared.proto.
             i2c_net_name: Identifier for the I2cNetName corresponding to your board, defined in shared.proto.
+            spi_net_name: Identifier for the spiNetName corresponding to your board, defined in shared.proto.
             adc_net_name: Identifier for the AdcNetName corresponding to your board, defined in shared.proto.
             board_module: Generated protobuf module, found in proto_autogen.
 
@@ -213,6 +214,7 @@ class _Board:
         self.gpio_net_name = gpio_net_name
         self.adc_net_name = adc_net_name
         self.i2c_net_name = i2c_net_name
+        self.spi_net_name = spi_net_name
         self.board_module = board_module
 
     def _write(self, msg: proto_autogen.shared_pb2.ChimeraV2Request):
@@ -466,6 +468,22 @@ class I2cDevice:
         assert response.WhichOneof("payload") == "i2c_memory_write"
         assert response.i2c_memory_write.success
 
+class SPIDevice:
+    def __init__(self, owner: _Board, net_name: str):
+        """Create an abstraction around an I2c device.
+
+        This constructor should NEVER be called on its own,
+        instead create I2c devices via a board's ``i2c_device`` method.
+
+        Args:
+            owner: Owner board.
+            net_name: Identifier of the I2C device.
+
+        """
+
+    self._owner = owner
+    self._net_name = self._owner.board_module.SpiNetName.Value(net_name)
+
 
 class F4Dev(_Board):
     def __init__(self) -> None:
@@ -476,6 +494,7 @@ class F4Dev(_Board):
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
             i2c_net_name="f4dev_net_name",
+            spi_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )
 

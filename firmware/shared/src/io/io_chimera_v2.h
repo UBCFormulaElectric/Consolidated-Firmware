@@ -4,6 +4,7 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_i2c.h"
+#include "hw_spi.h"
 
 /**
  * @brief A flag set internally by chimera indicating if it is running, exposed to block other jobs.
@@ -25,4 +26,6 @@ void io_chimera_v2_mainOrContinue(
     pb_size_t         adc_tag,
     const AdcChannel *id_to_adc[],
     pb_size_t         i2c_tag,
-    const I2cDevice  *id_to_i2c[]);
+    const I2cDevice  *id_to_i2c[],
+    pb_size_t         spi_tag,
+    const SpiDevice  *id_to_spi[]);
