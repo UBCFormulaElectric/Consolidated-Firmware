@@ -20,7 +20,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include <hw_gpio.h>
 #include <hw_gpios.h>
 
 /* Private includes ----------------------------------------------------------*/
@@ -181,9 +180,8 @@ int main(void)
     /* USER CODE BEGIN 2 */
     for (;;)
     {
-        hw_gpio_writePin(&debug_led, true);
-        HAL_Delay(100);
-        hw_gpio_writePin(&debug_led, false);
+        HAL_GPIO_TogglePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin);
+        HAL_Delay(1000);
     }
     /* USER CODE END 2 */
 
