@@ -10,7 +10,7 @@
 // hw
 #include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_can.h"
+#include "hw_cans.h"
 
 void tasks_preinit(void) {}
 
@@ -34,7 +34,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx();
-//        hw_can_transmit(&can1, &msg);
+//        hw_can_transmit(&can, &msg);
     }
 }
 

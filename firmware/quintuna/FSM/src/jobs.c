@@ -7,11 +7,7 @@
 
 #include "io_canTx.h"
 #include "io_canRx.h"
-
 #include "io_time.h"
-
-// TODO wot da flip is happening
-// TODO changes need to be made for this file (app related stuff)
 
 static void canTransmit(const JsonCanMsg *msg)
 {
@@ -26,8 +22,8 @@ void jobs_init(void)
     app_canTx_init();
     app_canRx_init();
     // broadcast commit info
-//    app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
-//    app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
 }
 
 void jobs_run1Hz_tick(void)
