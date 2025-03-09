@@ -12,6 +12,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_cans.h"
+#include "hw_gpios.h"
 
 void tasks_preInit()
 {
@@ -28,6 +29,7 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_gpio_writePin(&brake_light_en_pin, false);
 
     jobs_init();
 }
