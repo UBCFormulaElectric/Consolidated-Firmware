@@ -1,5 +1,5 @@
 #include "app_pumpControl.h"
-#include "io_i2cPotentiometer.h"
+#include "io_potentiometer.h"
 #include "app_canAlerts.h"
 
 #define FLOW_RATE_LOWER_LIMIT (0.0f)
@@ -24,13 +24,13 @@ void app_pumpControl_setFlowRate(float rate_lpm)
 
     app_canAlerts_VC_Warning_FlowRateInputOutOfRange_set(flow_rate_out_of_range);
 
-    if (io_i2cPotentiometer_Init())
+    if (io_potentiometer_init())
     {
-        io_i2cPotentiometer_setWiper((uint8_t)(rate_lpm / SCALE_FACTOR));
+        io_potentiometer_setWiper((uint8_t)(rate_lpm / SCALE_FACTOR));
     }
 }
 
 float app_pumpControl_getFlowRate(void)
 {
-    return SCALE_FACTOR * (float)io_i2cPotentiometer_readWiper();
+    return SCALE_FACTOR * (float)io_potentiometer_readWiper();
 }

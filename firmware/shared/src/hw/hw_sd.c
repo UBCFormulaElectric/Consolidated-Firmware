@@ -87,8 +87,9 @@ void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
     assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
-
+// this my based on the hardware design
+// if the sd card is incerted, the gpio will be shorted to ground other wise it will be pulled up
 bool hw_sd_present()
 {
-    return hw_gpio_readPin(sd1.present_gpio);
+    return !hw_gpio_readPin(sd1.present_gpio);
 }

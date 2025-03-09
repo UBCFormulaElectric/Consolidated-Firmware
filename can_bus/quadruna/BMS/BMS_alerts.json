@@ -56,10 +56,6 @@
             "id": 113,
             "description": "Open wire cell detected in segment 3 (cell voltage tap is open circuit)."
         },
-        "OpenWireCheck_Segment4_GND": {
-            "id": 114,
-            "description": "Open wire cell detected in segment 4 (cell voltage tap is open circuit)."
-        },
         "MissingVCHeartbeat": {
             "id": 115,
             "description": "Missing heartbeat from the VC."

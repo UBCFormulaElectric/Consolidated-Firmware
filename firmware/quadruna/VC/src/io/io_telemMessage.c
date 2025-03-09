@@ -4,6 +4,7 @@
 #include "cmsis_os.h"
 #include "io_log.h"
 #include "hw_uarts.h"
+#include <assert.h>
 
 // create the truth table for now to decide which amount of things to use
 // create or grab the constants for the different modem and pins and such
@@ -43,6 +44,7 @@ void io_telemMessage_init()
 {
     modem_900_choice = true; // if false, then using the 2.4GHz,
     message_queue_id = osMessageQueueNew(CAN_DATA_LENGTH, QUEUE_SIZE, &queue_attr);
+    assert(message_queue_id != NULL);
 }
 
 bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
@@ -73,26 +75,34 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
     t_message.time_stamp = (int32_t)rx_msg->timestamp;
     // encoding message
 
-    proto_status                         = pb_encode(&stream, TelemMessage_fields, &t_message);
-    proto_msg_length                     = (uint8_t)stream.bytes_written;
-    proto_buffer[49]                     = proto_msg_length;
-    static uint32_t telem_overflow_count = 0;
-    osStatus_t      s                    = osMessageQueuePut(message_queue_id, &proto_buffer, 0U, 0U);
+    proto_status                          = pb_encode(&stream, TelemMessage_fields, &t_message);
+    proto_msg_length                      = (uint8_t)stream.bytes_written;
+    proto_buffer[49]                      = proto_msg_length;
+    static uint32_t  telem_overflow_count = 0;
+    const osStatus_t s                    = osMessageQueuePut(message_queue_id, &proto_buffer, 0U, 0U);
     if (s != osOK)
     {
-        telem_overflow_count++;
-        LOG_WARN("queue problem");
+        if (s == osErrorResource)
+        {
+            telem_overflow_count++;
+            LOG_WARN("Telem Queue Overflow, count: %d", telem_overflow_count);
+        }
+        else
+        {
+            LOG_WARN("queue problem %d", s);
+        }
     }
     return true;
 }
 
 bool io_telemMessage_broadcastMsgFromQueue(void)
 {
-    uint8_t    proto_out[QUEUE_SIZE] = { 0 };
-    uint8_t    zero_test             = 0;
-    osStatus_t status                = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
-    proto_out_length                 = proto_out[49];
-    proto_out[49]                    = 0;
+    uint8_t          proto_out[QUEUE_SIZE] = { 0 };
+    const osStatus_t status                = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
+    assert(status == osOK);
+
+    proto_out_length = proto_out[49];
+    proto_out[49]    = 0;
 
     // Start timing for measuring transmission speeds
     SEGGER_SYSVIEW_MarkStart(0);

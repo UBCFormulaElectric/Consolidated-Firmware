@@ -1,5 +1,5 @@
 #include <string.h>
-#include "hw_spi.h"
+#include "hw_spis.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "app_accumulator.h"
 
@@ -36,8 +36,6 @@ typedef enum
     AUX_REGISTER_GROUP_C,
     NUM_OF_AUX_REGISTER_GROUPS
 } AuxiliaryRegisterGroup;
-
-extern const SpiInterface *ltc6813_spi;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
@@ -288,7 +286,7 @@ bool io_ltc6813CellTemps_readTemperatures(void)
             io_ltc6813Shared_packCmdPec15(tx_cmd);
 
             if (hw_spi_transmitThenReceive(
-                    ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
+                    &ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
             {
                 if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
                 {
