@@ -1,7 +1,5 @@
 #include "io_loadswitch.h"
 
-#include <assert.h>
-
 const Efuse bms_en_switch      = { .enable_gpio = &bms_en, .cur_sns_adc_channel = &bms_i_sns };
 const Efuse front_en_switch    = { .enable_gpio = &front_en, .cur_sns_adc_channel = &front_i_sns };
 const Efuse rsm_en_switch      = { .enable_gpio = &rsm_en, .cur_sns_adc_channel = &rsm_i_sns };
@@ -12,14 +10,8 @@ const Efuse pump_f_pwr_switch  = { .enable_gpio = &f_pump_en, .cur_sns_adc_chann
 const Efuse l_rad_fan_switch   = { .enable_gpio = &l_rad_fan_en, .cur_sns_adc_channel = &l_rad_fan_i_sns };
 const Efuse r_rad_fan_switch   = { .enable_gpio = &r_rad_fan_en, .cur_sns_adc_channel = &r_rad_fan_i_sns };
 const Efuse extra_switch       = { .enable_gpio = &extra_en, .cur_sns_adc_channel = &extra_i_sns };
-const Efuse inv_l_pwr_switch   = {
-      .enable_gpio         = &l_inv_en,
-      .cur_sns_adc_channel = &inv_l_pwr_i_sns,
-};
-const Efuse dam_en_switch = {
-    .enable_gpio         = &dam_en,
-    .cur_sns_adc_channel = &dam_i_sns,
-};
+const Efuse inv_l_pwr_switch   = { .enable_gpio = &l_inv_en, .cur_sns_adc_channel = &inv_l_pwr_i_sns };
+const Efuse dam_en_switch      = { .enable_gpio = &dam_en, .cur_sns_adc_channel = &dam_i_sns };
 
 const LoadSwitch inverter_loadswitch   = { .efuse1          = &inv_l_pwr_switch,
                                            .efuse2          = &inv_r_pwr_switch,
