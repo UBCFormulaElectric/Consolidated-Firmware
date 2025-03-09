@@ -2,7 +2,7 @@ message("")
 message("📦 [dependencies.cmake] Handling Dependencies")
 
 # Git Submodules
-execute_process(COMMAND "git submodule update --init --recursive" WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+execute_process(COMMAND git submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 message("  ✅ Git Submodules Updated at ${CMAKE_SOURCE_DIR}")
 
 # Protobuf Compiler - protoc
