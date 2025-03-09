@@ -30,9 +30,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -42,7 +42,14 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern ADC_HandleTypeDef hadc1;
+    extern DMA_HandleTypeDef hdma_adc1;
+    extern TIM_HandleTypeDef htim3;
+    extern TIM_HandleTypeDef htim4;
+    extern CAN_HandleTypeDef hcan2;
+    extern I2C_HandleTypeDef hi2c1;
+    extern I2C_HandleTypeDef hi2c3;
+    extern CAN_HandleTypeDef hcan2;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -60,6 +67,13 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_RESET_FREQUENCY 5
+#define TIM4_PRESCALER (TIMx_FREQUENCY / TIM4_AUTO_RELOAD_REG / TIM4_PWM_MINIMUM_FREQUENCY)
+#define TIM4_AUTO_RELOAD_REG 0xFFFF
+#define ADC_FREQUENCY 1000
+#define TIM4_PWM_MINIMUM_FREQUENCY 1
+#define TIMx_FREQUENCY 96000000
+#define TIM3_PRESCALER 8
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0
@@ -90,10 +104,6 @@ extern "C"
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
 #define SWCLK_GPIO_Port GPIOA
-#define IMU_INT1_Pin GPIO_PIN_11
-#define IMU_INT1_GPIO_Port GPIOC
-#define IMU_INT2_Pin GPIO_PIN_12
-#define IMU_INT2_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 #define BRAKE_LIGHT_EN_Pin GPIO_PIN_5
