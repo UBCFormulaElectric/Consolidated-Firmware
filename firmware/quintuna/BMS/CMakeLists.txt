@@ -2,7 +2,7 @@ message("")
 message("⚙️ Configuring [BMS] (Quintuna)")
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -10,27 +10,27 @@ set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
     ""
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR_CPP}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
     ""
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
     ""
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${SHARED_HW_INCLUDE_DIR}"
 )
 
 if ("${TARGET}" STREQUAL "binary")
@@ -55,28 +55,34 @@ if ("${TARGET}" STREQUAL "binary")
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
     generate_stm32cube_code("BMS" "${IOC_PATH}")
     set(STM32_HAL_SRCS
-        "stm32h7xx_hal_adc_ex.c"
-        "stm32h7xx_hal_adc.c"
-        "stm32h7xx_hal_cortex.c"
-        "stm32h7xx_hal_dma_ex.c"
-        "stm32h7xx_hal_dma.c"
-        "stm32h7xx_hal_exti.c"
-        "stm32h7xx_hal_fdcan.c"
-        "stm32h7xx_hal_gpio.c"
-        "stm32h7xx_hal_iwdg.c"
-        "stm32h7xx_hal_pwr_ex.c"
-        "stm32h7xx_hal_rcc_ex.c"
-        "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_tim_ex.c"
-        "stm32h7xx_hal_tim.c"
-        "stm32h7xx_hal_uart_ex.c"
-        "stm32h7xx_hal_uart.c"
-        "stm32h7xx_ll_sdmmc.c"
-        "stm32h7xx_hal_sd_ex.c"
-        "stm32h7xx_hal_sd.c"
-        "stm32h7xx_hal.c"
-        "stm32h7xx_hal_i2c.c"
-        "stm32h7xx_hal_i2c_ex.c"
+    "stm32h7xx_hal_adc_ex.c"
+    "stm32h7xx_hal_adc.c"
+    "stm32h7xx_hal_cortex.c"
+    "stm32h7xx_hal_dma_ex.c"
+    "stm32h7xx_hal_dma.c"
+    "stm32h7xx_hal_exti.c"
+    "stm32h7xx_hal_fdcan.c"
+    "stm32h7xx_hal_gpio.c"
+    "stm32h7xx_hal_i2c_ex.c"
+    "stm32h7xx_hal_i2c.c"
+    "stm32h7xx_hal_iwdg.c"
+    "stm32h7xx_hal_pwr_ex.c"
+    "stm32h7xx_hal_rcc_ex.c"
+    "stm32h7xx_hal_rcc.c"
+    "stm32h7xx_hal_sd_ex.c"
+    "stm32h7xx_hal_sd.c"
+    "stm32h7xx_hal_spi.c"
+    "stm32h7xx_hal_crc.c"
+    "stm32h7xx_hal_crc_ex.c"
+    "stm32h7xx_hal_pcd.c"
+    "stm32h7xx_hal_pcd_ex.c"
+    "stm32h7xx_hal_tim_ex.c"
+    "stm32h7xx_hal_tim.c"
+    "stm32h7xx_hal_uart_ex.c"
+    "stm32h7xx_hal_uart.c"
+    "stm32h7xx_hal.c"
+    "stm32h7xx_ll_sdmmc.c"
+    "stm32h7xx_ll_usb.c"
     )
     stm32h733xx_cube_library(
         "quintuna_BMS_stm32cube"
