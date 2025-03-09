@@ -12,7 +12,7 @@ typedef struct
 EMPTY_STRUCT(LoadCell);
 #endif
 
-bool  io_loadCell_OCSC();
-float io_loadCell_getMechanicalLoad();
+bool  io_loadCell_OCSC(const LoadCell *loadCell);
+float io_loadCell_getMechanicalLoad(const LoadCell *loadCell);
 
 extern const LoadCell sensor3;

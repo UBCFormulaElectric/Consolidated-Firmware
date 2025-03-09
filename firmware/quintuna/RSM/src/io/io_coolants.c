@@ -44,23 +44,27 @@
 
 const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter_5v5, .config = &flow_meter_config };
 
-void io_coolant_init()
+void io_coolant_init(CoolantFlowMeter *flow_meter)
 {
-    hw_pwmInputFreqOnly_init(coolant_flow_meter.src, coolant_flow_meter.config);
+    hw_pwmInputFreqOnly_init(flow_meter->src, flow_meter->config);
 }
 
-void io_coolant_inputCaptureCallback()
+void io_coolant_inputCaptureCallback(CoolantFlowMeter *flow_meter)
 {
-    hw_pwmInputFreqOnly_tick(coolant_flow_meter.src);
+    // if (htim3 == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
+    // htim3->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
+    // {
+    hw_pwmInputFreqOnly_tick(flow_meter->src);
+    // }
 }
 
-float io_coolant_getFlowRate()
+float io_coolant_getFlowRate(CoolantFlowMeter *flow_meter)
 {
-    const float freq_read = hw_pwmInputFreqOnly_getFrequency(coolant_flow_meter.src);
+    const float freq_read = hw_pwmInputFreqOnly_getFrequency(flow_meter->src);
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
-void io_coolant_checkIfFlowMeterActive()
+void io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *flow_meter)
 {
-    hw_pwmInputFreqOnly_checkIfPwmIsActive(coolant_flow_meter.src);
+    hw_pwmInputFreqOnly_checkIfPwmIsActive(flow_meter->src);
 }
