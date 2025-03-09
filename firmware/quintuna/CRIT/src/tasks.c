@@ -2,13 +2,13 @@
 #include "cmsis_os.h"
 #include "shared.pb.h"
 #include "jobs.h"
+#include "main.h"
 
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
 
 // hw
-#include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 
@@ -25,6 +25,7 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
 
+    hw_can_init(&can1);
     jobs_init();
 }
 
