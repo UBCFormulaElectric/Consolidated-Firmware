@@ -9,3 +9,14 @@ compile_gtest_executable(
     "${JOURNAL_TEST_SRCS}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
+
+list(APPEND UTILS_TEST_SRCS
+    "${CMAKE_CURRENT_SOURCE_DIR}/utils_test.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/utils.c"
+)
+
+compile_gtest_executable(
+    logfs2_utils_test
+    "${UTILS_TEST_SRCS}"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)

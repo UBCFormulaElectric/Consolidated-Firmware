@@ -14,6 +14,7 @@ extern "C"
 #define JOURNAL_MAX_NUM_OUTSTANDING_COMMITS 10
 
 #define JOURNAL_FLAG_IGNORE (1 << 0)
+#define JOURNAL_FLAG_CHECKPOINT (1 << 1)
 
     typedef struct
     {

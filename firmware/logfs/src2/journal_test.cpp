@@ -22,13 +22,13 @@ class JournalTest : public testing::Test
     {
         auto disk_write = [](const Disk *disk, BlockAddr addr, BlockBuf buf)
         {
-            JournalTest *const this_ = static_cast<JournalTest *const>(disk->context);
+            JournalTest *const this_ = reinterpret_cast<JournalTest *>(disk->context);
             memcpy(this_->disk_buf[addr].data(), buf, BLOCK_SIZE);
             return LOGFS_ERR_OK;
         };
         auto disk_read = [](const Disk *disk, BlockAddr addr, BlockBuf buf)
         {
-            JournalTest *const this_ = static_cast<JournalTest *const>(disk->context);
+            JournalTest *const this_ = reinterpret_cast<JournalTest *>(disk->context);
             memcpy(buf, this_->disk_buf[addr].data(), BLOCK_SIZE);
             return LOGFS_ERR_OK;
         };
@@ -40,6 +40,12 @@ class JournalTest : public testing::Test
         journal_init(&journal, &cfg);
     }
 
+    JournalTag *ReadJournalTag(BlockAddr addr)
+    {
+        JournalHeader *const header = reinterpret_cast<JournalHeader *>(disk_buf[addr].data());
+        return &header->tag;
+    }
+
     Journal                                                journal;
     Disk                                                   disk;
     JournalCfg                                             cfg;
@@ -49,4 +55,17 @@ class JournalTest : public testing::Test
 TEST_F(JournalTest, test_format)
 {
     journal_format(&journal);
+
+    for (BlockAddr addr = 0; addr < journal.cfg->size_blocks; addr++)
+    {
+        const JournalTag *tag = ReadJournalTag(addr);
+        ASSERT_EQ(tag->seq_num, addr);
+        ASSERT_EQ(tag->addr, BLOCK_ADDR_INVALID);
+        ASSERT_EQ(tag->flags, (addr == journal.cfg->size_blocks - 1) ? JOURNAL_FLAG_CHECKPOINT : JOURNAL_FLAG_IGNORE);
+    }
+
+    ASSERT_EQ(journal.dirty, false);
+    ASSERT_EQ(journal.num_outstanding_commits, 0);
+    ASSERT_EQ(journal.head_addr, 0);
+    ASSERT_EQ(journal.tail_addr, 0);
 }

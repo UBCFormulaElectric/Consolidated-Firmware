@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #define BLOCK_SIZE (512U)
 
 typedef enum {
@@ -20,3 +25,8 @@ typedef uint32_t BlockAddr;
 typedef struct {
 
 } LogFs;
+
+
+#ifdef __cplusplus
+}
+#endif
