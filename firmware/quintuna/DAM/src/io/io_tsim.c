@@ -1,5 +1,4 @@
 #include "io_tsim.h"
-#include "hw_gpios.h"
 
 void io_tsim_set_red_high(void)
 {
