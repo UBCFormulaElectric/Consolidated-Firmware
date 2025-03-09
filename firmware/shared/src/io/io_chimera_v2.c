@@ -12,14 +12,17 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_i2c.h"
+#include "hw_spi.h"
 
 static const Gpio       **id_to_gpio;
 static const AdcChannel **id_to_adc;
 static const I2cDevice  **id_to_i2c;
+static const SpiDevice **id_to_spi;
 
 pb_size_t gpio_net_name_tag = f4dev_GpioNetName_GPIO_NET_NAME_UNSPECIFIED;
 pb_size_t adc_net_name_tag  = f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED;
 pb_size_t i2c_net_name_tag  = f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED;
+pb_size_t spi_net_name_tag = f4dev_SPINetName_SPI_NET_NAME_UNSPECIFIED;
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 const uint16_t OUT_BUFFER_SIZE = 0xffff;
@@ -73,6 +76,21 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 
     LOG_ERROR("Chimera: Received I2C device from unsupported board.");
     return 0;
+}
+
+static const SpiDevice *io_chimera_v2_getSpi(const SpiNetName *net_name)
+{
+    if (spi_net_name_tag != net_name->which_name)
+    {
+        LOG_ERROR("Expected SPI net name with tag %d, got %d", spi_net_name_tag, net_name->which_name);
+        return NULL;
+    }
+
+    if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
+        return id_to_spi[net_name->name.f4dev_net_name];
+
+    LOG_ERROR("Received SPI device from unsupported board.");
+    return NULL;
 }
 
 // Handle an rpc message.
@@ -211,6 +229,93 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
             response.payload.i2c_memory_read.data.bytes[i] = data[i];
         }
     }
+
+    else if (request.which_payload == ChimeraV2Request_spi_ready_tag)
+    {
+        // Extract payload
+        SpiReadyRequest *payload = &request.payload.spi_ready;
+
+        // Spi ready check.
+        const SpiDevice *device = io_chimera_v2_getSpi(&payload->net_name);
+        bool             ready  = hw_spi_isTargetReady(device);
+
+        // Format response.
+        response.which_payload           = ChimeraV2Response_spi_ready_tag;
+        response.payload.spi_ready.ready = ready;
+    }
+
+    //Spi transmit
+    else if (request.which_payload == ChimeraV2Request_spi_transmit_tag)
+    {
+        SpiTransmitRequest *payload = &request.payload.spi_transmit;
+        const SpiDevice * device = io_chimera_v2_getSpi(&payload->net_name);
+
+        bool             success = hw_spi_transmit(device, payload->data.bytes, payload->data.size);
+
+        // Format response.
+        response.which_payload                = ChimeraV2Response_spi_transmit_tag;
+        response.payload.spi_transmit.success = success;
+
+    }
+
+    //Spi receive
+    else if(request.which_payload == ChimeraV2Request_spi_receive_tag){
+        // Extract payload
+        SpiReceiveRequest *payload = &request.payload.spi_receive;
+
+        const SpiDevice *device = io_chimera_v2_getSpi(&payload->net_name);
+
+        uint8_t data[payload->length];
+        bool    success = hw_spi_receive(device, (uint8_t)payload->memory_address, data, (uint16_t)payload->length);
+        if (!success)
+            LOG_ERROR("Chimera: Failed to receive on SPI");
+
+        // Format response.
+        response.which_payload = ChimeraV2Request_spi_receive_tag;
+
+        response.payload.spi_receive.data.size = (pb_size_t)payload->length;
+        for (size_t i = 0; i < payload->length; i += 1)
+        {
+            response.payload.spi_receive.data.bytes[i] = data[i];
+        }
+
+    }
+}
+
+    //Spi Full-Duplex
+    else if (request.which_payload == ChimeraV2Request_spi_transaction_tag)
+    {
+        SpiTransactionRequest *payload = &request.payload.spi_transaction;
+    
+        const SpiDevice *device = io_chimera_v2_getSpi(&payload->net_name);
+    
+        uint8_t rx_buffer[payload->rx_length];
+    
+        hw_gpio_writePin(&payload->chip_select, false); 
+    
+        bool success = hw_spi_transmitThenReceive(
+            device,
+            payload->tx_data.bytes, (uint16_t)payload->tx_data.size,
+            rx_buffer, (uint16_t)payload->rx_length);
+    
+        hw_gpio_writePin(&payload->chip_select, true);
+    
+        response.which_payload = ChimeraV2Response_spi_transaction_tag;
+        if (success)
+        {
+            response.payload.spi_receive.data.size = (pb_size_t)payload->length;
+            for (size_t i = 0; i < payload->length; i++)
+            {
+                response.payload.spi_receive.data.bytes[i] = data[i];
+            }
+            }
+        else
+        {
+            response.payload.spi_transaction.rx_data.size = 0; 
+            LOG_ERROR("SPI transaction failed");
+        }
+    }
+    
     else
     {
         LOG_WARN("Chimera: Unsupported request with tag %d received.", request.which_payload);
@@ -245,6 +350,10 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
+void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
+{
+
+}
 void io_chimera_v2_main(
     pb_size_t         gpio_tag,
     const Gpio       *gpio_conf[],
