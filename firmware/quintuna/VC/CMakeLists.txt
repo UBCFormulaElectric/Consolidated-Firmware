@@ -24,10 +24,8 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
@@ -49,8 +47,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -95,9 +93,6 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_tim.c"
             "stm32h7xx_hal_uart_ex.c"
             "stm32h7xx_hal_uart.c"
-            "stm32h7xx_ll_sdmmc.c"
-            "stm32h7xx_hal_sd_ex.c"
-            "stm32h7xx_hal_sd.c"
             "stm32h7xx_hal.c"
             "stm32h7xx_hal_i2c.c"
             "stm32h7xx_hal_i2c_ex.c"
