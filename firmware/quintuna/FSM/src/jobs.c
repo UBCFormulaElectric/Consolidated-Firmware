@@ -26,14 +26,14 @@ void jobs_init(void)
     app_canTx_init();
     app_canRx_init();
     // broadcast commit info
-    app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
-    app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+//    app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
+//    app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 }
 
 void jobs_run1Hz_tick(void)
 {
-    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+//    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+//    io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
 }
 
