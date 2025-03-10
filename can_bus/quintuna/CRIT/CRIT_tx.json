@@ -41,7 +41,7 @@
       }
     }
   },
-  "AlertsCountsext": {
+  "AlertsContext": {
     "msg_id": 912,
     "bus": ["Can"],
     "cycle_time": 1000,
