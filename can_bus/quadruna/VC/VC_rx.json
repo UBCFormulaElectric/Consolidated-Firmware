@@ -58,13 +58,7 @@
       "dimos_Faults",
       "dimos_FaultsCounts",
       "dimos_Info",
-      "dimos_InfoCounts",
-      "CRIT_Warnings",
-      "CRIT_WarningsCounts",
-      "CRIT_Faults",
-      "CRIT_FaultsCounts",
-      "CRIT_Info",
-      "CRIT_InfoCounts"
+      "dimos_InfoCounts"
     ]
   }
 ]
