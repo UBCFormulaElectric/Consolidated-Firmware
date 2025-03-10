@@ -71,7 +71,7 @@ void jobs_init()
     }
 
     io_canTx_init(jsoncan_transmit_func);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
     io_telemMessage_init();
 }
@@ -85,7 +85,7 @@ void jobs_run1Hz_tick(void)
     app_stackWaterMark_check();
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+    io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -108,7 +108,7 @@ void jobs_run1kHz_tick(void)
 void jobs_runCanRx_tick(void)
 {
     const CanMsg rx_msg = io_canQueue_popRx();
-    if (io_canRx_filterMessageId(rx_msg.std_id))
+    if (io_canRx_filterMessageId_Can(rx_msg.std_id))
     {
         JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_can_msg);

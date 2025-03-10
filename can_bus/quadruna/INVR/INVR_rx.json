@@ -1,6 +1,6 @@
-{
-    "messages": [
-        "VC_RightInverterCommand",
-        "VC_INVR_ReadWriteParamCommand"
-    ]
-}
+[
+  {
+    "bus": "Can",
+    "messages": ["VC_RightInverterCommand", "VC_INVR_ReadWriteParamCommand"]
+  }
+]
