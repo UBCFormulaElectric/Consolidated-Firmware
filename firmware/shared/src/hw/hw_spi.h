@@ -1,32 +1,30 @@
 #pragma once
 
 #include <stdbool.h>
-#include "hw_hal.h"
+#include <stdint.h>
+#include "hw_gpio.h"
+#include "main.h"
 
 typedef struct
 {
-    SPI_HandleTypeDef *spi_handle;
-    GPIO_TypeDef      *nss_port;
-    uint16_t           nss_pin;
-    uint32_t           timeout_ms;
-} SpiInterface;
+    const SPI_HandleTypeDef *const handle;
+    TaskHandle_t                   task_in_progress;
+} SpiBus;
 
-/**
- * Set the NSS pin low for the given SPI interface.
- * @param spi The given SPI interface.
- */
-void hw_spi_setNssLow(const SpiInterface *spi);
+typedef struct
+{
+    SpiBus     *bus;
+    const Gpio *nss_pin;
+    uint32_t    timeout_ms;
+} SpiDevice;
 
-/**
- * Set the NSS pin high for the given SPI interface.
- * @param spi The given SPI interface.
- */
-void hw_spi_setNssHigh(const SpiInterface *spi);
+// Board-specific config: You need to define this function which maps STM32 handle to SpiBus struct!
+SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle);
 
 /**
  * Transmit data to and receive data from the device connected to the given SPI
  * interface.
- * @param spi The given SPI interface.
+ * @param device The given SPI device.
  * @param tx_buffer A pointer to the data buffer containing the data transmitted
  * to the device connected to the SPI interface.
  * @param tx_buffer_size The size of the tx_data buffer.
@@ -38,39 +36,28 @@ void hw_spi_setNssHigh(const SpiInterface *spi);
  * false.
  */
 bool hw_spi_transmitThenReceive(
-    const SpiInterface *spi,
-    uint8_t            *tx_buffer,
-    uint16_t            tx_buffer_size,
-    uint8_t            *rx_buffer,
-    uint16_t            rx_buffer_size);
+    const SpiDevice *device,
+    uint8_t         *tx_buffer,
+    uint16_t         tx_buffer_size,
+    uint8_t         *rx_buffer,
+    uint16_t         rx_buffer_size);
 
 /**
  * Transmit data to the device connected to the given SPI interface.
- * @param spi The given SPI interface.
+ * @param device The given SPI interface.
  * @param tx_buffer A pointer to the data buffer containing the data transmitted
  * to the device connected to the SPI interface.
  * @param tx_buffer_size The size of the tx_data buffer.
  * @return True if data is transmitted successfully. Else, return false.
  */
-bool hw_spi_transmit(const SpiInterface *spi, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size);
 
 /**
  * Receive data from the device connected to the given SPI interface.
- * @param spi The given SPI interface.
+ * @param device The given SPI interface.
  * @param rx_buffer A pointer to the data buffer that stores the data received
  * from the device connected to the SPI interface.
  * @param rx_buffer_size The size of the rx_data buffer.
  * @return True if data is received successfully. Else, return false.
  */
-bool hw_spi_receive(const SpiInterface *spi, uint8_t *rx_buffer, uint16_t rx_buffer_size);
-
-/**
- * Transmit data to the device connected to the given SPI interface without
- * toggling the NSS pin.
- * @param spi The given SPI interface.
- * @param tx_data A pointer to the data buffer containing the data transmitted
- * to the device connected to the SPI interface.
- * @param tx_buffer_size The size of the tx_data buffer.
- * @return True if data is transmitted successfully. Else, return false.
- */
-bool hw_spi_transmitWithoutNssToggle(const SpiInterface *spi, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+bool hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size);

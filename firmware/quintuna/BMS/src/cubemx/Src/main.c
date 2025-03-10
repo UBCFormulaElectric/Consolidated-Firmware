@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -167,7 +167,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    LOG_INFO("BMS Reset");
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -205,7 +205,11 @@ int main(void)
     MX_CRC_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-
+    while (1)
+    {
+        HAL_GPIO_TogglePin(BMS_OK_GPIO_Port, BMS_OK_Pin);
+        HAL_Delay(100);
+    }
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -685,7 +689,7 @@ static void MX_IWDG1_Init(void)
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    hiwdg1.Init.Reload    = 4095;
     if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
     {
         Error_Handler();
@@ -703,7 +707,7 @@ static void MX_IWDG1_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-
+    return;
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
@@ -891,6 +895,7 @@ static void MX_TIM15_Init(void)
 
     /* USER CODE END TIM15_Init 0 */
 
+    TIM_SlaveConfigTypeDef  sSlaveConfig  = { 0 };
     TIM_MasterConfigTypeDef sMasterConfig = { 0 };
     TIM_IC_InitTypeDef      sConfigIC     = { 0 };
 
@@ -898,13 +903,25 @@ static void MX_TIM15_Init(void)
 
     /* USER CODE END TIM15_Init 1 */
     htim15.Instance               = TIM15;
-    htim15.Init.Prescaler         = 0;
+    htim15.Init.Prescaler         = TIM1_PRESCALER;
     htim15.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim15.Init.Period            = 65535;
+    htim15.Init.Period            = TIM1_AUTO_RELOAD_REG;
     htim15.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim15.Init.RepetitionCounter = 0;
     htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim15) != HAL_OK)
+    {
+        Error_Handler();
+    }
     if (HAL_TIM_IC_Init(&htim15) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
+    sSlaveConfig.InputTrigger    = TIM_TS_TI2FP2;
+    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+    sSlaveConfig.TriggerFilter   = 0;
+    if (HAL_TIM_SlaveConfigSynchro(&htim15, &sSlaveConfig) != HAL_OK)
     {
         Error_Handler();
     }
@@ -914,10 +931,16 @@ static void MX_TIM15_Init(void)
     {
         Error_Handler();
     }
-    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
-    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_FALLING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
     sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
     sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim15, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
     if (HAL_TIM_IC_ConfigChannel(&htim15, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
