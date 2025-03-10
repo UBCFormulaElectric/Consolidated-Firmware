@@ -322,7 +322,8 @@ class JsonCanParser:
             rx_msgs_obj_map = {}  # bus name -> list of messages
             for rx_msg_data in node_rx_json_data:
                 bus = rx_msg_data["bus"]
-
+                if bus not in self._bus_cfg:
+                    raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
                 messages = rx_msg_data["messages"]
                 for message in messages:
                     # Check if this message is defined
@@ -418,7 +419,7 @@ class JsonCanParser:
             if bus.fd:
                 fd_bus_obj = bus
                 break
-        assert fd_bus_obj is not None
+        # assert fd_bus_obj is not None
 
         #
         # if a message is transmitted on a non-FD bus then forward it to the FD bus
@@ -427,26 +428,27 @@ class JsonCanParser:
         # if exists a FD bus then skip
         # else add the message to the reroute list and reroute it to the FD bus
         # pick a non-fd bus and reroute the message to FD bus
-        for message in messages:
-            tx_buses = message.bus
-            # skip if the message is already on a FD bus
-            if any(bus in self._bus_cfg for bus in tx_buses):
-                continue
+        if fd_bus_obj is not None:
+            for message in messages:
+                tx_buses = message.bus
+                # skip if the message is already on a FD bus
+                if any(bus in self._bus_cfg for bus in tx_buses):
+                    continue
 
-            from_bus = message.bus[0]
-            to_bus = fd_bus_obj.name
-            forward = CanForward(
-                message=message.name,
-                from_bus=from_bus,
-                to_bus=to_bus,
-            )
+                from_bus = message.bus[0]
+                to_bus = fd_bus_obj.name
+                forward = CanForward(
+                    message=message.name,
+                    from_bus=from_bus,
+                    to_bus=to_bus,
+                )
 
-            forward_list.append(forward)
+                forward_list.append(forward)
 
         # for every message on system
         # for every rx node of the message
-        #
 
+        
         for message in messages:
             tx_buses = message.bus
             rx_nodes = message.rx_nodes
@@ -457,12 +459,13 @@ class JsonCanParser:
                 rx_bus = self._can_rx[rx_node].find_bus(message.name)
 
                 if rx_bus is None:
+                    continue
                     raise InvalidCanJson(
                         f"Message '{message.name}' is received by node '{rx_node}', but is not defined in the RX JSON."
                     )
 
                 # if message is recieved on fd bus then skip as it is handled by the frist for loop
-                if rx_bus == fd_bus_obj.name:
+                if fd_bus_obj != None and rx_bus == fd_bus_obj.name:
                     continue
                 # recieved on the same bus as transmitted
                 if rx_bus in tx_buses:

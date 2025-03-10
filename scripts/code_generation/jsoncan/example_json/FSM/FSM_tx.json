@@ -13,7 +13,7 @@
       }
     }
   },
-  "AlertsContext": {
+  "AlertsCountsext": {
     "msg_id": 301,
     "cycle_time": 1000,
     "bus": ["bus2"],
