@@ -10,7 +10,7 @@
         "--board",
         "VC",
         "--can_data_dir",
-        "${workspaceRoot}/scripts/code_generation/jsoncan/example_json",
+        "${workspaceRoot}/can_bus/quadruna",
         "--output_dir",
         "temp",
         "--dbc_output",
