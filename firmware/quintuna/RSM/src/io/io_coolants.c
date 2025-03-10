@@ -51,11 +51,7 @@ void io_coolant_init(CoolantFlowMeter *flow_meter)
 
 void io_coolant_inputCaptureCallback(CoolantFlowMeter *flow_meter)
 {
-    // if (htim3 == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
-    // htim3->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
-    // {
     hw_pwmInputFreqOnly_tick(flow_meter->src);
-    // }
 }
 
 float io_coolant_getFlowRate(CoolantFlowMeter *flow_meter)
