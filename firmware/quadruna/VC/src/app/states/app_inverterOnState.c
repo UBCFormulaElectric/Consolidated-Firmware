@@ -12,7 +12,7 @@ static const PowerStateConfig power_manager_inverter_init = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
-        [EFUSE_CHANNEL_PUMP] = true,
+        [EFUSE_CHANNEL_PUMP] = false,
         [EFUSE_CHANNEL_AUX] = false,
         [EFUSE_CHANNEL_INV_R] = true,
         [EFUSE_CHANNEL_INV_L] = true,
@@ -57,6 +57,11 @@ static void inverterOnStateRunOnTick100Hz(void)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
+    else if (bms_ready_for_drive)
+    {
+        app_powerManager_setEfuse(EFUSE_CHANNEL_PUMP);
+    }
+    
     else if (all_states_ok && bms_ready_for_drive && is_brake_actuated && was_start_switch_enabled)
     {
         // Transition to drive state when start-up conditions are passed (see

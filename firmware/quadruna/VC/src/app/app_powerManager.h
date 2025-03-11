@@ -7,6 +7,7 @@ typedef struct
 } PowerStateConfig;
 
 void app_powerManager_updateConfig(PowerStateConfig power_manager_config);
+void app_powerManager_setEfuse(EfuseChannel channel);
 
 #ifdef TARGET_TEST
 PowerStateConfig app_powerManager_getConfig(void);

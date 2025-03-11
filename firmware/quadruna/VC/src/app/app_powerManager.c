@@ -22,3 +22,8 @@ bool app_powerManager_getEfuse(EfuseChannel channel)
 {
     return power_manager_config.efuses[channel];
 }
+
+void app_powerManager_setEfuse(EfuseChannel channel)
+{
+    io_efuse_setChannel(channel, power_manager_config.efuses[channel]);
+}
