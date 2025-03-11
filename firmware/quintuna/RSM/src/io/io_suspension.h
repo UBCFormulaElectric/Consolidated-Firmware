@@ -2,7 +2,7 @@
 #include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_adcs.h"
+#include "hw_adc.h"
 
 typedef struct
 {
@@ -14,7 +14,9 @@ EMPTY_STRUCT(Suspension);
 #endif
 
 float io_suspension_getTravel(const Suspension *suspension);
-bool  io_suspension_OCSC(const Suspension *suspension);
+//bool  io_suspension_OCSC(const Suspension *suspension);
+bool io_suspension_rl_OCSC(void);
+bool io_suspension_rr_OCSC(void);
 
 extern const Suspension right;
 extern const Suspension left;

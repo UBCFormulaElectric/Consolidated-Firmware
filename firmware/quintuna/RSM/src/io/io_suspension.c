@@ -21,12 +21,12 @@ float io_suspension_getTravel(const Suspension *suspension)
     return hw_adc_getVoltage(suspension->src);
 }
 
-bool io_suspension_rr_OCSC()
+bool io_suspension_rr_OCSC(void)
 {
     return hw_gpio_readPin(&susp_travel_rr_ocsc_pin);
 }
 
-bool io_suspension_rl_OCSC()
+bool io_suspension_rl_OCSC(void)
 {
     return hw_gpio_readPin(&susp_travel_rl_ocsc_pin);
 }
