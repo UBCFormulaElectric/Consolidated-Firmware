@@ -59,7 +59,7 @@ static void inverterOnStateRunOnTick100Hz(void)
     }
     else if (bms_ready_for_drive)
     {
-        app_powerManager_setEfuse(EFUSE_CHANNEL_PUMP);
+        app_powerManager_setEfuse(EFUSE_CHANNEL_PUMP, true);
     }
     
     else if (all_states_ok && bms_ready_for_drive && is_brake_actuated && was_start_switch_enabled)
