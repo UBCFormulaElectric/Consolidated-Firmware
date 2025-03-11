@@ -34,7 +34,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx();
-//        hw_can_transmit(&can, &msg);
+        //        hw_can_transmit(&can, &msg);
     }
 }
 
