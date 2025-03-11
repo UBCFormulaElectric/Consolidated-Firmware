@@ -16,7 +16,7 @@ const PowerRail acc = { .bus_address = 0x08, .sense_address = 0x0C, .power_addre
 bool io_power_monitor_init()
 {
     // Configuration of the ctrl register may be needed
-    return hw_i2c_isTargetReady(&pwr_mon);
+    return hw_i2c_isTargetReady(&pwr_mon_i2c);
 }
 
 #define REFRESH 0x1F
@@ -24,7 +24,7 @@ bool io_power_monitor_init()
 void io_power_monitor_refresh()
 {
     uint8_t buffer[1] = { REFRESH };
-    hw_i2c_transmit(&pwr_mon, buffer, 1);
+    hw_i2c_transmit(&pwr_mon_i2c, buffer, 1);
 }
 
 #define VOLTAGE_BUS_TRANSFER_FACTOR 4.8828e-4f;
@@ -36,9 +36,9 @@ float io_power_monitor_read_voltage(const PowerRail *voltage_address)
     io_power_monitor_refresh(); // timing problems potentially?
 
     buffer[0] = voltage_address->bus_address;
-    hw_i2c_transmit(&pwr_mon, buffer, 1); // change register pointer address
+    hw_i2c_transmit(&pwr_mon_i2c, buffer, 1); // change register pointer address
 
-    hw_i2c_receive(&pwr_mon, buffer, 2); // get raw register data and store it in buffer
+    hw_i2c_receive(&pwr_mon_i2c, buffer, 2); // get raw register data and store it in buffer
 
     const float voltage_buffer = (float)((buffer[0] << 8) | buffer[1]) * VOLTAGE_BUS_TRANSFER_FACTOR;
 
@@ -55,9 +55,9 @@ float io_power_monitor_read_current(const PowerRail *current_address)
     io_power_monitor_refresh();
 
     buffer[0] = current_address->sense_address;
-    hw_i2c_transmit(&pwr_mon, buffer, 1); // change register pointer address (Vsense)
+    hw_i2c_transmit(&pwr_mon_i2c, buffer, 1); // change register pointer address (Vsense)
 
-    hw_i2c_receive(&pwr_mon, buffer, 2); // get raw register data and store it in buffer
+    hw_i2c_receive(&pwr_mon_i2c, buffer, 2); // get raw register data and store it in buffer
 
     const float voltage_sense_buffer = (float)((buffer[0] << 8) | buffer[1]) * VOLTAGE_SENSE_TRANSFER_FACTOR;
 
@@ -74,9 +74,9 @@ float io_power_monitor_read_power(const PowerRail *power_address)
     io_power_monitor_refresh();
 
     buffer[0] = power_address->power_address;
-    hw_i2c_transmit(&pwr_mon, buffer, 1); // change register pointer address
+    hw_i2c_transmit(&pwr_mon_i2c, buffer, 1); // change register pointer address
 
-    hw_i2c_receive(&pwr_mon, buffer, 2); // get raw register data and store it in buffer
+    hw_i2c_receive(&pwr_mon_i2c, buffer, 2); // get raw register data and store it in buffer
 
     const float voltage_power_buffer = (float)((buffer[0] << 8) | buffer[1]) * VOLTAGE_POWER_TRANSFER_FACTOR;
 
@@ -89,10 +89,10 @@ uint32_t io_power_monitor_alert_status()
 {
     uint8_t buffer[3]; // Does not require a REFRESH
 
-    buffer[0] = ALERT_STATUS;             // ALERT_STATUS address
-    hw_i2c_transmit(&pwr_mon, buffer, 1); // change register pointer to alert_status
+    buffer[0] = ALERT_STATUS;                 // ALERT_STATUS address
+    hw_i2c_transmit(&pwr_mon_i2c, buffer, 1); // change register pointer to alert_status
 
-    hw_i2c_receive(&pwr_mon, buffer, 3); // Gets all the alert statuses
+    hw_i2c_receive(&pwr_mon_i2c, buffer, 3); // Gets all the alert statuses
 
     const uint32_t alert_buffer =
         (uint32_t)((buffer[0] << 16) | (buffer[1] << 8) | buffer[2]); // 23:0 bits for alert (datasheet)
