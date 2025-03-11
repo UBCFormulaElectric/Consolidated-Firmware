@@ -19,6 +19,8 @@
 		"io_leds.h": "c",
 		"io_led.h": "c",
 		"hw_adcs.h": "c",
-		"hw_gpios.h": "c"
+		"hw_gpios.h": "c",
+		"hw_i2cs.h": "c",
+		"hw_i2c.h": "c"
 	},
 }
