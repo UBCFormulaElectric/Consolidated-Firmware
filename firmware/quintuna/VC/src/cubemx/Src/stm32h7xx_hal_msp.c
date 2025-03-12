@@ -105,6 +105,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PA3     ------> ADC1_INP15
         PA4     ------> ADC1_INP18
         PA5     ------> ADC1_INN18
+        PA5     ------> ADC1_INP19
         PA6     ------> ADC1_INP3
         PC4     ------> ADC1_INP4
         PC5     ------> ADC1_INP8
@@ -159,6 +160,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PA3     ------> ADC1_INP15
         PA4     ------> ADC1_INP18
         PA5     ------> ADC1_INN18
+        PA5     ------> ADC1_INP19
         PA6     ------> ADC1_INP3
         PC4     ------> ADC1_INP4
         PC5     ------> ADC1_INP8

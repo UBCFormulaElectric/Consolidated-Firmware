@@ -42,7 +42,17 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern ADC_HandleTypeDef   hadc1;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan2;
+    extern FDCAN_HandleTypeDef hfdcan3;
+    extern I2C_HandleTypeDef   hi2c2;
+    extern I2C_HandleTypeDef   hi2c3;
+    extern I2C_HandleTypeDef   hi2c4;
+    extern I2C_HandleTypeDef   hi2c5;
+    extern TIM_HandleTypeDef   htim3;
+    extern UART_HandleTypeDef  huart8;
+    extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -129,6 +139,8 @@ extern "C"
 #define CAN2_RX_GPIO_Port GPIOD
 #define CAN2_TX_Pin GPIO_PIN_13
 #define CAN2_TX_GPIO_Port GPIOD
+#define RAD_FAN_FR_STBY_Pin GPIO_PIN_6
+#define RAD_FAN_FR_STBY_GPIO_Port GPIOC
 #define PWR_MTR_nALERT_Pin GPIO_PIN_7
 #define PWR_MTR_nALERT_GPIO_Port GPIOC
 #define PWR_MTR_nALERT_EXTI_IRQn EXTI9_5_IRQn

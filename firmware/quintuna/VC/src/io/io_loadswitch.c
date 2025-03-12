@@ -7,10 +7,9 @@ const Efuse inv_r_pwr_switch   = { .enable_gpio = &r_inv_en, .cur_sns_adc_channe
 const Efuse pump_rl_pwr_switch = { .enable_gpio = &rl_pump_en, .cur_sns_adc_channel = &pump_rl_pwr_i_sns };
 const Efuse pump_rr_pwr_switch = { .enable_gpio = &rr_pump_en, .cur_sns_adc_channel = &pump_rr_pwr_i_sns };
 const Efuse pump_f_pwr_switch  = { .enable_gpio = &f_pump_en, .cur_sns_adc_channel = &pump_f_pwr_i_sns };
-const Efuse l_rad_fan_switch   = { .enable_gpio = &l_rad_fan_en, .cur_sns_adc_channel = &l_rad_fan_i_sns };
-const Efuse r_rad_fan_switch   = { .enable_gpio = &r_rad_fan_en, .cur_sns_adc_channel = &r_rad_fan_i_sns };
-const Efuse extra_switch       = { .enable_gpio = &extra_en, .cur_sns_adc_channel = &extra_i_sns };
-const Efuse inv_l_pwr_switch   = { .enable_gpio = &l_inv_en, .cur_sns_adc_channel = &inv_l_pwr_i_sns };
+const Efuse l_rad_fan_switch   = { .enable_gpio = &rl_rad_fan_en, .cur_sns_adc_channel = &l_rad_fan_i_sns };
+const Efuse r_rad_fan_switch   = { .enable_gpio = &rr_rad_fan_en, .cur_sns_adc_channel = &r_rad_fan_i_sns };
+const Efuse inv_f_pwr_switch   = { .enable_gpio = &f_inv_en, .cur_sns_adc_channel = &inv_f_pwr_i_sns };
 const Efuse dam_en_switch      = { .enable_gpio = &dam_en, .cur_sns_adc_channel = &dam_i_sns };
 
 const LoadSwitch inverter_loadswitch   = { .efuse1          = &inv_l_pwr_switch,

@@ -2,7 +2,8 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_i2c.h"
-typedef struct {
+typedef struct
+{
     I2cDevice i2cDevice;
 } PumpControl;
 #else
