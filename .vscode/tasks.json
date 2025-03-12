@@ -140,6 +140,13 @@
         "targets": ["h7dev.hex"]
       },
       {
+        "label": "Build Embedded: SSM",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["ssm.hex"]
+      },
+      {
         "label": "Build Tests: BMS (Quadruna)",
         "group": "build",
         "type": "cmake",
