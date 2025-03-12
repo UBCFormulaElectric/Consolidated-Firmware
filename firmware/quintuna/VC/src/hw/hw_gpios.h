@@ -3,7 +3,7 @@
 #include "hw_gpio.h"
 
 extern const Gpio pgood;
-extern const Gpio l_inv_en;
+extern const Gpio f_inv_en;
 extern const Gpio r_inv_en;
 extern const Gpio dam_en;
 extern const Gpio rsm_en;
@@ -18,11 +18,10 @@ extern const Gpio fr_stby_front;
 extern const Gpio fr_stby_rear;
 extern const Gpio fr_stby_inv;
 extern const Gpio fr_stby_f_pump;
-extern const Gpio fr_stby_rear_pump;
+extern const Gpio fr_stby_rl_pump;
+extern const Gpio fr_stby_rr_pump;
 extern const Gpio fr_stby_rad;
-extern const Gpio extra_en;
-extern const Gpio bat_mtr_alert;
-extern const Gpio bat_mtr_rst_shut;
+extern const Gpio bat_mtr_nalert;
 extern const Gpio bms_en;
 extern const Gpio rl_pump_en;
 extern const Gpio rr_pump_en;
