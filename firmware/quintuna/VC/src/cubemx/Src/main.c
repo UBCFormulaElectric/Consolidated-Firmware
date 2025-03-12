@@ -845,7 +845,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOB, FR_STBY_REAR_Pin | FRONT_EN_Pin | RSM_EN_Pin | L_RAD_FAN_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(RR_PUMP_EN_GPIO_Port, RR_PUMP_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, RAD_FAN_FR_STBY_Pin | RR_PUMP_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOD, PCM_EN_Pin | R_RAD_FAN_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_RESET);
@@ -902,18 +902,18 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+    /*Configure GPIO pins : RAD_FAN_FR_STBY_Pin RR_PUMP_EN_Pin */
+    GPIO_InitStruct.Pin   = RAD_FAN_FR_STBY_Pin | RR_PUMP_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
     /*Configure GPIO pin : PWR_MTR_nALERT_Pin */
     GPIO_InitStruct.Pin  = PWR_MTR_nALERT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(PWR_MTR_nALERT_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : RR_PUMP_EN_Pin */
-    GPIO_InitStruct.Pin   = RR_PUMP_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(RR_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : RR_PUMP_PGOOD_Pin F_PUMP_PGOOD_Pin F_PUMP_EN_Pin */
     GPIO_InitStruct.Pin  = RR_PUMP_PGOOD_Pin | F_PUMP_PGOOD_Pin | F_PUMP_EN_Pin;
