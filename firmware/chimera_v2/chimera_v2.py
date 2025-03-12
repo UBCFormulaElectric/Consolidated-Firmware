@@ -4,23 +4,29 @@ Provides tooling to debug devices over USB, CAN, etc.
 
 """
 
+# Typing.
 from __future__ import annotations
-
-import types
 from typing import Dict, Optional, Any
+import types
+
+# Threading.
 import threading
 import signal
 
+# Peripherals.
 import libusb_package
 import cantools
 import can
 
-import proto_autogen.f4dev_pb2
-import proto_autogen.ssm_pb2
-import proto_autogen.shared_pb2
-
+# Pyvisa Peripherals.
 from load_bank import *
 from power_supply import *
+
+# Protobuf autogen packages.
+import proto_autogen.f4dev_pb2
+import proto_autogen.ssm_pb2
+import proto_autogen.crit_pb2
+import proto_autogen.shared_pb2
 
 
 _MANUFACTURER = "ubc_formula_electric"
@@ -482,4 +488,17 @@ class SSM(_Board):
             adc_net_name="ssm_net_name",
             i2c_net_name="ssm_net_name",
             board_module=proto_autogen.ssm_pb2,
+        )
+
+
+class CRIT(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a CRIT/cDIM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="crit"),
+            gpio_net_name="crit_net_name",
+            adc_net_name="crit_net_name",
+            i2c_net_name="crit_net_name",
+            board_module=proto_autogen.crit_pb2,
         )

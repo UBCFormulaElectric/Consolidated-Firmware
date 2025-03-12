@@ -23,4 +23,3 @@ while True:
 #     print("Off")
 #     chimera_device.gpio_write(LED_NET_NAME, False)
 #     time.sleep((1.0 - DUTY_CYCLE) / RATE_HZ)
-

@@ -15,15 +15,18 @@ variables, so the following changes are made:
 * Any Altium pin name starting wtih a numeric character has an added _ to the beginning
 */
 
+import "nanopb.proto";
+
 import "f4dev.proto";
 import "ssm.proto";
-import "nanopb.proto";
+import "crit.proto";
 
 /* GPIOs */
 message GpioNetName {
     oneof name {
         f4dev.GpioNetName f4dev_net_name = 1;
         ssm.GpioNetName ssm_net_name = 2;
+        crit.GpioNetName crit_net_name = 3;
     }
 }
 
@@ -51,6 +54,7 @@ message AdcNetName {
   oneof name {
     f4dev.AdcNetName f4dev_net_name = 1;
     ssm.AdcNetName ssm_net_name = 2;
+    crit.AdcNetName crit_net_name = 3;
   }
 }
 
@@ -68,6 +72,7 @@ message I2cNetName {
   oneof name {
     f4dev.I2cNetName f4dev_net_name = 1;
     ssm.I2cNetName ssm_net_name = 2;
+    crit.I2cNetName crit_net_name = 3;
   }
 }
 

@@ -3,7 +3,9 @@
 #include "pb.h"
 #include "hw_adc.h"
 #include "hw_gpio.h"
-#include "hw_i2cs.h"
+#include "hw_i2c.h"
+
+extern bool io_chimera_v2_enabled;
 
 /**
  * @brief The main Chimera loop.

@@ -471,27 +471,12 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    bool state = false;
-    hw_gpio_writePin(&indicator_1, false);
-    hw_gpio_writePin(&indicator_2, false);
-    hw_gpio_writePin(&indicator_3, false);
-    hw_gpio_writePin(&dout_4, false);
-    hw_gpio_writePin(&debug_led, false);
 
-    // for (;;)
-    // {
-    //     LOG_INFO("blinky: %d", state);
-    //     osDelay(1000);
-    //     hw_gpio_writePin(&debug_led, state);
-    //     state = !state;
-    // }
-
-    hw_usb_transmit_example();
-
+    // Invoke Chimera V2.
     io_chimera_v2_main(
         GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc, I2cNetName_ssm_net_name_tag,
         id_to_i2c);
+
     /* USER CODE END 5 */
 }
 

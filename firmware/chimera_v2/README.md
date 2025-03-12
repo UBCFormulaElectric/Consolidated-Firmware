@@ -355,7 +355,7 @@ To capture these peripherals on the board side, we need to create a mapping from
 #pragma once
 #include "hw_gpio.h"
 #include "hw_adc.h"
-#include "hw_i2cs.h"
+#include "hw_i2c.h"
 
 extern const Gpio       *id_to_gpio[];
 extern const AdcChannel *id_to_adc[];
@@ -427,7 +427,9 @@ Eg. For the f4dev,
     );
 ```
 
-Chimera will skip running if no USB is plugged in on boot.
+Note: you might want to use the provided `io_chimera_v2_enabled` flag to disable other non-chimera jobs.
+
+`io_chimera_v2_main` will skip running if no USB is plugged in on boot.
 
 ### Development Environment
 For development, start by changing to [the directory of this README](.), and installing it as a pip package. 

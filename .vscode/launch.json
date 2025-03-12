@@ -216,10 +216,9 @@
       "name": "Debug Embedded: CRIT (Quintuna)",
       "cwd": "${workspaceRoot}",
       // binary config
-      "executable": "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT.hex",
+      "executable": "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_boot.elf",
         "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
       ],
       "preLaunchTask": "Build Embedded: CRIT (Quintuna)",
