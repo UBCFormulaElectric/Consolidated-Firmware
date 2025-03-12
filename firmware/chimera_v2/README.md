@@ -279,13 +279,14 @@ Next, we need to add the board to [`./chimera_v2.py`](./chimera_v2.py). To do th
 Eg. for the F4 Dev board,
 ```python
 class F4Dev(_Board):
-    """Chimera access point for the F4Dev."""
-
     def __init__(self) -> None:
+        """Create an interface to an F4Dev board."""
+
         super().__init__(
             usb_device=_UsbDevice(product="f4dev"),
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
+            i2c_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )
 ```
