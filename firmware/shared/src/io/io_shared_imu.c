@@ -10,12 +10,12 @@
 #define IMU_GYRO_RELOAD_104Hz
 
 // IMU Control Registers
-#define XL_OUTPUT_RATE_REG 0x10 // [3:0] select output rate 
+#define XL_OUTPUT_RATE_REG 0x10  // [3:0] select output rate
 #define XL_H_PERF_MODE_DIS_BIT 4 // disabled by default can be enabled in REG 0x15
-#define G_OUTPUT_RATE_REG 0x11 // [3:0] select output rate
-#define G_H_PERF_MODE_DIS_BIT 7 // disabled by default can be enabled in REG 0x16
+#define G_OUTPUT_RATE_REG 0x11   // [3:0] select output rate
+#define G_H_PERF_MODE_DIS_BIT 7  // disabled by default can be enabled in REG 0x16
 
-// IMU Output Register Addresses 
+// IMU Output Register Addresses
 // High Byte Reg = Low Byte Reg + 1
 #define G_ROLL_LOW_BYTE_REG 0x22
 #define G_PITCH_LOW_BYTE_REG 0x24
@@ -127,7 +127,8 @@ bool io_shared_imu_init(const I2cDevice *imu_i2c_handle)
 
     const uint8_t acc_config  = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE,
                   gyro_config = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
-    return hw_i2c_memoryWrite(imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1) && hw_i2c_memoryWrite(imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1);
+    return hw_i2c_memoryWrite(imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1) &&
+           hw_i2c_memoryWrite(imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1);
 }
 
 /**
@@ -184,7 +185,7 @@ static float translate_acceleration_data(const uint8_t *acc_data)
     return (float)raw * ACC_SENSITIVITY_MG * 9.81f / 1000.0f;
 }
 
-bool io_shared_imu_getLinearAccelerationX(const I2cDevice *imu_i2c_handle,float *x_acceleration)
+bool io_shared_imu_getLinearAccelerationX(const I2cDevice *imu_i2c_handle, float *x_acceleration)
 {
     uint8_t x_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2))
@@ -194,7 +195,7 @@ bool io_shared_imu_getLinearAccelerationX(const I2cDevice *imu_i2c_handle,float 
     return true;
 }
 
-bool io_shared_imu_getLinearAccelerationY(const I2cDevice *imu_i2c_handle,float *y_acceleration)
+bool io_shared_imu_getLinearAccelerationY(const I2cDevice *imu_i2c_handle, float *y_acceleration)
 {
     uint8_t y_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, XL_Y_LOW_BYTE_REG, y_data, 2))
@@ -230,7 +231,7 @@ bool io_shared_imu_getAngularVelocityPitch(const I2cDevice *imu_i2c_handle, floa
     if (!hw_i2c_memoryRead(imu_i2c_handle, G_PITCH_LOW_BYTE_REG, pitch_data, 2))
         return false;
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
-    *pitch_velocity =  translate_gyro_data(pitch_data);
+    *pitch_velocity = translate_gyro_data(pitch_data);
     return true;
 }
 

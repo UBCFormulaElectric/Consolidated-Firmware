@@ -5,7 +5,6 @@ bool io_imu_init()
     return io_shared_imu_init(&imu_i2c);
 }
 
-
 bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     return io_shared_imu_getLinearAccelerationX(&imu_i2c, x_acceleration);
