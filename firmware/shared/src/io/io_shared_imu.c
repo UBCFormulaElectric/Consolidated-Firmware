@@ -8,13 +8,15 @@
 #define IMU_GYRO_RESOLUTION_125DPS
 #define IMU_GYRO_RELOAD_104Hz
 
-// IMU Control Registers
-#define XL_OUTPUT_RATE_REG 0x10  // [3:0] select output rate
-#define XL_H_PERF_MODE_DIS_BIT 4 // disabled by default can be enabled in REG 0x15
-#define G_OUTPUT_RATE_REG 0x11   // [3:0] select output rate
-#define G_H_PERF_MODE_DIS_BIT 7  // disabled by default can be enabled in REG 0x16
 
-// IMU Output Register Addresses
+#define XL_H_PERF_MODE_DIS_BIT 4 // disabled by default can be enabled in REG 0x15
+#define G_H_PERF_MODE_DIS_BIT 7  // disabled by default can be enabled in REG 0x16
+#define XL_LPF1_EN_BIT 1         // enable bit in CTRL REG 1 0x10 -- BANDWIDTH will be ODR/ 4  -> 104/4  = 26 
+// Gyro LPF did not reduce the cutoff freq it only changed the phase delay which would not actuate the output but just delay the output 
+
+// IMU Register Addresses
+#define XL_OUTPUT_RATE_REG 0x10  // [3:0] select output rate
+#define G_OUTPUT_RATE_REG 0x11   // [3:0] select output rate
 // High Byte Reg = Low Byte Reg + 1
 #define G_ROLL_LOW_BYTE_REG 0x22
 #define G_PITCH_LOW_BYTE_REG 0x24
@@ -124,7 +126,7 @@ bool io_shared_imu_init(const I2cDevice *imu_i2c_handle)
 #define GYRO_CONFIG_RELOAD (0xA0)
 #endif
 
-    const uint8_t acc_config  = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE,
+    const uint8_t acc_config  = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE, // | (1U << XL_LPF1_EN_BIT)  enable LPF
                   gyro_config = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
     return hw_i2c_memoryWrite(imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1) &&
            hw_i2c_memoryWrite(imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1);
