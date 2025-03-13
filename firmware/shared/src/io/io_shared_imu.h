@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include "hw_i2c.h"
 
-
 /**
  * @brief turns on the accelerometer sensor on the imu to high perf mode
  * @return true if the write to turn on accelerometer is successful,
