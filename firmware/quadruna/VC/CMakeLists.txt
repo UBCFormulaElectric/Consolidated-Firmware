@@ -185,7 +185,6 @@ ELSEIF ("${TARGET}" STREQUAL "test")
             "${SHARED_IO_INCLUDE_DIR}/io_log.h"
             "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.h"
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_shared_imu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"

@@ -1,5 +1,4 @@
 #include "io_imu.h"
-#include "hw_i2c.h"
 
 // IMU ACC Configs
 #define IMU_ACC_RANGE_4G
