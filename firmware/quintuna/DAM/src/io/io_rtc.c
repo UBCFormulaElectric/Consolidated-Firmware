@@ -363,3 +363,20 @@ void io_rtc_readTime(struct IoRtcTime *time)
     time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS) & 0x0F);
     time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS) & 0x7F);
 }
+
+void io_rtc_reset(void)
+{
+    Control1_t control1 = {
+        .CIE     = 0,
+        .AIE     = 0,
+        .SIE     = 0,
+        ._12_24  = 0,
+        .SR      = 1,
+        .STOP    = 0,
+        .T       = 0,
+        .CAP_SEL = 0,
+    };
+
+    hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, (uint8_t *)&control1, sizeof(control1));
+}
+
