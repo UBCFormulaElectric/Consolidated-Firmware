@@ -88,7 +88,7 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t MINUTES : 7; // Minutes (0d-59)
+    uint8_t MINUTES : 7; // Minutes (0d-59) BCD format
     uint8_t RESERVED : 1;
 } Minutes_t;
 
@@ -238,14 +238,38 @@ typedef struct __attribute__((packed))
     uint8_t TBV; // Timer B countdown value
 } TimerBValue_t;
 
-static integer_to_bcd(uint8_t value)
+typedef union
 {
-    return ((value / 10) << 4) | (value % 10);
+    uint8_t        raw;           // Single uint8_t for raw data
+    Control1_t     control1;      // Control Register 1 struct
+    Control2_t     control2;      // Control Register 2 struct
+    Control3_t     control3;      // Control Register 3 struct
+    Seconds_t      seconds;       // Seconds Register struct
+    Minutes_t      minutes;       // Minutes Register struct
+    Hours_t        hours;         // Hours Register struct
+    Days_t         days;          // Days Register struct
+    Weekdays_t     weekdays;      // Weekdays Register struct
+    Months_t       months;        // Months Register struct
+    Years_t        years;         // Years Register struct
+    MinuteAlarm_t  minute_alarm;  // Minute Alarm Register struct
+    HourAlarm_t    hour_alarm;    // Hour Alarm Register struct
+    Offset_t       offset;        // Offset Register struct
+    ClockOut_t     clock_out;     // CLKOUT Control Register struct
+    TimerControl_t timer_control; // Timer Control Register struct
+    TimerAFreq_t   timer_a_freq;  // Timer A Frequency Register struct
+    TimerAValue_t  timer_a_value; // Timer A Value Register struct
+    TimerBFreq_t   timer_b_freq;  // Timer B Frequency Register struct
+    TimerBValue_t  timer_b_value; // Timer B Value Register struct
+} Register_t;
+
+static uint8_t integer_to_bcd(uint8_t value)
+{
+    return (uint8_t)((value / 10) << 4) | (value % 10);
 }
 
 static uint8_t bcd_to_integer(uint8_t value)
 {
-    return ((value >> 4) * 10) + (value & 0x0F);
+    return (uint8_t)((value >> 4) * 10) + (value & 0x0F);
 }
 
 void io_rtc_init(void)
@@ -268,40 +292,74 @@ void io_rtc_init(void)
 
 void io_rtc_setTime(struct IoRtcTime *time)
 {
-    Seconds_t regTime = {
-        .SECONDS = (uint8_t)(time->seconds & 0x3F), // Mask to 6 bits (0-59)
+    uint8_t seconds  = integer_to_bcd(time->seconds) & 0x3F;
+    uint8_t minutes  = integer_to_bcd(time->minutes) & 0x7F;
+    uint8_t hours    = integer_to_bcd(time->hours) & 0x1F;
+    uint8_t date     = integer_to_bcd(time->date) & 0x3F;
+    uint8_t weekdays = time->day;
+    uint8_t months   = integer_to_bcd(time->month) & 0x0F;
+    uint8_t years    = integer_to_bcd(time->year) & 0x7F;
+
+    Register_t regTime;
+    regTime.seconds.SECONDS = (uint8_t)(seconds & 0x3F);
+
+    Register_t regMinutes;
+    regMinutes.minutes.MINUTES = (uint8_t)(minutes & 0x7F);
+
+    Register_t regHours;
+    regHours.hours.HOURS = (uint8_t)(hours & 0x1F);
+
+    Register_t regDays;
+    regDays.days.DAYS = (uint8_t)(date & 0x3F);
+
+    Register_t regWeekdays;
+    regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays & 0x07);
+
+    Register_t regMonths;
+    regMonths.months.MONTHS = (uint8_t)(months & 0x0F);
+
+    Register_t regYears;
+    regYears.years.YEARS = (uint8_t)(years & 0x7F);
+
+    uint8_t buffer[7] = {
+        regTime.raw, regMinutes.raw, regHours.raw, regDays.raw, regWeekdays.raw, regMonths.raw, regYears.raw,
     };
 
-    Minutes_t regMinutes = {
-        .MINUTES = (uint8_t)(time->minutes & 0x7F), // Mask to 7 bits (0-59)
-    };
+    hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+}
 
-    Hours_t regHours = {
-        .HOURS = (uint8_t)(time->hours & 0x1F), // Mask to 5 bits (0-23)
-    };
+void io_rtc_readTime(struct IoRtcTime *time)
+{
+    uint8_t buffer[7];
 
-    Days_t regDays = {
-        .DAYS = (uint8_t)(time->date & 0x3F), // Mask to 6 bits (1-31)
-    };
+    hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
 
-    // we probably don't care about weekdays
-    // Weekdays_t regWeekdays = {
-    //     .WEEKDAYS = (uint8_t)(time->day & 0x07), // Mask to 3 bits (0-6)
-    // };
+    Register_t regTime;
+    regTime.raw = buffer[0];
 
-    Months_t regMonths = {
-        .MONTHS = (uint8_t)(time->month & 0x0F), // Mask to 4 bits (1-12)
-    };
+    Register_t regMinutes;
+    regMinutes.raw = buffer[1];
 
-    Years_t regYears = {
-        .YEARS = (uint8_t)(time->year & 0x7F), // Mask to 7 bits (0-99)
-    };
+    Register_t regHours;
+    regHours.raw = buffer[2];
 
-    hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, (uint8_t *)&seconds, sizeof(seconds));
-    hw_i2c_memoryWrite(&rtc_i2c, REG_MINUTES, (uint8_t *)&minutes, sizeof(minutes));
-    hw_i2c_memoryWrite(&rtc_i2c, REG_HOURS, (uint8_t *)&hours, sizeof(hours));
-    hw_i2c_memoryWrite(&rtc_i2c, REG_DAYS, (uint8_t *)&days, sizeof(days));
-    hw_i2c_memoryWrite(&rtc_i2c, REG_WEEKDAYS, (uint8_t *)&weekdays, sizeof(weekdays));
-    hw_i2c_memoryWrite(&rtc_i2c, REG_MONTHS, (uint8_t *)&months, sizeof(months));
-    hw_i2c_memoryWrite(&rtc_i2c, REG_YEARS, (uint8_t *)&years, sizeof(years));
+    Register_t regDays;
+    regDays.raw = buffer[3];
+
+    Register_t regWeekdays;
+    regWeekdays.raw = buffer[4];
+
+    Register_t regMonths;
+    regMonths.raw = buffer[5];
+
+    Register_t regYears;
+    regYears.raw = buffer[6];
+
+    time->seconds = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS) & 0x3F);
+    time->minutes = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES) & 0x7F);
+    time->hours   = (uint8_t)(bcd_to_integer(regHours.hours.HOURS) & 0x1F);
+    time->date    = (uint8_t)(bcd_to_integer(regDays.days.DAYS) & 0x3F);
+    time->day     = (uint8_t)(regWeekdays.weekdays.WEEKDAYS & 0x07);
+    time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS) & 0x0F);
+    time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS) & 0x7F);
 }
