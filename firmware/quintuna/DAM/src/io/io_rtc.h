@@ -1,4 +1,4 @@
-
+#include <stdint.h>
 struct IoRtcTime
 {
     uint8_t seconds : 6;
