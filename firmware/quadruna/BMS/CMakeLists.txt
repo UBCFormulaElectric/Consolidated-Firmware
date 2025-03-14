@@ -158,9 +158,7 @@ elseif ("${TARGET}" STREQUAL "test")
     # FAKE IO
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_ltc6813.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_airs.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
