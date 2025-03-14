@@ -1,11 +1,11 @@
 
 struct IoRtcTime
 {
-    uint8_t seconds;
-    uint8_t minutes;
-    uint8_t hours;
-    uint8_t day;
-    uint8_t date;
+    uint8_t seconds : 6;
+    uint8_t minutes : 7;
+    uint8_t hours : 5;
+    uint8_t day : 6;
+    uint8_t date : 6;
     uint8_t month;
     uint8_t year;
 };
@@ -16,21 +16,19 @@ struct IoRtcHealth
     // maybe add more health checks here
 };
 
-
 // always 24-hour mode
-
 
 // any initialization setup for the RTC chip
 void io_rtc_init(void);
 
 // set the time on the RTC chip
-void io_rtc_setTime(IoRtcTime *time);
+void io_rtc_setTime(struct IoRtcTime *time);
 
 // read the time from the RTC chip
-void io_rtc_readTime(IoRtcTime *time);
+void io_rtc_readTime(struct IoRtcTime *time);
 
 // check the health of the RTC chip
-IoRtcHealth io_rtc_healthCheck(void);
+struct IoRtcHealth io_rtc_healthCheck(void);
 
 // reset the RTC chip
-void io_rtc_reset(IoRtcTime *alarm);
+void io_rtc_reset(void);

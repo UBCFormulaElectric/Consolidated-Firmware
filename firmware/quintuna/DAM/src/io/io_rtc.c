@@ -1,21 +1,22 @@
 #include <stdint.h>
 #include "hw_i2c.h"
 #include "hw_i2cs.h"
+#include "io_rtc.h"
 
 #define REG_CONTROL_1 0x00     // Control and status settings
 #define REG_CONTROL_2 0x01     // Alarm and watchdog control
 #define REG_CONTROL_3 0x02     // Battery switch-over function
-#define REG_SECONDS 0x03       // Seconds register (0–59)
-#define REG_MINUTES 0x04       // Minutes register (0–59)
-#define REG_HOURS 0x05         // Hours register (0–23 or 1–12)
-#define REG_DAYS 0x06          // Days register (1–31)
-#define REG_WEEKDAYS 0x07      // Weekdays register (0–6, Monday=0)
-#define REG_MONTHS 0x08        // Months register (1–12)
-#define REG_YEARS 0x09         // Years register (0–99)
-#define REG_MINUTE_ALARM 0x0A  // Minute alarm (0–59)
-#define REG_HOUR_ALARM 0x0B    // Hour alarm (0–23 or 1–12)
-#define REG_DAY_ALARM 0x0C     // Day alarm (1–31)
-#define REG_WEEKDAY_ALARM 0x0D // Weekday alarm (0–6)
+#define REG_SECONDS 0x03       // Seconds register (0d-59)
+#define REG_MINUTES 0x04       // Minutes register (0d-59)
+#define REG_HOURS 0x05         // Hours register (0d-23 or 1d-12)
+#define REG_DAYS 0x06          // Days register (1d-31)
+#define REG_WEEKDAYS 0x07      // Weekdays register (0d-6, Monday=0)
+#define REG_MONTHS 0x08        // Months register (1d-12)
+#define REG_YEARS 0x09         // Years register (0d-99)
+#define REG_MINUTE_ALARM 0x0A  // Minute alarm (0d-59)
+#define REG_HOUR_ALARM 0x0B    // Hour alarm (0d-23 or 1d-12)
+#define REG_DAY_ALARM 0x0C     // Day alarm (1d-31)
+#define REG_WEEKDAY_ALARM 0x0D // Weekday alarm (0d-6)
 #define REG_OFFSET 0x0E        // Offset calibration register
 #define REG_CLOCKOUT 0x0F      // CLKOUT control register
 #define REG_TIMER_CONTROL 0x10 // Timer control register
@@ -72,94 +73,94 @@ typedef struct __attribute__((packed))
 
 /**
  * Seconds Register (REG_SECONDS)
- * - Stores the seconds (0–59).
+ * - Stores the seconds (0d-59).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t SECONDS : 6; // Seconds (0–59)
+    uint8_t SECONDS : 6; // Seconds (0d-59)
     uint8_t OS : 1;      // Oscillator stop flag (1: stopped, 0: running)
     uint8_t RESERVED : 1;
 } Seconds_t;
 
 /**
  * Minutes Register (REG_MINUTES)
- * - Stores the minutes (0–59).
+ * - Stores the minutes (0d-59).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t MINUTES : 7; // Minutes (0–59)
+    uint8_t MINUTES : 7; // Minutes (0d-59)
     uint8_t RESERVED : 1;
 } Minutes_t;
 
 /**
  * Hours Register (REG_HOURS)
- * - Stores the hours (0–23 in 24-hour mode, 1–12 in 12-hour mode).
+ * - Stores the hours (0d-23 in 24-hour mode, 1d-12 in 12-hour mode).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t HOURS : 5; // Hours (0–23 or 1–12)
+    uint8_t HOURS : 5; // Hours (0d-23 or 1d-12)
     uint8_t AMPM : 1;  // 0: AM, 1: PM (only in 12-hour mode)
     uint8_t RESERVED : 2;
 } Hours_t;
 
 /**
  * Days Register (REG_DAYS)
- * - Stores the day of the month (1–31).
+ * - Stores the day of the month (1d-31).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t DAYS : 6; // Days (1–31)
+    uint8_t DAYS : 6; // Days BCD format (1d-31)
     uint8_t RESERVED : 2;
 } Days_t;
 
 /**
  * Weekdays Register (REG_WEEKDAYS)
- * - Stores the weekday (0–6).
+ * - Stores the weekday (0d-6).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t WEEKDAYS : 3; // Weekday (0–6, Monday=0)
+    uint8_t WEEKDAYS : 3; // Weekday (0d-6, Sunday=0)
     uint8_t RESERVED : 5;
 } Weekdays_t;
 
 /**
  * Months Register (REG_MONTHS)
- * - Stores the month (1–12).
+ * - Stores the month (1d-12).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t MONTHS : 4; // Months (1–12)
+    uint8_t MONTHS : 4; // Months (1d-12) BCD format
     uint8_t RESERVED : 4;
 } Months_t;
 
 /**
  * Years Register (REG_YEARS)
- * - Stores the year (0–99).
+ * - Stores the year (0d-99).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t YEARS : 7; // Years (0–99)
+    uint8_t YEARS : 7; // Years (0d-99) BCD format
     uint8_t RESERVED : 1;
 } Years_t;
 
 /**
  * Minute Alarm Register (REG_MINUTE_ALARM)
- * - Stores the minute alarm setting (0–59).
+ * - Stores the minute alarm setting (0d-59).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t MINUTE_ALARM : 6; // Minute alarm (0–59)
+    uint8_t MINUTE_ALARM : 6; // Minute alarm (0d-59)
     uint8_t AEN_M : 1;        // Alarm enable (0: disabled, 1: enabled)
     uint8_t RESERVED : 1;
 } MinuteAlarm_t;
 
 /**
  * Hour Alarm Register (REG_HOUR_ALARM)
- * - Stores the hour alarm setting (0–23 or 1–12).
+ * - Stores the hour alarm setting (0d-23 or 1d-12).
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t HOUR_ALARM : 5; // Hour alarm (0–23 or 1–12)
+    uint8_t HOUR_ALARM : 5; // Hour alarm (0d-23 or 1d-12)
     uint8_t AMPM : 1;       // AM/PM flag for 12-hour mode
     uint8_t AEN_H : 1;      // Alarm enable (0: disabled, 1: enabled)
     uint8_t RESERVED : 1;
@@ -237,8 +238,20 @@ typedef struct __attribute__((packed))
     uint8_t TBV; // Timer B countdown value
 } TimerBValue_t;
 
+static integer_to_bcd(uint8_t value)
+{
+    return ((value / 10) << 4) | (value % 10);
+}
+
+static uint8_t bcd_to_integer(uint8_t value)
+{
+    return ((value >> 4) * 10) + (value & 0x0F);
+}
+
 void io_rtc_init(void)
 {
+    // 24-hour mode, no interrupts, oscillator running
+    // select 7 pF capacitor instead of 12.5 pF
     Control1_t control1 = {
         .CIE     = 0,
         .AIE     = 0,
@@ -249,4 +262,46 @@ void io_rtc_init(void)
         .T       = 0,
         .CAP_SEL = 0,
     };
+
+    hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, (uint8_t *)&control1, sizeof(control1));
+}
+
+void io_rtc_setTime(struct IoRtcTime *time)
+{
+    Seconds_t regTime = {
+        .SECONDS = (uint8_t)(time->seconds & 0x3F), // Mask to 6 bits (0-59)
+    };
+
+    Minutes_t regMinutes = {
+        .MINUTES = (uint8_t)(time->minutes & 0x7F), // Mask to 7 bits (0-59)
+    };
+
+    Hours_t regHours = {
+        .HOURS = (uint8_t)(time->hours & 0x1F), // Mask to 5 bits (0-23)
+    };
+
+    Days_t regDays = {
+        .DAYS = (uint8_t)(time->date & 0x3F), // Mask to 6 bits (1-31)
+    };
+
+    // we probably don't care about weekdays
+    // Weekdays_t regWeekdays = {
+    //     .WEEKDAYS = (uint8_t)(time->day & 0x07), // Mask to 3 bits (0-6)
+    // };
+
+    Months_t regMonths = {
+        .MONTHS = (uint8_t)(time->month & 0x0F), // Mask to 4 bits (1-12)
+    };
+
+    Years_t regYears = {
+        .YEARS = (uint8_t)(time->year & 0x7F), // Mask to 7 bits (0-99)
+    };
+
+    hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, (uint8_t *)&seconds, sizeof(seconds));
+    hw_i2c_memoryWrite(&rtc_i2c, REG_MINUTES, (uint8_t *)&minutes, sizeof(minutes));
+    hw_i2c_memoryWrite(&rtc_i2c, REG_HOURS, (uint8_t *)&hours, sizeof(hours));
+    hw_i2c_memoryWrite(&rtc_i2c, REG_DAYS, (uint8_t *)&days, sizeof(days));
+    hw_i2c_memoryWrite(&rtc_i2c, REG_WEEKDAYS, (uint8_t *)&weekdays, sizeof(weekdays));
+    hw_i2c_memoryWrite(&rtc_i2c, REG_MONTHS, (uint8_t *)&months, sizeof(months));
+    hw_i2c_memoryWrite(&rtc_i2c, REG_YEARS, (uint8_t *)&years, sizeof(years));
 }
