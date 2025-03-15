@@ -78,7 +78,7 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
     t_message.message_7  = rx_msg->data[7];
     t_message.time_stamp = (int32_t)rx_msg->timestamp;
     // encoding message
-    bool proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
+    proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
     // encode check
     if (!proto_status)
     {
@@ -86,7 +86,7 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
         return false;
     }
 
-    uint8_t proto_msg_length = (uint8_t)stream.bytes_written;
+    proto_msg_length = (uint8_t)stream.bytes_written;
     // size check
     if (proto_msg_length > QUEUE_SIZE)
     {
@@ -107,8 +107,8 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
     frame_buffer[0] = MAGIC_HIGH;
     frame_buffer[1] = MAGIC_LOW;
     frame_buffer[2] = proto_msg_length;
-    frame_buffer[3] = crc >> 8 & 0xFF;
-    frame_buffer[4] = crc & 0xFF;
+    frame_buffer[3] = (uint8_t)(crc >> 8 & 0xFF);
+    frame_buffer[4] = (uint8_t)(crc & 0xFF);
 
     memcpy(&frame_buffer[HEADER_SIZE], proto_buffer, proto_msg_length);
     const osStatus_t s = osMessageQueuePut(message_queue_id, &frame_buffer, 0U, 0U); // status of queue put

@@ -8,7 +8,6 @@ from generated import telem_pb2
 from logger import logger
 from tasks.broadcaster import can_msg_queue, CanMsg
 import datetime
-import struct
 
 HEADER_FORMAT = ">2BBH"
 HEADER_SIZE = 5
@@ -107,12 +106,13 @@ def _read_messages(port: str):
 		# 	start_time = current_time  # Reset the start time
 
 def get_wireless_task(serial_port: str | None) -> Thread:
-    if serial_port is None:
-        raise RuntimeError(
+	serial_port_hard = '/dev/tty.usbserial-FT76H2U7'
+	if serial_port_hard is None:
+		raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
-    return Thread(
+	return Thread(
         target=_read_messages,
-		args=(serial_port, ),
+		args=(serial_port_hard, ),
         daemon=True,
     )
