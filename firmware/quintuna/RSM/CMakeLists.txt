@@ -26,7 +26,7 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE
 # IO.
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_time.c"   
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
@@ -77,7 +77,7 @@ if("${TARGET}" STREQUAL "binary")
                 "quintuna_RSM"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/RSM_boot.ioc"
-        )
+        ) 
 
         set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
         generate_stm32cube_code("RSM" "${IOC_PATH}")
@@ -108,7 +108,7 @@ if("${TARGET}" STREQUAL "binary")
         stm32f412rx_cube_library(
                 "quintuna_RSM_stm32cube"
                 "${STM32_HAL_SRCS}"
-                "${CMAKE_CURRENT_SORUCE_DIR}"
+                "${SYSCALLS}"
                 "${MD5_LOCATION}"
                 TRUE
         )
@@ -125,6 +125,7 @@ if("${TARGET}" STREQUAL "binary")
 
         target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "debug_modules")
         target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
+        target_compile_definitions("quintuna_RSM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
 
         embedded_image(
                 "quintuna_RSM"

@@ -20,11 +20,10 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "usb_device.h"
-#include "stdbool.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "hw_usb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -160,7 +159,7 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
+    
     /* USER CODE END Init */
 
     /* Configure the system clock */
