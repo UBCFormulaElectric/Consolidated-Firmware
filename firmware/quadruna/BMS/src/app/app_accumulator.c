@@ -306,7 +306,7 @@ void app_accumulator_balanceCells(void)
     // Write to configuration register to configure cell discharging
     bool cells_to_balance[NUM_SEGMENTS][CELLS_PER_SEGMENT];
     calculateCellsToBalance(cells_to_balance);
-    io_ltc6813_writeConfigurationRegisters((LTCConfig){ .balance_config = &cells_to_balance });
+    io_ltc6813_writeConfigurationRegisters(cells_to_balance);
 
 // Discharging cells continuously generates too much heat.
 // So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
@@ -383,8 +383,8 @@ void app_accumulator_init(void)
 void app_accumulator_writeDefaultConfig(void)
 {
     // Configure the cell monitoring chips. Disable discharge at startup
-    io_ltc6813_writeConfigurationRegisters((LTCConfig){ .balance_config = NULL });
-    io_ltc6813_writeConfigurationRegisters((LTCConfig){ .balance_config = NULL });
+    io_ltc6813_writeConfigurationRegisters(NULL);
+    io_ltc6813_writeConfigurationRegisters(NULL);
 }
 
 void app_accumulator_runCellMeasurements(void)

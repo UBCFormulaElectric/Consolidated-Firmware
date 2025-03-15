@@ -8,9 +8,6 @@
 #include "fake_io_sd.hpp"
 #include "fake_io_faultLatch.hpp"
 #include "fake_io_imd.hpp"
-#include "fake_io_ltc6813CellTemps.hpp"
-#include "fake_io_ltc6813CellVoltages.hpp"
-#include "fake_io_ltc6813Shared.hpp"
 #include "fake_io_thermistors.hpp"
 #include "fake_io_tractiveSystem.hpp"
 
@@ -27,6 +24,7 @@ extern "C"
 #include "states/app_inverterOnState.h"
 #include "states/app_balancingState.h"
 #include "states/app_allStates.h"
+#include "app_tractiveSystem.h"
 
 #include "app_thermistors.h"
 #include "app_accumulator.h"

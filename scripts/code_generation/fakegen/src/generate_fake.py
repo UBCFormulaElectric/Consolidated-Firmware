@@ -10,7 +10,7 @@ import jinja2
 class CFunction:
     name: str
     return_type: str
-    param_types: List[str]
+    params: List[str]
 
 
 def parse_header_file(file: str) -> List[CFunction]:
@@ -19,34 +19,35 @@ def parse_header_file(file: str) -> List[CFunction]:
     Return them as a list of CFunctions.
 
     """
-    parser = pyclibrary.CParser(files=[file])
+    _parser = pyclibrary.CParser(files=[file])
 
     # Get parsed function definitions.
-    parsed_functions = parser.defs["functions"]
-    functions = []
+    parsed_functions: dict[str, pyclibrary.c_parser.Type] = _parser.defs["functions"]
+    _functions = []
     for func_name, func_type in parsed_functions.items():
+        print(func_name)
         # pyclibrary encodes return value into the `type_spec` variable.
-        return_type = parse_type(func_type.type_spec)
-
+        return_type = parse_type(None, func_type.type_spec)
         # pyclibrary encodes parameters into the `declarators` variable, as a tuple of
         # 3-tuples of the form:
         # (<parameter-name-or-None>, <param-type>, None)
         # (don't ask me why, this is dumb)
         param_types = []
-        for _, param_type, _ in func_type.declarators[0]:
-            param_types.append(parse_type(param_type))
+        assert len(func_type.declarators) == 1 # Idk why this is the case???
+        func_params = func_type.declarators[0]
+        if not (len(func_params) == 1 and func_params[0][1].type_spec == "void"): # checks if it a no-param function
+            for param_name, param_type, param_3 in func_params:
+                assert param_3 is None # idk why this is here then???
+                param_types.append(parse_type(param_name, param_type))
 
-        if len(param_types) == 1 and param_types[0] == "void":
-            param_types.clear()
-
-        functions.append(
-            CFunction(name=func_name, return_type=return_type, param_types=param_types)
+        _functions.append(
+            CFunction(name=func_name, return_type=return_type, params=param_types)
         )
 
-    return functions
+    return _functions
 
 
-def parse_type(type: pyclibrary.c_parser.Type) -> str:
+def parse_type(name: str | None, ctype: pyclibrary.c_parser.Type) -> str:
     """
     Helper to parse the Type class from `pyclibrary` into text representing the type.
 
@@ -56,19 +57,32 @@ def parse_type(type: pyclibrary.c_parser.Type) -> str:
     # Ex. uint8_t* -> ("uint8_t", "*"")
     # So join each type to get the C syntax equivalent.
     # Similarly, qualifiers are stored in the `type_quals` variable.
-    qualifiers = "".join(type.type_quals[0])
-    types = ""
-    for part in type:
-        if isinstance(part, list):
-            types += "*"
-        else:
-            types += part
-            
-    return f"{qualifiers} {types}" if qualifiers != "" else types
+    # TODO this is very bad code I am guessing and checking
+
+
+    # Build the type string
+    type_str = str()
+
+    # Type qualifiers like 'const', 'volatile', etc.
+    type_qualifiers = " ".join([tc[0] for tc in ctype.type_quals if len(tc) > 0])
+    type_str += type_qualifiers + " " if type_qualifiers else ""
+
+    # Base type (e.g., 'int', 'char', 'float')
+    type_str += ctype[0]
+
+    # Qualifiers like pointers, arrays, etc.
+    for qual in ctype[1:]:
+        if qual == '*':
+            type_str += ' *'
+        elif isinstance(qual, list):
+            type_str += f'[{qual[0]}]' if qual[0] else '[]'  # Handle arrays
+        # elif isinstance(qual, tuple) and qual[0] == 'function':
+        #     type_str += '(...)'  # Function pointer (simplified)
+    return type_str.strip()
 
 
 def generate_output(
-    header_path: str, output_header: str, output_source: str, functions: List[CFunction]
+    header_path: str, output_header: str, output_source: str, header_functions: List[CFunction]
 ) -> None:
     """
     Use jinja2 templates to generate a file which fakes a list of functions. Creates:
@@ -87,14 +101,14 @@ def generate_output(
 
     fake_declarations_arr = []
     fake_definitions_arr = []
-    for function in functions:
+    for function in header_functions:
         if function.return_type == "void":
-            if len(function.param_types) == 0:
+            if len(function.params) == 0:
                 template = "void_func_no_params"
             else:
                 template = "void_func_params"
         else:
-            if len(function.param_types) == 0:
+            if len(function.params) == 0:
                 template = "value_returning_func_no_params"
             else:
                 template = "value_returning_func_params"
@@ -110,7 +124,7 @@ def generate_output(
                     "type": param_type,
                     "name": f"arg{i}",
                 }
-                for i, param_type in enumerate(function.param_types)
+                for i, param_type in enumerate(function.params)
             ],
         }
         fake_declarations = declarations_template.render(data)
@@ -127,7 +141,7 @@ def generate_output(
     fake_file_name_without_extension = os.path.splitext(file_name)[0]
 
     io_file_name_without_extension = fake_file_name_without_extension
-    if(containing_folder not in expected_folders):
+    if containing_folder not in expected_folders:
         io_file_name_without_extension = containing_folder + '/' + fake_file_name_without_extension
         
 
@@ -177,7 +191,7 @@ if __name__ == "__main__":
                 header_path=args.header,
                 output_header=args.output_header,
                 output_source=args.output_source,
-                functions=functions,
+                header_functions=functions,
             )
         else:
             raise OSError(f"Cannot find header: {args.header}")

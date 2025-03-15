@@ -68,11 +68,6 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
                 ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
                 PARENT_SCOPE
         )
-        set(CAN_INCLUDE_DIRS
-                ${OUTPUT_DIR}/app
-                ${OUTPUT_DIR}/io
-                PARENT_SCOPE
-        )
     ELSE ()
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
@@ -80,14 +75,15 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
                 ${APP_CAN_UTILS_SRC_OUTPUT}
                 ${APP_CAN_ALERTS_SRC_OUTPUT}
                 ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
-                PARENT_SCOPE
-        )
-        set(CAN_INCLUDE_DIRS
-                ${OUTPUT_DIR}/app
-                ${SHARED_APP_INCLUDE_DIR}
+                # TODO can io sources for testing
                 PARENT_SCOPE
         )
     ENDIF ()
+    set(CAN_INCLUDE_DIRS
+            ${OUTPUT_DIR}/app
+            ${OUTPUT_DIR}/io
+            PARENT_SCOPE
+    )
 endfunction()
 
 

@@ -96,7 +96,7 @@ static raw_cmd build_tx_cmd(const uint16_t command)
  * @attention For more information on how to configure the LTC, see table 56
  * @return Success if both succeeded. Fail if at least one failed.
  */
-bool io_ltc6813_writeConfigurationRegisters(const LTCConfig config)
+bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT])
 {
     // as per table 38
     typedef struct __attribute__((__packed__))

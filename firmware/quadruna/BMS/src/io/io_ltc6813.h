@@ -11,18 +11,14 @@
 #define VOLTAGE_REGISTER_GROUPS 6
 #define THERMISTOR_REGISTER_GROUPS 3
 
-typedef struct
-{
-    bool (*balance_config)[NUM_SEGMENTS][CELLS_PER_SEGMENT]; // balancing enabled if non-null, otherwise disabled.
-} LTCConfig;
 /**
  * Writes a configuration to all segments on the daisy chain.
  * We have a default configuration. All elements that are not in the default configuration must be
  * present in the config variable passed into the function.
- * @param config Configurations we want to write
+ * @param balance_config The balance configuration to write to the LTCs
  * @return success of the operation
  */
-bool io_ltc6813_writeConfigurationRegisters(LTCConfig config);
+bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
 /**
  * Sends a command to all segments on the daisy chain
