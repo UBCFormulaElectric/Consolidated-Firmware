@@ -7,6 +7,8 @@
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_imu.h"
+#include "app_loadTransfer.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
@@ -16,6 +18,8 @@ static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
 static TractionControl_Outputs    traction_control_outputs;
+static imuData                    imu; 
+static TorqueAllocationInputs     torquesToInverters; 
 
 static bool run_traction_control = false;
 
@@ -28,6 +32,8 @@ static bool run_traction_control = false;
 static PID   pid_power_correction;
 static float pid_power_correction_factor = 0.0f;
 static PID   pid_traction_control;
+static PID   yrc_pid;
+static imuData imu;
 
 static float accelerator_pedal_percent;
 static float wheel_speed_front_left_kph;
@@ -39,6 +45,7 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
+static float load_transfer_coeff; 
 
 void app_torqueVectoring_init(void)
 {
@@ -64,6 +71,9 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
     left_motor_temp_C           = app_canRx_INVL_MotorTemperature_get();
     right_motor_temp_C          = app_canRx_INVR_MotorTemperature_get();
     steering_angle_deg          = app_canRx_FSM_SteeringAngle_get();
+    load_transfer_coeff         = app_loadTransferConstant(imu.long_accel);
+    
+    app_collectImuData(&imu); 
 
     if (accelerator_pedal_percent > 0.0f)
     {
@@ -121,32 +131,28 @@ void app_torqueVectoring_handleAcceleration(void)
         app_tractionControl_computeTorque(&traction_control_inputs, &traction_control_outputs);
     }
 
-    // Inverter Torque Request
-    float torque_left_final_Nm;
-    float torque_right_final_Nm;
     if (run_traction_control)
     {
-        torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;
-        torque_right_final_Nm = traction_control_outputs.torque_right_final_Nm;
+        torquesToInverters.rear_left_motor_torque = traction_control_outputs.torque_left_final_Nm;
+        torquesToInverters.rear_right_motor_torque = traction_control_outputs.torque_right_final_Nm;
     }
     else
     {
-        torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
-        torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
+        torquesToInverters.rear_left_motor_torque  = active_differential_outputs.torque_left_Nm;
+        torquesToInverters.rear_right_motor_torque = active_differential_outputs.torque_right_Nm;
     }
 
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
     {
-        torque_left_final_Nm  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-        torque_right_final_Nm = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        torquesToInverters.rear_left_motor_torque  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        torquesToInverters.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     }
 
-    // CLAMPS for safety only - should never exceed torque limit
-    torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
-    torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_LeftInverterTorqueCommand_set(torque_left_final_Nm);
-    app_canTx_VC_RightInverterTorqueCommand_set(torque_right_final_Nm);
+    app_torqueAllocation(torquesToInverters, load_transfer_coeff);
+    app_canTx_VC_LeftInverterTorqueCommand_set(CLAMP( torquesToInverters.rear_left_motor_torque, 0, MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_RightInverterTorqueCommand_set(CLAMP(torquesToInverters.rear_right_motor_torque, 0, MAX_TORQUE_REQUEST_NM));
+
 
     // Calculate power correction PID
     float power_consumed_measured = battery_voltage * current_consumption;
@@ -157,7 +163,7 @@ void app_torqueVectoring_handleAcceleration(void)
     //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
 
     float power_consumed_ideal =
-        (motor_speed_left_rpm * torque_left_final_Nm + motor_speed_right_rpm * torque_right_final_Nm) /
+        (motor_speed_left_rpm * torquesToInverters.rear_left_motor_torque + motor_speed_right_rpm * torquesToInverters.rear_right_motor_torque) /
         POWER_TO_TORQUE_CONVERSION_FACTOR;
     float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
     pid_power_correction_factor -=
