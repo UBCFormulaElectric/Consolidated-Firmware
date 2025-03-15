@@ -55,7 +55,7 @@ void hw_usb_init()
 
 bool hw_usb_checkConnection()
 {
-    return USB_DEVICE_HANDLER.dev_state != USBD_STATE_SUSPENDED;
+    return USB_DEVICE_HANDLER.dev_state == USBD_STATE_CONFIGURED;
 }
 
 bool hw_usb_transmit(uint8_t *msg, uint16_t len)
