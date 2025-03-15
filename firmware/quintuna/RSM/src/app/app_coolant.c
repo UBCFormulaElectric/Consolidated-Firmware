@@ -38,3 +38,5 @@ void app_coolant_broadcast(void)
     // TODO: This should be a fault, but it's not working!!!
     app_canAlerts_RSM_Warning_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
+
+char a = '';
