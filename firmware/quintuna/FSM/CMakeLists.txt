@@ -2,7 +2,7 @@ message("")
 message("⚙️ Configuring FSM (Quintuna)")
 
 set(ARM_CORE "cm4")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only .ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -27,7 +27,7 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-        ""
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -83,6 +83,10 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_tim.c"
             "stm32f4xx_hal_uart.c"
             "stm32f4xx_hal.c"
+            "stm32f4xx_hal_i2c.c"
+            "stm32f4xx_hal_pcd.c"
+            "stm32f4xx_hal_pcd_ex.c"
+            "stm32f4xx_ll_usb.c"
     )
 
     stm32f412rx_cube_library(
