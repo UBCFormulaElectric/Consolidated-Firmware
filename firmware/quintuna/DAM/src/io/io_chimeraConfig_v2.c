@@ -26,4 +26,5 @@ const Gpio *id_to_gpio[] = {
 const AdcChannel *id_to_adc[] = { [DAM_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
 
 // TODO: Configure I2Cs.
-const I2cDevice *id_to_i2c[] = { [DAM_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
+const I2cDevice
+    *id_to_i2c[] = { [DAM_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL, [DAM_I2cNetName_RTC_I2C] = &rtc_i2c };   
