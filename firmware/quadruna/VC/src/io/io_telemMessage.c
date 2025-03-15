@@ -13,6 +13,12 @@
 #define CAN_DATA_LENGTH 12
 #define UART_LENGTH 1
 #define QUEUE_SIZE 50
+
+#define HEADER_SIZE 5
+#define MAX_FRAME_SIZE (HEADER_SIZE + QUEUE_SIZE)
+#define MAGIC_HIGH 0xAA
+#define MAGIC_LOW 0x55
+
 static bool modem_900_choice;
 typedef struct
 {
@@ -72,12 +78,41 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
     t_message.message_7  = rx_msg->data[7];
     t_message.time_stamp = (int32_t)rx_msg->timestamp;
     // encoding message
+    bool proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
+    // encode check
+    if (!proto_status)
+    {
+        LOG_ERROR("Protobuf encoding failed");
+        return false;
+    }
 
-    proto_status                          = pb_encode(&stream, TelemMessage_fields, &t_message);
-    proto_msg_length                      = (uint8_t)stream.bytes_written;
-    proto_buffer[49]                      = proto_msg_length;
-    static uint32_t  telem_overflow_count = 0;
-    const osStatus_t s                    = osMessageQueuePut(message_queue_id, &proto_buffer, 0U, 0U);
+    uint8_t proto_msg_length = (uint8_t)stream.bytes_written;
+    // size check
+    if (proto_msg_length > QUEUE_SIZE)
+    {
+        LOG_ERROR("Payload size exceeded maximum allowed size");
+        return false;
+    }
+
+    proto_buffer[49]                     = proto_msg_length; // PAYLOAD LENGTH (or like the protobuf length?)
+    static uint32_t telem_overflow_count = 0;
+    // store the result of the message queue put.
+
+    // CRC FUNCTION TODO
+    uint16_t crc = 0xFFFF; // temp until crc function is implemented
+
+    // ERIK TODO: Build frame buffer (header + payload)
+    uint8_t frame_buffer[MAX_FRAME_SIZE] = { 0 };
+
+    frame_buffer[0] = MAGIC_HIGH;
+    frame_buffer[1] = MAGIC_LOW;
+    frame_buffer[2] = proto_msg_length;
+    frame_buffer[3] = crc >> 8 & 0xFF;
+    frame_buffer[4] = crc & 0xFF;
+
+    memcpy(&frame_buffer[HEADER_SIZE], proto_buffer, proto_msg_length);
+    const osStatus_t s = osMessageQueuePut(message_queue_id, &frame_buffer, 0U, 0U); // status of queue put
+
     if (s != osOK)
     {
         if (s == osErrorResource)
