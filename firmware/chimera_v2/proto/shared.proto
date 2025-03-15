@@ -16,7 +16,7 @@ variables, so the following changes are made:
 */
 
 import "nanopb.proto";
-
+import "rsm.proto";
 import "f4dev.proto";
 import "ssm.proto";
 import "crit.proto";
@@ -27,6 +27,7 @@ message GpioNetName {
         f4dev.GpioNetName f4dev_net_name = 1;
         ssm.GpioNetName ssm_net_name = 2;
         crit.GpioNetName crit_net_name = 3;
+        rsm.GpioNetName rsm_net_name = 4;
     }
 }
 
@@ -55,6 +56,7 @@ message AdcNetName {
     f4dev.AdcNetName f4dev_net_name = 1;
     ssm.AdcNetName ssm_net_name = 2;
     crit.AdcNetName crit_net_name = 3;
+    rsm.AdcNetName rsm_net_name = 4;
   }
 }
 
@@ -73,6 +75,7 @@ message I2cNetName {
     f4dev.I2cNetName f4dev_net_name = 1;
     ssm.I2cNetName ssm_net_name = 2;
     crit.I2cNetName crit_net_name = 3;
+    rsm.I2cNetName rsm_net_name = 4;
   }
 }
 

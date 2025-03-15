@@ -19,7 +19,12 @@
 		"io_leds.h": "c",
 		"io_led.h": "c",
 		"hw_adcs.h": "c",
-		"hw_gpios.h": "c"
+		"hw_gpios.h": "c",
+		"hw_gpio.h": "c",
+		"rsm.pb.h": "c",
+		"pb.h": "c",
+		"io_chimeraconfig_v2.h": "c",
+		"io_chimera_v2.h": "c"
 	},
 	"clangd.arguments": [
 		"--compile-commands-dir=build_fw_dev",
