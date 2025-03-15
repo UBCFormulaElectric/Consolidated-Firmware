@@ -26,6 +26,7 @@ from power_supply import *
 import proto_autogen.f4dev_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
+import proto_autogen.bms_pb2
 import proto_autogen.shared_pb2
 
 
@@ -501,4 +502,16 @@ class CRIT(_Board):
             adc_net_name="crit_net_name",
             i2c_net_name="crit_net_name",
             board_module=proto_autogen.crit_pb2,
+        )
+
+class BMS(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a BMS board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="bms"),
+            gpio_net_name="bms_net_name",
+            adc_net_name="bms_net_name",
+            i2c_net_name="i2c_net_name",
+            board_model=proto_autogen.bms_pb2,
         )

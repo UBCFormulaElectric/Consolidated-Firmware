@@ -107,7 +107,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_BMS_jsoncan" INTERFACE "quintuna_BMS_stm32cube")
-    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "debug_modules")
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
     target_link_libraries("quintuna_BMS_boot.elf" PRIVATE "quintuna_BMS_commit_info")
 
     target_compile_definitions("quintuna_BMS_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package name_of_board;
+package bms;
 
 enum GpioNetName {
     GPIO_LEDB = 0; 
