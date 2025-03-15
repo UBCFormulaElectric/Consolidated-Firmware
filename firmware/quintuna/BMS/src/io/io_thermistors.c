@@ -43,12 +43,12 @@ float io_thermistors_readSelectedTemp(void)
         
         if (therm_lut_index == 0U)
         {
-            thermistor_temp = temp_resistance_lut[therm_lut_index];
+            thermistor_temp = 0U;
         } else
         {
             // Linear interpolation to find thermistor temperature
-            uint8_t y2 = temp_resistance_lut[therm_lut_index];
-            uint8_t y1 = temp_resistance_lut[therm_lut_index - 1];
+            float y2 = temp_resistance_lut[therm_lut_index];
+            float y1 = temp_resistance_lut[therm_lut_index - 1];
             uint8_t x2 = therm_lut_index * LUT_RESOLUTION;
             uint8_t x1 = (therm_lut_index - 1) * LUT_RESOLUTION;
         
