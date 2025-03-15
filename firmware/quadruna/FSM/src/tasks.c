@@ -263,14 +263,6 @@ _Noreturn void tasks_runCanRx(void)
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
-        io_chimera_msgRxCallback();
-    }
-}
-
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
     io_wheels_inputCaptureCallback(htim);

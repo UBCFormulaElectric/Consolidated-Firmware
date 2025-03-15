@@ -253,9 +253,6 @@ const AdcChannel *id_to_adc[] = {
     [CRIT_AdcNetName_REGEN_3V3] = &regen,
 };
 
-static const UART debug_uart = { .handle = &huart2 };
-
-const UART *chimera_uart   = &debug_uart;
 const Gpio *n_chimera_gpio = &n_chimera_pin;
 
 static const Leds led_config = {
@@ -461,13 +458,5 @@ _Noreturn void tasks_run1Hz(void)
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
-    }
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
-        io_chimera_msgRxCallback();
     }
 }
