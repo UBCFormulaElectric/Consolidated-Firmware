@@ -66,8 +66,8 @@ void tasks_run1Hz(void)
 void tasks_run100Hz(void)
 {
     io_chimera_v2_main(
-        GpioNetName_f4dev_net_name_tag, id_to_gpio, AdcNetName_f4dev_net_name_tag, id_to_adc,
-        I2cNetName_f4dev_net_name_tag, id_to_i2c);
+        GpioNetName_fsm_net_name_tag, id_to_gpio, AdcNetName_fsm_net_name_tag, id_to_adc,
+        I2cNetName_fsm_net_name_tag, id_to_i2c);
     // Setup tasks.
     static const TickType_t period_ms   = 10;
     uint32_t                start_ticks = osKernelGetTickCount();
