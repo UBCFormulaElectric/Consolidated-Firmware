@@ -7,7 +7,8 @@
 // HAL UART type documentation pg 1161:
 // https://www.st.com/resource/en/user_manual/um1725-description-of-stm32f4-hal-and-lowlayer-drivers-stmicroelectronics.pdf
 
-typedef struct {
+typedef struct
+{
     UART_HandleTypeDef *handle;
     uint32_t            polling_timeout_ms;
     bool                callback_dma;
@@ -18,8 +19,8 @@ typedef struct {
 typedef struct
 {
     const UartConfig config;
-    TaskHandle_t             task_in_progress;
-    bool is_callback_transaction;
+    TaskHandle_t     task_in_progress;
+    bool             is_callback_transaction;
 } UartDevice;
 
 // Board-specific config: You need to define this function which maps STM32 handle to UartDevice struct!
