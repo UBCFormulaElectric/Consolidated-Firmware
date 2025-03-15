@@ -15,11 +15,11 @@
 #include "hw_cans.h"
 #include "hw_gpios.h"
 #include "hw_gpio.h"
-
+#include "hw_usb.h"
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    hw_bootup_enableInterruptsForApp();
+    // hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_preInitWatchdog(void)
@@ -36,6 +36,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_can_init(&can1);
+    hw_usb_init();
 
     // TODO hw_chimera??
     // io_chimera_init(GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag);

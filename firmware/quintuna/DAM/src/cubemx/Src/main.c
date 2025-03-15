@@ -181,7 +181,7 @@ void        RunTaskTelem(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MPU Configuration--------------------------------------------------------*/
@@ -218,7 +218,7 @@ int main(void)
     //     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     //     HAL_Delay(1000);
     // }
-
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -238,6 +238,7 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_QUEUES */
     hw_usb_init();
+
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
