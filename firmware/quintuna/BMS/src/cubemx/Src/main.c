@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "io_log.h"
+#include "hw_usb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -202,6 +203,8 @@ int main(void)
     MX_CRC_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
+    
+
     while (1)
     {
         HAL_GPIO_TogglePin(BMS_OK_GPIO_Port, BMS_OK_Pin);
@@ -225,7 +228,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    hw_usb_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */

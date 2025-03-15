@@ -83,6 +83,8 @@ if ("${TARGET}" STREQUAL "binary")
     "stm32h7xx_hal_uart.c"
     "stm32h7xx_hal.c"
     "stm32h7xx_ll_sdmmc.c"
+    "stm32h7xx_hal_pcd.c"
+    "stm32h7xx_hal_pcd_ex.c"
     "stm32h7xx_ll_usb.c"
     )
     stm32h733xx_cube_library(
@@ -107,6 +109,8 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("quintuna_BMS_jsoncan" INTERFACE "quintuna_BMS_stm32cube")
     target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "debug_modules")
     target_link_libraries("quintuna_BMS_boot.elf" PRIVATE "quintuna_BMS_commit_info")
+
+    target_compile_definitions("quintuna_BMS_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
 
     embedded_image(
         "quintuna_BMS"
