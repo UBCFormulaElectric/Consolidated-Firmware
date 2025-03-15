@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2024 STMicroelectronics.
+ * Copyright (c) 2025 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -130,7 +130,6 @@ void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
 
-static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -156,6 +155,7 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
+
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -172,11 +172,7 @@ int main(void)
     MX_SPI2_Init();
     MX_TIM4_Init();
     MX_TIM12_Init();
-
-    /* Initialize interrupts */
-    MX_NVIC_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -195,7 +191,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -260,9 +256,9 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 4;
-    RCC_OscInitStruct.PLL.PLLN       = 72;
+    RCC_OscInitStruct.PLL.PLLN       = 96;
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ       = 3;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -277,21 +273,12 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
         Error_Handler();
     }
-}
-
-/**
- * @brief NVIC Configuration.
- * @retval None
- */
-static void MX_NVIC_Init(void)
-{
-    /* OTG_FS_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(OTG_FS_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);
+    HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_HSE, RCC_MCODIV_1);
 }
 
 /**
@@ -309,15 +296,15 @@ static void MX_CAN2_Init(void)
 
     /* USER CODE END CAN2_Init 1 */
     hcan2.Instance                  = CAN2;
-    hcan2.Init.Prescaler            = 16;
+    hcan2.Init.Prescaler            = 3;
     hcan2.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan2.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan2.Init.TimeSeg1             = CAN_BS1_1TQ;
-    hcan2.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan2.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan2.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan2.Init.TimeSeg2             = CAN_BS2_3TQ;
     hcan2.Init.TimeTriggeredMode    = DISABLE;
-    hcan2.Init.AutoBusOff           = DISABLE;
+    hcan2.Init.AutoBusOff           = ENABLE;
     hcan2.Init.AutoWakeUp           = DISABLE;
-    hcan2.Init.AutoRetransmission   = DISABLE;
+    hcan2.Init.AutoRetransmission   = ENABLE;
     hcan2.Init.ReceiveFifoLocked    = DISABLE;
     hcan2.Init.TransmitFifoPriority = DISABLE;
     if (HAL_CAN_Init(&hcan2) != HAL_OK)
@@ -419,9 +406,9 @@ static void MX_TIM4_Init(void)
 
     /* USER CODE END TIM4_Init 1 */
     htim4.Instance               = TIM4;
-    htim4.Init.Prescaler         = 0;
+    htim4.Init.Prescaler         = PWM_PRESCALER;
     htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim4.Init.Period            = 65535;
+    htim4.Init.Period            = PWM_AUTO_RELOAD;
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
@@ -465,9 +452,9 @@ static void MX_TIM12_Init(void)
 
     /* USER CODE END TIM12_Init 1 */
     htim12.Instance               = TIM12;
-    htim12.Init.Prescaler         = 0;
+    htim12.Init.Prescaler         = PWM_PRESCALER;
     htim12.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim12.Init.Period            = 65535;
+    htim12.Init.Period            = PWM_AUTO_RELOAD;
     htim12.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_PWM_Init(&htim12) != HAL_OK)
@@ -545,6 +532,22 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LED_RCK_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PC9 */
+    GPIO_InitStruct.Pin       = GPIO_PIN_9;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PA8 */
+    GPIO_InitStruct.Pin       = GPIO_PIN_8;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pin : SEVEN_SEG_RCK_Pin */
     GPIO_InitStruct.Pin   = SEVEN_SEG_RCK_Pin;
