@@ -69,7 +69,7 @@ void tasks_run1Hz()
 
 void tasks_run100Hz()
 {
-    io_chimera_v2_main(GpioNetName_crit_net_name_tag, id_to_gpio);
+    io_chimera_v2_main(GpioNetName_crit_net_name_tag, id_to_gpio, 0, NULL, 0, NULL);
 
     // Setup tasks.
     static const TickType_t period_ms   = 10;
