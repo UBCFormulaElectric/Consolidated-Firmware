@@ -9,15 +9,15 @@
 #define IMU_GYRO_RESOLUTION_125DPS
 #define IMU_GYRO_RELOAD_104Hz
 
-
 #define XL_H_PERF_MODE_DIS_BIT 4 // disabled by default can be enabled in REG 0x15
 #define G_H_PERF_MODE_DIS_BIT 7  // disabled by default can be enabled in REG 0x16
-#define XL_LPF1_EN_BIT 1         // enable bit in CTRL REG 1 0x10 -- BANDWIDTH will be ODR/ 4  -> 104/4  = 26 
-// Gyro LPF did not reduce the cutoff freq it only changed the phase delay which would not actuate the output but just delay the output 
+#define XL_LPF1_EN_BIT 1         // enable bit in CTRL REG 1 0x10 -- BANDWIDTH will be ODR/ 4  -> 104/4  = 26
+// Gyro LPF did not reduce the cutoff freq it only changed the phase delay which would not actuate the output but just
+// delay the output
 
 // IMU Register Addresses
-#define XL_OUTPUT_RATE_REG 0x10  // [3:0] select output rate
-#define G_OUTPUT_RATE_REG 0x11   // [3:0] select output rate
+#define XL_OUTPUT_RATE_REG 0x10 // [3:0] select output rate
+#define G_OUTPUT_RATE_REG 0x11  // [3:0] select output rate
 // High Byte Reg = Low Byte Reg + 1
 #define G_ROLL_LOW_BYTE_REG 0x22
 #define G_PITCH_LOW_BYTE_REG 0x24
@@ -26,12 +26,11 @@
 #define XL_Y_LOW_BYTE_REG 0x2A
 #define XL_Z_LOW_BYTE_REG 0x2C
 
-
-extern const I2cDevice *imu_i2c_handle;
+extern const imuConfig imu_config;
 
 bool io_imu_init()
 {
-    if (!hw_i2c_isTargetReady(imu_i2c_handle))
+    if (!hw_i2c_isTargetReady(imu_config.imu_i2c_handle))
     {
         return false;
     }
@@ -130,10 +129,10 @@ bool io_imu_init()
 #define GYRO_CONFIG_RELOAD (0xA0)
 #endif
 
-    const uint8_t acc_config  = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE, // | (1U << XL_LPF1_EN_BIT)  enable LPF
-                  gyro_config = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
-    return hw_i2c_memoryWrite(imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1) &&
-           hw_i2c_memoryWrite(imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1);
+    const uint8_t acc_config = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE, // | (1U << XL_LPF1_EN_BIT)  enable LPF
+        gyro_config          = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
+    return hw_i2c_memoryWrite(imu_config.imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1) &&
+           hw_i2c_memoryWrite(imu_config.imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1);
 }
 
 /**
@@ -193,59 +192,60 @@ static float translate_acceleration_data(const uint8_t *acc_data)
 bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
-    if (!hw_i2c_memoryRead(imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2))
+    if (!hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2))
         return false;
     // Convert raw value to acceleration in m/s^2
-    *x_acceleration = translate_acceleration_data(x_data);
+    *x_acceleration = translate_acceleration_data(x_data) + imu_config.x_accel_offeset;
     return true;
 }
 
 bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
     uint8_t y_data[2];
-    if (!hw_i2c_memoryRead(imu_i2c_handle, XL_Y_LOW_BYTE_REG, y_data, 2))
+    if (!hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Y_LOW_BYTE_REG, y_data, 2))
         return false;
     // Convert raw value to acceleration in m/s^2
-    *y_acceleration = translate_acceleration_data(y_data);
+    *y_acceleration = translate_acceleration_data(y_data) + imu_config.y_accel_offset;
     return true;
 }
 
 bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
-    if (!hw_i2c_memoryRead(imu_i2c_handle, XL_Z_LOW_BYTE_REG, z_data, 2))
+    if (!hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Z_LOW_BYTE_REG, z_data, 2))
         return false;
     // Convert raw value to acceleration in m/s^2
-    *z_acceleration = translate_acceleration_data(z_data);
+    *z_acceleration = translate_acceleration_data(z_data) + imu_config.z_accel_offset;
     return true;
 }
 
 bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
-    if (!hw_i2c_memoryRead(imu_i2c_handle, G_ROLL_LOW_BYTE_REG, roll_data, 2)) // reading the high and low register
+    if (!hw_i2c_memoryRead(
+            imu_config.imu_i2c_handle, G_ROLL_LOW_BYTE_REG, roll_data, 2)) // reading the high and low register
         return false;
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
-    *roll_velocity = translate_gyro_data(roll_data);
+    *roll_velocity = translate_gyro_data(roll_data) + imu_config.roll_offset;
     return true;
 }
 
 bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
-    if (!hw_i2c_memoryRead(imu_i2c_handle, G_PITCH_LOW_BYTE_REG, pitch_data, 2))
+    if (!hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_PITCH_LOW_BYTE_REG, pitch_data, 2))
         return false;
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
-    *pitch_velocity = translate_gyro_data(pitch_data);
+    *pitch_velocity = translate_gyro_data(pitch_data) + imu_config.pitch_offset;
     return true;
 }
 
 bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
-    if (!hw_i2c_memoryRead(imu_i2c_handle, G_YAW_LOW_BYTE_REG, yaw_data, 2))
+    if (!hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_YAW_LOW_BYTE_REG, yaw_data, 2))
         return false;
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
-    *yaw_velocity = translate_gyro_data(yaw_data);
+    *yaw_velocity = translate_gyro_data(yaw_data) + imu_config.yaw_offset;
     return true;
 }

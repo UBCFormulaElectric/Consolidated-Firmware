@@ -2,4 +2,4 @@
 #include "hw_i2c.h"
 #include "io_imu.h"
 
-extern const I2cDevice *imu_i2c_handle; 
+extern const imuConfig imu_config;
