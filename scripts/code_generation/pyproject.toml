@@ -1,0 +1,7 @@
+[project]
+name = "ubcfe-codegen"
+version = "0.1"
+dependencies = ["schema", "StrEnum"]
+
+[tool.setuptools]
+packages = ["jsoncan.src", "jsoncan.src.json_parsing"]

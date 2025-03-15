@@ -27,7 +27,6 @@ static uint8_t            proto_msg_length;
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
 static osMessageQueueId_t message_queue_id;
-static uint8_t            proto_out_length;
 
 TelemMessage t_message = TelemMessage_init_zero;
 
@@ -40,23 +39,22 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
+static bool init = false;
+
 void io_telemMessage_init()
 {
+    assert(!init);
     modem_900_choice = true; // if false, then using the 2.4GHz,
     message_queue_id = osMessageQueueNew(CAN_DATA_LENGTH, QUEUE_SIZE, &queue_attr);
     assert(message_queue_id != NULL);
+    init = true;
 }
 
 bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
 {
+    assert(init);
     uint8_t proto_buffer[QUEUE_SIZE] = { 0 };
 
-    // filter messages, rn for faults and warnings and bms (to verify working when running normally)
-    if (rx_msg->std_id != 111 && rx_msg->std_id != 397 && rx_msg->std_id != 205 && rx_msg->std_id != 206 &&
-        rx_msg->std_id != 207 && rx_msg->std_id != 208)
-    {
-        return false;
-    }
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
@@ -101,21 +99,18 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     const osStatus_t status                = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
     assert(status == osOK);
 
-    proto_out_length = proto_out[49];
-    proto_out[49]    = 0;
-
+    uint8_t proto_out_length = proto_out[49];
     // Start timing for measuring transmission speeds
+    bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
     if (modem_900_choice)
     {
-        hw_uart_transmitPoll(modem.modem900M, &proto_out_length, UART_LENGTH, UART_LENGTH);
-        hw_uart_transmitPoll(modem.modem900M, proto_out, (uint8_t)sizeof(proto_out), 100);
-        // hw_uart_transmitPoll(modem->modem900M, &zero_test, UART_LENGT/H, UART_LENGTH);
+        success &= hw_uart_transmitPoll(modem.modem900M, &proto_out_length, 1, 100);
+        success &= hw_uart_transmitPoll(modem.modem900M, proto_out, proto_out_length, 100);
     }
     else
     {
-        hw_uart_transmitPoll(modem.modem2_4G, &proto_msg_length, UART_LENGTH, UART_LENGTH);
-        hw_uart_transmitPoll(modem.modem2_4G, proto_out, (uint8_t)sizeof(proto_out), 100);
+        LOG_ERROR("NOT SUPPORTED");
     }
     SEGGER_SYSVIEW_MarkStop(0);
 
