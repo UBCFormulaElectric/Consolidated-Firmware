@@ -18,6 +18,14 @@ enum GpioNetName {
   SEVEN_SEG_RCK = 12;
 }
 
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED = 0;
+}
+
+enum I2cNetName {
+  I2C_NET_NAME_UNSPECIFIED = 0;
+}
+
 enum SpiNetName {
   SPI_NET_NAME_UNSPECIFIED = 0;
   SPI_NET_NAME_LED_SPI = 1;

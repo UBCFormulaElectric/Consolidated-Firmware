@@ -1,5 +1,7 @@
 #include "crit.pb.h"
 #include "hw_gpio.h"
+#include "hw_i2c.h"
+#include "hw_adc.h"
 #include "hw_gpios.h"
 
 const Gpio *id_to_gpio[] = { [crit_GpioNetName_BOOT]                 = &boot,
@@ -14,3 +16,9 @@ const Gpio *id_to_gpio[] = { [crit_GpioNetName_BOOT]                 = &boot,
                              [crit_GpioNetName_REGEN_SIG]            = &regen_sig,
                              [crit_GpioNetName_LED_RCK]              = &led_rck,
                              [crit_GpioNetName_SEVEN_SEG_RCK]        = &seven_seg_rck };
+
+// TODO: Configure adcs.
+const AdcChannel *id_to_adc[] = { [crit_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
+
+// TODO: Configure I2Cs.
+const I2cDevice *id_to_i2c[] = { [crit_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
