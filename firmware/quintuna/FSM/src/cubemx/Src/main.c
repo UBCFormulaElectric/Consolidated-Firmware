@@ -180,9 +180,8 @@ int main(void)
     /* Init scheduler */
     osKernelInitialize();
 
-    hw_usb_init();
-
     /* USER CODE BEGIN RTOS_MUTEX */
+    hw_usb_init();
     /* add mutexes, ... */
     /* USER CODE END RTOS_MUTEX */
 
