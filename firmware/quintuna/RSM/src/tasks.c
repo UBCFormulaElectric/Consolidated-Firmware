@@ -6,6 +6,10 @@
 #include "io_time.h"
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_chimera_v2.h"
+#include "io_chimeraConfig_v2.h"
+#include "shared.pb.h"
+
 
 #include "hw_pwms.h"
 #include "hw_bootup.h"
@@ -64,11 +68,17 @@ _Noreturn void tasks_run1Hz()
 
 _Noreturn void tasks_run100Hz()
 {
+    io_chimera_v2_main( 
+        GpioNetName_rsm_net_name_tag, id_to_gpio, 
+        AdcNetName_rsm_net_name_tag, id_to_adc,
+        I2cNetName_rsm_net_name_tag, id_to_i2c);
+    
     static const TickType_t period_ms   = 10;
     uint32_t                start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
+
         jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

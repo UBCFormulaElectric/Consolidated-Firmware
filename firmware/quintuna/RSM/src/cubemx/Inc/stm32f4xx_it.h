@@ -53,9 +53,9 @@ extern "C"
     void BusFault_Handler(void);
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
-    void SysTick_Handler(void);
     void ADC_IRQHandler(void);
     void TIM3_IRQHandler(void);
+    void TIM6_IRQHandler(void);
     void DMA2_Stream0_IRQHandler(void);
     void OTG_FS_IRQHandler(void);
     /* USER CODE BEGIN EFP */

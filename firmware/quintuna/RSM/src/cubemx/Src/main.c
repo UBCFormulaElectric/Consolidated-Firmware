@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "hw_usb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -179,6 +179,13 @@ int main(void)
     MX_TIM4_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
+    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
+    while (true)
+    {
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+
+        HAL_Delay(1000);
+    }
     tasks_init();
     /* USER CODE END 2 */
 
@@ -186,7 +193,7 @@ int main(void)
     osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
-    /* add mutexes, ... */
+    hw_usb_init();
     /* USER CODE END RTOS_MUTEX */
 
     /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -689,6 +696,28 @@ void RunTaskCanRx(void *argument)
     /* USER CODE BEGIN RunTaskCanRx */
     tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
+}
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+    if (htim->Instance == TIM6)
+    {
+        HAL_IncTick();
+    }
+    /* USER CODE BEGIN Callback 1 */
+
+    /* USER CODE END Callback 1 */
 }
 
 /**
