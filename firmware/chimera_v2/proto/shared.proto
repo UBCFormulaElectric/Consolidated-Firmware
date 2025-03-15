@@ -54,6 +54,7 @@ message AdcNetName {
   oneof name {
     f4dev.AdcNetName f4dev_net_name = 1;
     ssm.AdcNetName ssm_net_name = 2;
+    crit.AdcNetName crit_net_name = 3;
   }
 }
 
@@ -71,6 +72,7 @@ message I2cNetName {
   oneof name {
     f4dev.I2cNetName f4dev_net_name = 1;
     ssm.I2cNetName ssm_net_name = 2;
+    crit.I2cNetName crit_net_name = 3;
   }
 }
 
