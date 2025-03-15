@@ -62,8 +62,6 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
         return id_to_adc[net_name->name.f4dev_net_name];
     if (net_name->which_name == AdcNetName_ssm_net_name_tag)
         return id_to_adc[net_name->name.ssm_net_name];
-    if (net_name->which_name == AdcNetName_crit_net_name_tag)
-        return id_to_adc[net_name->name.crit_net_name];
 
     LOG_ERROR("Chimera: Received ADC channel from unsupported board.");
     return NULL;
@@ -82,8 +80,6 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
         return id_to_i2c[net_name->name.f4dev_net_name];
     if (net_name->which_name == I2cNetName_ssm_net_name_tag)
         return id_to_i2c[net_name->name.ssm_net_name];
-    if (net_name->which_name == I2cNetName_crit_net_name_tag)
-        return id_to_i2c[net_name->name.crit_net_name];
 
     LOG_ERROR("Chimera: Received I2C device from unsupported board.");
     return 0;
