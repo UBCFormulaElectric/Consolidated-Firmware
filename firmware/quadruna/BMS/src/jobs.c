@@ -13,6 +13,7 @@
 #include "io_canMsg.h"
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
+#include "io_bootHandler.h"
 
 static void jsoncan_transmit(const JsonCanMsg *tx_msg)
 {
@@ -54,5 +55,7 @@ void jobs_runCanRx_tick(void)
     const CanMsg rx_msg         = io_canQueue_popRx();
     JsonCanMsg   jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
 
+    // check and process CAN msg for bootloader start msg
+    io_bootHandler_processBootRequest(&rx_msg);
     io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
 }
