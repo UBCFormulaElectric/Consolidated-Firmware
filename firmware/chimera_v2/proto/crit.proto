@@ -4,6 +4,18 @@ package crit;
 
 enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED = 0;
+  BOOT = 1;
+  LED = 2;
+  TELEM_SIG = 3;
+  PUSH_DRIVE_SIG = 4;
+  ROT_S = 5;
+  ROT_B = 6;
+  ROT_A = 7;
+  LAUNCH_CONTROL_SIG = 8;
+  TORQUE_VECTORING_SIG = 9;
+  REGEN_SIG = 10;
+  LED_RCK = 11;
+  SEVEN_SEG_RCK = 12;
 }
 
 enum AdcNetName {
@@ -12,4 +24,16 @@ enum AdcNetName {
 
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
+}
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+  SPI_NET_NAME_LED_SPI = 1;
+  SPI_NET_NAME_SEVEN_SEG_SPI = 2;
+}
+
+enum PwmOutputNetName {
+  PWM_OUTPUT_NET_NAME_UNSPECIFIED = 0;
+  SEVEN_SEG_DIMMING = 1;
+  LED_DIMMING = 2;
 }
