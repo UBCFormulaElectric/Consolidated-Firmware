@@ -20,6 +20,7 @@ import "rsm.proto";
 import "f4dev.proto";
 import "ssm.proto";
 import "crit.proto";
+import "dam.proto";
 import "fsm.proto";
 
 /* GPIOs */
@@ -28,6 +29,7 @@ message GpioNetName {
         f4dev.GpioNetName f4dev_net_name = 1;
         ssm.GpioNetName ssm_net_name = 2;
         crit.GpioNetName crit_net_name = 3;
+        dam.GpioNetName dam_net_name = 6;
         rsm.GpioNetName rsm_net_name = 4;
         fsm.GpioNetName fsm_net_name = 5;
     }
@@ -58,6 +60,7 @@ message AdcNetName {
     f4dev.AdcNetName f4dev_net_name = 1;
     ssm.AdcNetName ssm_net_name = 2;
     crit.AdcNetName crit_net_name = 3;
+    dam.AdcNetName dam_net_name = 6;
     rsm.AdcNetName rsm_net_name = 4;
     fsm.AdcNetName fsm_net_name = 5;
   }
@@ -78,6 +81,7 @@ message I2cNetName {
     f4dev.I2cNetName f4dev_net_name = 1;
     ssm.I2cNetName ssm_net_name = 2;
     crit.I2cNetName crit_net_name = 3;
+    dam.I2cNetName dam_net_name = 6;
     rsm.I2cNetName rsm_net_name = 4;
     fsm.I2cNetName fsm_net_name = 5;
   }

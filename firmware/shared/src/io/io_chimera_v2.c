@@ -72,7 +72,7 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
         return id_to_adc[net_name->name.ssm_net_name];
     if (net_name->which_name == AdcNetName_crit_net_name_tag)
         return id_to_adc[net_name->name.crit_net_name];
-    if (net_name->which_name == AdcNetName_dam_adc_tag)
+    if (net_name->which_name == AdcNetName_dam_net_name_tag)
         return id_to_adc[net_name->name.dam_net_name];
     if (net_name->which_name == AdcNetName_fsm_net_name_tag)
         return id_to_adc[net_name->name.fsm_net_name];
