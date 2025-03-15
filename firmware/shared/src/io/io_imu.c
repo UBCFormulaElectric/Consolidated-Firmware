@@ -26,7 +26,10 @@
 #define XL_Y_LOW_BYTE_REG 0x2A
 #define XL_Z_LOW_BYTE_REG 0x2C
 
-bool io_shared_imu_init(const I2cDevice *imu_i2c_handle)
+
+extern const I2cDevice *imu_i2c_handle;
+
+bool io_imu_init()
 {
     if (!hw_i2c_isTargetReady(imu_i2c_handle))
     {
@@ -187,7 +190,7 @@ static float translate_acceleration_data(const uint8_t *acc_data)
     return (float)raw * ACC_SENSITIVITY_MG * 9.81f / 1000.0f;
 }
 
-bool io_shared_imu_getLinearAccelerationX(const I2cDevice *imu_i2c_handle, float *x_acceleration)
+bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2))
@@ -197,7 +200,7 @@ bool io_shared_imu_getLinearAccelerationX(const I2cDevice *imu_i2c_handle, float
     return true;
 }
 
-bool io_shared_imu_getLinearAccelerationY(const I2cDevice *imu_i2c_handle, float *y_acceleration)
+bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
     uint8_t y_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, XL_Y_LOW_BYTE_REG, y_data, 2))
@@ -207,7 +210,7 @@ bool io_shared_imu_getLinearAccelerationY(const I2cDevice *imu_i2c_handle, float
     return true;
 }
 
-bool io_shared_imu_getLinearAccelerationZ(const I2cDevice *imu_i2c_handle, float *z_acceleration)
+bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, XL_Z_LOW_BYTE_REG, z_data, 2))
@@ -217,7 +220,7 @@ bool io_shared_imu_getLinearAccelerationZ(const I2cDevice *imu_i2c_handle, float
     return true;
 }
 
-bool io_shared_imu_getAngularVelocityRoll(const I2cDevice *imu_i2c_handle, float *roll_velocity)
+bool io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, G_ROLL_LOW_BYTE_REG, roll_data, 2)) // reading the high and low register
@@ -227,7 +230,7 @@ bool io_shared_imu_getAngularVelocityRoll(const I2cDevice *imu_i2c_handle, float
     return true;
 }
 
-bool io_shared_imu_getAngularVelocityPitch(const I2cDevice *imu_i2c_handle, float *pitch_velocity)
+bool io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, G_PITCH_LOW_BYTE_REG, pitch_data, 2))
@@ -237,7 +240,7 @@ bool io_shared_imu_getAngularVelocityPitch(const I2cDevice *imu_i2c_handle, floa
     return true;
 }
 
-bool io_shared_imu_getAngularVelocityYaw(const I2cDevice *imu_i2c_handle, float *yaw_velocity)
+bool io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
     if (!hw_i2c_memoryRead(imu_i2c_handle, G_YAW_LOW_BYTE_REG, yaw_data, 2))
