@@ -3,6 +3,17 @@
 #include <stdbool.h>
 #include "hw_i2c.h"
 
+typedef struct
+{
+    const I2cDevice *imu_i2c_handle;
+    float            x_accel_offeset;
+    float            y_accel_offset;
+    float            z_accel_offset;
+    float            yaw_offset;
+    float            pitch_offset;
+    float            roll_offset;
+} imuConfig;
+
 /**
  * @brief turns on the accelerometer sensor on the imu to high perf mode
  * @return true if the write to turn on accelerometer is successful,
