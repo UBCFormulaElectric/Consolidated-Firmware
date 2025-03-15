@@ -204,20 +204,20 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    //MX_SDMMC1_SD_Init();
+    // MX_SDMMC1_SD_Init();
     MX_FDCAN2_Init();
     MX_USART2_UART_Init();
     MX_I2C1_Init();
     MX_TIM15_Init();
-    //MX_IWDG1_Init();
+    // MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port,TSIM_RED_EN_Pin, true);
+    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, true);
     while (1)
     {
         HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
         HAL_Delay(1000);
     }
-    
+
     /* USER CODE END 2 */
 
     /* Init scheduler */
