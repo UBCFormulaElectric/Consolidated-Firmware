@@ -1,6 +1,6 @@
 {
     "Vitals": {
-        "msg_id": 600,
+        "msg_id": 500,
         "cycle_time": 100,
         "description": "VC vitals message.",
         "signals": {
