@@ -2,7 +2,7 @@ message("")
 message("⚙️ Configuring DAM (Quintuna)")
 
 set(ARM_CORE "cm7")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -16,14 +16,26 @@ set(SYSTEM_INCLUDE_DIRS
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        ""
+        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+        # "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
+        # "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
+        # "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+        # "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+        # "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
+        # "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -31,7 +43,17 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-        ""
+        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -130,6 +152,8 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_DAM_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
     )
+
+    target_compile_definitions("quintuna_DAM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
 
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
