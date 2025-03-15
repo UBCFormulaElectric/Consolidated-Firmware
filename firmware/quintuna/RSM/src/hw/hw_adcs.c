@@ -2,6 +2,8 @@
 #include "main.h"
 #include <assert.h>
 
+char a = ' ';
+
 static uint16_t raw_adc_values[6];
 static float    adc_voltages[6];
 const AdcChip   adc1 = { .adc_voltages    = adc_voltages,
@@ -26,3 +28,4 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     assert(hadc == adc1.hadc);
     hw_adcchip_updateCallback(&adc1);
 }
+
