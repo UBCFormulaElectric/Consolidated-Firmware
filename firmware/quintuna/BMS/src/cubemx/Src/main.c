@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,8 +62,6 @@ SPI_HandleTypeDef hspi4;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim15;
-
-PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
 /* Definitions for Task100Hz */
 osThreadId_t         Task100HzHandle;
@@ -137,7 +136,6 @@ static void MX_ADC1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 static void MX_SPI4_Init(void);
-static void MX_USB_OTG_HS_PCD_Init(void);
 static void MX_ADC3_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM15_Init(void);
@@ -196,7 +194,6 @@ int main(void)
     MX_FDCAN1_Init();
     MX_SDMMC1_SD_Init();
     MX_SPI4_Init();
-    MX_USB_OTG_HS_PCD_Init();
     MX_ADC3_Init();
     MX_TIM1_Init();
     MX_TIM15_Init();
@@ -951,40 +948,6 @@ static void MX_TIM15_Init(void)
 }
 
 /**
- * @brief USB_OTG_HS Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_OTG_HS_PCD_Init(void)
-{
-    /* USER CODE BEGIN USB_OTG_HS_Init 0 */
-
-    /* USER CODE END USB_OTG_HS_Init 0 */
-
-    /* USER CODE BEGIN USB_OTG_HS_Init 1 */
-
-    /* USER CODE END USB_OTG_HS_Init 1 */
-    hpcd_USB_OTG_HS.Instance                 = USB_OTG_HS;
-    hpcd_USB_OTG_HS.Init.dev_endpoints       = 9;
-    hpcd_USB_OTG_HS.Init.speed               = PCD_SPEED_FULL;
-    hpcd_USB_OTG_HS.Init.dma_enable          = DISABLE;
-    hpcd_USB_OTG_HS.Init.phy_itface          = USB_OTG_EMBEDDED_PHY;
-    hpcd_USB_OTG_HS.Init.Sof_enable          = DISABLE;
-    hpcd_USB_OTG_HS.Init.low_power_enable    = DISABLE;
-    hpcd_USB_OTG_HS.Init.lpm_enable          = DISABLE;
-    hpcd_USB_OTG_HS.Init.vbus_sensing_enable = DISABLE;
-    hpcd_USB_OTG_HS.Init.use_dedicated_ep1   = DISABLE;
-    hpcd_USB_OTG_HS.Init.use_external_vbus   = DISABLE;
-    if (HAL_PCD_Init(&hpcd_USB_OTG_HS) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USB_OTG_HS_Init 2 */
-
-    /* USER CODE END USB_OTG_HS_Init 2 */
-}
-
-/**
  * Enable DMA controller clock
  */
 static void MX_DMA_Init(void)
@@ -1109,6 +1072,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_RunTask100Hz */
 void RunTask100Hz(void *argument)
 {
+    /* init code for USB_DEVICE */
+    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
     for (;;)

@@ -37,6 +37,7 @@ if ("${TARGET}" STREQUAL "binary")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary("quintuna_BMS_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
+    embedded_no_checks("${CUBEMX_SRCS}")
 
     # Bootloader files.
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
@@ -89,7 +90,7 @@ if ("${TARGET}" STREQUAL "binary")
         "${STM32_HAL_SRCS}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
         "${MD5_LOCATION}"
-        FALSE
+        TRUE
     )
 
     # JSONCAN
