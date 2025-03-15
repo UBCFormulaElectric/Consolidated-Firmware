@@ -11,7 +11,9 @@ import datetime
 
 HEADER_FORMAT = ">2BBH"
 HEADER_SIZE = 5
-MAGIC = (0xAA, 0x55)
+MAGIC = b'\xAA\x55'
+
+MAX_PAYLOAD_SIZE = 50 # this is arbitrary lmao
 
 def _make_bytes(message):
 	"""
@@ -23,69 +25,82 @@ def _make_bytes(message):
 		message.message_6, message.message_7
 	]) 
 
+def find_magic_in_buffer(buffer, magic=MAGIC): # do i need to set magic here
+    """
+	Return the index of the first occurrence of magic bytes in the buffer, or -1 if not found.
+	"""
+    magic_len = len(magic)
+    for i in range(len(buffer) - magic_len + 1):
+        if buffer[i:i+magic_len] == magic:
+            return i
+    return -1
+
+def read_packet(ser: serial.Serial):
+	buffer = bytearray()
+	while True:
+		data = ser.read(1)
+		if not data:
+			continue
+		buffer += data
+	
+		#wait for full header
+		if len(buffer) < HEADER_SIZE:
+			continue
+
+		#check for magic number
+		if buffer[0:2] != MAGIC:
+			magic_index = find_magic_in_buffer(buffer, MAGIC)
+			if magic_index == -1:
+				buffer.clear()
+			else:
+				buffer = buffer[magic_index:]
+			continue
+
+
+		if len(buffer) < HEADER_SIZE:
+			continue
+
+		#parse remainder of header
+		payload_length = buffer[2]
+		expected_crc = int.from_bytes(buffer[3:5], byteorder='big')
+
+		if payload_length > MAX_PAYLOAD_SIZE:
+			logger.error(f"Payload length {payload_length} is too large")
+			buffer = buffer[1:]
+			continue
+
+		total_length = HEADER_SIZE + payload_length
+		if len(buffer) < total_length:
+			continue # wait for full packet
+
+		packet = bytes(buffer[:total_length])
+
+		#reset buffer
+		buffer = buffer[total_length:]
+
+		return packet, payload_length, expected_crc
+
 def _read_messages(port: str):
 	"""
 	Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
 	"""
 
-	ser = serial.Serial(port=port, baudrate=57600)
+	ser = serial.Serial(port='/dev/tty.usbserial-FT76H2U7', baudrate=57600, timeout = 1)
+	#print(ser)
 	ser.reset_input_buffer()
 	ser.reset_output_buffer()
-	expected_magic = bytes(MAGIC)
 	while True:
-		
-		# Magic Number
-		magic_bytes = ser.read(2)
-		if len(magic_bytes) < 2:
-			logger.error("Did not receive enough bytes for magic number")
+		packet, payload_length, expected_crc = read_packet(ser)
+		logger.info(f"Received packet of size {len(packet)} bytes")
+		print(f"Received packet of size {len(packet)} bytes")
+		payload = packet[HEADER_SIZE:]
+		if len(payload) != payload_length:
+			logger.error(f"Payload length mismatch: expected {payload_length}, got {len(payload)}")
 			continue
-
-		if magic_bytes != expected_magic:
-			#nonvalid magic number
-			logger.error("Magic Number did not match")
-			continue
-
-		# Payload Length
-		payload_length_byte = ser.read(1)
-		if not payload_length_byte:
-			logger.error("Error Reading Payload Length")
-			continue
-		payload_length = int.from_bytes(payload_length_byte, byteorder='big')
-
+			
 		# CRC check
-		crc_bytes = ser.read(2)
-		if len(crc_bytes) < 2:
-			logger.error("Did not receive enough bytes for CRC")
-			continue
-		expected_crc = int.from_bytes(crc_bytes, byteorder='big')
-		
-
-		header_bytes = len(magic_bytes) + len(payload_length_byte) + len(crc_bytes)
-
-		# if len(header_bytes) != HEADER_SIZE:
-		# 	logger.error("Received header of incorrect size")
-		# 	continue
-
-		# try:
-		# 	#store for later
-		# 	magic_high, magic_low, payload_length, expected_crc = struct.unpack(HEADER_FORMAT, header_bytes)
-		# except struct.error as e:
-		# 	logger.error("Header unpacking error: %s", e)
-		# 	logger.info(f"Received data of size {payload_length + len(header_bytes)} bytes")
-		# 	continue
-		
-		logger.info(f"Received data of size {payload_length + len(header_bytes)} bytes")
-		
-		#read the payload length given
-		payload = ser.read(payload_length)
-		if len(payload) < payload_length:
-			logger.error("Incomplete payload received")
-			continue
-
-        # Compute CRC on the payload ONLY and validate it
-        #computed_crc = crc_FUNC_TODO(payload)
-
 		computed_crc = 0xFFFF #HARDCODED
+		#computed_crc = crc_FUNC_TODO(payload)
 		if computed_crc != expected_crc:
 			logger.error(f"CRC mismatch: computed {computed_crc:04X}, expected {expected_crc:04X}")
 			continue
@@ -105,6 +120,8 @@ def _read_messages(port: str):
 		# 	total_data_received = 0  # Reset the counter
 		# 	start_time = current_time  # Reset the start time
 
+
+# GET RID OF HARDCODE
 def get_wireless_task(serial_port: str | None) -> Thread:
 	serial_port_hard = '/dev/tty.usbserial-FT76H2U7'
 	if serial_port_hard is None:
