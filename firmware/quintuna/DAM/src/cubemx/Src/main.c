@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_error.h"
+#include "hw_usb.h"
 #include <stdbool.h>
 /* USER CODE END Includes */
 
@@ -211,12 +212,12 @@ int main(void)
     MX_TIM15_Init();
     // MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, true);
-    while (1)
-    {
-        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-        HAL_Delay(1000);
-    }
+    // HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, true);
+    // while (1)
+    // {
+    //     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    //     HAL_Delay(1000);
+    // }
 
     /* USER CODE END 2 */
 
@@ -236,7 +237,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    hw_usb_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
