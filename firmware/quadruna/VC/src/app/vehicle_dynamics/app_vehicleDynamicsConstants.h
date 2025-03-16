@@ -3,12 +3,14 @@
 
 // Constants
 
-#define CAR_MASS_AT_CG_KG (100.0f) // double check if this is updated value
+#define CAR_MASS_AT_CG_KG (300.0f) // checked with suspension -- weight with driver 
 #define GRAVITY (9.81f)
-#define CG_HEIGHT_FROM_GROUND (30.0f/100.0f) // got 30cm from suspension team
+#define CG_HEIGHT_FROM_GROUND_m (30.0f/100.0f) // got 30cm from suspension team
 #define SMALL_EPSILON .000001f // to avoid divide by zero error
 #define SLIP_RATIO_IDEAL 0.05f
 #define WHEELBASE_mm 1550
+#define WHEEL_DIAMETER_IN (18.0f)
+#define GEAR_RATIO (4.124f)
 #define WHEELBASE_m (WHEELBASE_mm / 1000)
 #define TRACK_WIDTH_mm 1100
 #define TRACK_WIDTH_m (TRACK_WIDTH_mm / 1000)

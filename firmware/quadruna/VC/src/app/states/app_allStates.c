@@ -20,7 +20,6 @@
 #include <app_heartbeatMonitors.h>
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
-
 static uint16_t heartbeat_cycles = 0;
 
 void app_allStates_runOnTick100Hz(void)
