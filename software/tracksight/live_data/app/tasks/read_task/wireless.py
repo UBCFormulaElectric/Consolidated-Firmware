@@ -89,7 +89,7 @@ def _read_messages(port: str):
 	ser.reset_output_buffer()
 	while True:
 		packet, payload_length, expected_crc = read_packet(ser)
-		logger.info(f"Received packet of size {len(packet)} bytes")
+		#logger.info(f"Received packet of size {len(packet)} bytes")
 		print(f"Received packet of size {len(packet)} bytes")
 		payload = packet[HEADER_SIZE:]
 		if len(payload) != payload_length:
@@ -111,6 +111,7 @@ def _read_messages(port: str):
 			logger.error(f"Error decoding protobuf message: {e}")
 			continue
 		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received), datetime.datetime.now()))
+		print(CanMsg(message_received.can_id, _make_bytes(message_received), datetime.datetime.now()))
 		
 		# Check if second has passed (Not sure if needed now?)
 		# if current_time - start_time >= 1.0:
