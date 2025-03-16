@@ -30,9 +30,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -42,6 +42,12 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef hadc1;
+    extern DMA_HandleTypeDef hdma_adc1;
+    extern CAN_HandleTypeDef hcan2;
+    extern TIM_HandleTypeDef htim2;
+    extern I2C_HandleTypeDef hi2c1;
+    extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
     /* USER CODE END EC */
 
@@ -58,6 +64,11 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TIM2_ARR TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY)
+#define TIM2_PRESCALER 64
+#define LSI_FREQUENCY 32000
+#define TIM2_FREQUENCY 1000
+#define TIMx_FREQUENCY 96000000
 #define STR_ANGLE_3V3_Pin GPIO_PIN_1
 #define STR_ANGLE_3V3_GPIO_Port GPIOC
 #define APPS1_3V3_Pin GPIO_PIN_2
@@ -102,6 +113,7 @@ extern "C"
 #define IMU_INT1_GPIO_Port GPIOB
 #define IMU_INT2_Pin GPIO_PIN_5
 #define IMU_INT2_GPIO_Port GPIOB
+#define IMU_INT2_EXTI_IRQn EXTI9_5_IRQn
 #define IMU_SDA_Pin GPIO_PIN_7
 #define IMU_SDA_GPIO_Port GPIOB
 #define IMU_SCL_Pin GPIO_PIN_8

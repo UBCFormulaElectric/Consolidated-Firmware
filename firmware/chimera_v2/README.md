@@ -40,7 +40,7 @@ while True:
 If you would like to use the `load_bank` or `power_supply` modules, you will also need to install the [VISA drivers](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html).
 
 ```python
-import chimera_v2.power_supply
+import power_supply
 import time
 
 # Config.
@@ -48,7 +48,7 @@ CHANNEL = 2
 CURRENT = 1.51
 
 # Setup supply.
-supply = chimera_v2.power_supply.DP821A()
+supply = power_supply.DP821A()
 print(supply.get_id())
 
 # Output current for 5s.
