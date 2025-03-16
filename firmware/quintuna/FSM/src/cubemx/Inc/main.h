@@ -56,6 +56,8 @@ extern "C"
 
     /* USER CODE END EM */
 
+    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
@@ -64,21 +66,11 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TASK_100HZ_STACK_SIZE 512
-#define TASKS_1HZ_STACK_SIZE 512
-#define TASK_1KHZ_STACK_SIZE 512
-#define TASK_CANTX_STACK_SIZE 512
-#define TASK_CANRX_STACK_SIZE 512
-#define TIM3_PRESCALER 8
-#define TIM12_PWM_MINIMUM_FREQUENCY 1
-#define ADC_FREQUENCY 1000
 #define TIMx_FREQUENCY 96000000
-#define IWDG_RESET_FREQUENCY 5
-#define TIM12_PRESCALER (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TM12_PWM_MINIMUM_FREQUENCY)
-#define TIM12_AUTO_RELOAD_REG 0xFFFF
-#define IWDG_PRESCALER 4
-#define IWDG_WINDOW_DISABLE_VALUE 4095
 #define LSI_FREQUENCY 32000
+#define TIM2_PRESCALER 64
+#define TIM2_FREQUENCY 1000
+#define TIM2_ARR (TIMx_FREQUENCY * TIM2_FREQUENCY) / TIM2_PRESCALER
 #define STR_ANGLE_3V3_Pin GPIO_PIN_1
 #define STR_ANGLE_3V3_GPIO_Port GPIOC
 #define APPS1_3V3_Pin GPIO_PIN_2
@@ -123,6 +115,7 @@ extern "C"
 #define IMU_INT1_GPIO_Port GPIOB
 #define IMU_INT2_Pin GPIO_PIN_5
 #define IMU_INT2_GPIO_Port GPIOB
+#define IMU_INT2_EXTI_IRQn EXTI9_5_IRQn
 #define IMU_SDA_Pin GPIO_PIN_7
 #define IMU_SDA_GPIO_Port GPIOB
 #define IMU_SCL_Pin GPIO_PIN_8
