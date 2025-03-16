@@ -21,6 +21,7 @@ import can
 # Pyvisa Peripherals.
 from load_bank import *
 from power_supply import *
+from scope import *
 
 # Protobuf autogen packages.
 import proto_autogen.f4dev_pb2
