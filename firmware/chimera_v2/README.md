@@ -417,11 +417,11 @@ const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = N
 > ```
 
 
-We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_main` in your desired task (You need to also include `shared.pb.h` and `io_chimeraConfig_v2.h` at the top of your file).
+We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_mainOrContinue` in your desired task (You need to also include `shared.pb.h` and `io_chimeraConfig_v2.h` at the top of your file).
 
 Eg. For the f4dev,
 ```c
-    io_chimera_v2_main(
+    io_chimera_v2_mainOrContinue(
         GpioNetName_f4dev_net_name_tag, id_to_gpio, 
         AdcNetName_f4dev_net_name_tag, id_to_adc,
         I2cNetName_f4dev_net_name_tag, id_to_i2c
@@ -430,7 +430,7 @@ Eg. For the f4dev,
 
 Note: you might want to use the provided `io_chimera_v2_enabled` flag to disable other non-chimera jobs.
 
-`io_chimera_v2_main` will skip running if no USB is plugged in on boot.
+`io_chimera_v2_mainOrContinue` will skip running if no USB is plugged in on boot. It should be called in a loop in one of the tasks (eg. 100 Hz).
 
 ### Development Environment
 For development, start by changing to [the directory of this README](.), and installing it as a pip package. 
