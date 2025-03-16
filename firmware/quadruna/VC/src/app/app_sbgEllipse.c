@@ -47,7 +47,7 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
     app_canTx_VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
 
-    vehicle_velocity            = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+    vehicle_velocity                        = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
     const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
     uint32_t ekf_sol_mode = io_sbgEllipse_getEkfSolutionMode();
@@ -120,6 +120,7 @@ void app_sbgEllipse_calculateVelocity(VelocityData *velocity)
     velocity->down = 0;
 }
 
-float app_sbgEllipse_getVehicleVelocity(void) {
-    return velocity;
+float app_sbgEllipse_getVehicleVelocity(void)
+{
+    return vehicle_velocity;
 }

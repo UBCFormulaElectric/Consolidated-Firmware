@@ -807,7 +807,7 @@
   },
   "YawRateControllerInfo": {
     "msg_id": 231,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Debug messages for yaw rate controller for yaw rates and yaw moment",
     "signals": {
       "ReferenceYawRate": {
@@ -820,7 +820,7 @@
         "min": -360,
         "max": 360,
         "resolution": 0.1,
-        "unit": "deg/s^2"
+        "unit": "Nm"
       }
     }
   }

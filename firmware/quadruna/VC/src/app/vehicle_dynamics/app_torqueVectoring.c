@@ -9,6 +9,7 @@
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_units.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
@@ -115,11 +116,10 @@ void app_torqueVectoring_handleAcceleration(void)
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
     yaw_rate_controller.vehicle_velocity_mps = KMH_TO_MPS(app_sbgEllipse_getVehicleVelocity());
     yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(app_canTx_VC_ImuAngularVelocityYaw_get());
-    app_yawRateController_computeRefYawRate(&yaw_rate_controller);
-    app_yawRateController_pidCompute(&yaw_rate_controller);
+    app_yawRateController_run(&yaw_rate_controller);
 
-    app_canTx_VC_ReferenceYawRate_set(app_yawRateController_getRefYawRateDeg());
-    app_canTx_VC_YawMoment_set(app_yawRateController_getYawMomentDeg());
+    app_canTx_VC_ReferenceYawRate_set(RAD_TO_DEG(app_yawRateController_getRefYawRateRad()));
+    app_canTx_VC_YawMoment_set(app_yawRateController_getYawMoment());
 
     /**
      *  TRACTION CONTROL NOT TESTED ON CAR YET

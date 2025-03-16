@@ -1,3 +1,4 @@
+
 #include "app_yawRateController.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_units.h"
@@ -10,8 +11,8 @@
  * Untested and Untuned
  */
 
-static ref_yaw_rate_rad;
-static yaw_moment_rad;
+static float ref_yaw_rate_rad;
+static float yaw_moment;
 
 void app_yawRateController_init(YawRateController *yrc, PID *pid, const YawRateController_Config *config)
 {
@@ -22,8 +23,8 @@ void app_yawRateController_init(YawRateController *yrc, PID *pid, const YawRateC
     yrc->wheel_angle_rad      = 0.0f;
     yrc->vehicle_velocity_mps = 0.0f;
     yrc->real_yaw_rate_rad    = 0.0f;
-    ref_yaw_rate_rad = 0.0f;
-    yaw_moment_rad = 0.0f;
+    ref_yaw_rate_rad          = 0.0f;
+    yaw_moment                = 0.0f;
 }
 
 void app_yawRateController_computeRefYawRate(YawRateController *yrc)
@@ -32,26 +33,30 @@ void app_yawRateController_computeRefYawRate(YawRateController *yrc)
      * Formula for reference yaw rate:
      *
      * r_ref = (vehicle_velocity * wheel_angle) / (wheel_base + ku * vehicle_velocity^2)
-    */    
-    ref_yaw_rate_rad =
-        (yrc->vehicle_velocity_mps * yrc->wheel_angle_rad) /
-        ((WHEELBASE_mm * MM_TO_M) +
-         (yrc->ku * SQUARE(yrc->vehicle_velocity_mps)));
-
-
+     */
+    ref_yaw_rate_rad = (yrc->vehicle_velocity_mps * yrc->wheel_angle_rad) /
+                       ((WHEELBASE_mm * MM_TO_M) + (yrc->ku * SQUARE(yrc->vehicle_velocity_mps)));
 }
 
 void app_yawRateController_pidCompute(YawRateController *yrc)
 {
-    yaw_moment_rad = app_pid_compute(yrc->pid, ref_yaw_rate_rad, yrc->real_yaw_rate_rad);
+    yaw_moment = app_pid_compute(yrc->pid, ref_yaw_rate_rad, yrc->real_yaw_rate_rad);
 }
 
-float app_yawRateController_getRefYawRateRad() {
+void app_yawRateController_run(YawRateController *yrc)
+{
+    app_yawRateController_computeRefYawRate(yrc);
+    app_yawRateController_pidCompute(yrc);
+}
+
+float app_yawRateController_getRefYawRateRad()
+{
     return ref_yaw_rate_rad;
 }
 
-float app_yawRateController_getYawMomentRad() {
-    return yaw_moment_rad;
+float app_yawRateController_getYawMoment()
+{
+    return yaw_moment;
 }
 
 // void app_yawRateController_computeTorque(YawRateController *yrc)

@@ -16,13 +16,13 @@ typedef struct
 {
     PID *pid;
     /*
-     * Understeer Gradient: 
+     * Understeer Gradient:
      *
-     * ku > 0 for understeer 
-     * ku < 0 for oversteer, 
+     * ku > 0 for understeer
+     * ku < 0 for oversteer,
      * ku = 0 for neutral steer
-    */
-    float ku; 
+     */
+    float ku;
     // Inputs
     float wheel_angle_rad;
     float vehicle_velocity_mps;
@@ -51,15 +51,19 @@ void app_yawRateController_computeRefYawRate(YawRateController *yrc);
 void app_yawRateController_pidCompute(YawRateController *yrc);
 
 /*
+ * Runs the yaw rate controller, computing the reference yaw rate and the yaw moment
+ */
+void app_yawRateController_run(YawRateController *yrc);
+
+/*
  * Get the reference yaw rate
-*/
+ */
 float app_yawRateController_getRefYawRateRad();
 
 /*
  * Get the generated yaw moment
-*/
-float app_yawRateController_getYawMomentRad();
-
+ */
+float app_yawRateController_getYawMoment();
 
 // /*
 //  * Computes the torques to send to the wheels based on the
