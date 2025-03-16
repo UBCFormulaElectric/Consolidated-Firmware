@@ -9,23 +9,6 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"main.h": "c",
-		"hw_bootup.h": "c",
-		"hw_pwms.h": "c",
-		"hw_hardfaulthandler.h": "c",
-		"hw_watchdog.h": "c",
-		"hw_pwminputfreqonly.h": "c",
-		"io_leds.h": "c",
-		"io_led.h": "c",
-		"hw_adcs.h": "c",
-		"hw_gpios.h": "c",
-		"hw_gpio.h": "c",
-		"rsm.pb.h": "c",
-		"pb.h": "c",
-		"io_chimeraconfig_v2.h": "c",
-		"io_chimera_v2.h": "c"
-	},
 	"clangd.arguments": [
 		"--compile-commands-dir=build_fw_dev",
  		// "--compile-commands-dir=build_fw_test",
