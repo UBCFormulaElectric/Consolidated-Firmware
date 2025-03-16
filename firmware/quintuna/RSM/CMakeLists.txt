@@ -28,7 +28,7 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-         "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -47,6 +47,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -78,7 +79,7 @@ if("${TARGET}" STREQUAL "binary")
                 "quintuna_RSM"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/RSM_boot.ioc"
-        ) 
+        )
 
         set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
         generate_stm32cube_code("RSM" "${IOC_PATH}")
