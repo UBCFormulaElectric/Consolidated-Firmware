@@ -1,7 +1,8 @@
 #include <app_vehicleDynamics.h>
+#include "io_imu_config.h"
 
-float app_wheelVerticleForces_broadcast(void);
+float app_wheelVerticleForces_broadcast(imuData imu);
 
 float app_loadTransferConstant(float long_accel);
 
-void torqueAllocation(TorqueAllocationInputs *inputs, float loadTransferConst);
+void app_torqueAllocation(TorqueAllocationInputs *inputs, float loadTransferConst);

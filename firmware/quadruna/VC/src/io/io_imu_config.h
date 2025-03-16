@@ -1,7 +1,7 @@
 #include "hw_i2cs.h"
 #include "hw_i2c.h"
 #include "io_imu.h"
-typedef struct 
+typedef struct imuData
 {
     float long_accel; 
     float lat_accel; 
