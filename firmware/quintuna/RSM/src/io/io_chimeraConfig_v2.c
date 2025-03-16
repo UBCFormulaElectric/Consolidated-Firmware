@@ -19,6 +19,5 @@ const AdcChannel *id_to_adc[] = { [rsm_AdcNetName_ADC_LC3_OUT]            = &lc3
                                   [rsm_AdcNetName_ADC_BPS_3V3]            = &bps_3v3 };
 
 // TODO: Configure I2Cs.
-const I2cDevice *id_to_i2c[] = { 
-    [rsm_I2cNetName_I2C_IMU_I2C] = &imu_i2c, 
-    [rsm_I2cNetName_I2C_R_PUMP_I2C] = &r_pump_i2c};
+const I2cDevice
+    *id_to_i2c[] = { [rsm_I2cNetName_I2C_IMU_I2C] = &imu_i2c, [rsm_I2cNetName_I2C_R_PUMP_I2C] = &r_pump_i2c };

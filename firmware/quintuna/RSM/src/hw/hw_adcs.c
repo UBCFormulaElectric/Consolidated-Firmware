@@ -28,4 +28,3 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     assert(hadc == adc1.hadc);
     hw_adcchip_updateCallback(&adc1);
 }
-

@@ -27,6 +27,7 @@ import proto_autogen.f4dev_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
 import proto_autogen.shared_pb2
+import proto_autogen.rsm_pb2
 
 
 _MANUFACTURER = "ubc_formula_electric"
