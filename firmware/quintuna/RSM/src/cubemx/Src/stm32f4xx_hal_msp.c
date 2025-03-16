@@ -59,8 +59,6 @@ extern DMA_HandleTypeDef hdma_adc1;
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
-
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /**
  * Initializes the Global MSP.
  */
@@ -212,6 +210,15 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
         GPIO_InitStruct.Alternate = GPIO_AF9_CAN2;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* CAN2 interrupt Init */
+        HAL_NVIC_SetPriority(CAN2_TX_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_TX_IRQn);
+        HAL_NVIC_SetPriority(CAN2_RX0_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_RX0_IRQn);
+        HAL_NVIC_SetPriority(CAN2_RX1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_RX1_IRQn);
+        HAL_NVIC_SetPriority(CAN2_SCE_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_SCE_IRQn);
         /* USER CODE BEGIN CAN2_MspInit 1 */
 
         /* USER CODE END CAN2_MspInit 1 */
@@ -241,6 +248,11 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
         */
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12 | GPIO_PIN_13);
 
+        /* CAN2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(CAN2_TX_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_RX0_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_RX1_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_SCE_IRQn);
         /* USER CODE BEGIN CAN2_MspDeInit 1 */
 
         /* USER CODE END CAN2_MspDeInit 1 */
@@ -276,6 +288,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
         /* Peripheral clock enable */
         __HAL_RCC_I2C1_CLK_ENABLE();
+        /* I2C1 interrupt Init */
+        HAL_NVIC_SetPriority(I2C1_EV_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+        HAL_NVIC_SetPriority(I2C1_ER_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
         /* USER CODE BEGIN I2C1_MspInit 1 */
 
         /* USER CODE END I2C1_MspInit 1 */
@@ -308,6 +325,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
         /* Peripheral clock enable */
         __HAL_RCC_I2C3_CLK_ENABLE();
+        /* I2C3 interrupt Init */
+        HAL_NVIC_SetPriority(I2C3_EV_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C3_EV_IRQn);
+        HAL_NVIC_SetPriority(I2C3_ER_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C3_ER_IRQn);
         /* USER CODE BEGIN I2C3_MspInit 1 */
 
         /* USER CODE END I2C3_MspInit 1 */
@@ -338,6 +360,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 
         HAL_GPIO_DeInit(IMU_SDA_GPIO_Port, IMU_SDA_Pin);
 
+        /* I2C1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(I2C1_EV_IRQn);
+        HAL_NVIC_DisableIRQ(I2C1_ER_IRQn);
         /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
         /* USER CODE END I2C1_MspDeInit 1 */
@@ -358,6 +383,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 
         HAL_GPIO_DeInit(R_PUMP_SCL_GPIO_Port, R_PUMP_SCL_Pin);
 
+        /* I2C3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(I2C3_EV_IRQn);
+        HAL_NVIC_DisableIRQ(I2C3_ER_IRQn);
         /* USER CODE BEGIN I2C3_MspDeInit 1 */
 
         /* USER CODE END I2C3_MspDeInit 1 */
@@ -372,51 +400,38 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
  */
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
 {
-    if (htim_base->Instance == TIM3)
+    if (htim_base->Instance == TIM2)
     {
-        /* USER CODE BEGIN TIM3_MspInit 0 */
+        /* USER CODE BEGIN TIM2_MspInit 0 */
 
-        /* USER CODE END TIM3_MspInit 0 */
+        /* USER CODE END TIM2_MspInit 0 */
         /* Peripheral clock enable */
-        __HAL_RCC_TIM3_CLK_ENABLE();
-        /* TIM3 interrupt Init */
-        HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
-        HAL_NVIC_EnableIRQ(TIM3_IRQn);
-        /* USER CODE BEGIN TIM3_MspInit 1 */
+        __HAL_RCC_TIM2_CLK_ENABLE();
+        /* TIM2 interrupt Init */
+        HAL_NVIC_SetPriority(TIM2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM2_IRQn);
+        /* USER CODE BEGIN TIM2_MspInit 1 */
 
-        /* USER CODE END TIM3_MspInit 1 */
+        /* USER CODE END TIM2_MspInit 1 */
     }
 }
 
 /**
- * @brief TIM_PWM MSP Initialization
+ * @brief TIM_IC MSP Initialization
  * This function configures the hardware resources used in this example
- * @param htim_pwm: TIM_PWM handle pointer
+ * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim_pwm)
+void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
 {
-    if (htim_pwm->Instance == TIM4)
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    if (htim_ic->Instance == TIM4)
     {
         /* USER CODE BEGIN TIM4_MspInit 0 */
 
         /* USER CODE END TIM4_MspInit 0 */
         /* Peripheral clock enable */
         __HAL_RCC_TIM4_CLK_ENABLE();
-        /* USER CODE BEGIN TIM4_MspInit 1 */
-
-        /* USER CODE END TIM4_MspInit 1 */
-    }
-}
-
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim)
-{
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (htim->Instance == TIM4)
-    {
-        /* USER CODE BEGIN TIM4_MspPostInit 0 */
-
-        /* USER CODE END TIM4_MspPostInit 0 */
 
         __HAL_RCC_GPIOB_CLK_ENABLE();
         /**TIM4 GPIO Configuration
@@ -429,11 +444,12 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim)
         GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
         HAL_GPIO_Init(FLOW_METER_5V_GPIO_Port, &GPIO_InitStruct);
 
-        /* USER CODE BEGIN TIM4_MspPostInit 1 */
+        /* USER CODE BEGIN TIM4_MspInit 1 */
 
-        /* USER CODE END TIM4_MspPostInit 1 */
+        /* USER CODE END TIM4_MspInit 1 */
     }
 }
+
 /**
  * @brief TIM_Base MSP De-Initialization
  * This function freeze the hardware resources used in this example
@@ -442,37 +458,43 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim)
  */
 void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
 {
-    if (htim_base->Instance == TIM3)
+    if (htim_base->Instance == TIM2)
     {
-        /* USER CODE BEGIN TIM3_MspDeInit 0 */
+        /* USER CODE BEGIN TIM2_MspDeInit 0 */
 
-        /* USER CODE END TIM3_MspDeInit 0 */
+        /* USER CODE END TIM2_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_TIM3_CLK_DISABLE();
+        __HAL_RCC_TIM2_CLK_DISABLE();
 
-        /* TIM3 interrupt DeInit */
-        HAL_NVIC_DisableIRQ(TIM3_IRQn);
-        /* USER CODE BEGIN TIM3_MspDeInit 1 */
+        /* TIM2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM2_IRQn);
+        /* USER CODE BEGIN TIM2_MspDeInit 1 */
 
-        /* USER CODE END TIM3_MspDeInit 1 */
+        /* USER CODE END TIM2_MspDeInit 1 */
     }
 }
 
 /**
- * @brief TIM_PWM MSP De-Initialization
+ * @brief TIM_IC MSP De-Initialization
  * This function freeze the hardware resources used in this example
- * @param htim_pwm: TIM_PWM handle pointer
+ * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim_pwm)
+void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
 {
-    if (htim_pwm->Instance == TIM4)
+    if (htim_ic->Instance == TIM4)
     {
         /* USER CODE BEGIN TIM4_MspDeInit 0 */
 
         /* USER CODE END TIM4_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_TIM4_CLK_DISABLE();
+
+        /**TIM4 GPIO Configuration
+        PB8     ------> TIM4_CH3
+        */
+        HAL_GPIO_DeInit(FLOW_METER_5V_GPIO_Port, FLOW_METER_5V_Pin);
+
         /* USER CODE BEGIN TIM4_MspDeInit 1 */
 
         /* USER CODE END TIM4_MspDeInit 1 */
