@@ -27,7 +27,8 @@ import proto_autogen.f4dev_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
 import proto_autogen.shared_pb2
-
+import proto_autogen.rsm_pb2
+import proto_autogen.fsm_pb2
 
 _MANUFACTURER = "ubc_formula_electric"
 
@@ -189,12 +190,12 @@ class _Board:
     # [ length low byte  | length high byte | content bytes    | ... ]
 
     def __init__(
-        self,
-        usb_device: _UsbDevice,
-        gpio_net_name: str,
-        adc_net_name: str,
-        i2c_net_name: str,
-        board_module: types.ModuleType,
+            self,
+            usb_device: _UsbDevice,
+            gpio_net_name: str,
+            adc_net_name: str,
+            i2c_net_name: str,
+            board_module: types.ModuleType,
     ):
         """Create an abstration around a Chimera V2 board.
 
@@ -501,4 +502,28 @@ class CRIT(_Board):
             adc_net_name="crit_net_name",
             i2c_net_name="crit_net_name",
             board_module=proto_autogen.crit_pb2,
+        )
+
+class RSM(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a RSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="rsm"),
+            gpio_net_name="rsm_net_name",
+            adc_net_name="rsm_net_name",
+            i2c_net_name="rsm_net_name",
+            board_module=proto_autogen.rsm_pb2,
+        )
+
+class FSM(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a FSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="fsm"),
+            gpio_net_name="fsm_net_name",
+            adc_net_name="fsm_net_name",
+            i2c_net_name="fsm_net_name",
+            board_module=proto_autogen.fsm_pb2,
         )
