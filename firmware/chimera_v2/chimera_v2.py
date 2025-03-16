@@ -503,3 +503,15 @@ class CRIT(_Board):
             i2c_net_name="crit_net_name",
             board_module=proto_autogen.crit_pb2,
         )
+
+class RSM(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a RSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="rsm"),
+            gpio_net_name="rsm_net_name",
+            adc_net_name="rsm_net_name",
+            i2c_net_name="rsm_net_name",
+            board_module=proto_autogen.rsm_pb2,
+        )
