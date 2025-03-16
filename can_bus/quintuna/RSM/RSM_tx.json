@@ -11,5 +11,18 @@
                 "enum": "RsmStates"
             }
         }
+    },
+    "CommitInfo": {
+        "msg_id": 706,
+        "cycle_time": 100,
+        "description": "RSM Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
     }
 }

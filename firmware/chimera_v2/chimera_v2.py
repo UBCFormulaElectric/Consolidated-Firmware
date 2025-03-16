@@ -27,6 +27,7 @@ import proto_autogen.f4dev_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
 import proto_autogen.shared_pb2
+import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
 
 _MANUFACTURER = "ubc_formula_electric"
@@ -503,6 +504,17 @@ class CRIT(_Board):
             board_module=proto_autogen.crit_pb2,
         )
 
+class RSM(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a RSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="rsm"),
+            gpio_net_name="rsm_net_name",
+            adc_net_name="rsm_net_name",
+            i2c_net_name="rsm_net_name",
+            board_module=proto_autogen.rsm_pb2,
+        )
 
 class FSM(_Board):
     def __init__(self) -> None:
