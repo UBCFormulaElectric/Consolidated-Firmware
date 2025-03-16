@@ -1,5 +1,6 @@
 #pragma once
 #include "app_pid.h"
+#include "app_yawRateController.h"
 
 // Constants
 
@@ -31,5 +32,7 @@
 #define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
 
 // Tunable parameters
-extern const PID_Config PID_POWER_CORRECTION_CONFIG;
-extern const PID_Config PID_TRACTION_CONTROL_CONFIG;
+extern const PID_Config               PID_POWER_CORRECTION_CONFIG;
+extern const PID_Config               PID_TRACTION_CONTROL_CONFIG;
+extern const PID_Config               PID_YAW_RATE_CONTROLLER_CONFIG;
+extern const YawRateController_Config YAW_RATE_CONTROLLER_CONFIG;

@@ -33,7 +33,9 @@ void app_wheelVerticalForces_broadcast(ImuData imu)
 float app_loadTransferConstant(float long_accel)
 {
     // following formula for Kmz on page 57
-   return ((CAR_MASS_AT_CG_KG - (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(long_accel)) / (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(long_accel))));
+    float load_transfer_const = (CAR_MASS_AT_CG_KG - (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(long_accel)) / (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(long_accel)));
+    app_canTx_VC_LoadTransferScalar_set(load_transfer_const);
+   return(load_transfer_const);
 }
 
 void app_torqueAllocation(TorqueAllocationInputs *inputs, float loadTransferConst)

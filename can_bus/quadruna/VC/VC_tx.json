@@ -804,55 +804,5 @@
         "unit": "%"
       }
     }
-  },
-  "TireVerticalForces":{
-    "msg_id": 231, 
-    "cycle_time": 100, 
-    "description": "Vertical forces on car tires",
-    "signals":{
-      "FrontLeftWheelVerticalForce":{
-        "min": -500,
-        "max": 500,
-        "resolution": 0.1,
-        "unit": "N"
-      },
-      "FrontRightWheelVerticalForce":{
-        "min": -500,
-        "max": 500,
-        "resolution": 0.1,
-        "unit": "N"
-      },
-      "RearLeftWheelVerticalForce":{
-        "min": -500,
-        "max": 500,
-        "resolution": 0.1,
-        "unit": "N"
-      },
-      "RearRightWheelVerticalForce":{
-        "min": -500,
-        "max": 500,
-        "resolution": 0.1,
-        "unit": "N"
-      }
-    }
-  },
-  "LoadBasedTorqueAllocation":{
-    "msg_id": 232,
-    "cycle_time": 10,
-    "description": "Torque allocation based on vertical forces on tires",
-    "signals":{
-      "RightLoadBasedTorqueReq": {
-        "min": 0,
-        "max": 90,
-        "resolution": 0.1,
-        "unit": "Nm"
-      },
-      "LeftLoadBasedTorqueReq": {
-        "min": 0,
-        "max": 90,
-        "resolution": 0.1,
-        "unit": "Nm"
-      }
-    }
   }
 }
