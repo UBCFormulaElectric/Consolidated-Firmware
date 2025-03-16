@@ -51,7 +51,7 @@ void io_telemMessage_init()
 {
     assert(!init);
     modem_900_choice = true; // if false, then using the 2.4GHz,
-    message_queue_id = osMessageQueueNew(CAN_DATA_LENGTH, QUEUE_SIZE, &queue_attr);
+    message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
     assert(message_queue_id != NULL);
     init = true;
 }

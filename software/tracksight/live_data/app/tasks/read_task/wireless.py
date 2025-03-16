@@ -9,7 +9,6 @@ from logger import logger
 from tasks.broadcaster import can_msg_queue, CanMsg
 import datetime
 
-HEADER_FORMAT = ">2BBH"
 HEADER_SIZE = 5
 MAGIC = b'\xAA\x55'
 
@@ -55,7 +54,6 @@ def read_packet(ser: serial.Serial):
 			else:
 				buffer = buffer[magic_index:]
 			continue
-
 
 		if len(buffer) < HEADER_SIZE:
 			continue
