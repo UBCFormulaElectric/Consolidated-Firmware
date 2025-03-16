@@ -161,6 +161,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
