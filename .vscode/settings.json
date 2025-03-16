@@ -11,6 +11,10 @@
 	"cmake.configureOnOpen": false,
 	"files.associations": {
 		"main.h": "c",
-		"hw_gpios.h": "c"
+		"hw_gpios.h": "c",
+		"hw_adc.h": "c",
+		"hw_i2c.h": "c",
+		"bms.pb.h": "c",
+		"io_chimera_v2.h": "c"
 	},
 }

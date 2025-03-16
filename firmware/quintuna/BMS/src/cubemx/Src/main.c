@@ -25,6 +25,9 @@
 /* USER CODE BEGIN Includes */
 #include "io_log.h"
 #include "hw_usb.h"
+#include "io_chimeraConfig_v2.h"
+#include "io_chimera_v2.h"
+#include "shared.pb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -203,7 +206,6 @@ int main(void)
     MX_IWDG1_Init();
     MX_TIM5_Init();
     /* USER CODE BEGIN 2 */
-    
 
     while (1)
     {
@@ -1077,7 +1079,10 @@ void RunTask100Hz(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        io_chimera_v2_mainOrContinue(
+            GpioNetName_bms_net_name_tag, id_to_gpio, AdcNetName_bms_net_name_tag, id_to_adc,
+            I2cNetName_bms_net_name_tag, id_to_i2c);
+        osDelay(100);
     }
     /* USER CODE END 5 */
 }

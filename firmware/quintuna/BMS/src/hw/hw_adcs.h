@@ -20,6 +20,7 @@ extern const AdcChannel shdn_isns;
 extern const AdcChannel emeter_tsns;
 extern const AdcChannel ts_isns_400a;
 extern const AdcChannel ts_isns_75a;
+extern const AdcChannel ts_isns_50a;
 extern const AdcChannel aux_tsns;
 
 void hw_adcs_chipsInit(void);

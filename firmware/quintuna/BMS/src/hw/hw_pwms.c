@@ -9,9 +9,7 @@ static const PwmInputConfig imd_pwm_input_config = {
     .falling_edge_tim_channel = TIM_CHANNEL_2,
 };
 
-static const PwmInputConfig evse_pwm_input_config = {
-    .htim                     = &htim15,
-    .timer_frequency_hz       =  TIM5_FREQUENCY / TIM5_PRESCALER,
-    .rising_edge_tim_channel  = TIM_CHANNEL_4,
-    .falling_edge_tim_channel = TIM_CHANNEL_3
-};
+static const PwmInputConfig evse_pwm_input_config = { .htim                     = &htim15,
+                                                      .timer_frequency_hz       = TIM5_FREQUENCY / TIM5_PRESCALER,
+                                                      .rising_edge_tim_channel  = TIM_CHANNEL_4,
+                                                      .falling_edge_tim_channel = TIM_CHANNEL_3 };
