@@ -69,15 +69,15 @@ void tasks_run1Hz()
 
 void tasks_run100Hz()
 {
-    io_chimera_v2_main(
-        GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc, I2cNetName_ssm_net_name_tag,
-        id_to_i2c);
-
     // Setup tasks.
     static const TickType_t period_ms   = 10;
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+        io_chimera_v2_mainOrContinue(
+            GpioNetName_crit_net_name_tag, id_to_gpio, AdcNetName_crit_net_name_tag, id_to_adc,
+            I2cNetName_crit_net_name_tag, id_to_i2c);
+
         if (!io_chimera_v2_enabled)
             jobs_run100Hz_tick();
         start_ticks += period_ms;
