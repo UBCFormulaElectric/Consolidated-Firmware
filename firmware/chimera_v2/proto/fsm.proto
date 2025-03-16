@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package fsm;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  BOTS_3v3 = 1;
+  COCKPIT_SHDN_3v3 = 2;
+  IMU_INT1 = 3;
+  IMU_INT2 = 4;
+  NSUSP_FL_OCSC = 5;
+  NSUSP_FR_OCSC = 6;
+  FR_INT_3v3 = 7;
+  FL_INT_3v3 = 8;
+  DEBUG_LED = 9;
+  NSTR_ANGLE_OCSC = 10;
+  NBPS_F_OCSC = 11;
+  BOOT_LED = 12;
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED = 0;
+  SUSP_FL = 1;
+  SUSP_FR = 2;
+  APPS2 = 3;
+  BPS_F = 4;
+  STR_ANGLE = 5;
+  APPS1 = 6;
+}
+
+enum I2cNetName {
+  I2C_NET_NAME_UNSPECIFIED = 0;
+  IMU_I2C = 1;
+}
