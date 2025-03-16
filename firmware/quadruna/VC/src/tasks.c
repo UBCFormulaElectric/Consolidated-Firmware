@@ -189,19 +189,3 @@ _Noreturn void tasks_runLogging(void)
         }
     }
 }
-
-/*
- * INTERRUPTS
- */
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == &huart1)
-    {
-        io_chimera_msgRxCallback();
-    }
-    else if (huart == &huart2)
-    {
-        io_sbgEllipse_msgRxCallback();
-    }
-}

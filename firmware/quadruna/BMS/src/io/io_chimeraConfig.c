@@ -33,5 +33,4 @@ const AdcChannel *id_to_adc[] = {
     [BMS_AdcNetName_TS_VSENSE_N] = &ts_vsense_n,
 };
 
-const UART *chimera_uart   = &debug_uart;
 const Gpio *n_chimera_gpio = &n_chimera_pin;
