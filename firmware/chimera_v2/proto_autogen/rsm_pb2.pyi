@@ -20,26 +20,26 @@ class _GpioNetName:
 class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GpioNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     GPIO_NET_NAME_UNSPECIFIED: _GpioNetName.ValueType
-    LED_PIN: _GpioNetName.ValueType
-    BRAKE_LIGHT_EN_PIN: _GpioNetName.ValueType
-    RL_INT_PIN: _GpioNetName.ValueType
-    IMU_INT1_PIN: _GpioNetName.ValueType
-    IMU_INT2_PIN: _GpioNetName.ValueType
-    BOOT_PIN: _GpioNetName.ValueType
-    SUSP_TRAVEL_RR_OCSC_PIN: _GpioNetName.ValueType
-    SUSP_TRAVEL_RL_OCSC_PIN: _GpioNetName.ValueType
+    GPIO_LED: _GpioNetName.ValueType
+    GPIO_BRAKE_LIGHT_EN: _GpioNetName.ValueType
+    GPIO_RL_INT: _GpioNetName.ValueType
+    GPIO_IMU_INT1: _GpioNetName.ValueType
+    GPIO_IMU_INT2: _GpioNetName.ValueType
+    GPIO_BOOT: _GpioNetName.ValueType
+    GPIO_SUSP_TRAVEL_RR_OCSC: _GpioNetName.ValueType
+    GPIO_SUSP_TRAVEL_RL_OCSC: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
-LED_PIN: GpioNetName.ValueType
-BRAKE_LIGHT_EN_PIN: GpioNetName.ValueType
-RL_INT_PIN: GpioNetName.ValueType
-IMU_INT1_PIN: GpioNetName.ValueType
-IMU_INT2_PIN: GpioNetName.ValueType
-BOOT_PIN: GpioNetName.ValueType
-SUSP_TRAVEL_RR_OCSC_PIN: GpioNetName.ValueType
-SUSP_TRAVEL_RL_OCSC_PIN: GpioNetName.ValueType
+GPIO_LED: GpioNetName.ValueType
+GPIO_BRAKE_LIGHT_EN: GpioNetName.ValueType
+GPIO_RL_INT: GpioNetName.ValueType
+GPIO_IMU_INT1: GpioNetName.ValueType
+GPIO_IMU_INT2: GpioNetName.ValueType
+GPIO_BOOT: GpioNetName.ValueType
+GPIO_SUSP_TRAVEL_RR_OCSC: GpioNetName.ValueType
+GPIO_SUSP_TRAVEL_RL_OCSC: GpioNetName.ValueType
 global___GpioNetName = GpioNetName
 
 class _AdcNetName:
@@ -49,18 +49,18 @@ class _AdcNetName:
 class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_AdcNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     ADC_NET_NAME_UNSPECIFIED: _AdcNetName.ValueType
-    LC3_OUT: _AdcNetName.ValueType
-    SUSP_TRAVEL_RL_3V3: _AdcNetName.ValueType
-    SUSP_TRAVEL_RR_3V3: _AdcNetName.ValueType
-    BPS_3V3: _AdcNetName.ValueType
+    ADC_LC3_OUT: _AdcNetName.ValueType
+    ADC_SUSP_TRAVEL_RL_3V3: _AdcNetName.ValueType
+    ADC_SUSP_TRAVEL_RR_3V3: _AdcNetName.ValueType
+    ADC_BPS_3V3: _AdcNetName.ValueType
 
 class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper):
     ...
 ADC_NET_NAME_UNSPECIFIED: AdcNetName.ValueType
-LC3_OUT: AdcNetName.ValueType
-SUSP_TRAVEL_RL_3V3: AdcNetName.ValueType
-SUSP_TRAVEL_RR_3V3: AdcNetName.ValueType
-BPS_3V3: AdcNetName.ValueType
+ADC_LC3_OUT: AdcNetName.ValueType
+ADC_SUSP_TRAVEL_RL_3V3: AdcNetName.ValueType
+ADC_SUSP_TRAVEL_RR_3V3: AdcNetName.ValueType
+ADC_BPS_3V3: AdcNetName.ValueType
 global___AdcNetName = AdcNetName
 
 class _I2cNetName:
@@ -70,12 +70,12 @@ class _I2cNetName:
 class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
-    IMU_I2C: _I2cNetName.ValueType
-    R_PUMP_I2C: _I2cNetName.ValueType
+    I2C_IMU_I2C: _I2cNetName.ValueType
+    I2C_R_PUMP_I2C: _I2cNetName.ValueType
 
 class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-IMU_I2C: I2cNetName.ValueType
-R_PUMP_I2C: I2cNetName.ValueType
+I2C_IMU_I2C: I2cNetName.ValueType
+I2C_R_PUMP_I2C: I2cNetName.ValueType
 global___I2cNetName = I2cNetName
