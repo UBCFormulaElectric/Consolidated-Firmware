@@ -34,8 +34,8 @@ void app_wheelVerticalForces_broadcast(ImuData imu)
 float app_loadTransferConstant(float long_accel)
 {
     // following formula for Kmz on page 57
-    app_canTx_VC_LoadTransferScalar_set(((CAR_MASS_AT_CG_KG * GRAVITY) - (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY))) / (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY)))));
-   return(((CAR_MASS_AT_CG_KG * GRAVITY)  - (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY))) / (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY)))));
+    app_canTx_VC_LoadTransferScalar_set(((CAR_MASS_AT_CG_KG * GRAVITY) - (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY)))) / (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY))));
+   return(((CAR_MASS_AT_CG_KG * GRAVITY) - (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY)))) / (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ((long_accel / GRAVITY))));
 }
 
 void app_torqueAllocation(TorqueAllocationInputs *inputs, float loadTransferConst)
@@ -47,11 +47,11 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, float loadTransferCons
     // future inputs should include front and rear yaw rate 
     
     inputs->rear_left_motor_torque = (inputs->rear_left_motor_torque) - (loadTransferConst * inputs->rear_left_motor_torque / (4 * (loadTransferConst + 1)));
-    inputs->rear_right_motor_torque = inputs->rear_left_motor_torque + (inputs->rear_yaw_moment / F);
+    inputs->rear_right_motor_torque = inputs->rear_left_motor_torque - (inputs->rear_yaw_moment / F);
     app_canTx_VC_LeftLoadBasedTorqueReq_set(CLAMP( inputs->rear_left_motor_torque, 0, MAX_TORQUE_REQUEST_NM));
     app_canTx_VC_RightLoadBasedTorqueReq_set(CLAMP(inputs->rear_right_motor_torque, 0, MAX_TORQUE_REQUEST_NM));
-    // app_canTx_VC_LeftInverterTorqueCommand_set(inputs->rear_left_motor_torque);
-    // app_canTx_VC_RightInverterTorqueCommand_set(inputs->rear_right_motor_torque);
+    app_canTx_VC_LeftInverterTorqueCommand_set(inputs->rear_left_motor_torque);
+    app_canTx_VC_RightInverterTorqueCommand_set(inputs->rear_right_motor_torque);
     app_canTx_VC_RearYawMoment_set(inputs->rear_yaw_moment);
     app_canTx_VC_FrontYawMoment_set(inputs->front_yaw_moment);
 

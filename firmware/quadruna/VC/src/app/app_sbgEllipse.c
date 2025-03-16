@@ -57,7 +57,7 @@ void app_sbgEllipse_broadcast()
         app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)ekf_sol_mode);
     }
 
-    // determines when to use calculated or gps velocity, will be externed later
+    // determines when to use calculated or gps velocity, will be externed late
     // bool        use_calculated_velocity = ekf_sol_mode == POSITION;
 
     app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
