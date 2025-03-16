@@ -259,7 +259,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
-void io_chimera_v2_main(
+void io_chimera_v2_mainOrContinue(
     pb_size_t         gpio_tag,
     const Gpio       *gpio_conf[],
     pb_size_t         adc_tag,
