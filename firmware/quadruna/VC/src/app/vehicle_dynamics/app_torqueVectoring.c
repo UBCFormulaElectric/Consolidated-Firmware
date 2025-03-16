@@ -146,9 +146,11 @@ void app_torqueVectoring_handleAcceleration(void)
     // }
 
     // Inverter Torque Request
+    float desired_tot_yaw_moment = app_yawRateController_getYawMoment();
     torqueToLoadTransf.rear_left_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     torqueToLoadTransf.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    torqueToLoadTransf.yaw_moment = app_yawRateController_getYawMoment(); 
+    torqueToLoadTransf.rear_yaw_moment =  desired_tot_yaw_moment/ (1 + long_load_transfer_scalar);
+    torqueToLoadTransf.front_yaw_moment =  desired_tot_yaw_moment - torqueToLoadTransf.rear_yaw_moment;
     // if (run_traction_control)
     // {
     //     torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;

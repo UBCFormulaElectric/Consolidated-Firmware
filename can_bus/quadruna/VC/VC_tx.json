@@ -858,6 +858,18 @@
       "min": -10,
       "max": 10,
       "resolution": 0.1
+    },
+    "RearYawMoment": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "Nm"
+     },
+     "FrontYawMoment": {
+      "min": -360,
+      "max": 360,
+      "resolution": 0.1,
+      "unit": "Nm"
     }
   }
 },
@@ -878,6 +890,6 @@
          "resolution": 0.1,
          "unit": "Nm"
        }
-     }
+    }
   }
 }
