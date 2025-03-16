@@ -112,15 +112,14 @@ void app_torqueVectoring_handleAcceleration(void)
     app_canTx_VC_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
 
     // Yaw Rate Controller
-    yaw_rate_controller.wheel_angle_deg      = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
-    yaw_rate_controller.vehicle_velocity_kmh = app_sbgEllipse_getVehicleVelocity();
-    yaw_rate_controller.real_yaw_rate_deg    = app_canTx_VC_ImuAngularVelocityYaw_get();
+    yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
+    yaw_rate_controller.vehicle_velocity_mps = KMH_TO_MPS(app_sbgEllipse_getVehicleVelocity());
+    yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(app_canTx_VC_ImuAngularVelocityYaw_get());
     app_yawRateController_computeRefYawRate(&yaw_rate_controller);
     app_yawRateController_pidCompute(&yaw_rate_controller);
-    app_yawRateController_computeTorque(&yaw_rate_controller);
 
-    app_canTx_VC_ReferenceYawRate_set(yaw_rate_controller.ref_yaw_rate_deg);
-    app_canTx_VC_YawMoment_set(yaw_rate_controller.yaw_moment);
+    app_canTx_VC_ReferenceYawRate_set(app_yawRateController_getRefYawRateDeg());
+    app_canTx_VC_YawMoment_set(app_yawRateController_getYawMomentDeg());
 
     /**
      *  TRACTION CONTROL NOT TESTED ON CAR YET

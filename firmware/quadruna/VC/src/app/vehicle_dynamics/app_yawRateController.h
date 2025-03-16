@@ -24,12 +24,9 @@ typedef struct
     */
     float ku; 
     // Inputs
-    float wheel_angle_deg;
-    float vehicle_velocity_kmh;
-    float real_yaw_rate_deg;
-    // Outputs
-    float ref_yaw_rate_deg;
-    float yaw_moment;
+    float wheel_angle_rad;
+    float vehicle_velocity_mps;
+    float real_yaw_rate_rad;
 } YawRateController;
 
 typedef struct
@@ -52,6 +49,17 @@ void app_yawRateController_computeRefYawRate(YawRateController *yrc);
  * Computes a corrective yaw moment using PID based on reference and real yaw rate
  */
 void app_yawRateController_pidCompute(YawRateController *yrc);
+
+/*
+ * Get the reference yaw rate
+*/
+float app_yawRateController_getRefYawRateRad();
+
+/*
+ * Get the generated yaw moment
+*/
+float app_yawRateController_getYawMomentRad();
+
 
 // /*
 //  * Computes the torques to send to the wheels based on the
