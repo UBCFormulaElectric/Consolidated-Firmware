@@ -2,12 +2,12 @@
 
 
 static ImuData imu_outputs = {
-                                .lat_accel = 0.0,
-                                .long_accel = 0.0,
-                                .z_accel = 0.0,
-                                .yaw_rate = 0.0,
-                                .pitch_rate = 0.0,
-                                .roll_rate = 0.0
+                                .lat_accel = 0.0f,
+                                .long_accel = 0.0f,
+                                .z_accel = 0.0f,
+                                .yaw_rate = 0.0f,
+                                .pitch_rate = 0.0f,
+                                .roll_rate = 0.0f
                             }; 
 
 void app_collect_imu_data()

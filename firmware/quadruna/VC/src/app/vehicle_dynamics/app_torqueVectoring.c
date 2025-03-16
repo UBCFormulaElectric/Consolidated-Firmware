@@ -124,7 +124,7 @@ void app_torqueVectoring_handleAcceleration(void)
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
     yaw_rate_controller.vehicle_velocity_mps = KMH_TO_MPS(app_sbgEllipse_getVehicleVelocity());
-    yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(app_canTx_VC_ImuAngularVelocityYaw_get());
+    yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(imu_output.yaw_rate);
     app_yawRateController_run(&yaw_rate_controller);
 
     app_canTx_VC_ReferenceYawRate_set(RAD_TO_DEG(app_yawRateController_getRefYawRateRad()));
@@ -149,7 +149,7 @@ void app_torqueVectoring_handleAcceleration(void)
     float desired_tot_yaw_moment = app_yawRateController_getYawMoment();
     torqueToLoadTransf.rear_left_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     torqueToLoadTransf.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    torqueToLoadTransf.rear_yaw_moment =  desired_tot_yaw_moment/ (1 + long_load_transfer_scalar);
+    torqueToLoadTransf.rear_yaw_moment =  desired_tot_yaw_moment / (1 + long_load_transfer_scalar);
     torqueToLoadTransf.front_yaw_moment =  desired_tot_yaw_moment - torqueToLoadTransf.rear_yaw_moment;
     // if (run_traction_control)
     // {
