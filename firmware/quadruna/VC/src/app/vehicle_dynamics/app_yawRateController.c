@@ -1,4 +1,3 @@
-
 #include "app_yawRateController.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_units.h"
