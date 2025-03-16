@@ -6,4 +6,4 @@
 
 void app_collect_imu_data();
 
-imuData app_get_imu_data(); 
+ImuData app_get_imu_struct(); 

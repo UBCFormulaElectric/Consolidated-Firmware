@@ -1,7 +1,8 @@
+#pragma once
 #include <app_vehicleDynamics.h>
 #include "io_imu_config.h"
 
-float app_wheelVerticleForces_broadcast(imuData imu);
+void app_wheelVerticalForces_broadcast(ImuData imu);
 
 float app_loadTransferConstant(float long_accel);
 

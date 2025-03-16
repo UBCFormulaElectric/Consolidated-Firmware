@@ -8,7 +8,7 @@
 #define DIST_REAR_AXLE_CG (WHEELBASE_m - DIST_FRONT_AXLE_CG) // b in meters
 #define WEIGHT_ACROSS_BODY (CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m)
 
-/************** Macros for finding verticle forces on wheels based on diagram on page 21 ****************/
+/************** Macros for finding vertical forces on wheels based on diagram on page 21 ****************/
 #define REAR_WEIGHT_DISTRIBUTION (WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG)
 #define LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel) ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_m / WHEELBASE_m))
 #define LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel) ((CAR_MASS_AT_CG_KG * (lat_accel) * CG_HEIGHT_FROM_GROUND_m / (2.0f * TRACK_WIDTH_m)))
@@ -21,7 +21,7 @@
 
  
 
-void app_wheelVerticalForce_broadcast(imuData imu)
+void app_wheelVerticalForces_broadcast(ImuData imu)
 {
     app_canTx_VC_FrontLeftWheelVerticalForce_set(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu.long_accel)) / 4.0f) - LAT_ACCEL_TERM_VERTICAL_FORCE(imu.lat_accel));
     app_canTx_VC_FrontRightWheelVerticalForce_set(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu.long_accel)) / 4.0f) + LAT_ACCEL_TERM_VERTICAL_FORCE(imu.lat_accel));

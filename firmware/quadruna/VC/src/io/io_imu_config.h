@@ -1,7 +1,8 @@
+#pragma once 
 #include "hw_i2cs.h"
 #include "hw_i2c.h"
 #include "io_imu.h"
-typedef struct imuData
+typedef struct
 {
     float long_accel; 
     float lat_accel; 
@@ -9,6 +10,6 @@ typedef struct imuData
     float yaw_rate;
     float pitch_rate;
     float roll_rate; 
-} imuData; 
+} ImuData; 
 
 extern const imuConfig imu_config;

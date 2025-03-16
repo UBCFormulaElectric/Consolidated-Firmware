@@ -30,7 +30,7 @@ static bool run_traction_control = false;
 static PID   pid_power_correction;
 static float pid_power_correction_factor = 0.0f;
 static PID   pid_traction_control;
-static imuData imu_output;
+static ImuData imu_output;
 static TorqueAllocationInputs torqueToLoadTransf;  
 
 static float accelerator_pedal_percent;
@@ -69,7 +69,7 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
     left_motor_temp_C           = app_canRx_INVL_MotorTemperature_get();
     right_motor_temp_C          = app_canRx_INVR_MotorTemperature_get();
     steering_angle_deg          = app_canRx_FSM_SteeringAngle_get();
-    imu_output                  = app_get_imu_data();
+    imu_output                  = app_get_imu_struct();
 
     if (accelerator_pedal_percent > 0.0f)
     {
