@@ -33,14 +33,14 @@ Notes
 // Do not use these macros directly!
 #ifdef TARGET_EMBEDDED
 #include "SEGGER_RTT.h"
-#define _LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
+#define LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
 #else
 #include <stdio.h>
-#define _LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
+#define LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
 #endif
 
 #define _LOG(level, format, ...) \
-    _LOG_PRINTF("[" level ANSI_RESET "] (%s:%u) " format "\n", __BASENAME__(__FILE__), __LINE__, ##__VA_ARGS__)
+    LOG_PRINTF("[" level ANSI_RESET "] (%s:%u) " format "\n", __BASENAME__(__FILE__), __LINE__, ##__VA_ARGS__)
 
 #define LOG_INFO(format, ...) _LOG(ANSI_BOLD_GREEN "INFO ", format, ##__VA_ARGS__)
 #define LOG_WARN(format, ...) _LOG(ANSI_BOLD_YELLOW "WARN ", format, ##__VA_ARGS__)
