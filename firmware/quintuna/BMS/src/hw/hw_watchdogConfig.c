@@ -8,7 +8,8 @@
 
 void hw_watchdogConfig_refresh(void)
 {
-    HAL_IWDG_Refresh(&hiwdg1);
+    return;
+    // HAL_IWDG_Refresh(&hiwdg1);
 }
 
 void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)

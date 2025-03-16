@@ -57,8 +57,6 @@ CRC_HandleTypeDef hcrc;
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
-IWDG_HandleTypeDef hiwdg1;
-
 SD_HandleTypeDef hsd1;
 
 SPI_HandleTypeDef hspi4;
@@ -145,7 +143,6 @@ static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_CRC_Init(void);
-static void MX_IWDG1_Init(void);
 static void MX_TIM5_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
@@ -203,15 +200,8 @@ int main(void)
     MX_TIM3_Init();
     MX_FDCAN2_Init();
     MX_CRC_Init();
-    MX_IWDG1_Init();
     MX_TIM5_Init();
     /* USER CODE BEGIN 2 */
-
-    while (1)
-    {
-        HAL_GPIO_TogglePin(BMS_OK_GPIO_Port, BMS_OK_Pin);
-        HAL_Delay(100);
-    }
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -288,7 +278,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -297,19 +287,18 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 68;
+    RCC_OscInitStruct.PLL.PLLN       = 24;
     RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 5;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 6144;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -321,13 +310,13 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
         Error_Handler();
     }
@@ -346,7 +335,7 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI4 | RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
     PeriphClkInitStruct.PLL2.PLL2N           = 24;
-    PeriphClkInitStruct.PLL2.PLL2P           = 2;
+    PeriphClkInitStruct.PLL2.PLL2P           = 4;
     PeriphClkInitStruct.PLL2.PLL2Q           = 2;
     PeriphClkInitStruct.PLL2.PLL2R           = 2;
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
@@ -675,33 +664,6 @@ static void MX_FDCAN2_Init(void)
 }
 
 /**
- * @brief IWDG1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_IWDG1_Init(void)
-{
-    /* USER CODE BEGIN IWDG1_Init 0 */
-
-    /* USER CODE END IWDG1_Init 0 */
-
-    /* USER CODE BEGIN IWDG1_Init 1 */
-
-    /* USER CODE END IWDG1_Init 1 */
-    hiwdg1.Instance       = IWDG1;
-    hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = 4095;
-    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN IWDG1_Init 2 */
-
-    /* USER CODE END IWDG1_Init 2 */
-}
-
-/**
  * @brief SDMMC1 Initialization Function
  * @param None
  * @retval None
@@ -990,29 +952,40 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, LEDR_Pin | SPI_CS_LS_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LEDR_GPIO_Port, LEDR_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOD, BSPD_TEST_EN_Pin | SPI_CS_HS_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOD, BSPD_TEST_EN_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : IR_P_EN_Pin SHDN_EN_Pin PRE_CHARGE_EN_Pin FB_STBY_SHDN_Pin
-                             FAN_EN_Pin BMS_OK_Pin */
-    GPIO_InitStruct.Pin   = IR_P_EN_Pin | SHDN_EN_Pin | PRE_CHARGE_EN_Pin | FB_STBY_SHDN_Pin | FAN_EN_Pin | BMS_OK_Pin;
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(SPI_CS_HS_GPIO_Port, SPI_CS_HS_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pins : IR_P_EN_Pin SHDN_EN_Pin FB_STBY_SHDN_Pin BMS_OK_Pin */
+    GPIO_InitStruct.Pin   = IR_P_EN_Pin | SHDN_EN_Pin | FB_STBY_SHDN_Pin | BMS_OK_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LEDR_Pin SPI_CS_LS_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin | SPI_CS_LS_Pin;
+    /*Configure GPIO pin : LEDR_Pin */
+    GPIO_InitStruct.Pin   = LEDR_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(LEDR_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : SPI_CS_LS_Pin */
+    GPIO_InitStruct.Pin   = SPI_CS_LS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(SPI_CS_LS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
                              DIAG_Pin SD_CD_Pin */
@@ -1042,9 +1015,15 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BSPD_TEST_EN_Pin SPI_CS_HS_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin
-                             TSENSE_SEL2_Pin */
-    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | SPI_CS_HS_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
+    /*Configure GPIO pins : PRE_CHARGE_EN_Pin FAN_EN_Pin */
+    GPIO_InitStruct.Pin   = PRE_CHARGE_EN_Pin | FAN_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BSPD_TEST_EN_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin TSENSE_SEL2_Pin */
+    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1055,6 +1034,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(TS_ISENSE_OCSC_OK_3V3_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : SPI_CS_HS_Pin */
+    GPIO_InitStruct.Pin   = SPI_CS_HS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(SPI_CS_HS_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

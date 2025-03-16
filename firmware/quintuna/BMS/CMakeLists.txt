@@ -18,7 +18,7 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-    ""
+    "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -26,7 +26,10 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-    ""
+    "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
