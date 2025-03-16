@@ -20,11 +20,11 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "usb_device.h"
-#include <hw_usb.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tasks.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -147,7 +147,7 @@ void        RunTaskCanRx(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -181,7 +181,6 @@ int main(void)
     osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
-    hw_usb_init();
     /* add mutexes, ... */
     /* USER CODE END RTOS_MUTEX */
 
@@ -195,6 +194,7 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
+    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -588,11 +588,7 @@ void RunTask1kHz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1kHz();
     /* USER CODE END 5 */
 }
 
@@ -606,11 +602,7 @@ void RunTask1kHz(void *argument)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
 
@@ -624,11 +616,7 @@ void RunTask100Hz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
@@ -642,11 +630,7 @@ void RunTask1Hz(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -660,11 +644,7 @@ void RunTaskCanTx(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 

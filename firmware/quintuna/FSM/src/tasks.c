@@ -8,14 +8,14 @@
 #include "io_canQueue.h"
 
 // hw
-#include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
+#include "hw_usb.h"
 
 #include "io_chimeraConfig_v2.h"
 #include "io_chimera_v2.h"
 
-void tasks_preinit(void) {}
+void tasks_preInit() {}
 
 void tasks_init(void)
 {
@@ -27,6 +27,7 @@ void tasks_init(void)
     // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
+    hw_usb_init();
 
     jobs_init();
 }
@@ -65,14 +66,14 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    io_chimera_v2_main(
-        GpioNetName_fsm_net_name_tag, id_to_gpio, AdcNetName_fsm_net_name_tag, id_to_adc,
-        I2cNetName_fsm_net_name_tag, id_to_i2c);
     // Setup tasks.
     static const TickType_t period_ms   = 10;
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+        io_chimera_v2_mainOrContinue(
+            GpioNetName_fsm_net_name_tag, id_to_gpio, AdcNetName_fsm_net_name_tag, id_to_adc,
+            I2cNetName_fsm_net_name_tag, id_to_i2c);
         jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
