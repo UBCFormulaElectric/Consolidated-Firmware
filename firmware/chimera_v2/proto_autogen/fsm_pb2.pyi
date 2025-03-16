@@ -20,34 +20,34 @@ class _GpioNetName:
 class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GpioNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     GPIO_NET_NAME_UNSPECIFIED: _GpioNetName.ValueType
-    BOTS_3v3: _GpioNetName.ValueType
-    COCKPIT_SHDN_3v3: _GpioNetName.ValueType
-    IMU_INT1: _GpioNetName.ValueType
-    IMU_INT2: _GpioNetName.ValueType
-    NSUSP_FL_OCSC: _GpioNetName.ValueType
-    NSUSP_FR_OCSC: _GpioNetName.ValueType
-    FR_INT_3v3: _GpioNetName.ValueType
-    FL_INT_3v3: _GpioNetName.ValueType
-    DEBUG_LED: _GpioNetName.ValueType
-    NSTR_ANGLE_OCSC: _GpioNetName.ValueType
-    NBPS_F_OCSC: _GpioNetName.ValueType
-    BOOT_LED: _GpioNetName.ValueType
+    GPIO_BOTS_3v3: _GpioNetName.ValueType
+    GPIO_COCKPIT_SHDN_3v3: _GpioNetName.ValueType
+    GPIO_IMU_INT1: _GpioNetName.ValueType
+    GPIO_IMU_INT2: _GpioNetName.ValueType
+    GPIO_NSUSP_FL_OCSC: _GpioNetName.ValueType
+    GPIO_NSUSP_FR_OCSC: _GpioNetName.ValueType
+    GPIO_FR_INT_3v3: _GpioNetName.ValueType
+    GPIO_FL_INT_3v3: _GpioNetName.ValueType
+    GPIO_DEBUG_LED: _GpioNetName.ValueType
+    GPIO_NSTR_ANGLE_OCSC: _GpioNetName.ValueType
+    GPIO_NBPS_F_OCSC: _GpioNetName.ValueType
+    GPIO_BOOT_LED: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
-BOTS_3v3: GpioNetName.ValueType
-COCKPIT_SHDN_3v3: GpioNetName.ValueType
-IMU_INT1: GpioNetName.ValueType
-IMU_INT2: GpioNetName.ValueType
-NSUSP_FL_OCSC: GpioNetName.ValueType
-NSUSP_FR_OCSC: GpioNetName.ValueType
-FR_INT_3v3: GpioNetName.ValueType
-FL_INT_3v3: GpioNetName.ValueType
-DEBUG_LED: GpioNetName.ValueType
-NSTR_ANGLE_OCSC: GpioNetName.ValueType
-NBPS_F_OCSC: GpioNetName.ValueType
-BOOT_LED: GpioNetName.ValueType
+GPIO_BOTS_3v3: GpioNetName.ValueType
+GPIO_COCKPIT_SHDN_3v3: GpioNetName.ValueType
+GPIO_IMU_INT1: GpioNetName.ValueType
+GPIO_IMU_INT2: GpioNetName.ValueType
+GPIO_NSUSP_FL_OCSC: GpioNetName.ValueType
+GPIO_NSUSP_FR_OCSC: GpioNetName.ValueType
+GPIO_FR_INT_3v3: GpioNetName.ValueType
+GPIO_FL_INT_3v3: GpioNetName.ValueType
+GPIO_DEBUG_LED: GpioNetName.ValueType
+GPIO_NSTR_ANGLE_OCSC: GpioNetName.ValueType
+GPIO_NBPS_F_OCSC: GpioNetName.ValueType
+GPIO_BOOT_LED: GpioNetName.ValueType
 global___GpioNetName = GpioNetName
 
 class _AdcNetName:
@@ -57,22 +57,22 @@ class _AdcNetName:
 class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_AdcNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     ADC_NET_NAME_UNSPECIFIED: _AdcNetName.ValueType
-    SUSP_FL: _AdcNetName.ValueType
-    SUSP_FR: _AdcNetName.ValueType
-    APPS2: _AdcNetName.ValueType
-    BPS_F: _AdcNetName.ValueType
-    STR_ANGLE: _AdcNetName.ValueType
-    APPS1: _AdcNetName.ValueType
+    ADC_SUSP_FL: _AdcNetName.ValueType
+    ADC_SUSP_FR: _AdcNetName.ValueType
+    ADC_APPS2: _AdcNetName.ValueType
+    ADC_BPS_F: _AdcNetName.ValueType
+    ADC_STR_ANGLE: _AdcNetName.ValueType
+    ADC_APPS1: _AdcNetName.ValueType
 
 class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper):
     ...
 ADC_NET_NAME_UNSPECIFIED: AdcNetName.ValueType
-SUSP_FL: AdcNetName.ValueType
-SUSP_FR: AdcNetName.ValueType
-APPS2: AdcNetName.ValueType
-BPS_F: AdcNetName.ValueType
-STR_ANGLE: AdcNetName.ValueType
-APPS1: AdcNetName.ValueType
+ADC_SUSP_FL: AdcNetName.ValueType
+ADC_SUSP_FR: AdcNetName.ValueType
+ADC_APPS2: AdcNetName.ValueType
+ADC_BPS_F: AdcNetName.ValueType
+ADC_STR_ANGLE: AdcNetName.ValueType
+ADC_APPS1: AdcNetName.ValueType
 global___AdcNetName = AdcNetName
 
 class _I2cNetName:
@@ -82,10 +82,10 @@ class _I2cNetName:
 class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
-    IMU_I2C: _I2cNetName.ValueType
+    I2C_IMU: _I2cNetName.ValueType
 
 class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-IMU_I2C: I2cNetName.ValueType
+I2C_IMU: I2cNetName.ValueType
 global___I2cNetName = I2cNetName
