@@ -10,9 +10,9 @@ void hw_uart_receiveDma(const UART *uart, uint8_t *pData, uint8_t size)
     HAL_UART_Receive_DMA(uart->handle, pData, size);
 }
 
-void hw_uart_transmitPoll(const UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout)
+bool hw_uart_transmitPoll(const UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout)
 {
-    HAL_UART_Transmit(uart->handle, pData, size, timeout);
+    return HAL_UART_Transmit(uart->handle, pData, size, timeout) == HAL_OK;
 }
 
 bool hw_uart_receivePoll(const UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout)

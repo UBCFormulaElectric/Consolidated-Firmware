@@ -13,11 +13,20 @@ services:
   #     [
   #       "python3",
   #       "app/telemetry.py",
-  #       "--mode",
-  #       "wireless",
-  #       "--serial-port",
-  #       "TODO"
   #     ]
+  live_data:
+    extends:
+      file: common.yml
+      service: live_data
+    command:
+      [
+        "python3",
+        "app/app.py",
+        "--mode",
+        "wireless",
+        "--serial-port",
+        "TODO"
+      ]
   frontend:
     extends:
       file: common.yml
