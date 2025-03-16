@@ -1,14 +1,15 @@
 import 'dart:io';
 import 'package:dimos/ui/core/themes/themes.dart';
-import 'package:dimos/ui/low_voltage/widgets/lv_screen.dart';
-import 'package:dimos/ui/notificationbar/widgets/NotificationBar.dart';
+import 'package:dimos/ui/low_voltage/lv_screen.dart';
+import 'package:dimos/ui/notificationbar/NotificationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   setupWindow();
 
-  runApp(const App());
+  runApp(App());
 }
 
 class App extends StatelessWidget {
@@ -16,15 +17,18 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: Scaffold(
-        appBar: NotificationBar(),
-        body: Center(
-          child: LVScreen()
+    return ChangeNotifierProvider(
+      create: (_) => WarningsList(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.darkTheme,
+        home: Scaffold(
+          appBar: NotificationBar(),
+          body: Center(
+            child: LVScreen()
+          ),
         ),
-      ),
+      )
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:linux_can/linux_can.dart';
+import 'dart:async';
+import 'dart:isolate';
+import 'dart:io';
 
 Future<void> main() async {
   final linuxcan = LinuxCan.instance;
@@ -23,15 +26,15 @@ Future<void> main() async {
   // Actually open the device, so we can send/receive frames.
   final socket = device.open();
 
-  if (socket.isFlexibleDataRate) {
-    socket.send(CanFrame.standardFd(
-        id: 0x123,
-        data: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12],
-        switchBitRate: true));
-  } else {
-    // Send some example CAN frame.
-    socket.send(CanFrame.standard(id: 0x123, data: [0x01, 0x02, 0x03, 0x04]));
-  }
+  // if (socket.isFlexibleDataRate) {
+  //   socket.send(CanFrame.standardFd(
+  //       id: 0x123,
+  //       data: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12],
+  //       switchBitRate: true));
+  // } else {
+  //   // Send some example CAN frame.
+  //   socket.send(CanFrame.standard(id: 0x123, data: [0x01, 0x02, 0x03, 0x04]));
+  // }
 
   // Read a CAN frame. This is blocking, i.e. it will wait for a frame to arrive.
   //
@@ -56,4 +59,40 @@ Future<void> main() async {
 
   // Close the socket to release all resources.
   await socket.close();
+}
+
+class CanSocketWorker {
+  late SendPort _sendPort;
+
+  Future<void> start(Function(Map<String, dynamic>) onFrameReceived) async {
+    final receivePort = ReceivePort();
+    await Isolate.spawn(_worker, receivePort.sendPort);
+
+    receivePort.listen((message) {
+      if (message is SendPort) {
+        _sendPort = message;
+      } else if (message is Map<String, dynamic>) {
+        onFrameReceived(message); // Notify ChangeNotifier
+      }
+    });
+  }
+
+  static void _worker(SendPort mainSendPort) async {
+    final workerPort = ReceivePort();
+    mainSendPort.send(workerPort.sendPort);
+
+    final socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 12345);
+    print('CAN socket worker started');
+
+    socket.listen((event) {
+      if (event == RawSocketEvent.read) {
+        final datagram = socket.receive();
+        if (datagram != null) {
+          final frame = String.fromCharCodes(datagram.data);
+          final parsedData = {"id": 123, "data": frame}; // Simulated CAN frame parsing
+          mainSendPort.send(parsedData);
+        }
+      }
+    });
+  }
 }

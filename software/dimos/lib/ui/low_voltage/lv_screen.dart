@@ -1,15 +1,17 @@
-// NotificationBar widget
+/* NotificationBar widget */
 
-import 'package:dimos/ui/low_voltage/widgets/shutdown_loop.dart';
-import 'package:dimos/ui/notificationbar/widgets/NotificationBar.dart';
+import 'package:dimos/ui/low_voltage/shutdown_loop.dart';
+import 'package:dimos/ui/notificationbar/NotificationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+/* Main Widget */
 class LVScreen extends StatelessWidget {
-  final Map<String, String> svgMap = {
+
+  final Map<String, String> _svgMap = {
     'logo': '../../../assets/fe_logo.svg'
   };
-  
+
   LVScreen({super.key});
 
   @override
