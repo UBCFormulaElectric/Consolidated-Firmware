@@ -9,4 +9,10 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+
+	"clangd.arguments" :[
+		"--compile-commands-dir=/Users/gtaharaedmonds/src/Consolidated-Firmware/build_fw_dev",
+		// "--compile-commands-dir=/Users/gtaharaedmonds/src/Consolidated-Firmware/build_fw_test"
+		"--query-driver=/usr/local/bin/arm-none-eabi-gcc"
+	]
 }
