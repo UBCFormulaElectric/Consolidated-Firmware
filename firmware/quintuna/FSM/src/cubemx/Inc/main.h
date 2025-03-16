@@ -56,8 +56,6 @@ extern "C"
 
     /* USER CODE END EM */
 
-    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
@@ -66,11 +64,11 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TIMx_FREQUENCY 96000000
-#define LSI_FREQUENCY 32000
+#define TIM2_ARR TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY)
 #define TIM2_PRESCALER 64
+#define LSI_FREQUENCY 32000
 #define TIM2_FREQUENCY 1000
-#define TIM2_ARR (TIMx_FREQUENCY * TIM2_FREQUENCY) / TIM2_PRESCALER
+#define TIMx_FREQUENCY 96000000
 #define STR_ANGLE_3V3_Pin GPIO_PIN_1
 #define STR_ANGLE_3V3_GPIO_Port GPIOC
 #define APPS1_3V3_Pin GPIO_PIN_2
