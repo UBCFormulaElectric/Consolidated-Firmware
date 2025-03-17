@@ -6,17 +6,28 @@ Provides tooling to debug devices over USB, CAN, etc.
 
 # Typing.
 from __future__ import annotations
-from typing import Dict, Optional, Any
-import types
+
+import signal
 
 # Threading.
 import threading
-import signal
+import types
+from typing import Any, Dict, Optional
+
+import can
+import cantools
 
 # Peripherals.
 import libusb_package
-import cantools
-import can
+import proto_autogen.crit_pb2
+import proto_autogen.dam_pb2
+
+# Protobuf autogen packages.
+import proto_autogen.f4dev_pb2
+import proto_autogen.fsm_pb2
+import proto_autogen.rsm_pb2
+import proto_autogen.shared_pb2
+import proto_autogen.ssm_pb2
 
 # Pyvisa Peripherals.
 from load_bank import *
@@ -31,6 +42,7 @@ import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
 import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
+import proto_autogen.ssm_pb2
 
 _MANUFACTURER = "ubc_formula_electric"
 
@@ -637,4 +649,18 @@ class FSM(_Board):
             i2c_net_name="fsm_net_name",
             spi_net_name="fsm_net_name",
             board_module=proto_autogen.fsm_pb2,
+        )
+
+
+class DAM(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a DAM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="dam"),
+            gpio_net_name="dam_net_name",
+            adc_net_name="dam_net_name",
+            i2c_net_name="dam_net_name",
+            spi_net_name="dam_net_name",
+            board_module=proto_autogen.dam_pb2,
         )
