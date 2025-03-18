@@ -18,4 +18,5 @@ const AdcChannel *id_to_adc[] = { [f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = 
 // TODO: Configure I2Cs.
 const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
 
-const SpiDevice *id_to_spi[] = { [f4dev_SPINetName_SPI_NET_NAME_UNSPECIFIED] = NULL };
+// TODO: Configure SPIs.
+const SpiDevice *id_to_spi[] = { [f4dev_SpiNetName_SPI_NET_NAME_UNSPECIFIED] = NULL };
