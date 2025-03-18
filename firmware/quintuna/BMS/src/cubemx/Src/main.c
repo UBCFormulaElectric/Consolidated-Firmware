@@ -23,11 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "io_log.h"
-#include "hw_usb.h"
-#include "io_chimeraConfig_v2.h"
-#include "io_chimera_v2.h"
-#include "shared.pb.h"
+#include "tasks.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -166,7 +163,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    LOG_INFO("BMS Reset");
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -220,7 +217,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    hw_usb_init();
+    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -1062,14 +1059,7 @@ void RunTask100Hz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_bms_net_name_tag, id_to_gpio, AdcNetName_bms_net_name_tag, id_to_adc,
-            I2cNetName_bms_net_name_tag, id_to_i2c);
-        osDelay(100);
-    }
+    tasks_run100Hz();
     /* USER CODE END 5 */
 }
 
@@ -1083,11 +1073,7 @@ void RunTask100Hz(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -1101,11 +1087,7 @@ void RunTaskCanRx(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -1119,11 +1101,7 @@ void RunTaskCanTx(void *argument)
 void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
 
@@ -1137,11 +1115,7 @@ void RunTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
