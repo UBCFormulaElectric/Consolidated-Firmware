@@ -25,8 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_error.h"
-
-#include <hw_usb.h>
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -205,12 +204,12 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    // MX_SDMMC1_SD_Init();
+    MX_SDMMC1_SD_Init();
     MX_FDCAN2_Init();
     MX_USART2_UART_Init();
     MX_I2C1_Init();
     MX_TIM15_Init();
-    // MX_IWDG1_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -444,7 +443,8 @@ static void MX_I2C1_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-
+    // TODO remove
+    return;
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -471,7 +471,8 @@ static void MX_IWDG1_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-
+    // TODO remove
+    return;
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */

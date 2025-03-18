@@ -13,6 +13,10 @@
 #include "hw_usb.h"
 #include "hw_gpios.h"
 
+#include <io_chimera_v2.h>
+#include <shared.pb.h>
+#include <io_chimeraConfig_v2.h>
+
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
@@ -68,6 +72,9 @@ _Noreturn void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+        io_chimera_v2_mainOrContinue(
+            GpioNetName_dam_net_name_tag, id_to_gpio, AdcNetName_dam_net_name_tag, id_to_adc,
+            I2cNetName_dam_net_name_tag, id_to_i2c);
         jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
