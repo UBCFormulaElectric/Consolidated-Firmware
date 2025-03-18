@@ -11,6 +11,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_gpios.h"
 
 void tasks_preInit(void)
 {
@@ -33,6 +34,9 @@ void tasks_init(void)
     hw_can_init(&can1);
     hw_usb_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
+    hw_gpio_writePin(&tsim_red_en_pin, true);
+    hw_gpio_writePin(&ntsim_green_en_pin, false);
 }
 
 _Noreturn void tasks_run1Hz(void)
@@ -81,7 +85,7 @@ _Noreturn void tasks_run1kHz(void)
     // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static const TickType_t period_ms   = 1U;
-    static uint32_t         start_ticks = osKernelGetTickCount();
+    uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
         // const uint32_t task_start_ms = io_time_getCurrentMs();
