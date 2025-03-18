@@ -17,7 +17,6 @@ enum I2cNetName {
   I2C_3 = 1;
 }
 
-enum SPINetName {
+enum SpiNetName {
   SPI_NET_NAME_UNSPECIFIED = 0;
-  SPI_? = 1;
 }

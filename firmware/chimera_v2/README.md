@@ -171,11 +171,11 @@ stm32f412rx_cube_library(
 ...
 ```
 
-Also make sure to explicitly enable I2C/ADC, even if your board does not have them (Chimera V2 relies on them).
+Also make sure to explicitly enable I2C/SPI/ADC, even if your board does not have them (Chimera V2 relies on them).
 
 Eg. For the SSM
 ```cmake
-target_compile_definitions("ssm.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
+target_compile_definitions("ssm.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
 ```
 
 Try to build. This will regenerate all the STM32 code, with USB files setup.
@@ -230,9 +230,13 @@ enum AdcNetName {
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
 }
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+}
 ```
 
-Now go into [`./proto/shared.proto`](./proto/shared.proto), and import your board's proto at the top of the file. In `GpioNetName`, `AdcNetName`, and `I2cNetName`, add your new board-specific enums.
+Now go into [`./proto/shared.proto`](./proto/shared.proto), and import your board's proto at the top of the file. In `GpioNetName`, `AdcNetName`, `SpiNetName`, and `I2cNetName`, add your new board-specific enums.
 
 Eg. With the F4Dev configued:
 
@@ -268,6 +272,15 @@ message I2cNetName {
   }
 }
 
+...
+
+message I2cNetName {
+  oneof name {
+    ...
+    f4dev.SpiNetName f4dev_net_name = 1;
+  }
+}
+
 ```
 
 To generate the Protobuf Python libraries, run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh).
@@ -287,13 +300,14 @@ class F4Dev(_Board):
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
             i2c_net_name="f4dev_net_name",
+            spi_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )
 ```
 
 Note: the `product` field in the `_UsbDevice` initializer is the same as you configured in STM32CubeMX.
 
-The next step is to configure Chimera on the board. Open [`io_chimera_v2.c`](../shared/src/io/io_chimera_v2.c). Modify `io_chimera_v2_getGpio`, `io_chimera_v2_getAdc`, and `io_chimera_v2_getI2c` with a branch corresponding to your board.
+The next step is to configure Chimera on the board. Open [`io_chimera_v2.c`](../shared/src/io/io_chimera_v2.c). Modify `io_chimera_v2_getGpio`, `io_chimera_v2_getAdc`, `io_chimera_v2_getSpi`, and `io_chimera_v2_getI2c` with a branch corresponding to your board.
 
 eg.
 ```c
@@ -332,6 +346,17 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
     ...
 }
 
+// Convert a given SPI enum to a SPI device.
+static const SpiDevice *io_chimera_v2_getSpi(const SpiNetName *net_name)
+{
+    ...
+
+    if (net_name->which_name == SpiNetName_f4dev_net_name_tag)
+        return id_to_spi[net_name->name.f4dev_net_name];
+
+    ...
+}
+
 
 ...
 ```
@@ -361,6 +386,7 @@ To capture these peripherals on the board side, we need to create a mapping from
 extern const Gpio       *id_to_gpio[];
 extern const AdcChannel *id_to_adc[];
 extern const I2cDevice  *id_to_i2c[];
+extern const SpiDevice  *id_to_spi[];
 ```
 
 `io_chimeraConfig_v2.c` should extern declare tables mapping from the protobuf net name enums, to the actual peripherals.
@@ -372,7 +398,10 @@ Eg. GPIO 6 on the F4 Dev board,
 #include "hw_gpios.h"
 #include "hw_adc.h"
 #include "hw_adcs.h"
+#include "hw_i2c.h"
 #include "hw_i2cs.h"
+#include "hw_spi.h"
+#include "hw_spis.h"
 
 const Gpio *id_to_gpio[] = {
     [f4dev_GpioNetName_GPIO_6] = &gpio_6,
@@ -384,9 +413,12 @@ const AdcChannel *id_to_adc[] = { [f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = 
 
 // TODO: Configure I2Cs.
 const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
+
+// TODO: Configure SPIs.
+const I2cDevice *id_to_spi[] = { [f4dev_SpiNetName_SPI_NET_NAME_UNSPECIFIED] = NULL };
 ```
 
-> Note: Because chimera rellies on the existance of all of these peripherals, you will need a `hw_i2cs.h`, `hw_gpios.h`, and `hw_i2cs.h` header in every board. This will likely mean you have to add the i2c HAL headers, see other boards on how to do this.
+> Note: Because chimera rellies on the existance of all of these peripherals, you will need a `hw_i2cs.h`, `hw_gpios.h`, `hw_spis.h`, and `hw_i2cs.h` header in every board. This will likely mean you have to add the i2c HAL headers, see other boards on how to do this.
 >
 > If your board has none of a given peripheral, (ie. no ADC channels, or no I2C devices), you can provide an id_to_peripheral table as follows:
 >
@@ -396,6 +428,9 @@ const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = N
 > 
 > // TODO: Configure I2Cs.
 > const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
+> 
+> // TODO: Configure SPIs.
+> const SpiDevice *id_to_spi[] = { [f4dev_SpiNetName_SPI_NET_NAME_UNSPECIFIED] = NULL };
 >```
 >
 > Since a lot of boards might not have I2C devices, it is sufficent to supply a `hw_i2cs.h` as follows:
@@ -415,7 +450,29 @@ const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = N
 >     return NULL;
 > }
 > ```
+> 
+> 
+> For SPI configs for boards without SPI devices, we can do something very similar.
+>
+> 
+> `hw_spis.h`:
+> ```c
+> #pragma once
+> 
+> #include "hw_spi.h"
+> ```
+>
+> `hw_spis.c`:
+> ```c
+> #include "hw_spis.h"
+> #include "main.h"
+> 
+> SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
+> {
+>     return NULL;
+> }
 
+> ```
 
 We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_mainOrContinue` in your desired task (You need to also include `shared.pb.h` and `io_chimeraConfig_v2.h` at the top of your file).
 
@@ -425,6 +482,7 @@ Eg. For the f4dev,
         GpioNetName_f4dev_net_name_tag, id_to_gpio, 
         AdcNetName_f4dev_net_name_tag, id_to_adc,
         I2cNetName_f4dev_net_name_tag, id_to_i2c
+        SpiNetName_f4dev_net_name_tag, id_to_spi
     );
 ```
 

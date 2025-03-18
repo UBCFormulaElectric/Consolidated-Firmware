@@ -138,18 +138,14 @@ message I2cMemoryWriteResponse {
 message SpiNetName {
   oneof name {
     f4dev.SpiNetName f4dev_net_name = 1;
+    ssm.SpiNetName ssm_net_name = 2;
+    crit.SpiNetName crit_net_name = 3;
+    rsm.SpiNetName rsm_net_name = 4;
+    fsm.SpiNetName fsm_net_name = 5;
   }
 }
 
-// SPI ready check request/response.
-message SpiReadyRequest {
-  SpiNetName net_name = 1;
-}
-
-message SpiReadyResponse {
-  bool ready = 1;
-}
-
+// SPI transmit data request/response.
 message SpiTransmitRequest {
   SpiNetName net_name = 1;
   bytes data = 2 [(nanopb).max_size = 1024];
@@ -169,18 +165,16 @@ message SpiReceiveResponse {
   bytes data = 1 [(nanopb).max_size = 1024];
 }
 
-// SPI full-duplex
+// SPI full-duplex request/response.
 message SpiTransactionRequest {
-  SpiNetName = 1;
-  GPIONetName chip_select = 2;
-  bytes tx_data = 3 [(nanopb).max_size = 1024];
-  uint32 rx_length = 4;
+  SpiNetName net_name = 1;
+  bytes tx_data = 2 [(nanopb).max_size = 1024];
+  uint32 rx_length = 3;
 }
 
 message SpiTransactionResponse {
   bytes rx_data = 1 [(nanopb).max_size = 1024];
 }
-
 
 /* 
   Wrapper around all messages 
@@ -206,12 +200,10 @@ message ChimeraV2Request {
     I2cMemoryReadRequest i2c_memory_read = 7;
     I2cMemoryWriteRequest i2c_memory_write = 8;
 
-    //SPI
-    SpiReadyRequest spi_ready = 9;
-    SpiReceiveRequest spi_receive = 10;
-    SpiTransmitRequest spi_transmit = 11;
-    SpiTransmitResponse spi_transaction = 12;
-    SpiTransactionRequest spi_transaction = 13;  
+    // SPI.
+    SpiReceiveRequest spi_receive = 9;
+    SpiTransmitRequest spi_transmit = 10;
+    SpiTransactionRequest spi_transaction = 11;
   }
 }
 
@@ -232,11 +224,8 @@ message ChimeraV2Response {
     I2cMemoryWriteResponse i2c_memory_write = 8;
 
     // SPI.
-    SpiReadyResponse spi_ready = 9;
+    SpiReceiveResponse spi_receive = 9;
     SpiTransmitResponse spi_transmit = 10;
-    SpiReceiveResponse spi_receive = 11;
-    SpiReceiveResponse spi_transmit = 12;
-    SpiTransactionResponse spi_transaction = 13;
-
+    SpiTransactionResponse spi_transaction = 11;
   }
 }
