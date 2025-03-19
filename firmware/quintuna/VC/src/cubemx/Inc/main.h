@@ -43,6 +43,7 @@ extern "C"
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
     extern ADC_HandleTypeDef   hadc1;
+    extern ADC_HandleTypeDef   hadc2;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern FDCAN_HandleTypeDef hfdcan2;
     extern FDCAN_HandleTypeDef hfdcan3;

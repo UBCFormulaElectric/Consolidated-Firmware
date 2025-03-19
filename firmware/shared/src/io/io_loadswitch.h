@@ -9,7 +9,7 @@
 #include "app_utils.h"
 EMPTY_STRUCT(LoadSwitch)
 EMPTY_STRUCT(Efuse)
- #endif
+#endif
 
 typedef struct
 {
