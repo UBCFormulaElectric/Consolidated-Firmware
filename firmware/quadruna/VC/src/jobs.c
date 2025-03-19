@@ -25,12 +25,17 @@
 #include "io_telemMessage.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
-#include "io_cans.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
-    const CanMsg c = io_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&c);
+    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&msg);
+    // ReSharper disable once CppRedundantCastExpression
+    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+        io_canLogging_loggingQueuePush(&msg);
+    // ReSharper disable once CppRedundantCastExpression
+    if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
+        io_telemMessage_pushMsgtoQueue(&msg);
 }
 
 void jobs_init()
@@ -65,7 +70,6 @@ void jobs_init()
         LOG_INFO("Imu initialization failed");
     }
 
-    io_can_init(&can1);
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
@@ -99,19 +103,6 @@ void jobs_run1kHz_tick(void)
 {
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
-}
-
-void jobs_runCanTx_tick(void)
-{
-    CanMsg tx_msg = io_canQueue_popTx();
-    io_can_transmit(&can1, &tx_msg); // TODO make HW -> IO CAN
-
-    // ReSharper disable once CppRedundantCastExpression
-    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)tx_msg.std_id, tx_msg.timestamp))
-        io_canLogging_loggingQueuePush(&tx_msg);
-    // ReSharper disable once CppRedundantCastExpression
-    if (app_dataCapture_needsTelem((uint16_t)tx_msg.std_id, tx_msg.timestamp))
-        io_telemMessage_pushMsgtoQueue(&tx_msg);
 }
 
 void jobs_runCanRx_tick(void)
