@@ -26,7 +26,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
