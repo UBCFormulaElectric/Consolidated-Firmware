@@ -14,6 +14,11 @@
 #include "hw_i2c.h"
 #include "hw_spi.h"
 
+// Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
+// Yes, this is 65kb of RAM - it's a lot, but doable.
+#define OUT_BUFFER_SIZE 0xffff
+static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
+
 bool io_chimera_v2_enabled = false;
 
 static const Gpio       **id_to_gpio;
@@ -25,12 +30,6 @@ pb_size_t gpio_net_name_tag = 0;
 pb_size_t adc_net_name_tag  = 0;
 pb_size_t i2c_net_name_tag  = 0;
 pb_size_t spi_net_name_tag  = 0;
-
-// Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
-const uint16_t OUT_BUFFER_SIZE = 0xffff;
-
-// Note: this buffer is allocated at runtime, since on non-Chimera runs we do not want to allocate it.
-static pb_byte_t *out_buffer = NULL;
 
 // Convert a given GpioNetName to a GPIO pin.
 static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
@@ -358,13 +357,6 @@ void io_chimera_v2_mainOrContinue(
     pb_size_t         spi_tag,
     const SpiDevice  *spi_conf[])
 {
-    // If usb is not connected, skip Chimera.
-    if (!hw_usb_checkConnection())
-    {
-        LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
-        return;
-    }
-
     io_chimera_v2_enabled = true;
 
     // Set tags.
@@ -379,13 +371,16 @@ void io_chimera_v2_mainOrContinue(
     id_to_i2c  = i2c_conf;
     id_to_spi  = spi_conf;
 
-    // Allocate the output buffer.
-    out_buffer = malloc(OUT_BUFFER_SIZE);
-
     for (uint32_t requests_processed = 1; true; requests_processed += 1)
     {
-        LOG_INFO("Chimera: Waiting for message...");
+        // If usb is not connected, skip Chimera.
+        if (!hw_usb_checkConnection())
+        {
+            LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
+            break;
+        }
 
+        LOG_INFO("Chimera: Waiting for message...");
         // CHIMERA Packet Format:
         // [ length low byte  | length high byte | content bytes    | ... ]
 
@@ -410,13 +405,11 @@ void io_chimera_v2_mainOrContinue(
             LOG_PRINTF("%02x ", content[i]);
         LOG_PRINTF("\n");
 
+        // Parse content and return response.
         io_chimera_v2_handleContent(content, length);
 
         LOG_INFO("Chimera: Processed %d requests", requests_processed);
     }
-
-    free(out_buffer);
-    out_buffer = NULL;
 
     io_chimera_v2_enabled = false;
 }

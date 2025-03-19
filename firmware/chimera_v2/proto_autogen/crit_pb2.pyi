@@ -83,14 +83,14 @@ class _SpiNetName:
 class _SpiNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     SPI_NET_NAME_UNSPECIFIED: _SpiNetName.ValueType
-    SPI_NET_NAME_LED_SPI: _SpiNetName.ValueType
-    SPI_NET_NAME_SEVEN_SEG_SPI: _SpiNetName.ValueType
+    SPI_LED: _SpiNetName.ValueType
+    SPI_SEVEN_SEG: _SpiNetName.ValueType
 
 class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
     ...
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
-SPI_NET_NAME_LED_SPI: SpiNetName.ValueType
-SPI_NET_NAME_SEVEN_SEG_SPI: SpiNetName.ValueType
+SPI_LED: SpiNetName.ValueType
+SPI_SEVEN_SEG: SpiNetName.ValueType
 global___SpiNetName = SpiNetName
 
 class _PwmOutputNetName:
