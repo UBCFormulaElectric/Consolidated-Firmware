@@ -1,20 +1,17 @@
 #include "app_imu.h"
 
-
-static ImuData imu_outputs = {
-                                .lat_accel = 0.0f,
-                                .long_accel = 0.0f,
-                                .z_accel = 0.0f,
-                                .yaw_rate = 0.0f,
-                                .pitch_rate = 0.0f,
-                                .roll_rate = 0.0f
-                            }; 
+static ImuData imu_outputs = { .lat_accel  = 0.0f,
+                               .long_accel = 0.0f,
+                               .z_accel    = 0.0f,
+                               .yaw_rate   = 0.0f,
+                               .pitch_rate = 0.0f,
+                               .roll_rate  = 0.0f };
 
 void app_collect_imu_data()
 {
-    bool has_lin_accel_x = io_imu_getLinearAccelerationX(&imu_outputs.long_accel);
-    bool has_lin_accel_y = io_imu_getLinearAccelerationY(&imu_outputs.lat_accel);
-    bool has_lin_accel_z = io_imu_getLinearAccelerationZ(&imu_outputs.z_accel);
+    bool has_lin_accel_x   = io_imu_getLinearAccelerationX(&imu_outputs.long_accel);
+    bool has_lin_accel_y   = io_imu_getLinearAccelerationY(&imu_outputs.lat_accel);
+    bool has_lin_accel_z   = io_imu_getLinearAccelerationZ(&imu_outputs.z_accel);
     bool has_ang_vel_roll  = io_imu_getAngularVelocityRoll(&imu_outputs.roll_rate);
     bool has_ang_vel_pitch = io_imu_getAngularVelocityPitch(&imu_outputs.pitch_rate);
     bool has_ang_vel_yaw   = io_imu_getAngularVelocityYaw(&imu_outputs.yaw_rate);
@@ -32,11 +29,9 @@ void app_collect_imu_data()
         app_canTx_VC_ImuAngularVelocityPitch_set(imu_outputs.pitch_rate);
         app_canTx_VC_ImuAngularVelocityYaw_set(imu_outputs.yaw_rate);
     }
-
 }
-
 
 ImuData app_get_imu_struct()
 {
-    return imu_outputs; 
+    return imu_outputs;
 }

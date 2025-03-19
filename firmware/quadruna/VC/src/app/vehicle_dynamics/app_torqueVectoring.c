@@ -21,7 +21,7 @@ static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
 // static TractionControl_Outputs    traction_control_outputs;
-static YawRateController          yaw_rate_controller;
+static YawRateController yaw_rate_controller;
 
 static bool run_traction_control = false;
 
@@ -31,12 +31,12 @@ static bool run_traction_control = false;
  * No PID for now.
  */
 
-static PID   pid_power_correction;
-static float pid_power_correction_factor = 0.0f;
-static PID   pid_traction_control;
-static ImuData imu_output;
-static TorqueAllocationInputs torqueToLoadTransf;  
-static PID   yrc_pid;
+static PID                    pid_power_correction;
+static float                  pid_power_correction_factor = 0.0f;
+static PID                    pid_traction_control;
+static ImuData                imu_output;
+static TorqueAllocationInputs torqueToLoadTransf;
+static PID                    yrc_pid;
 
 static float accelerator_pedal_percent;
 static float wheel_speed_front_left_kph;
@@ -48,7 +48,7 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
-static float long_load_transfer_scalar; 
+static float long_load_transfer_scalar;
 
 void app_torqueVectoring_init(void)
 {
@@ -99,7 +99,7 @@ void app_torqueVectoring_handleAcceleration(void)
     }
     app_timer_restart(&pid_timeout);
 
-    //imu load transfer calc
+    // imu load transfer calc
     long_load_transfer_scalar = app_loadTransferConstant(imu_output.long_accel);
 
     // Power Limiting
@@ -146,11 +146,11 @@ void app_torqueVectoring_handleAcceleration(void)
     // }
 
     // Inverter Torque Request
-    float desired_tot_yaw_moment = app_yawRateController_getYawMoment();
-    torqueToLoadTransf.rear_left_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+    float desired_tot_yaw_moment               = app_yawRateController_getYawMoment();
+    torqueToLoadTransf.rear_left_motor_torque  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     torqueToLoadTransf.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    torqueToLoadTransf.rear_yaw_moment =  desired_tot_yaw_moment / (1 + long_load_transfer_scalar);
-    torqueToLoadTransf.front_yaw_moment =  desired_tot_yaw_moment - torqueToLoadTransf.rear_yaw_moment;
+    torqueToLoadTransf.rear_yaw_moment         = desired_tot_yaw_moment / (1 + long_load_transfer_scalar);
+    torqueToLoadTransf.front_yaw_moment        = desired_tot_yaw_moment - torqueToLoadTransf.rear_yaw_moment;
     // if (run_traction_control)
     // {
     //     torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;
@@ -165,7 +165,7 @@ void app_torqueVectoring_handleAcceleration(void)
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
     {
-        torqueToLoadTransf.rear_left_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        torqueToLoadTransf.rear_left_motor_torque  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
         torqueToLoadTransf.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     }
 
@@ -181,9 +181,9 @@ void app_torqueVectoring_handleAcceleration(void)
     //                             motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
     //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
 
-    float power_consumed_ideal =
-        (motor_speed_left_rpm * torqueToLoadTransf.rear_left_motor_torque + motor_speed_right_rpm * torqueToLoadTransf.rear_right_motor_torque) /
-        POWER_TO_TORQUE_CONVERSION_FACTOR;
+    float power_consumed_ideal = (motor_speed_left_rpm * torqueToLoadTransf.rear_left_motor_torque +
+                                  motor_speed_right_rpm * torqueToLoadTransf.rear_right_motor_torque) /
+                                 POWER_TO_TORQUE_CONVERSION_FACTOR;
     float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
     pid_power_correction_factor -=
         app_pid_compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
