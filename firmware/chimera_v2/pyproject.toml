@@ -13,9 +13,12 @@ dependencies = [
     "cantools", "python-can",
 
     # Visa peripherals.
-    "pyvisa"
+    "pyvisa",
+
+    # Data.
+    "pandas", "numpy"
 ]
 
 [tool.setuptools]
-py-modules=["chimera_v2", "load_bank", "power_supply"]
+py-modules=["chimera_v2", "load_bank", "power_supply", "scope"]
 packages=["proto_autogen"]
