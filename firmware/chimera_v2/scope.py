@@ -23,7 +23,7 @@ class DS1054Z:
 
         scope_names = list(
             filter(
-                lambda resource_name: "DS1054Z" in resource_name,
+                lambda resource_name: "DS1ZA18" in resource_name,
                 resources.list_resources(),
             )
         )
