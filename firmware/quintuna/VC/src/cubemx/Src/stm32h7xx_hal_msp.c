@@ -78,6 +78,8 @@ void HAL_MspInit(void)
     /* USER CODE END MspInit 1 */
 }
 
+static uint32_t HAL_RCC_ADC12_CLK_ENABLED = 0;
+
 /**
  * @brief ADC MSP Initialization
  * This function configures the hardware resources used in this example
@@ -93,7 +95,11 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
         /* USER CODE END ADC1_MspInit 0 */
         /* Peripheral clock enable */
-        __HAL_RCC_ADC12_CLK_ENABLE();
+        HAL_RCC_ADC12_CLK_ENABLED++;
+        if (HAL_RCC_ADC12_CLK_ENABLED == 1)
+        {
+            __HAL_RCC_ADC12_CLK_ENABLE();
+        }
 
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -103,30 +109,23 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PA1     ------> ADC1_INP17
         PA2     ------> ADC1_INP14
         PA3     ------> ADC1_INP15
-        PA4     ------> ADC1_INP18
-        PA5     ------> ADC1_INN18
-        PA5     ------> ADC1_INP19
-        PA6     ------> ADC1_INP3
         PC4     ------> ADC1_INP4
-        PC5     ------> ADC1_INP8
-        PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
-        GPIO_InitStruct.Pin = F_PUMP_I_SNS_Pin | RR_PUMP_I_SNS_Pin | DAM_I_SNS_Pin | FRONT_I_SNS_Pin | RSM_I_SNS_Pin |
-                              L_RAD_FAN_I_SNS_Pin | R_RAD_FAN_I_SNS_Pin;
+        GPIO_InitStruct.Pin  = F_PUMP_I_SNS_Pin | RR_PUMP_I_SNS_Pin | DAM_I_SNS_Pin | FRONT_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = RL_PUMP_I_SNS_Pin | L_INV_I_SNS_Pin;
+        GPIO_InitStruct.Pin  = RL_PUMP_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+        HAL_GPIO_Init(RL_PUMP_I_SNS_GPIO_Port, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = R_INV_I_SNS_Pin | BMS_I_SNS_Pin;
+        GPIO_InitStruct.Pin  = BMS_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        HAL_GPIO_Init(BMS_I_SNS_GPIO_Port, &GPIO_InitStruct);
 
         /* ADC1 interrupt Init */
         HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
@@ -134,6 +133,50 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
         /* USER CODE END ADC1_MspInit 1 */
+    }
+    else if (hadc->Instance == ADC2)
+    {
+        /* USER CODE BEGIN ADC2_MspInit 0 */
+
+        /* USER CODE END ADC2_MspInit 0 */
+        /* Peripheral clock enable */
+        HAL_RCC_ADC12_CLK_ENABLED++;
+        if (HAL_RCC_ADC12_CLK_ENABLED == 1)
+        {
+            __HAL_RCC_ADC12_CLK_ENABLE();
+        }
+
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        /**ADC2 GPIO Configuration
+        PA4     ------> ADC2_INP18
+        PA5     ------> ADC2_INP19
+        PA6     ------> ADC2_INP3
+        PC5     ------> ADC2_INP8
+        PB0     ------> ADC2_INP9
+        */
+        GPIO_InitStruct.Pin  = RSM_I_SNS_Pin | L_RAD_FAN_I_SNS_Pin | R_RAD_FAN_I_SNS_Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        GPIO_InitStruct.Pin  = L_INV_I_SNS_Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        HAL_GPIO_Init(L_INV_I_SNS_GPIO_Port, &GPIO_InitStruct);
+
+        GPIO_InitStruct.Pin  = R_INV_I_SNS_Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        HAL_GPIO_Init(R_INV_I_SNS_GPIO_Port, &GPIO_InitStruct);
+
+        /* ADC2 interrupt Init */
+        HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(ADC_IRQn);
+        /* USER CODE BEGIN ADC2_MspInit 1 */
+
+        /* USER CODE END ADC2_MspInit 1 */
     }
 }
 
@@ -151,35 +194,76 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /* USER CODE END ADC1_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_ADC12_CLK_DISABLE();
+        HAL_RCC_ADC12_CLK_ENABLED--;
+        if (HAL_RCC_ADC12_CLK_ENABLED == 0)
+        {
+            __HAL_RCC_ADC12_CLK_DISABLE();
+        }
 
         /**ADC1 GPIO Configuration
         PA0     ------> ADC1_INP16
         PA1     ------> ADC1_INP17
         PA2     ------> ADC1_INP14
         PA3     ------> ADC1_INP15
-        PA4     ------> ADC1_INP18
-        PA5     ------> ADC1_INN18
-        PA5     ------> ADC1_INP19
-        PA6     ------> ADC1_INP3
         PC4     ------> ADC1_INP4
-        PC5     ------> ADC1_INP8
-        PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
-        HAL_GPIO_DeInit(
-            GPIOA, F_PUMP_I_SNS_Pin | RR_PUMP_I_SNS_Pin | DAM_I_SNS_Pin | FRONT_I_SNS_Pin | RSM_I_SNS_Pin |
-                       L_RAD_FAN_I_SNS_Pin | R_RAD_FAN_I_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOA, F_PUMP_I_SNS_Pin | RR_PUMP_I_SNS_Pin | DAM_I_SNS_Pin | FRONT_I_SNS_Pin);
 
-        HAL_GPIO_DeInit(GPIOC, RL_PUMP_I_SNS_Pin | L_INV_I_SNS_Pin);
+        HAL_GPIO_DeInit(RL_PUMP_I_SNS_GPIO_Port, RL_PUMP_I_SNS_Pin);
 
-        HAL_GPIO_DeInit(GPIOB, R_INV_I_SNS_Pin | BMS_I_SNS_Pin);
+        HAL_GPIO_DeInit(BMS_I_SNS_GPIO_Port, BMS_I_SNS_Pin);
 
         /* ADC1 interrupt DeInit */
-        HAL_NVIC_DisableIRQ(ADC_IRQn);
+        /* USER CODE BEGIN ADC1:ADC_IRQn disable */
+        /**
+         * Uncomment the line below to disable the "ADC_IRQn" interrupt
+         * Be aware, disabling shared interrupt may affect other IPs
+         */
+        /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+        /* USER CODE END ADC1:ADC_IRQn disable */
+
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
         /* USER CODE END ADC1_MspDeInit 1 */
+    }
+    else if (hadc->Instance == ADC2)
+    {
+        /* USER CODE BEGIN ADC2_MspDeInit 0 */
+
+        /* USER CODE END ADC2_MspDeInit 0 */
+        /* Peripheral clock disable */
+        HAL_RCC_ADC12_CLK_ENABLED--;
+        if (HAL_RCC_ADC12_CLK_ENABLED == 0)
+        {
+            __HAL_RCC_ADC12_CLK_DISABLE();
+        }
+
+        /**ADC2 GPIO Configuration
+        PA4     ------> ADC2_INP18
+        PA5     ------> ADC2_INP19
+        PA6     ------> ADC2_INP3
+        PC5     ------> ADC2_INP8
+        PB0     ------> ADC2_INP9
+        */
+        HAL_GPIO_DeInit(GPIOA, RSM_I_SNS_Pin | L_RAD_FAN_I_SNS_Pin | R_RAD_FAN_I_SNS_Pin);
+
+        HAL_GPIO_DeInit(L_INV_I_SNS_GPIO_Port, L_INV_I_SNS_Pin);
+
+        HAL_GPIO_DeInit(R_INV_I_SNS_GPIO_Port, R_INV_I_SNS_Pin);
+
+        /* ADC2 interrupt DeInit */
+        /* USER CODE BEGIN ADC2:ADC_IRQn disable */
+        /**
+         * Uncomment the line below to disable the "ADC_IRQn" interrupt
+         * Be aware, disabling shared interrupt may affect other IPs
+         */
+        /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+        /* USER CODE END ADC2:ADC_IRQn disable */
+
+        /* USER CODE BEGIN ADC2_MspDeInit 1 */
+
+        /* USER CODE END ADC2_MspDeInit 1 */
     }
 }
 
