@@ -248,7 +248,7 @@
                 "start_bit": 12,
                 "bits": 4
             },
-            "Free_Config_TargetTorque_INVFR": {
+            "Free_Config_TargetSpeed_INVFR": {
                 "start_bit": 16,
                 "bits": 16,
                 "signed": true
@@ -256,19 +256,11 @@
             "Free_Config_TorqueLimitPositive_INVFR": {
                 "start_bit": 32,
                 "bits": 16,
-                "scale" : 0.1,
-                "min" : -100,
-                "max": 100,
-                "offset" : 0,
                 "signed": true
             },
             "Free_Config_TorqueLimitNegative_INVFR": {
                 "start_bit": 48,
                 "bits": 16,
-                "min" : -100,
-                "max":  100,
-                "offset" : 0,
-                "scale" : 0.1,
                 "signed": true
             }
         }
