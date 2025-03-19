@@ -180,6 +180,7 @@ int main(void)
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
+
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -345,44 +346,32 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, AIR_P_EN_Pin | PRE_CHARGE_END_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(BSPD_TEST_EN_GPIO_Port, BSPD_TEST_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, BOOT_Pin | BSPD_TEST_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BMS_OK_GPIO_Port, BMS_OK_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(SPI_CS_GPIO_Port, SPI_CS_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(BMS_OK_GPIO_Port, BMS_OK_Pin, GPIO_PIN_SET);
-
-    /*Configure GPIO pin : nBOOT_EN_Pin */
-    GPIO_InitStruct.Pin  = nBOOT_EN_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nBOOT_EN_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : AIR_P_EN_Pin PRE_CHARGE_END_Pin */
-    GPIO_InitStruct.Pin   = AIR_P_EN_Pin | PRE_CHARGE_END_Pin;
+    /*Configure GPIO pin : LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : BSPD_TEST_EN_Pin */
-    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin;
+    /*Configure GPIO pins : BOOT_Pin BSPD_TEST_EN_Pin */
+    GPIO_InitStruct.Pin   = BOOT_Pin | BSPD_TEST_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(BSPD_TEST_EN_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pin : nCHIMERA_Pin */
     GPIO_InitStruct.Pin  = nCHIMERA_Pin;
@@ -390,19 +379,23 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(nCHIMERA_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : DEBUG_LED_Pin */
-    GPIO_InitStruct.Pin   = DEBUG_LED_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(DEBUG_LED_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : IMD_LATCH_Pin */
+    GPIO_InitStruct.Pin  = IMD_LATCH_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(IMD_LATCH_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : SPI_CS_Pin */
-    GPIO_InitStruct.Pin   = SPI_CS_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(SPI_CS_GPIO_Port, &GPIO_InitStruct);
+    /*Configure GPIO pin : BSPD_OK_Pin */
+    GPIO_InitStruct.Pin  = BSPD_OK_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(BSPD_OK_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BMS_LATCH_Pin IMD_OK_Pin BSPD_LATCH_Pin */
+    GPIO_InitStruct.Pin  = BMS_LATCH_Pin | IMD_OK_Pin | BSPD_LATCH_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     /*Configure GPIO pin : BMS_OK_Pin */
     GPIO_InitStruct.Pin   = BMS_OK_Pin;

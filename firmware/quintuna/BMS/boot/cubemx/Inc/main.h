@@ -58,22 +58,32 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define nBOOT_EN_Pin GPIO_PIN_13
-#define nBOOT_EN_GPIO_Port GPIOC
-#define AIR_P_EN_Pin GPIO_PIN_2
-#define AIR_P_EN_GPIO_Port GPIOC
-#define PRE_CHARGE_END_Pin GPIO_PIN_3
-#define PRE_CHARGE_END_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_13
+#define LED_GPIO_Port GPIOC
+#define BOOT_Pin GPIO_PIN_0
+#define BOOT_GPIO_Port GPIOA
 #define BSPD_TEST_EN_Pin GPIO_PIN_4
 #define BSPD_TEST_EN_GPIO_Port GPIOA
 #define nCHIMERA_Pin GPIO_PIN_5
 #define nCHIMERA_GPIO_Port GPIOA
-#define DEBUG_LED_Pin GPIO_PIN_7
-#define DEBUG_LED_GPIO_Port GPIOE
-#define SPI_CS_Pin GPIO_PIN_12
-#define SPI_CS_GPIO_Port GPIOB
-#define BMS_OK_Pin GPIO_PIN_9
-#define BMS_OK_GPIO_Port GPIOD
+#define IMD_LATCH_Pin GPIO_PIN_4
+#define IMD_LATCH_GPIO_Port GPIOC
+#define BSPD_OK_Pin GPIO_PIN_2
+#define BSPD_OK_GPIO_Port GPIOB
+#define BMS_LATCH_Pin GPIO_PIN_7
+#define BMS_LATCH_GPIO_Port GPIOE
+#define IMD_OK_Pin GPIO_PIN_8
+#define IMD_OK_GPIO_Port GPIOE
+#define BSPD_LATCH_Pin GPIO_PIN_9
+#define BSPD_LATCH_GPIO_Port GPIOE
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define SWO_Pin GPIO_PIN_3
+#define SWO_GPIO_Port GPIOB
+#define BMS_OK_Pin GPIO_PIN_0
+#define BMS_OK_GPIO_Port GPIOE
 
     /* USER CODE BEGIN Private defines */
 
