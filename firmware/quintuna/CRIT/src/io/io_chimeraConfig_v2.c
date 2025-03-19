@@ -26,5 +26,5 @@ const AdcChannel *id_to_adc[] = { [crit_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = N
 const I2cDevice *id_to_i2c[] = { [crit_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
 
 // TODO: Configure SPIs.
-const SpiDevice *id_to_spi[] = { [crit_SpiNetName_SPI_LED]       = &led_spi,
-                                 [crit_SpiNetName_SPI_SEVEN_SEG] = &seven_seg_spi };
+const SpiDevice
+    *id_to_spi[] = { [crit_SpiNetName_SPI_LED] = &led_spi, [crit_SpiNetName_SPI_SEVEN_SEG] = &seven_seg_spi };

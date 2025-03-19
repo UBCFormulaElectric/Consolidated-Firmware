@@ -23,14 +23,12 @@ static void canTransmit(const JsonCanMsg *msg)
 
 void jobs_init(void)
 {
-
     // can
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
     io_canQueue_init();
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
-    
 
     app_heartbeatMonitor_init(&hb_monitor);
 
