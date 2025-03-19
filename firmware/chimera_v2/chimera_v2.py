@@ -24,10 +24,11 @@ from power_supply import *
 from scope import *
 
 # Protobuf autogen packages.
+import proto_autogen.shared_pb2
+
 import proto_autogen.f4dev_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
-import proto_autogen.shared_pb2
 import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
 
@@ -191,12 +192,13 @@ class _Board:
     # [ length low byte  | length high byte | content bytes    | ... ]
 
     def __init__(
-            self,
-            usb_device: _UsbDevice,
-            gpio_net_name: str,
-            adc_net_name: str,
-            i2c_net_name: str,
-            board_module: types.ModuleType,
+        self,
+        usb_device: _UsbDevice,
+        gpio_net_name: str,
+        adc_net_name: str,
+        i2c_net_name: str,
+        spi_net_name: str,
+        board_module: types.ModuleType,
     ):
         """Create an abstration around a Chimera V2 board.
 
@@ -204,6 +206,7 @@ class _Board:
             usb_device: Interface to the usb device.
             gpio_net_name: Identifier for the GpioNetName corresponding to your board, defined in shared.proto.
             i2c_net_name: Identifier for the I2cNetName corresponding to your board, defined in shared.proto.
+            spi_net_name: Identifier for the spiNetName corresponding to your board, defined in shared.proto.
             adc_net_name: Identifier for the AdcNetName corresponding to your board, defined in shared.proto.
             board_module: Generated protobuf module, found in proto_autogen.
 
@@ -213,6 +216,7 @@ class _Board:
         self.gpio_net_name = gpio_net_name
         self.adc_net_name = adc_net_name
         self.i2c_net_name = i2c_net_name
+        self.spi_net_name = spi_net_name
         self.board_module = board_module
 
     def _write(self, msg: proto_autogen.shared_pb2.ChimeraV2Request):
@@ -336,6 +340,18 @@ class _Board:
 
         """
         return I2cDevice(self, net_name)
+
+    def spi_device(self, net_name: str) -> SpiDevice:
+        """Create an abstraction around a SPI device.
+
+        Args:
+            net_name: Identifier of the SPI device.
+
+        Returns:
+            An SPI device abstraction.
+
+        """
+        return SpiDevice(self, net_name)
 
 
 class I2cDevice:
@@ -467,6 +483,93 @@ class I2cDevice:
         assert response.i2c_memory_write.success
 
 
+class SpiDevice:
+    def __init__(self, owner: _Board, net_name: str):
+        """Create an abstraction around an SPI device.
+
+        This constructor should NEVER be called on its own,
+        instead create SPI devices via a board's ``spi_device`` method.
+
+        Args:
+            owner: Owner board.
+            net_name: Identifier of the SPI device.
+
+        """
+
+        self._owner = owner
+        self._net_name = self._owner.board_module.SpiNetName.Value(net_name)
+
+    def receive(self, length: int) -> bytes:
+        """Receive bytes from the SPI device.
+
+        Args:
+            length: Number of bytes to receive.
+
+        Returns:
+            Bytes received.
+
+        """
+
+        # Create and send message.
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(request.spi_receive.net_name, self._owner.spi_net_name, self._net_name)
+        request.spi_receive.length = length
+
+        self._owner._write(request)
+
+        # Wait for response.
+        response = self._owner._read()
+        assert response.WhichOneof("payload") == "spi_receive"
+        return response.spi_receive.data
+
+    def transmit(self, data: bytes):
+        """Transmit bytes to the SPI device.
+
+        Args:
+            data: Bytes to transmit.
+
+        """
+
+        # Create and send message.
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(request.spi_transmit.net_name, self._owner.spi_net_name, self._net_name)
+        request.spi_transmit.data = data
+
+        self._owner._write(request)
+
+        # Wait for response.
+        response = self._owner._read()
+        assert response.WhichOneof("payload") == "spi_transmit"
+        assert response.spi_transmit.success
+
+    def transact(self, request_data: bytes, response_length: int):
+        """Run a full transaction (tx/rx) to the SPI device.
+
+        Args:
+            request_data: Bytes to transmit.
+            response_length: Number of bytes to read.
+
+        Returns:
+            Bytes received.
+
+        """
+
+        # Create and send message.
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.spi_transaction.net_name, self._owner.spi_net_name, self._net_name
+        )
+        request.spi_transaction.tx_data = request_data
+        request.spi_transaction.rx_length = response_length
+
+        self._owner._write(request)
+
+        # Wait for response.
+        response = self._owner._read()
+        assert response.WhichOneof("payload") == "spi_transaction"
+        assert response.spi_transaction.rx_data
+
+
 class F4Dev(_Board):
     def __init__(self) -> None:
         """Create an interface to an F4Dev board."""
@@ -476,6 +579,7 @@ class F4Dev(_Board):
             gpio_net_name="f4dev_net_name",
             adc_net_name="f4dev_net_name",
             i2c_net_name="f4dev_net_name",
+            spi_net_name="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )
 
@@ -489,6 +593,7 @@ class SSM(_Board):
             gpio_net_name="ssm_net_name",
             adc_net_name="ssm_net_name",
             i2c_net_name="ssm_net_name",
+            spi_net_name="ssm_net_name",
             board_module=proto_autogen.ssm_pb2,
         )
 
@@ -502,8 +607,10 @@ class CRIT(_Board):
             gpio_net_name="crit_net_name",
             adc_net_name="crit_net_name",
             i2c_net_name="crit_net_name",
+            spi_net_name="crit_net_name",
             board_module=proto_autogen.crit_pb2,
         )
+
 
 class RSM(_Board):
     def __init__(self) -> None:
@@ -514,8 +621,10 @@ class RSM(_Board):
             gpio_net_name="rsm_net_name",
             adc_net_name="rsm_net_name",
             i2c_net_name="rsm_net_name",
+            spi_net_name="rsm_net_name",
             board_module=proto_autogen.rsm_pb2,
         )
+
 
 class FSM(_Board):
     def __init__(self) -> None:
@@ -526,5 +635,6 @@ class FSM(_Board):
             gpio_net_name="fsm_net_name",
             adc_net_name="fsm_net_name",
             i2c_net_name="fsm_net_name",
+            spi_net_name="fsm_net_name",
             board_module=proto_autogen.fsm_pb2,
         )

@@ -57,3 +57,16 @@ class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
 I2C_3: I2cNetName.ValueType
 global___I2cNetName = I2cNetName
+
+class _SpiNetName:
+    ValueType = typing.NewType('ValueType', builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _SpiNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    SPI_NET_NAME_UNSPECIFIED: _SpiNetName.ValueType
+
+class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
+    ...
+SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
+global___SpiNetName = SpiNetName

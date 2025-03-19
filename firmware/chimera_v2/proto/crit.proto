@@ -28,8 +28,8 @@ enum I2cNetName {
 
 enum SpiNetName {
   SPI_NET_NAME_UNSPECIFIED = 0;
-  SPI_NET_NAME_LED_SPI = 1;
-  SPI_NET_NAME_SEVEN_SEG_SPI = 2;
+  SPI_LED = 1;
+  SPI_SEVEN_SEG = 2;
 }
 
 enum PwmOutputNetName {

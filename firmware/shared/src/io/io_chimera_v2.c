@@ -12,22 +12,24 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_i2c.h"
+#include "hw_spi.h"
+
+// Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
+// Yes, this is 65kb of RAM - it's a lot, but doable.
+#define OUT_BUFFER_SIZE (0xffff)
+static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 bool io_chimera_v2_enabled = false;
 
 static const Gpio       **id_to_gpio;
 static const AdcChannel **id_to_adc;
 static const I2cDevice  **id_to_i2c;
+static const SpiDevice  **id_to_spi;
 
 pb_size_t gpio_net_name_tag = 0;
 pb_size_t adc_net_name_tag  = 0;
 pb_size_t i2c_net_name_tag  = 0;
-
-// Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
-const uint16_t OUT_BUFFER_SIZE = 0xffff;
-
-// Note: this buffer is allocated at runtime, since on non-Chimera runs we do not want to allocate it.
-static pb_byte_t *out_buffer = NULL;
+pb_size_t spi_net_name_tag  = 0;
 
 // Convert a given GpioNetName to a GPIO pin.
 static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
@@ -46,6 +48,8 @@ static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
         return id_to_gpio[net_name->name.crit_net_name];
     if (net_name->which_name == GpioNetName_fsm_net_name_tag)
         return id_to_gpio[net_name->name.fsm_net_name];
+    if (net_name->which_name == I2cNetName_rsm_net_name_tag)
+        return id_to_gpio[net_name->name.rsm_net_name];
 
     LOG_ERROR("Chimera: Received GPIO pin from unsupported board.");
     return NULL;
@@ -68,6 +72,8 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
         return id_to_adc[net_name->name.crit_net_name];
     if (net_name->which_name == AdcNetName_fsm_net_name_tag)
         return id_to_adc[net_name->name.fsm_net_name];
+    if (net_name->which_name == AdcNetName_rsm_net_name_tag)
+        return id_to_adc[net_name->name.rsm_net_name];
 
     LOG_ERROR("Chimera: Received ADC channel from unsupported board.");
     return NULL;
@@ -90,9 +96,35 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
         return id_to_i2c[net_name->name.crit_net_name];
     if (net_name->which_name == I2cNetName_fsm_net_name_tag)
         return id_to_i2c[net_name->name.fsm_net_name];
+    if (net_name->which_name == I2cNetName_rsm_net_name_tag)
+        return id_to_i2c[net_name->name.rsm_net_name];
 
     LOG_ERROR("Chimera: Received I2C device from unsupported board.");
     return 0;
+}
+
+// Convert a given SPI enum to a SPI device.
+static const SpiDevice *io_chimera_v2_getSpi(const SpiNetName *net_name)
+{
+    if (spi_net_name_tag != net_name->which_name)
+    {
+        LOG_ERROR("Expected SPI net name with tag %d, got %d", spi_net_name_tag, net_name->which_name);
+        return NULL;
+    }
+
+    if (net_name->which_name == SpiNetName_f4dev_net_name_tag)
+        return id_to_spi[net_name->name.f4dev_net_name];
+    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
+        return id_to_spi[net_name->name.ssm_net_name];
+    if (net_name->which_name == SpiNetName_crit_net_name_tag)
+        return id_to_spi[net_name->name.crit_net_name];
+    if (net_name->which_name == SpiNetName_fsm_net_name_tag)
+        return id_to_spi[net_name->name.fsm_net_name];
+    if (net_name->which_name == SpiNetName_rsm_net_name_tag)
+        return id_to_spi[net_name->name.rsm_net_name];
+
+    LOG_ERROR("Received SPI device from unsupported board.");
+    return NULL;
 }
 
 // Handle an rpc message.
@@ -166,10 +198,9 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     {
         // Extract payload
         I2cTransmitRequest *payload = &request.payload.i2c_transmit;
+        const I2cDevice    *device  = io_chimera_v2_getI2c(&payload->net_name);
 
-        // I2C ready check.
-        const I2cDevice *device  = io_chimera_v2_getI2c(&payload->net_name);
-        bool             success = hw_i2c_transmit(device, payload->data.bytes, payload->data.size);
+        bool success = hw_i2c_transmit(device, payload->data.bytes, payload->data.size);
 
         // Format response.
         response.which_payload                = ChimeraV2Response_i2c_transmit_tag;
@@ -179,10 +210,9 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     {
         // Extract payload
         I2cMemoryWriteRequest *payload = &request.payload.i2c_memory_write;
+        const I2cDevice       *device  = io_chimera_v2_getI2c(&payload->net_name);
 
-        // I2C ready check.
-        const I2cDevice *device = io_chimera_v2_getI2c(&payload->net_name);
-        bool             success =
+        bool success =
             hw_i2c_memoryWrite(device, (uint16_t)payload->memory_address, payload->data.bytes, payload->data.size);
 
         // Format response.
@@ -213,9 +243,7 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
     {
         // Extract payload
         I2cMemoryReadRequest *payload = &request.payload.i2c_memory_read;
-
-        // I2C ready check.
-        const I2cDevice *device = io_chimera_v2_getI2c(&payload->net_name);
+        const I2cDevice      *device  = io_chimera_v2_getI2c(&payload->net_name);
 
         uint8_t data[payload->length];
         bool    success = hw_i2c_memoryRead(device, (uint16_t)payload->memory_address, data, (uint16_t)payload->length);
@@ -229,6 +257,60 @@ void io_chimera_v2_handleContent(uint8_t *content, uint16_t length)
         for (size_t i = 0; i < payload->length; i += 1)
         {
             response.payload.i2c_memory_read.data.bytes[i] = data[i];
+        }
+    }
+    else if (request.which_payload == ChimeraV2Request_spi_receive_tag)
+    {
+        // Extract payload.
+        SpiReceiveRequest *payload = &request.payload.spi_receive;
+        const SpiDevice   *device  = io_chimera_v2_getSpi(&payload->net_name);
+
+        // Read data.
+        uint8_t data[payload->length];
+        bool    success = hw_spi_receive(device, data, (uint16_t)payload->length);
+        if (!success)
+            LOG_ERROR("Chimera: Failed to receive on SPI");
+
+        // Format response.
+        response.which_payload                 = ChimeraV2Response_spi_receive_tag;
+        response.payload.spi_receive.data.size = (pb_size_t)payload->length;
+        for (size_t i = 0; i < payload->length; i += 1)
+        {
+            response.payload.spi_receive.data.bytes[i] = data[i];
+        }
+    }
+    else if (request.which_payload == ChimeraV2Request_spi_transmit_tag)
+    {
+        // Extract payload.
+        SpiTransmitRequest *payload = &request.payload.spi_transmit;
+        const SpiDevice    *device  = io_chimera_v2_getSpi(&payload->net_name);
+
+        // Transmit data.
+        bool success = hw_spi_transmit(device, payload->data.bytes, (uint16_t)payload->data.size);
+
+        // Format response.
+        response.which_payload                = ChimeraV2Response_spi_transmit_tag;
+        response.payload.spi_transmit.success = success;
+    }
+    else if (request.which_payload == ChimeraV2Request_spi_transaction_tag)
+    {
+        // Extract payload.
+        SpiTransactionRequest *payload = &request.payload.spi_transaction;
+        const SpiDevice       *device  = io_chimera_v2_getSpi(&payload->net_name);
+
+        // Transact data.
+        uint8_t rx_data[payload->rx_length];
+        bool    success = hw_spi_transmitThenReceive(
+            device, payload->tx_data.bytes, payload->tx_data.size, rx_data, (uint16_t)payload->rx_length);
+        if (!success)
+            LOG_ERROR("Chimera: Failed to Transact on SPI");
+
+        // Format response.
+        response.which_payload                        = ChimeraV2Response_spi_transaction_tag;
+        response.payload.spi_transaction.rx_data.size = (pb_size_t)payload->rx_length;
+        for (size_t i = 0; i < payload->rx_length; i += 1)
+        {
+            response.payload.spi_transaction.rx_data.bytes[i] = rx_data[i];
         }
     }
     else
@@ -271,34 +353,34 @@ void io_chimera_v2_mainOrContinue(
     pb_size_t         adc_tag,
     const AdcChannel *adc_conf[],
     pb_size_t         i2c_tag,
-    const I2cDevice  *i2c_conf[])
+    const I2cDevice  *i2c_conf[],
+    pb_size_t         spi_tag,
+    const SpiDevice  *spi_conf[])
 {
-    // If usb is not connected, skip Chimera.
-    if (!hw_usb_checkConnection())
-    {
-        LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
-        return;
-    }
-
     io_chimera_v2_enabled = true;
 
     // Set tags.
     gpio_net_name_tag = gpio_tag;
     adc_net_name_tag  = adc_tag;
     i2c_net_name_tag  = i2c_tag;
+    spi_net_name_tag  = spi_tag;
 
     // Store adc and gpio tables.
     id_to_gpio = gpio_conf;
     id_to_adc  = adc_conf;
     id_to_i2c  = i2c_conf;
-
-    // Allocate the output buffer.
-    out_buffer = malloc(OUT_BUFFER_SIZE);
+    id_to_spi  = spi_conf;
 
     for (uint32_t requests_processed = 1; true; requests_processed += 1)
     {
-        LOG_INFO("Chimera: Waiting for message...");
+        // If usb is not connected, skip Chimera.
+        if (!hw_usb_checkConnection())
+        {
+            LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
+            break;
+        }
 
+        LOG_INFO("Chimera: Waiting for message...");
         // CHIMERA Packet Format:
         // [ length low byte  | length high byte | content bytes    | ... ]
 
@@ -323,13 +405,11 @@ void io_chimera_v2_mainOrContinue(
             LOG_PRINTF("%02x ", content[i]);
         LOG_PRINTF("\n");
 
+        // Parse content and return response.
         io_chimera_v2_handleContent(content, length);
 
         LOG_INFO("Chimera: Processed %d requests", requests_processed);
     }
-
-    free(out_buffer);
-    out_buffer = NULL;
 
     io_chimera_v2_enabled = false;
 }
