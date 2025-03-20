@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    const SPI_HandleTypeDef *const handle;
+    SPI_HandleTypeDef *const handle;
     TaskHandle_t                   task_in_progress;
 } SpiBus;
 
