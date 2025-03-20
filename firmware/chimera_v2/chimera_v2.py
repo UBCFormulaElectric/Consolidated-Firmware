@@ -19,15 +19,15 @@ import cantools
 
 # Peripherals.
 import libusb_package
-import proto_autogen.crit_pb2
-import proto_autogen.dam_pb2
 
 # Protobuf autogen packages.
+import proto_autogen.shared_pb2
 import proto_autogen.f4dev_pb2
 import proto_autogen.fsm_pb2
 import proto_autogen.rsm_pb2
-import proto_autogen.shared_pb2
 import proto_autogen.ssm_pb2
+import proto_autogen.crit_pb2
+import proto_autogen.dam_pb2
 
 # Pyvisa Peripherals.
 from load_bank import *

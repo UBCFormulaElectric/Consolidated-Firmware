@@ -32,6 +32,8 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_REGEN_SIG: _GpioNetName.ValueType
     GPIO_LED_RCK: _GpioNetName.ValueType
     GPIO_SEVEN_SEG_RCK: _GpioNetName.ValueType
+    GPIO_LED_DIMMING: _GpioNetName.ValueType
+    GPIO_SEVEN_SEG_DIMMING: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
@@ -48,6 +50,8 @@ GPIO_TORQUE_VECTORING_SIG: GpioNetName.ValueType
 GPIO_REGEN_SIG: GpioNetName.ValueType
 GPIO_LED_RCK: GpioNetName.ValueType
 GPIO_SEVEN_SEG_RCK: GpioNetName.ValueType
+GPIO_LED_DIMMING: GpioNetName.ValueType
+GPIO_SEVEN_SEG_DIMMING: GpioNetName.ValueType
 global___GpioNetName = GpioNetName
 
 class _AdcNetName:
@@ -100,12 +104,8 @@ class _PwmOutputNetName:
 class _PwmOutputNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PwmOutputNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     PWM_OUTPUT_NET_NAME_UNSPECIFIED: _PwmOutputNetName.ValueType
-    PWM_OUTPUT_SEVEN_SEG_DIMMING: _PwmOutputNetName.ValueType
-    PWM_OUTPUT_LED_DIMMING: _PwmOutputNetName.ValueType
 
 class PwmOutputNetName(_PwmOutputNetName, metaclass=_PwmOutputNetNameEnumTypeWrapper):
     ...
 PWM_OUTPUT_NET_NAME_UNSPECIFIED: PwmOutputNetName.ValueType
-PWM_OUTPUT_SEVEN_SEG_DIMMING: PwmOutputNetName.ValueType
-PWM_OUTPUT_LED_DIMMING: PwmOutputNetName.ValueType
 global___PwmOutputNetName = PwmOutputNetName
