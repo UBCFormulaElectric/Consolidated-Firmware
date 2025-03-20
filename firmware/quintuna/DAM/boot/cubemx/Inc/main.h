@@ -62,14 +62,6 @@ extern "C"
 #define LED_GPIO_Port GPIOC
 #define BOOT_Pin GPIO_PIN_1
 #define BOOT_GPIO_Port GPIOC
-#define FROM_900M_CTS_Pin GPIO_PIN_0
-#define FROM_900M_CTS_GPIO_Port GPIOA
-#define TO_900M_RTS_Pin GPIO_PIN_1
-#define TO_900M_RTS_GPIO_Port GPIOA
-#define TO_900M_TX_Pin GPIO_PIN_2
-#define TO_900M_TX_GPIO_Port GPIOA
-#define FROM_900M_RX_Pin GPIO_PIN_3
-#define FROM_900M_RX_GPIO_Port GPIOA
 #define _900M_GPIO_Pin GPIO_PIN_4
 #define _900M_GPIO_GPIO_Port GPIOA
 #define TELEM_PWR_EN_Pin GPIO_PIN_9
