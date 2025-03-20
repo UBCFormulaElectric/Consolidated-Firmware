@@ -7,7 +7,7 @@ dependencies = [
     "protobuf", "grpcio-tools", "protoletariat", 
 
     # We use libusb-package to get a version of pyusb's usb.core with libusb packaged in.
-    "libusb-package", 
+    "libusb-package", "pyusb",
 
     # CAN support dependencies.
     "cantools", "python-can",

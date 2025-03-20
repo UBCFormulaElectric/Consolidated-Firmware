@@ -60,8 +60,6 @@ extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern CAN_HandleTypeDef hcan2;
 extern SPI_HandleTypeDef hspi2;
 extern SPI_HandleTypeDef hspi3;
-extern TIM_HandleTypeDef htim4;
-extern TIM_HandleTypeDef htim12;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -208,20 +206,6 @@ void RCC_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM4 global interrupt.
- */
-void TIM4_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM4_IRQn 0 */
-
-    /* USER CODE END TIM4_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim4);
-    /* USER CODE BEGIN TIM4_IRQn 1 */
-
-    /* USER CODE END TIM4_IRQn 1 */
-}
-
-/**
  * @brief This function handles SPI2 global interrupt.
  */
 void SPI2_IRQHandler(void)
@@ -233,20 +217,6 @@ void SPI2_IRQHandler(void)
     /* USER CODE BEGIN SPI2_IRQn 1 */
 
     /* USER CODE END SPI2_IRQn 1 */
-}
-
-/**
- * @brief This function handles TIM8 break interrupt and TIM12 global interrupt.
- */
-void TIM8_BRK_TIM12_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 0 */
-
-    /* USER CODE END TIM8_BRK_TIM12_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim12);
-    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 1 */
-
-    /* USER CODE END TIM8_BRK_TIM12_IRQn 1 */
 }
 
 /**
