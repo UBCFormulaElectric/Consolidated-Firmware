@@ -33,12 +33,12 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 
     if (app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
     {
-        io_canLogging_loggingQueuePush(&msg);
+        LOG_ERROR_IF(io_canLogging_loggingQueuePush(&msg));
     }
 
     if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
     {
-        io_telemMessage_pushMsgtoQueue(&msg);
+        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(&msg));
     }
 }
 
