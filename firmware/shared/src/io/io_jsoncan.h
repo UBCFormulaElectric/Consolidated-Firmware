@@ -19,6 +19,5 @@ JsonCanMsg io_jsoncan_copyFromCanMsg(const CanMsg *msg);
 /**
  * Convert a jsoncan message to own driver-level CAN message type.
  * @param msg message to convert
- * @param timestamp_ms Timestamp associated with the message (in ms).
  */
 CanMsg io_jsoncan_copyToCanMsg(const JsonCanMsg *msg);

@@ -19,9 +19,9 @@ typedef struct
     uint8_t  reserved[4]; // reserved byte to round up to 16 bytes, TODO: Use this for error checking?
 } CanMsgLog;
 
-#define ID_MASK (0x7FF)
-#define DLC_MASK (0xF)
-#define TIMESTAMP_MASK (0x1FFFF)
+#define ID_MASK (0x7FF) // 11 bits max val
+#define DLC_MASK (0xF) // 4 bits max val
+#define TIMESTAMP_MASK (0x1FFFF) // 17 bits max val
 
 /**
  * Create a new message queue for can logging message

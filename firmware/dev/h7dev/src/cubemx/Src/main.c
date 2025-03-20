@@ -197,7 +197,7 @@ int main(void)
     {
         sd1.hsd     = &hsd1;
         sd1.timeout = osWaitForever;
-        int err     = io_canLogging_init();
+        LOG_ERROR_IF(io_canLogging_init());
     }
 
     SEGGER_SYSVIEW_Conf();

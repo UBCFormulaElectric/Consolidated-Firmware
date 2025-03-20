@@ -33,10 +33,7 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
-    if (!io_canLogging_init())
-    {
-        LOG_ERROR("Initializing CAN logging failed");
-    }
+    LOG_ERROR_IF(io_canLogging_init());
 }
 
 void tasks_init(void)
@@ -59,8 +56,6 @@ void tasks_init(void)
     io_chimera_init(GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag);
 
     jobs_init();
-
-    app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!hw_sd_present());
 
     // enable these for inverter programming
     // hw_gpio_writePin(&inv_l_program, true);

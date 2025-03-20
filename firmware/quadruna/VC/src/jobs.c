@@ -52,6 +52,7 @@ void jobs_init()
     // This is not correlated to the size of each file.
     app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
     app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
+    app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 
     app_stateMachine_init(app_initState_get());
     app_heartbeatMonitor_init(&hb_monitor);
@@ -119,17 +120,11 @@ void jobs_runCanRx_tick(void)
 
     if (app_dataCapture_needsLog((uint16_t)rx_msg.std_id, rx_msg.timestamp))
     {
-        if (!io_canLogging_loggingQueuePush(&rx_msg))
-        {
-            LOG_ERROR("Pushing message to logging queue failed");
-        }
+        LOG_ERROR_IF(io_canLogging_loggingQueuePush(&rx_msg));
     }
 
     if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, rx_msg.timestamp))
     {
-        if (!io_telemMessage_pushMsgtoQueue(&rx_msg))
-        {
-            LOG_ERROR("Pushing message to telem queue failed");
-        }
+        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(&rx_msg));
     }
 }

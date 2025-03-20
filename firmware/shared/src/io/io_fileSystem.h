@@ -25,6 +25,7 @@ FileSystemError io_fileSystem_init(void);
 
 /**
  * open a file and return the file descriptor
+ * Note: Don't try opening the same file twice!
  * @param path path in question
  * @return a file descriptor
  */

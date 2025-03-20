@@ -87,6 +87,10 @@ static FileSystemError logfsErrorToFsError(const LogFsErr err)
     }
 }
 
+/**
+ * If mount fails we assume the filesystem is corrupted or not present, so we format it which wipes everything. Try 3x
+ * to mount to make sure its not a random failure (such as from the SD card jiggling in its slot).
+ */
 static LogFsErr tryMount(void)
 {
     LogFsErr err;
@@ -111,14 +115,17 @@ static LogFsErr tryMount(void)
         return FILE_ERROR;
 
 /**
- * Checks the file descriptor to make sure it's valid, if not returns FILE_ERROR
- * @param fd file descriptor in question
+ * Checks if the filesystem has been mounted successfully.
  */
 #define CHECK_MOUNT() \
     if (mount_failed) \
         return FILE_MOUNT_FAILED;
 
-#define RET_ERR(f)                       \
+/**
+ * Checks if the given expression evaluates to an error, and return it if so.
+ * @param f Expression to evaluate
+ */
+#define CHECK_ERR(f)                     \
     const LogFsErr err = f;              \
     if (err != LOGFS_ERR_OK)             \
     {                                    \
@@ -173,11 +180,12 @@ FileSystemError io_fileSystem_open(const char *path, uint32_t *fd)
 
     if (*fd == MAX_FILE_NUMBER)
     {
+        // Couldn't find a new slot for the file.
         return FILE_NOT_FOUND;
     }
 
     files_cfg[*fd].path = path;
-    RET_ERR(logfs_open(&fs, &files[*fd], &files_cfg[*fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE));
+    CHECK_ERR(logfs_open(&fs, &files[*fd], &files_cfg[*fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE));
 
     files_opened[*fd] = true;
     return FILE_OK;
@@ -189,7 +197,7 @@ FileSystemError io_fileSystem_read(uint32_t fd, void *buf, const size_t size)
     CHECK_FILE_DESCRIPTOR(fd);
 
     uint32_t num_read;
-    RET_ERR(logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read));
+    CHECK_ERR(logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read));
 
     if (num_read != size)
     {
@@ -212,7 +220,7 @@ FileSystemError io_fileSystem_getBootCount(uint32_t *bootcount)
     CHECK_MOUNT();
 
     uint32_t num_read;
-    RET_ERR(logfs_readMetadata(&fs, &bootcount_file, bootcount, sizeof(uint32_t), &num_read));
+    CHECK_ERR(logfs_readMetadata(&fs, &bootcount_file, bootcount, sizeof(uint32_t), &num_read));
 
     if (num_read != sizeof(bootcount))
     {
@@ -229,7 +237,7 @@ FileSystemError io_fileSystem_close(uint32_t fd)
     CHECK_MOUNT();
     CHECK_FILE_DESCRIPTOR(fd);
 
-    RET_ERR(logfs_close(&fs, &files[fd]));
+    CHECK_ERR(logfs_close(&fs, &files[fd]));
 
     files_opened[fd] = false;
     return FILE_OK;
