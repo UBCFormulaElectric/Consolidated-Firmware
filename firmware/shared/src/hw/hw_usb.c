@@ -55,7 +55,6 @@ void hw_usb_init()
 
 bool hw_usb_checkConnection()
 {
-    LOG_INFO("%d", USB_DEVICE_HANDLER.dev_state);
     return USB_DEVICE_HANDLER.dev_state == USBD_STATE_CONFIGURED;
 }
 

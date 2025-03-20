@@ -10,6 +10,7 @@
 // hw
 #include "hw_usb.h"
 #include "hw_cans.h"
+#include "hw_adcs.h"
 
 void tasks_preInit(void)
 {
@@ -20,6 +21,7 @@ void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
     hw_usb_init();
+    hw_adcs_chipsInit();
 }
 
 void tasks_run1Hz(void)

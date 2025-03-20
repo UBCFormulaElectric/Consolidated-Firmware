@@ -101,9 +101,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_spi.c"
             "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_tim.c"
-            "stm32h7xx_hal_pcd.c"
-            "stm32h7xx_hal_pcd_ex.c"
-            "stm32h7xx_ll_usb.c"
             "stm32h7xx_hal_uart_ex.c"
             "stm32h7xx_hal_uart.c"
             "stm32h7xx_hal_sd.c"
@@ -119,7 +116,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
-            TRUE
+            FALSE
     )
 
     # JSONCAN
