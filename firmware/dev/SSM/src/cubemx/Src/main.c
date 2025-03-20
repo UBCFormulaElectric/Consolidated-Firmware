@@ -477,7 +477,7 @@ void StartDefaultTask(void *argument)
     {
         io_chimera_v2_mainOrContinue(
             GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc,
-            I2cNetName_ssm_net_name_tag, id_to_i2c);
+            I2cNetName_ssm_net_name_tag, id_to_i2c, SpiNetName_ssm_net_name_tag, id_to_spi);
         osDelay(100);
     }
 

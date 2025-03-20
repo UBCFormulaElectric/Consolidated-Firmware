@@ -18,6 +18,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
 )
 
@@ -56,6 +57,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_pcd.c"
             "stm32f4xx_hal_pcd_ex.c"
             "stm32f4xx_ll_usb.c"
+            "stm32f4xx_hal_spi.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
@@ -85,4 +87,5 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "chimera_v2_proto_cm4")
+    target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 ENDIF ()

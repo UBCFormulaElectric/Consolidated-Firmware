@@ -27,3 +27,7 @@ enum I2cNetName {
   I2C_IMU_I2C = 1;
   I2C_R_PUMP_I2C = 2;
 }
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+}

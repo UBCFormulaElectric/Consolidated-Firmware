@@ -605,7 +605,7 @@ void StartDefaultTask(void *argument)
     /* USER CODE BEGIN 5 */
     io_chimera_v2_mainOrContinue(
         GpioNetName_f4dev_net_name_tag, id_to_gpio, AdcNetName_f4dev_net_name_tag, id_to_adc,
-        I2cNetName_f4dev_net_name_tag, id_to_i2c);
+        I2cNetName_f4dev_net_name_tag, id_to_i2c, SpiNetName_f4dev_net_name_tag, id_to_spi);
     /* USER CODE END 5 */
 }
 
