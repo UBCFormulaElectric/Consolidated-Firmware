@@ -6,18 +6,18 @@
 #include "hw_gpios.h"
 #include "hw_spis.h"
 
-const Gpio *id_to_gpio[] = { [crit_GpioNetName_BOOT]                 = &boot,
-                             [crit_GpioNetName_LED]                  = &led,
-                             [crit_GpioNetName_TELEM_SIG]            = &telem_sig,
-                             [crit_GpioNetName_PUSH_DRIVE_SIG]       = &push_drive_sig,
-                             [crit_GpioNetName_ROT_S]                = &rot_s,
-                             [crit_GpioNetName_ROT_B]                = &rot_b,
-                             [crit_GpioNetName_ROT_A]                = &rot_a,
-                             [crit_GpioNetName_LAUNCH_CONTROL_SIG]   = &launch_control_sig,
-                             [crit_GpioNetName_TORQUE_VECTORING_SIG] = &torque_vectoring_sig,
-                             [crit_GpioNetName_REGEN_SIG]            = &regen_sig,
-                             [crit_GpioNetName_LED_RCK]              = &led_rck,
-                             [crit_GpioNetName_SEVEN_SEG_RCK]        = &seven_seg_rck };
+const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boot,
+                             [crit_GpioNetName_GPIO_LED]                  = &led,
+                             [crit_GpioNetName_GPIO_TELEM_SIG]            = &telem_sig,
+                             [crit_GpioNetName_GPIO_PUSH_DRIVE_SIG]       = &push_drive_sig,
+                             [crit_GpioNetName_GPIO_ROT_S]                = &rot_s,
+                             [crit_GpioNetName_GPIO_ROT_B]                = &rot_b,
+                             [crit_GpioNetName_GPIO_ROT_A]                = &rot_a,
+                             [crit_GpioNetName_GPIO_LAUNCH_CONTROL_SIG]   = &launch_control_sig,
+                             [crit_GpioNetName_GPIO_TORQUE_VECTORING_SIG] = &torque_vectoring_sig,
+                             [crit_GpioNetName_GPIO_REGEN_SIG]            = &regen_sig,
+                             [crit_GpioNetName_GPIO_LED_RCK]              = &led_rck,
+                             [crit_GpioNetName_GPIO_SEVEN_SEG_RCK]        = &seven_seg_rck };
 
 // TODO: Configure adcs.
 const AdcChannel *id_to_adc[] = { [crit_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };

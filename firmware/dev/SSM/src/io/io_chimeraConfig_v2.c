@@ -9,9 +9,9 @@
 #include "hw_spis.h"
 
 const Gpio *id_to_gpio[] = {
-    [ssm_GpioNetName_INDICATOR_1] = &indicator_1, [ssm_GpioNetName_INDICATOR_2] = &indicator_2,
-    [ssm_GpioNetName_INDICATOR_3] = &indicator_3, [ssm_GpioNetName_DOUT_4] = &dout_4,
-    [ssm_GpioNetName_DEBUG_LED] = &debug_led,
+    [ssm_GpioNetName_GPIO_INDICATOR_1] = &indicator_1, [ssm_GpioNetName_GPIO_INDICATOR_2] = &indicator_2,
+    [ssm_GpioNetName_GPIO_INDICATOR_3] = &indicator_3, [ssm_GpioNetName_GPIO_DOUT_4] = &dout_4,
+    [ssm_GpioNetName_GPIO_DEBUG_LED] = &debug_led,
 };
 
 // TODO: Configure adcs.

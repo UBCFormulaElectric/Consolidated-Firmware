@@ -20,34 +20,34 @@ class _GpioNetName:
 class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GpioNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     GPIO_NET_NAME_UNSPECIFIED: _GpioNetName.ValueType
-    TELEM_PWR_EN: _GpioNetName.ValueType
-    BUZZER_PWR_EN: _GpioNetName.ValueType
-    TSIM_RED_EN: _GpioNetName.ValueType
-    NTSIM_GRN_EN: _GpioNetName.ValueType
-    R_SHDN_SENSE: _GpioNetName.ValueType
-    L_SHDN_SENSE: _GpioNetName.ValueType
-    LED: _GpioNetName.ValueType
-    BOOT: _GpioNetName.ValueType
-    SD_PRESENT: _GpioNetName.ValueType
-    N_RTC_INT1: _GpioNetName.ValueType
-    _900M: _GpioNetName.ValueType
-    SD_FAIL: _GpioNetName.ValueType
+    GPIO_TELEM_PWR_EN: _GpioNetName.ValueType
+    GPIO_BUZZER_PWR_EN: _GpioNetName.ValueType
+    GPIO_TSIM_RED_EN: _GpioNetName.ValueType
+    GPIO_NTSIM_GRN_EN: _GpioNetName.ValueType
+    GPIO_R_SHDN_SENSE: _GpioNetName.ValueType
+    GPIO_L_SHDN_SENSE: _GpioNetName.ValueType
+    GPIO_LED: _GpioNetName.ValueType
+    GPIO_BOOT: _GpioNetName.ValueType
+    GPIO_SD_PRESENT: _GpioNetName.ValueType
+    GPIO_N_RTC_INT1: _GpioNetName.ValueType
+    GPIO_900M: _GpioNetName.ValueType
+    GPIO_SD_FAIL: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
-TELEM_PWR_EN: GpioNetName.ValueType
-BUZZER_PWR_EN: GpioNetName.ValueType
-TSIM_RED_EN: GpioNetName.ValueType
-NTSIM_GRN_EN: GpioNetName.ValueType
-R_SHDN_SENSE: GpioNetName.ValueType
-L_SHDN_SENSE: GpioNetName.ValueType
-LED: GpioNetName.ValueType
-BOOT: GpioNetName.ValueType
-SD_PRESENT: GpioNetName.ValueType
-N_RTC_INT1: GpioNetName.ValueType
-_900M: GpioNetName.ValueType
-SD_FAIL: GpioNetName.ValueType
+GPIO_TELEM_PWR_EN: GpioNetName.ValueType
+GPIO_BUZZER_PWR_EN: GpioNetName.ValueType
+GPIO_TSIM_RED_EN: GpioNetName.ValueType
+GPIO_NTSIM_GRN_EN: GpioNetName.ValueType
+GPIO_R_SHDN_SENSE: GpioNetName.ValueType
+GPIO_L_SHDN_SENSE: GpioNetName.ValueType
+GPIO_LED: GpioNetName.ValueType
+GPIO_BOOT: GpioNetName.ValueType
+GPIO_SD_PRESENT: GpioNetName.ValueType
+GPIO_N_RTC_INT1: GpioNetName.ValueType
+GPIO_900M: GpioNetName.ValueType
+GPIO_SD_FAIL: GpioNetName.ValueType
 global___GpioNetName = GpioNetName
 
 class _AdcNetName:
@@ -70,12 +70,12 @@ class _I2cNetName:
 class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
-    RTC_I2C: _I2cNetName.ValueType
+    I2C_RTC: _I2cNetName.ValueType
 
 class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-RTC_I2C: I2cNetName.ValueType
+I2C_RTC: I2cNetName.ValueType
 global___I2cNetName = I2cNetName
 
 class _SpiNetName:
