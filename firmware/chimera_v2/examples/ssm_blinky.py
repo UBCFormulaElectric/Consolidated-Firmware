@@ -4,7 +4,7 @@ import chimera_v2
 # Config.
 RATE_HZ = 10.0
 DUTY_CYCLE = 0.5
-LED_NET_NAME = "DEBUG_LED"
+LED_NET_NAME = "GPIO_DEBUG_LED"
 
 # Init device.
 chimera_device = chimera_v2.SSM()
