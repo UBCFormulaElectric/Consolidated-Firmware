@@ -389,24 +389,26 @@ class SpiNetName(google.protobuf.message.Message):
     F4DEV_NET_NAME_FIELD_NUMBER: builtins.int
     SSM_NET_NAME_FIELD_NUMBER: builtins.int
     CRIT_NET_NAME_FIELD_NUMBER: builtins.int
+    DAM_NET_NAME_FIELD_NUMBER: builtins.int
     RSM_NET_NAME_FIELD_NUMBER: builtins.int
     FSM_NET_NAME_FIELD_NUMBER: builtins.int
     f4dev_net_name: f4dev_pb2.SpiNetName.ValueType
     ssm_net_name: ssm_pb2.SpiNetName.ValueType
     crit_net_name: crit_pb2.SpiNetName.ValueType
+    dam_net_name: dam_pb2.SpiNetName.ValueType
     rsm_net_name: rsm_pb2.SpiNetName.ValueType
     fsm_net_name: fsm_pb2.SpiNetName.ValueType
 
-    def __init__(self, *, f4dev_net_name: f4dev_pb2.SpiNetName.ValueType=..., ssm_net_name: ssm_pb2.SpiNetName.ValueType=..., crit_net_name: crit_pb2.SpiNetName.ValueType=..., rsm_net_name: rsm_pb2.SpiNetName.ValueType=..., fsm_net_name: fsm_pb2.SpiNetName.ValueType=...) -> None:
+    def __init__(self, *, f4dev_net_name: f4dev_pb2.SpiNetName.ValueType=..., ssm_net_name: ssm_pb2.SpiNetName.ValueType=..., crit_net_name: crit_pb2.SpiNetName.ValueType=..., dam_net_name: dam_pb2.SpiNetName.ValueType=..., rsm_net_name: rsm_pb2.SpiNetName.ValueType=..., fsm_net_name: fsm_pb2.SpiNetName.ValueType=...) -> None:
         ...
 
-    def HasField(self, field_name: typing.Literal['crit_net_name', b'crit_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name']) -> builtins.bool:
+    def HasField(self, field_name: typing.Literal['crit_net_name', b'crit_net_name', 'dam_net_name', b'dam_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['crit_net_name', b'crit_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name']) -> None:
+    def ClearField(self, field_name: typing.Literal['crit_net_name', b'crit_net_name', 'dam_net_name', b'dam_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name']) -> None:
         ...
 
-    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['f4dev_net_name', 'ssm_net_name', 'crit_net_name', 'rsm_net_name', 'fsm_net_name'] | None:
+    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['f4dev_net_name', 'ssm_net_name', 'crit_net_name', 'dam_net_name', 'rsm_net_name', 'fsm_net_name'] | None:
         ...
 global___SpiNetName = SpiNetName
 

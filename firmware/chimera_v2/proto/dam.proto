@@ -26,3 +26,7 @@ enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
   RTC_I2C= 1;
 }
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+}

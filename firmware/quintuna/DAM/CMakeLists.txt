@@ -51,6 +51,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -97,6 +98,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_fdcan.c"
             "stm32h7xx_hal_gpio.c"
             "stm32h7xx_hal_i2c.c"
+            "stm32h7xx_hal_spi.c"
             "stm32h7xx_hal_i2c_ex.c"
             "stm32h7xx_hal_iwdg.c"
             "stm32h7xx_hal_mmc.c"
@@ -150,7 +152,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
     )
 
-    target_compile_definitions("quintuna_DAM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
+    target_compile_definitions("quintuna_DAM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
 
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
