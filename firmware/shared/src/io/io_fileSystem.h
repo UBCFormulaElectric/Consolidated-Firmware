@@ -12,7 +12,7 @@ typedef enum
     FILE_NO_SPACE      = -4, // no space left
     FILE_ERROR_IO      = -5, // io error
     FILE_ERROR_BAD_ARG = -6, // Invalid argument passed in
-    FILE_MOUNT_FAILED = -7 // Initial mount failed so filesystem is unavailable for this boot cycle
+    FILE_MOUNT_FAILED  = -7  // Initial mount failed so filesystem is unavailable for this boot cycle
 } FileSystemError;
 
 /**
@@ -29,7 +29,7 @@ FileSystemError io_fileSystem_init(void);
  * @param path path in question
  * @return a file descriptor
  */
-FileSystemError io_fileSystem_open(const char *path, uint32_t* fd);
+FileSystemError io_fileSystem_open(const char *path, uint32_t *fd);
 
 /**
  * writes to file descriptor for some size into the buffer
