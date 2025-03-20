@@ -1,12 +1,7 @@
 #include "dam.pb.h"
-#include "hw_gpio.h"
+
 #include "hw_gpios.h"
-#include "hw_adc.h"
-#include "hw_adcs.h"
-#include "hw_i2c.h"
 #include "hw_i2cs.h"
-#include "hw_spi.h"
-#include "hw_spis.h"
 
 const Gpio *id_to_gpio[] = {
     [dam_GpioNetName_GPIO_TELEM_PWR_EN]  = &telem_pwr_en_pin,
@@ -23,10 +18,4 @@ const Gpio *id_to_gpio[] = {
     [dam_GpioNetName_GPIO_SD_FAIL]       = &sd_fail_pin,
 };
 
-// TODO: Configure adcs.
-const AdcChannel *id_to_adc[] = { [dam_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
-
 const I2cDevice *id_to_i2c[] = { [dam_I2cNetName_I2C_RTC] = &rtc_i2c };
-
-// TODO: Configure SPIs.
-const SpiDevice *id_to_spi[] = { [dam_SpiNetName_SPI_NET_NAME_UNSPECIFIED] = NULL };

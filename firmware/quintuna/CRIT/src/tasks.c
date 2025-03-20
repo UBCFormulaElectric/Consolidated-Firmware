@@ -75,8 +75,7 @@ void tasks_run100Hz()
     for (;;)
     {
         io_chimera_v2_mainOrContinue(
-            GpioNetName_crit_net_name_tag, id_to_gpio, AdcNetName_crit_net_name_tag, id_to_adc,
-            I2cNetName_crit_net_name_tag, id_to_i2c, SpiNetName_crit_net_name_tag, id_to_spi);
+            GpioNetName_crit_net_name_tag, id_to_gpio, SpiNetName_crit_net_name_tag, id_to_spi);
 
         if (!io_chimera_v2_enabled)
             jobs_run100Hz_tick();
