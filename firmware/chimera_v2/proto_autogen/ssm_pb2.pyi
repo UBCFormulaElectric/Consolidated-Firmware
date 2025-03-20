@@ -20,20 +20,20 @@ class _GpioNetName:
 class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GpioNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     GPIO_NET_NAME_UNSPECIFIED: _GpioNetName.ValueType
-    INDICATOR_1: _GpioNetName.ValueType
-    INDICATOR_2: _GpioNetName.ValueType
-    INDICATOR_3: _GpioNetName.ValueType
-    DOUT_4: _GpioNetName.ValueType
-    DEBUG_LED: _GpioNetName.ValueType
+    GPIO_INDICATOR_1: _GpioNetName.ValueType
+    GPIO_INDICATOR_2: _GpioNetName.ValueType
+    GPIO_INDICATOR_3: _GpioNetName.ValueType
+    GPIO_DOUT_4: _GpioNetName.ValueType
+    GPIO_DEBUG_LED: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
-INDICATOR_1: GpioNetName.ValueType
-INDICATOR_2: GpioNetName.ValueType
-INDICATOR_3: GpioNetName.ValueType
-DOUT_4: GpioNetName.ValueType
-DEBUG_LED: GpioNetName.ValueType
+GPIO_INDICATOR_1: GpioNetName.ValueType
+GPIO_INDICATOR_2: GpioNetName.ValueType
+GPIO_INDICATOR_3: GpioNetName.ValueType
+GPIO_DOUT_4: GpioNetName.ValueType
+GPIO_DEBUG_LED: GpioNetName.ValueType
 global___GpioNetName = GpioNetName
 
 class _AdcNetName:

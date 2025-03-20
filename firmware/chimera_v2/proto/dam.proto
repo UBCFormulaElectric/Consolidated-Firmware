@@ -4,18 +4,18 @@ package dam;
 
 enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED = 0;
-  TELEM_PWR_EN = 1;
-  BUZZER_PWR_EN = 2;
-  TSIM_RED_EN = 3;
-  NTSIM_GRN_EN = 4;
-  R_SHDN_SENSE = 5;
-  L_SHDN_SENSE = 6;
-  LED = 7;
-  BOOT = 8;
-  SD_PRESENT = 9;
-  N_RTC_INT1 = 10;
-  _900M = 11;
-  SD_FAIL = 12;
+  GPIO_TELEM_PWR_EN = 1;
+  GPIO_BUZZER_PWR_EN = 2;
+  GPIO_TSIM_RED_EN = 3;
+  GPIO_NTSIM_GRN_EN = 4;
+  GPIO_R_SHDN_SENSE = 5;
+  GPIO_L_SHDN_SENSE = 6;
+  GPIO_LED = 7;
+  GPIO_BOOT = 8;
+  GPIO_SD_PRESENT = 9;
+  GPIO_N_RTC_INT1 = 10;
+  GPIO_900M = 11;
+  GPIO_SD_FAIL = 12;
 }
 
 enum AdcNetName {
@@ -24,7 +24,7 @@ enum AdcNetName {
 
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
-  RTC_I2C= 1;
+  I2C_RTC = 1;
 }
 
 enum SpiNetName {
