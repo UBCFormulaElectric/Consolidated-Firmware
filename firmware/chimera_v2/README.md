@@ -171,13 +171,6 @@ stm32f412rx_cube_library(
 ...
 ```
 
-Also make sure to explicitly enable I2C/SPI/ADC, even if your board does not have them (Chimera V2 relies on them).
-
-Eg. For the SSM
-```cmake
-target_compile_definitions("ssm.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
-```
-
 Try to build. This will regenerate all the STM32 code, with USB files setup.
 
 Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](../shared/src/hw/hw_usb.h) and [`io_log.h`](../shared/src/io/io_log.h).

@@ -110,7 +110,4 @@ IF ("${TARGET}" STREQUAL "binary")
 
         # Link.
         target_link_libraries("ssm.elf" "ssm_stm32cube" "ssm_commit_info" "chimera_v2_proto_cm4")
-
-        # Enable ADC and I2C explictly for Chimera V2.
-        target_compile_definitions("ssm.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
 ENDIF ()

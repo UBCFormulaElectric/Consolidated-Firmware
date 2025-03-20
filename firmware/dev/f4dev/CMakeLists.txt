@@ -87,5 +87,4 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "chimera_v2_proto_cm4")
-    target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 ENDIF ()
