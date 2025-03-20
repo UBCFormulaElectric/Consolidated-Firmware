@@ -1,20 +1,12 @@
 {
-	"json.schemas": [
-		{
-			"fileMatch": [
-				"/can_bus/json/**/*tx.json"
-			],
-			"url": "/can_bus/json/schema_tx.json"
-		}
-	],
-	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"main.h": "c",
-		"hw_gpios.h": "c",
-		"hw_adc.h": "c",
-		"hw_i2c.h": "c",
-		"bms.pb.h": "c",
-		"io_chimera_v2.h": "c"
-	},
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/can_bus/json/**/*tx.json"
+            ],
+            "url": "/can_bus/json/schema_tx.json"
+        }
+    ],
+    "cmake.configureOnEdit": false,
+    "cmake.configureOnOpen": false
 }
