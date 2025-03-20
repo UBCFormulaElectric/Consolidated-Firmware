@@ -16,6 +16,8 @@ enum GpioNetName {
   GPIO_REGEN_SIG = 10;
   GPIO_LED_RCK = 11;
   GPIO_SEVEN_SEG_RCK = 12;
+  GPIO_LED_DIMMING = 13;
+  GPIO_SEVEN_SEG_DIMMING = 14;
 }
 
 enum AdcNetName {
@@ -34,6 +36,4 @@ enum SpiNetName {
 
 enum PwmOutputNetName {
   PWM_OUTPUT_NET_NAME_UNSPECIFIED = 0;
-  PWM_OUTPUT_SEVEN_SEG_DIMMING = 1;
-  PWM_OUTPUT_LED_DIMMING = 2;
 }
