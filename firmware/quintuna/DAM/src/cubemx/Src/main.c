@@ -204,12 +204,12 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    //MX_SDMMC1_SD_Init();
+    MX_SDMMC1_SD_Init();
     MX_FDCAN2_Init();
     MX_USART2_UART_Init();
     MX_I2C1_Init();
     MX_TIM15_Init();
-    //MX_IWDG1_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */

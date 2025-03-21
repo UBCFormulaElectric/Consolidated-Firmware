@@ -6,7 +6,6 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
 
-
 #else
 #include "app_utils.h"
 EMPTY_STRUCT(TsimLightConfig)
