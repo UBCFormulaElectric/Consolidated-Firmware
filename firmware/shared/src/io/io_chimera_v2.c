@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "main.h"
 #include "io_chimera_v2.h"
 #include "hw_usb.h"
 #include "io_log.h"
@@ -7,12 +8,6 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "shared.pb.h"
-
-// Peripheral interfaces.
-#include "hw_adc.h"
-#include "hw_gpio.h"
-#include "hw_i2c.h"
-#include "hw_spi.h"
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 // Yes, this is 65kb of RAM - it's a lot, but doable.
@@ -25,6 +20,8 @@ bool io_chimera_v2_enabled = false;
 static io_chimera_v2_Config *chimera_config;
 
 #ifdef HAL_GPIO_MODULE_ENABLED
+#include "hw_gpio.h"
+
 // Convert a given GpioNetName to a GPIO pin.
 static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 {
@@ -55,6 +52,8 @@ static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 #endif
 
 #ifdef HAL_ADC_MODULE_ENABLED
+#include "hw_adc.h"
+
 // Convert a given AdcNetName to an ADC channel pin.
 static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 {
@@ -85,6 +84,8 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 #endif
 
 #ifdef HAL_I2C_MODULE_ENABLED
+#include "hw_i2c.h"
+
 // Convert a given I2C enum to an I2C device.
 static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 {
@@ -115,6 +116,8 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 #endif
 
 #ifdef HAL_SPI_MODULE_ENABLED
+#include "hw_spi.h"
+
 // Convert a given SPI enum to a SPI device.
 static const SpiDevice *io_chimera_v2_getSpi(const SpiNetName *net_name)
 {

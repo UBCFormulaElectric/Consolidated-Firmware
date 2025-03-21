@@ -1,10 +1,23 @@
 #pragma once
 #include <stdlib.h>
+#include "main.h"
 #include "pb.h"
-#include "hw_adc.h"
+
+#ifdef HAL_GPIO_MODULE_ENABLED
 #include "hw_gpio.h"
+#endif
+
+#ifdef HAL_ADC_MODULE_ENABLED
+#include "hw_adc.h"
+#endif
+
+#ifdef HAL_I2C_MODULE_ENABLED
 #include "hw_i2c.h"
+#endif
+
+#ifdef HAL_SPI_MODULE_ENABLED
 #include "hw_spi.h"
+#endif
 
 // Configuration needed ro run chimera.
 // Exposes mappings from net names to peripherals,
