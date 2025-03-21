@@ -89,7 +89,7 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 // Convert a given I2C enum to an I2C device.
 static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 {
-    if (chimera_v2_config->adc_net_name_tag != net_name->which_name)
+    if (chimera_v2_config->i2c_net_name_tag != net_name->which_name)
     {
         LOG_ERROR(
             "Chimera: Expected I2C net name with tag %d, got %d", chimera_v2_config->i2c_net_name_tag,
