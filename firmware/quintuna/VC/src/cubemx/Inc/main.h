@@ -91,8 +91,8 @@ extern "C"
 #define FR_STBY_INV_GPIO_Port GPIOA
 #define RL_PUMP_I_SNS_Pin GPIO_PIN_4
 #define RL_PUMP_I_SNS_GPIO_Port GPIOC
-#define L_INV_I_SNS_Pin GPIO_PIN_5
-#define L_INV_I_SNS_GPIO_Port GPIOC
+#define F_INV_I_SNS_Pin GPIO_PIN_5
+#define F_INV_I_SNS_GPIO_Port GPIOC
 #define R_INV_I_SNS_Pin GPIO_PIN_0
 #define R_INV_I_SNS_GPIO_Port GPIOB
 #define BMS_I_SNS_Pin GPIO_PIN_1
@@ -155,10 +155,6 @@ extern "C"
 #define F_INV_EN_GPIO_Port GPIOA
 #define DAM_EN_Pin GPIO_PIN_10
 #define DAM_EN_GPIO_Port GPIOA
-#define USB_P_N_Pin GPIO_PIN_11
-#define USB_P_N_GPIO_Port GPIOA
-#define USB_D_P_Pin GPIO_PIN_12
-#define USB_D_P_GPIO_Port GPIOA
 #define SWDIO_1_Pin GPIO_PIN_13
 #define SWDIO_1_GPIO_Port GPIOA
 #define SWCLK_1_Pin GPIO_PIN_14

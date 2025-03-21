@@ -65,6 +65,7 @@ extern "C"
     void EXTI15_10_IRQHandler(void);
     void I2C3_EV_IRQHandler(void);
     void I2C3_ER_IRQHandler(void);
+    void OTG_HS_IRQHandler(void);
     void UART8_IRQHandler(void);
     void I2C4_EV_IRQHandler(void);
     void I2C4_ER_IRQHandler(void);

@@ -44,5 +44,5 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc == adc1.hadc)
         hw_adcchip_updateCallback(&adc1);
     else if (hadc == adc2.hadc)
-        hw_adcchip_updateCallback(&adc2)
+        hw_adcchip_updateCallback(&adc2);
 }
