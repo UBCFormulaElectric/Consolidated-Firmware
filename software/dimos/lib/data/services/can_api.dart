@@ -3,6 +3,8 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:io';
 
+// WE MIGHT NEED FFI AT THIS POINT
+
 Future<void> main() async {
   final linuxcan = LinuxCan.instance;
 

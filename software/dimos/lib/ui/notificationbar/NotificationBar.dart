@@ -1,17 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dimos/data/services/dev_api.dart';
-
-/* State Management */
-class WarningsList extends ChangeNotifier {
-  final List<String> _warnings = <String>["w", "fuck"];
-  List<String> get warnings => _warnings.toList();
-
-  void updateList(String data) {
-    _warnings.add(data);
-    notifyListeners();
-  }
-}
+import 'package:dimos/data/services/can_variables.dart';
 
 class NotificationBar extends StatefulWidget implements PreferredSizeWidget {
   const NotificationBar({super.key});
@@ -24,22 +13,10 @@ class NotificationBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _NotificationBarState extends State<NotificationBar> {
-  late DevApiWorker _worker;
-
-  @override
-  void initState() {
-    super.initState();
-    _worker = DevApiWorker();
-
-    // Start worker and listen for updates
-    _worker.start((data) {
-      // Use Provider to update WarningsList
-      Provider.of<WarningsList>(context, listen: false).updateList(data);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    // switch to selector later
     return Consumer<WarningsList>(
       builder: (context, warningsList, child) {
         return Row(
