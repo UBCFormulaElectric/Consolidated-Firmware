@@ -17,7 +17,7 @@ static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 bool io_chimera_v2_enabled = false;
 
 // Active chimera config.
-static io_chimera_v2_Config *chimera_config;
+static io_chimera_v2_Config *chimera_v2_config;
 
 #ifdef HAL_GPIO_MODULE_ENABLED
 #include "hw_gpio.h"
@@ -25,26 +25,26 @@ static io_chimera_v2_Config *chimera_config;
 // Convert a given GpioNetName to a GPIO pin.
 static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 {
-    if (chimera_config->gpio_net_name_tag != net_name->which_name)
+    if (chimera_v2_config->gpio_net_name_tag != net_name->which_name)
     {
         LOG_ERROR(
-            "Chimera: Expected GPIO net name with tag %d, got %d", chimera_config->gpio_net_name_tag,
+            "Chimera: Expected GPIO net name with tag %d, got %d", chimera_v2_config->gpio_net_name_tag,
             net_name->which_name);
         return NULL;
     }
 
     if (net_name->which_name == GpioNetName_f4dev_net_name_tag)
-        return chimera_config->id_to_gpio[net_name->name.f4dev_net_name];
+        return chimera_v2_config->id_to_gpio[net_name->name.f4dev_net_name];
     if (net_name->which_name == GpioNetName_ssm_net_name_tag)
-        return chimera_config->id_to_gpio[net_name->name.ssm_net_name];
+        return chimera_v2_config->id_to_gpio[net_name->name.ssm_net_name];
     if (net_name->which_name == GpioNetName_crit_net_name_tag)
-        return chimera_config->id_to_gpio[net_name->name.crit_net_name];
+        return chimera_v2_config->id_to_gpio[net_name->name.crit_net_name];
     if (net_name->which_name == GpioNetName_dam_net_name_tag)
-        return chimera_config->id_to_gpio[net_name->name.dam_net_name];
+        return chimera_v2_config->id_to_gpio[net_name->name.dam_net_name];
     if (net_name->which_name == GpioNetName_fsm_net_name_tag)
-        return chimera_config->id_to_gpio[net_name->name.fsm_net_name];
+        return chimera_v2_config->id_to_gpio[net_name->name.fsm_net_name];
     if (net_name->which_name == I2cNetName_rsm_net_name_tag)
-        return chimera_config->id_to_gpio[net_name->name.rsm_net_name];
+        return chimera_v2_config->id_to_gpio[net_name->name.rsm_net_name];
 
     LOG_ERROR("Chimera: Received GPIO pin from unsupported board.");
     return NULL;
@@ -57,26 +57,26 @@ static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
 // Convert a given AdcNetName to an ADC channel pin.
 static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 {
-    if (chimera_config->adc_net_name_tag != net_name->which_name)
+    if (chimera_v2_config->adc_net_name_tag != net_name->which_name)
     {
         LOG_ERROR(
-            "Chimera: Expected ADC net name with tag %d, got %d", chimera_config->adc_net_name_tag,
+            "Chimera: Expected ADC net name with tag %d, got %d", chimera_v2_config->adc_net_name_tag,
             net_name->which_name);
         return NULL;
     }
 
     if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
-        return chimera_config->id_to_adc[net_name->name.f4dev_net_name];
+        return chimera_v2_config->id_to_adc[net_name->name.f4dev_net_name];
     if (net_name->which_name == AdcNetName_ssm_net_name_tag)
-        return chimera_config->id_to_adc[net_name->name.ssm_net_name];
+        return chimera_v2_config->id_to_adc[net_name->name.ssm_net_name];
     if (net_name->which_name == AdcNetName_crit_net_name_tag)
-        return chimera_config->id_to_adc[net_name->name.crit_net_name];
+        return chimera_v2_config->id_to_adc[net_name->name.crit_net_name];
     if (net_name->which_name == AdcNetName_dam_net_name_tag)
-        return chimera_config->id_to_adc[net_name->name.dam_net_name];
+        return chimera_v2_config->id_to_adc[net_name->name.dam_net_name];
     if (net_name->which_name == AdcNetName_fsm_net_name_tag)
-        return chimera_config->id_to_adc[net_name->name.fsm_net_name];
+        return chimera_v2_config->id_to_adc[net_name->name.fsm_net_name];
     if (net_name->which_name == AdcNetName_rsm_net_name_tag)
-        return chimera_config->id_to_adc[net_name->name.rsm_net_name];
+        return chimera_v2_config->id_to_adc[net_name->name.rsm_net_name];
 
     LOG_ERROR("Chimera: Received ADC channel from unsupported board.");
     return NULL;
@@ -89,26 +89,26 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
 // Convert a given I2C enum to an I2C device.
 static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 {
-    if (chimera_config->adc_net_name_tag != net_name->which_name)
+    if (chimera_v2_config->adc_net_name_tag != net_name->which_name)
     {
         LOG_ERROR(
-            "Chimera: Expected I2C net name with tag %d, got %d", chimera_config->i2c_net_name_tag,
+            "Chimera: Expected I2C net name with tag %d, got %d", chimera_v2_config->i2c_net_name_tag,
             net_name->which_name);
         return NULL;
     }
 
     if (net_name->which_name == I2cNetName_f4dev_net_name_tag)
-        return chimera_config->id_to_i2c[net_name->name.f4dev_net_name];
+        return chimera_v2_config->id_to_i2c[net_name->name.f4dev_net_name];
     if (net_name->which_name == I2cNetName_ssm_net_name_tag)
-        return chimera_config->id_to_i2c[net_name->name.ssm_net_name];
+        return chimera_v2_config->id_to_i2c[net_name->name.ssm_net_name];
     if (net_name->which_name == I2cNetName_crit_net_name_tag)
-        return chimera_config->id_to_i2c[net_name->name.crit_net_name];
+        return chimera_v2_config->id_to_i2c[net_name->name.crit_net_name];
     if (net_name->which_name == I2cNetName_dam_net_name_tag)
-        return chimera_config->id_to_i2c[net_name->name.dam_net_name];
+        return chimera_v2_config->id_to_i2c[net_name->name.dam_net_name];
     if (net_name->which_name == I2cNetName_fsm_net_name_tag)
-        return chimera_config->id_to_i2c[net_name->name.fsm_net_name];
+        return chimera_v2_config->id_to_i2c[net_name->name.fsm_net_name];
     if (net_name->which_name == I2cNetName_rsm_net_name_tag)
-        return chimera_config->id_to_i2c[net_name->name.rsm_net_name];
+        return chimera_v2_config->id_to_i2c[net_name->name.rsm_net_name];
 
     LOG_ERROR("Chimera: Received I2C device from unsupported board.");
     return 0;
@@ -121,22 +121,23 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
 // Convert a given SPI enum to a SPI device.
 static const SpiDevice *io_chimera_v2_getSpi(const SpiNetName *net_name)
 {
-    if (chimera_config->spi_net_name_tag != net_name->which_name)
+    if (chimera_v2_config->spi_net_name_tag != net_name->which_name)
     {
-        LOG_ERROR("Expected SPI net name with tag %d, got %d", chimera_config->spi_net_name_tag, net_name->which_name);
+        LOG_ERROR(
+            "Expected SPI net name with tag %d, got %d", chimera_v2_config->spi_net_name_tag, net_name->which_name);
         return NULL;
     }
 
     if (net_name->which_name == SpiNetName_f4dev_net_name_tag)
-        return chimera_config->id_to_spi[net_name->name.f4dev_net_name];
+        return chimera_v2_config->id_to_spi[net_name->name.f4dev_net_name];
     if (net_name->which_name == SpiNetName_ssm_net_name_tag)
-        return chimera_config->id_to_spi[net_name->name.ssm_net_name];
+        return chimera_v2_config->id_to_spi[net_name->name.ssm_net_name];
     if (net_name->which_name == SpiNetName_crit_net_name_tag)
-        return chimera_config->id_to_spi[net_name->name.crit_net_name];
+        return chimera_v2_config->id_to_spi[net_name->name.crit_net_name];
     if (net_name->which_name == SpiNetName_fsm_net_name_tag)
-        return chimera_config->id_to_spi[net_name->name.fsm_net_name];
+        return chimera_v2_config->id_to_spi[net_name->name.fsm_net_name];
     if (net_name->which_name == SpiNetName_rsm_net_name_tag)
-        return chimera_config->id_to_spi[net_name->name.rsm_net_name];
+        return chimera_v2_config->id_to_spi[net_name->name.rsm_net_name];
 
     LOG_ERROR("Received SPI device from unsupported board.");
     return NULL;
@@ -384,7 +385,7 @@ void io_chimera_v2_mainOrContinue(io_chimera_v2_Config *config)
     io_chimera_v2_enabled = true;
 
     // Keep track of config.
-    chimera_config = config;
+    chimera_v2_config = config;
 
     // Main loop.
     for (uint32_t requests_processed = 1; true; requests_processed += 1)

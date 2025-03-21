@@ -152,7 +152,5 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
     )
 
-    target_compile_definitions("quintuna_DAM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
-
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
