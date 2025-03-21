@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -57,8 +58,6 @@ TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart8;
 
-PCD_HandleTypeDef hpcd_USB_OTG_HS;
-
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
@@ -82,7 +81,6 @@ static void MX_I2C2_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_I2C4_Init(void);
 static void MX_UART8_Init(void);
-static void MX_USB_OTG_HS_PCD_Init(void);
 static void MX_I2C5_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_ADC2_Init(void);
@@ -136,7 +134,6 @@ int main(void)
     MX_I2C3_Init();
     MX_I2C4_Init();
     MX_UART8_Init();
-    MX_USB_OTG_HS_PCD_Init();
     MX_I2C5_Init();
     MX_TIM3_Init();
     MX_ADC2_Init();
@@ -309,11 +306,11 @@ static void MX_ADC1_Init(void)
     hadc1.Instance                      = ADC1;
     hadc1.Init.ClockPrescaler           = ADC_CLOCK_ASYNC_DIV1;
     hadc1.Init.Resolution               = ADC_RESOLUTION_16B;
-    hadc1.Init.ScanConvMode             = ADC_SCAN_DISABLE;
+    hadc1.Init.ScanConvMode             = ADC_SCAN_ENABLE;
     hadc1.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait         = DISABLE;
     hadc1.Init.ContinuousConvMode       = DISABLE;
-    hadc1.Init.NbrOfConversion          = 1;
+    hadc1.Init.NbrOfConversion          = 6;
     hadc1.Init.DiscontinuousConvMode    = DISABLE;
     hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
@@ -348,6 +345,47 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_4;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Rank = ADC_REGULAR_RANK_3;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Rank = ADC_REGULAR_RANK_4;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Rank = ADC_REGULAR_RANK_5;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Rank = ADC_REGULAR_RANK_6;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
     /* USER CODE BEGIN ADC1_Init 2 */
 
     /* USER CODE END ADC1_Init 2 */
@@ -375,14 +413,14 @@ static void MX_ADC2_Init(void)
     hadc2.Instance                      = ADC2;
     hadc2.Init.ClockPrescaler           = ADC_CLOCK_ASYNC_DIV1;
     hadc2.Init.Resolution               = ADC_RESOLUTION_16B;
-    hadc2.Init.ScanConvMode             = ADC_SCAN_DISABLE;
+    hadc2.Init.ScanConvMode             = ADC_SCAN_ENABLE;
     hadc2.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
     hadc2.Init.LowPowerAutoWait         = DISABLE;
     hadc2.Init.ContinuousConvMode       = DISABLE;
-    hadc2.Init.NbrOfConversion          = 1;
+    hadc2.Init.NbrOfConversion          = 5;
     hadc2.Init.DiscontinuousConvMode    = DISABLE;
-    hadc2.Init.ExternalTrigConv         = ADC_SOFTWARE_START;
-    hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc2.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
+    hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
     hadc2.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc2.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
@@ -395,13 +433,49 @@ static void MX_ADC2_Init(void)
 
     /** Configure Regular Channel
      */
-    sConfig.Channel                = ADC_CHANNEL_9;
+    sConfig.Channel                = ADC_CHANNEL_3;
     sConfig.Rank                   = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime           = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SamplingTime           = ADC_SAMPLETIME_32CYCLES_5;
     sConfig.SingleDiff             = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber           = ADC_OFFSET_NONE;
     sConfig.Offset                 = 0;
     sConfig.OffsetSignedSaturation = DISABLE;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_8;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_9;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_18;
+    sConfig.Rank    = ADC_REGULAR_RANK_4;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_19;
+    sConfig.Rank    = ADC_REGULAR_RANK_5;
     if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -841,40 +915,6 @@ static void MX_UART8_Init(void)
 }
 
 /**
- * @brief USB_OTG_HS Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_OTG_HS_PCD_Init(void)
-{
-    /* USER CODE BEGIN USB_OTG_HS_Init 0 */
-
-    /* USER CODE END USB_OTG_HS_Init 0 */
-
-    /* USER CODE BEGIN USB_OTG_HS_Init 1 */
-
-    /* USER CODE END USB_OTG_HS_Init 1 */
-    hpcd_USB_OTG_HS.Instance                 = USB_OTG_HS;
-    hpcd_USB_OTG_HS.Init.dev_endpoints       = 9;
-    hpcd_USB_OTG_HS.Init.speed               = PCD_SPEED_FULL;
-    hpcd_USB_OTG_HS.Init.dma_enable          = DISABLE;
-    hpcd_USB_OTG_HS.Init.phy_itface          = USB_OTG_EMBEDDED_PHY;
-    hpcd_USB_OTG_HS.Init.Sof_enable          = DISABLE;
-    hpcd_USB_OTG_HS.Init.low_power_enable    = DISABLE;
-    hpcd_USB_OTG_HS.Init.lpm_enable          = DISABLE;
-    hpcd_USB_OTG_HS.Init.vbus_sensing_enable = DISABLE;
-    hpcd_USB_OTG_HS.Init.use_dedicated_ep1   = DISABLE;
-    hpcd_USB_OTG_HS.Init.use_external_vbus   = DISABLE;
-    if (HAL_PCD_Init(&hpcd_USB_OTG_HS) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USB_OTG_HS_Init 2 */
-
-    /* USER CODE END USB_OTG_HS_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -1013,6 +1053,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
+    /* init code for USB_DEVICE */
+    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
     for (;;)

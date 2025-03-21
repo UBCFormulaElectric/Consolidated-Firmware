@@ -161,10 +161,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = L_INV_I_SNS_Pin;
+        GPIO_InitStruct.Pin  = F_INV_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(L_INV_I_SNS_GPIO_Port, &GPIO_InitStruct);
+        HAL_GPIO_Init(F_INV_I_SNS_GPIO_Port, &GPIO_InitStruct);
 
         GPIO_InitStruct.Pin  = R_INV_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -248,7 +248,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         */
         HAL_GPIO_DeInit(GPIOA, RSM_I_SNS_Pin | L_RAD_FAN_I_SNS_Pin | R_RAD_FAN_I_SNS_Pin);
 
-        HAL_GPIO_DeInit(L_INV_I_SNS_GPIO_Port, L_INV_I_SNS_Pin);
+        HAL_GPIO_DeInit(F_INV_I_SNS_GPIO_Port, F_INV_I_SNS_Pin);
 
         HAL_GPIO_DeInit(R_INV_I_SNS_GPIO_Port, R_INV_I_SNS_Pin);
 
@@ -856,53 +856,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         /* USER CODE BEGIN UART8_MspDeInit 1 */
 
         /* USER CODE END UART8_MspDeInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP Initialization
- * This function configures the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
-{
-    if (hpcd->Instance == USB_OTG_HS)
-    {
-        /* USER CODE BEGIN USB_OTG_HS_MspInit 0 */
-
-        /* USER CODE END USB_OTG_HS_MspInit 0 */
-
-        /** Enable USB Voltage detector
-         */
-        HAL_PWREx_EnableUSBVoltageDetector();
-
-        /* Peripheral clock enable */
-        __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
-        /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
-
-        /* USER CODE END USB_OTG_HS_MspInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP De-Initialization
- * This function freeze the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
-{
-    if (hpcd->Instance == USB_OTG_HS)
-    {
-        /* USER CODE BEGIN USB_OTG_HS_MspDeInit 0 */
-
-        /* USER CODE END USB_OTG_HS_MspDeInit 0 */
-        /* Peripheral clock disable */
-        __HAL_RCC_USB_OTG_HS_CLK_DISABLE();
-        /* USER CODE BEGIN USB_OTG_HS_MspDeInit 1 */
-
-        /* USER CODE END USB_OTG_HS_MspDeInit 1 */
     }
 }
 
