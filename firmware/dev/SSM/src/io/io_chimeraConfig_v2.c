@@ -1,6 +1,7 @@
 #include "ssm.pb.h"
 #include "shared.pb.h"
 #include "hw_gpios.h"
+#include "hw_spis.h"
 #include "io_chimeraConfig_v2.h"
 
 // Chimera V2 enums to GPIO peripherals.
@@ -11,6 +12,4 @@ const Gpio *id_to_gpio[] = {
 };
 
 io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_ssm_net_name_tag,
-                                           .id_to_gpio        = id_to_gpio,
-                                           .spi_net_name_tag  = SpiNetName_ssm_net_name_tag,
-                                           .id_to_spi         = NULL };
+                                           .id_to_gpio        = id_to_gpio };
