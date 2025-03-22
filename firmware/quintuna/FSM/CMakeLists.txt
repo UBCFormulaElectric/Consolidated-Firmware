@@ -92,6 +92,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_tim_ex.c"
             "stm32f4xx_hal_tim.c"
             "stm32f4xx_hal_uart.c"
+            "stm32f4xx_hal_spi.c"
             "stm32f4xx_hal.c"
             "stm32f4xx_hal_i2c.c"
             "stm32f4xx_hal_pcd.c"
@@ -121,7 +122,7 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("quintuna_FSM_jsoncan" INTERFACE "quintuna_FSM_stm32cube")
     target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32cube" "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "chimera_v2_proto_cm4")
     target_link_libraries("quintuna_FSM_boot.elf" PRIVATE "quintuna_FSM_commit_info")
-
+    
     embedded_image(
             "quintuna_FSM"
             "quintuna_FSM_app.hex"
