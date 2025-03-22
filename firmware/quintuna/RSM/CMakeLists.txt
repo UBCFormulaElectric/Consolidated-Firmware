@@ -26,8 +26,11 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE
 # IO.
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_time.c"   
+
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -46,6 +49,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -92,6 +96,7 @@ if("${TARGET}" STREQUAL "binary")
                 "stm32f4xx_hal_exti.c"
                 "stm32f4xx_hal_gpio.c"
                 "stm32f4xx_hal_i2c.c"
+                "stm32f4xx_hal_spi.c"
                 "stm32f4xx_hal_iwdg.c"
                 "stm32f4xx_hal_pcd.c"
                 "stm32f4xx_hal_pcd_ex.c"
@@ -108,7 +113,8 @@ if("${TARGET}" STREQUAL "binary")
         stm32f412rx_cube_library(
                 "quintuna_RSM_stm32cube"
                 "${STM32_HAL_SRCS}"
-                "${CMAKE_CURRENT_SORUCE_DIR}"
+
+                "${SYSCALLS}"
                 "${MD5_LOCATION}"
                 TRUE
         )
@@ -123,7 +129,7 @@ if("${TARGET}" STREQUAL "binary")
                 "${CMAKE_CURRENT_BINARY_DIR}/app"
         )
 
-        target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "debug_modules")
+        target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4")
         target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
 
         embedded_image(
