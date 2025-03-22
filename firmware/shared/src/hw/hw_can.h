@@ -6,6 +6,7 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
+
 #ifdef CANFD
 // STM32 HAL CAN FD handle.
 typedef struct
