@@ -227,6 +227,25 @@ typedef struct __attribute__((packed))
     uint8_t TBV; // Timer B countdown value
 } TimerBValue_t;
 
+_Static_assert(sizeof(Control1_t) == 1, "Control1_t must be 1 byte");
+_Static_assert(sizeof(Control2_t) == 1, "Control2_t must be 1 byte");
+_Static_assert(sizeof(Control3_t) == 1, "Control3_t must be 1 byte");
+_Static_assert(sizeof(Seconds_t) == 1, "Seconds_t must be 1 byte");
+_Static_assert(sizeof(Minutes_t) == 1, "Minutes_t must be 1 byte");
+_Static_assert(sizeof(Hours_t) == 1, "Hours_t must be 1 byte");
+_Static_assert(sizeof(Days_t) == 1, "Days_t must be 1 byte");
+_Static_assert(sizeof(Weekdays_t) == 1, "Weekdays_t must be 1 byte");
+_Static_assert(sizeof(Months_t) == 1, "Months_t must be 1 byte");
+_Static_assert(sizeof(Years_t) == 1, "Years_t must be 1 byte");
+_Static_assert(sizeof(MinuteAlarm_t) == 1, "MinuteAlarm_t must be 1 byte");
+_Static_assert(sizeof(HourAlarm_t) == 1, "HourAlarm_t must be 1 byte");
+_Static_assert(sizeof(Offset_t) == 1, "Offset_t must be 1 byte");
+_Static_assert(sizeof(ClockOut_t) == 1, "ClockOut_t must be 1 byte");
+_Static_assert(sizeof(TimerAFreq_t) == 1, "TimerAFreq_t must be 1 byte");
+_Static_assert(sizeof(TimerAValue_t) == 1, "TimerAValue_t must be 1 byte");
+_Static_assert(sizeof(TimerBFreq_t) == 1, "TimerBFreq_t must be 1 byte");
+_Static_assert(sizeof(TimerBValue_t) == 1, "TimerBValue_t must be 1 byte");
+
 typedef union
 {
     uint8_t        raw;           // Single uint8_t for raw data
@@ -244,7 +263,6 @@ typedef union
     HourAlarm_t    hour_alarm;    // Hour Alarm Register struct
     Offset_t       offset;        // Offset Register struct
     ClockOut_t     clock_out;     // CLKOUT Control Register struct
-    TimerControl_t timer_control; // Timer Control Register struct
     TimerAFreq_t   timer_a_freq;  // Timer A Frequency Register struct
     TimerAValue_t  timer_a_value; // Timer A Value Register struct
     TimerBFreq_t   timer_b_freq;  // Timer B Frequency Register struct
@@ -292,7 +310,7 @@ void io_rtc_setTime(struct IoRtcTime *time)
     Register_t regTime;
     regTime.seconds.SECONDS = (uint8_t)(seconds & 0x3F);
 
-    Regiszter_t regMinutes;
+    Register_t regMinutes;
     regMinutes.minutes.MINUTES = (uint8_t)(minutes & 0x7F);
 
     Register_t regHours;
