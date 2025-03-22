@@ -379,4 +379,3 @@ void io_rtc_reset(void)
 
     hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, (uint8_t *)&control1, sizeof(control1));
 }
-
