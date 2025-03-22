@@ -19,7 +19,6 @@ typedef struct
 EMPTY_STRUCT(imuConfig)
 #endif
 
-
 /**
  * @brief turns on the accelerometer sensor on the imu to high perf mode
  * @return true if the write to turn on accelerometer is successful,

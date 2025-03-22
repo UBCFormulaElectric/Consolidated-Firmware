@@ -43,7 +43,7 @@ TEST_F(YawRateControllerTest, basic_yaw_rate_generation)
 
     app_yawRateController_computeRefYawRate(&yrc);
 
-    ASSERT_FLOAT_EQ(ref_yaw_rate_rad_test, yrc.ref_yaw_rate_rad);
+    ASSERT_FLOAT_EQ(ref_yaw_rate_rad_test, app_yawRateController_getRefYawRateRad());
 };
 
 TEST_F(YawRateControllerTest, no_yaw_rate_generation_at_zero_speed)
@@ -56,18 +56,16 @@ TEST_F(YawRateControllerTest, no_yaw_rate_generation_at_zero_speed)
     float vehicle_speed  = 0.0f;
     float steering_angle = 30.0f;
 
-    yrc.wheel_angle_deg      = steering_angle;
-    yrc.vehicle_velocity_kmh = vehicle_speed;
+    yrc.wheel_angle_rad      = DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE);
+    yrc.vehicle_velocity_mps = KMH_TO_MPS(vehicle_speed);
 
     float ref_yaw_rate_rad_test =
-        (KMH_TO_MPS(vehicle_speed) * DEG_TO_RAD(steering_angle * 0.3)) /
-        ((WHEELBASE_mm * MM_TO_M) +
-         YAW_RATE_CONTROLLER_CONFIG.ku * (KMH_TO_MPS(vehicle_speed) * KMH_TO_MPS(vehicle_speed)));
-    float ref_yaw_rate_deg_test = RAD_TO_DEG(ref_yaw_rate_rad_test);
+        (yrc.vehicle_velocity_mps * yrc.wheel_angle_rad) /
+        ((WHEELBASE_mm * MM_TO_M) + YAW_RATE_CONTROLLER_CONFIG.ku * SQUARE(yrc.vehicle_velocity_mps));
 
     app_yawRateController_computeRefYawRate(&yrc);
 
-    ASSERT_FLOAT_EQ(ref_yaw_rate_deg_test, yrc.ref_yaw_rate_deg);
+    ASSERT_FLOAT_EQ(ref_yaw_rate_rad_test, app_yawRateController_getRefYawRateRad());
 };
 
 TEST_F(YawRateControllerTest, no_yaw_rate_generation_at_zero_steering_angle)
@@ -80,16 +78,14 @@ TEST_F(YawRateControllerTest, no_yaw_rate_generation_at_zero_steering_angle)
     float vehicle_speed  = 30.0f;
     float steering_angle = 0.0f;
 
-    yrc.wheel_angle_deg      = steering_angle;
-    yrc.vehicle_velocity_kmh = vehicle_speed;
+    yrc.wheel_angle_rad      = DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE);
+    yrc.vehicle_velocity_mps = KMH_TO_MPS(vehicle_speed);
 
     float ref_yaw_rate_rad_test =
-        (KMH_TO_MPS(vehicle_speed) * DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE)) /
-        ((WHEELBASE_mm * MM_TO_M) +
-         YAW_RATE_CONTROLLER_CONFIG.ku * (KMH_TO_MPS(vehicle_speed) * KMH_TO_MPS(vehicle_speed)));
-    float ref_yaw_rate_deg_test = RAD_TO_DEG(ref_yaw_rate_rad_test);
+        (yrc.vehicle_velocity_mps * yrc.wheel_angle_rad) /
+        ((WHEELBASE_mm * MM_TO_M) + YAW_RATE_CONTROLLER_CONFIG.ku * SQUARE(yrc.vehicle_velocity_mps));
 
     app_yawRateController_computeRefYawRate(&yrc);
 
-    ASSERT_FLOAT_EQ(ref_yaw_rate_deg_test, yrc.ref_yaw_rate_deg);
+    ASSERT_FLOAT_EQ(ref_yaw_rate_rad_test, app_yawRateController_getRefYawRateRad());
 };
