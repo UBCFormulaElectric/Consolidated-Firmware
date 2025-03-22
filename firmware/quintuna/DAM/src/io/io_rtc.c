@@ -25,6 +25,8 @@
 #define REG_TIMER_B_FREQ 0x13  // Timer B frequency register
 #define REG_TIMER_B_VALUE 0x14 // Timer B value register
 
+#pragma GCC diagnostic ignored "-Wconversion"
+
 /**
  * Control Register 1 (REG_CONTROL_1)
  * - Manages oscillator start/stop, time format, and interrupt enable bits.
@@ -304,25 +306,25 @@ void io_rtc_setTime(struct IoRtcTime *time)
     uint8_t seconds  = integer_to_bcd(time->seconds);
     uint8_t minutes  = integer_to_bcd(time->minutes);
     uint8_t hours    = integer_to_bcd(time->hours);
-    uint8_t date     = integer_to_bcd(time->date);
+    uint8_t date     = integer_to_bcd(time->weekdays);
     uint8_t weekdays = time->weekdays;
     uint8_t months   = integer_to_bcd(time->month);
     uint8_t years    = integer_to_bcd(time->year);
 
     Register_t regTime;
-    regTime.seconds.SECONDS = (uint8_t)(seconds);
+    regTime.seconds.SECONDS = (uint8_t)(seconds) & 0x7F;
 
     Register_t regMinutes;
-    regMinutes.minutes.MINUTES = (uint8_t)(minutes);
+    regMinutes.minutes.MINUTES = (uint8_t)(minutes) & 0x7F;
 
     Register_t regHours;
-    regHours.hours.HOURS = (uint8_t)(hours);
+    regHours.hours.HOURS = (uint8_t)(hours) & 0x1F;
 
     Register_t regDays;
     regDays.days.DAYS = (uint8_t)(date);
 
     Register_t regWeekdays;
-    regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays);
+    regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays) ;
 
     Register_t regMonths;
     regMonths.months.MONTHS = (uint8_t)(months);
@@ -367,7 +369,7 @@ void io_rtc_readTime(struct IoRtcTime *time)
     time->seconds = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS));
     time->minutes = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES));
     time->hours   = (uint8_t)(bcd_to_integer(regHours.hours.HOURS));
-    time->date    = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
+    time->weekdays    = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
     time->day     = (uint8_t)(regWeekdays.weekdays.WEEKDAYS);
     time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS));
     time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
