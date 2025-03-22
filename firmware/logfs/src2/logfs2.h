@@ -12,7 +12,8 @@ extern "C"
 #define BLOCK_SIZE (512U)
 
 typedef enum {
-    LOGFS_ERR_OK
+    LOGFS_ERR_OK,
+    LOGFS_ERR_CORRUPT
 } LogFsErr;
 
 

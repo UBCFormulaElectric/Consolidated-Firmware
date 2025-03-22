@@ -1,5 +1,6 @@
 #include "utils.h"
 
+#include "logfs2.h"
 #include "stdio.h"
 
 static bool findNearestValidItem(
@@ -24,76 +25,98 @@ static bool findNearestValidItem(
     return false;
 }
 
-int utils_findMaxInSortedCircularBuffer(
+LogFsErr utils_findMaxInSortedCircularBuffer(
     void *context,
     int   size,
-    bool (*compare_items)(void *context, size_t idx1, size_t idx2),
-    bool (*is_item_corrupted)(void *context, size_t idx))
+    LogFsErr (*compare_items)(void *context, size_t idx1, size_t idx2, bool *out),
+    bool (*is_item_corrupted)(void *context, size_t idx),
+    uint32_t *out)
 {
     if (size == 0)
     {
         return -1;
     }
-    else if (size == 1)
-    {
-        return !is_item_corrupted(context, 0) ? 0 : -1;
-    }
 
-    // Sliding window bounds.
-    int left  = 0;
-    int right = size - 1;
+    int  left  = 0;
+    int  right = size - 1;
+    bool comparison;
 
-    while (left < right)
+    while (true)
     {
         // Step left bound rightwards until we find a valid item. Likewise, step right bound leftwards until we find a
         // valid item.
-        if (!findNearestValidItem(context, left, right, &left, 1, is_item_corrupted))
-        {
-            return -1;
-        }
-        if (!findNearestValidItem(context, left, right, &right, -1, is_item_corrupted))
+        if (!findNearestValidItem(context, left, right, &left, 1, is_item_corrupted) ||
+            !findNearestValidItem(context, left, right, &right, -1, is_item_corrupted))
         {
             return -1;
         }
 
-        // Estimate the midpoint as the average. Find midpoints that are the closest valid items to the estimate,
-        // stepped left and right.
-        const int mid_guess     = (left + right) / 2;
-        int       mid_step_left = mid_guess;
-        if (!findNearestValidItem(context, left, right, &mid_step_left, -1, is_item_corrupted))
-        {
-            return -1;
-        }
-        int mid_step_right = mid_guess;
-        if (!findNearestValidItem(context, left, right, &mid_step_right, 1, is_item_corrupted))
-        {
-            return -1;
-        }
-        const bool mid_guess_valid = mid_step_left == mid_guess && mid_step_right == mid_guess;
+        // Estimate the midpoint as the average.
+        const int  mid_guess       = (left + right) / 2;
+        const bool mid_guess_valid = !is_item_corrupted(context, mid_guess);
 
-        if (mid_step_left == left && (mid_guess_valid || mid_step_right == right))
+        if (mid_guess_valid)
         {
-            // This means there are only 2 valid items left. Compare them.
-            return compare_items(context, left, right) ? left : right;
-        }
+            if (mid_guess == left)
+            {
+                // This means there are only 2 valid items left. Compare them.
+                RET_ERR(compare_items(context, left, right, &comparison));
+                *out = comparison ? left : right;
+                return LOGFS_ERR_OK;
+            }
 
-        if (!mid_guess_valid && compare_items(context, mid_step_left, mid_step_right))
-        {
-            // If there is an invalid chunk in the middle, and the left of it is greater than the right of it, then the
-            // left item is the max.
-            return mid_step_left;
-        }
-        else if (compare_items(context, left, mid_step_left))
-        {
-            // Max is on in the left side if the left bound is greater than the midpoint.
-            right = mid_step_left;
+            // Max is on in the left side if the left bound is greater than the midpoint. Otherwise, its on the right
+            // side.
+            RET_ERR(compare_items(context, left, mid_guess, &comparison));
+            if (comparison)
+            {
+                right = mid_guess;
+            }
+            else
+            {
+                left = mid_guess;
+            }
         }
         else
         {
-            // Otherwise, its on the right side.
-            left = mid_step_right;
+            // Midpoint is invalid. Find midpoints that are the closest valid items to the estimate,
+            // stepped left and right.
+            int mid_step_left  = mid_guess;
+            int mid_step_right = mid_guess;
+            if (!findNearestValidItem(context, left, right, &mid_step_left, -1, is_item_corrupted) ||
+                !findNearestValidItem(context, left, right, &mid_step_right, 1, is_item_corrupted))
+            {
+                return LOGFS_ERR_CORRUPT;
+            }
+
+            if (mid_step_left == left && mid_step_right == right)
+            {
+                // This means there are only 2 valid items left. Compare them.
+                RET_ERR(compare_items(context, left, right, &comparison));
+                *out = comparison ? left : right;
+                return LOGFS_ERR_OK;
+            }
+
+            // If there is an invalid chunk in the middle, and the left of it is greater than the right of it, then
+            // the left item is the max.
+            RET_ERR(compare_items(context, mid_step_left, mid_step_right, &comparison));
+            if (comparison)
+            {
+                *out = mid_step_left;
+                return LOGFS_ERR_OK;
+            }
+
+            // Max is on in the left side if the left bound is greater than the midpoint. Otherwise, its on the right
+            // side.
+            RET_ERR(compare_items(context, left, mid_step_left, &comparison));
+            if (comparison)
+            {
+                right = mid_step_left;
+            }
+            else
+            {
+                left = mid_step_right;
+            }
         }
     }
-
-    return left;
 }

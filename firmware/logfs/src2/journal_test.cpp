@@ -10,7 +10,6 @@
 #include "journal.h"
 #include "logfs2.h"
 
-#include <iostream>
 
 class JournalTest : public testing::Test
 {
@@ -61,7 +60,7 @@ TEST_F(JournalTest, test_format)
         const JournalTag *tag = ReadJournalTag(addr);
         ASSERT_EQ(tag->seq_num, addr);
         ASSERT_EQ(tag->addr, BLOCK_ADDR_INVALID);
-        ASSERT_EQ(tag->flags, (addr == journal.cfg->size_blocks - 1) ? JOURNAL_FLAG_CHECKPOINT : JOURNAL_FLAG_IGNORE);
+        ASSERT_EQ(tag->flags, (addr == journal.cfg->size_blocks - 1) ? JOURNAL_FLAG_SYNCED : JOURNAL_FLAG_IGNORE);
     }
 
     ASSERT_EQ(journal.dirty, false);

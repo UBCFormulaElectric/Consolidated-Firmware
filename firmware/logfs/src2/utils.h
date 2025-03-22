@@ -62,11 +62,12 @@ extern "C"
 //         fs->head_addr += num;                            \
 //     }
 
-    int utils_findMaxInSortedCircularBuffer(
+    LogFsErr utils_findMaxInSortedCircularBuffer(
         void *context,
         int   size,
-        bool (*compare_items)(void *context, size_t idx1, size_t idx2),
-        bool (*is_item_corrupted)(void *context, size_t idx)
+        LogFsErr (*compare_items)(void *context, size_t idx1, size_t idx2, bool* out),
+        bool (*is_item_corrupted)(void *context, size_t idx),
+        uint32_t* out
     );
 
 #ifdef __cplusplus
