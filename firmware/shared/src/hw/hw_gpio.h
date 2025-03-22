@@ -23,3 +23,9 @@ void hw_gpio_writePin(const Gpio *gpio, bool state);
  * @return True if pin is high, false if pin is low.
  */
 bool hw_gpio_readPin(const Gpio *gpio);
+
+/**
+ * Toggle the state of a GPIO pin.
+ * @param gpio The GPIO pin instance.
+ */
+void hw_gpio_togglePin(const Gpio *gpio);

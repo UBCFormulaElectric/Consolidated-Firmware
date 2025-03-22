@@ -35,6 +35,33 @@
         "preset": "${command:cmake.activeConfigurePresetName}"
       },
       {
+        "label": "Build Embedded Quadruna",
+        "detail": "CMake Generate step",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_BMS.hex",
+                    "quadruna_VC.hex",
+                    "quadruna_CRIT.hex",
+                    "quadruna_RSM.hex",
+                    "quadruna_FSM.hex",
+                    "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded Quintuna",
+        "detail": "CMake Generate step",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_BMS.hex",
+                    "quintuna_VC.hex",
+                    "quintuna_CRIT.hex",
+                    "quintuna_RSM.hex",
+                    "quintuna_FSM.hex",
+                    "quintuna_DAM.hex",
+                    "can_bus_load_quintuna"]
+      },
+      {
         "label": "CMake: Clean",
         "detail": "CMake template clean task",
         "group": "build",
@@ -99,6 +126,20 @@
         "targets": ["quintuna_DAM.hex", "can_bus_load_quintuna"]
       },
       {
+        "label": "Build Embedded: RSM (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_RSM.hex", "can_bus_load_quintuna"]
+      },
+      {
+        "label": "Build Embedded: FSM (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_FSM.hex", "can_bus_load_quintuna"]
+      },
+      {
         "label": "Build Embedded: f4dev",
         "group": "build",
         "type": "cmake",
@@ -111,6 +152,13 @@
         "type": "cmake",
         "command": "build",
         "targets": ["h7dev.hex"]
+      },
+      {
+        "label": "Build Embedded: SSM",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["ssm.hex"]
       },
       {
         "label": "Build Tests: BMS (Quadruna)",
