@@ -65,14 +65,8 @@ static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
         return NULL;
     }
 
-    if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
-        return chimera_v2_config->id_to_adc[net_name->name.f4dev_net_name];
-    if (net_name->which_name == AdcNetName_ssm_net_name_tag)
-        return chimera_v2_config->id_to_adc[net_name->name.ssm_net_name];
     if (net_name->which_name == AdcNetName_crit_net_name_tag)
         return chimera_v2_config->id_to_adc[net_name->name.crit_net_name];
-    if (net_name->which_name == AdcNetName_dam_net_name_tag)
-        return chimera_v2_config->id_to_adc[net_name->name.dam_net_name];
     if (net_name->which_name == AdcNetName_fsm_net_name_tag)
         return chimera_v2_config->id_to_adc[net_name->name.fsm_net_name];
     if (net_name->which_name == AdcNetName_rsm_net_name_tag)
@@ -97,10 +91,6 @@ static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
         return NULL;
     }
 
-    if (net_name->which_name == I2cNetName_f4dev_net_name_tag)
-        return chimera_v2_config->id_to_i2c[net_name->name.f4dev_net_name];
-    if (net_name->which_name == I2cNetName_ssm_net_name_tag)
-        return chimera_v2_config->id_to_i2c[net_name->name.ssm_net_name];
     if (net_name->which_name == I2cNetName_crit_net_name_tag)
         return chimera_v2_config->id_to_i2c[net_name->name.crit_net_name];
     if (net_name->which_name == I2cNetName_dam_net_name_tag)
@@ -128,16 +118,8 @@ static const SpiDevice *io_chimera_v2_getSpi(const SpiNetName *net_name)
         return NULL;
     }
 
-    if (net_name->which_name == SpiNetName_f4dev_net_name_tag)
-        return chimera_v2_config->id_to_spi[net_name->name.f4dev_net_name];
-    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
-        return chimera_v2_config->id_to_spi[net_name->name.ssm_net_name];
     if (net_name->which_name == SpiNetName_crit_net_name_tag)
         return chimera_v2_config->id_to_spi[net_name->name.crit_net_name];
-    if (net_name->which_name == SpiNetName_fsm_net_name_tag)
-        return chimera_v2_config->id_to_spi[net_name->name.fsm_net_name];
-    if (net_name->which_name == SpiNetName_rsm_net_name_tag)
-        return chimera_v2_config->id_to_spi[net_name->name.rsm_net_name];
 
     LOG_ERROR("Received SPI device from unsupported board.");
     return NULL;

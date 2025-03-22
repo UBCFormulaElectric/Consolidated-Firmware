@@ -204,31 +204,21 @@ class _Board:
     # [ length low byte  | length high byte | content bytes    | ... ]
 
     def __init__(
-        self,
-        usb_device: _UsbDevice,
-        gpio_net_name: str,
-        adc_net_name: str,
-        i2c_net_name: str,
-        spi_net_name: str,
-        board_module: types.ModuleType,
+        self, usb_device: _UsbDevice, net_name_tag: str, board_module: types.ModuleType
     ):
         """Create an abstration around a Chimera V2 board.
 
         Args:
             usb_device: Interface to the usb device.
-            gpio_net_name: Identifier for the GpioNetName corresponding to your board, defined in shared.proto.
-            i2c_net_name: Identifier for the I2cNetName corresponding to your board, defined in shared.proto.
-            spi_net_name: Identifier for the spiNetName corresponding to your board, defined in shared.proto.
-            adc_net_name: Identifier for the AdcNetName corresponding to your board, defined in shared.proto.
+            net_name_tag:
+                Identifier for the net name corresponding to your board.
+                We expect this to be the same for every peripheral. Defined in ``shared.proto``.
             board_module: Generated protobuf module, found in proto_autogen.
 
         """
 
         self._usb_device = usb_device
-        self.gpio_net_name = gpio_net_name
-        self.adc_net_name = adc_net_name
-        self.i2c_net_name = i2c_net_name
-        self.spi_net_name = spi_net_name
+        self._net_name_tag = net_name_tag
         self.board_module = board_module
 
     def _write(self, msg: proto_autogen.shared_pb2.ChimeraV2Request):
@@ -282,7 +272,7 @@ class _Board:
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
             request.gpio_read.net_name,
-            self.gpio_net_name,
+            self._net_name_tag,
             self.board_module.GpioNetName.Value(net_name),
         )
         self._write(request)
@@ -305,7 +295,7 @@ class _Board:
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
             request.gpio_write.net_name,
-            self.gpio_net_name,
+            self._net_name_tag,
             self.board_module.GpioNetName.Value(net_name),
         )
         request.gpio_write.value = value
@@ -331,7 +321,7 @@ class _Board:
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
             request.adc_read.net_name,
-            self.adc_net_name,
+            self._net_name_tag,
             self.board_module.AdcNetName.Value(net_name),
         )
         self._write(request)
@@ -392,7 +382,7 @@ class I2cDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.i2c_ready.net_name, self._owner.i2c_net_name, self._net_name)
+        setattr(request.i2c_ready.net_name, self._owner._net_name_tag, self._net_name)
         self._owner._write(request)
 
         # Wait for response.
@@ -413,7 +403,7 @@ class I2cDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.i2c_receive.net_name, self._owner.i2c_net_name, self._net_name)
+        setattr(request.i2c_receive.net_name, self._owner._net_name_tag, self._net_name)
         request.i2c_receive.length = length
 
         self._owner._write(request)
@@ -433,7 +423,9 @@ class I2cDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.i2c_transmit.net_name, self._owner.i2c_net_name, self._net_name)
+        setattr(
+            request.i2c_transmit.net_name, self._owner._net_name_tag, self._net_name
+        )
         request.i2c_transmit.data = data
 
         self._owner._write(request)
@@ -458,7 +450,7 @@ class I2cDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
-            request.i2c_memory_read.net_name, self._owner.i2c_net_name, self._net_name
+            request.i2c_memory_read.net_name, self._owner._net_name_tag, self._net_name
         )
         request.i2c_memory_read.memory_address = memory_address
         request.i2c_memory_read.length = length
@@ -482,7 +474,7 @@ class I2cDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
-            request.i2c_memory_write.net_name, self._owner.i2c_net_name, self._net_name
+            request.i2c_memory_write.net_name, self._owner._net_name_tag, self._net_name
         )
         request.i2c_memory_write.memory_address = memory_address
         request.i2c_memory_write.data = data
@@ -524,7 +516,7 @@ class SpiDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.spi_receive.net_name, self._owner.spi_net_name, self._net_name)
+        setattr(request.spi_receive.net_name, self._owner._net_name_tag, self._net_name)
         request.spi_receive.length = length
 
         self._owner._write(request)
@@ -544,7 +536,9 @@ class SpiDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.spi_transmit.net_name, self._owner.spi_net_name, self._net_name)
+        setattr(
+            request.spi_transmit.net_name, self._owner._net_name_tag, self._net_name
+        )
         request.spi_transmit.data = data
 
         self._owner._write(request)
@@ -569,7 +563,7 @@ class SpiDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
-            request.spi_transaction.net_name, self._owner.spi_net_name, self._net_name
+            request.spi_transaction.net_name, self._owner._net_name_tag, self._net_name
         )
         request.spi_transaction.tx_data = request_data
         request.spi_transaction.rx_length = response_length
@@ -588,10 +582,7 @@ class F4Dev(_Board):
 
         super().__init__(
             usb_device=_UsbDevice(product="f4dev"),
-            gpio_net_name="f4dev_net_name",
-            adc_net_name="f4dev_net_name",
-            i2c_net_name="f4dev_net_name",
-            spi_net_name="f4dev_net_name",
+            net_name_tag="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )
 
@@ -602,10 +593,7 @@ class SSM(_Board):
 
         super().__init__(
             usb_device=_UsbDevice(product="ssm"),
-            gpio_net_name="ssm_net_name",
-            adc_net_name="ssm_net_name",
-            i2c_net_name="ssm_net_name",
-            spi_net_name="ssm_net_name",
+            net_name_tag="ssm_net_name",
             board_module=proto_autogen.ssm_pb2,
         )
 
@@ -616,10 +604,7 @@ class CRIT(_Board):
 
         super().__init__(
             usb_device=_UsbDevice(product="crit"),
-            gpio_net_name="crit_net_name",
-            adc_net_name="crit_net_name",
-            i2c_net_name="crit_net_name",
-            spi_net_name="crit_net_name",
+            net_name_tag="crit_net_name",
             board_module=proto_autogen.crit_pb2,
         )
 
@@ -630,10 +615,7 @@ class RSM(_Board):
 
         super().__init__(
             usb_device=_UsbDevice(product="rsm"),
-            gpio_net_name="rsm_net_name",
-            adc_net_name="rsm_net_name",
-            i2c_net_name="rsm_net_name",
-            spi_net_name="rsm_net_name",
+            net_name_tag="rsm_net_name",
             board_module=proto_autogen.rsm_pb2,
         )
 
@@ -644,10 +626,7 @@ class FSM(_Board):
 
         super().__init__(
             usb_device=_UsbDevice(product="fsm"),
-            gpio_net_name="fsm_net_name",
-            adc_net_name="fsm_net_name",
-            i2c_net_name="fsm_net_name",
-            spi_net_name="fsm_net_name",
+            net_name_tag="fsm_net_name",
             board_module=proto_autogen.fsm_pb2,
         )
 
@@ -658,9 +637,6 @@ class DAM(_Board):
 
         super().__init__(
             usb_device=_UsbDevice(product="dam"),
-            gpio_net_name="dam_net_name",
-            adc_net_name="dam_net_name",
-            i2c_net_name="dam_net_name",
-            spi_net_name="dam_net_name",
+            net_name_tag="dam_net_name",
             board_module=proto_autogen.dam_pb2,
         )

@@ -10,15 +10,3 @@ enum GpioNetName {
   GPIO_DOUT_4 = 4;
   GPIO_DEBUG_LED = 5;
 }
-
-enum AdcNetName {
-  ADC_NET_NAME_UNSPECIFIED = 0;
-}
-
-enum I2cNetName {
-  I2C_NET_NAME_UNSPECIFIED = 0;
-}
-
-enum SpiNetName {
-  SPI_NET_NAME_UNSPECIFIED = 0;
-}
