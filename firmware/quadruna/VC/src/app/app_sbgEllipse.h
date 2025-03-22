@@ -12,3 +12,8 @@ void app_sbgEllipse_broadcast(void);
  * Calculate vehicle velocity based on motor RPM
  */
 void app_sbgEllipse_calculateVelocity(VelocityData *velocity);
+
+/*
+ * Get vehicle velocity
+ */
+float app_sbgEllipse_getVehicleVelocity(void);
