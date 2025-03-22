@@ -7,6 +7,8 @@
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
 
+static float vehicle_velocity;
+
 void app_sbgEllipse_broadcast()
 {
     /* Enable these back when you turn this on in the SBG, otherwise it's still sending
@@ -45,7 +47,7 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
     app_canTx_VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
 
-    const float vehicle_velocity            = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+    vehicle_velocity                        = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
     const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
     uint32_t ekf_sol_mode = io_sbgEllipse_getEkfSolutionMode();
@@ -116,4 +118,9 @@ void app_sbgEllipse_calculateVelocity(VelocityData *velocity)
     velocity->east = 0;
 
     velocity->down = 0;
+}
+
+float app_sbgEllipse_getVehicleVelocity(void)
+{
+    return vehicle_velocity;
 }
