@@ -23,7 +23,7 @@
 #include "io_jsoncan.h"
 #include "io_canQueue.h"
 #include "io_telemMessage.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_fileSystem.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
@@ -31,14 +31,14 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 
-    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+    if (app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
     {
         io_canLogging_loggingQueuePush(&msg);
     }
 
     if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
     {
-        io_telemMessage_pushMsgtoQueue(&msg);
+        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(&msg));
     }
 }
 
@@ -52,7 +52,7 @@ void jobs_init()
     // This is not correlated to the size of each file.
     app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
     app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
-    app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!io_fileSystem_ready());
+    app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 
     app_stateMachine_init(app_initState_get());
     app_heartbeatMonitor_init(&hb_monitor);
@@ -123,13 +123,13 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
         io_canQueue_pushRx(rx_msg);
     }
 
-    if (io_fileSystem_ready() && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    if (app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
         io_canLogging_loggingQueuePush(rx_msg);
     }
 
     if (app_dataCapture_needsTelem((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
-        io_telemMessage_pushMsgtoQueue(rx_msg);
+        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(rx_msg));
     }
 }
