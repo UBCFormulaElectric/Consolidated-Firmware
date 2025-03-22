@@ -5,7 +5,7 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_fileSystem.h"
 
 #include "hw_hardFaultHandler.h"

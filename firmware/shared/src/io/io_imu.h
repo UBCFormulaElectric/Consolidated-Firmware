@@ -1,9 +1,26 @@
 #pragma once
 
 #include <stdbool.h>
+#ifdef TARGET_EMBEDDED
+#include "hw_i2c.h"
+
+typedef struct
+{
+    const I2cDevice *imu_i2c_handle;
+    float            x_accel_offset;
+    float            y_accel_offset;
+    float            z_accel_offset;
+    float            yaw_offset;
+    float            pitch_offset;
+    float            roll_offset;
+} imuConfig;
+#else
+#include "app_utils.h"
+EMPTY_STRUCT(imuConfig)
+#endif
 
 /**
- * @brief turns on the accelerometer sensor on the imu to normal mode
+ * @brief turns on the accelerometer sensor on the imu to high perf mode
  * @return true if the write to turn on accelerometer is successful,
  * false otherwise
  */
