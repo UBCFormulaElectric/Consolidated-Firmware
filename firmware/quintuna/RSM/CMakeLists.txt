@@ -26,6 +26,7 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE
 # IO.
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
+
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
@@ -112,6 +113,7 @@ if("${TARGET}" STREQUAL "binary")
         stm32f412rx_cube_library(
                 "quintuna_RSM_stm32cube"
                 "${STM32_HAL_SRCS}"
+
                 "${SYSCALLS}"
                 "${MD5_LOCATION}"
                 TRUE
