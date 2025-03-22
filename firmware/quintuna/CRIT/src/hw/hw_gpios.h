@@ -16,5 +16,10 @@ extern const Gpio torque_vectoring_sig;
 extern const Gpio regen_sig;
 
 extern const Gpio led_rck;
-
 extern const Gpio seven_seg_rck;
+
+extern const Gpio seven_seg_dimming;
+extern const Gpio led_dimming;
+
+extern const Gpio led_serin;
+extern const Gpio seven_seg_serin;

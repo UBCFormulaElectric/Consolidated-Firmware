@@ -12,6 +12,7 @@ typedef enum
     FILE_NO_SPACE      = -4, // no space left
     FILE_ERROR_IO      = -5, // io error
     FILE_ERROR_BAD_ARG = -6, // Invalid argument passed in
+    FILE_MOUNT_FAILED  = -7  // Initial mount failed so filesystem is unavailable for this boot cycle
 } FileSystemError;
 
 /**
@@ -24,10 +25,11 @@ FileSystemError io_fileSystem_init(void);
 
 /**
  * open a file and return the file descriptor
+ * Note: Don't try opening the same file twice!
  * @param path path in question
  * @return a file descriptor
  */
-int io_fileSystem_open(const char *path);
+FileSystemError io_fileSystem_open(const char *path, uint32_t *fd);
 
 /**
  * writes to file descriptor for some size into the buffer
@@ -36,7 +38,7 @@ int io_fileSystem_open(const char *path);
  * @param size size in questino
  * @return
  */
-FileSystemError io_fileSystem_write(int fd, void *buf, size_t size);
+FileSystemError io_fileSystem_write(uint32_t fd, void *buf, size_t size);
 
 /**
  * reads from file descriptor for some size into the buffer
@@ -45,25 +47,28 @@ FileSystemError io_fileSystem_write(int fd, void *buf, size_t size);
  * @param size size in questino
  * @return success of operation
  */
-FileSystemError io_fileSystem_read(int fd, void *buf, size_t size);
+FileSystemError io_fileSystem_read(uint32_t fd, void *buf, size_t size);
 
 /**
  * Closes file given file descriptor
  * @param fd file descriptor in question
  * @return success of operation
  */
-FileSystemError io_fileSystem_close(int fd);
+FileSystemError io_fileSystem_close(uint32_t fd);
 
 /**
  * @return The bootcount of a given file system
  */
-uint32_t io_fileSystem_getBootCount(void);
+FileSystemError io_fileSystem_getBootCount(uint32_t *bootcount);
 
 /**
  * do the concrete write operation to the hardware
  * @param fd on this file descriptor
  * @return success of operation
  */
-FileSystemError io_fileSystem_sync(int fd);
+FileSystemError io_fileSystem_sync(uint32_t fd);
 
-bool io_fileSystem_ready();
+/**
+ * Checks if the SD card is present.
+ */
+bool io_fileSystem_present(void);
