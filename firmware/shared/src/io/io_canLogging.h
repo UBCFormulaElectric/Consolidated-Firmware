@@ -27,20 +27,23 @@ typedef struct
  * Create a new message queue for can logging message
  * Create a new file for this boot for record message
  */
-bool io_canLogging_init(void);
+void io_canLogging_init(void);
 
 /**
  * Populate queue with another item
  */
-bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg);
+void io_canLogging_loggingQueuePush(const CanMsg *rx_msg);
 
 /**
  * write the can message to the sdcard
  * pop the massage from queue
  */
-bool io_canLogging_recordMsgFromQueue(void);
+void io_canLogging_recordMsgFromQueue(void);
 
-bool io_canLogging_sync(void);
+/**
+ * Sync all cached stuff to disk.
+ */
+void io_canLogging_sync(void);
 
 /**
  * Return the number of the current CAN data log.

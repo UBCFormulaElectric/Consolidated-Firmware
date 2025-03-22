@@ -7,30 +7,34 @@
 
 #include "cmsis_os.h"
 #include "io_fileSystem.h"
+#include "io_log.h"
 
 // Message Queue configuration
 #define QUEUE_SIZE 2000
 #define PATH_LENGTH 64
 #define QUEUE_BYTES (sizeof(CanMsgLog) * QUEUE_SIZE)
 
-#define CHECK_ENABLED()               \
-    if (logging_error_remaining == 0) \
-    {                                 \
-        return false;                 \
+#define CHECK_ENABLED()                                    \
+    if (logging_error_remaining == 0)                      \
+    {                                                      \
+        LOG_ERROR("CAN logging disabled, not continuing"); \
+        return;                                            \
     }
 
-#define CHECK_ERR(f)               \
-    if (!(f))                      \
-    {                              \
-        logging_error_remaining--; \
-        return false;              \
+#define CHECK_ERR(f)                                                  \
+    if (!(f))                                                         \
+    {                                                                 \
+        logging_error_remaining--;                                    \
+        LOG_ERROR("CAN logging error! Remaining errors decremented"); \
+        return;                                                       \
     }
 
-#define CHECK_ERR_CRITICAL(f)        \
-    if (!(f))                        \
-    {                                \
-        logging_error_remaining = 0; \
-        return false;                \
+#define CHECK_ERR_CRITICAL(f)                                           \
+    if (!(f))                                                           \
+    {                                                                   \
+        logging_error_remaining = 0;                                    \
+        LOG_ERROR("Critical CAN logging failure, logging unavailable"); \
+        return;                                                         \
     }
 
 // State
@@ -59,7 +63,7 @@ static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
     memcpy(log->data, msg->data, 8);
 }
 
-bool io_canLogging_init(void)
+void io_canLogging_init(void)
 {
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsgLog), &queue_attr);
     assert(message_queue_id != NULL);
@@ -72,11 +76,9 @@ bool io_canLogging_init(void)
 
     sprintf(current_path, "/%lu.txt", current_bootcount);
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);
-
-    return true;
 }
 
-bool io_canLogging_recordMsgFromQueue(void)
+void io_canLogging_recordMsgFromQueue(void)
 {
     CHECK_ENABLED();
 
@@ -85,10 +87,9 @@ bool io_canLogging_recordMsgFromQueue(void)
     assert(osMessageQueueGet(message_queue_id, &msg, NULL, osWaitForever) == osOK);
 
     CHECK_ERR(io_fileSystem_write(log_fd, &msg, sizeof(msg)) == FILE_OK);
-    return true;
 }
 
-bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
+void io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
 {
     CHECK_ENABLED();
 
@@ -99,14 +100,12 @@ bool io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
     CHECK_ERR(osMessageQueuePut(message_queue_id, &msg_log, 0, 0) == osOK);
-    return true;
 }
 
-bool io_canLogging_sync(void)
+void io_canLogging_sync(void)
 {
     CHECK_ENABLED();
     CHECK_ERR(io_fileSystem_sync(log_fd) == FILE_OK);
-    return true;
 }
 
 uint32_t io_canLogging_getCurrentLog(void)

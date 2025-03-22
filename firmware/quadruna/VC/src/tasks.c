@@ -33,7 +33,7 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
-    LOG_ERROR_IF(io_canLogging_init());
+    io_canLogging_init();
 }
 
 void tasks_init(void)

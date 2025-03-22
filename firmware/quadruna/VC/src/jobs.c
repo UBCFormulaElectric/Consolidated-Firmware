@@ -33,7 +33,7 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 
     if (app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
     {
-        LOG_ERROR_IF(io_canLogging_loggingQueuePush(&msg));
+        io_canLogging_loggingQueuePush(&msg);
     }
 
     if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
@@ -120,7 +120,7 @@ void jobs_runCanRx_tick(void)
 
     if (app_dataCapture_needsLog((uint16_t)rx_msg.std_id, rx_msg.timestamp))
     {
-        LOG_ERROR_IF(io_canLogging_loggingQueuePush(&rx_msg));
+        io_canLogging_loggingQueuePush(&rx_msg);
     }
 
     if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, rx_msg.timestamp))
