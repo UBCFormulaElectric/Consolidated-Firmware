@@ -31,7 +31,7 @@ void app_collect_imu_data()
     }
 }
 
-ImuData app_get_imu_struct()
+const ImuData *app_get_imu_struct()
 {
-    return imu_outputs;
+    return &imu_outputs;
 }

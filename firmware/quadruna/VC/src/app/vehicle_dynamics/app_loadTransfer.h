@@ -2,7 +2,7 @@
 #include <app_vehicleDynamics.h>
 #include "io_imu_config.h"
 
-void app_wheelVerticalForces_broadcast(ImuData imu);
+void app_wheelVerticalForces_broadcast(const ImuData *imu);
 
 float app_loadTransferConstant(float long_accel);
 

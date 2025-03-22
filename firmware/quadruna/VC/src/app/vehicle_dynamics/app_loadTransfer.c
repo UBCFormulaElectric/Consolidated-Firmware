@@ -14,7 +14,7 @@
 #define LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel) \
     ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_m / WHEELBASE_m))
 #define LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel) \
-    ((CAR_MASS_AT_CG_KG * (lat_accel) * CG_HEIGHT_FROM_GROUND_m / (2.0f * TRACK_WIDTH_m)))
+    ((CAR_MASS_AT_CG_KG * (lat_accel) * CG_HEIGHT_FROM_GROUND_m / (2.0f * (TRACK_WIDTH_m))))
 
 /************** Macros for finding Kmz based on diagram on page 57 ****************/
 #define ACCELERATION_TERM_KMZ(long_accel) (DIST_FRONT_AXLE_CG + (long_accel) * CG_HEIGHT_FROM_GROUND_m / GRAVITY)
@@ -22,20 +22,20 @@
 /************** Macros for moment scaling on page 58 ****************/
 #define F ((TRACK_WIDTH_m / (WHEEL_DIAMETER_IN / 2.0f * 2.54f)) * GEAR_RATIO)
 
-void app_wheelVerticalForces_broadcast(ImuData imu)
+void app_wheelVerticalForces_broadcast(const ImuData *imu)
 {
     app_canTx_VC_FrontLeftWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu.long_accel)) / 4.0f) -
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu.lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) -
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
     app_canTx_VC_FrontRightWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu.long_accel)) / 4.0f) +
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu.lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) +
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
     app_canTx_VC_RearLeftWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu.long_accel)) / 4.0f) -
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu.lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) -
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
     app_canTx_VC_RearRightWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu.long_accel)) / 4.0f) +
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu.lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) +
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
 }
 
 float app_loadTransferConstant(float long_accel)

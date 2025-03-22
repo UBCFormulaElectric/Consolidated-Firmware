@@ -1,20 +1,19 @@
 #pragma once
 #include "app_pid.h"
 #include "app_yawRateController.h"
+#include "app_units.h"
 
 // Constants
 
 #define CAR_MASS_AT_CG_KG (300.0f) // checked with suspension -- weight with driver
 #define GRAVITY (9.81f)
-#define CG_HEIGHT_FROM_GROUND_m (30.0f / 100.0f) // got 30cm from suspension team
-#define SMALL_EPSILON .000001f                   // to avoid divide by zero error
+#define CG_HEIGHT_FROM_GROUND_m (30.0f * CM_TO_M) // got 30cm from suspension team
+#define SMALL_EPSILON .000001f                    // to avoid divide by zero error
 #define SLIP_RATIO_IDEAL 0.05f
 #define WHEELBASE_mm 1550
-#define WHEEL_DIAMETER_IN (18.0f)
-#define GEAR_RATIO (4.124f)
-#define WHEELBASE_m (WHEELBASE_mm / 1000)
+#define WHEELBASE_m (WHEELBASE_mm * MM_TO_M)
 #define TRACK_WIDTH_mm 1100
-#define TRACK_WIDTH_m (TRACK_WIDTH_mm / 1000)
+#define TRACK_WIDTH_m (TRACK_WIDTH_mm * MM_TO_M)
 #define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // as specified in the manual for the emrax 188 motors
 #define POWER_LIMIT_CAR_kW 40.0f               // Actual Value: 80.0f   // max power we can use by FSAE rules
 #define MOTOR_TEMP_CUTOFF_c 90.0f

@@ -19,8 +19,8 @@
 #define XL_OUTPUT_RATE_REG 0x10 // [3:0] select output rate
 #define G_OUTPUT_RATE_REG 0x11  // [3:0] select output rate
 // High Byte Reg = Low Byte Reg + 1
-#define G_ROLL_LOW_BYTE_REG 0x22
-#define G_PITCH_LOW_BYTE_REG 0x24
+#define G_PITCH_LOW_BYTE_REG 0x22
+#define G_ROLL_LOW_BYTE_REG 0x24
 #define G_YAW_LOW_BYTE_REG 0x26
 #define XL_X_LOW_BYTE_REG 0x28
 #define XL_Y_LOW_BYTE_REG 0x2A

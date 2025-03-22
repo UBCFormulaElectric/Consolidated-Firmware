@@ -39,8 +39,7 @@ TEST_F(YawRateControllerTest, basic_yaw_rate_generation)
 
     float ref_yaw_rate_rad_test =
         (yrc.vehicle_velocity_mps * yrc.wheel_angle_rad) /
-        ((WHEELBASE_mm * MM_TO_M) +
-         YAW_RATE_CONTROLLER_CONFIG.ku * SQUARE(yrc.vehicle_velocity_mps));
+        ((WHEELBASE_mm * MM_TO_M) + YAW_RATE_CONTROLLER_CONFIG.ku * SQUARE(yrc.vehicle_velocity_mps));
 
     app_yawRateController_computeRefYawRate(&yrc);
 

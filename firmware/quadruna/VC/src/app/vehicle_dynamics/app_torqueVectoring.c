@@ -34,7 +34,7 @@ static bool run_traction_control = false;
 static PID                    pid_power_correction;
 static float                  pid_power_correction_factor = 0.0f;
 static PID                    pid_traction_control;
-static ImuData                imu_output;
+const ImuData                *imu_output;
 static TorqueAllocationInputs torqueToLoadTransf;
 static PID                    yrc_pid;
 
@@ -100,7 +100,7 @@ void app_torqueVectoring_handleAcceleration(void)
     app_timer_restart(&pid_timeout);
 
     // imu load transfer calc
-    long_load_transfer_scalar = app_loadTransferConstant(imu_output.long_accel);
+    long_load_transfer_scalar = app_loadTransferConstant(imu_output->long_accel);
 
     // Power Limiting
     power_limiting_inputs.left_motor_temp_C         = left_motor_temp_C;
@@ -124,7 +124,7 @@ void app_torqueVectoring_handleAcceleration(void)
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
     yaw_rate_controller.vehicle_velocity_mps = KMH_TO_MPS(app_sbgEllipse_getVehicleVelocity());
-    yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(imu_output.yaw_rate);
+    yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(imu_output->yaw_rate);
     app_yawRateController_run(&yaw_rate_controller);
 
     app_canTx_VC_ReferenceYawRate_set(RAD_TO_DEG(app_yawRateController_getRefYawRateRad()));

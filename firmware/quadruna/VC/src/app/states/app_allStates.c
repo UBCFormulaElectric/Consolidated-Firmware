@@ -37,7 +37,7 @@ void app_allStates_runOnTick100Hz(void)
     app_shdnLast_broadcast();
 
     app_collect_imu_data();
-    ImuData imu = app_get_imu_struct();
+    const ImuData *imu = app_get_imu_struct();
     app_wheelVerticalForces_broadcast(imu);
 
     app_heartbeatMonitor_checkIn(&hb_monitor);
