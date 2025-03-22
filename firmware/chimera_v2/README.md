@@ -5,6 +5,8 @@ Control UBC Formula Electric STM boards over USB with Python, and talk to them o
 
 *For Python API docs, see [`./docs`](./docs)*
 
+*To see available peripherals by board, see the [`./proto`](./proto) directory.*
+
 ## Quick Start
 To install the `chimera_v2` Python package, run
 ```sh
