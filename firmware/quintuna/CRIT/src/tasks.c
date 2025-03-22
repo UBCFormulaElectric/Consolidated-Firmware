@@ -7,10 +7,13 @@
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_chimera_v2.h"
+#include "io_chimeraConfig_v2.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
+#include "hw_usb.h"
 
 void tasks_preInit() {}
 
@@ -26,6 +29,8 @@ void tasks_init()
     hw_hardFaultHandler_init();
 
     hw_can_init(&can1);
+    hw_usb_init();
+
     jobs_init();
 }
 
@@ -55,7 +60,8 @@ void tasks_run1Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!io_chimera_v2_enabled)
+            jobs_run1Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -68,7 +74,10 @@ void tasks_run100Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run100Hz_tick();
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
+
+        if (!io_chimera_v2_enabled)
+            jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -81,7 +90,8 @@ void tasks_run1kHz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1kHz_tick();
+        if (!io_chimera_v2_enabled)
+            jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
