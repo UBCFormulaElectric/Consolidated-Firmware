@@ -111,20 +111,25 @@ void jobs_run1kHz_tick(void)
 
 void jobs_runCanRx_tick(void)
 {
-    const CanMsg rx_msg = io_canQueue_popRx();
-    if (io_canRx_filterMessageId(rx_msg.std_id))
+    const CanMsg rx_msg       = io_canQueue_popRx();
+    JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+    io_canRx_updateRxTableWithMessage(&json_can_msg);
+}
+
+void jobs_canRxCallback(const CanMsg *rx_msg)
+{
+    if (io_canRx_filterMessageId(rx_msg->std_id))
     {
-        JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&json_can_msg);
+        io_canQueue_pushRx(rx_msg);
     }
 
-    if (app_dataCapture_needsLog((uint16_t)rx_msg.std_id, rx_msg.timestamp))
+    if (app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
-        io_canLogging_loggingQueuePush(&rx_msg);
+        io_canLogging_loggingQueuePush(rx_msg);
     }
 
-    if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, rx_msg.timestamp))
+    if (app_dataCapture_needsTelem((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
-        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(&rx_msg));
+        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(rx_msg));
     }
 }
