@@ -13,7 +13,8 @@
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
 #define FLOW_RATE_CONVERSION_FACTOR (7.5f)
 
-// from the schematic we see that the voltage value coming passes through a voltage divider before it is read at the ADC PIN
+// from the schematic we see that the voltage value coming passes through a voltage divider before it is read at the ADC
+// PIN
 #define PRESSURE_VOLTAGE_DIVIDOR (PRESSURE_BOT_RESISTOR / (PRESSURE_BOT_RESISTOR + PRESSURE_TOP_RESISTOR))
 #define PRESSURE_VOLTAGE_MIN (0.5f * PRESSURE_VOLTAGE_DIVIDOR)
 #define PRESSURE_VOLTAGE_MAX (4.5f * PRESSURE_VOLTAGE_DIVIDOR)
@@ -23,16 +24,16 @@
     (((voltage)-PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
 
 // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
-#define TEMPERATURE_VOLTAGE_MIN (0.0f) 
-#define TEMPERATURE_VOLTAGE_MAX (4.0f) //not set
-#define PRESSURE_TOP_RESISTOR (28.0f) //not set
-#define PRESSURE_BOT_RESISTOR (56.0f) //not set
+#define TEMPERATURE_VOLTAGE_MIN (0.0f)
+#define TEMPERATURE_VOLTAGE_MAX (4.0f) // not set
+#define PRESSURE_TOP_RESISTOR (28.0f)  // not set
+#define PRESSURE_BOT_RESISTOR (56.0f)  // not set
 
 #define T0 (298.15f)           // 25 degrees celsius is used for T0 in datasheet but for equation we do kelvin
 #define R0 (10000.f)           // resistance at T0
 #define B_COEFFIECENT (3988.f) // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
-#define VIN (5.0f) //not set
-#define R2 (2200.f) // bottom resistor in the coolant temp sensor circuit
+#define VIN (5.0f)             // not set
+#define R2 (2200.f)            // bottom resistor in the coolant temp sensor circuit
 // the coolant temp sensor circuit is made of a voltage divider where the thermistor which we use for the temperature
 // readings is the top resistor in the voltage divider and R2 is the bottom this tells us that Vout = Vin (R2/ (Rtherm +
 // R2)) and by manipulating this equation we can get -- here Vout is our measured value from ADC 4 and 5 Rtherm = ((Vin
@@ -41,7 +42,7 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
-const CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter_5v5, .config = &flow_meter_config };
+CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter_5v5, .config = &flow_meter_config };
 
 void io_coolant_init(CoolantFlowMeter *flow_meter)
 {

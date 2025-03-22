@@ -14,7 +14,7 @@ EMPTY_STRUCT(Suspension);
 #endif
 
 float io_suspension_getTravel(const Suspension *suspension);
-//bool  io_suspension_OCSC(const Suspension *suspension);
+// bool  io_suspension_OCSC(const Suspension *suspension);
 bool io_suspension_rl_OCSC(void);
 bool io_suspension_rr_OCSC(void);
 

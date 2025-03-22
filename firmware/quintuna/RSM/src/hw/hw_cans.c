@@ -14,4 +14,3 @@ const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
     assert(hcan == can2.hcan);
     return &can2;
 }
-
