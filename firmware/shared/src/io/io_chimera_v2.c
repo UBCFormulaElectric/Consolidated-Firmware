@@ -24,8 +24,7 @@ static const Gpio *io_chimera_v2_getGpio(io_chimera_v2_Config *config, const Gpi
     if (config->gpio_net_name_tag != net_name->which_name)
     {
         LOG_ERROR(
-            "Chimera: Expected GPIO net name with tag %d, got %d", config->gpio_net_name_tag,
-            net_name->which_name);
+            "Chimera: Expected GPIO net name with tag %d, got %d", config->gpio_net_name_tag, net_name->which_name);
         return NULL;
     }
 
@@ -55,9 +54,7 @@ static const AdcChannel *io_chimera_v2_getAdc(io_chimera_v2_Config *config, cons
 {
     if (config->adc_net_name_tag != net_name->which_name)
     {
-        LOG_ERROR(
-            "Chimera: Expected ADC net name with tag %d, got %d", config->adc_net_name_tag,
-            net_name->which_name);
+        LOG_ERROR("Chimera: Expected ADC net name with tag %d, got %d", config->adc_net_name_tag, net_name->which_name);
         return NULL;
     }
 
@@ -81,9 +78,7 @@ static const I2cDevice *io_chimera_v2_getI2c(io_chimera_v2_Config *config, const
 {
     if (config->i2c_net_name_tag != net_name->which_name)
     {
-        LOG_ERROR(
-            "Chimera: Expected I2C net name with tag %d, got %d", config->i2c_net_name_tag,
-            net_name->which_name);
+        LOG_ERROR("Chimera: Expected I2C net name with tag %d, got %d", config->i2c_net_name_tag, net_name->which_name);
         return NULL;
     }
 
@@ -109,8 +104,7 @@ static const SpiDevice *io_chimera_v2_getSpi(io_chimera_v2_Config *config, const
 {
     if (config->spi_net_name_tag != net_name->which_name)
     {
-        LOG_ERROR(
-            "Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
+        LOG_ERROR("Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
         return NULL;
     }
 
