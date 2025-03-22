@@ -1,12 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-
-#ifdef TARGET_EMBEDDED
-#include "hw_gpios.h"
-#else
 #include "app_utils.h"
-#endif
 
 /**
  * checks to see if right shutdown pin is high

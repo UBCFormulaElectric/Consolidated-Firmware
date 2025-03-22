@@ -1,4 +1,4 @@
-#include "io_tsim.h"
+#include "io_buzzer.h"
 #include "hw_gpios.h"
 
 void io_enable_buzzer(void)

@@ -1,14 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-// Question: what is redundant here now that the config struct gone?
-
-#ifdef TARGET_EMBEDDED
-#include "hw_gpio.h"
-
-#else
 #include "app_utils.h"
-#endif
 
 /**
  * Turn on the red light on the TSIM

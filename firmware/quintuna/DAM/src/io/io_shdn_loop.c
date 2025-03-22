@@ -1,3 +1,4 @@
+#include "io_shdn_loop.h"
 #include "hw_gpios.h"
 
 bool io_r_shdn_pin_is_high(void)
