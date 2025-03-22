@@ -5,18 +5,29 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
+<<<<<<< HEAD
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "io_buzzer.h"
+=======
+#include "io_canLoggingQueue.h"
+#include "io_fileSystem.h"
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
 #include "hw_gpios.h"
 
+<<<<<<< HEAD
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
 #include <shared.pb.h>
+=======
+#include <io_chimera_v2.h>
+#include <shared.pb.h>
+#include <io_chimeraConfig_v2.h>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 void tasks_preInit(void)
 {
@@ -59,8 +70,13 @@ _Noreturn void tasks_run1Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
+<<<<<<< HEAD
         // start_ticks += period_ms;
         // osDelayUntil(start_ticks);
+=======
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     }
 }
 
@@ -73,16 +89,27 @@ _Noreturn void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+<<<<<<< HEAD
         hw_chimera_v2_mainOrContinue(&chimera_v2_config);
+=======
+        io_chimera_v2_mainOrContinue(
+            GpioNetName_dam_net_name_tag, id_to_gpio, AdcNetName_dam_net_name_tag, id_to_adc,
+            I2cNetName_dam_net_name_tag, id_to_i2c, SpiNetName_dam_net_name_tag, id_to_spi);
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
         jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
+<<<<<<< HEAD
         //     start_ticks += period_ms;
         //     osDelayUntil(start_ticks);
         // }
+=======
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     }
 }
 
@@ -106,8 +133,13 @@ _Noreturn void tasks_run1kHz(void)
         // if (io_time_getCurrentMs() - task_start_ms <= period_ms)
         //     hw_watchdog_checkIn(watchdog);
 
+<<<<<<< HEAD
         // start_ticks += period_ms;
         // osDelayUntil(start_ticks);
+=======
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     }
 }
 

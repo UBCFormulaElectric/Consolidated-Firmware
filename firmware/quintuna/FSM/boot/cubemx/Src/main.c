@@ -23,7 +23,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_can.h"
+<<<<<<< HEAD
 #include "io_canQueue.h"
+=======
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,7 +87,11 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
+<<<<<<< HEAD
 CanHandle can = { .hcan = &hcan1, .bus_num = 0, .receive_callback = io_canQueue_pushRx };
+=======
+CanHandle can = { .hcan = &hcan1, .bus_num = 0, .ready = false };
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

@@ -77,6 +77,7 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
             FALSE
             ${CAR}
     )
+<<<<<<< HEAD
     add_library(${JSONCAN_LIB} INTERFACE)
     target_sources(${JSONCAN_LIB} INTERFACE ${CAN_SRCS})
     target_include_directories(${JSONCAN_LIB} INTERFACE "${CAN_INCLUDE_DIRS}")
@@ -85,9 +86,25 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
         "${JSONCAN_DIR}/io/io_canTx.h"
         "${JSONCAN_DIR}/io/io_canRx.h"
     )
+=======
+    add_library(
+        "${JSONCAN_LIB}" INTERFACE
+    )
+    target_sources("${JSONCAN_LIB}" INTERFACE ${CAN_SRCS})
+    target_include_directories("${JSONCAN_LIB}" INTERFACE "${CAN_INCLUDE_DIRS}")
+
+    set(HEADERS_TO_FAKE
+        "${JSONCAN_DIR}/io/io_canTx.h"
+        "${JSONCAN_DIR}/io/io_canRx.h"
+    )
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     create_fake_library(
         "${JSONCAN_FAKES_LIB}"
         "${HEADERS_TO_FAKE}"
     )
+<<<<<<< HEAD
     target_link_libraries(${JSONCAN_LIB} INTERFACE "${JSONCAN_FAKES_LIB}")
+=======
+    target_link_libraries("${JSONCAN_LIB}" INTERFACE "${JSONCAN_FAKES_LIB}")
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 endfunction()

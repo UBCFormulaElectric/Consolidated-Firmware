@@ -18,8 +18,30 @@ enum GpioNetName {
   GPIO_SEVEN_SEG_RCK = 12;
   GPIO_LED_DIMMING = 13;
   GPIO_SEVEN_SEG_DIMMING = 14;
+<<<<<<< HEAD
   GPIO_LED_SERIN = 15;
   GPIO_SEVEN_SEG_SERIN = 16;
   GPIO_LED_SRCK = 17;
   GPIO_SEVEN_SEG_SRCK = 18;
 }
+=======
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED = 0;
+}
+
+enum I2cNetName {
+  I2C_NET_NAME_UNSPECIFIED = 0;
+}
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+  SPI_LED = 1;
+  SPI_SEVEN_SEG = 2;
+}
+
+enum PwmOutputNetName {
+  PWM_OUTPUT_NET_NAME_UNSPECIFIED = 0;
+}
+>>>>>>> 5e8451f7b (Squashed commit of the following:)

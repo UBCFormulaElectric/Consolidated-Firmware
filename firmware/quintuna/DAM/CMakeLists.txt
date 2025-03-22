@@ -30,6 +30,7 @@ list(APPEND IO_SRCS
         # "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
@@ -47,6 +48,10 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -136,6 +141,11 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7")
     target_link_libraries("quintuna_DAM_boot.elf" PRIVATE "quintuna_DAM_commit_info")
 
+<<<<<<< HEAD
+=======
+    
+
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     #create image
     embedded_image(
             "quintuna_DAM"
@@ -144,6 +154,8 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_DAM_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
     )
+
+    target_compile_definitions("quintuna_DAM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
 
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

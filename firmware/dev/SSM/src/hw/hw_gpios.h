@@ -1,6 +1,7 @@
 #pragma once
 #include "hw_gpio.h"
 
+<<<<<<< HEAD
 /* D-OUT. */
 
 // GPIO output pin 1.
@@ -61,3 +62,10 @@ extern const Gpio interlock_4;
 
 /* DAC Clear (Active low, hold high to maintain data). */
 extern const Gpio dac_n_clear;
+=======
+extern const Gpio indicator_1;
+extern const Gpio indicator_2;
+extern const Gpio indicator_3;
+extern const Gpio dout_4;
+extern const Gpio debug_led;
+>>>>>>> 5e8451f7b (Squashed commit of the following:)

@@ -4,6 +4,7 @@
 #include "io_sbgEllipse.h"
 #include "main.h"
 
+<<<<<<< HEAD
 UartDevice chimera_uart     = { .config = { .handle             = &huart7,
                                             .polling_timeout_ms = osWaitForever,
                                             .callback_dma       = false,
@@ -48,3 +49,6 @@ UartDevice *hw_uart_getDeviceFromHandle(const UART_HandleTypeDef *handle)
         return NULL;
     }
 }
+=======
+const UART _900m_uart = { .handle = &huart2 };
+>>>>>>> 5e8451f7b (Squashed commit of the following:)

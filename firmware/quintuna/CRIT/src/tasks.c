@@ -7,13 +7,18 @@
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_chimera_v2.h"
+#include "io_chimeraConfig_v2.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+<<<<<<< HEAD
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
+=======
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 void tasks_preInit() {}
 
@@ -60,7 +65,11 @@ void tasks_run1Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+<<<<<<< HEAD
         if (!hw_chimera_v2_enabled)
+=======
+        if (!io_chimera_v2_enabled)
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
             jobs_run1Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -74,9 +83,17 @@ void tasks_run100Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+<<<<<<< HEAD
         hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         if (!hw_chimera_v2_enabled)
+=======
+        io_chimera_v2_mainOrContinue(
+            GpioNetName_crit_net_name_tag, id_to_gpio, AdcNetName_crit_net_name_tag, id_to_adc,
+            I2cNetName_crit_net_name_tag, id_to_i2c, SpiNetName_crit_net_name_tag, id_to_spi);
+
+        if (!io_chimera_v2_enabled)
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
             jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -90,7 +107,11 @@ void tasks_run1kHz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+<<<<<<< HEAD
         if (!hw_chimera_v2_enabled)
+=======
+        if (!io_chimera_v2_enabled)
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
             jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

@@ -24,7 +24,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_usb.h"
+<<<<<<< HEAD
 #include "hw_error.h"
+=======
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -310,14 +313,21 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
     hadc1.Init.ScanConvMode          = ENABLE;
+<<<<<<< HEAD
     hadc1.Init.ContinuousConvMode    = DISABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T2_TRGO;
+=======
+    hadc1.Init.ContinuousConvMode    = ENABLE;
+    hadc1.Init.DiscontinuousConvMode = DISABLE;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
+    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T2_CC2;
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 4;
     hadc1.Init.DMAContinuousRequests = ENABLE;
-    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
     {
         Error_Handler();
@@ -482,7 +492,11 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 1 */
     htim2.Instance               = TIM2;
+<<<<<<< HEAD
     htim2.Init.Prescaler         = TIM2_PRESCALER - 1;
+=======
+    htim2.Init.Prescaler         = TIM2_PRESCALER;
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim2.Init.Period            = TIM2_ARR - 1;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
@@ -500,7 +514,11 @@ static void MX_TIM2_Init(void)
     {
         Error_Handler();
     }
+<<<<<<< HEAD
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+=======
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
     {

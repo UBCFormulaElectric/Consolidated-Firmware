@@ -3,10 +3,17 @@ ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_0
 ADC1.Channel-1\#ChannelRegularConversion=ADC_CHANNEL_5
 ADC1.Channel-2\#ChannelRegularConversion=ADC_CHANNEL_6
 ADC1.Channel-3\#ChannelRegularConversion=ADC_CHANNEL_12
+<<<<<<< HEAD
 ADC1.ContinuousConvMode=DISABLE
 ADC1.DMAContinuousRequests=ENABLE
 ADC1.EOCSelection=ADC_EOC_SINGLE_CONV
 ADC1.ExternalTrigConv=ADC_EXTERNALTRIGCONV_T2_TRGO
+=======
+ADC1.ContinuousConvMode=ENABLE
+ADC1.DMAContinuousRequests=ENABLE
+ADC1.EOCSelection=ADC_EOC_SEQ_CONV
+ADC1.ExternalTrigConv=ADC_EXTERNALTRIGCONV_T2_CC2
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ADC1.IPParameters=Rank-0\#ChannelRegularConversion,master,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,NbrOfConversionFlag,ContinuousConvMode,DMAContinuousRequests,NbrOfConversion,Rank-1\#ChannelRegularConversion,Channel-1\#ChannelRegularConversion,SamplingTime-1\#ChannelRegularConversion,Rank-2\#ChannelRegularConversion,Channel-2\#ChannelRegularConversion,SamplingTime-2\#ChannelRegularConversion,Rank-3\#ChannelRegularConversion,Channel-3\#ChannelRegularConversion,SamplingTime-3\#ChannelRegularConversion,EOCSelection,ExternalTrigConv
 ADC1.NbrOfConversion=4
 ADC1.NbrOfConversionFlag=1
@@ -109,7 +116,11 @@ Mcu.UserConstants=TIM4_PRESCALER,256;ADC_FREQUENCY,1000;TIM2_ARR,TIMx_FREQUENCY 
 Mcu.UserName=STM32F412RGTx
 MxCube.Version=6.12.0
 MxDb.Version=DB.6.0.120
+<<<<<<< HEAD
 NVIC.ADC_IRQn=true\:5\:0\:true\:false\:true\:true\:true\:true\:true
+=======
+NVIC.ADC_IRQn=true\:5\:0\:false\:false\:true\:true\:true\:true\:true
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 NVIC.BusFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false\:false
 NVIC.CAN2_RX0_IRQn=true\:5\:0\:false\:false\:true\:true\:true\:true\:true
 NVIC.CAN2_RX1_IRQn=true\:5\:0\:false\:false\:true\:true\:true\:true\:true
@@ -336,10 +347,16 @@ SH.GPXTI12.ConfNb=1
 SH.S_TIM4_CH3.0=TIM4_CH3,Input_Capture3_from_TI3
 SH.S_TIM4_CH3.ConfNb=1
 TIM2.Channel-Output\ Compare2\ No\ Output=TIM_CHANNEL_2
+<<<<<<< HEAD
 TIM2.IPParameters=Prescaler,Period,Channel-Output Compare2 No Output,TIM_MasterOutputTrigger
 TIM2.Period=TIM2_ARR - 1
 TIM2.Prescaler=TIM2_PRESCALER - 1
 TIM2.TIM_MasterOutputTrigger=TIM_TRGO_UPDATE
+=======
+TIM2.IPParameters=Channel-Output Compare2 No Output,Prescaler,Period
+TIM2.Period=TIM2_ARR - 1
+TIM2.Prescaler=TIM2_PRESCALER
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 TIM4.Channel-Input_Capture3_from_TI3=TIM_CHANNEL_3
 TIM4.IPParameters=Channel-Input_Capture3_from_TI3,Prescaler,Period
 TIM4.Period=TIM4_ARR - 1

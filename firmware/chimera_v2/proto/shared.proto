@@ -20,10 +20,15 @@ import "rsm.proto";
 import "f4dev.proto";
 import "ssm.proto";
 import "crit.proto";
+<<<<<<< HEAD
 import "bms.proto";
 import "dam.proto";
 import "fsm.proto";
 import "vc.proto";
+=======
+import "dam.proto";
+import "fsm.proto";
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 /* GPIOs */
 message GpioNetName {
@@ -34,8 +39,11 @@ message GpioNetName {
         dam.GpioNetName dam_net_name = 4;
         rsm.GpioNetName rsm_net_name = 5;
         fsm.GpioNetName fsm_net_name = 6;
+<<<<<<< HEAD
         bms.GpioNetName bms_net_name = 7;
         vc.GpioNetName vc_net_name = 8;
+=======
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     }
 }
 
@@ -61,10 +69,19 @@ message GpioWriteResponse {
 /* ADCs */
 message AdcNetName {
   oneof name {
+<<<<<<< HEAD
     rsm.AdcNetName rsm_net_name = 1;
     fsm.AdcNetName fsm_net_name = 2;
     bms.AdcNetName bms_net_name = 3;
     vc.AdcNetName vc_net_name = 4;
+=======
+    f4dev.AdcNetName f4dev_net_name = 1;
+    ssm.AdcNetName ssm_net_name = 2;
+    crit.AdcNetName crit_net_name = 3;
+    dam.AdcNetName dam_net_name = 4;
+    rsm.AdcNetName rsm_net_name = 5;
+    fsm.AdcNetName fsm_net_name = 6;
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
   }
 }
 
@@ -80,10 +97,19 @@ message AdcReadResponse {
 /* I2Cs */
 message I2cNetName {
   oneof name {
+<<<<<<< HEAD
     dam.I2cNetName dam_net_name = 1;
     rsm.I2cNetName rsm_net_name = 2;
     fsm.I2cNetName fsm_net_name = 3;
     vc.I2cNetName vc_net_name = 4;
+=======
+    f4dev.I2cNetName f4dev_net_name = 1;
+    ssm.I2cNetName ssm_net_name = 2;
+    crit.I2cNetName crit_net_name = 3;
+    dam.I2cNetName dam_net_name = 4;
+    rsm.I2cNetName rsm_net_name = 5;
+    fsm.I2cNetName fsm_net_name = 6;
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
   }
 }
 
@@ -141,8 +167,17 @@ message I2cMemoryWriteResponse {
 /* SPIs */
 message SpiNetName {
   oneof name {
+<<<<<<< HEAD
     bms.SpiNetName bms_net_name = 1;
     ssm.SpiNetName ssm_net_name = 2;
+=======
+    f4dev.SpiNetName f4dev_net_name = 1;
+    ssm.SpiNetName ssm_net_name = 2;
+    crit.SpiNetName crit_net_name = 3;
+    dam.SpiNetName dam_net_name = 4;
+    rsm.SpiNetName rsm_net_name = 5;
+    fsm.SpiNetName fsm_net_name = 6;
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
   }
 }
 

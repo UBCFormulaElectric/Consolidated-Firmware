@@ -54,6 +54,14 @@ extern "C"
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
     void SysTick_Handler(void);
+<<<<<<< HEAD
+=======
+    void TIM1_BRK_TIM9_IRQHandler(void);
+    void TIM1_UP_TIM10_IRQHandler(void);
+    void TIM1_TRG_COM_TIM11_IRQHandler(void);
+    void TIM1_CC_IRQHandler(void);
+    void TIM3_IRQHandler(void);
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     void SPI1_IRQHandler(void);
     void SPI2_IRQHandler(void);
     void OTG_FS_IRQHandler(void);

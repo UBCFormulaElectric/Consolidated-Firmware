@@ -104,7 +104,11 @@ Mcu.Pin28=PB9
 Mcu.Pin29=VP_FREERTOS_VS_CMSIS_V2
 Mcu.Pin3=PC2
 Mcu.Pin30=VP_SYS_VS_tim3
+<<<<<<< HEAD
 Mcu.Pin31=VP_TIM2_VS_ClockSourceINT
+=======
+Mcu.Pin31=VP_TIM2_VS_no_output1
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 Mcu.Pin32=VP_USB_DEVICE_VS_USB_DEVICE_CDC_FS
 Mcu.Pin4=PC3
 Mcu.Pin5=PA1
@@ -114,7 +118,11 @@ Mcu.Pin8=PA5
 Mcu.Pin9=PA7
 Mcu.PinsNb=33
 Mcu.ThirdPartyNb=0
+<<<<<<< HEAD
 Mcu.UserConstants=TIM2_ARR,TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY);TIM2_PRESCALER,4;LSI_FREQUENCY,32000;TIM2_FREQUENCY,1000;TIMx_FREQUENCY,96000000
+=======
+Mcu.UserConstants=TIM2_ARR,TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY);TIM2_PRESCALER,64;LSI_FREQUENCY,32000;TIM2_FREQUENCY,1000;TIMx_FREQUENCY,96000000
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 Mcu.UserName=STM32F412RGTx
 MxCube.Version=6.12.0
 MxDb.Version=DB.6.0.120
@@ -295,7 +303,11 @@ ProjectManager.ToolChainLocation=
 ProjectManager.UAScriptAfterPath=
 ProjectManager.UAScriptBeforePath=
 ProjectManager.UnderRoot=false
+<<<<<<< HEAD
 ProjectManager.functionlistsort=1-SystemClock_Config-RCC-false-HAL-false,2-MX_GPIO_Init-GPIO-false-HAL-true,3-MX_DMA_Init-DMA-false-HAL-true,4-MX_ADC1_Init-ADC1-false-HAL-true,5-MX_CAN2_Init-CAN2-false-HAL-true,6-MX_I2C1_Init-I2C1-false-HAL-true,7-MX_TIM2_Init-TIM2-false-HAL-true,8-MX_USB_DEVICE_Init-USB_DEVICE-false-HAL-false
+=======
+ProjectManager.functionlistsort=1-SystemClock_Config-RCC-false-HAL-false,2-MX_GPIO_Init-GPIO-false-HAL-true,3-MX_DMA_Init-DMA-false-HAL-true,4-MX_ADC1_Init-ADC1-false-HAL-true,5-MX_CAN2_Init-CAN2-false-HAL-true,6-MX_I2C1_Init-I2C1-false-HAL-true,7-MX_TIM2_Init-TIM2-false-HAL-true,8-MX_USB_DEVICE_Init-USB_DEVICE-false-HAL-false,9-MX_IWDG_Init-IWDG-false-HAL-true
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 RCC.AHBFreq_Value=96000000
 RCC.APB1CLKDivider=RCC_HCLK_DIV2
 RCC.APB1Freq_Value=48000000
@@ -352,10 +364,17 @@ SH.GPXTI4.0=GPIO_EXTI4
 SH.GPXTI4.ConfNb=1
 SH.GPXTI5.0=GPIO_EXTI5
 SH.GPXTI5.ConfNb=1
+<<<<<<< HEAD
 TIM2.IPParameters=Prescaler,Period,TIM_MasterOutputTrigger
 TIM2.Period=TIM2_ARR - 1
 TIM2.Prescaler=TIM2_PRESCALER - 1
 TIM2.TIM_MasterOutputTrigger=TIM_TRGO_UPDATE
+=======
+TIM2.Channel-Output\ Compare1\ No\ Output=TIM_CHANNEL_1
+TIM2.IPParameters=Prescaler,Period,Channel-Output Compare1 No Output
+TIM2.Period=TIM2_ARR - 1
+TIM2.Prescaler=TIM2_PRESCALER - 1
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 USB_DEVICE.CLASS_NAME_FS=CDC
 USB_DEVICE.IPParameters=VirtualMode,VirtualModeFS,CLASS_NAME_FS,MANUFACTURER_STRING,PRODUCT_STRING_CDC_FS
 USB_DEVICE.MANUFACTURER_STRING=ubc_formula_electric
@@ -368,8 +387,13 @@ VP_FREERTOS_VS_CMSIS_V2.Mode=CMSIS_V2
 VP_FREERTOS_VS_CMSIS_V2.Signal=FREERTOS_VS_CMSIS_V2
 VP_SYS_VS_tim3.Mode=TIM3
 VP_SYS_VS_tim3.Signal=SYS_VS_tim3
+<<<<<<< HEAD
 VP_TIM2_VS_ClockSourceINT.Mode=Internal
 VP_TIM2_VS_ClockSourceINT.Signal=TIM2_VS_ClockSourceINT
+=======
+VP_TIM2_VS_no_output1.Mode=Output Compare1 No Output
+VP_TIM2_VS_no_output1.Signal=TIM2_VS_no_output1
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 VP_USB_DEVICE_VS_USB_DEVICE_CDC_FS.Mode=CDC_FS
 VP_USB_DEVICE_VS_USB_DEVICE_CDC_FS.Signal=USB_DEVICE_VS_USB_DEVICE_CDC_FS
 board=custom

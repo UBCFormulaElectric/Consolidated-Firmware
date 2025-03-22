@@ -31,11 +31,19 @@
 #include "hw_usb.h"
 #include "shared.pb.h"
 #include "f4dev.pb.h"
+<<<<<<< HEAD
 #include "hw_chimera_v2.h"
 #include "hw_gpio.h"
 #include "hw_gpios.h"
 #include "hw_adcs.h"
 #include "hw_chimeraConfig_v2.h"
+=======
+#include "io_chimera_v2.h"
+#include "hw_gpio.h"
+#include "hw_gpios.h"
+#include "hw_adcs.h"
+#include "io_chimeraConfig_v2.h"
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 #include "io_log.h"
 /* USER CODE END Includes */
 
@@ -603,7 +611,13 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+<<<<<<< HEAD
     hw_chimera_v2_mainOrContinue(&chimera_v2_config);
+=======
+    io_chimera_v2_mainOrContinue(
+        GpioNetName_f4dev_net_name_tag, id_to_gpio, AdcNetName_f4dev_net_name_tag, id_to_adc,
+        I2cNetName_f4dev_net_name_tag, id_to_i2c, SpiNetName_f4dev_net_name_tag, id_to_spi);
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     /* USER CODE END 5 */
 }
 

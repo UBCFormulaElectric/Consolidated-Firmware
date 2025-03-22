@@ -4,7 +4,11 @@ message("⚙️ Generating Chimera v2 Protobuf Sources")
 # Generate srcs/headers.
 nanopb_generate_cpp(
     PROTO_SRCS PROTO_HDRS 
+<<<<<<< HEAD
     shared.proto f4dev.proto ssm.proto crit.proto dam.proto rsm.proto fsm.proto bms.proto vc.proto
+=======
+    shared.proto f4dev.proto ssm.proto crit.proto dam.proto rsm.proto fsm.proto
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 )
 
 set(SRCS ${PROTO_SRCS})

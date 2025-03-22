@@ -10,8 +10,13 @@
 #include "io_canTx.h"
 #include "io_jsoncan.h"
 // chimera
+<<<<<<< HEAD
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
+=======
+#include "io_chimera_v2.h"
+#include "io_chimeraConfig_v2.h"
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 #include "shared.pb.h"
 // hw
 // #include "hw_bootup.h"
@@ -19,7 +24,10 @@
 #include "hw_watchdog.h"
 #include "hw_cans.h"
 #include "hw_gpios.h"
+<<<<<<< HEAD
 #include "hw_adcs.h"
+=======
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 void tasks_preInit()
 {
@@ -36,8 +44,11 @@ void tasks_init()
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_gpio_writePin(&brake_light_en_pin, false);
 
+<<<<<<< HEAD
     hw_adcs_chipsInit();
     hw_can_init(&can2);
+=======
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     jobs_init();
 }
 
@@ -48,8 +59,12 @@ _Noreturn void tasks_run1Hz()
 
     for (;;)
     {
+<<<<<<< HEAD
         if (!hw_chimera_v2_enabled)
             jobs_run1Hz_tick();
+=======
+        jobs_run1Hz_tick();
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -63,10 +78,18 @@ _Noreturn void tasks_run100Hz()
 
     for (;;)
     {
+<<<<<<< HEAD
         hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         if (!hw_chimera_v2_enabled)
             jobs_run100Hz_tick();
+=======
+        io_chimera_v2_mainOrContinue(
+            GpioNetName_rsm_net_name_tag, id_to_gpio, AdcNetName_rsm_net_name_tag, id_to_adc,
+            I2cNetName_rsm_net_name_tag, id_to_i2c, SpiNetName_rsm_net_name_tag, id_to_spi);
+
+        jobs_run100Hz_tick();
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -80,8 +103,12 @@ _Noreturn void tasks_run1kHz()
 
     for (;;)
     {
+<<<<<<< HEAD
         if (!hw_chimera_v2_enabled)
             jobs_run1kHz_tick();
+=======
+        jobs_run1kHz_tick();
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

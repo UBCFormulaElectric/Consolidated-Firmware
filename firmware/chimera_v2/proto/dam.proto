@@ -18,7 +18,21 @@ enum GpioNetName {
   GPIO_SD_FAIL = 12;
 }
 
+<<<<<<< HEAD
+=======
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED  = 0;
+}
+
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
   I2C_RTC = 1;
 }
+<<<<<<< HEAD
+=======
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+}
+>>>>>>> 5e8451f7b (Squashed commit of the following:)

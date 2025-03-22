@@ -28,6 +28,10 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+<<<<<<< HEAD
+=======
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
@@ -41,6 +45,10 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+<<<<<<< HEAD
+=======
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
@@ -48,8 +56,11 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+<<<<<<< HEAD
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+=======
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -130,6 +141,10 @@ if("${TARGET}" STREQUAL "binary")
 
         target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4")
         target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
+<<<<<<< HEAD
+=======
+        target_compile_definitions("quintuna_RSM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
         embedded_image(
                 "quintuna_RSM"

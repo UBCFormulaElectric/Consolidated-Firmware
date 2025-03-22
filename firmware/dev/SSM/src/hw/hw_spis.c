@@ -1,4 +1,5 @@
 #include "hw_spis.h"
+<<<<<<< HEAD
 
 #define ISOSPI_TIMEOUT_MS (10U)
 #define DAC_TIMEOUT_MS (10U)
@@ -17,5 +18,10 @@ SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
         return &dac_bus;
     if (handle == &hspi2)
         return &isospi_bus;
+=======
+#include "main.h"
+SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
+{
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
     return NULL;
 }

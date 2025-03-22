@@ -3,6 +3,7 @@
 #include "hw_gpios.h"
 #include "hw_gpio.h"
 
+<<<<<<< HEAD
 const Gpio dout_1 = { .port = DOUT1_GPIO_Port, .pin = DOUT1_Pin };
 const Gpio dout_2 = { .port = DOUT2_GPIO_Port, .pin = DOUT2_Pin };
 const Gpio dout_3 = { .port = DOUT3_GPIO_Port, .pin = DOUT3_Pin };
@@ -25,3 +26,10 @@ const Gpio interlock_4 = { .port = INT4_GPIO_Port, .pin = INT4_Pin };
 
 const Gpio dac_n_clear    = { .port = nCLR_GPIO_Port, .pin = nCLR_Pin };
 const Gpio dac_chipSelect = { .port = CS_LD_GPIO_Port, .pin = CS_LD_Pin };
+=======
+const Gpio indicator_1 = { .port = INDICATOR1_GPIO_Port, .pin = INDICATOR1_Pin };
+const Gpio indicator_2 = { .port = INDICATOR2_GPIO_Port, .pin = INDICATOR2_Pin };
+const Gpio indicator_3 = { .port = INDICATOR3_GPIO_Port, .pin = INDICATOR3_Pin };
+const Gpio dout_4      = { .port = DOUT4_GPIO_Port, .pin = DOUT4_Pin };
+const Gpio debug_led   = { .port = Debug_LED_GPIO_Port, .pin = Debug_LED_Pin };
+>>>>>>> 5e8451f7b (Squashed commit of the following:)

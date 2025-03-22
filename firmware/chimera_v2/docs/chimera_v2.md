@@ -96,14 +96,22 @@ Transmit a message given it's data.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/I2cDevice#L359"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/I2cDevice#L369"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `I2cDevice`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L360"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L370"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
@@ -127,7 +135,11 @@ This constructor should NEVER be called on its own, instead create I2c devices v
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/is_ready#L375"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/is_ready#L385"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `is_ready`
 
@@ -144,7 +156,11 @@ Check if an i2c device is ready.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/memory_read#L438"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/memory_read#L446"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `memory_read`
 
@@ -168,7 +184,11 @@ Read bytes from I2C device memory.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/memory_write#L465"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/memory_write#L473"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `memory_write`
 
@@ -187,7 +207,11 @@ Read bytes into I2C device memory.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/receive#L393"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/receive#L403"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `receive`
 
@@ -210,7 +234,11 @@ Receive bytes from the I2C device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/transmit#L416"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/transmit#L426"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `transmit`
 
@@ -229,14 +257,22 @@ Transmit bytes to the I2C device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/SpiDevice#L490"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/SpiDevice#L498"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `SpiDevice`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L491"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L499"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
@@ -260,7 +296,11 @@ This constructor should NEVER be called on its own, instead create SPI devices v
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/receive#L506"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/receive#L514"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `receive`
 
@@ -283,12 +323,20 @@ Receive bytes from the SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/transact#L551"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/transact#L557"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `transact`
 
 ```python
+<<<<<<< HEAD
 transact(request_data: 'bytes', response_length: 'int') → bytes
+=======
+transact(request_data: 'bytes', response_length: 'int')
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Run a full transaction (tx/rx) to the SPI device. 
@@ -307,7 +355,11 @@ Run a full transaction (tx/rx) to the SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/transmit#L529"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/transmit#L537"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `transmit`
 
@@ -326,19 +378,31 @@ Transmit bytes to the SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/F4Dev#L579"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/F4Dev#L585"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `F4Dev`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L580"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L586"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
 ```python
+<<<<<<< HEAD
 __init__()
+=======
+__init__() → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Create an interface to an F4Dev board. 
@@ -348,7 +412,11 @@ Create an interface to an F4Dev board.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L319"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `adc_read`
 
@@ -371,7 +439,11 @@ Read the voltage at an ADC pin specified by the net name.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L270"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_read`
 
@@ -394,12 +466,20 @@ Read the value of a GPIO pin given the net name of the pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L295"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
+<<<<<<< HEAD
 gpio_write(net_name: 'str', value: 'bool')
+=======
+gpio_write(net_name: 'str', value: 'bool') → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Write a value to a GPIO pin. 
@@ -413,7 +493,11 @@ Write a value to a GPIO pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L344"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `i2c_device`
 
@@ -436,7 +520,11 @@ Create an abstraction around an I2c device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L356"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `spi_device`
 
@@ -460,19 +548,31 @@ Create an abstraction around a SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/SSM#L590"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/SSM#L599"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `SSM`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L591"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L600"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
 ```python
+<<<<<<< HEAD
 __init__()
+=======
+__init__() → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Create an interface to an SSM board. 
@@ -482,7 +582,11 @@ Create an interface to an SSM board.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L319"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `adc_read`
 
@@ -505,7 +609,11 @@ Read the voltage at an ADC pin specified by the net name.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L270"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_read`
 
@@ -528,12 +636,20 @@ Read the value of a GPIO pin given the net name of the pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L295"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
+<<<<<<< HEAD
 gpio_write(net_name: 'str', value: 'bool')
+=======
+gpio_write(net_name: 'str', value: 'bool') → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Write a value to a GPIO pin. 
@@ -547,7 +663,11 @@ Write a value to a GPIO pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L344"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `i2c_device`
 
@@ -570,7 +690,11 @@ Create an abstraction around an I2c device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L356"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `spi_device`
 
@@ -594,19 +718,31 @@ Create an abstraction around a SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/CRIT#L601"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/CRIT#L613"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `CRIT`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L602"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L614"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
 ```python
+<<<<<<< HEAD
 __init__()
+=======
+__init__() → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Create an interface to a CRIT/cDIM board. 
@@ -616,7 +752,11 @@ Create an interface to a CRIT/cDIM board.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L319"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `adc_read`
 
@@ -639,7 +779,11 @@ Read the voltage at an ADC pin specified by the net name.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L270"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_read`
 
@@ -662,12 +806,20 @@ Read the value of a GPIO pin given the net name of the pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L295"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
+<<<<<<< HEAD
 gpio_write(net_name: 'str', value: 'bool')
+=======
+gpio_write(net_name: 'str', value: 'bool') → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Write a value to a GPIO pin. 
@@ -681,7 +833,11 @@ Write a value to a GPIO pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L344"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `i2c_device`
 
@@ -704,7 +860,11 @@ Create an abstraction around an I2c device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L356"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `spi_device`
 
@@ -728,6 +888,7 @@ Create an abstraction around a SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/BMS#L612"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>class</kbd> `BMS`
@@ -863,18 +1024,29 @@ Create an abstraction around a SPI device.
 ---
 
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/RSM#L623"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/RSM#L627"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `RSM`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L624"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L628"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
 ```python
+<<<<<<< HEAD
 __init__()
+=======
+__init__() → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Create an interface to a RSM board. 
@@ -884,7 +1056,11 @@ Create an interface to a RSM board.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L319"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `adc_read`
 
@@ -907,7 +1083,11 @@ Read the voltage at an ADC pin specified by the net name.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L270"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_read`
 
@@ -930,12 +1110,20 @@ Read the value of a GPIO pin given the net name of the pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L295"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
+<<<<<<< HEAD
 gpio_write(net_name: 'str', value: 'bool')
+=======
+gpio_write(net_name: 'str', value: 'bool') → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Write a value to a GPIO pin. 
@@ -949,7 +1137,11 @@ Write a value to a GPIO pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L344"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `i2c_device`
 
@@ -972,7 +1164,11 @@ Create an abstraction around an I2c device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L356"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `spi_device`
 
@@ -996,19 +1192,31 @@ Create an abstraction around a SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/FSM#L634"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/FSM#L641"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `FSM`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L635"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L642"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
 ```python
+<<<<<<< HEAD
 __init__()
+=======
+__init__() → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Create an interface to a FSM board. 
@@ -1018,7 +1226,11 @@ Create an interface to a FSM board.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L319"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `adc_read`
 
@@ -1041,7 +1253,11 @@ Read the voltage at an ADC pin specified by the net name.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L270"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_read`
 
@@ -1064,12 +1280,20 @@ Read the value of a GPIO pin given the net name of the pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L295"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
+<<<<<<< HEAD
 gpio_write(net_name: 'str', value: 'bool')
+=======
+gpio_write(net_name: 'str', value: 'bool') → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Write a value to a GPIO pin. 
@@ -1083,7 +1307,11 @@ Write a value to a GPIO pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L344"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `i2c_device`
 
@@ -1106,7 +1334,11 @@ Create an abstraction around an I2c device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L356"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `spi_device`
 
@@ -1130,19 +1362,31 @@ Create an abstraction around a SPI device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/DAM#L645"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/DAM#L655"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ## <kbd>class</kbd> `DAM`
 
 
 
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L646"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L656"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `__init__`
 
 ```python
+<<<<<<< HEAD
 __init__()
+=======
+__init__() → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Create an interface to a DAM board. 
@@ -1152,7 +1396,11 @@ Create an interface to a DAM board.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L319"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `adc_read`
 
@@ -1175,7 +1423,11 @@ Read the voltage at an ADC pin specified by the net name.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L270"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_read`
 
@@ -1198,12 +1450,20 @@ Read the value of a GPIO pin given the net name of the pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L295"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
+<<<<<<< HEAD
 gpio_write(net_name: 'str', value: 'bool')
+=======
+gpio_write(net_name: 'str', value: 'bool') → None
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 ```
 
 Write a value to a GPIO pin. 
@@ -1217,7 +1477,11 @@ Write a value to a GPIO pin.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L344"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `i2c_device`
 
@@ -1240,6 +1504,7 @@ Create an abstraction around an I2c device.
 
 ---
 
+<<<<<<< HEAD
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `spi_device`
@@ -1375,6 +1640,9 @@ Create an abstraction around an I2c device.
 ---
 
 <a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+=======
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L356"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 ### <kbd>method</kbd> `spi_device`
 

@@ -26,10 +26,14 @@
 #include "tasks.h"
 #include "hw_error.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "io_log.h"
 =======
 #include <stdbool.h>
 >>>>>>> 3edb240a2 (changed small things for initial blinky)
+=======
+#include "io_log.h"
+>>>>>>> 5e8451f7b (Squashed commit of the following:)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -213,7 +217,7 @@ int main(void)
     MX_USART2_UART_Init();
     MX_I2C1_Init();
     MX_TIM15_Init();
-    //MX_IWDG1_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port,TSIM_RED_EN_Pin, true);
     while (1)
@@ -454,7 +458,8 @@ static void MX_I2C1_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-
+    // TODO remove
+    return;
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
