@@ -195,7 +195,7 @@ bool io_imu_getLinearAccelerationX(float *x_acceleration)
     if (!hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2))
         return false;
     // Convert raw value to acceleration in m/s^2
-    *x_acceleration = translate_acceleration_data(x_data) + imu_config.x_accel_offeset;
+    *x_acceleration = translate_acceleration_data(x_data) + imu_config.x_accel_offset;
     return true;
 }
 

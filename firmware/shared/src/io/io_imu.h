@@ -6,7 +6,7 @@
 typedef struct
 {
     const I2cDevice *imu_i2c_handle;
-    float            x_accel_offeset;
+    float            x_accel_offset;
     float            y_accel_offset;
     float            z_accel_offset;
     float            yaw_offset;

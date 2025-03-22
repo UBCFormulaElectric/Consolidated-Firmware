@@ -10,8 +10,6 @@
  * yaw moments on corner entry and negative yaw moments on exit.
  */
 
-// create static variables?
-
 typedef struct
 {
     PID *pid;
@@ -64,9 +62,3 @@ float app_yawRateController_getRefYawRateRad();
  * Get the generated yaw moment
  */
 float app_yawRateController_getYawMoment();
-
-// /*
-//  * Computes the torques to send to the wheels based on the
-//  * corrective yaw moment and reference yaw rate
-//  */
-// void app_yawRateController_computeTorque(YawRateController *yrc);

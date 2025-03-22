@@ -4,6 +4,13 @@
 #include "app_utils.h"
 #include <math.h>
 
+/*
+ * Current tuning constants are stable
+ *
+ * kp = 0.25, ki = 0.0, kd = 0.0
+ * ku = 0.0
+ */
+
 static float ref_yaw_rate_rad;
 static float yaw_moment;
 
