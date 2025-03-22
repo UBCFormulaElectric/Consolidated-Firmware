@@ -338,7 +338,7 @@ Transmit bytes to the SPI device.
 ### <kbd>method</kbd> `__init__`
 
 ```python
-__init__() → None
+__init__()
 ```
 
 Create an interface to an F4Dev board. 
@@ -399,7 +399,7 @@ Read the value of a GPIO pin given the net name of the pin.
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
-gpio_write(net_name: 'str', value: 'bool') → None
+gpio_write(net_name: 'str', value: 'bool')
 ```
 
 Write a value to a GPIO pin. 
@@ -472,7 +472,7 @@ Create an abstraction around a SPI device.
 ### <kbd>method</kbd> `__init__`
 
 ```python
-__init__() → None
+__init__()
 ```
 
 Create an interface to an SSM board. 
@@ -533,7 +533,7 @@ Read the value of a GPIO pin given the net name of the pin.
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
-gpio_write(net_name: 'str', value: 'bool') → None
+gpio_write(net_name: 'str', value: 'bool')
 ```
 
 Write a value to a GPIO pin. 
@@ -606,7 +606,7 @@ Create an abstraction around a SPI device.
 ### <kbd>method</kbd> `__init__`
 
 ```python
-__init__() → None
+__init__()
 ```
 
 Create an interface to a CRIT/cDIM board. 
@@ -667,7 +667,7 @@ Read the value of a GPIO pin given the net name of the pin.
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
-gpio_write(net_name: 'str', value: 'bool') → None
+gpio_write(net_name: 'str', value: 'bool')
 ```
 
 Write a value to a GPIO pin. 
@@ -740,7 +740,7 @@ Create an abstraction around a SPI device.
 ### <kbd>method</kbd> `__init__`
 
 ```python
-__init__() → None
+__init__()
 ```
 
 Create an interface to a RSM board. 
@@ -801,7 +801,7 @@ Read the value of a GPIO pin given the net name of the pin.
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
-gpio_write(net_name: 'str', value: 'bool') → None
+gpio_write(net_name: 'str', value: 'bool')
 ```
 
 Write a value to a GPIO pin. 
@@ -874,7 +874,7 @@ Create an abstraction around a SPI device.
 ### <kbd>method</kbd> `__init__`
 
 ```python
-__init__() → None
+__init__()
 ```
 
 Create an interface to a FSM board. 
@@ -935,7 +935,7 @@ Read the value of a GPIO pin given the net name of the pin.
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
-gpio_write(net_name: 'str', value: 'bool') → None
+gpio_write(net_name: 'str', value: 'bool')
 ```
 
 Write a value to a GPIO pin. 
@@ -1008,7 +1008,7 @@ Create an abstraction around a SPI device.
 ### <kbd>method</kbd> `__init__`
 
 ```python
-__init__() → None
+__init__()
 ```
 
 Create an interface to a DAM board. 
@@ -1069,7 +1069,7 @@ Read the value of a GPIO pin given the net name of the pin.
 ### <kbd>method</kbd> `gpio_write`
 
 ```python
-gpio_write(net_name: 'str', value: 'bool') → None
+gpio_write(net_name: 'str', value: 'bool')
 ```
 
 Write a value to a GPIO pin. 

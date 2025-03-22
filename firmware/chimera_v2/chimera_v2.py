@@ -282,7 +282,7 @@ class _Board:
         assert response.WhichOneof("payload") == "gpio_read"
         return response.gpio_read.value
 
-    def gpio_write(self, net_name: str, value: bool) -> None:
+    def gpio_write(self, net_name: str, value: bool):
         """Write a value to a GPIO pin.
 
         Args:
@@ -577,7 +577,7 @@ class SpiDevice:
 
 
 class F4Dev(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to an F4Dev board."""
 
         super().__init__(
@@ -588,7 +588,7 @@ class F4Dev(_Board):
 
 
 class SSM(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to an SSM board."""
 
         super().__init__(
@@ -599,7 +599,7 @@ class SSM(_Board):
 
 
 class CRIT(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to a CRIT/cDIM board."""
 
         super().__init__(
@@ -610,7 +610,7 @@ class CRIT(_Board):
 
 
 class RSM(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to a RSM board."""
 
         super().__init__(
@@ -621,7 +621,7 @@ class RSM(_Board):
 
 
 class FSM(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to a FSM board."""
 
         super().__init__(
@@ -632,7 +632,7 @@ class FSM(_Board):
 
 
 class DAM(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to a DAM board."""
 
         super().__init__(
