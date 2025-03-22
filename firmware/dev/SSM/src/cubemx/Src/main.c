@@ -475,9 +475,7 @@ void StartDefaultTask(void *argument)
     // Invoke Chimera V2.
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc,
-            I2cNetName_ssm_net_name_tag, id_to_i2c, SpiNetName_ssm_net_name_tag, id_to_spi);
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
         osDelay(100);
     }
 
