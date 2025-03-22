@@ -1,26 +1,26 @@
 {
-	"json.schemas": [
-		{
-			"fileMatch": [
-				"/can_bus/json/**/*tx.json"
-			],
-			"url": "/can_bus/json/schema_tx.json"
-		}
-	],
-	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"main.h": "c",
-		"hw_bootup.h": "c",
-		"hw_pwms.h": "c",
-		"hw_hardfaulthandler.h": "c",
-		"hw_watchdog.h": "c",
-		"hw_pwminputfreqonly.h": "c",
-		"io_leds.h": "c",
-		"io_led.h": "c",
-		"hw_adcs.h": "c",
-		"hw_gpios.h": "c",
-		"hw_i2cs.h": "c",
-		"hw_i2c.h": "c"
-	},
+  "json.schemas": [
+    {
+      "fileMatch": ["/can_bus/json/**/*tx.json"],
+      "url": "/can_bus/json/schema_tx.json"
+    }
+  ],
+  "cmake.configureOnEdit": false,
+  "cmake.configureOnOpen": false,
+  "files.associations": {
+    "main.h": "c",
+    "hw_bootup.h": "c",
+    "hw_pwms.h": "c",
+    "hw_hardfaulthandler.h": "c",
+    "hw_watchdog.h": "c",
+    "hw_pwminputfreqonly.h": "c",
+    "io_leds.h": "c",
+    "io_led.h": "c",
+    "hw_adcs.h": "c",
+    "hw_gpios.h": "c",
+    "hw_i2cs.h": "c",
+    "hw_i2c.h": "c",
+    "io_imu.h": "c",
+    "stdbool.h": "c"
+  }
 }
