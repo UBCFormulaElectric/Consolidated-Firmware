@@ -21,8 +21,8 @@ class DevApiWorker {
     final workerPort = ReceivePort();
     mainSendPort.send(workerPort.sendPort);
 
-    Timer.periodic(Duration(seconds: 3), (timer) {
-      final newData = "w";
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      final newData = "W";
       mainSendPort.send(newData);
     });
   }

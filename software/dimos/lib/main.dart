@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dimos/data/services/can_api.dart';
 import 'package:dimos/data/services/can_variables.dart';
 import 'package:dimos/ui/core/themes/themes.dart';
 import 'package:dimos/ui/low_voltage/lv_screen.dart';
@@ -23,19 +24,33 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late DevApiWorker _worker;
+  late DevApiWorker _devWorker;
+  late CanApiWorker _canWorker;
+  late SpeedInteger _speedInteger;
   late WarningsList _warningsList;
 
   @override
   void initState() {
     super.initState();
-    _worker = DevApiWorker();
     _warningsList = WarningsList();
-
-    // Start worker and listen for updates
-    _worker.start((data) {
-      _warningsList.updateList(data);
-    });
+    _speedInteger = SpeedInteger();
+    
+    if (Platform.isWindows || Platform.isMacOS) {
+      // have some basic dev api setup to introduce can
+      _devWorker = DevApiWorker();
+      _devWorker.start((data) {
+        _warningsList.updateListDev(data);
+        _speedInteger.updateListDev(data);
+      });
+    } else if (Platform.isLinux) {
+      // ACTUAL CAN setup
+      // doodoo for now
+      _canWorker = CanApiWorker();
+      _canWorker.start((data) {
+        _warningsList.updateListCan();
+        _speedInteger.updateListCan();
+      });
+    }
   }
 
   @override
@@ -58,7 +73,7 @@ Future<void> setupWindow() async {
   await windowManager.ensureInitialized();
   windowManager.setTitleBarStyle(TitleBarStyle.normal);
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isMacOS) {
     await WindowManager.instance.setMinimumSize(const Size(1024, 600));
     await WindowManager.instance.setMaximumSize(const Size(1024, 600));
   } else if (Platform.isLinux) {
