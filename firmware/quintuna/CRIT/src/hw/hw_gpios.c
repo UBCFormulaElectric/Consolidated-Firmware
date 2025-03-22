@@ -3,7 +3,7 @@
 
 const Gpio boot                 = { .port = BOOT_GPIO_Port, .pin = BOOT_Pin };
 const Gpio led                  = { .port = LED_GPIO_Port, .pin = LED_Pin };
-const Gpio telem_sig            = { .port = TELEM_SIG_GPIO_Port, .pin = LED_Pin };
+const Gpio telem_sig            = { .port = TELEM_SIG_GPIO_Port, .pin = TELEM_SIG_Pin };
 const Gpio push_drive_sig       = { .port = PUSH_DRIVE_SIG_GPIO_Port, .pin = PUSH_DRIVE_SIG_Pin };
 const Gpio rot_s                = { .port = ROT_S_GPIO_Port, .pin = ROT_S_Pin };
 const Gpio rot_b                = { .port = ROT_B_GPIO_Port, .pin = ROT_B_Pin };
