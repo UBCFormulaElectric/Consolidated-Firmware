@@ -1,13 +1,16 @@
 #include <stdint.h>
 
 // https://datasheet.ciiva.com/pdfs/VipMasterIC/IC/PHGL/PHGL-S-A0000776674/PHGL-S-A0000776674-1.pdf?src-supplier=IHS+Markit
+
+// standard digital format, not BCD.
+// need to be converted to BCD format if needed. 
 struct IoRtcTime
 {
-    uint8_t seconds : 6;
-    uint8_t minutes : 7;
-    uint8_t hours : 5;
-    uint8_t day : 6;
-    uint8_t date : 6;
+    uint8_t seconds;
+    uint8_t minutes;
+    uint8_t hours;
+    uint8_t day;
+    uint8_t date;
     uint8_t month;
     uint8_t year;
 };
