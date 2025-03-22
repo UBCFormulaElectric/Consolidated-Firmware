@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#ifdef TARGET_EMBEDDED
 #include "hw_i2c.h"
 
 typedef struct
@@ -13,6 +14,11 @@ typedef struct
     float            pitch_offset;
     float            roll_offset;
 } imuConfig;
+#else
+#include "app_utils.h"
+EMPTY_STRUCT(imuConfig)
+#endif
+
 
 /**
  * @brief turns on the accelerometer sensor on the imu to high perf mode
