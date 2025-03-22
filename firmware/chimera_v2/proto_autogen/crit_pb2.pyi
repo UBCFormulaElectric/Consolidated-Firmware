@@ -20,61 +20,39 @@ class _GpioNetName:
 class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GpioNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     GPIO_NET_NAME_UNSPECIFIED: _GpioNetName.ValueType
-    BOOT: _GpioNetName.ValueType
-    LED: _GpioNetName.ValueType
-    TELEM_SIG: _GpioNetName.ValueType
-    PUSH_DRIVE_SIG: _GpioNetName.ValueType
-    ROT_S: _GpioNetName.ValueType
-    ROT_B: _GpioNetName.ValueType
-    ROT_A: _GpioNetName.ValueType
-    LAUNCH_CONTROL_SIG: _GpioNetName.ValueType
-    TORQUE_VECTORING_SIG: _GpioNetName.ValueType
-    REGEN_SIG: _GpioNetName.ValueType
-    LED_RCK: _GpioNetName.ValueType
-    SEVEN_SEG_RCK: _GpioNetName.ValueType
+    GPIO_BOOT: _GpioNetName.ValueType
+    GPIO_LED: _GpioNetName.ValueType
+    GPIO_TELEM_SIG: _GpioNetName.ValueType
+    GPIO_PUSH_DRIVE_SIG: _GpioNetName.ValueType
+    GPIO_ROT_S: _GpioNetName.ValueType
+    GPIO_ROT_B: _GpioNetName.ValueType
+    GPIO_ROT_A: _GpioNetName.ValueType
+    GPIO_LAUNCH_CONTROL_SIG: _GpioNetName.ValueType
+    GPIO_TORQUE_VECTORING_SIG: _GpioNetName.ValueType
+    GPIO_REGEN_SIG: _GpioNetName.ValueType
+    GPIO_LED_RCK: _GpioNetName.ValueType
+    GPIO_SEVEN_SEG_RCK: _GpioNetName.ValueType
+    GPIO_LED_DIMMING: _GpioNetName.ValueType
+    GPIO_SEVEN_SEG_DIMMING: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
-BOOT: GpioNetName.ValueType
-LED: GpioNetName.ValueType
-TELEM_SIG: GpioNetName.ValueType
-PUSH_DRIVE_SIG: GpioNetName.ValueType
-ROT_S: GpioNetName.ValueType
-ROT_B: GpioNetName.ValueType
-ROT_A: GpioNetName.ValueType
-LAUNCH_CONTROL_SIG: GpioNetName.ValueType
-TORQUE_VECTORING_SIG: GpioNetName.ValueType
-REGEN_SIG: GpioNetName.ValueType
-LED_RCK: GpioNetName.ValueType
-SEVEN_SEG_RCK: GpioNetName.ValueType
+GPIO_BOOT: GpioNetName.ValueType
+GPIO_LED: GpioNetName.ValueType
+GPIO_TELEM_SIG: GpioNetName.ValueType
+GPIO_PUSH_DRIVE_SIG: GpioNetName.ValueType
+GPIO_ROT_S: GpioNetName.ValueType
+GPIO_ROT_B: GpioNetName.ValueType
+GPIO_ROT_A: GpioNetName.ValueType
+GPIO_LAUNCH_CONTROL_SIG: GpioNetName.ValueType
+GPIO_TORQUE_VECTORING_SIG: GpioNetName.ValueType
+GPIO_REGEN_SIG: GpioNetName.ValueType
+GPIO_LED_RCK: GpioNetName.ValueType
+GPIO_SEVEN_SEG_RCK: GpioNetName.ValueType
+GPIO_LED_DIMMING: GpioNetName.ValueType
+GPIO_SEVEN_SEG_DIMMING: GpioNetName.ValueType
 global___GpioNetName = GpioNetName
-
-class _AdcNetName:
-    ValueType = typing.NewType('ValueType', builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_AdcNetName.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    ADC_NET_NAME_UNSPECIFIED: _AdcNetName.ValueType
-
-class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper):
-    ...
-ADC_NET_NAME_UNSPECIFIED: AdcNetName.ValueType
-global___AdcNetName = AdcNetName
-
-class _I2cNetName:
-    ValueType = typing.NewType('ValueType', builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
-
-class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
-    ...
-I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-global___I2cNetName = I2cNetName
 
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -83,29 +61,12 @@ class _SpiNetName:
 class _SpiNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     SPI_NET_NAME_UNSPECIFIED: _SpiNetName.ValueType
-    SPI_NET_NAME_LED_SPI: _SpiNetName.ValueType
-    SPI_NET_NAME_SEVEN_SEG_SPI: _SpiNetName.ValueType
+    SPI_LED: _SpiNetName.ValueType
+    SPI_SEVEN_SEG: _SpiNetName.ValueType
 
 class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
     ...
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
-SPI_NET_NAME_LED_SPI: SpiNetName.ValueType
-SPI_NET_NAME_SEVEN_SEG_SPI: SpiNetName.ValueType
+SPI_LED: SpiNetName.ValueType
+SPI_SEVEN_SEG: SpiNetName.ValueType
 global___SpiNetName = SpiNetName
-
-class _PwmOutputNetName:
-    ValueType = typing.NewType('ValueType', builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _PwmOutputNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PwmOutputNetName.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    PWM_OUTPUT_NET_NAME_UNSPECIFIED: _PwmOutputNetName.ValueType
-    SEVEN_SEG_DIMMING: _PwmOutputNetName.ValueType
-    LED_DIMMING: _PwmOutputNetName.ValueType
-
-class PwmOutputNetName(_PwmOutputNetName, metaclass=_PwmOutputNetNameEnumTypeWrapper):
-    ...
-PWM_OUTPUT_NET_NAME_UNSPECIFIED: PwmOutputNetName.ValueType
-SEVEN_SEG_DIMMING: PwmOutputNetName.ValueType
-LED_DIMMING: PwmOutputNetName.ValueType
-global___PwmOutputNetName = PwmOutputNetName
