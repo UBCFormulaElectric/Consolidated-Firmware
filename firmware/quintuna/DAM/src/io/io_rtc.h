@@ -10,7 +10,7 @@ struct IoRtcTime
     uint8_t minutes;
     uint8_t hours;
     uint8_t day;
-    uint8_t date;
+    uint8_t weekdays; // Weekday (0d-6, Sunday=0)
     uint8_t month;
     uint8_t year;
 };
