@@ -8,7 +8,6 @@
 
 #else
 #include "app_utils.h"
-EMPTY_STRUCT(TsimLightConfig)
 #endif
 
 /**
