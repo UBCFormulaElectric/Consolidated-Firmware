@@ -19,6 +19,7 @@ class _GpioNetName:
 
 class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GpioNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    GPIO_NET_NAME_UNSPECIFIED: _GpioNetName.ValueType
     GPIO_LEDB: _GpioNetName.ValueType
     GPIO_BSPD_OK: _GpioNetName.ValueType
     GPIO_ACCEL_BRAKE_OK: _GpioNetName.ValueType
@@ -52,6 +53,7 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
+GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
 GPIO_LEDB: GpioNetName.ValueType
 GPIO_BSPD_OK: GpioNetName.ValueType
 GPIO_ACCEL_BRAKE_OK: GpioNetName.ValueType
@@ -90,6 +92,7 @@ class _AdcNetName:
 
 class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_AdcNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    ADC_NET_NAME_UNSPECIFIED: _AdcNetName.ValueType
     ADC_FAN_ISNS: _AdcNetName.ValueType
     ADC_TS_VSENSE_P: _AdcNetName.ValueType
     ADC_TS_VSENSE_N: _AdcNetName.ValueType
@@ -100,6 +103,7 @@ class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enu
 
 class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper):
     ...
+ADC_NET_NAME_UNSPECIFIED: AdcNetName.ValueType
 ADC_FAN_ISNS: AdcNetName.ValueType
 ADC_TS_VSENSE_P: AdcNetName.ValueType
 ADC_TS_VSENSE_N: AdcNetName.ValueType
@@ -109,15 +113,19 @@ ADC_TS_ISNS_400A: AdcNetName.ValueType
 ADC_TS_ISNS_50A: AdcNetName.ValueType
 global___AdcNetName = AdcNetName
 
-class _I2cNetName:
+class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], builtins.type):
+class _SpiNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
+    SPI_NET_NAME_UNSPECIFIED: _SpiNetName.ValueType
+    SPI_LTC6813_LS: _SpiNetName.ValueType
+    SPI_LTC6813_HS: _SpiNetName.ValueType
 
-class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
+class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
     ...
-I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-global___I2cNetName = I2cNetName
+SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
+SPI_LTC6813_LS: SpiNetName.ValueType
+SPI_LTC6813_HS: SpiNetName.ValueType
+global___SpiNetName = SpiNetName

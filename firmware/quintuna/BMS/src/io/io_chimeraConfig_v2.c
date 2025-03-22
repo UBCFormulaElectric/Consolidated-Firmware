@@ -1,9 +1,9 @@
 #include "bms.pb.h"
-#include "hw_gpio.h"
-#include "hw_i2c.h"
-#include "hw_adc.h"
+#include "shared.pb.h"
 #include "hw_adcs.h"
 #include "hw_gpios.h"
+#include "hw_spis.h"
+#include "io_chimera_v2.h"
 
 const Gpio *id_to_gpio[] = { [bms_GpioNetName_GPIO_LEDB]                  = &led_b_pin,
                              [bms_GpioNetName_GPIO_BSPD_OK]               = &bspd_ok_current_status_pin,
@@ -44,4 +44,14 @@ const AdcChannel *id_to_adc[] = { [bms_AdcNetName_ADC_FAN_ISNS]         = &fan_i
                                   [bms_AdcNetName_ADC_TS_ISNS_400A]     = &ts_isns_400a,
                                   [bms_AdcNetName_ADC_TS_ISNS_50A]      = &ts_isns_50a };
 
-const I2cDevice *id_to_i2c[] = { [bms_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
+const SpiDevice *id_to_spi[] = {
+    [bms_SpiNetName_SPI_LTC6813_HS] = &ltc6813_spi_hs,
+    [bms_SpiNetName_SPI_LTC6813_LS] = &ltc6813_spi_ls,
+};
+
+io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_bms_net_name_tag,
+                                           .id_to_gpio        = id_to_gpio,
+                                           .adc_net_name_tag  = AdcNetName_bms_net_name_tag,
+                                           .id_to_adc         = id_to_adc,
+                                           .spi_net_name_tag  = SpiNetName_bms_net_name_tag,
+                                           .id_to_spi         = id_to_spi };

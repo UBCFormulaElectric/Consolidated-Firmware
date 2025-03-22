@@ -41,9 +41,7 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_bms_net_name_tag, id_to_gpio, AdcNetName_bms_net_name_tag, id_to_adc,
-            I2cNetName_bms_net_name_tag, id_to_i2c, 0, NULL); // TODO
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

@@ -59,9 +59,7 @@ _Noreturn void tasks_run100Hz()
 
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_rsm_net_name_tag, id_to_gpio, AdcNetName_rsm_net_name_tag, id_to_adc,
-            I2cNetName_rsm_net_name_tag, id_to_i2c, SpiNetName_rsm_net_name_tag, id_to_spi);
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         jobs_run100Hz_tick();
 
