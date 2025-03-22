@@ -219,13 +219,6 @@ int main(void)
     MX_TIM15_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, true);
-    while (1)
-    {
-        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-        HAL_Delay(1000);
-    }
-
     /* USER CODE END 2 */
 
     /* Init scheduler */

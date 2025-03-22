@@ -149,9 +149,8 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t MINUTE_ALARM : 6; // Minute alarm (0d-59)
+    uint8_t MINUTE_ALARM : 7; // Minute alarm (0d-59)
     uint8_t AEN_M : 1;        // Alarm enable (0: disabled, 1: enabled)
-    uint8_t RESERVED : 1;
 } MinuteAlarm_t;
 
 /**
@@ -160,10 +159,9 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t HOUR_ALARM : 5; // Hour alarm (0d-23 or 1d-12)
-    uint8_t AMPM : 1;       // AM/PM flag for 12-hour mode
-    uint8_t AEN_H : 1;      // Alarm enable (0: disabled, 1: enabled)
+    uint8_t HOUR_ALARM : 6; //  to 23 in 24 hour mode)
     uint8_t RESERVED : 1;
+    uint8_t AEN_H : 1;
 } HourAlarm_t;
 
 /**
@@ -182,23 +180,12 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t COF : 3; // Clock output frequency selection
-    uint8_t RESERVED : 5;
+    uint8_t TBC :1;
+    uint8_t TAC : 2;
+    uint8_t COF : 3;
+    uint8_t TBM : 1;
+    uint8_t TAM : 1;
 } ClockOut_t;
-
-/**
- * Timer Control Register (REG_TIMER_CONTROL)
- * - Controls the operation of timers A and B.
- */
-typedef struct __attribute__((packed))
-{
-    uint8_t TE_A : 1;  // Timer A enable (1 = enabled)
-    uint8_t TE_B : 1;  // Timer B enable (1 = enabled)
-    uint8_t TI_TP : 1; // Timer interrupt/pulse mode (1 = interrupt, 0 = pulse)
-    uint8_t TD_A : 2;  // Timer A clock source
-    uint8_t TD_B : 2;  // Timer B clock source
-    uint8_t RESERVED : 1;
-} TimerControl_t;
 
 /**
  * Timer A Frequency Register (REG_TIMER_A_FREQ)
@@ -206,8 +193,8 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t TAF : 4; // Timer A frequency selection
-    uint8_t RESERVED : 4;
+    uint8_t TAQ : 3; // Timer A frequency selection
+    uint8_t RESERVED : 5;
 } TimerAFreq_t;
 
 /**
@@ -225,8 +212,10 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t TBF : 4; // Timer B frequency selection
-    uint8_t RESERVED : 4;
+    uint8_t TBQ : 3; // Timer B frequency selection
+    uint8_t RESERVED : 1;
+    uint8_t TBW : 3; 
+    uint8_t RESERVED1 : 1;
 } TimerBFreq_t;
 
 /**
@@ -303,7 +292,7 @@ void io_rtc_setTime(struct IoRtcTime *time)
     Register_t regTime;
     regTime.seconds.SECONDS = (uint8_t)(seconds & 0x3F);
 
-    Register_t regMinutes;
+    Regiszter_t regMinutes;
     regMinutes.minutes.MINUTES = (uint8_t)(minutes & 0x7F);
 
     Register_t regHours;
