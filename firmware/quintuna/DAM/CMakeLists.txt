@@ -7,12 +7,8 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
-file(GLOB SYSTEM_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-)
-set(SYSTEM_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
+file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
@@ -34,6 +30,7 @@ list(APPEND IO_SRCS
         # "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
@@ -51,6 +48,10 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -59,7 +60,6 @@ set(HW_INCLUDE_DIRS
 
 if ("${TARGET}" STREQUAL "binary")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
-    embedded_no_checks("${CUBEMX_SRCS}")
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -98,6 +98,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_fdcan.c"
             "stm32h7xx_hal_gpio.c"
             "stm32h7xx_hal_i2c.c"
+            "stm32h7xx_hal_spi.c"
             "stm32h7xx_hal_i2c_ex.c"
             "stm32h7xx_hal_iwdg.c"
             "stm32h7xx_hal_mmc.c"
@@ -137,9 +138,10 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "debug_modules")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7")
     target_link_libraries("quintuna_DAM_boot.elf" PRIVATE "quintuna_DAM_commit_info")
 
+    
 
     #create image
     embedded_image(
@@ -149,6 +151,8 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_DAM_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
     )
+
+    target_compile_definitions("quintuna_DAM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
 
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

@@ -35,7 +35,7 @@ void canRxQueueOverflowCallBack(const uint32_t unused)
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.

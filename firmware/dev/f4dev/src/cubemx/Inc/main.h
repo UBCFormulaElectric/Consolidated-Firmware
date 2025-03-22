@@ -31,9 +31,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -43,7 +43,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern I2C_HandleTypeDef hi2c3;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -54,11 +54,15 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define GPIO_6_Pin GPIO_PIN_13
+#define GPIO_6_GPIO_Port GPIOC
+#define GPIO_5_Pin GPIO_PIN_14
+#define GPIO_5_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

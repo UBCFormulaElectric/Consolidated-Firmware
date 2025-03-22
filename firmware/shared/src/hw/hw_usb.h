@@ -3,26 +3,47 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define RX_QUEUE_SIZE 2048
+/**
+ * @brief Initialize the USB CDC peripheral, must be called in the `USER CODE BEGIN RTOS_QUEUES` section.
+ */
+void hw_usb_init();
 
-// initialize the usb peripheral
-void hw_usb_init(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
-
-// checks if the usb port is connected
+/**
+ * @brief Check if the USB port is connected (in a "configured" state).
+ * @return True if the port is connected, otherwise false.
+ */
 bool hw_usb_checkConnection();
 
-// transmits usb message of arbritrary length
-void hw_usb_transmit(uint8_t *msg, uint16_t len);
+/**
+ * @brief Transmit a buffer over USB of arbritrary length.
+ * @param msg A pointer to the message buffer to send.
+ * @param len The length of the buffer.
+ * @return True if data is transmitted successfully, otherwise false.
+ */
+bool hw_usb_transmit(uint8_t *msg, uint16_t len);
 
-// receive a single byte over usb
-uint8_t hw_usb_recieve();
+/**
+ * @brief Receive data from the usb host.
+ * @param dest A pointer to the destination buffer.
+ * @param len Number of bytes to receive.
+ * @return True if data is received successfully, otherwise false.
+ */
+bool hw_usb_receive(uint8_t *dest, uint32_t len);
 
-// pushes a message onto the internal usb queue,
-// for use in CDC_Receive_FS/CDC_Receive_HS
-void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len);
+/**
+ * @brief Push a message to the RX queue. To be called from usbd_cdc_if.c, CDC_Receive_FS.
+ * @param msg A pointer to the message buffer to push to the queue.
+ * @param len Number of bytes to receive.
+ * @return True if data is pushed to the queue successfully, otherwise false.
+ */
+bool hw_usb_pushRxMsgToQueue(uint8_t *msg, uint32_t len);
 
-// runs an example loop where the message "hello" is tx-ed repeatedly
-void hw_usb_transmit_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
+/**
+ * @brief Transmits "hello" repeatedly over USB.
+ */
+void hw_usb_transmit_example();
 
-// runs an example loop that logs all received bytes as chars
-void hw_usb_recieve_example(uint8_t (*transmit_handle)(uint8_t *Buf, uint16_t Len));
+/**
+ * @brief Logs all received bytes as chars.
+ */
+void hw_usb_receive_example();
