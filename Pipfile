@@ -41,6 +41,7 @@ tzlocal = "*"
 [dev-packages]
 setuptools = "*"
 build = "*"
+ipykernel = "*"
 
 [requires]
 python_version = "3.11"
