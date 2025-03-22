@@ -1,6 +1,6 @@
 #include "hw_i2cs.h"
 
-const I2cDevice r_pump = { .src = &imu_i2c };
+const I2cDevice r_pump = { .src = &r_pump_i2c };
 
 bool io_rPump_isPumpReady(const Pump *pump){
     return hw_i2c_isTargetReady(pump->src);
