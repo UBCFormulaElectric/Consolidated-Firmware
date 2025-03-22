@@ -20,6 +20,7 @@
 #include "io_log.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_imu_config.h"
 #include "io_jsoncan.h"
 #include "io_canQueue.h"
 #include "io_telemMessage.h"
