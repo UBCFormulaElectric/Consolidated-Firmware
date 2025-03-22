@@ -4,12 +4,6 @@
 #include "app_utils.h"
 #include <math.h>
 
-/*
- * NOTE:
- *
- * Untested and Untuned
- */
-
 static float ref_yaw_rate_rad;
 static float yaw_moment;
 
@@ -57,27 +51,3 @@ float app_yawRateController_getYawMoment()
 {
     return yaw_moment;
 }
-
-// void app_yawRateController_computeTorque(YawRateController *yrc)
-// {
-//     float lambda        = 0.0f;
-//     float yaw_rate_diff = fabsf(DEG_TO_RAD(yrc->ref_yaw_rate_deg)) - fabsf(DEG_TO_RAD(yrc->real_yaw_rate_deg));
-
-//     if (yaw_rate_diff <= yrc->k4)
-//     {
-//         lambda = 0.0f;
-//     }
-//     else if (yaw_rate_diff > yrc->k4 && yaw_rate_diff < yrc->k5)
-//     {
-//         lambda = (yaw_rate_diff - yrc->k4) / (yrc->k5 - yrc->k4);
-//     }
-//     else if (yaw_rate_diff >= yrc->k5)
-//     {
-//         lambda = 1.0f;
-//     }
-
-//     yrc->torque_fl_Nm = (0.25f * yrc->requested_torque) + 0.5f * (1 - lambda) * yrc->yaw_moment;
-//     yrc->torque_fr_Nm = (0.25f * yrc->requested_torque) - 0.5f * (1 - lambda) * yrc->yaw_moment;
-//     yrc->torque_rl_Nm = (0.25f * yrc->requested_torque) + 0.5f * lambda * yrc->yaw_moment;
-//     yrc->torque_rr_Nm = (0.25f * yrc->requested_torque) - 0.5f * lambda * yrc->yaw_moment;
-// }
