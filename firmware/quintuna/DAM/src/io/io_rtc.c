@@ -1,7 +1,7 @@
 #include <stdint.h>
-#include "hw_i2c.h"
 #include "hw_i2cs.h"
 #include "io_rtc.h"
+#include "hw_gpios.h"
 
 #define REG_CONTROL_1 0x00     // Control and status settings
 #define REG_CONTROL_2 0x01     // Alarm and watchdog control
@@ -276,11 +276,14 @@ static uint8_t integer_to_bcd(uint8_t value)
 
 static uint8_t bcd_to_integer(uint8_t value)
 {
-    return (uint8_t)((value >> 4) * 10) + (value & 0x0F);
+    return (uint8_t)((value >> 4) * 10) + (value);
 }
 
 void io_rtc_init(void)
 {
+    // enable the power 
+    hw_gpio_writePin(&telem_pwr_en_pin, true);
+
     // 24-hour mode, no interrupts, oscillator running
     // select 7 pF capacitor instead of 12.5 pF
     Control1_t control1 = {
@@ -299,34 +302,34 @@ void io_rtc_init(void)
 
 void io_rtc_setTime(struct IoRtcTime *time)
 {
-    uint8_t seconds  = integer_to_bcd(time->seconds) & 0x3F;
-    uint8_t minutes  = integer_to_bcd(time->minutes) & 0x7F;
-    uint8_t hours    = integer_to_bcd(time->hours) & 0x1F;
-    uint8_t date     = integer_to_bcd(time->date) & 0x3F;
+    uint8_t seconds  = integer_to_bcd(time->seconds);
+    uint8_t minutes  = integer_to_bcd(time->minutes);
+    uint8_t hours    = integer_to_bcd(time->hours);
+    uint8_t date     = integer_to_bcd(time->date);
     uint8_t weekdays = time->day;
-    uint8_t months   = integer_to_bcd(time->month) & 0x0F;
-    uint8_t years    = integer_to_bcd(time->year) & 0x7F;
+    uint8_t months   = integer_to_bcd(time->month);
+    uint8_t years    = integer_to_bcd(time->year);
 
     Register_t regTime;
-    regTime.seconds.SECONDS = (uint8_t)(seconds & 0x3F);
+    regTime.seconds.SECONDS = (uint8_t)(seconds);
 
     Register_t regMinutes;
-    regMinutes.minutes.MINUTES = (uint8_t)(minutes & 0x7F);
+    regMinutes.minutes.MINUTES = (uint8_t)(minutes);
 
     Register_t regHours;
-    regHours.hours.HOURS = (uint8_t)(hours & 0x1F);
+    regHours.hours.HOURS = (uint8_t)(hours);
 
     Register_t regDays;
-    regDays.days.DAYS = (uint8_t)(date & 0x3F);
+    regDays.days.DAYS = (uint8_t)(date);
 
     Register_t regWeekdays;
-    regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays & 0x07);
+    regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays);
 
     Register_t regMonths;
-    regMonths.months.MONTHS = (uint8_t)(months & 0x0F);
+    regMonths.months.MONTHS = (uint8_t)(months);
 
     Register_t regYears;
-    regYears.years.YEARS = (uint8_t)(years & 0x7F);
+    regYears.years.YEARS = (uint8_t)(years);
 
     uint8_t buffer[7] = {
         regTime.raw, regMinutes.raw, regHours.raw, regDays.raw, regWeekdays.raw, regMonths.raw, regYears.raw,
@@ -362,13 +365,13 @@ void io_rtc_readTime(struct IoRtcTime *time)
     Register_t regYears;
     regYears.raw = buffer[6];
 
-    time->seconds = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS) & 0x3F);
-    time->minutes = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES) & 0x7F);
-    time->hours   = (uint8_t)(bcd_to_integer(regHours.hours.HOURS) & 0x1F);
-    time->date    = (uint8_t)(bcd_to_integer(regDays.days.DAYS) & 0x3F);
-    time->day     = (uint8_t)(regWeekdays.weekdays.WEEKDAYS & 0x07);
-    time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS) & 0x0F);
-    time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS) & 0x7F);
+    time->seconds = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS));
+    time->minutes = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES));
+    time->hours   = (uint8_t)(bcd_to_integer(regHours.hours.HOURS));
+    time->date    = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
+    time->day     = (uint8_t)(regWeekdays.weekdays.WEEKDAYS);
+    time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS));
+    time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
 }
 
 void io_rtc_reset(void)
