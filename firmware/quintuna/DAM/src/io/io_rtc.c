@@ -77,9 +77,8 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t SECONDS : 6; // Seconds (0d-59)
+    uint8_t SECONDS : 7; // Seconds (0d-59)
     uint8_t OS : 1;      // Oscillator stop flag (1: stopped, 0: running)
-    uint8_t RESERVED : 1;
 } Seconds_t;
 
 /**
@@ -306,7 +305,7 @@ void io_rtc_setTime(struct IoRtcTime *time)
     uint8_t minutes  = integer_to_bcd(time->minutes);
     uint8_t hours    = integer_to_bcd(time->hours);
     uint8_t date     = integer_to_bcd(time->date);
-    uint8_t weekdays = time->day;
+    uint8_t weekdays = time->weekdays;
     uint8_t months   = integer_to_bcd(time->month);
     uint8_t years    = integer_to_bcd(time->year);
 
