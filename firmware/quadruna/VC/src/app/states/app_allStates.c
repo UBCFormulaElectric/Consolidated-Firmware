@@ -14,7 +14,7 @@
 // io
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_pcm.h"
 
 #include <app_heartbeatMonitors.h>
