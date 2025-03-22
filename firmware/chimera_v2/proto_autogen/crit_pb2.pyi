@@ -54,32 +54,6 @@ GPIO_LED_DIMMING: GpioNetName.ValueType
 GPIO_SEVEN_SEG_DIMMING: GpioNetName.ValueType
 global___GpioNetName = GpioNetName
 
-class _AdcNetName:
-    ValueType = typing.NewType('ValueType', builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_AdcNetName.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    ADC_NET_NAME_UNSPECIFIED: _AdcNetName.ValueType
-
-class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper):
-    ...
-ADC_NET_NAME_UNSPECIFIED: AdcNetName.ValueType
-global___AdcNetName = AdcNetName
-
-class _I2cNetName:
-    ValueType = typing.NewType('ValueType', builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
-
-class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
-    ...
-I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-global___I2cNetName = I2cNetName
-
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
     V: typing_extensions.TypeAlias = ValueType
@@ -96,16 +70,3 @@ SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_LED: SpiNetName.ValueType
 SPI_SEVEN_SEG: SpiNetName.ValueType
 global___SpiNetName = SpiNetName
-
-class _PwmOutputNetName:
-    ValueType = typing.NewType('ValueType', builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
-
-class _PwmOutputNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PwmOutputNetName.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    PWM_OUTPUT_NET_NAME_UNSPECIFIED: _PwmOutputNetName.ValueType
-
-class PwmOutputNetName(_PwmOutputNetName, metaclass=_PwmOutputNetNameEnumTypeWrapper):
-    ...
-PWM_OUTPUT_NET_NAME_UNSPECIFIED: PwmOutputNetName.ValueType
-global___PwmOutputNetName = PwmOutputNetName

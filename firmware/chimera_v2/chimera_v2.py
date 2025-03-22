@@ -40,9 +40,9 @@ import proto_autogen.shared_pb2
 import proto_autogen.f4dev_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
+import proto_autogen.bms_pb2
 import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
-import proto_autogen.ssm_pb2
 
 _MANUFACTURER = "ubc_formula_electric"
 
@@ -606,6 +606,17 @@ class CRIT(_Board):
             usb_device=_UsbDevice(product="crit"),
             net_name_tag="crit_net_name",
             board_module=proto_autogen.crit_pb2,
+        )
+
+
+class BMS(_Board):
+    def __init__(self) -> None:
+        """Create an interface to a BMS board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="bms"),
+            net_name_tag="bms_net_name",
+            board_module=proto_autogen.bms_pb2,
         )
 
 

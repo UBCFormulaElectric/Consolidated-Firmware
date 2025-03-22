@@ -38,8 +38,10 @@ static const Gpio *io_chimera_v2_getGpio(io_chimera_v2_Config *config, const Gpi
         return config->id_to_gpio[net_name->name.dam_net_name];
     if (net_name->which_name == GpioNetName_fsm_net_name_tag)
         return config->id_to_gpio[net_name->name.fsm_net_name];
-    if (net_name->which_name == I2cNetName_rsm_net_name_tag)
+    if (net_name->which_name == GpioNetName_rsm_net_name_tag)
         return config->id_to_gpio[net_name->name.rsm_net_name];
+    if (net_name->which_name == GpioNetName_bms_net_name_tag)
+        return config->id_to_gpio[net_name->name.bms_net_name];
 
     LOG_ERROR("Chimera: Received GPIO pin from unsupported board.");
     return NULL;
@@ -58,12 +60,12 @@ static const AdcChannel *io_chimera_v2_getAdc(io_chimera_v2_Config *config, cons
         return NULL;
     }
 
-    if (net_name->which_name == AdcNetName_crit_net_name_tag)
-        return config->id_to_adc[net_name->name.crit_net_name];
     if (net_name->which_name == AdcNetName_fsm_net_name_tag)
         return config->id_to_adc[net_name->name.fsm_net_name];
     if (net_name->which_name == AdcNetName_rsm_net_name_tag)
         return config->id_to_adc[net_name->name.rsm_net_name];
+    if (net_name->which_name == AdcNetName_bms_net_name_tag)
+        return config->id_to_adc[net_name->name.bms_net_name];
 
     LOG_ERROR("Chimera: Received ADC channel from unsupported board.");
     return NULL;
@@ -82,8 +84,6 @@ static const I2cDevice *io_chimera_v2_getI2c(io_chimera_v2_Config *config, const
         return NULL;
     }
 
-    if (net_name->which_name == I2cNetName_crit_net_name_tag)
-        return config->id_to_i2c[net_name->name.crit_net_name];
     if (net_name->which_name == I2cNetName_dam_net_name_tag)
         return config->id_to_i2c[net_name->name.dam_net_name];
     if (net_name->which_name == I2cNetName_fsm_net_name_tag)
@@ -110,6 +110,8 @@ static const SpiDevice *io_chimera_v2_getSpi(io_chimera_v2_Config *config, const
 
     if (net_name->which_name == SpiNetName_crit_net_name_tag)
         return config->id_to_spi[net_name->name.crit_net_name];
+    if (net_name->which_name == SpiNetName_bms_net_name_tag)
+        return config->id_to_spi[net_name->name.bms_net_name];
 
     LOG_ERROR("Received SPI device from unsupported board.");
     return NULL;

@@ -20,20 +20,8 @@ enum GpioNetName {
   GPIO_SEVEN_SEG_DIMMING = 14;
 }
 
-enum AdcNetName {
-  ADC_NET_NAME_UNSPECIFIED = 0;
-}
-
-enum I2cNetName {
-  I2C_NET_NAME_UNSPECIFIED = 0;
-}
-
 enum SpiNetName {
   SPI_NET_NAME_UNSPECIFIED = 0;
   SPI_LED = 1;
   SPI_SEVEN_SEG = 2;
-}
-
-enum PwmOutputNetName {
-  PWM_OUTPUT_NET_NAME_UNSPECIFIED = 0;
 }
