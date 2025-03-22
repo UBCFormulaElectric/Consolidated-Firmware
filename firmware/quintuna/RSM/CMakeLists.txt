@@ -42,7 +42,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
@@ -130,7 +129,6 @@ if("${TARGET}" STREQUAL "binary")
 
         target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4")
         target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
-        target_compile_definitions("quintuna_RSM_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
 
         embedded_image(
                 "quintuna_RSM"

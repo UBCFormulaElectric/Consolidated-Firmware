@@ -1,8 +1,9 @@
-#include "io_chimeraConfig_v2.h"
 #include "fsm.pb.h"
+#include "shared.pb.h"
 #include "hw_gpios.h"
-#include "hw_adcs.h"
 #include "hw_i2cs.h"
+#include "hw_adcs.h"
+#include "io_chimeraConfig_v2.h"
 
 const Gpio *id_to_gpio[] = {
     [fsm_GpioNetName_GPIO_BOTS_3v3] = &bots_3v3,           [fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3] = &cockpit_shdn_3v3,
@@ -19,4 +20,9 @@ const AdcChannel *id_to_adc[] = { [fsm_AdcNetName_ADC_SUSP_FL] = &susp_fl,     [
 
 const I2cDevice *id_to_i2c[] = { [fsm_I2cNetName_I2C_IMU] = &imu_i2c };
 
-const SpiDevice *id_to_spi[] = { [fsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED] = NULL };
+io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_fsm_net_name_tag,
+                                           .id_to_gpio        = id_to_gpio,
+                                           .adc_net_name_tag  = AdcNetName_fsm_net_name_tag,
+                                           .id_to_adc         = id_to_adc,
+                                           .i2c_net_name_tag  = I2cNetName_fsm_net_name_tag,
+                                           .id_to_i2c         = id_to_i2c };

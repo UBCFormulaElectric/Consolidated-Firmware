@@ -72,9 +72,7 @@ _Noreturn void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_dam_net_name_tag, id_to_gpio, AdcNetName_dam_net_name_tag, id_to_adc,
-            I2cNetName_dam_net_name_tag, id_to_i2c, SpiNetName_dam_net_name_tag, id_to_spi);
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
         jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
