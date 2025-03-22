@@ -19,10 +19,11 @@
 #include "hw_watchdog.h"
 #include "hw_cans.h"
 #include "hw_gpios.h"
+#include "hw_bootup.h"
 
 void tasks_preInit()
 {
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init()
