@@ -7,6 +7,7 @@
 #include "io_canQueue.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
+#include "io_buzzer.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
@@ -53,6 +54,9 @@ _Noreturn void tasks_run1Hz(void)
     for (;;)
     {
         jobs_run1Hz_tick();
+
+        // io_enable_buzzer();
+        io_disable_buzzer();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
