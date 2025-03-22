@@ -15,11 +15,6 @@ struct IoRtcTime
     uint8_t year;
 };
 
-struct IoRtcHealth
-{
-    bool batteryLow : 1;
-    // maybe add more health checks here
-};
 
 // always 24-hour mode
 

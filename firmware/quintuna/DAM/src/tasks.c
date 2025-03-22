@@ -53,6 +53,8 @@ void tasks_init(void)
 
     hw_gpio_writePin(&tsim_red_en_pin, true);
     hw_gpio_writePin(&ntsim_green_en_pin, false);
+
+    jobs_init();
 }
 
 _Noreturn void tasks_run1Hz(void)
