@@ -1,11 +1,10 @@
-#include "io_chimeraConfig_v2.h"
 #include "crit.pb.h"
-#include "hw_gpio.h"
-#include "hw_i2c.h"
-#include "hw_adc.h"
+#include "shared.pb.h"
 #include "hw_gpios.h"
 #include "hw_spis.h"
+#include "io_chimeraConfig_v2.h"
 
+// Chimera V2 enums to GPIO peripherals.
 const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boot,
                              [crit_GpioNetName_GPIO_LED]                  = &led,
                              [crit_GpioNetName_GPIO_TELEM_SIG]            = &telem_sig,
@@ -21,12 +20,10 @@ const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boo
                              [crit_GpioNetName_GPIO_SEVEN_SEG_DIMMING]    = &seven_seg_dimming,
                              [crit_GpioNetName_GPIO_LED_DIMMING]          = &led_dimming };
 
-// TODO: Configure adcs.
-const AdcChannel *id_to_adc[] = { [crit_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
-
-// TODO: Configure I2Cs.
-const I2cDevice *id_to_i2c[] = { [crit_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
-
-// TODO: Configure SPIs.
 const SpiDevice
     *id_to_spi[] = { [crit_SpiNetName_SPI_LED] = &led_spi, [crit_SpiNetName_SPI_SEVEN_SEG] = &seven_seg_spi };
+
+io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit_net_name_tag,
+                                           .id_to_gpio        = id_to_gpio,
+                                           .spi_net_name_tag  = SpiNetName_crit_net_name_tag,
+                                           .id_to_spi         = id_to_spi };
