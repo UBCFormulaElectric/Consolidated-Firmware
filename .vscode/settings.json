@@ -1,4 +1,5 @@
 {
+
 	"json.schemas": [
 		{
 			"fileMatch": [
@@ -15,3 +16,4 @@
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
 	]
 }
+
