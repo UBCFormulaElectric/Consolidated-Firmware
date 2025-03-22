@@ -1,9 +1,11 @@
+/* Main App */
+
 import 'dart:io';
 import 'package:dimos/data/services/can_api.dart';
 import 'package:dimos/data/services/can_variables.dart';
 import 'package:dimos/ui/core/themes/themes.dart';
 import 'package:dimos/ui/low_voltage/lv_screen.dart';
-import 'package:dimos/ui/notificationbar/NotificationBar.dart';
+import 'package:dimos/ui/notificationbar/notification_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
@@ -55,8 +57,11 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => _warningsList,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => _warningsList),
+        ChangeNotifierProvider(create: (_) => _speedInteger),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,

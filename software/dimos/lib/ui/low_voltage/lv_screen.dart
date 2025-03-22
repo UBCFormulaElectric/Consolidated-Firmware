@@ -1,7 +1,8 @@
-/* NotificationBar widget */
+/* LV screen */
 
 import 'package:dimos/ui/low_voltage/shutdown_loop.dart';
-import 'package:dimos/ui/notificationbar/NotificationBar.dart';
+import 'package:dimos/ui/notificationbar/notification_bar.dart';
+import 'package:dimos/ui/racing/racing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -58,6 +59,15 @@ class LVScreen extends StatelessWidget {
                 maxWidth: 200,
               ),
               child: ShutdownLoop()
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RacingScreen()),
+              );
+            },
+            child: const Text('Speed'),
           )
         ]
       )
