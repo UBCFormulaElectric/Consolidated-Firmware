@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "main.h"
 #include "io_chimera_v2.h"
 #include "hw_usb.h"
