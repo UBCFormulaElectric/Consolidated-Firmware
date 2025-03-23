@@ -74,9 +74,7 @@ void tasks_run100Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_crit_net_name_tag, id_to_gpio, AdcNetName_crit_net_name_tag, id_to_adc,
-            I2cNetName_crit_net_name_tag, id_to_i2c);
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         if (!io_chimera_v2_enabled)
             jobs_run100Hz_tick();

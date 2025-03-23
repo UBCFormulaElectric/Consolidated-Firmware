@@ -20,6 +20,7 @@ void jobs_init(void)
     // can
     io_canTx_init(canTransmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canQueue_init();
     app_canTx_init();
     app_canRx_init();
 

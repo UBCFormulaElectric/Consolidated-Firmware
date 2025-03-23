@@ -1,7 +1,9 @@
 #include "rsm.pb.h"
+#include "shared.pb.h"
 #include "hw_gpios.h"
-#include "hw_adcs.h"
 #include "hw_i2cs.h"
+#include "hw_adcs.h"
+#include "io_chimeraConfig_v2.h"
 
 const Gpio *id_to_gpio[] = { [rsm_GpioNetName_GPIO_LED]                 = &led_pin,
                              [rsm_GpioNetName_GPIO_BRAKE_LIGHT_EN]      = &brake_light_en_pin,
@@ -12,12 +14,17 @@ const Gpio *id_to_gpio[] = { [rsm_GpioNetName_GPIO_LED]                 = &led_p
                              [rsm_GpioNetName_GPIO_SUSP_TRAVEL_RR_OCSC] = &susp_travel_rr_ocsc_pin,
                              [rsm_GpioNetName_GPIO_SUSP_TRAVEL_RL_OCSC] = &susp_travel_rl_ocsc_pin };
 
-// TODO: Configure adcs.
 const AdcChannel *id_to_adc[] = { [rsm_AdcNetName_ADC_LC3_OUT]            = &lc3_out,
                                   [rsm_AdcNetName_ADC_SUSP_TRAVEL_RL_3V3] = &susp_travel_rl_3v3,
                                   [rsm_AdcNetName_ADC_SUSP_TRAVEL_RR_3V3] = &susp_travel_rr_3v3,
                                   [rsm_AdcNetName_ADC_BPS_3V3]            = &bps_3v3 };
 
-// TODO: Configure I2Cs.
 const I2cDevice
     *id_to_i2c[] = { [rsm_I2cNetName_I2C_IMU_I2C] = &imu_i2c, [rsm_I2cNetName_I2C_R_PUMP_I2C] = &r_pump_i2c };
+
+io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_rsm_net_name_tag,
+                                           .id_to_gpio        = id_to_gpio,
+                                           .adc_net_name_tag  = AdcNetName_rsm_net_name_tag,
+                                           .id_to_adc         = id_to_adc,
+                                           .i2c_net_name_tag  = I2cNetName_rsm_net_name_tag,
+                                           .id_to_i2c         = id_to_i2c };
