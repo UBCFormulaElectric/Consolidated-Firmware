@@ -137,8 +137,7 @@ message I2cMemoryWriteResponse {
 /* SPIs */
 message SpiNetName {
   oneof name {
-    crit.SpiNetName crit_net_name = 1;
-    bms.SpiNetName bms_net_name = 2;
+    bms.SpiNetName bms_net_name = 1;
   }
 }
 
