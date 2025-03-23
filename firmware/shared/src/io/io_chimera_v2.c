@@ -108,10 +108,10 @@ static const SpiDevice *io_chimera_v2_getSpi(io_chimera_v2_Config *config, const
         return NULL;
     }
 
-    if (net_name->which_name == SpiNetName_crit_net_name_tag)
-        return config->id_to_spi[net_name->name.crit_net_name];
     if (net_name->which_name == SpiNetName_bms_net_name_tag)
         return config->id_to_spi[net_name->name.bms_net_name];
+    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
+        return config->id_to_spi[net_name->name.ssm_net_name];
 
     LOG_ERROR("Received SPI device from unsupported board.");
     return NULL;
@@ -364,7 +364,7 @@ void io_chimera_v2_mainOrContinue(io_chimera_v2_Config *config)
         // If usb is not connected, skip Chimera.
         if (!hw_usb_checkConnection())
         {
-            // LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
+            LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
             break;
         }
 
