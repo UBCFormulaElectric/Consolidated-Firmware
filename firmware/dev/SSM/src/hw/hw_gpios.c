@@ -23,5 +23,5 @@ const Gpio interlock_2 = { .port = INT2_GPIO_Port, .pin = INT2_Pin };
 const Gpio interlock_3 = { .port = INT3_GPIO_Port, .pin = INT3_Pin };
 const Gpio interlock_4 = { .port = INT4_GPIO_Port, .pin = INT4_Pin };
 
-const Gpio dac_maintain   = { .port = nCLR_GPIO_Port, .pin = nCLR_Pin };
+const Gpio dac_n_clear    = { .port = nCLR_GPIO_Port, .pin = nCLR_Pin };
 const Gpio dac_chipSelect = { .port = CS_LD_GPIO_Port, .pin = CS_LD_Pin };
