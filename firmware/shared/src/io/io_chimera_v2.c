@@ -110,6 +110,8 @@ static const SpiDevice *io_chimera_v2_getSpi(io_chimera_v2_Config *config, const
 
     if (net_name->which_name == SpiNetName_bms_net_name_tag)
         return config->id_to_spi[net_name->name.bms_net_name];
+    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
+        return config->id_to_spi[net_name->name.ssm_net_name];
 
     LOG_ERROR("Received SPI device from unsupported board.");
     return NULL;
