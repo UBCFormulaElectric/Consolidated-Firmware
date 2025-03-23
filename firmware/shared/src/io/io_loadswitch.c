@@ -18,7 +18,7 @@ bool io_loadswitch_isChannelEnabled(const Efuse *channel)
 
 float io_loadswitch_getChannelCurrent(const Efuse *channel)
 {
-    const AdcChannel *current_sense = channel->cur_sns_adc_channel;
+    const AdcChannel *current_sense = channel->sns_adc_channel;
     if (current_sense == NULL)
     {
         return 0;
@@ -35,7 +35,7 @@ void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch)
 
 void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch)
 {
-    if (hw_gpio_readPin(loadSwitch->pgood))
+    if (!hw_gpio_readPin(loadSwitch->pgood))
     {
         hw_gpio_writePin(loadSwitch->efuse->enable_gpio, false);
         hw_gpio_writePin(loadSwitch->efuse->enable_gpio, true);

@@ -5,11 +5,6 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_gpios.h"
 #include "hw_adcs.h"
-#else
-#include "app_utils.h"
-EMPTY_STRUCT(LoadSwitch)
-EMPTY_STRUCT(Efuse)
-#endif
 
 typedef struct
 {
@@ -29,6 +24,12 @@ typedef struct
     const Efuse *efuse;
     const Gpio  *pgood;
 } TI_LoadSwitch;
+#else
+#include "app_utils.h"
+EMPTY_STRUCT(LoadSwitch)
+EMPTY_STRUCT(Efuse)
+#endif
+
 
 /**
  * Enable or disable the provided loadswitch channel.
