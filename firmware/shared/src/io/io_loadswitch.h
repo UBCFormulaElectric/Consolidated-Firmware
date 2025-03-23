@@ -30,7 +30,6 @@ EMPTY_STRUCT(LoadSwitch)
 EMPTY_STRUCT(Efuse)
 #endif
 
-
 /**
  * Enable or disable the provided loadswitch channel.
  * @param channel Channel to enable/disable
