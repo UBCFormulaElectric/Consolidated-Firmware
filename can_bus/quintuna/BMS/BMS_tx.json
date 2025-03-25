@@ -28,44 +28,45 @@
             }
         }
     },
-    "ElconControls": {
-        "msg_id": 411,
-        "cycle_time": 1000,
-        "description": "Control parameters for Elcon charger communication",
-        "signals": {
-            "MaxChargingVoltage": {
-                "start_bit": 0,
-                "length": 16,
-                "min": 0,
-                "max": 10000,
-                "resolution": 0.1,
-                "unit": "V"
-            },
-            "MaxChargingCurrent": {
-                "start_bit": 16,
-                "length": 16,
-                "min": 0,
-                "max": 1000,
-                "resolution": 0.1,
-                "unit": "A"
-            },
-            "Control": {
-                "start_bit": 32,
-                "length": 8,
-                "description": "Control Byte: 0 = Start Charging, 1 = Stop Charging"
-            },
-            "Reserved1": {
-                "start_bit": 40,
-                "length": 8
-            },
-            "Reserved2": {
-                "start_bit": 48,
-                "length": 8
-            },
-            "Reserved3": {
-                "start_bit": 56,
-                "length": 8
-            }
-        }
+   "ElconControls": {
+    "msg_id": 450,
+    "cycle_time": 1000,
+    "description": "Control parameters for Elcon charger communication",
+    "signals": {
+      "MaxChargingVoltage": {
+        "start_bit": 0,
+        "bits": 16,
+        "min": 0,
+        "max": 10000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "V"
+      },
+      "MaxChargingCurrent": {
+        "start_bit": 16,
+        "bits": 16,
+        "min": 0,
+        "max": 1000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "A"
+      },
+      "Control": {
+        "start_bit": 32,
+        "bits": 8
+      },
+      "Reserved1": {
+        "start_bit": 40,
+        "bits": 8
+      },
+      "Reserved2": {
+        "start_bit": 48,
+        "bits": 8
+      },
+      "Reserved3": {
+        "start_bit": 56,
+        "bits": 8
+      }
     }
+  }
 }
