@@ -232,7 +232,6 @@ FileSystemError io_fileSystem_getBootCount(uint32_t *bootcount)
     if (num_read != sizeof(bootcount))
     {
         *bootcount = 0;
-        return FILE_ERROR;
     }
 
     (*bootcount)++;
