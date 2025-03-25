@@ -3,7 +3,7 @@
 // I2C_HandleTypeDef *rtc_i2c = &hi2c1;
 static I2cBus i2c_bus_1 = { .handle = &hi2c1 };
 
-const I2cDevice rtc_i2c = { .bus = &i2c_bus_1, .target_address = 0x2F, .timeout_ms = 100 };
+const I2cDevice rtc_i2c = { .bus = &i2c_bus_1, .target_address = 0x68, .timeout_ms = 1000 };
 
 I2cBus *hw_i2c_getBusFromHandle(const I2C_HandleTypeDef *handle)
 {
