@@ -5,6 +5,7 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_rtc.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
 
@@ -38,9 +39,27 @@ void tasks_init(void)
     hw_can_init(&can1);
     hw_usb_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    io_rtc_init();
 
-    hw_gpio_writePin(&tsim_red_en_pin, true);
-    hw_gpio_writePin(&ntsim_green_en_pin, false);
+    struct IoRtcTime time = {
+        .seconds = 0,
+        .hours = 16,
+        .minutes = 6,
+        .weekdays = 6,
+        .day = 22,
+        .month = 3,
+        .year = 25U
+    };
+
+    io_rtc_setTime(&time);
+
+    struct IoRtcTime time2;
+    io_rtc_readTime(&time2);
+    
+    struct IoRtcTime time3;
+    io_rtc_readTime(&time3);
+    // hw_gpio_writePin(&tsim_red_en_pin, true);
+    // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
     jobs_init();
 }

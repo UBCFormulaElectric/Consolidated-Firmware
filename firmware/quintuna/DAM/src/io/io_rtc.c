@@ -2,7 +2,9 @@
 #include "hw_i2cs.h"
 #include "io_rtc.h"
 #include "hw_gpios.h"
+#include "io_log.h"
 
+#define RTC_I2C_ADDR 0x68
 #define REG_CONTROL_1 0x00     // Control and status settings
 #define REG_CONTROL_2 0x01     // Alarm and watchdog control
 #define REG_CONTROL_3 0x02     // Battery switch-over function
@@ -280,6 +282,7 @@ static uint8_t bcd_to_integer(uint8_t value)
     return (uint8_t)((value >> 4) * 10) + (value);
 }
 
+
 void io_rtc_init(void)
 {
     // enable the power 
@@ -287,26 +290,20 @@ void io_rtc_init(void)
 
     // 24-hour mode, no interrupts, oscillator running
     // select 7 pF capacitor instead of 12.5 pF
-    Control1_t control1 = {
-        .CIE     = 0,
-        .AIE     = 0,
-        .SIE     = 0,
-        ._12_24  = 0,
-        .SR      = 0,
-        .STOP    = 0,
-        .T       = 0,
-        .CAP_SEL = 0,
-    };
+    Register_t control1;
+    control1.raw = 0x00;
 
-    hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, (uint8_t *)&control1, sizeof(control1));
+    hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
+
 }
+
 
 void io_rtc_setTime(struct IoRtcTime *time)
 {
     uint8_t seconds  = integer_to_bcd(time->seconds);
     uint8_t minutes  = integer_to_bcd(time->minutes);
     uint8_t hours    = integer_to_bcd(time->hours);
-    uint8_t date     = integer_to_bcd(time->weekdays);
+    uint8_t date     = integer_to_bcd(time->day);
     uint8_t weekdays = time->weekdays;
     uint8_t months   = integer_to_bcd(time->month);
     uint8_t years    = integer_to_bcd(time->year);
@@ -333,16 +330,25 @@ void io_rtc_setTime(struct IoRtcTime *time)
     regYears.years.YEARS = (uint8_t)(years);
 
     uint8_t buffer[7] = {
-        regTime.raw, regMinutes.raw, regHours.raw, regDays.raw, regWeekdays.raw, regMonths.raw, regYears.raw,
+        regTime.raw,
+        regMinutes.raw,
+        regHours.raw,
+        regDays.raw,
+        regWeekdays.raw,
+        regMonths.raw,
+        regYears.raw,
     };
 
+    LOG_INFO("Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day, time->month, time->year);
+    LOG_INFO("Writing to RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6]);
+
     hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+
 }
 
 void io_rtc_readTime(struct IoRtcTime *time)
 {
     uint8_t buffer[7];
-
     hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
 
     Register_t regTime;
@@ -373,6 +379,9 @@ void io_rtc_readTime(struct IoRtcTime *time)
     time->day     = (uint8_t)(regWeekdays.weekdays.WEEKDAYS);
     time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS));
     time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
+
+    LOG_INFO("Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day, time->month, time->year);
+    LOG_INFO("Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6]);
 }
 
 void io_rtc_reset(void)
