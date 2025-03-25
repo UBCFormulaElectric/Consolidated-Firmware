@@ -16,6 +16,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_adcs.h"
 
 void tasks_preInit() {}
 
@@ -30,6 +31,7 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
     hw_usb_init();
+    hw_adcs_chipsInit();
 
     jobs_init();
 }
