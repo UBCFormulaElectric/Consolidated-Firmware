@@ -1,14 +1,14 @@
 #include "io_loadswitch.h"
 #include "hw_gpio.h"
+#include <stdbool.h>
+#include <assert.h>
 
 #define ADC_VOLTAGE_TO_CURRENT_A 1.720f
 
 void io_loadswitch_setChannel(const Efuse *channel, const bool enabled)
 {
-    if (channel->enable_gpio != NULL)
-    {
-        hw_gpio_writePin(channel->enable_gpio, enabled);
-    }
+    assert(channel->enable_gpio == NULL);
+    hw_gpio_writePin(channel->enable_gpio, enabled);
 }
 
 bool io_loadswitch_isChannelEnabled(const Efuse *channel)
@@ -19,16 +19,13 @@ bool io_loadswitch_isChannelEnabled(const Efuse *channel)
 float io_loadswitch_getChannelCurrent(const Efuse *channel)
 {
     const AdcChannel *current_sense = channel->sns_adc_channel;
-    if (current_sense == NULL)
-    {
-        return 0;
-    }
+    assert(current_sense == NULL);
     return hw_adc_getVoltage(current_sense) * ADC_VOLTAGE_TO_CURRENT_A;
 }
 
 void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch)
 {
-    hw_gpio_writePin(loadswitch->stby_reset_gpio, true);
+    hw_gpio_writePin(loadswitch->stby_reset_gpio, false);
     hw_gpio_writePin(loadswitch->stby_reset_gpio, true);
     hw_gpio_writePin(loadswitch->stby_reset_gpio, false);
 }
