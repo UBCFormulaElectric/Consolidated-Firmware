@@ -31,7 +31,6 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
         "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
@@ -49,6 +48,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_stackMonitor.c"
+
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -182,7 +183,7 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_log.h"
             "${SHARED_IO_INCLUDE_DIR}/io_canLogging.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
+            "${SHARED_IO_INCLUDE_DIR}/hw_stackMonitor.h"
             "${SHARED_IO_INCLUDE_DIR}/io_imu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
