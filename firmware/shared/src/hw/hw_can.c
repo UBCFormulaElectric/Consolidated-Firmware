@@ -34,6 +34,8 @@
 void hw_can_init(CanHandle *can_handle)
 {
     assert(!can_handle->ready);
+    assert(can_handle->receive_callback != NULL);
+
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
     filter.FilterMode           = CAN_FILTERMODE_IDMASK;
