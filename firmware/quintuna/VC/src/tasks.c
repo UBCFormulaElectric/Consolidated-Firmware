@@ -5,7 +5,7 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_time.h"
 
 #include "hw_hardFaultHandler.h"
@@ -24,6 +24,8 @@ void tasks_init(void)
     LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
+
+    hw_usb_init();
 
     jobs_init();
 
@@ -107,7 +109,7 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
+    osDelay(osWaitForever);
 
     for (;;)
     {
@@ -119,6 +121,7 @@ _Noreturn void tasks_runCanTx(void)
 _Noreturn void tasks_runCanRx(void)
 {
     // io_chimera_sleepTaskIfEnabled();
+    osDelay(osWaitForever);
 
     for (;;)
     {
@@ -128,6 +131,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_batteryMonitoring(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         osDelay(1000);

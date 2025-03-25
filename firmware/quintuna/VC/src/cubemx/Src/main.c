@@ -209,7 +209,6 @@ int main(void)
     MX_TIM3_Init();
     MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -229,6 +228,7 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
+    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */

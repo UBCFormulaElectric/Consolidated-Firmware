@@ -1,5 +1,6 @@
 #include "hw_i2cs.h"
 #include "main.h"
+#include <assert.h>
 
 static I2cBus i2c_bus_1 = { .handle = &hi2c2 };
 static I2cBus i2c_bus_2 = { .handle = &hi2c3 };
@@ -31,6 +32,6 @@ I2cBus *hw_i2c_getBusFromHandle(const I2C_HandleTypeDef *handle)
     }
     else
     {
-        return NULL;
+        assert(false);
     }
 }
