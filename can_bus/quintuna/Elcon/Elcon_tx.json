@@ -1,0 +1,46 @@
+{
+    "ElconVitals": {
+        "msg_id": 1600,
+        "cycle_time": 1000,
+        "description": "Elcon charger status flags and parameters",
+        "signals": {
+            "OutputVoltage": {
+                "start_bit": 0,
+                "bits": 16,
+                "resolution": 0.1,
+                "unit": "V"
+            },
+            "OutputCurrent": {
+                "start_bit": 16,
+                "bits": 16,
+                "resolution": 0.1,
+                "unit": "A"
+            },
+            "HardwareFailure": {
+                "start_bit": 32,
+                "bits": 1
+            },
+            "ChargerOverTemperature": {
+                "start_bit": 33,
+                "bits": 1
+            },
+            "InputVoltageError": {
+                "start_bit": 34,
+                "bits": 1
+            },
+            "ChargingState": {
+                "start_bit": 35,
+                "bits": 1,
+                "description": "0: Charging, 1: Charger Off"
+            },
+            "CommunicationTimeout": {
+                "start_bit": 36,
+                "bits": 1
+            },
+            "Reserved": {
+                "start_bit": 37,
+                "bits": 27
+            }
+        }
+    }
+}
