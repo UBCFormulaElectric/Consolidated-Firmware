@@ -32,14 +32,16 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 
-    if (app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
     {
         io_canLogging_loggingQueuePush(&msg);
     }
 
     if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
     {
-        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(&msg));
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(&msg);
     }
 }
 
@@ -124,13 +126,15 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
         io_canQueue_pushRx(rx_msg);
     }
 
-    if (app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
         io_canLogging_loggingQueuePush(rx_msg);
     }
 
     if (app_dataCapture_needsTelem((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
-        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(rx_msg));
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(rx_msg);
     }
 }
