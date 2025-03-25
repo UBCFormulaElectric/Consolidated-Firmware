@@ -377,21 +377,21 @@ global___I2cMemoryWriteResponse = I2cMemoryWriteResponse
 class SpiNetName(google.protobuf.message.Message):
     """SPIs"""
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
-    CRIT_NET_NAME_FIELD_NUMBER: builtins.int
     BMS_NET_NAME_FIELD_NUMBER: builtins.int
-    crit_net_name: crit_pb2.SpiNetName.ValueType
+    SSM_NET_NAME_FIELD_NUMBER: builtins.int
     bms_net_name: bms_pb2.SpiNetName.ValueType
+    ssm_net_name: ssm_pb2.SpiNetName.ValueType
 
-    def __init__(self, *, crit_net_name: crit_pb2.SpiNetName.ValueType=..., bms_net_name: bms_pb2.SpiNetName.ValueType=...) -> None:
+    def __init__(self, *, bms_net_name: bms_pb2.SpiNetName.ValueType=..., ssm_net_name: ssm_pb2.SpiNetName.ValueType=...) -> None:
         ...
 
-    def HasField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'name', b'name']) -> builtins.bool:
+    def HasField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'name', b'name', 'ssm_net_name', b'ssm_net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'name', b'name']) -> None:
+    def ClearField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'name', b'name', 'ssm_net_name', b'ssm_net_name']) -> None:
         ...
 
-    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['crit_net_name', 'bms_net_name'] | None:
+    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['bms_net_name', 'ssm_net_name'] | None:
         ...
 global___SpiNetName = SpiNetName
 
