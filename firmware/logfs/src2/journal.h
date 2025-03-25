@@ -23,6 +23,11 @@ extern "C"
         uint32_t  flags;
     } JournalTag;
 
+    typedef struct {
+        BlockAddr target_addr;
+        BlockAddr commit_addr;
+    } JournalCommit;
+
     typedef struct
     {
         uint32_t   crc;
@@ -38,16 +43,17 @@ extern "C"
     typedef struct
     {
         const JournalCfg *cfg;
-        bool              dirty;
+        bool mounted;
         size_t            num_outstanding_commits;
-        BlockAddr         outstanding_commits[JOURNAL_MAX_NUM_OUTSTANDING_COMMITS];
+        uint32_t seq_num;
+        JournalCommit         commit_list[JOURNAL_MAX_NUM_OUTSTANDING_COMMITS];
         BlockAddr         head_addr;
-        BlockAddr         tail_addr;
     } Journal;
 
     void journal_init(Journal *journal, const JournalCfg *cfg);
     bool journal_format(Journal *journal);
     LogFsErr journal_replay(Journal *journal);
+    LogFsErr journal_commit(Journal *journal, BlockBuf buf);
 
     // bool journal_commit(Journal *journal, const JournalTag *tag, BlockBuf buf);
 

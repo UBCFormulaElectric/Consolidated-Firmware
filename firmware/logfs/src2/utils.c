@@ -41,7 +41,7 @@ LogFsErr utils_findMaxInSortedCircularBuffer(
     int  right = size - 1;
     bool comparison;
 
-    while (true)
+    for (;;)
     {
         // Step left bound rightwards until we find a valid item. Likewise, step right bound leftwards until we find a
         // valid item.

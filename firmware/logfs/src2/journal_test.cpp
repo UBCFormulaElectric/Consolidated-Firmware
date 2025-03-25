@@ -63,8 +63,18 @@ TEST_F(JournalTest, test_format)
         ASSERT_EQ(tag->flags, (addr == journal.cfg->size_blocks - 1) ? JOURNAL_FLAG_SYNCED : JOURNAL_FLAG_IGNORE);
     }
 
-    ASSERT_EQ(journal.dirty, false);
     ASSERT_EQ(journal.num_outstanding_commits, 0);
     ASSERT_EQ(journal.head_addr, 0);
-    ASSERT_EQ(journal.tail_addr, 0);
+    ASSERT_EQ(journal.mounted, false);
+}
+
+
+TEST_F(JournalTest, test_replay)
+{
+    journal_format(&journal);
+
+    journal_replay(&journal);
+
+    ASSERT_EQ(journal.num_outstanding_commits, 0);
+
 }
