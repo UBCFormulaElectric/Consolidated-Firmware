@@ -33,5 +33,6 @@ I2cBus *hw_i2c_getBusFromHandle(const I2C_HandleTypeDef *handle)
     else
     {
         assert(false);
+        return NULL;
     }
 }

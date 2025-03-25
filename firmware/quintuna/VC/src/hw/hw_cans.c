@@ -23,5 +23,6 @@ const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     else
     {
         assert(false);
+        return NULL;
     }
 }
