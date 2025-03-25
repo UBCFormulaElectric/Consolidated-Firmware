@@ -16,10 +16,13 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_bootup.h"
 #include "hw_adcs.h"
 
-void tasks_preInit() {}
-
+void tasks_preInit(void)
+{
+    hw_bootup_enableInterruptsForApp();
+}
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
