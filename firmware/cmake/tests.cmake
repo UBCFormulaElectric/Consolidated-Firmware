@@ -38,12 +38,16 @@ function(create_fake_library
         ${SCRIPTS_DIR}/code_generation/fakegen/src/*.py
         ${SCRIPTS_DIR}/code_generation/fakegen/src/*.j2
     )
+    set(FAKEGEN_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+    add_library(${LIB_NAME} INTERFACE)
+    target_include_directories(${LIB_NAME} INTERFACE ${FAKEGEN_DIR})
 
     foreach(HDR_TO_FAKE ${HDRS_TO_FAKE})
         get_filename_component(HDR_MODULE_NAME ${HDR_TO_FAKE} NAME_WE)
         get_filename_component(HDR_DIR ${HDR_TO_FAKE} DIRECTORY)
-        set(FAKE_HDR "${CMAKE_CURRENT_BINARY_DIR}/fake_${HDR_MODULE_NAME}.hpp")
-        set(FAKE_SRC "${CMAKE_CURRENT_BINARY_DIR}/fake_${HDR_MODULE_NAME}.cpp")
+        set(FAKE_HDR "${FAKEGEN_DIR}/fake_${HDR_MODULE_NAME}.hpp")
+        set(FAKE_SRC "${FAKEGEN_DIR}/fake_${HDR_MODULE_NAME}.cpp")
         list(APPEND FAKE_HDRS ${FAKE_HDR})
         list(APPEND FAKE_SRCS ${FAKE_SRC})
         add_custom_command(
@@ -57,18 +61,5 @@ function(create_fake_library
             DEPENDS ${FAKEGEN_SRCS} ${HDR_TO_FAKE}
         )
     endforeach()
-
-    add_library(${LIB_NAME} STATIC ${FAKE_SRCS})
-    target_compile_options(${LIB_NAME}
-            PUBLIC
-            -Wall
-            -g3
-    )
-    target_include_directories(${LIB_NAME}
-        PUBLIC
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${HDR_DIR}
-        ${SHARED_APP_INCLUDE_DIR}
-        ${SHARED_IO_INCLUDE_DIR}
-    )
+    target_sources(${LIB_NAME} INTERFACE ${FAKE_SRCS})
 endfunction()
