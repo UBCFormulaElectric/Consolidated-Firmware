@@ -293,7 +293,11 @@ void io_rtc_init(void)
     Register_t control1;
     control1.raw = 0x00;
 
-    hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
+    bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
+    if (!su)
+    {
+        LOG_ERROR("Failed to write to RTC control register 1");
+    }
 
 }
 
@@ -342,14 +346,22 @@ void io_rtc_setTime(struct IoRtcTime *time)
     LOG_INFO("Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day, time->month, time->year);
     LOG_INFO("Writing to RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6]);
 
-    hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+    bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+    if (!su)
+    {
+        LOG_ERROR("Failed to write to RTC time registers");
+    }
 
 }
 
 void io_rtc_readTime(struct IoRtcTime *time)
 {
     uint8_t buffer[7];
-    hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+    bool su = hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+    if (!su)
+    {
+        LOG_ERROR("Failed to read from RTC time registers");
+    }
 
     Register_t regTime;
     regTime.raw = buffer[0];
