@@ -87,7 +87,7 @@ float io_tractiveSystem_getVoltage()
     }
     else
     {
-        float real_voltage = ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        float real_voltage = ts_vsense / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
         return real_voltage;
     }
 }
@@ -133,11 +133,11 @@ float io_tractiveSystem_getCurrentHighResolution()
     if (high_res_current > -0.2f)
     {
         high_res_curr_calibration =
-            high_res_current * OUTPUT1_DISCHARGING_ERROR_SLOPE + OUTPUT1_DISCHARGING_ERROR_OFFSET;
+            high_res_current;
     }
     else
     {
-        high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
+        high_res_curr_calibration = high_res_current;
     }
 
     return -(high_res_current + high_res_curr_calibration);
@@ -183,11 +183,11 @@ float io_tractiveSystem_getCurrentLowResolution()
     float low_res_curr_calibration = 0.0f;
     if (low_res_current > -0.2f)
     {
-        low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
+        low_res_curr_calibration = low_res_current;
     }
     else
     {
-        low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
+        low_res_curr_calibration = low_res_current;
     }
 
     return -(low_res_current + low_res_curr_calibration);
