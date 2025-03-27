@@ -8,11 +8,12 @@ from generated import telem_pb2
 from logger import logger
 from tasks.broadcaster import can_msg_queue, CanMsg
 import datetime
+from crc import Calculator, Crc32
 
-HEADER_SIZE = 5
+HEADER_SIZE = 7
 MAGIC = b'\xAA\x55'
 
-MAX_PAYLOAD_SIZE = 50 # this is arbitrary lmao
+MAX_PAYLOAD_SIZE = 52 # this is arbitrary lmao
 
 def _make_bytes(message):
 	"""
@@ -60,7 +61,7 @@ def read_packet(ser: serial.Serial):
 
 		#parse remainder of header
 		payload_length = buffer[2]
-		expected_crc = int.from_bytes(buffer[3:5], byteorder='big')
+		expected_crc = int.from_bytes(buffer[3:7], byteorder='big')  # Updated to read 32-bit CRC
 
 		if payload_length > MAX_PAYLOAD_SIZE:
 			logger.error(f"Payload length {payload_length} is too large")
@@ -82,14 +83,11 @@ def _read_messages(port: str):
 	"""
 	Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
 	"""
-
-	ser = serial.Serial(port='/dev/tty.usbserial-FT76H2U7', baudrate=57600, timeout = 1)
-	#print(ser)
+	ser = serial.Serial(port, baudrate=57600, timeout = 1)
 	ser.reset_input_buffer()
 	ser.reset_output_buffer()
 	while True:
 		packet, payload_length, expected_crc = read_packet(ser)
-		#logger.info(f"Received packet of size {len(packet)} bytes")
 		print(f"Received packet of size {len(packet)} bytes")
 		payload = packet[HEADER_SIZE:]
 		if len(payload) != payload_length:
@@ -97,13 +95,12 @@ def _read_messages(port: str):
 			continue
 			
 		# CRC check
-		computed_crc = 0xFFFF #HARDCODED
-		#computed_crc = crc_FUNC_TODO(payload)
-		if computed_crc != expected_crc:
-			logger.error(f"CRC mismatch: computed {computed_crc:04X}, expected {expected_crc:04X}")
+		calculator = Calculator(Crc32.CRC32)
+		calculated_checksum = calculator.checksum(payload)
+		if expected_crc != calculated_checksum:
+			logger.error(f"CRC mismatch: computed {calculated_checksum:08X}, expected {expected_crc:08X}")
 			continue
 
-		# Decode protobuf message
 		try:
 			message_received = telem_pb2.TelemMessage()
 			message_received.ParseFromString(payload)
@@ -111,24 +108,14 @@ def _read_messages(port: str):
 			logger.error(f"Error decoding protobuf message: {e}")
 			continue
 		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received), datetime.datetime.now()))
-		print(CanMsg(message_received.can_id, _make_bytes(message_received), datetime.datetime.now()))
-		
-		# Check if second has passed (Not sure if needed now?)
-		# if current_time - start_time >= 1.0:
-		# 	logger.info(f"Total data received in the last second: {total_data_received} bytes")
-		# 	total_data_received = 0  # Reset the counter
-		# 	start_time = current_time  # Reset the start time
 
-
-# GET RID OF HARDCODE
 def get_wireless_task(serial_port: str | None) -> Thread:
-	serial_port_hard = '/dev/tty.usbserial-FT76H2U7'
-	if serial_port_hard is None:
+	if serial_port is None:
 		raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
 	return Thread(
         target=_read_messages,
-		args=(serial_port_hard, ),
+		args=(serial_port, ),
         daemon=True,
     )
