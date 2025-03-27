@@ -4,6 +4,7 @@
 #include "cmsis_os.h"
 #include "io_log.h"
 #include "hw_uarts.h"
+#include "hw_crc.h"
 #include <assert.h>
 
 // create the truth table for now to decide which amount of things to use
@@ -12,9 +13,9 @@
 
 #define CAN_DATA_LENGTH 12
 #define UART_LENGTH 1
-#define QUEUE_SIZE 50
+#define QUEUE_SIZE 52
 
-#define HEADER_SIZE 5
+#define HEADER_SIZE 7
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define MAX_FRAME_SIZE (HEADER_SIZE + QUEUE_BYTES)
 #define MAGIC_HIGH 0xAA
@@ -95,13 +96,11 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
         LOG_ERROR("Failed to build frame from received message");
         return false;
     }
-    // uint8_t proto_out_length = proto_out[49];
     // Start timing for measuring transmission speeds
     bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
     if (modem_900_choice)
     {
-        // success &= hw_uart_transmitPoll(modem.modem900M, &proto_out_length, 1, 100); OLD DELETE
         success &= hw_uart_transmitPoll(
             modem.modem900M, full_frame, frame_length, 100); // send full frame check line 143 for new frame_length
     }
@@ -134,43 +133,47 @@ bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffe
 
     // Encode message into proto_buffer
     proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
-    // Encode check
     if (!proto_status)
     {
         LOG_ERROR("Protobuf encoding failed");
         return false;
     }
 
-    proto_msg_length = (uint8_t)stream.bytes_written; // send THIS OUT !!! header length + this length
-    // Size check
+    proto_msg_length = (uint8_t)stream.bytes_written;
     if (proto_msg_length > QUEUE_SIZE)
     {
         LOG_ERROR("Payload size exceeded maximum allowed size");
         return false;
     }
-    // Store payload length at reserved location (index 49)
-    // proto_buffer[49] = proto_msg_length;
 
-    // Build whole frame
-    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, proto_msg_length))
+    // padding required for crc function to not have concat issues
+    uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
+    if (padded_length > proto_msg_length)
+    {
+        memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
+    }
+
+    // Build frame
+    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, padded_length))
     {
         return false;
     }
-    // Set the overall frame length to header plus proto payload length
-    *frame_length = HEADER_SIZE + proto_msg_length;
+    *frame_length = HEADER_SIZE + padded_length;
     return true;
 }
 
 bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buffer, uint8_t payload_length)
 {
-    // CRC FUNCTION TODO
-    uint16_t crc = 0xFFFF; // temp until crc function is implemented
+    // CRC FUNCTION
+    uint32_t crc = hw_crc_calculate((uint32_t *)proto_buffer, (uint32_t)(payload_length / sizeof(uint32_t)));
 
     frame_buffer[0] = MAGIC_HIGH;
     frame_buffer[1] = MAGIC_LOW;
     frame_buffer[2] = payload_length;
-    frame_buffer[3] = (uint8_t)(crc >> 8 & 0xFF);
-    frame_buffer[4] = (uint8_t)(crc & 0xFF);
+    frame_buffer[3] = (uint8_t)((crc >> 24) & 0xFF);
+    frame_buffer[4] = (uint8_t)((crc >> 16) & 0xFF);
+    frame_buffer[5] = (uint8_t)((crc >> 8) & 0xFF);
+    frame_buffer[6] = (uint8_t)(crc & 0xFF);
 
     memcpy(&frame_buffer[HEADER_SIZE], proto_buffer, payload_length);
 
