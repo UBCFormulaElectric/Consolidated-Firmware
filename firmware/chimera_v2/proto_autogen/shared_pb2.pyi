@@ -13,6 +13,7 @@ import google.protobuf.message
 from . import rsm_pb2
 from . import ssm_pb2
 import typing
+from . import vc_pb2
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing.final
@@ -26,6 +27,7 @@ class GpioNetName(google.protobuf.message.Message):
     RSM_NET_NAME_FIELD_NUMBER: builtins.int
     FSM_NET_NAME_FIELD_NUMBER: builtins.int
     BMS_NET_NAME_FIELD_NUMBER: builtins.int
+    VC_NET_NAME_FIELD_NUMBER: builtins.int
     f4dev_net_name: f4dev_pb2.GpioNetName.ValueType
     ssm_net_name: ssm_pb2.GpioNetName.ValueType
     crit_net_name: crit_pb2.GpioNetName.ValueType
@@ -33,17 +35,18 @@ class GpioNetName(google.protobuf.message.Message):
     rsm_net_name: rsm_pb2.GpioNetName.ValueType
     fsm_net_name: fsm_pb2.GpioNetName.ValueType
     bms_net_name: bms_pb2.GpioNetName.ValueType
+    vc_net_name: vc_pb2.GpioNetName.ValueType
 
-    def __init__(self, *, f4dev_net_name: f4dev_pb2.GpioNetName.ValueType=..., ssm_net_name: ssm_pb2.GpioNetName.ValueType=..., crit_net_name: crit_pb2.GpioNetName.ValueType=..., dam_net_name: dam_pb2.GpioNetName.ValueType=..., rsm_net_name: rsm_pb2.GpioNetName.ValueType=..., fsm_net_name: fsm_pb2.GpioNetName.ValueType=..., bms_net_name: bms_pb2.GpioNetName.ValueType=...) -> None:
+    def __init__(self, *, f4dev_net_name: f4dev_pb2.GpioNetName.ValueType=..., ssm_net_name: ssm_pb2.GpioNetName.ValueType=..., crit_net_name: crit_pb2.GpioNetName.ValueType=..., dam_net_name: dam_pb2.GpioNetName.ValueType=..., rsm_net_name: rsm_pb2.GpioNetName.ValueType=..., fsm_net_name: fsm_pb2.GpioNetName.ValueType=..., bms_net_name: bms_pb2.GpioNetName.ValueType=..., vc_net_name: vc_pb2.GpioNetName.ValueType=...) -> None:
         ...
 
-    def HasField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'dam_net_name', b'dam_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name']) -> builtins.bool:
+    def HasField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'dam_net_name', b'dam_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name', 'vc_net_name', b'vc_net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'dam_net_name', b'dam_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name']) -> None:
+    def ClearField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'dam_net_name', b'dam_net_name', 'f4dev_net_name', b'f4dev_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'ssm_net_name', b'ssm_net_name', 'vc_net_name', b'vc_net_name']) -> None:
         ...
 
-    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['f4dev_net_name', 'ssm_net_name', 'crit_net_name', 'dam_net_name', 'rsm_net_name', 'fsm_net_name', 'bms_net_name'] | None:
+    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['f4dev_net_name', 'ssm_net_name', 'crit_net_name', 'dam_net_name', 'rsm_net_name', 'fsm_net_name', 'bms_net_name', 'vc_net_name'] | None:
         ...
 global___GpioNetName = GpioNetName
 
@@ -122,20 +125,22 @@ class AdcNetName(google.protobuf.message.Message):
     RSM_NET_NAME_FIELD_NUMBER: builtins.int
     FSM_NET_NAME_FIELD_NUMBER: builtins.int
     BMS_NET_NAME_FIELD_NUMBER: builtins.int
+    VC_NET_NAME_FIELD_NUMBER: builtins.int
     rsm_net_name: rsm_pb2.AdcNetName.ValueType
     fsm_net_name: fsm_pb2.AdcNetName.ValueType
     bms_net_name: bms_pb2.AdcNetName.ValueType
+    vc_net_name: vc_pb2.AdcNetName.ValueType
 
-    def __init__(self, *, rsm_net_name: rsm_pb2.AdcNetName.ValueType=..., fsm_net_name: fsm_pb2.AdcNetName.ValueType=..., bms_net_name: bms_pb2.AdcNetName.ValueType=...) -> None:
+    def __init__(self, *, rsm_net_name: rsm_pb2.AdcNetName.ValueType=..., fsm_net_name: fsm_pb2.AdcNetName.ValueType=..., bms_net_name: bms_pb2.AdcNetName.ValueType=..., vc_net_name: vc_pb2.AdcNetName.ValueType=...) -> None:
         ...
 
-    def HasField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name']) -> builtins.bool:
+    def HasField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name']) -> None:
+    def ClearField(self, field_name: typing.Literal['bms_net_name', b'bms_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']) -> None:
         ...
 
-    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['rsm_net_name', 'fsm_net_name', 'bms_net_name'] | None:
+    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['rsm_net_name', 'fsm_net_name', 'bms_net_name', 'vc_net_name'] | None:
         ...
 global___AdcNetName = AdcNetName
 
@@ -179,20 +184,22 @@ class I2cNetName(google.protobuf.message.Message):
     DAM_NET_NAME_FIELD_NUMBER: builtins.int
     RSM_NET_NAME_FIELD_NUMBER: builtins.int
     FSM_NET_NAME_FIELD_NUMBER: builtins.int
+    VC_NET_NAME_FIELD_NUMBER: builtins.int
     dam_net_name: dam_pb2.I2cNetName.ValueType
     rsm_net_name: rsm_pb2.I2cNetName.ValueType
     fsm_net_name: fsm_pb2.I2cNetName.ValueType
+    vc_net_name: vc_pb2.I2cNetName.ValueType
 
-    def __init__(self, *, dam_net_name: dam_pb2.I2cNetName.ValueType=..., rsm_net_name: rsm_pb2.I2cNetName.ValueType=..., fsm_net_name: fsm_pb2.I2cNetName.ValueType=...) -> None:
+    def __init__(self, *, dam_net_name: dam_pb2.I2cNetName.ValueType=..., rsm_net_name: rsm_pb2.I2cNetName.ValueType=..., fsm_net_name: fsm_pb2.I2cNetName.ValueType=..., vc_net_name: vc_pb2.I2cNetName.ValueType=...) -> None:
         ...
 
-    def HasField(self, field_name: typing.Literal['dam_net_name', b'dam_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name']) -> builtins.bool:
+    def HasField(self, field_name: typing.Literal['dam_net_name', b'dam_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']) -> builtins.bool:
         ...
 
-    def ClearField(self, field_name: typing.Literal['dam_net_name', b'dam_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name']) -> None:
+    def ClearField(self, field_name: typing.Literal['dam_net_name', b'dam_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']) -> None:
         ...
 
-    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['dam_net_name', 'rsm_net_name', 'fsm_net_name'] | None:
+    def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['dam_net_name', 'rsm_net_name', 'fsm_net_name', 'vc_net_name'] | None:
         ...
 global___I2cNetName = I2cNetName
 
