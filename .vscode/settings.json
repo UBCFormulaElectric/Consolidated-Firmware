@@ -15,12 +15,4 @@
 	"cmake.buildEnvironment": {
 		"PATH": "${env:PATH}"
 	},
-	"files.associations": {
-		"*.sqlbook": "sql",
-		"*.ndjson": "jsonl",
-		"*.dbclient-js": "javascript",
-		"hw_crc.h": "c",
-		"hw_hal.h": "c",
-		"hw_uarts.h": "c"
-	},
 }

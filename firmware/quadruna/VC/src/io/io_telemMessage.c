@@ -113,7 +113,7 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     return true;
 }
 
-bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffer, uint8_t *frame_length)
+static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffer, uint8_t *frame_length)
 {
     uint8_t      proto_buffer[QUEUE_SIZE] = { 0 };
     pb_ostream_t stream                   = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
@@ -162,7 +162,7 @@ bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffe
     return true;
 }
 
-bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buffer, uint8_t payload_length)
+static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buffer, uint8_t payload_length)
 {
     // CRC FUNCTION
     uint32_t crc = hw_crc_calculate((uint32_t *)proto_buffer, (uint32_t)(payload_length / sizeof(uint32_t)));
