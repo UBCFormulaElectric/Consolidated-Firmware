@@ -141,7 +141,7 @@ bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
         if (s == osErrorResource)
         {
             telem_overflow_count++;
-            LOG_WARN("Telem Queue Overflow, count: %d", telem_overflow_count);
+            // LOG_WARN("Telem Queue Overflow, count: %d", telem_overflow_count);
         }
         else
         {
@@ -172,6 +172,14 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     {
         success &= hw_uart_transmitPoll(
             modem.modem900M, full_frame, frame_length, 100); // send full frame check line 143 for new frame_length
+        if(success)
+        {
+            LOG_INFO("900Mhz Telem Message Sent");
+        }
+        else 
+        {
+            LOG_ERROR("900Mhz Telem Message Failed");
+        }
     }
     else
     {

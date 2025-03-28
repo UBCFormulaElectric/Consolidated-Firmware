@@ -14,10 +14,13 @@
 #include "hw_cans.h"
 #include "hw_usb.h"
 #include "hw_gpios.h"
+#include "hw_crc.h"
 
 #include <io_chimera_v2.h>
 #include <shared.pb.h>
 #include <io_chimeraConfig_v2.h>
+
+extern CRC_HandleTypeDef hcrc;
 
 void tasks_preInit(void)
 {
@@ -39,6 +42,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&can1);
     hw_usb_init();
+    hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     // hw_gpio_writePin(&tsim_red_en_pin, true);
@@ -124,13 +128,13 @@ _Noreturn void tasks_run1kHz(void)
         // if (io_time_getCurrentMs() - task_start_ms <= period_ms)
         //     hw_watchdog_checkIn(watchdog);
         
-        CanMsg fake_msg = {
-            .std_id = 0x125,
-            .dlc    = 8,
-            .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
-            .timestamp = io_time_getCurrentMs(),
-        };
-        io_telemMessage_pushMsgtoQueue(&fake_msg);
+        // CanMsg fake_msg = {
+        //     .std_id = 0x125,
+        //     .dlc    = 8,
+        //     .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
+        //     .timestamp = io_time_getCurrentMs(),
+        // };
+        // io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -158,7 +162,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
-    osDelay(osWaitForever);
+    // osDelay(osWaitForever);
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();

@@ -43,6 +43,7 @@ extern "C"
     extern SD_HandleTypeDef    hsd1;
     extern TIM_HandleTypeDef   htim15;
     extern UART_HandleTypeDef  huart2;
+    // extern CRC_HandleTypeDef   hcrc;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/

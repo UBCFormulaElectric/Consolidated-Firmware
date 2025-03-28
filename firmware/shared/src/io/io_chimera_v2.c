@@ -364,7 +364,7 @@ void io_chimera_v2_mainOrContinue(io_chimera_v2_Config *config)
         // If usb is not connected, skip Chimera.
         if (!hw_usb_checkConnection())
         {
-            LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
+            // LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
             break;
         }
 
