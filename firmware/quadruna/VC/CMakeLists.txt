@@ -49,6 +49,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -111,6 +112,8 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal.c"
             "stm32h7xx_hal_i2c.c"
             "stm32h7xx_hal_i2c_ex.c"
+            "stm32h7xx_hal_crc.c"
+            "stm32h7xx_hal_crc_ex.c"
     )
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
