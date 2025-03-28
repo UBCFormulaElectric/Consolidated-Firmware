@@ -48,6 +48,73 @@ static const osMessageQueueAttr_t queue_attr = {
 
 static bool init = false;
 
+static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buffer, uint8_t payload_length)
+{
+    // CRC FUNCTION
+    uint32_t crc = hw_crc_calculate((uint32_t *)proto_buffer, (uint32_t)(payload_length / sizeof(uint32_t)));
+
+    frame_buffer[0] = MAGIC_HIGH;
+    frame_buffer[1] = MAGIC_LOW;
+    frame_buffer[2] = payload_length;
+    frame_buffer[3] = (uint8_t)((crc >> 24) & 0xFF);
+    frame_buffer[4] = (uint8_t)((crc >> 16) & 0xFF);
+    frame_buffer[5] = (uint8_t)((crc >> 8) & 0xFF);
+    frame_buffer[6] = (uint8_t)(crc & 0xFF);
+
+    memcpy(&frame_buffer[HEADER_SIZE], proto_buffer, payload_length);
+
+    return true;
+}
+
+static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffer, uint8_t *frame_length)
+{
+    uint8_t      proto_buffer[QUEUE_SIZE] = { 0 };
+    pb_ostream_t stream                   = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
+
+    if (rx_msg->dlc > 8)
+        return false;
+    t_message.can_id     = (int32_t)(rx_msg->std_id);
+    t_message.message_0  = rx_msg->data[0];
+    t_message.message_1  = rx_msg->data[1];
+    t_message.message_2  = rx_msg->data[2];
+    t_message.message_3  = rx_msg->data[3];
+    t_message.message_4  = rx_msg->data[4];
+    t_message.message_5  = rx_msg->data[5];
+    t_message.message_6  = rx_msg->data[6];
+    t_message.message_7  = rx_msg->data[7];
+    t_message.time_stamp = (int32_t)rx_msg->timestamp;
+
+    // Encode message into proto_buffer
+    proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
+    if (!proto_status)
+    {
+        LOG_ERROR("Protobuf encoding failed");
+        return false;
+    }
+
+    proto_msg_length = (uint8_t)stream.bytes_written;
+    if (proto_msg_length > QUEUE_SIZE)
+    {
+        LOG_ERROR("Payload size exceeded maximum allowed size");
+        return false;
+    }
+
+    // padding required for crc function to not have concat issues
+    uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
+    if (padded_length > proto_msg_length)
+    {
+        memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
+    }
+
+    // Build frame
+    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, padded_length))
+    {
+        return false;
+    }
+    *frame_length = HEADER_SIZE + padded_length;
+    return true;
+}
+
 void io_telemMessage_init()
 {
     assert(!init);
@@ -109,73 +176,6 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
         LOG_ERROR("NOT SUPPORTED");
     }
     SEGGER_SYSVIEW_MarkStop(0);
-
-    return true;
-}
-
-static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffer, uint8_t *frame_length)
-{
-    uint8_t      proto_buffer[QUEUE_SIZE] = { 0 };
-    pb_ostream_t stream                   = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
-
-    if (rx_msg->dlc > 8)
-        return false;
-    t_message.can_id     = (int32_t)(rx_msg->std_id);
-    t_message.message_0  = rx_msg->data[0];
-    t_message.message_1  = rx_msg->data[1];
-    t_message.message_2  = rx_msg->data[2];
-    t_message.message_3  = rx_msg->data[3];
-    t_message.message_4  = rx_msg->data[4];
-    t_message.message_5  = rx_msg->data[5];
-    t_message.message_6  = rx_msg->data[6];
-    t_message.message_7  = rx_msg->data[7];
-    t_message.time_stamp = (int32_t)rx_msg->timestamp;
-
-    // Encode message into proto_buffer
-    proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
-    if (!proto_status)
-    {
-        LOG_ERROR("Protobuf encoding failed");
-        return false;
-    }
-
-    proto_msg_length = (uint8_t)stream.bytes_written;
-    if (proto_msg_length > QUEUE_SIZE)
-    {
-        LOG_ERROR("Payload size exceeded maximum allowed size");
-        return false;
-    }
-
-    // padding required for crc function to not have concat issues
-    uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
-    if (padded_length > proto_msg_length)
-    {
-        memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
-    }
-
-    // Build frame
-    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, padded_length))
-    {
-        return false;
-    }
-    *frame_length = HEADER_SIZE + padded_length;
-    return true;
-}
-
-static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buffer, uint8_t payload_length)
-{
-    // CRC FUNCTION
-    uint32_t crc = hw_crc_calculate((uint32_t *)proto_buffer, (uint32_t)(payload_length / sizeof(uint32_t)));
-
-    frame_buffer[0] = MAGIC_HIGH;
-    frame_buffer[1] = MAGIC_LOW;
-    frame_buffer[2] = payload_length;
-    frame_buffer[3] = (uint8_t)((crc >> 24) & 0xFF);
-    frame_buffer[4] = (uint8_t)((crc >> 16) & 0xFF);
-    frame_buffer[5] = (uint8_t)((crc >> 8) & 0xFF);
-    frame_buffer[6] = (uint8_t)(crc & 0xFF);
-
-    memcpy(&frame_buffer[HEADER_SIZE], proto_buffer, payload_length);
 
     return true;
 }
