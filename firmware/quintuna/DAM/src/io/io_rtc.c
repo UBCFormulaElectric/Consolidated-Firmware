@@ -285,9 +285,6 @@ static uint8_t bcd_to_integer(uint8_t value)
 
 void io_rtc_init(void)
 {
-    // enable the power 
-    hw_gpio_writePin(&telem_pwr_en_pin, true);
-
     // 24-hour mode, no interrupts, oscillator running
     // select 7 pF capacitor instead of 12.5 pF
     Register_t control1;
@@ -387,8 +384,8 @@ void io_rtc_readTime(struct IoRtcTime *time)
     time->seconds = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS));
     time->minutes = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES));
     time->hours   = (uint8_t)(bcd_to_integer(regHours.hours.HOURS));
-    time->weekdays    = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
-    time->day     = (uint8_t)(regWeekdays.weekdays.WEEKDAYS);
+    time->day = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
+    time->weekdays = (uint8_t)(regWeekdays.weekdays.WEEKDAYS);
     time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS));
     time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
 
