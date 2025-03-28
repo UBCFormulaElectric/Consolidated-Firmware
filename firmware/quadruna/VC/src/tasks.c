@@ -1,16 +1,18 @@
 #include "tasks.h"
+#include "hw_sd.h"
 #include "main.h"
 #include "cmsis_os.h"
 #include "shared.pb.h"
 #include "jobs.h"
 
+#include <app_canTx.h>
 #include <assert.h>
 
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
 
 #include "io_log.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_telemMessage.h"
 #include "io_chimera.h"
 #include "io_time.h"
@@ -31,8 +33,7 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
-    if (io_fileSystem_init() == FILE_OK)
-        io_canLogging_init();
+    io_canLogging_init();
 }
 
 void tasks_init(void)
@@ -169,19 +170,20 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    if (!io_fileSystem_ready())
-    {
-        // queue shouldn't populate, so this is just an extra precaution
-        osThreadSuspend(osThreadGetId());
-    }
-
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
+
     for (;;)
     {
+        if (io_canLogging_errorsRemaining() == 0)
+        {
+            osThreadSuspend(osThreadGetId());
+        }
+
         io_canLogging_recordMsgFromQueue();
         message_batch_count++;
         write_count++;
+
         if (message_batch_count > 256)
         {
             io_canLogging_sync();

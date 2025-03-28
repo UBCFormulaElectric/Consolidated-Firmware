@@ -1,15 +1,13 @@
 #include <string.h>
 #include "hw_spis.h"
 #include "ltc6813/io_ltc6813Shared.h"
+#include "ltc6813/io_ltc6813CellTemps.h"
 #include "app_accumulator.h"
 
 // clang-format off
 
 #define NOMINAL_TEMPERATURE            (200U)
-#define NUM_OF_THERMISTORS_PER_SEGMENT (8U)
 #define TOTAL_NUM_OF_THERMISTORS       (NUM_OF_THERMISTORS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
-
-#define IS_CELL_TEMP_READING(curr_reg_group, curr_reading) (((curr_reg_group) != AUX_REGISTER_GROUP_B) || ((curr_reading) != REG_GROUP_READING_2))
 
 // Commands used to read from auxiliary register groups A-C
 #define RDAUXA (0x0C00U)
@@ -29,13 +27,7 @@
 
 // clang-format on
 
-typedef enum
-{
-    AUX_REGISTER_GROUP_A = 0U,
-    AUX_REGISTER_GROUP_B,
-    AUX_REGISTER_GROUP_C,
-    NUM_OF_AUX_REGISTER_GROUPS
-} AuxiliaryRegisterGroup;
+extern const SpiDevice ltc6813_spi;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
