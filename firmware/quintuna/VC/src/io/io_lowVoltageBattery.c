@@ -1,5 +1,5 @@
 #include "io_lowVoltageBattery.h"
-#include "hw_i2c.h"
+#include "hw_i2cs.h"
 #include "hw_hal.h"
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
@@ -66,9 +66,6 @@ static const HardwareConfig_t HardwareConfig = {
     .adc_calibration_factor = 7.4768f
 };
 
-extern I2C_HandleTypeDef hi2c1;
-static I2cInterface lvBatMon = { &hi2c1, BQ76922_I2C_ADDR, I2C_TIMEOUT_MS };
-
 osSemaphoreId_t bat_mtr_sem;
 
 /**
@@ -80,14 +77,14 @@ osSemaphoreId_t bat_mtr_sem;
  */
 static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
 {
-    if (!hw_i2c_isTargetReady(&lvBatMon))
+    if (!hw_i2c_isTargetReady(&bat_mtr))
     {
         return false;
     }
 
     uint8_t data[CMD_SUBCOMMAND_SIZE] = { (uint8_t)(cmd & BYTE_MASK), (uint8_t)((cmd >> BYTE_SHIFT) & BYTE_MASK) };
 
-    if (!hw_i2c_memWrite(&lvBatMon, REG_SUBCOMMAND_LSB, data, CMD_SUBCOMMAND_SIZE))
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_LSB, data, CMD_SUBCOMMAND_SIZE))
     {
         return false;
     }
@@ -95,12 +92,12 @@ static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
     /* Wait for the subcommand to be processed */
     osDelay(SUBCOMMAND_PROCESS_DELAY_MS);
 
-    uint8_t low = 0, high = 0;
+    uint8_t low, high;
     do 
     {
         osDelay(POLL_DELAY_MS);
-        low  = hw_i2c_memRead(&lvBatMon, REG_SUBCOMMAND_LSB);
-        high = hw_i2c_memRead(&lvBatMon, REG_SUBCOMMAND_MSB);
+        hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &low, 8);
+        hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &high, 8);
     } while ((low | (high << BYTE_SHIFT)) == cmd);
 
     return true;
@@ -118,7 +115,7 @@ static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
 static bool io_lowVoltageBattery_read_response(uint16_t cmd, uint8_t expectedLen, uint8_t *buffer)
 {
     uint8_t respLen;
-    if (!hw_i2c_memRead(&lvBatMon, REG_RESPONSE_LENGTH, &respLen, RESPONSE_LENGTH_SIZE))
+    if (!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &respLen, RESPONSE_LENGTH_SIZE))
     {
         return false;
     }
@@ -128,18 +125,20 @@ static bool io_lowVoltageBattery_read_response(uint16_t cmd, uint8_t expectedLen
         return false;
     }
 
-    if (!hw_i2c_memRead(&lvBatMon, REG_DATA_BUFFER, buffer, expectedLen))
+    if (!hw_i2c_memoryRead(&bat_mtr, REG_DATA_BUFFER, buffer, expectedLen))
     {
         return -1;
     }
 
     uint8_t checksum;
-    if (!hw_i2c_memRead(&lvBatMon, REG_CHECKSUM, &checksum, RESPONSE_LENGTH_SIZE))
+    if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, RESPONSE_LENGTH_SIZE))
     {
         return false;
     }
 
-    uint8_t calcChecksum = (uint8_t)(cmd & BYTE_MASK) + (uint8_t)((cmd >> BYTE_SHIFT) & BYTE_MASK) + respLen;
+    uint8_t calcChecksum = (uint8_t)(((uint8_t)(cmd & BYTE_MASK)) +
+                                 ((uint8_t)((cmd >> BYTE_SHIFT) & BYTE_MASK)) +
+                                 ((uint8_t)respLen));
     for (uint8_t i = 0; i < expectedLen; i++)
     {
         calcChecksum += buffer[i];
@@ -196,76 +195,76 @@ bool io_lowVoltageBattery_OTP_write(void)
 
     /* Get the current alert config */
     uint8_t alert_config;
-    if (!hw_i2c_memRead(&lvBatMon, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
+    if (!hw_i2c_memoryRead(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
     {
         return false;
     }
 
     /* Set the active-low bit while preserving other bits */
     alert_config |= (1 << ALERT_ACTIVE_LOW_BIT);
-    if (!hw_i2c_memWrite(&lvBatMon, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
+    if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
     {
         return false;
     }
 
     /* Configure ALERT pin as an interrupt output */
-    if (!hw_i2c_memWrite(&lvBatMon, ALERT_PIN_CONFIG, (uint8_t[]){ ALERT_PIN_INTERRUPT_CONFIG }, RESPONSE_LENGTH_SIZE))
+    if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, (uint8_t[]){ ALERT_PIN_INTERRUPT_CONFIG }, RESPONSE_LENGTH_SIZE))
     {
         return false;
     }
 
     /* Enable ADC scan alerts */
-    if (!hw_i2c_memWrite(&lvBatMon, ALARM_ENABLE_REG, (uint8_t[]){ ALARM_ENABLE_VALUE }, RESPONSE_LENGTH_SIZE))
+    if (!hw_i2c_memoryWrite(&bat_mtr, ALARM_ENABLE_REG, (uint8_t[]){ ALARM_ENABLE_VALUE }, RESPONSE_LENGTH_SIZE))
     {
         return false;
     }
 
     /* Enable OV (Bit 3), UV (Bit 2), OCD1 (Bit 5) and SCD (Bit 7) */
     uint8_t protections_a = 0xAC;
-    if (!hw_i2c_memWrite(&lvBatMon, ENABLED_PROTECTIONS_A, &protections_a, 1)) 
+    if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_A, &protections_a, 1)) 
     {
         return false;
     }
 
     /* Enable OTD (Bit 5) */
     uint8_t protections_b = 0x20;
-    if (!hw_i2c_memWrite(&lvBatMon, ENABLED_PROTECTIONS_B, &protections_b, 1))
+    if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_B, &protections_b, 1))
     {
         return false;
     }
 
     /* Set the OV threshold to ~4200mV */
     uint8_t ov_threshold = 0x53;
-    if (hw_i2c_memWrite(&lvBatMon, OV_THRESHOLD, &ov_threshold, 1))
+    if (hw_i2c_memoryWrite(&bat_mtr, OV_THRESHOLD, &ov_threshold, 1))
     {
         return false;
     }
 
     /* Set the UV threshold to ~2500mV */
     uint8_t uv_threshold = 0x31;
-    if (!hw_i2c_memWrite(&lvBatMon, UV_THRESHOLD, &uv_threshold, 1))
+    if (!hw_i2c_memoryWrite(&bat_mtr, UV_THRESHOLD, &uv_threshold, 1))
     {
         return false;
     }
 
     /* Set OCD1 threshold to 30V (the default delay is acceptable) */
     uint8_t ocd1_threshold = 0x5A;
-    if (!hw_i2c_memWrite(&lvBatMon, OCD1_THRESHOLD, &ocd1_threshold, 1)) 
+    if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_THRESHOLD, &ocd1_threshold, 1)) 
     {
         return false;
     }
 
     /* Set the OV, UV, and OCD1 delay to 100ms */
     uint8_t ov_u_ocd1_delay = 0x1E; // 100ms in register format
-    if (!hw_i2c_memWrite(&lvBatMon, OV_DELAY, &ov_u_ocd1_delay, 1)) 
+    if (!hw_i2c_memoryWrite(&bat_mtr, OV_DELAY, &ov_u_ocd1_delay, 1)) 
     {
         return false;
     }
-    if (!hw_i2c_memWrite(&lvBatMon, UV_DELAY, &ov_u_ocd1_delay, 1)) 
+    if (!hw_i2c_memoryWrite(&bat_mtr, UV_DELAY, &ov_u_ocd1_delay, 1)) 
     {
         return false;
     }
-    if (!hw_i2c_memWrite(&lvBatMon, OCD1_DELAY, &ov_u_ocd1_delay, 1)) 
+    if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_DELAY, &ov_u_ocd1_delay, 1)) 
     {
         return false;
     }
@@ -298,6 +297,8 @@ bool io_lowVoltageBattery_OTP_write(void)
     {
         return false;
     }
+
+    return true;
 }
 
 /**
@@ -316,10 +317,6 @@ bool io_lowVoltageBattery_init(void)
     return true;
 }
 
-typedef enum {
-    ACCUMULATED_CHARGE_COMMAND = 0x0076
-} charge_cmd_t
-
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
  *
@@ -329,36 +326,30 @@ float io_lowVoltageBattery_get_SOC(void)
 {
     osSemaphoreAcquire(bat_mtr_sem, osWaitForever);
 
-    if (!send_subcommand(ACCUMULATED_CHARGE_COMMAND))
+    if (!io_lowVoltageBattery_send_subcommand(ACCUMULATED_CHARGE_COMMAND))
     {
         return -1.0f;
     }
 
     uint8_t buffer[SOC_RESPONSE_LENGTH];
-    if (!read_response(ACCUMULATED_CHARGE_COMMAND, SOC_RESPONSE_LENGTH, buffer))
+    if (!io_lowVoltageBattery_read_response(ACCUMULATED_CHARGE_COMMAND, SOC_RESPONSE_LENGTH, buffer))
     {
         return -1.0f;
     }
 
     /* Parse the 3-byte charge value (buffer[0]-buffer[2]) */
-    uint32_t charge = buffer[0] | (buffer[1] << BYTE_SHIFT) | (buffer[2] << (BYTE_SHIFT * 2));
-    float CC_GAIN    = ADC_CALIBRATION_FACTOR / R_SENSE;
-    float charge_mAh = (charge * CC_GAIN) / SECONDS_PER_HOUR;
-
+    uint32_t charge = ((uint32_t)buffer[0]) | 
+                  ((uint32_t)buffer[1] << BYTE_SHIFT) | 
+                  ((uint32_t)buffer[2] << (BYTE_SHIFT * 2));
+    float CC_GAIN = HardwareConfig.adc_calibration_factor / HardwareConfig.r_sense;
+    float charge_mAh = (((float)charge) * CC_GAIN) / ((float)HardwareConfig.seconds_per_hour);
+                  
     /* Clear any pending alert */
     uint8_t alarmClear = ALARM_CLEAR_CMD;
-    hw_i2c_memWrite(&lvBatMon, ALARM_STATUS_REG, &alarmClear, RESPONSE_LENGTH_SIZE);
+    hw_i2c_memoryWrite(&bat_mtr, ALARM_STATUS_REG, &alarmClear, RESPONSE_LENGTH_SIZE);
 
-    return (charge_mAh / Q_FULL) * PERCENTAGE_FACTOR;
+    return (charge_mAh / HardwareConfig.q_full) * HardwareConfig.percentage_factor;
 }
-
-typedef enum {
-    CELL0_VOLTAGE_COMMAND = 0x1514,
-    CELL1_VOLTAGE_COMMAND = 0x1716,
-    CELL2_VOLTAGE_COMMAND = 0x1B1A,
-    CELL4_VOLTAGE_COMMAND = 0x1D1C,
-    STACK_VOLTAGE_COMMAND = 0x3534
-} voltage_cmd_t;
 
 /**
  * @brief Gets the battery voltage.
@@ -371,18 +362,18 @@ uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd)
 {
     osSemaphoreAcquire(bat_mtr_sem, osWaitForever);
 
-    if (!send_subcommand(voltage_cmd))
+    if (!io_lowVoltageBattery_send_subcommand(voltage_cmd))
     {
         return (uint16_t)-1;
     }
 
     uint8_t buffer[VOLTAGE_RESPONSE_LENGTH];
-    if (!read_response(voltage_cmd, VOLTAGE_RESPONSE_LENGTH, buffer))
+    if (!io_lowVoltageBattery_read_response(voltage_cmd, VOLTAGE_RESPONSE_LENGTH, buffer))
     {
         return (uint16_t)-1;
     }
 
-    uint16_t voltage = buffer[0] | (buffer[1] << BYTE_SHIFT);
+    uint16_t voltage = (uint16_t)(buffer[0] | (buffer[1] << BYTE_SHIFT));
     return voltage;
 }
 
@@ -393,7 +384,7 @@ uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd)
  */
 void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin)
 {
-    if(GPIO_pin == BAT_MTR_ALERT_Pin) 
+    if(GPIO_pin == bat_mtr_nalert.pin) 
     {
         osSemaphoreRelease(bat_mtr_sem);
     }

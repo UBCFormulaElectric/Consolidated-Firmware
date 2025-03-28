@@ -1,13 +1,18 @@
 #pragma once
 
-#include "hw_gpio.h"
+#include "hw_gpios.h"
 
-extern const uint16_t ACCUMULATED_CHARGE_COMMAND;
-extern const uint16_t CELL0_VOLTAGE_COMMAND;
-extern const uint16_t CELL1_VOLTAGE_COMMAND;
-extern const uint16_t CELL2_VOLTAGE_COMMAND;
-extern const uint16_t CELL4_VOLTAGE_COMMAND;
-extern const uint16_t STACK_VOLTAGE_COMMAND;
+typedef enum {
+    ACCUMULATED_CHARGE_COMMAND = 0x0076
+} charge_cmd_t;
+
+typedef enum {
+    CELL0_VOLTAGE_COMMAND = 0x1514,
+    CELL1_VOLTAGE_COMMAND = 0x1716,
+    CELL2_VOLTAGE_COMMAND = 0x1B1A,
+    CELL4_VOLTAGE_COMMAND = 0x1D1C,
+    STACK_VOLTAGE_COMMAND = 0x3534
+} voltage_cmd_t;
 
 /**
  * @brief Initializes the low-voltage battery monitoring system.
