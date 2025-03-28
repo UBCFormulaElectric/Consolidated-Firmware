@@ -158,6 +158,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_IWDG1_Init(void);
+static void MX_CRC_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
@@ -212,6 +213,7 @@ int main(void)
     MX_I2C1_Init();
     MX_TIM15_Init();
     MX_IWDG1_Init();
+    MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
