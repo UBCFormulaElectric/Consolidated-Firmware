@@ -55,8 +55,10 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern FDCAN_HandleTypeDef hfdcan1;
-extern TIM_HandleTypeDef   htim6;
+extern FDCAN_HandleTypeDef hfdcan2;
+extern FDCAN_HandleTypeDef hfdcan3;
+extern I2C_HandleTypeDef   hi2c2;
+extern TIM_HandleTypeDef   htim2;
 
 /* USER CODE BEGIN EV */
 
@@ -161,45 +163,129 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles FDCAN1 interrupt 0.
+ * @brief This function handles FDCAN2 interrupt 0.
  */
-void FDCAN1_IT0_IRQHandler(void)
+void FDCAN2_IT0_IRQHandler(void)
 {
-    /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
+    /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
 
-    /* USER CODE END FDCAN1_IT0_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan1);
-    /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
+    /* USER CODE END FDCAN2_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan2);
+    /* USER CODE BEGIN FDCAN2_IT0_IRQn 1 */
 
-    /* USER CODE END FDCAN1_IT0_IRQn 1 */
+    /* USER CODE END FDCAN2_IT0_IRQn 1 */
 }
 
 /**
- * @brief This function handles FDCAN1 interrupt 1.
+ * @brief This function handles FDCAN2 interrupt 1.
  */
-void FDCAN1_IT1_IRQHandler(void)
+void FDCAN2_IT1_IRQHandler(void)
 {
-    /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
+    /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
 
-    /* USER CODE END FDCAN1_IT1_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan1);
-    /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
+    /* USER CODE END FDCAN2_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan2);
+    /* USER CODE BEGIN FDCAN2_IT1_IRQn 1 */
 
-    /* USER CODE END FDCAN1_IT1_IRQn 1 */
+    /* USER CODE END FDCAN2_IT1_IRQn 1 */
 }
 
 /**
- * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
+ * @brief This function handles EXTI line[9:5] interrupts.
  */
-void TIM6_DAC_IRQHandler(void)
+void EXTI9_5_IRQHandler(void)
 {
-    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+    /* USER CODE BEGIN EXTI9_5_IRQn 0 */
 
-    /* USER CODE END TIM6_DAC_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim6);
-    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+    /* USER CODE END EXTI9_5_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(PWR_MTR_nALERT_Pin);
+    /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
-    /* USER CODE END TIM6_DAC_IRQn 1 */
+    /* USER CODE END EXTI9_5_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM2 global interrupt.
+ */
+void TIM2_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM2_IRQn 0 */
+
+    /* USER CODE END TIM2_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim2);
+    /* USER CODE BEGIN TIM2_IRQn 1 */
+
+    /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C2 event interrupt.
+ */
+void I2C2_EV_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C2_EV_IRQn 0 */
+
+    /* USER CODE END I2C2_EV_IRQn 0 */
+    HAL_I2C_EV_IRQHandler(&hi2c2);
+    /* USER CODE BEGIN I2C2_EV_IRQn 1 */
+
+    /* USER CODE END I2C2_EV_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C2 error interrupt.
+ */
+void I2C2_ER_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C2_ER_IRQn 0 */
+
+    /* USER CODE END I2C2_ER_IRQn 0 */
+    HAL_I2C_ER_IRQHandler(&hi2c2);
+    /* USER CODE BEGIN I2C2_ER_IRQn 1 */
+
+    /* USER CODE END I2C2_ER_IRQn 1 */
+}
+
+/**
+ * @brief This function handles EXTI line[15:10] interrupts.
+ */
+void EXTI15_10_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+
+    /* USER CODE END EXTI15_10_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(BAT_MTR_nALERT_Pin);
+    /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+
+    /* USER CODE END EXTI15_10_IRQn 1 */
+}
+
+/**
+ * @brief This function handles FDCAN3 interrupt 0.
+ */
+void FDCAN3_IT0_IRQHandler(void)
+{
+    /* USER CODE BEGIN FDCAN3_IT0_IRQn 0 */
+
+    /* USER CODE END FDCAN3_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan3);
+    /* USER CODE BEGIN FDCAN3_IT0_IRQn 1 */
+
+    /* USER CODE END FDCAN3_IT0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles FDCAN3 interrupt 1.
+ */
+void FDCAN3_IT1_IRQHandler(void)
+{
+    /* USER CODE BEGIN FDCAN3_IT1_IRQn 0 */
+
+    /* USER CODE END FDCAN3_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan3);
+    /* USER CODE BEGIN FDCAN3_IT1_IRQn 1 */
+
+    /* USER CODE END FDCAN3_IT1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
