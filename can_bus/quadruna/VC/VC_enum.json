@@ -33,5 +33,15 @@
     "ELLIPSE_NOT_CONTINUOUS_FRAME": 18,
     "ELLIPSE_INCOMPATIBLE_HARDWARE": 19,
     "ELLIPSE_INVALID_VERSION": 20
+  },
+  "VcTaskName": {
+    "VC_TASK_NONE": 0,
+    "VC_TASK_1HZ": 1,
+    "VC_TASK_100HZ": 2,
+    "VC_TASK_1KHZ": 3,
+    "VC_TASK_CAN_TX": 4,
+    "VC_TASK_CAN_RX": 5,
+    "VC_TASK_LOGGING": 6,
+    "VC_TASK_TELEM": 7
   }
 }
