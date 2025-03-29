@@ -1,5 +1,4 @@
 #include "jobs.h"
-#include "hw_usb.h"
 
 void jobs_init() {}
 

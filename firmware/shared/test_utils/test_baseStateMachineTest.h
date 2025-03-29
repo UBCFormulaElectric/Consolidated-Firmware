@@ -3,15 +3,12 @@
 #include <gtest/gtest.h>
 #include "fake_io_time.hpp"
 
-extern "C"
-{
-#include "app_utils.h"
-#include "app_stateMachine.h"
-#include "app_timer.h"
-}
-
 class BaseStateMachineTest : public testing::Test
 {
+    virtual void tick_100hz() = 0;
+    virtual void tick_1hz() = 0;
+    virtual void board_setup() = 0;
+    virtual void board_teardown() = 0;
   protected:
     void SetUp() override
     {
@@ -42,20 +39,25 @@ class BaseStateMachineTest : public testing::Test
         // t = 1ms rather than t = 0ms.
         current_time_ms = 1;
         fake_io_time_getCurrentMs_returns(current_time_ms);
+        board_setup();
     }
+    void TearDown() override
+    {
+        board_teardown();
+    };
 
-    void LetTimePass(uint32_t time_ms)
+    void LetTimePass(const uint32_t time_ms)
     {
         for (uint32_t ms = 0; ms < time_ms; ms++)
         {
             if (current_time_ms % 1000 == 0)
             {
-                app_stateMachine_tick1Hz();
+                tick_1hz();
             }
 
             if (current_time_ms % 10 == 0)
             {
-                app_stateMachine_tick100Hz();
+                tick_100hz();
             }
 
             fake_io_time_getCurrentMs_returns(current_time_ms);
@@ -63,5 +65,5 @@ class BaseStateMachineTest : public testing::Test
         }
     }
 
-    uint32_t current_time_ms;
+    uint32_t current_time_ms = 0;
 };
