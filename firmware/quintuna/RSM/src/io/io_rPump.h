@@ -3,17 +3,11 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_i2cs.h"
-typedef struct
-{
-    const I2cDevice *src;
-} Pump;
-#else
-#include "app_utils.h"
-EMPTY_STRUCT(Pump);
+#include "hw_i2c.h"
+
+extern const I2cDevice r_pump;
+
+bool io_rPump_isPumpReady(const I2cDevice *device);
+void io_rPump_write(const I2cDevice *device, uint8_t data);
+uint8_t io_rPump_read(const I2cDevice *device);
 #endif
-
-bool io_rPump_isPumpReady(const Pump *pump);
-void io_rPump_write(const Pump *pump, uint8_t data);
-uint8_t io_rPump_read(const Pump *pump);
-
-extern const Pump r_pump;
