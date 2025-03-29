@@ -9,7 +9,7 @@
 void hw_usb_init();
 
 /**
- * @brief Check if the USB port is connected.
+ * @brief Check if the USB port is connected (in a "configured" state).
  * @return True if the port is connected, otherwise false.
  */
 bool hw_usb_checkConnection();

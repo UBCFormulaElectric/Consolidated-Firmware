@@ -13,9 +13,13 @@ class CFunction:
     params: List[str]
 
 
+def is_func_ptr(type: pyclibrary.c_parser.Type):
+    return any(isinstance(item, tuple) for item in type)
+
+
 def parse_header_file(file: str) -> List[CFunction]:
     """
-    Use `pyclibrary` to extract functions from a header file. 
+    Use `pyclibrary` to extract functions from a header file.
     Return them as a list of CFunctions.
 
     """
@@ -25,7 +29,17 @@ def parse_header_file(file: str) -> List[CFunction]:
     parsed_functions: dict[str, pyclibrary.c_parser.Type] = _parser.defs["functions"]
     _functions = []
     for func_name, func_type in parsed_functions.items():
-        print(func_name)
+        if any(
+            map(
+                is_func_ptr,
+                [param_type for _, param_type, _ in func_type.declarators[0]],
+            )
+        ):
+            print(
+                f"Skipping generating fake for function with function pointer argument (not currently supported!): {func_name}"
+            )
+            continue
+
         # pyclibrary encodes return value into the `type_spec` variable.
         return_type = parse_type(None, func_type.type_spec)
         # pyclibrary encodes parameters into the `declarators` variable, as a tuple of
@@ -59,7 +73,6 @@ def parse_type(name: str | None, ctype: pyclibrary.c_parser.Type) -> str:
     # Similarly, qualifiers are stored in the `type_quals` variable.
     # TODO this is very bad code I am guessing and checking
 
-
     # Build the type string
     type_str = str()
 
@@ -86,9 +99,9 @@ def generate_output(
 ) -> None:
     """
     Use jinja2 templates to generate a file which fakes a list of functions. Creates:
-    - Faked header file: Functions declarations to interact with the fake (set return value, 
+    - Faked header file: Functions declarations to interact with the fake (set return value,
         set call count, reset the fake).
-    - Faked source file: Definitions for functions to interact with the fake, as well as 
+    - Faked source file: Definitions for functions to interact with the fake, as well as
         a faked implementation of the function being faked.
 
     """
@@ -134,16 +147,16 @@ def generate_output(
         fake_definitions_arr.append(fake_definitions)
 
     containing_folder = os.path.split(os.path.split(header_path)[0])[1]
-    expected_folders = ['io','hw','app','test']
-
+    expected_folders = ["io", "hw", "app", "test"]
 
     file_name = os.path.basename(header_path)
     fake_file_name_without_extension = os.path.splitext(file_name)[0]
 
     io_file_name_without_extension = fake_file_name_without_extension
     if containing_folder not in expected_folders:
-        io_file_name_without_extension = containing_folder + '/' + fake_file_name_without_extension
-        
+        io_file_name_without_extension = (
+            containing_folder + "/" + fake_file_name_without_extension
+        )
 
     # Write faked header output.
     with open(output_header, "w") as file:

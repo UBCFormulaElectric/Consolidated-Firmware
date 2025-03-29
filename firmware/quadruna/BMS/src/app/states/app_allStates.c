@@ -6,6 +6,7 @@
 #include "app_airs.h"
 #include "app_soc.h"
 #include "app_shdnLoop.h"
+#include "app_diagnosticsMode.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "io_bspdTest.h"
@@ -137,6 +138,8 @@ bool app_allStates_runOnTick100Hz(void)
     app_imd_broadcast();
     app_airs_broadcast();
     app_shdnLoop_broadcast();
+
+    app_diagnosticsMode_broadcast();
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {

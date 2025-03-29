@@ -28,6 +28,7 @@ extern "C"
 
 #include "app_thermistors.h"
 #include "app_accumulator.h"
+#include "app_diagnosticsMode.h"
 #include "app_soc.h"
 #include "app_globals.h"
 }
