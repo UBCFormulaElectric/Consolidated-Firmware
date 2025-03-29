@@ -15,10 +15,10 @@ set(SHARED_APP_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/app")
 set(SHARED_IO_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/io")
 set(SHARED_HW_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/hw")
 # C++ shared code
-set(SHARED_EMBEDDED_DIR_CPP "${SHARED_DIR}/srcpp")
-set(SHARED_APP_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/app")
-set(SHARED_IO_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/io")
-set(SHARED_HW_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/hw")
+#set(SHARED_EMBEDDED_DIR_CPP "${SHARED_DIR}/srcpp")
+#set(SHARED_APP_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/app")
+#set(SHARED_IO_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/io")
+#set(SHARED_HW_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/hw")
 # code sources
 file(GLOB_RECURSE SHARED_APP_SRCS "${SHARED_APP_INCLUDE_DIR}/*.c")
 file(GLOB_RECURSE SHARED_IO_SRCS "${SHARED_IO_INCLUDE_DIR}/*.c")
@@ -68,6 +68,9 @@ function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
 endfunction()
 
 function(jsoncan_library BOARD CAR JSONCAN_DIR)
+    set(JSONCAN_LIB "${CAR}_${BOARD}_jsoncan")
+    set(JSONCAN_FAKES_LIB "${CAR}_${BOARD}_jsoncan_fakes")
+
     jsoncan_sources(
             ${BOARD}
             ${JSONCAN_DIR}
@@ -75,8 +78,18 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
             ${CAR}
     )
     add_library(
-            "${CAR}_${BOARD}_jsoncan" INTERFACE
+        "${JSONCAN_LIB}" INTERFACE
     )
-    target_sources("${CAR}_${BOARD}_jsoncan" INTERFACE ${CAN_SRCS})
-    target_include_directories("${CAR}_${BOARD}_jsoncan" INTERFACE "${CAN_INCLUDE_DIRS}")
+    target_sources("${JSONCAN_LIB}" INTERFACE ${CAN_SRCS})
+    target_include_directories("${JSONCAN_LIB}" INTERFACE "${CAN_INCLUDE_DIRS}")
+
+    set(HEADERS_TO_FAKE
+        "${JSONCAN_DIR}/io/io_canTx.h"
+        "${JSONCAN_DIR}/io/io_canRx.h"
+    )
+    create_fake_library(
+        "${JSONCAN_FAKES_LIB}"
+        "${HEADERS_TO_FAKE}"
+    )
+    target_link_libraries("${JSONCAN_LIB}" INTERFACE "${JSONCAN_FAKES_LIB}")
 endfunction()

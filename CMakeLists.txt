@@ -75,7 +75,7 @@ message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build
 IF ("${PLATFORM}" STREQUAL "firmware")
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
-        project("UBC Formula Electric Software" C CXX ASM)
+        project("UBC Formula Electric Software" C ASM)
     ELSEIF ("${TARGET}" STREQUAL "test")
         project("UBC Formula Electric Software" C CXX)
     ELSE ()

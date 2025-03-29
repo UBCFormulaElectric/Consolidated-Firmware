@@ -2,8 +2,8 @@ message("")
 message("📦 [dependencies.cmake] Handling Dependencies")
 
 # Git Submodules
-execute_process(COMMAND "git submodule update --init --recursive" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-message("  ✅ Git Submodules Updated")
+execute_process(COMMAND git submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+message("  ✅ Git Submodules Updated at ${CMAKE_SOURCE_DIR}")
 
 # Protobuf Compiler - protoc
 find_program(HAS_PROTOBUF_COMPILER protoc)
@@ -26,7 +26,7 @@ IF("${TARGET}" STREQUAL "binary")
     CPMAddPackage(
             NAME STM32CUBEF4
             GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeF4
-            GIT_TAG f3e28fdf492dd7839d3a72bbff694bc2809e29c4
+            GIT_TAG 623397fd34f0788ef7b6aea1d2deaa22bbc4091d
             GIT_SHALLOW TRUE
     )
 

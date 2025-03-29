@@ -4,34 +4,28 @@
 #include "cmsis_os.h"
 
 #include "hw_adcs.h"
-#include "hw_gpios.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_bootup.h"
 #include "hw_utils.h"
-#include "hw_spi.h"
 #include "hw_pwmInput.h"
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_watchdog.h"
 #include "hw_uarts.h"
-#include "hw_sd.h"
 #include "hw_crc.h"
+#include "hw_cans.h"
 
 #include "io_canTx.h"
 #include "io_sd.h"
-#include "io_faultLatch.h"
 #include "io_imd.h"
-#include "ltc6813/io_ltc6813Shared.h"
 #include "io_tractiveSystem.h"
 #include "io_log.h"
 #include "io_chimera.h"
-#include "io_bmsShdn.h"
+#include "io_canQueue.h"
 
 #include "app_canRx.h"
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
-#include "app_heartbeatMonitors.h"
 
 #include "shared.pb.h"
 
@@ -41,11 +35,6 @@ static const PwmInputConfig imd_pwm_input_config = {
     .rising_edge_tim_channel  = TIM_CHANNEL_1,
     .falling_edge_tim_channel = TIM_CHANNEL_2,
 };
-
-static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
-                                          .nss_port   = SPI_CS_GPIO_Port,
-                                          .nss_pin    = SPI_CS_Pin,
-                                          .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
 
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
@@ -80,14 +69,16 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_can_init(&can1);
 
     io_tractiveSystem_init(&ts_config);
-    io_ltc6813Shared_init(&ltc6813_spi);
     io_imd_init(&imd_pwm_input_config);
     io_chimera_init(GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
     io_sdGpio_init(&sd_gpio);
 
     app_globals_init();
+
+    jobs_init();
 }
 
 void tasks_deinit(void)
@@ -130,7 +121,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        jobs_run1Hz_tick();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -159,6 +150,7 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
+        jobs_run100Hz_tick();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -186,6 +178,7 @@ _Noreturn void tasks_run1kHz(void)
     {
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
+        jobs_run1kHz_tick();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
@@ -208,7 +201,10 @@ _Noreturn void tasks_runCanTx(void)
     io_chimera_sleepTaskIfEnabled();
 
     for (;;)
-        jobs_runCanTx_tick();
+    {
+        CanMsg tx_msg = io_canQueue_popTx();
+        hw_can_transmit(&can1, &tx_msg);
+    }
 }
 
 _Noreturn void tasks_runCanRx(void)

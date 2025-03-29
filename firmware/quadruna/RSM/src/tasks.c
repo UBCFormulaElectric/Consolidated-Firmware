@@ -9,32 +9,40 @@
 #include "app_commitInfo.h"
 #include "app_coolant.h"
 #include "app_heartbeatMonitors.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_jsoncan.h"
 #include "io_canTx.h"
-#include "io_can.h"
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_coolant.h"
 #include "io_fans.h"
 #include "io_brake_light.h"
 #include "io_canQueue.h"
+#include "io_bootHandler.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
-#include "hw_stackWaterMark.h" // TODO setup stack watermark on RSM
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
+#include "hw_can.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
 
-static const CanHandle can = { .hcan = &hcan1 };
+#include <assert.h>
+
+static CanHandle can = { .hcan = &hcan1 };
+
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -119,7 +127,7 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("RSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -128,9 +136,9 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
+    hw_can_init(&can);
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can);
     io_canQueue_init();
     io_chimera_init(GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
 
@@ -147,6 +155,7 @@ void tasks_init(void)
 
     app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_RSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_RSM_Heartbeat_set(true);
 }
 
 void tasks_deinit(void)
@@ -177,7 +186,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -256,7 +265,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        io_can_transmit(&can, &tx_msg);
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 
@@ -267,6 +276,8 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg     rx_msg         = io_canQueue_popRx();
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+
+        io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

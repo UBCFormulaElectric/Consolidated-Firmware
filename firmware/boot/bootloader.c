@@ -17,7 +17,8 @@
 #include "hw_utils.h"
 #include "hw_crc.h"
 #include "hw_hal.h"
-#include "io_can.h"
+#include "hw_can.h"
+#include <assert.h>
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
@@ -34,7 +35,7 @@ void canRxQueueOverflowCallBack(const uint32_t unused)
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.
@@ -45,12 +46,16 @@ extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
+// Boot flag from RAM
+__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
+
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
 typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
+    uint32_t bootloader_status;
 } Metadata;
 
 typedef enum
@@ -128,14 +133,6 @@ static BootStatus verifyAppCodeChecksum(void)
     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
 
-#ifndef BOOT_AUTO
-#include "hw_gpio.h"
-static const Gpio bootloader_pin = {
-    .port = nBOOT_EN_GPIO_Port,
-    .pin  = nBOOT_EN_Pin,
-};
-#endif
-
 static uint32_t current_address;
 static bool     update_in_progress;
 
@@ -151,7 +148,6 @@ void bootloader_init(void)
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
-
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -161,23 +157,21 @@ void bootloader_init(void)
     // other MCUs.
     bootloader_boardSpecific_init();
 
-    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
-#ifndef BOOT_AUTO
-        && hw_gpio_readPin(&bootloader_pin)
-#endif
-    )
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
     {
         // Deinit peripherals.
-#ifndef BOOT_AUTO
-        HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
-#endif
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
+
+        // Clear RCC register flag and RAM boot flag.
+        boot_flag = 0x0;
 
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
+
+    hw_can_init(&can);
+    io_canQueue_init();
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -229,6 +223,13 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
+        else if (command.std_id == GO_TO_APP && !update_in_progress)
+        {
+            boot_flag = 0x0;
+            HAL_TIM_Base_Stop_IT(&htim6);
+            HAL_CRC_DeInit(&hcrc);
+            modifyStackPointerAndStartApp(&__app_code_start__);
+        }
     }
 }
 
@@ -259,7 +260,7 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        io_can_transmit(&can, &tx_msg);
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 

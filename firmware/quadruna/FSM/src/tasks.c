@@ -3,19 +3,19 @@
 #include "cmsis_os.h"
 
 #include "app_mainState.h"
-
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_apps.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
-#include "io_can.h"
 #include "io_canQueue.h"
 #include "io_led.h"
+#include "io_fsmShdn.h"
 #include "io_chimera.h"
 #include "io_steering.h"
 #include "io_wheels.h"
@@ -23,22 +23,29 @@
 #include "io_suspension.h"
 #include "io_loadCell.h"
 #include "io_apps.h"
+#include "io_bootHandler.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMark.h" // TODO enable stackwatermark on the FSM
-#include "hw_stackWaterMarkConfig.h"
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_uarts.h"
 #include "hw_pwmInputFreqOnly.h"
+#include "hw_can.h"
 
 #include "shared.pb.h"
 
-static const CanHandle can = { .hcan = &hcan1 };
+#include <assert.h>
+
+static CanHandle can = { .hcan = &hcan1 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 
 void canRxQueueOverflowCallBack(const uint32_t overflow_count)
 {
@@ -101,22 +108,22 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("FSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_adcs_chipsInit();
 
     hw_hardFaultHandler_init();
-    io_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can);
+    hw_can_init(&can);
     io_chimera_init(GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
     app_canTx_init();
     app_canRx_init();
+    io_canQueue_init();
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
@@ -130,6 +137,7 @@ void tasks_init(void)
 
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_FSM_Heartbeat_set(true);
 }
 
 void tasks_deinit(void)
@@ -162,7 +170,7 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -241,7 +249,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        io_can_transmit(&can, &tx_msg);
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 
@@ -251,7 +259,9 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
-        CanMsg     rx_msg         = io_canQueue_popRx();
+        CanMsg rx_msg = io_canQueue_popRx();
+        io_bootHandler_processBootRequest(&rx_msg);
+
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }

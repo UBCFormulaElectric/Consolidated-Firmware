@@ -6,6 +6,7 @@
 #include "app_airs.h"
 #include "app_soc.h"
 #include "app_shdnLoop.h"
+#include "app_diagnosticsMode.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "io_bspdTest.h"
@@ -31,12 +32,8 @@ void app_allStates_runOnTick1Hz(void)
 {
     // If charge state has not placed a lock on broadcasting
     // if the charger is charger is connected
-    if (globals->broadcast_charger_connected)
-    {
-        // Broadcast the can msg from the BRUSA charger to the entire car
-        bool charger_is_connected = app_canRx_BRUSA_IsConnected_get();
-        app_canTx_BMS_ChargerConnected_set(charger_is_connected);
-    }
+    bool charger_is_connected = app_canRx_BRUSA_IsConnected_get();
+    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
 
     const float min_soc = app_soc_getMinSocCoulombs();
 
@@ -142,6 +139,8 @@ bool app_allStates_runOnTick100Hz(void)
     app_imd_broadcast();
     app_airs_broadcast();
     app_shdnLoop_broadcast();
+
+    app_diagnosticsMode_broadcast();
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {
