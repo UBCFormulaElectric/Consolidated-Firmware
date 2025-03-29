@@ -211,7 +211,6 @@ int main(void)
     MX_TIM15_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-
     /* USER CODE END 2 */
 
     /* Init scheduler */
