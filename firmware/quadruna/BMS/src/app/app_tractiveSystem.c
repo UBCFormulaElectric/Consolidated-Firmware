@@ -44,7 +44,7 @@ void app_tractiveSystem_broadcast()
     app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
 }
 
-bool app_tractveSystem_checkFaults()
+bool app_tractiveSystem_checkFaults()
 {
     //    Charge current is positive, discharge current is negative
     //    TS current should be in the range: (-265.5, 70.8)
