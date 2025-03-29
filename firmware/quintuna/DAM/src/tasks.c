@@ -55,9 +55,6 @@ _Noreturn void tasks_run1Hz(void)
     {
         jobs_run1Hz_tick();
 
-        // io_enable_buzzer();
-        io_disable_buzzer();
-
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
