@@ -1,5 +1,5 @@
 #include <string.h>
-#include "hw_spi.h"
+#include "hw_spis.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
 #include "app_utils.h"
@@ -47,8 +47,6 @@ typedef enum
     CELL_V_REG_GROUP_F,
     NUM_OF_CELL_V_REG_GROUPS
 } CellVoltageRegGroup;
-
-extern const SpiInterface *ltc6813_spi;
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -144,15 +142,15 @@ bool io_ltc6813CellVoltages_readVoltages(void)
     for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
     {
         // Prepare the command used to read data back from a register group
-        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+        uint16_t tx_cmd[NUM_CMD_WORDS] = {
             [CMD_WORD]  = cv_read_cmds[curr_reg_group],
             [CMD_PEC15] = 0U,
         };
         io_ltc6813Shared_packCmdPec15(tx_cmd);
 
         // Transmit the command and receive data stored in register group.
-        bool voltage_read_success = hw_spi_transmitAndReceive(
-            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
+        bool voltage_read_success = hw_spi_transmitThenReceive(
+            &ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments(curr_reg_group, rx_buffer);
 
         // If SPI communication or parsing fails, save result but continue to update data for remaining cell register
@@ -290,15 +288,15 @@ bool io_ltc6813CellVoltages_owcReadVoltages(bool pull_up)
     for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
     {
         // Prepare the command used to read data back from a register group
-        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+        uint16_t tx_cmd[NUM_CMD_WORDS] = {
             [CMD_WORD]  = cv_read_cmds[curr_reg_group],
             [CMD_PEC15] = 0U,
         };
         io_ltc6813Shared_packCmdPec15(tx_cmd);
 
         // Transmit the command and receive data stored in register group.
-        bool voltage_read_success = hw_spi_transmitAndReceive(
-            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
+        bool voltage_read_success = hw_spi_transmitThenReceive(
+            &ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments_owc(curr_reg_group, rx_buffer, pull_up);
 
         // If SPI communication or parsing fails, save result but continue to update data for remaining cell register

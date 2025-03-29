@@ -15,10 +15,10 @@ typedef struct
 static WatchdogTable watchdog_table;
 
 // Hook functions that the user must define in order to use this library
-static void (*refreshHardwareWatchdog)();
+static void (*refreshHardwareWatchdog)(void);
 static void (*timeoutCallback)(WatchdogHandle *);
 
-void hw_watchdog_init(void (*refresh_hardware_watchdog)(), void (*timeout_callback)(WatchdogHandle *))
+void hw_watchdog_init(void (*refresh_hardware_watchdog)(void), void (*timeout_callback)(WatchdogHandle *))
 {
     assert(refresh_hardware_watchdog != NULL);
     assert(timeout_callback != NULL);
@@ -40,7 +40,7 @@ void hw_watchdog_initWatchdog(WatchdogHandle *watchdog, uint8_t task_id, Tick_t 
 {
     watchdog->period          = period_in_ticks;
     watchdog->deadline        = period_in_ticks;
-    watchdog->check_in_status = false;
+    watchdog->check_in_status = true;
     watchdog->initialized     = true;
     watchdog->task_id         = task_id;
 }

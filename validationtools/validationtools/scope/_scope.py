@@ -4,7 +4,13 @@ import time
 import numpy as np
 from tqdm import tqdm
 import pandas as pd
+from typing import List, Dict, Union
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 class Scope:
     def __init__(self):
@@ -12,11 +18,12 @@ class Scope:
         Represents a Rigol DS1054Z oscilloscope. You can write commands to the scope as well as collect data
         from it as both screenshots and data points.
         '''
+        logger = logging.getLogger(self.__class__.__name__)
         resources = visa.ResourceManager()
 
-        resourceTag = ''
+        resourceTag: str = ''
         for x in resources.list_resources():
-            print(x)
+            logger.debug(f"Found resource: {x}")
             if (x[23:24] == 'S'): resourceTag = x
 
         if (resourceTag == ''):
@@ -25,16 +32,16 @@ class Scope:
 
         self.scope = resources.open_resource(resourceTag)
 
-    def stop(self):
+    def stop(self) -> None:
         self.scope.write(":STOP")
 
-    def run(self):
+    def run(self) -> None:
         self.scope.write(":RUN")
 
-    def single(self):
+    def single(self) -> None:
         self.scope.write(':SING')
 
-    def channel_on(self, channel):
+    def channel_on(self, channel: int) -> None:
         """
         Turns on the given channel.
 
@@ -42,7 +49,7 @@ class Scope:
         """
         self.scope.write(f':CHANnel{channel}:DISPlay ON')
 
-    def channel_off(self, channel):
+    def channel_off(self, channel: int) -> None:
         """
         Turns off the given channel.
 
@@ -50,7 +57,7 @@ class Scope:
         """
         self.scope.write(f'CHANnel{channel}:DISPlay OFF')
 
-    def only_channel(self, channel):
+    def only_channel(self, channel: int) -> None:
         """
         Turns on the given channel and turns off all of the other channels.
 
@@ -61,14 +68,14 @@ class Scope:
             if (x != channel):
                 self.channel_off(x)
 
-    def all_channels(self):
+    def all_channels(self) -> None:
         """
         Turns on all channels.
         """
         for x in range(1, 5):
             self.channel_on(x)
 
-    def offset(self, channel, value):
+    def offset(self, channel: int, value: float) -> None:
         """
         Sets the DC offset of the given channel.
 
@@ -77,7 +84,7 @@ class Scope:
         """
         self.scope.write(f':CHANnel{channel}:OFFSet {value}')
 
-    def screenshot(self, filename=''):
+    def screenshot(self, filename: str = '') -> None:
         '''
         Saves a screen capture of the scope to the working directory as a png file.
         
@@ -88,15 +95,17 @@ class Scope:
         # save image file
         if (filename == ''):
             filename = "rigol_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".png"
+        elif (filename[len(filename) - 4:] != ".png"):
+            filename += ".png"
         fid = open(filename, 'wb')
         fid.write(raw_data)
         fid.close()
         print("Wrote screen capture to filename " + '\"' + filename + '\"')
         time.sleep(5)
 
-    def vertical_scale(self, channel, scale):
+    def vertical_scale(self, channel: int, scale: float) -> None:
         '''
-        sets the vertical scale of the channel in volts
+        Sets the vertical scale of the channel in volts.
         
         channel: integer 1 to 4
         
@@ -104,24 +113,24 @@ class Scope:
         '''
         self.scope.write(f':CHANnel{channel}:SCALe {scale}')
 
-    def vertical_scale_all(self, scale):
+    def vertical_scale_all(self, scale: float) -> None:
         '''
-        scales all channels by the given scaling factor
+        Scales all channels by the given scaling factor.
         
         scale: 0mV to 100V
         '''
         for x in range(1, 5):
             self.vertical_scale(x, scale)
 
-    def horizontal_scale(self, scale):
+    def horizontal_scale(self, scale: float) -> None:
         """
-        sets the horizontal
-        
+        Sets the horizontal scale.
+
         scale: real value in seconds per division
         """
         self.scope.write(f':TIMebase:MAIN:SCALe {scale}')
 
-    def write(self, message):
+    def write(self, message: str) -> None:
         '''
         Writes commands directly to the scope. Only use if you require a command that is not supported here.
         
@@ -131,7 +140,7 @@ class Scope:
         '''
         self.scope.write(message)
 
-    def __data_collector(self, channel):
+    def __data_collector(self, channel: int) -> List[np.ndarray]:
         '''
         Private method for handling data collection.
         
@@ -139,6 +148,7 @@ class Scope:
         
         returns: an array of timestamps and voltage values
         '''
+        self.channel_on(channel)
         self.scope.write(':stop')
         self.scope.write(':wav:sour chan%i' % channel)
         self.scope.write(':wav:mode norm')
@@ -177,7 +187,7 @@ class Scope:
         v = v[:cutoff]
         return [t, v]
 
-    def get_data(self, channel, filename=''):
+    def get_data(self, channel: int, filename: str = '') -> None:
         '''
         Get oscilloscope data points saved as a csv file. File will be saved to your working directory.
         
@@ -191,10 +201,12 @@ class Scope:
         if (filename == ''):
             filename = "rigol_waveform_data_channel_" + str(channel) + "_" + datetime.datetime.now().strftime(
                 "%Y-%m-%d_%H-%M-%S") + ".csv"
+        elif (filename[len(filename) - 4:] != ".csv"):
+            filename += ".csv"
 
         df.to_csv(filename, index=False)
 
-    def get_all_channels(self, filename=''):
+    def get_all_channels(self, filename: str = '') -> None:
         '''
         Collect data points for all channels. File will be saved to your working directory.
         
@@ -205,20 +217,19 @@ class Scope:
         t = data1[0]
 
         ch1 = data1[1]
-
         ch2 = self.__data_collector(2)[1]
-
         ch3 = self.__data_collector(3)[1]
-
         ch4 = self.__data_collector(4)[1]
 
         df = pd.DataFrame({"time": t, "Channel 1": ch1, "Channel 2": ch2, "Channel 3": ch3, "Channel 4": ch4})
         if (filename == ''):
             filename = "rigol_waveform_all_channels_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
+        elif (filename[len(filename) - 4:] != ".csv"):
+            filename += ".csv"
 
         df.to_csv(filename)
 
-    def get_data_premable(self):
+    def get_data_premable(self) -> Dict[str, Union[int, float]]:
         '''
         Get information about oscilloscope axes.
 

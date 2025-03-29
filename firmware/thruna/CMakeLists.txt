@@ -1,5 +1,0 @@
-add_subdirectory(BMS)
-add_subdirectory(DCM)
-add_subdirectory(FSM)
-add_subdirectory(PDM)
-add_subdirectory(DIM)

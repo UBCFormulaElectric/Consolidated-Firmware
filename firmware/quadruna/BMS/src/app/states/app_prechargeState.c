@@ -4,7 +4,6 @@
 // When TS reaches this threshold of ACC, AIR+ engages, and precharge is disabled, the voltage must be at least 90%
 // EV.6.6.1
 #define PRECHARGE_ACC_V_THRESHOLD (0.90f)
-
 #define MAX_PRECHARGE_ATTEMPTS 3U
 
 static bool checkPrechargeFaults(
@@ -50,7 +49,7 @@ static void preChargeStateRunOnTick100Hz(void)
         float ts_voltage        = app_tractiveSystem_getVoltage();
         float threshold_voltage = app_accumulator_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 
-        const bool is_charger_connected = io_charger_isConnected();
+        const bool is_charger_connected = app_canRx_BRUSA_IsConnected_get();
         const bool is_air_negative_open = !io_airs_isNegativeClosed();
         const bool is_ts_rising_slowly =
             (ts_voltage < threshold_voltage) &&
@@ -101,7 +100,7 @@ static void preChargeStateRunOnTick100Hz(void)
             // TODO: Consider reworking this transition.
             app_stateMachine_setNextState(app_faultState_get());
             app_canRx_Debug_StartCharging_update(false);
-            app_canAlerts_BMS_Fault_ChargerExternalShutdown_set(!is_charger_connected);
+            app_canAlerts_BMS_Fault_ChargerShutdownLoopOpen_set(!is_charger_connected);
         }
     }
 }

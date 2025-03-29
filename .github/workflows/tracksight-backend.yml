@@ -6,31 +6,16 @@ on:
       - "software/tracksight/backend/**"
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubcformulaelectric/environment:latest
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          activate-environment: tracksight-backend
-          environment-file: software/tracksight/backend/environment.yml
-          python-version: 3
-          auto-activate-base: false
-
-      - name: Conda Environment Information 
-        shell: bash -l {0}
-        run: |
-          conda info
-          conda list 
 
       - name: Start Flask app
         run: |
           cd software/tracksight/backend
-          source /usr/share/miniconda/bin/activate tracksight-backend
-          python app/telemetry.py &
-          sleep 10
+          python3 app/telemetry.py & sleep 10
           curl --fail http://localhost:5000
         env:
           FLASK_ENV: development
@@ -39,10 +24,4 @@ jobs:
         if: always()
         run: kill $(jobs -p) || true
 
-      - name: CI Testing
-        run: |
-          cd software/tracksight/backend
-          source /usr/share/miniconda/bin/activate tracksight-backend
-          conda info
-          pytest app/tests
             

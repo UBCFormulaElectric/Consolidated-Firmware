@@ -101,6 +101,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PC0     ------> ADC1_INP10
         PC1     ------> ADC1_INN10
+        PC1     ------> ADC1_INP11
         PC4     ------> ADC1_INP4
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
@@ -159,6 +160,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PC0     ------> ADC1_INP10
         PC1     ------> ADC1_INN10
+        PC1     ------> ADC1_INP11
         PC4     ------> ADC1_INP4
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
@@ -176,6 +178,48 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 }
 
 /**
+ * @brief CRC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hcrc: CRC handle pointer
+ * @retval None
+ */
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
+{
+    if (hcrc->Instance == CRC)
+    {
+        /* USER CODE BEGIN CRC_MspInit 0 */
+
+        /* USER CODE END CRC_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_CRC_CLK_ENABLE();
+        /* USER CODE BEGIN CRC_MspInit 1 */
+
+        /* USER CODE END CRC_MspInit 1 */
+    }
+}
+
+/**
+ * @brief CRC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hcrc: CRC handle pointer
+ * @retval None
+ */
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
+{
+    if (hcrc->Instance == CRC)
+    {
+        /* USER CODE BEGIN CRC_MspDeInit 0 */
+
+        /* USER CODE END CRC_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_CRC_CLK_DISABLE();
+        /* USER CODE BEGIN CRC_MspDeInit 1 */
+
+        /* USER CODE END CRC_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief FDCAN MSP Initialization
  * This function configures the hardware resources used in this example
  * @param hfdcan: FDCAN handle pointer
@@ -183,31 +227,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
  */
 void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hfdcan->Instance == FDCAN1)
     {
         /* USER CODE BEGIN FDCAN1_MspInit 0 */
 
         /* USER CODE END FDCAN1_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.PLL2.PLL2M           = 1;
-        PeriphClkInitStruct.PLL2.PLL2N           = 24;
-        PeriphClkInitStruct.PLL2.PLL2P           = 2;
-        PeriphClkInitStruct.PLL2.PLL2Q           = 2;
-        PeriphClkInitStruct.PLL2.PLL2R           = 2;
-        PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
-        PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
-        PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
         /* Peripheral clock enable */
         __HAL_RCC_FDCAN_CLK_ENABLE();
 
@@ -266,6 +291,103 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
 }
 
 /**
+ * @brief SD MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hsd: SD handle pointer
+ * @retval None
+ */
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
+{
+    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    if (hsd->Instance == SDMMC1)
+    {
+        /* USER CODE BEGIN SDMMC1_MspInit 0 */
+
+        /* USER CODE END SDMMC1_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDMMC;
+        PeriphClkInitStruct.SdmmcClockSelection  = RCC_SDMMCCLKSOURCE_PLL;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        /* Peripheral clock enable */
+        __HAL_RCC_SDMMC1_CLK_ENABLE();
+
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+        /**SDMMC1 GPIO Configuration
+        PC8     ------> SDMMC1_D0
+        PC9     ------> SDMMC1_D1
+        PC10     ------> SDMMC1_D2
+        PC11     ------> SDMMC1_D3
+        PC12     ------> SDMMC1_CK
+        PD2     ------> SDMMC1_CMD
+        */
+        GPIO_InitStruct.Pin       = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
+        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+        GPIO_InitStruct.Pin       = GPIO_PIN_2;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
+        HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+        /* SDMMC1 interrupt Init */
+        HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
+        /* USER CODE BEGIN SDMMC1_MspInit 1 */
+
+        /* USER CODE END SDMMC1_MspInit 1 */
+    }
+}
+
+/**
+ * @brief SD MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hsd: SD handle pointer
+ * @retval None
+ */
+void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
+{
+    if (hsd->Instance == SDMMC1)
+    {
+        /* USER CODE BEGIN SDMMC1_MspDeInit 0 */
+
+        /* USER CODE END SDMMC1_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_SDMMC1_CLK_DISABLE();
+
+        /**SDMMC1 GPIO Configuration
+        PC8     ------> SDMMC1_D0
+        PC9     ------> SDMMC1_D1
+        PC10     ------> SDMMC1_D2
+        PC11     ------> SDMMC1_D3
+        PC12     ------> SDMMC1_CK
+        PD2     ------> SDMMC1_CMD
+        */
+        HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12);
+
+        HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
+
+        /* SDMMC1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SDMMC1_IRQn);
+        /* USER CODE BEGIN SDMMC1_MspDeInit 1 */
+
+        /* USER CODE END SDMMC1_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief SPI MSP Initialization
  * This function configures the hardware resources used in this example
  * @param hspi: SPI handle pointer
@@ -273,23 +395,12 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
  */
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hspi->Instance == SPI2)
     {
         /* USER CODE BEGIN SPI2_MspInit 0 */
 
         /* USER CODE END SPI2_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI2;
-        PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
         /* Peripheral clock enable */
         __HAL_RCC_SPI2_CLK_ENABLE();
 
@@ -313,6 +424,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* SPI2 interrupt Init */
+        HAL_NVIC_SetPriority(SPI2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspInit 1 */
 
         /* USER CODE END SPI2_MspInit 1 */
@@ -342,6 +456,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         */
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15);
 
+        /* SPI2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
         /* USER CODE END SPI2_MspDeInit 1 */
@@ -365,19 +481,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         /* Peripheral clock enable */
         __HAL_RCC_TIM1_CLK_ENABLE();
 
-        __HAL_RCC_GPIOE_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
         /**TIM1 GPIO Configuration
-        PE11     ------> TIM1_CH2
         PA8     ------> TIM1_CH1
         */
-        GPIO_InitStruct.Pin       = GPIO_PIN_11;
-        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
-        HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
         GPIO_InitStruct.Pin       = GPIO_PIN_8;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -459,11 +566,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
         __HAL_RCC_TIM1_CLK_DISABLE();
 
         /**TIM1 GPIO Configuration
-        PE11     ------> TIM1_CH2
         PA8     ------> TIM1_CH1
         */
-        HAL_GPIO_DeInit(GPIOE, GPIO_PIN_11);
-
         HAL_GPIO_DeInit(GPIOA, GPIO_PIN_8);
 
         /* TIM1 interrupt DeInit */

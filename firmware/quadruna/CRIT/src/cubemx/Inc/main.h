@@ -30,9 +30,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -42,7 +42,24 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef  hadc1;
+    extern DMA_HandleTypeDef  hdma_adc1;
+    extern CAN_HandleTypeDef  hcan1;
+    extern IWDG_HandleTypeDef hiwdg;
+    extern TIM_HandleTypeDef  htim3;
+    extern UART_HandleTypeDef huart2;
 
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -61,18 +78,17 @@ extern "C"
 #define TASK_100HZ_STACK_SIZE 512
 #define TASK_CANRX_STACK_SIZE 512
 #define TASK_CANTX_STACK_SIZE 512
+#define TIM3_PRESCALER 8
 #define TIM12_PWM_MINIMUM_FREQUENCY 1
-#define IDWG_RESET_FREQUENCY 5
+#define IWDG_RESET_FREQUENCY 5
+#define ADC_FREQUENCY 1000
 #define TIMx_FREQUENCY 96000000
 #define TIM12_PRESCALER (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TIM12_PWM_MINIMUM_FREQUENCY)
 #define TASK_1HZ_STACK_SIZE 512
 #define TASK_1KHZ_STACK_SIZE 512
 #define TIM12_AUTO_RELOAD_REG 0xFFFF
 #define IWDG_PRESCALER 4
-#define IWDG_WINDOW_DISABLE_VALUE 4095
 #define LSI_FREQUENCY 32000
-#define TIM3_PRESCALER 8
-#define ADC_FREQUENCY 1000
 #define NDRIVE_MODE_1b_Pin GPIO_PIN_13
 #define NDRIVE_MODE_1b_GPIO_Port GPIOC
 #define NCHIMERA_Pin GPIO_PIN_15
@@ -143,8 +159,8 @@ extern "C"
 #define IMD_R_GPIO_Port GPIOC
 #define AMS_R_Pin GPIO_PIN_2
 #define AMS_R_GPIO_Port GPIOD
-#define REGEN_LED_Pin GPIO_PIN_4
-#define REGEN_LED_GPIO_Port GPIOB
+#define START_LED_Pin GPIO_PIN_4
+#define START_LED_GPIO_Port GPIOB
 #define START_SIG_Pin GPIO_PIN_5
 #define START_SIG_GPIO_Port GPIOB
 #define TORQUE_VECTORING_LED_Pin GPIO_PIN_6
@@ -153,8 +169,8 @@ extern "C"
 #define REGEN_SIG_GPIO_Port GPIOB
 #define TORQUE_VECTORING_SIG_Pin GPIO_PIN_8
 #define TORQUE_VECTORING_SIG_GPIO_Port GPIOB
-#define START_LED_Pin GPIO_PIN_9
-#define START_LED_GPIO_Port GPIOB
+#define REGEN_LED_Pin GPIO_PIN_9
+#define REGEN_LED_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

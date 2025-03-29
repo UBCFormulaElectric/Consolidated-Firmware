@@ -1,126 +1,168 @@
-from dateutil.parser import parse
-from datetime import timedelta
-import requests
+"""
+Influx database handler class.
 
-URL = "https://us-east-1-1.aws.cloud2.influxdata.com"
-BUCKET = "testing"
+File for handling influxdb queries.
+This requires the influx dbrc mapping to have db name == bucket name
+TODO: Implement proper error handling for things like no data available.
+"""
 
-TEMP_TOKEN = "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8gZ0WVyuycQtQOCKIIWJQ=="
+import pandas as pd
+from typing import List, Tuple
+import influxdb_client
+import logging
 
-class NoDataForQueryException(Exception):
-    "Raised when no data was found for a specific query"
-    pass
 
-# This requires the influx dbrc mapping to have db name == bucket name
-# TODO: Implement proper error handling for things like no data available.
+logger = logging.getLogger("telemetry_logger")
+
+
+BASIC_TIMEOUT_MS = 10_000
+QUERY_TIMEOUT_MS = 100_000
+
+
 class InfluxHandler:
-    @staticmethod
-    def _gen_headers():
-        headers = {
-            "Authorization": f"Token {TEMP_TOKEN}",
-            "Content-type": "application/json",
-        }
-        return headers
+    is_setup = False
 
-    @staticmethod
-    def get_bucket_names_and_ids():
-        headers = InfluxHandler._gen_headers()
-        params = {
-        }
-        response = requests.get(
-            f"{URL}/api/v2/buckets",
-            headers=headers,
-            params=params
-        )
+    @classmethod
+    def setup(
+        cls,
+        url: str,
+        token: str,
+        bucket: str = "quadruna",
+        org: str = "ubcformulaelectric",
+    ):
+        cls.url = url
+        cls.token = token
+        cls.bucket = bucket
+        cls.org = org
+        cls.is_setup = True
 
-        response_json = response.json()
-        return [
-            {"name": bucket["name"], "id": bucket["id"]} 
-            for bucket in response_json["buckets"] 
-            if not bucket["name"].startswith("_")
-        ]
+        logger.info(f"Connecting to InfluxDB database at '{url}' with token '{token}'.")
 
-    @staticmethod
-    def get_measurements(db=BUCKET):
-        headers = InfluxHandler._gen_headers()
-        params = {
-            "db": db,
-            "q": f"SHOW MEASUREMENTS ON {db}",
-        }
-        response = requests.get(
-            f"{URL}/query",
-            headers=headers,
-            params=params
-        )
+        # Checks if the vehicle bucket exists, and if not, creates it
+        with influxdb_client.InfluxDBClient(
+            url=url, token=token, org=org, timeout=BASIC_TIMEOUT_MS
+        ) as client:
+            if client.buckets_api().find_bucket_by_name(bucket_name=bucket) is None:
+                client.buckets_api().create_bucket(bucket_name=bucket)
 
-        results = response.json()["results"][0]
-        # Very jank, not sure if this is correct
-        return [
-            measurement["values"][0][0] for measurement in results["series"]
-        ]
+    @classmethod
+    def get_measurements(cls) -> list[str]:
+        """
+        Get all measurements from the database.
+        :param bucket: Name of bucket to fetch data from.
+        :returns List of all measurements.
+        """
+        if not cls.is_setup:
+            raise RuntimeError("InfluxHandler not initialized.")
 
-    @staticmethod
-    def get_fields(measurement, db=BUCKET):
-        headers = InfluxHandler._gen_headers()
-        params = {
-            "db": db,
-            "q": f"SHOW FIELD KEYS ON {db} FROM {measurement}",
-        }
-        response = requests.get(
-            f"{URL}/query",
-            headers=headers,
-            params=params
-        )
+        query = f"""
+        import "influxdata/influxdb/schema"
+        schema.measurements(bucket: \"{cls.bucket}\")"""
 
-        # lol
-        results = response.json()["results"][0]["series"][0]["values"]
-        return [
-            field_pair[0] for field_pair in results
-        ]
+        with influxdb_client.InfluxDBClient(
+            url=cls.url, token=cls.token, org=cls.org, timeout=BASIC_TIMEOUT_MS
+        ) as client:
+            return [
+                str(i[0])
+                for i in client.query_api().query(query).to_values(columns=["_value"])
+            ]
 
-    @staticmethod
-    def query(measurement, fields, time_range, db=BUCKET, max_points = 8000, ms_resolution=500):
-        headers = InfluxHandler._gen_headers()
-        fields_string = ",".join(fields)
-        query = f'SELECT {fields_string} FROM {measurement} WHERE time >= {time_range[0]} AND time <= {time_range[1]} tz(\'America/Los_Angeles\')'
-        params = {
-            "db": db,
-            "q": query,
-        }
-        response = requests.get(
-            f"{URL}/query",
-            headers=headers,
-            params=params
-        )
+    @classmethod
+    def get_signals(cls, measurement: str) -> list[str]:
+        """
+        Get all signals from the database.
+        :param bucket: Name of bucket to fetch data from.
+        :returns List of all measurements.
+        """
+        if not cls.is_setup:
+            raise RuntimeError("InfluxHandler not initialized.")
 
-        results = response.json()["results"][0]
-        if "series" not in results:
-            raise NoDataForQueryException("No data found for this query")
+        query = f"""
+        import "influxdata/influxdb/schema"
+        schema.tagValues(
+            bucket: "{cls.bucket}", 
+            predicate: (r) => r._measurement == "{measurement}",
+            tag: "signal"
+        )"""
 
-        results = results["series"][0]
-        columns = results["columns"]
-        values = results["values"]
+        with influxdb_client.InfluxDBClient(
+            url=cls.url, token=cls.token, org=cls.org, timeout=BASIC_TIMEOUT_MS
+        ) as client:
+            return [
+                str(i[0])
+                for i in client.query_api()
+                .query(query=query)
+                .to_values(columns=["_value"])
+            ]
 
-        data = {column: {"time": [], "value": []} for column in columns[1:]}
-        prevTime = parse(values[0][0])
-        max = 0
+    @classmethod
+    def query(
+        cls,
+        measurement: str,
+        signals: List[str],
+        time_range: Tuple[str, str],
+        max_points: int,
+        ms_resolution: int = 100,  # TODO implement
+    ) -> dict[str, dict]:
+        """
+        Make a general query to the database.
+        :param measurement: Measurement to pull data from.
+        :param fields: Fields to fetch.
+        :param time_range: Tuple like (time start, time end) to specify the time interval.
+        :param bucket: Name of bucket to fetch data from.
+        :param max_points: Maximum number of datapoints to fetch.
+        :param ms_resolution: Minimum time delta required before grabbing a new datapoint.
+        :return: A dictionary where the keys are the fields and the values are TimeValue objects.
+        """
+        if not cls.is_setup:
+            raise RuntimeError("InfluxHandler not initialized.")
 
-        for value in values:
-            nextTime = parse(value[0])
-            timeDelta = nextTime - prevTime
+        query = f"""
+        from(bucket:"{cls.bucket}")
+            |> range(start: {time_range[0]}, stop: {time_range[1]})
+            |> filter(fn: (r) => 
+                r._measurement == "{measurement}" and 
+                r._field == "value" and
+                contains(value: r.signal, set: {str(signals).replace("'", '"')}))
+            |> tail(n: {max_points})
+        """
 
-            if max > max_points:
-                break
+        query_result = {signal: {"times": [], "values": []} for signal in signals}
+        with influxdb_client.InfluxDBClient(
+            url=cls.url, token=cls.token, org=cls.org, timeout=QUERY_TIMEOUT_MS
+        ) as client:
+            for signal, value, time in (
+                client.query_api()
+                .query(query=query)
+                .to_values(columns=["signal", "_value", "_time"])
+            ):
+                query_result[signal]["times"].append(str(time))
+                query_result[signal]["values"].append(value)
 
-            if timeDelta.total_seconds() <= ms_resolution / 1000:
-                continue
+        return query_result
 
-            for i in range(1, len(value)):
-                column = columns[i]
-                data[column]["time"].append(value[0])
-                data[column]["value"].append(value[i])
+    @classmethod
+    def write(cls, df: pd.DataFrame, measurement: str) -> None:
+        """
+        Write a pandas dataframe to the Influx database. The dataframe should have the columns
+        time, value, unit, and signal.
+        :param db: Dataframe to upload.
+        """
+        if not cls.is_setup:
+            raise RuntimeError("InfluxHandler not initialized.")
 
-            prevTime = nextTime
-            max += 1
+        with influxdb_client.InfluxDBClient(
+            url=cls.url, token=cls.token, org=cls.org, timeout=QUERY_TIMEOUT_MS
+        ) as client:
+            # Index is used as source for time.
+            df.set_index("time", inplace=True)
 
-        return data
+            write_api = client.write_api()
+            write_api.write(
+                bucket=cls.bucket,
+                org=cls.org,
+                record=df,
+                data_frame_measurement_name=measurement,
+                data_frame_tag_columns=["signal"],
+                write_precision=influxdb_client.WritePrecision.NS,
+            )

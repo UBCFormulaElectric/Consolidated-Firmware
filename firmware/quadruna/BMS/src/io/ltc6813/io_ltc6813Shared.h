@@ -1,11 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-
-#ifdef TARGET_EMBEDDED
-#include "hw_hal.h"
-#include "hw_spi.h"
-#endif
+#include <stdint.h>
 
 // clang-format off
 // Time that a SPI transaction should wait for until until an error is returned
@@ -17,7 +13,6 @@ typedef enum
     ACCUMULATOR_SEGMENT_1,
     ACCUMULATOR_SEGMENT_2,
     ACCUMULATOR_SEGMENT_3,
-    ACCUMULATOR_SEGMENT_4,
     ACCUMULATOR_NUM_SEGMENTS,
 } AccumulatorSegment;
 
@@ -79,11 +74,12 @@ typedef enum
 {
     CMD_WORD = 0U,
     CMD_PEC15,
-    NUM_OF_CMD_WORDS,
+    NUM_CMD_WORDS,
 } CmdFormat;
 
 #define CMD_SIZE_BYTES (2U)
-#define TOTAL_NUM_CMD_BYTES (NUM_OF_CMD_WORDS << 1U)
+#define PEC15_SIZE_BYTES (2U)
+#define TOTAL_NUM_CMD_BYTES (CMD_SIZE_BYTES + PEC15_SIZE_BYTES)
 
 // Number of readings (cell voltages or temperatures) per each register group
 // Each register group consists of 48 bytes, 3x 16 bytes for each reading
@@ -94,14 +90,6 @@ typedef enum
     REG_GROUP_READING_2,
     NUM_OF_READINGS_PER_REG_GROUP
 } NumReadingsPerRegGroup;
-
-#ifdef TARGET_EMBEDDED
-/**
- * Initialize the SPI handle used to communicate with the LTC6813
- * @param spi The given SPI handle for the LTC6813 daisy chain.
- */
-void io_ltc6813Shared_init(const SpiInterface *spi);
-#endif
 
 /**
  * Calculate and pack PEC15 bytes for commands sent to the LTC6813

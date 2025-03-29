@@ -3,17 +3,17 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
-        <entry key="schema_enum">
+        <entry key="jsoncan_alerts">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="schema_enum" />
-              <option name="relativePathToSchema" value="can_bus/thruna/shared_enum.json" />
+              <option name="name" value="jsoncan_alerts" />
+              <option name="relativePathToSchema" value="can_bus/schemas/schema_alerts.json" />
               <option name="patterns">
                 <list>
                   <Item>
                     <option name="pattern" value="true" />
-                    <option name="path" value="can_bus/thruna/*/*_enum.json" />
+                    <option name="path" value="can_bus/quadruna/*/*_alerts.json" />
                     <option name="mappingKind" value="Pattern" />
                   </Item>
                 </list>
@@ -21,12 +21,12 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="schema_enum quadruna">
+        <entry key="jsoncan_enum">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="schema_enum quadruna" />
-              <option name="relativePathToSchema" value="can_bus/quadruna/shared_enum.json" />
+              <option name="name" value="jsoncan_enum" />
+              <option name="relativePathToSchema" value="can_bus/schemas/schema_enum.json" />
               <option name="patterns">
                 <list>
                   <Item>
@@ -39,17 +39,17 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="schema_tx">
+        <entry key="jsoncan_rx">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="schema_tx" />
-              <option name="relativePathToSchema" value="can_bus/thruna/schema_tx.json" />
+              <option name="name" value="jsoncan_rx" />
+              <option name="relativePathToSchema" value="can_bus/schemas/schema_rx.json" />
               <option name="patterns">
                 <list>
                   <Item>
                     <option name="pattern" value="true" />
-                    <option name="path" value="can_bus/thruna/*/*_tx.json" />
+                    <option name="path" value="can_bus/quadruna/*/*_rx.json" />
                     <option name="mappingKind" value="Pattern" />
                   </Item>
                 </list>
@@ -57,12 +57,12 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="schema_tx quadruna">
+        <entry key="jsoncan_tx">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="schema_tx quadruna" />
-              <option name="relativePathToSchema" value="can_bus/quadruna/schema_tx.json" />
+              <option name="name" value="jsoncan_tx" />
+              <option name="relativePathToSchema" value="can_bus/schemas/schema_tx.json" />
               <option name="patterns">
                 <list>
                   <Item>

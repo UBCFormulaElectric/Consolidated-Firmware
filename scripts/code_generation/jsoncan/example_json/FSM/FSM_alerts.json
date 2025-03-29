@@ -3,11 +3,17 @@
     "faults_id": 42,
     "warnings_counts_id": 43,
     "faults_counts_id": 44,
-    "warnings": [
-        "Warning_Test1",
-        "Warning_Test2"
-    ],
-    "faults": [
-        "Fault_Test3"
-    ]
+    "warnings": {
+        "Warning_Test1" : {
+            "description" : "Example",
+             "id" : 1000
+        },
+        "Warning_Test2" : {
+            "description" : "Example",
+             "id" :21000
+        }
+    },
+    "faults": {
+        "Fault_Test3": {}
+    }
 }

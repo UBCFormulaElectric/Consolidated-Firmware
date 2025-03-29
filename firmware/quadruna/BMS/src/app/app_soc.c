@@ -1,39 +1,61 @@
-#include <math.h>
 #include "app_soc.h"
+#include "app_math.h"
+#include "app_tractiveSystem.h"
+#include "lut/app_cellVoltageToSocLut.h"
+// #include "io_sd.h"
+
+// #ifdef TARGET_EMBEDDED
+// #include "hw_sd.h"
+// #include "hw_crc.h"
+// #endif
+
 #include <stdint.h>
 #include <float.h>
-#include "app_math.h"
-#include "lut/app_cellVoltageToSocLut.h"
-#include "app_tractiveSystem.h"
+#include <string.h>
+#include <math.h>
 
 #define MS_TO_S (0.001)
 #define SOC_TIMER_DURATION (110U)
 
-// TODO: Update to SD card logic
+#define NUM_SOC_BYTES (4U)
+#define NUM_SOC_CRC_BYTES (4U)
+
 #define DEFAULT_SOC_ADDR (0U)
+#define SD_SECTOR_SIZE (512)
+// Macro to convert a uint8_t array to a uint32_t variable
+#define ARRAY_TO_UINT32(array) \
+    (((uint32_t)(array)[0] << 24) | ((uint32_t)(array)[1] << 16) | ((uint32_t)(array)[2] << 8) | ((uint32_t)(array)[3]))
+
+// Macro to convert a uint32_t variable to a uint8_t array
+#define UINT32_TO_ARRAY(value, array)          \
+    do                                         \
+    {                                          \
+        (array)[0] = (uint8_t)((value) >> 24); \
+        (array)[1] = (uint8_t)((value) >> 16); \
+        (array)[2] = (uint8_t)((value) >> 8);  \
+        (array)[3] = (uint8_t)(value);         \
+    } while (0)
 
 typedef struct
 {
-    // Address in EEPROM where SOC is being stored (address changes for wear levelling reasons, address always stored in
-    // address 0 of EEPROM)
-    uint16_t soc_address;
-
     // charge in cell in coulombs
     double charge_c;
 
     // Charge loss at time t-1
     float prev_current_A;
 
-    // Indicates if SOC from EEPROM was corrupt at startup
+    // Indicates if SOC from SD was corrupt at startup
     bool is_corrupt;
 
     TimerChannel soc_timer;
 } SocStats;
 
 static SocStats stats;
+extern bool     sd_inited;
 
 #ifndef TARGET_EMBEDDED
 
+// ONLY FOR USE IN OFF-TARGET TESTING
 void app_soc_setPrevCurrent(float current)
 {
     stats.prev_current_A = current;
@@ -79,46 +101,16 @@ float app_soc_getOcvFromSoc(float soc_percent)
 void app_soc_init(void)
 {
     stats.prev_current_A = 0.0f;
-    stats.soc_address    = DEFAULT_SOC_ADDR;
 
-    // Asoc assumed corrupt until proven otherwise
+    // SOC assumed corrupt until proven otherwise
     stats.is_corrupt = true;
     stats.charge_c   = -1;
 
-    // A negative soc value will indicate to app_soc_Create that saved SOC value is corrupted
-    // float saved_soc_c = -1.0f;
-
-    // TODO: Update to SD Card logic
-    // if (app_eeprom_readSocAddress(&stats.soc_address) == EXIT_CODE_OK)
-    // {
-    //     if (app_eeprom_readMinSoc(stats.soc_address, &saved_soc_c) == EXIT_CODE_OK)
-    //     {
-    //         if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
-    //         {
-    //             stats.charge_c   = (double)saved_soc_c;
-    //             stats.is_corrupt = false;
-    //         }
-    //     }
-    // }
-    // else
-    // {
-    //     // If address corrupted, revert to default SOC address location
-    //     stats.soc_address = DEFAULT_SOC_ADDR;
-    // }
-
-    // Update the active address that SOC is stored at
-    // if (app_eeprom_updateSavedSocAddress(&stats.soc_address) != EEPROM_STATUS_OK)
-    // {
-    //     stats.soc_address = DEFAULT_SOC_ADDR;
-    // }
+    // A negative SOC value will indicate to app_soc_Create that saved SOC value is corrupted
+    float saved_soc_c = -1.0f;
 
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
-}
-
-uint16_t app_soc_getSocAddress(void)
-{
-    return stats.soc_address;
 }
 
 bool app_soc_getCorrupt(void)

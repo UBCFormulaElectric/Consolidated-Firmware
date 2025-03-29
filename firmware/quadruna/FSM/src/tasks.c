@@ -2,125 +2,165 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "app_globals.h"
-#include "app_heartbeatMonitor.h"
-#include "states/app_driveState.h"
-
+#include "app_mainState.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_apps.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
+#include "io_canQueue.h"
 #include "io_led.h"
+#include "io_fsmShdn.h"
 #include "io_chimera.h"
+#include "io_steering.h"
+#include "io_wheels.h"
+#include "io_brake.h"
+#include "io_suspension.h"
+#include "io_loadCell.h"
+#include "io_apps.h"
+#include "io_bootHandler.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMark.h"
-#include "hw_stackWaterMarkConfig.h"
-#include "hw_adc.h"
-#include "hw_gpio.h"
-#include "hw_uart.h"
+#include "hw_adcs.h"
+#include "hw_gpios.h"
+#include "hw_uarts.h"
+#include "hw_pwmInputFreqOnly.h"
+#include "hw_can.h"
 
 #include "shared.pb.h"
-#include "FSM.pb.h"
 
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern CAN_HandleTypeDef  hcan1;
-extern TIM_HandleTypeDef  htim12;
-extern UART_HandleTypeDef huart1;
-// extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
+#include <assert.h>
 
-void canRxQueueOverflowCallBack(uint32_t overflow_count)
+static CanHandle can = { .hcan = &hcan1 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
+
+void canRxQueueOverflowCallBack(const uint32_t overflow_count)
 {
     app_canTx_FSM_RxOverflowCount_set(overflow_count);
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowCallBack(uint32_t overflow_count)
+void canTxQueueOverflowCallBack(const uint32_t overflow_count)
 {
     app_canTx_FSM_TxOverflowCount_set(overflow_count);
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
-const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
-};
+void canTxQueueOverflowClearCallback(void)
+{
+    app_canAlerts_FSM_Warning_TxOverflow_set(false);
+}
 
-// TODO: Generate proper port/pin with cube
-static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
-static const Gpio      nchimera                = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
-static const BinaryLed led                     = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
-static const Gpio      nbspd_brake_pressed_3v3 = { .port = NBSPD_BRAKE_PRESSED_3V3_GPIO_Port,
-                                                   .pin  = NBSPD_BRAKE_PRESSED_3V3_Pin };
-static const Gpio      nprogram_3v3            = { .port = NPROGRAM_3V3_GPIO_Port, .pin = NPROGRAM_3V3_Pin };
-static const Gpio      fsm_shdn                = { .port = FSM_SHDN_GPIO_Port, .pin = FSM_SHDN_Pin };
+void canRxQueueOverflowClearCallback(void)
+{
+    app_canAlerts_FSM_Warning_RxOverflow_set(false);
+}
 
-const Gpio *id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &brake_ocsc_ok_3v3,
-                             [FSM_GpioNetName_NCHIMERA]                = &nchimera,
-                             [FSM_GpioNetName_LED]                     = &led.gpio,
-                             [FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3] = &nbspd_brake_pressed_3v3,
-                             [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
-                             [FSM_GpioNetName_FSM_SHDN]                = &fsm_shdn };
+static const BinaryLed led = { .gpio = &led_gpio_pin };
 
-AdcChannel id_to_adc[] = {
-    [FSM_AdcNetName_SUSP_TRAVEL_FR_3V3] = ADC1_IN9_SUSP_TRAVEL_FR,
-    [FSM_AdcNetName_SUSP_TRAVEL_FL_3V3] = ADC1_IN8_SUSP_TRAVEL_FL,
-    [FSM_AdcNetName_LOAD_CELL_2_3V3]    = ADC1_IN1_LOAD_CELL_2,
-    [FSM_AdcNetName_APPS2_3V3]          = ADC1_IN5_APPS2,
-    [FSM_AdcNetName_BPS_F_3V3]          = ADC1_IN7_BPS_F,
-    [FSM_AdcNetName_BPS_B_3V3]          = ADC1_IN15_BPS_B,
-    [FSM_AdcNetName_LOAD_CELL_1_3V3]    = ADC1_IN13_LOAD_CELL_1,
-    [FSM_AdcNetName_APPS1_3V3]          = ADC1_IN12_APPS1,
-    [FSM_AdcNetName_SteeringAngle_3V3]  = ADC1_IN11_STEERING_ANGLE,
-};
+static const AppsConfig             apps_config       = { .papps = &apps1, .sapps = &apps2 };
+static const BrakeConfig            brake_config      = { .rear_brake          = &bps_b,
+                                                          .front_brake         = &bps_f,
+                                                          .brake_hardware_ocsc = &brake_ocsc_ok_3v3,
+                                                          .nbspd_brake_pressed = &nbspd_brake_pressed_3v3 };
+static const LoadCellConfig         load_cell_config  = { .cell_1 = &lc1, .cell_2 = &lc2 };
+static const SteeringConfig         steering_config   = { .steering = &steering_angle };
+static const SuspensionConfig       suspension_config = { .front_left_suspension  = &susp_travel_fl,
+                                                          .front_right_suspension = &susp_travel_fr };
+static const PwmInputFreqOnlyConfig left_wheel_config = { .htim                = &htim12,
+                                                          .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                                          .tim_channel         = TIM_CHANNEL_2,
+                                                          .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                                          .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_2 };
 
-static UART debug_uart = { .handle = &huart1 };
+static const PwmInputFreqOnlyConfig right_wheel_config = { .htim                = &htim12,
+                                                           .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                                           .tim_channel         = TIM_CHANNEL_1,
+                                                           .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                                           .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_bootup_enableInterruptsForApp();
+}
+
+static void jsoncan_transmit(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&msg);
+}
 
 void tasks_init(void)
 {
-    __HAL_DBGMCU_FREEZE_IWDG();
-
     // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("FSM reset!");
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
+    __HAL_DBGMCU_FREEZE_IWDG();
+
+    hw_adcs_chipsInit();
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
-
+    hw_can_init(&can);
+    io_chimera_init(GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
     app_canTx_init();
     app_canRx_init();
+    io_canQueue_init();
 
-    // TODO: add heartbeat monitor
-    app_stateMachine_init(app_driveState_get());
-    // TODO: add globals
+    io_apps_init(&apps_config);
+    io_brake_init(&brake_config);
+    io_loadCell_init(&load_cell_config);
+    io_steering_init(&steering_config);
+    io_suspension_init(&suspension_config);
+    io_wheels_init(&left_wheel_config, &right_wheel_config);
+    app_apps_init();
+
+    app_stateMachine_init(app_mainState_get());
 
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_FSM_Heartbeat_set(true);
 }
 
-void tasks_run1Hz(void)
+void tasks_deinit(void)
 {
+    HAL_TIM_Base_Stop_IT(&htim3);
+    HAL_TIM_Base_DeInit(&htim3);
+    HAL_TIM_Base_Stop_IT(&htim12);
+    HAL_TIM_Base_DeInit(&htim12);
+
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_DeInit(&huart1);
+
+    HAL_DMA_Abort_IT(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_adc1);
+
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_DeInit(&hadc1);
+}
+
+_Noreturn void tasks_run1Hz(void)
+{
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
@@ -130,12 +170,11 @@ void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
+        app_stackWaterMark_check();
         app_stateMachine_tick1Hz();
 
-        // TODO: setup can debug
-        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -147,8 +186,10 @@ void tasks_run1Hz(void)
     }
 }
 
-void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -158,8 +199,6 @@ void tasks_run100Hz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
-
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -172,8 +211,10 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -183,8 +224,6 @@ void tasks_run1kHz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
-
         hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
@@ -203,23 +242,27 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg = io_canQueue_popTx();
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
+        CanMsg rx_msg = io_canQueue_popRx();
+        io_bootHandler_processBootRequest(&rx_msg);
 
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
@@ -230,4 +273,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_chimera_msgRxCallback();
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_wheels_inputCaptureCallback(htim);
 }

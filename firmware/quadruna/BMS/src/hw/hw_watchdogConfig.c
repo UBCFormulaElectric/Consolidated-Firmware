@@ -6,11 +6,11 @@
 #include "io_canTx.h"
 #include "hw_utils.h"
 
-// extern IWDG_HandleTypeDef hiwdg1;
+extern IWDG_HandleTypeDef hiwdg1;
 
 void hw_watchdogConfig_refresh(void)
 {
-    // HAL_IWDG_Refresh(&hiwdg1);
+    HAL_IWDG_Refresh(&hiwdg1);
 }
 
 void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)

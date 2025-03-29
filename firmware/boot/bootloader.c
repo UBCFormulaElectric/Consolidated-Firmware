@@ -1,29 +1,53 @@
 #include "bootloader.h"
-#include "config.h"
+#include "bootloaderConfig.h"
+#include "main.h"
+
 #include <stdint.h>
-#include <assert.h>
 #include <string.h>
+
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
-#include "hw_hal.h"
-#include "io_can.h"
-#include "hw_flash.h"
+
+#include "app_commitInfo.h"
+#include "io_canQueue.h"
+#include "io_log.h"
+
 #include "hw_hardFaultHandler.h"
+#include "hw_flash.h"
 #include "hw_utils.h"
 #include "hw_crc.h"
-#include "main.h"
-#include "hw_gpio.h"
+#include "hw_hal.h"
+#include "hw_can.h"
+#include <assert.h>
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
+// Need these to be created an initialized elsewhere
+extern CanHandle can;
+
+void canRxQueueOverflowCallBack(const uint32_t unused)
+{
+    UNUSED(unused);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+void canTxQueueOverflowCallBack(const uint32_t unused)
+{
+    UNUSED(unused);
+    // BREAK_IF_DEBUGGER_CONNECTED();
+}
+
 // App code block. Start/size included from the linker script.
-extern uint32_t __app_metadata_start__;
-extern uint32_t __app_metadata_size__;
+extern uint32_t __app_metadata_start__; // NOLINT(*-reserved-identifier)
+extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 
 // App metadata block. Start/size included from the linker script.
-extern uint32_t __app_code_start__;
-extern uint32_t __app_code_size__;
+extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
+extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
+
+// Boot flag from RAM
+__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
 
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
@@ -31,6 +55,7 @@ typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
+    uint32_t bootloader_status;
 } Metadata;
 
 typedef enum
@@ -40,17 +65,7 @@ typedef enum
     BOOT_STATUS_NO_APP
 } BootStatus;
 
-static void canRxOverflow(uint32_t unused)
-{
-    BREAK_IF_DEBUGGER_CONNECTED();
-}
-
-static void canTxOverflow(uint32_t unused)
-{
-    BREAK_IF_DEBUGGER_CONNECTED();
-}
-
-static void modifyStackPointerAndStartApp(uint32_t *address)
+_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
@@ -83,14 +98,17 @@ static void modifyStackPointerAndStartApp(uint32_t *address)
     // placed in flash. The first word of the vector table contains the initial stack pointer
     // and the second word containers the address of the reset handler. Update stack pointer and
     // program counter accordingly.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
     uint32_t app_sp    = address[0];
     uint32_t app_start = address[1];
+#pragma GCC diagnostic pop
     __set_MSP(app_sp);
     void (*app_reset_handler)(void) = (void (*)(void))app_start;
     app_reset_handler(); // Call app's Reset_Handler, starting the app.
 
     // Should never get here!
-    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED()
     for (;;)
     {
     }
@@ -104,56 +122,32 @@ static BootStatus verifyAppCodeChecksum(void)
         return BOOT_STATUS_NO_APP;
     }
 
-    Metadata *metadata = (Metadata *)&__app_metadata_start__;
+    const Metadata *metadata = (Metadata *)&__app_metadata_start__;
     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
     {
         // App binary size field is invalid.
         return BOOT_STATUS_APP_INVALID;
     }
 
-    uint32_t calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
+    const uint32_t calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
-
-static const CanConfig can_config = {
-    .rx_msg_filter        = NULL,
-    .rx_overflow_callback = canRxOverflow,
-    .tx_overflow_callback = canTxOverflow,
-};
-static const Gpio bootloader_pin = {
-    .port = BOOT_GPIO_PORT,
-    .pin  = BOOT_GPIO_PIN,
-};
 
 static uint32_t current_address;
 static bool     update_in_progress;
 
-void bootloader_init()
+void bootloader_preInit(void)
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("Bootloader reset!");
+}
 
-#ifndef BOOT_AUTO
-    // This file is shared between multiple boards, meaning we cannot rely on STM32CubeMX
-    // to initialize the peripherals. So we do it manually here.
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-
-    GPIO_InitTypeDef bootloader_gpio_init = {
-        .Pin  = BOOT_GPIO_PIN,
-        .Mode = GPIO_MODE_INPUT,
-        .Pull = GPIO_PULLUP,
-    };
-    HAL_GPIO_Init(BOOT_GPIO_PORT, &bootloader_gpio_init);
-#endif
-
+void bootloader_init(void)
+{
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
-    io_can_init(&can_config);
-
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -163,32 +157,28 @@ void bootloader_init()
     // other MCUs.
     bootloader_boardSpecific_init();
 
-    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
-#ifndef BOOT_AUTO
-        && hw_gpio_readPin(&bootloader_pin)
-#endif
-    )
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
     {
         // Deinit peripherals.
-#ifndef BOOT_AUTO
-        HAL_GPIO_DeInit(BOOT_GPIO_PORT, BOOT_GPIO_PIN);
-#endif
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
-        hw_can_deinit();
+
+        // Clear RCC register flag and RAM boot flag.
+        boot_flag = 0x0;
 
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
+
+    hw_can_init(&can);
+    io_canQueue_init();
 }
 
-void bootloader_runInterfaceTask()
+_Noreturn void bootloader_runInterfaceTask(void)
 {
     for (;;)
     {
-        CanMsg command;
-        io_can_popRxMsgFromQueue(&command);
+        const CanMsg command = io_canQueue_popRx();
 
         if (command.std_id == START_UPDATE_ID)
         {
@@ -197,13 +187,13 @@ void bootloader_runInterfaceTask()
             update_in_progress = true;
 
             // Send ACK message that programming has started.
-            CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
-            io_can_pushTxMsgToQueue(&reply);
+            const CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
+            io_canQueue_pushTx(&reply);
         }
         else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
         {
             // Erase a flash sector.
-            uint8_t sector = command.data[0];
+            const uint8_t sector = command.data[0];
             hw_flash_eraseSector(sector);
 
             // Erasing sectors takes a while, so reply when finished.
@@ -211,7 +201,7 @@ void bootloader_runInterfaceTask()
                 .std_id = ERASE_SECTOR_COMPLETE_ID,
                 .dlc    = 0,
             };
-            io_can_pushTxMsgToQueue(&reply);
+            io_canQueue_pushTx(&reply);
         }
         else if (command.std_id == PROGRAM_ID && update_in_progress)
         {
@@ -227,25 +217,36 @@ void bootloader_runInterfaceTask()
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
-            reply.data[0] = verifyAppCodeChecksum();
-            io_can_pushTxMsgToQueue(&reply);
+            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+            io_canQueue_pushTx(&reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
+        else if (command.std_id == GO_TO_APP && !update_in_progress)
+        {
+            boot_flag = 0x0;
+            HAL_TIM_Base_Stop_IT(&htim6);
+            HAL_CRC_DeInit(&hcrc);
+            modifyStackPointerAndStartApp(&__app_code_start__);
+        }
     }
 }
 
-void bootloader_runTickTask()
+_Noreturn void bootloader_runTickTask(void)
 {
     uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
-        status_msg.data[0] = verifyAppCodeChecksum();
-        io_can_pushTxMsgToQueue(&status_msg);
+        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 5 };
+        status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
+        status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
+        status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
+        status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
+        status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
+        io_canQueue_pushTx(&status_msg);
 
         bootloader_boardSpecific_tick();
 
@@ -254,14 +255,15 @@ void bootloader_runTickTask()
     }
 }
 
-void bootloader_runCanTxTask()
+_Noreturn void bootloader_runCanTxTask(void)
 {
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg = io_canQueue_popTx();
+        hw_can_transmit(&can, &tx_msg);
     }
 }
 
-__WEAK void bootloader_boardSpecific_init() {}
+__WEAK void bootloader_boardSpecific_init(void) {}
 
-__WEAK void bootloader_boardSpecific_tick() {}
+__WEAK void bootloader_boardSpecific_tick(void) {}

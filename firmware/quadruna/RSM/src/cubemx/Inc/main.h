@@ -30,14 +30,31 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
+    extern ADC_HandleTypeDef  hadc1;
+    extern DMA_HandleTypeDef  hdma_adc1;
+    extern CAN_HandleTypeDef  hcan1;
+    extern IWDG_HandleTypeDef hiwdg;
+    extern TIM_HandleTypeDef  htim3;
+    extern UART_HandleTypeDef huart1;
 
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
@@ -61,8 +78,10 @@ extern "C"
 #define TASK_100HZ_STACK_SIZE 512
 #define TASK_CANRX_STACK_SIZE 512
 #define TASK_CANTX_STACK_SIZE 512
+#define TIM3_PRESCALER 8
 #define TIM12_PWM_MINIMUM_FREQUENCY 1
-#define IDWG_RESET_FREQUENCY 5
+#define IWDG_RESET_FREQUENCY 5
+#define ADC_FREQUENCY 1000
 #define TIMx_FREQUENCY 96000000
 #define TIM12_PRESCALER (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TIM12_PWM_MINIMUM_FREQUENCY)
 #define TASK_1HZ_STACK_SIZE 512
@@ -71,8 +90,6 @@ extern "C"
 #define IWDG_PRESCALER 4
 #define IWDG_WINDOW_DISABLE_VALUE 4095
 #define LSI_FREQUENCY 32000
-#define TIM3_PRESCALER 8
-#define ADC_FREQUENCY 1000
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0
@@ -111,6 +128,8 @@ extern "C"
 #define UART_RX_GPIO_Port GPIOA
 #define UART_TX_Pin GPIO_PIN_10
 #define UART_TX_GPIO_Port GPIOA
+#define FlowMeter_Pin GPIO_PIN_4
+#define FlowMeter_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

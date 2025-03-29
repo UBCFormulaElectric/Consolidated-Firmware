@@ -1,13 +1,12 @@
 #include "io_thermistors.h"
-#include "hw_hal.h"
+#include "hw_gpios.h"
+#include "hw_adcs.h"
 
 #define SIZE_OF_TEMPERATURE_LUT (201U)
 #define BIAS_RESISTOR_OHM (10000.0f)
 #define REFERENCE_VOLTAGE (3.3f)
 #define THERM_INDEX_TO_DEGC (0.5f)
 #define THERM_LOOKUP_STARTING_TEMP (255.0f)
-
-static const ThermistorsConfig *config;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Mitsubishi
 // DTN-V103J3T-DGS103V thermistor. The 0th index represents 0°C. Incrementing the
@@ -30,22 +29,17 @@ static const float temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT] = {
     1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
 };
 
-void io_thermistors_init(const ThermistorsConfig *therm_config)
+void io_thermistors_muxSelect(const uint8_t channel)
 {
-    config = therm_config;
-}
-
-void io_thermistors_muxSelect(uint8_t channel)
-{
-    hw_gpio_writePin(&config->mux_0_gpio, channel & 1 << 0);
-    hw_gpio_writePin(&config->mux_1_gpio, channel & 1 << 1);
-    hw_gpio_writePin(&config->mux_2_gpio, channel & 1 << 2);
-    hw_gpio_writePin(&config->mux_3_gpio, channel & 1 << 3);
+    hw_gpio_writePin(&mux_0_gpio, channel & 1 << 0);
+    hw_gpio_writePin(&mux_1_gpio, channel & 1 << 1);
+    hw_gpio_writePin(&mux_2_gpio, channel & 1 << 2);
+    hw_gpio_writePin(&mux_3_gpio, channel & 1 << 3);
 }
 
 float io_thermistors_readSelectedTemp(void)
 {
-    float raw_voltage = hw_adc_getVoltage(config->thermistor_adc_channel);
+    const float raw_voltage = hw_adc_getVoltage(&aux_tsns);
 
     // The following configuration is now the thermistor temperature is
     // calculated

@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,8 +44,11 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan1;
+
+IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim12;
@@ -118,11 +122,13 @@ const osThreadAttr_t Task1Hz_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_TIM12_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_IWDG_Init(void);
 void        StartTask1kHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
@@ -135,7 +141,6 @@ void        RunTask1Hz(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -166,11 +171,13 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_ADC1_Init();
     MX_CAN1_Init();
     MX_TIM12_Init();
     MX_USART1_UART_Init();
     MX_TIM3_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
 
     tasks_init();
@@ -252,8 +259,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 8;
@@ -309,7 +317,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 9;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
     {
@@ -417,11 +425,11 @@ static void MX_CAN1_Init(void)
 
     /* USER CODE END CAN1_Init 1 */
     hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 12;
+    hcan1.Init.Prescaler            = 6;
     hcan1.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
-    hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
-    hcan1.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan1.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan1.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan1.Init.TimeSeg2             = CAN_BS2_3TQ;
     hcan1.Init.TimeTriggeredMode    = DISABLE;
     hcan1.Init.AutoBusOff           = ENABLE;
     hcan1.Init.AutoWakeUp           = DISABLE;
@@ -435,6 +443,32 @@ static void MX_CAN1_Init(void)
     /* USER CODE BEGIN CAN1_Init 2 */
 
     /* USER CODE END CAN1_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+
+    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
@@ -552,6 +586,20 @@ static void MX_USART1_UART_Init(void)
     /* USER CODE BEGIN USART1_Init 2 */
 
     /* USER CODE END USART1_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA2_Stream0_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 }
 
 /**

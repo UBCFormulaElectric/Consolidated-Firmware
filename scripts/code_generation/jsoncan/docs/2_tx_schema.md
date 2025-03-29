@@ -25,7 +25,7 @@ Define a  message as below:
 }
 ```
 
-If `cycle_time` is not specified, the message will be aperiodic and you will have to transmit the message manually. 
+`cycle_time` is mandatory and if null, the message will be aperiodic and you will have to transmit the message manually. 
 
 `allowed_modes` defines which modes the message will be transmitted in. You can enable/disable the different modes to choose which messages are being sent at runtime.
 If `allowed_modes` is not included, then the message will only be sent if the default mode is enabled.

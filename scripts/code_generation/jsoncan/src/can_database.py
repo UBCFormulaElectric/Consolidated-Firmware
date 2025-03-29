@@ -1,21 +1,17 @@
 """
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
+
 from dataclasses import dataclass
-from enum import Enum
-from strenum import StrEnum
 from typing import List, Union, Dict
+import logging
+from strenum import StrEnum
+
+from .json_parsing.schema_validation import AlertsEntry
 from .utils import bits_for_uint, bits_to_bytes, is_int
 
 
-@dataclass(frozen=True)
-class CanEnumItem:
-    """
-    Dataclass for describing a single value table item.
-    """
-
-    name: str
-    value: int
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -26,15 +22,16 @@ class CanEnum:
     """
 
     name: str
-    items: List[CanEnumItem]
+    items: Dict[int, str]  # Dict of enum value to enum item name
 
     def max_val(self) -> int:
         """
         Maximum value present in this value table's entries.
         """
-        return max(entry.value for entry in self.items)
+        return max(self.items.keys())
 
-    def min_val(self) -> int:
+    @staticmethod
+    def min_val() -> int:
         """
         Minimum value present in this value table's entries.
         """
@@ -146,6 +143,12 @@ class CanMessage:
     tx_node: str  # The node that transmits this message
     rx_nodes: List[str]  # All nodes which receive this message
     modes: List[str]  # List of modes which this message should be transmitted in
+    log_cycle_time: Union[
+        int, None
+    ]  # Interval that this message should be logged to disk at (None if don't capture this msg)
+    telem_cycle_time: Union[
+        int, None
+    ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
     def bytes(self):
         """
@@ -162,7 +165,7 @@ class CanMessage:
         """
         If this signal is periodic, i.e. should be continuously transmitted at a certain cycle time.
         """
-        return self.cycle_time != None
+        return self.cycle_time is not None
 
 
 @dataclass(frozen=True)
@@ -204,23 +207,25 @@ class CanDatabase:
 
     nodes: List[str]  # List of names of the nodes on the bus
     bus_config: CanBusConfig  # Various bus params
-    msgs: List[CanMessage]  # All messages being sent to the bus
+    msgs: Dict[
+        int, CanMessage
+    ]  # All messages being sent to the bus (dict of (ID to message)
     shared_enums: List[CanEnum]  # Enums used by all nodes
     alerts: Dict[
-        str, List[CanAlert]
+        str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
 
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages transmitted by a specific node.
         """
-        return [msg for msg in self.msgs if tx_node == msg.tx_node]
+        return [msg for msg in self.msgs.values() if tx_node == msg.tx_node]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
-        return [msg for msg in self.msgs if rx_node in msg.rx_nodes]
+        return [msg for msg in self.msgs.values() if rx_node in msg.rx_nodes]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
@@ -254,6 +259,22 @@ class CanDatabase:
             else []
         )
 
+    def node_name_description(
+        self, node: str, alert_type: CanAlert
+    ) -> Dict[str, tuple]:
+        """Returns a dictionary containing a the alert names as the key and a description and as the item"""
+
+        new_dict = {}
+        if node not in self.alerts:
+            return {}
+        for alert, info in self.alerts[node].items():
+            if alert.alert_type == alert_type and info != {}:
+                new_dict[alert.name] = (info["id"], info["description"])
+
+            elif info == {}:
+                new_dict[alert.name] = {}
+        return new_dict
+
     def node_alerts_with_rx_check(
         self, tx_node: str, rx_node, alert_type: CanAlertType
     ) -> List[str]:
@@ -265,7 +286,9 @@ class CanDatabase:
             return self.node_alerts(tx_node, alert_type)
         else:
             alert_msg = next(
-                msg for msg in self.msgs if msg.name == f"{tx_node}_{alert_type}s"
+                msg
+                for msg in self.msgs.values()
+                if msg.name == f"{tx_node}_{alert_type}s"
             )
             return [
                 alert
@@ -278,3 +301,54 @@ class CanDatabase:
         Return whether or not a node transmits any alerts.
         """
         return len(self.node_alerts(node, alert_type)) > 0
+
+    def unpack(self, id: int, data: bytes) -> Dict:
+        """
+        Unpack a CAN dataframe.
+        Returns a dict with the signal name, value, and unit.
+
+        TODO: Also add packing!
+        """
+        if id not in self.msgs:
+            logger.warning(f"Message ID '{id}' is not defined in the JSON.")
+            return []
+
+        signals = []
+        for signal in self.msgs[id].signals:
+            # Interpret raw bytes as an int.
+            data_uint = int.from_bytes(data, byteorder="little", signed=False)
+
+            # Extract the bits representing the current signal.
+            data_shifted = data_uint >> signal.start_bit
+            bitmask = (1 << signal.bits) - 1
+            signal_bits = data_shifted & bitmask
+
+            # Interpret value as signed number via 2s complement.
+            if signal.signed:
+                if signal_bits & (1 << (signal.bits - 1)):
+                    signal_bits = ~signal_bits & ((1 << signal.bits) - 1)
+                    signal_bits += 1
+                    signal_bits *= -1
+
+            # Decode the signal value using the scale/offset.
+            signal_value = signal_bits * signal.scale + signal.offset
+            signal_data = {"name": signal.name, "value": signal_value}
+
+            # Insert unit, if it exists.
+            if signal.unit is not None:
+                signal_data["unit"] = signal.unit
+
+            # If the signal is an enum, insert its label.
+            if signal.enum is not None:
+                if signal_value not in signal.enum.items:
+                    logger.warning(
+                        f"Signal value '{signal_value}' does not have a matching label in enum '{signal.enum.name}' for signal '{signal.name}'."
+                    )
+                    continue
+
+                signal_data["label"] = signal.enum.items[signal_value]
+
+            # Append decoded signal's data.
+            signals.append(signal_data)
+
+        return signals

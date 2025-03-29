@@ -58,7 +58,7 @@ class DbcGenerator:
         value_tables_text = ""
         cycle_time_attributes_text = ""
         signal_start_values_text = ""
-        for msg in self._db.msgs:
+        for msg in self._db.msgs.values():
             # Generate text for CAN message
             msgs_text += self._dbc_message(msg=msg, tx_node=msg.tx_node)
 
@@ -176,7 +176,10 @@ class DbcGenerator:
         Format and return DBC value table.
         """
         entries_text = " ".join(
-            [f'{entry.value} "{entry.name}"' for entry in signal.enum.items]
+            [
+                f'{item_value} "{item_name}"'
+                for item_value, item_name in signal.enum.items.items()
+            ]
         )
 
         return DBC_VALUE_TABLE_TEMPLATE.format(

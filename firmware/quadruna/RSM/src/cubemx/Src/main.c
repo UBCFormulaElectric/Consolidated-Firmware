@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +47,8 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan1;
+
+IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim3;
 
@@ -123,6 +126,7 @@ static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_IWDG_Init(void);
 void        StartTask1kHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
@@ -171,6 +175,7 @@ int main(void)
     MX_CAN1_Init();
     MX_USART1_UART_Init();
     MX_TIM3_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -250,8 +255,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 8;
@@ -424,11 +430,11 @@ static void MX_CAN1_Init(void)
 
     /* USER CODE END CAN1_Init 1 */
     hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 12;
+    hcan1.Init.Prescaler            = 6;
     hcan1.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
-    hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
-    hcan1.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan1.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan1.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan1.Init.TimeSeg2             = CAN_BS2_3TQ;
     hcan1.Init.TimeTriggeredMode    = DISABLE;
     hcan1.Init.AutoBusOff           = ENABLE;
     hcan1.Init.AutoWakeUp           = DISABLE;
@@ -445,6 +451,32 @@ static void MX_CAN1_Init(void)
 }
 
 /**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+
+    /* USER CODE END IWDG_Init 2 */
+}
+
+/**
  * @brief TIM3 Initialization Function
  * @param None
  * @retval None
@@ -455,8 +487,8 @@ static void MX_TIM3_Init(void)
 
     /* USER CODE END TIM3_Init 0 */
 
-    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
-    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
 
     /* USER CODE BEGIN TIM3_Init 1 */
 
@@ -467,18 +499,21 @@ static void MX_TIM3_Init(void)
     htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    if (HAL_TIM_IC_Init(&htim3) != HAL_OK)
     {
         Error_Handler();
     }
-    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim3, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }

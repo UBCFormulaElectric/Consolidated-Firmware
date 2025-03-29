@@ -1,4 +1,4 @@
-if("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "binary")
     # Import sources files for SBG Systems library
     set(SBG_ECOM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sbgECom")
     set(SBG_ECOM_INCLUDE_DIRS 
@@ -18,7 +18,16 @@ if("${TARGET}" STREQUAL "deploy")
         "cm4"
         TRUE
     )
-endif()
+    embedded_library(
+        "sbg_ecom_cm7"
+        "${SBG_ECOM_SRCS}"
+        "${SBG_ECOM_INCLUDE_DIRS}"
+        "cm7"
+        TRUE
+    )
+ELSE()
+    add_subdirectory("pybind11")
+ENDIF()
 
 
 

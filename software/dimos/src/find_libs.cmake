@@ -1,20 +1,20 @@
 # OUTPUTS
 # - REQUIRED_LIBRARIES -> list of libraries to link
 
-#gpiod
-if(${LINUX})
+# libgpiod
+IF("${TARGET}" STREQUAL "deploy")
     find_library(GPIOD_LIBRARY NAMES libgpiod gpiod)
-    if(NOT GPIOD_LIBRARY)
+    IF(NOT GPIOD_LIBRARY)
         message("${GPIOD_LIBRARY}")
         message(FATAL_ERROR "❌ gpiod library not found. Install sudo apt install libgpiod-dev")
-    endif()
+    ENDIF()
     list(APPEND REQUIRED_LIBRARIES "gpiod")
     list(APPEND REQUIRED_LIBRARIES "gpiodcxx")
     message("📚✔️ Added gpiod library")
-endif ()
+ENDIF()
 
 # jsoncan
-jsoncan_library(dimos_can dimos "${CMAKE_CURRENT_BINARY_DIR}/jsoncan" TRUE "quadruna")
+jsoncan_sources(dimos "${CMAKE_CURRENT_BINARY_DIR}/jsoncan" TRUE "quadruna")
 add_library(dimos_can STATIC ${CAN_SRCS})
 target_include_directories(dimos_can PUBLIC ${CAN_INCLUDE_DIRS})
 target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)

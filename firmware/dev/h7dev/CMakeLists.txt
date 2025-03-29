@@ -1,68 +1,126 @@
+message("")
+message("⚙️ Configuring H7Dev")
+
 set(ARM_CORE "cm7")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/h7dev.ioc")
+set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h7dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
-file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
-list (APPEND EMBEDDED_SRCS 
-    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+list(APPEND EMBEDDED_SRCS
+        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
 )
-set(EMBEDDED_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
+list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/sysmem.c")
 
-if("${TARGET}" STREQUAL "deploy")
+nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
+
+set(SRCS ${PROTO_SRCS})
+set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
+
+set(EMBEDDED_INCLUDE_DIRS
+        "${SHARED_APP_INCLUDE_DIR}"
+        "${SHARED_IO_INCLUDE_DIR}"
+        "${SHARED_HW_INCLUDE_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+)
+
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+
+IF ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
-        "h7dev"
-        "${IOC_PATH}"
+            "h7dev"
+            "${IOC_PATH}"
     )
 
     set(STM32_HAL_SRCS
-        "stm32h7xx_hal_adc_ex.c"
-        "stm32h7xx_hal_adc.c"
-        "stm32h7xx_hal_cortex.c"
-        "stm32h7xx_hal_dma_ex.c"
-        "stm32h7xx_hal_dma.c"
-        "stm32h7xx_hal_exti.c"
-        "stm32h7xx_hal_fdcan.c"
-        "stm32h7xx_hal_gpio.c"
-        "stm32h7xx_hal_iwdg.c"
-        "stm32h7xx_hal_pwr_ex.c"
-        "stm32h7xx_hal_rcc_ex.c"
-        "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_tim_ex.c"
-        "stm32h7xx_hal_tim.c"
-        "stm32h7xx_hal_uart_ex.c"
-        "stm32h7xx_hal_uart.c"
-        "stm32h7xx_hal.c"
+            "stm32h7xx_hal_adc_ex.c"
+            "stm32h7xx_hal_adc.c"
+            "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_dma_ex.c"
+            "stm32h7xx_hal_dma.c"
+            "stm32h7xx_hal_exti.c"
+            "stm32h7xx_hal_fdcan.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_iwdg.c"
+            "stm32h7xx_hal_pwr_ex.c"
+            "stm32h7xx_hal_rcc_ex.c"
+            "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_tim_ex.c"
+            "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_uart_ex.c"
+            "stm32h7xx_hal_uart.c"
+            "stm32h7xx_ll_sdmmc.c"
+            "stm32h7xx_hal_sd_ex.c"
+            "stm32h7xx_hal_sd.c"
+            "stm32h7xx_hal.c"
+            "stm32h7xx_hal_pcd.c"
+            "stm32h7xx_hal_pcd_ex.c"
+            "stm32h7xx_ll_usb.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/syscalls.c")
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
-        "h7dev_stm32cube"
-        "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Inc"
-        "${STM32_HAL_SRCS}"
-        "${SYSCALLS}"
-        "${IOC_PATH}.md5"
+            "h7dev_stm32cube"
+            "${STM32_HAL_SRCS}"
+            "${SYSCALLS}"
+            "${MD5_LOCATION}"
+            TRUE
     )
 
     embedded_binary(
-        "h7dev_app"
-        "${EMBEDDED_SRCS}"
-        "${EMBEDDED_INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-        "${ARM_CORE}"
+            "h7dev_app"
+            "${EMBEDDED_SRCS}"
+            "${EMBEDDED_INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
     )
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube")
+
+    commit_info_library(
+            "h7dev_app.elf"
+            "h7dev_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+            "${ARM_CORE}"
+    )
+
+    embedded_library(
+            "protobuf_library"
+            "${SRCS}"
+            "${HDRS}"
+            "cm7"
+            TRUE
+    )
+
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "logfs_cm7")
+
+    # Build bootloader.
+    stm32h7_boot_binary(
+            "h7dev_boot"
+            "${BOOT_SRCS}"
+            "${BOOT_INCLUDE_DIRS}"
+            "h7dev"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h7dev_boot.ioc"
+    )
+    target_link_libraries("h7dev_boot.elf" PRIVATE "h7dev_commit_info")
 
     embedded_image(
-        "h7dev"
-        "h7dev_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
-        "h7dev_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
+            "h7dev"
+            "h7dev_app.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
+            "h7dev_boot.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/h7dev_boot.hex"
     )
 
-endif()
+ENDIF ()

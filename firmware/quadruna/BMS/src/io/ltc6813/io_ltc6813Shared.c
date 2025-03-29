@@ -1,5 +1,6 @@
 #include <string.h>
 #include <assert.h>
+#include "hw_spis.h"
 #include "main.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
@@ -49,9 +50,6 @@ typedef struct
     uint8_t  default_cfg_reg[NUM_REG_GROUP_PAYLOAD_BYTES];
     uint16_t cfg_reg_cmds;
 } LTC6813Configurations;
-
-extern const SpiInterface *ltc6813_spi;
-const SpiInterface        *ltc6813_spi = NULL;
 
 static LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
 {
@@ -182,14 +180,6 @@ static void prepareCfgRegBytes(
     }
 }
 
-void io_ltc6813Shared_init(const SpiInterface *spi)
-{
-    assert(spi != NULL);
-
-    // Initialize the SPI interface to communicate with the LTC6813
-    ltc6813_spi = spi;
-}
-
 uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer)
 {
     return CHANGE_WORD_ENDIANNESS(calculatePec15(data_buffer, NUM_REG_GROUP_PAYLOAD_BYTES));
@@ -208,10 +198,10 @@ void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg)
 
 bool io_ltc6813Shared_sendCommand(uint16_t cmd)
 {
-    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
+    uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-    return hw_spi_transmit(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
+    return hw_spi_transmit(&ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
 }
 
 bool io_ltc6813Shared_pollAdcConversions(void)
@@ -220,7 +210,7 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
     // Prepare command to get the status of ADC conversions
-    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = PLADC, [CMD_PEC15] = 0U };
+    uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = PLADC, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
     // All chips on the daisy chain have finished converting cell voltages when
@@ -228,7 +218,7 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
         const bool is_status_ok =
-            hw_spi_transmitAndReceive(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+            hw_spi_transmitThenReceive(&ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
@@ -246,9 +236,7 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
     for (uint8_t curr_cfg_reg = 0U; curr_cfg_reg < NUM_OF_CFG_REGS; curr_cfg_reg++)
     {
         // Command used to write to a configuration register
-        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
-            [CMD_WORD] = ltc6813_configs[curr_cfg_reg].cfg_reg_cmds, [CMD_PEC15] = 0U
-        };
+        uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = ltc6813_configs[curr_cfg_reg].cfg_reg_cmds, [CMD_PEC15] = 0U };
 
         // Array containing bytes to write to the configuration register
         uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES] = { 0U };
@@ -260,17 +248,16 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
         // Prepare data to write to the configuration register
         prepareCfgRegBytes(tx_cfg, enable_balance, curr_cfg_reg);
 
+        // Copy to buffer to send command and configs
+        uint8_t tx_buffer[TOTAL_NUM_CMD_BYTES + NUM_REG_GROUP_RX_BYTES];
+        memcpy(&tx_buffer[0], tx_cmd, TOTAL_NUM_CMD_BYTES);
+        memcpy(&tx_buffer[TOTAL_NUM_CMD_BYTES], tx_cfg, NUM_REG_GROUP_RX_BYTES);
+
         // Write to configuration registers
-        hw_spi_setNssLow(ltc6813_spi);
-        if (hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES))
+        if (!hw_spi_transmit(&ltc6813_spi, tx_buffer, NUM_REG_GROUP_RX_BYTES))
         {
-            if (!hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cfg, NUM_REG_GROUP_RX_BYTES))
-            {
-                hw_spi_setNssHigh(ltc6813_spi);
-                return false;
-            }
+            return false;
         }
-        hw_spi_setNssHigh(ltc6813_spi);
     }
 
     return true;

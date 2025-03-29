@@ -696,6 +696,7 @@
     },
     "DebugReadWriteParamCommand": {
         "msg_id": 83, 
+        "cycle_time": null,
         "signals": {
             "CommandParameterAddress": {
                 "start_bit": 0, 
@@ -713,6 +714,7 @@
     },
     "DebugReadWriteParamResponse": {
         "msg_id": 84, 
+        "cycle_time": null,
         "signals": {
             "ResponseParameterAddress": {
                 "start_bit": 0, 

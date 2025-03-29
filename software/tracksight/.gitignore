@@ -2,6 +2,7 @@
 frontend/logs
 frontend/*.log
 frontend/npm-debug.log*
+backend/**/*.log
 
 # Runtime data
 frontend/pids
@@ -40,4 +41,5 @@ frontend/.next
 # Backend gititnore
 backend/mf4_logs/*
 backend/data/*
+backend/data_mf4/*
 

@@ -11,6 +11,7 @@
 !/.env
 !**/.clang-format
 !inverter-eeprom-config/
+!.gdbinit
 
 # User-specific uVision files
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
@@ -44,6 +45,7 @@
 *.obj
 *.o
 *.sbr
+*.so
 
 # Build files
 *.bat
@@ -55,9 +57,10 @@
 *.ini
 
 # Python
+*.pyd
 *.pyc
 __pycache__
-Pipfile.lock
+*.egg-info
 
 # Other files
 *.build_log.htm
@@ -135,16 +138,18 @@ can_bus/**/*.dbc
 # CMake build directories
 build_fw_deploy
 build_fw_deploy_wsl
+build_fw_dev
+build_fw_dev_wsl
 build_fw_test
 build_fw_test_wsl
 
-build_dimos_deploy
-build_dimos_dev
-build_dimos_test
-build_dimos_docker
+build_dimos_deploy*
+build_dimos_dev*
+build_dimos_test*
+build_dimos_docker*
 
 environment/bin
 CMakeUserPresets.json
 build
 
-zadig.exe
+/can_bus/**/*.plt

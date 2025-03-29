@@ -45,6 +45,15 @@ If the function being faked takes arguments, then you set the value to be return
 void fake_<faked function>_returnsForArgs(<faked function arguments>, <faked function return value>);
 ```
 
+Alternatively, if a function should return value regardless of input argument, an override can be set. Note that once an override is set, it will be active until the reset function is called (see below) regardless of any calls to `fake_<faked function>_returnsForArgs`
+
+```c
+/**
+ * Set the value to be returned by <faked function> when invoked independent of input arguments.
+ */
+void fake_<faked function>_returnsForAnyArgs(<faked function return value>);
+```
+
 If the return value has not been set, the default value is binary 0, i.e. 0.0 for floats, 0 for ints, `NULL` for pointers, etc.
 
 ### Checking Call Counts
@@ -66,9 +75,22 @@ If the function being faked takes arguments, then you can also check the number 
 uint32_t fake_<faked function>_callCountForArgs(<faked function arguments>);
 ```
 
+### Callback Functions
+
+Callback functions are functions which are invoked any time a call to a fake is invoked, and can allow for non-preset return values. This can be handy if the IO code being faked typically manipulates inputs in a way that you would like to mimic in your fakes. The presence of a callback function will override any fake return values set in the above functions, and the return value will instead be based on the callback function's return value.
+
+Callback functions are initialized through the passing of a function pointer with the same input and return types as the function being faked.
+
+```c
+/**
+ * Install a callback function to dictate return values
+ */
+void fake_<faked function>_setCallBack(<return type> (*func_ptr)(<faked function argument types>));
+```
+
 ### Resetting Fakes
 
-Each function being faked will generate a reset function, to reset return values and call counts.
+Each function being faked will generate a reset function, to reset return values, callback functions and call counts. This also has the effect of resetting the `fake_<faked function>_returnsForAnyArgs` override, allowing the use of `fake_<faked function>_returnsForArgs` to once again set argument specific return values.
 
 **This must be called between test runs.**
 

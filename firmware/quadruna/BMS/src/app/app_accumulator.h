@@ -16,9 +16,20 @@
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 #define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
 #define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
-#define MAX_CELL_VOLTAGE (4.2f)
+#define MAX_CELL_VOLTAGE_NOMINAL (4.2f)
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
+
+// Allows balancing of cells even if slight over-charging occurs. Occured prior to Competition 2024, where a fully
+// charged pack with max cell V of 4.19 after charging reported as 4.21 after settling. Cause currently unknown, but
+// this allows for these over-charged cells to be discharged back to safe limits
+#define MAX_CELL_VOLTAGE_BALANCING (4.25f)
+
+// Fault debounce durations.
+#define UNDER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)
+#define OVER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)
+#define UNDER_TEMP_DEBOUNCE_DURATION_MS (1000U)
+#define OVER_TEMP_DEBOUNCE_DURATION_MS (1000U)
 
 // Cell Balancing Discharge Parameters
 #define CELL_VOLTAGE_BALANCE_WINDOW_V (600e-6f) // 600uV
@@ -81,3 +92,13 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
  * @return Maximum cell voltage.
  */
 float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
+
+/**
+ * Calculate cells to balance based on min cell voltage
+ */
+void app_accumulator_calculateCellsToBalance(void);
+
+/**
+ * Send command to segments to begin balancing based on cells marked for discharge
+ */
+void app_accumulator_balanceCells(void);

@@ -1,15 +1,13 @@
 #include <string.h>
-#include "hw_spi.h"
+#include "hw_spis.h"
 #include "ltc6813/io_ltc6813Shared.h"
+#include "ltc6813/io_ltc6813CellTemps.h"
 #include "app_accumulator.h"
 
 // clang-format off
 
 #define NOMINAL_TEMPERATURE            (200U)
-#define NUM_OF_THERMISTORS_PER_SEGMENT (8U)
 #define TOTAL_NUM_OF_THERMISTORS       (NUM_OF_THERMISTORS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
-
-#define IS_CELL_TEMP_READING(curr_reg_group, curr_reading) (((curr_reg_group) != AUX_REGISTER_GROUP_B) || ((curr_reading) != REG_GROUP_READING_2))
 
 // Commands used to read from auxiliary register groups A-C
 #define RDAUXA (0x0C00U)
@@ -29,15 +27,7 @@
 
 // clang-format on
 
-typedef enum
-{
-    AUX_REGISTER_GROUP_A = 0U,
-    AUX_REGISTER_GROUP_B,
-    AUX_REGISTER_GROUP_C,
-    NUM_OF_AUX_REGISTER_GROUPS
-} AuxiliaryRegisterGroup;
-
-extern const SpiInterface *ltc6813_spi;
+extern const SpiDevice ltc6813_spi;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
@@ -109,8 +99,21 @@ static void updateCellTemperatureStatistics(void)
                 if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
                 {
                     const uint16_t curr_cell_temp = ltc6813_temp.cell[curr_segment][curr_reg_group][curr_thermistor];
-                    const uint8_t  curr_cell_index =
+                    uint8_t        curr_cell_index =
                         (uint8_t)(curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_thermistor);
+
+                    /*
+                     * Physical locations of thermistors 1 and 2 are swapped, as well as 7 and 8
+                     */
+
+                    if (curr_cell_index == 1)
+                        curr_cell_index = 2;
+                    else if (curr_cell_index == 2)
+                        curr_cell_index = 1;
+                    else if (curr_cell_index == 7)
+                        curr_cell_index = 8;
+                    else if (curr_cell_index == 8)
+                        curr_cell_index = 7;
 
                     // Get the minimum cell voltage
                     if (curr_cell_temp < temp_stats.min.temp)
@@ -268,25 +271,24 @@ bool io_ltc6813CellTemps_readTemperatures(void)
         // Read thermistor voltages stored in the AUX register groups
         for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
         {
-            uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+            uint16_t tx_cmd[NUM_CMD_WORDS] = {
                 [CMD_WORD]  = aux_reg_group_cmds[curr_reg_group],
                 [CMD_PEC15] = 0U,
             };
             io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-            if (hw_spi_transmitAndReceive(
-                    ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
+            if (hw_spi_transmitThenReceive(
+                    &ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
             {
-                if (!parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
+                if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
                 {
-                    status = false;
+                    // Update min/max cell segment, index and voltages and update pack
+                    // voltage and segment voltages
+                    updateCellTemperatureStatistics();
+                    status = true;
                 }
             }
         }
-
-        // Update min/max cell segment, index and voltages and update pack
-        // voltage and segment voltages
-        updateCellTemperatureStatistics();
     }
 
     return status;

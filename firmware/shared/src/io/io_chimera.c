@@ -5,8 +5,9 @@
 #include <assert.h>
 #include "cmsis_os.h"
 
+#include "hw_adcs.h"
 #include "hw_gpio.h"
-#include "hw_adc.h"
+#include "hw_uart.h"
 
 #include "shared.pb.h"
 #include "VC.pb.h"
@@ -14,15 +15,20 @@
 #define MAX_DEBUG_BUF_SIZE 100
 #define DEBUG_SIZE_MSG_BUF_SIZE 1
 
-extern const Gpio      *id_to_gpio[];
-extern const AdcChannel id_to_adc[];
+/**
+ * Required to be provided by hw_chimeraConfig.c
+ */
+extern const Gpio *const       id_to_gpio[]; // TODO make these proper functions, rather than implicit list indexing?
+extern const AdcChannel *const id_to_adc[];  // TODO make these proper functions, rather than implicit list indexing?
+extern const UART             *chimera_uart;
+extern const Gpio             *n_chimera_gpio;
 
-static UART    *uart;
 static bool     is_mid_debug_msg;
 static uint8_t  data[MAX_DEBUG_BUF_SIZE];
 static uint8_t  rx_packet_size;
 static uint32_t net_name_gpio;
 static uint32_t net_name_adc;
+static bool     chimera_button_pressed;
 
 static const Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
 {
@@ -51,12 +57,12 @@ static const Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
         default:
         {
             assert(false);
-            return 0U;
+            return NULL;
         }
     }
 }
 
-static AdcChannel io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
+static const AdcChannel *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
 {
     switch (net_name->which_name)
     {
@@ -83,20 +89,33 @@ static AdcChannel io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
         default:
         {
             assert(false);
-            return 0U;
+            return NULL;
         }
     }
 }
 
-void io_chimera_init(UART *serial_uart, uint32_t name_gpio, uint32_t name_adc)
+void io_chimera_init(const uint32_t name_gpio, const uint32_t name_adc)
 {
-    uart             = serial_uart;
     is_mid_debug_msg = false;
     rx_packet_size   = 0;
     net_name_gpio    = name_gpio;
     net_name_adc     = name_adc;
 
-    hw_uart_receiveIt(uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
+    // Button is active low
+    chimera_button_pressed = hw_gpio_readPin(n_chimera_gpio) ? false : true;
+
+    if (chimera_button_pressed)
+    {
+        hw_uart_receiveIt(chimera_uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
+    }
+}
+
+void io_chimera_sleepTaskIfEnabled(void)
+{
+    if (chimera_button_pressed)
+    {
+        osDelay(osWaitForever);
+    }
 }
 
 void io_chimera_msgRxCallback(void)
@@ -129,8 +148,8 @@ void io_chimera_msgRxCallback(void)
             {
                 // ADC read message.
                 assert(msg.payload.adc.net_name.which_name == net_name_adc);
-                const AdcChannel adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
-                msg.payload.adc.value        = hw_adc_getVoltage(adc_channel);
+                const AdcChannel *adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
+                msg.payload.adc.value         = hw_adc_getVoltage(adc_channel);
                 break;
             }
             default:
@@ -142,8 +161,8 @@ void io_chimera_msgRxCallback(void)
         assert(pb_encode(&out_stream, DebugMessage_fields, &msg));
         uint8_t tx_packet_size = (uint8_t)out_stream.bytes_written;
 
-        hw_uart_transmitPoll(uart, &tx_packet_size, DEBUG_SIZE_MSG_BUF_SIZE, osWaitForever);
-        hw_uart_transmitPoll(uart, data, tx_packet_size, osWaitForever);
+        hw_uart_transmitPoll(chimera_uart, &tx_packet_size, DEBUG_SIZE_MSG_BUF_SIZE, osWaitForever);
+        hw_uart_transmitPoll(chimera_uart, data, tx_packet_size, osWaitForever);
 
         // Wait for next length message (1 byte).
         rx_packet_size   = DEBUG_SIZE_MSG_BUF_SIZE;
@@ -158,5 +177,5 @@ void io_chimera_msgRxCallback(void)
 
     // Start receiving data in interrupt mode again so this interrupt will get fired if
     // more data is recieved.
-    hw_uart_receiveIt(uart, data, rx_packet_size);
+    hw_uart_receiveIt(chimera_uart, data, rx_packet_size);
 }

@@ -1,17 +1,26 @@
 #pragma once
+#include <QThread>
+#include <QMutex>
 
-namespace can_handlers
+#include "ui/canqml/canqml.h"
+#include "types.h"
+
+namespace CanTask
 {
-void CanRXTask();
-void CanPeriodicTXTask();
-void CanTx100Hz();
-void CanTx1Hz();
+enum class CAN_setup_errors
+{
+};
+static const std::map<CAN_setup_errors, std::string> CAN_setup_errors_str = {
 
-#ifdef USING_dimos_dev
-constexpr uint16_t TASK_INTERVAL_100HZ = 1000;
-constexpr uint16_t TASK_INTERVAL_1HZ   = 1000;
-#elif USING_dimos
-constexpr uint16_t TASK_INTERVAL_100HZ = 10;
-constexpr uint16_t TASK_INTERVAL_1HZ   = 1000;
-#endif
-} // namespace can_handlers
+};
+
+enum class CAN_teardown_errors
+{
+};
+static const std::map<CAN_teardown_errors, std::string> CAN_teardown_errors_str = {
+
+};
+
+Result<std::monostate, CAN_setup_errors>    setup();
+Result<std::monostate, CAN_teardown_errors> teardown();
+} // namespace CanTask

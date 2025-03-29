@@ -13,44 +13,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: thruna_DIM
-            bin_name: thruna_DIM_app_metadata.hex
-            build_dir: firmware/thruna/DIM
-          - board: thruna_FSM
-            bin_name: thruna_FSM_app_metadata.hex
-            build_dir: firmware/thruna/FSM
-          - board: thruna_PDM
-            bin_name: thruna_PDM_app_metadata.hex
-            build_dir: firmware/thruna/PDM
-          - board: thruna_DCM
-            bin_name: thruna_DCM_app_metadata.hex
-            build_dir: firmware/thruna/DCM
-          - board: thruna_BMS
-            bin_name: thruna_BMS_app_metadata.hex
-            build_dir: firmware/thruna/BMS
-
-          - board: quadruna_BMS
-            bin_name: quadruna_BMS_app_metadata.hex
-            build_dir: firmware/quadruna/BMS
-          #          - board: quadruna_CRIT
-          #            bin_name: quadruna_CRIT_app_metadata.hex
-          #            build_dir: firmware/quadruna/CRIT
-          #          - board: quadruna_FSM
-          #            bin_name: quadruna_FSM_app_metadata.hex
-          #            build_dir: firmware/quadruna/FSM
-          #          - board: quadruna_RSM
-          #            bin_name: quadruna_RSM_app_metadata.hex
-          #            build_dir: firmware/quadruna/RSM
           - board: quadruna_VC
             bin_name: quadruna_VC_app_metadata.hex
             build_dir: firmware/quadruna/VC
-
-          - board: f4dev
-            bin_name: f4dev.hex
-            build_dir: firmware/dev/f4dev
-          - board: h7dev
-            bin_name: h7dev.hex
-            build_dir: firmware/dev/h7dev
+          - board: quadruna_BMS
+            bin_name: quadruna_BMS_app_metadata.hex
+            build_dir: firmware/quadruna/BMS
+          - board: quadruna_FSM
+            bin_name: quadruna_FSM_app_metadata.hex
+            build_dir: firmware/quadruna/FSM
+          - board: quadruna_RSM
+            bin_name: quadruna_RSM_app_metadata.hex
+            build_dir: firmware/quadruna/RSM
+          - board: quadruna_CRIT
+            bin_name: quadruna_CRIT_app_metadata.hex
+            build_dir: firmware/quadruna/CRIT
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -94,8 +71,8 @@ jobs:
       - name: Upload DBC to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CanMsgs.dbc
-          path: CanMsgs.dbc
+          name: quadruna.dbc
+          path: quadruna.dbc
 
 
   # ======= MAKE THE RELEASE =======
@@ -119,20 +96,13 @@ jobs:
         uses: ./.github/actions/push_release
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
-          #            quadruna_CRIT_app_metadata.hex/quadruna_CRIT_app_metadata.hex
-          #            quadruna_FSM_app_metadata.hex/quadruna_FSM_app_metadata.hex
-          #            quadruna_RSM_app_metadata.hex/quadruna_RSM_app_metadata.hex
           files: |
-            thruna_BMS_app_metadata.hex/thruna_BMS_app_metadata.hex
-            thruna_DCM_app_metadata.hex/thruna_DCM_app_metadata.hex
-            thruna_DIM_app_metadata.hex/thruna_DIM_app_metadata.hex
-            thruna_FSM_app_metadata.hex/thruna_FSM_app_metadata.hex
-            thruna_PDM_app_metadata.hex/thruna_PDM_app_metadata.hex
-            quadruna_BMS_app_metadata.hex/quadruna_BMS_app_metadata.hex
             quadruna_VC_app_metadata.hex/quadruna_VC_app_metadata.hex
-            f4dev.hex/f4dev.hex
-            h7dev.hex/h7dev.hex
-            CanMsgs.dbc/CanMsgs.dbc
+            quadruna_BMS_app_metadata.hex/quadruna_BMS_app_metadata.hex
+            quadruna_FSM_app_metadata.hex/quadruna_FSM_app_metadata.hex
+            quadruna_RSM_app_metadata.hex/quadruna_RSM_app_metadata.hex
+            quadruna_CRIT_app_metadata.hex/quadruna_CRIT_app_metadata.hex
+            quadruna.dbc/quadruna.dbc
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -12,6 +11,7 @@ typedef struct
     const bool closed_state; // GPIO state that indicates closed.
 } Switch;
 #else
+#include "app_utils.h"
 EMPTY_STRUCT(Switch);
 #endif
 

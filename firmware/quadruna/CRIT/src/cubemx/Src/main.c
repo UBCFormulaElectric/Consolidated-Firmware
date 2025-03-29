@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +47,8 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan1;
+
+IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim3;
 
@@ -123,6 +126,7 @@ static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_IWDG_Init(void);
 void        StartTask1kHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
@@ -170,6 +174,7 @@ int main(void)
     MX_CAN1_Init();
     MX_TIM3_Init();
     MX_USART2_UART_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -249,8 +254,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 8;
@@ -342,11 +348,11 @@ static void MX_CAN1_Init(void)
 
     /* USER CODE END CAN1_Init 1 */
     hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 12;
+    hcan1.Init.Prescaler            = 6;
     hcan1.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
-    hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
-    hcan1.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan1.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan1.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan1.Init.TimeSeg2             = CAN_BS2_3TQ;
     hcan1.Init.TimeTriggeredMode    = DISABLE;
     hcan1.Init.AutoBusOff           = ENABLE;
     hcan1.Init.AutoWakeUp           = DISABLE;
@@ -360,6 +366,32 @@ static void MX_CAN1_Init(void)
     /* USER CODE BEGIN CAN1_Init 2 */
 
     /* USER CODE END CAN1_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+
+    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
@@ -474,13 +506,14 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOA, SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | LED_Pin, GPIO_PIN_RESET);
+        GPIOA, SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | VC_B_Pin | LED_Pin,
+        GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOB,
         VC_R_Pin | AUX_DB_B_Pin | AUX_DB_G_Pin | AUX_DB_R_Pin | CRIT_DB_B_Pin | CRIT_DB_G_Pin | CRIT_DB_R_Pin |
-            RSM_B_Pin | REGEN_LED_Pin | TORQUE_VECTORING_LED_Pin | START_LED_Pin,
+            RSM_B_Pin | START_LED_Pin | TORQUE_VECTORING_LED_Pin | REGEN_LED_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -509,18 +542,18 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : SHDN_R_Pin BMS_B_Pin BMS_G_Pin BSPD_R_Pin
-                             BMS_R_Pin FSM_R_Pin LED_Pin */
-    GPIO_InitStruct.Pin   = SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | LED_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+                             BMS_R_Pin FSM_R_Pin VC_B_Pin LED_Pin */
+    GPIO_InitStruct.Pin  = SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | VC_B_Pin | LED_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : VC_R_Pin AUX_DB_B_Pin AUX_DB_G_Pin AUX_DB_R_Pin
                              CRIT_DB_B_Pin CRIT_DB_G_Pin CRIT_DB_R_Pin RSM_B_Pin
-                             REGEN_LED_Pin TORQUE_VECTORING_LED_Pin START_LED_Pin */
+                             START_LED_Pin TORQUE_VECTORING_LED_Pin REGEN_LED_Pin */
     GPIO_InitStruct.Pin = VC_R_Pin | AUX_DB_B_Pin | AUX_DB_G_Pin | AUX_DB_R_Pin | CRIT_DB_B_Pin | CRIT_DB_G_Pin |
-                          CRIT_DB_R_Pin | RSM_B_Pin | REGEN_LED_Pin | TORQUE_VECTORING_LED_Pin | START_LED_Pin;
+                          CRIT_DB_R_Pin | RSM_B_Pin | START_LED_Pin | TORQUE_VECTORING_LED_Pin | REGEN_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -531,12 +564,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(NPROGRAM_3V3_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : VC_B_Pin */
-    GPIO_InitStruct.Pin  = VC_B_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(VC_B_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : AMS_R_Pin */
     GPIO_InitStruct.Pin   = AMS_R_Pin;
