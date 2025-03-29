@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "main.h"
+#include "cmsis_os.h"
 
 // HAL UART type documentation pg 1161:
 // https://www.st.com/resource/en/user_manual/um1725-description-of-stm32f4-hal-and-lowlayer-drivers-stmicroelectronics.pdf
