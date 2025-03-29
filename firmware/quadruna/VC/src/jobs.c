@@ -34,14 +34,16 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 
-    if (app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
     {
         io_canLogging_loggingQueuePush(&msg);
     }
 
     if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
     {
-        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(&msg));
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(&msg);
     }
 }
 
@@ -114,24 +116,30 @@ void jobs_run1kHz_tick(void)
 
 void jobs_runCanRx_tick(void)
 {
-    const CanMsg rx_msg = io_canQueue_popRx();
+    const CanMsg rx_msg       = io_canQueue_popRx();
+    JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+    io_canRx_updateRxTableWithMessage(&json_can_msg);
+}
 
-    if (io_canRx_filterMessageId(rx_msg.std_id))
+void jobs_canRxCallback(const CanMsg *rx_msg)
+{
+    if (io_canRx_filterMessageId(rx_msg->std_id))
     {
-        JsonCanMsg json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&json_can_msg);
+        io_canQueue_pushRx(rx_msg);
     }
 
     // check and process CAN msg for bootloader start msg
-    io_bootHandler_processBootRequest(&rx_msg);
+    io_bootHandler_processBootRequest(rx_msg);
 
-    if (app_dataCapture_needsLog((uint16_t)rx_msg.std_id, rx_msg.timestamp))
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
-        io_canLogging_loggingQueuePush(&rx_msg);
+        io_canLogging_loggingQueuePush(rx_msg);
     }
 
-    if (app_dataCapture_needsTelem((uint16_t)rx_msg.std_id, rx_msg.timestamp))
+    if (app_dataCapture_needsTelem((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
-        LOG_ERROR_IF(io_telemMessage_pushMsgtoQueue(&rx_msg));
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(rx_msg);
     }
 }
