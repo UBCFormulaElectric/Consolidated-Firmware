@@ -13,12 +13,5 @@
 		"--compile-commands-dir=build_fw_dev",
  		// "--compile-commands-dir=build_fw_test",
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
-	],
-	"files.associations": {
-		"io_imu_config.h": "c",
-		"io_imus.h": "c",
-		"io_imu.h": "c",
-		"hw_i2cs.h": "c",
-		"stdbool.h": "c"
-	}
+	]
 }

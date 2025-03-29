@@ -42,25 +42,23 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
-CoolantFlowMeter coolant_flow_meter = { .src = &flow_meter_5v5, .config = &flow_meter_config };
-
-void io_coolant_init(CoolantFlowMeter *flow_meter)
+void io_coolant_init()
 {
-    hw_pwmInputFreqOnly_init(flow_meter->src, flow_meter->config);
+    hw_pwmInputFreqOnly_init(&flow_meter_5v5, &flow_meter_config);
 }
 
-void io_coolant_inputCaptureCallback(CoolantFlowMeter *flow_meter)
+void io_coolant_inputCaptureCallback()
 {
-    hw_pwmInputFreqOnly_tick(flow_meter->src);
+    hw_pwmInputFreqOnly_tick(&flow_meter_5v5);
 }
 
-float io_coolant_getFlowRate(CoolantFlowMeter *flow_meter)
+float io_coolant_getFlowRate()
 {
-    const float freq_read = hw_pwmInputFreqOnly_getFrequency(flow_meter->src);
+    const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter_5v5);
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
-void io_coolant_checkIfFlowMeterActive(CoolantFlowMeter *flow_meter)
+void io_coolant_checkIfFlowMeterActive()
 {
-    hw_pwmInputFreqOnly_checkIfPwmIsActive(flow_meter->src);
+    hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter_5v5);
 }
