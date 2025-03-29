@@ -3,7 +3,7 @@
 // https://datasheet.ciiva.com/pdfs/VipMasterIC/IC/PHGL/PHGL-S-A0000776674/PHGL-S-A0000776674-1.pdf?src-supplier=IHS+Markit
 
 // standard digital format, not BCD.
-// need to be converted to BCD format if needed. 
+// need to be converted to BCD format if needed.
 struct IoRtcTime
 {
     uint8_t seconds;
@@ -14,7 +14,6 @@ struct IoRtcTime
     uint8_t month;
     uint8_t year;
 };
-
 
 // always 24-hour mode
 

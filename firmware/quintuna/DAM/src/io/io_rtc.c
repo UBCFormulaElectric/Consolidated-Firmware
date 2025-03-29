@@ -183,7 +183,7 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t TBC :1;
+    uint8_t TBC : 1;
     uint8_t TAC : 2;
     uint8_t COF : 3;
     uint8_t TBM : 1;
@@ -217,7 +217,7 @@ typedef struct __attribute__((packed))
 {
     uint8_t TBQ : 3; // Timer B frequency selection
     uint8_t RESERVED : 1;
-    uint8_t TBW : 3; 
+    uint8_t TBW : 3;
     uint8_t RESERVED1 : 1;
 } TimerBFreq_t;
 
@@ -251,25 +251,25 @@ _Static_assert(sizeof(TimerBValue_t) == 1, "TimerBValue_t must be 1 byte");
 
 typedef union
 {
-    uint8_t        raw;           // Single uint8_t for raw data
-    Control1_t     control1;      // Control Register 1 struct
-    Control2_t     control2;      // Control Register 2 struct
-    Control3_t     control3;      // Control Register 3 struct
-    Seconds_t      seconds;       // Seconds Register struct
-    Minutes_t      minutes;       // Minutes Register struct
-    Hours_t        hours;         // Hours Register struct
-    Days_t         days;          // Days Register struct
-    Weekdays_t     weekdays;      // Weekdays Register struct
-    Months_t       months;        // Months Register struct
-    Years_t        years;         // Years Register struct
-    MinuteAlarm_t  minute_alarm;  // Minute Alarm Register struct
-    HourAlarm_t    hour_alarm;    // Hour Alarm Register struct
-    Offset_t       offset;        // Offset Register struct
-    ClockOut_t     clock_out;     // CLKOUT Control Register struct
-    TimerAFreq_t   timer_a_freq;  // Timer A Frequency Register struct
-    TimerAValue_t  timer_a_value; // Timer A Value Register struct
-    TimerBFreq_t   timer_b_freq;  // Timer B Frequency Register struct
-    TimerBValue_t  timer_b_value; // Timer B Value Register struct
+    uint8_t       raw;           // Single uint8_t for raw data
+    Control1_t    control1;      // Control Register 1 struct
+    Control2_t    control2;      // Control Register 2 struct
+    Control3_t    control3;      // Control Register 3 struct
+    Seconds_t     seconds;       // Seconds Register struct
+    Minutes_t     minutes;       // Minutes Register struct
+    Hours_t       hours;         // Hours Register struct
+    Days_t        days;          // Days Register struct
+    Weekdays_t    weekdays;      // Weekdays Register struct
+    Months_t      months;        // Months Register struct
+    Years_t       years;         // Years Register struct
+    MinuteAlarm_t minute_alarm;  // Minute Alarm Register struct
+    HourAlarm_t   hour_alarm;    // Hour Alarm Register struct
+    Offset_t      offset;        // Offset Register struct
+    ClockOut_t    clock_out;     // CLKOUT Control Register struct
+    TimerAFreq_t  timer_a_freq;  // Timer A Frequency Register struct
+    TimerAValue_t timer_a_value; // Timer A Value Register struct
+    TimerBFreq_t  timer_b_freq;  // Timer B Frequency Register struct
+    TimerBValue_t timer_b_value; // Timer B Value Register struct
 } Register_t;
 
 static uint8_t integer_to_bcd(uint8_t value)
@@ -281,7 +281,6 @@ static uint8_t bcd_to_integer(uint8_t value)
 {
     return (uint8_t)((value >> 4) * 10) + (value);
 }
-
 
 void io_rtc_init(void)
 {
@@ -296,8 +295,12 @@ void io_rtc_init(void)
         LOG_ERROR("Failed to write to RTC control register 1");
     }
 
+    su = hw_i2c_memoryRead(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
+    if (!su)
+    {
+        LOG_ERROR("Failed to read from RTC control register 1");
+    }
 }
-
 
 void io_rtc_setTime(struct IoRtcTime *time)
 {
@@ -322,7 +325,7 @@ void io_rtc_setTime(struct IoRtcTime *time)
     regDays.days.DAYS = (uint8_t)(date);
 
     Register_t regWeekdays;
-    regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays) ;
+    regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays);
 
     Register_t regMonths;
     regMonths.months.MONTHS = (uint8_t)(months);
@@ -331,30 +334,27 @@ void io_rtc_setTime(struct IoRtcTime *time)
     regYears.years.YEARS = (uint8_t)(years);
 
     uint8_t buffer[7] = {
-        regTime.raw,
-        regMinutes.raw,
-        regHours.raw,
-        regDays.raw,
-        regWeekdays.raw,
-        regMonths.raw,
-        regYears.raw,
+        regTime.raw, regMinutes.raw, regHours.raw, regDays.raw, regWeekdays.raw, regMonths.raw, regYears.raw,
     };
 
-    LOG_INFO("Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day, time->month, time->year);
-    LOG_INFO("Writing to RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6]);
+    LOG_INFO(
+        "Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day,
+        time->month, time->year);
+    LOG_INFO(
+        "Writing to RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
+        buffer[5], buffer[6]);
 
     bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
     if (!su)
     {
         LOG_ERROR("Failed to write to RTC time registers");
     }
-
 }
 
 void io_rtc_readTime(struct IoRtcTime *time)
 {
     uint8_t buffer[7];
-    bool su = hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+    bool    su = hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
     if (!su)
     {
         LOG_ERROR("Failed to read from RTC time registers");
@@ -381,30 +381,30 @@ void io_rtc_readTime(struct IoRtcTime *time)
     Register_t regYears;
     regYears.raw = buffer[6];
 
-    time->seconds = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS));
-    time->minutes = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES));
-    time->hours   = (uint8_t)(bcd_to_integer(regHours.hours.HOURS));
-    time->day = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
+    time->seconds  = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS));
+    time->minutes  = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES));
+    time->hours    = (uint8_t)(bcd_to_integer(regHours.hours.HOURS));
+    time->day      = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
     time->weekdays = (uint8_t)(regWeekdays.weekdays.WEEKDAYS);
-    time->month   = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS));
-    time->year    = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
+    time->month    = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS));
+    time->year     = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
 
-    LOG_INFO("Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day, time->month, time->year);
-    LOG_INFO("Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6]);
+    LOG_INFO(
+        "Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day,
+        time->month, time->year);
+    LOG_INFO(
+        "Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
+        buffer[5], buffer[6]);
 }
 
 void io_rtc_reset(void)
 {
-    Control1_t control1 = {
-        .CIE     = 0,
-        .AIE     = 0,
-        .SIE     = 0,
-        ._12_24  = 0,
-        .SR      = 1,
-        .STOP    = 0,
-        .T       = 0,
-        .CAP_SEL = 0,
-    };
+    Register_t control1;
+    control1.raw = 0x58; // Reset all bits to 0
 
-    hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, (uint8_t *)&control1, sizeof(control1));
+    bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1));
+    if (!su)
+    {
+        LOG_ERROR("Failed to write to RTC control register 1");
+    }
 }
