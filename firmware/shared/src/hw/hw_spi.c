@@ -41,12 +41,12 @@ static void transactionCompleteHandler(SPI_HandleTypeDef *handle)
 
 static void enableNss(const SpiDevice *device)
 {
-    hw_gpio_writePin(&device->nss_pin, false);
+    hw_gpio_writePin(device->nss_pin, false);
 }
 
 static void disableNss(const SpiDevice *device)
 {
-    hw_gpio_writePin(&device->nss_pin, true);
+    hw_gpio_writePin(device->nss_pin, true);
 }
 
 bool hw_spi_transmitThenReceive(

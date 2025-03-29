@@ -12,6 +12,7 @@
 // Reply IDs.
 #define ERASE_SECTOR_COMPLETE_ID 1010
 #define APP_VALIDITY_ID 1011
+#define GO_TO_APP 1013
 
 void           bootloader_preInit(void);
 void           bootloader_init(void);

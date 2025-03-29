@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include <assert.h>
 // protobufs
 #include "shared.pb.h"
 #include "CRIT.pb.h"
@@ -19,6 +20,7 @@
 #include "io_leds.h"
 #include "io_switches.h"
 #include "io_canQueue.h"
+#include "io_bootHandler.h"
 // can
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -393,6 +395,8 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg     rx_msg         = io_canQueue_popRx(&rx_msg);
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+
+        io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
@@ -458,5 +462,13 @@ _Noreturn void tasks_run1Hz(void)
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
+    }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == debug_uart.handle)
+    {
+        io_chimera_msgRxCallback();
     }
 }

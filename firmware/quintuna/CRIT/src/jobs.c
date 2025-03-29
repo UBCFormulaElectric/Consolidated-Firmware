@@ -11,6 +11,7 @@
 #include "io_canTx.h"
 #include "io_canRx.h"
 #include "io_time.h"
+#include "io_canQueue.h"
 
 // HW
 #include "hw_gpios.h"
@@ -24,6 +25,7 @@ void jobs_init(void)
 {
     // can
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
+    io_canQueue_init();
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
@@ -40,8 +42,6 @@ void jobs_run1Hz_tick(void)
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
-
-    hw_gpio_togglePin(&led);
 }
 
 void jobs_run100Hz_tick(void)

@@ -603,9 +603,7 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    io_chimera_v2_main(
-        GpioNetName_f4dev_net_name_tag, id_to_gpio, AdcNetName_f4dev_net_name_tag, id_to_adc,
-        I2cNetName_f4dev_net_name_tag, id_to_i2c);
+    io_chimera_v2_mainOrContinue(&chimera_v2_config);
     /* USER CODE END 5 */
 }
 
