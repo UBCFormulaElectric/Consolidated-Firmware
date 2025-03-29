@@ -24,7 +24,17 @@
                 "bits": 1
             }
         }
-    }
-     
-    
+    },
+    "Coolant": {
+		"msg_id": 416,
+		"cycle_time": 1000,
+		"signals": {
+			"CoolantFlowRate": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 40,
+				"unit": "L/min"
+			}
+		}
+	}
 }

@@ -4,6 +4,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_signal.h"
+#include "hw_pwms.h"
 #include "io_coolants.h"
 
 static const RangeCheck flow_rate_in_range_check = {
@@ -19,10 +20,10 @@ void app_coolant_init(void)
 
 void app_coolant_broadcast(void)
 {
-    float                    flow_val       = io_coolant_getFlowRate(flow);
+    float                    flow_val       = io_coolant_getFlowRate();
     RangeCheckStatusMetaData coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
-    //app_canTx_RSM_CoolantFlowRate_set(flow_val);
-    //app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
+    app_canTx_RSM_CoolantFlowRate_set(flow_val);
+    app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
 
     // motor shutdown in flow rate check
     const bool  in_drive_state             = app_canRx_VC_State_get() == VC_DRIVE_STATE;
@@ -30,6 +31,6 @@ void app_coolant_broadcast(void)
         &flow_in_range_signal, coolant_status.status == VALUE_UNDERFLOW && in_drive_state,
         coolant_status.status == VALUE_IN_RANGE || !in_drive_state);
 
-    // TODO: This should be a fault, but it's not working!!!
+    // TODO: check if ts work, apparently it didn't work last year 
     app_canAlerts_RSM_Warning_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }

@@ -4,11 +4,47 @@
     "warnings_counts_id": 703,
     "faults_counts_id": 704,
     "warnings": {
+        "WatchdogTimeout": {
+            "id": 701,
+            "description": "Watchdog timeout"
+        },
+        "TxOverflow": {
+            "id": 702,
+            "description": "canTX overflow"
+        },
+        "RxOverflow": {
+            "id": 703,
+            "description": "canRX overflow"
+        },
+        "StackWaterMarkHighTask1Hz": {
+            "id": 704,
+            "description": "Stack Watermark mark failed for 1Hz"
+        },
+        "StackWaterMarkHighTask100Hz": {
+            "id": 705,
+            "description": "Stack Watermark mark failed for 100Hz"
+        },
+        "StackWaterMarkHighTask1kHz": {
+            "id": 706,
+            "description": "Stack Watermark mark failed for 1kHz"
+        },
+        "StackWaterMarkHighTaskCanRx": {
+            "id": 707,
+            "description": "Stack Watermark failed on CanRx"
+        },
+        "StackWaterMarkHighTaskCanTx": {
+            "id": 708,
+            "description": "Stack Watermark failed on CanTx"
+        },
+        "FlowRateOutOfRange": {
+            "id": 709,
+            "description": "Coolant flow out of range"
+        }
     },
     "faults": {
-        "DummyFault": {
+        "FlowMeterUnderflow": {
             "id": 700,
-            "description": "Dummy Fault"
+            "description": "Flow meter underflow"
         }
     }
 }
