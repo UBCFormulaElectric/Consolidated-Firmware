@@ -19,6 +19,7 @@
 #include "io_fans.h"
 #include "io_brake_light.h"
 #include "io_canQueue.h"
+#include "io_bootHandler.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -275,6 +276,8 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg     rx_msg         = io_canQueue_popRx();
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+
+        io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

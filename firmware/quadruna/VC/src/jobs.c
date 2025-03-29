@@ -26,6 +26,8 @@
 #include "io_telemMessage.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
+#include "io_canMsg.h"
+#include "io_bootHandler.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -126,6 +128,9 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
         io_canQueue_pushRx(rx_msg);
     }
 
+    // check and process CAN msg for bootloader start msg
+    io_bootHandler_processBootRequest(&rx_msg);
+  
     if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
         io_canLogging_loggingQueuePush(rx_msg);
