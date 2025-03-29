@@ -32,7 +32,7 @@
 #define T0 (298.15f)           // 25 degrees celsius is used for T0 in datasheet but for equation we do kelvin
 #define R0 (10000.f)           // resistance at T0
 #define B_COEFFIECENT (3988.f) // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
-#define VIN (5.0f)             // not set
+#define VIN (5.0f)             // not set     
 #define R2 (2200.f)            // bottom resistor in the coolant temp sensor circuit
 // the coolant temp sensor circuit is made of a voltage divider where the thermistor which we use for the temperature
 // readings is the top resistor in the voltage divider and R2 is the bottom this tells us that Vout = Vin (R2/ (Rtherm +
