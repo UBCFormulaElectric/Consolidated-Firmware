@@ -6,6 +6,7 @@
 #include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
+#include "io_sbgEllipse.h"
 
 static float vehicle_velocity;
 
@@ -15,15 +16,13 @@ void app_sbgEllipse_broadcast()
        CAN messages because another message in the signal is being used */
 
     // Status msg
-    // const uint16_t general_status = io_sbgEllipse_getGeneralStatus();
-    // const uint32_t com_status     = io_sbgEllipse_getComStatus();
-
-    // app_canTx_VC_EllipseGeneralStatusBitmask_set(general_status);
-    // app_canTx_VC_EllipseComStatusBitmask_set(com_status);
+    app_canTx_VC_EllipseGeneralStatusBitmask_set(io_sbgEllipse_getGeneralStatus());
+    app_canTx_VC_EllipseComStatusBitmask_set(io_sbgEllipse_getComStatus());
+    app_canTx_VC_EllipseQueueOverflowCount_set(io_sbgEllipse_getOverflowCount());
 
     // Time msg
-    // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
-    // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
+    const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
+    app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
     VelocityData velocity_calculated;
 

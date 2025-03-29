@@ -44,5 +44,4 @@ const AdcChannel *id_to_adc[] = {
     [VC_AdcNetName_PUMP_PWR_I_SNS]   = &pump_pwr_i_sns,
 };
 
-const UART *chimera_uart   = &debug_uart;
 const Gpio *n_chimera_gpio = &n_chimera_pin;
