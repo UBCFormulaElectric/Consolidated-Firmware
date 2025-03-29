@@ -24,7 +24,7 @@ static bool waitForNotification(const SpiDevice *device)
 
 static void transactionCompleteHandler(SPI_HandleTypeDef *handle)
 {
-    SpiBus *bus = hw_spi_getBusFromHandle(handle);
+    const SpiBus *const bus = hw_spi_getBusFromHandle(handle);
     if (bus == NULL)
     {
         return;

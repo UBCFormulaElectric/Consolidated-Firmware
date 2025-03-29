@@ -219,6 +219,9 @@
       },
       "EkfSolutionMode": {
         "enum": "VcEkfStatus"
+      },
+      "EllipseQueueOverflowCount": {
+        "bits": 8
       }
     }
   },
@@ -805,30 +808,30 @@
       }
     }
   },
-  "TireVerticalForces":{
-    "msg_id": 231, 
-    "cycle_time": 100, 
+  "TireVerticalForces": {
+    "msg_id": 231,
+    "cycle_time": 100,
     "description": "Vertical forces on car tires",
-    "signals":{
-      "FrontLeftWheelVerticalForce":{
+    "signals": {
+      "FrontLeftWheelVerticalForce": {
         "min": -500,
         "max": 500,
         "resolution": 0.1,
         "unit": "N"
       },
-      "FrontRightWheelVerticalForce":{
+      "FrontRightWheelVerticalForce": {
         "min": -500,
         "max": 500,
         "resolution": 0.1,
         "unit": "N"
       },
-      "RearLeftWheelVerticalForce":{
+      "RearLeftWheelVerticalForce": {
         "min": -500,
         "max": 500,
         "resolution": 0.1,
         "unit": "N"
       },
-      "RearRightWheelVerticalForce":{
+      "RearRightWheelVerticalForce": {
         "min": -500,
         "max": 500,
         "resolution": 0.1,
@@ -836,60 +839,59 @@
       }
     }
   },
-"LoadBasedTorqueAllocation":{
-  "msg_id": 232,
-  "cycle_time": 10,
-  "description": "Torque allocation based on vertical forces on tires",
-  "signals":{
-    "RightLoadBasedTorqueReq": {
-      "min": 0,
-      "max": 90,
-      "resolution": 0.1,
-      "unit": "Nm"
-    },
-    "LeftLoadBasedTorqueReq": {
-      "min": 0,
-      "max": 90,
-      "resolution": 0.1,
-      "unit": "Nm"
-    },
-    "LoadTransferScalar":
-    {
-      "min": -10,
-      "max": 10,
-      "resolution": 0.1
-    },
-    "RearYawMoment": {
+  "LoadBasedTorqueAllocation": {
+    "msg_id": 232,
+    "cycle_time": 10,
+    "description": "Torque allocation based on vertical forces on tires",
+    "signals": {
+      "RightLoadBasedTorqueReq": {
+        "min": 0,
+        "max": 90,
+        "resolution": 0.1,
+        "unit": "Nm"
+      },
+      "LeftLoadBasedTorqueReq": {
+        "min": 0,
+        "max": 90,
+        "resolution": 0.1,
+        "unit": "Nm"
+      },
+      "LoadTransferScalar": {
+        "min": -10,
+        "max": 10,
+        "resolution": 0.1
+      },
+      "RearYawMoment": {
         "min": -360,
         "max": 360,
         "resolution": 0.1,
         "unit": "Nm"
-     },
-     "FrontYawMoment": {
-      "min": -360,
-      "max": 360,
-      "resolution": 0.1,
-      "unit": "Nm"
+      },
+      "FrontYawMoment": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "Nm"
+      }
     }
-  }
-},
-"YawRateControllerInfo": {
-     "msg_id": 233,
-     "cycle_time": 10,
-     "description": "Debug messages for yaw rate controller for yaw rates and yaw moment",
-     "signals": {
-       "ReferenceYawRate": {
-         "min": -360,
-         "max": 360,
-         "resolution": 0.1,
-         "unit": "deg/s"
-       },
-       "YawMoment": {
-         "min": -360,
-         "max": 360,
-         "resolution": 0.1,
-         "unit": "Nm"
-       }
+  },
+  "YawRateControllerInfo": {
+    "msg_id": 233,
+    "cycle_time": 10,
+    "description": "Debug messages for yaw rate controller for yaw rates and yaw moment",
+    "signals": {
+      "ReferenceYawRate": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "deg/s"
+      },
+      "YawMoment": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "Nm"
+      }
     }
   }
 }

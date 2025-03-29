@@ -29,6 +29,7 @@
 #include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
+#include "hw_uarts.h"
 #include "hw_can.h"
 
 #include "shared.pb.h"
@@ -106,9 +107,6 @@ PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
                                           .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
                                           .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
-static const UART debug_uart = { .handle = &huart1 };
-
-const UART *chimera_uart   = &debug_uart;
 const Gpio *n_chimera_gpio = &n_chimera_pin;
 
 void tasks_preInit(void)
@@ -279,14 +277,6 @@ _Noreturn void tasks_runCanRx(void)
 
         io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
-    }
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
-        io_chimera_msgRxCallback();
     }
 }
 
