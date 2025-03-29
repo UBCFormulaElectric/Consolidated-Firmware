@@ -37,7 +37,7 @@
 
 #include <assert.h>
 
-static CanHandle can = { .hcan = &hcan1 };
+static CanHandle can = { .hcan = &hcan1, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
 {
