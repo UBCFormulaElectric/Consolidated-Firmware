@@ -13,9 +13,9 @@ void hw_can_init(CanHandle *can_handle)
     filter.IdType       = FDCAN_STANDARD_ID; // 11 bit ID
     filter.FilterIndex  = 0;
     filter.FilterType   = FDCAN_FILTER_MASK;
-    filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+    filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0; 
     filter.FilterID1    = 0;          // Standard CAN ID bits [10:0]
-    filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Standard CAN ID
+    filter.FilterID2    = 0x7FF; // Mask bits for Standard CAN ID
 
     // Configure and initialize hardware filter.
     assert(HAL_FDCAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
@@ -48,6 +48,26 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
+    tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
+    tx_header.MessageMarker       = 0;
+
+    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
+        ;
+
+    return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
+}
+
+bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
+{
+    assert(can_handle->ready);
+    FDCAN_TxHeaderTypeDef tx_header;
+    tx_header.Identifier          = msg->std_id;
+    tx_header.IdType              = FDCAN_STANDARD_ID;
+    tx_header.TxFrameType         = FDCAN_DATA_FRAME;
+    tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
+    tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+    tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
+    tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
 

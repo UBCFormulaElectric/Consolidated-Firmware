@@ -4,7 +4,13 @@
 // TODO when jiajun gets can routing done
 // #include <io_canRouting>
 
+#ifdef STM32H733xx
+#define CAN_PAYLOAD_BYTES 64
+#elif STM32F412Rx
 #define CAN_PAYLOAD_BYTES 8
+#else
+#error "Please define what MCU is used"
+#endif
 
 typedef struct
 {

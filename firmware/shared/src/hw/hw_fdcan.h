@@ -6,19 +6,19 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
-// STM32 HAL CAN handle.
+// STM32 HAL CAN FD handle.
 typedef struct
 {
-    CAN_HandleTypeDef *hcan;
-    uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
-    bool               ready;
+    FDCAN_HandleTypeDef *hcan;
+    uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    bool                 ready;
 } CanHandle;
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
-const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
 #endif
 
 /**
@@ -39,6 +39,14 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @return Whether or not the transmission was successful.
  */
 bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+
+/**
+ * Transmit a FD CAN msg on the bus, blocking until completed.
+ * @param can_handle Can handle to transmit from
+ * @param msg CAN msg to be TXed.
+ * @return Whether or not the transmission was successful.
+ */
+bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.
