@@ -22,7 +22,7 @@ float io_suspension_getrrTravel(void)
     float voltage = hw_adc_getVoltage(&susp_travel_rr_3v3);
     return travelFromVoltage(voltage);
 }
-\
+
 bool io_suspension_rr_OCSC(void)
 {
     return hw_gpio_readPin(&susp_travel_rr_ocsc_pin);
