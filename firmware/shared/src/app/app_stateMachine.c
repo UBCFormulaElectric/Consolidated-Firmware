@@ -87,7 +87,7 @@ void app_stateMachine_init(const State *initial_state)
     }
 
 #ifdef __arm__
-    state_tick_mutex = xSemaphore Static(&(state_tick_mutex_storage));
+    state_tick_mutex = xSemaphoreCreateMutexStatic(&(state_tick_mutex_storage));
 #elif __unix__ || __APPLE__
     pthread_mutex_init(&(state_tick_mutex), NULL);
 #elif _WIN32
