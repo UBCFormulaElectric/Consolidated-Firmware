@@ -19,6 +19,7 @@
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
 #include "io_canQueue.h"
+#include "io_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -33,7 +34,39 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
+    LOG_INFO("VC reset!");
     io_canLogging_init();
+}
+
+void tasks_deinit(void)
+{
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_Stop_IT(&hadc3);
+
+    HAL_ADC_DeInit(&hadc1);
+    HAL_ADC_DeInit(&hadc3);
+
+    HAL_TIM_Base_Stop_IT(&htim3);
+    HAL_TIM_Base_DeInit(&htim3);
+
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_Abort_IT(&huart2);
+    HAL_UART_Abort_IT(&huart3);
+    HAL_UART_Abort_IT(&huart7);
+
+    HAL_UART_DeInit(&huart1);
+    HAL_UART_DeInit(&huart2);
+    HAL_UART_DeInit(&huart3);
+    HAL_UART_DeInit(&huart7);
+
+    HAL_SD_Abort(&hsd1);
+    HAL_SD_DeInit(&hsd1);
+
+    HAL_DMA_Abort(&hdma_adc1);
+    HAL_DMA_Abort(&hdma_usart2_rx);
+
+    HAL_DMA_DeInit(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_usart2_rx);
 }
 
 void tasks_init(void)
@@ -41,7 +74,6 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
-    LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
     hw_hardFaultHandler_init();

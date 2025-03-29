@@ -43,6 +43,7 @@ import proto_autogen.crit_pb2
 import proto_autogen.bms_pb2
 import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
+import proto_autogen.vc_pb2
 
 _MANUFACTURER = "ubc_formula_electric"
 
@@ -610,7 +611,7 @@ class CRIT(_Board):
 
 
 class BMS(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to a BMS board."""
 
         super().__init__(
@@ -650,4 +651,15 @@ class DAM(_Board):
             usb_device=_UsbDevice(product="dam"),
             net_name_tag="dam_net_name",
             board_module=proto_autogen.dam_pb2,
+        )
+
+
+class VC(_Board):
+    def __init__(self):
+        """Create an interface to a VC board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="vc"),
+            net_name_tag="vc_net_name",
+            board_module=proto_autogen.vc_pb2,
         )
