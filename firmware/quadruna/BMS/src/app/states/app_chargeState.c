@@ -7,11 +7,17 @@
 #define C_RATE_FOR_MAX_CHARGE (0.05f)
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 #define CURRENT_AT_MAX_CHARGE (C_RATE_FOR_MAX_CHARGE * C_RATE_TO_AMPS)
+// NEW
+#define MAX_CHARGING_VOLTAGE_NOMINAL (336.0f)
+// Allows pack to reach max cell voltage before BRUSA faults due to max pack voltage (likely due inaccurate ADC reading
+// from BRUSA)
+#define MAX_CHARGING_VOLTAGE_OVERIDE (345.0f)
+// OLD
 #define MAX_CHARGING_VOLTAGE \
     ((float)(ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * MAX_CELL_VOLTAGE_NOMINAL)) // 268.8V
 
 // Each cell can handle 11.8A per the Datasheet, x3 in parallel = 35.4A, Setting as 15A for safety (limited by mains
-// current at this stage)
+// current to BRUSA at this stage)
 #define MAX_CHARGING_CURRENT (15.0f)
 
 static uint16_t canMsgEndianSwap(uint16_t can_signal)
@@ -44,6 +50,7 @@ static void chargeStateRunOnEntry(void)
     const float mains_current             = translateChargingParams(INITIAL_MAX_MAINS_CURRENT);
     const float batt_voltage              = translateChargingParams(INITIAL_CHARGING_VOLTAGE);
     const float batt_current              = translateChargingParams(INITIAL_CHARGING_CURRENT);
+
     // Setting these for run on entry right now, change later maybe.
     app_canTx_BMS_MaxMainsCurrent_set(mains_current);
     app_canTx_BMS_ChargingVoltage_set(batt_voltage);
@@ -141,7 +148,11 @@ static void chargeStateRunOnTick100Hz(void)
                                            ? app_canRx_Debug_ChargingVoltageTargetValue_get()
                                            : INITIAL_CHARGING_VOLTAGE;
 
-        if (IS_IN_RANGE(0.0f, MAX_CHARGING_VOLTAGE, charging_voltage))
+        const float max_charging_voltage = app_canRx_Debug_ChargingVoltageSafetyOverride_get()
+                                               ? MAX_CHARGING_VOLTAGE_OVERIDE
+                                               : MAX_CHARGING_VOLTAGE_NOMINAL;
+
+        if (IS_IN_RANGE(0.0f, max_charging_voltage, charging_voltage))
         {
             app_canTx_BMS_ChargingVoltage_set(translateChargingParams(charging_voltage));
         }
