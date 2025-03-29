@@ -43,11 +43,11 @@ float io_imd_getDutyCycle(void)
 
 void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == pwm_input.config->htim)
-    {
-        hw_pwmInput_tick(&pwm_input);
-        pwm_counter = 0; // Reset the ticks since the last pwm reading
-    }
+    assert(htim == pwm_input.config->htim);
+
+    hw_pwmInput_tick(&pwm_input);
+    pwm_counter = 0; // Reset the ticks since the last pwm reading
+    
 }
 
 uint32_t io_imd_getTimeSincePowerOn(void)
