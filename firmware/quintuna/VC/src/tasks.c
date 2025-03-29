@@ -13,6 +13,8 @@
 #include "hw_usb.h"
 #include "hw_gpios.h"
 
+#include "io_lowVoltageBattery.h"
+
 #include <io_chimera_v2.h>
 #include <shared.pb.h>
 
@@ -132,4 +134,9 @@ _Noreturn void tasks_batteryMonitoring(void)
     {
         osDelay(1000);
     }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_pin)
+{
+    io_lowVoltageBattery_completeAlert(GPIO_pin);
 }
