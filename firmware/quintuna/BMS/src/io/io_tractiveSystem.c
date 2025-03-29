@@ -1,6 +1,7 @@
 #include "io_tractiveSystem.h"
 #include <math.h>
 #include "hw_hal.h"
+#include <assert.h>
 
 // Percent error used to compensate for resistor errors. Determined from
 // testing with the HW
@@ -39,11 +40,18 @@
 // #define OUTPUT2_CHARGING_ERROR_SLOPE (0.2324f)
 // #define OUTPUT2_CHARGING_ERROR_OFFSET (2.4038f)
 
-static const TractiveSystemConfig *config = NULL;
+static const AdcChannel *ts_vsense_channel_P = NULL;
+static const AdcChannel *ts_vsense_channel_N = NULL;
+static const AdcChannel *ts_isense_high_res_channel = NULL;
+static const AdcChannel *ts_isense_low_res_channel = NULL;
 
 void io_tractiveSystem_init(const TractiveSystemConfig *ts_config)
 {
-    config = ts_config;
+    assert(ts_config != NULL);
+    ts_vsense_channel_P = ts_config->ts_vsense_channel_P;
+    ts_vsense_channel_N = ts_config->ts_vsense_channel_N;
+    ts_isense_high_res_channel = ts_config->ts_isense_high_res_channel;
+    ts_isense_low_res_channel = ts_config->ts_isense_low_res_channel;
 }
 
 float io_tractiveSystem_getVoltage()
@@ -77,8 +85,8 @@ float io_tractiveSystem_getVoltage()
     //                Voltage Ratio x Amplifier Gain
 
     // TODO: Test differential ADC for voltage measurement
-    const float ts_vsense_P = hw_adc_getVoltage(config->ts_vsense_channel_P);
-    const float ts_vsense_N = hw_adc_getVoltage(config->ts_vsense_channel_N);
+    const float ts_vsense_P = hw_adc_getVoltage(ts_vsense_channel_P);
+    const float ts_vsense_N = hw_adc_getVoltage(ts_vsense_channel_N);
     const float ts_vsense   = ts_vsense_P - ts_vsense_N;
 
     if (ts_vsense < 0.0f)
@@ -94,7 +102,7 @@ float io_tractiveSystem_getVoltage()
 
 float io_tractiveSystem_getCurrentHighResolution()
 {
-    float adc_voltage = hw_adc_getVoltage(config->ts_isense_high_res_channel);
+    float adc_voltage = hw_adc_getVoltage(ts_isense_high_res_channel);
 
     if (adc_voltage < 0.0f)
     {
@@ -145,7 +153,7 @@ float io_tractiveSystem_getCurrentHighResolution()
 
 float io_tractiveSystem_getCurrentLowResolution()
 {
-    float adc_voltage = hw_adc_getVoltage(config->ts_isense_low_res_channel);
+    float adc_voltage = hw_adc_getVoltage(ts_isense_low_res_channel);
 
     if (adc_voltage < 0.0f)
     {
