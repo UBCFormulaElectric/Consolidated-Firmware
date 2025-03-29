@@ -2,11 +2,13 @@
 #include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_adc.h"
+#include "hw_adcs.h"
+#include "hw_gpios.h"
 
 typedef struct
 {
     const AdcChannel *steering;
+    const Gpio       *steering_ocsc;
 } SteeringConfig;
 
 #else

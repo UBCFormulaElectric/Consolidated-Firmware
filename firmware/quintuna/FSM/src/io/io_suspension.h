@@ -2,12 +2,15 @@
 #include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_adc.h"
+#include "hw_adcs.h"
+#include "hw_gpios.h"
 
 typedef struct
 {
     const AdcChannel *front_left_suspension;
     const AdcChannel *front_right_suspension;
+    const Gpio       *nsusp_fl_ocsc;
+    const Gpio       *nsusp_fr_ocsc;
 } SuspensionConfig;
 
 #else

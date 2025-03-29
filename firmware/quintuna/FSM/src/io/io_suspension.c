@@ -1,10 +1,4 @@
 #include "io_suspension.h"
-#include <stdbool.h>
-#include "hw_adc.h"
-
-// Voltage thresholds for the suspension sensor (in Volts)
-#define MIN_SUSPENSION_VOLTAGE (0.2f)
-#define MAX_SUSPENSION_VOLTAGE (3.5f)
 
 static const SuspensionConfig *config = NULL;
 
@@ -26,16 +20,10 @@ float io_suspension_getRightTravel(void)
 
 bool io_suspension_leftSensorOCSC(void)
 {
-    float leftSensorVoltage = hw_adc_getVoltage(config->front_left_suspension);
-    return !(
-        MIN_SUSPENSION_VOLTAGE <= leftSensorVoltage &&
-        leftSensorVoltage <= MAX_SUSPENSION_VOLTAGE); // Check if the left sensor voltage is within the valid range.
+    return hw_gpio_readPin(config->nsusp_fl_ocsc);
 }
 
 bool io_suspension_rightSensorOCSC(void)
 {
-    float rightSensorVoltage = hw_adc_getVoltage(config->front_right_suspension);
-    return !(
-        MIN_SUSPENSION_VOLTAGE <= rightSensorVoltage &&
-        rightSensorVoltage <= MAX_SUSPENSION_VOLTAGE); // Check if the right sensor voltage is within the valid range.
+    return hw_gpio_readPin(config->nsusp_fr_ocsc);
 }

@@ -1,12 +1,11 @@
 #include "io_steering.h"
-#include "hw_adc.h"
 
 // Voltage thresholds for the steering sensor (in Volts)
-#define MIN_STEERING_VOLTAGE (0.2f)
-#define MAX_STEERING_VOLTAGE (3.5f)
+#define MIN_STEERING_VOLTAGE (0.0f)
+#define MAX_STEERING_VOLTAGE (5.0f) // TODO: these are still theoretical
 
 // Constants for steering angle calculation
-#define STEERING_ANGLE_VOLTAGE_OFFSET (2.21f)
+#define STEERING_ANGLE_VOLTAGE_OFFSET (2.21f) // TODO: still need to be verified
 #define DEGREE_PER_VOLT (360.0f / (MAX_STEERING_VOLTAGE - MIN_STEERING_VOLTAGE))
 
 static const SteeringConfig *config = NULL;
@@ -25,8 +24,5 @@ float io_steering_getAngleDegrees(void)
 
 bool io_steering_sensorOCSC(void)
 {
-    float steering_voltage = hw_adc_getVoltage(config->steering); // Read the current steering sensor voltage.
-    return !(
-        MIN_STEERING_VOLTAGE <= steering_voltage &&
-        steering_voltage <= MAX_STEERING_VOLTAGE); // Return true if the voltage is outside the expected range.
+    return hw_gpio_readPin(config->steering_ocsc);
 }

@@ -1,6 +1,5 @@
 #include "io_apps.h"
 #include <tgmath.h>
-#include "hw_adc.h"
 #include "app_utils.h"
 
 //=====

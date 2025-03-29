@@ -1,4 +1,5 @@
 #include "io_imu_config.h"
+#include "hw_i2cs.h"
 
 const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c,
                                .x_accel_offset = 0.0f,
