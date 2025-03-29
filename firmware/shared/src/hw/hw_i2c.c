@@ -148,9 +148,10 @@ bool hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, const uint8_
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
-        return HAL_I2C_Mem_Write(
-                   device->bus->handle, (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
-                   (uint8_t *)tx_buffer, tx_buffer_size, device->timeout_ms) == HAL_OK;
+        HAL_StatusTypeDef status = HAL_I2C_Mem_Write(
+            device->bus->handle, (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
+            (uint8_t *)tx_buffer, tx_buffer_size, device->timeout_ms);
+        return status == HAL_OK;
     }
 
     if (device->bus->task_in_progress != NULL)
