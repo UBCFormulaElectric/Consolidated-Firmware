@@ -5,6 +5,12 @@ set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
+file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
+
+file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
@@ -18,26 +24,23 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOUR
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
-)
+file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
@@ -46,13 +49,18 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
 )
-set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
+set(HW_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${SHARED_HW_INCLUDE_DIR}"
+        "${SHARED_HW_INCLUDE_QUADRUNA_DIR}"
+)
 
 IF ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary(
             "quadruna_VC_app"
             "${SRCS}"
@@ -109,7 +117,6 @@ IF ("${TARGET}" STREQUAL "binary")
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
             "quadruna_VC_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -175,15 +182,16 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     # FakeIO
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_log.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_canLogging.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_imu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_vcShdn.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_potentiometer.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
     )
