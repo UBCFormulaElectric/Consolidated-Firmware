@@ -1,9 +1,9 @@
 #pragma once
 
-#include "hw_adcs.h"
 
 #ifdef TARGET_EMBEDDED
 
+#include "hw_adc.h"
 typedef struct
 {
     const AdcChannel *papps;

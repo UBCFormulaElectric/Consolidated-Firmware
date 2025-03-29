@@ -1,4 +1,6 @@
 #include "io_brake.h"
+#include "hw_adcs.h"
+#include "hw_gpios.h"
 
 // Voltage thresholds for brake pressure sensor (in Volts)
 #define BRAKE_PRESSURE_OC_THRESHOLD_V (0.33f) // Under-voltage threshold (indicative of open circuit)

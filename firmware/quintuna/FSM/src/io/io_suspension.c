@@ -1,4 +1,6 @@
 #include "io_suspension.h"
+#include "hw_adcs.h"
+#include "hw_gpios.h"
 
 static const SuspensionConfig *config = NULL;
 

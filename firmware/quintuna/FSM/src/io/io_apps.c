@@ -1,4 +1,5 @@
 #include "io_apps.h"
+#include "hw_adcs.h"
 #include <tgmath.h>
 #include "app_utils.h"
 
