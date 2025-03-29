@@ -1,4 +1,5 @@
 #include "hw_uart.h"
+#include "io_log.h"
 #include <assert.h>
 
 static bool waitForNotification(UartDevice *device)
@@ -8,7 +9,7 @@ static bool waitForNotification(UartDevice *device)
     const bool     transaction_timed_out = num_notifications == 0;
 
     // Mark this transaction as no longer in progress.
-    device->task_in_progress = NULL;
+    device->blocked_polling_task = NULL;
 
     if (transaction_timed_out)
     {
@@ -22,56 +23,51 @@ static bool waitForNotification(UartDevice *device)
 static void transactionCompleteHandler(UART_HandleTypeDef *handle, bool is_tx_transaction)
 {
     UartDevice *const device = hw_uart_getDeviceFromHandle(handle);
-    if (device == NULL)
-    {
-        // Unknown device, abort.
-        return;
-    }
+    assert(device != NULL);
 
-    if (device->is_callback_transaction)
+    if (device->tx_callback_pending && is_tx_transaction)
     {
-        if (is_tx_transaction)
-        {
-            assert(device->config.transmit_callback != NULL);
-            device->config.transmit_callback();
-        }
-        else
-        {
-            assert(device->config.receive_callback != NULL);
-            device->config.receive_callback();
-        }
+        assert(device->config.transmit_callback != NULL);
+        device->config.transmit_callback();
+    }
+    else if (device->rx_callback_pending && !is_tx_transaction)
+    {
+        assert(device->config.receive_callback != NULL);
+        device->config.receive_callback();
+    }
+    else if (device->blocked_polling_task != NULL)
+    {
+        // Notify the task that started the UART transaction, if there is a transaction in progress.
+        BaseType_t higher_priority_task_woken = pdFALSE;
+        vTaskNotifyGiveFromISR(device->blocked_polling_task, &higher_priority_task_woken);
+        portYIELD_FROM_ISR(higher_priority_task_woken);
     }
     else
     {
-        if (device->task_in_progress == NULL)
-        {
-            // No task in progress, abort.
-            return;
-        }
-
-        // Notify the task that started the UART transaction, if there is a transaction in progress.
-        BaseType_t higher_priority_task_woken = pdFALSE;
-        vTaskNotifyGiveFromISR(device->task_in_progress, &higher_priority_task_woken);
-        portYIELD_FROM_ISR(higher_priority_task_woken);
+        LOG_ERROR("Callback fired but no transaction is in progress -> BUG!");
     }
 }
 
 bool hw_uart_transmit(UartDevice *device, uint8_t *data, uint16_t size)
 {
-    if (device->task_in_progress != NULL)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
-        // There is a task currently in progress!
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        return HAL_UART_Transmit(device->config.handle, data, size, device->config.polling_timeout_ms) == HAL_OK;
+    }
+
+    if (device->blocked_polling_task != NULL)
+    {
         return false;
     }
 
     // Save current task before starting a UART transaction.
-    device->task_in_progress        = xTaskGetCurrentTaskHandle();
-    device->is_callback_transaction = false;
+    device->blocked_polling_task = xTaskGetCurrentTaskHandle();
 
     if (HAL_UART_Transmit_IT(device->config.handle, data, size) != HAL_OK)
     {
         // Mark this transaction as no longer in progress.
-        device->task_in_progress = NULL;
+        device->blocked_polling_task = NULL;
         return false;
     }
 
@@ -80,20 +76,24 @@ bool hw_uart_transmit(UartDevice *device, uint8_t *data, uint16_t size)
 
 bool hw_uart_receive(UartDevice *device, uint8_t *data, uint16_t size)
 {
-    if (device->task_in_progress != NULL)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
-        // There is a task currently in progress!
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        return HAL_UART_Receive(device->config.handle, data, size, device->config.polling_timeout_ms) == HAL_OK;
+    }
+
+    if (device->blocked_polling_task != NULL)
+    {
         return false;
     }
 
     // Save current task before starting a UART transaction.
-    device->task_in_progress        = xTaskGetCurrentTaskHandle();
-    device->is_callback_transaction = false;
+    device->blocked_polling_task = xTaskGetCurrentTaskHandle();
 
     if (HAL_UART_Receive_IT(device->config.handle, data, size) != HAL_OK)
     {
         // Mark this transaction as no longer in progress.
-        device->task_in_progress = NULL;
+        device->blocked_polling_task = NULL;
         return false;
     }
 
@@ -104,15 +104,12 @@ bool hw_uart_transmitCallback(UartDevice *device, uint8_t *data, uint16_t size)
 {
     assert(device->config.transmit_callback != NULL);
 
-    if (device->task_in_progress != NULL)
+    if (device->blocked_polling_task != NULL)
     {
-        // There is a task currently in progress!
         return false;
     }
 
-    // Save current task before starting a UART transaction.
-    device->task_in_progress        = NULL;
-    device->is_callback_transaction = true;
+    device->tx_callback_pending = true;
 
     if (device->config.callback_dma)
     {
@@ -128,15 +125,12 @@ bool hw_uart_receiveCallback(UartDevice *device, uint8_t *data, uint16_t size)
 {
     assert(device->config.receive_callback != NULL);
 
-    if (device->task_in_progress != NULL)
+    if (device->blocked_polling_task != NULL)
     {
-        // There is a task currently in progress!
         return false;
     }
 
-    // Save current task before starting a UART transaction.
-    device->task_in_progress        = NULL;
-    device->is_callback_transaction = true;
+    device->rx_callback_pending = true;
 
     if (device->config.callback_dma)
     {
@@ -156,4 +150,9 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *handle)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
 {
     transactionCompleteHandler(handle, false);
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    LOG_ERROR("UART error with code: 0x%X", huart->ErrorCode);
 }

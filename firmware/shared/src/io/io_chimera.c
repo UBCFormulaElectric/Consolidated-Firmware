@@ -106,7 +106,7 @@ void io_chimera_init(const uint32_t name_gpio, const uint32_t name_adc)
 
     if (chimera_button_pressed)
     {
-        hw_uart_receive(&chimera_uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
+        hw_uart_receiveCallback(&chimera_uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
     }
 }
 

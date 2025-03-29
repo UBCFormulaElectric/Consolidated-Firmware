@@ -1,5 +1,6 @@
 #include "hw_spi.h"
 #include "hw_gpio.h"
+#include "io_log.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,7 +67,7 @@ bool hw_spi_transmitThenReceive(
     // Copy tx_buffer into beginning of larger padded_tx_buffer
     memcpy(padded_tx_buffer, tx_buffer, tx_buffer_size);
 
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
@@ -108,7 +109,7 @@ bool hw_spi_transmitThenReceive(
 
 bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
@@ -144,7 +145,7 @@ bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_bu
 
 bool hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size)
 {
-    if (device->bus->task_in_progress != NULL)
+    if (device->bus->task_in_progress != NULL || xPortIsInsideInterrupt())
     {
         // There is a task currently in progress!
         return false;
@@ -191,4 +192,9 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *handle)
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *handle)
 {
     transactionCompleteHandler(handle);
+}
+
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *handle)
+{
+    LOG_ERROR("SPI error with code: 0x%X", handle->ErrorCode);
 }

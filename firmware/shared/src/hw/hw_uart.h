@@ -20,8 +20,9 @@ typedef struct
 typedef struct
 {
     const UartConfig config;
-    TaskHandle_t     task_in_progress;
-    bool             is_callback_transaction;
+    TaskHandle_t     blocked_polling_task;
+    bool             rx_callback_pending;
+    bool             tx_callback_pending;
 } UartDevice;
 
 // Board-specific config: You need to define this function which maps STM32 handle to UartDevice struct!
