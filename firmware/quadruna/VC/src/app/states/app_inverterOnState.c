@@ -12,7 +12,7 @@ static const PowerStateConfig power_manager_inverter_init = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
-        [EFUSE_CHANNEL_PUMP] = true,
+        [EFUSE_CHANNEL_PUMP] = false,
         [EFUSE_CHANNEL_AUX] = false,
         [EFUSE_CHANNEL_INV_R] = true,
         [EFUSE_CHANNEL_INV_L] = true,
@@ -53,6 +53,10 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool hv_support_lost =
         app_canRx_BMS_State_get() == BMS_INIT_STATE || app_canRx_BMS_State_get() == BMS_FAULT_STATE;
 
+    if (bms_ready_for_drive)
+    {
+        app_powerManager_setEfuse(EFUSE_CHANNEL_PUMP, true);
+    }
     if (hv_support_lost)
     {
         app_stateMachine_setNextState(app_initState_get());

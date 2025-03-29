@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package rsm;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  GPIO_LED = 1;
+  GPIO_BRAKE_LIGHT_EN= 2;
+  GPIO_RL_INT = 3;
+  GPIO_IMU_INT1 = 4;
+  GPIO_IMU_INT2 = 5; 
+  GPIO_BOOT = 6;
+  GPIO_SUSP_TRAVEL_RR_OCSC = 7;
+  GPIO_SUSP_TRAVEL_RL_OCSC = 8;
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED  = 0;
+  ADC_LC3_OUT = 1;
+  ADC_SUSP_TRAVEL_RL_3V3 = 2;
+  ADC_SUSP_TRAVEL_RR_3V3 = 3; 
+  ADC_BPS_3V3 = 4;
+}
+
+enum I2cNetName {
+  I2C_NET_NAME_UNSPECIFIED = 0;
+  I2C_IMU_I2C = 1;
+  I2C_R_PUMP_I2C = 2;
+}

@@ -33,6 +33,7 @@ extern "C"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "cmsis_os.h"
+#include "hw_error.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -43,8 +44,6 @@ extern "C"
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
     extern CAN_HandleTypeDef hcan2;
-    extern SPI_HandleTypeDef hspi2;
-    extern SPI_HandleTypeDef hspi3;
     extern TIM_HandleTypeDef htim4;
     extern TIM_HandleTypeDef htim12;
 
@@ -65,8 +64,6 @@ extern "C"
     /* USER CODE BEGIN EM */
 
     /* USER CODE END EM */
-
-    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);

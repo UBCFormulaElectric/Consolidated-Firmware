@@ -2,23 +2,29 @@
 #include "jobs.h"
 #include "cmsis_os.h"
 #include "main.h"
-
+// io
 #include "io_time.h"
 #include "io_log.h"
 #include "io_canQueue.h"
-
-#include "hw_pwms.h"
-#include "hw_bootup.h"
+#include "io_canRx.h"
+#include "io_canTx.h"
+#include "io_jsoncan.h"
+// chimera
+#include "io_chimera_v2.h"
+#include "io_chimeraConfig_v2.h"
+#include "shared.pb.h"
+// hw
+// #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_cans.h"
+#include "hw_gpios.h"
+#include "hw_adcs.h"
 
 void tasks_preInit()
 {
-    hw_bootup_enableInterruptsForApp();
+    // hw_bootup_enableInterruptsForApp();
 }
-
-// void tasks_preInitWatchdog() {}
 
 void tasks_init()
 {
@@ -28,6 +34,7 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+<<<<<<< HEAD
 
     jobs_init();
 }
@@ -47,6 +54,15 @@ void tasks_deinit()
     HAL_DMA_DeInit(&hdma_adc1);
 }
 
+=======
+    hw_gpio_writePin(&brake_light_en_pin, false);
+
+    hw_adcs_chipsInit();
+    hw_can_init(&can2);
+    jobs_init();
+}
+
+>>>>>>> master
 _Noreturn void tasks_run1Hz()
 {
     static const TickType_t period_ms   = 1000U;
@@ -54,7 +70,9 @@ _Noreturn void tasks_run1Hz()
 
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!io_chimera_v2_enabled)
+            jobs_run1Hz_tick();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -67,7 +85,11 @@ _Noreturn void tasks_run100Hz()
 
     for (;;)
     {
-        jobs_run100Hz_tick();
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
+
+        if (!io_chimera_v2_enabled)
+            jobs_run100Hz_tick();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -80,7 +102,9 @@ _Noreturn void tasks_run1kHz()
 
     for (;;)
     {
-        jobs_run1kHz_tick();
+        if (!io_chimera_v2_enabled)
+            jobs_run1kHz_tick();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -100,6 +124,8 @@ _Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
-        jobs_runCanRx_tick();
+        const CanMsg msg      = io_canQueue_popRx();
+        JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&msg);
+        io_canRx_updateRxTableWithMessage(&json_msg);
     }
 }

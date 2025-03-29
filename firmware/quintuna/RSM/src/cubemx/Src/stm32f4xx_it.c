@@ -22,6 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +59,14 @@
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
+<<<<<<< HEAD
 extern TIM_HandleTypeDef htim3;
+=======
+extern CAN_HandleTypeDef hcan2;
+extern I2C_HandleTypeDef hi2c1;
+extern I2C_HandleTypeDef hi2c3;
+extern TIM_HandleTypeDef htim2;
+>>>>>>> master
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -169,15 +177,24 @@ void DebugMon_Handler(void)
 void ADC_IRQHandler(void)
 {
     /* USER CODE BEGIN ADC_IRQn 0 */
+<<<<<<< HEAD
 
     /* USER CODE END ADC_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc1);
     /* USER CODE BEGIN ADC_IRQn 1 */
 
+=======
+    traceISR_ENTER();
+    /* USER CODE END ADC_IRQn 0 */
+    HAL_ADC_IRQHandler(&hadc1);
+    /* USER CODE BEGIN ADC_IRQn 1 */
+    traceISR_EXIT();
+>>>>>>> master
     /* USER CODE END ADC_IRQn 1 */
 }
 
 /**
+<<<<<<< HEAD
  * @brief This function handles TIM3 global interrupt.
  */
 void TIM3_IRQHandler(void)
@@ -189,6 +206,62 @@ void TIM3_IRQHandler(void)
     /* USER CODE BEGIN TIM3_IRQn 1 */
 
     /* USER CODE END TIM3_IRQn 1 */
+=======
+ * @brief This function handles TIM2 global interrupt.
+ */
+void TIM2_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM2_IRQn 0 */
+    // traceISR_ENTER();
+    /* USER CODE END TIM2_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim2);
+    /* USER CODE BEGIN TIM2_IRQn 1 */
+    // traceISR_EXIT();
+    /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C1 event interrupt.
+ */
+void I2C1_EV_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C1_EV_IRQn 0 */
+
+    /* USER CODE END I2C1_EV_IRQn 0 */
+    HAL_I2C_EV_IRQHandler(&hi2c1);
+    /* USER CODE BEGIN I2C1_EV_IRQn 1 */
+
+    /* USER CODE END I2C1_EV_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C1 error interrupt.
+ */
+void I2C1_ER_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C1_ER_IRQn 0 */
+
+    /* USER CODE END I2C1_ER_IRQn 0 */
+    HAL_I2C_ER_IRQHandler(&hi2c1);
+    /* USER CODE BEGIN I2C1_ER_IRQn 1 */
+
+    /* USER CODE END I2C1_ER_IRQn 1 */
+}
+
+/**
+ * @brief This function handles EXTI line[15:10] interrupts.
+ */
+void EXTI15_10_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+
+    /* USER CODE END EXTI15_10_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(IMU_INT1_Pin);
+    HAL_GPIO_EXTI_IRQHandler(IMU_INT2_Pin);
+    /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+
+    /* USER CODE END EXTI15_10_IRQn 1 */
+>>>>>>> master
 }
 
 /**
@@ -211,12 +284,68 @@ void TIM6_IRQHandler(void)
 void DMA2_Stream0_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END DMA2_Stream0_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc1);
     /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END DMA2_Stream0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 TX interrupts.
+ */
+void CAN2_TX_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_TX_IRQn 0 */
+
+    /* USER CODE END CAN2_TX_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_TX_IRQn 1 */
+
+    /* USER CODE END CAN2_TX_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 RX0 interrupts.
+ */
+void CAN2_RX0_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_RX0_IRQn 0 */
+
+    /* USER CODE END CAN2_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_RX0_IRQn 1 */
+
+    /* USER CODE END CAN2_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 RX1 interrupt.
+ */
+void CAN2_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_RX1_IRQn 0 */
+
+    /* USER CODE END CAN2_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_RX1_IRQn 1 */
+
+    /* USER CODE END CAN2_RX1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 SCE interrupt.
+ */
+void CAN2_SCE_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_SCE_IRQn 0 */
+
+    /* USER CODE END CAN2_SCE_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_SCE_IRQn 1 */
+
+    /* USER CODE END CAN2_SCE_IRQn 1 */
 }
 
 /**
@@ -225,12 +354,40 @@ void DMA2_Stream0_IRQHandler(void)
 void OTG_FS_IRQHandler(void)
 {
     /* USER CODE BEGIN OTG_FS_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END OTG_FS_IRQn 0 */
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
     /* USER CODE BEGIN OTG_FS_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END OTG_FS_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C3 event interrupt.
+ */
+void I2C3_EV_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C3_EV_IRQn 0 */
+
+    /* USER CODE END I2C3_EV_IRQn 0 */
+    HAL_I2C_EV_IRQHandler(&hi2c3);
+    /* USER CODE BEGIN I2C3_EV_IRQn 1 */
+
+    /* USER CODE END I2C3_EV_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C3 error interrupt.
+ */
+void I2C3_ER_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C3_ER_IRQn 0 */
+
+    /* USER CODE END I2C3_ER_IRQn 0 */
+    HAL_I2C_ER_IRQHandler(&hi2c3);
+    /* USER CODE BEGIN I2C3_ER_IRQn 1 */
+
+    /* USER CODE END I2C3_ER_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
