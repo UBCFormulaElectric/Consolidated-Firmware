@@ -1,9 +1,6 @@
 #include "app_mainState.h"
 #include <stddef.h>
-#include "app_utils.h"
 #include "app_canTx.h"
-#include "app_canRx.h"
-#include "app_canAlerts.h"
 #include "app_steering.h"
 #include "app_wheels.h"
 #include "app_apps.h"
@@ -14,8 +11,6 @@
 
 void mainStateRunOnTick100Hz(void)
 {
-    app_canTx_FSM_Heartbeat_set(true);
-
     app_apps_broadcast();
     app_brake_broadcast();
     app_steering_broadcast();

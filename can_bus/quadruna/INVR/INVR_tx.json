@@ -939,24 +939,6 @@
             }
         }
     },
-    "DebugReadWriteParamCommand": {
-        "msg_id": 83,
-        "cycle_time": null,
-        "signals": {
-            "CommandParameterAddress": {
-                "start_bit": 0,
-                "bits": 16
-            },
-            "CommandReadWrite": {
-                "start_bit": 16,
-                "enum": "InverterReadWriteCommand"
-            },
-            "CommandData": {
-                "start_bit": 32,
-                "bits": 16
-            }
-        }
-    },
     "DebugReadWriteParamResponse": {
         "msg_id": 84,
         "cycle_time": null,

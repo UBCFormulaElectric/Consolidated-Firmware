@@ -5,22 +5,26 @@
 #include "states/app_driveState.h"
 #include "states/app_inverterOnState.h"
 
+#ifdef TARGET_EMBEDDED
+#include "io_canTx.h"
+#endif
+
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_powerManager.h"
-#include "app_globals.h"
 #include "app_torqueVectoring.h"
 #include "app_faultCheck.h"
 #include "app_regen.h"
 #include "app_units.h"
 #include "app_signal.h"
+#include "app_utils.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define BUZZER_ON_DURATION_MS 2000
 
 static bool         torque_vectoring_switch_is_on;
-static bool         regen_switch_enabled;
+static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 
 static const PowerStateConfig power_manager_drive_init = {
@@ -79,19 +83,16 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
 
-    // Read torque vectoring switch only when entering drive state, not during driving
-
-    torque_vectoring_switch_is_on = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
-    regen_switch_enabled          = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
-
-    if (torque_vectoring_switch_is_on)
+    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
         app_torqueVectoring_init();
+        torque_vectoring_switch_is_on = true;
     }
 
-    if (regen_switch_enabled)
+    if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
     {
         app_regen_init();
+        regen_switch_is_on = true;
     }
 }
 
@@ -111,6 +112,25 @@ static void driveStateRunOnTick100Hz(void)
     const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
     bool       exit_drive_to_init        = bms_not_in_drive;
     bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
+    bool       prev_regen_switch_val     = regen_switch_is_on;
+    regen_switch_is_on                   = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    bool turn_regen_led                  = regen_switch_is_on && !prev_regen_switch_val;
+
+    /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
+       or not before using closed loop features */
+
+    // Regen + TV LEDs and update warnings
+    if (turn_regen_led)
+    {
+        app_canTx_VC_RegenEnabled_set(true);
+        app_canTx_VC_Warning_RegenNotAvailable_set(false);
+    }
+
+    if (!regen_switch_is_on)
+    {
+        app_canTx_VC_RegenEnabled_set(false);
+        app_canTx_VC_Warning_RegenNotAvailable_set(true);
+    }
 
     if (exit_drive_to_init)
     {
@@ -133,7 +153,7 @@ static void driveStateRunOnTick100Hz(void)
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
     float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
-    if (regen_switch_enabled)
+    if (regen_switch_is_on)
     {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
         sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
@@ -146,7 +166,7 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
         app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
     }
-    else if (apps_pedal_percentage < 0.0f && regen_switch_enabled)
+    else if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
         app_regen_run(apps_pedal_percentage);
     }
@@ -168,6 +188,22 @@ static void driveStateRunOnExit(void)
 
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+
+    // Clear latched inverter faults
+    app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVL_CommandReadWrite_set(true);
+    app_canTx_VC_INVL_CommandData_set((uint16_t)0);
+
+    app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVR_CommandReadWrite_set(true);
+    app_canTx_VC_INVR_CommandData_set((uint16_t)0);
+
+#ifdef TARGET_EMBEDDED
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+#endif
 
     // Disable buzzer on exit drive.
     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);

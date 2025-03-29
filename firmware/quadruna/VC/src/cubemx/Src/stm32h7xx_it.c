@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_hardFaultHandler.h"
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,6 +60,8 @@
 extern DMA_HandleTypeDef   hdma_adc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern I2C_HandleTypeDef   hi2c1;
+extern I2C_HandleTypeDef   hi2c2;
 extern TIM_HandleTypeDef   htim3;
 extern DMA_HandleTypeDef   hdma_usart2_rx;
 extern UART_HandleTypeDef  huart7;
@@ -172,11 +175,11 @@ void DebugMon_Handler(void)
 void DMA1_Stream0_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END DMA1_Stream0_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc1);
     /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END DMA1_Stream0_IRQn 1 */
 }
 
@@ -186,11 +189,11 @@ void DMA1_Stream0_IRQHandler(void)
 void DMA1_Stream1_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END DMA1_Stream1_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_usart2_rx);
     /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END DMA1_Stream1_IRQn 1 */
 }
 
@@ -200,11 +203,11 @@ void DMA1_Stream1_IRQHandler(void)
 void FDCAN1_IT0_IRQHandler(void)
 {
     /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END FDCAN1_IT0_IRQn 0 */
     HAL_FDCAN_IRQHandler(&hfdcan1);
     /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END FDCAN1_IT0_IRQn 1 */
 }
 
@@ -214,11 +217,11 @@ void FDCAN1_IT0_IRQHandler(void)
 void FDCAN1_IT1_IRQHandler(void)
 {
     /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END FDCAN1_IT1_IRQn 0 */
     HAL_FDCAN_IRQHandler(&hfdcan1);
     /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END FDCAN1_IT1_IRQn 1 */
 }
 
@@ -228,12 +231,40 @@ void FDCAN1_IT1_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM3_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END TIM3_IRQn 0 */
     HAL_TIM_IRQHandler(&htim3);
     /* USER CODE BEGIN TIM3_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C1 event interrupt.
+ */
+void I2C1_EV_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C1_EV_IRQn 0 */
+    traceISR_ENTER();
+    /* USER CODE END I2C1_EV_IRQn 0 */
+    HAL_I2C_EV_IRQHandler(&hi2c1);
+    /* USER CODE BEGIN I2C1_EV_IRQn 1 */
+    traceISR_EXIT();
+    /* USER CODE END I2C1_EV_IRQn 1 */
+}
+
+/**
+ * @brief This function handles I2C2 event interrupt.
+ */
+void I2C2_EV_IRQHandler(void)
+{
+    /* USER CODE BEGIN I2C2_EV_IRQn 0 */
+    traceISR_ENTER();
+    /* USER CODE END I2C2_EV_IRQn 0 */
+    HAL_I2C_EV_IRQHandler(&hi2c2);
+    /* USER CODE BEGIN I2C2_EV_IRQn 1 */
+    traceISR_EXIT();
+    /* USER CODE END I2C2_EV_IRQn 1 */
 }
 
 /**
@@ -242,11 +273,11 @@ void TIM3_IRQHandler(void)
 void TIM6_DAC_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END TIM6_DAC_IRQn 0 */
     HAL_TIM_IRQHandler(&htim6);
     /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
@@ -256,11 +287,11 @@ void TIM6_DAC_IRQHandler(void)
 void UART7_IRQHandler(void)
 {
     /* USER CODE BEGIN UART7_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END UART7_IRQn 0 */
     HAL_UART_IRQHandler(&huart7);
     /* USER CODE BEGIN UART7_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END UART7_IRQn 1 */
 }
 
@@ -270,11 +301,11 @@ void UART7_IRQHandler(void)
 void ADC3_IRQHandler(void)
 {
     /* USER CODE BEGIN ADC3_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END ADC3_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc3);
     /* USER CODE BEGIN ADC3_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END ADC3_IRQn 1 */
 }
 

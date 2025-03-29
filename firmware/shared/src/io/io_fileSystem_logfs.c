@@ -3,16 +3,20 @@
 #include "hw_sd.h"
 #include <string.h>
 
-#define MAX_FILE_NUMBER 3
+// Note: this code assumes that sd card is either in at the start (removable later)
+// or never in at all. Furthermore, if the sd card is removed, this cannot be recovered.
 
-extern Gpio sd_present;
+// config
+#define MAX_FILE_NUMBER 3
+#define NUM_MOUNT_ATTEMPTS 3
 
 static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
 static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
 
+// state
 static uint8_t        cache[HW_DEVICE_SECTOR_SIZE];
 static const LogFsCfg fs_cfg = {
-    .block_count  = 1024 * 1024,
+    .block_count  = 1024 * 1024 * 15, // ~7.5GB
     .block_size   = HW_DEVICE_SECTOR_SIZE,
     .cache        = cache,
     .rd_only      = false,
@@ -31,17 +35,11 @@ static LogFsFile    bootcount_file;
 static uint8_t      bootcount_cache[HW_DEVICE_SECTOR_SIZE];
 static LogFsFileCfg bootcount_cfg = { .cache = bootcount_cache, .path = "/bootcount.txt" };
 
-static bool sdCardReady()
-{
-    return !hw_gpio_readPin(&sd_present);
-}
+static bool mount_failed = false;
 
-static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf)
+static LogFsErr logfsCfgRead(const LogFsCfg *cfg, const uint32_t block, void *buf)
 {
-    if (!sdCardReady())
-    {
-        return LOGFS_ERR_IO;
-    }
+    UNUSED(cfg);
 
     if (hw_sd_read(buf, block, 1) != SD_CARD_OK)
     {
@@ -51,12 +49,9 @@ static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf)
     return LOGFS_ERR_OK;
 }
 
-static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf)
+static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, const uint32_t block, void *buf)
 {
-    if (!sdCardReady())
-    {
-        return LOGFS_ERR_IO;
-    }
+    UNUSED(cfg);
 
     if (hw_sd_write(buf, block, 1) != SD_CARD_OK)
     {
@@ -66,7 +61,10 @@ static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf)
     return LOGFS_ERR_OK;
 }
 
-static int logfsErrorToFsError(int err)
+/**
+ * Converts logfs errors to firmware filesystem error
+ */
+static FileSystemError logfsErrorToFsError(const LogFsErr err)
 {
     switch (err)
     {
@@ -89,28 +87,56 @@ static int logfsErrorToFsError(int err)
     }
 }
 
-static int allocateFd(void)
+/**
+ * If mount fails we assume the filesystem is corrupted or not present, so we format it which wipes everything. Try 3x
+ * to mount to make sure its not a random failure (such as from the SD card jiggling in its slot).
+ */
+static LogFsErr tryMount(void)
 {
-    for (int i = 0; i < MAX_FILE_NUMBER; i++)
+    LogFsErr err;
+    for (int i = 0; i < NUM_MOUNT_ATTEMPTS; i++)
     {
-        if (!files_opened[i])
+        err = logfs_mount(&fs, &fs_cfg);
+        if (err == LOGFS_ERR_OK)
         {
-            files_opened[i] = true;
-            return i;
+            break;
         }
     }
 
-    return -1;
+    return err;
 }
 
-static bool isValidFd(int fd)
-{
-    return fd >= 0 && fd < MAX_FILE_NUMBER && files_opened[fd];
-}
+/**
+ * Checks the file descriptor to make sure it's valid, if not returns FILE_ERROR
+ * @param fd file descriptor in question
+ */
+#define CHECK_FILE_DESCRIPTOR(fd)                    \
+    if (!(fd < MAX_FILE_NUMBER && files_opened[fd])) \
+        return FILE_ERROR;
+
+/**
+ * Checks if the filesystem has been mounted successfully.
+ */
+#define CHECK_MOUNT() \
+    if (mount_failed) \
+        return FILE_MOUNT_FAILED;
+
+/**
+ * Checks if the given expression evaluates to an error, and return it if so.
+ * @param f Expression to evaluate
+ */
+#define CHECK_ERR(f)                     \
+    const LogFsErr err = f;              \
+    if (err != LOGFS_ERR_OK)             \
+    {                                    \
+        return logfsErrorToFsError(err); \
+    }
 
 FileSystemError io_fileSystem_init(void)
 {
-    LogFsErr err = logfs_mount(&fs, &fs_cfg);
+    mount_failed = false;
+    LogFsErr err = tryMount();
+
     if (err != LOGFS_ERR_OK)
     {
         // Mounting failed meaning image is corrupted, so format.
@@ -120,13 +146,15 @@ FileSystemError io_fileSystem_init(void)
             return logfsErrorToFsError(err);
         }
 
-        err = logfs_mount(&fs, &fs_cfg);
+        err = tryMount();
         if (err != LOGFS_ERR_OK)
         {
+            mount_failed = true;
             return logfsErrorToFsError(err);
         }
     }
 
+    // Setup caches.
     memset(files_opened, 0, sizeof(files_opened));
     for (size_t i = 0; i < MAX_FILE_NUMBER; i++)
     {
@@ -134,99 +162,96 @@ FileSystemError io_fileSystem_init(void)
     }
 
     // Create/open the bootcount file.
-    err = logfs_open(&fs, &bootcount_file, &bootcount_cfg, LOGFS_OPEN_CREATE | LOGFS_OPEN_RD_WR);
-    if (err != LOGFS_ERR_OK)
+    return logfsErrorToFsError(logfs_open(&fs, &bootcount_file, &bootcount_cfg, LOGFS_OPEN_CREATE | LOGFS_OPEN_RD_WR));
+}
+
+FileSystemError io_fileSystem_open(const char *path, uint32_t *fd)
+{
+    CHECK_MOUNT();
+
+    for (uint32_t i = 0; i < MAX_FILE_NUMBER; i++)
     {
-        return logfsErrorToFsError(err);
+        if (!files_opened[i])
+        {
+            *fd = i;
+            break;
+        }
+    }
+
+    if (*fd == MAX_FILE_NUMBER)
+    {
+        // Couldn't find a new slot for the file.
+        return FILE_NOT_FOUND;
+    }
+
+    files_cfg[*fd].path = path;
+    CHECK_ERR(logfs_open(&fs, &files[*fd], &files_cfg[*fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE));
+
+    files_opened[*fd] = true;
+    return FILE_OK;
+}
+
+FileSystemError io_fileSystem_read(uint32_t fd, void *buf, const size_t size)
+{
+    CHECK_MOUNT();
+    CHECK_FILE_DESCRIPTOR(fd);
+
+    uint32_t num_read;
+    CHECK_ERR(logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read));
+
+    if (num_read != size)
+    {
+        return FILE_ERROR;
     }
 
     return FILE_OK;
 }
 
-int io_fileSystem_open(const char *path)
+FileSystemError io_fileSystem_write(uint32_t fd, void *buf, const size_t size)
 {
-    int fd = allocateFd();
-    if (fd < 0)
-    {
-        return FILE_NOT_FOUND;
-    }
+    CHECK_MOUNT();
+    CHECK_FILE_DESCRIPTOR(fd);
 
-    files_cfg[fd].path = path;
-    LogFsErr err       = logfs_open(&fs, &files[fd], &files_cfg[fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE);
-    if (err != LOGFS_ERR_OK)
-    {
-        files_opened[fd] = false;
-        return logfsErrorToFsError(err);
-    }
-
-    return fd;
+    return logfsErrorToFsError(logfs_write(&fs, &files[fd], buf, size));
 }
 
-FileSystemError io_fileSystem_read(int fd, void *buffer, size_t size)
+FileSystemError io_fileSystem_getBootCount(uint32_t *bootcount)
 {
-    if (!isValidFd(fd))
-    {
-        return FILE_NOT_FOUND;
-    }
+    CHECK_MOUNT();
 
     uint32_t num_read;
-    LogFsErr err = logfs_read(&fs, &files[fd], buffer, size, LOGFS_READ_END, &num_read);
-    if (err != LOGFS_ERR_OK || num_read != size)
-    {
-        return logfsErrorToFsError(err);
-    }
+    CHECK_ERR(logfs_readMetadata(&fs, &bootcount_file, bootcount, sizeof(uint32_t), &num_read));
 
-    return FILE_OK;
-}
-
-FileSystemError io_fileSystem_write(int fd, void *buffer, size_t size)
-{
-    if (!isValidFd(fd))
+    if (num_read != sizeof(bootcount))
     {
+        *bootcount = 0;
         return FILE_ERROR;
     }
 
-    return logfsErrorToFsError(logfs_write(&fs, &files[fd], buffer, size));
+    (*bootcount)++;
+    return logfsErrorToFsError(logfs_writeMetadata(&fs, &bootcount_file, bootcount, sizeof(bootcount)));
 }
 
-uint32_t io_fileSystem_getBootCount(void)
+FileSystemError io_fileSystem_close(uint32_t fd)
 {
-    uint32_t bootcount;
-    uint32_t num_read;
-    LogFsErr err = logfs_readMetadata(&fs, &bootcount_file, &bootcount, sizeof(bootcount), &num_read);
-    if (err != LOGFS_ERR_OK || num_read != sizeof(bootcount))
-    {
-        bootcount = 0;
-    }
+    CHECK_MOUNT();
+    CHECK_FILE_DESCRIPTOR(fd);
 
-    bootcount++;
-    logfs_writeMetadata(&fs, &bootcount_file, &bootcount, sizeof(bootcount));
-    return bootcount;
-}
-
-FileSystemError io_fileSystem_close(int fd)
-{
-    if (!isValidFd(fd))
-    {
-        return FILE_ERROR;
-    }
-
-    LogFsErr err = logfs_close(&fs, &files[fd]);
-    if (err != LOGFS_ERR_OK)
-    {
-        return logfsErrorToFsError(err);
-    }
+    CHECK_ERR(logfs_close(&fs, &files[fd]));
 
     files_opened[fd] = false;
     return FILE_OK;
 }
 
-FileSystemError io_fileSystem_sync(int fd)
+FileSystemError io_fileSystem_sync(uint32_t fd)
 {
-    if (!isValidFd(fd))
-    {
-        return FILE_ERROR;
-    }
+    CHECK_MOUNT();
+    CHECK_FILE_DESCRIPTOR(fd);
 
     return logfsErrorToFsError(logfs_sync(&fs, &files[fd]));
+}
+
+bool io_fileSystem_present(void)
+{
+    return hw_sd_present();
 }

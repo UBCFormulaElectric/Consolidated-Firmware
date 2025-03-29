@@ -24,7 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
-#include "io_can.h"
+#include "hw_utils.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,10 +85,7 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = {
-    .can                       = &hcan1,
-    .can_msg_received_callback = io_can_pushRxMsgToQueue,
-};
+CanHandle can = { .hcan = &hcan1 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -140,7 +137,6 @@ int main(void)
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
-    hw_can_init(&can);
     /* USER CODE END 2 */
 
     /* Init scheduler */

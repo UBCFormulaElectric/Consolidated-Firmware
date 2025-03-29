@@ -1,7 +1,13 @@
-include("${CMAKE_SOURCE_DIR}/firmware/cmake/shared.cmake")
+if(NOT "${SHARED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+    message(FATAL_ERROR "❌ shared.cmake must be included before tests.cmake")
+endif()
+
+message("")
+message("🧪 Configuring tests")
 
 set(FFF_DIR "${THIRD_PARTY_DIR}/fff")
 
+message("  🔃 Registering function compile_gtest_executable")
 function(compile_gtest_executable
     TEST_EXECUTABLE_NAME
     TEST_SRCS
@@ -17,13 +23,13 @@ function(compile_gtest_executable
     target_compile_options(${TEST_EXECUTABLE_NAME}
         PUBLIC
         -Wall
-        -g3
     )
     target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
         COMMAND ${TEST_EXECUTABLE_NAME})
 endfunction()
 
+message("  🔃 Registering function compile_fake_library")
 function(create_fake_library
     LIB_NAME
     HDRS_TO_FAKE
@@ -54,9 +60,9 @@ function(create_fake_library
 
     add_library(${LIB_NAME} STATIC ${FAKE_SRCS})
     target_compile_options(${LIB_NAME}
-        PUBLIC
-        -Wall
-        -g3
+            PUBLIC
+            -Wall
+            -g3
     )
     target_include_directories(${LIB_NAME}
         PUBLIC

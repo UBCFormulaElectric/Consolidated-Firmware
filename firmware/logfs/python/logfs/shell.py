@@ -1,12 +1,14 @@
 import argparse
+import os
+
 from IPython.terminal.embed import InteractiveShellEmbed
-from .fs import LogFs
-from .disk import LogFsUnixDisk
+from logfs.disk import LogFsDiskFactory
+from logfs.fs import LogFs
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--disk", "-d", help="Path to disk", required=True)
+    parser.add_argument("--disk", "-d", help="Path to disk" , required=True)
     parser.add_argument("--block_size", "-b", help="Block size in bytes", default=512)
     parser.add_argument(
         "--block_count", "-N", help="Number of blocks", default=1024 * 1024
@@ -15,6 +17,7 @@ def main() -> None:
         "--format",
         "-f",
         action="store_true",
+        default=False,
         help="Format disk (will wipe an existing filesystem)",
     )
     parser.add_argument(
@@ -22,19 +25,20 @@ def main() -> None:
         "-w",
         action="store_true",
         help="Allow writes to the filesystem",
+        default=True,
     )
     args = parser.parse_args()
-
+    print(args)
     # Initialize the IPython shell.
     ipython_shell = InteractiveShellEmbed(
         banner1='A Python shell for interacting with logfs images.\nUse the "fs" object to read/modify the filesystem.',
         exit_msg="Leaving the shell.",
     )
-
-    # Open the disk.
-    disk = LogFsUnixDisk(
+    
+    disk = LogFsDiskFactory.create_disk(
         block_size=args.block_size, block_count=args.block_count, disk_path=args.disk
     )
+   
     fs = LogFs(
         block_size=args.block_size,
         block_count=args.block_count,
@@ -48,3 +52,7 @@ def main() -> None:
     global_ns = globals()  # Get the global namespace
     global_ns["fs"] = fs
     ipython_shell(global_ns=global_ns, local_ns={})
+
+
+if __name__ == "__main__":
+    main()

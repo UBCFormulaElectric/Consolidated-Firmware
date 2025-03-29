@@ -24,8 +24,10 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
-#include "io_can.h"
+#include "hw_utils.h"
 #include "hw_error.h"
+
+#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,7 +107,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
+CanHandle can = { .hcan = &hfdcan1 };
 /* USER CODE END 0 */
 
 /**
@@ -140,7 +142,6 @@ int main(void)
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
-    hw_can_init(&can);
     /* USER CODE END 2 */
 
     /* Init scheduler */

@@ -73,6 +73,7 @@ TEST_F(TestRegen, battery_over_temp_torque_request)
     app_canRx_CRIT_RegenSwitch_update(SWITCH_ON);
     SetStateToDrive();
     LetTimePass(1);
+
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
     ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
@@ -114,9 +115,9 @@ TEST_F(TestRegen, vehicle_under_speed_torque_request)
     app_canRx_CRIT_RegenSwitch_update(SWITCH_ON);
     SetStateToDrive();
     LetTimePass(1);
+    ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
-    ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
 
     float pedal_percentage = 0.0f;
     app_canRx_FSM_PappsMappedPedalPercentage_update(pedal_percentage);
@@ -167,7 +168,7 @@ TEST_F(TestRegen, battery_full_torque_request)
     ASSERT_FLOAT_EQ(inputs.motor_speed_right_rpm, expected_motor_speed_right_rpm);
 }
 
-TEST_F(TestRegen, regular_run_regen)
+TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state)
 {
     TearDown();
     SetUp();
@@ -218,8 +219,19 @@ TEST_F(TestRegen, regular_run_regen)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl;
-    float expected_right_torque_request = torque_lim_Nm * cr;
+    float torque_left_Nm  = torque_lim_Nm * cl;
+    float torque_right_Nm = torque_lim_Nm * cr;
+
+    float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
+
+    float scale = 1;
+    if (torque_negative_max_Nm < MAX_REGEN_Nm)
+    {
+        scale *= MAX_REGEN_Nm / torque_negative_max_Nm;
+    }
+
+    float expected_left_torque_request  = torque_left_Nm * scale;
+    float expected_right_torque_request = torque_right_Nm * scale;
 
     LetTimePass(10);
 
@@ -231,6 +243,15 @@ TEST_F(TestRegen, regular_run_regen)
 
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
     ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
+    ASSERT_TRUE(app_canTx_VC_MappedPedalPercentage_get() == -1.0f);
+
+    app_canRx_CRIT_RegenSwitch_update(SWITCH_OFF);
+
+    LetTimePass(10);
+
+    ASSERT_TRUE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
+    ASSERT_FALSE(app_canTx_VC_RegenEnabled_get());
+    ASSERT_TRUE(app_canTx_VC_MappedPedalPercentage_get() == 0.0f);
 }
 
 // tapers torque request due to being too close to a full battery

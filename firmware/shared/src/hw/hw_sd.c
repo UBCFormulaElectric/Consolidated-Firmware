@@ -1,135 +1,104 @@
-
 // interface read  write
 // using HAL layer
 #include "hw_sd.h"
 #include "hw_utils.h"
-#include <stdlib.h>
-#include <string.h>
+
+#include <assert.h>
 #include <stdbool.h>
 
 static volatile bool dma_tx_completed = true;
-static SdCard       *sd;
+#define OFFSET_SIZE_VALID(offset, size) (offset % HW_DEVICE_SECTOR_SIZE == 0 && size % HW_DEVICE_SECTOR_SIZE == 0)
 
-void hw_sd_init(SdCard *sd_config)
-{
-    sd = sd_config;
-}
-
-SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
-{
-    if (sd == NULL)
-    {
+#define CHECK_SD_PRESENT() \
+    if (!hw_sd_present())  \
         return SD_CARD_ERROR;
-    }
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
+
+/**
+ * @attention This must be constructed in some translation unit in each ECU which uses includes file
+ * @note create this object in hw_sds.c for your ECU
+ */
+extern SdCard sd1;
+
+SdCardStatus hw_sd_read(uint8_t *pdata, const uint32_t block_addr, const uint32_t num_blocks)
+{
+    CHECK_SD_PRESENT();
+    while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
-    HAL_StatusTypeDef status = HAL_SD_ReadBlocks(sd->hsd, pdata, block_addr, num_blocks, sd->timeout);
-
-    return (SdCardStatus)status;
+    return (SdCardStatus)HAL_SD_ReadBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
 }
 
-SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
+SdCardStatus hw_sd_readOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
-    SdCardStatus status = SD_CARD_OK;
-
-    if (sd == NULL)
-    {
-        return SD_CARD_ERROR;
-    }
     if (size == 0)
-    {
         return SD_CARD_OK;
-    }
-
-    if (((offset % HW_DEVICE_SECTOR_SIZE) == 0) && (size % HW_DEVICE_SECTOR_SIZE == 0)) // easy case
-    {
-        status = hw_sd_read(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
-        return (SdCardStatus)status;
-    }
-
+    CHECK_SD_PRESENT();
+    if (OFFSET_SIZE_VALID(offset, size)) // easy case
+        return hw_sd_read(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
     return SD_CARD_ERROR;
 }
 
-SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
+SdCardStatus hw_sd_write(uint8_t *pdata, const uint32_t block_addr, const uint32_t num_blocks)
 {
-    if (sd == NULL)
-    {
-        return SD_CARD_ERROR;
-    }
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
+    while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
-
-    HAL_StatusTypeDef status = HAL_SD_WriteBlocks(sd->hsd, pdata, block_addr, num_blocks, sd->timeout);
-
-    return (SdCardStatus)status;
+    return (SdCardStatus)HAL_SD_WriteBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
 }
 
-SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
+SdCardStatus hw_sd_writeOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
-    if (sd == NULL)
-    {
-        return SD_CARD_ERROR;
-    }
-    SdCardStatus status = SD_CARD_OK;
     if (size == 0)
-    {
-        return status;
-    }
-
-    if (((offset % HW_DEVICE_SECTOR_SIZE) == 0) && (size % HW_DEVICE_SECTOR_SIZE == 0)) // easy case
-    {
-        status = hw_sd_write(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
-        return status;
-    }
-
+        return SD_CARD_OK;
+    CHECK_SD_PRESENT();
+    if (OFFSET_SIZE_VALID(offset, size)) // easy case
+        return hw_sd_write(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
     return SD_CARD_ERROR;
 }
 
-SdCardStatus hw_sd_erase(uint32_t start_addr, uint32_t end_addr)
+SdCardStatus hw_sd_erase(const uint32_t start_addr, const uint32_t end_addr)
 {
-    if (sd == NULL)
-    {
-        return SD_CARD_ERROR;
-    }
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
+    CHECK_SD_PRESENT();
+    while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
-
-    HAL_StatusTypeDef status = HAL_SD_Erase(sd->hsd, start_addr, end_addr);
-
-    return (SdCardStatus)status;
+    return (SdCardStatus)HAL_SD_Erase(sd1.hsd, start_addr, end_addr);
 }
 
-SdCardStatus hw_sd_writeDma(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
+SdCardStatus hw_sd_writeDma(uint8_t *pdata, const uint32_t block_addr, const uint32_t num_blocks)
 {
-    if (sd == NULL)
-    {
-        return SD_CARD_ERROR;
-    }
+    CHECK_SD_PRESENT();
     while (!dma_tx_completed)
         ;
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
+    while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
 
-    dma_tx_completed         = false;
-    HAL_StatusTypeDef status = HAL_SD_WriteBlocks_DMA(sd->hsd, pdata, block_addr, num_blocks);
-    return (SdCardStatus)status;
+    dma_tx_completed = false;
+    return (SdCardStatus)HAL_SD_WriteBlocks_DMA(sd1.hsd, pdata, block_addr, num_blocks);
 }
 
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
+    assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
 
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 {
+    assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
 
 void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
 {
+    assert(hsd == sd1.hsd);
     dma_tx_completed = true;
 }
 void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
 {
+    assert(hsd == sd1.hsd);
     dma_tx_completed = true;
+}
+// this my based on the hardware design
+// if the sd card is incerted, the gpio will be shorted to ground other wise it will be pulled up
+bool hw_sd_present(void)
+{
+    return !hw_gpio_readPin(sd1.present_gpio);
 }

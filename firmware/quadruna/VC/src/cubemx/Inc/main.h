@@ -30,9 +30,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -42,6 +42,36 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef   hadc1;
+    extern ADC_HandleTypeDef   hadc3;
+    extern DMA_HandleTypeDef   hdma_adc1;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern I2C_HandleTypeDef   hi2c1;
+    extern I2C_HandleTypeDef   hi2c2;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern SD_HandleTypeDef    hsd1;
+    extern TIM_HandleTypeDef   htim3;
+    extern UART_HandleTypeDef  huart7;
+    extern UART_HandleTypeDef  huart1;
+    extern UART_HandleTypeDef  huart2;
+    extern UART_HandleTypeDef  huart3;
+    extern DMA_HandleTypeDef   hdma_usart2_rx;
+
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+    extern osThreadId_t TaskLoggingHandle;
+    extern osThreadId_t TaskTelemHandle;
+
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
+    extern const osThreadAttr_t TaskLogging_attributes;
+    extern const osThreadAttr_t TaskTelem_attributes;
 
     /* USER CODE END EC */
 

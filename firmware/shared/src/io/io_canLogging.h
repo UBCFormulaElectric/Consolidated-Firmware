@@ -1,16 +1,8 @@
 #pragma once
 
-#include "io_can.h"
-
-#ifdef TARGET_EMBEDDED
-#include "hw_sd.h"
-#endif
-
-// Empirically determined number which corresponds to the time to mount the filesystem, plus the time to create a new
-// blank CAN log, taking approximately 500ms. This was found using logfs (not littlefs, there is probably a different
-// threshold). The time to mount/create a log both scale linearly with logfs, so for example if there are 400 logs then
-// then the time will be ~1s. Proceed with caution creating a significant amount of logs above this threshold.
-#define HIGH_NUMBER_OF_LOGS_THRESHOLD (200U)
+#include <stdint.h>
+#include <stdbool.h>
+#include "io_canMsg.h"
 
 // Empirically determined number which corresponds to the time to mount the filesystem, plus the time to create a new
 // blank CAN log, taking approximately 500ms. This was found using logfs (not littlefs, there is probably a different
@@ -27,24 +19,31 @@ typedef struct
     uint8_t  reserved[4]; // reserved byte to round up to 16 bytes, TODO: Use this for error checking?
 } CanMsgLog;
 
+#define ID_MASK (0x7FF)          // 11 bits max val
+#define DLC_MASK (0xF)           // 4 bits max val
+#define TIMESTAMP_MASK (0x1FFFF) // 17 bits max val
+
 /**
  * Create a new message queue for can logging message
  * Create a new file for this boot for record message
- * @param can_config
- *
  */
-int io_canLogging_init(const CanConfig *can_config);
+void io_canLogging_init(void);
+
+/**
+ * Populate queue with another item
+ */
+void io_canLogging_loggingQueuePush(const CanMsg *rx_msg);
 
 /**
  * write the can message to the sdcard
  * pop the massage from queue
- *
  */
-int io_canLogging_recordMsgFromQueue(void);
+void io_canLogging_recordMsgFromQueue(void);
 
-void io_canLogging_loggingQueuePush(CanMsg *rx_msg);
-
-int io_canLogging_sync(void);
+/**
+ * Sync all cached stuff to disk.
+ */
+void io_canLogging_sync(void);
 
 /**
  * Return the number of the current CAN data log.

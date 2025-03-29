@@ -1,15 +1,21 @@
 #include "app_chargeState.h"
 #include "states/app_allStates.h"
 #include "io_airs.h"
+#include "ltc6813/io_ltc6813Shared.h"
 
 // 0.05C is standard for a boundary to consider full charge
 #define C_RATE_FOR_MAX_CHARGE (0.05f)
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 #define CURRENT_AT_MAX_CHARGE (C_RATE_FOR_MAX_CHARGE * C_RATE_TO_AMPS)
+// NEW
 #define MAX_CHARGING_VOLTAGE_NOMINAL (336.0f)
 // Allows pack to reach max cell voltage before BRUSA faults due to max pack voltage (likely due inaccurate ADC reading
 // from BRUSA)
 #define MAX_CHARGING_VOLTAGE_OVERIDE (345.0f)
+// OLD
+#define MAX_CHARGING_VOLTAGE \
+    ((float)(ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * MAX_CELL_VOLTAGE_NOMINAL)) // 268.8V
+
 // Each cell can handle 11.8A per the Datasheet, x3 in parallel = 35.4A, Setting as 15A for safety (limited by mains
 // current to BRUSA at this stage)
 #define MAX_CHARGING_CURRENT (15.0f)
@@ -131,7 +137,7 @@ static void chargeStateRunOnTick100Hz(void)
         // Override based on CAN parameters
         const float charging_current = app_canRx_Debug_ChargingCurrentOverride_get()
                                            ? app_canRx_Debug_ChargingCurrentTargetValue_get()
-                                           : INITIAL_CHARGING_VOLTAGE;
+                                           : INITIAL_CHARGING_CURRENT;
 
         if (IS_IN_RANGE(0.0f, MAX_CHARGING_CURRENT, charging_current))
         {
