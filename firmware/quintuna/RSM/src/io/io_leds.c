@@ -9,5 +9,5 @@ static const BinaryLed *brake_light1 = NULL;
 void io_brake_light_set(bool val)
 {
     io_led_enable(brake_light1, val);
-   // app_canTx_RSM_BrakeLight_set(val);
+    // app_canTx_RSM_BrakeLight_set(val);
 }

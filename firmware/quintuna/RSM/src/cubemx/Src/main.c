@@ -20,7 +20,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "usb_device.h"
-#include "stdbool.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -53,11 +52,7 @@ CAN_HandleTypeDef hcan2;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
 
-<<<<<<< HEAD
-TIM_HandleTypeDef htim3;
-=======
 TIM_HandleTypeDef htim2;
->>>>>>> master
 TIM_HandleTypeDef htim4;
 
 /* Definitions for Task1KHz */
@@ -133,11 +128,7 @@ static void MX_CAN2_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_TIM4_Init(void);
-<<<<<<< HEAD
-static void MX_TIM3_Init(void);
-=======
 static void MX_TIM2_Init(void);
->>>>>>> master
 void        RunTask1KHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTask1Hz(void *argument);
@@ -187,8 +178,7 @@ int main(void)
     MX_I2C1_Init();
     MX_I2C3_Init();
     MX_TIM4_Init();
-<<<<<<< HEAD
-    MX_TIM3_Init();
+    MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
     while (true)
@@ -197,8 +187,7 @@ int main(void)
 
         HAL_Delay(1000);
     }
-=======
-    MX_TIM2_Init();
+    == == == = MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
 >>>>>>> master
     tasks_init();
@@ -331,21 +320,12 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
     hadc1.Init.ScanConvMode          = ENABLE;
-<<<<<<< HEAD
     hadc1.Init.ContinuousConvMode    = ENABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
-    hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 6;
-=======
-    hadc1.Init.ContinuousConvMode    = DISABLE;
-    hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T2_TRGO;
+    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T2_CC2;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 4;
->>>>>>> master
     hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -383,37 +363,12 @@ static void MX_ADC1_Init(void)
 
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
-<<<<<<< HEAD
-    sConfig.Channel = ADC_CHANNEL_7;
-=======
     sConfig.Channel = ADC_CHANNEL_12;
->>>>>>> master
     sConfig.Rank    = 4;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
     }
-<<<<<<< HEAD
-
-    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-     */
-    sConfig.Channel = ADC_CHANNEL_12;
-    sConfig.Rank    = 5;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-     */
-    sConfig.Channel = ADC_CHANNEL_14;
-    sConfig.Rank    = 6;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-=======
->>>>>>> master
     /* USER CODE BEGIN ADC1_Init 2 */
 
     /* USER CODE END ADC1_Init 2 */
@@ -519,31 +474,6 @@ static void MX_I2C3_Init(void)
 }
 
 /**
-<<<<<<< HEAD
- * @brief TIM3 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_TIM3_Init(void)
-{
-    /* USER CODE BEGIN TIM3_Init 0 */
-
-    /* USER CODE END TIM3_Init 0 */
-
-    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
-    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
-
-    /* USER CODE BEGIN TIM3_Init 1 */
-
-    /* USER CODE END TIM3_Init 1 */
-    htim3.Instance               = TIM3;
-    htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
-    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
-    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
-=======
  * @brief TIM2 Initialization Function
  * @param None
  * @retval None
@@ -562,32 +492,16 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 1 */
     htim2.Instance               = TIM2;
-    htim2.Init.Prescaler         = TIM2_PRESCALER - 1;
+    htim2.Init.Prescaler         = TIM2_PRESCALER;
     htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim2.Init.Period            = TIM2_ARR - 1;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
->>>>>>> master
     {
         Error_Handler();
     }
     sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-<<<<<<< HEAD
-    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN TIM3_Init 2 */
-
-    /* USER CODE END TIM3_Init 2 */
-=======
     if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
     {
         Error_Handler();
@@ -596,7 +510,7 @@ static void MX_TIM2_Init(void)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
     {
@@ -613,7 +527,6 @@ static void MX_TIM2_Init(void)
     /* USER CODE BEGIN TIM2_Init 2 */
 
     /* USER CODE END TIM2_Init 2 */
->>>>>>> master
 }
 
 /**
@@ -636,11 +549,7 @@ static void MX_TIM4_Init(void)
     htim4.Instance               = TIM4;
     htim4.Init.Prescaler         = TIM4_PRESCALER - 1;
     htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
-<<<<<<< HEAD
-    htim4.Init.Period            = (TIMx_FREQUENCY / TIM4_PRESCALER / ADC_FREQUENCY) - 1;
-=======
     htim4.Init.Period            = TIM4_ARR - 1;
->>>>>>> master
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_IC_Init(&htim4) != HAL_OK)
@@ -700,13 +609,8 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, BOOT_Pin | LED_Pin | BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
 
-<<<<<<< HEAD
-    /*Configure GPIO pin : RL_INT_3V3_SENS_Pin */
-    GPIO_InitStruct.Pin  = RL_INT_3V3_SENS_Pin;
-=======
     /*Configure GPIO pins : RL_INT_3V3_SENS_Pin SUSP_TRAVEL_RL_OCSC_Pin */
     GPIO_InitStruct.Pin  = RL_INT_3V3_SENS_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
->>>>>>> master
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

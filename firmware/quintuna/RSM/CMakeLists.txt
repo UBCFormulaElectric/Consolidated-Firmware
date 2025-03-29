@@ -113,11 +113,7 @@ if("${TARGET}" STREQUAL "binary")
         stm32f412rx_cube_library(
                 "quintuna_RSM_stm32cube"
                 "${STM32_HAL_SRCS}"
-<<<<<<< HEAD
-                "${CMAKE_CURRENT_SORUCE_DIR}"
-=======
                 "${SYSCALLS}"
->>>>>>> master
                 "${MD5_LOCATION}"
                 TRUE
         )
@@ -132,11 +128,7 @@ if("${TARGET}" STREQUAL "binary")
                 "${CMAKE_CURRENT_BINARY_DIR}/app"
         )
 
-<<<<<<< HEAD
-        target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "debug_modules")
-=======
         target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4")
->>>>>>> master
         target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
 
         embedded_image(

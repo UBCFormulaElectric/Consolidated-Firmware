@@ -54,14 +54,10 @@ extern "C"
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
     void ADC_IRQHandler(void);
-<<<<<<< HEAD
-    void TIM3_IRQHandler(void);
-=======
     void TIM2_IRQHandler(void);
     void I2C1_EV_IRQHandler(void);
     void I2C1_ER_IRQHandler(void);
     void EXTI15_10_IRQHandler(void);
->>>>>>> master
     void TIM6_IRQHandler(void);
     void DMA2_Stream0_IRQHandler(void);
     void CAN2_TX_IRQHandler(void);

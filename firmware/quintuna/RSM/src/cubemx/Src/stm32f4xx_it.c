@@ -59,14 +59,10 @@
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
-<<<<<<< HEAD
-extern TIM_HandleTypeDef htim3;
-=======
 extern CAN_HandleTypeDef hcan2;
 extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c3;
 extern TIM_HandleTypeDef htim2;
->>>>>>> master
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -183,8 +179,7 @@ void ADC_IRQHandler(void)
     HAL_ADC_IRQHandler(&hadc1);
     /* USER CODE BEGIN ADC_IRQn 1 */
 
-=======
-    traceISR_ENTER();
+    == == == = traceISR_ENTER();
     /* USER CODE END ADC_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc1);
     /* USER CODE BEGIN ADC_IRQn 1 */
@@ -194,19 +189,6 @@ void ADC_IRQHandler(void)
 }
 
 /**
-<<<<<<< HEAD
- * @brief This function handles TIM3 global interrupt.
- */
-void TIM3_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM3_IRQn 0 */
-
-    /* USER CODE END TIM3_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim3);
-    /* USER CODE BEGIN TIM3_IRQn 1 */
-
-    /* USER CODE END TIM3_IRQn 1 */
-=======
  * @brief This function handles TIM2 global interrupt.
  */
 void TIM2_IRQHandler(void)
@@ -261,7 +243,6 @@ void EXTI15_10_IRQHandler(void)
     /* USER CODE BEGIN EXTI15_10_IRQn 1 */
 
     /* USER CODE END EXTI15_10_IRQn 1 */
->>>>>>> master
 }
 
 /**

@@ -394,33 +394,6 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 
 /**
  * @brief TIM_Base MSP Initialization
-<<<<<<< HEAD
- * This function configures the hardware resources used in this example
- * @param htim_base: TIM_Base handle pointer
- * @retval None
- */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
-{
-    if (htim_base->Instance == TIM3)
-    {
-        /* USER CODE BEGIN TIM3_MspInit 0 */
-
-        /* USER CODE END TIM3_MspInit 0 */
-        /* Peripheral clock enable */
-        __HAL_RCC_TIM3_CLK_ENABLE();
-        /* TIM3 interrupt Init */
-        HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
-        HAL_NVIC_EnableIRQ(TIM3_IRQn);
-        /* USER CODE BEGIN TIM3_MspInit 1 */
-
-        /* USER CODE END TIM3_MspInit 1 */
-    }
-}
-
-/**
- * @brief TIM_PWM MSP Initialization
-=======
->>>>>>> master
  * This function configures the hardware resources used in this example
  * @param htim_base: TIM_Base handle pointer
  * @retval None
@@ -479,33 +452,6 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
 
 /**
  * @brief TIM_Base MSP De-Initialization
-<<<<<<< HEAD
- * This function freeze the hardware resources used in this example
- * @param htim_base: TIM_Base handle pointer
- * @retval None
- */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
-{
-    if (htim_base->Instance == TIM3)
-    {
-        /* USER CODE BEGIN TIM3_MspDeInit 0 */
-
-        /* USER CODE END TIM3_MspDeInit 0 */
-        /* Peripheral clock disable */
-        __HAL_RCC_TIM3_CLK_DISABLE();
-
-        /* TIM3 interrupt DeInit */
-        HAL_NVIC_DisableIRQ(TIM3_IRQn);
-        /* USER CODE BEGIN TIM3_MspDeInit 1 */
-
-        /* USER CODE END TIM3_MspDeInit 1 */
-    }
-}
-
-/**
- * @brief TIM_PWM MSP De-Initialization
-=======
->>>>>>> master
  * This function freeze the hardware resources used in this example
  * @param htim_base: TIM_Base handle pointer
  * @retval None
