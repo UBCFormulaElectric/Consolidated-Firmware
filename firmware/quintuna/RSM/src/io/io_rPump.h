@@ -13,7 +13,7 @@ EMPTY_STRUCT(Pump);
 #endif
 
 bool io_rPump_isPumpReady(const Pump *pump);
-void io_rPump_writeSmth(const Pump *pump, uint8_t data);
-uint8_t io_rPump_readSmth(const Pump *pump);
+void io_rPump_write(const Pump *pump, uint8_t data);
+uint8_t io_rPump_read(const Pump *pump);
 
 extern const Pump r_pump;
