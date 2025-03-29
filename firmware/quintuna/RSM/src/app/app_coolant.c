@@ -4,7 +4,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_signal.h"
-#include "io_coolant.h"
+#include "io_coolants.h"
 
 static const RangeCheck flow_rate_in_range_check = {
     .min_value = MIN_FLOW_RATE_L_PER_MIN,
@@ -19,15 +19,10 @@ void app_coolant_init(void)
 
 void app_coolant_broadcast(void)
 {
-    app_canTx_RSM_CoolantTemperatureA_set(io_coolant_getTemperatureA());
-    app_canTx_RSM_CoolantTemperatureB_set(io_coolant_getTemperatureB());
-    app_canTx_RSM_CoolantPressureA_set(io_coolant_getPressureA());
-    app_canTx_RSM_CoolantPressureB_set(io_coolant_getPressureB());
-
-    float                    flow_val       = io_coolant_getFlowRate();
+    float                    flow_val       = io_coolant_getFlowRate(flow);
     RangeCheckStatusMetaData coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
-    app_canTx_RSM_CoolantFlowRate_set(flow_val);
-    app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
+    //app_canTx_RSM_CoolantFlowRate_set(flow_val);
+    //app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
 
     // motor shutdown in flow rate check
     const bool  in_drive_state             = app_canRx_VC_State_get() == VC_DRIVE_STATE;

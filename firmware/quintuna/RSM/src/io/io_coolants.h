@@ -3,9 +3,8 @@
 #include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_hal.h"
+
 #include "hw_pwmInputFreqOnly.h"
-#include "hw_adcs.h"
 
 typedef struct
 {
