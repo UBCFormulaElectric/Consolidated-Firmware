@@ -1,6 +1,7 @@
 #include "io_sbgEllipse.h"
 
 #include <assert.h>
+#include <sbgErrorCodes.h>
 #include "hw_uarts.h"
 #include "main.h"
 #include "app_units.h"
@@ -233,15 +234,19 @@ void io_sbgEllipse_handleLogs(void)
     // Handle logs. Calls the pReadFunc set in sbgInterfaceSerialCreate to read data and parses
     // all logs found in the data. Upon successfully parsing a log, the the receive log callback function set in init is
     // triggered. Incomplete log data will be saved to a buffer in SBG's library to be used once more data is received.
-    SbgErrorCode error_code = sbgEComHandle(&com_handle);
-    app_canTx_VC_EllipseErrorCode_set((EllipseErrorCode)error_code);
 
-    // handle error
-    if (error_code != SBG_NO_ERROR)
+    SbgErrorCode error_code = SBG_NO_ERROR;
+    while (error_code != SBG_NOT_READY) // This is returned when no more logs could be parsed
     {
-        char buffer[256];
-        sbgEComErrorToString(error_code, buffer);
-        LOG_INFO("SBG ellipse logging error: %s", buffer);
+        error_code = sbgEComHandleOneLog(&com_handle);
+
+        if (error_code != SBG_NO_ERROR && error_code != SBG_NOT_READY)
+        {
+            char buffer[256];
+            sbgEComErrorToString(error_code, buffer);
+            LOG_INFO("SBG ellipse logging error: %s", buffer);
+            app_canTx_VC_EllipseErrorCode_set((EllipseErrorCode)error_code);
+        }
     }
 }
 
