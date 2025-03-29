@@ -1,7 +1,6 @@
 #include "io_sbgEllipse.h"
 
 #include <assert.h>
-#include <sbgErrorCodes.h>
 #include "hw_uarts.h"
 #include "main.h"
 #include "app_units.h"
