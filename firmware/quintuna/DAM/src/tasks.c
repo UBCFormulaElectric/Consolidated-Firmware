@@ -8,7 +8,6 @@
 #include "io_rtc.h"
 #include "io_canLoggingQueue.h"
 #include "io_fileSystem.h"
->>>>>>> 5e8451f7b (Squashed commit of the following:)
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
