@@ -26,3 +26,18 @@ influxdb-client
 tzlocal
 python-dotenv
 asammdf
+
+# Utils
+lazydocs
+pydocstyle
+ruff
+types-protobuf
+mypy
+mypy-protobuf
+
+# Chimera
+pyusb
+libusb-package
+python-can
+matplotlib
+pyvisa

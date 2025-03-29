@@ -1,16 +1,16 @@
 #include "states/app_allStates.h"
 #include "states/app_faultState.h"
-#include "app_utils.h"
-#include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_tractiveSystem.h"
 #include "app_imd.h"
 #include "app_airs.h"
 #include "app_soc.h"
 #include "app_shdnLoop.h"
+#include "app_diagnosticsMode.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "io_bspdTest.h"
+#include "app_heartbeatMonitors.h"
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
@@ -32,12 +32,8 @@ void app_allStates_runOnTick1Hz(void)
 {
     // If charge state has not placed a lock on broadcasting
     // if the charger is charger is connected
-    if (globals->broadcast_charger_connected)
-    {
-        // Broadcast the can msg from the BRUSA charger to the entire car
-        bool charger_is_connected = app_canRx_BRUSA_IsConnected_get();
-        app_canTx_BMS_ChargerConnected_set(charger_is_connected);
-    }
+    bool charger_is_connected = app_canRx_BRUSA_IsConnected_get();
+    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
 
     const float min_soc = app_soc_getMinSocCoulombs();
 
@@ -55,8 +51,8 @@ bool app_allStates_runOnTick100Hz(void)
 {
     app_canTx_BMS_Heartbeat_set(true);
 
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 
@@ -144,6 +140,8 @@ bool app_allStates_runOnTick100Hz(void)
     app_airs_broadcast();
     app_shdnLoop_broadcast();
 
+    app_diagnosticsMode_broadcast();
+
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {
         app_soc_updateSocStats();
@@ -154,12 +152,12 @@ bool app_allStates_runOnTick100Hz(void)
 
     // Update CAN signals for BMS latch statuses.
     app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
-    app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(globals->config->bms_ok_latch));
-    app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(globals->config->imd_ok_latch));
-    app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(globals->config->bspd_ok_latch));
-    app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(globals->config->bms_ok_latch));
-    app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(globals->config->imd_ok_latch));
-    app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(globals->config->bspd_ok_latch));
+    app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
+    app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
+    app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
+    app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
+    app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
+    app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles

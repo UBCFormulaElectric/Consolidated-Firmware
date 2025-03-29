@@ -456,7 +456,6 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.owc_status[1]);
     app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.owc_status[2]);
     app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owc_status[3]);
-    app_canTx_BMS_Segment4_OWC_Cells_Status_set(data.owc_faults.owc_status[4]);
 
     // Calculate and broadcast pack power.
 
@@ -532,7 +531,7 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Warning_OpenWireCheck_Segment1_GND_set(data.owc_faults.owc_fault_gnd[1]);
     app_canAlerts_BMS_Warning_OpenWireCheck_Segment2_GND_set(data.owc_faults.owc_fault_gnd[2]);
     app_canAlerts_BMS_Warning_OpenWireCheck_Segment3_GND_set(data.owc_faults.owc_fault_gnd[3]);
-    app_canAlerts_BMS_Warning_OpenWireCheck_Segment4_GND_set(data.owc_faults.owc_fault_gnd[4]);
+    // app_canAlerts_BMS_Warning_OpenWireCheck_Segment4_GND_set(data.owc_faults.owc_fault_gnd[4]);
 
     const bool acc_fault =
         overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault;

@@ -18,7 +18,7 @@ void io_coolant_init(const PwmInputFreqOnlyConfig *config);
  * @param htim: The handle of the timer that triggered the input capture
  *              callback function
  */
-void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim);
+void io_coolant_inputCaptureCallback(const TIM_HandleTypeDef *htim);
 #endif
 
 /**

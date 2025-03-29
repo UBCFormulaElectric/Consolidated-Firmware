@@ -1,16 +1,13 @@
 #include "app_apps.h"
-#include <assert.h>
-#include <stdlib.h>
 #include <math.h>
 #include "app_signal.h"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 #include "io_apps.h"
-#include "io_brake.h"
 
-Signal papps_ocsc_signal;
-Signal sapps_ocsc_signal;
-Signal papps_sapps_disagreement_signal;
+static Signal papps_ocsc_signal;
+static Signal sapps_ocsc_signal;
+static Signal papps_sapps_disagreement_signal;
 
 void app_apps_init(void)
 {
@@ -21,7 +18,7 @@ void app_apps_init(void)
         PAPPS_SAPPS_DISAGREEMENT_TIME_TO_CLEAR);
 }
 
-void app_apps_broadcast()
+void app_apps_broadcast(void)
 {
     float papps_pedal_percentage = io_apps_getPrimary();
     float sapps_pedal_percentage = io_apps_getSecondary();

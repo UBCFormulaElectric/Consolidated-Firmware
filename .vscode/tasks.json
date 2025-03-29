@@ -1,211 +1,221 @@
 {
     "version": "2.0.0",
     "tasks": [
-        {
-            "label": "Load CMake: Embedded",
-            "type": "shell",
-            "command": "cmake -S . -B build_fw_deploy -DPLATFORM=firmware -DTARGET=deploy",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
+      {
+        "label": "Launch: STM32CubeMX",
+        "type": "shell",
+        "command": "./STM32CubeMX",
+        "group": "build",
+        "linux": {
+          "options": {
+            "cwd": "/usr/local/STM32CubeMX/"
+          }
         },
-        {
-            "label": "Load CMake: Tests",
-            "type": "shell",
-            "command": "cmake -S . -B build_fw_test -DPLATFORM=firmware -DTARGET=test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-        },
-        {
-            "label": "Clean CMake: Embedded",
-            "type": "shell",
-            "command": "cmake --build . --target clean -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            },
-        },
-        {
-            "label": "Clean CMake: Tests",
-            "type": "shell",
-            "command": "cmake --build . --target clean -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            },
-        },
-        {
-            "label": "Build Embedded: VC (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_VC.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: BMS (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_BMS.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: FSM (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_FSM.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: RSM (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_RSM.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: CRIT (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_CRIT.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: f4dev",
-            "type": "shell",
-            "command": "cmake --build . --target f4dev.elf -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: h7dev",
-            "type": "shell",
-            "command": "cmake --build . --target h7dev.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Tests: VC (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_VC_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: BMS (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_BMS_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: FSM (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_FSM_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: RSM (Quadruna)",
-            "type": "shell",
-            "command": "make -j`nproc` quadruna_RSM_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: CRIT (Quadruna)",
-            "type": "shell",
-            "command": "make -j`nproc` quadruna_CRIT_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: Shared",
-            "type": "shell",
-            "command": "cmake --build . --target shared_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Embedded: All",
-            "type": "shell",
-            "command": "cmake --build .",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Tests: All",
-            "type": "shell",
-            "command": "cmake --build .",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Load Dimos",
-            "type": "shell",
-            "command": "cmake -S . -B build_dimos_dev -DPLATFORM=dimos"
-        },
-        {
-            "label": "Build: Dimos Development Binaries",
-            "type": "shell",
-            "command": "cmake --build build_dimos_dev --target dimos_dev"
-        },
-        {
-            "label": "Launch: STM32CubeMX",
-            "type": "shell",
-            "command": "./STM32CubeMX",
-            "group": "build",
-            "linux": {
-                "options": {
-                    "cwd": "/usr/local/STM32CubeMX/"
-                }
-            },
-            "osx": {
-                "options": {
-                    "cwd": "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs"
-                }
-            }
-        },
-        {
-            "label": "Format: Codebase",
-            "type": "shell",
-            "command": "python3 fix_formatting.py",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/scripts/utilities/"
-            }
-        },
+        "osx": {
+          "options": {
+            "cwd": "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs"
+          }
+        }
+      },
+      {
+        "label": "Format: Codebase",
+        "type": "shell",
+        "command": "python3 fix_formatting.py",
+        "group": "build",
+        "options": {
+          "cwd": "${workspaceFolder}/scripts/utilities/"
+        }
+      },
+      {
+        "label": "CMake: Load",
+        "detail": "CMake Generate step",
+        "group": "build",
+        "type": "cmake",
+        "command": "configure",
+        "preset": "${command:cmake.activeConfigurePresetName}"
+      },
+      {
+        "label": "Build Embedded Quadruna",
+        "detail": "CMake Generate step",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_BMS.hex",
+                    "quadruna_VC.hex",
+                    "quadruna_CRIT.hex",
+                    "quadruna_RSM.hex",
+                    "quadruna_FSM.hex",
+                    "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded Quintuna",
+        "detail": "CMake Generate step",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_BMS.hex",
+                    "quintuna_VC.hex",
+                    "quintuna_CRIT.hex",
+                    "quintuna_RSM.hex",
+                    "quintuna_FSM.hex",
+                    "quintuna_DAM.hex",
+                    "can_bus_load_quintuna"]
+      },
+      {
+        "label": "CMake: Clean",
+        "detail": "CMake template clean task",
+        "group": "build",
+        "type": "cmake",
+        "command": "clean",
+        "preset": "${command:cmake.activeBuildPresetName}"
+      },
+      {
+        "label": "Build Embedded: BMS (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_BMS.hex", "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded: CRIT (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_CRIT.hex", "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded: FSM (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_FSM.hex", "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded: RSM (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_RSM.hex", "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded: VC (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_VC.hex", "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded: BMS (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_BMS.hex", "can_bus_load_quadruna"]
+      },
+      {
+        "label": "Build Embedded: VC (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_VC.hex", "can_bus_load_quintuna"]
+      },
+      {
+        "label": "Build Embedded: CRIT (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_CRIT.hex", "can_bus_load_quintuna"]
+      },
+      {
+        "label": "Build Embedded: DAM (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_DAM.hex", "can_bus_load_quintuna"]
+      },
+      {
+        "label": "Build Embedded: RSM (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_RSM.hex", "can_bus_load_quintuna"]
+      },
+      {
+        "label": "Build Embedded: FSM (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_FSM.hex", "can_bus_load_quintuna"]
+      },
+      {
+        "label": "Build Embedded: f4dev",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["f4dev.hex"]
+      },
+      {
+        "label": "Build Embedded: h7dev",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["h7dev.hex"]
+      },
+      {
+        "label": "Build Embedded: SSM",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["ssm.hex"]
+      },
+      {
+        "label": "Build Tests: BMS (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_BMS_test"]
+      },
+      {
+        "label": "Build Tests: CRIT (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_CRIT_test"]
+      },
+      {
+        "label": "Build Tests: CRIT (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_CRIT_test"]
+      },
+
+      {
+        "label": "Build Tests: FSM (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_FSM_test"]
+      },
+      {
+        "label": "Build Tests: RSM (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_RSM_test"]
+      },
+      {
+        "label": "Build Tests: VC (Quadruna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quadruna_VC_test"]
+      },
+      {
+        "label": "Build Tests: Shared",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["shared_test"]
+      }
     ]
 }

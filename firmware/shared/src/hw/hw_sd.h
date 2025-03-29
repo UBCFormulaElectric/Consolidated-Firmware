@@ -2,21 +2,17 @@
 
 #include "hw_hal.h"
 #include "hw_gpio.h"
-#include <stdbool.h>
 #include <stdint.h>
-
-// Check here for documentation about the type defined by HAL
-// https://www.disca.upv.es/aperles/arm_cortex_m3/llibre/st/STM32F439xx_User_Manual/structsd__handletypedef.html
+#include <stdbool.h>
 
 #define HW_DEVICE_SECTOR_SIZE 512
 
 typedef struct
 {
-    SD_HandleTypeDef *hsd;     // the HAL SD handle that will hold the state of the SD card
-    uint32_t          timeout; // the timeout for the SD card operations
-    // const Gpio        sd_present; // GPIO to detect if SD card installed
-    bool sd_init_complete;
-} SdCard; // struct that included all the state about SDIO and SD card
+    SD_HandleTypeDef *hsd;          // the HAL SD handle that will hold the state of the SD card
+    uint32_t          timeout;      // the timeout for the SD card operations
+    const Gpio       *present_gpio; // gpio for sd_cd
+} SdCard;                           // struct that included all the state about SDIO and SD card
 
 typedef enum
 {
@@ -25,12 +21,6 @@ typedef enum
     SD_CARD_BUSY    = HAL_BUSY,
     SD_CARD_TIMEOUT = HAL_TIMEOUT
 } SdCardStatus; // wrapper of HAL status for better interface
-
-/**
- * @brief Initialize Static SD Card structure
- * @param sd_config SD Card Configuration
- */
-void hw_sd_init(SdCard *sd_config);
 
 /**
  * @brief   Read from sd card. The data size will be num_blocks * BlockSize
@@ -92,3 +82,5 @@ SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t off
  * @return SD_card_status the status of the opeation
  */
 SdCardStatus hw_sd_erase(uint32_t start_addr, uint32_t end_addr);
+
+bool hw_sd_present(void);

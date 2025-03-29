@@ -33,6 +33,11 @@ static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
             is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
             break;
         }
+        default:
+        {
+            is_missing_heartbeat = false;
+            break;
+        }
     }
 
     if (is_missing_heartbeat)
