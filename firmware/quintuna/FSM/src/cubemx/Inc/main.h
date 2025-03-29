@@ -65,7 +65,7 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define TIM2_ARR TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY)
-#define TIM2_PRESCALER 64
+#define TIM2_PRESCALER 4
 #define LSI_FREQUENCY 32000
 #define TIM2_FREQUENCY 1000
 #define TIMx_FREQUENCY 96000000

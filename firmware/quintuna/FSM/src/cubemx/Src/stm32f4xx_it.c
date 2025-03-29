@@ -170,11 +170,11 @@ void DebugMon_Handler(void)
 void ADC_IRQHandler(void)
 {
     /* USER CODE BEGIN ADC_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END ADC_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc1);
     /* USER CODE BEGIN ADC_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END ADC_IRQn 1 */
 }
 
@@ -240,11 +240,11 @@ void I2C1_ER_IRQHandler(void)
 void DMA2_Stream0_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END DMA2_Stream0_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc1);
     /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 

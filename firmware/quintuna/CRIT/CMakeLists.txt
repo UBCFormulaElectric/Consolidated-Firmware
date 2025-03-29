@@ -34,7 +34,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmOutput.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
 )
 set(HW_INCLUDE_DIRS
