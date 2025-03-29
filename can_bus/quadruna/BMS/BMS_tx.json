@@ -232,6 +232,22 @@
             }
         }
     },
+    "BalancingInfo": {
+        "msg_id": 122,
+        "cycle_time": null,
+        "description": "BMS Balancing Status",
+        "signals": {
+            "BalancingOn": {
+                "bits": 1
+            },
+            "ExcessVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 50,
+                "unit": "V"
+            }
+        }
+    },
     "CellStats": {
         "msg_id": 123,
         "cycle_time": 100,

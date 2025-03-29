@@ -1,5 +1,6 @@
 #include "states/app_prechargeState.h"
 #include "io_airs.h"
+#include "app_tractiveSystem.h"
 
 // When TS reaches this threshold of ACC, AIR+ engages, and precharge is disabled, the voltage must be at least 90%
 // EV.6.6.1

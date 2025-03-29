@@ -1,8 +1,7 @@
 #include "states/app_allStates.h"
-#include "app_utils.h"
 #include "io_airs.h"
 #include "io_faultLatch.h"
-#include "io_airs.h"
+#include "app_tractiveSystem.h"
 
 static void faultStateRunOnEntry(void)
 {
