@@ -129,7 +129,7 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
     }
 
     // check and process CAN msg for bootloader start msg
-    io_bootHandler_processBootRequest(&rx_msg);
+    io_bootHandler_processBootRequest(rx_msg);
 
     if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
