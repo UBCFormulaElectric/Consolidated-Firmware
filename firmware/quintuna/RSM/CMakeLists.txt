@@ -113,7 +113,6 @@ if("${TARGET}" STREQUAL "binary")
         stm32f412rx_cube_library(
                 "quintuna_RSM_stm32cube"
                 "${STM32_HAL_SRCS}"
-
                 "${SYSCALLS}"
                 "${MD5_LOCATION}"
                 TRUE
