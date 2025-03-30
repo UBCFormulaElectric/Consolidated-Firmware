@@ -5,7 +5,7 @@
 #define M (0.0f)
 #define B (0.0f) // GET M AND B FROM RSM DATA
 
-float travelFromVoltage(float voltage) 
+float travelFromVoltage(float voltage)
 {
     float travel_mm = (voltage - B) / M;
     return travel_mm;
