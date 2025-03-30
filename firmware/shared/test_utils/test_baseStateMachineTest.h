@@ -5,10 +5,11 @@
 
 class BaseStateMachineTest : public testing::Test
 {
-    virtual void tick_100hz() = 0;
-    virtual void tick_1hz() = 0;
-    virtual void board_setup() = 0;
+    virtual void tick_100hz()     = 0;
+    virtual void tick_1hz()       = 0;
+    virtual void board_setup()    = 0;
     virtual void board_teardown() = 0;
+
   protected:
     void SetUp() override
     {
@@ -41,10 +42,7 @@ class BaseStateMachineTest : public testing::Test
         fake_io_time_getCurrentMs_returns(current_time_ms);
         board_setup();
     }
-    void TearDown() override
-    {
-        board_teardown();
-    };
+    void TearDown() override { board_teardown(); };
 
     void LetTimePass(const uint32_t time_ms)
     {
