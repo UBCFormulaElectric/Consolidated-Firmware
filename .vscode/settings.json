@@ -9,12 +9,9 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-        "crit.pb.h": "c"
-    },
-    "clangd.arguments": [
-        "--compile-commands-dir=build_fw_dev",
-        // "--compile-commands-dir=build_fw_test",
-        "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-    ]
+	"clangd.arguments": [
+		"--compile-commands-dir=build_fw_dev",
+		// "--compile-commands-dir=build_fw_test",
+		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
+	]
 }
