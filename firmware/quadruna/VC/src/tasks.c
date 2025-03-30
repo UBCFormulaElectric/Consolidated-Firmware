@@ -194,6 +194,8 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
@@ -202,6 +204,8 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runLogging(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
 
@@ -221,21 +225,5 @@ _Noreturn void tasks_runLogging(void)
             io_canLogging_sync();
             message_batch_count = 0;
         }
-    }
-}
-
-/*
- * INTERRUPTS
- */
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == &huart1)
-    {
-        io_chimera_msgRxCallback();
-    }
-    else if (huart == &huart2)
-    {
-        io_sbgEllipse_msgRxCallback();
     }
 }
