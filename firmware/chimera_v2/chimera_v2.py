@@ -32,7 +32,6 @@ import proto_autogen.dam_pb2
 # Pyvisa Peripherals.
 from load_bank import *
 from power_supply import *
-import proto_autogen.vc_pb2
 from scope import *
 
 # Protobuf autogen packages.

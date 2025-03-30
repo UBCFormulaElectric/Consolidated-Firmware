@@ -2,4 +2,4 @@
 
 #include "hw_uart.h"
 
-extern const UART sbg_uart;
+extern UartDevice sbg_ellipse_uart;
