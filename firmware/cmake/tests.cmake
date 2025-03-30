@@ -29,7 +29,7 @@ function(compile_gtest_executable
         COMMAND ${TEST_EXECUTABLE_NAME})
 endfunction()
 
-message("  🔃 Registering function compile_fake_library")
+message("  🔃 Registering function create_fake_library")
 function(create_fake_library
     LIB_NAME
     HDRS_TO_FAKE
@@ -50,8 +50,6 @@ function(create_fake_library
         set(FAKE_SRC "${FAKEGEN_DIR}/fake_${HDR_MODULE_NAME}.cpp")
         list(APPEND FAKE_HDRS ${FAKE_HDR})
         list(APPEND FAKE_SRCS ${FAKE_SRC})
-
-        message(${FAKE_HDR} ${FAKE_SRC})
         add_custom_command(
             OUTPUT ${FAKE_HDR} ${FAKE_SRC}
             COMMAND ${PYTHON_COMMAND}
@@ -68,6 +66,7 @@ function(create_fake_library
     endforeach()
 
     # build the library
+    message("  🔃 Creating fake library ${LIB_NAME} with sources ${FAKE_SRCS}")
     add_library(${LIB_NAME} STATIC ${FAKE_SRCS})
     target_include_directories(${LIB_NAME} PUBLIC ${FAKEGEN_DIR})
     target_include_directories(${LIB_NAME} PRIVATE ${FAKE_HDR_DIRS})
