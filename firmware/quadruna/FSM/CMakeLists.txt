@@ -150,7 +150,6 @@ elseif ("${TARGET}" STREQUAL "test")
     # FakeIO
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_apps.h"
@@ -164,5 +163,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_jsoncan" "quadruna_FSM_fakes" "m")
+    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_jsoncan" "quadruna_FSM_fakes" "shared_fakes" "m")
 ENDIF ()
