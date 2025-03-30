@@ -129,9 +129,6 @@ if ("${TARGET}" STREQUAL "binary")
             "sbg_ecom_cm7"
             "chimera_v2_proto_cm7")
     target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
-    target_compile_definitions("quintuna_VC_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
-
-
     embedded_image(
             "quintuna_VC"
             "quintuna_VC_app.hex"
@@ -155,12 +152,13 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
-            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+#            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
+            "${SHARED_IO_INCLUDE_DIR}/io_canQueue.h"
     )
     create_fake_library(
             "quintuna_VC_fakes"
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quintuna_VC_test" "quintuna_VC_jsoncan" "quintuna_VC_fakes")
+    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes" "shared_fakes")
 endif ()

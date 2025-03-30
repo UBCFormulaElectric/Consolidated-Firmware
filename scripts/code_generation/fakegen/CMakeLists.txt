@@ -18,4 +18,4 @@ compile_gtest_executable(
         "${TEST_SRCS}"
         "${TEST_INCLUDE_DIRS}"
 )
-target_link_libraries("fakegen_test" "fakegen_test_fakes")
+target_link_libraries("fakegen_test" PRIVATE "fakegen_test_fakes")

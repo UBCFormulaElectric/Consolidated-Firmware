@@ -1,7 +1,7 @@
 #pragma once
-#include "test_baseStateMachineTest.h"
+#include "ecuTestBase.hpp"
 
-class VcBaseStateMachineTest : public BaseStateMachineTest
+class VcBaseStateMachineTest : public EcuTestBase
 {
     void tick_100hz() override;
     void tick_1hz() override;

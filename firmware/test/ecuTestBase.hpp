@@ -1,10 +1,14 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include "fake_io_time.hpp"
+// #include "fake_io_time.hpp"
 
-class BaseStateMachineTest : public testing::Test
+class EcuTestBase : public testing::Test
 {
+  public:
+    ~EcuTestBase() override = default;
+
+  private:
     virtual void tick_100hz()     = 0;
     virtual void tick_1hz()       = 0;
     virtual void board_setup()    = 0;
@@ -39,7 +43,7 @@ protected:
         // A simple way to get around this is to start the state machine at
         // t = 1ms rather than t = 0ms.
         current_time_ms = 1;
-        fake_io_time_getCurrentMs_returns(current_time_ms);
+        // fake_io_time_getCurrentMs_returns(current_time_ms);
         board_setup();
     }
     void TearDown() override { board_teardown(); };
@@ -58,7 +62,7 @@ protected:
                 tick_100hz();
             }
 
-            fake_io_time_getCurrentMs_returns(current_time_ms);
+            // fake_io_time_getCurrentMs_returns(current_time_ms);
             current_time_ms++;
         }
     }
