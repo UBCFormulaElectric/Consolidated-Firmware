@@ -426,7 +426,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOA, INT3_Pin | INT4_Pin | nCLR_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, INT1_Pin | INT2_Pin | CSLD_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, INT1_Pin | INT2_Pin | CS_LD_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : CS_LS_Pin CS_HS_Pin Boot_LED_Pin Debug_LED_Pin
                              INDICATOR1_Pin INDICATOR2_Pin INDICATOR3_Pin */
@@ -444,8 +444,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : INT1_Pin INT2_Pin CSLD_Pin */
-    GPIO_InitStruct.Pin   = INT1_Pin | INT2_Pin | CSLD_Pin;
+    /*Configure GPIO pins : INT1_Pin INT2_Pin CS_LD_Pin */
+    GPIO_InitStruct.Pin   = INT1_Pin | INT2_Pin | CS_LD_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -475,9 +475,7 @@ void StartDefaultTask(void *argument)
     // Invoke Chimera V2.
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_ssm_net_name_tag, id_to_gpio, AdcNetName_ssm_net_name_tag, id_to_adc,
-            I2cNetName_ssm_net_name_tag, id_to_i2c, SpiNetName_ssm_net_name_tag, id_to_spi);
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
         osDelay(100);
     }
 

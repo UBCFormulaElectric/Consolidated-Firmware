@@ -15,6 +15,7 @@
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_led.h"
+#include "io_fsmShdn.h"
 #include "io_chimera.h"
 #include "io_steering.h"
 #include "io_wheels.h"
@@ -22,6 +23,7 @@
 #include "io_suspension.h"
 #include "io_loadCell.h"
 #include "io_apps.h"
+#include "io_bootHandler.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -38,7 +40,7 @@
 
 #include <assert.h>
 
-static CanHandle can = { .hcan = &hcan1 };
+static CanHandle can = { .hcan = &hcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
@@ -257,17 +259,11 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
-        CanMsg     rx_msg         = io_canQueue_popRx();
+        CanMsg rx_msg = io_canQueue_popRx();
+        io_bootHandler_processBootRequest(&rx_msg);
+
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
-    }
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
-        io_chimera_msgRxCallback();
     }
 }
 

@@ -16,6 +16,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_adcs.h"
 
 void tasks_preInit() {}
 
@@ -30,6 +31,7 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
     hw_usb_init();
+    hw_adcs_chipsInit();
 
     jobs_init();
 }
@@ -55,9 +57,7 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_fsm_net_name_tag, id_to_gpio, AdcNetName_fsm_net_name_tag, id_to_adc,
-            I2cNetName_fsm_net_name_tag, id_to_i2c, SpiNetName_fsm_net_name_tag, id_to_spi);
+        io_chimera_v2_mainOrContinue(&chimera_v2_config);
         jobs_run100Hz_tick();
 
         start_ticks += period_ms;

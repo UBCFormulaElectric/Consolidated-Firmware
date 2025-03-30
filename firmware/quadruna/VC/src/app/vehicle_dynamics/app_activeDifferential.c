@@ -30,6 +30,7 @@ void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, Act
 
 float app_activeDifferential_wheelAngleToSpeedDelta(float wheel_angle_deg)
 {
+    // equation below derrived from https://ieeexplore.ieee.org/document/6635706 equation 11
     // angle > 0 = right5
     // angle < = left
 
