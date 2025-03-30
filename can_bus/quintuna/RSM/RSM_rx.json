@@ -1,5 +1,8 @@
 {
     "messages": [
-        "VC_Vitals"
+        "VC_Vitals",
+        "FSM_Brake",
+        "BMS_Vitals",
+        "FSM_Vitals"
     ]
 }
