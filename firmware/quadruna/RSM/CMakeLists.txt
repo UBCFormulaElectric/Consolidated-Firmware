@@ -166,5 +166,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quadruna_RSM_test" PRIVATE "quadruna_RSM_jsoncan" "quadruna_RSM_fakes" "shared_fakes" "m")
+    target_link_libraries("quadruna_RSM_test" PRIVATE "quadruna_RSM_jsoncan" "quadruna_RSM_fakes" "m")
 ENDIF ()

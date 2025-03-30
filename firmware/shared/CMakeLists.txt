@@ -25,5 +25,5 @@ IF("${TARGET}" STREQUAL "test")
     # jsoncan lib
     jsoncan_library("shared" "quadruna" "${CMAKE_CURRENT_BINARY_DIR}")
 
-    target_link_libraries("shared_test" PRIVATE "quadruna_shared_jsoncan" "shared_fakes" "shared_test_fakes")
+    target_link_libraries("shared_test" PRIVATE "quadruna_shared_jsoncan" "shared_test_fakes")
 ENDIF()

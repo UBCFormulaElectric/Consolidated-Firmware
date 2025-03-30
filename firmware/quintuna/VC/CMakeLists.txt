@@ -160,5 +160,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes" "shared_fakes")
+    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes")
 endif ()
