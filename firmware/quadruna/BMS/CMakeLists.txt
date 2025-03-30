@@ -177,5 +177,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quadruna_BMS_test" "quadruna_BMS_jsoncan" "quadruna_BMS_fakes" "shared_fakes")
+    target_link_libraries("quadruna_BMS_test" PRIVATE "quadruna_BMS_jsoncan" "quadruna_BMS_fakes" "shared_fakes")
 ENDIF ()
