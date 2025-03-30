@@ -3,8 +3,8 @@
 import 'dart:io';
 import 'package:dimos/data/services/can_api.dart';
 import 'package:dimos/data/services/can_variables.dart';
+import 'package:dimos/routing/dev_router.dart';
 import 'package:dimos/ui/core/themes/themes.dart';
-import 'package:dimos/ui/low_voltage/lv_screen.dart';
 import 'package:dimos/ui/notificationbar/notification_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
@@ -61,15 +61,26 @@ class _AppState extends State<App> {
       providers: [
         ChangeNotifierProvider(create: (_) => _warningsList),
         ChangeNotifierProvider(create: (_) => _speedInteger),
+        ChangeNotifierProvider(create: (_) => RouterProvider())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
         home: Scaffold(
           appBar: NotificationBar(),
-          body: Center(child: LVScreen()),
-        ),
-      ),
+          body: Center(
+            child: Row(
+              spacing: 10,
+              children: [
+                  Expanded(flex: 6, child: Consumer<RouterProvider>(
+                    builder: (context, navigation, _) => navigation.currentPage,
+                  )),
+                  Expanded(flex: 2, child: RouterPanel())
+              ]
+            )
+          )
+        )
+      )
     );
   }
 }

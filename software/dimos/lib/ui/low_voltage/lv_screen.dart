@@ -60,15 +60,15 @@ class LVScreen extends StatelessWidget {
               ),
               child: ShutdownLoop()
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => RacingScreen()),
-              );
-            },
-            child: const Text('Speed'),
-          )
+          // ElevatedButton(
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => RacingScreen()),
+          //     );
+          //   },
+          //   child: const Text('Speed'),
+          // )
         ]
       )
     );

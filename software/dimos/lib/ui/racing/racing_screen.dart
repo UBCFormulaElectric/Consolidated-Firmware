@@ -22,12 +22,12 @@ class RacingScreen extends StatelessWidget{
                 speedInteger.speed.toString(),
                 style: Theme.of(context).textTheme.bodyLarge
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Go back to LV'),
-              )
+              // ElevatedButton(
+              //   onPressed: () {
+              //     Navigator.pop(context);
+              //   },
+              //   child: const Text('Go back to LV'),
+              // )
             ]
           )
         );
