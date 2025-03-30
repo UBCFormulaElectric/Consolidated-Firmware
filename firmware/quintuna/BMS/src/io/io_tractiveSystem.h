@@ -1,25 +1,10 @@
 #pragma once
 
-#ifdef TARGET_EMBEDDED
-#include "hw_adc.h"
-
-typedef struct
-{
-    const AdcChannel *ts_vsense_channel_P;
-    const AdcChannel *ts_vsense_channel_N;
-    const AdcChannel *ts_isense_high_res_channel;
-    const AdcChannel *ts_isense_low_res_channel;
-} TractiveSystemConfig;
-#else
-#include "app_utils.h"
-EMPTY_STRUCT(TractiveSystemConfig);
-#endif
-
 /**
  * Initialize the tractive system driver.
  * @param ts_config Config struct.
  */
-void io_tractiveSystem_init(const TractiveSystemConfig *ts_config);
+void io_tractiveSystem_init(void);
 
 /**
  * Convert the given ADC voltage to tractive system voltage

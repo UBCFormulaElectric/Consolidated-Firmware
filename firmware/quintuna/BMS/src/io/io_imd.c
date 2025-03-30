@@ -1,11 +1,10 @@
 #include "io_imd.h"
-#include <assert.h>
+#include "hw_pwms.h"
 #include "main.h"
 #include "io_time.h"
+#include <assert.h>
 
 #define PWM_TICKS_MAX 255
-
-static PwmInput pwm_input;
 
 static uint8_t pwm_counter = 0;
 /*
@@ -26,26 +25,21 @@ uint8_t io_imd_pwmCounterTick(void)
     return pwm_counter;
 }
 
-void io_imd_init(void)
-{
-    io_pwmInput_init(&pwm_input, &imd_pwm_input_config);
-}
-
 float io_imd_getFrequency(void)
 {
-    return hw_pwmInput_getFrequency(&pwm_input);
+    return hw_pwmInput_getFrequency(&imd_pwm_input);
 }
 
 float io_imd_getDutyCycle(void)
 {
-    return hw_pwmInput_getDutyCycle(&pwm_input);
+    return hw_pwmInput_getDutyCycle(&imd_pwm_input);
 }
 
 void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    assert(htim == pwm_input.config->htim);
+    assert(htim == imd_pwm_input.htim);
 
-    hw_pwmInput_tick(&pwm_input);
+    hw_pwmInput_tick(&imd_pwm_input);
     pwm_counter = 0; // Reset the ticks since the last pwm reading
     
 }
