@@ -32,6 +32,9 @@ ENDIF ()
 
 
 add_subdirectory(third_party)
+if("${TARGET}" STREQUAL "test")
+    add_subdirectory(test)
+endif ()
 add_subdirectory(shared)
 IF ("${TARGET}" STREQUAL "binary")
     add_subdirectory(chimera)
