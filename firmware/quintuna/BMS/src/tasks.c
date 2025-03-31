@@ -41,7 +41,7 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
+        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

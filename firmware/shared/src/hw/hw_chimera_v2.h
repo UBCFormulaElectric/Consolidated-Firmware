@@ -54,7 +54,7 @@ typedef struct
     // A table of Protobuf-generated net names to SPI peripherals.
     const SpiDevice **id_to_spi;
 #endif
-} io_chimera_v2_Config;
+} hw_chimera_v2_Config;
 
 /**
  * @brief A flag set internally by chimera indicating if it is running, exposed to block other jobs.
@@ -65,4 +65,4 @@ extern bool io_chimera_v2_enabled;
  * @brief The main Chimera loop - will run chimera_v2 if and only if the USB device is connected.
  * @param config Collection of protobuf enum to peripheral tables, and net name tags.
  */
-void io_chimera_v2_mainOrContinue(io_chimera_v2_Config *config);
+void hw_chimera_v2_mainOrContinue(hw_chimera_v2_Config *config);

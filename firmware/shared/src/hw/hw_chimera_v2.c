@@ -19,7 +19,7 @@ bool io_chimera_v2_enabled = false;
 #include "hw_gpio.h"
 
 // Convert a given GpioNetName to a GPIO pin.
-static const Gpio *io_chimera_v2_getGpio(io_chimera_v2_Config *config, const GpioNetName *net_name)
+static const Gpio *io_chimera_v2_getGpio(hw_chimera_v2_Config *config, const GpioNetName *net_name)
 {
     if (config->gpio_net_name_tag != net_name->which_name)
     {
@@ -52,7 +52,7 @@ static const Gpio *io_chimera_v2_getGpio(io_chimera_v2_Config *config, const Gpi
 #include "hw_adc.h"
 
 // Convert a given AdcNetName to an ADC channel pin.
-static const AdcChannel *io_chimera_v2_getAdc(io_chimera_v2_Config *config, const AdcNetName *net_name)
+static const AdcChannel *io_chimera_v2_getAdc(hw_chimera_v2_Config *config, const AdcNetName *net_name)
 {
     if (config->adc_net_name_tag != net_name->which_name)
     {
@@ -76,7 +76,7 @@ static const AdcChannel *io_chimera_v2_getAdc(io_chimera_v2_Config *config, cons
 #include "hw_i2c.h"
 
 // Convert a given I2C enum to an I2C device.
-static const I2cDevice *io_chimera_v2_getI2c(io_chimera_v2_Config *config, const I2cNetName *net_name)
+static const I2cDevice *io_chimera_v2_getI2c(hw_chimera_v2_Config *config, const I2cNetName *net_name)
 {
     if (config->i2c_net_name_tag != net_name->which_name)
     {
@@ -100,7 +100,7 @@ static const I2cDevice *io_chimera_v2_getI2c(io_chimera_v2_Config *config, const
 #include "hw_spi.h"
 
 // Convert a given SPI enum to a SPI device.
-static const SpiDevice *io_chimera_v2_getSpi(io_chimera_v2_Config *config, const SpiNetName *net_name)
+static const SpiDevice *io_chimera_v2_getSpi(hw_chimera_v2_Config *config, const SpiNetName *net_name)
 {
     if (config->spi_net_name_tag != net_name->which_name)
     {
@@ -119,7 +119,7 @@ static const SpiDevice *io_chimera_v2_getSpi(io_chimera_v2_Config *config, const
 #endif
 
 // Handle an rpc message.
-void io_chimera_v2_handleContent(io_chimera_v2_Config *config, uint8_t *content, uint16_t length)
+void hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *content, uint16_t length)
 {
     // Setup request.
     ChimeraV2Request request        = ChimeraV2Request_init_zero;
@@ -354,7 +354,7 @@ void io_chimera_v2_handleContent(io_chimera_v2_Config *config, uint8_t *content,
         LOG_ERROR("Chimera: Error transmitting response packet.");
 }
 
-void io_chimera_v2_mainOrContinue(io_chimera_v2_Config *config)
+void hw_chimera_v2_mainOrContinue(hw_chimera_v2_Config *config)
 {
     io_chimera_v2_enabled = true;
 
@@ -394,7 +394,7 @@ void io_chimera_v2_mainOrContinue(io_chimera_v2_Config *config)
         LOG_PRINTF("\n");
 
         // Parse content and return response.
-        io_chimera_v2_handleContent(config, content, length);
+        hw_chimera_v2_handleContent(config, content, length);
 
         LOG_INFO("Chimera: Processed %d requests", requests_processed);
     }

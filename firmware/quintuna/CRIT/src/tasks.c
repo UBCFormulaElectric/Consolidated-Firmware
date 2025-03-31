@@ -74,7 +74,7 @@ void tasks_run100Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
+        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         if (!io_chimera_v2_enabled)
             jobs_run100Hz_tick();

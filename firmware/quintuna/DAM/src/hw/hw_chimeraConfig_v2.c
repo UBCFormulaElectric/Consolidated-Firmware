@@ -22,7 +22,7 @@ const Gpio *id_to_gpio[] = {
 
 const I2cDevice *id_to_i2c[] = { [dam_I2cNetName_I2C_RTC] = &rtc_i2c };
 
-io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_dam_net_name_tag,
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_dam_net_name_tag,
                                            .id_to_gpio        = id_to_gpio,
                                            .i2c_net_name_tag  = I2cNetName_dam_net_name_tag,
                                            .id_to_i2c         = id_to_i2c };

@@ -6,4 +6,4 @@ extern const AdcChannel *id_to_adc[];
 extern const I2cDevice  *id_to_i2c[];
 
 // Exposed Chimera V2 configs.
-extern io_chimera_v2_Config chimera_v2_config;
+extern hw_chimera_v2_Config chimera_v2_config;

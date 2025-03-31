@@ -72,7 +72,7 @@ _Noreturn void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
+        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
         jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the

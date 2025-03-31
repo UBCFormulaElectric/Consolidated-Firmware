@@ -50,7 +50,7 @@ const SpiDevice *id_to_spi[] = {
     [bms_SpiNetName_SPI_LTC6813_LS] = &ltc6813_spi_ls,
 };
 
-io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_bms_net_name_tag,
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_bms_net_name_tag,
                                            .id_to_gpio        = id_to_gpio,
                                            .adc_net_name_tag  = AdcNetName_bms_net_name_tag,
                                            .id_to_adc         = id_to_adc,

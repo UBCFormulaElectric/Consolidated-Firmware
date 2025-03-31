@@ -21,7 +21,7 @@ const AdcChannel *id_to_adc[] = { [fsm_AdcNetName_ADC_SUSP_FL] = &susp_fl,     [
 
 const I2cDevice *id_to_i2c[] = { [fsm_I2cNetName_I2C_IMU] = &imu_i2c };
 
-io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_fsm_net_name_tag,
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_fsm_net_name_tag,
                                            .id_to_gpio        = id_to_gpio,
                                            .adc_net_name_tag  = AdcNetName_fsm_net_name_tag,
                                            .id_to_adc         = id_to_adc,

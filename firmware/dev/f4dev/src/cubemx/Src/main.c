@@ -603,7 +603,7 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    io_chimera_v2_mainOrContinue(&chimera_v2_config);
+    hw_chimera_v2_mainOrContinue(&chimera_v2_config);
     /* USER CODE END 5 */
 }
 
