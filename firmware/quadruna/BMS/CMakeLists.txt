@@ -160,6 +160,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_led.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
