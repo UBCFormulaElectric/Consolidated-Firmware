@@ -1,9 +1,10 @@
-#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/bms.pb.h"
-#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/shared.pb.h"
+#include "bms.pb.h"
+#include "shared.pb.h"
+#include "hw_chimeraConfig_v2.h"
+
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_spis.h"
-#include "io_chimera_v2.h"
 
 const Gpio *id_to_gpio[] = { [bms_GpioNetName_GPIO_LEDB]                  = &led_b_pin,
                              [bms_GpioNetName_GPIO_BSPD_OK]               = &bspd_ok_current_status_pin,

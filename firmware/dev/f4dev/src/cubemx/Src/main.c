@@ -31,11 +31,11 @@
 #include "hw_usb.h"
 #include "shared.pb.h"
 #include "f4dev.pb.h"
-#include "io_chimera_v2.h"
+#include "hw_chimera_v2.h"
 #include "hw_gpio.h"
 #include "hw_gpios.h"
 #include "hw_adcs.h"
-#include "io_chimeraConfig_v2.h"
+#include "hw_chimeraConfig_v2.h"
 #include "io_log.h"
 /* USER CODE END Includes */
 

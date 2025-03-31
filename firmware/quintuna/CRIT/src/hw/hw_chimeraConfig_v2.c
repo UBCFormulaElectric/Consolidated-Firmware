@@ -1,7 +1,7 @@
-#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/crit.pb.h"
-#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/shared.pb.h"
+#include "crit.pb.h"
+#include "shared.pb.h"
 #include "hw_gpios.h"
-#include "../io/io_chimeraConfig_v2.h"
+#include "hw_chimeraConfig_v2.h"
 
 // Chimera V2 enums to GPIO peripherals.
 const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boot,
