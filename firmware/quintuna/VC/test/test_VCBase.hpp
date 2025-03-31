@@ -6,7 +6,7 @@ extern "C"
 #include "jobs.h"
 }
 
-class VCBaseStateMachineTest : public EcuTestBase
+class VCBaseTest : public EcuTestBase
 {
     void board_setup() override { jobs_init(); }
     void board_teardown() override {}
