@@ -151,13 +151,14 @@ elseif ("${TARGET}" STREQUAL "test")
     jsoncan_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # FakeIO
-#    set(HEADERS_TO_FAKE
+    set(HEADERS_TO_FAKE
 #            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
-#    )
-#    create_fake_library(
-#            "quintuna_VC_fakes"
-#            "${HEADERS_TO_FAKE}"
-#    )
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+    )
+    create_fake_library(
+            "quintuna_VC_fakes"
+            "${HEADERS_TO_FAKE}"
+    )
 
     target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes")
 endif ()

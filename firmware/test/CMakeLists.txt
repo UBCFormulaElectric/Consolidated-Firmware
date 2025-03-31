@@ -53,11 +53,6 @@ function(create_fake_library
     target_include_directories(${FAKE_LIB_NAME} INTERFACE ${FAKEGEN_DIR} ${FAKE_HDR_DIRS})
 endfunction()
 
-file(GLOB IO_HEADERS "${SHARED_IO_INCLUDE_DIR}/*.h")
-create_fake_library(
-        "shared_fakes"
-        "${IO_HEADERS}"
-)
 message("  🔃 Registering function compile_gtest_executable")
 function(compile_gtest_executable
         TEST_EXECUTABLE_NAME
@@ -76,7 +71,7 @@ function(compile_gtest_executable
             PUBLIC
             -Wall
     )
-    target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gtest_main shared_fakes)
+    target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
             COMMAND ${TEST_EXECUTABLE_NAME})
 endfunction()

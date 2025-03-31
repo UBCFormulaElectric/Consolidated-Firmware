@@ -181,6 +181,11 @@ ELSEIF ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/io_log.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_canLogging.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_imu.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"

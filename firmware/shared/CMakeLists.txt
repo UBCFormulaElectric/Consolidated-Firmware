@@ -14,5 +14,14 @@ IF("${TARGET}" STREQUAL "test")
     # jsoncan lib
     jsoncan_library("shared" "quadruna" "${CMAKE_CURRENT_BINARY_DIR}")
 
-    target_link_libraries("shared_test" PRIVATE "quadruna_shared_jsoncan" "shared_fakes")
+    # io time :)
+    set(HDRS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_led.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_switch.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_mechanicalLoad.h"
+    )
+    create_fake_library("shared_test_fakes" "${HDRS_TO_FAKE}")
+
+    target_link_libraries("shared_test" PRIVATE "quadruna_shared_jsoncan" "shared_test_fakes")
 ENDIF()
