@@ -101,6 +101,9 @@ For users of this package, checkout [`./docs`](./docs).
 ## Development
 Chimera V2 has two ends - board side and Python side. Board side code can be found at [`hw_chimera_v2.h`](../shared/src/io/hw_chimera_v2.h)/[`hw_chimera_v2.c`](../shared/src/io/hw_chimera_v2.c). Python side code is in the [same directory as this README](.).
 
+### Versioning
+Every change to Chimera V2 should correspond with a minor version bump. An update to support a new car should correspond with a major version bump.
+
 ### Configuring a New Device
 Open up the `.ioc` file of your board in STM32CubeMX, and search fot the `USB_DEVICE` setting. Set the device class to `Communication Device Class (Virtual Port Com)`.
 
