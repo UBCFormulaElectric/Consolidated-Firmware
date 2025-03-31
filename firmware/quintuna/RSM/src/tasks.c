@@ -10,8 +10,8 @@
 #include "io_canTx.h"
 #include "io_jsoncan.h"
 // chimera
-#include "io_chimera_v2.h"
-#include "io_chimeraConfig_v2.h"
+#include "hw_chimera_v2.h"
+#include "hw_chimeraConfig_v2.h"
 #include "shared.pb.h"
 // hw
 // #include "hw_bootup.h"
