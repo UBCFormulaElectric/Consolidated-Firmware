@@ -9,25 +9,11 @@
 #include "io_canQueue.h"
 #include "io_chimera_v2.h"
 #include "io_chimeraConfig_v2.h"
-#include "io_driveMode.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
-#include "hw_gpio.h"
-#include "hw_gpios.h"
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-    if (GPIO_Pin == ROT_A_Pin || GPIO_Pin == ROT_B_Pin)
-    {
-        uint8_t a = hw_gpio_readPin(&rot_a);
-        uint8_t b = hw_gpio_readPin(&rot_b);
-
-        rotaryEncoder_update(a, b);
-    }
-}
 
 void tasks_preInit() {}
 

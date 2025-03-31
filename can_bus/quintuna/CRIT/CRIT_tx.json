@@ -25,6 +25,12 @@
             },
             "TorqueVecSwitch": {
                 "enum": "SwitchState"
+            },
+            "LaunchControlSwitch": {
+                "enum": "SwitchState"
+            },
+            "TelemSwitch": {
+                "enum": "SwitchState"
             }
         }
     },
@@ -83,7 +89,7 @@
     "WatermarkLevel": {
         "msg_id": 815,
         "cycle_time": 100,
-        "description":  "",
+        "description": "",
         "signals": {
             "StackWaterMarkHighTask1HzLevel": {
                 "resolution": 1,

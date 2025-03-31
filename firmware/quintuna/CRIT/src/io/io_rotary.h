@@ -3,18 +3,18 @@
 #include <stdint.h>
 
 /**
- * @brief Initialize the encoder.
+ * @brief Initialize the rotary.
  */
 void io_rotary_init(void);
 
 /**
- * @brief Update the encoder state.
+ * @brief Update the rotary state.
  * @param channelA updated channel A value
  * @param channelB updated channe; B value
  */
-int32_t io_rotary_toggleEventHandler(void);
+uint32_t io_rotary_toggleEventHandler(void);
 
 /**
- * @brief Handle the even where the rotary is pressed.
+ * @brief Handle the event where the rotary is pressed.
  */
 uint8_t io_rotary_pressEventHandler(void);

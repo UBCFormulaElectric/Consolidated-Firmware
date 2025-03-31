@@ -53,6 +53,10 @@
         "MissingRSMHeartbeat": {
             "id": 852,
             "description": "Missing heartbeat signal from the RSM."
+        },
+        "MissingDAMHeartbeat": {
+            "id": 852,
+            "description": "Missing heartbeat signal from the DAM."
         }
     }
 }

@@ -8,6 +8,7 @@
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
+#include "io_rotary.h"
 
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {
@@ -27,6 +28,8 @@ void jobs_init(void)
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
+
+    io_rotaryEncoder_init();
 }
 
 void jobs_run1Hz_tick(void)
