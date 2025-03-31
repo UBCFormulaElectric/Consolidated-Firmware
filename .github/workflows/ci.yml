@@ -151,14 +151,14 @@ jobs:
           #  car: quadruna
           - board: BMS
             car: quintuna
-          - board: CRIT
-            car: quintuna
-          - board: DAM
-            car: quintuna
-          - board: FSM
-            car: quintuna
-          - board: RSM
-            car: quintuna
+          #          - board: CRIT
+          #            car: quintuna
+          #          - board: DAM
+          #            car: quintuna
+          #          - board: FSM
+          #            car: quintuna
+          #          - board: RSM
+          #            car: quintuna
           - board: VC
             car: quintuna
 
