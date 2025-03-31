@@ -121,10 +121,10 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_VC_app.elf" PRIVATE 
-            "quintuna_VC_stm32cube" 
-            "quintuna_VC_jsoncan" 
-            "quintuna_VC_commit_info" 
+    target_link_libraries("quintuna_VC_app.elf" PRIVATE
+            "quintuna_VC_stm32cube"
+            "quintuna_VC_jsoncan"
+            "quintuna_VC_commit_info"
             "logfs_cm7"
             "sbg_ecom_cm7"
             "chimera_v2_proto_cm7")
@@ -138,21 +138,21 @@ if ("${TARGET}" STREQUAL "binary")
     )
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
-    list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     compile_gtest_executable(
             "quintuna_VC_test"
             "${SRCS}"
             "${INCLUDE_DIRS}"
     )
+
     # JSONCAN
     jsoncan_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # FakeIO
     set(HEADERS_TO_FAKE
-#            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
+            #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
     )
     create_fake_library(

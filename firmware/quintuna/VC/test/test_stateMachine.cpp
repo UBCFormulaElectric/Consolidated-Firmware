@@ -1,6 +1,6 @@
-#include "test_VCBaseStateMachine.hpp"
+#include "test_VCBase.hpp"
 
-class VCStateMachineTest : public VcBaseStateMachineTest
+class VCStateMachineTest : public VCBaseTest
 {
 };
 

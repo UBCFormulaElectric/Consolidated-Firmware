@@ -7,7 +7,9 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
-file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
+set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
+set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
@@ -127,4 +129,28 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
 elseif ("${TARGET}" STREQUAL "test")
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    compile_gtest_executable(
+            "quintuna_BMS_test"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+    )
+
+    # JSONCAN
+    jsoncan_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}")
+
+    # FakeIO
+    set(HEADERS_TO_FAKE
+            #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+    )
+    create_fake_library(
+            "quintuna_BMS_fakes"
+            "${HEADERS_TO_FAKE}"
+    )
+
+    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes")
 endif ()
