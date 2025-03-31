@@ -1,8 +1,8 @@
-#include "dam.pb.h"
-#include "shared.pb.h"
+#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/dam.pb.h"
+#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/shared.pb.h"
 #include "hw_gpios.h"
 #include "hw_i2cs.h"
-#include "io_chimeraConfig_v2.h"
+#include "../io/io_chimeraConfig_v2.h"
 
 const Gpio *id_to_gpio[] = {
     [dam_GpioNetName_GPIO_TELEM_PWR_EN]  = &telem_pwr_en_pin,

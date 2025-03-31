@@ -1,5 +1,5 @@
 #include "main.h"
-#include "io_chimera_v2.h"
+#include "hw_chimera_v2.h"
 #include "hw_usb.h"
 #include "io_log.h"
 

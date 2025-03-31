@@ -1,5 +1,5 @@
-#include "bms.pb.h"
-#include "shared.pb.h"
+#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/bms.pb.h"
+#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/shared.pb.h"
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_spis.h"

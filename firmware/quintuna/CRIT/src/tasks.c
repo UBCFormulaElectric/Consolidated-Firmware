@@ -7,13 +7,13 @@
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
-#include "io_chimera_v2.h"
-#include "io_chimeraConfig_v2.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_chimera_v2.h"
+#include "hw_chimeraConfig_v2.h"
 
 void tasks_preInit() {}
 

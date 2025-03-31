@@ -1,9 +1,9 @@
-#include "rsm.pb.h"
-#include "shared.pb.h"
+#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/rsm.pb.h"
+#include "../../../../../build_fw_dev/firmware/chimera_v2/proto/shared.pb.h"
 #include "hw_gpios.h"
 #include "hw_i2cs.h"
 #include "hw_adcs.h"
-#include "io_chimeraConfig_v2.h"
+#include "../io/io_chimeraConfig_v2.h"
 
 const Gpio *id_to_gpio[] = { [rsm_GpioNetName_GPIO_LED]                 = &led_pin,
                              [rsm_GpioNetName_GPIO_BRAKE_LIGHT_EN]      = &brake_light_en_pin,
