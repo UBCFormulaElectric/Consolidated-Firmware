@@ -149,7 +149,6 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
-            "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_apps.h"
