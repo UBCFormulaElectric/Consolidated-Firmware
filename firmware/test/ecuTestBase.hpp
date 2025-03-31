@@ -14,7 +14,7 @@ class EcuTestBase : public testing::Test
     virtual void board_setup()    = 0;
     virtual void board_teardown() = 0;
 
-protected:
+  protected:
     void SetUp() override
     {
         // At t = 0ms, every on-tick function will be executed because of how we

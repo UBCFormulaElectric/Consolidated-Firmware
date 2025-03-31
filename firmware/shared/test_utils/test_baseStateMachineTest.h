@@ -3,7 +3,8 @@
 #include <gtest/gtest.h>
 #include "fake_io_time.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_stateMachine.h"
 }
 
