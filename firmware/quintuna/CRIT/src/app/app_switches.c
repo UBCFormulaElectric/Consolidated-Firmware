@@ -1,6 +1,5 @@
 #include "app_switches.h"
 #include "io_switches.h"
-#include "io_switch.h"
 #include "app_canTx.h"
 
 void app_switches_broadcast(void)

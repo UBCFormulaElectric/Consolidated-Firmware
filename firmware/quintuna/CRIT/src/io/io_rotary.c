@@ -1,8 +1,6 @@
-#include "hw_gpio.h"
-#include "hw_gpios.h"
-
 #include "io_rotary.h"
-#include "io_time.h"
+
+#include "hw_gpios.h"
 #include "io_time.h"
 
 #define DEBOUNCE_TIME_MS 50
@@ -17,10 +15,10 @@ static uint8_t  lastSwitchState = 1; // Internal pull-up so unpressed state is h
 /*
  * Lookup table for state transitions.
  * The index is calculated by concatenating the previous state (MSB 2 bits)
- * and the current state (2 LSB bits). Eachh table entry gives the movement:
+ * and the current state (2 LSB bits). Each table entry gives the movement:
  *   +1 for a step in one direction
  *   -1 for the opposite
- *    0 for no change/inbalid.
+ *    0 for no change/invalid.
  */
 static const int8_t encoder_table[16] = {
     0,  -1, 1,  0,  // prev 00: 00, 01, 10, 11
