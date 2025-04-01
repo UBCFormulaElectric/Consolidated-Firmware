@@ -15,6 +15,10 @@ set(MAIN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 file(GLOB_RECURSE MAIN_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(REMOVE_ITEM MAIN_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 
+# IO
+set(IO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/io")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+
 # Shared HW srcs.
 set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
