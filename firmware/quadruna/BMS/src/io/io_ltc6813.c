@@ -206,7 +206,7 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
         else
         {
             seg_b->dcc_0     = 0;
-            seg_a->dcc_1_8   = 0xff;
+            seg_a->dcc_1_8   = 0;
             seg_a->dcc_9_12  = 0;
             seg_b->dcc_13_16 = 0;
             seg_b->dcc_17    = 0;
