@@ -44,8 +44,6 @@ extern "C"
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
     extern CAN_HandleTypeDef hcan2;
-    extern SPI_HandleTypeDef hspi2;
-    extern SPI_HandleTypeDef hspi3;
     extern TIM_HandleTypeDef htim4;
     extern TIM_HandleTypeDef htim12;
 
