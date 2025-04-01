@@ -179,7 +179,6 @@ int main(void)
     MX_I2C3_Init();
     MX_TIM4_Init();
     MX_TIM2_Init();
-
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
     while (true)
@@ -492,7 +491,7 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 1 */
     htim2.Instance               = TIM2;
-    htim2.Init.Prescaler         = TIM2_PRESCALER;
+    htim2.Init.Prescaler         = TIM2_PRESCALER - 1;
     htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim2.Init.Period            = TIM2_ARR - 1;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
@@ -510,7 +509,7 @@ static void MX_TIM2_Init(void)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
     {

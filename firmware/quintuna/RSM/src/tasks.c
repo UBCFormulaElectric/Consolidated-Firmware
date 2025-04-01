@@ -34,30 +34,6 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-    jobs_init();
-}
-
-void tasks_deinit()
-{
-    HAL_TIM_Base_Start_IT(&htim3);
-    HAL_TIM_Base_DeInit(&htim3);
-
-    HAL_TIM_Base_Start_IT(&htim4);
-    HAL_TIM_Base_DeInit(&htim4);
-
-    HAL_ADC_Stop_IT(&hadc1);
-    HAL_ADC_DeInit(&hadc1);
-
-    HAL_DMA_Abort_IT(&hdma_adc1);
-    HAL_DMA_DeInit(&hdma_adc1);
-}
-
-=======
-=======
->>>>>>> pranay-rijwal/RSM_io
     hw_gpio_writePin(&brake_light_en_pin, false);
 
     hw_adcs_chipsInit();
@@ -65,10 +41,6 @@ void tasks_deinit()
     jobs_init();
 }
 
-<<<<<<< HEAD
->>>>>>> master
-=======
->>>>>>> pranay-rijwal/RSM_io
 _Noreturn void tasks_run1Hz()
 {
     static const TickType_t period_ms   = 1000U;
