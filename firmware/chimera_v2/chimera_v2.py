@@ -6,14 +6,12 @@ Provides tooling to debug devices over USB, CAN, etc.
 
 # Typing.
 from __future__ import annotations
-
-import signal
-
-# Threading.
-import threading
 import types
 from typing import Any, Dict, Optional
 
+# Threading.
+import signal
+import threading
 import can
 import cantools
 
@@ -45,6 +43,7 @@ import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
 import proto_autogen.vc_pb2
 
+# USB Manufacturer ID, specified per-board in STM32 CubeMX.
 _MANUFACTURER = "ubc_formula_electric"
 
 # Roughly 3 years.
@@ -549,7 +548,7 @@ class SpiDevice:
         assert response.WhichOneof("payload") == "spi_transmit"
         assert response.spi_transmit.success
 
-    def transact(self, request_data: bytes, response_length: int):
+    def transact(self, request_data: bytes, response_length: int) -> bytes:
         """Run a full transaction (tx/rx) to the SPI device.
 
         Args:
@@ -574,7 +573,7 @@ class SpiDevice:
         # Wait for response.
         response = self._owner._read()
         assert response.WhichOneof("payload") == "spi_transaction"
-        assert response.spi_transaction.rx_data
+        return response.spi_transaction.rx_data
 
 
 class F4Dev(_Board):
