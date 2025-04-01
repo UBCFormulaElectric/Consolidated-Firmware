@@ -48,7 +48,7 @@ _Noreturn void tasks_run1Hz()
 
     for (;;)
     {
-        if (!io_chimera_v2_enabled)
+        if (!hw_chimera_v2_enabled)
             jobs_run1Hz_tick();
 
         start_ticks += period_ms;
@@ -65,7 +65,7 @@ _Noreturn void tasks_run100Hz()
     {
         hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
-        if (!io_chimera_v2_enabled)
+        if (!hw_chimera_v2_enabled)
             jobs_run100Hz_tick();
 
         start_ticks += period_ms;
@@ -80,7 +80,7 @@ _Noreturn void tasks_run1kHz()
 
     for (;;)
     {
-        if (!io_chimera_v2_enabled)
+        if (!hw_chimera_v2_enabled)
             jobs_run1kHz_tick();
 
         start_ticks += period_ms;

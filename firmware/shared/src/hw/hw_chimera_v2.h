@@ -59,7 +59,7 @@ typedef struct
 /**
  * @brief A flag set internally by chimera indicating if it is running, exposed to block other jobs.
  */
-extern bool io_chimera_v2_enabled;
+extern bool hw_chimera_v2_enabled;
 
 /**
  * @brief The main Chimera loop - will run chimera_v2 if and only if the USB device is connected.
