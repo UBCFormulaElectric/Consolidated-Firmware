@@ -534,12 +534,12 @@ bool io_ltc6813_startThermistorsAdcConversion(void)
     return io_ltc6813_sendCommand(ADAX);
 }
 
-#define MAX_NUM_ADC_COMPLETE_CHECKS 10U
+#define MAX_NUM_ADC_COMPLETE_CHECKS (10U)
 bool io_ltc6813_pollAdcConversions(void)
 {
     // Prepare command to get the status of ADC conversions
 #define PLADC (0x0714U)
-#define ADC_CONV_INCOMPLETE (0xFF)
+#define ADC_CONV_COMPLETE (0U)
     const raw_cmd tx_cmd = build_tx_cmd(PLADC);
     for (uint8_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
     {
@@ -548,7 +548,7 @@ bool io_ltc6813_pollAdcConversions(void)
         {
             return false;
         }
-        if (rx_data != ADC_CONV_INCOMPLETE)
+        if (rx_data == ADC_CONV_COMPLETE)
         {
             return true;
         }
