@@ -99,7 +99,7 @@ Then click Replace Driver.
 For users of this package, checkout [`./docs`](./docs).
 
 ## Development
-Chimera V2 has two ends - board side and Python side. Board side code can be found at [`io_chimera_v2.h`](../shared/src/io/io_chimera_v2.h)/[`io_chimera_v2.c`](../shared/src/io/io_chimera_v2.c). Python side code is in the [same directory as this README](.).
+Chimera V2 has two ends - board side and Python side. Board side code can be found at [`hw_chimera_v2.h`](../shared/src/io/hw_chimera_v2.h)/[`hw_chimera_v2.c`](../shared/src/io/hw_chimera_v2.c). Python side code is in the [same directory as this README](.).
 
 ### Configuring a New Device
 Open up the `.ioc` file of your board in STM32CubeMX, and search fot the `USB_DEVICE` setting. Set the device class to `Communication Device Class (Virtual Port Com)`.
@@ -299,16 +299,16 @@ class F4Dev(_Board):
 
 Note: the `product` field in the `_UsbDevice` initializer is the same as you configured in STM32CubeMX.
 
-The next step is to configure Chimera on the board. Open [`io_chimera_v2.c`](../shared/src/io/io_chimera_v2.c). Modify `io_chimera_v2_getGpio`, `io_chimera_v2_getAdc`, `io_chimera_v2_getSpi`, and `io_chimera_v2_getI2c` with a branch corresponding to your board.
+The next step is to configure Chimera on the board. Open [`hw_chimera_v2.c`](../shared/src/io/hw_chimera_v2.c). Modify `hw_chimera_v2_getGpio`, `hw_chimera_v2_getAdc`, `hw_chimera_v2_getSpi`, and `hw_chimera_v2_getI2c` with a branch corresponding to your board.
 
-> Note: If your board does not have any of a given peripheral, do not add such a branch. Eg, a board with no SPI peripherals should not have a branch in `io_chimera_v2_getSpi`.
+> Note: If your board does not have any of a given peripheral, do not add such a branch. Eg, a board with no SPI peripherals should not have a branch in `hw_chimera_v2_getSpi`.
 
-eg. For `io_chimera_v2_getGpio` on the F4Dev,
+eg. For `hw_chimera_v2_getGpio` on the F4Dev,
 ```c
 ...
 
 // Convert a given GpioNetName to a GPIO pin.
-static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
+static const Gpio *hw_chimera_v2_getGpio(const GpioNetName *net_name)
 {
     ...
 
@@ -335,19 +335,19 @@ enum GpioNetName {
 
 Now run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh) again to generate the python proto libraries. Also try to build binaries for your board.
 
-To capture these peripherals on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `io` level of your board, create files called `io_chimeraConfig_v2.h`/`io_chimeraConfig_v2.c`.
+To capture these peripherals on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `io` level of your board, create files called `hw_chimeraConfig_v2.h`/`hw_chimeraConfig_v2.c`.
 
-`io_chimeraConfig_v2.h` should look like this,
+`hw_chimeraConfig_v2.h` should look like this,
 
 ```c
 #pragma once
-#include "io_chimera_v2.h"
+#include "hw_chimera_v2.h"
 
 // Exposed Chimera V2 configs.
-extern io_chimera_v2_Config chimera_v2_config;
+extern hw_chimera_v2_Config chimera_v2_config;
 ```
 
-`io_chimeraConfig_v2.c` should declare an `io_chimera_v2_Config` struct by the name `chimera_v2_config`.
+`hw_chimeraConfig_v2.c` should declare an `hw_chimera_v2_Config` struct by the name `chimera_v2_config`.
 
 Eg. On the CRIT,
 ```c
@@ -355,7 +355,7 @@ Eg. On the CRIT,
 #include "shared.pb.h"
 #include "hw_gpios.h"
 #include "hw_spis.h"
-#include "io_chimeraConfig_v2.h"
+#include "hw_chimeraConfig_v2.h"
 
 // Chimera V2 enums to GPIO peripherals.
 const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boot,
@@ -376,22 +376,22 @@ const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boo
 const SpiDevice
     *id_to_spi[] = { [crit_SpiNetName_SPI_LED] = &led_spi, [crit_SpiNetName_SPI_SEVEN_SEG] = &seven_seg_spi };
 
-io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit_net_name_tag,
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit_net_name_tag,
                                            .id_to_gpio        = id_to_gpio,
                                            .spi_net_name_tag  = SpiNetName_crit_net_name_tag,
                                            .id_to_spi         = id_to_spi };
 ```
 
-We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_mainOrContinue` in your desired task (You need to also include `io_chimeraConfig_v2.h` at the top of your file).
+We can finally run chimera. Include the shared `hw_chimera_v2.h` library, and run `hw_chimera_v2_mainOrContinue` in your desired task (You need to also include `hw_chimeraConfig_v2.h` at the top of your file).
 
 Eg.,
 ```c
-io_chimera_v2_mainOrContinue(&chimera_v2_config);
+hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 ```
 
-Note: you might want to use the provided `io_chimera_v2_enabled` flag to disable other non-chimera jobs.
+Note: you might want to use the provided `hw_chimera_v2_enabled` flag to disable other non-chimera jobs.
 
-`io_chimera_v2_mainOrContinue` will skip running if no USB is plugged in on boot. It should be called in a loop in one of the tasks (eg. 100 Hz).
+`hw_chimera_v2_mainOrContinue` will skip running if no USB is plugged in on boot. It should be called in a loop in one of the tasks (eg. 100 Hz).
 
 ### Development Environment
 For development, start by changing to [the directory of this README](.), and installing it as a pip package. 

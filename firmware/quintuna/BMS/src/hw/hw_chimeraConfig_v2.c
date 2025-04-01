@@ -1,9 +1,10 @@
 #include "bms.pb.h"
 #include "shared.pb.h"
+#include "hw_chimeraConfig_v2.h"
+
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_spis.h"
-#include "io_chimera_v2.h"
 
 const Gpio *id_to_gpio[] = { [bms_GpioNetName_GPIO_LEDB]                  = &led_b_pin,
                              [bms_GpioNetName_GPIO_BSPD_OK]               = &bspd_ok_current_status_pin,
@@ -49,7 +50,7 @@ const SpiDevice *id_to_spi[] = {
     [bms_SpiNetName_SPI_LTC6813_LS] = &ltc6813_spi_ls,
 };
 
-io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_bms_net_name_tag,
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_bms_net_name_tag,
                                            .id_to_gpio        = id_to_gpio,
                                            .adc_net_name_tag  = AdcNetName_bms_net_name_tag,
                                            .id_to_adc         = id_to_adc,
