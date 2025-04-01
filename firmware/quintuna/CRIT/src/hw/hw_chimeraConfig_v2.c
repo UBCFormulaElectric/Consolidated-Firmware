@@ -1,7 +1,7 @@
 #include "crit.pb.h"
 #include "shared.pb.h"
 #include "hw_gpios.h"
-#include "io_chimeraConfig_v2.h"
+#include "hw_chimeraConfig_v2.h"
 
 // Chimera V2 enums to GPIO peripherals.
 const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boot,
@@ -23,5 +23,5 @@ const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boo
                              [crit_GpioNetName_GPIO_SEVEN_SEG_SERIN]      = &seven_seg_serin,
                              [crit_GpioNetName_GPIO_LED_SERIN]            = &led_serin };
 
-io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit_net_name_tag,
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit_net_name_tag,
                                            .id_to_gpio        = id_to_gpio };
