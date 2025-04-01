@@ -12,6 +12,12 @@
 #define THERMISTOR_REGISTER_GROUPS 3
 
 /**
+ * Reads the configuration registers, and returns them into the pointer you give it
+ * @return success of the operation
+ */
+bool io_ltc6813_readConfigurationRegisters();
+
+/**
  * Writes a configuration to all segments on the daisy chain.
  * We have a default configuration. All elements that are not in the default configuration must be
  * present in the config variable passed into the function.

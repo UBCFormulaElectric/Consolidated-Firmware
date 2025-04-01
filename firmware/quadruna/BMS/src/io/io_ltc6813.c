@@ -91,36 +91,57 @@ static raw_cmd build_tx_cmd(const uint16_t command)
     return out;
 }
 
+// as per table 38
+typedef struct __attribute__((__packed__))
+{
+    // byte 1
+    uint8_t adcopt : 1;
+    uint8_t dten : 1;
+    uint8_t refon : 1;
+    uint8_t gpio_1_5 : 5;
+    // byte 2
+    uint8_t vuv_0_7;
+    // byte 3
+    uint8_t vuv_8_11 : 4;
+    uint8_t vov_0_3 : 4;
+    // byte 4
+    uint8_t vov_4_11;
+    // byte 5
+    uint8_t dcc_1_8;
+    // byte 6
+    uint8_t dcc_9_12 : 4;
+    uint8_t dcto : 4;
+    // byte 7/8
+    raw_pec pec;
+} CFGAR;
+
+// as per table 39
+typedef struct __attribute__((__packed__))
+{
+    // byte 1
+    uint8_t gpio_6_9 : 4;
+    uint8_t dcc_13_16 : 4;
+    // byte 2
+    uint8_t dcc_17 : 1;
+    uint8_t dcc_18 : 1;
+    uint8_t dcc_0 : 1;
+    uint8_t dtmen : 1;
+    uint8_t ps : 2;
+    uint8_t fdrf : 1;
+    uint8_t mute : 1;
+    // byte 3-6
+    uint32_t reserved;
+    // byte 7/8
+    raw_pec pec;
+} CFGBR;
+
 /**
- * @param config Configurations that are to be written into the registers
+ * @param balance_config Configuration for the balancing
  * @attention For more information on how to configure the LTC, see table 56
  * @return Success if both succeeded. Fail if at least one failed.
  */
 bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT])
 {
-    // as per table 38
-    typedef struct __attribute__((__packed__))
-    {
-        // byte 1
-        uint8_t adcopt : 1;
-        uint8_t dten : 1;
-        uint8_t refon : 1;
-        uint8_t gpio_1_5 : 5;
-        // byte 2
-        uint8_t vuv_0_7;
-        // byte 3
-        uint8_t vuv_8_11 : 4;
-        uint8_t vov_0_3 : 4;
-        // byte 4
-        uint8_t vov_4_11;
-        // byte 5
-        uint8_t dcc_1_8;
-        // byte 6
-        uint8_t dcc_9_12 : 4;
-        uint8_t dcto : 4;
-        // byte 7/8
-        raw_pec pec;
-    } CFGAR;
     // as per table 33
     struct __attribute__((__packed__))
     {
@@ -129,25 +150,6 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
     } tx_msg_a = { 0 };
     static_assert(sizeof(tx_msg_a) == 4 + 8 * NUM_SEGMENTS);
 
-    // as per table 39
-    typedef struct __attribute__((__packed__))
-    {
-        // byte 1
-        uint8_t gpio_6_9 : 4;
-        uint8_t dcc_13_16 : 4;
-        // byte 2
-        uint8_t dcc_17 : 1;
-        uint8_t dcc_18 : 1;
-        uint8_t dcc_0 : 1;
-        uint8_t dtmen : 1;
-        uint8_t ps : 2;
-        uint8_t fdrf : 1;
-        uint8_t mute : 1;
-        // byte 3-6
-        uint32_t reserved;
-        // byte 7/8
-        raw_pec pec;
-    } CFGBR;
     // as per table 33`
     struct __attribute__((__packed__))
     {
@@ -204,7 +206,7 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
         else
         {
             seg_b->dcc_0     = 0;
-            seg_a->dcc_1_8   = 0;
+            seg_a->dcc_1_8   = 0xff;
             seg_a->dcc_9_12  = 0;
             seg_b->dcc_13_16 = 0;
             seg_b->dcc_17    = 0;
@@ -220,6 +222,43 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
         return false;
     if (!hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b)))
         return false;
+    return true;
+}
+
+bool io_ltc6813_readConfigurationRegisters()
+{
+#define RDCFGA (0x0002)
+#define RDCFGB (0x0026)
+    raw_cmd tx_msg_a = build_tx_cmd(RDCFGA);
+    CFGAR   rx_buf_a[NUM_SEGMENTS];
+    if (!hw_spi_transmitThenReceive(
+            &ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)&rx_buf_a, sizeof(rx_buf_a)))
+    {
+        return false;
+    }
+
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
+    {
+        const uint16_t calc_pec15 = calculate_pec15((uint8_t *)&rx_buf_a[curr_segment], 6);
+        const uint16_t recv_pec15 = read_rx_pec(&rx_buf_a[curr_segment].pec);
+        assert(calc_pec15 == recv_pec15);
+    }
+
+    raw_cmd tx_msg_b = build_tx_cmd(RDCFGA);
+    CFGBR   rx_buf_b[NUM_SEGMENTS];
+    if (!hw_spi_transmitThenReceive(
+            &ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)&rx_buf_b, sizeof(rx_buf_b)))
+    {
+        return false;
+    }
+
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
+    {
+        const uint16_t calc_pec15 = calculate_pec15((uint8_t *)&rx_buf_b[curr_segment], 6);
+        const uint16_t recv_pec15 = read_rx_pec(&rx_buf_b[curr_segment].pec);
+        assert(calc_pec15 == recv_pec15);
+    }
+
     return true;
 }
 
