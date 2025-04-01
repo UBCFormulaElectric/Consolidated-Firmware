@@ -9,3 +9,4 @@ _Noreturn void tasks_run1kHz(void);
 _Noreturn void tasks_runCanTx(void);
 _Noreturn void tasks_runCanRx(void);
 _Noreturn void tasks_batteryMonitoring(void);
+_Noreturn void tasks_powerMonitoring(void);
