@@ -186,13 +186,13 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
         seg_a->vov_4_11 = VOV >> 4 & 0xFF;
 
         // Write to configuration registers DCC bits
-        if (config.balance_config != NULL)
+        if (balance_config != NULL)
         {
             uint32_t dcc_bits = 0U;
             // Get dcc bits to write for the current segment (which cells to balance)
             for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             {
-                dcc_bits |= (uint32_t)((*config.balance_config)[curr_segment][cell] << cell);
+                dcc_bits |= (uint32_t)(balance_config[curr_segment][cell] << cell);
             }
             seg_b->dcc_0     = 0;
             seg_a->dcc_1_8   = dcc_bits & 0xFF;
