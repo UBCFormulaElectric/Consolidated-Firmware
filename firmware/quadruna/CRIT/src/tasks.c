@@ -42,7 +42,8 @@
 
 #include <assert.h>
 
-static CanHandle can = { .hcan = &hcan1 };
+static CanHandle can = { .hcan = &hcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
+
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
@@ -255,9 +256,6 @@ const AdcChannel *id_to_adc[] = {
     [CRIT_AdcNetName_REGEN_3V3] = &regen,
 };
 
-static const UART debug_uart = { .handle = &huart2 };
-
-const UART *chimera_uart   = &debug_uart;
 const Gpio *n_chimera_gpio = &n_chimera_pin;
 
 static const Leds led_config = {
@@ -465,13 +463,5 @@ _Noreturn void tasks_run1Hz(void)
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
-    }
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
-        io_chimera_msgRxCallback();
     }
 }

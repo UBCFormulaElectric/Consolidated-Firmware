@@ -147,7 +147,7 @@ bool app_allStates_runOnTick100Hz(void)
     }
 
     const bool acc_fault = app_accumulator_checkFaults();
-    const bool ts_fault  = app_tractveSystem_checkFaults();
+    const bool ts_fault  = app_tractiveSystem_checkFaults();
 
     // Update CAN signals for BMS latch statuses.
     app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());

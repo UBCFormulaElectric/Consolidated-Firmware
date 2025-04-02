@@ -34,6 +34,7 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
+    LOG_INFO("VC reset!");
     io_canLogging_init();
 }
 
@@ -73,7 +74,6 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
-    LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
     hw_hardFaultHandler_init();
@@ -194,6 +194,8 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
@@ -202,6 +204,8 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runLogging(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
 
@@ -221,21 +225,5 @@ _Noreturn void tasks_runLogging(void)
             io_canLogging_sync();
             message_batch_count = 0;
         }
-    }
-}
-
-/*
- * INTERRUPTS
- */
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == &huart1)
-    {
-        io_chimera_msgRxCallback();
-    }
-    else if (huart == &huart2)
-    {
-        io_sbgEllipse_msgRxCallback();
     }
 }
