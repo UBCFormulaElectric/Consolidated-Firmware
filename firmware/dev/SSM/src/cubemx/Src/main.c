@@ -373,7 +373,6 @@ void StartDefaultTask(void *argument)
     for (;;)
     {
         hw_chimera_v2_mainOrContinue(&chimera_v2_config);
-        hw_gpio_togglePin(&debug_led);
         osDelay(100);
     }
 
