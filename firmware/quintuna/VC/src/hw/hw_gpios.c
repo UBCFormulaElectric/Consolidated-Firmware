@@ -1,4 +1,5 @@
 #include "hw_gpios.h"
+#include "hw_gpio.h"
 #include "main.h"
 
 const Gpio pgood           = { .port = PGOOD_GPIO_Port, .pin = PGOOD_Pin };
@@ -31,3 +32,8 @@ const Gpio sb_shdn_3v3_out = { .port = SB_SHDN_3V3_OUT_GPIO_Port, .pin = SB_SHDN
 const Gpio interia_3v3_out = { .port = INTERIA_3V3_OUT_GPIO_Port, .pin = INTERIA_3V3_OUT_Pin };
 const Gpio tsms_3v3_out    = { .port = TSMS_3V3_OUT_GPIO_Port, .pin = TSMS_3V3_OUT_Pin };
 const Gpio rr_ilck_3v3_out = { .port = RR_ILCK_3V3_OUT_GPIO_Port, .pin = RR_ILCK_3V3_OUT_Pin };
+const Gpio led             = { .port = LED_GPIO_Port, LED_Pin };
+const Gpio boot_led        = { .port = BOOT_LED_GPIO_Port, BOOT_LED_Pin };
+const Gpio rl_pump_pgood   = { .port = RL_PUMP_PGOOD_GPIO_Port, .pin = RL_PUMP_PGOOD_Pin };
+const Gpio rr_pump_pgood   = { .port = RR_PUMP_PGOOD_GPIO_Port, .pin = RR_PUMP_PGOOD_Pin };
+const Gpio f_pump_pgood    = { .port = F_PUMP_PGOOD_GPIO_Port, .pin = F_PUMP_PGOOD_Pin };

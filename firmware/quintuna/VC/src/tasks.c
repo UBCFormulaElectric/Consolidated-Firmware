@@ -6,8 +6,13 @@
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_time.h"
-
+// hw
 #include "hw_usb.h"
+#include "hw_cans.h"
+#include "hw_adcs.h"
+
+// chimera
+#include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
 
@@ -58,6 +63,9 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
+
+        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
+
         jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
