@@ -41,7 +41,8 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -65,7 +66,8 @@ _Noreturn void tasks_run100Hz(void)
     {
         hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
-        jobs_run100Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -92,7 +94,8 @@ _Noreturn void tasks_run1kHz(void)
         const uint32_t task_start_ms = io_time_getCurrentMs();
 
         // hw_watchdog_checkForTimeouts();
-        jobs_run1kHz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1kHz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or

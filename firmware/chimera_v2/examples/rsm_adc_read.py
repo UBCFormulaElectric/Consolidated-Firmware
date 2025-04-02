@@ -9,5 +9,5 @@ chimera_device = chimera_v2.RSM()
 
 # Main loop.
 while True:
-   time.sleep(0.1)
-   print(chimera_device.adc_read(ADC_CHANNEL))
+    time.sleep(0.1)
+    print(chimera_device.adc_read(ADC_CHANNEL))
