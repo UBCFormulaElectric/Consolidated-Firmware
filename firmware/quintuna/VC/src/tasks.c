@@ -63,7 +63,6 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-
         hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         jobs_run100Hz_tick();
