@@ -12,31 +12,31 @@ float io_thermistor_resistanceToTemp(float thermistor_resistance, ThermistorLUT 
         // Find the indexes of the two resistances that the calculated resistance lies between
         uint8_t low_index = 0U;
         uint8_t high_index = max_lut_index;
-        uint8_t mid_index = (low_index + (high_index - low_index)) / 2;
+        uint8_t mid_index = (low_index + high_index) / 2;
 
-        while (low_index < high_index)
+        while (low_index <= high_index)
         {
             if (thermistor_resistance > temp_resistance_lut.resistances[mid_index])
             {
-                high_index = mid_index;
+                high_index = mid_index - 1; // search lower half of LUT
             } else {
-                low_index = mid_index;
+                low_index = mid_index + 1; // search upper half of LUT
             }
 
-            mid_index = (low_index + (high_index - low_index)) / 2;
+            mid_index = (low_index + high_index) / 2;
         }
 
         uint8_t therm_lut_index = mid_index;
 
-        if (therm_lut_index == 0)
+        if (therm_lut_index == max_lut_index)
         {
-            return temp_resistance_lut.starting_temp;
+            return temp_resistance_lut.starting_temp + (max_lut_index * temp_resistance_lut.resolution);
         } else {
             // Linear interpolation to find thermistor temperature
             float y2 = temp_resistance_lut.resistances[therm_lut_index];
             float y1 = temp_resistance_lut.resistances[therm_lut_index + 1];
-            uint8_t x2 = therm_lut_index * temp_resistance_lut.resolution;
-            uint8_t x1 = (therm_lut_index - 1) * temp_resistance_lut.resolution;
+            uint8_t x2 = temp_resistance_lut.starting_temp + (therm_lut_index * temp_resistance_lut.resolution);
+            uint8_t x1 = temp_resistance_lut.starting_temp + ((therm_lut_index + 1) * temp_resistance_lut.resolution);
         
             thermistor_temp = (thermistor_resistance - y1) * ((x2 - x1) / (y2 - y1)) + x1;
         }
