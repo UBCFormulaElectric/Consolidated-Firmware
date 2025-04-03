@@ -12,6 +12,7 @@
 #include "io_canRx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
+#include "io_rotary.h"
 
 // HW
 #include "hw_gpios.h"
@@ -27,6 +28,9 @@ void jobs_init(void)
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
     io_canQueue_init();
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+
+    io_rotary_init();
+
     app_canTx_init();
     app_canRx_init();
 
