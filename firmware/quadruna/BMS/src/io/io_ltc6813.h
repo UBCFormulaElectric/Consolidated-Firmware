@@ -1,6 +1,10 @@
+/**
+ * @file io_ltc6813.h
+ * @brief This file contains the interface to the LTC6813 driver
+ * @note all implementation is in the ltc6813 directory
+ */
 #pragma once
 #include <stdbool.h>
-#include <stdint.h>
 
 // physical constants
 #define NUM_SEGMENTS 1
@@ -10,6 +14,10 @@
 // LTC6813 realities
 #define VOLTAGE_REGISTER_GROUPS 5
 #define THERMISTOR_REGISTER_GROUPS 3
+
+/**
+ * @file ltc6813/io_ltc6813_configs.c
+ */
 
 /**
  * Reads the configuration registers, and returns them into the pointer you give it
@@ -27,13 +35,8 @@ bool io_ltc6813_readConfigurationRegisters();
 bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
 /**
- * Sends a command to all segments on the daisy chain
- * In particular, it sends a single command, which is not shifted. However, it will affect all segments
- * @param command command to send
- * @note that I decided not to use enums for command, as there are certain commands which need to built on the fly
- * @return success of the operation
+ * @file ltc6813/io_ltc6813_cells.c
  */
-bool io_ltc6813_sendCommand(uint16_t command);
 
 /**
  * Reads all voltages from all segments
@@ -44,6 +47,16 @@ bool io_ltc6813_sendCommand(uint16_t command);
 void io_ltc6813_readVoltages(
     float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
     bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
+
+/**
+ *
+ * @return success of the operation
+ */
+bool io_ltc6813_startCellsAdcConversion(void);
+
+/**
+ * @file ltc6813/io_ltc6813_temps.c
+ */
 
 /**
  * Reads all temperatures from all segments
@@ -59,12 +72,6 @@ void io_ltc6813_readTemperatures(
  *
  * @return success of the operation
  */
-bool io_ltc6813_startCellsAdcConversion(void);
-
-/**
- *
- * @return success of the operation
- */
 bool io_ltc6813_startThermistorsAdcConversion(void);
 
 /**
@@ -73,7 +80,9 @@ bool io_ltc6813_startThermistorsAdcConversion(void);
  */
 bool io_ltc6813_pollAdcConversions();
 
-// CONVENIENCE FUNCTIONS
+/**
+ * @file ltc6813/io_ltc6813_balance.c
+ */
 
 /**
  * Sends a command to enable balancing
@@ -87,6 +96,10 @@ bool io_ltc6813_sendBalanceCommand(void);
  */
 bool io_ltc6813_sendStopBalanceCommand(void);
 
+/**
+ * @file ltc6813/io_ltc6813_owc.c
+ */
+
 typedef enum
 {
     PULL_DOWN,
@@ -98,3 +111,28 @@ typedef enum
  * @return success of operation
  */
 bool io_ltc6813CellVoltages_owc(PullDirection pull_direction);
+
+/**
+ * @file ltc6813/io_ltc6813_tests.c
+ */
+
+/**
+ * self tests the cell adcs (muxes i think as well)
+ * @returns if the test is successful
+ * @note that the test can also fail due to comms issues
+ */
+bool io_ltc6813_sendSelfTestVoltages(void);
+
+/**
+ * self tests the aux adcs
+ * @returns if the test is successful
+ * @note that the test can also fail due to comms issues
+ */
+bool io_ltc6813_sendSelfTestAux(void);
+
+/**
+ * self tests the stat registers
+ * @returns if the test is successful
+ * @note that the test can also fail due to comms issues
+ */
+bool io_ltc6813_sendSelfTestStat(void);
