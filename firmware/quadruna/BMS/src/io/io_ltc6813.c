@@ -270,16 +270,6 @@ bool io_ltc6813_sendCommand(const uint16_t command)
 
 // VOLTAGE PARSING SEGMENT
 
-// as per table 40-45
-typedef struct __attribute__((__packed__))
-{
-    uint16_t a;
-    uint16_t b;
-    uint16_t c;
-    raw_pec  pec;
-} VoltageRegisterGroup;
-static_assert(sizeof(VoltageRegisterGroup) == 8);
-
 /**
  * This functions works by iterating through all register groups, and for each register group asking each segment
  * what is the value of the register group in that segment
@@ -307,10 +297,18 @@ void io_ltc6813_readVoltages(
 #define RDCVF (0x0BU)
         static const uint16_t cv_read_cmds[6] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE, RDCVF };
 
-        const raw_cmd tx_cmd = build_tx_cmd(cv_read_cmds[curr_reg_group]);
-
         // Transmit the command and receive data stored in register group.
-        VoltageRegisterGroup rx_buffer[NUM_SEGMENTS] = { 0 };
+        const raw_cmd tx_cmd = build_tx_cmd(cv_read_cmds[curr_reg_group]);
+        // as per table 40-45
+        typedef struct __attribute__((__packed__))
+        {
+            uint16_t a;
+            uint16_t b;
+            uint16_t c;
+            raw_pec  pec;
+        } VoltageRegGroup;
+        VoltageRegGroup rx_buffer[NUM_SEGMENTS] = { 0 };
+        static_assert(sizeof(VoltageRegGroup) == 8);
 
         const bool voltage_read_success = hw_spi_transmitThenReceive(
             &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
@@ -319,41 +317,34 @@ void io_ltc6813_readVoltages(
             continue;
         }
 
-        for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
+        // TODO flip???
+        for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
         {
+            const VoltageRegGroup *seg_reg_group = &rx_buffer[(NUM_SEGMENTS - 1) - seg_idx];
             // Calculate PEC15 from the data received on rx_buffer
-            const uint16_t calc_pec15 = calculate_pec15((uint8_t *)&rx_buffer[curr_segment], 6);
-            const uint16_t recv_pec15 = read_rx_pec(&rx_buffer[curr_segment].pec);
+            const uint16_t calc_pec15 = calculate_pec15((uint8_t *)seg_reg_group, 6);
+            const uint16_t recv_pec15 = read_rx_pec(&seg_reg_group->pec);
             if (recv_pec15 != calc_pec15)
             {
                 continue;
             }
 
             // fuck it we already here
-            success[curr_segment][curr_reg_group] = true;
+            success[seg_idx][curr_reg_group] = true;
 
             // Conversion factor used to convert raw voltages (100µV) to voltages (V)
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-            cell_voltages[curr_segment][curr_reg_group * 3 + 0] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].a);
-            cell_voltages[curr_segment][curr_reg_group * 3 + 1] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].b);
+            cell_voltages[seg_idx][curr_reg_group * 3 + 0] = CONVERT_100UV_TO_VOLTAGE(seg_reg_group->a);
+            cell_voltages[seg_idx][curr_reg_group * 3 + 1] = CONVERT_100UV_TO_VOLTAGE(seg_reg_group->b);
             if (curr_reg_group * 3 + 2 > 14)
                 continue;
-            cell_voltages[curr_segment][curr_reg_group * 3 + 2] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].c);
+            cell_voltages[seg_idx][curr_reg_group * 3 + 2] = CONVERT_100UV_TO_VOLTAGE(seg_reg_group->c);
         }
     }
 }
 
 // TEMPERATURE PARSING SEGMENT
-
-typedef struct __attribute__((__packed__))
-{
-    uint16_t a;
-    uint16_t b;
-    uint16_t c;
-    raw_pec  pec;
-} AuxRegGroup;
-static_assert(sizeof(AuxRegGroup) == 8);
 
 /**
  * Calculate thermistor temperature
@@ -470,8 +461,15 @@ void io_ltc6813_readTemperatures(
         const raw_cmd         tx_cmd                = build_tx_cmd(aux_reg_group_cmds[reg_group]);
 
         // as per table 46-48
-        AuxRegGroup rx_buffer[NUM_SEGMENTS] = { 0 };
-        static_assert(sizeof(rx_buffer[0]) == 8);
+        typedef struct __attribute__((__packed__))
+        {
+            uint16_t a;
+            uint16_t b;
+            uint16_t c;
+            raw_pec  pec;
+        } AuxRegGroup;
+        AuxRegGroup rx_buffer[NUM_SEGMENTS];
+        static_assert(sizeof(AuxRegGroup) == 8);
 
         // send command and receive data
         if (!hw_spi_transmitThenReceive(
@@ -508,6 +506,8 @@ void io_ltc6813_readTemperatures(
         }
     }
 }
+
+// ADC DISPATCH COMMANDS
 
 /**
  * Clears the register groups which contain the cell voltage data
@@ -588,6 +588,7 @@ bool io_ltc6813_pollAdcConversions(void)
     return false;
 }
 
+// BALANCING COMMANDS
 bool io_ltc6813_sendBalanceCommand(void)
 {
 #define UNMUTE (0x0029U)
@@ -600,6 +601,7 @@ bool io_ltc6813_sendStopBalanceCommand(void)
     return io_ltc6813_sendCommand(MUTE);
 }
 
+// OPEN WIRE CHECK
 bool io_ltc6813CellVoltages_owc(const PullDirection pull_direction)
 {
 // ADOW mode selection
