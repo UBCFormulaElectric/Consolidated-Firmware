@@ -1,8 +1,16 @@
 #include "io_lowVoltageBattery.h"
+#include "hw_i2c.h"
 #include "hw_i2cs.h"
 #include "hw_hal.h"
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+#define BYTE_MASK(x) ((x) & 0XFF)
+#define VOLTAGE_RESPONSE_LENGTH 2
+#define VOLTAGE_TRANSMIT_LENGTH 1
+
 
 typedef enum {
     BQ76922_I2C_ADDR           = 0x10,
@@ -36,7 +44,6 @@ typedef enum {
     CMD_SUBCOMMAND_SIZE        = 2,   // Two bytes for subcommand
     RESPONSE_LENGTH_SIZE       = 1,   // One byte for response length and checksum
     SOC_RESPONSE_LENGTH        = 6,   // Expected response size for SOC command
-    VOLTAGE_RESPONSE_LENGTH    = 2    // Expected response size for voltage command
 } comm_settings_t;
 
 typedef enum {
@@ -65,8 +72,6 @@ static const HardwareConfig_t HardwareConfig = {
     .percentage_factor = 100.0f,
     .adc_calibration_factor = 7.4768f
 };
-
-osSemaphoreId_t bat_mtr_sem;
 
 /**
  * @brief Sends a subcommand to the BQ76922 and waits until the device’s
@@ -112,6 +117,8 @@ static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
  *
  * @return true if the response was successfully read and the checksum is valid; false otherwise.
  */
+
+
 static bool io_lowVoltageBattery_read_response(uint16_t cmd, uint8_t expectedLen, uint8_t *buffer)
 {
     uint8_t respLen;
@@ -308,13 +315,6 @@ bool io_lowVoltageBattery_OTP_write(void)
  */
 bool io_lowVoltageBattery_init(void)
 {
-    bat_mtr_sem = osSemaphoreNew(1, 0, NULL);
-    if (bat_mtr_sem == NULL)
-    {
-        return false;
-    }
-
-    return true;
 }
 
 /**
@@ -324,8 +324,6 @@ bool io_lowVoltageBattery_init(void)
  */
 float io_lowVoltageBattery_get_SOC(void)
 {
-    osSemaphoreAcquire(bat_mtr_sem, osWaitForever);
-
     if (!io_lowVoltageBattery_send_subcommand(ACCUMULATED_CHARGE_COMMAND))
     {
         return -1.0f;
@@ -352,28 +350,26 @@ float io_lowVoltageBattery_get_SOC(void)
 }
 
 /**
- * @brief Gets the battery voltage.
+ * @brief Gets the cell voltage or the entire stack voltage
  *
  * @param voltage_cmd The subcommand used to read the voltage.
  *
  * @return The battery voltage on success, or -1 on error.
  */
-uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd)
+uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
 {
-    osSemaphoreAcquire(bat_mtr_sem, osWaitForever);
+    uint8_t voltage_cmd = (uint8_t) voltage_cell;
 
-    if (!io_lowVoltageBattery_send_subcommand(voltage_cmd))
+    if (!hw_i2c_transmit(&bat_mtr, &voltage_cmd, VOLTAGE_TRANSMIT_LENGTH))
     {
-        return (uint16_t)-1;
+        return (uint16_t) -1;
     }
-
-    uint8_t buffer[VOLTAGE_RESPONSE_LENGTH];
-    if (!io_lowVoltageBattery_read_response(voltage_cmd, VOLTAGE_RESPONSE_LENGTH, buffer))
+    uint8_t voltage_buffer[VOLTAGE_RESPONSE_LENGTH];
+    if (!hw_i2c_receive(&bat_mtr, voltage_buffer, VOLTAGE_RESPONSE_LENGTH))
     {
-        return (uint16_t)-1;
+        return (uint16_t) -1;
     }
-
-    uint16_t voltage = (uint16_t)(buffer[0] | (buffer[1] << BYTE_SHIFT));
+    uint16_t voltage = (uint16_t)(buffer[0] | (buffer[1] << 8));
     return voltage;
 }
 
@@ -382,10 +378,4 @@ uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd)
  * 
  * @param GPIO_pin from the interupt. 
  */
-void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin)
-{
-    if(GPIO_pin == bat_mtr_nalert.pin) 
-    {
-        osSemaphoreRelease(bat_mtr_sem);
-    }
-}
+void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin){}
