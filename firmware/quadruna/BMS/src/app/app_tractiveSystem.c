@@ -6,9 +6,9 @@
 
 TimerChannel overcurrent_fault_timer;
 
-void app_tractiveSystem_init()
+void app_tractiveSystem_init(uint32_t debounce_duration)
 {
-    app_timer_init(&overcurrent_fault_timer, TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
+    app_timer_init(&overcurrent_fault_timer, debounce_duration);
 }
 
 #define W_TO_KW 1.0e-3f
