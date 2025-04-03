@@ -1,6 +1,6 @@
 #include "io_ltc6813.h"
 
-#include "io_ltc6813_utils.h"
+#include "io_ltc6813_internal.h"
 
 // OPEN WIRE CHECK
 // TODO more configs here probably

@@ -69,13 +69,17 @@ void io_ltc6813_readTemperatures(
     bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS]);
 
 /**
- *
+ * sends a command to read all temperatures from all segments
  * @return success of the operation
  */
 bool io_ltc6813_startThermistorsAdcConversion(void);
 
 /**
- *
+ * @file ltc6813/io_ltc6813_utils.c
+ */
+
+/**
+ * polls the LTC6813 for the completion of the ADC conversions
  * @return success of the operation
  */
 bool io_ltc6813_pollAdcConversions();

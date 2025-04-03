@@ -1,6 +1,6 @@
 #include "io_ltc6813.h"
 
-#include "io_ltc6813_utils.h"
+#include "io_ltc6813_internal.h"
 #include "hw_spis.h"
 
 #include <assert.h>

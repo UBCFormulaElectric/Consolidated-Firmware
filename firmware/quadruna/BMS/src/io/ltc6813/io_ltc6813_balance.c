@@ -1,6 +1,6 @@
 #include "io_ltc6813.h"
 
-#include "ltc6813/io_ltc6813_utils.h"
+#include "io_ltc6813_internal.h"
 
 // BALANCING COMMANDS
 bool io_ltc6813_sendBalanceCommand(void)

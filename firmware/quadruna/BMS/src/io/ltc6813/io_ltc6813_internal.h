@@ -1,5 +1,5 @@
 /**
- * @file io_ltc6813_utils.h
+ * @file io_ltc6813_internal.h
  * @note this file SHOULD NOT BE imported outside of ltc drivers.
  */
 #pragma once
@@ -51,13 +51,9 @@ ltc6813_tx io_ltc6813_build_tx_cmd(uint16_t command);
 
 /**
  * sends the given command
+ * @note I am debating on removing this? cause this file seems to be a no side effects type beat,
+ * could even just be a header file (inline everything)
  * @param command command to send
  * @return success of operation
  */
 bool io_ltc6813_sendCommand(uint16_t command);
-
-/**
- * polls adc conversion
- * @returns true, when the command is ready. If it times out, it return false
- */
-bool io_ltc6813_pollAdcConversions(void);
