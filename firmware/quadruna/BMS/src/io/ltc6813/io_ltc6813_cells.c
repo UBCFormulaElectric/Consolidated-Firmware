@@ -21,11 +21,12 @@ bool io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
     if (!clearCellRegisters())
         return false;
+    const uint16_t speed_factor = speed & 0x3 << 7;
 // Cell selection for ADC conversion
 #define CH (000U)
 // Discharge permitted
 #define DCP (0U)
-#define ADCV (0x260 | CH | DCP << 4 | (speed & 0x3) << 7)
+#define ADCV (0x260 | CH | DCP << 4 | speed_factor)
     return io_ltc6813_sendCommand(ADCV);
 }
 

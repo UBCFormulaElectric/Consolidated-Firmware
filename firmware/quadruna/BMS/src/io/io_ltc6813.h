@@ -34,7 +34,7 @@ bool io_ltc6813_readConfigurationRegisters();
  */
 bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
-typedef enum : uint8_t
+typedef enum
 {
     ADCSpeed_422Hz = 0,
     ADCSpeed_27kHz = 1,
