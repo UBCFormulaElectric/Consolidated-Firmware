@@ -69,10 +69,10 @@ void io_canLogging_init(void)
     assert(message_queue_id != NULL);
 
     // Initialize the filesystem.
-    CHECK_ERR_CRITICAL(io_fileSystem_init());
+    CHECK_ERR_CRITICAL(io_fileSystem_init() == FILE_OK);
 
     // create new file for this boot
-    CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount));
+    CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
     sprintf(current_path, "/%lu.txt", current_bootcount);
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);

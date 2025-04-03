@@ -2,15 +2,15 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
-// chimera
-#include "io_chimeraConfig_v2.h"
-#include "io_chimera_v2.h"
-#include "shared.pb.h"
 
 // hw
 #include "hw_usb.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
+// chimera
+#include "hw_chimeraConfig_v2.h"
+#include "hw_chimera_v2.h"
+#include "shared.pb.h"
 
 void tasks_preInit(void)
 {
@@ -41,7 +41,7 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
+        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

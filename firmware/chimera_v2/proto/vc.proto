@@ -21,7 +21,7 @@ enum GpioNetName {
   GPIO_FR_STBY_REAR = 15;
   GPIO_FRONT_EN = 16;
   GPIO_RSM_EN = 17;
-  GPIO_IMUT_INT1 = 18;
+  GPIO_IMU_INT1 = 18;
   GPIO_IMU_INT2 =19;
   GPIO_RAD_FAN_FR_STBY = 20;
   GPIO_PWR_MTR_nALERT = 21;
@@ -57,4 +57,5 @@ enum I2cNetName {
   I2C_IMU_I2C = 1;
   I2C_R_PUMP_I2C = 2;
   I2C_PWR_MTR = 3;
+  I2C_BAT_MTR = 4;
 }

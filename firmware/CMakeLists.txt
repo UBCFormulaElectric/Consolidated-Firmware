@@ -10,7 +10,7 @@ IF ("${TARGET}" STREQUAL "binary")
     include(cmake/bootlib.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
 ELSEIF ("${TARGET}" STREQUAL "test")
-    include(cmake/tests.cmake)
+    add_subdirectory(test)
     add_compile_definitions(TARGET_TEST)
     add_compile_definitions(_USE_MATH_DEFINES)
     # We assume this cmake is running on a x86 TARGET, so the

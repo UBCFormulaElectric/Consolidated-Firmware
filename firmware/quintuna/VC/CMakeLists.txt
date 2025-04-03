@@ -7,7 +7,9 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
-file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
+set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
+set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
@@ -48,7 +50,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
-
+        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -119,17 +121,14 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_VC_app.elf" PRIVATE 
-            "quintuna_VC_stm32cube" 
-            "quintuna_VC_jsoncan" 
-            "quintuna_VC_commit_info" 
+    target_link_libraries("quintuna_VC_app.elf" PRIVATE
+            "quintuna_VC_stm32cube"
+            "quintuna_VC_jsoncan"
+            "quintuna_VC_commit_info"
             "logfs_cm7"
             "sbg_ecom_cm7"
-            "debug_modules")
+            "chimera_v2_proto_cm7")
     target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
-    target_compile_definitions("quintuna_VC_app.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED HAL_SPI_MODULE_ENABLED)
-
-
     embedded_image(
             "quintuna_VC"
             "quintuna_VC_app.hex"
@@ -138,4 +137,28 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_boot.hex"
     )
 elseif ("${TARGET}" STREQUAL "test")
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    compile_gtest_executable(
+            "quintuna_VC_test"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+    )
+
+    # JSONCAN
+    jsoncan_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")
+
+    # FakeIO
+    set(HEADERS_TO_FAKE
+            #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+    )
+    create_fake_library(
+            "quintuna_VC_fakes"
+            "${HEADERS_TO_FAKE}"
+    )
+
+    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes")
 endif ()

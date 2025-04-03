@@ -4,7 +4,6 @@
 #include "fake_io_coolant.hpp"
 #include "fake_io_loadCell.hpp"
 #include "fake_io_suspension.hpp"
-#include "fake_io_led.hpp"
 #include "fake_io_fans.hpp"
 #include "fake_io_brake_light.hpp"
 

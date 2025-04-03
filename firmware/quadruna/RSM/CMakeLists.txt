@@ -31,6 +31,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_mechanicalLoad.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
         "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
@@ -154,6 +155,7 @@ elseif ("${TARGET}" STREQUAL "test")
     # FakeIO
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_loadCell.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
@@ -165,5 +167,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quadruna_RSM_test" "quadruna_RSM_jsoncan" "quadruna_RSM_fakes" "shared_fakes" "m")
+    target_link_libraries("quadruna_RSM_test" PRIVATE "quadruna_RSM_jsoncan" "quadruna_RSM_fakes" "m")
 ENDIF ()

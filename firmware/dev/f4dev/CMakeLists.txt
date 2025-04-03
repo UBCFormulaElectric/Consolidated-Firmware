@@ -19,7 +19,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
 )
 
 list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")

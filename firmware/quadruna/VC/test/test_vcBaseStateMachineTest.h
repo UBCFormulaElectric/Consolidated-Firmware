@@ -29,7 +29,7 @@ extern "C"
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
 
-class VcBaseStateMachineTest : public BaseStateMachineTest
+class VCBaseTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override

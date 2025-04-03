@@ -37,7 +37,7 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_FR_STBY_REAR: _GpioNetName.ValueType
     GPIO_FRONT_EN: _GpioNetName.ValueType
     GPIO_RSM_EN: _GpioNetName.ValueType
-    GPIO_IMUT_INT1: _GpioNetName.ValueType
+    GPIO_IMU_INT1: _GpioNetName.ValueType
     GPIO_IMU_INT2: _GpioNetName.ValueType
     GPIO_RAD_FAN_FR_STBY: _GpioNetName.ValueType
     GPIO_PWR_MTR_nALERT: _GpioNetName.ValueType
@@ -72,7 +72,7 @@ GPIO_BAT_MTR_nALERT: GpioNetName.ValueType
 GPIO_FR_STBY_REAR: GpioNetName.ValueType
 GPIO_FRONT_EN: GpioNetName.ValueType
 GPIO_RSM_EN: GpioNetName.ValueType
-GPIO_IMUT_INT1: GpioNetName.ValueType
+GPIO_IMU_INT1: GpioNetName.ValueType
 GPIO_IMU_INT2: GpioNetName.ValueType
 GPIO_RAD_FAN_FR_STBY: GpioNetName.ValueType
 GPIO_PWR_MTR_nALERT: GpioNetName.ValueType
@@ -133,6 +133,7 @@ class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enu
     I2C_IMU_I2C: _I2cNetName.ValueType
     I2C_R_PUMP_I2C: _I2cNetName.ValueType
     I2C_PWR_MTR: _I2cNetName.ValueType
+    I2C_BAT_MTR: _I2cNetName.ValueType
 
 class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
@@ -140,4 +141,5 @@ I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
 I2C_IMU_I2C: I2cNetName.ValueType
 I2C_R_PUMP_I2C: I2cNetName.ValueType
 I2C_PWR_MTR: I2cNetName.ValueType
+I2C_BAT_MTR: I2cNetName.ValueType
 global___I2cNetName = I2cNetName
