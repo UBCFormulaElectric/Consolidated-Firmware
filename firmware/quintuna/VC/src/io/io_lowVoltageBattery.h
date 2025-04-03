@@ -1,17 +1,18 @@
 #pragma once
 
 #include "hw_gpios.h"
+#include <stdint.h>
 
 typedef enum {
     ACCUMULATED_CHARGE_COMMAND = 0x0076
 } charge_cmd_t;
 
 typedef enum {
-    CELL0_VOLTAGE_COMMAND = 0x1514,
-    CELL1_VOLTAGE_COMMAND = 0x1716,
-    CELL2_VOLTAGE_COMMAND = 0x1B1A,
-    CELL4_VOLTAGE_COMMAND = 0x1D1C,
-    STACK_VOLTAGE_COMMAND = 0x3534
+    CELL0_VOLTAGE_COMMAND = 0x14,
+    CELL1_VOLTAGE_COMMAND = 0x16,
+    CELL2_VOLTAGE_COMMAND = 0x1A,
+    CELL4_VOLTAGE_COMMAND = 0x1C,
+    STACK_VOLTAGE_COMMAND = 0x34
 } voltage_cmd_t;
 
 /**
