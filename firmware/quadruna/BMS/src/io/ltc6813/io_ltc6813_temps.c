@@ -18,15 +18,14 @@ static bool clearAuxRegisters()
     return io_ltc6813_sendCommand(CLRAUX);
 }
 
-bool io_ltc6813_startThermistorsAdcConversion(void)
+// TODO assert that for each speed that the ADCOPT is correct
+bool io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
 {
     if (!clearAuxRegisters())
         return false;
-// ADC mode selection
-#define MD (11U)
 // GPIO Selection for ADC conversion
 #define CHG (000U)
-#define ADAX (0x460 | MD << 7 | CHG)
+#define ADAX (0x460 | (speed & 0x3) << 7 | CHG)
     return io_ltc6813_sendCommand(ADAX);
 }
 

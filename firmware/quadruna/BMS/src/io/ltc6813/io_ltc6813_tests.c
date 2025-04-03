@@ -12,11 +12,12 @@
 //     return io_ltc6813_sendCommand(CLRSTAT);
 // }
 
-bool io_ltc6813_sendSelfTestVoltages(void)
+// TODO assert that for each speed that the ADCOPT is correct
+
+bool io_ltc6813_sendSelfTestVoltages(const ADCSpeed speed)
 {
-#define MD (11U)
 #define ST (0x0)
-#define CVST (0x207 | MD << 7 | ST << 5)
+#define CVST (0x207 | (speed & 0x3) << 7 | ST << 5)
     if (!io_ltc6813_sendCommand(CVST))
     {
         return false;
@@ -24,11 +25,10 @@ bool io_ltc6813_sendSelfTestVoltages(void)
     return true;
 }
 
-bool io_ltc6813_sendSelfTestAux(void)
+bool io_ltc6813_sendSelfTestAux(const ADCSpeed speed)
 {
-#define MD (11U)
 #define ST (0x0)
-#define AXST (0x407 | MD << 7 | ST << 5)
+#define AXST (0x407 | (speed & 0x3) << 7 | ST << 5)
     if (!io_ltc6813_sendCommand(AXST))
     {
         return false;
@@ -36,11 +36,10 @@ bool io_ltc6813_sendSelfTestAux(void)
     return true;
 }
 
-bool io_ltc6813_sendSelfTestStat(void)
+bool io_ltc6813_sendSelfTestStat(const ADCSpeed speed)
 {
-#define MD (11U)
 #define ST (0x0)
-#define STATST (0x40F | MD << 7 | ST << 5)
+#define STATST (0x40F | (speed & 0x3) << 7 | ST << 5)
     if (!io_ltc6813_sendCommand(STATST))
     {
         return false;

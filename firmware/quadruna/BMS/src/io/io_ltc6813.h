@@ -34,6 +34,18 @@ bool io_ltc6813_readConfigurationRegisters();
  */
 bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
+typedef enum : uint8_t
+{
+    ADCSpeed_422Hz = 0,
+    ADCSpeed_27kHz = 1,
+    ADCSpeed_7kHz  = 2,
+    ADCSpeed_26Hz  = 3,
+    ADCSpeed_1kHz  = 4,
+    ADCSpeed_14kHz = 5,
+    ADCSpeed_3kHz  = 6,
+    ADCSpeed_2kHz  = 7,
+} ADCSpeed;
+
 /**
  * @file ltc6813/io_ltc6813_cells.c
  */
@@ -52,7 +64,7 @@ void io_ltc6813_readVoltages(
  *
  * @return success of the operation
  */
-bool io_ltc6813_startCellsAdcConversion(void);
+bool io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_temps.c
@@ -72,7 +84,7 @@ void io_ltc6813_readTemperatures(
  * sends a command to read all temperatures from all segments
  * @return success of the operation
  */
-bool io_ltc6813_startThermistorsAdcConversion(void);
+bool io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_utils.c
@@ -125,18 +137,18 @@ bool io_ltc6813CellVoltages_owc(PullDirection pull_direction);
  * @returns if the test is successful
  * @note that the test can also fail due to comms issues
  */
-bool io_ltc6813_sendSelfTestVoltages(void);
+bool io_ltc6813_sendSelfTestVoltages(ADCSpeed speed);
 
 /**
  * self tests the aux adcs
  * @returns if the test is successful
  * @note that the test can also fail due to comms issues
  */
-bool io_ltc6813_sendSelfTestAux(void);
+bool io_ltc6813_sendSelfTestAux(ADCSpeed speed);
 
 /**
  * self tests the stat registers
  * @returns if the test is successful
  * @note that the test can also fail due to comms issues
  */
-bool io_ltc6813_sendSelfTestStat(void);
+bool io_ltc6813_sendSelfTestStat(ADCSpeed speed);

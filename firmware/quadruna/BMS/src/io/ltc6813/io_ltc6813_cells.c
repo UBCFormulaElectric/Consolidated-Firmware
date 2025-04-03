@@ -16,17 +16,16 @@ static bool clearCellRegisters()
     return io_ltc6813_sendCommand(CLRCELL);
 }
 
-bool io_ltc6813_startCellsAdcConversion(void)
+// TODO assert that for each speed that the ADCOPT is correct
+bool io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
     if (!clearCellRegisters())
         return false;
-// ADC mode selection
-#define MD (11U)
 // Cell selection for ADC conversion
 #define CH (000U)
 // Discharge permitted
 #define DCP (0U)
-#define ADCV (0x260 | CH | DCP << 4 | MD << 7)
+#define ADCV (0x260 | CH | DCP << 4 | (speed & 0x3) << 7)
     return io_ltc6813_sendCommand(ADCV);
 }
 
