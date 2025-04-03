@@ -1,10 +1,10 @@
 #include "io_ltc6813.h"
 
 #include "app_utils.h"
+#include "io_log.h"
 #include "hw_spis.h"
 
 #include <assert.h>
-#include <io_log.h>
 #include <string.h>
 
 static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
@@ -509,8 +509,40 @@ void io_ltc6813_readTemperatures(
     }
 }
 
+/**
+ * Clears the register groups which contain the cell voltage data
+ * @return success of operation
+ */
+static bool clearCellRegisters()
+{
+#define CLRCELL (0x0711)
+    return io_ltc6813_sendCommand(CLRCELL);
+}
+
+/**
+ * Clears the register groups which contain the thermistor data
+ * @return success of operation
+ */
+static bool clearAuxRegisters()
+{
+#define CLRAUX (0x0712)
+    return io_ltc6813_sendCommand(CLRAUX);
+}
+
+/**
+ * Clears the status registers
+ * @return success of operation
+ */
+static bool clearStatusRegisters()
+{
+#define CLRSTAT (0x0713)
+    return io_ltc6813_sendCommand(CLRSTAT);
+}
+
 bool io_ltc6813_startCellsAdcConversion(void)
 {
+    if (!clearCellRegisters())
+        return false;
 // ADC mode selection
 #define MD (11U)
 // Cell selection for ADC conversion
@@ -523,6 +555,8 @@ bool io_ltc6813_startCellsAdcConversion(void)
 
 bool io_ltc6813_startThermistorsAdcConversion(void)
 {
+    if (!clearAuxRegisters())
+        return false;
 // ADC mode selection
 #define MD (11U)
 // GPIO Selection for ADC conversion
