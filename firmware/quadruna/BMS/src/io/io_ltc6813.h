@@ -4,11 +4,11 @@
 
 // physical constants
 #define NUM_SEGMENTS 1
-#define CELLS_PER_SEGMENT 16
+#define CELLS_PER_SEGMENT 14
 #define THERMISTORS_PER_SEGMENT 8
 
 // LTC6813 realities
-#define VOLTAGE_REGISTER_GROUPS 6
+#define VOLTAGE_REGISTER_GROUPS 5
 #define THERMISTOR_REGISTER_GROUPS 3
 
 /**

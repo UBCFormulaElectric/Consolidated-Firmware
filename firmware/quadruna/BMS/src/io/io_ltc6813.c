@@ -305,7 +305,7 @@ void io_ltc6813_readVoltages(
 #define RDCVD (0x0AU)
 #define RDCVE (0x09U)
 #define RDCVF (0x0BU)
-        static const uint16_t cv_read_cmds[VOLTAGE_REGISTER_GROUPS] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE, RDCVF };
+        static const uint16_t cv_read_cmds[6] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE, RDCVF };
 
         const raw_cmd tx_cmd = build_tx_cmd(cv_read_cmds[curr_reg_group]);
 
@@ -336,12 +336,9 @@ void io_ltc6813_readVoltages(
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
             cell_voltages[curr_segment][curr_reg_group * 3 + 0] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].a);
-            // only read first cell for group F (cell 16)
-            if (curr_reg_group == 5)
-            {
-                continue;
-            }
             cell_voltages[curr_segment][curr_reg_group * 3 + 1] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].b);
+            if (curr_reg_group * 3 + 2 > 14)
+                continue;
             cell_voltages[curr_segment][curr_reg_group * 3 + 2] = CONVERT_100UV_TO_VOLTAGE(rx_buffer[curr_segment].c);
         }
     }
@@ -515,7 +512,7 @@ void io_ltc6813_readTemperatures(
 bool io_ltc6813_startCellsAdcConversion(void)
 {
 // ADC mode selection
-#define MD (01U)
+#define MD (11U)
 // Cell selection for ADC conversion
 #define CH (000U)
 // Discharge permitted
@@ -527,7 +524,7 @@ bool io_ltc6813_startCellsAdcConversion(void)
 bool io_ltc6813_startThermistorsAdcConversion(void)
 {
 // ADC mode selection
-#define MD (01U)
+#define MD (11U)
 // GPIO Selection for ADC conversion
 #define CHG (000U)
 #define ADAX (0x460 | MD << 7 | CHG)
@@ -539,7 +536,7 @@ bool io_ltc6813_pollAdcConversions(void)
 {
     // Prepare command to get the status of ADC conversions
 #define PLADC (0x0714U)
-#define ADC_CONV_COMPLETE (0U)
+#define ADC_CONV_COMPLETE (255U)
     const raw_cmd tx_cmd = build_tx_cmd(PLADC);
     for (uint8_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
     {
@@ -552,6 +549,7 @@ bool io_ltc6813_pollAdcConversions(void)
         {
             return true;
         }
+        LOG_ERROR("%d", rx_data);
     }
     return false;
 }
