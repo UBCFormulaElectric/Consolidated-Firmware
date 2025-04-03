@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hw_gpio.h"
+#include <SEGGER_SYSVIEW.h>
 
 extern const Gpio pgood;
 extern const Gpio f_inv_en;
@@ -26,5 +27,14 @@ extern const Gpio bms_en;
 extern const Gpio rl_pump_en;
 extern const Gpio rr_pump_en;
 extern const Gpio f_pump_en;
-extern const Gpio l_rad_fan_en;
-extern const Gpio r_rad_fan_en;
+extern const Gpio rl_rad_fan_en;
+extern const Gpio rr_rad_fan_en;
+extern const Gpio sb_shdn_3v3_out;
+extern const Gpio interia_3v3_out;
+extern const Gpio tsms_3v3_out;
+extern const Gpio rr_ilck_3v3_out;
+extern const Gpio led;
+extern const Gpio boot_led;
+extern const Gpio rl_pump_pgood;
+extern const Gpio rr_pump_pgood;
+extern const Gpio f_pump_pgood;
