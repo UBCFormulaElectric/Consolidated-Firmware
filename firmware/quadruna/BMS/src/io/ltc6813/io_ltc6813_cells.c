@@ -30,6 +30,15 @@ bool io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
     return io_ltc6813_sendCommand(ADCV);
 }
 
+// as per table 40-45
+typedef struct __attribute__((__packed__))
+{
+    uint16_t a;
+    uint16_t b;
+    uint16_t c;
+    PEC      pec;
+} VoltageRegGroup;
+
 /**
  * This functions works by iterating through all register groups, and for each register group asking each segment
  * what is the value of the register group in that segment
@@ -59,15 +68,7 @@ void io_ltc6813_readVoltages(
 
         // Transmit the command and receive data stored in register group.
         const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[curr_reg_group]);
-        // as per table 40-45
-        typedef struct __attribute__((__packed__))
-        {
-            uint16_t a;
-            uint16_t b;
-            uint16_t c;
-            PEC      pec;
-        } VoltageRegGroup;
-        VoltageRegGroup rx_buffer[NUM_SEGMENTS];
+        VoltageRegGroup  rx_buffer[NUM_SEGMENTS];
         static_assert(sizeof(VoltageRegGroup) == 8);
 
         const bool voltage_read_success = hw_spi_transmitThenReceive(

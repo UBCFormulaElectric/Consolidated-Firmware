@@ -133,22 +133,25 @@ bool io_ltc6813CellVoltages_owc(PullDirection pull_direction);
  */
 
 /**
- * self tests the cell adcs (muxes i think as well)
- * @returns if the test is successful
- * @note that the test can also fail due to comms issues
+ * dispatches a command to test the cell adcs
+ * @returns if the dispatch is successful
+ * @note this does not mean that the test has passed.
+ * you still need to assert the values in the reg groups
  */
 bool io_ltc6813_sendSelfTestVoltages(ADCSpeed speed);
 
 /**
- * self tests the aux adcs
- * @returns if the test is successful
- * @note that the test can also fail due to comms issues
+ * dispatches a command to test the aux adcs
+ * @returns if the dispatch is successful
+ * @note this does not mean that the test has passed.
+ * you still need to assert the values in the reg groups
  */
 bool io_ltc6813_sendSelfTestAux(ADCSpeed speed);
 
 /**
- * self tests the stat registers
- * @returns if the test is successful
- * @note that the test can also fail due to comms issues
+ * dispatches a command to test the stat registers
+ * @returns if the dispatch is successful
+ * @note this does not mean that the test has passed.
+ * you still need to assert the values in the reg groups
  */
 bool io_ltc6813_sendSelfTestStat(ADCSpeed speed);
