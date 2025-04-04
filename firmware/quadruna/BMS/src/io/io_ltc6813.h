@@ -145,7 +145,7 @@ typedef enum
  * @param pull_direction The pull up or pull down phase of the open wire check
  * @return success of operation
  */
-bool io_ltc6813CellVoltages_owc(PullDirection pull_direction);
+bool io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
 
 /**
  * @file ltc6813/io_ltc6813_tests.c

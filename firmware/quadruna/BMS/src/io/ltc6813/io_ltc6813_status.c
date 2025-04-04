@@ -41,7 +41,9 @@ void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
     const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(RDSTATA);
     if (!hw_spi_transmitThenReceive(
             &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)reg_stat_a, sizeof(reg_stat_a)))
-        return false;
+    {
+        return;
+    }
 
     struct
     {
@@ -51,8 +53,10 @@ void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
     static_assert(sizeof(reg_stat_b) == NUM_SEGMENTS * (sizeof(StatB) + sizeof(PEC)));
     const ltc6813_tx tx_cmd_2 = io_ltc6813_build_tx_cmd(RDSTATB);
     if (!hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd_2), (uint8_t *)reg_stat_b, sizeof(reg_stat_b)))
-        return false;
+            &ltc6813_spi, (uint8_t *)&tx_cmd_2, sizeof(tx_cmd_2), (uint8_t *)reg_stat_b, sizeof(reg_stat_b)))
+    {
+        return;
+    }
 
     for (int i = 0; i < NUM_SEGMENTS; i++)
     {
@@ -63,6 +67,5 @@ void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
         }
         success[i] = true;
     }
-
-    return true;
+    // TODO idk what to do with the values we just got
 }

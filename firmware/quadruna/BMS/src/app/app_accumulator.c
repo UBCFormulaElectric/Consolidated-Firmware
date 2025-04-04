@@ -471,7 +471,7 @@ bool app_accumulator_runOpenWireCheck(void)
             const bool Mutex_Acquired = true; // TODO this line is just a reminder to fix it with proper code
             if (Mutex_Acquired)
             {
-                io_ltc6813CellVoltages_owc(PULL_UP);
+                io_ltc6813CellVoltages_owcPull(PULL_UP);
                 open_wire_pu_readings++;
                 data.owc_state = GET_PU_CELL_VOLTAGE_STATE;
             }
@@ -482,13 +482,13 @@ bool app_accumulator_runOpenWireCheck(void)
             if (open_wire_pu_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
             {
                 io_ltc6813_readVoltages(cell_voltage_pu, cell_voltage_pu_success);
-                io_ltc6813CellVoltages_owc(PULL_DOWN);
+                io_ltc6813CellVoltages_owcPull(PULL_DOWN);
                 open_wire_pd_readings++;
                 data.owc_state = GET_PD_CELL_VOLTAGE_STATE;
             }
             else
             {
-                io_ltc6813CellVoltages_owc(PULL_UP);
+                io_ltc6813CellVoltages_owcPull(PULL_UP);
                 open_wire_pu_readings++;
             }
             break;
@@ -502,7 +502,7 @@ bool app_accumulator_runOpenWireCheck(void)
             }
             else
             {
-                io_ltc6813CellVoltages_owc(PULL_DOWN);
+                io_ltc6813CellVoltages_owcPull(PULL_DOWN);
                 open_wire_pd_readings++;
             }
             break;

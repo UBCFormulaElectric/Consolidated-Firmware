@@ -4,7 +4,7 @@
 
 // OPEN WIRE CHECK
 // TODO more configs here probably
-bool io_ltc6813CellVoltages_owc(const PullDirection pull_direction)
+bool io_ltc6813CellVoltages_owcPull(const PullDirection pull_direction)
 {
 // ADOW mode selection
 #define PUP_PU (1U) // Pull-up current
