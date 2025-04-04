@@ -100,18 +100,18 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
     }
 
     // padding required for crc function to not have concat issues
-    uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
-    if (padded_length > proto_msg_length)
-    {
-        memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
-    }
+    // uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
+    // if (padded_length > proto_msg_length)
+    // {
+    //     memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
+    // }
 
     // Build frame
-    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, padded_length))
+    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, proto_msg_length))
     {
         return false;
     }
-    *frame_length = HEADER_SIZE + padded_length;
+    *frame_length = HEADER_SIZE + proto_msg_length;
     return true;
 }
 
