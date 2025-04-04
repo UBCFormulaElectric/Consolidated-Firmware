@@ -27,7 +27,7 @@ typedef struct __attribute__((__packed__))
 } StatB;
 static_assert(sizeof(StatB) == REGISTER_GROUP_SIZE);
 
-bool io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
+void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
 {
     memset(success, 0, NUM_SEGMENTS * sizeof(bool));
 #define RDSTATA (0x0010)
@@ -61,6 +61,7 @@ bool io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
         {
             continue;
         }
+        success[i] = true;
     }
 
     return true;

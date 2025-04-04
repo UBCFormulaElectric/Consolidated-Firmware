@@ -174,3 +174,13 @@ bool io_ltc6813_sendSelfTestAux(ADCSpeed speed);
  * you still need to assert the values in the reg groups
  */
 bool io_ltc6813_sendSelfTestStat(ADCSpeed speed);
+
+/**
+ * @file ltc6813/io_ltc6813_status.c
+ */
+
+/**
+ * Gets the status registers from all the segments
+ * @param success success of operations
+ */
+void io_ltc6813_getStatus(bool success[NUM_SEGMENTS]);

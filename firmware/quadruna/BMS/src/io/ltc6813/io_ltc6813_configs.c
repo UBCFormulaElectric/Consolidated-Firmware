@@ -29,7 +29,7 @@ typedef struct __attribute__((__packed__))
     uint8_t dcc_9_12 : 4;
     uint8_t dcto : 4;
 } CFGAR;
-typedef struct
+typedef struct __attribute__((__packed__))
 {
     CFGAR config;
     PEC   pec;
@@ -54,7 +54,7 @@ typedef struct __attribute__((__packed__))
     // byte 3-6
     uint32_t reserved;
 } CFGBR;
-typedef struct
+typedef struct __attribute__((__packed__))
 {
     CFGBR config;
     PEC   pec;
@@ -183,7 +183,7 @@ bool io_ltc6813_readConfigurationRegisters()
     ltc6813_tx tx_msg_a = io_ltc6813_build_tx_cmd(RDCFGA);
     CFGAR_msg  rx_buf_a[NUM_SEGMENTS];
     if (!hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)&rx_buf_a, sizeof(rx_buf_a)))
+            &ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)rx_buf_a, sizeof(rx_buf_a)))
     {
         return false;
     }
@@ -197,7 +197,7 @@ bool io_ltc6813_readConfigurationRegisters()
     ltc6813_tx tx_msg_b = io_ltc6813_build_tx_cmd(RDCFGA);
     CFGBR_msg  rx_buf_b[NUM_SEGMENTS];
     if (!hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)&rx_buf_b, sizeof(rx_buf_b)))
+            &ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)rx_buf_b, sizeof(rx_buf_b)))
     {
         return false;
     }
