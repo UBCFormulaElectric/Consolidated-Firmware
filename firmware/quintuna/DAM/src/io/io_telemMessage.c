@@ -12,13 +12,11 @@
 // create or grab the constants for the different modem and pins and such
 // Private Globals
 
-#define CAN_DATA_LENGTH 12
-#define UART_LENGTH 1
 #define QUEUE_SIZE 52
+#define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 
 #define HEADER_SIZE 7
-#define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
-#define MAX_FRAME_SIZE (HEADER_SIZE + QUEUE_BYTES)
+#define MAX_FRAME_SIZE (HEADER_SIZE + 100)
 #define MAGIC_HIGH 0xAA
 #define MAGIC_LOW 0x55
 
