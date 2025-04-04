@@ -1,14 +1,19 @@
 #pragma once
 
 #include <stdbool.h>
-#include "hw_gpio.h"
 
+#ifdef TARGET_EMBEDDED
+#include "hw_gpio.h"
 typedef struct
 {
     const Gpio red_gpio;
     const Gpio green_gpio;
     const Gpio blue_gpio;
 } RgbLed;
+#else
+#include "app_utils.h"
+EMPTY_STRUCT(RgbLed)
+#endif
 
 typedef enum
 {
