@@ -38,7 +38,7 @@ typedef struct __attribute__((__packed__))
     uint16_t c;
     PEC      pec;
 } VoltageRegGroup;
-static_assert(sizeof(VoltageRegGroup) == 8);
+static_assert(sizeof(VoltageRegGroup) == REGISTER_GROUP_SIZE + PEC_SIZE);
 
 void io_ltc6813_readVoltageRegisters(
     uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
@@ -52,7 +52,7 @@ void io_ltc6813_readVoltageRegisters(
         return;
     }
 
-    for (uint8_t curr_reg_group = 0U; curr_reg_group < VOLTAGE_REGISTER_GROUPS; curr_reg_group++)
+    for (uint8_t reg_group = 0U; reg_group < VOLTAGE_REGISTER_GROUPS; reg_group++)
     {
         // maps the register group number to the command to read that register group
 #define RDCVA (0x04U)
@@ -64,7 +64,7 @@ void io_ltc6813_readVoltageRegisters(
         static const uint16_t cv_read_cmds[6] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE, RDCVF };
 
         // Transmit the command and receive data stored in register group.
-        const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[curr_reg_group]);
+        const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[reg_group]);
         VoltageRegGroup  rx_buffer[NUM_SEGMENTS];
 
         const bool voltage_read_success = hw_spi_transmitThenReceive(
@@ -83,14 +83,14 @@ void io_ltc6813_readVoltageRegisters(
                 continue;
             }
             // fuck it we already here
-            comm_success[seg_idx][curr_reg_group] = true;
+            comm_success[seg_idx][reg_group] = true;
 
             // Conversion factor used to convert raw voltages (100µV) to voltages (V)
-            cell_voltage_regs[seg_idx][curr_reg_group * 3 + 0] = seg_reg_group->a;
-            cell_voltage_regs[seg_idx][curr_reg_group * 3 + 1] = seg_reg_group->b;
-            if (curr_reg_group * 3 + 2 > 14) // TODO find a more elegant stopping condition
+            cell_voltage_regs[seg_idx][reg_group * 3 + 0] = seg_reg_group->a;
+            cell_voltage_regs[seg_idx][reg_group * 3 + 1] = seg_reg_group->b;
+            if (reg_group * 3 + 2 > 14) // TODO find a more elegant stopping condition
                 continue;
-            cell_voltage_regs[seg_idx][curr_reg_group * 3 + 2] = seg_reg_group->c;
+            cell_voltage_regs[seg_idx][reg_group * 3 + 2] = seg_reg_group->c;
         }
     }
 }

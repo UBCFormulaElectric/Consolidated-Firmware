@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define REGISTER_GROUP_SIZE (6U) // 6 bytes
+#define PEC_SIZE (2U)            // 2 bytes
+
 // we wrote it this way to make hide the little endian processor storage of the struct
 // this way, the mental model is that the data is stored in the order it is written (big endian)
 // I know about scalar_storage_order("big-endian") but you cannot get the address a struct with that attribute

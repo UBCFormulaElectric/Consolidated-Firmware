@@ -131,7 +131,7 @@ typedef struct __attribute__((__packed__))
     uint16_t c;
     PEC      pec;
 } AuxRegGroup;
-static_assert(sizeof(AuxRegGroup) == 8);
+static_assert(sizeof(AuxRegGroup) == REGISTER_GROUP_SIZE + PEC_SIZE);
 
 void io_ltc6813_readAuxRegisters(
     uint16_t aux_regs[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
