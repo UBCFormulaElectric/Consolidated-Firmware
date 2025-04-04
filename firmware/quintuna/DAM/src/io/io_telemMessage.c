@@ -12,13 +12,11 @@
 // create or grab the constants for the different modem and pins and such
 // Private Globals
 
-#define CAN_DATA_LENGTH 12
-#define UART_LENGTH 1
 #define QUEUE_SIZE 52
+#define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 
 #define HEADER_SIZE 7
-#define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
-#define MAX_FRAME_SIZE (HEADER_SIZE + QUEUE_BYTES)
+#define MAX_FRAME_SIZE (HEADER_SIZE + 100)
 #define MAGIC_HIGH 0xAA
 #define MAGIC_LOW 0x55
 
@@ -52,8 +50,9 @@ static bool init = false;
 static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buffer, uint8_t payload_length)
 {
     // CRC FUNCTION
-    uint32_t crc = hw_crc_calculate((uint32_t *)proto_buffer, (uint32_t)(payload_length / sizeof(uint32_t)));
-
+    uint32_t crc = hw_crc_calculate((uint32_t *)proto_buffer, (uint32_t)(payload_length));
+    // https://stackoverflow.com/questions/39646441/how-to-set-stm32-to-generate-standard-crc32
+    crc = ~crc; 
     frame_buffer[0] = MAGIC_HIGH;
     frame_buffer[1] = MAGIC_LOW;
     frame_buffer[2] = payload_length;
@@ -101,18 +100,18 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
     }
 
     // padding required for crc function to not have concat issues
-    uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
-    if (padded_length > proto_msg_length)
-    {
-        memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
-    }
+    // uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
+    // if (padded_length > proto_msg_length)
+    // {
+    //     memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
+    // }
 
     // Build frame
-    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, padded_length))
+    if (!telemMessage_appendHeader(frame_buffer, proto_buffer, proto_msg_length))
     {
         return false;
     }
-    *frame_length = HEADER_SIZE + padded_length;
+    *frame_length = HEADER_SIZE + proto_msg_length;
     return true;
 }
 
@@ -172,11 +171,12 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     {
         success &= hw_uart_transmitPoll(
             modem.modem900M, full_frame, frame_length, 100); // send full frame check line 143 for new frame_length
-        if(success)
+        if (success)
         {
             LOG_INFO("900Mhz Telem Message Sent");
+            // print the buffer up to the 27th byte
         }
-        else 
+        else
         {
             LOG_ERROR("900Mhz Telem Message Failed");
         }

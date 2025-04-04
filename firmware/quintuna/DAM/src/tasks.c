@@ -49,7 +49,6 @@ void tasks_init(void)
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
     io_telemMessage_init();
-    
 }
 
 _Noreturn void tasks_run1Hz(void)
@@ -67,9 +66,9 @@ _Noreturn void tasks_run1Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
         CanMsg fake_msg = {
-            .std_id = 0x123,
-            .dlc    = 8,
-            .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
+            .std_id    = 0x123,
+            .dlc       = 8,
+            .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
             .timestamp = io_time_getCurrentMs(),
         };
         io_telemMessage_pushMsgtoQueue(&fake_msg);
@@ -95,13 +94,13 @@ _Noreturn void tasks_run100Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
-        CanMsg fake_msg = {
-            .std_id = 0x124,
-            .dlc    = 8,
-            .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
-            .timestamp = io_time_getCurrentMs(),
-        };
-        io_telemMessage_pushMsgtoQueue(&fake_msg);
+        // CanMsg fake_msg = {
+        //     .std_id    = 0x124,
+        //     .dlc       = 8,
+        //     .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
+        //     .timestamp = io_time_getCurrentMs(),
+        // };
+        // io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -127,7 +126,7 @@ _Noreturn void tasks_run1kHz(void)
         // // equal to the period ms
         // if (io_time_getCurrentMs() - task_start_ms <= period_ms)
         //     hw_watchdog_checkIn(watchdog);
-        
+
         // CanMsg fake_msg = {
         //     .std_id = 0x125,
         //     .dlc    = 8,
