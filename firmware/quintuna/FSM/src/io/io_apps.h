@@ -1,6 +1,5 @@
 #pragma once
 
-
 #ifdef TARGET_EMBEDDED
 
 #include "hw_adc.h"
