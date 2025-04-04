@@ -279,7 +279,7 @@ static uint8_t integer_to_bcd(uint8_t value)
 
 static uint8_t bcd_to_integer(uint8_t value)
 {
-    return (uint8_t)((value >> 4) * 10) + (value);
+    return (uint8_t)((value >> 4) * 10 + (value & 0x0F));
 }
 
 void io_rtc_init(void)
@@ -294,7 +294,6 @@ void io_rtc_init(void)
     {
         LOG_ERROR("Failed to write to RTC control register 1");
     }
-
     su = hw_i2c_memoryRead(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
     if (!su)
     {
@@ -312,29 +311,29 @@ void io_rtc_setTime(struct IoRtcTime *time)
     uint8_t months   = integer_to_bcd(time->month);
     uint8_t years    = integer_to_bcd(time->year);
 
-    Register_t regTime;
-    regTime.seconds.SECONDS = (uint8_t)(seconds) & 0x7F;
+    Register_t regSecond = {0};
+    regSecond.seconds.SECONDS = (uint8_t)(seconds) & 0x7F;
 
-    Register_t regMinutes;
+    Register_t regMinutes = {0};
     regMinutes.minutes.MINUTES = (uint8_t)(minutes) & 0x7F;
 
-    Register_t regHours;
+    Register_t regHours = {0};
     regHours.hours.HOURS = (uint8_t)(hours) & 0x1F;
 
-    Register_t regDays;
+    Register_t regDays = {0};
     regDays.days.DAYS = (uint8_t)(date);
 
-    Register_t regWeekdays;
+    Register_t regWeekdays = {0};
     regWeekdays.weekdays.WEEKDAYS = (uint8_t)(weekdays);
 
-    Register_t regMonths;
+    Register_t regMonths = {0};
     regMonths.months.MONTHS = (uint8_t)(months);
 
-    Register_t regYears;
+    Register_t regYears = {0};
     regYears.years.YEARS = (uint8_t)(years);
 
     uint8_t buffer[7] = {
-        regTime.raw, regMinutes.raw, regHours.raw, regDays.raw, regWeekdays.raw, regMonths.raw, regYears.raw,
+        regSecond.raw, regMinutes.raw, regHours.raw, regDays.raw, regWeekdays.raw, regMonths.raw, regYears.raw,
     };
 
     LOG_INFO(
@@ -360,8 +359,8 @@ void io_rtc_readTime(struct IoRtcTime *time)
         LOG_ERROR("Failed to read from RTC time registers");
     }
 
-    Register_t regTime;
-    regTime.raw = buffer[0];
+    Register_t regSecond;
+    regSecond.raw = buffer[0];
 
     Register_t regMinutes;
     regMinutes.raw = buffer[1];
@@ -381,7 +380,7 @@ void io_rtc_readTime(struct IoRtcTime *time)
     Register_t regYears;
     regYears.raw = buffer[6];
 
-    time->seconds  = (uint8_t)(bcd_to_integer(regTime.seconds.SECONDS));
+    time->seconds  = (uint8_t)(bcd_to_integer(regSecond.seconds.SECONDS));
     time->minutes  = (uint8_t)(bcd_to_integer(regMinutes.minutes.MINUTES));
     time->hours    = (uint8_t)(bcd_to_integer(regHours.hours.HOURS));
     time->day      = (uint8_t)(bcd_to_integer(regDays.days.DAYS));
