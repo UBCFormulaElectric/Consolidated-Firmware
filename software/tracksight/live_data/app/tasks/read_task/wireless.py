@@ -1,7 +1,3 @@
-# TODO FINISH
-# import time
-# from tzlocal import get_localzone
-
 from threading import Thread
 import serial
 from generated import telem_pb2
@@ -47,9 +43,8 @@ def read_packet(ser: serial.Serial):
 		if len(buffer) < HEADER_SIZE:
 			continue
 
-		#check for magic number
 		if buffer[0:2] != MAGIC:
-			magic_index = find_magic_in_buffer(buffer, MAGIC)
+			magic_index = find_magic_in_buffer(buffer.hex(), MAGIC)
 			if magic_index == -1:
 				buffer.clear()
 			else:
@@ -61,7 +56,7 @@ def read_packet(ser: serial.Serial):
 
 		#parse remainder of header
 		payload_length = buffer[2]
-		expected_crc = int.from_bytes(buffer[3:7], byteorder='big')  # Updated to read 32-bit CRC
+		expected_crc = int.from_bytes(buffer[3:7], byteorder='big').to_bytes(4, byteorder='big').hex()  # Updated to read 32-bit CRC and cast to hex
 
 		if payload_length > MAX_PAYLOAD_SIZE:
 			logger.error(f"Payload length {payload_length} is too large")
@@ -86,9 +81,9 @@ def _read_messages(port: str):
 	ser = serial.Serial(port, baudrate=57600, timeout = 1)
 	ser.reset_input_buffer()
 	ser.reset_output_buffer()
-	while True:
+
+	while True:	
 		packet, payload_length, expected_crc = read_packet(ser)
-		print(f"Received packet of size {len(packet)} bytes")
 		payload = packet[HEADER_SIZE:]
 		if len(payload) != payload_length:
 			logger.error(f"Payload length mismatch: expected {payload_length}, got {len(payload)}")
@@ -96,9 +91,9 @@ def _read_messages(port: str):
 			
 		# CRC check
 		calculator = Calculator(Crc32.CRC32)
-		calculated_checksum = calculator.checksum(payload)
+		calculated_checksum = calculator.checksum(payload).to_bytes(4, byteorder='big').hex()
 		if expected_crc != calculated_checksum:
-			logger.error(f"CRC mismatch: computed {calculated_checksum:08X}, expected {expected_crc:08X}")
+			logger.error(f"CRC mismatch: computed ", calculated_checksum, "expected ", expected_crc)
 			continue
 
 		try:
