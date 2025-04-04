@@ -123,12 +123,22 @@ static float calculateThermistorTempDeciDegC(const uint16_t raw_thermistor_volta
     return (float)therm_lut_index * THERM_INDEX_TO_DEGC;
 }
 
-void io_ltc6813_readTemperatures(
-    float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS])
+// as per table 46-48
+typedef struct __attribute__((__packed__))
 {
-    memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
-    memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
+    uint16_t a;
+    uint16_t b;
+    uint16_t c;
+    PEC      pec;
+} AuxRegGroup;
+static_assert(sizeof(AuxRegGroup) == 8);
+
+void io_ltc6813_readAuxRegisters(
+    uint16_t aux_regs[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    bool     comm_success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS])
+{
+    memset(comm_success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
+    memset(aux_regs, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(uint16_t));
     if (!io_ltc6813_pollAdcConversions())
     {
         return;
@@ -144,26 +154,12 @@ void io_ltc6813_readTemperatures(
         static const uint16_t aux_reg_group_cmds[3] = { RDAUXA, RDAUXB, RDAUXC };
         const ltc6813_tx      tx_cmd                = io_ltc6813_build_tx_cmd(aux_reg_group_cmds[reg_group]);
 
-        // as per table 46-48
-        typedef struct __attribute__((__packed__))
-        {
-            uint16_t a;
-            uint16_t b;
-            uint16_t c;
-            PEC      pec;
-        } AuxRegGroup;
         AuxRegGroup rx_buffer[NUM_SEGMENTS];
-        static_assert(sizeof(AuxRegGroup) == 8);
 
         // send command and receive data
         if (!hw_spi_transmitThenReceive(
                 &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer)))
         {
-            // memset(success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
-            for (int i = 0; i < NUM_SEGMENTS; i++)
-            {
-                success[i][reg_group] = false;
-            }
             continue;
         }
 
@@ -174,16 +170,34 @@ void io_ltc6813_readTemperatures(
             const AuxRegGroup *seg_reg_group = &rx_buffer[(NUM_SEGMENTS - 1) - seg_idx];
             if (!io_ltc6813_check_pec((uint8_t *)seg_reg_group, 6, &seg_reg_group->pec))
             {
-                success[seg_idx][reg_group] = false;
                 continue;
             }
 
             // since we are ignoring REF variable, we need to offset all further readings by 1 backwards
-            const int8_t adj                             = reg_group > 1 ? -1 : 0;
-            success[seg_idx][reg_group]                  = true;
-            cell_temps[seg_idx][reg_group * 3 + 0 + adj] = calculateThermistorTempDeciDegC(seg_reg_group->a);
-            cell_temps[seg_idx][reg_group * 3 + 1 + adj] = calculateThermistorTempDeciDegC(seg_reg_group->b);
-            cell_temps[seg_idx][reg_group * 3 + 2 + adj] = calculateThermistorTempDeciDegC(seg_reg_group->c);
+            const int8_t adj                           = reg_group > 1 ? -1 : 0;
+            comm_success[seg_idx][reg_group]           = true;
+            aux_regs[seg_idx][reg_group * 3 + 0 + adj] = seg_reg_group->a;
+            aux_regs[seg_idx][reg_group * 3 + 1 + adj] = seg_reg_group->b;
+            aux_regs[seg_idx][reg_group * 3 + 2 + adj] = seg_reg_group->c;
+        }
+    }
+}
+
+void io_ltc6813_readTemperatures(
+    float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS])
+{
+    uint16_t aux_regs[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+    io_ltc6813_readAuxRegisters(aux_regs, success);
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < THERMISTORS_PER_SEGMENT; cell++)
+        {
+            if (!success[segment][cell / 3])
+            {
+                continue;
+            }
+            cell_temps[segment][cell] = calculateThermistorTempDeciDegC(aux_regs[segment][cell]);
         }
     }
 }

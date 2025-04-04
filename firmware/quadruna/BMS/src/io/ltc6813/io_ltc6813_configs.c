@@ -100,7 +100,7 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
 #define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
         seg_a->vuv_0_7  = VUV & 0xFF;
         seg_a->vuv_8_11 = VUV >> 8 & 0xF;
-#define VOV (0x8CAU) // Over-voltage comparison voltage, VOV * 16 * 100uV
+#define VOV (0x9C4U) // Over-voltage comparison voltage, VOV * 16 * 100uV
         seg_a->vov_0_3  = VOV & 0xF;
         seg_a->vov_4_11 = VOV >> 4 & 0xFF;
 

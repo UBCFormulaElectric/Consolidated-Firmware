@@ -38,17 +38,14 @@ typedef struct __attribute__((__packed__))
     uint16_t c;
     PEC      pec;
 } VoltageRegGroup;
+static_assert(sizeof(VoltageRegGroup) == 8);
 
-/**
- * This functions works by iterating through all register groups, and for each register group asking each segment
- * what is the value of the register group in that segment
- */
-void io_ltc6813_readVoltages(
-    float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
+void io_ltc6813_readVoltageRegisters(
+    uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    bool     comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
 {
-    memset(success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
-    memset(cell_voltages, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
+    memset(comm_success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
+    memset(cell_voltage_regs, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(uint16_t));
     // Exit early if ADC conversion fails
     if (!io_ltc6813_pollAdcConversions())
     {
@@ -69,7 +66,6 @@ void io_ltc6813_readVoltages(
         // Transmit the command and receive data stored in register group.
         const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[curr_reg_group]);
         VoltageRegGroup  rx_buffer[NUM_SEGMENTS];
-        static_assert(sizeof(VoltageRegGroup) == 8);
 
         const bool voltage_read_success = hw_spi_transmitThenReceive(
             &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
@@ -84,20 +80,41 @@ void io_ltc6813_readVoltages(
             // Calculate PEC15 from the data received on rx_buffer
             if (!io_ltc6813_check_pec((uint8_t *)seg_reg_group, 6, &seg_reg_group->pec))
             {
-                success[seg_idx][curr_reg_group] = false;
                 continue;
             }
             // fuck it we already here
-            success[seg_idx][curr_reg_group] = true;
+            comm_success[seg_idx][curr_reg_group] = true;
 
             // Conversion factor used to convert raw voltages (100µV) to voltages (V)
+            cell_voltage_regs[seg_idx][curr_reg_group * 3 + 0] = seg_reg_group->a;
+            cell_voltage_regs[seg_idx][curr_reg_group * 3 + 1] = seg_reg_group->b;
+            if (curr_reg_group * 3 + 2 > 14) // TODO find a more elegant stopping condition
+                continue;
+            cell_voltage_regs[seg_idx][curr_reg_group * 3 + 2] = seg_reg_group->c;
+        }
+    }
+}
+
+/**
+ * This functions works by iterating through all register groups, and for each register group asking each segment
+ * what is the value of the register group in that segment
+ */
+void io_ltc6813_readVoltages(
+    float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
+{
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-            cell_voltages[seg_idx][curr_reg_group * 3 + 0] = CONVERT_100UV_TO_VOLTAGE(seg_reg_group->a);
-            cell_voltages[seg_idx][curr_reg_group * 3 + 1] = CONVERT_100UV_TO_VOLTAGE(seg_reg_group->b);
-            if (curr_reg_group * 3 + 2 > 14)
+    uint16_t reg_vals[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+    io_ltc6813_readVoltageRegisters(reg_vals, success);
+    for (int i = 0; i < NUM_SEGMENTS; i++)
+    {
+        for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+        {
+            if (!success[i][j / 3])
                 continue;
-            cell_voltages[seg_idx][curr_reg_group * 3 + 2] = CONVERT_100UV_TO_VOLTAGE(seg_reg_group->c);
+            // see page 68, 0xffff is invalid (either not populated or faulted)
+            cell_voltages[i][j] = cell_voltages[i][j] == 0xffff ? 0 : CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
         }
     }
 }

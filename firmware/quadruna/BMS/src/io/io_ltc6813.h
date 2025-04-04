@@ -5,6 +5,7 @@
  */
 #pragma once
 #include <stdbool.h>
+#include <stdint.h>
 
 // physical constants
 #define NUM_SEGMENTS 1
@@ -51,6 +52,15 @@ typedef enum
  */
 
 /**
+ * Gets the value of the cell voltage registers, shares success of operation
+ * @param cell_voltage_regs value of the cell voltage registers
+ * @param comm_success success of operation on a certain segment and register group
+ */
+void io_ltc6813_readVoltageRegisters(
+    uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    bool     comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
+
+/**
  * Reads all voltages from all segments
  * @param cell_voltages The resultant cell voltages
  * @param success This parameter will be assumed to contain all falses at the beginning
@@ -61,7 +71,7 @@ void io_ltc6813_readVoltages(
     bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
 
 /**
- *
+ * sends a command to read all voltages from all segments
  * @return success of the operation
  */
 bool io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
@@ -69,6 +79,15 @@ bool io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
 /**
  * @file ltc6813/io_ltc6813_temps.c
  */
+
+/**
+ * Directly reads the auxillary registers
+ * @param aux_regs Auxillary register values to populate
+ * @param comm_success Success of communications
+ */
+void io_ltc6813_readAuxRegisters(
+    uint16_t aux_regs[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    bool     comm_success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS]);
 
 /**
  * Reads all temperatures from all segments
