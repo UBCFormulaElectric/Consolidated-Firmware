@@ -1,5 +1,6 @@
 #pragma once
 
+#include <io_ltc6813.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -87,3 +88,5 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
  * @attention This will trigger balancing
  */
 void app_accumulator_balanceCells(void);
+
+extern float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];

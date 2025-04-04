@@ -383,54 +383,50 @@
     },
     "Segment0_VoltageStats_0": {
         "msg_id": 154,
-        "cycle_time": 1000,
+        "cycle_time": 10,
         "description": "BMS Segment 0 Voltage Stats Part 0",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg0_Cell0_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell1_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell2_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell3_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell4_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell5_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell6_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell7_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
@@ -439,54 +435,50 @@
     },
     "Segment0_VoltageStats_1": {
         "msg_id": 155,
-        "cycle_time": 1000,
+        "cycle_time": 10,
         "description": "BMS Segment 0 Voltage Stats Part 1",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
+            "Seg0_Cell7_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
             "Seg0_Cell8_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell9_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell10_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell11_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell12_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell13_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell14_Voltage": {
-                "resolution": 0.1,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell15_Voltage": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -0.1,
                 "max": 5,
                 "unit": "V"
@@ -497,7 +489,9 @@
         "msg_id": 156,
         "cycle_time": 1000,
         "description": "BMS Segment 1 Voltage Stats Part 0",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg1_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -553,7 +547,9 @@
         "msg_id": 157,
         "cycle_time": 1000,
         "description": "BMS Segment 1 Voltage Stats Part 1",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg1_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -609,7 +605,9 @@
         "msg_id": 158,
         "cycle_time": 1000,
         "description": "BMS Segment 2 Voltage Stats Part 0",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg2_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -665,7 +663,9 @@
         "msg_id": 159,
         "cycle_time": 1000,
         "description": "BMS Segment 2 Voltage Stats Part 1",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg2_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -721,7 +721,9 @@
         "msg_id": 160,
         "cycle_time": 1000,
         "description": "BMS Segment 3 Voltage Stats Part 0",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg3_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -777,7 +779,9 @@
         "msg_id": 161,
         "cycle_time": 1000,
         "description": "BMS Segment 3 Voltage Stats Part 1",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg3_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -833,7 +837,9 @@
         "msg_id": 165,
         "cycle_time": 1000,
         "description": "Average temperatures for each segment in the accumulator",
-        "allowed_modes": ["debug"],
+        "allowed_modes": [
+            "debug"
+        ],
         "signals": {
             "Seg0_Temp": {
                 "resolution": 1,

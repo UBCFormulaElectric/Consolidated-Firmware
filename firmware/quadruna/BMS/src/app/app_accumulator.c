@@ -83,7 +83,7 @@ static TimerChannel over_temp_fault_timer;
 static uint32_t conceq_fails                                                = 0;
 static bool     voltage_read_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { false };
 static bool     temp_read_success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS] = { false };
-static float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+float           cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
 static float cell_voltage_pu[NUM_SEGMENTS][CELLS_PER_SEGMENT];
@@ -396,7 +396,7 @@ void app_accumulator_runCellMeasurements(void)
             // Attempt to read voltages from the LTCs, write output to cell voltages array
             io_ltc6813_readVoltages(cell_voltages, voltage_read_success);
             calculateVoltageStats();
-            io_ltc6813_startThermistorsAdcConversion(ADCSpeed_1kHz);
+            io_ltc6813_startThermistorsAdcConversion(ADCSpeed_14kHz);
             data.measurement_state = GET_CELL_TEMP_STATE;
             break;
         }
@@ -404,7 +404,7 @@ void app_accumulator_runCellMeasurements(void)
         {
             io_ltc6813_readTemperatures(cell_temps, temp_read_success);
             calculateTemperatureStats();
-            io_ltc6813_startCellsAdcConversion(ADCSpeed_1kHz);
+            io_ltc6813_startCellsAdcConversion(ADCSpeed_14kHz);
             data.measurement_state = GET_CELL_VOLTAGE_STATE;
             break;
         }

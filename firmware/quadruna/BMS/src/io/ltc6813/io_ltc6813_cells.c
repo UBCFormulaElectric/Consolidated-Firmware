@@ -21,7 +21,7 @@ bool io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
     if (!clearCellRegisters())
         return false;
-    const uint16_t adc_speed_factor = speed & 0x3;
+    const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // Cell selection for ADC conversion
 #define CH (000U)
 // Discharge permitted
@@ -107,6 +107,7 @@ void io_ltc6813_readVoltages(
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
     uint16_t reg_vals[NUM_SEGMENTS][CELLS_PER_SEGMENT];
     io_ltc6813_readVoltageRegisters(reg_vals, success);
+    memset(cell_voltages, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
     for (int i = 0; i < NUM_SEGMENTS; i++)
     {
         for (int j = 0; j < CELLS_PER_SEGMENT; j++)
@@ -114,7 +115,7 @@ void io_ltc6813_readVoltages(
             if (!success[i][j / 3])
                 continue;
             // see page 68, 0xffff is invalid (either not populated or faulted)
-            cell_voltages[i][j] = cell_voltages[i][j] == 0xffff ? 0 : CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
+            cell_voltages[i][j] = reg_vals[i][j] == 0xffff ? 0 : CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
         }
     }
 }

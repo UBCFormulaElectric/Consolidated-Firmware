@@ -17,21 +17,21 @@
 
 bool io_ltc6813_sendSelfTestVoltages(const ADCSpeed speed)
 {
-    const uint16_t adc_speed_factor = speed & 0x3;
+    const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 #define CVST (0x0207U | adc_speed_factor | ST << 5)
     return io_ltc6813_sendCommand(CVST);
 }
 
 bool io_ltc6813_sendSelfTestAux(const ADCSpeed speed)
 {
-    const uint16_t adc_speed_factor = speed & 0x3;
+    const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 #define AXST (0x407 | adc_speed_factor | (uint16_t)(ST << 5))
     return io_ltc6813_sendCommand(AXST);
 }
 
 bool io_ltc6813_sendSelfTestStat(const ADCSpeed speed)
 {
-    const uint16_t adc_speed_factor = speed & 0x3;
+    const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 #define STATST (0x40F | adc_speed_factor | (uint16_t)(ST << 5))
     return io_ltc6813_sendCommand(STATST);
 }

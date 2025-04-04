@@ -1,4 +1,5 @@
 #include "app_diagnosticsMode.h"
+#include <app_accumulator.h>
 #include "app_canTx.h"
 #include "io_ltc6813.h"
 
@@ -67,13 +68,13 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 void app_diagnosticsMode_broadcast(void)
 {
     // Update all cell voltages
-    // for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
-    // {
-    //     for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-    //     {
-    //         cellVoltageSetters[segment][cell](io_ltc6813CellVoltages_getCellVoltage(segment, cell));
-    //     }
-    // }
+    for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            cellVoltageSetters[segment][cell](cell_voltages[segment][cell]);
+        }
+    }
 
     // Calculate and update all segment temperatures
     app_diagnosticsMode_calculateDiagnosticTemperatureStats();
