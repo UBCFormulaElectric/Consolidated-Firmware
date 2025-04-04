@@ -52,7 +52,7 @@ static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buff
     // CRC FUNCTION
     uint32_t crc = hw_crc_calculate((uint32_t *)proto_buffer, (uint32_t)(payload_length));
     // https://stackoverflow.com/questions/39646441/how-to-set-stm32-to-generate-standard-crc32
-    crc = ~crc; 
+    crc             = ~crc;
     frame_buffer[0] = MAGIC_HIGH;
     frame_buffer[1] = MAGIC_LOW;
     frame_buffer[2] = payload_length;
