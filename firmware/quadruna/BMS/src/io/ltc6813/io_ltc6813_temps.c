@@ -23,10 +23,10 @@ bool io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
 {
     if (!clearAuxRegisters())
         return false;
-    const uint16_t speed_factor = speed & 0x3 << 7;
+    const uint16_t adc_speed_factor = speed & 0x3;
 // GPIO Selection for ADC conversion
 #define CHG (0x000U)
-#define ADAX (0x460 | speed_factor | CHG)
+#define ADAX (0x460 | adc_speed_factor | CHG)
     return io_ltc6813_sendCommand(ADAX);
 }
 
