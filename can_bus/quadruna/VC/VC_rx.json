@@ -10,7 +10,6 @@
         "CRIT_CRITShdnNodeStatus",
         "CRIT_Switches",
         "CRIT_Vitals",
-        "CRIT_Vitals",
         "Debug_CanMode",
         "Debug_SetCoolantPump",
         "FSM_Apps",
@@ -25,6 +24,7 @@
         "INVL_Temperatures3",
         "INVR_InternalStates",
         "INVR_MotorPositionInfo",
-        "INVR_Temperatures3"
+        "INVR_Temperatures3",
+        "Debug_BootloaderCAN"
     ]
 }

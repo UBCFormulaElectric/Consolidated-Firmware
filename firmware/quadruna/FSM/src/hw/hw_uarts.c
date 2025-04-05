@@ -1,4 +1,22 @@
 #include "hw_uarts.h"
+
+#include "io_chimera.h"
 #include "main.h"
 
-const UART debug_uart = { .handle = &huart1 };
+UartDevice chimera_uart = { .config = { .handle             = &huart1,
+                                        .polling_timeout_ms = osWaitForever,
+                                        .callback_dma       = false,
+                                        .transmit_callback  = NULL,   // Doesn't use TX callbacks
+                                        .receive_callback   = NULL } }; // Doesn't use RX callbacks
+
+UartDevice *hw_uart_getDeviceFromHandle(const UART_HandleTypeDef *handle)
+{
+    if (handle == &huart1)
+    {
+        return &chimera_uart;
+    }
+    else
+    {
+        return NULL;
+    }
+}
