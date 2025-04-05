@@ -1,6 +1,5 @@
 #include "hw_cans.h"
 #include "main.h"
-
 #include <assert.h>
 #include "io_canQueue.h"
 
