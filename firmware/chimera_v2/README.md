@@ -99,7 +99,7 @@ Then click Replace Driver.
 For users of this package, checkout [`./docs`](./docs).
 
 ## Development
-Chimera V2 has two ends - board side and Python side. Board side code can be found at [`hw_chimera_v2.h`](../shared/src/io/hw_chimera_v2.h)/[`hw_chimera_v2.c`](../shared/src/io/hw_chimera_v2.c). Python side code is in the [same directory as this README](.).
+Chimera V2 has two ends - board side and Python side. Board side code can be found at [`hw_chimera_v2.h`](../shared/src/hw/hw_chimera_v2.h)/[`hw_chimera_v2.c`](../shared/src/hw/hw_chimera_v2.c). Python side code is in the [same directory as this README](.).
 
 ### Versioning
 Every change to Chimera V2 should correspond with a minor version bump. An update to support a new car should correspond with a major version bump.
@@ -302,7 +302,7 @@ class F4Dev(_Board):
 
 Note: the `product` field in the `_UsbDevice` initializer is the same as you configured in STM32CubeMX.
 
-The next step is to configure Chimera on the board. Open [`hw_chimera_v2.c`](../shared/src/io/hw_chimera_v2.c). Modify `hw_chimera_v2_getGpio`, `hw_chimera_v2_getAdc`, `hw_chimera_v2_getSpi`, and `hw_chimera_v2_getI2c` with a branch corresponding to your board.
+The next step is to configure Chimera on the board. Open [`hw_chimera_v2.c`](../shared/src/hw/hw_chimera_v2.c). Modify `hw_chimera_v2_getGpio`, `hw_chimera_v2_getAdc`, `hw_chimera_v2_getSpi`, and `hw_chimera_v2_getI2c` with a branch corresponding to your board.
 
 > Note: If your board does not have any of a given peripheral, do not add such a branch. Eg, a board with no SPI peripherals should not have a branch in `hw_chimera_v2_getSpi`.
 
@@ -338,7 +338,7 @@ enum GpioNetName {
 
 Now run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh) again to generate the python proto libraries. Also try to build binaries for your board.
 
-To capture these peripherals on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `io` level of your board, create files called `hw_chimeraConfig_v2.h`/`hw_chimeraConfig_v2.c`.
+To capture these peripherals on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `hw` level of your board, create files called `hw_chimeraConfig_v2.h`/`hw_chimeraConfig_v2.c`.
 
 `hw_chimeraConfig_v2.h` should look like this,
 
@@ -385,16 +385,35 @@ hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit
                                            .id_to_spi         = id_to_spi };
 ```
 
-We can finally run chimera. Include the shared `hw_chimera_v2.h` library, and run `hw_chimera_v2_mainOrContinue` in your desired task (You need to also include `hw_chimeraConfig_v2.h` at the top of your file).
+We can finally run chimera. Include the shared `hw_chimera_v2.h` library in your `tasks.c`. Then, also in `tasks.c`, create the following function.
 
-Eg.,
 ```c
-hw_chimera_v2_mainOrContinue(&chimera_v2_config);
+_Noreturn void tasks_chimera_v2(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
+}
 ```
 
-Note: you might want to use the provided `hw_chimera_v2_enabled` flag to disable other non-chimera jobs.
+You will also have to add the decleration in the `tasks.h` file.
 
-`hw_chimera_v2_mainOrContinue` will skip running if no USB is plugged in on boot. It should be called in a loop in one of the tasks (eg. 100 Hz).
+
+```c
+_Noreturn void tasks_chimera_v2(void);
+```
+
+Make sure to invoke this task function in `main.c`.
+
+```c
+void RunChimeraTask(void *argument)
+{
+    /* USER CODE BEGIN RunChimeraTask */
+    /* Infinite loop */
+    tasks_chimera_v2();
+    /* USER CODE END RunChimeraTask */
+}
+```
+
+Note: you will want to use the provided `hw_chimera_v2_enabled` flag to disable other non-Chimera jobs when Chimera is running.
 
 ### Development Environment
 For development, start by changing to [the directory of this README](.), and installing it as a pip package. 

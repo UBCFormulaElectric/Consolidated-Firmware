@@ -54,6 +54,8 @@ CRC_HandleTypeDef hcrc;
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
+IWDG_HandleTypeDef hiwdg1;
+
 SD_HandleTypeDef hsd1;
 
 SPI_HandleTypeDef hspi4;
@@ -122,6 +124,18 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -141,11 +155,13 @@ static void MX_TIM3_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_CRC_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_IWDG1_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
+void        StartChimeraTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -198,6 +214,7 @@ int main(void)
     MX_FDCAN2_Init();
     MX_CRC_Init();
     MX_TIM5_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -235,6 +252,9 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(StartChimeraTask, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -284,8 +304,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -658,6 +679,33 @@ static void MX_FDCAN2_Init(void)
     /* USER CODE BEGIN FDCAN2_Init 2 */
 
     /* USER CODE END FDCAN2_Init 2 */
+}
+
+/**
+ * @brief IWDG1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG1_Init(void)
+{
+    /* USER CODE BEGIN IWDG1_Init 0 */
+
+    /* USER CODE END IWDG1_Init 0 */
+
+    /* USER CODE BEGIN IWDG1_Init 1 */
+
+    /* USER CODE END IWDG1_Init 1 */
+    hiwdg1.Instance       = IWDG1;
+    hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg1.Init.Window    = 4095;
+    hiwdg1.Init.Reload    = 4095;
+    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG1_Init 2 */
+
+    /* USER CODE END IWDG1_Init 2 */
 }
 
 /**
@@ -1117,6 +1165,21 @@ void RunTask1Hz(void *argument)
     /* USER CODE BEGIN RunTask1Hz */
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_StartChimeraTask */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartChimeraTask */
+void StartChimeraTask(void *argument)
+{
+    /* USER CODE BEGIN StartChimeraTask */
+    /* Infinite loop */
+    tasks_chimera_v2();
+    /* USER CODE END StartChimeraTask */
 }
 
 /**
