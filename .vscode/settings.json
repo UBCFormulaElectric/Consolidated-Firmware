@@ -15,6 +15,8 @@
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
 	],
 	"files.associations": {
-		"app_utils.h": "c"
+		"app_utils.h": "c",
+		"io_suspension.h": "c",
+		"assert.h": "c"
 	}
 }

@@ -32,5 +32,5 @@ void app_coolant_broadcast(void)
         //coolant_status.status == VALUE_IN_RANGE || !in_drive_state);
 
     // TODO: check if ts work, apparently it didn't work last year
-   // app_canAlerts_RSM_Warning_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
+    app_canAlerts_RSM_Warning_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
