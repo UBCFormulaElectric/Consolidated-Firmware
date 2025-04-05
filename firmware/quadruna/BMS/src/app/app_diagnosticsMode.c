@@ -48,7 +48,7 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
     // for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
     // {
     //     float sum_segment_temp = 0U;
-    //     for (uint8_t curr_reg_group = 0U; curr_reg_group < THERMISTOR_REGISTER_GROUPS; curr_reg_group++)
+    //     for (uint8_t curr_reg_group = 0U; curr_reg_group < AUX_REGISTER_GROUPS; curr_reg_group++)
     //     {
     //         for (uint8_t curr_thermistor = 0U; curr_thermistor < NUM_OF_READINGS_PER_REG_GROUP; curr_thermistor++)
     //         {

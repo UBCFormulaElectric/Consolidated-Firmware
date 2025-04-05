@@ -82,7 +82,7 @@ static TimerChannel over_temp_fault_timer;
 // THE EDWIN LINE
 static uint32_t conceq_fails                                                = 0;
 static bool     voltage_read_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { false };
-static bool     temp_read_success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS] = { false };
+static bool     temp_read_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]        = { false };
 float           cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
@@ -182,7 +182,7 @@ static void calculateTemperatureStats(void)
     uint8_t temp_fails = 0;
     for (int i = 0; i < NUM_SEGMENTS; i++)
     {
-        for (int j = 0; j < THERMISTOR_REGISTER_GROUPS; j++)
+        for (int j = 0; j < AUX_REGISTER_GROUPS; j++)
         {
             if (!temp_read_success[i][j])
             {

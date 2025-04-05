@@ -134,18 +134,18 @@ typedef struct __attribute__((__packed__))
 static_assert(sizeof(AuxRegGroup) == REGISTER_GROUP_SIZE + PEC_SIZE);
 
 void io_ltc6813_readAuxRegisters(
-    uint16_t aux_regs[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    bool     comm_success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS])
+    uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
+    bool     comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
 {
-    memset(comm_success, false, NUM_SEGMENTS * THERMISTOR_REGISTER_GROUPS);
-    memset(aux_regs, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(uint16_t));
+    memset(comm_success, false, NUM_SEGMENTS * AUX_REGISTER_GROUPS);
+    memset(aux_regs, 0, NUM_SEGMENTS * AUX_REGS_PER_SEGMENT * sizeof(uint16_t));
     if (!io_ltc6813_pollAdcConversions())
     {
         return;
     }
 
     // Read thermistor voltages stored in the AUX register groups
-    for (uint8_t reg_group = 0U; reg_group < THERMISTOR_REGISTER_GROUPS; reg_group++)
+    for (uint8_t reg_group = 0U; reg_group < AUX_REGISTER_GROUPS; reg_group++)
     {
         // pack command
 #define RDAUXA (0x000CU)
@@ -185,9 +185,9 @@ void io_ltc6813_readAuxRegisters(
 
 void io_ltc6813_readTemperatures(
     float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS])
+    bool  success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
 {
-    uint16_t aux_regs[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+    uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
     io_ltc6813_readAuxRegisters(aux_regs, success);
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
@@ -199,5 +199,8 @@ void io_ltc6813_readTemperatures(
             }
             cell_temps[segment][cell] = calculateThermistorTempDeciDegC(aux_regs[segment][cell]);
         }
+        // assert the value of the vref
+        const uint16_t vref = aux_regs[segment][AUX_REGS_PER_SEGMENT - 1];
+        assert(29900 <= vref && vref <= 30140);
     }
 }

@@ -14,7 +14,8 @@
 
 // LTC6813 realities
 #define VOLTAGE_REGISTER_GROUPS 5
-#define THERMISTOR_REGISTER_GROUPS 3
+#define AUX_REGISTER_GROUPS 3
+#define AUX_REGS_PER_SEGMENT 9
 
 /**
  * @file ltc6813/io_ltc6813_configs.c
@@ -86,8 +87,8 @@ bool io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
  * @param comm_success Success of communications
  */
 void io_ltc6813_readAuxRegisters(
-    uint16_t aux_regs[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    bool     comm_success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS]);
+    uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
+    bool     comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
 
 /**
  * Reads all temperatures from all segments
@@ -97,7 +98,7 @@ void io_ltc6813_readAuxRegisters(
  */
 void io_ltc6813_readTemperatures(
     float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][THERMISTOR_REGISTER_GROUPS]);
+    bool  success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
 
 /**
  * sends a command to read all temperatures from all segments
