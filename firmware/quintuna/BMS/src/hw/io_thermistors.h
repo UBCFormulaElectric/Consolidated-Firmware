@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include <stdbool.h>
 /**
  * Change the selected Mux Channel
  * @param channel to change to
@@ -14,4 +14,4 @@ bool io_thermistors_muxSelect(uint8_t channel);
  * @param raw_voltage from 
  * @return Thermistor temperature in degrees C
  */
-float io_thermistors_readSelectedTemp(float raw_voltage, float temp_resistance_lut[]);
+float io_thermistors_readSelectedTemp(void);

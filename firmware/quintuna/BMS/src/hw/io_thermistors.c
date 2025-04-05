@@ -21,7 +21,7 @@ const ThermistorLUT b57861s_lut = {
 
 bool io_thermistors_muxSelect(const uint8_t channel)
 {
-    if (channel >= 0 && channel <= 7)
+    if (channel <= 7)
     {
         hw_gpio_writePin(&tsense_sel0_pin, (channel & (1 << 0)) >> 0);
         hw_gpio_writePin(&tsense_sel1_pin, (channel & (1 << 1)) >> 1);

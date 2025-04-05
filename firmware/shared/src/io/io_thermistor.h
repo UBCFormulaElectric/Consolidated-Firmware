@@ -7,7 +7,7 @@ typedef struct
     uint8_t starting_temp; // Temperature at 0th index (deg C)
     uint8_t resolution; // Degree celsius increase per index step
     uint16_t size; // Number of LUT entries
-    float resistances[]; // Pointer to resistance values (Ohms)
+    float resistances[21]; // Pointer to resistance values (Ohms)
 } ThermistorLUT;
 
 /**
