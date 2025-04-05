@@ -7,6 +7,10 @@ typedef enum {
     ACCUMULATED_CHARGE_COMMAND = 0x0076
 } charge_cmd_t;
 
+typedef enum{
+    BATTERY_STATUS = 0x12,
+    CONTROL_STATUS = 0x00
+}commands;
 typedef enum {
     CELL0_VOLTAGE_COMMAND = 0x14,
     CELL1_VOLTAGE_COMMAND = 0x16,
@@ -44,3 +48,5 @@ uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd);
  * @param GPIO_pin from the interupt. 
  */
 void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
+
+bool io_lowVoltageBattery_initial_setup();
