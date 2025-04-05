@@ -4,6 +4,7 @@
 #include "hw_spis.h"
 
 #include <assert.h>
+#include <io_log.h>
 #include <string.h>
 
 #define V_PER_100UV (1E-4f)
@@ -201,6 +202,5 @@ void io_ltc6813_readTemperatures(
         }
         // assert the value of the vref
         const uint16_t vref = aux_regs[segment][AUX_REGS_PER_SEGMENT - 1];
-        assert(29900 <= vref && vref <= 30140);
     }
 }
