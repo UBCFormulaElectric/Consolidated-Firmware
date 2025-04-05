@@ -35,3 +35,9 @@ bool io_ltc6813_sendSelfTestStat(const ADCSpeed speed)
 #define STATST (0x40F | adc_speed_factor | (uint16_t)(ST << 5))
     return io_ltc6813_sendCommand(STATST);
 }
+
+bool io_ltc6813_diagnoseMUX()
+{
+#define DIAGN (0x0715)
+    return io_ltc6813_sendCommand(DIAGN);
+}

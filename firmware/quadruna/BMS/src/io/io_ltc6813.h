@@ -175,6 +175,8 @@ bool io_ltc6813_sendSelfTestAux(ADCSpeed speed);
  */
 bool io_ltc6813_sendSelfTestStat(ADCSpeed speed);
 
+bool io_ltc6813_diagnoseMUX();
+
 /**
  * @file ltc6813/io_ltc6813_status.c
  */

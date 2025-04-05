@@ -30,6 +30,8 @@ static_assert(sizeof(StatB) == REGISTER_GROUP_SIZE);
 void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
 {
     memset(success, 0, NUM_SEGMENTS * sizeof(bool));
+    if (!io_ltc6813_pollAdcConversions())
+        return;
 #define RDSTATA (0x0010)
 #define RDSTATB (0x0012)
     struct

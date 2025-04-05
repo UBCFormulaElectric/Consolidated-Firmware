@@ -3,7 +3,7 @@
 #include "io_ltc6813_internal.h"
 #include "hw_spis.h"
 
-#define MAX_NUM_ADC_COMPLETE_CHECKS (20U)
+#define MAX_NUM_ADC_COMPLETE_CHECKS (10U)
 #define PLADC (0x0714U)
 #define ADC_CONV_COMPLETE (255U) // experimentally this is true?? it generally reads 127 if it is pending
 bool io_ltc6813_pollAdcConversions(void)

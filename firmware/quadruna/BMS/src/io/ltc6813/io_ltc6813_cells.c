@@ -44,7 +44,7 @@ void io_ltc6813_readVoltageRegisters(
     uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
     bool     comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
 {
-    memset(comm_success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS);
+    memset(comm_success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(bool));
     memset(cell_voltage_regs, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(uint16_t));
     // Exit early if ADC conversion fails
     if (!io_ltc6813_pollAdcConversions())
@@ -88,7 +88,7 @@ void io_ltc6813_readVoltageRegisters(
             // Conversion factor used to convert raw voltages (100µV) to voltages (V)
             cell_voltage_regs[seg_idx][reg_group * 3 + 0] = seg_reg_group->a;
             cell_voltage_regs[seg_idx][reg_group * 3 + 1] = seg_reg_group->b;
-            if (reg_group * 3 + 2 > 14) // TODO find a more elegant stopping condition
+            if (reg_group * 3 + 2 >= 14) // TODO find a more elegant stopping condition
                 continue;
             cell_voltage_regs[seg_idx][reg_group * 3 + 2] = seg_reg_group->c;
         }
