@@ -55,6 +55,7 @@ void tasks_deinit()
     HAL_DMA_DeInit(&hdma_adc1);
 }
 
+hw_gpio_writePin(&brake_light_en_pin, false);
 hw_adcs_chipsInit();
 hw_can_init(&can2);
 jobs_init();
