@@ -14,9 +14,9 @@
 #include "hw_usb.h"
 #include "hw_gpios.h"
 
-#include <io_chimera_v2.h>
+#include "hw_chimera_v2.h"
+#include "hw_chimeraConfig_v2.h"
 #include <shared.pb.h>
-#include <io_chimeraConfig_v2.h>
 
 void tasks_preInit(void)
 {
@@ -73,7 +73,7 @@ _Noreturn void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
+        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
         jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the

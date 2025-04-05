@@ -1,8 +1,9 @@
 #include "dam.pb.h"
 #include "shared.pb.h"
+#include "hw_chimeraConfig_v2.h"
+
 #include "hw_gpios.h"
 #include "hw_i2cs.h"
-#include "io_chimeraConfig_v2.h"
 
 const Gpio *id_to_gpio[] = {
     [dam_GpioNetName_GPIO_TELEM_PWR_EN]  = &telem_pwr_en_pin,
@@ -21,7 +22,7 @@ const Gpio *id_to_gpio[] = {
 
 const I2cDevice *id_to_i2c[] = { [dam_I2cNetName_I2C_RTC] = &rtc_i2c };
 
-io_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_dam_net_name_tag,
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_dam_net_name_tag,
                                            .id_to_gpio        = id_to_gpio,
                                            .i2c_net_name_tag  = I2cNetName_dam_net_name_tag,
                                            .id_to_i2c         = id_to_i2c };
