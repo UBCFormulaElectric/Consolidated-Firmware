@@ -6,6 +6,7 @@
 #include "app_airs.h"
 #include "app_soc.h"
 #include "app_shdnLoop.h"
+#include "app_diagnosticsMode.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "io_bspdTest.h"
@@ -139,13 +140,15 @@ bool app_allStates_runOnTick100Hz(void)
     app_airs_broadcast();
     app_shdnLoop_broadcast();
 
+    app_diagnosticsMode_broadcast();
+
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {
         app_soc_updateSocStats();
     }
 
     const bool acc_fault = app_accumulator_checkFaults();
-    const bool ts_fault  = app_tractveSystem_checkFaults();
+    const bool ts_fault  = app_tractiveSystem_checkFaults();
 
     // Update CAN signals for BMS latch statuses.
     app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
