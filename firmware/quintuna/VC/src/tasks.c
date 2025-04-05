@@ -6,6 +6,8 @@
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_time.h"
+#include "io_lowVoltageBattery.h"
+
 // hw
 #include "hw_usb.h"
 #include "hw_cans.h"
@@ -28,6 +30,8 @@ void tasks_init(void)
     hw_usb_init();
 
     jobs_init();
+
+    io_lowVoltageBattery_initial_setup();
 }
 
 _Noreturn void tasks_run1Hz(void)

@@ -14,7 +14,8 @@
 #define COMMAND_SIZE 1
 #define SUB_COMMAND_SIZE 2
 #define STATUS_LENGTH 2
-
+#define VOLTAGE_TRANSMIT_LENGTH 1
+#define VOLTAGE_RESPONSE_LENGTH 2
 
 typedef enum {
     BQ76922_I2C_ADDR           = 0x10,
@@ -141,37 +142,37 @@ static bool send_subcommand(uint16_t cmd)
     return true;
 }
 
-static bool recieve_subcommand(uint16_t cmd, Subcommand_Response* response){
-    //reading the length of the buffer
-    uint8_t response_length;
-    if(!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &response_length, 1)){
-        return false;
-    }
-    response->length = response_length; 
-    for(uint8_t i = 0x40; i<response_length && i!= 0x5F;i++){
-        uint8_t index = (i-(uint8_t)0x40);
-        if (!hw_i2c_memoryRead(&bat_mtr, i, &response->response[index], 1)){
-            return false;
-        }
-    }
-    //ask for the checksum
-    uint8_t calcChecksum = (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) +
-            ((uint8_t)((BYTE_MASK(cmd>>8))) +
-            ((uint8_t)response_length)));
+// static bool recieve_subcommand(uint16_t cmd, Subcommand_Response* response){
+//     //reading the length of the buffer
+//     uint8_t response_length;
+//     if(!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &response_length, 1)){
+//         return false;
+//     }
+//     response->length = response_length; 
+//     for(uint8_t i = 0x40; i<response_length && i!= 0x5F;i++){
+//         uint8_t index = (i-(uint8_t)0x40);
+//         if (!hw_i2c_memoryRead(&bat_mtr, i, &response->response[index], 1)){
+//             return false;
+//         }
+//     }
+//     //ask for the checksum
+//     uint8_t calcChecksum = (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) +
+//             ((uint8_t)((BYTE_MASK(cmd>>8))) +
+//             ((uint8_t)response_length)));
 
-    uint8_t calc_inversion = ~calcChecksum;
-    uint8_t checksum;
-    if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, 1)){
-        return false;
-    }
+//     uint8_t calc_inversion = ~calcChecksum;
+//     uint8_t checksum;
+//     if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, 1)){
+//         return false;
+//     }
 
-    if(calc_inversion != checksum){
-        return false;
-    }
-    return true;
-}
+//     if(calc_inversion != checksum){
+//         return false;
+//     }
+//     return true;
+// }
 
-bool io_lowVoltageBattery_initial_setup(){
+bool io_lowVoltageBattery_initial_setup(void){
     BREAK_IF_DEBUGGER_CONNECTED();
 
     //checking if the target is even ready to communicate with 
@@ -228,6 +229,8 @@ bool io_lowVoltageBattery_initial_setup(){
     if(send_subcommand(turning_on_fets_cmd)){
         return false;
     }
+
+    return true;
 }
 /**
  * @brief Reads the response from the BQ76922 and validates the checksum.
@@ -239,43 +242,6 @@ bool io_lowVoltageBattery_initial_setup(){
  * @return true if the response was successfully read and the checksum is valid; false otherwise.
  */
 
-
-static bool io_lowVoltageBattery_read_response(uint16_t cmd, uint8_t expectedLen, uint8_t *buffer)
-{
-    uint8_t respLen;
-    if (!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &respLen, RESPONSE_LENGTH_SIZE))
-    {
-        return false;
-    }
-
-    if (respLen != expectedLen)
-    {
-        return false;
-    }
-
-    if (!hw_i2c_memoryRead(&bat_mtr, REG_DATA_BUFFER, buffer, expectedLen))
-    {
-        return -1;
-    }
-
-    uint8_t checksum;
-    if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, RESPONSE_LENGTH_SIZE))
-    {
-        return false;
-    }
-
-    uint8_t calcChecksum = (uint8_t)(((uint8_t)(cmd & BYTE_MASK)) +
-                                 ((uint8_t)((cmd >> BYTE_SHIFT) & BYTE_MASK)) +
-                                 ((uint8_t)respLen));
-    for (uint8_t i = 0; i < expectedLen; i++)
-    {
-        calcChecksum += buffer[i];
-    }
-        
-    calcChecksum = ~calcChecksum; // Invert bits
-
-    return (calcChecksum == checksum);
-}
 
 typedef enum {
     ENABLED_PROTECTIONS_A      = 0x9256,
@@ -293,182 +259,174 @@ typedef enum {
     OCD_RECOVERY_THRESHOLD     = 0x928D
 } protection_t;
 
-bool io_lowVoltageBattery_OTP_write(void)
-{
-    if (!io_lowVoltageBattery_send_subcommand(CONFIG_UPDATE_COMMAND))
-    {
-        return false;
-    }
+// bool io_lowVoltageBattery_OTP_write(void)
+// {
+//     if (!io_lowVoltageBattery_send_subcommand(CONFIG_UPDATE_COMMAND))
+//     {
+//         return false;
+//     }
 
-    if (!io_lowVoltageBattery_send_subcommand(OTP_WR_CHECK))
-    {
-        return false;
-    }
+//     if (!io_lowVoltageBattery_send_subcommand(OTP_WR_CHECK))
+//     {
+//         return false;
+//     }
 
-    uint8_t response[2] = { 0 };
-    if (!io_lowVoltageBattery_read_response(OTP_WR_CHECK, 2, response)) 
-    {
-        return false;
-    }
+//     uint8_t response[2] = { 0 };
+//     if (!io_lowVoltageBattery_read_response(OTP_WR_CHECK, 2, response)) 
+//     {
+//         return false;
+//     }
 
-    /*Check if OTP can be written to (bit 7 of byte 0 should be set).*/
-    if (!(response[0] & 0x80)) 
-    {
-        return false;
-    }
+//     /*Check if OTP can be written to (bit 7 of byte 0 should be set).*/
+//     if (!(response[0] & 0x80)) 
+//     {
+//         return false;
+//     }
 
-    /**
-     * config start
-     */
+//     /**
+//      * config start
+//      */
 
-    /* Get the current alert config */
-    uint8_t alert_config;
-    if (!hw_i2c_memoryRead(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
-    {
-        return false;
-    }
+//     /* Get the current alert config */
+//     uint8_t alert_config;
+//     if (!hw_i2c_memoryRead(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
+//     {
+//         return false;
+//     }
 
-    /* Set the active-low bit while preserving other bits */
-    alert_config |= (1 << ALERT_ACTIVE_LOW_BIT);
-    if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
-    {
-        return false;
-    }
+//     /* Set the active-low bit while preserving other bits */
+//     alert_config |= (1 << ALERT_ACTIVE_LOW_BIT);
+//     if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
+//     {
+//         return false;
+//     }
 
-    /* Configure ALERT pin as an interrupt output */
-    if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, (uint8_t[]){ ALERT_PIN_INTERRUPT_CONFIG }, RESPONSE_LENGTH_SIZE))
-    {
-        return false;
-    }
+//     /* Configure ALERT pin as an interrupt output */
+//     if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, (uint8_t[]){ ALERT_PIN_INTERRUPT_CONFIG }, RESPONSE_LENGTH_SIZE))
+//     {
+//         return false;
+//     }
 
-    /* Enable ADC scan alerts */
-    if (!hw_i2c_memoryWrite(&bat_mtr, ALARM_ENABLE_REG, (uint8_t[]){ ALARM_ENABLE_VALUE }, RESPONSE_LENGTH_SIZE))
-    {
-        return false;
-    }
+//     /* Enable ADC scan alerts */
+//     if (!hw_i2c_memoryWrite(&bat_mtr, ALARM_ENABLE_REG, (uint8_t[]){ ALARM_ENABLE_VALUE }, RESPONSE_LENGTH_SIZE))
+//     {
+//         return false;
+//     }
 
-    /* Enable OV (Bit 3), UV (Bit 2), OCD1 (Bit 5) and SCD (Bit 7) */
-    uint8_t protections_a = 0xAC;
-    if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_A, &protections_a, 1)) 
-    {
-        return false;
-    }
+//     /* Enable OV (Bit 3), UV (Bit 2), OCD1 (Bit 5) and SCD (Bit 7) */
+//     uint8_t protections_a = 0xAC;
+//     if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_A, &protections_a, 1)) 
+//     {
+//         return false;
+//     }
 
-    /* Enable OTD (Bit 5) */
-    uint8_t protections_b = 0x20;
-    if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_B, &protections_b, 1))
-    {
-        return false;
-    }
+//     /* Enable OTD (Bit 5) */
+//     uint8_t protections_b = 0x20;
+//     if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_B, &protections_b, 1))
+//     {
+//         return false;
+//     }
 
-    /* Set the OV threshold to ~4200mV */
-    uint8_t ov_threshold = 0x53;
-    if (hw_i2c_memoryWrite(&bat_mtr, OV_THRESHOLD, &ov_threshold, 1))
-    {
-        return false;
-    }
+//     /* Set the OV threshold to ~4200mV */
+//     uint8_t ov_threshold = 0x53;
+//     if (hw_i2c_memoryWrite(&bat_mtr, OV_THRESHOLD, &ov_threshold, 1))
+//     {
+//         return false;
+//     }
 
-    /* Set the UV threshold to ~2500mV */
-    uint8_t uv_threshold = 0x31;
-    if (!hw_i2c_memoryWrite(&bat_mtr, UV_THRESHOLD, &uv_threshold, 1))
-    {
-        return false;
-    }
+//     /* Set the UV threshold to ~2500mV */
+//     uint8_t uv_threshold = 0x31;
+//     if (!hw_i2c_memoryWrite(&bat_mtr, UV_THRESHOLD, &uv_threshold, 1))
+//     {
+//         return false;
+//     }
 
-    /* Set OCD1 threshold to 30V (the default delay is acceptable) */
-    uint8_t ocd1_threshold = 0x5A;
-    if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_THRESHOLD, &ocd1_threshold, 1)) 
-    {
-        return false;
-    }
+//     /* Set OCD1 threshold to 30V (the default delay is acceptable) */
+//     uint8_t ocd1_threshold = 0x5A;
+//     if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_THRESHOLD, &ocd1_threshold, 1)) 
+//     {
+//         return false;
+//     }
 
-    /* Set the OV, UV, and OCD1 delay to 100ms */
-    uint8_t ov_u_ocd1_delay = 0x1E; // 100ms in register format
-    if (!hw_i2c_memoryWrite(&bat_mtr, OV_DELAY, &ov_u_ocd1_delay, 1)) 
-    {
-        return false;
-    }
-    if (!hw_i2c_memoryWrite(&bat_mtr, UV_DELAY, &ov_u_ocd1_delay, 1)) 
-    {
-        return false;
-    }
-    if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_DELAY, &ov_u_ocd1_delay, 1)) 
-    {
-        return false;
-    }
+//     /* Set the OV, UV, and OCD1 delay to 100ms */
+//     uint8_t ov_u_ocd1_delay = 0x1E; // 100ms in register format
+//     if (!hw_i2c_memoryWrite(&bat_mtr, OV_DELAY, &ov_u_ocd1_delay, 1)) 
+//     {
+//         return false;
+//     }
+//     if (!hw_i2c_memoryWrite(&bat_mtr, UV_DELAY, &ov_u_ocd1_delay, 1)) 
+//     {
+//         return false;
+//     }
+//     if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_DELAY, &ov_u_ocd1_delay, 1)) 
+//     {
+//         return false;
+//     }
     
-    /* Default hysteresis for COV and CUV (0.1012V). */
-    /* Default Recovery time for SCD (5s). */
-    /* Default hysteresis for OCD (0.2A). */
+//     /* Default hysteresis for COV and CUV (0.1012V). */
+//     /* Default Recovery time for SCD (5s). */
+//     /* Default hysteresis for OCD (0.2A). */
 
-    /* To-do: Validate config (not needed?)*/
+//     /* To-do: Validate config (not needed?)*/
 
-    /**
-     * config end 
-     */
+//     /**
+//      * config end 
+//      */
 
-    if (!io_lowVoltageBattery_send_subcommand(OTP_WR))
-    {
-        return false;
-    } 
+//     if (!io_lowVoltageBattery_send_subcommand(OTP_WR))
+//     {
+//         return false;
+//     } 
 
-    if (!io_lowVoltageBattery_read_response(OTP_WR, 2, response)) {
-        return false;
-    }
+//     if (!io_lowVoltageBattery_read_response(OTP_WR, 2, response)) {
+//         return false;
+//     }
 
-    /*Verify if the write was sucessful (bit 7 of byte 0 should be set).*/
-    if (!(response[0] & 0x80)) {
-        return false;
-    }
+//     /*Verify if the write was sucessful (bit 7 of byte 0 should be set).*/
+//     if (!(response[0] & 0x80)) {
+//         return false;
+//     }
 
-    if (!io_lowVoltageBattery_send_subcommand(CONFIG_UPDATE_EXIT_COMMAND))
-    {
-        return false;
-    }
+//     if (!io_lowVoltageBattery_send_subcommand(CONFIG_UPDATE_EXIT_COMMAND))
+//     {
+//         return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
-/**
- * @brief Initializes the low-voltage battery monitoring system.
- *
- * @return true if initialization was successful; false otherwise.
- */
-bool io_lowVoltageBattery_init(void)
-{
-}
 
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
  *
  * @return SOC percentage on success, or -1.0f on error.
  */
-float io_lowVoltageBattery_get_SOC(void)
-{
-    if (!io_lowVoltageBattery_send_subcommand(ACCUMULATED_CHARGE_COMMAND))
-    {
-        return -1.0f;
-    }
+// float io_lowVoltageBattery_get_SOC(void)
+// {
+//     if (!send_subcommand(ACCUMULATED_CHARGE_COMMAND))
+//     {
+//         return -1.0f;
+//     }
 
-    uint8_t buffer[SOC_RESPONSE_LENGTH];
-    if (!io_lowVoltageBattery_read_response(ACCUMULATED_CHARGE_COMMAND, SOC_RESPONSE_LENGTH, buffer))
-    {
-        return -1.0f;
-    }
+//     uint8_t buffer[SOC_RESPONSE_LENGTH];
+//     if (!recieve_subcommand(ACCUMULATED_CHARGE_COMMAND, (uint8_t)*SOC_RESPONSE_LENGTH, buffer))
+//     {
+//         return -1.0f;
+//     }
 
-    /* Parse the 3-byte charge value (buffer[0]-buffer[2]) */
-    uint32_t charge = ((uint32_t)buffer[0]) | 
-                  ((uint32_t)buffer[1] << BYTE_SHIFT) | 
-                  ((uint32_t)buffer[2] << (BYTE_SHIFT * 2));
-    float CC_GAIN = HardwareConfig.adc_calibration_factor / HardwareConfig.r_sense;
-    float charge_mAh = (((float)charge) * CC_GAIN) / ((float)HardwareConfig.seconds_per_hour);
+//     /* Parse the 3-byte charge value (buffer[0]-buffer[2]) */
+//     uint32_t charge = ((uint32_t)buffer[0]) | 
+//                   ((uint32_t)buffer[1] << 8) | 
+//                   ((uint32_t)buffer[2] << (8 * 2));
+//     float CC_GAIN = HardwareConfig.adc_calibration_factor / HardwareConfig.r_sense;
+//     float charge_mAh = (((float)charge) * CC_GAIN) / ((float)HardwareConfig.seconds_per_hour);
                   
-    /* Clear any pending alert */
-    uint8_t alarmClear = ALARM_CLEAR_CMD;
-    hw_i2c_memoryWrite(&bat_mtr, ALARM_STATUS_REG, &alarmClear, RESPONSE_LENGTH_SIZE);
+//     /* Clear any pending alert */
+//     uint8_t alarmClear = ALARM_CLEAR_CMD;
+//     hw_i2c_memoryWrite(&bat_mtr, ALARM_STATUS_REG, &alarmClear, RESPONSE_LENGTH_SIZE);
 
-    return (charge_mAh / HardwareConfig.q_full) * HardwareConfig.percentage_factor;
-}
+//     return (charge_mAh / HardwareConfig.q_full) * HardwareConfig.percentage_factor;
+// }
 
 /**
  * @brief Gets the cell voltage or the entire stack voltage
@@ -477,22 +435,22 @@ float io_lowVoltageBattery_get_SOC(void)
  *
  * @return The battery voltage on success, or -1 on error.
  */
-uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
-{
-    uint8_t voltage_cmd = (uint8_t) voltage_cell;
+// uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
+// {
+//     uint8_t voltage_cmd = (uint8_t) voltage_cell;
 
-    if (!hw_i2c_transmit(&bat_mtr, &voltage_cmd, VOLTAGE_TRANSMIT_LENGTH))
-    {
-        return (uint16_t) -1;
-    }
-    uint8_t voltage_buffer[VOLTAGE_RESPONSE_LENGTH];
-    if (!hw_i2c_receive(&bat_mtr, voltage_buffer, VOLTAGE_RESPONSE_LENGTH))
-    {
-        return (uint16_t) -1;
-    }
-    uint16_t voltage = (uint16_t)(buffer[0] | (buffer[1] << 8));
-    return voltage;
-}
+//     if (!hw_i2c_transmit(&bat_mtr, &voltage_cmd, VOLTAGE_TRANSMIT_LENGTH))
+//     {
+//         return (uint16_t) -1;
+//     }
+//     uint8_t voltage_buffer[VOLTAGE_RESPONSE_LENGTH];
+//     if (!hw_i2c_receive(&bat_mtr, voltage_buffer, VOLTAGE_RESPONSE_LENGTH))
+//     {
+//         return (uint16_t) -1;
+//     }
+//     uint16_t voltage = (uint16_t)(voltage_buffer[0] | (voltage_buffer[1] << 8));
+//     return voltage;
+// }
 
 /**
  * @brief Handles releasing the semaphore after an interupt.
