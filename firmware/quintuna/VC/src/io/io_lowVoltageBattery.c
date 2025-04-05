@@ -5,12 +5,15 @@
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
 #include "hw_utils.h"
+#include "io_log.h"
+#include "io_taskMonitor.h"
 #include <stdbool.h>
 #include <stdint.h>
 
 #define BYTE_MASK(x) ((x) & 0XFF)
 #define VOLTAGE_RESPONSE_LENGTH 2
 #define VOLTAGE_TRANSMIT_LENGTH 1
+#define STATUS_LENGTH 2
 
 
 typedef enum {
@@ -28,8 +31,6 @@ typedef enum {
 typedef enum {
     CONFIG_UPDATE_COMMAND      = 0x0090,
     CONFIG_UPDATE_EXIT_COMMAND = 0x0092,
-    SLEEP_ENABLE               = 0x0099,
-    SLEEP_DISABLE              = 0x009A,
     OTP_COMMAND                = 0x00F4,
     OTP_WR_CHECK               = 0x00A0,
     OTP_WR                     = 0x00A1
@@ -99,7 +100,7 @@ static const HardwareConfig_t HardwareConfig = {
  * @param cmd The 16-bit subcommand to send.
  * @return true if the subcommand was sent and the response is ready; false otherwise.
  */
-static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
+static bool send_subcommand(uint16_t cmd)
 {
     if (!hw_i2c_isTargetReady(&bat_mtr))
     {
@@ -108,7 +109,7 @@ static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
 
     uint8_t data[CMD_SUBCOMMAND_SIZE] = { (uint8_t)(BYTE_MASK(cmd)), (uint8_t)(BYTE_MASK(cmd >> 8))};
 
-    if (!hw_i2c_transmit(&bat_mtr, REG_SUBCOMMAND_LSB, data, CMD_SUBCOMMAND_SIZE))
+    if (!hw_i2c_transmit(&bat_mtr, data, CMD_SUBCOMMAND_SIZE))
     {
         return false;
     }
@@ -118,8 +119,8 @@ static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
     do 
     {
         hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &low, 8);
-        hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &high, 8);
-    } while ((low | (high << BYTE_SHIFT)) == cmd);
+        hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_MSB, &high, 8);
+    } while ((low | (high << 8)) == cmd);
 
     return true;
 }
@@ -159,17 +160,27 @@ bool io_lowVoltageBattery_initial_setup(){
     Battery_Status bat_status;
     Control_Status ctrl_status;
 
-    memcpy(&bat_status, data_bat, 2);
-    memcpy(&ctrl_status, data_control, 2);
+    memcpy(&bat_status, data_bat, STATUS_LENGTH);
+    memcpy(&ctrl_status, data_control, STATUS_LENGTH);
 
     if (bat_status.SLEEP == 1){
         BREAK_IF_DEBUGGER_CONNECTED();
+        LOG_INFO("Battery is currently in sleep mode");
+
+        uint16_t disable_sleep = 0x009A;
+        send_subcommand(disable_sleep);
+
     }else if (ctrl_status.DEEPSLEEP ==1) {
         BREAK_IF_DEBUGGER_CONNECTED();
+        LOG_INFO("Battery is currently in deep sleep mode");
+
+        uint16_t exit_deep_sleep = 0x00E;
+        send_subcommand(exit_deep_sleep);
     }
 
-
-
+    //turn on all the fets
+    uint16_t turning_on_fets_cmd = 0x0096;
+    send_subcommand(turning_on_fets_cmd);
 }
 /**
  * @brief Reads the response from the BQ76922 and validates the checksum.
