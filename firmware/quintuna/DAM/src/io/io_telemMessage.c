@@ -20,19 +20,6 @@
 #define MAGIC_HIGH 0xAA
 #define MAGIC_LOW 0x55
 
-UartDevice _900m_uart = {
-    .config = {
-        .handle               = &huart2,
-        .polling_timeout_ms   = 1000U,
-        .callback_dma         = false,
-        .transmit_callback    = NULL,
-        .receive_callback     = NULL,
-    },
-    .blocked_polling_task = NULL,
-    .rx_callback_pending  = false,
-    .tx_callback_pending  = false,
-};
-
 // UartDevice        *_2_4G_uart = NULL;
 
 static bool               proto_status;
@@ -174,7 +161,7 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
     success &=
-        hw_uart_transmit(&_900m_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length
+        hw_uart_transmit(&_900k_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length
     if (success)
     {
         LOG_INFO("900Mhz Telem Message Sent");
