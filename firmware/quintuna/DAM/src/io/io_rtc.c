@@ -399,7 +399,8 @@ void io_rtc_readTime(IoRtcTime *time)
 void io_rtc_reset(void)
 {
     Register_t control1;
-    control1.raw = 0x58; // Reset all bits to 0
+    control1.raw = 0x58; // For a software reset, 01011000 (58h) must be sent to register Control_1 (see Section 8.3).
+                         // Bit SR always returns 0 when read.
 
     bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1));
     if (!su)
