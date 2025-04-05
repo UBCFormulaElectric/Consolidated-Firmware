@@ -57,6 +57,7 @@
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 extern FDCAN_HandleTypeDef hfdcan2;
+extern UART_HandleTypeDef  huart2;
 extern TIM_HandleTypeDef   htim2;
 
 /* USER CODE BEGIN EV */
@@ -201,6 +202,20 @@ void TIM2_IRQHandler(void)
     /* USER CODE BEGIN TIM2_IRQn 1 */
 
     /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USART2 global interrupt.
+ */
+void USART2_IRQHandler(void)
+{
+    /* USER CODE BEGIN USART2_IRQn 0 */
+
+    /* USER CODE END USART2_IRQn 0 */
+    HAL_UART_IRQHandler(&huart2);
+    /* USER CODE BEGIN USART2_IRQn 1 */
+
+    /* USER CODE END USART2_IRQn 1 */
 }
 
 /**
