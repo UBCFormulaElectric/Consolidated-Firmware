@@ -73,12 +73,12 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = 512 * 4,
     .priority   = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for anotherTask */
-osThreadId_t         anotherTaskHandle;
-const osThreadAttr_t anotherTask_attributes = {
-    .name       = "anotherTask",
+/* Definitions for chimera */
+osThreadId_t         chimeraHandle;
+const osThreadAttr_t chimera_attributes = {
+    .name       = "chimera",
     .stack_size = 512 * 4,
-    .priority   = (osPriority_t)osPriorityLow,
+    .priority   = (osPriority_t)osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
@@ -93,7 +93,7 @@ static void MX_CAN2_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C3_Init(void);
 void        StartDefaultTask(void *argument);
-void        StartAnotherTask(void *argument);
+void        Chimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -250,8 +250,8 @@ int main(void)
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-    /* creation of anotherTask */
-    anotherTaskHandle = osThreadNew(StartAnotherTask, NULL, &anotherTask_attributes);
+    /* creation of chimera */
+    chimeraHandle = osThreadNew(Chimera, NULL, &chimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -607,23 +607,22 @@ void StartDefaultTask(void *argument)
     /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_StartAnotherTask */
+/* USER CODE BEGIN Header_Chimera */
 /**
- * @brief Function implementing the anotherTask thread.
+ * @brief Function implementing the chimera thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartAnotherTask */
-void StartAnotherTask(void *argument)
+/* USER CODE END Header_Chimera */
+void Chimera(void *argument)
 {
-    /* USER CODE BEGIN StartAnotherTask */
+    /* USER CODE BEGIN Chimera */
     /* Infinite loop */
     for (;;)
     {
-        LOG_INFO("Another Task: Another Task Tick");
-        osDelay(1000);
+        osDelay(1);
     }
-    /* USER CODE END StartAnotherTask */
+    /* USER CODE END Chimera */
 }
 
 /**

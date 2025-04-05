@@ -131,7 +131,7 @@ void        RunTask1Hz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
-void        RunChimeraTask(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -210,7 +210,7 @@ int main(void)
     TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
 
     /* creation of TaskChimera */
-    TaskChimeraHandle = osThreadNew(RunChimeraTask, NULL, &TaskChimera_attributes);
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -480,19 +480,22 @@ void RunTaskCanTx(void *argument)
     /* USER CODE END RunTaskCanTx */
 }
 
-/* USER CODE BEGIN Header_RunChimeraTask */
+/* USER CODE BEGIN Header_RunTaskChimera */
 /**
  * @brief Function implementing the TaskChimera thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunChimeraTask */
-void RunChimeraTask(void *argument)
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
 {
-    /* USER CODE BEGIN RunChimeraTask */
+    /* USER CODE BEGIN RunTaskChimera */
     /* Infinite loop */
-    tasks_runChimera();
-    /* USER CODE END RunChimeraTask */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskChimera */
 }
 
 /**
