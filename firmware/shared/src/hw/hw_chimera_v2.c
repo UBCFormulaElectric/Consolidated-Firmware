@@ -555,9 +555,9 @@ _Noreturn void hw_chimera_v2_task(hw_chimera_v2_Config *config)
     // Main loop.
     for (;;)
     {
-        // If usb is not connected, skip Chimera.
         if (!hw_usb_checkConnection())
         {
+            // If usb is not connected, skip Chimera.
             hw_chimera_v2_enabled = false;
             osDelay(USB_CHECK_COOLDOWN_MS);
             continue;

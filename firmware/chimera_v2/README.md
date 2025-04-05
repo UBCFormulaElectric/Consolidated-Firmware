@@ -390,7 +390,7 @@ hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit
 
 We can finally run chimera. 
 
-Include the shared `hw_chimera_v2.h` library in your `tasks.c`. Then, also in `tasks.c`, create the following function.
+Include the shared `hw_chimera_v2.h` and `hw_chimeraConfig_v2.h` libraries in your `tasks.c`. Then, also in `tasks.c`, create the following function.
 
 ```c
 _Noreturn void tasks_runChimera(void)
