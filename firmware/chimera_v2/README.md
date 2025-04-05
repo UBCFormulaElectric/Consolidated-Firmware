@@ -401,7 +401,6 @@ _Noreturn void tasks_runChimera(void)
 
 You will also have to add the decleration in the `tasks.h` file.
 
-
 ```c
 _Noreturn void tasks_runChimera(void);
 ```
@@ -409,7 +408,7 @@ _Noreturn void tasks_runChimera(void);
 Make sure to invoke this task function in `main.c`.
 
 ```c
-void RunChimeraTask(void *argument)
+void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunChimeraTask */
     /* Infinite loop */
