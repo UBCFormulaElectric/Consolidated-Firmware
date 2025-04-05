@@ -41,3 +41,11 @@ bool io_ltc6813_diagnoseMUX()
 #define DIAGN (0x0715)
     return io_ltc6813_sendCommand(DIAGN);
 }
+
+bool io_ltc6813_overlapADCTest(const ADCSpeed speed)
+{
+    const uint16_t adc_speed_factor = (speed & 0x3) << 7;
+#define DCP (0x0)
+#define ADOL (0x0201 | DCP << 4 | adc_speed_factor)
+    return io_ltc6813_sendCommand(ADOL);
+}

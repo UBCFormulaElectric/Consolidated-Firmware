@@ -394,13 +394,10 @@ void app_accumulator_runCellMeasurements(void)
         case GET_CELL_VOLTAGE_STATE:
         {
             // Attempt to read voltages from the LTCs, write output to cell voltages array
-            // io_ltc6813_readVoltages(cell_voltages, voltage_read_success);
-            // static uint16_t p[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-            // static bool     status_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS];
-            // io_ltc6813_readVoltageRegisters(p, status_success);
-            bool piss[1];
-            io_ltc6813_getStatus(piss);
+            io_ltc6813_readVoltages(cell_voltages, voltage_read_success);
             calculateVoltageStats();
+
+            // next state
             io_ltc6813_startThermistorsAdcConversion(ADCSpeed_3kHz);
             data.measurement_state = GET_CELL_TEMP_STATE;
             break;
@@ -409,9 +406,9 @@ void app_accumulator_runCellMeasurements(void)
         {
             io_ltc6813_readTemperatures(cell_temps, temp_read_success);
             calculateTemperatureStats();
-            // io_ltc6813_startCellsAdcConversion(ADCSpeed_3kHz);
-            // io_ltc6813_sendSelfTestVoltages(ADCSpeed_3kHz);
-            io_ltc6813_diagnoseMUX();
+
+            // next state
+            io_ltc6813_startCellsAdcConversion(ADCSpeed_3kHz);
             data.measurement_state = GET_CELL_VOLTAGE_STATE;
             break;
         }

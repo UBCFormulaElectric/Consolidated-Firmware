@@ -175,7 +175,21 @@ bool io_ltc6813_sendSelfTestAux(ADCSpeed speed);
  */
 bool io_ltc6813_sendSelfTestStat(ADCSpeed speed);
 
+/**
+ * Sends a command to diagnose the MUX. Populates the MUXFAIL bit in the status register
+ * @return success of operation
+ */
 bool io_ltc6813_diagnoseMUX();
+
+/**
+ * Sends a command to test the ADC overlap. In particular
+ * it measures cell 7 on ADC1/2 and cell 13 on ADC2/3.
+ * @note that the values of the operations are placed in
+ * positions 7/8 and 13/14 respectively (1 indexed)
+ * @param speed speed of adc
+ * @return success of operation
+ */
+bool io_ltc6813_overlapADCTest(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_status.c
