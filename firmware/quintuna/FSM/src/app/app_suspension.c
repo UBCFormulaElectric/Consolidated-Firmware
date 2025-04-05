@@ -5,7 +5,7 @@
 
 void app_suspension_broadcast(void)
 {
-    float left_travel = io_suspension_getLeftTravel();
+    float left_travel  = io_suspension_getLeftTravel();
     float right_travel = io_suspension_getRightTravel();
 
     // TODO: send can message with the left and right suspension travel

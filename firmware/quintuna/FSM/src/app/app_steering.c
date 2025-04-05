@@ -21,8 +21,9 @@ void app_steering_broadcast(void)
         // TODO: send can message setting the steering angle to be 0
     }
 
-    float steering_angle = io_steering_getAngleDegrees();
-    RangeCheckStatusMetaData steering_in_range = app_rangeCheck_getValue(&steering_angle_in_range_check, steering_angle);
+    float                    steering_angle = io_steering_getAngleDegrees();
+    RangeCheckStatusMetaData steering_in_range =
+        app_rangeCheck_getValue(&steering_angle_in_range_check, steering_angle);
     // TODO: send can message with steering angle
     // TODO: send can alert if steering angle out of range -> steering_in_range.status != VALUE_IN_RANGE
 }
