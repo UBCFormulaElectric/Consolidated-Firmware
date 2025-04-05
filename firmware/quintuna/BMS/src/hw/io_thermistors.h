@@ -5,11 +5,13 @@
 /**
  * Change the selected Mux Channel
  * @param channel to change to
+ * @return true if valid channel value
  */
-void io_thermistors_muxSelect(uint8_t channel);
+bool io_thermistors_muxSelect(uint8_t channel);
 
 /**
  * Read the temperature of the current channel
+ * @param raw_voltage from 
  * @return Thermistor temperature in degrees C
  */
-float io_thermistors_readSelectedTemp(void);
+float io_thermistors_readSelectedTemp(float raw_voltage, float temp_resistance_lut[]);
