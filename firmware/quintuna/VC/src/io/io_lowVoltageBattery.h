@@ -42,11 +42,12 @@ float io_lowVoltageBattery_get_SOC();
  */
 uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd);
 
+//intial setup for battery monitoring chip
+bool io_lowVoltageBattery_initial_setup(void);
+
 /**
  * @brief Handles releasing the semaphore after an interupt.
  * 
  * @param GPIO_pin from the interupt. 
  */
 void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
-
-bool io_lowVoltageBattery_initial_setup();
