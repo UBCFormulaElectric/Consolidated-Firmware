@@ -13,9 +13,14 @@
 		"--compile-commands-dir=build_fw_dev",
  		// "--compile-commands-dir=build_fw_test",
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
+<<<<<<< HEAD
 	],
 	"files.associations": {
 		"io_sd.h": "c",
 		"hw_hal.h": "c"
 	}
 }
+=======
+	]
+}
+>>>>>>> 2617f79d914356a1a842490bbad8631efcce0d5e
