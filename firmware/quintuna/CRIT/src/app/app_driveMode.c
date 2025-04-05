@@ -7,7 +7,7 @@
 
 void app_driveMode_broadcast(void)
 {
-    const uint32_t encoder_position = io_rotary_toggleEventHandler();
-    const uint8_t  mode             = (uint8_t)((encoder_position % NUM_MODES) + NUM_MODES) % NUM_MODES;
+    const int32_t encoder_position = io_rotary_get_position();
+    const uint8_t mode             = (uint8_t)((encoder_position % NUM_MODES) + NUM_MODES) % NUM_MODES;
     app_canTx_CRIT_DriveMode_set((DriveMode_e)mode);
 }

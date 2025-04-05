@@ -16,8 +16,6 @@ const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boo
                              [crit_GpioNetName_GPIO_REGEN_SIG]            = &regen_sig,
                              [crit_GpioNetName_GPIO_LED_RCK]              = &led_rck,
                              [crit_GpioNetName_GPIO_SEVEN_SEG_RCK]        = &seven_seg_rck,
-                             [crit_GpioNetName_GPIO_SEVEN_SEG_DIMMING]    = &seven_seg_dimming,
-                             [crit_GpioNetName_GPIO_LED_DIMMING]          = &led_dimming,
                              [crit_GpioNetName_GPIO_SEVEN_SEG_SRCK]       = &seven_seg_srck,
                              [crit_GpioNetName_GPIO_LED_SRCK]             = &led_srck,
                              [crit_GpioNetName_GPIO_SEVEN_SEG_SERIN]      = &seven_seg_serin,

@@ -35,6 +35,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmOutput.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_pwmOutput.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -96,6 +97,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_ll_usb.c"
             "stm32f4xx_hal_i2c.c"
             "stm32f4xx_hal_i2c_ex.c"
+            "stm32f4xx_hal_exti.c"
     )
     stm32f412rx_cube_library(
             "quintuna_CRIT_stm32cube"

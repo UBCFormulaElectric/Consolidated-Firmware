@@ -107,10 +107,6 @@ static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
     return BOARD_LED_STATUS_OK;
 }
 
-// -----------------------------------------------------------------------------
-// 4) app_leds_update
-//    The main function that assembles all LED bits and shifts them out.
-// -----------------------------------------------------------------------------
 void app_leds_update(void)
 {
     const bool imd_fault_latched  = app_canRx_BMS_ImdLatchedFault_get();

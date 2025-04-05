@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "cmsis_os.h"
+#include "hw_gpios.h"
 #include "shared.pb.h"
 #include "jobs.h"
 #include "main.h"
@@ -9,11 +10,31 @@
 #include "io_canQueue.h"
 #include "io_chimera_v2.h"
 #include "io_chimeraConfig_v2.h"
+#include "io_rotary.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == rot_a.pin)
+    {
+        // Forward to your rotary A handler.
+        io_roatary_rotA_IRQHandler();
+    }
+    else if (GPIO_Pin == rot_b.pin)
+    {
+        // Forward to your rotary B handler.
+        io_rotary_rotB_IRQHandler();
+    }
+    else if (GPIO_Pin == rot_s.pin)
+    {
+        // Forward to your push button handler.
+        io_rotary_push_IRQHandler();
+    }
+}
 
 void tasks_preInit() {}
 

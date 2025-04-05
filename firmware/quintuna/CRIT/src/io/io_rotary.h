@@ -2,19 +2,14 @@
 
 #include <stdint.h>
 
-/**
- * @brief Initialize the rotary.
- */
-void io_rotary_init(void);
+typedef void (*RotaryCallback)(void);
 
-/**
- * @brief Update the rotary state.
- * @param channelA updated channel A value
- * @param channelB updated channe; B value
- */
-uint32_t io_rotary_toggleEventHandler(void);
-
-/**
- * @brief Handle the event where the rotary is pressed.
- */
-uint8_t io_rotary_pressEventHandler(void);
+void    io_rotary_init(void);
+int32_t io_rotary_get_position(void);
+void    io_rotary_reset(void);
+void    io_rotary_setClockwiseCallback(RotaryCallback cb);
+void    io_rotary_setCounterClockwiseCallback(RotaryCallback cb);
+void    io_rotary_setPushCallback(RotaryCallback cb);
+void    io_roatary_rotA_IRQHandler(void);
+void    io_rotary_rotB_IRQHandler(void);
+void    io_rotary_push_IRQHandler(void);
