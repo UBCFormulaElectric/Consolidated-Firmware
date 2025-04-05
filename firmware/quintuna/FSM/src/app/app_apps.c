@@ -35,7 +35,8 @@ void app_apps_broadcast(void)
 
     // TODO: do all can messages below
     // app_canAlerts_FSM_Fault_DummyFault_set(papps_ocsc_active);
-    // app_canAlerts_FSM_Fault_DummyFault_set(sapps_ocsc_active); // no signal specific fault for some reason (can't find)
+    // app_canAlerts_FSM_Fault_DummyFault_set(sapps_ocsc_active); // no signal specific fault for some reason (can't
+    // find)
 
     // Primary and Secondary pedal disagreement check -- everything below this line needs to be fixed
     // const float papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
