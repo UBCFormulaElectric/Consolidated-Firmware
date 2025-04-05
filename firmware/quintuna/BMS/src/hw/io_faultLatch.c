@@ -1,4 +1,5 @@
 #include "io_faultLatch.h"
+#include <assert.h>
 
 const FaultLatch bms_ok_latch = {
     .current_status_gpio = &bms_ok_current_status_pin,
@@ -18,10 +19,8 @@ const FaultLatch bspd_ok_latch = {
 
 void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const bool status)
 {
-    if (latch->read_only == false)
-    {
-        hw_gpio_writePin(latch->current_status_gpio, status);
-    }
+    assert(latch->read_only == false);
+    hw_gpio_writePin(latch->current_status_gpio, status);
 }
 
 bool io_faultLatch_getCurrentStatus(const FaultLatch *latch)

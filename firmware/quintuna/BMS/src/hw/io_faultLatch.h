@@ -1,11 +1,11 @@
 #pragma once
 
 #include <stdbool.h>
-#include "hw_gpios.h"
 #include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 
+#include "hw_gpios.h"
 typedef struct
 {
     const Gpio *current_status_gpio;
