@@ -1,6 +1,7 @@
 #pragma once
 
-typedef enum {
+typedef enum
+{
     EVSE_DISCONNECTED,
     EVSE_CONNECTED,
     EVSE_CHARGING,
