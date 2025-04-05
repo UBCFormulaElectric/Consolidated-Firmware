@@ -3,11 +3,11 @@
 #include "hw_gpios.h"
 
 // Voltage thresholds for the steering sensor (in Volts)
-#define MIN_STEERING_VOLTAGE (0.0f)
-#define MAX_STEERING_VOLTAGE (5.0f) // TODO: these are still theoretical
+#define MIN_STEERING_VOLTAGE (0.2f)
+#define MAX_STEERING_VOLTAGE (3.2f) // TODO: need to be validated
 
 // Constants for steering angle calculation
-#define STEERING_ANGLE_VOLTAGE_OFFSET (2.21f) // TODO: still need to be verified
+#define STEERING_ANGLE_VOLTAGE_OFFSET (2.21f) // TODO: still needs to be validated
 #define DEGREE_PER_VOLT (360.0f / (MAX_STEERING_VOLTAGE - MIN_STEERING_VOLTAGE))
 
 static const SteeringConfig *config = NULL;
