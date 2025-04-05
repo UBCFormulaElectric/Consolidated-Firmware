@@ -66,6 +66,7 @@ typedef struct __attribute__((packed)){
     uint8_t OTPB :1;
     uint8_t SEC0 :1;
     uint8_t SEC1 :1;
+    uint8_t SS :1;
     uint8_t FUSE :1;
     uint8_t PF : 1;
     uint8_t SDM :1;
@@ -113,8 +114,7 @@ static bool send_subcommand(uint16_t cmd)
     }
 
     uint8_t lower_cmd[1] = { (uint8_t)(BYTE_MASK(cmd))};
-
-    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_LSB, data,1))
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_LSB, lower_cmd,1))
     {
         return false;
     }
@@ -171,10 +171,6 @@ static bool recieve_subcommand(uint16_t cmd, Subcommand_Response* response){
     return true;
 }
 
-static bool verify_checksum(uint8_t cmd, uint8_t lower, uint8_t upper){
-
-}
-
 bool io_lowVoltageBattery_initial_setup(){
     BREAK_IF_DEBUGGER_CONNECTED();
 
@@ -190,8 +186,9 @@ bool io_lowVoltageBattery_initial_setup(){
         BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
-    uint8_t data_bat[2]; //the size of the status command is 16 bits long
-    if(!hw_i2c_receive(&bat_mtr, data_bat , 2)){
+
+    Battery_Status bat_status;
+    if(!hw_i2c_receive(&bat_mtr, (uint8_t*)&bat_status , 2)){
         BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
@@ -201,18 +198,12 @@ bool io_lowVoltageBattery_initial_setup(){
         BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
-    uint8_t data_control[2];
-    if(!hw_i2c_receive(&bat_mtr, data_control, 2)){
+
+    Control_Status ctrl_status;
+    if(!hw_i2c_receive(&bat_mtr, (uint8_t*)&ctrl_status, 2)){
         BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
-
-    Battery_Status bat_status;
-    Control_Status ctrl_status;
-
-    memcpy(&bat_status, data_bat, STATUS_LENGTH);
-    memcpy(&ctrl_status, data_control, STATUS_LENGTH);
-
     if (bat_status.SLEEP == 1){
         BREAK_IF_DEBUGGER_CONNECTED();
         LOG_INFO("Battery is currently in sleep mode");
