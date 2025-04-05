@@ -30,9 +30,7 @@ list(APPEND IO_SRCS
         # "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
-        
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -51,6 +49,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
 )
 set(HW_INCLUDE_DIRS
@@ -89,6 +88,8 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal.c"
+            "stm32h7xx_hal_crc.c"
+            "stm32h7xx_hal_crc_ex.c"
             "stm32h7xx_hal_adc.c"
             "stm32h7xx_hal_adc_ex.c"
             "stm32h7xx_hal_cortex.c"
@@ -116,8 +117,6 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_uart_ex.c"
             "stm32h7xx_ll_sdmmc.c"
             "stm32h7xx_ll_usb.c"
-            "stm32h7xx_hal_crc.c"
-            "stm32h7xx_hal_crc_ex.c"
     )
 
     stm32h733xx_cube_library(
@@ -128,6 +127,17 @@ if ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
+    # Generate the protobuf files.
+    nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
+    set(P_SRCS ${PROTO_SRCS})
+    set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
+    embedded_library(
+            "telem_proto1"
+            "${P_SRCS}"
+            "${P_HDRS}"
+            "cm7"
+            TRUE
+    )
 
     # JSONCAN
     jsoncan_embedded_library(DAM quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
@@ -138,17 +148,6 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_DAM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
             "${ARM_CORE}"
-    )
-
-    nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
-    set(P_SRCS ${PROTO_SRCS})
-    set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
-    embedded_library(
-            "telem_proto1"
-            "${P_SRCS}"
-            "${P_HDRS}"
-            "cm7"
-            TRUE
     )
 
     target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1")

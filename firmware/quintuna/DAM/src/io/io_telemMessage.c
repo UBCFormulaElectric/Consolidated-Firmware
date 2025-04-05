@@ -20,13 +20,20 @@
 #define MAGIC_HIGH 0xAA
 #define MAGIC_LOW 0x55
 
-static bool modem_900_choice;
-typedef struct
-{
-    const UART *modem900M;
-    const UART *modem2_4G;
-} Modem;
-static const Modem modem = { .modem2_4G = &_900m_uart, .modem900M = &_900m_uart };
+UartDevice _900m_uart = {
+    .config = {
+        .handle               = &huart2,
+        .polling_timeout_ms   = 1000U,
+        .callback_dma         = false,
+        .transmit_callback    = NULL,
+        .receive_callback     = NULL,
+    },
+    .blocked_polling_task = NULL,
+    .rx_callback_pending  = false,
+    .tx_callback_pending  = false,
+};
+
+// UartDevice        *_2_4G_uart = NULL;
 
 static bool               proto_status;
 static uint8_t            proto_msg_length;
@@ -118,7 +125,6 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
 void io_telemMessage_init()
 {
     assert(!init);
-    modem_900_choice = true; // if false, then using the 2.4GHz,
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
     assert(message_queue_id != NULL);
     init = true;
@@ -167,24 +173,18 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     // Start timing for measuring transmission speeds
     bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
-    if (modem_900_choice)
+    success &=
+        hw_uart_transmit(&_900m_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length
+    if (success)
     {
-        success &= hw_uart_transmitPoll(
-            modem.modem900M, full_frame, frame_length, 100); // send full frame check line 143 for new frame_length
-        if (success)
-        {
-            LOG_INFO("900Mhz Telem Message Sent");
-            // print the buffer up to the 27th byte
-        }
-        else
-        {
-            LOG_ERROR("900Mhz Telem Message Failed");
-        }
+        LOG_INFO("900Mhz Telem Message Sent");
+        // print the buffer up to the 27th byte
     }
     else
     {
-        LOG_ERROR("NOT SUPPORTED");
+        LOG_ERROR("900Mhz Telem Message Failed");
     }
+
     SEGGER_SYSVIEW_MarkStop(0);
 
     return true;
