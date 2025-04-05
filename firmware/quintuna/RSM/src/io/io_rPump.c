@@ -1,28 +1,26 @@
 #include "hw_i2cs.h"
 
+//SOURCE: https://datasheet.ciiva.com/41459/001083254-da-01-en-ic-dgtl-pot-mcp4661-502e-st-tssop-14-mcp-41459017.pdf?src-supplier=Conrad
 #define MAX_WIPER_VALUE (256.0f)
 #define MIN_WIPER_VALUE (0.0f)
+#define RPUMP_WIPER_REGISTER (0x02)
 
-bool io_rPump_isPumpReady(const I2cDevice *device)
+bool io_rPump_isPumpReady()
 {
-    return hw_i2c_isTargetReady(device);
+    return hw_i2c_isTargetReady(&r_pump_i2c);
 }
 
-void io_rPump_write(const I2cDevice *device, uint8_t data)
+bool io_rPump_write(uint8_t input)
 {
-    uint8_t buffer[1];
-    buffer[0] = data;
-    hw_i2c_memoryWrite(device, 0x02, buffer, sizeof(buffer));
+    return hw_i2c_memoryWrite(&r_pump_i2c, RPUMP_WIPER_REGISTER, &input, sizeof(input));
 }
 
-uint8_t io_rPump_read(const I2cDevice *device)
+bool io_rPump_read(uint8_t *dest)
 {
-    uint8_t buffer[1];
-    hw_i2c_memoryRead(device, 0x02, buffer, sizeof(buffer));
-    return buffer[0];
+    return hw_i2c_memoryRead(&r_pump_i2c, RPUMP_WIPER_REGISTER, dest, sizeof(dest));
 }
 
-void io_rPump_setPercentage(const I2cDevice *device, float percentage)
+bool io_rPump_setPercentage(float percentage)
 {
     if (percentage > 100.0f)
     {
@@ -33,12 +31,16 @@ void io_rPump_setPercentage(const I2cDevice *device, float percentage)
         percentage = 0.0f;
     }
     uint8_t data = (uint8_t)((1.0f - (percentage / 100.0f)) * MAX_WIPER_VALUE);
-    io_rPump_write(device, data);
+    return io_rPump_write(data); 
 }
 
-float io_rPump_readPercentage(const I2cDevice *device)
+bool io_rPump_readPercentage(float *dest)
 {
-    uint8_t data       = io_rPump_read(device);
-    float   percentage = (1.0f - ((float)data / MAX_WIPER_VALUE)) * 100.0f;
-    return percentage;
+    uint8_t data;
+    if (!io_rPump_read(&data))
+    {
+        return false;
+    }
+    *dest = (1.0f - ((float)data / MAX_WIPER_VALUE)) * 100.0f;
+    return true;
 }

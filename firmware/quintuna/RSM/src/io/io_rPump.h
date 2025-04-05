@@ -5,7 +5,35 @@
 #include "hw_i2cs.h"
 #include "hw_i2c.h"
 
-bool    io_rPump_isPumpReady(const I2cDevice *device);
-void    io_rPump_write(const I2cDevice *device, uint8_t data);
-uint8_t io_rPump_read(const I2cDevice *device);
+/**
+ * Checks rPump is communitcating over I2C
+ * @return True if the I2C is ready
+ */
+bool    io_rPump_isPumpReady();
+
+/**
+ * 
+ * @param data 
+ * @return 
+ */
+void    io_rPump_write(uint8_t data);
+
+/**
+ * 
+ * @return
+ */
+uint8_t io_rPump_read();
+
 #endif
+
+/**
+ * 
+ * @param percentage 
+ */
+void    io_rPump_setPercentage(float percentage);
+
+/**
+ * 
+ * @return 
+ */
+float   io_rPump_readPercentage();

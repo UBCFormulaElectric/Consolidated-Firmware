@@ -10,7 +10,7 @@
 #include <math.h>
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
-#define FLOW_RATE_CONVERSION_FACTOR (7.5f)
+#define LITER_PER_MINUTE_SENSOR_PERIOD_SECS (7.5f)
 
 void io_coolant_init()
 {
@@ -25,7 +25,7 @@ void io_coolant_inputCaptureCallback()
 float io_coolant_getFlowRate()
 {
     const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter_5v5);
-    return freq_read / FLOW_RATE_CONVERSION_FACTOR;
+    return freq_read / LITER_PER_MINUTE_SENSOR_PERIOD_SECS;
 }
 
 void io_coolant_checkIfFlowMeterActive()
