@@ -403,3 +403,49 @@ TEST_F(TestRegen, hysterisis_derate)
     ASSERT_TRUE(alert == false);
     ASSERT_TRUE(enabled == true);
 }
+
+TEST_F(TestRegen, pedal_remap)
+{
+    // accelerating range
+    float pedal_remap  = app_regen_pedalRemapping(100);
+    float actual_pedal = 1.0f;
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+
+    pedal_remap  = app_regen_pedalRemapping(80);
+    actual_pedal = (0.8f - 0.1f) / 0.7f;
+
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+
+    pedal_remap  = app_regen_pedalRemapping(50);
+    actual_pedal = (0.5f - 0.1f) / 0.7f;
+
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+
+    // cruising range
+    pedal_remap  = app_regen_pedalRemapping(30);
+    actual_pedal = 0.0f;
+
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+
+    pedal_remap  = app_regen_pedalRemapping(25);
+    actual_pedal = 0.0f;
+
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+
+    // regen range
+
+    pedal_remap  = app_regen_pedalRemapping(19);
+    actual_pedal = (0.19f - 0.2f) / 0.2f;
+
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+
+    pedal_remap  = app_regen_pedalRemapping(5);
+    actual_pedal = (0.05f - 0.2f) / 0.2f;
+
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+
+    pedal_remap  = app_regen_pedalRemapping(0);
+    actual_pedal = -1.0f;
+
+    ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
+}
