@@ -11,8 +11,8 @@
 #include <stdint.h>
 
 #define BYTE_MASK(x) ((x) & 0XFF)
-#define VOLTAGE_RESPONSE_LENGTH 2
-#define VOLTAGE_TRANSMIT_LENGTH 1
+#define COMMAND_SIZE 1
+#define SUB_COMMAND_SIZE 2
 #define STATUS_LENGTH 2
 
 
@@ -27,6 +27,11 @@ typedef enum {
     ALARM_ENABLE_REG           = 0x66,
     ALARM_STATUS_REG           = 0x62
 } register_address_t;
+
+typedef struct{
+    uint8_t response[REG_RESPONSE_LENGTH];
+    uint8_t length;
+} Subcommand_Response;
 
 typedef enum {
     CONFIG_UPDATE_COMMAND      = 0x0090,
@@ -46,7 +51,7 @@ typedef enum {
 typedef enum {
     I2C_TIMEOUT_MS             = 100, // Timeout for I2C operations
     CMD_SUBCOMMAND_SIZE        = 2,   // Two bytes for subcommand
-    RESPONSE_LENGTH_SIZE       = 1,   // One byte for response length and checksum
+    RESPONSE_LENGTH_SIZE       = 4,   // One byte for response length and checksum
     SOC_RESPONSE_LENGTH        = 6,   // Expected response size for SOC command
 } comm_settings_t;
 
@@ -107,22 +112,67 @@ static bool send_subcommand(uint16_t cmd)
         return false;
     }
 
-    uint8_t data[CMD_SUBCOMMAND_SIZE] = { (uint8_t)(BYTE_MASK(cmd)), (uint8_t)(BYTE_MASK(cmd >> 8))};
+    uint8_t lower_cmd[1] = { (uint8_t)(BYTE_MASK(cmd))};
 
-    if (!hw_i2c_transmit(&bat_mtr, data, CMD_SUBCOMMAND_SIZE))
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_LSB, data,1))
     {
         return false;
     }
+    uint8_t upper_cmd[1] = {(uint8_t) BYTE_MASK(cmd >> 8)};
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_MSB, upper_cmd, 1)) {
+        return false;
+    }
+    bool finished_subcmd = false;
+    uint8_t lower_read;
+    uint8_t upper_read;
 
-    /* Wait for the subcommand to be processed */
-    uint8_t low, high;
-    do 
-    {
-        hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &low, 8);
-        hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_MSB, &high, 8);
-    } while ((low | (high << 8)) == cmd);
+    while (finished_subcmd) {
+        if (!hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &lower_read,2))
+        {
+            return false;
+        }
+        if (!hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_MSB, &upper_read, 2)) {
+            return false;
+        }
 
+        finished_subcmd = ((upper_read<<8|lower_read) == 0xFF) ? false : true;
+    }
+    //reading the length of the buffer
     return true;
+}
+
+static bool recieve_subcommand(uint16_t cmd, Subcommand_Response* response){
+    //reading the length of the buffer
+    uint8_t response_length;
+    if(!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &response_length, 1)){
+        return false;
+    }
+    response->length = response_length; 
+    for(uint8_t i = 0x40; i<response_length && i!= 0x5F;i++){
+        uint8_t index = (i-(uint8_t)0x40);
+        if (!hw_i2c_memoryRead(&bat_mtr, i, &response->response[index], 1)){
+            return false;
+        }
+    }
+    //ask for the checksum
+    uint8_t calcChecksum = (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) +
+            ((uint8_t)((BYTE_MASK(cmd>>8))) +
+            ((uint8_t)response_length)));
+
+    uint8_t calc_inversion = ~calcChecksum;
+    uint8_t checksum;
+    if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, 1)){
+        return false;
+    }
+
+    if(calc_inversion != checksum){
+        return false;
+    }
+    return true;
+}
+
+static bool verify_checksum(uint8_t cmd, uint8_t lower, uint8_t upper){
+
 }
 
 bool io_lowVoltageBattery_initial_setup(){
@@ -168,19 +218,25 @@ bool io_lowVoltageBattery_initial_setup(){
         LOG_INFO("Battery is currently in sleep mode");
 
         uint16_t disable_sleep = 0x009A;
-        send_subcommand(disable_sleep);
+        if(send_subcommand(disable_sleep)){
+            return false;
+        }
 
     }else if (ctrl_status.DEEPSLEEP ==1) {
         BREAK_IF_DEBUGGER_CONNECTED();
         LOG_INFO("Battery is currently in deep sleep mode");
 
         uint16_t exit_deep_sleep = 0x00E;
-        send_subcommand(exit_deep_sleep);
+        if(send_subcommand(exit_deep_sleep)){
+            return false;
+        }
     }
 
     //turn on all the fets
     uint16_t turning_on_fets_cmd = 0x0096;
-    send_subcommand(turning_on_fets_cmd);
+    if(send_subcommand(turning_on_fets_cmd)){
+        return false;
+    }
 }
 /**
  * @brief Reads the response from the BQ76922 and validates the checksum.
