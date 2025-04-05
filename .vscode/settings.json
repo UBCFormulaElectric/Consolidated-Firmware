@@ -13,5 +13,25 @@
 		"--compile-commands-dir=build_fw_dev",
  		// "--compile-commands-dir=build_fw_test",
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
-	]
+	],
+	"files.associations": {
+		"hw_spi.h": "c",
+		"__bit_reference": "c",
+		"__hash_table": "c",
+		"__split_buffer": "c",
+		"__tree": "c",
+		"array": "c",
+		"deque": "c",
+		"iterator": "c",
+		"forward_list": "c",
+		"list": "c",
+		"map": "c",
+		"set": "c",
+		"span": "c",
+		"string": "c",
+		"string_view": "c",
+		"unordered_map": "c",
+		"unordered_set": "c",
+		"vector": "c"
+	}
 }
