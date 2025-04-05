@@ -124,6 +124,10 @@ You should see two pins configured on the chip for USB,
 
 ![USB pins](../../images/chimera/stm/usb_pins.png)
 
+Next, lets make a dedicated Chimera V2 task. Go to the FreeRTOS menu, and create the task.
+
+![FREERTOS tasks](../../images/chimera/stm/tasks.png)
+
 Next, we need to make sure we build our binaries with all the USB dependencies. First, make sure that the call to `stm32f412rx_cube_library`/`stm32h733xx_cube_library` has `TRUE` as it's last argument (this flag enables USB).
 
 Eg.
@@ -310,7 +314,6 @@ eg. For `hw_chimera_v2_getGpio` on the F4Dev,
 ```c
 ...
 
-// Convert a given GpioNetName to a GPIO pin.
 static const Gpio *hw_chimera_v2_getGpio(const GpioNetName *net_name)
 {
     ...
@@ -385,10 +388,12 @@ hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit
                                            .id_to_spi         = id_to_spi };
 ```
 
-We can finally run chimera. Include the shared `hw_chimera_v2.h` library in your `tasks.c`. Then, also in `tasks.c`, create the following function.
+We can finally run chimera. 
+
+Include the shared `hw_chimera_v2.h` library in your `tasks.c`. Then, also in `tasks.c`, create the following function.
 
 ```c
-_Noreturn void tasks_chimera_v2(void)
+_Noreturn void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
@@ -398,7 +403,7 @@ You will also have to add the decleration in the `tasks.h` file.
 
 
 ```c
-_Noreturn void tasks_chimera_v2(void);
+_Noreturn void tasks_runChimera(void);
 ```
 
 Make sure to invoke this task function in `main.c`.
@@ -408,7 +413,7 @@ void RunChimeraTask(void *argument)
 {
     /* USER CODE BEGIN RunChimeraTask */
     /* Infinite loop */
-    tasks_chimera_v2();
+    tasks_runChimera();
     /* USER CODE END RunChimeraTask */
 }
 ```
