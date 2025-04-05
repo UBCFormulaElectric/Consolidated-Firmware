@@ -4,6 +4,7 @@
 #include "hw_hal.h"
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
+#include "hw_utils.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -27,6 +28,8 @@ typedef enum {
 typedef enum {
     CONFIG_UPDATE_COMMAND      = 0x0090,
     CONFIG_UPDATE_EXIT_COMMAND = 0x0092,
+    SLEEP_ENABLE               = 0x0099,
+    SLEEP_DISABLE              = 0x009A,
     OTP_COMMAND                = 0x00F4,
     OTP_WR_CHECK               = 0x00A0,
     OTP_WR                     = 0x00A1
@@ -46,15 +49,31 @@ typedef enum {
     SOC_RESPONSE_LENGTH        = 6,   // Expected response size for SOC command
 } comm_settings_t;
 
-typedef enum {
-    BYTE_MASK  = 0xFF,  // 8-bit mask for lower byte extraction
-    BYTE_SHIFT = 8      // Shift amount for upper byte extraction
-} bit_mod_t;
+typedef struct __attribute__((packed)){
+    uint8_t CFGUPDATE :1;
+    uint8_t PCHG_MODE :1;
+    uint8_t SLEEP_EN :1;
+    uint8_t POR: 1;
+    uint8_t WD : 1;
+    uint8_t COW_CHECK : 1;
+    uint8_t OTPW : 1;
+    uint8_t OTPB :1;
+    uint8_t SEC0 :1;
+    uint8_t SEC1 :1;
+    uint8_t FUSE :1;
+    uint8_t PF : 1;
+    uint8_t SDM :1;
+    uint8_t RSVD :1;
+    uint8_t SLEEP :1;
+}Battery_Status;
 
-typedef enum {
-    SUBCOMMAND_PROCESS_DELAY_MS = 1, // Delay after issuing a subcommand
-    POLL_DELAY_MS               = 1  // Delay between polls
-} dalay_t;
+
+typedef struct __attribute__((packed)){
+    uint8_t LD_ON :1;
+    uint8_t LD_TIMEOUT :1;
+    uint8_t DEEPSLEEP : 1;
+    uint16_t RSVD : 13;
+}Control_Status;
 
 typedef struct {
     float r_sense;
@@ -87,20 +106,17 @@ static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
         return false;
     }
 
-    uint8_t data[CMD_SUBCOMMAND_SIZE] = { (uint8_t)(cmd & BYTE_MASK), (uint8_t)((cmd >> BYTE_SHIFT) & BYTE_MASK) };
+    uint8_t data[CMD_SUBCOMMAND_SIZE] = { (uint8_t)(BYTE_MASK(cmd)), (uint8_t)(BYTE_MASK(cmd >> 8))};
 
-    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_LSB, data, CMD_SUBCOMMAND_SIZE))
+    if (!hw_i2c_transmit(&bat_mtr, REG_SUBCOMMAND_LSB, data, CMD_SUBCOMMAND_SIZE))
     {
         return false;
     }
 
     /* Wait for the subcommand to be processed */
-    osDelay(SUBCOMMAND_PROCESS_DELAY_MS);
-
     uint8_t low, high;
     do 
     {
-        osDelay(POLL_DELAY_MS);
         hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &low, 8);
         hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &high, 8);
     } while ((low | (high << BYTE_SHIFT)) == cmd);
@@ -108,6 +124,53 @@ static bool io_lowVoltageBattery_send_subcommand(uint16_t cmd)
     return true;
 }
 
+bool io_lowVoltageBattery_initial_setup(){
+    BREAK_IF_DEBUGGER_CONNECTED();
+
+    //checking if the target is even ready to communicate with 
+    //adding debuggers to make sure the code doesnt run wild and free when we run
+    if (!hw_i2c_isTargetReady(&bat_mtr)){
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    uint8_t buffer_bat[1] = {(uint8_t)BATTERY_STATUS};
+    //ask for battery status to check if the device is sleep or not
+    if (!hw_i2c_transmit(&bat_mtr, buffer_bat, 1)){
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    uint8_t data_bat[2]; //the size of the status command is 16 bits long
+    if(!hw_i2c_receive(&bat_mtr, data_bat , 2)){
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    //ask for control status
+    uint8_t buffer_control[1] = {(uint8_t) CONTROL_STATUS};
+    if (!hw_i2c_transmit(&bat_mtr, buffer_control, 1)){
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    uint8_t data_control[2];
+    if(!hw_i2c_receive(&bat_mtr, data_control, 2)){
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+
+    Battery_Status bat_status;
+    Control_Status ctrl_status;
+
+    memcpy(&bat_status, data_bat, 2);
+    memcpy(&ctrl_status, data_control, 2);
+
+    if (bat_status.SLEEP == 1){
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }else if (ctrl_status.DEEPSLEEP ==1) {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
+
+
+
+}
 /**
  * @brief Reads the response from the BQ76922 and validates the checksum.
  *
