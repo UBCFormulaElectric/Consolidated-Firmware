@@ -29,13 +29,6 @@
 
 #include "shared.pb.h"
 
-static const PwmInputConfig imd_pwm_input_config = {
-    .htim                     = &htim1,
-    .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
-    .rising_edge_tim_channel  = TIM_CHANNEL_1,
-    .falling_edge_tim_channel = TIM_CHANNEL_2,
-};
-
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
                                     .pin  = SD_CD_Pin,
@@ -71,8 +64,9 @@ void tasks_init(void)
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_can_init(&can1);
 
+    io_imd_init();
     io_tractiveSystem_init(&ts_config);
-    io_imd_init(&imd_pwm_input_config);
+    io_imd_init();
     io_chimera_init(GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
     io_sdGpio_init(&sd_gpio);
 
