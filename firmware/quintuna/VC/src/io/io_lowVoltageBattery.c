@@ -16,6 +16,7 @@
 #define STATUS_LENGTH 2
 #define VOLTAGE_TRANSMIT_LENGTH 1
 #define VOLTAGE_RESPONSE_LENGTH 2
+#define FRACTION 4294967296.0
 
 typedef enum
 {
@@ -92,9 +93,9 @@ typedef struct __attribute__((packed))
 typedef struct
 {
     float r_sense;
-    float q_full;
+    double q_full;
     float seconds_per_hour;
-    float percentage_factor;
+    double percentage_factor;
     float adc_calibration_factor;
 } HardwareConfig_t;
 
@@ -150,35 +151,35 @@ static bool send_subcommand(uint16_t cmd)
     return true;
 }
 
-// static bool recieve_subcommand(uint16_t cmd, Subcommand_Response* response){
-//     //reading the length of the buffer
-//     uint8_t response_length;
-//     if(!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &response_length, 1)){
-//         return false;
-//     }
-//     response->length = response_length;
-//     for(uint8_t i = 0x40; i<response_length && i!= 0x5F;i++){
-//         uint8_t index = (i-(uint8_t)0x40);
-//         if (!hw_i2c_memoryRead(&bat_mtr, i, &response->response[index], 1)){
-//             return false;
-//         }
-//     }
-//     //ask for the checksum
-//     uint8_t calcChecksum = (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) +
-//             ((uint8_t)((BYTE_MASK(cmd>>8))) +
-//             ((uint8_t)response_length)));
+static bool recieve_subcommand(uint16_t cmd, Subcommand_Response* response){
+    //reading the length of the buffer
+    uint8_t response_length;
+    if(!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &response_length, 1)){
+        return false;
+    }
+    response->length = response_length;
+    for(uint8_t i = 0x40; i<response_length && i!= 0x5F;i++){
+        uint8_t index = (i-(uint8_t)0x40);
+        if (!hw_i2c_memoryRead(&bat_mtr, i, &response->response[index], 1)){
+            return false;
+        }
+    }
+    //ask for the checksum
+    uint8_t calcChecksum = (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) +
+            ((uint8_t)((BYTE_MASK(cmd>>8))) +
+            ((uint8_t)response_length)));
 
-//     uint8_t calc_inversion = ~calcChecksum;
-//     uint8_t checksum;
-//     if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, 1)){
-//         return false;
-//     }
+    uint8_t calc_inversion = ~calcChecksum;
+    uint8_t checksum;
+    if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, 1)){
+        return false;
+    }
 
-//     if(calc_inversion != checksum){
-//         return false;
-//     }
-//     return true;
-// }
+    if(calc_inversion != checksum){
+        return false;
+    }
+    return true;
+}
 
 bool io_lowVoltageBattery_initial_setup(void)
 {
@@ -421,32 +422,48 @@ bool io_lowVoltageBattery_OTP_write(void)
  *
  * @return SOC percentage on success, or -1.0f on error.
  */
-// float io_lowVoltageBattery_get_SOC(void)
-// {
-//     if (!send_subcommand(ACCUMULATED_CHARGE_COMMAND))
-//     {
-//         return -1.0f;
-//     }
+double io_lowVoltageBattery_get_SOC(void)
+{
+    if (!send_subcommand(ACCUMULATED_CHARGE_COMMAND))
+    {
+        return -1.0;
+    }
 
-//     uint8_t buffer[SOC_RESPONSE_LENGTH];
-//     if (!recieve_subcommand(ACCUMULATED_CHARGE_COMMAND, (uint8_t)*SOC_RESPONSE_LENGTH, buffer))
-//     {
-//         return -1.0f;
-//     }
+    Subcommand_Response subcmd_response;
+    if(!recieve_subcommand(ACCUMULATED_CHARGE_COMMAND, &subcmd_response))
+    {
+        return -1.0;
+    }
 
-//     /* Parse the 3-byte charge value (buffer[0]-buffer[2]) */
-//     uint32_t charge = ((uint32_t)buffer[0]) |
-//                   ((uint32_t)buffer[1] << 8) |
-//                   ((uint32_t)buffer[2] << (8 * 2));
-//     float CC_GAIN = HardwareConfig.adc_calibration_factor / HardwareConfig.r_sense;
-//     float charge_mAh = (((float)charge) * CC_GAIN) / ((float)HardwareConfig.seconds_per_hour);
+    //Check what the hell is going on here
 
-//     /* Clear any pending alert */
-//     uint8_t alarmClear = ALARM_CLEAR_CMD;
-//     hw_i2c_memoryWrite(&bat_mtr, ALARM_STATUS_REG, &alarmClear, RESPONSE_LENGTH_SIZE);
+    /* Parse the 3-byte charge value (buffer[0]-buffer[2]) */
+    // uint32_t charge = ((uint32_t)subcmd_response.response[0]) |
+    //               ((uint32_t)subcmd_response.response[1] << 8) |
+    //               ((uint32_t)subcmd_response.response[2] << (8 * 2));
+    // float CC_GAIN = HardwareConfig.adc_calibration_factor / HardwareConfig.r_sense;
+    // float charge_mAh = (((float)charge) * CC_GAIN) / ((float)HardwareConfig.seconds_per_hour);
 
-//     return (charge_mAh / HardwareConfig.q_full) * HardwareConfig.percentage_factor;
-// }
+    uint32_t charge_interger_portion = ((uint32_t)subcmd_response.response[0]<<16) |
+                  ((uint32_t)subcmd_response.response[1] << 8) |
+                  ((uint32_t)subcmd_response.response[2]) | 
+                  ((uint32_t)subcmd_response.response[3]);
+
+    
+    uint32_t charge_fraction_portion = ((uint32_t)subcmd_response.response[3]<<16) |
+                ((uint32_t)subcmd_response.response[4] << 8) |
+                ((uint32_t)subcmd_response.response[5]) | 
+                ((uint32_t)subcmd_response.response[6]);
+
+
+    double charge = (double) charge_interger_portion + ((double) charge_fraction_portion/FRACTION);
+    /* Clear any pending alert */
+    // uint8_t alarmClear = ALARM_CLEAR_CMD;
+    // if (!hw_i2c_memoryWrite(&bat_mtr, ALARM_STATUS_REG, &alarmClear, RESPONSE_LENGTH_SIZE)){
+    //     return -1.0;
+    // }
+    return (charge / HardwareConfig.q_full) * HardwareConfig.percentage_factor;
+}
 
 /**
  * @brief Gets the cell voltage or the entire stack voltage
