@@ -4,10 +4,10 @@
 
 typedef struct
 {
-    uint8_t starting_temp; // Temperature at 0th index (deg C)
-    uint8_t resolution; // Degree celsius increase per index step
-    uint16_t size; // Number of LUT entries
-    float* resistances; // Pointer to resistance values (Ohms)
+    uint8_t  starting_temp; // Temperature at 0th index (deg C)
+    uint8_t  resolution;    // Degree celsius increase per index step
+    uint16_t size;          // Number of LUT entries
+    float   *resistances;   // Pointer to resistance values (Ohms)
 } ThermistorLUT;
 
 /**
@@ -16,4 +16,4 @@ typedef struct
  * @param temp_resistance_lut reverse lookup table
  * @return Thermistor temperature in degrees C
  */
-float io_thermistor_resistanceToTemp(float thermistor_resistance, const ThermistorLUT* temp_resistance_lut);
+float io_thermistor_resistanceToTemp(float thermistor_resistance, const ThermistorLUT *temp_resistance_lut);
