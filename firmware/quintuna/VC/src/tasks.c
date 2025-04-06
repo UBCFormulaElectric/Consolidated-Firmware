@@ -30,7 +30,7 @@ void tasks_init(void)
     jobs_init();
 }
 
-_Noreturn void tasks_chimera_v2(void)
+_Noreturn void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
