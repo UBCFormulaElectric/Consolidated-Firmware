@@ -9,20 +9,11 @@
 
 #define V_PER_100UV (1E-4f)
 
-/**
- * Clears the register groups which contain the thermistor data
- * @return success of operation
- */
-static bool clearAuxRegisters()
-{
-#define CLRAUX (0x0712)
-    return io_ltc6813_sendCommand(CLRAUX);
-}
-
 // TODO assert that for each speed that the ADCOPT is correct
 bool io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
 {
-    if (!clearAuxRegisters())
+#define CLRAUX (0x0712)
+    if (!io_ltc6813_sendCommand(CLRAUX))
         return false;
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // GPIO Selection for ADC conversion
