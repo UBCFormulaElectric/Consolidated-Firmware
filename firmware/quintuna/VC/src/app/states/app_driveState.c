@@ -19,5 +19,5 @@ const State *app_driveState_get(void)
         .run_on_exit       = driveStateRunOnExit,
     };
 
-    return &drive_state
+    return &drive_state;
 }
