@@ -26,6 +26,7 @@
 #include "tasks.h"
 #include "hw_error.h"
 #include "io_log.h"
+#include "can_test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -693,6 +694,7 @@ void RunCanTxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanTxTask */
     /* Infinite loop */
+    can_test_tick();
     tasks_runCanTx();
     /* USER CODE END RunCanTxTask */
 }

@@ -43,17 +43,17 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
 /**
  * Transmit a FD CAN msg on the bus, blocking until completed.
  * @param can_handle Can handle to transmit from
- * @param msg CAN msg to be TXed.
+ * @param msg FD CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
 bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
- * Receive a CAN msg from the bus, returning whether or not a message is available.
+ * Receive a FD CAN msg from the bus, returning whether or not a message is available.
  * This function also passes up the CanMsg to a callback function.
  * @param can_handle Can handle to receive from
- * @param msg CAN msg to be RXed.
+ * @param msg FD CAN msg to be RXed.
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
  */
-bool hw_can_receive(const CanHandle *can_handle, uint32_t rx_fifo, CanMsg *msg);
+bool hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg);

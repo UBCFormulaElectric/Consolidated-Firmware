@@ -145,7 +145,11 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        if (tx_msg.is_fd) {
+            hw_fdcan_transmit(&can1, &tx_msg);
+        } else {
+            hw_can_transmit(&can1, &tx_msg);
+        }
     }
 }
 

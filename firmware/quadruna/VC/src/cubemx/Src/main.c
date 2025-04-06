@@ -25,6 +25,7 @@
 #include "tasks.h"
 #include "hw_error.h"
 #include "hw_gpios.h"
+#include "can_test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -1180,6 +1181,7 @@ void RunTask100Hz(void *argument)
 void RunCanTxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanTxTask */
+    can_test_tick();
     tasks_runCanTx();
     /* USER CODE END RunCanTxTask */
 }

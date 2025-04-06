@@ -1,6 +1,7 @@
 #include "hw_fdcan.h"
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
+#include <string.h>
 #include "io_log.h"
 #include "io_time.h"
 #include "io_canQueue.h"
@@ -51,6 +52,10 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
 
+    const uint8_t classic_can_payload = CAN_PAYLOAD_BYTES / 8;
+    uint8_t       classic_msg[classic_can_payload];
+    memcpy(classic_msg, msg->data, classic_can_payload);
+
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
@@ -77,7 +82,7 @@ bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
     return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
 }
 
-bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
+bool hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     assert(can_handle->ready);
     FDCAN_RxHeaderTypeDef header;
@@ -113,7 +118,7 @@ static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
     CanMsg           rx_msg;
-    if (!hw_can_receive(handle, FDCAN_RX_FIFO0, &rx_msg))
+    if (!hw_fdcan_receive(handle, FDCAN_RX_FIFO0, &rx_msg))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&rx_msg);

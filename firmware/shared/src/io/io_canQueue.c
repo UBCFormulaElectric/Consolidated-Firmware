@@ -10,8 +10,10 @@
 #include "cmsis_os.h"
 #define TX_QUEUE_SIZE 128
 #define RX_QUEUE_SIZE 128
-#define TX_QUEUE_BYTES sizeof(CanMsg) * TX_QUEUE_SIZE
-#define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
+
+#define CAN_MSG_SIZE sizeof(CanMsg)
+#define TX_QUEUE_BYTES CAN_MSG_SIZE * TX_QUEUE_SIZE
+#define RX_QUEUE_BYTES CAN_MSG_SIZE * RX_QUEUE_SIZE
 
 char                      *tx_name;
 char                      *rx_name;
@@ -42,7 +44,7 @@ void io_canQueue_init()
 {
     // Initialize CAN queues.
     assert(!init_complete);
-    tx_queue_id   = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsg), &tx_queue_attr);
+    tx_queue_id   = osMessageQueueNew(TX_QUEUE_SIZE, CAN_MSG_SIZE, &tx_queue_attr);
     rx_queue_id   = xMessageBufferCreateStatic(RX_QUEUE_BYTES, rx_queue_buf, &rx_buffer_control_block);
     init_complete = true;
 
@@ -86,8 +88,8 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     // use canQueue rx in isr
-    size_t bytes_sent = xMessageBufferSendFromISR(rx_queue_id, rx_msg, sizeof(CanMsg), 0);
-    if (bytes_sent != sizeof(CanMsg))
+    size_t bytes_sent = xMessageBufferSendFromISR(rx_queue_id, rx_msg, CAN_MSG_SIZE, 0);
+    if (bytes_sent != CAN_MSG_SIZE)
     {
         canRxQueueOverflowCallBack(++rx_overflow_count);
     }
@@ -102,7 +104,7 @@ CanMsg io_canQueue_popRx()
     assert(init_complete);
     CanMsg msg;
     // Pop a message off the RX queue.
-    size_t bytes_received = xMessageBufferReceive(rx_queue_id, &msg, sizeof(CanMsg), portMAX_DELAY);
-    assert(bytes_received == sizeof(CanMsg));
+    size_t bytes_received = xMessageBufferReceive(rx_queue_id, &msg, CAN_MSG_SIZE, portMAX_DELAY);
+    assert(bytes_received == CAN_MSG_SIZE);
     return msg;
 }
