@@ -352,11 +352,7 @@ void StartDefaultTask(void *argument)
     /* USER CODE BEGIN 5 */
 
     // Invoke Chimera V2.
-    for (;;)
-    {
-        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
-        osDelay(100);
-    }
+    hw_chimera_v2_task(&chimera_v2_config);
 
     /* USER CODE END 5 */
 }
