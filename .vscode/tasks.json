@@ -112,6 +112,13 @@
         "targets": ["quintuna_BMS.hex", "can_bus_load_quadruna"]
       },
       {
+        "label": "Build Embedded: VC (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_VC.hex", "can_bus_load_quintuna"]
+      },
+      {
         "label": "Build Embedded: CRIT (Quintuna)",
         "group": "build",
         "type": "cmake",
@@ -131,6 +138,13 @@
         "type": "cmake",
         "command": "build",
         "targets": ["quintuna_RSM.hex", "can_bus_load_quintuna"]
+      },
+      {
+        "label": "Build Embedded: FSM (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_FSM.hex", "can_bus_load_quintuna"]
       },
       {
         "label": "Build Embedded: f4dev",

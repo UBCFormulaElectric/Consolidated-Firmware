@@ -13,9 +13,9 @@ typedef struct
 
 typedef struct
 {
-    SpiBus  *bus;
-    Gpio     nss_pin;
-    uint32_t timeout_ms;
+    SpiBus     *bus;
+    const Gpio *nss_pin;
+    uint32_t    timeout_ms;
 } SpiDevice;
 
 // Board-specific config: You need to define this function which maps STM32 handle to SpiBus struct!
