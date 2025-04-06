@@ -23,6 +23,8 @@
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
+#define WINDOW_SIZE 64
+
 // Need these to be created an initialized elsewhere
 extern CanHandle can;
 
@@ -179,6 +181,10 @@ _Noreturn void bootloader_runInterfaceTask(void)
     for (;;)
     {
         const CanMsg command = io_canQueue_popRx();
+        // Program 64 bits at the current address.
+        uint8_t window_index = 0; 
+        uint16_t expected_can_id = BOOT_LOAD_MSG_START; // [0,63] reserved for binary upload 
+        uint64_t window_status = 0U; 
 
         if (command.std_id == START_UPDATE_ID)
         {
@@ -198,17 +204,39 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
             // Erasing sectors takes a while, so reply when finished.
             CanMsg reply = {
-                .std_id = ERASE_SECTOR_COMPLETE_ID,
+                .std_id = ERASE_SECTOR_COMPLETE_ID, // how is this read and where is it read 
                 .dlc    = 0,
             };
             io_canQueue_pushTx(&reply);
         }
-        else if (command.std_id == PROGRAM_ID && update_in_progress)
+        else if (BOOT_LOAD_MSG_START < command.std_id && command.std_id <=  (BOOT_LOAD_MSG_START + WINDOW_SIZE) && update_in_progress)
         {
-            // Program 64 bits at the current address.
-            // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
-            current_address += sizeof(uint64_t);
+
+           if (expected_can_id == command.std_id) // 8th byte of data as seq num
+            {
+                // do program
+                bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+                window_status |= (1U << window_index); // set respective bit in status
+            }
+            else{
+
+                window_status &= ~(1U << window_index);
+            }
+
+            if(window_index == (WINDOW_SIZE - 1))
+            {
+                CanMsg reply = { .std_id = (BOOT_LOAD_MSG_START + WINDOW_SIZE), .dlc = 8}; // MSG 0 in board range is for status 
+                memcpy(reply.data, &window_status, sizeof(window_status));
+                io_canQueue_pushTx(&reply);
+                window_status = 0U;  
+    
+            }
+            current_address += 8; // increment regardless of if packet dropped ... for re-transmitting we would have to 
+            window_index = (uint8_t)((window_index + 1) % WINDOW_SIZE); // wrap around when we hit window size
+            expected_can_id = BOOT_LOAD_MSG_START + window_index;
+
+
+
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
@@ -239,7 +267,6 @@ _Noreturn void bootloader_runTickTask(void)
 
     for (;;)
     {
-        // Broadcast a message at 1Hz so we can check status over CAN.
         CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 5 };
         status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
         status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
