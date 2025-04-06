@@ -35,6 +35,7 @@
 #define BALANCE_TICKS_OFF (100U)
 
 #define MAX_POWER_LIMIT_W (78e3f)
+#define POWER_LIMIT_SAFETY_HEADROOM (2e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
 #define CELL_FULLY_DERATED_TEMP (60.0f)
 
@@ -457,9 +458,16 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owc_status[3]);
 
     // Calculate and broadcast pack power.
-    const float available_power =
+
+    // Derate power based on pack voltage
+    const float current_based_power_limit =
+        (app_accumulator_getPackVoltage() * abs(MAX_TS_DISCHARGE_CURRENT_AMPS)) - POWER_LIMIT_SAFETY_HEADROOM;
+
+    const float temperature_based_power_limit =
         MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
+
+    const float available_power = MIN(current_based_power_limit, temperature_based_power_limit);
 
     app_canTx_BMS_AvailablePower_set((uint32_t)available_power);
 }

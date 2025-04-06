@@ -77,6 +77,10 @@ void tasks_init(void)
     io_sdGpio_init(&sd_gpio);
 
     app_globals_init();
+  
+    app_accumulator_init();
+    // Assume Discharging condition, re-correct if charge state entered
+    app_tractiveSystem_init(TS_OVERCURRENT_DEBOUNCE_DURATION_DISCHARGING_MS);
 
     jobs_init();
 }
