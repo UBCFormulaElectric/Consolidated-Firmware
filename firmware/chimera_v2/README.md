@@ -410,10 +410,10 @@ Make sure to invoke this task function in `main.c`.
 ```c
 void RunTaskChimera(void *argument)
 {
-    /* USER CODE BEGIN RunChimeraTask */
+    /* USER CODE BEGIN RunTaskChimera */
     /* Infinite loop */
     tasks_runChimera();
-    /* USER CODE END RunChimeraTask */
+    /* USER CODE END RunTaskChimera */
 }
 ```
 

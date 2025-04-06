@@ -661,10 +661,10 @@ void RunTaskCanRx(void *argument)
 /* USER CODE END Header_RunTaskChimera */
 void RunTaskChimera(void *argument)
 {
-    /* USER CODE BEGIN RunChimeraTask */
+    /* USER CODE BEGIN RunTaskChimera */
     /* Infinite loop */
     tasks_runChimera();
-    /* USER CODE END RunChimeraTask */
+    /* USER CODE END RunTaskChimera */
 }
 
 /**

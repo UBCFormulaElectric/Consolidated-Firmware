@@ -1178,10 +1178,7 @@ void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunTaskChimera */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
 

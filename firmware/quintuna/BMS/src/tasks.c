@@ -14,9 +14,8 @@
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
 
-void tasks_chimera_v2(void)
+void tasks_runChimera(void)
 {
-    LOG_INFO("testing");
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
