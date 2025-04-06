@@ -137,6 +137,13 @@ FileSystemError io_fileSystem_init(void)
     mount_failed = false;
     LogFsErr err = tryMount();
 
+    if (err == LOGFS_ERR_IO)
+    {
+        // Failed to mount due to IO related reasons, probably because the SD
+        // card isn't plugged in.
+        return FILE_ERROR_IO;
+    }
+
     if (err != LOGFS_ERR_OK)
     {
         // Mounting failed meaning image is corrupted, so format.
@@ -225,7 +232,6 @@ FileSystemError io_fileSystem_getBootCount(uint32_t *bootcount)
     if (num_read != sizeof(bootcount))
     {
         *bootcount = 0;
-        return FILE_ERROR;
     }
 
     (*bootcount)++;
