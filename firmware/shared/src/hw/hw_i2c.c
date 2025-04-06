@@ -1,4 +1,5 @@
 #include "hw_i2c.h"
+#include "io_log.h"
 
 /* NOTE: Task notifications are used in this driver, since according to FreeRTOS docs they are a faster alternative to
  * binary semaphores.
@@ -28,7 +29,7 @@ static bool waitForNotification(const I2cDevice *device)
 
 static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
 {
-    I2cBus *bus = hw_i2c_getBusFromHandle(handle);
+    const I2cBus *const bus = hw_i2c_getBusFromHandle(handle);
     if (bus == NULL)
     {
         return;
@@ -52,7 +53,7 @@ bool hw_i2c_isTargetReady(const I2cDevice *device)
 
 bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size)
 {
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         return HAL_I2C_Master_Receive(
@@ -82,7 +83,7 @@ bool hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx_buf
 
 bool hw_i2c_transmit(const I2cDevice *device, const uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         return HAL_I2C_Master_Transmit(
@@ -113,7 +114,7 @@ bool hw_i2c_transmit(const I2cDevice *device, const uint8_t *tx_buffer, uint16_t
 
 bool hw_i2c_memoryRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_buffer, uint16_t rx_buffer_size)
 {
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         return HAL_I2C_Mem_Read(
@@ -144,7 +145,7 @@ bool hw_i2c_memoryRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *rx_b
 
 bool hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, const uint8_t *tx_buffer, uint16_t tx_buffer_size)
 {
-    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         return HAL_I2C_Mem_Write(
@@ -191,4 +192,9 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *handle)
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *handle)
 {
     transactionCompleteHandler(handle);
+}
+
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *handle)
+{
+    LOG_ERROR("I2C error with code: 0x%X", handle->ErrorCode);
 }

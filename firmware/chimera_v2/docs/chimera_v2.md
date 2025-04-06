@@ -288,7 +288,7 @@ Receive bytes from the SPI device.
 ### <kbd>method</kbd> `transact`
 
 ```python
-transact(request_data: 'bytes', response_length: 'int')
+transact(request_data: 'bytes', response_length: 'int') → bytes
 ```
 
 Run a full transaction (tx/rx) to the SPI device. 
@@ -728,14 +728,148 @@ Create an abstraction around a SPI device.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/RSM#L612"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/BMS#L612"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+## <kbd>class</kbd> `BMS`
+
+
+
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L613"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `__init__`
+
+```python
+__init__()
+```
+
+Create an interface to a BMS board. 
+
+
+
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `adc_read`
+
+```python
+adc_read(net_name: 'str') → float
+```
+
+Read the voltage at an ADC pin specified by the net name. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Name of the ADC pin. 
+
+
+
+**Returns:**
+ Voltage value read over pin. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `gpio_read`
+
+```python
+gpio_read(net_name: 'str') → bool
+```
+
+Read the value of a GPIO pin given the net name of the pin. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Name of the pin. 
+
+
+
+**Returns:**
+ True if the pin is set high, otherwise false. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `gpio_write`
+
+```python
+gpio_write(net_name: 'str', value: 'bool')
+```
+
+Write a value to a GPIO pin. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Name of the pin. 
+ - <b>`value`</b>:  True if high, otherwise false. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `i2c_device`
+
+```python
+i2c_device(net_name: 'str') → I2cDevice
+```
+
+Create an abstraction around an I2c device. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Identifier of the I2C device. 
+
+
+
+**Returns:**
+ An I2C device abstraction. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `spi_device`
+
+```python
+spi_device(net_name: 'str') → SpiDevice
+```
+
+Create an abstraction around a SPI device. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Identifier of the SPI device. 
+
+
+
+**Returns:**
+ An SPI device abstraction. 
+
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/RSM#L623"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>class</kbd> `RSM`
 
 
 
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L613"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L624"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `__init__`
 
@@ -862,14 +996,14 @@ Create an abstraction around a SPI device.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/FSM#L623"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/FSM#L634"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>class</kbd> `FSM`
 
 
 
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L624"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L635"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `__init__`
 
@@ -996,14 +1130,14 @@ Create an abstraction around a SPI device.
 
 ---
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/DAM#L634"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/DAM#L645"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ## <kbd>class</kbd> `DAM`
 
 
 
 
-<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L635"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L646"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
 
 ### <kbd>method</kbd> `__init__`
 
@@ -1012,6 +1146,140 @@ __init__()
 ```
 
 Create an interface to a DAM board. 
+
+
+
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/adc_read#L309"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `adc_read`
+
+```python
+adc_read(net_name: 'str') → float
+```
+
+Read the voltage at an ADC pin specified by the net name. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Name of the ADC pin. 
+
+
+
+**Returns:**
+ Voltage value read over pin. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_read#L260"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `gpio_read`
+
+```python
+gpio_read(net_name: 'str') → bool
+```
+
+Read the value of a GPIO pin given the net name of the pin. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Name of the pin. 
+
+
+
+**Returns:**
+ True if the pin is set high, otherwise false. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/gpio_write#L285"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `gpio_write`
+
+```python
+gpio_write(net_name: 'str', value: 'bool')
+```
+
+Write a value to a GPIO pin. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Name of the pin. 
+ - <b>`value`</b>:  True if high, otherwise false. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/i2c_device#L334"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `i2c_device`
+
+```python
+i2c_device(net_name: 'str') → I2cDevice
+```
+
+Create an abstraction around an I2c device. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Identifier of the I2C device. 
+
+
+
+**Returns:**
+ An I2C device abstraction. 
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/spi_device#L346"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `spi_device`
+
+```python
+spi_device(net_name: 'str') → SpiDevice
+```
+
+Create an abstraction around a SPI device. 
+
+
+
+**Args:**
+ 
+ - <b>`net_name`</b>:  Identifier of the SPI device. 
+
+
+
+**Returns:**
+ An SPI device abstraction. 
+
+
+---
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/VC#L656"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+## <kbd>class</kbd> `VC`
+
+
+
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/tree/master/firmware/chimera_v2/chimera_v2/__init__#L657"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square"></a>
+
+### <kbd>method</kbd> `__init__`
+
+```python
+__init__()
+```
+
+Create an interface to a VC board. 
 
 
 

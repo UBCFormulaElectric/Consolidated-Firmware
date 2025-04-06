@@ -32,7 +32,7 @@
 #include "hw_uart.h"
 #include "hw_fdcan.h"
 #include "io_canQueue.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "hw_gpio.h"
 #include "io_log.h"
@@ -197,7 +197,6 @@ int main(void)
     {
         sd1.hsd     = &hsd1;
         sd1.timeout = osWaitForever;
-        int err     = io_fileSystem_init();
         io_canLogging_init();
     }
 
