@@ -226,7 +226,7 @@ static void MX_SPI1_Init(void)
     hspi1.Init.CLKPolarity       = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase          = SPI_PHASE_1EDGE;
     hspi1.Init.NSS               = SPI_NSS_SOFT;
-    hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+    hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
     hspi1.Init.FirstBit          = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi1.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
@@ -300,10 +300,16 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, INT3_Pin | INT4_Pin | nCLR_Pin | DOUT1_Pin | DOUT2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, INT3_Pin | INT4_Pin | DOUT1_Pin | DOUT2_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, INT1_Pin | INT2_Pin | CS_LD_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(nCLR_GPIO_Port, nCLR_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOB, INT1_Pin | INT2_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(CS_LD_GPIO_Port, CS_LD_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pins : CS_LS_Pin CS_HS_Pin DOUT3_Pin DOUT4_Pin
                              Boot_LED_Pin Debug_LED_Pin INDICATOR1_Pin INDICATOR2_Pin
@@ -323,12 +329,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : INT1_Pin INT2_Pin CS_LD_Pin */
-    GPIO_InitStruct.Pin   = INT1_Pin | INT2_Pin | CS_LD_Pin;
+    /*Configure GPIO pins : INT1_Pin INT2_Pin */
+    GPIO_InitStruct.Pin   = INT1_Pin | INT2_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : CS_LD_Pin */
+    GPIO_InitStruct.Pin   = CS_LD_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(CS_LD_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
