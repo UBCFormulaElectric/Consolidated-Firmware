@@ -1,4 +1,4 @@
 #pragma once
 #include "hw_can.h"
 
-extern const CanHandle can2;
+extern CanHandle can2;

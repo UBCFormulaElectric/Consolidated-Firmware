@@ -313,11 +313,9 @@ void SDMMC1_IRQHandler(void)
 void OTG_HS_IRQHandler(void)
 {
     /* USER CODE BEGIN OTG_HS_IRQn 0 */
-    traceISR_ENTER();
     /* USER CODE END OTG_HS_IRQn 0 */
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
     /* USER CODE BEGIN OTG_HS_IRQn 1 */
-    traceISR_EXIT();
     /* USER CODE END OTG_HS_IRQn 1 */
 }
 

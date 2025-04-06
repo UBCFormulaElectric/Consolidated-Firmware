@@ -6,8 +6,8 @@ set(FIRMWARE_DIR "${CMAKE_SOURCE_DIR}/firmware")
 set(LINKER_DIR "${FIRMWARE_DIR}/linker")
 set(BOOT_DIR "${FIRMWARE_DIR}/boot")
 set(SHARED_DIR "${FIRMWARE_DIR}/shared")
-set(SHARED_TEST_DIR "${SHARED_DIR}/test")
 set(THIRD_PARTY_DIR "${FIRMWARE_DIR}/third_party")
+set(TEST_DIR "${FIRMWARE_DIR}/test")
 
 # C shared code
 set(SHARED_EMBEDDED_DIR "${SHARED_DIR}/src")
@@ -77,11 +77,9 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
             FALSE
             ${CAR}
     )
-    add_library(
-        "${JSONCAN_LIB}" INTERFACE
-    )
-    target_sources("${JSONCAN_LIB}" INTERFACE ${CAN_SRCS})
-    target_include_directories("${JSONCAN_LIB}" INTERFACE "${CAN_INCLUDE_DIRS}")
+    add_library(${JSONCAN_LIB} INTERFACE)
+    target_sources(${JSONCAN_LIB} INTERFACE ${CAN_SRCS})
+    target_include_directories(${JSONCAN_LIB} INTERFACE "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
         "${JSONCAN_DIR}/io/io_canTx.h"
@@ -91,5 +89,5 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
         "${JSONCAN_FAKES_LIB}"
         "${HEADERS_TO_FAKE}"
     )
-    target_link_libraries("${JSONCAN_LIB}" INTERFACE "${JSONCAN_FAKES_LIB}")
+    target_link_libraries(${JSONCAN_LIB} INTERFACE "${JSONCAN_FAKES_LIB}")
 endfunction()
