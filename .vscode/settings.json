@@ -13,5 +13,11 @@
 		"--compile-commands-dir=build_fw_dev",
  		// "--compile-commands-dir=build_fw_test",
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
-	]
+	],
+	"files.associations": {
+		"io_leds.h": "c",
+		"io_led.h": "c",
+		"app_timer.h": "c",
+		"stdint.h": "c"
+	}
 }

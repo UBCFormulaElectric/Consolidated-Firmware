@@ -21,6 +21,8 @@
 #include "hw_gpios.h"
 #include "hw_adcs.h"
 
+#include <stdbool.h>
+
 void tasks_preInit()
 {
     // hw_bootup_enableInterruptsForApp();
@@ -35,15 +37,16 @@ void tasks_init()
     hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    hw_gpio_writePin(&brake_light_en_pin, false);
-
+    hw_adcs_chipsInit();
+    hw_can_init(&can2);
     jobs_init();
+
 }
 
 void tasks_deinit()
 {
-    HAL_TIM_Base_Start_IT(&htim3);
-    HAL_TIM_Base_DeInit(&htim3);
+    HAL_TIM_Base_Start_IT(&htim2);
+    HAL_TIM_Base_DeInit(&htim2);
 
     HAL_TIM_Base_Start_IT(&htim4);
     HAL_TIM_Base_DeInit(&htim4);
@@ -55,11 +58,7 @@ void tasks_deinit()
     HAL_DMA_DeInit(&hdma_adc1);
 }
 
-hw_gpio_writePin(&brake_light_en_pin, false);
-hw_adcs_chipsInit();
-hw_can_init(&can2);
-jobs_init();
-}
+
 
 _Noreturn void tasks_run1Hz()
 {

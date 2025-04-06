@@ -8,6 +8,11 @@
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
+//testing
+#include "io_leds.h"
+#include "app_timer.h"
+
+TimerChannel timerGPIO;
 
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {
@@ -27,16 +32,30 @@ void jobs_init(void)
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
+
+    app_timer_init(&timerGPIO,100);
+    app_timer_restart(&timerGPIO); 
 }
 
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
+    
 }
-
+bool gpio_state = false;
 void jobs_run100Hz_tick(void)
 {
     io_canTx_enqueue100HzMsgs();
+
+    TimerState state = app_timer_updateAndGetState(&timerGPIO);
+
+    // Toggle LED state based on elapsed time
+    if (state == TIMER_STATE_EXPIRED)
+    {
+        io_led_enable(&led, !gpio_state);
+        app_timer_restart(&timerGPIO); 
+        gpio_state = !gpio_state;
+    }
 }
 
 void jobs_run1kHz_tick(void)
