@@ -144,6 +144,18 @@ const osThreadAttr_t TaskTelem_attributes = {
     .stack_size = sizeof(TaskTelemBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -166,6 +178,7 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskLogging(void *argument);
 void        RunTaskTelem(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -257,6 +270,9 @@ int main(void)
 
     /* creation of TaskTelem */
     TaskTelemHandle = osThreadNew(RunTaskTelem, NULL, &TaskTelem_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -803,6 +819,21 @@ void RunTaskTelem(void *argument)
     /* Infinite loop */
     tasks_runTelem();
     /* USER CODE END RunTaskTelem */
+}
+
+/* USER CODE BEGIN Header_RunTaskChimera */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
 }
 
 /* MPU Configuration */
