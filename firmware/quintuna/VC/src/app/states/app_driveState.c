@@ -1,24 +1,5 @@
-#include <math.h>
-
-#include "states/app_allStates.h"
-#include "states/app_initState.h"
-#include "states/app_driveState.h"
-#include "states/app_inverterOnState.h"
-
-#ifdef TARGET_EMBEDDED
-#include "io_canTx.h"
-#endif
-
-#include "app_canTx.h"
-#include "app_canRx.h"
-#include "app_vehicleDynamicsConstants.h"
-#include "app_powerManager.h"
-#include "app_torqueVectoring.h"
-#include "app_faultCheck.h"
-#include "app_regen.h"
-#include "app_units.h"
-#include "app_signal.h"
-#include "app_utils.h"
+#include "app_allStates.h"
+#include "app_driveState.h"
 
 static void driveStateRunOnEntry(void) {}
 
