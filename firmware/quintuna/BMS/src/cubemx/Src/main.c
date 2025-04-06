@@ -755,9 +755,9 @@ static void MX_SPI4_Init(void)
     hspi4.Instance                        = SPI4;
     hspi4.Init.Mode                       = SPI_MODE_MASTER;
     hspi4.Init.Direction                  = SPI_DIRECTION_2LINES;
-    hspi4.Init.DataSize                   = SPI_DATASIZE_4BIT;
-    hspi4.Init.CLKPolarity                = SPI_POLARITY_HIGH;
-    hspi4.Init.CLKPhase                   = SPI_PHASE_2EDGE;
+    hspi4.Init.DataSize                   = SPI_DATASIZE_8BIT;
+    hspi4.Init.CLKPolarity                = SPI_POLARITY_LOW;
+    hspi4.Init.CLKPhase                   = SPI_PHASE_1EDGE;
     hspi4.Init.NSS                        = SPI_NSS_SOFT;
     hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_128;
     hspi4.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
@@ -1018,19 +1018,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : LEDR_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin;
+    /*Configure GPIO pins : LEDR_Pin SPI_CS_LS_Pin */
+    GPIO_InitStruct.Pin   = LEDR_Pin | SPI_CS_LS_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LEDR_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : SPI_CS_LS_Pin */
-    GPIO_InitStruct.Pin   = SPI_CS_LS_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(SPI_CS_LS_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
                              DIAG_Pin SD_CD_Pin */
@@ -1067,8 +1060,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BSPD_TEST_EN_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin TSENSE_SEL2_Pin */
-    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
+    /*Configure GPIO pins : BSPD_TEST_EN_Pin SPI_CS_HS_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin
+                             TSENSE_SEL2_Pin */
+    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | SPI_CS_HS_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1079,13 +1073,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(TS_ISENSE_OCSC_OK_3V3_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : SPI_CS_HS_Pin */
-    GPIO_InitStruct.Pin   = SPI_CS_HS_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(SPI_CS_HS_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
