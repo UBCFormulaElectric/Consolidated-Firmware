@@ -17,6 +17,7 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
+#include <stm32h7xx_hal_gpio.h>
 
 void tasks_init(void)
 {
@@ -46,7 +47,7 @@ _Noreturn void tasks_run1Hz(void)
     for (;;)
     {
         jobs_run1Hz_tick();
-
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);

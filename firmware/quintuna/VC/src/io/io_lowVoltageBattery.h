@@ -3,15 +3,18 @@
 #include "hw_gpios.h"
 #include <stdint.h>
 
-typedef enum {
+typedef enum
+{
     ACCUMULATED_CHARGE_COMMAND = 0x0076
 } charge_cmd_t;
 
-typedef enum{
+typedef enum
+{
     BATTERY_STATUS = 0x12,
     CONTROL_STATUS = 0x00
-}commands;
-typedef enum {
+} commands;
+typedef enum
+{
     CELL0_VOLTAGE_COMMAND = 0x14,
     CELL1_VOLTAGE_COMMAND = 0x16,
     CELL2_VOLTAGE_COMMAND = 0x1A,
@@ -42,12 +45,12 @@ float io_lowVoltageBattery_get_SOC();
  */
 uint16_t io_lowVoltageBattery_get_voltage(uint16_t voltage_cmd);
 
-//intial setup for battery monitoring chip
+// intial setup for battery monitoring chip
 bool io_lowVoltageBattery_initial_setup(void);
 
 /**
  * @brief Handles releasing the semaphore after an interupt.
- * 
- * @param GPIO_pin from the interupt. 
+ *
+ * @param GPIO_pin from the interupt.
  */
 void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
