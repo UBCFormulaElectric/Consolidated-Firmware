@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 IPython = "*"
 PyGithub = "*"
-asammdf = "*"
 black = "*"
 cantools = "*"
 cmake = "*"
