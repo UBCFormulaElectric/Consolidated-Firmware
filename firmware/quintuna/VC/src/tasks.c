@@ -31,8 +31,6 @@ void tasks_init(void)
     hw_usb_init();
 
     jobs_init();
-
-    io_lowVoltageBattery_initial_setup();
 }
 
 _Noreturn void tasks_run1Hz(void)

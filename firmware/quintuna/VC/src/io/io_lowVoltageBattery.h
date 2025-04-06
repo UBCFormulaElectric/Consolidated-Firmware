@@ -43,7 +43,7 @@ double io_lowVoltageBattery_get_SOC();
  *
  * @return The battery voltage on success, or -1 on error.
  */
- uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
+uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
 
 // intial setup for battery monitoring chip
 bool io_lowVoltageBattery_initial_setup(void);
