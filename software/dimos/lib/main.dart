@@ -13,7 +13,7 @@ import 'package:dimos/data/services/dev_api.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await setupWindow();
+  // await setupWindow();
 
   runApp(const App());
 }
