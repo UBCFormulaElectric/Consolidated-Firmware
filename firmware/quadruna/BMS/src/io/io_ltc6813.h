@@ -93,12 +93,14 @@ void io_ltc6813_readAuxRegisters(
 /**
  * Reads all temperatures from all segments
  * @param cell_temps The resultant cell temperatures
+ * @param vref The 2ND reference voltage
  * @param success This parameter will be assumed to contain all falses at the beginning
  * @return
  */
 void io_ltc6813_readTemperatures(
-    float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
+    float  cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    float *vref,
+    bool   success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
 
 /**
  * sends a command to read all temperatures from all segments

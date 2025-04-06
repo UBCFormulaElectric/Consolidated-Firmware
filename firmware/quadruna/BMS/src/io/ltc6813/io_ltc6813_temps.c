@@ -175,32 +175,40 @@ void io_ltc6813_readAuxRegisters(
             }
 
             // since we are ignoring REF variable, we need to offset all further readings by 1 backwards
-            const int8_t adj                           = reg_group > 1 ? -1 : 0;
-            comm_success[seg_idx][reg_group]           = true;
-            aux_regs[seg_idx][reg_group * 3 + 0 + adj] = seg_reg_group->a;
-            aux_regs[seg_idx][reg_group * 3 + 1 + adj] = seg_reg_group->b;
-            aux_regs[seg_idx][reg_group * 3 + 2 + adj] = seg_reg_group->c;
+            comm_success[seg_idx][reg_group]     = true;
+            aux_regs[seg_idx][reg_group * 3 + 0] = seg_reg_group->a;
+            aux_regs[seg_idx][reg_group * 3 + 1] = seg_reg_group->b;
+            aux_regs[seg_idx][reg_group * 3 + 2] = seg_reg_group->c;
         }
     }
 }
 
 void io_ltc6813_readTemperatures(
-    float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
+    float  cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    float *vref,
+    bool   success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
 {
+    memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
+    *vref = 0;
+
     uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
     io_ltc6813_readAuxRegisters(aux_regs, success);
+
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
-        for (uint8_t cell = 0U; cell < THERMISTORS_PER_SEGMENT; cell++)
+        for (uint8_t aux_gpio = 0U; aux_gpio < THERMISTORS_PER_SEGMENT; aux_gpio++)
         {
-            if (!success[segment][cell / 3])
+            if (!success[segment][aux_gpio / 3])
             {
                 continue;
             }
-            cell_temps[segment][cell] = calculateThermistorTempDeciDegC(aux_regs[segment][cell]);
+            if (aux_gpio == 5)
+            {
+                *vref = (float)aux_regs[segment][aux_gpio] * V_PER_100UV;
+                continue;
+            }
+            const int8_t adj                    = aux_gpio >= 6 ? -1 : 0;
+            cell_temps[segment][aux_gpio - adj] = calculateThermistorTempDeciDegC(aux_regs[segment][aux_gpio]);
         }
-        // assert the value of the vref
-        const uint16_t vref = aux_regs[segment][AUX_REGS_PER_SEGMENT - 1];
     }
 }

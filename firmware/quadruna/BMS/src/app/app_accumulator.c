@@ -404,8 +404,10 @@ void app_accumulator_runCellMeasurements(void)
         }
         case GET_CELL_TEMP_STATE:
         {
-            io_ltc6813_readTemperatures(cell_temps, temp_read_success);
+            float vref = 0.0f;
+            io_ltc6813_readTemperatures(cell_temps, &vref, temp_read_success);
             calculateTemperatureStats();
+            LOG_INFO("%d", (uint16_t)(vref * 10000));
 
             // next state
             io_ltc6813_startCellsAdcConversion(ADCSpeed_3kHz);
