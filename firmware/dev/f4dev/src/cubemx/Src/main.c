@@ -73,13 +73,6 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = 512 * 4,
     .priority   = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for chimera */
-osThreadId_t         chimeraHandle;
-const osThreadAttr_t chimera_attributes = {
-    .name       = "chimera",
-    .stack_size = 512 * 4,
-    .priority   = (osPriority_t)osPriorityHigh,
-};
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
 
@@ -93,7 +86,6 @@ static void MX_CAN2_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C3_Init(void);
 void        StartDefaultTask(void *argument);
-void        Chimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -249,9 +241,6 @@ int main(void)
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
-    /* creation of chimera */
-    chimeraHandle = osThreadNew(Chimera, NULL, &chimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -603,26 +592,8 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    hw_chimera_v2_mainOrContinue(&chimera_v2_config);
+    hw_chimera_v2_task(&chimera_v2_config);
     /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_Chimera */
-/**
- * @brief Function implementing the chimera thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_Chimera */
-void Chimera(void *argument)
-{
-    /* USER CODE BEGIN Chimera */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END Chimera */
 }
 
 /**
