@@ -1,7 +1,10 @@
 #include "io_thermistor.h"
+#include <assert.h>
 
 float io_thermistor_resistanceToTemp(float thermistor_resistance, const ThermistorLUT* temp_resistance_lut)
 {
+
+    assert(temp_resistance_lut != NULL);
     float    thermistor_temp = -1.0;
     uint16_t max_lut_index   = temp_resistance_lut->size - 1U;
 
