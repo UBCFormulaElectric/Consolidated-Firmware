@@ -50,7 +50,7 @@ void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs
  * @param apps_pedal_percentage is the FSM given pedal percentage
  * @return remap pedal percentage from [0.0, 1.0] to
  * regen range:        [0%-20%) [-0.2, 0.0) which then gets mapped [-1.0, 0.0)
- * cruising range:     [30%-40%) [0.0, 0.1) which then gets mapped to [0.0]
- * acceleration range: [40%-100%] [0.1, 0.8] which then gets mapped (0.0, 1.0]
+ * cruising range:     [20%-30%) [0.0, 0.1) which then gets mapped to [0.0]
+ * acceleration range: [30%-100%] [0.1, 0.8] which then gets mapped (0.0, 1.0]
  */
 float app_regen_pedalRemapping(float apps_pedal_percentage);

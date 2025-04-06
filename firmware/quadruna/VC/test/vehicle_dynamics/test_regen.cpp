@@ -305,16 +305,20 @@ TEST_F(TestRegen, taper_torque_request)
 // tapers torque request due in 5-10kph range, exceed max regen
 TEST_F(TestRegen, hysterisis_derate)
 {
-    float pedal_percentage      = -1.0f;
-    float steering_angle        = 0.0f;
-    float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(9.0f);
-    float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(9.0f);
-    float power_max_kW          = -pedal_percentage * 50.0f;
+    float                 pedal_percentage      = -1.0f;
+    float                 steering_angle        = 0.0f;
+    float                 right_motor_speed_rpm = MOTOR_KMH_TO_RPM(9.0f);
+    float                 left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(9.0f);
+    float motor_speed_rpm MIN(right_motor_speed_rpm, left_motor_speed_rpm);
+    float                 power_max_kW = -pedal_percentage * POWER_LIMIT_REGEN_kW;
 
     static ActiveDifferential_Inputs inputs = { steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE, left_motor_speed_rpm,
                                                 right_motor_speed_rpm, power_max_kW, pedal_percentage };
 
-    static RegenBraking_Inputs regen_braking_inputs = { .enable_active_differential = true };
+    static RegenBraking_Inputs regen_braking_inputs = {
+        .enable_active_differential = true,
+        .derating_value             = 1.0f * (MOTOR_RPM_TO_KMH(motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph
+    };
 
     // set steering wheel angle
     app_canRx_FSM_SteeringAngle_update(steering_angle);
@@ -389,62 +393,73 @@ TEST_F(TestRegen, hysterisis_derate)
     ASSERT_FLOAT_EQ(0.0f, actual_torque_right_nM);
 
     // Speed above 7km/hr, turn on regen again
-    right_motor_speed_rpm = MOTOR_KMH_TO_RPM(7.5f);
-    left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(7.5f);
+    right_motor_speed_rpm               = MOTOR_KMH_TO_RPM(7.5f);
+    left_motor_speed_rpm                = MOTOR_KMH_TO_RPM(7.5f);
+    motor_speed_rpm                     = MIN(right_motor_speed_rpm, left_motor_speed_rpm);
+    regen_braking_inputs.derating_value = 1 * (MOTOR_RPM_TO_KMH(motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph;
 
     app_canRx_INVR_MotorSpeed_update(-right_motor_speed_rpm);
     app_canRx_INVL_MotorSpeed_update(left_motor_speed_rpm);
 
+    app_regen_computeActiveDifferentialTorque(&inputs, &regen_braking_inputs);
+
+    expected_left_torque_request  = regen_braking_inputs.left_inverter_torque_Nm;
+    expected_right_torque_request = regen_braking_inputs.right_inverter_torque_Nm;
+
     app_regen_run(pedal_percentage);
 
-    alert   = app_canAlerts_VC_Warning_RegenNotAvailable_get();
-    enabled = app_canTx_VC_RegenEnabled_get();
+    alert                  = app_canAlerts_VC_Warning_RegenNotAvailable_get();
+    enabled                = app_canTx_VC_RegenEnabled_get();
+    actual_torque_left_nM  = app_canTx_VC_LeftInverterTorqueCommand_get();
+    actual_torque_right_nM = app_canTx_VC_RightInverterTorqueCommand_get();
 
     ASSERT_TRUE(alert == false);
     ASSERT_TRUE(enabled == true);
+    ASSERT_FLOAT_EQ(expected_left_torque_request, actual_torque_left_nM);
+    ASSERT_FLOAT_EQ(expected_right_torque_request, actual_torque_right_nM);
 }
 
 TEST_F(TestRegen, pedal_remap)
 {
     // accelerating range
-    float pedal_remap  = app_regen_pedalRemapping(100);
+    float pedal_remap  = app_regen_pedalRemapping(1);
     float actual_pedal = 1.0f;
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
 
-    pedal_remap  = app_regen_pedalRemapping(80);
-    actual_pedal = (0.8f - 0.1f) / 0.7f;
+    pedal_remap  = app_regen_pedalRemapping(0.80);
+    actual_pedal = (0.8f - 0.3f) / 0.7f;
 
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
 
-    pedal_remap  = app_regen_pedalRemapping(50);
-    actual_pedal = (0.5f - 0.1f) / 0.7f;
+    pedal_remap  = app_regen_pedalRemapping(0.50);
+    actual_pedal = (0.5f - 0.3f) / 0.7f;
 
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
 
     // cruising range
-    pedal_remap  = app_regen_pedalRemapping(30);
+    pedal_remap  = app_regen_pedalRemapping(0.2999);
     actual_pedal = 0.0f;
 
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
 
-    pedal_remap  = app_regen_pedalRemapping(25);
+    pedal_remap  = app_regen_pedalRemapping(0.25);
     actual_pedal = 0.0f;
 
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
 
     // regen range
 
-    pedal_remap  = app_regen_pedalRemapping(19);
+    pedal_remap  = app_regen_pedalRemapping(0.19);
     actual_pedal = (0.19f - 0.2f) / 0.2f;
 
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
 
-    pedal_remap  = app_regen_pedalRemapping(5);
+    pedal_remap  = app_regen_pedalRemapping(0.05);
     actual_pedal = (0.05f - 0.2f) / 0.2f;
 
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);
 
-    pedal_remap  = app_regen_pedalRemapping(0);
+    pedal_remap  = app_regen_pedalRemapping(0.0);
     actual_pedal = -1.0f;
 
     ASSERT_FLOAT_EQ(actual_pedal, pedal_remap);

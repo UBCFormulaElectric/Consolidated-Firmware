@@ -183,7 +183,7 @@ float app_regen_pedalRemapping(float apps_pedal_percentage)
     {
         return apps_pedal_percentage / PEDAL_SCALE;
     }
-    else if (apps_pedal_percentage < 0.1f)
+    else if (apps_pedal_percentage <= 0.1f)
     {
         return 0.0f;
     }
