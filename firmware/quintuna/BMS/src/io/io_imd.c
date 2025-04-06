@@ -41,7 +41,6 @@ void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 
     hw_pwmInput_tick(&imd_pwm_input);
     pwm_counter = 0; // Reset the ticks since the last pwm reading
-    
 }
 
 uint32_t io_imd_getTimeSincePowerOn(void)

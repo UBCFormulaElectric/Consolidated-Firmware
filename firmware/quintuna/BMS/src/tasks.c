@@ -24,7 +24,6 @@ void tasks_init(void)
     hw_usb_init();
     hw_adcs_chipsInit();
     hw_pwms_init();
-
 }
 
 void tasks_run1Hz(void)

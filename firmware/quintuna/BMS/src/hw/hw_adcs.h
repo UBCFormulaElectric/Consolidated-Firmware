@@ -13,8 +13,6 @@
 // determines the order in which the DMA writes data to our raw_adc_values
 // buffer.
 
-extern const AdcChip adc1;
-extern const AdcChip adc3;
 extern const AdcChannel fan_isns;
 extern const AdcChannel ts_vsense_p;
 extern const AdcChannel ts_vsense_n;

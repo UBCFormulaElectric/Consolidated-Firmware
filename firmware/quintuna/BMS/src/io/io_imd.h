@@ -5,7 +5,6 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
 
-
 /**
  * Updates the frequency and duty cycle for the IMD's PWM output. This should
  * be called in the input capture callback function.

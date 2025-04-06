@@ -127,8 +127,7 @@ float io_tractiveSystem_getCurrentHighResolution()
     float high_res_curr_calibration = 0.0f;
     if (high_res_current > -0.2f)
     {
-        high_res_curr_calibration =
-            high_res_current;
+        high_res_curr_calibration = high_res_current;
     }
     else
     {

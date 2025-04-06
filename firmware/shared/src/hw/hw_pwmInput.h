@@ -25,12 +25,12 @@
  */
 typedef struct
 {
-    float                duty_cycle;
-    float                frequency_hz;
-    TIM_HandleTypeDef   *htim;
-    float                timer_frequency_hz;
-    uint32_t             rising_edge_tim_channel;
-    uint32_t             falling_edge_tim_channel;
+    float              duty_cycle;
+    float              frequency_hz;
+    TIM_HandleTypeDef *htim;
+    float              timer_frequency_hz;
+    uint32_t           rising_edge_tim_channel;
+    uint32_t           falling_edge_tim_channel;
 } PwmInput;
 
 /**

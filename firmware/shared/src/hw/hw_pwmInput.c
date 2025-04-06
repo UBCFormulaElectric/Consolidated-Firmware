@@ -13,13 +13,11 @@ void hw_pwmInput_init(PwmInput *pwm_input)
 
 void hw_pwmInput_tick(PwmInput *pwm_input)
 {
-    uint32_t ic_rising_edge =
-        HAL_TIM_ReadCapturedValue(pwm_input->htim, pwm_input->rising_edge_tim_channel);
+    uint32_t ic_rising_edge = HAL_TIM_ReadCapturedValue(pwm_input->htim, pwm_input->rising_edge_tim_channel);
 
     if (ic_rising_edge != 0U)
     {
-        uint32_t ic_falling_edge =
-            HAL_TIM_ReadCapturedValue(pwm_input->htim, pwm_input->falling_edge_tim_channel);
+        uint32_t ic_falling_edge = HAL_TIM_ReadCapturedValue(pwm_input->htim, pwm_input->falling_edge_tim_channel);
 
         pwm_input->duty_cycle   = (float)ic_falling_edge * 100.0f / (float)ic_rising_edge;
         pwm_input->frequency_hz = pwm_input->timer_frequency_hz / (float)ic_rising_edge;
