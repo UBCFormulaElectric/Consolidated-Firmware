@@ -24,15 +24,16 @@ const ThermistorLUT b57861s_lut = {
 
 bool io_thermistors_muxSelect(const uint8_t channel)
 {
-    if (channel <= 7)
+    if (channel > 7)
     {
-        hw_gpio_writePin(&tsense_sel0_pin, (channel & (1 << 0)) >> 0);
-        hw_gpio_writePin(&tsense_sel1_pin, (channel & (1 << 1)) >> 1);
-        hw_gpio_writePin(&tsense_sel2_pin, (channel & (1 << 2)) >> 2);
-
-        return true;
+        return false;
     }
-    return false;
+
+    hw_gpio_writePin(&tsense_sel0_pin, (channel >> 0) & 0x1);
+    hw_gpio_writePin(&tsense_sel1_pin, (channel >> 1) & 0x1);
+    hw_gpio_writePin(&tsense_sel2_pin, (channel >> 2) & 0x1);
+    
+    return true;
 }
 
 float io_thermistors_readSelectedTemp(void)
@@ -40,5 +41,5 @@ float io_thermistors_readSelectedTemp(void)
     const float raw_voltage           = hw_adc_getVoltage(&aux_tsns);
     const float thermistor_resistance = (raw_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - raw_voltage);
 
-    return io_thermistor_resistanceToTemp(thermistor_resistance, b57861s_lut);
+    return io_thermistor_resistanceToTemp(thermistor_resistance, &b57861s_lut);
 }

@@ -16,4 +16,4 @@ typedef struct
  * @param temp_resistance_lut reverse lookup table
  * @return Thermistor temperature in degrees C
  */
-float io_thermistor_resistanceToTemp(float thermistor_resistance, ThermistorLUT temp_resistance_lut);
+float io_thermistor_resistanceToTemp(float thermistor_resistance, const ThermistorLUT* temp_resistance_lut);
