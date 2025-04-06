@@ -9,7 +9,7 @@
 #include "shared.pb.h"
 
 // Milliseconds to wait every loop before checking for a usb connection again.
-#define USB_CHECK_COOLDOWN_MS (100)
+#define USB_CHECK_COOLDOWN_MS (1000)
 
 // Milliseconds to wait on every usb request.
 #define USB_REQUEST_TIMEOUT_MS (100)
@@ -157,7 +157,8 @@ static const SpiDevice *hw_chimera_v2_getSpi(hw_chimera_v2_Config *config, const
  * @param response Pointer to the response struct to write the result to.
  * @return True if success, otherwise false.
  */
-bool hw_chimera_v2_evaluateRequest(hw_chimera_v2_Config *config, ChimeraV2Request *request, ChimeraV2Response *response)
+static bool
+    hw_chimera_v2_evaluateRequest(hw_chimera_v2_Config *config, ChimeraV2Request *request, ChimeraV2Response *response)
 {
     // Empty provided response pointer.
     ChimeraV2Response init = ChimeraV2Response_init_zero;
@@ -431,7 +432,7 @@ bool hw_chimera_v2_evaluateRequest(hw_chimera_v2_Config *config, ChimeraV2Reques
  * @param length Length of content buffer.
  * @return True if success, otherwise false.
  */
-bool hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *content, uint16_t length)
+static bool hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *content, uint16_t length)
 {
     // Keep track if an error occured.
     // We do this instead of immediate returns,
@@ -497,15 +498,8 @@ bool hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *content,
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
  * @return True if success, otherwise false.
  */
-bool hw_chimera_v2_tick(hw_chimera_v2_Config *config)
+static bool hw_chimera_v2_tick(hw_chimera_v2_Config *config)
 {
-    // If usb is not connected, skip Chimera.
-    if (!hw_usb_checkConnection())
-    {
-        LOG_INFO("Chimera: Skipping Chimera - USB not plugged in.");
-        return false;
-    }
-
     LOG_INFO("Chimera: Running tick, waiting for message...");
     // CHIMERA Packet Format:
     // [ length low byte  | length high byte | content bytes    | ... ]
@@ -562,14 +556,12 @@ _Noreturn void hw_chimera_v2_task(hw_chimera_v2_Config *config)
             osDelay(USB_CHECK_COOLDOWN_MS);
             continue;
         }
-        else
+
+        // Otherwise tick.
+        hw_chimera_v2_enabled = true;
+        if (!hw_chimera_v2_tick(config))
         {
-            // Otherwise tick.
-            hw_chimera_v2_enabled = true;
-            if (!hw_chimera_v2_tick(config))
-            {
-                LOG_ERROR("Chimera: Error occurred during tick.");
-            }
+            LOG_ERROR("Chimera: Error occurred during tick.");
         }
     }
 }
