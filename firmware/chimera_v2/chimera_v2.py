@@ -171,6 +171,8 @@ class _UsbDevice:
             buffer: Bytes to send over USB.
 
         """
+
+        # Chunk to maximum size accepted by endpoint before writing.
         for index in range(0, len(buffer), self._write_chunk_size):
             chunk = buffer[index : index + self._write_chunk_size]
             self._device.write(self._endpoint_write.bEndpointAddress, chunk)
