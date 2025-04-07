@@ -5,7 +5,7 @@
 
 #include "hw_adcs.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_bootup.h"
+// #include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_pwmInput.h"
 #include "hw_watchdogConfig.h"
@@ -49,7 +49,7 @@ static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = &t
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    hw_bootup_enableInterruptsForApp();
+    // hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)

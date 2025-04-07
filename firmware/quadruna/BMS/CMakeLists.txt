@@ -3,7 +3,7 @@ message("⚙️ Configuring BMS")
 
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -40,7 +40,7 @@ file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
@@ -161,9 +161,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${SHARED_IO_INCLUDE_DIR}/io_led.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_airs.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
