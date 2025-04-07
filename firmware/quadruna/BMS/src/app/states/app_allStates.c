@@ -88,8 +88,7 @@ bool app_allStates_runOnTick100Hz(void)
         }
         case RUN_OPEN_WIRE_CHECK:
         {
-            // if (app_accumulator_runOpenWireCheck())
-            if (true)
+            if (app_accumulator_runOpenWireCheck())
             {
                 iso_spi_state_counter = 0;
                 if (balancing_enabled)
