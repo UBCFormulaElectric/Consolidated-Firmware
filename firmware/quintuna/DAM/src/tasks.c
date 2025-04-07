@@ -39,8 +39,11 @@ void tasks_init(void)
     hw_usb_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
+    // Is this for debugging?
     hw_gpio_writePin(&tsim_red_en_pin, true);
     hw_gpio_writePin(&ntsim_green_en_pin, false);
+
+    jobs_init();
 }
 
 _Noreturn void tasks_run1Hz(void)
@@ -114,6 +117,8 @@ _Noreturn void tasks_runCanTx(void)
     osDelay(osWaitForever);
     for (;;)
     {
+        // Can we either move this inside a job similar to jobs_runCanRx_tick();
+        // or pull out the code from jobs_runCanRx_tick() and put in in tasks_runCanRx()?
         CanMsg tx_msg = io_canQueue_popTx();
         hw_can_transmit(&can1, &tx_msg);
     }
