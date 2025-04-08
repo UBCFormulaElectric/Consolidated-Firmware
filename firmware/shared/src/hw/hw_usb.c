@@ -91,6 +91,7 @@ bool hw_usb_receive(uint8_t *dest, uint32_t len, uint32_t timeout_ms)
     while (osKernelGetTickCount() - start_ms <= timeout_ms && queued_len < len)
     {
         queued_len = osMessageQueueGetCount(rx_queue_id);
+        osDelay(5);
     }
 
     // Check that we have enough messages in the queue to populate the dest buffer.

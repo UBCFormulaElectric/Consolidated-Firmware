@@ -53,9 +53,21 @@ extern "C"
     extern SPI_HandleTypeDef   hspi4;
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
-    extern TIM_HandleTypeDef   htim15;
+    extern TIM_HandleTypeDef   htim5;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     extern IWDG_HandleTypeDef  hiwdg1;
+
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

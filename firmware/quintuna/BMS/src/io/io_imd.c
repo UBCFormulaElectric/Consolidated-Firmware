@@ -1,19 +1,10 @@
 #include "io_imd.h"
-#include <assert.h>
+#include "hw_pwms.h"
 #include "main.h"
-#include "hw_pwmInput.h"
 #include "io_time.h"
+#include <assert.h>
 
 #define PWM_TICKS_MAX 255
-
-static PwmInput imd_pwm_input = {
-    .duty_cycle               = 0,
-    .frequency_hz             = 0,
-    .htim                     = &htim1,
-    .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
-    .rising_edge_tim_channel  = TIM_CHANNEL_1,
-    .falling_edge_tim_channel = TIM_CHANNEL_2,
-};
 
 static uint8_t pwm_counter = 0;
 /*
@@ -32,11 +23,6 @@ uint8_t io_imd_pwmCounterTick(void)
         return pwm_counter;
     }
     return pwm_counter;
-}
-
-void io_imd_init(void)
-{
-    hw_pwmInput_init(&imd_pwm_input);
 }
 
 float io_imd_getFrequency(void)
