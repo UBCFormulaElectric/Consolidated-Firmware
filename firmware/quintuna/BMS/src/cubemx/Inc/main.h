@@ -53,7 +53,7 @@ extern "C"
     extern SPI_HandleTypeDef   hspi4;
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
-    extern TIM_HandleTypeDef   htim15;
+    extern TIM_HandleTypeDef   htim5;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     extern IWDG_HandleTypeDef  hiwdg1;
     /* USER CODE END EC */
