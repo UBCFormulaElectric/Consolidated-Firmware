@@ -282,7 +282,7 @@ static uint8_t bcd_to_integer(uint8_t value)
     return (uint8_t)((value >> 4) * 10 + (value & 0x0F));
 }
 
-void io_rtc_init(void)
+bool io_rtc_init(void)
 {
     // 24-hour mode, no interrupts, oscillator running
     // select 7 pF capacitor instead of 12.5 pF
@@ -293,15 +293,27 @@ void io_rtc_init(void)
     if (!su)
     {
         LOG_ERROR("Failed to write to RTC control register 1");
+        return false;
     }
-    su = hw_i2c_memoryRead(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
+
+    Register_t control3 = { 0 };
+    su                  = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_3, &control3.raw, sizeof(control3.raw));
     if (!su)
     {
-        LOG_ERROR("Failed to read from RTC control register 1");
+        LOG_ERROR("Failed to write to RTC control register 3");
+        return false;
     }
+
+    IoRtcTime time = { 0 };
+    io_rtc_readTime(&time);
+    LOG_INFO(
+        "Current RTC TIME: %02d:%02d:%02d %02d/%02d/%02d", time.hours, time.minutes, time.seconds, time.day, time.month,
+        time.year);
+
+    return true;
 }
 
-void io_rtc_setTime(IoRtcTime *time)
+bool io_rtc_setTime(IoRtcTime *time)
 {
     uint8_t seconds  = integer_to_bcd(time->seconds);
     uint8_t minutes  = integer_to_bcd(time->minutes);
@@ -347,16 +359,19 @@ void io_rtc_setTime(IoRtcTime *time)
     if (!su)
     {
         LOG_ERROR("Failed to write to RTC time registers");
+        return false;
     }
+    return true;
 }
 
-void io_rtc_readTime(IoRtcTime *time)
+bool io_rtc_readTime(IoRtcTime *time)
 {
     uint8_t buffer[7];
     bool    su = hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
     if (!su)
     {
         LOG_ERROR("Failed to read from RTC time registers");
+        return false;
     }
 
     Register_t regSecond;
@@ -394,6 +409,7 @@ void io_rtc_readTime(IoRtcTime *time)
     LOG_INFO(
         "Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
         buffer[5], buffer[6]);
+    return true;
 }
 
 void io_rtc_reset(void)

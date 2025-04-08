@@ -39,9 +39,10 @@ void tasks_init(void)
     hw_can_init(&can1);
     hw_usb_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-
+    
     hw_gpio_writePin(&tsim_red_en_pin, true);
     hw_gpio_writePin(&ntsim_green_en_pin, false);
+    jobs_init();
 }
 
 _Noreturn void tasks_run1Hz(void)
