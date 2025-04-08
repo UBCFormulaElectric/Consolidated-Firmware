@@ -35,5 +35,4 @@ void jobs_pollPwrMtr(void)
     uint32_t alert_cause = io_power_monitor_alert_status();
     // TODO: make a warning of sorts for the alert status, maybe a
     // TODO: transmit that tells the user where alert from (based on raised bit)
-
 }

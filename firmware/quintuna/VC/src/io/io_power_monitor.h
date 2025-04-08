@@ -18,7 +18,7 @@ EMPTY_STRUCT(PowerRail)
 extern const PowerRail ext;
 extern const PowerRail acc;
 
-// TODO: add comments and decriptions for how deez work
+// TODO: add comments and decriptions for how deez work / what they do
 bool io_power_monitor_init();
 
 void io_power_monitor_refresh();
