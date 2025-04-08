@@ -15,23 +15,3 @@ float io_brake_getPressure(void)
 
 
 
-/*
-def brake_pressure_to_potential_volts(brake_pressure_psi: float) -> float:
-    """Convert from brake pressure to pressure sensor voltage output.
-
-    Args:
-        brake_pressure_psi: Target pressure in PSI.
-
-    Returns:
-        Output voltage of pressure sensor in volts.
-
-    """
-
-    # From direct charecterization of sensors.
-    pressure_span_psi = 1000
-    voltage_offset = 0.5
-    potential_span_volts = 4.5 - voltage_offset
-    volts_per_psi = potential_span_volts / pressure_span_psi
-
-    return voltage_offset + volts_per_psi * brake_pressure_psi
-*/

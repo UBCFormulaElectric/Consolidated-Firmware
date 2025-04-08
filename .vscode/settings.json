@@ -35,6 +35,11 @@
 		"vector": "c",
 		"hw_adcs.h": "c",
 		"hw_adc.h": "c",
-		"hw_gpios.h": "c"
+		"hw_gpios.h": "c",
+		"io_suspension.h": "c",
+		"app_utils.h": "c",
+		"hw_i2cs.h": "c",
+		"io_imus.h": "c",
+		"io_imu.h": "c"
 	}
 }
