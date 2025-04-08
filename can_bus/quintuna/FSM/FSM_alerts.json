@@ -1,12 +1,9 @@
 {
-  "warnings_id": 696,
-  "faults_id": 697,
-  "warnings_counts_id": 698,
-  "faults_counts_id": 699,
-  "bus": [
-    "Can"
-  ],
-  "warning": {
+  "warnings_id": 695,
+  "faults_id": 696,
+  "warnings_counts_id": 697,
+  "faults_counts_id": 698,
+  "warnings": {
     "WatchdogTimeout": {
       "id": 601,
       "description": "Watchdog timed out."
@@ -18,9 +15,7 @@
     "RxOverflow": {
       "id": 603,
       "description": "CanRx queue overflowed."
-    }
-  },
-  "error": {
+    },
     "SteeringAngleOCSC": {
       "id": 609,
       "description": "Steering sensor voltage out of acceptable range (OCSC)."
@@ -46,12 +41,10 @@
       "description": "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK."
     },
     "LeftSuspensionOCSC": {
-      "disabled": true,
       "id": 617,
       "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
     },
     "RightSuspensionOCSC": {
-      "disabled": true,
       "id": 618,
       "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
     }

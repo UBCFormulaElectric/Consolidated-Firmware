@@ -1,6 +1,5 @@
 {
   "messages": [
-    "Debug_CanMode",
-    "Debug_BootloaderCAN"
+    "Debug_CanMode"
   ]
 }

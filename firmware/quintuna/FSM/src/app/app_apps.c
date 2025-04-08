@@ -34,32 +34,31 @@ void app_apps_broadcast(void)
     const bool sapps_ocsc_active = sapps_ocsc_signal_state == SIGNAL_STATE_ACTIVE;
 
     // TODO: do all can messages below
-    // app_canAlerts_FSM_Fault_DummyFault_set(papps_ocsc_active);
-    // app_canAlerts_FSM_Fault_DummyFault_set(sapps_ocsc_active); // no signal specific fault for some reason (can't
-    // find)
+    app_canAlerts_FSM_Fault_PappsOCSC_set(papps_ocsc_active);
+    app_canAlerts_FSM_Fault_SappsOCSC_set(sapps_ocsc_active);
 
-    // Primary and Secondary pedal disagreement check -- everything below this line needs to be fixed
-    // const float papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
-    //
-    // SignalState papps_sapps_disagreement_signal_state =
-    //     app_signal_getState(&papps_sapps_disagreement_signal, (papps_sapps_diff) > 10.f, (papps_sapps_diff) <= 10.f);
-    //
-    // const bool papps_sapps_disagreement_active = papps_sapps_disagreement_signal_state == SIGNAL_STATE_ACTIVE;
-    //
-    // app_canAlerts_FSM_(papps_sapps_disagreement_active);
-    //
-    // app_canTx_FSM_PappsRawPedalPercentage_set(papps_pedal_percentage);
-    // app_canTx_FSM_SappsRawPedalPercentage_set(sapps_pedal_percentage);
-    //
-    // // set mapped apps to 0 if anything went wrong
-    // if (papps_ocsc_active || sapps_ocsc_active || papps_sapps_disagreement_active)
-    // {
-    //     app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
-    //     app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
-    // }
-    // else
-    // {
-    //     app_canTx_FSM_PappsMappedPedalPercentage_set(papps_pedal_percentage);
-    //     app_canTx_FSM_SappsMappedPedalPercentage_set(sapps_pedal_percentage);
-    // }
+    // Primary and Secondary pedal disagreement check-- everything below this line needs to fixed
+    const float papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
+
+    SignalState papps_sapps_disagreement_signal_state =
+        app_signal_getState(&papps_sapps_disagreement_signal, (papps_sapps_diff) > 10.f, (papps_sapps_diff) <= 10.f);
+
+    const bool papps_sapps_disagreement_active = papps_sapps_disagreement_signal_state == SIGNAL_STATE_ACTIVE;
+
+    app_canAlerts_FSM_Warning_AppsDisagreement_set(papps_sapps_disagreement_active);
+
+    app_canTx_FSM_PappsRawPedalPercentage_set(papps_pedal_percentage);
+    app_canTx_FSM_SappsRawPedalPercentage_set(sapps_pedal_percentage);
+
+    // set mapped apps to 0 if anything went wrong
+    if (papps_ocsc_active || sapps_ocsc_active || papps_sapps_disagreement_active)
+    {
+        app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
+        app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
+    }
+    else
+    {
+        app_canTx_FSM_PappsMappedPedalPercentage_set(papps_pedal_percentage);
+        app_canTx_FSM_SappsMappedPedalPercentage_set(sapps_pedal_percentage);
+    }
 }

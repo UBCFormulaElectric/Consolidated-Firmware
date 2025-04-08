@@ -1,10 +1,6 @@
-[
-  {
-    "name": "Vitals",
+{
+  "Vitals": {
     "msg_id": 600,
-    "bus": [
-      "bus1"
-    ],
     "cycle_time": 100,
     "description": "FSM vitals message.",
     "signals": {
@@ -14,14 +10,9 @@
       "State": {
         "enum": "FSMState"
       }
-    },
-    "data_capture": {
-      "log_cycle_time": 1000,
-      "telem_cycle_time": 1000
     }
   },
-  {
-    "name": "AlertsContext",
+  "AlertsContext": {
     "msg_id": 601,
     "cycle_time": 1000,
     "description": "Context info for FSM alerts",
@@ -40,8 +31,7 @@
       }
     }
   },
-  {
-    "name": "CommitInfo",
+  "CommitInfo": {
     "msg_id": 602,
     "cycle_time": 100,
     "description": "FSM Current Running Git Commit Info",
@@ -54,8 +44,7 @@
       }
     }
   },
-  {
-    "name": "Steering",
+  "Steering": {
     "msg_id": 603,
     "cycle_time": 100,
     "description": "Steering angle.",
@@ -68,8 +57,7 @@
       }
     }
   },
-  {
-    "name": "Apps",
+  "Apps": {
     "msg_id": 605,
     "cycle_time": 10,
     "description": "Primary (P) and secondary (S) accelerator percentages.",
@@ -100,8 +88,7 @@
       }
     }
   },
-  {
-    "name": "Brake",
+  "Brake": {
     "msg_id": 606,
     "cycle_time": 100,
     "description": "Front and rear brake pressures.",
@@ -112,20 +99,12 @@
         "max": 2500,
         "unit": "psi"
       },
-      "RearBrakePressure": {
-        "resolution": 1,
-        "min": 0,
-        "max": 2500,
-        "unit": "psi"
-      },
       "BrakeActuated": {
         "bits": 1
       }
     }
   },
-  {
-    "name": "Suspension",
-    "disabled": true,
+  "Suspension": {
     "msg_id": 607,
     "cycle_time": 100,
     "description": "Suspension travel.",
@@ -144,15 +123,23 @@
       }
     }
   },
-  {
-    "name": "FSMShdnNodeStatus",
+  "FSMShdnNodeStatus": {
     "msg_id": 609,
     "cycle_time": 100,
     "description": "FSM Shutdown Node Status",
     "signals": {
       "BOTSOKStatus": {
         "bits": 1
+      },
+      "COCKPITOKStatus": {
+        "bits": 1
+      },
+      "FLOKStatus": {
+        "bits": 1
+      },
+      "FROKStatus": {
+        "bits": 1
       }
     }
   }
-]
+}

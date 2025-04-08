@@ -13,14 +13,14 @@ static const RangeCheck rear_pressure_in_range_check  = { .min_value = MIN_BRAKE
 void app_brake_broadcast(void)
 {
     const bool brake_pressed = io_brake_isActuated();
-    // TODO: send can message of brake actuation
+    app_canTx_FSM_BrakeActuated_set(brake_pressed);
 
-    float                    front_pressure        = io_brake_getFrontPressurePsi();
-    RangeCheckStatusMetaData front_pressure_status = app_rangeCheck_getValue(&front_pressure_status, front_pressure);
-    // TODO: send can message of brake pressure ((uint32_t)roundf(front_pressure))
-    // TODO: send can alert (warning) of front brake pressure being out of range -> front_pressure_status.status !=
-    // VALUE_IN_RANGE
+    float                    front_pressure = io_brake_getFrontPressurePsi();
+    RangeCheckStatusMetaData front_pressure_status =
+        app_rangeCheck_getValue(&front_pressure_in_range_check, front_pressure);
+    app_canTx_FSM_FrontBrakePressure_set((uint32_t)roundf(front_pressure));
+    app_canAlerts_FSM_Warning_FrontBrakePressureOutOfRange_set(front_pressure_status.status != VALUE_IN_RANGE);
 
-    // TODO: send can alert (warning) of front brake pressure ocsc being triggered -> io_brake_frontPressureSensorOCSC()
-    // TODO: send can alert (warning) of hardware brake ocsc being triggered -> io_brake_hwOCSC()
+    app_canAlerts_FSM_Warning_FrontBrakePressureOcSc_set(io_brake_frontPressureSensorOCSC());
+    app_canAlerts_FSM_Warning_BrakeOcScNotOk_set(io_brake_hwOCSC());
 }
