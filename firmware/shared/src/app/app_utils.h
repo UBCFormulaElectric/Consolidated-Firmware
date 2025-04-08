@@ -1,5 +1,6 @@
 #pragma once
 #include "math.h"
+#include "io_log.h"
 
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
@@ -59,17 +60,19 @@ typedef enum
     EXIT_CODE_ERROR,
     EXIT_CODE_BUSY,
     EXIT_CODE_UNIMPLEMENTED,
+    EXIT_CODE_RETRY_FAILED,
     NUM_EXIT_CODES,
 } ExitCode;
 
 #define IS_EXIT_OK(code) ((code) == EXIT_CODE_OK)
 #define IS_EXIT_ERR(code) ((code) != EXIT_CODE_OK)
 
-#define RETURN_IF_NOT_OK(err_expr)              \
+#define RETURN_IF_ERR(err_expr)              \
     {                                  \
         const ExitCode exit = err_expr; \
         if (!IS_EXIT_OK(exit))               \
         {                              \
+            LOG_ERROR(#err_expr " returned an error: %d", exit);                            \
             return exit;                \
         }                              \
     }

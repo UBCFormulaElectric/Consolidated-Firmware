@@ -49,6 +49,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
 )
 list(REMOVE_ITEM HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(HW_INCLUDE_DIRS

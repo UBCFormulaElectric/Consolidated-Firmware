@@ -31,7 +31,7 @@ extern const imuConfig imu_config;
 
 ExitCode io_imu_init(void)
 {
-    RETURN_IF_NOT_OK(hw_i2c_isTargetReady(imu_config.imu_i2c_handle));
+    RETURN_IF_ERR(hw_i2c_isTargetReady(imu_config.imu_i2c_handle));
 
 #ifdef IMU_ACC_RANGE_2G
 #define ACC_CONFIG_RANGE (0)
@@ -129,8 +129,8 @@ ExitCode io_imu_init(void)
 
     const uint8_t acc_config = ACC_CONFIG_RELOAD | ACC_CONFIG_RANGE, // | (1U << XL_LPF1_EN_BIT)  enable LPF
         gyro_config          = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
-    RETURN_IF_NOT_OK(hw_i2c_memoryWrite(imu_config.imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1));
-    RETURN_IF_NOT_OK(hw_i2c_memoryWrite(imu_config.imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1));
+    RETURN_IF_ERR(hw_i2c_memoryWrite(imu_config.imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1));
+    RETURN_IF_ERR(hw_i2c_memoryWrite(imu_config.imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1));
     return EXIT_CODE_OK;
 }
 
@@ -191,58 +191,58 @@ static float translate_acceleration_data(const uint8_t *acc_data)
 ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
-    RETURN_IF_NOT_OK(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2));
+    RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2));
 
     // Convert raw value to acceleration in m/s^2
     *x_acceleration = translate_acceleration_data(x_data) + imu_config.x_accel_offset;
-    return true;
+    return EXIT_CODE_OK;
 }
 
 ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
 {
     uint8_t y_data[2];
-    RETURN_IF_NOT_OK(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Y_LOW_BYTE_REG, y_data, 2));
+    RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Y_LOW_BYTE_REG, y_data, 2));
 
     // Convert raw value to acceleration in m/s^2
     *y_acceleration = translate_acceleration_data(y_data) + imu_config.y_accel_offset;
-    return true;
+    return EXIT_CODE_OK;
 }
 
 ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
-    RETURN_IF_NOT_OK(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Z_LOW_BYTE_REG, z_data, 2));
+    RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Z_LOW_BYTE_REG, z_data, 2));
 
     // Convert raw value to acceleration in m/s^2
     *z_acceleration = translate_acceleration_data(z_data) + imu_config.z_accel_offset;
-    return true;
+    return EXIT_CODE_OK;
 }
 
 ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
     uint8_t roll_data[2];
-    RETURN_IF_NOT_OK(hw_i2c_memoryRead(
+    RETURN_IF_ERR(hw_i2c_memoryRead(
         imu_config.imu_i2c_handle, G_ROLL_LOW_BYTE_REG, roll_data, 2)); // reading the high and low register
 
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *roll_velocity = translate_gyro_data(roll_data) + imu_config.roll_offset;
-    return true;
+    return EXIT_CODE_OK;
 }
 
 ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
     uint8_t pitch_data[2];
-    RETURN_IF_NOT_OK(hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_PITCH_LOW_BYTE_REG, pitch_data, 2));
+    RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_PITCH_LOW_BYTE_REG, pitch_data, 2));
 
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *pitch_velocity = translate_gyro_data(pitch_data) + imu_config.pitch_offset;
-    return true;
+    return EXIT_CODE_OK;
 }
 
 ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
     uint8_t yaw_data[2];
-    RETURN_IF_NOT_OK(hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_YAW_LOW_BYTE_REG, yaw_data, 2));
+    RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_YAW_LOW_BYTE_REG, yaw_data, 2));
 
     // Convert raw value to angular velocity (degrees per second or radians per second as required)
     *yaw_velocity = translate_gyro_data(yaw_data) + imu_config.yaw_offset;

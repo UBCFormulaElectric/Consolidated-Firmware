@@ -82,7 +82,7 @@ ExitCode hw_spi_transmitThenReceive(
     if (device->bus->task_in_progress != NULL)
     {
         // There is a task currently in progress!
-        return false;
+        return EXIT_CODE_BUSY;
     }
 
     // Save current task before starting a SPI transaction.
@@ -125,7 +125,7 @@ ExitCode hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t t
     if (device->bus->task_in_progress != NULL)
     {
         // There is a task currently in progress!
-        return false;
+        return EXIT_CODE_BUSY;
     }
 
     // Save current task before starting a SPI transaction.
@@ -152,7 +152,7 @@ ExitCode hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx
     if (device->bus->task_in_progress != NULL || xPortIsInsideInterrupt())
     {
         // There is a task currently in progress!
-        return false;
+        return EXIT_CODE_BUSY;
     }
 
     if (osKernelGetState() != taskSCHEDULER_RUNNING)
@@ -176,7 +176,7 @@ ExitCode hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx
         // Mark this transaction as no longer in progress.
         device->bus->task_in_progress = NULL;
         disableNss(device);
-        return false;
+        return EXIT_CODE_BUSY;
     }
 
     exit = waitForNotification(device);

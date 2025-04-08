@@ -1,3 +1,4 @@
+#include "app_utils.h"
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"
@@ -10,17 +11,17 @@
  * Clears the register groups which contain the cell voltage data
  * @return success of operation
  */
-static bool clearCellRegisters()
+static ExitCode clearCellRegisters()
 {
 #define CLRCELL (0x0711)
     return io_ltc6813_sendCommand(CLRCELL);
 }
 
 // TODO assert that for each speed that the ADCOPT is correct
-bool io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
+ExitCode io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
-    if (!clearCellRegisters())
-        return false;
+    RETURN_IF_ERR(clearCellRegisters());
+
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // Cell selection for ADC conversion
 #define CH (000U)
@@ -47,7 +48,7 @@ void io_ltc6813_readVoltageRegisters(
     memset(comm_success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(bool));
     memset(cell_voltage_regs, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(uint16_t));
     // Exit early if ADC conversion fails
-    if (!io_ltc6813_pollAdcConversions())
+    if (IS_EXIT_ERR(io_ltc6813_pollAdcConversions()))
     {
         return;
     }
@@ -67,9 +68,9 @@ void io_ltc6813_readVoltageRegisters(
         const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[reg_group]);
         VoltageRegGroup  rx_buffer[NUM_SEGMENTS];
 
-        const bool voltage_read_success = hw_spi_transmitThenReceive(
+        const ExitCode voltage_read_exit = hw_spi_transmitThenReceive(
             &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
-        if (!voltage_read_success)
+        if (IS_EXIT_ERR(voltage_read_exit))
         {
             continue;
         }
