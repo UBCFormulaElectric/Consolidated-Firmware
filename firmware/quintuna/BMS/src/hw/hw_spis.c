@@ -16,9 +16,6 @@ const SpiDevice ltc6813_spi_hs = { .bus        = &isospi_bus,
 
 SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
-    if (handle == isospi_bus.handle)
-    {
-        return &isospi_bus;
-    }
-    assert(0);
+    assert(handle == isospi_bus.handle);
+    return &isospi_bus;
 }
