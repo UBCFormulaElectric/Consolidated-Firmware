@@ -2,13 +2,12 @@
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 
-#define M (0.0f)
-#define B (0.0f) // GET M AND B FROM RSM DATA
+#define METERS_PER_VOLT (100.0f)
 
 float travelFromVoltage(float voltage)
 {
-    float travel_mm = (voltage - B) / M;
-    return travel_mm;
+    float travel_m = (voltage) / METERS_PER_VOLT;
+    return travel_m;
 }
 
 float io_suspension_getrlTravel(void)

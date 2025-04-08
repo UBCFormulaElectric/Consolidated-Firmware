@@ -32,6 +32,9 @@
 		"string_view": "c",
 		"unordered_map": "c",
 		"unordered_set": "c",
-		"vector": "c"
+		"vector": "c",
+		"hw_adcs.h": "c",
+		"hw_adc.h": "c",
+		"hw_gpios.h": "c"
 	}
 }
