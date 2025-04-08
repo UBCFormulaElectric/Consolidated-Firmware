@@ -5,7 +5,6 @@
 #include "io_canMsg.h"
 #include "main.h"
 
-
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
 // STM32 HAL CAN handle.
@@ -13,7 +12,7 @@
 typedef struct
 {
     CAN_HandleTypeDef *const hcan;
-    const uint8_t           bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    const uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     void (*const receive_callback)(const CanMsg *rx_msg);
     bool ready;
 } CanHandle;

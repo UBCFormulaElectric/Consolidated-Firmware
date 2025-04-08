@@ -12,8 +12,8 @@
 #define RX_QUEUE_SIZE 128
 
 #define CAN_MSG_SIZE sizeof(CanMsg)
-#define TX_QUEUE_BYTES CAN_MSG_SIZE * TX_QUEUE_SIZE
-#define RX_QUEUE_BYTES CAN_MSG_SIZE * RX_QUEUE_SIZE
+#define TX_QUEUE_BYTES CAN_MSG_SIZE *TX_QUEUE_SIZE
+#define RX_QUEUE_BYTES CAN_MSG_SIZE *RX_QUEUE_SIZE
 
 char                      *tx_name;
 char                      *rx_name;

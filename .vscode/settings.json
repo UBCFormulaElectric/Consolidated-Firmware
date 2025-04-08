@@ -13,5 +13,11 @@
 		"--compile-commands-dir=build_fw_dev",
  		// "--compile-commands-dir=build_fw_test",
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
-	]
+	],
+	"files.associations": {
+		"hw_chimeraconfig_v2.h": "c",
+		"hw_cans.h": "c",
+		"hw_crc.h": "c",
+		"hw_hal.h": "c"
+	}
 }

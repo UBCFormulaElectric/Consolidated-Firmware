@@ -24,12 +24,13 @@ void can_test_tick()
         .std_id    = 1,
         .dlc       = 8,
         .timestamp = 0,
-        .data      = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff   },
+        .data      = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
         .bus       = 0,
         .is_fd     = true,
     };
 
-    while(1) {
+    while (1)
+    {
         hw_can_transmit(&can1, &msg);
         hw_fdcan_transmit(&can1, &fd_msg);
         i++;
