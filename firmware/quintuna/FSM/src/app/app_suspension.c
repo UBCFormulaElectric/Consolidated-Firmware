@@ -5,8 +5,8 @@
 
 void app_suspension_broadcast(void)
 {
-    double left_travel  = io_suspension_getLeftTravel();
-    double right_travel = io_suspension_getRightTravel();
+    float left_travel  = io_suspension_getLeftTravel();
+    float right_travel = io_suspension_getRightTravel();
 
     app_canTx_FSM_LeftSuspensionTravel_set(left_travel);
     app_canTx_FSM_RightSuspensionTravel_set(right_travel);
