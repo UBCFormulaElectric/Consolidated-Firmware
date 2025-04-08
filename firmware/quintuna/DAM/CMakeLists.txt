@@ -51,6 +51,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"

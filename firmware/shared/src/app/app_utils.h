@@ -62,8 +62,14 @@ typedef enum
     NUM_EXIT_CODES,
 } ExitCode;
 
-#define EXIT_OK(code) ((code) == EXIT_CODE_OK)
+#define IS_EXIT_OK(code) ((code) == EXIT_CODE_OK)
+#define IS_EXIT_ERR(code) ((code) != EXIT_CODE_OK)
 
-#define RETURN_CODE_IF_EXIT_NOT_OK(code) \
-    if ((code) != EXIT_CODE_OK)          \
-    return (code)
+#define RETURN_IF_NOT_OK(err_expr)              \
+    {                                  \
+        const ExitCode exit = err_expr; \
+        if (!IS_EXIT_OK(exit))               \
+        {                              \
+            return exit;                \
+        }                              \
+    }

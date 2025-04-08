@@ -2,7 +2,6 @@
 #include "app_utils.h"
 #include "hw_utils.h"
 #include "io_log.h"
-#include <stm32h7xx_hal_def.h>
 
 /* NOTE: Task notifications are used in this driver, since according to FreeRTOS docs they are a faster alternative to
  * binary semaphores.
@@ -73,12 +72,13 @@ ExitCode hw_i2c_receive(const I2cDevice *device, uint8_t *rx_buffer, uint16_t rx
     // Save current task before starting an I2C transaction.
     device->bus->task_in_progress = xTaskGetCurrentTaskHandle();
 
-    if (HAL_I2C_Master_Receive_IT(
-            device->bus->handle, (uint16_t)(device->target_address << 1), rx_buffer, rx_buffer_size) != HAL_OK)
+    const ExitCode exit = hw_utils_convertHalStatus(HAL_I2C_Master_Receive_IT(
+        device->bus->handle, (uint16_t)(device->target_address << 1), rx_buffer, rx_buffer_size));
+    if (IS_EXIT_ERR(exit))
     {
         // Mark this transaction as no longer in progress.
         device->bus->task_in_progress = NULL;
-        return EXIT_CODE_ERROR;
+        return exit;
     }
 
     return waitForNotification(device);
@@ -103,13 +103,13 @@ ExitCode hw_i2c_transmit(const I2cDevice *device, const uint8_t *tx_buffer, uint
     // Save current task before starting an I2C transaction.
     device->bus->task_in_progress = xTaskGetCurrentTaskHandle();
 
-    if (HAL_I2C_Master_Transmit_IT(
-            device->bus->handle, (uint16_t)(device->target_address << 1), (uint8_t *)tx_buffer, tx_buffer_size) !=
-        HAL_OK)
+    const ExitCode exit = hw_utils_convertHalStatus(HAL_I2C_Master_Transmit_IT(
+        device->bus->handle, (uint16_t)(device->target_address << 1), (uint8_t *)tx_buffer, tx_buffer_size));
+    if (IS_EXIT_ERR(exit))
     {
         // Mark this transaction as no longer in progress.
         device->bus->task_in_progress = NULL;
-        return EXIT_CODE_ERROR;
+        return exit;
     }
 
     return waitForNotification(device);
@@ -134,13 +134,14 @@ ExitCode hw_i2c_memoryRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *
     // Save current task before starting an I2C transaction.
     device->bus->task_in_progress = xTaskGetCurrentTaskHandle();
 
-    if (HAL_I2C_Mem_Read_IT(
-            device->bus->handle, (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT, rx_buffer,
-            rx_buffer_size) != HAL_OK)
+    const ExitCode exit = hw_utils_convertHalStatus(HAL_I2C_Mem_Read_IT(
+        device->bus->handle, (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT, rx_buffer,
+        rx_buffer_size));
+    if (IS_EXIT_ERR(exit))
     {
         // Mark this transaction as no longer in progress.
         device->bus->task_in_progress = NULL;
-        return EXIT_CODE_ERROR;
+        return exit;
     }
 
     return waitForNotification(device);
@@ -166,13 +167,15 @@ ExitCode
     // Save current task before starting an I2C transaction.
     device->bus->task_in_progress = xTaskGetCurrentTaskHandle();
 
-    if (HAL_I2C_Mem_Write_IT(
+    const ExitCode exit = hw_utils_convertHalStatus(
+        HAL_I2C_Mem_Write_IT(
             device->bus->handle, (uint16_t)(device->target_address << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
-            (uint8_t *)tx_buffer, tx_buffer_size) != HAL_OK)
+            (uint8_t *)tx_buffer, tx_buffer_size) != HAL_OK);
+    if (IS_EXIT_ERR(exit))
     {
         // Mark this transaction as no longer in progress.
         device->bus->task_in_progress = NULL;
-        return EXIT_CODE_ERROR;
+        return exit;
     }
 
     return waitForNotification(device);
