@@ -1,14 +1,62 @@
 {
-    "warnings_id": 501,
-    "faults_id": 502,
-    "warnings_counts_id": 503,
-    "faults_counts_id": 504,
-    "warnings": {
+  "warnings_id": 695,
+  "faults_id": 696,
+  "warnings_counts_id": 697,
+  "faults_counts_id": 698,
+  "warnings": {
+    "WatchdogTimeout": {
+      "id": 601,
+      "description": "Watchdog timed out."
     },
-    "faults": {
-        "DummyFault": {
-            "id": 500,
-            "description": "Dummy Fault"
-        }
+    "TxOverflow": {
+      "id": 602,
+      "description": "CanTx queue overflowed."
+    },
+    "RxOverflow": {
+      "id": 603,
+      "description": "CanRx queue overflowed."
+    },
+    "SteeringAngleOCSC": {
+      "id": 609,
+      "description": "Steering sensor voltage out of acceptable range (OCSC)."
+    },
+    "SteeringAngleOutOfRange": {
+      "id": 610,
+      "description": "Steering angle out of range."
+    },
+    "AppsDisagreement": {
+      "id": 613,
+      "description": "Conflict between primary and secondary accelerator pedals."
+    },
+    "FrontBrakePressureOutOfRange": {
+      "id": 614,
+      "description": "Front brake pressure out of range."
+    },
+    "FrontBrakePressureOcSc": {
+      "id": 616,
+      "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
+    },
+    "BrakeOcScNotOk": {
+      "id": 623,
+      "description": "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK."
+    },
+    "LeftSuspensionOCSC": {
+      "id": 617,
+      "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
+    },
+    "RightSuspensionOCSC": {
+      "id": 618,
+      "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
     }
+  },
+  "faults": {
+    "PappsOCSC": {
+      "id": 652,
+      "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
+    },
+    "SappsOCSC": {
+      "id": 653,
+      "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
+    }
+  }
 }
