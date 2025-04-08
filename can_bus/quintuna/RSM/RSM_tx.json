@@ -27,7 +27,7 @@
     },
 
     "Coolant": {
-		"msg_id": 416,
+		"msg_id": 702,
 		"cycle_time": 1000,
 		"signals": {
 			"CoolantFlowRate": {

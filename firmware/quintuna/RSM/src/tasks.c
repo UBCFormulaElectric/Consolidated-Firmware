@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "io_imus.h"
 #include "jobs.h"
 #include "cmsis_os.h"
 #include "main.h"
@@ -41,6 +42,7 @@ void tasks_init()
     hw_adcs_chipsInit();
     hw_can_init(&can2);
     jobs_init();
+    io_imu_init()
 }
 
 void tasks_deinit()
