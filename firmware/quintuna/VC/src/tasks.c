@@ -147,6 +147,6 @@ _Noreturn void tasks_powerMonitoring(void)
     osDelay(osWaitForever);
     for (;;)
     {
-        osDelay(1000);
+        jobs_pollPwrMtr();
     }
 }
