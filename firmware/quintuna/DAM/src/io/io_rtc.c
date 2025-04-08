@@ -304,6 +304,7 @@ bool io_rtc_init(void)
         return false;
     }
 
+    // turn on the power switch to the RTC chip
     IoRtcTime time = { 0 };
     io_rtc_readTime(&time);
     LOG_INFO(
