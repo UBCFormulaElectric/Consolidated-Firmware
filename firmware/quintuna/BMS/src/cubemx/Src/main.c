@@ -1101,6 +1101,7 @@ void RunTask100Hz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+    tasks_runLtc();
     tasks_run100Hz();
     /* USER CODE END 5 */
 }

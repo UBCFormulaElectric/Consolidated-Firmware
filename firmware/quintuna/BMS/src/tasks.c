@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "jobs.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -84,5 +85,13 @@ void tasks_runCanRx(void)
     {
         const CanMsg rx_msg = io_canQueue_popRx();
         UNUSED(rx_msg);
+    }
+}
+
+void tasks_runLtc(void)
+{
+    for (;;)
+    {
+        jobs_runLtc();
     }
 }

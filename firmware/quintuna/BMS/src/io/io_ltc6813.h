@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 // physical constants
-#define NUM_SEGMENTS 10
+#define NUM_SEGMENTS 1
 #define CELLS_PER_SEGMENT 14
 #define THERMISTORS_PER_SEGMENT 14
 
