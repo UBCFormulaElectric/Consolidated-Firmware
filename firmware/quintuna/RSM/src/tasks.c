@@ -42,7 +42,7 @@ void tasks_init()
     hw_adcs_chipsInit();
     hw_can_init(&can2);
     jobs_init();
-    io_imu_init()
+    io_imu_init();
 }
 
 void tasks_deinit()

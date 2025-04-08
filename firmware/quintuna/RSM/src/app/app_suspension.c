@@ -1,5 +1,7 @@
 #include "io_suspension.h"
 #include "app_suspension.h"
+#include "app_canTx.h"
+#include "app_canAlerts.h"
 
 void app_suspension_broadcast(void)
 {

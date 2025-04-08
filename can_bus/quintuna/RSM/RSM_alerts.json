@@ -44,13 +44,11 @@
             "id": 785,
             "description": "Flow meter underflow"
         },
-        "RSM_Warning_rl_OCSC": {
-            "disabled" : true,
+        "rl_OCSC": {
             "id": 784,
             "description": "Rear left suspension open or short circuit"
         },
-        "RSM_Warning_rr_OCSC": {
-            "disabled" : true,
+        "rr_OCSC": {
             "id": 783,
             "description": "Rear right suspension open or short circuit"
         }
