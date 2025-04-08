@@ -3,6 +3,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_commitInfo.h"
+#include "app_screens.h"
 // io
 #include "io_time.h"
 #include "io_canTx.h"
@@ -27,6 +28,8 @@ void jobs_init(void)
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
+
+    app_sc
 }
 
 void jobs_run1Hz_tick(void)

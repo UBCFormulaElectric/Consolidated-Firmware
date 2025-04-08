@@ -4,7 +4,7 @@
 #include "hw_pwmOutput.h"
 #include "hw_pwms.h"
 
-static void runDelay()
+static void runDelay(void)
 {
     for (uint8_t i = 0; i < 30; i++)
     {
@@ -14,6 +14,9 @@ static void runDelay()
 // Shift out one byte to the shift register (MSB-first).
 static void shiftOutByte(const Gpio *serin, const Gpio *srck, uint8_t data)
 {
+    hw_gpio_writePin(srck, false);
+    runDelay();
+
     for (uint8_t bit = 0; bit < 8; bit++)
     {
         // Extract bit starting with the MSB.

@@ -2,12 +2,14 @@
 #include "app_leds.h"
 #include "app_switches.h"
 #include "app_driveMode.h"
+#include "screens/app_screens.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
     app_leds_update();
     app_switches_broadcast();
     app_driveMode_broadcast();
+    app_screens_update();
 }
 
 static void mainStateRunOnEntry(void) {}

@@ -1,97 +1,91 @@
+#include <stdint.h>
 #include "app_leds.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "io_shift_register.h"
 
-#define SHIFTREG_LED_RSM_R (1UL << 0)
-#define SHIFTREG_LED_RSM_G (1UL << 1)
-#define SHIFTREG_LED_RSM_B (1UL << 2)
+#define LED_DATA_LENGTH 4u
 
-#define SHIFTREG_LED_CRIT_R (1UL << 3)
-#define SHIFTREG_LED_CRIT_G (1UL << 4)
-#define SHIFTREG_LED_CRIT_B (1UL << 5)
-
-#define SHIFTREG_LED_FSM_R (1UL << 6)
-#define SHIFTREG_LED_FSM_G (1UL << 7)
-#define SHIFTREG_LED_FSM_B (1UL << 8)
-
-#define SHIFTREG_LED_LAUNCH_R (1UL << 9)
-#define SHIFTREG_LED_LAUNCH_G (1UL << 10)
-#define SHIFTREG_LED_LAUNCH_B (1UL << 11)
-
-#define SHIFTREG_LED_PUSH_R (1UL << 12)
-#define SHIFTREG_LED_PUSH_G (1UL << 13)
-#define SHIFTREG_LED_PUSH_B (1UL << 14)
-
-#define SHIFTREG_LED_VC_R (1UL << 15)
-#define SHIFTREG_LED_VC_G (1UL << 16)
-#define SHIFTREG_LED_VC_B (1UL << 17)
-
-#define SHIFTREG_LED_BMS_R (1UL << 18)
-#define SHIFTREG_LED_BMS_G (1UL << 19)
-#define SHIFTREG_LED_BMS_B (1UL << 20)
-
-#define SHIFTREG_LED_DAM_R (1UL << 21)
-#define SHIFTREG_LED_DAM_G (1UL << 22)
-#define SHIFTREG_LED_DAM_B (1UL << 23)
-
-#define SHIFTREG_LED_SHDN_R (1UL << 24)
-#define SHIFTREG_LED_SHDN_G (1UL << 25)
-#define SHIFTREG_LED_SHDN_B (1UL << 26)
-
-#define SHIFTREG_LED_IMD (1UL << 27)
-#define SHIFTREG_LED_BSPD (1UL << 28)
-#define SHIFTREG_LED_AMS (1UL << 29)
-#define SHIFTREG_LED_REGEN (1UL << 30)
-#define SHIFTREG_LED_TORQUE_VEC (1UL << 31)
-
-static uint32_t boardStatusToRGBBits(BoardLEDStatus status, uint32_t redMask, uint32_t greenMask, uint32_t blueMask)
+typedef struct
 {
+    unsigned int r : 1;
+    unsigned int g : 1;
+    unsigned int b : 1;
+} LedRgb_t;
+typedef struct
+{
+    LedRgb_t rsm;           // bits 0-2
+    LedRgb_t crit;          // bits 3-5
+    LedRgb_t fsm;           // bits 6-8
+    LedRgb_t launch;        // bits 9-11
+    LedRgb_t push;          // bits 12-14
+    LedRgb_t vc;            // bits 15-17
+    LedRgb_t bms;           // bits 18-20
+    LedRgb_t dam;           // bits 21-23
+    LedRgb_t shdn;          // bits 24-26
+    uint8_t  imd : 1;       // bit 27
+    uint8_t  bspd : 1;      // bit 28
+    uint8_t  ams : 1;       // bit 29
+    uint8_t  regen : 1;     // bit 30
+    uint8_t  torqueVec : 1; // bit 31
+} LedRegister_t;
+
+typedef union
+{
+    LedRegister_t bits;
+    uint32_t      value;
+} LedReg_t;
+
+static void set_rgb_led(LedRgb_t *led, BoardLEDStatus status)
+{
+    led->r = 0;
+    led->g = 0;
+    led->b = 0;
     switch (status)
     {
         case BOARD_LED_STATUS_OK:
-            return greenMask;
-
+            led->g = 1;
+            break;
         case BOARD_LED_STATUS_WARNING:
-            // Yello = red + green
-            return (redMask | greenMask);
-
+            led->r = 1;
+            led->g = 1;
+            break;
         case BOARD_LED_STATUS_FAULT:
-            return redMask;
-
+            led->r = 1;
+            break;
         case BOARD_LED_STATUS_MISSING_HEARTBEAT:
-            return blueMask;
-
+            led->b = 1;
+            break;
         default:
-            return 0;
+            break;
     }
 }
 
 static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
 {
-    bool is_missing_heartbeat = false;
+    bool missingHeartbeat = false;
 
     switch (board)
     {
         case BMS_ALERT_BOARD:
-            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
+            missingHeartbeat = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
             break;
         case FSM_ALERT_BOARD:
-            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
+            missingHeartbeat = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
             break;
         case RSM_ALERT_BOARD:
-            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
+            missingHeartbeat = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
             break;
         case VC_ALERT_BOARD:
-            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
+            missingHeartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
             break;
         // TODO: add DAM
         default:
-            is_missing_heartbeat = false;
+            missingHeartbeat = false;
             break;
     }
 
-    if (is_missing_heartbeat)
+    if (missingHeartbeat)
     {
         return BOARD_LED_STATUS_MISSING_HEARTBEAT;
     }
@@ -117,57 +111,57 @@ void app_leds_update(void)
     const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
     const bool is_shdn_ok         = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
 
-    // Determine board status.
-    const BoardLEDStatus bms_status  = worstBoardStatus(BMS_ALERT_BOARD);
-    const BoardLEDStatus fsm_status  = worstBoardStatus(FSM_ALERT_BOARD);
     const BoardLEDStatus rsm_status  = worstBoardStatus(RSM_ALERT_BOARD);
-    const BoardLEDStatus vc_status   = worstBoardStatus(VC_ALERT_BOARD);
     const BoardLEDStatus crit_status = worstBoardStatus(CRIT_ALERT_BOARD);
-    // TODO: add DAM
+    const BoardLEDStatus fsm_status  = worstBoardStatus(FSM_ALERT_BOARD);
+    const BoardLEDStatus bms_status  = worstBoardStatus(BMS_ALERT_BOARD);
+    const BoardLEDStatus vc_status   = worstBoardStatus(VC_ALERT_BOARD);
+    // TODO dam
 
-    uint32_t ledMask = 0;
-    ledMask |= boardStatusToRGBBits(bms_status, SHIFTREG_LED_BMS_R, SHIFTREG_LED_BMS_G, SHIFTREG_LED_BMS_B);
-    ledMask |= boardStatusToRGBBits(fsm_status, SHIFTREG_LED_FSM_R, SHIFTREG_LED_FSM_G, SHIFTREG_LED_FSM_B);
-    ledMask |= boardStatusToRGBBits(rsm_status, SHIFTREG_LED_RSM_R, SHIFTREG_LED_RSM_G, SHIFTREG_LED_RSM_B);
-    ledMask |= boardStatusToRGBBits(vc_status, SHIFTREG_LED_VC_R, SHIFTREG_LED_VC_G, SHIFTREG_LED_VC_B);
-    ledMask |= boardStatusToRGBBits(crit_status, SHIFTREG_LED_CRIT_R, SHIFTREG_LED_CRIT_G, SHIFTREG_LED_CRIT_B);
+    LedReg_t leds = { 0 };
 
+    set_rgb_led(&leds.bits.rsm, rsm_status);
+    set_rgb_led(&leds.bits.crit, crit_status);
+    set_rgb_led(&leds.bits.fsm, fsm_status);
+    set_rgb_led(&leds.bits.bms, bms_status);
+    set_rgb_led(&leds.bits.vc, vc_status);
+    // TODO dam
+
+    if (push_drive)
+    {
+        leds.bits.push.r = 1;
+    }
     if (imd_fault_latched)
     {
-        ledMask |= SHIFTREG_LED_IMD;
+        leds.bits.imd = 1;
     }
     if (bspd_fault_latched)
     {
-        ledMask |= SHIFTREG_LED_BSPD;
+        leds.bits.bspd = 1;
     }
     if (ams_fault_latched)
     {
-        ledMask |= SHIFTREG_LED_AMS;
-    }
-    if (push_drive)
-    {
-        ledMask |= SHIFTREG_LED_PUSH_R;
+        leds.bits.ams = 1;
     }
     if (regen_light_on)
     {
-        ledMask |= SHIFTREG_LED_REGEN;
+        leds.bits.regen = 1;
     }
     if (torquevec_light_on)
     {
-        ledMask |= SHIFTREG_LED_TORQUE_VEC;
+        leds.bits.torqueVec = 1;
     }
     if (is_shdn_ok)
     {
-        // TODO: may need more logic for shutdown LED.
-        ledMask |= SHIFTREG_LED_SHDN_R;
+        // todo: diff colours maybe???
+        leds.bits.shdn.r = 1;
     }
 
-    // Convert 32-bit mask into bytes for the shift registers.
     uint8_t shiftBytes[4];
-    shiftBytes[0] = (uint8_t)((ledMask >> 0) & 0xFF);
-    shiftBytes[1] = (uint8_t)((ledMask >> 8) & 0xFF);
-    shiftBytes[2] = (uint8_t)((ledMask >> 16) & 0xFF);
-    shiftBytes[3] = (uint8_t)((ledMask >> 24) & 0xFF);
+    shiftBytes[0] = (uint8_t)(leds.value & 0xFF);
+    shiftBytes[1] = (uint8_t)((leds.value >> 8) & 0xFF);
+    shiftBytes[2] = (uint8_t)((leds.value >> 16) & 0xFF);
+    shiftBytes[3] = (uint8_t)((leds.value >> 24) & 0xFF);
 
-    io_shift_register_updateLedRegisters(shiftBytes, 4);
+    io_shift_register_updateLedRegisters(shiftBytes, LED_DATA_LENGTH);
 }

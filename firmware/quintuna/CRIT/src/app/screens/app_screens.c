@@ -1,42 +1,39 @@
-#include "app_screens.h"
 #include "io_rotary.h"
 #include "io_shift_register.h"
 
-static volatile uint8_t current_screen          = 0;
-Screen                 *screens[NUM_OF_SCREENS] = { &main_drive, &idk };
+#include "app_screens.h"
 
-void app_screens_update(void)
+/************************* Global Variables ***************************/
+static volatile uint8_t current_screen          = 0;
+Screen                 *screens[NUM_OF_SCREENS] = { &main_drive, &accel };
+
+/*********************** Static Function Declarations ***************************/
+static void app_screens_next(void);
+
+/*********************** Function Definitions ***************************/
+void app_screens_init(void)
 {
+    io_rotary_init();
+    io_rotary_setPushCallback(app_screens_next);
     io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data, DATA_LENGTH);
 }
 
-void app_screens_handle_rotary_clockwise(void)
+void app_screens_update(void)
 {
-    if (screens[current_screen]->cw_callback != NULL)
-    {
-        screens[current_screen]->cw_callback();
-    }
+    screens[current_screen]->update();
 }
 
-void app_screens_handle_rotary_ccw(void)
+static void app_screens_next(void)
 {
-    if (screens[current_screen]->ccw_callback != NULL)
-    {
-        screens[current_screen]->ccw_callback();
-    }
-}
+    current_screen++;
 
-void app_screens_set_current(uint8_t screen_index)
-{
-    if (screen_index < NUM_OF_SCREENS)
+    if (current_screen == NUM_OF_SCREENS)
     {
-        current_screen = screen_index;
-        app_screens_update();
+        current_screen = 0;
     }
-}
 
-void app_screens_next(void)
-{
-    current_screen = (uint8_t)((current_screen + 1) % NUM_OF_SCREENS);
     app_screens_update();
+    io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data, DATA_LENGTH);
+    io_rotary_setClockwiseCallback(screens[current_screen]->cw_callback);
+    io_rotary_setCounterClockwiseCallback(screens[current_screen]->ccw_callback);
 }
