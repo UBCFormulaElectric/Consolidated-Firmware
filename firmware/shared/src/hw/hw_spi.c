@@ -20,6 +20,7 @@ static ExitCode waitForNotification(const SpiDevice *device)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
         (void)HAL_SPI_Abort_IT(device->bus->handle);
+        LOG_WARN("SPI transaction timed out (did you forget to enable interrupts?)");
     }
 
     return transaction_timed_out ? EXIT_CODE_TIMEOUT : EXIT_CODE_OK;

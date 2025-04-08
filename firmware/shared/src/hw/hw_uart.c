@@ -17,6 +17,7 @@ static ExitCode waitForNotification(UartDevice *device)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
         (void)HAL_UART_Abort_IT(device->config.handle);
+        LOG_WARN("UART transaction timed out (did you forget to enable interrupts?)");
     }
 
     return transaction_timed_out ? EXIT_CODE_TIMEOUT : EXIT_CODE_OK;

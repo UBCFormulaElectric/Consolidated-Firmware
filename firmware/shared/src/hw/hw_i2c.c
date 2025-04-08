@@ -24,6 +24,7 @@ static ExitCode waitForNotification(const I2cDevice *device)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
         (void)HAL_I2C_Master_Abort_IT(device->bus->handle, (uint16_t)(device->target_address << 1));
+        LOG_WARN("I2C transaction timed out (did you forget to enable interrupts?)");
     }
 
     return transaction_timed_out ? EXIT_CODE_TIMEOUT : EXIT_CODE_OK;
