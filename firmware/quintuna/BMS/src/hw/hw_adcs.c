@@ -6,14 +6,14 @@ static float    adc1_adc_voltages[7];
 static uint16_t adc3_raw_adc_values[1];
 static float    adc3_adc_voltages[1];
 
-const AdcChip adc1 = { .hadc            = &hadc1,
+static const AdcChip adc1 = { .hadc            = &hadc1,
                        .htim            = &htim3,
                        .raw_adc_values  = adc1_raw_adc_values,
                        .adc_voltages    = adc1_adc_voltages,
                        .channel_count   = 7,
                        .is_differential = false };
 
-const AdcChip adc3 = { .hadc            = &hadc3,
+static const AdcChip adc3 = { .hadc            = &hadc3,
                        .htim            = &htim3,
                        .raw_adc_values  = adc3_raw_adc_values,
                        .adc_voltages    = adc3_adc_voltages,

@@ -66,7 +66,6 @@ void tasks_init(void)
 
     io_imd_init();
     io_tractiveSystem_init(&ts_config);
-    io_imd_init();
     io_chimera_init(GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
     io_sdGpio_init(&sd_gpio);
 
