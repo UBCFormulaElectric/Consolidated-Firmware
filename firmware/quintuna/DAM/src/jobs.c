@@ -8,15 +8,6 @@
 void jobs_init()
 {
     io_rtc_init();
-
-    IoRtcTime time = {
-        .seconds = 50,
-        .minutes = 16,
-        .hours   = 19,
-        .day     = 7,
-        .month   = 4,
-        .year    = 25, // 2023
-    };
 }
 
 void jobs_run1Hz_tick(void) {}
