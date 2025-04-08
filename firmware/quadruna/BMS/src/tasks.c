@@ -5,7 +5,7 @@
 
 #include "hw_adcs.h"
 #include "hw_hardFaultHandler.h"
-// #include "hw_bootup.h"
+#include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_pwmInput.h"
 #include "hw_watchdogConfig.h"
@@ -29,13 +29,6 @@
 
 #include "shared.pb.h"
 
-static const PwmInputConfig imd_pwm_input_config = {
-    .htim                     = &htim1,
-    .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
-    .rising_edge_tim_channel  = TIM_CHANNEL_1,
-    .falling_edge_tim_channel = TIM_CHANNEL_2,
-};
-
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
                                     .pin  = SD_CD_Pin,
@@ -49,7 +42,7 @@ static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = &t
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
@@ -71,8 +64,8 @@ void tasks_init(void)
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_can_init(&can1);
 
+    io_imd_init();
     io_tractiveSystem_init(&ts_config);
-    io_imd_init(&imd_pwm_input_config);
     io_chimera_init(GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
     io_sdGpio_init(&sd_gpio);
 

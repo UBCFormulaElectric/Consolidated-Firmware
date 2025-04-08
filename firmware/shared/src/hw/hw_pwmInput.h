@@ -25,17 +25,12 @@
  */
 typedef struct
 {
+    float              duty_cycle;
+    float              frequency_hz;
     TIM_HandleTypeDef *htim;
     float              timer_frequency_hz;
     uint32_t           rising_edge_tim_channel;
     uint32_t           falling_edge_tim_channel;
-} PwmInputConfig;
-
-typedef struct
-{
-    float                 duty_cycle;
-    float                 frequency_hz;
-    const PwmInputConfig *config;
 } PwmInput;
 
 /**
@@ -43,7 +38,7 @@ typedef struct
  * @param pwm_input PWM input instance.
  * @param config Configuration struct.
  */
-void io_pwmInput_init(PwmInput *pwm_input, const PwmInputConfig *config);
+void hw_pwmInput_init(PwmInput *pwm_input);
 
 /**
  * Update the frequency and duty cycle for the given PWM input

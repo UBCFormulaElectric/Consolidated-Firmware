@@ -4,13 +4,6 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
-#include "hw_pwmInput.h"
-#include "main.h"
-
-/**
- * Initialize the PWM input for measuring the IMD's PWM output
- */
-void io_imd_init(void);
 
 /**
  * Updates the frequency and duty cycle for the IMD's PWM output. This should

@@ -581,7 +581,6 @@ static void MX_SDMMC1_SD_Init(void)
         sd_inited = false;
         return;
     }
-    return;
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
