@@ -7,18 +7,18 @@ static uint16_t adc3_raw_adc_values[1];
 static float    adc3_adc_voltages[1];
 
 static const AdcChip adc1 = { .hadc            = &hadc1,
-                       .htim            = &htim3,
-                       .raw_adc_values  = adc1_raw_adc_values,
-                       .adc_voltages    = adc1_adc_voltages,
-                       .channel_count   = 7,
-                       .is_differential = false };
+                              .htim            = &htim3,
+                              .raw_adc_values  = adc1_raw_adc_values,
+                              .adc_voltages    = adc1_adc_voltages,
+                              .channel_count   = 7,
+                              .is_differential = false };
 
 static const AdcChip adc3 = { .hadc            = &hadc3,
-                       .htim            = &htim3,
-                       .raw_adc_values  = adc3_raw_adc_values,
-                       .adc_voltages    = adc3_adc_voltages,
-                       .channel_count   = 1,
-                       .is_differential = false };
+                              .htim            = &htim3,
+                              .raw_adc_values  = adc3_raw_adc_values,
+                              .adc_voltages    = adc3_adc_voltages,
+                              .channel_count   = 1,
+                              .is_differential = false };
 
 const AdcChannel fan_isns     = { .voltage = &adc1_adc_voltages[0] };
 const AdcChannel ts_vsense_p  = { .voltage = &adc1_adc_voltages[1] };
