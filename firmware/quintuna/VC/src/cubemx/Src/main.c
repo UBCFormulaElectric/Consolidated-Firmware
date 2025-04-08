@@ -131,6 +131,18 @@ const osThreadAttr_t TaskBtrMonitor_attributes = {
     .stack_size = sizeof(TaskBatteryMoniBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -156,6 +168,7 @@ void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskBtrMonitor(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -249,6 +262,9 @@ int main(void)
 
     /* creation of TaskBtrMonitor */
     TaskBtrMonitorHandle = osThreadNew(RunTaskBtrMonitor, NULL, &TaskBtrMonitor_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -353,10 +369,10 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
     PeriphClkInitStruct.PLL3.PLL3M           = 1;
-    PeriphClkInitStruct.PLL3.PLL3N           = 100;
+    PeriphClkInitStruct.PLL3.PLL3N           = 24;
     PeriphClkInitStruct.PLL3.PLL3P           = 2;
-    PeriphClkInitStruct.PLL3.PLL3Q           = 8;
-    PeriphClkInitStruct.PLL3.PLL3R           = 5;
+    PeriphClkInitStruct.PLL3.PLL3Q           = 4;
+    PeriphClkInitStruct.PLL3.PLL3R           = 2;
     PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3VCIRANGE_3;
     PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3VCOWIDE;
     PeriphClkInitStruct.PLL3.PLL3FRACN       = 0;
@@ -1219,6 +1235,21 @@ void RunTaskBtrMonitor(void *argument)
     /* Infinite loop */
     tasks_batteryMonitoring();
     /* USER CODE END RunTaskBtrMonitor */
+}
+
+/* USER CODE BEGIN Header_RunTaskChimera */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
 }
 
 /**
