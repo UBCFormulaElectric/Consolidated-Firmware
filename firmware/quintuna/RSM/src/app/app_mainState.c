@@ -6,6 +6,8 @@
 #include "app_coolant.h"
 // #include "app_loadCell.h"
 #include "app_suspension.h"
+#include "app_imu.h"
+#include "app_brake.h"
 #include "app_heartbeatMonitors.h"
 
 #include "io_leds.h"
@@ -13,7 +15,9 @@
 void mainStateRunOnTick100Hz(void)
 {
     app_coolant_broadcast();
-    // app_suspension_broadcast();
+    app_suspension_broadcast();
+    app_imu_broadcast();
+    app_brake_broadcast();
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
