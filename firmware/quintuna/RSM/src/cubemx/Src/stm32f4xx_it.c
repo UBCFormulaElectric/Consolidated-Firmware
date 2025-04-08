@@ -173,7 +173,7 @@ void DebugMon_Handler(void)
 void ADC_IRQHandler(void)
 {
     /* USER CODE BEGIN ADC_IRQn 0 */
-    
+
     /* USER CODE END ADC_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc1);
     /* USER CODE BEGIN ADC_IRQn 1 */

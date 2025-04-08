@@ -9,17 +9,17 @@
  * Checks rPump is communitcating over I2C
  * @return True if the I2C is ready
  */
-bool    io_rPump_isPumpReady();
+bool io_rPump_isPumpReady();
 
 /**
- * 
- * @param data 
- * @return 
+ *
+ * @param data
+ * @return
  */
-void    io_rPump_write(uint8_t data);
+void io_rPump_write(uint8_t data);
 
 /**
- * 
+ *
  * @return
  */
 uint8_t io_rPump_read();
@@ -27,13 +27,13 @@ uint8_t io_rPump_read();
 #endif
 
 /**
- * 
- * @param percentage 
+ *
+ * @param percentage
  */
-void    io_rPump_setPercentage(float percentage);
+void io_rPump_setPercentage(float percentage);
 
 /**
- * 
- * @return 
+ *
+ * @return
  */
-float   io_rPump_readPercentage();
+float io_rPump_readPercentage();

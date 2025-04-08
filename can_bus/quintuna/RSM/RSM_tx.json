@@ -42,7 +42,7 @@
     "SuspensionTravel": {
         "msg_id": 703,
         "cycle_time": 1000,
-        "description": "Rear right suspension travel",
+        "description": "Suspension travel",
         "signals": {
             "RearRightSuspensionTravel": {
                 "resolution": 0.1,

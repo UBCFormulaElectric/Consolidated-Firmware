@@ -9,6 +9,7 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_jsoncan.h"
+#include "io_coolants.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
@@ -40,7 +41,6 @@ void tasks_init()
     hw_adcs_chipsInit();
     hw_can_init(&can2);
     jobs_init();
-
 }
 
 void tasks_deinit()
@@ -57,8 +57,6 @@ void tasks_deinit()
     HAL_DMA_Abort_IT(&hdma_adc1);
     HAL_DMA_DeInit(&hdma_adc1);
 }
-
-
 
 _Noreturn void tasks_run1Hz()
 {
@@ -125,4 +123,9 @@ _Noreturn void tasks_runCanRx(void)
         JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&msg);
         io_canRx_updateRxTableWithMessage(&json_msg);
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_coolant_inputCaptureCallback();
 }

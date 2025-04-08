@@ -8,7 +8,7 @@
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
-//testing
+// testing
 #include "io_leds.h"
 #include "app_timer.h"
 
@@ -33,14 +33,13 @@ void jobs_init(void)
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
 
-    app_timer_init(&timerGPIO,100);
-    app_timer_restart(&timerGPIO); 
+    app_timer_init(&timerGPIO, 100);
+    app_timer_restart(&timerGPIO);
 }
 
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
-    
 }
 bool gpio_state = false;
 void jobs_run100Hz_tick(void)
@@ -53,7 +52,7 @@ void jobs_run100Hz_tick(void)
     if (state == TIMER_STATE_EXPIRED)
     {
         io_led_enable(&led, !gpio_state);
-        app_timer_restart(&timerGPIO); 
+        app_timer_restart(&timerGPIO);
         gpio_state = !gpio_state;
     }
 }

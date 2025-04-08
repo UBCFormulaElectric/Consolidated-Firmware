@@ -1,6 +1,7 @@
 #include "hw_i2cs.h"
 
-//SOURCE: https://datasheet.ciiva.com/41459/001083254-da-01-en-ic-dgtl-pot-mcp4661-502e-st-tssop-14-mcp-41459017.pdf?src-supplier=Conrad
+// SOURCE:
+// https://datasheet.ciiva.com/41459/001083254-da-01-en-ic-dgtl-pot-mcp4661-502e-st-tssop-14-mcp-41459017.pdf?src-supplier=Conrad
 #define MAX_WIPER_VALUE (256.0f)
 #define MIN_WIPER_VALUE (0.0f)
 #define RPUMP_WIPER_REGISTER (0x02)
@@ -31,7 +32,7 @@ bool io_rPump_setPercentage(float percentage)
         percentage = 0.0f;
     }
     uint8_t data = (uint8_t)((1.0f - (percentage / 100.0f)) * MAX_WIPER_VALUE);
-    return io_rPump_write(data); 
+    return io_rPump_write(data);
 }
 
 bool io_rPump_readPercentage(float *dest)
