@@ -2,15 +2,23 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
-// chimera
-#include "io_chimeraConfig_v2.h"
-#include "io_chimera_v2.h"
-#include "shared.pb.h"
 
 // hw
 #include "hw_usb.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
+#include "hw_pwms.h"
+#include "hw_watchdogConfig.h"
+
+// chimera
+#include "hw_chimeraConfig_v2.h"
+#include "hw_chimera_v2.h"
+#include "shared.pb.h"
+
+void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
+}
 
 void tasks_preInit(void)
 {
@@ -22,6 +30,8 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     hw_usb_init();
     hw_adcs_chipsInit();
+    hw_pwms_init();
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 }
 
 void tasks_run1Hz(void)
@@ -41,8 +51,6 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -54,6 +62,8 @@ void tasks_run1kHz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+        hw_watchdog_checkForTimeouts();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -67,6 +77,7 @@ void tasks_runCanTx(void)
         hw_can_transmit(&can1, &tx_msg);
     }
 }
+
 void tasks_runCanRx(void)
 {
     for (;;)

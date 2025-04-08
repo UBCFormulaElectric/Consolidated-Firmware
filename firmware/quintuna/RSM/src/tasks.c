@@ -10,8 +10,8 @@
 #include "io_canTx.h"
 #include "io_jsoncan.h"
 // chimera
-#include "io_chimera_v2.h"
-#include "io_chimeraConfig_v2.h"
+#include "hw_chimera_v2.h"
+#include "hw_chimeraConfig_v2.h"
 #include "shared.pb.h"
 // hw
 // #include "hw_bootup.h"
@@ -41,6 +41,11 @@ void tasks_init()
     jobs_init();
 }
 
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
+}
+
 _Noreturn void tasks_run1Hz()
 {
     static const TickType_t period_ms   = 1000U;
@@ -48,7 +53,7 @@ _Noreturn void tasks_run1Hz()
 
     for (;;)
     {
-        if (!io_chimera_v2_enabled)
+        if (!hw_chimera_v2_enabled)
             jobs_run1Hz_tick();
 
         start_ticks += period_ms;
@@ -63,9 +68,7 @@ _Noreturn void tasks_run100Hz()
 
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
-
-        if (!io_chimera_v2_enabled)
+        if (!hw_chimera_v2_enabled)
             jobs_run100Hz_tick();
 
         start_ticks += period_ms;
@@ -80,7 +83,7 @@ _Noreturn void tasks_run1kHz()
 
     for (;;)
     {
-        if (!io_chimera_v2_enabled)
+        if (!hw_chimera_v2_enabled)
             jobs_run1kHz_tick();
 
         start_ticks += period_ms;

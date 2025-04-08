@@ -1,8 +1,7 @@
 #include "states/app_allStates.h"
-#include "app_utils.h"
 #include "io_airs.h"
 #include "io_faultLatch.h"
-#include "io_airs.h"
+#include "app_tractiveSystem.h"
 
 static void faultStateRunOnEntry(void)
 {
@@ -23,7 +22,7 @@ static void faultStateRunOnTick100Hz(void)
     if (app_allStates_runOnTick100Hz())
     {
         const bool acc_fault_cleared = !app_accumulator_checkFaults();
-        const bool ts_fault_cleared  = !app_tractveSystem_checkFaults();
+        const bool ts_fault_cleared  = !app_tractiveSystem_checkFaults();
         const bool precharge_ok      = !globals->precharge_limit_exceeded;
         const bool air_negative_open = !io_airs_isNegativeClosed();
 
