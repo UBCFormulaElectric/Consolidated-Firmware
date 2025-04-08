@@ -67,12 +67,12 @@ typedef enum
 #define IS_EXIT_OK(code) ((code) == EXIT_CODE_OK)
 #define IS_EXIT_ERR(code) ((code) != EXIT_CODE_OK)
 
-#define RETURN_IF_ERR(err_expr)              \
-    {                                  \
-        const ExitCode exit = err_expr; \
-        if (!IS_EXIT_OK(exit))               \
-        {                              \
-            LOG_ERROR(#err_expr " returned an error: %d", exit);                            \
-            return exit;                \
-        }                              \
+#define RETURN_IF_ERR(err_expr)                                  \
+    {                                                            \
+        const ExitCode exit = err_expr;                          \
+        if (!IS_EXIT_OK(exit))                                   \
+        {                                                        \
+            LOG_ERROR(#err_expr " returned an error: %d", exit); \
+            return exit;                                         \
+        }                                                        \
     }
