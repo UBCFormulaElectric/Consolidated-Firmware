@@ -8,9 +8,12 @@
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
+#include "io_coolants.h"
+#include "io_log.h"
 // testing
 #include "io_leds.h"
 #include "app_timer.h"
+#include <stdio.h>
 
 TimerChannel timerGPIO;
 
@@ -32,6 +35,7 @@ void jobs_init(void)
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
+    io_coolant_init();
 
     app_timer_init(&timerGPIO, 100);
     app_timer_restart(&timerGPIO);
@@ -42,6 +46,7 @@ void jobs_run1Hz_tick(void)
     io_canTx_enqueue1HzMsgs();
 }
 bool gpio_state = false;
+
 void jobs_run100Hz_tick(void)
 {
     io_canTx_enqueue100HzMsgs();
@@ -55,6 +60,9 @@ void jobs_run100Hz_tick(void)
         app_timer_restart(&timerGPIO);
         gpio_state = !gpio_state;
     }
+
+    LOG_INFO("Flow rate: %.2f L/min", (double)io_coolant_getFlowRate());
+    
 }
 
 void jobs_run1kHz_tick(void)
