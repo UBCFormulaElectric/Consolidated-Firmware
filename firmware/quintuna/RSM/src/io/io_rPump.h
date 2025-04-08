@@ -3,7 +3,6 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_i2cs.h"
-#include "hw_i2c.h"
 
 /**
  * Checks rPump is communitcating over I2C
