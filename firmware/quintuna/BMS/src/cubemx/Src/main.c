@@ -1203,11 +1203,7 @@ void RunTaskChimera(void *argument)
 void RunTaskLTC(void *argument)
 {
     /* USER CODE BEGIN RunTaskLTC */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_runLtc();
     /* USER CODE END RunTaskLTC */
 }
 
