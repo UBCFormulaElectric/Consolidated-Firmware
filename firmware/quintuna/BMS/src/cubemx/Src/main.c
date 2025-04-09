@@ -134,7 +134,19 @@ const osThreadAttr_t TaskChimera_attributes = {
     .cb_size    = sizeof(TaskChimeraControlBlock),
     .stack_mem  = &TaskChimeraBuffer[0],
     .stack_size = sizeof(TaskChimeraBuffer),
-    .priority   = (osPriority_t)osPriorityHigh,
+    .priority   = (osPriority_t)osPriorityLow,
+};
+/* Definitions for TaskLTC */
+osThreadId_t         TaskLTCHandle;
+uint32_t             TaskLTCBuffer[512];
+osStaticThreadDef_t  TaskLTCControlBlock;
+const osThreadAttr_t TaskLTC_attributes = {
+    .name       = "TaskLTC",
+    .cb_mem     = &TaskLTCControlBlock,
+    .cb_size    = sizeof(TaskLTCControlBlock),
+    .stack_mem  = &TaskLTCBuffer[0],
+    .stack_size = sizeof(TaskLTCBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal1,
 };
 /* USER CODE BEGIN PV */
 
@@ -162,6 +174,7 @@ void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskChimera(void *argument);
+void        RunTaskLTC(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -255,6 +268,9 @@ int main(void)
 
     /* creation of TaskChimera */
     TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+
+    /* creation of TaskLTC */
+    TaskLTCHandle = osThreadNew(RunTaskLTC, NULL, &TaskLTC_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1175,6 +1191,24 @@ void RunTaskChimera(void *argument)
     /* Infinite loop */
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
+}
+
+/* USER CODE BEGIN Header_RunTaskLTC */
+/**
+ * @brief Function implementing the TaskLTC thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLTC */
+void RunTaskLTC(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLTC */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskLTC */
 }
 
 /**
