@@ -424,10 +424,10 @@ class JsonCanParser:
         #
         # if a message is transmitted on a non-FD bus then forward it to the FD bus
         # for every message
-        # for all the bus that the message is transmitted on
-        # if exists a FD bus then skip
-        # else add the message to the reroute list and reroute it to the FD bus
-        # pick a non-fd bus and reroute the message to FD bus
+        #   for all the bus that the message is transmitted on
+        #   if exists a FD bus then skip
+        #   else add the message to the reroute list and reroute it to the FD bus
+        #       pick a non-fd bus and reroute the message to FD bus
         if fd_bus_obj is not None:
             for message in messages:
                 tx_buses = message.bus
@@ -447,8 +447,7 @@ class JsonCanParser:
 
         # for every message on system
         # for every rx node of the message
-
-        
+        #   if the message is on the same bus as the tx bus then skip
         for message in messages:
             tx_buses = message.bus
             rx_nodes = message.rx_nodes
@@ -459,6 +458,7 @@ class JsonCanParser:
                 rx_bus = self._can_rx[rx_node].find_bus(message.name)
 
                 if rx_bus is None:
+                    # usually the Alert messages
                     continue
                     raise InvalidCanJson(
                         f"Message '{message.name}' is received by node '{rx_node}', but is not defined in the RX JSON."
@@ -467,7 +467,7 @@ class JsonCanParser:
                 # if message is recieved on fd bus then skip as it is handled by the frist for loop
                 if fd_bus_obj != None and rx_bus == fd_bus_obj.name:
                     continue
-                # recieved on the same bus as transmitted
+                # skip if the message is recieved on the same bus as is transmitted
                 if rx_bus in tx_buses:
                     continue
                 
