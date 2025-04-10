@@ -1,6 +1,6 @@
 {
   "Vitals": {
-    "msg_id": 900,
+    "msg_id": 800,
     "bus": ["Can"],
     "cycle_time": 100,
     "description": "CRIT vitals message.",
@@ -14,7 +14,7 @@
     }
   },
   "Switches": {
-    "msg_id": 910,
+    "msg_id": 810,
     "bus": ["Can"],
     "cycle_time": 100,
     "description": "States of the switches on the CRIT.",
@@ -31,7 +31,7 @@
     }
   },
   "DriveMode": {
-    "msg_id": 911,
+    "msg_id": 811,
     "bus": ["Can"],
     "cycle_time": 100,
     "description": "Drive Mode.",
@@ -42,16 +42,16 @@
     }
   },
   "AlertsContext": {
-    "msg_id": 912,
+    "msg_id": 812,
     "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Context info for CRIT alerts",
     "signals": {
       "TxOverflowCount": {
-        "bits": 9
+        "bits": 8
       },
       "RxOverflowCount": {
-        "bits": 9
+        "bits": 8
       },
       "WatchdogTimeoutTaskName": {
         "enum": "RtosTaskName"
@@ -59,7 +59,7 @@
     }
   },
   "CommitInfo": {
-    "msg_id": 913,
+    "msg_id": 813,
     "bus": ["Can"],
     "cycle_time": 100,
     "description": "CRIT Current Running Git Commit Info",
@@ -73,7 +73,7 @@
     }
   },
   "CRITShdnNodeStatus": {
-    "msg_id": 914,
+    "msg_id": 814,
     "bus": ["Can"],
     "cycle_time": 100,
     "description": "CRIT Shutdown Node Status",
@@ -87,7 +87,7 @@
     }
   },
   "WatermarkLevel": {
-    "msg_id": 915,
+    "msg_id": 815,
     "bus": ["Can"],
     "cycle_time": 100,
     "description": "",

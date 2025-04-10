@@ -10,7 +10,7 @@
         "--board",
         "VC",
         "--can_data_dir",
-        "${workspaceRoot}/can_bus/quadruna",
+        "${workspaceRoot}/can_bus/quintuna",
         "--output_dir",
         "temp",
         "--dbc_output",

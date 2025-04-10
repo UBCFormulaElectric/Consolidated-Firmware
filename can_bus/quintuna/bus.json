@@ -3,17 +3,7 @@
   "buses": [
     {
       "name": "Can",
-      "nodes": [
-        "VC",
-        "BMS",
-        "FSM",
-        "RSM",
-        "CRIT",
-        "Debug",
-        "Boot",
-        "BRUSA",
-        "DAM"
-      ],
+      "nodes": ["VC", "BMS", "FSM", "RSM", "CRIT", "Debug", "Boot", "DAM", "Elcon"],
       "bus_speed": 500,
       "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"

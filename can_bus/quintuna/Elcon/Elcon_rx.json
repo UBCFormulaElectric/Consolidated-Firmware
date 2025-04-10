@@ -1,6 +1,6 @@
 [
   {
     "bus": "Can",
-    "messages": ["BMS_BrusaControls"]
+    "messages": ["BMS_ElconControls"]
   }
 ]
