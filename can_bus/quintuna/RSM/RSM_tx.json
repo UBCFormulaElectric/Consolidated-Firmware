@@ -1,28 +1,30 @@
 {
     "Vitals": {
-        "msg_id": 700,
-        "cycle_time": 100,
-        "description": "RSM vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "RsmStates"
-            }
+      "msg_id": 700,
+      "bus": ["Can"],
+      "cycle_time": 100,
+      "description": "RSM vitals message.",
+      "signals": {
+        "Heartbeat": {
+          "bits": 1
+        },
+        "State": {
+          "enum": "RsmStates"
         }
+      }
     },
     "CommitInfo": {
-        "msg_id": 706,
-        "cycle_time": 100,
-        "description": "RSM Commit Info",
-        "signals": {
-            "Hash": {
-                "bits": 32
-            },
-            "Clean": {
-                "bits": 1
-            }
+      "msg_id": 706,
+      "bus": ["Can"],
+      "cycle_time": 100,
+      "description": "RSM Commit Info",
+      "signals": {
+        "Hash": {
+          "bits": 32
+        },
+        "Clean": {
+          "bits": 1
         }
+      }
     }
 }

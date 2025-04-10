@@ -1,6 +1,7 @@
 {
   "Vitals": {
     "msg_id": 451,
+    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Elcon charger status flags and parameters",
     "signals": {

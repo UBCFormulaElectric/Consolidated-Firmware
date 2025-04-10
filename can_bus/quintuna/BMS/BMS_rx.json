@@ -1,3 +1,8 @@
-{
-  "messages": ["Elcon_Vitals"]
-}
+[
+  {
+    "bus": "Can",
+    "messages": [
+      "Elcon_Vitals"
+    ]
+  }  
+]

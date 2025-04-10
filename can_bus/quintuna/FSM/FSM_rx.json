@@ -1,5 +1,6 @@
-{
-    "messages": [
-        "Debug_CanMode"
-    ]
-}
+[
+  {
+    "bus": "Can",
+    "messages": ["Debug_CanMode"]
+  }
+]
