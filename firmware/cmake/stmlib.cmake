@@ -231,6 +231,5 @@ function(stm32h733xx_cube_library
             INTERFACE
             USE_HAL_DRIVER
             STM32H733xx
-            CANFD
     )
 endfunction()

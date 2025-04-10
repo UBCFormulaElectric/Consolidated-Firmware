@@ -17,7 +17,15 @@
 #include "hw_utils.h"
 #include "hw_crc.h"
 #include "hw_hal.h"
+
+#ifdef STM32H733xx
+#include "hw_fdcan.h"
+#elif STM32F412Rx
 #include "hw_can.h"
+#else
+#error "Please define what MCU is used"
+#endif
+
 #include <assert.h>
 
 extern CRC_HandleTypeDef hcrc;
