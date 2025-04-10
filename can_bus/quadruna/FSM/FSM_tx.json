@@ -1,7 +1,7 @@
 {
   "Vitals": {
-    "bus": ["Can"],
     "msg_id": 300,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "FSM vitals message.",
     "signals": {
@@ -14,8 +14,8 @@
     }
   },
   "AlertsContext": {
-    "bus": ["Can"],
     "msg_id": 301,
+    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Context info for FSM alerts",
     "signals": {
@@ -34,8 +34,8 @@
     }
   },
   "CommitInfo": {
-    "bus": ["Can"],
     "msg_id": 302,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "FSM Current Running Git Commit Info",
     "signals": {
@@ -48,8 +48,8 @@
     }
   },
   "Steering": {
-    "bus": ["Can"],
     "msg_id": 303,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Steering angle.",
     "signals": {
@@ -62,8 +62,8 @@
     }
   },
   "Wheels": {
-    "bus": ["Can"],
     "msg_id": 304,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Front left and right wheel speeds.",
     "signals": {
@@ -82,8 +82,8 @@
     }
   },
   "Apps": {
-    "bus": ["Can"],
     "msg_id": 305,
+    "bus": ["Can"],
     "cycle_time": 10,
     "description": "Primary (P) and secondary (S) accelerator percentages.",
     "signals": {
@@ -114,8 +114,8 @@
     }
   },
   "Brake": {
-    "bus": ["Can"],
     "msg_id": 306,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Front and rear brake pressures.",
     "signals": {
@@ -137,9 +137,9 @@
     }
   },
   "Suspension": {
-    "bus": ["Can"],
     "disabled": true,
     "msg_id": 307,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Suspension travel.",
     "signals": {
@@ -158,9 +158,9 @@
     }
   },
   "LoadCell": {
-    "bus": ["Can"],
     "disabled": true,
     "msg_id": 308,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Load cell mechanical loads.",
     "signals": {
@@ -179,8 +179,8 @@
     }
   },
   "FSMShdnNodeStatus": {
-    "bus": ["Can"],
     "msg_id": 309,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "FSM Shutdown Node Status",
     "signals": {

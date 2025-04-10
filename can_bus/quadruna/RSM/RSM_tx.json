@@ -1,7 +1,7 @@
 {
   "AlertsContext": {
-    "bus": ["Can"],
     "msg_id": 414,
+    "bus": ["Can"],
     "cycle_time": 1000,
     "signals": {
       "WatchdogTimeoutTaskName": {
@@ -16,8 +16,8 @@
     }
   },
   "Vitals": {
-    "bus": ["Can"],
     "msg_id": 415,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "RSM vitals message.",
     "signals": {
@@ -30,8 +30,8 @@
     }
   },
   "Coolant": {
-    "bus": ["Can"],
     "msg_id": 416,
+    "bus": ["Can"],
     "cycle_time": 1000,
     "signals": {
       "CoolantFlowRate": {
@@ -67,9 +67,9 @@
     }
   },
   "Suspension": {
-    "bus": ["Can"],
     "disabled": true,
     "msg_id": 417,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Suspension travel.",
     "signals": {
@@ -88,9 +88,9 @@
     }
   },
   "LoadCell": {
-    "bus": ["Can"],
     "disabled": true,
     "msg_id": 418,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Mechanical load on load cell",
     "signals": {
@@ -107,8 +107,8 @@
     }
   },
   "CommitInfo": {
-    "bus": ["Can"],
     "msg_id": 419,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "RSM Current Running Git Commit Info",
     "signals": {
@@ -121,8 +121,8 @@
     }
   },
   "BrakeLight": {
-    "bus": ["Can"],
     "msg_id": 420,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "BrakeLight",
     "signals": {
@@ -132,8 +132,8 @@
     }
   },
   "Fans": {
-    "bus": ["Can"],
     "msg_id": 421,
+    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Accumulator and Radiator fan",
     "signals": {
