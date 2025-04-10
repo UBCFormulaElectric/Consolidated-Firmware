@@ -1,5 +1,8 @@
-{
+[
+  {
+    "bus": "Can",
     "messages": [
-        "Elcon_Vitals"
+      "Elcon_Vitals"
     ]
-}
+  }  
+]
