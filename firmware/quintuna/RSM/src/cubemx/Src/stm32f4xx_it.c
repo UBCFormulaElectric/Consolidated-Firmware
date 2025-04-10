@@ -22,6 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -172,11 +173,11 @@ void DebugMon_Handler(void)
 void ADC_IRQHandler(void)
 {
     /* USER CODE BEGIN ADC_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END ADC_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc1);
     /* USER CODE BEGIN ADC_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END ADC_IRQn 1 */
 }
 
@@ -186,11 +187,11 @@ void ADC_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM2_IRQn 0 */
-
+    // traceISR_ENTER();
     /* USER CODE END TIM2_IRQn 0 */
     HAL_TIM_IRQHandler(&htim2);
     /* USER CODE BEGIN TIM2_IRQn 1 */
-
+    // traceISR_EXIT();
     /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -257,11 +258,11 @@ void TIM6_IRQHandler(void)
 void DMA2_Stream0_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END DMA2_Stream0_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc1);
     /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
@@ -327,11 +328,11 @@ void CAN2_SCE_IRQHandler(void)
 void OTG_FS_IRQHandler(void)
 {
     /* USER CODE BEGIN OTG_FS_IRQn 0 */
-
+    traceISR_ENTER();
     /* USER CODE END OTG_FS_IRQn 0 */
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
     /* USER CODE BEGIN OTG_FS_IRQn 1 */
-
+    traceISR_EXIT();
     /* USER CODE END OTG_FS_IRQn 1 */
 }
 

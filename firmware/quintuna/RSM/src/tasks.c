@@ -10,8 +10,8 @@
 #include "io_canTx.h"
 #include "io_jsoncan.h"
 // chimera
-#include "io_chimera_v2.h"
-#include "io_chimeraConfig_v2.h"
+#include "hw_chimera_v2.h"
+#include "hw_chimeraConfig_v2.h"
 #include "shared.pb.h"
 // hw
 // #include "hw_bootup.h"
@@ -19,6 +19,7 @@
 #include "hw_watchdog.h"
 #include "hw_cans.h"
 #include "hw_gpios.h"
+#include "hw_adcs.h"
 
 void tasks_preInit()
 {
@@ -35,6 +36,8 @@ void tasks_init()
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_gpio_writePin(&brake_light_en_pin, false);
 
+    hw_adcs_chipsInit();
+    hw_can_init(&can2);
     jobs_init();
 }
 
@@ -45,7 +48,8 @@ _Noreturn void tasks_run1Hz()
 
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -59,11 +63,10 @@ _Noreturn void tasks_run100Hz()
 
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(
-            GpioNetName_rsm_net_name_tag, id_to_gpio, AdcNetName_rsm_net_name_tag, id_to_adc,
-            I2cNetName_rsm_net_name_tag, id_to_i2c, SpiNetName_rsm_net_name_tag, id_to_spi);
+        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
 
-        jobs_run100Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run100Hz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -77,7 +80,8 @@ _Noreturn void tasks_run1kHz()
 
     for (;;)
     {
-        jobs_run1kHz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1kHz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
