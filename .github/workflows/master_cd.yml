@@ -103,6 +103,7 @@ jobs:
             quadruna_RSM_app_metadata.hex/quadruna_RSM_app_metadata.hex
             quadruna_CRIT_app_metadata.hex/quadruna_CRIT_app_metadata.hex
             quadruna.dbc/quadruna.dbc
+            quintuna.dbc/quintuna.dbc
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
