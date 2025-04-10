@@ -24,6 +24,7 @@ class AppCanAlertsModule(CModule):
             for node in self._db.nodes
             if self._db.node_alerts(node, CanAlertType.FAULT)
             or self._db.node_alerts(node, CanAlertType.WARNING)
+            or self._db.node_alerts(node, CanAlertType.INFO)
         ]
         return nodes_with_alerts
 
@@ -32,11 +33,9 @@ class AppCanAlertsModule(CModule):
 
     def get_rx_fault(self):
         return self._db.node_rx_alerts(self._node, CanAlertType.FAULT)
-    
+
     def get_rx_info(self):
         return self._db.node_rx_alerts(self._node, CanAlertType.INFO)
-    
-
 
     def source_template(self):
         template = load_template("app_canAlerts.c.j2")

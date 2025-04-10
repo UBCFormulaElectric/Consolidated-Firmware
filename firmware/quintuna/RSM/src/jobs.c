@@ -25,7 +25,7 @@ void jobs_init(void)
     app_canTx_RSM_Heartbeat_set(true);
 
     io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
 }
 

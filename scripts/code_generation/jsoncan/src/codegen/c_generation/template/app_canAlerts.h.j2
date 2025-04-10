@@ -77,6 +77,11 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board);
 bool app_canAlerts_BoardHasFault(CanAlertBoard board);
 
 /**
+ * Return whether or not a board has set a info.
+ */
+bool app_canAlerts_BoardHasInfo(CanAlertBoard board);
+
+/**
  * Return whether or not any board has set a warning.
  */
 bool app_canAlerts_AnyBoardHasWarning(void);
@@ -85,6 +90,11 @@ bool app_canAlerts_AnyBoardHasWarning(void);
  * Return whether or not any board has set a fault.
  */
 bool app_canAlerts_AnyBoardHasFault(void);
+
+/**
+ * Return whether or not any board has set a info.
+ */
+bool app_canAlerts_AnyBoardHasInfo(void);
 
 /**
  * Return whether or not a board has set a warning.

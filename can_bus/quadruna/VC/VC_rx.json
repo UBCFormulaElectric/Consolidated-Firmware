@@ -7,7 +7,6 @@
       "BMS_CellTemperatures",
       "BMS_VoltageAndChargeStats",
       "BMS_OkStatuses",
-      "BMS_TractiveSystem",
       "BMS_Vitals",
       "CRIT_CRITShdnNodeStatus",
       "CRIT_Switches",

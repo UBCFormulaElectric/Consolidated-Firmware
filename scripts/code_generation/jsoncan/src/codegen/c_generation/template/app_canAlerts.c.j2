@@ -110,12 +110,52 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
     return false;
 }
 
+bool app_canAlerts_BoardHasInfo(CanAlertBoard board)
+{
+    switch (board)
+    {
+        {%- for board in boards %}
+        case {{board}}_ALERT_BOARD :
+        {
+            {% for alert in alerts[board] %}
+            {%- if alert.alert_type == CanAlertType.INFO -%}
+            {%- if board == node -%}
+            if (app_canTx_{{ alert.name }}_get()) 
+            {
+                return true;
+            }
+            {%- else -%}
+            if (app_canRx_{{ alert.name }}_get()) 
+            {
+                return true;
+            }
+            {%- endif -%}
+            {% endif -%}
+            {% endfor %}
+            break;
+        }
+        {% endfor %}
+        
+        default:
+        {
+            // Do nothing
+            break;
+        }
+    }
+    
+    return false;
+}
+
 bool app_canAlerts_AnyBoardHasWarning()
 {
-    if (app_canAlerts_BoardHasWarning({{node}}_ALERT_BOARD))
+
+    {% for board in boards %}
+    if (app_canAlerts_BoardHasWarning({{board}}_ALERT_BOARD))
     {
         return true;
     }
+    {% endfor %}
+    // Check if any board has a warning
     
     
     return false;
@@ -123,10 +163,27 @@ bool app_canAlerts_AnyBoardHasWarning()
 
 bool app_canAlerts_AnyBoardHasFault()
 {
-    if (app_canAlerts_BoardHasFault({{node}}_ALERT_BOARD))
+    {% for board in boards %}
+    if (app_canAlerts_BoardHasFault({{board}}_ALERT_BOARD))
     {
         return true;
     }
+    {% endfor %}
+    // Check if any board has a fault
+    
+    
+    return false;
+}
+
+bool app_canAlerts_AnyBoardHasInfo()
+{
+    {% for board in boards %}
+    if (app_canAlerts_BoardHasInfo({{board}}_ALERT_BOARD))
+    {
+        return true;
+    }
+    {% endfor %}
+    // Check if any board has a fault
     
     
     return false;

@@ -123,7 +123,7 @@ void jobs_runCanRx_tick(void)
 
 void jobs_canRxCallback(const CanMsg *rx_msg)
 {
-    if (io_canRx_filterMessageId(rx_msg->std_id))
+    if (io_canRx_filterMessageId_Can(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
     }
