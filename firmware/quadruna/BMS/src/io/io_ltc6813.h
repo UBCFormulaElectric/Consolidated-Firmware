@@ -4,6 +4,7 @@
  * @note all implementation is in the ltc6813 directory
  */
 #pragma once
+#include "app_utils.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -25,7 +26,7 @@
  * Reads the configuration registers, and returns them into the pointer you give it
  * @return success of the operation
  */
-bool io_ltc6813_readConfigurationRegisters();
+ExitCode io_ltc6813_readConfigurationRegisters(void);
 
 /**
  * Writes a configuration to all segments on the daisy chain.
@@ -34,7 +35,7 @@ bool io_ltc6813_readConfigurationRegisters();
  * @param balance_config The balance configuration to write to the LTCs
  * @return success of the operation
  */
-bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
+ExitCode io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
 typedef enum
 {
@@ -75,7 +76,7 @@ void io_ltc6813_readVoltages(
  * sends a command to read all voltages from all segments
  * @return success of the operation
  */
-bool io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
+ExitCode io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_temps.c
@@ -106,7 +107,7 @@ void io_ltc6813_readTemperatures(
  * sends a command to read all temperatures from all segments
  * @return success of the operation
  */
-bool io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
+ExitCode io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_utils.c
@@ -116,7 +117,7 @@ bool io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
  * polls the LTC6813 for the completion of the ADC conversions
  * @return success of the operation
  */
-bool io_ltc6813_pollAdcConversions();
+ExitCode io_ltc6813_pollAdcConversions(void);
 
 /**
  * @file ltc6813/io_ltc6813_balance.c
@@ -126,13 +127,13 @@ bool io_ltc6813_pollAdcConversions();
  * Sends a command to enable balancing
  * @return success of operation
  */
-bool io_ltc6813_sendBalanceCommand(void);
+ExitCode io_ltc6813_sendBalanceCommand(void);
 
 /**
  * Send a command to disable balancing
  * @return success of operation
  */
-bool io_ltc6813_sendStopBalanceCommand(void);
+ExitCode io_ltc6813_sendStopBalanceCommand(void);
 
 /**
  * @file ltc6813/io_ltc6813_owc.c

@@ -298,7 +298,7 @@ static void calculateCellsToBalance(bool cells_to_balance[NUM_SEGMENTS][CELLS_PE
 void app_accumulator_balanceCells(void)
 {
     // Exit early if ADC conversion fails
-    if (!io_ltc6813_pollAdcConversions())
+    if (IS_EXIT_ERR(io_ltc6813_pollAdcConversions()))
     {
         return;
     }
