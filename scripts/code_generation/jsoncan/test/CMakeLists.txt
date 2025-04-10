@@ -16,4 +16,4 @@ compile_gtest_executable(
         "${SRCS}"
         "${INCLUDE_DIRS}"
 )
-target_link_libraries("jsoncan_test" "jsoncan_test_lib")
+target_link_libraries("jsoncan_test" PRIVATE "jsoncan_test_lib")

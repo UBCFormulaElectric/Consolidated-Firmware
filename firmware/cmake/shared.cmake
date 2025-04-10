@@ -78,7 +78,8 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
             ${BOARD}
             ${JSONCAN_DIR}
             FALSE
-            ${CAR}
+            "${CAN_DIR}/dbcs/${CAR}.dbc"
+            "${CAN_DIR}/${CAR}"
     )
     add_library(${JSONCAN_LIB} INTERFACE)
     target_sources(${JSONCAN_LIB} INTERFACE ${CAN_SRCS})

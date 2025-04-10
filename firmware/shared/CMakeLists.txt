@@ -12,7 +12,7 @@ IF("${TARGET}" STREQUAL "test")
     compile_gtest_executable("shared_test" "${SRCS}" "${INCLUDE_DIRS}")
 
     # jsoncan lib
-    jsoncan_library("VC" "quadruna" "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library("Debug" "quadruna" "${CMAKE_CURRENT_BINARY_DIR}")
 
     # io time :)
     set(HDRS_TO_FAKE
@@ -23,5 +23,5 @@ IF("${TARGET}" STREQUAL "test")
     )
     create_fake_library("shared_test_fakes" "${HDRS_TO_FAKE}")
 
-    target_link_libraries("shared_test" PRIVATE "quadruna_shared_jsoncan" "shared_test_fakes")
+    target_link_libraries("shared_test" PRIVATE "quadruna_Debug_jsoncan" "shared_test_fakes")
 ENDIF()
