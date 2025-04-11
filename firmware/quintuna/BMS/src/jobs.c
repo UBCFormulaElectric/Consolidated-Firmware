@@ -10,13 +10,13 @@ void jobs_run100Hz_tick(void) {}
 
 void jobs_runLtc(void)
 {
-    float        cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+    static float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
     static float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
     static bool voltage_read_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { false };
     static bool temp_read_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]        = { false };
 
-    bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
+    static bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
     io_ltc6813_writeConfigurationRegisters(balance_config); // no balancing
 
     io_ltc6813_startCellsAdcConversion(ADCSpeed_3kHz);
