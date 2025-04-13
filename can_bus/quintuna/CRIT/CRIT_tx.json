@@ -6,9 +6,6 @@
         "signals": {
             "Heartbeat": {
                 "bits": 1
-            },
-            "State": {
-                "enum": "CritState"
             }
         }
     },
@@ -40,7 +37,7 @@
         "description": "Drive Mode.",
         "signals": {
             "DriveMode": {
-                "bits": 4
+                "enum": "DriveMode"
             }
         }
     },
@@ -69,19 +66,6 @@
                 "bits": 32
             },
             "Clean": {
-                "bits": 1
-            }
-        }
-    },
-    "CRITShdnNodeStatus": {
-        "msg_id": 814,
-        "cycle_time": 100,
-        "description": "CRIT Shutdown Node Status",
-        "signals": {
-            "CockpitEStopOKStatus": {
-                "bits": 1
-            },
-            "InertiaSenOKStatus": {
                 "bits": 1
             }
         }

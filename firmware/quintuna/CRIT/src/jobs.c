@@ -7,6 +7,8 @@
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"
 #include "screens/app_screens.h"
+#include "app_leds.h"
+#include "app_switches.h"
 
 // IO
 #include "io_canTx.h"
@@ -29,8 +31,6 @@ void jobs_init(void)
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
     io_canQueue_init();
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-
-    io_rotary_init();
 
     app_canTx_init();
     app_canRx_init();
@@ -55,6 +55,10 @@ void jobs_run100Hz_tick(void)
 {
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+
+    app_leds_update();
+    app_switches_broadcast();
+    app_screens_update();
 
     io_canTx_enqueue100HzMsgs();
 }

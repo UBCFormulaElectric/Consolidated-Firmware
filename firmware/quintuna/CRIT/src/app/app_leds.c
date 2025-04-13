@@ -4,7 +4,17 @@
 #include "app_canAlerts.h"
 #include "io_shift_register.h"
 
-#define LED_DATA_LENGTH 4u
+/**
+ * Enumerates the overall LED statuses a board can have.
+ */
+typedef enum
+{
+    BOARD_LED_STATUS_OK = 0,
+    BOARD_LED_STATUS_WARNING,
+    BOARD_LED_STATUS_FAULT,
+    BOARD_LED_STATUS_NOT_IMPLEMENTED,
+    BOARD_LED_STATUS_MISSING_HEARTBEAT
+} BoardLEDStatus;
 
 typedef struct
 {
@@ -157,11 +167,5 @@ void app_leds_update(void)
         leds.bits.shdn.r = 1;
     }
 
-    uint8_t shiftBytes[4];
-    shiftBytes[0] = (uint8_t)(leds.value & 0xFF);
-    shiftBytes[1] = (uint8_t)((leds.value >> 8) & 0xFF);
-    shiftBytes[2] = (uint8_t)((leds.value >> 16) & 0xFF);
-    shiftBytes[3] = (uint8_t)((leds.value >> 24) & 0xFF);
-
-    io_shift_register_updateLedRegisters(shiftBytes, LED_DATA_LENGTH);
+    io_shift_register_updateLedRegisters((uint8_t *)leds.value);
 }

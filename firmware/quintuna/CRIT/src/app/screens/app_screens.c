@@ -2,10 +2,12 @@
 #include "io_shift_register.h"
 
 #include "app_screens.h"
+#include "app_canTx.h"
 
 /************************* Global Variables ***************************/
-static volatile uint8_t current_screen          = 0;
-Screen                 *screens[NUM_OF_SCREENS] = { &main_drive, &accel };
+static uint8_t current_screen = 0;
+static bool    init_complete  = false;
+Screen        *screens[DRIVE_MODE_COUNT];
 
 /*********************** Static Function Declarations ***************************/
 static void app_screens_next(void);
@@ -14,8 +16,14 @@ static void app_screens_next(void);
 void app_screens_init(void)
 {
     io_rotary_init();
+    io_shift_register_seven_seg_init();
+
+    screens[0] = get_main_drive();
+    screens[1] = get_indoor();
+
     io_rotary_setPushCallback(app_screens_next);
-    io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data, DATA_LENGTH);
+    app_screens_update();
+    io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data);
 }
 
 void app_screens_update(void)
@@ -25,15 +33,10 @@ void app_screens_update(void)
 
 static void app_screens_next(void)
 {
-    current_screen++;
-
-    if (current_screen == NUM_OF_SCREENS)
-    {
-        current_screen = 0;
-    }
-
     app_screens_update();
-    io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data, DATA_LENGTH);
+    io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data);
     io_rotary_setClockwiseCallback(screens[current_screen]->cw_callback);
     io_rotary_setCounterClockwiseCallback(screens[current_screen]->ccw_callback);
+
+    current_screen = (uint8_t)((current_screen + 1) % DRIVE_MODE_COUNT);
 }

@@ -65,6 +65,8 @@ extern "C"
 
     /* USER CODE END EM */
 
+    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
@@ -96,8 +98,6 @@ extern "C"
 #define TORQUE_VECTORING_SIG_GPIO_Port GPIOB
 #define REGEN_SIG_Pin GPIO_PIN_10
 #define REGEN_SIG_GPIO_Port GPIOB
-#define LED_DIMMING_Pin GPIO_PIN_14
-#define LED_DIMMING_GPIO_Port GPIOB
 #define LED_SERIN_Pin GPIO_PIN_15
 #define LED_SERIN_GPIO_Port GPIOB
 #define LED_RCK_Pin GPIO_PIN_6
@@ -120,8 +120,6 @@ extern "C"
 #define SWO_GPIO_Port GPIOB
 #define SEVEN_SEG_RCK_Pin GPIO_PIN_4
 #define SEVEN_SEG_RCK_GPIO_Port GPIOB
-#define SEVEN_SEG_DIMMING_Pin GPIO_PIN_6
-#define SEVEN_SEG_DIMMING_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
