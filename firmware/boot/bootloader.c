@@ -178,13 +178,22 @@ void bootloader_init(void)
 
 _Noreturn void bootloader_runInterfaceTask(void)
 {
+    // Program 64 bits at the current address.
+    uint8_t window_index = 0; 
+    uint16_t expected_can_id = BOOT_LOAD_MSG_START; // [0,63] reserved for binary upload 
+    uint64_t window_status = 0U; 
+
+    LOG_INFO("TEST TEST TEST");
     for (;;)
     {
         const CanMsg command = io_canQueue_popRx();
-        // Program 64 bits at the current address.
-        uint8_t window_index = 0; 
-        uint16_t expected_can_id = BOOT_LOAD_MSG_START; // [0,63] reserved for binary upload 
-        uint64_t window_status = 0U; 
+
+
+        LOG_INFO("Recived Can Id %ld", command.std_id);
+        LOG_INFO("expcted Can Id %ld", expected_can_id);
+        // Diagnosed problem: LOG_INFO is not set up to read a full 64-bit, it only reads upto 32-bits ... just need to figure out why the arbitration id 
+        // on the validation message is sussy now 
+
 
         if (command.std_id == START_UPDATE_ID)
         {
@@ -209,22 +218,26 @@ _Noreturn void bootloader_runInterfaceTask(void)
             };
             io_canQueue_pushTx(&reply);
         }
-        else if (BOOT_LOAD_MSG_START < command.std_id && command.std_id <=  (BOOT_LOAD_MSG_START + WINDOW_SIZE) && update_in_progress)
+        else if (BOOT_LOAD_MSG_START <= command.std_id && command.std_id <  (BOOT_LOAD_MSG_START + WINDOW_SIZE) && update_in_progress)
         {
-
            if (expected_can_id == command.std_id) // 8th byte of data as seq num
             {
                 // do program
                 bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
-                window_status |= (1U << window_index); // set respective bit in status
+                window_status |= (1ULL << window_index); // set respective bit in status
+                LOG_INFO("Window %u", (unsigned)window_index);
+                LOG_INFO("Window Status %llu", (unsigned long long) window_status);
             }
             else{
 
-                window_status &= ~(1U << window_index);
+                window_status &= ~(1ULL << window_index);
+                LOG_INFO("Window Status %llu", (unsigned long long)window_status);
+
             }
 
             if(window_index == (WINDOW_SIZE - 1))
             {
+                LOG_INFO("WINDOW VALUE IS %llu", (unsigned long long)window_status);
                 CanMsg reply = { .std_id = (BOOT_LOAD_MSG_START + WINDOW_SIZE), .dlc = 8}; // MSG 0 in board range is for status 
                 memcpy(reply.data, &window_status, sizeof(window_status));
                 io_canQueue_pushTx(&reply);
@@ -267,6 +280,7 @@ _Noreturn void bootloader_runTickTask(void)
 
     for (;;)
     {
+        LOG_INFO("IM GETTING HIT");
         CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 5 };
         status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
         status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
