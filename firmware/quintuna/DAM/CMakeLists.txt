@@ -50,6 +50,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -87,6 +88,8 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal.c"
+            "stm32h7xx_hal_crc.c"
+            "stm32h7xx_hal_crc_ex.c"
             "stm32h7xx_hal_adc.c"
             "stm32h7xx_hal_adc_ex.c"
             "stm32h7xx_hal_cortex.c"
@@ -124,6 +127,17 @@ if ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
+    # Generate the protobuf files.
+    nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
+    set(P_SRCS ${PROTO_SRCS})
+    set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
+    embedded_library(
+            "telem_proto1"
+            "${P_SRCS}"
+            "${P_HDRS}"
+            "cm7"
+            TRUE
+    )
 
     # JSONCAN
     jsoncan_embedded_library(DAM quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
@@ -136,7 +150,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1")
     target_link_libraries("quintuna_DAM_boot.elf" PRIVATE "quintuna_DAM_commit_info")
 
     #create image
