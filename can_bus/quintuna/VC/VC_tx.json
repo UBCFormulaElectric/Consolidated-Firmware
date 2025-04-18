@@ -18,10 +18,31 @@
         "description": "Vehicle dynamics info",
         "signals": {
             "RegenEnabled": {
-                "bits": 1
+                "start_bit": 0,
+                "bits": 1,
+                "min": 0,
+                "max": 1,
+                "scale": 1,
+                "offset": 0,
+                "unit": "T/F"
             },
             "TorqueVectoringEnabled": {
-                "bits": 1
+                "start_bit": 1,
+                "bits": 1,
+                "min": 0,
+                "max": 1,
+                "scale": 1,
+                "offset": 0,
+                "unit": "T/F"
+            },
+            "VehicleVelocity": {
+                "start_bit": 2,
+                "bits": 8,
+                "min": 0,
+                "max": 255,
+                "scale": 1,
+                "offset": 0,
+                "unit": "m/s"
             }
         }
     },

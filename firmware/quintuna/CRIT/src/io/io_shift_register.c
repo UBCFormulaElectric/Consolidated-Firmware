@@ -37,6 +37,7 @@ static void shiftOutByte(const Gpio *serin, const Gpio *srck, uint8_t data)
 void io_shift_register_led_init(void)
 {
     hw_pwmOutput_start(&led_dimming);
+    hw_pwmOutput_setDutyCycle(&led_dimming, 30.0f);
 }
 
 void io_shift_register_seven_seg_init(void)

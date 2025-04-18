@@ -1,5 +1,23 @@
 #include "hw_gpios.h"
 #include "main.h"
+#include "io_rotary.h"
+
+// Rotary GPIO interrupt handler.
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == rot_a.pin)
+    {
+        io_roatary_rotA_IRQHandler();
+    }
+    else if (GPIO_Pin == rot_b.pin)
+    {
+        io_rotary_rotB_IRQHandler();
+    }
+    else if (GPIO_Pin == rot_s.pin)
+    {
+        io_rotary_push_IRQHandler();
+    }
+}
 
 const Gpio boot                 = { .port = BOOT_GPIO_Port, .pin = BOOT_Pin };
 const Gpio led                  = { .port = LED_GPIO_Port, .pin = LED_Pin };

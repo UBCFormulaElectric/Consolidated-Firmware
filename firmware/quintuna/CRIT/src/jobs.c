@@ -6,6 +6,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"
+#include "io_shift_register.h"
 #include "screens/app_screens.h"
 #include "app_leds.h"
 #include "app_switches.h"
@@ -41,6 +42,7 @@ void jobs_init(void)
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 
+    io_shift_register_led_init();
     app_screens_init();
 }
 

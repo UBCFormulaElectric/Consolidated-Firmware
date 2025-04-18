@@ -70,7 +70,7 @@ typedef struct
 } Screen;
 
 Screen *get_main_drive(void);
-Screen *get_indoor(void);
+Screen *get_accel(void);
 
 void app_screens_init(void);
 void app_screens_update(void);

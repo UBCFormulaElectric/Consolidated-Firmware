@@ -1,34 +1,34 @@
 {
-    "Vitals": {
-        "msg_id": 400,
-        "cycle_time": 100,
-        "description": "Vitals message for the BMS.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "BmsState"
-            }
-        }
-    },
-    "LatchedFaults": {
-        "msg_id": 410,
-        "cycle_time": 100,
-        "description": "Latched faults for the BMS",
-        "signals": {
-            "BmsLatchedFault": {
-                "bits": 1
-            },
-            "ImdLatchedFault": {
-                "bits": 1
-            },
-            "BspdLatchedFault": {
-                "bits": 1
-            }
-        }
-    },
-   "ElconControls": {
+  "Vitals": {
+    "msg_id": 400,
+    "cycle_time": 100,
+    "description": "Vitals message for the BMS.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "State": {
+        "enum": "BmsState"
+      }
+    }
+  },
+  "LatchedFaults": {
+    "msg_id": 410,
+    "cycle_time": 100,
+    "description": "Latched faults for the BMS",
+    "signals": {
+      "BmsLatchedFault": {
+        "bits": 1
+      },
+      "ImdLatchedFault": {
+        "bits": 1
+      },
+      "BspdLatchedFault": {
+        "bits": 1
+      }
+    }
+  },
+  "ElconControls": {
     "msg_id": 450,
     "cycle_time": 1000,
     "description": "Control parameters for Elcon charger communication",
@@ -58,6 +58,22 @@
       "Reserved": {
         "start_bit": 33,
         "bits": 31
+      }
+    }
+  },
+  "HvBatteryProperties": {
+    "msg_id": 452,
+    "cycle_time": 100,
+    "description": "Info about the battery properties",
+    "signals": {
+      "HvBatterySoc": {
+        "start_bit": 0,
+        "bits": 16,
+        "min": 0,
+        "max": 100,
+        "scale": 1,
+        "offset": 0,
+        "unit": "%"
       }
     }
   }

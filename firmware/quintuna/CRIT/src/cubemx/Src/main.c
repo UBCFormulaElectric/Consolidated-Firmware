@@ -336,7 +336,6 @@ static void MX_TIM4_Init(void)
 
     /* USER CODE END TIM4_Init 0 */
 
-    TIM_SlaveConfigTypeDef  sSlaveConfig  = { 0 };
     TIM_MasterConfigTypeDef sMasterConfig = { 0 };
     TIM_OC_InitTypeDef      sConfigOC     = { 0 };
 
@@ -349,17 +348,7 @@ static void MX_TIM4_Init(void)
     htim4.Init.Period            = PWM_AUTO_RELOAD;
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
-    {
-        Error_Handler();
-    }
     if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sSlaveConfig.SlaveMode    = TIM_SLAVEMODE_EXTERNAL1;
-    sSlaveConfig.InputTrigger = TIM_TS_ITR0;
-    if (HAL_TIM_SlaveConfigSynchro(&htim4, &sSlaveConfig) != HAL_OK)
     {
         Error_Handler();
     }
@@ -394,29 +383,18 @@ static void MX_TIM12_Init(void)
 
     /* USER CODE END TIM12_Init 0 */
 
-    TIM_SlaveConfigTypeDef sSlaveConfig = { 0 };
-    TIM_OC_InitTypeDef     sConfigOC    = { 0 };
+    TIM_OC_InitTypeDef sConfigOC = { 0 };
 
     /* USER CODE BEGIN TIM12_Init 1 */
 
     /* USER CODE END TIM12_Init 1 */
     htim12.Instance               = TIM12;
-    htim12.Init.Prescaler         = 1;
+    htim12.Init.Prescaler         = PWM_PRESCALER;
     htim12.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim12.Init.Period            = 47999;
+    htim12.Init.Period            = PWM_AUTO_RELOAD;
     htim12.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim12) != HAL_OK)
-    {
-        Error_Handler();
-    }
     if (HAL_TIM_PWM_Init(&htim12) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sSlaveConfig.SlaveMode    = TIM_SLAVEMODE_EXTERNAL1;
-    sSlaveConfig.InputTrigger = TIM_TS_ITR0;
-    if (HAL_TIM_SlaveConfigSynchro(&htim12, &sSlaveConfig) != HAL_OK)
     {
         Error_Handler();
     }

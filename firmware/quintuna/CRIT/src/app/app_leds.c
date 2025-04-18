@@ -16,7 +16,7 @@ typedef enum
     BOARD_LED_STATUS_MISSING_HEARTBEAT
 } BoardLEDStatus;
 
-typedef struct
+typedef struct __attribute__((packed, aligned(1)))
 {
     unsigned int r : 1;
     unsigned int g : 1;
@@ -89,7 +89,9 @@ static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
         case VC_ALERT_BOARD:
             missingHeartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
             break;
-        // TODO: add DAM
+        case DAM_ALERT_BOARD:
+            missingHeartbeat = app_canAlerts_CRIT_Fault_MissingDAMHeartbeat_get();
+            break;
         default:
             missingHeartbeat = false;
             break;
@@ -126,7 +128,7 @@ void app_leds_update(void)
     const BoardLEDStatus fsm_status  = worstBoardStatus(FSM_ALERT_BOARD);
     const BoardLEDStatus bms_status  = worstBoardStatus(BMS_ALERT_BOARD);
     const BoardLEDStatus vc_status   = worstBoardStatus(VC_ALERT_BOARD);
-    // TODO dam
+    const BoardLEDStatus dam_status  = worstBoardStatus(DAM_ALERT_BOARD);
 
     LedReg_t leds = { 0 };
 
@@ -135,7 +137,7 @@ void app_leds_update(void)
     set_rgb_led(&leds.bits.fsm, fsm_status);
     set_rgb_led(&leds.bits.bms, bms_status);
     set_rgb_led(&leds.bits.vc, vc_status);
-    // TODO dam
+    set_rgb_led(&leds.bits.dam, dam_status);
 
     if (push_drive)
     {
@@ -163,7 +165,6 @@ void app_leds_update(void)
     }
     if (is_shdn_ok)
     {
-        // todo: diff colours maybe???
         leds.bits.shdn.r = 1;
     }
 

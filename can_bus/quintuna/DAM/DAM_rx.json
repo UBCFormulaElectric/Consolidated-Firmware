@@ -1,0 +1,10 @@
+{
+    "messages": [
+        "Elcon_Vitals",
+        "BMS_Vitals",
+        "FSM_Vitals",
+        "RSM_Vitals",
+        "VC_Vitals",
+        "CRIT_Vitals"
+    ]
+}
