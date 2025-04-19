@@ -88,10 +88,12 @@ extern "C"
 #define PUSH_DRIVE_SIG_GPIO_Port GPIOA
 #define ROT_S_Pin GPIO_PIN_4
 #define ROT_S_GPIO_Port GPIOC
+#define ROT_S_EXTI_IRQn EXTI4_IRQn
 #define ROT_B_Pin GPIO_PIN_5
 #define ROT_B_GPIO_Port GPIOC
 #define ROT_A_Pin GPIO_PIN_0
 #define ROT_A_GPIO_Port GPIOB
+#define ROT_A_EXTI_IRQn EXTI0_IRQn
 #define LAUNCH_CONTROL_SIG_Pin GPIO_PIN_1
 #define LAUNCH_CONTROL_SIG_GPIO_Port GPIOB
 #define TORQUE_VECTORING_SIG_Pin GPIO_PIN_2

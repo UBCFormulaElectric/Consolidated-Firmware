@@ -52,9 +52,9 @@ static void main_drive_update(void)
     instance.data_buffer[2] = SEGMENT_DICT[(instance.hv_soc % 10)];
 
     // Update speed data buffer.
-    instance.data_buffer[4] = SEGMENT_DICT[(instance.speed / 100)];
-    instance.data_buffer[5] = SEGMENT_DICT[(instance.speed / 10)];
-    instance.data_buffer[6] = SEGMENT_DICT[(instance.speed % 10)];
+    instance.data_buffer[3] = SEGMENT_DICT[(instance.speed / 100)];
+    instance.data_buffer[4] = SEGMENT_DICT[(instance.speed / 10)];
+    instance.data_buffer[5] = SEGMENT_DICT[(instance.speed % 10)];
 
     // Update drive mode data buffer.
     switch (instance.current_drive_mode)
@@ -75,6 +75,8 @@ static void main_drive_update(void)
             instance.data_buffer[8] = SEGMENT_DICT[DISP_8];
             break;
     }
+
+    io_shift_register_updateSevenSegRegisters((uint8_t *)&instance.data_buffer);
 
     // Set ouputs:
     app_canTx_CRIT_DriveMode_set(instance.current_drive_mode);

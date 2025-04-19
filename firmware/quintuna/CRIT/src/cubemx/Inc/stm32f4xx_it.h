@@ -56,6 +56,10 @@ extern "C"
     void PVD_IRQHandler(void);
     void FLASH_IRQHandler(void);
     void RCC_IRQHandler(void);
+    void EXTI0_IRQHandler(void);
+    void EXTI4_IRQHandler(void);
+    void TIM4_IRQHandler(void);
+    void TIM8_BRK_TIM12_IRQHandler(void);
     void TIM6_IRQHandler(void);
     void CAN2_TX_IRQHandler(void);
     void CAN2_RX0_IRQHandler(void);

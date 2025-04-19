@@ -21,6 +21,10 @@
 // HW
 #include "hw_gpios.h"
 
+#include "hw_pwmOutput.h"
+#include "hw_pwms.h"
+#include <stm32f4xx_hal.h>
+
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
@@ -44,6 +48,7 @@ void jobs_init(void)
 
     io_shift_register_led_init();
     app_screens_init();
+    // led_self_test();
 }
 
 void jobs_run1Hz_tick(void)
@@ -59,8 +64,8 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     app_leds_update();
-    app_switches_broadcast();
     app_screens_update();
+    app_switches_broadcast();
 
     io_canTx_enqueue100HzMsgs();
 }

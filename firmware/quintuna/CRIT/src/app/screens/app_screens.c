@@ -19,7 +19,6 @@ static void app_screens_rotaryCCW(void);
 /*********************** Function Definitions ***************************/
 void app_screens_init(void)
 {
-    io_rotary_init();
     io_shift_register_seven_seg_init();
 
     io_rotary_setClockwiseCallback(app_screens_rotaryCW);
@@ -30,7 +29,6 @@ void app_screens_init(void)
     screens[1] = get_accel();
 
     app_screens_update();
-    io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data);
 }
 
 static void app_screens_rotaryCW(void)
@@ -59,5 +57,4 @@ static void app_screens_next(void)
     current_screen = (uint8_t)((current_screen + 1) % NUM_OF_SCREENS);
 
     app_screens_update();
-    io_shift_register_updateSevenSegRegisters(screens[current_screen]->display_data);
 }

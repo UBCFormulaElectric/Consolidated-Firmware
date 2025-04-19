@@ -2,14 +2,15 @@
 #include "io_rotary.h"
 
 // clang-format off
-#define SEG_A  (1 << 0)
-#define SEG_B  (1 << 1)
-#define SEG_C  (1 << 2)
-#define SEG_D  (1 << 3)
-#define SEG_E  (1 << 4)
-#define SEG_F  (1 << 5)
-#define SEG_G  (1 << 6)
-#define SEG_DP (1 << 7)
+#define SEG_D   (1<<0)   // DRAIN0
+#define SEG_E   (1<<1)   // DRAIN1
+#define SEG_G   (1<<2)   // DRAIN2
+#define SEG_F   (1<<3)   // DRAIN3
+#define SEG_A   (1<<4)   // DRAIN4
+#define SEG_B   (1<<5)   // DRAIN5
+#define SEG_DP  (1<<6)   // DRAIN6
+#define SEG_C   (1<<7)   // DRAIN7
+
 
 typedef enum {
     DISP_0 = 0u, DISP_1, DISP_2, DISP_3, DISP_4,

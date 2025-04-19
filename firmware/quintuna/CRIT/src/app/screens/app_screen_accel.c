@@ -13,32 +13,36 @@ static void accel_cw(void);
 static void accel_update(void);
 
 /************************* Global Variables ***************************/
-static app_screen_accel_data_t instance = { 0 };
+static app_screen_accel_data_t instance = { .count = 69, .data_buffer = { 0 } };
 
 /*********************** Function Definitions ***************************/
 static void accel_ccw(void)
 {
     instance.count--;
+    accel_update();
 }
 
 static void accel_cw(void)
 {
     instance.count++;
+    accel_update();
 }
 
 static void accel_update(void)
 {
-    instance.data_buffer[0] = SEGMENT_DICT[DISP_J];
-    instance.data_buffer[1] = SEGMENT_DICT[DISP_U];
-    instance.data_buffer[2] = SEGMENT_DICT[DISP_G];
+    instance.data_buffer[0] = SEGMENT_DICT[DISP_1];
+    instance.data_buffer[1] = SEGMENT_DICT[DISP_H];
+    instance.data_buffer[2] = SEGMENT_DICT[DISP_I];
 
-    instance.data_buffer[3] = SEGMENT_DICT[(instance.count / 100)];
-    instance.data_buffer[4] = SEGMENT_DICT[(instance.count / 10)];
-    instance.data_buffer[5] = SEGMENT_DICT[(instance.count % 10)];
+    instance.data_buffer[3] = SEGMENT_DICT[(instance.count / 100)];      // hundreds
+    instance.data_buffer[4] = SEGMENT_DICT[(instance.count % 100) / 10]; // tens
+    instance.data_buffer[5] = SEGMENT_DICT[(instance.count % 10)];       // ones
 
-    instance.data_buffer[0] = SEGMENT_DICT[DISP_N];
-    instance.data_buffer[1] = SEGMENT_DICT[DISP_O];
-    instance.data_buffer[2] = SEGMENT_DICT[DISP_P];
+    instance.data_buffer[6] = SEGMENT_DICT[DISP_J];
+    instance.data_buffer[7] = SEGMENT_DICT[DISP_U];
+    instance.data_buffer[8] = SEGMENT_DICT[DISP_G];
+
+    io_shift_register_updateSevenSegRegisters((uint8_t *)&instance.data_buffer);
 }
 
 Screen *get_accel(void)

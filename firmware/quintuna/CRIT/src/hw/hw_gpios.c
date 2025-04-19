@@ -1,4 +1,5 @@
 #include "hw_gpios.h"
+#include "io_log.h"
 #include "main.h"
 #include "io_rotary.h"
 
@@ -7,15 +8,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == rot_a.pin)
     {
-        io_roatary_rotA_IRQHandler();
-    }
-    else if (GPIO_Pin == rot_b.pin)
-    {
-        io_rotary_rotB_IRQHandler();
+        io_rotary_rotA_IRQHandler();
+        LOG_INFO("rot a log");
     }
     else if (GPIO_Pin == rot_s.pin)
     {
         io_rotary_push_IRQHandler();
+        LOG_INFO("push log");
     }
 }
 
