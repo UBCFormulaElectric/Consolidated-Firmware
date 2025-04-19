@@ -1,5 +1,5 @@
 """
-Module for parsing CAN JSON, and returning a CanDatabase object. 
+Module for parsing CAN JSON, and returning a CanDatabase object.
 """
 
 from __future__ import annotations
@@ -12,9 +12,14 @@ from typing import Any, Tuple
 from ..can_database import *
 from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
-from .schema_validation import (AlertsJson, validate_alerts_json,
-                                validate_bus_json, validate_enum_json,
-                                validate_rx_json, validate_tx_json)
+from .schema_validation import (
+    AlertsJson,
+    validate_alerts_json,
+    validate_bus_json,
+    validate_enum_json,
+    validate_rx_json,
+    validate_tx_json,
+)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -110,13 +115,16 @@ class JsonCanParser:
             node_obj.alerts = []
 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
-        self._parse_json_rx_data(can_data_dir, alerts_messages)
+        self._parse_json_rx_data(can_data_dir)
+
+        # handle the alert messages here
 
         # Consistency check
         self._consistency_check()
 
+        self._register_alert_message(alerts_messages)
         # find all message transmitting on one bus but received in another bus
-        reroute = self._find_reroute(self._messages.values())
+        reroute = self._find_reroute()
         self._reroute = reroute
 
     def _parse_json_bus_data(self, can_data_dir) -> List[CanBusConfig]:
@@ -296,23 +304,7 @@ class JsonCanParser:
 
             return [warnings, faults, warnings_counts, faults_counts, info, info_counts]
 
-    def _parse_json_rx_data(self, can_data_dir, alert_messages) -> List[str]:
-
-        for alert in alert_messages:
-            tx_node = alert.tx_node
-            tx_buses = alert.bus
-            # add rx nodes to alert messages
-            # rx nodes are all node on the same bus
-            for tx_bus in tx_buses:
-                tx_bus_obj = self._bus_cfg[tx_bus]  # get the bus object
-                for rx_node in tx_bus_obj.nodes:  # iterate all nodes on the bus
-                    if rx_node == tx_node:
-                        continue
-                    rx_node_obj = self._nodes[rx_node]
-                    if alert.name not in rx_node_obj.rx_msgs:
-                        rx_node_obj.rx_msgs.append(alert.name)
-                    if rx_node not in alert.rx_nodes:  # add the tx node to the rx nodes
-                        alert.rx_nodes.append(rx_node)
+    def _parse_json_rx_data(self, can_data_dir) -> List[str]:
 
         for node, node_obj in self._nodes.items():
             node_rx_json_data = validate_rx_json(
@@ -325,6 +317,13 @@ class JsonCanParser:
                 if bus not in self._bus_cfg:
                     raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
                 messages = rx_msg_data["messages"]
+
+                # if "all" in messages then add all messages on this bus
+                if "all" in messages:
+                    messages = [
+                        msg for msg in self._messages if msg not in node_obj.tx_msgs
+                    ]
+
                 for message in messages:
                     # Check if this message is defined
                     if message not in self._messages:
@@ -404,84 +403,65 @@ class JsonCanParser:
             if msg_obj.tx_node not in self._nodes:
                 raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
 
-    def _find_reroute(self, messages: List[CanMessage]) -> List[CanForward]:
+    def _register_alert_message(self, alerts_msg: List[CanMessage]):
+        """
+        Register the alert message to the node.x
+        """
+        # automatically decide which port should receive the alert message
+        # fix the node, message, rx object
+
+    def _find_reroute(self) -> List[CanForward]:
         # design choice
         # all message is on FD bus
         # some message from FD bus need to be rerouted to non-FD bus
 
-        # assume only one forwarder node
-        assert self._forwarder_node is not None
-        # assume only one FD bus
-        # multiple non-FD bus
-        forward_list = []
-        fd_bus_obj = None
-        for bus in self._bus_cfg.values():
-            if bus.fd:
-                fd_bus_obj = bus
-                break
-        # assert fd_bus_obj is not None
+        # a map bus name to set of tx messages
+        bus_tx_messages = {bus: set() for bus in self._bus_cfg}
 
-        #
-        # if a message is transmitted on a non-FD bus then forward it to the FD bus
-        # for every message
-        #   for all the bus that the message is transmitted on
-        #   if exists a FD bus then skip
-        #   else add the message to the reroute list and reroute it to the FD bus
-        #       pick a non-fd bus and reroute the message to FD bus
-        if fd_bus_obj is not None:
-            for message in messages:
-                tx_buses = message.bus
-                # skip if the message is already on a FD bus
-                if any(bus in self._bus_cfg for bus in tx_buses):
-                    continue
+        # a map bus name to set of rx messages
+        bus_rx_messages = {bus: set() for bus in self._bus_cfg}
 
-                from_bus = message.bus[0]
-                to_bus = fd_bus_obj.name
-                forward = CanForward(
-                    message=message.name,
-                    from_bus=from_bus,
-                    to_bus=to_bus,
-                )
+        # list of CanForward objects
+        reroute = []
 
-                forward_list.append(forward)
+        # construct the bus_tx_messages
+        for msg in self._messages:
+            for bus in msg.bus:
+                bus_tx_messages[bus].add(msg.name)
 
-        # for every message on system
-        # for every rx node of the message
-        #   if the message is on the same bus as the tx bus then skip
-        for message in messages:
-            tx_buses = message.bus
-            rx_nodes = message.rx_nodes
-            for rx_node in rx_nodes:  # for all message received by the node
-                rx_node_obj = self._nodes[rx_node]
-
-                # each message can only be received one bus by the node
-                rx_bus = self._can_rx[rx_node].find_bus(message.name)
-
+        for msg in self._messages:
+            for rx_node in msg.rx_nodes:
+                rx_bus = self._can_rx[rx_node].find_bus(msg.name)
                 if rx_bus is None:
-                    # usually the Alert messages
-                    continue
                     raise InvalidCanJson(
-                        f"Message '{message.name}' is received by node '{rx_node}', but is not defined in the RX JSON."
+                        f"Message '{msg.name}' is not defined in the bus JSON."
+                    )
+                bus_rx_messages[rx_bus].add(msg.name)
+
+        for to_bus in bus in self._bus_cfg:
+            # message is received on this bus but not transmitted on this bus
+            messages_not_on_bus = bus_rx_messages[to_bus] - bus_tx_messages[to_bus]
+
+            # find the bus that is transmitting the message
+            for msg in messages_not_on_bus:
+                tx_bus = None
+                for bus in self._bus_cfg:
+                    if msg in bus_tx_messages[bus]:
+                        tx_bus = bus
+                        break
+                if tx_bus is None:
+                    raise InvalidCanJson(
+                        f"Message '{msg}' is not defined in the bus JSON."
                     )
 
-                # if message is recieved on fd bus then skip as it is handled by the frist for loop
-                if fd_bus_obj != None and rx_bus == fd_bus_obj.name:
-                    continue
-                # skip if the message is recieved on the same bus as is transmitted
-                if rx_bus in tx_buses:
-                    continue
-                
-                from_bus = tx_buses[0]
-
-                # reroute the message to the FD bus
-                forward = CanForward(
-                    message=message.name,
-                    to_bus=rx_bus,
-                    from_bus=from_bus,
+                # TODO: find forwarder node
+                can_forward = CanForward(
+                    message={msg},
+                    from_bus=tx_bus,
+                    to_bus=to_bus,
+                    forwarder="VC",  # TODO: find forwarder node
                 )
-                forward_list.append(forward)
-
-        return forward_list
+                reroute.append(can_forward)
 
     def _get_parsed_can_message(
         self, msg_name: str, msg_json_data: Dict, node: CanNode
