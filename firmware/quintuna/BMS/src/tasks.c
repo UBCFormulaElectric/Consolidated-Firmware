@@ -7,6 +7,7 @@
 #include "hw_usb.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
+#include "hw_pwms.h"
 #include "hw_watchdogConfig.h"
 
 // chimera
@@ -29,6 +30,7 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     hw_usb_init();
     hw_adcs_chipsInit();
+    hw_pwms_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 }
 
