@@ -1,9 +1,9 @@
-IF(NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+IF (NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ embedded.cmake must be included before bootlib.cmake")
-ENDIF()
-IF(NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
+ENDIF ()
+IF (NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ stmlib.cmake must be included before bootlib.cmake")
-ENDIF()
+ENDIF ()
 message("")
 message("🥾 Configuring bootloader binary generation")
 
@@ -140,6 +140,7 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
