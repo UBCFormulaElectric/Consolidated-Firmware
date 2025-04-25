@@ -8,9 +8,9 @@
 #include "io_canRx.h"
 #include "io_jsoncan.h"
 // chimera
+#include "hw_chimera_v2.h"
+#include "hw_chimeraConfig_v2.h"
 #include "shared.pb.h"
-#include "io_chimeraConfig_v2.h"
-#include "io_chimera_v2.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
@@ -36,6 +36,11 @@ void tasks_init(void)
     jobs_init();
 }
 
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
+}
+
 void tasks_run1Hz(void)
 {
     // Setup tasks.
@@ -57,8 +62,8 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        io_chimera_v2_mainOrContinue(&chimera_v2_config);
-        jobs_run100Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run100Hz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -72,7 +77,8 @@ void tasks_run1kHz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1kHz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1kHz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

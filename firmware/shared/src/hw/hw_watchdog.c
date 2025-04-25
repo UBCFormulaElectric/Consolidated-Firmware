@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include "hw_watchdog.h"
+#include "io_log.h"
 
 // Table of hardware-agnostic software watchdog
 typedef struct
@@ -76,9 +77,6 @@ void hw_watchdog_checkForTimeouts(void)
 
                 // Update deadline
                 watchdog_table.watchdogs[i].deadline += watchdog_table.watchdogs[i].period;
-
-                assert(refreshHardwareWatchdog != NULL);
-                refreshHardwareWatchdog();
             }
             else
             {
@@ -91,6 +89,13 @@ void hw_watchdog_checkForTimeouts(void)
                 timeout_detected = true;
             }
         }
+    }
+
+    // If there is no timeout, pet the watchdog.
+    if (!timeout_detected)
+    {
+        assert(refreshHardwareWatchdog != NULL);
+        refreshHardwareWatchdog();
     }
 }
 

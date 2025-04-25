@@ -6,14 +6,12 @@ Provides tooling to debug devices over USB, CAN, etc.
 
 # Typing.
 from __future__ import annotations
-
-import signal
-
-# Threading.
-import threading
 import types
 from typing import Any, Dict, Optional
 
+# Threading.
+import signal
+import threading
 import can
 import cantools
 
@@ -32,7 +30,6 @@ import proto_autogen.dam_pb2
 # Pyvisa Peripherals.
 from load_bank import *
 from power_supply import *
-import proto_autogen.vc_pb2
 from scope import *
 
 # Protobuf autogen packages.
@@ -46,6 +43,7 @@ import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
 import proto_autogen.vc_pb2
 
+# USB Manufacturer ID, specified per-board in STM32 CubeMX.
 _MANUFACTURER = "ubc_formula_electric"
 
 # Roughly 3 years.
@@ -159,6 +157,7 @@ class _UsbDevice:
         self._endpoint_write = self._interface[0]
         self._endpoint_read = self._interface[1]
         self._read_chunk_size = self._endpoint_read.wMaxPacketSize
+        self._write_chunk_size = self._endpoint_write.wMaxPacketSize
 
         # Buffer for read bytes.
         # We have to read in chunks of _read_chunk_size, so if we read too much,
@@ -172,7 +171,11 @@ class _UsbDevice:
             buffer: Bytes to send over USB.
 
         """
-        self._device.write(self._endpoint_write.bEndpointAddress, buffer)
+
+        # Chunk to maximum size accepted by endpoint before writing.
+        for index in range(0, len(buffer), self._write_chunk_size):
+            chunk = buffer[index : index + self._write_chunk_size]
+            self._device.write(self._endpoint_write.bEndpointAddress, chunk)
 
     def read(self, length: int) -> bytes:
         """Read bytes over usb. Will block until all bytes are received.
@@ -550,7 +553,7 @@ class SpiDevice:
         assert response.WhichOneof("payload") == "spi_transmit"
         assert response.spi_transmit.success
 
-    def transact(self, request_data: bytes, response_length: int):
+    def transact(self, request_data: bytes, response_length: int) -> bytes:
         """Run a full transaction (tx/rx) to the SPI device.
 
         Args:
@@ -575,7 +578,7 @@ class SpiDevice:
         # Wait for response.
         response = self._owner._read()
         assert response.WhichOneof("payload") == "spi_transaction"
-        assert response.spi_transaction.rx_data
+        return response.spi_transaction.rx_data
 
 
 class F4Dev(_Board):

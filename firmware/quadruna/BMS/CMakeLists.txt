@@ -30,6 +30,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
         "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
@@ -158,9 +159,8 @@ elseif ("${TARGET}" STREQUAL "test")
     # FAKE IO
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_led.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_airs.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
@@ -175,5 +175,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quadruna_BMS_test" "quadruna_BMS_jsoncan" "quadruna_BMS_fakes" "shared_fakes")
+    target_link_libraries("quadruna_BMS_test" PRIVATE "quadruna_BMS_jsoncan" "quadruna_BMS_fakes")
 ENDIF ()
