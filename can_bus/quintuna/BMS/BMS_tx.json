@@ -61,6 +61,53 @@
             }
         }
     },
+    "CellStats": {
+        "msg_id": 459,
+        "cycle_time": 100,
+        "description": "Avg BMS Cell Stats",
+        "signals": {
+            "MinCellVoltageSegment": {
+                "resolution": 1,
+                "min": 0,
+                "max": 9
+            },
+            "MinCellVoltageIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            },
+            "MaxCellVoltageSegment": {
+                "bits": 3,
+                "min": 0,
+                "max": 9
+            },
+            "MaxCellVoltageIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            },
+            "MinTempSegment": {
+                "resolution": 1,
+                "min": 0,
+                "max": 9
+            },
+            "MinTempIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            },
+            "MaxTempSegment": {
+                "resolution": 1,
+                "min": 0,
+                "max": 9
+            },
+            "MaxTempIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            }
+        }
+    },
     "Segment0_VoltageStats_0": {
         "msg_id": 460,
         "cycle_time": 10,
