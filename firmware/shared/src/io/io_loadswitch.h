@@ -26,7 +26,8 @@ typedef struct
 } TI_LoadSwitch;
 #else
 #include "app_utils.h"
-EMPTY_STRUCT(LoadSwitch)
+EMPTY_STRUCT(TI_LoadSwitch)
+EMPTY_STRUCT(ST_LoadSwitch)
 EMPTY_STRUCT(Efuse)
 #endif
 
@@ -59,3 +60,12 @@ void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch);
  * @param loadswitch Reset the hardfault set by loadswitch
  */
 void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch);
+
+
+/**
+ * Check PGOOD to see if we need to reset the Loadswitch 
+ * @param loadswitch The loadswitch you want to check is okay
+ * @return The state of PGOOD
+ */
+bool io_STloadswitch_checkPgood(const TI_LoadSwitch *loadswitch);
+
