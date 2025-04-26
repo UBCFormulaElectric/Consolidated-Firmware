@@ -61,11 +61,9 @@ void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch);
  */
 void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch);
 
-
 /**
- * Check PGOOD to see if we need to reset the Loadswitch 
+ * Check PGOOD to see if we need to reset the Loadswitch
  * @param loadswitch The loadswitch you want to check is okay
  * @return The state of PGOOD
  */
 bool io_STloadswitch_checkPgood(const TI_LoadSwitch *loadswitch);
-
