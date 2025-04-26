@@ -2,10 +2,6 @@
 #include "hw_gpio.h"
 #include "hw_gpios.h"
 
-#include "stm32f4xx_hal_exti.h"
-#include <pb.h>
-#include <stdint.h>
-
 // Callback function pointers.
 static volatile RotaryCallback clockwise_callback        = 0;
 static volatile RotaryCallback counterclockwise_callback = 0;
@@ -13,7 +9,6 @@ static volatile RotaryCallback push_callback             = 0;
 
 /**
  * @brief Set the callback for a clockwise rotation.
- *
  * @param cb Function pointer to the callback.
  */
 void io_rotary_setClockwiseCallback(RotaryCallback cb)
@@ -23,7 +18,6 @@ void io_rotary_setClockwiseCallback(RotaryCallback cb)
 
 /**
  * @brief Set the callback for a counter-clockwise rotation.
- *
  * @param cb Function pointer to the callback.
  */
 void io_rotary_setCounterClockwiseCallback(RotaryCallback cb)
@@ -32,8 +26,7 @@ void io_rotary_setCounterClockwiseCallback(RotaryCallback cb)
 }
 
 /**
- * @brief Set the callback for the push button press.
- *
+ * @brief Set the callback for the push button.
  * @param cb Function pointer to the callback.
  */
 void io_rotary_setPushCallback(RotaryCallback cb)
@@ -42,14 +35,14 @@ void io_rotary_setPushCallback(RotaryCallback cb)
 }
 
 /**
- * @brief Interrupt handler for encoder channel A.
- *
- * Clears the interrupt flag and calls the update function.
+ * @brief Interrupt handler for rot A GPIO.
  */
 void io_rotary_rotA_IRQHandler(void)
 {
+    // Clear interruot flag.
     __HAL_GPIO_EXTI_CLEAR_IT(rot_a.pin);
 
+    // Read rot B to check if ccw or cw turn.
     if (hw_gpio_readPin(&rot_b))
     {
         if (counterclockwise_callback != NULL)
@@ -68,11 +61,10 @@ void io_rotary_rotA_IRQHandler(void)
 
 /**
  * @brief Interrupt handler for the push button.
- *
- * Clears the interrupt flag and calls the push callback if it is set.
  */
 void io_rotary_push_IRQHandler(void)
 {
+    // Clear interrupt flag.
     __HAL_GPIO_EXTI_CLEAR_IT(rot_s.pin);
     push_callback();
 }

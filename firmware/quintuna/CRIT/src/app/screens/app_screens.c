@@ -3,13 +3,16 @@
 
 #include "app_screens.h"
 #include "app_canTx.h"
+#include "app_canRx.h"
 
-#define NUM_OF_SCREENS 2u
+#define NUM_OF_DRIVE_SCREENS 2u
 
 /************************* Global Variables ***************************/
 static uint8_t current_screen = 0;
-static bool    init_complete  = false;
-Screen        *screens[NUM_OF_SCREENS];
+static Screen *test_screen;
+static Screen *init_screen;
+static Screen *start_up_screen;
+static Screen *drive_screens[NUM_OF_DRIVE_SCREENS];
 
 /*********************** Static Function Declarations ***************************/
 static void app_screens_next(void);
@@ -17,6 +20,9 @@ static void app_screens_rotaryCW(void);
 static void app_screens_rotaryCCW(void);
 
 /*********************** Function Definitions ***************************/
+/**
+ * @brief Initalize all screens, and starting init screen.
+ */
 void app_screens_init(void)
 {
     io_shift_register_seven_seg_init();
@@ -25,36 +31,71 @@ void app_screens_init(void)
     io_rotary_setCounterClockwiseCallback(app_screens_rotaryCCW);
     io_rotary_setPushCallback(app_screens_next);
 
-    screens[0] = get_main_drive();
-    screens[1] = get_accel();
+    test_screen     = get_test_screen();
+    init_screen     = get_init_screen();
+    start_up_screen = get_start_up_screen();
+
+    drive_screens[0] = get_main_drive_screen();
+    drive_screens[1] = get_vd_screen();
 
     app_screens_update();
 }
 
+/**
+ * @brief Screen specific clockwise rotary callback.
+ */
 static void app_screens_rotaryCW(void)
 {
-    if (screens[current_screen]->cw_callback != NULL)
+    if (drive_screens[current_screen]->cw_callback != NULL)
     {
-        screens[current_screen]->cw_callback();
+        drive_screens[current_screen]->cw_callback();
     }
 }
 
+/**
+ * @brief Screen specific counter-clockwise rotary callback.
+ */
 static void app_screens_rotaryCCW(void)
 {
-    if (screens[current_screen]->ccw_callback != NULL)
+    if (drive_screens[current_screen]->ccw_callback != NULL)
     {
-        screens[current_screen]->ccw_callback();
+        drive_screens[current_screen]->ccw_callback();
     }
 }
 
+/**
+ * Called every 100Hz, updates seven seg.
+ */
 void app_screens_update(void)
 {
-    screens[current_screen]->update();
+    VCState vc_state = app_canRx_VC_State_get();
+
+    // Display screen, based on VC state.
+    if (vc_state == VC_INIT_STATE)
+    {
+        init_screen->update();
+    }
+    else if (vc_state == VC_DRIVE_STATE)
+    {
+        drive_screens[current_screen]->update();
+    }
+    else
+    {
+        start_up_screen->update();
+    }
 }
 
+/**
+ * @brief Rotary push callback, only needed for drive state.
+ */
 static void app_screens_next(void)
 {
-    current_screen = (uint8_t)((current_screen + 1) % NUM_OF_SCREENS);
+    VCState vc_state = app_canRx_VC_State_get();
 
-    app_screens_update();
+    // Only multiple screens in drive state.
+    if (vc_state == VC_DRIVE_STATE)
+    {
+        current_screen = (uint8_t)((current_screen + 1) % NUM_OF_DRIVE_SCREENS);
+        app_screens_update();
+    }
 }

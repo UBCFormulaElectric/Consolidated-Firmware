@@ -19,7 +19,7 @@ typedef enum {
     DISP_G, DISP_H, DISP_I, DISP_J, DISP_K, DISP_L,
     DISP_M, DISP_N, DISP_O, DISP_P, DISP_Q, DISP_R,
     DISP_S, DISP_T, DISP_U, DISP_V, DISP_W, DISP_X,
-    DISP_Y, DISP_Z, DISP_COUNT,
+    DISP_Y, DISP_Z, DISP_DP, DISP_COUNT,
 } SevenSegSymbol;
 
 static const uint8_t SEGMENT_DICT[DISP_COUNT] = {
@@ -59,19 +59,22 @@ static const uint8_t SEGMENT_DICT[DISP_COUNT] = {
     [DISP_X] = (SEG_B | SEG_C | SEG_E | SEG_F | SEG_G), 
     [DISP_Y] = (SEG_B | SEG_C | SEG_D | SEG_F | SEG_G),
     [DISP_Z] = (SEG_A | SEG_B | SEG_D | SEG_E | SEG_G), 
+    [DISP_DP] = (SEG_DP)
 };
 // clang-format on
 
 typedef struct
 {
-    uint8_t       *display_data; // Pointer to the display data for a 7-seg. display.
     RotaryCallback ccw_callback; // Called on counter clockwise rotary rotation.
     RotaryCallback cw_callback;  // Called on clockwise rotary rotation.
     RotaryCallback update;       // Called every 100Hz cycle to update/broadcast data.
 } Screen;
 
-Screen *get_main_drive(void);
-Screen *get_accel(void);
+Screen *get_main_drive_screen(void);
+Screen *get_test_screen(void);
+Screen *get_init_screen(void);
+Screen *get_start_up_screen(void);
+Screen *get_vd_screen(void);
 
 void app_screens_init(void);
 void app_screens_update(void);

@@ -2,6 +2,9 @@
 #include "io_switches.h"
 #include "app_canTx.h"
 
+/**
+ * @brief Broadcasts switch state.
+ */
 void app_switches_broadcast(void)
 {
     const bool push_drive_on = io_switch_isClosed(&push_drive_switch);

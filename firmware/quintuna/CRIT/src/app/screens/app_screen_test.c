@@ -5,30 +5,30 @@ typedef struct
 {
     uint8_t data_buffer[SEVEN_SEG_DATA_LENGTH];
     uint8_t count;
-} app_screen_accel_data_t;
+} app_screen_test_data_t;
 
 /*********************** Static Function Declarations ***************************/
-static void accel_ccw(void);
-static void accel_cw(void);
-static void accel_update(void);
+static void test_ccw(void);
+static void test_cw(void);
+static void test_update(void);
 
 /************************* Global Variables ***************************/
-static app_screen_accel_data_t instance = { .count = 69, .data_buffer = { 0 } };
+static app_screen_test_data_t instance = { .count = 100, .data_buffer = { 0 } };
 
 /*********************** Function Definitions ***************************/
-static void accel_ccw(void)
+static void test_ccw(void)
 {
     instance.count--;
-    accel_update();
+    test_update();
 }
 
-static void accel_cw(void)
+static void test_cw(void)
 {
     instance.count++;
-    accel_update();
+    test_update();
 }
 
-static void accel_update(void)
+static void test_update(void)
 {
     instance.data_buffer[0] = SEGMENT_DICT[DISP_1];
     instance.data_buffer[1] = SEGMENT_DICT[DISP_H];
@@ -42,14 +42,11 @@ static void accel_update(void)
     instance.data_buffer[7] = SEGMENT_DICT[DISP_U];
     instance.data_buffer[8] = SEGMENT_DICT[DISP_G];
 
-    io_shift_register_updateSevenSegRegisters((uint8_t *)&instance.data_buffer);
+    io_shift_register_updateSevenSegRegisters((uint8_t *)instance.data_buffer);
 }
 
-Screen *get_accel(void)
+Screen *get_test_screen(void)
 {
-    static Screen accel = { .display_data = (uint8_t *)&instance.data_buffer,
-                            .ccw_callback = accel_ccw,
-                            .cw_callback  = accel_cw,
-                            .update       = accel_update };
-    return &accel;
+    static Screen test = { .ccw_callback = test_ccw, .cw_callback = test_cw, .update = test_update };
+    return &test;
 }

@@ -76,16 +76,15 @@ static void main_drive_update(void)
             break;
     }
 
-    io_shift_register_updateSevenSegRegisters((uint8_t *)&instance.data_buffer);
+    io_shift_register_updateSevenSegRegisters((uint8_t *)instance.data_buffer);
 
     // Set ouputs:
     app_canTx_CRIT_DriveMode_set(instance.current_drive_mode);
 }
 
-Screen *get_main_drive(void)
+Screen *get_main_drive_screen(void)
 {
-    static Screen main_drive = { .display_data = (uint8_t *)&instance.data_buffer,
-                                 .ccw_callback = main_drive_ccw,
+    static Screen main_drive = { .ccw_callback = main_drive_ccw,
                                  .cw_callback  = main_drive_cw,
                                  .update       = main_drive_update };
     return &main_drive;

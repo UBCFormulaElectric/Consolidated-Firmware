@@ -76,8 +76,8 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define SYS_TIMER_CLOCK 96000000
-#define PWM_PRESCALER 1
-#define PWM_AUTO_RELOAD 47999
+#define PWM_AUTO_RELOAD 4095
+#define PWM_PRESCALER 23
 #define BOOT_Pin GPIO_PIN_4
 #define BOOT_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_5

@@ -1,5 +1,3 @@
-// app_leds.c
-
 #include <stdint.h>
 #include <stdbool.h>
 #include "app_leds.h"
@@ -7,9 +5,34 @@
 #include "app_canAlerts.h"
 #include "io_shift_register.h"
 
-/**
- * Enumerates the overall LED statuses a board can have.
- */
+// Macro to clear and then set an RGB LED.
+#define SET_BOARD_RGB(name, status)                  \
+    do                                               \
+    {                                                \
+        leds.bits.name##_r = 0;                      \
+        leds.bits.name##_g = 0;                      \
+        leds.bits.name##_b = 0;                      \
+        switch (status)                              \
+        {                                            \
+            case BOARD_LED_STATUS_OK:                \
+                leds.bits.name##_g = 1;              \
+                break;                               \
+            case BOARD_LED_STATUS_WARNING:           \
+                leds.bits.name##_r = 1;              \
+                leds.bits.name##_g = 1;              \
+                break;                               \
+            case BOARD_LED_STATUS_FAULT:             \
+                leds.bits.name##_r = 1;              \
+                break;                               \
+            case BOARD_LED_STATUS_MISSING_HEARTBEAT: \
+                leds.bits.name##_b = 1;              \
+                break;                               \
+            default:                                 \
+                break;                               \
+        }                                            \
+    } while (0)
+
+// Enumerates the overall LED statuses a board can have.
 typedef enum
 {
     BOARD_LED_STATUS_OK = 0,
@@ -19,10 +42,7 @@ typedef enum
     BOARD_LED_STATUS_MISSING_HEARTBEAT
 } BoardLEDStatus;
 
-/**
- * 32‑bit register laid out exactly like the four
- * cascaded TPIC6C596 bytes (LSB first on the wire).
- */
+// 32‑bit register laid out exactly like the four (LSB first on the wire).
 typedef union
 {
     uint32_t value;
@@ -71,7 +91,8 @@ typedef union
 } LedReg_t;
 
 /**
- * Choose the worst status: MISSING_HEARTBEAT > FAULT > WARNING > OK
+ * @brief Choose the worst status: MISSING_HEARTBEAT > FAULT > WARNING > OK.
+ * @param board (VC, BMS, RSM, FSM, DAM, CRIT)
  */
 static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
 {
@@ -117,34 +138,71 @@ static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
 }
 
 /**
- * Macro to clear and then set an (r,g,b) triplet for any one of
- * our six “RGB” boards based on a BoardLEDStatus.
+ * @brief Ran every 100Hz updates all LEDs.
  */
-#define SET_BOARD_RGB(name, status)                  \
-    do                                               \
-    {                                                \
-        leds.bits.name##_r = 0;                      \
-        leds.bits.name##_g = 0;                      \
-        leds.bits.name##_b = 0;                      \
-        switch (status)                              \
-        {                                            \
-            case BOARD_LED_STATUS_OK:                \
-                leds.bits.name##_g = 1;              \
-                break;                               \
-            case BOARD_LED_STATUS_WARNING:           \
-                leds.bits.name##_r = 1;              \
-                leds.bits.name##_g = 1;              \
-                break;                               \
-            case BOARD_LED_STATUS_FAULT:             \
-                leds.bits.name##_r = 1;              \
-                break;                               \
-            case BOARD_LED_STATUS_MISSING_HEARTBEAT: \
-                leds.bits.name##_b = 1;              \
-                break;                               \
-            default:                                 \
-                break;                               \
-        }                                            \
-    } while (0)
+void app_leds_update(void)
+{
+    // Single‑LED flags from CAN
+    const bool imd_fault  = app_canRx_BMS_ImdLatchedFault_get();
+    const bool bspd_fault = app_canRx_BMS_BspdLatchedFault_get();
+    const bool ams_fault  = app_canRx_BMS_BmsLatchedFault_get();
+    const bool push_drive = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
+    const bool regen_on   = app_canRx_VC_RegenEnabled_get();
+    const bool torque_on  = app_canRx_VC_TorqueVectoringEnabled_get();
+    const bool shdn_ok    = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
+
+    // Worst‑status of each RGB board
+    BoardLEDStatus rsm_st  = worstBoardStatus(RSM_ALERT_BOARD);
+    BoardLEDStatus crit_st = worstBoardStatus(CRIT_ALERT_BOARD);
+    BoardLEDStatus fsm_st  = worstBoardStatus(FSM_ALERT_BOARD);
+    BoardLEDStatus bms_st  = worstBoardStatus(BMS_ALERT_BOARD);
+    BoardLEDStatus vc_st   = worstBoardStatus(VC_ALERT_BOARD);
+    BoardLEDStatus dam_st  = worstBoardStatus(DAM_ALERT_BOARD);
+
+    // Build the 32‑bit LED word
+    LedReg_t leds = { .value = 0 };
+
+    // Set each RGB board’s LEDs in place
+    SET_BOARD_RGB(rsm, rsm_st);
+    SET_BOARD_RGB(crit, crit_st);
+    SET_BOARD_RGB(fsm, fsm_st);
+    SET_BOARD_RGB(bms, bms_st);
+    SET_BOARD_RGB(vc, vc_st);
+    SET_BOARD_RGB(dam, dam_st);
+
+    // Now the single‑bit flags
+    if (push_drive)
+    {
+        leds.bits.push_r = 1;
+    }
+    if (imd_fault)
+    {
+        leds.bits.imd = 1;
+    }
+    if (bspd_fault)
+    {
+        leds.bits.bspd = 1;
+    }
+    if (ams_fault)
+    {
+        leds.bits.ams = 1;
+    }
+    if (regen_on)
+    {
+        leds.bits.regen = 1;
+    }
+    if (torque_on)
+    {
+        leds.bits.torque = 1;
+    }
+    if (shdn_ok)
+    {
+        leds.bits.shdn_r = 1;
+    }
+
+    // Shift out all 4 bytes (LSB first)
+    io_shift_register_updateLedRegisters((uint8_t *)&leds.value);
+}
 
 void led_self_test(void)
 {
@@ -158,54 +216,4 @@ void led_self_test(void)
     }
 
     io_shift_register_updateLedRegisters((uint8_t *)&(uint32_t){ 0 });
-}
-
-void app_leds_update(void)
-{
-    /* Single‑LED flags from CAN */
-    const bool imd_fault  = app_canRx_BMS_ImdLatchedFault_get();
-    const bool bspd_fault = app_canRx_BMS_BspdLatchedFault_get();
-    const bool ams_fault  = app_canRx_BMS_BmsLatchedFault_get();
-    const bool push_drive = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
-    const bool regen_on   = app_canRx_VC_RegenEnabled_get();
-    const bool torque_on  = app_canRx_VC_TorqueVectoringEnabled_get();
-    const bool shdn_ok    = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
-
-    /* Worst‑status of each RGB board */
-    BoardLEDStatus rsm_st  = worstBoardStatus(RSM_ALERT_BOARD);
-    BoardLEDStatus crit_st = worstBoardStatus(CRIT_ALERT_BOARD);
-    BoardLEDStatus fsm_st  = worstBoardStatus(FSM_ALERT_BOARD);
-    BoardLEDStatus bms_st  = worstBoardStatus(BMS_ALERT_BOARD);
-    BoardLEDStatus vc_st   = worstBoardStatus(VC_ALERT_BOARD);
-    BoardLEDStatus dam_st  = worstBoardStatus(DAM_ALERT_BOARD);
-
-    /* Build the 32‑bit LED word */
-    LedReg_t leds = { .value = 0 };
-
-    /* Set each RGB board’s LEDs in place */
-    SET_BOARD_RGB(rsm, rsm_st);
-    SET_BOARD_RGB(crit, crit_st);
-    SET_BOARD_RGB(fsm, fsm_st);
-    SET_BOARD_RGB(bms, bms_st);
-    SET_BOARD_RGB(vc, vc_st);
-    SET_BOARD_RGB(dam, dam_st);
-
-    /* Now the single‑bit flags */
-    if (push_drive)
-        leds.bits.push_r = 1;
-    if (imd_fault)
-        leds.bits.imd = 1;
-    if (bspd_fault)
-        leds.bits.bspd = 1;
-    if (ams_fault)
-        leds.bits.ams = 1;
-    if (regen_on)
-        leds.bits.regen = 1;
-    if (torque_on)
-        leds.bits.torque = 1;
-    if (shdn_ok)
-        leds.bits.shdn_r = 1;
-
-    /* Shift out all 4 bytes (LSB first) */
-    io_shift_register_updateLedRegisters((uint8_t *)&leds.value);
 }

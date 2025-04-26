@@ -6,6 +6,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"
+#include "hw/hw_pwms.h"
 #include "io_shift_register.h"
 #include "screens/app_screens.h"
 #include "app_leds.h"
@@ -48,6 +49,7 @@ void jobs_init(void)
 
     io_shift_register_led_init();
     app_screens_init();
+    hw_pwmOutput_setDutyCycle(&seven_seg_dimming, 2.0f);
     // led_self_test();
 }
 

@@ -347,7 +347,7 @@ static void MX_TIM4_Init(void)
     htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim4.Init.Period            = PWM_AUTO_RELOAD;
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
     if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
     {
         Error_Handler();
@@ -360,7 +360,7 @@ static void MX_TIM4_Init(void)
     }
     sConfigOC.OCMode     = TIM_OCMODE_PWM1;
     sConfigOC.Pulse      = 0;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
     if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
@@ -393,14 +393,14 @@ static void MX_TIM12_Init(void)
     htim12.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim12.Init.Period            = PWM_AUTO_RELOAD;
     htim12.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
     if (HAL_TIM_PWM_Init(&htim12) != HAL_OK)
     {
         Error_Handler();
     }
     sConfigOC.OCMode     = TIM_OCMODE_PWM1;
     sConfigOC.Pulse      = 0;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
     if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
@@ -466,7 +466,7 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin : ROT_A_Pin */
     GPIO_InitStruct.Pin  = ROT_A_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(ROT_A_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : LAUNCH_CONTROL_SIG_Pin TORQUE_VECTORING_SIG_Pin REGEN_SIG_Pin */
