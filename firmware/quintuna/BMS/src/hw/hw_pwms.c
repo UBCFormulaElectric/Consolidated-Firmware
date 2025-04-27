@@ -2,6 +2,7 @@
 #include "main.h"
 #include "hw_pwmInput.h"
 #include "io_imd.h"
+#include "io_charger.h"
 #include <assert.h>
 #include <stdbool.h>
 
@@ -35,7 +36,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
     }
     else if (htim == &htim5)
     {
-        // io_evse_inputCaptureCallback(htim)
+        io_charger_inputCaptureCallback(htim);
     }
     else
     {
