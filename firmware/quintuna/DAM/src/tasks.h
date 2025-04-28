@@ -10,3 +10,4 @@ _Noreturn void tasks_runCanTx(void);
 _Noreturn void tasks_runCanRx(void);
 _Noreturn void tasks_runTelem(void);
 _Noreturn void tasks_runLogging(void);
+_Noreturn void tasks_runChimera(void);

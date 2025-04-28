@@ -30,6 +30,11 @@ void tasks_init(void)
     jobs_init();
 }
 
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
+}
+
 _Noreturn void tasks_run1Hz(void)
 {
     static const TickType_t period_ms = 1000U;
@@ -64,8 +69,6 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
-
         if (!hw_chimera_v2_enabled)
             jobs_run100Hz_tick();
 

@@ -70,12 +70,35 @@ bool hw_usb_transmit(uint8_t *msg, uint16_t len)
     return true;
 }
 
-bool hw_usb_receive(uint8_t *dest, uint32_t len)
+bool hw_usb_receive(uint8_t *dest, uint32_t len, uint32_t timeout_ms)
 {
     if (rx_queue_id == NULL)
     {
         LOG_ERROR("USB: Peripheral not initialized before attempting receive from RX queue.");
         return false;
+    }
+
+    if (len > RX_QUEUE_SIZE)
+    {
+        LOG_ERROR("USB: Requested to receive %d messages from RX queue, but size of queue is %d.", len, RX_QUEUE_SIZE);
+
+        return false;
+    }
+
+    // Wait either until we timeout, or when the queue is full enough.
+    uint32_t start_ms   = osKernelGetTickCount();
+    uint32_t queued_len = osMessageQueueGetCount(rx_queue_id);
+    while (osKernelGetTickCount() - start_ms <= timeout_ms && queued_len < len)
+    {
+        queued_len = osMessageQueueGetCount(rx_queue_id);
+        osDelay(5);
+    }
+
+    // Check that we have enough messages in the queue to populate the dest buffer.
+    if (queued_len < len)
+    {
+        return false;
+        LOG_WARN("USB: Receive timed out.");
     }
 
     // Loop through every index in the buffer.
@@ -87,7 +110,7 @@ bool hw_usb_receive(uint8_t *dest, uint32_t len)
         // Check success.
         if (status != osOK)
         {
-            LOG_WARN("usb queue pop returned non-ok status %d", status);
+            LOG_WARN("USB: Queue pop returned non-ok status %d", status);
             return false;
         }
     }
@@ -151,8 +174,8 @@ void hw_usb_receive_example()
     for (;;)
     {
         uint8_t result = 0;
-        hw_usb_receive(&result, 1);
-        LOG_PRINTF("%c", result);
+        if (hw_usb_receive(&result, 1, 100))
+            LOG_PRINTF("%c", result);
         osDelay(100);
     }
 }
