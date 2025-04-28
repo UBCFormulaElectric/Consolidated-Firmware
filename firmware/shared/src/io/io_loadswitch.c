@@ -13,6 +13,7 @@ void io_loadswitch_setChannel(const Efuse *channel, const bool enabled)
 
 bool io_loadswitch_isChannelEnabled(const Efuse *channel)
 {
+    assert(channel->enable_gpio != NULL);
     return hw_gpio_readPin(channel->enable_gpio);
 }
 
@@ -25,6 +26,7 @@ float io_loadswitch_getChannelCurrent(const Efuse *channel)
 
 void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch)
 {
+    assert(loadswitch->stby_reset_gpio != NULL);
     hw_gpio_writePin(loadswitch->stby_reset_gpio, false);
     hw_gpio_writePin(loadswitch->stby_reset_gpio, true);
     hw_gpio_writePin(loadswitch->stby_reset_gpio, false);
@@ -32,6 +34,9 @@ void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch)
 
 void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch)
 {
+    assert(loadSwitch->efuse!= NULL);
+    assert(loadSwitch->efuse->enable_gpio != NULL);
+
     hw_gpio_writePin(loadSwitch->efuse->enable_gpio, false);
     hw_gpio_writePin(loadSwitch->efuse->enable_gpio, true);
     hw_gpio_writePin(loadSwitch->efuse->enable_gpio, false);
@@ -39,5 +44,6 @@ void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch)
 
 bool io_TILoadswitch_checkPgood(const TI_LoadSwitch *loadswitch)
 {
+    assert(loadswitch->pgood!= NULL);
     return hw_gpio_readPin(loadswitch->pgood);
 }
