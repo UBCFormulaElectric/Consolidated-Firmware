@@ -8,7 +8,10 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 set(HW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/hw")
 set(IO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/io")
 
-file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+
+file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+list(REMOVE_ITEM CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 
 # Shared sources.
 list(APPEND EMBEDDED_SRCS
@@ -20,18 +23,20 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
 )
 
-list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
-set(EMBEDDED_INCLUDE_DIRS 
+set(EMBEDDED_INCLUDE_DIRS
         "${HW_INCLUDE_DIR}" "${IO_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}"
 )
 
 IF ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
+            "f4dev_stm32cube"
             "f4dev"
             "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
     )
 
     set(STM32_HAL_SRCS
@@ -63,7 +68,7 @@ IF ("${TARGET}" STREQUAL "binary")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-            "f4dev_stm32cube"
+            "f4dev_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -86,6 +91,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_stm32cube_hal" "f4dev_commit_info" "chimera_v2_proto_cm4")
     target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 ENDIF ()

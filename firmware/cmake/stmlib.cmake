@@ -25,9 +25,16 @@ message("  🔃 Registered generate_stm32cube_code() function")
 # Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
 # the directory where this function is called from.
 function(generate_stm32cube_code
+        LIB_NAME
         TARGET_NAME
         IOC_PATH
+        GENERATED_SRCS
 )
+    add_library(${LIB_NAME} INTERFACE)
+    message("${LIB_NAME} hooked up to ${GENERATED_SRCS}")
+    target_sources(${LIB_NAME} INTERFACE "${GENERATED_SRCS}")
+    embedded_no_checks("${GENERATED_SRCS}")
+
     set(GENERATE_CUBE_CODE_SCRIPT_PY ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
     get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
     get_filename_component(IOC_FILE_NAME ${IOC_PATH} NAME)
@@ -113,21 +120,21 @@ function(stm32f412rx_cube_library
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
-    if(USB_ENABLED)
+    if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
         list(APPEND STM32CUBE_SRCS
-            "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
-            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
-            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
-            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
+                "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
+                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
+                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
+                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
         )
 
         list(APPEND STM32CUBE_INCLUDE_DIRS
-            "${USB_MIDDLEWARE_DIR}/Core/Inc"
-            "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${USB_MIDDLEWARE_DIR}/Core/Inc"
+                "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
         )
-    endif()
+    endif ()
 
     embedded_interface_library(
             "${HAL_LIB_NAME}"
@@ -155,19 +162,19 @@ function(stm32h733xx_cube_library
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
-        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
-        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
-        "${FREERTOS_DIR}/include"
-        "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-        "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1"
-        "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
-        "${DRIVERS_DIR}/CMSIS/Include"
+            "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
+            "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
+            "${FREERTOS_DIR}/include"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1"
+            "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
+            "${DRIVERS_DIR}/CMSIS/Include"
 
-        # SEGGER SystemView includes.
-        "${THIRD_PARTY_DIR}/sysview"
-        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
-        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
-        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
+            # SEGGER SystemView includes.
+            "${THIRD_PARTY_DIR}/sysview"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
 
     # HAL sources.
@@ -205,21 +212,21 @@ function(stm32h733xx_cube_library
     # Currently, all our USB devices are of the Communications Device Class (CDC).
     # If we want to ever support different device classes,
     # you will need to add a argument to this function with the requested class.
-    if(USB_ENABLED)
+    if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
         list(APPEND STM32CUBE_SRCS
-            "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
-            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
-            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
-            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
+                "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
+                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
+                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
+                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
         )
 
         list(APPEND STM32CUBE_INCLUDE_DIRS
-            "${USB_MIDDLEWARE_DIR}/Core/Inc"
-            "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${USB_MIDDLEWARE_DIR}/Core/Inc"
+                "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
         )
-    endif()
+    endif ()
 
     embedded_interface_library(
             "${HAL_LIB_NAME}"
