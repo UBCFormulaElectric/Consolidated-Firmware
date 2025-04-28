@@ -4,6 +4,7 @@
 #include "io_canQueue.h"
 #include "cmsis_os.h"
 #include "hw_fdcan.h"
+#include "io_log.h"
 
 void can_test_tick()
 {
@@ -22,17 +23,23 @@ void can_test_tick()
 
     CanMsg fd_msg = {
         .std_id    = 1,
-        .dlc       = 8,
+        .dlc       = 15,
         .timestamp = 0,
-        .data      = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
+        .data      = { 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9 },
         .bus       = 0,
         .is_fd     = true,
     };
 
+    io_canQueue_init();
+
     while (1)
     {
-        hw_can_transmit(&can1, &msg);
-        hw_fdcan_transmit(&can1, &fd_msg);
+        // hw_can_transmit(&can1, &msg);
+        // hw_fdcan_transmit(&can1, &fd_msg);
+        LOG_INFO("WAITING FOR MSG...");
+        const CanMsg rx_msg = io_canQueue_popRx();
+        LOG_INFO("CAN MSG OUTPUT: %d", rx_msg.data[0]);
+
         i++;
         osDelay(10);
     }

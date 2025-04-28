@@ -52,10 +52,6 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
 
-    const uint8_t classic_can_payload = CAN_PAYLOAD_BYTES / 8;
-    uint8_t       classic_msg[classic_can_payload];
-    memcpy(classic_msg, msg->data, classic_can_payload);
-
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
