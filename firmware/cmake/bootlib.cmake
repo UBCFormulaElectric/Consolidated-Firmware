@@ -17,7 +17,6 @@ function(stm32f4_boot_binary
         SYSCALLS
         IOC_PATH
 )
-    list(APPEND ${SRCS} ${CUBEMX_SRCS})
     generate_stm32cube_code(
             "${BOOT_NAME}_stm32cube"
             "${IOC_PATH}"
@@ -95,7 +94,6 @@ function(stm32h7_boot_binary
         SYSCALLS
         IOC_PATH
 )
-    list(APPEND ${SRCS} ${CUBEMX_SRCS})
     generate_stm32cube_code(
             "${BOOT_NAME}_stm32cube"
             "${IOC_PATH}"
