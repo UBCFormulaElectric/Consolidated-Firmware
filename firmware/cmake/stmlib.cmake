@@ -24,9 +24,11 @@ file(GLOB_RECURSE NEWLIB_SRCS "${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c")
 message("  🔃 Registered generate_stm32cube_code() function")
 # Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
 # the directory where this function is called from.
+
+# generates an interface library with LIB_NAME with the GENERATED_SRCS
+# the IOC_PATH dictates the
 function(generate_stm32cube_code
         LIB_NAME
-        TARGET_NAME
         IOC_PATH
         GENERATED_SRCS
 )
@@ -44,9 +46,9 @@ function(generate_stm32cube_code
 
     add_custom_command(
             OUTPUT ${OUTPUT_MD5_LOCATION}
-            COMMENT "Generating drivers for ${TARGET_NAME}"
+            COMMENT "Generating drivers for ${LIB_NAME}"
             COMMAND ${PYTHON_COMMAND} ${GENERATE_CUBE_CODE_SCRIPT_PY}
-            --board ${TARGET_NAME}
+            --board ${LIB_NAME}
             --ioc ${IOC_PATH}
             --codegen_output_dir ${IOC_DIR}
             --cube_bin ${STM32CUBEMX_BIN_PATH}

@@ -83,7 +83,6 @@ IF ("${TARGET}" STREQUAL "binary")
 
     generate_stm32cube_code(
             "quadruna_BMS_stm32cube"
-            "BMS"
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )

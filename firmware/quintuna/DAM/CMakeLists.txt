@@ -87,7 +87,7 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc")
 
-    generate_stm32cube_code("quintuna_DAM_stm32cube" "DAM" "${IOC_PATH}" "${CUBEMX_SRCS}")
+    generate_stm32cube_code("quintuna_DAM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal.c"

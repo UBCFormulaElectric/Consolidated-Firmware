@@ -84,7 +84,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
-    generate_stm32cube_code("quintuna_RSM_stm32cube" "RSM" "${IOC_PATH}" "${CUBEMX_SRCS}")
+    generate_stm32cube_code("quintuna_RSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_adc_ex.c"

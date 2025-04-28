@@ -69,7 +69,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
-    generate_stm32cube_code("quintuna_CRIT_stm32cube" "CRIT" "${IOC_PATH}" "${CUBEMX_SRCS}")
+    generate_stm32cube_code("quintuna_CRIT_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     # STM HAL Library
     set(STM32_HAL_SRCS

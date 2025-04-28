@@ -81,7 +81,6 @@ IF ("${TARGET}" STREQUAL "binary")
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
     generate_stm32cube_code(
             "quadruna_CRIT_stm32cube"
-            "CRIT"
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )

@@ -34,7 +34,6 @@ set(EMBEDDED_INCLUDE_DIRS
 IF ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
             "f4dev_stm32cube"
-            "f4dev"
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )

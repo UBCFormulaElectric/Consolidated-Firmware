@@ -72,7 +72,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
-    generate_stm32cube_code("quintuna_FSM_stm32cube" "FSM" "${IOC_PATH}" "${CUBEMX_SRCS}")
+    generate_stm32cube_code("quintuna_FSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal.c" #add more hal library here if needed

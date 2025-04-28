@@ -36,7 +36,6 @@ IF ("${TARGET}" STREQUAL "binary")
     # STM code.
     generate_stm32cube_code(
             "ssm_stm32cube"
-            "ssm"
             "${IOC_PATH}"
             "${MAIN_SRCS}"
     )
