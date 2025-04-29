@@ -60,7 +60,7 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
@@ -139,7 +139,7 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"

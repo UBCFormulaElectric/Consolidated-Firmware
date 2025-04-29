@@ -68,11 +68,16 @@ jobs:
             can_bus
       - name: Generate and Upload DBC
         uses: ./.github/actions/build_dbc
-      - name: Upload DBC to Artifact
+      - name: Upload Quadruna DBC to Artifact
         uses: actions/upload-artifact@v4
         with:
           name: quadruna.dbc
           path: quadruna.dbc
+      - name: Upload Quintuna DBC to Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quintuna.dbc
+          path: quintuna.dbc
 
 
   # ======= MAKE THE RELEASE =======
@@ -103,6 +108,7 @@ jobs:
             quadruna_RSM_app_metadata.hex/quadruna_RSM_app_metadata.hex
             quadruna_CRIT_app_metadata.hex/quadruna_CRIT_app_metadata.hex
             quadruna.dbc/quadruna.dbc
+            quintuna.dbc/quintuna.dbc
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
