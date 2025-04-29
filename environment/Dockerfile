@@ -4,8 +4,8 @@ FROM debian:12.9-slim AS builder
 # unzip: Tool to extract zipped archives
 RUN apt update -y && apt install -y xz-utils
 
-ADD "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz" /usr/local/bin
-RUN ls /usr/local/bin && tar -xvf /usr/local/bin/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz -C /
+ADD "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz" /usr/local/bin
+RUN ls /usr/local/bin && tar -xvf /usr/local/bin/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C /
 
 # Install STM32CubeMX for auto-generating code.
 #COPY scripts/install_stm32cubemx.py /root/environment/
@@ -15,7 +15,7 @@ RUN ls /usr/local/bin && tar -xvf /usr/local/bin/arm-gnu-toolchain-14.2.rel1-aar
 FROM debian:12.9-slim AS environment
 
 # COPY over builds from builder
-COPY --from=builder /arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi /usr/local
+COPY --from=builder /arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi /usr/local
 #COPY --from=builder /usr/local/STM32CubeMX /usr/local/STM32CubeMX
 
 # pip: For installing python packages
