@@ -68,11 +68,16 @@ jobs:
             can_bus
       - name: Generate and Upload DBC
         uses: ./.github/actions/build_dbc
-      - name: Upload DBC to Artifact
+      - name: Upload Quadruna DBC to Artifact
         uses: actions/upload-artifact@v4
         with:
           name: quadruna.dbc
           path: quadruna.dbc
+      - name: Upload Quintuna DBC to Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quintuna.dbc
+          path: quintuna.dbc
 
 
   # ======= MAKE THE RELEASE =======

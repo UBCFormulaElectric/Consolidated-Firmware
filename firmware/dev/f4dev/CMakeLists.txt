@@ -19,6 +19,9 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
 )
 
