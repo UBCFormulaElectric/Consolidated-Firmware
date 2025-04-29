@@ -62,7 +62,7 @@ typedef struct
 extern bool hw_chimera_v2_enabled;
 
 /**
- * @brief The main Chimera loop - will run chimera_v2 if and only if the USB device is connected.
- * @param config Collection of protobuf enum to peripheral tables, and net name tags.
+ * @brief The main Chimera task loop, should be ran in it's own thread.
+ * @param config Collection of protobuf enum to peripheral tables and net name tags.
  */
-void hw_chimera_v2_mainOrContinue(hw_chimera_v2_Config *config);
+_Noreturn void hw_chimera_v2_task(hw_chimera_v2_Config *config);

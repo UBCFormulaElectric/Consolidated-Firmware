@@ -73,7 +73,7 @@ UART_HandleTypeDef huart1;
 
 /* Definitions for Task100Hz */
 osThreadId_t         Task100HzHandle;
-uint32_t             Task100HzBuffer[512];
+uint32_t             Task100HzBuffer[2048];
 osStaticThreadDef_t  Task100HzControlBlock;
 const osThreadAttr_t Task100Hz_attributes = {
     .name       = "Task100Hz",

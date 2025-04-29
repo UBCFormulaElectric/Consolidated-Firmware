@@ -34,6 +34,11 @@ void tasks_init()
     jobs_init();
 }
 
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
+}
+
 void tasks_runCanTx()
 {
     // Setup tasks.
@@ -74,8 +79,6 @@ void tasks_run100Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
-
         if (!hw_chimera_v2_enabled)
             jobs_run100Hz_tick();
         start_ticks += period_ms;

@@ -157,6 +157,7 @@ class _UsbDevice:
         self._endpoint_write = self._interface[0]
         self._endpoint_read = self._interface[1]
         self._read_chunk_size = self._endpoint_read.wMaxPacketSize
+        self._write_chunk_size = self._endpoint_write.wMaxPacketSize
 
         # Buffer for read bytes.
         # We have to read in chunks of _read_chunk_size, so if we read too much,
@@ -170,7 +171,11 @@ class _UsbDevice:
             buffer: Bytes to send over USB.
 
         """
-        self._device.write(self._endpoint_write.bEndpointAddress, buffer)
+
+        # Chunk to maximum size accepted by endpoint before writing.
+        for index in range(0, len(buffer), self._write_chunk_size):
+            chunk = buffer[index : index + self._write_chunk_size]
+            self._device.write(self._endpoint_write.bEndpointAddress, chunk)
 
     def read(self, length: int) -> bytes:
         """Read bytes over usb. Will block until all bytes are received.
