@@ -9,7 +9,6 @@ static void driveStateRunOnTick100Hz(void) {}
 
 static void driveStateRunOnExit(void) {}
 
-
 State drive_state = {
     .name              = "DRIVE",
     .run_on_entry      = driveStateRunOnEntry,

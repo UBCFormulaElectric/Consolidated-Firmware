@@ -2,7 +2,6 @@
 
 #include "app_stateMachine.h"
 
-
 extern State hvInit_state;
 /**
  * Get a pointer to the Drive State.
