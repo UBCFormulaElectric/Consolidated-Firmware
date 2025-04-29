@@ -5,11 +5,6 @@
 #include <stdint.h>
 
 #define BYTE_MASK(x) ((x) & 0XFF)
-#define COMMAND_SIZE 1
-#define SUB_COMMAND_SIZE 2
-#define STATUS_LENGTH 2
-#define VOLTAGE_TRANSMIT_LENGTH 1
-#define VOLTAGE_RESPONSE_LENGTH 2
 #define FRACTION 4294967296.0
 
 typedef union
@@ -63,14 +58,6 @@ typedef enum
 
 typedef struct __attribute__((packed))
 {
-    uint8_t CFGUPDATE : 1;
-    uint8_t PCHG_MODE : 1;
-    uint8_t SLEEP_EN : 1;
-    uint8_t POR : 1;
-    uint8_t WD : 1;
-    uint8_t COW_CHECK : 1;
-    uint8_t OTPW : 1;
-    uint8_t OTPB : 1;
     uint8_t SEC0 : 1;
     uint8_t SEC1 : 1;
     uint8_t SS : 1;
@@ -79,14 +66,25 @@ typedef struct __attribute__((packed))
     uint8_t SDM : 1;
     uint8_t RSVD : 1;
     uint8_t SLEEP : 1;
+
+    uint8_t CFGUPDATE : 1;
+    uint8_t PCHG_MODE : 1;
+    uint8_t SLEEP_EN : 1;
+    uint8_t POR : 1;
+    uint8_t WD : 1;
+    uint8_t COW_CHECK : 1;
+    uint8_t OTPW : 1;
+    uint8_t OTPB : 1;
 } Battery_Status;
 
 typedef struct __attribute__((packed))
 {
-    uint8_t  LD_ON : 1;
-    uint8_t  LD_TIMEOUT : 1;
-    uint8_t  DEEPSLEEP : 1;
-    uint16_t RSVD : 13;
+    uint8_t RSVD2 : 8;
+
+    uint8_t LD_ON : 1;
+    uint8_t LD_TIMEOUT : 1;
+    uint8_t DEEPSLEEP : 1;
+    uint8_t RSVD1 : 5;
 } Control_Status;
 
 typedef struct
@@ -179,6 +177,10 @@ bool io_lowVoltageBattery_initial_setup(void)
     // checking if the target is even ready to communicate with
     // adding debuggers to make sure the code doesnt run wild and free when we run
     uint8_t buffer_bat[1] = { (uint8_t)BATTERY_STATUS };
+
+    if (!hw_i2c_isTargetReady(&bat_mtr))
+        return false;
+
     // ask for battery status to check if the device is sleep or not
     if (!hw_i2c_transmit(&bat_mtr, buffer_bat, 1))
     {
@@ -456,12 +458,12 @@ uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
 {
     uint8_t voltage_cmd = (uint8_t)voltage_cell;
 
-    if (!hw_i2c_transmit(&bat_mtr, &voltage_cmd, VOLTAGE_TRANSMIT_LENGTH))
+    if (!hw_i2c_transmit(&bat_mtr, &voltage_cmd, 1))
     {
         return (uint16_t)-1;
     }
-    uint8_t voltage_buffer[VOLTAGE_RESPONSE_LENGTH];
-    if (!hw_i2c_receive(&bat_mtr, voltage_buffer, VOLTAGE_RESPONSE_LENGTH))
+    uint8_t voltage_buffer[2];
+    if (!hw_i2c_receive(&bat_mtr, voltage_buffer, 2))
     {
         return (uint16_t)-1;
     }
