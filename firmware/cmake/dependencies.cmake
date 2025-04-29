@@ -28,6 +28,7 @@ IF ("${TARGET}" STREQUAL "binary")
             GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeF4
             GIT_TAG 623397fd34f0788ef7b6aea1d2deaa22bbc4091d
             GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
     )
 
     # STM32H7Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
@@ -36,12 +37,23 @@ IF ("${TARGET}" STREQUAL "binary")
             GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeH7
             GIT_TAG c709838f91f1356cd3461eb2c5981c481dd0884a
             GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
     )
 
     # SEGGER SystemView for RTT Logging and SystemView profiling
     CPMAddPackage(
             NAME SEGGER_SYSTEMVIEW
             URL https://www.segger.com/downloads/systemview/SystemView_Src_V360d.zip
+            DOWNLOAD_ONLY TRUE
+    )
+
+    # SBG Systems library: Contains the SBG Systems API for interfacing with the Inertial Measurement Unit (IMU).
+    CPMAddPackage(
+            NAME SBG_ECOM
+            GITHUB_REPOSITORY SBG-Systems/sbgECom
+            GIT_TAG 05c19cdd7c021a8474b2bffc8ca4ec274f6a9155
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
     )
 ELSEIF ("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.

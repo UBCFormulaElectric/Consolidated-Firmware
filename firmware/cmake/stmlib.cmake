@@ -33,7 +33,6 @@ function(generate_stm32cube_code
         GENERATED_SRCS
 )
     add_library(${LIB_NAME} INTERFACE)
-    message("${LIB_NAME} hooked up to ${GENERATED_SRCS}")
     target_sources(${LIB_NAME} INTERFACE "${GENERATED_SRCS}")
     embedded_no_checks("${GENERATED_SRCS}")
 
