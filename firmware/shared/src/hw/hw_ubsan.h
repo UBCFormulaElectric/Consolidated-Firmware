@@ -166,6 +166,11 @@ struct vla_bound_data
     struct type_descriptor *type;
 };
 
+struct pointer_overflow_data
+{
+    struct source_location location;
+};
+
 void __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs);
 void __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs);
 void __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs);
@@ -186,4 +191,4 @@ void __ubsan_handle_load_invalid_value(void *_data, void *val);
  */
 void __ubsan_handle_nonnull_arg(void *_data);
 void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);
-void __ubsan_handle_pointer_overflow(void *a, void *b, void *c);
+void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result);

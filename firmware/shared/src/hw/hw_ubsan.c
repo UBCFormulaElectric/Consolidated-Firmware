@@ -78,7 +78,13 @@ static uint64_t get_unsigned_val(const struct type_descriptor *type, void *val)
 
     return *(uint64_t *)val;
 }
+static bool val_is_negative(const struct type_descriptor *type, void *val)
+{
+    return type_is_signed(type) && get_signed_val(type, val) < 0;
+}
 
+// https://www.eevblog.com/forum/microcontrollers/printf-uint64_t-with-arm-gcc/
+// note: i had to roll my own because 32 bit snprintf does not support 64 bit numbers
 static void u64_to_str(const size_t size, char *buffer, uint64_t value)
 {
     if (size < 2)
@@ -109,7 +115,7 @@ static void u64_to_str(const size_t size, char *buffer, uint64_t value)
 
     buffer[MIN(i, size - 1)] = '\0'; // Null-terminate the string
 }
-void i64_to_str(const size_t size, char *buffer, const int64_t value)
+static void i64_to_str(const size_t size, char *buffer, const int64_t value)
 {
     if (size < 2)
         return;
@@ -127,7 +133,6 @@ void i64_to_str(const size_t size, char *buffer, const int64_t value)
     const size_t offset = value < 0 ? 1 : 0;
     u64_to_str(size - offset, buffer + offset, uvalue);
 }
-
 static void val_to_string(char *str, const size_t size, const struct type_descriptor *type, void *value)
 {
     if (!type_is_int(type))
@@ -137,16 +142,14 @@ static void val_to_string(char *str, const size_t size, const struct type_descri
 
     if (type_bit_width(type) == 128)
     {
-        LOG_WARN("what the fuck 128 bit type???");
+        LOG_WARN("128 bit integers not supported");
     }
     else if (type_is_signed(type))
     {
-        // note: i had to roll my own because 32 bit snprintf does not support 64 bit numbers
         i64_to_str(size, str, get_signed_val(type, value));
     }
     else
     {
-        // note: i had to roll my own because 32 bit snprintf does not support 64 bit numbers
         u64_to_str(size, str, get_unsigned_val(type, value));
     }
 }
@@ -236,11 +239,9 @@ static void ubsan_type_mismatch_common(const struct type_mismatch_data_common *d
     }
 }
 
-static bool val_is_negative(const struct type_descriptor *type, void *val)
-{
-    return type_is_signed(type) && get_signed_val(type, val) < 0;
-}
-
+/**
+ * Location???
+ */
 static bool location_is_valid(const struct source_location *loc)
 {
     return loc->file_name != NULL;
@@ -391,8 +392,41 @@ void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound)
     trap();
 }
 
-void __ubsan_handle_pointer_overflow(void *a, void *b, void *c)
+void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
 {
-    Error_Handler();
+    struct pointer_overflow_data *data = _data;
+    if (suppress_report(&data->location))
+        return;
+    struct source_location Loc = data->location;
+
+    ubsan_prologue(&data->location, "pointer-overflow");
+    if (base == 0 && result == 0)
+    {
+        LOG_ERROR("applying zero offset to null pointer");
+    }
+    else if (base == 0 && result != 0)
+    {
+        LOG_ERROR("applying non-zero offset %X to null pointer", result);
+    }
+    else if (base != 0 && result == 0)
+    {
+        LOG_ERROR("applying non-zero offset to non-null pointer %X produced null pointer", base);
+    }
+    else if (base >= 0 == result >= 0)
+    {
+        if (base > result)
+        {
+            LOG_ERROR("addition of unsigned offset to %X overflowed to %X", base, result);
+        }
+        else
+        {
+            LOG_ERROR("subtraction of unsigned offset from %X overflowed to %X", base, result);
+        }
+    }
+    else
+    {
+        LOG_ERROR("pointer index expression with base %X overflowed to %X", base, result);
+    }
+    trap();
 }
 // NOLINTEND(bugprone-reserved-identifier)
