@@ -18,11 +18,16 @@
 #define VOLTAGE_RESPONSE_LENGTH 2
 #define FRACTION 4294967296.0
 
+typedef union
+{
+    float    f;
+    uint32_t u;
+} ResponseValue;
+
 typedef enum
 {
     BQ76922_I2C_ADDR    = 0x10,
-    REG_SUBCOMMAND_LSB  = 0x3E,
-    REG_SUBCOMMAND_MSB  = 0x3F,
+    REG_SUBCOMMAND      = 0x3E,
     REG_DATA_BUFFER     = 0x40,
     REG_CHECKSUM        = 0x60,
     REG_RESPONSE_LENGTH = 0x61,
@@ -33,7 +38,7 @@ typedef enum
 
 typedef struct
 {
-    uint8_t response[REG_RESPONSE_LENGTH];
+    uint8_t response_buffer[32];
     uint8_t length;
 } Subcommand_Response;
 
@@ -119,58 +124,47 @@ static bool send_subcommand(uint16_t cmd)
     {
         return false;
     }
-
-    uint8_t lower_cmd[1] = { (uint8_t)(BYTE_MASK(cmd)) };
-    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_LSB, lower_cmd, 1))
+    uint8_t lower_cmd[2] = { (uint8_t)(BYTE_MASK(cmd)), (uint8_t)BYTE_MASK(cmd >> 8) };
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, lower_cmd, 2))
     {
         return false;
     }
-    uint8_t upper_cmd[1] = { (uint8_t)BYTE_MASK(cmd >> 8) };
-    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND_MSB, upper_cmd, 1))
-    {
-        return false;
-    }
-    bool    finished_subcmd = false;
-    uint8_t lower_read;
-    uint8_t upper_read;
-
-    while (finished_subcmd)
-    {
-        if (!hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_LSB, &lower_read, 2))
-        {
-            return false;
-        }
-        if (!hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND_MSB, &upper_read, 2))
-        {
-            return false;
-        }
-
-        finished_subcmd = ((upper_read << 8 | lower_read) == 0xFF) ? false : true;
-    }
-    // reading the length of the buffer
     return true;
 }
 
 static bool recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
 {
-    // reading the length of the buffer
-    uint8_t response_length;
-    if (!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &response_length, 1))
+    bool    finished_subcmd = false;
+    uint8_t buffer_read[2];
+
+    // keeping waiting for the subcommand to finish operation and then proceed to read the message from the chip
+    while (finished_subcmd)
     {
-        return false;
-    }
-    response->length = response_length;
-    for (uint8_t i = 0x40; i < response_length && i != 0x5F; i++)
-    {
-        uint8_t index = (i - (uint8_t)0x40);
-        if (!hw_i2c_memoryRead(&bat_mtr, i, &response->response[index], 1))
+        if (!hw_i2c_memoryRead(&bat_mtr, REG_SUBCOMMAND, buffer_read, 2))
         {
             return false;
         }
+
+        finished_subcmd = ((buffer_read[0] << 8 | buffer_read[1]) == cmd) ? true : false;
     }
-    // ask for the checksum
+    uint8_t length;
+    if (!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &length, 1))
+    {
+        return false;
+    }
+    // subtract by 4 to account for the 0x3E/0x3F and 0x61 and 0x60
+    response->length = length - 4;
+
+    // there may be two ways of doing this. If the frame is not limited to two bytes only then but then in the specific
+    // function call you process the data
+    if (!hw_i2c_memoryRead(&bat_mtr, REG_DATA_BUFFER, response->response_buffer, response->length))
+    {
+        return false;
+    }
+
+    // optional CRC check if we want. Gonn leave it uncommented for now
     uint8_t calcChecksum =
-        (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8))) + ((uint8_t)response_length)));
+        (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8))) + ((uint8_t)response->length)));
 
     uint8_t calc_inversion = ~calcChecksum;
     uint8_t checksum;
@@ -434,19 +428,19 @@ double io_lowVoltageBattery_get_SOC(void)
     // Check what the hell is going on here
 
     /* Parse the 3-byte charge value (buffer[0]-buffer[2]) */
-    // uint32_t charge = ((uint32_t)subcmd_response.response[0]) |
-    //               ((uint32_t)subcmd_response.response[1] << 8) |
-    //               ((uint32_t)subcmd_response.response[2] << (8 * 2));
+    // uint32_t charge = ((uint32_t)subcmd_response.response_buffer[0]) |
+    //               ((uint32_t)subcmd_response.response_buffer[1] << 8) |
+    //               ((uint32_t)subcmd_response.response_buffer[2] << (8 * 2));
     // float CC_GAIN = HardwareConfig.adc_calibration_factor / HardwareConfig.r_sense;
     // float charge_mAh = (((float)charge) * CC_GAIN) / ((float)HardwareConfig.seconds_per_hour);
 
     uint32_t charge_interger_portion =
-        ((uint32_t)subcmd_response.response[0] << 16) | ((uint32_t)subcmd_response.response[1] << 8) |
-        ((uint32_t)subcmd_response.response[2]) | ((uint32_t)subcmd_response.response[3]);
+        ((uint32_t)subcmd_response.response_buffer[0] << 16) | ((uint32_t)subcmd_response.response_buffer[1] << 8) |
+        ((uint32_t)subcmd_response.response_buffer[2]) | ((uint32_t)subcmd_response.response_buffer[3]);
 
     uint32_t charge_fraction_portion =
-        ((uint32_t)subcmd_response.response[3] << 16) | ((uint32_t)subcmd_response.response[4] << 8) |
-        ((uint32_t)subcmd_response.response[5]) | ((uint32_t)subcmd_response.response[6]);
+        ((uint32_t)subcmd_response.response_buffer[3] << 16) | ((uint32_t)subcmd_response.response_buffer[4] << 8) |
+        ((uint32_t)subcmd_response.response_buffer[5]) | ((uint32_t)subcmd_response.response_buffer[6]);
 
     double charge = (double)charge_interger_portion + ((double)charge_fraction_portion / FRACTION);
     /* Clear any pending alert */
