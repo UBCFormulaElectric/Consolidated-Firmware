@@ -1,8 +1,9 @@
 #pragma once
 
+#ifdef TARGET_EMBEDDED
 #include "hw_gpios.h"
-#include <stdint.h>
-
+#include "hw_i2cs.h"
+#endif
 typedef enum
 {
     ACCUMULATED_CHARGE_COMMAND = 0x0076
@@ -21,7 +22,6 @@ typedef enum
     CELL4_VOLTAGE_COMMAND = 0x1C,
     STACK_VOLTAGE_COMMAND = 0x34
 } voltage_cmd_t;
-
 /**
  * @brief Initializes the low-voltage battery monitoring system.
  *

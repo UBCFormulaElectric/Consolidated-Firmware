@@ -1,12 +1,6 @@
 #include "io_lowVoltageBattery.h"
-#include "hw_i2c.h"
-#include "hw_i2cs.h"
-#include "hw_hal.h"
-#include "FreeRTOS.h"
-#include "cmsis_os2.h"
 #include "hw_utils.h"
 #include "io_log.h"
-#include "io_taskMonitor.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -106,9 +100,9 @@ typedef struct
 
 /* Define the hardware configuration values */
 static const HardwareConfig_t HardwareConfig = { .r_sense                = 3.0f,
-                                                 .q_full                 = 11200.0f,
+                                                 .q_full                 = 11200.0,
                                                  .seconds_per_hour       = 3600.0f,
-                                                 .percentage_factor      = 100.0f,
+                                                 .percentage_factor      = 100.0,
                                                  .adc_calibration_factor = 7.4768f };
 
 /**
