@@ -3,26 +3,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
-#include "main.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
-// STM32 HAL CAN handle.
-
+// STM32 HAL CAN FD handle.
 typedef struct
 {
-    CAN_HandleTypeDef *const hcan;
-    const uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    FDCAN_HandleTypeDef *hcan;
+    uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     void (*const receive_callback)(const CanMsg *rx_msg);
     bool ready;
 } CanHandle;
-
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
-const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
 #endif
 
 /**
@@ -45,11 +42,19 @@ void hw_can_deinit(const CanHandle *can_handle);
 bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
- * Receive a CAN msg from the bus, returning whether or not a message is available.
+ * Transmit a FD CAN msg on the bus, blocking until completed.
+ * @param can_handle Can handle to transmit from
+ * @param msg FD CAN msg to be TXed.
+ * @return Whether or not the transmission was successful.
+ */
+bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg);
+
+/**
+ * Receive a FD CAN msg from the bus, returning whether or not a message is available.
  * This function also passes up the CanMsg to a callback function.
  * @param can_handle Can handle to receive from
- * @param msg CAN msg to be RXed.
+ * @param msg FD CAN msg to be RXed.
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
  */
-bool hw_can_receive(const CanHandle *can_handle, uint32_t rx_fifo, CanMsg *msg);
+bool hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg);
