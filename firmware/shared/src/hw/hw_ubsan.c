@@ -124,7 +124,7 @@ static void i64_to_str(const size_t size, char *buffer, const int64_t value)
     if (value < 0)
     {
         buffer[0] = '-';
-        uvalue    = (uint64_t) - (value + 1) + 1; // Carefully negate to avoid overflow at INT64_MIN
+        uvalue    = (uint64_t)-(value + 1) + 1; // Carefully negate to avoid overflow at INT64_MIN
     }
     else
     {
@@ -224,7 +224,7 @@ static void handle_object_size_mismatch(const struct type_mismatch_data_common *
 }
 static void ubsan_type_mismatch_common(const struct type_mismatch_data_common *data, unsigned long ptr)
 {
-#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a)-1)) == 0)
+#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a) - 1)) == 0)
     if (!ptr)
     {
         handle_null_ptr_deref(data);
@@ -404,15 +404,15 @@ void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
     {
         LOG_ERROR("applying zero offset to null pointer");
     }
-    else if (base == 0 && result != 0)
+    else if (base == NULL && result != NULL)
     {
         LOG_ERROR("applying non-zero offset %X to null pointer", result);
     }
-    else if (base != 0 && result == 0)
+    else if (base != NULL && result == NULL)
     {
         LOG_ERROR("applying non-zero offset to non-null pointer %X produced null pointer", base);
     }
-    else if (base >= 0 == result >= 0)
+    else if ((base != NULL) == (result != NULL))
     {
         if (base > result)
         {
