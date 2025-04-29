@@ -2,10 +2,10 @@ FROM debian:12.9-slim AS builder
 
 # wget: Downloading files from the internet
 # unzip: Tool to extract zipped archives
-RUN apt update -y && apt install -y bzip2
+RUN apt update -y && apt install -y xz-utils
 
-ADD "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2?rev=78196d3461ba4c9089a67b5f33edf82a&hash=D484B37FF37D6FC3597EBE2877FB666A41D5253B" /usr/local/bin
-RUN tar -xvf /usr/local/bin/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /
+ADD "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz" /usr/local/bin
+RUN ls /usr/local/bin && tar -xvf /usr/local/bin/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz -C /
 
 # Install STM32CubeMX for auto-generating code.
 #COPY scripts/install_stm32cubemx.py /root/environment/
@@ -15,7 +15,7 @@ RUN tar -xvf /usr/local/bin/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 
 FROM debian:12.9-slim AS environment
 
 # COPY over builds from builder
-COPY --from=builder /gcc-arm-none-eabi-10.3-2021.10 /usr/local
+COPY --from=builder /arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi /usr/local
 #COPY --from=builder /usr/local/STM32CubeMX /usr/local/STM32CubeMX
 
 # pip: For installing python packages
