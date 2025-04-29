@@ -308,7 +308,7 @@ function(embedded_no_checks SRCS)
     list(LENGTH SRCS SRCS_LENGTH)
     message("  🚫 [embedded.cmake, embedded_no_checks()] Disabling Warnings for ${SRCS_LENGTH} files under ${unique_dirs}")
     set_source_files_properties(
-            "${SRCS}"
+            ${SRCS}
             PROPERTIES COMPILE_FLAGS "-w"
     )
 endfunction()
