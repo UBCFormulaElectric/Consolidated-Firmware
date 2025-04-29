@@ -40,6 +40,7 @@ set(SHARED_COMPILER_DEFINES
         -DARM_MATH_ROUNDING
 )
 set(SHARED_COMPILER_FLAGS
+        --specs=nosys.specs
         -mthumb
         -mthumb-interwork
         -ffunction-sections
@@ -72,8 +73,9 @@ endif ()
 set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker
-        --specs=nosys.specs
+        -static
         --specs=nano.specs
+        --specs=nosys.specs
 )
 
 set(CM4_DEFINES

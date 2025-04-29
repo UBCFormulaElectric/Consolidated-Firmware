@@ -8,15 +8,11 @@
 
 #define VALUE_LENGTH 40
 
-_Noreturn static void trap()
-{
-    BREAK_IF_DEBUGGER_CONNECTED();
-
-    for (;;)
-    {
-        // Trap in a infinite loop.
+#define trap()                     \
+    BREAK_IF_DEBUGGER_CONNECTED(); \
+    for (;;)                       \
+    {                              \
     }
-}
 
 /**
  *  FUCK ASS NUMBER TESTERS
@@ -82,6 +78,56 @@ static uint64_t get_unsigned_val(const struct type_descriptor *type, void *val)
 
     return *(uint64_t *)val;
 }
+
+static void u64_to_str(const size_t size, char *buffer, uint64_t value)
+{
+    if (size < 2)
+        return;
+    char   temp[21]; // Max length for uint64_t in base 10 is 20 digits + null terminator
+    size_t i = 0;
+
+    // Special case for 0
+    if (value == 0)
+    {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return;
+    }
+
+    // Process each digit
+    while (value > 0)
+    {
+        temp[i++] = (char)(value % 10) + '0'; // Get least significant digit
+        value /= 10;
+    }
+
+    // Reverse the digits into the buffer
+    for (size_t j = 0; j < i && j < size - 1; j++)
+    {
+        buffer[j] = temp[i - j - 1];
+    }
+
+    buffer[MIN(i, size - 1)] = '\0'; // Null-terminate the string
+}
+void i64_to_str(const size_t size, char *buffer, const int64_t value)
+{
+    if (size < 2)
+        return;
+    uint64_t uvalue;
+    // Handle negative values
+    if (value < 0)
+    {
+        buffer[0] = '-';
+        uvalue    = (uint64_t)-(value + 1) + 1; // Carefully negate to avoid overflow at INT64_MIN
+    }
+    else
+    {
+        uvalue = (uint64_t)value;
+    }
+    const size_t offset = value < 0 ? 1 : 0;
+    u64_to_str(size - offset, buffer + offset, uvalue);
+}
+
 static void val_to_string(char *str, const size_t size, const struct type_descriptor *type, void *value)
 {
     if (!type_is_int(type))
@@ -95,19 +141,13 @@ static void val_to_string(char *str, const size_t size, const struct type_descri
     }
     else if (type_is_signed(type))
     {
-        snprintf(str, size, "%lld", get_signed_val(type, value));
+        // note: i had to roll my own because 32 bit snprintf does not support 64 bit numbers
+        i64_to_str(size, str, get_signed_val(type, value));
     }
     else
     {
-        const uint64_t print_val = get_unsigned_val(type, value);
-        if (print_val / UINT32_MAX > 0)
-        {
-            snprintf(str, size, "%lu%lu", (uint32_t)(print_val / UINT32_MAX), (uint32_t)(print_val % UINT32_MAX));
-        }
-        else
-        {
-            snprintf(str, size, "%lu", (uint32_t)(print_val % UINT32_MAX));
-        }
+        // note: i had to roll my own because 32 bit snprintf does not support 64 bit numbers
+        u64_to_str(size, str, get_unsigned_val(type, value));
     }
 }
 
@@ -319,8 +359,9 @@ void __ubsan_handle_load_invalid_value(void *_data, void *val)
 /**
  * https://coral.googlesource.com/linux-imx/+/refs/heads/imx_4.14.98_2.0.0_ga/lib/ubsan.c
  */
-void __ubsan_handle_nonnull_arg(struct nonnull_arg_data *data)
+void __ubsan_handle_nonnull_arg(void *_data)
 {
+    struct nonnull_arg_data *data = _data;
     if (suppress_report(&data->location))
     {
         return;

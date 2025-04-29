@@ -21,7 +21,7 @@ message("  ✅ Found protoc at ${HAS_PROTOBUF_COMPILER}")
 
 message("  🚚 Fetching Sources")
 # Source Dependencies
-IF("${TARGET}" STREQUAL "binary")
+IF ("${TARGET}" STREQUAL "binary")
     # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
     CPMAddPackage(
             NAME STM32CUBEF4
@@ -41,9 +41,9 @@ IF("${TARGET}" STREQUAL "binary")
     # SEGGER SystemView for RTT Logging and SystemView profiling
     CPMAddPackage(
             NAME SEGGER_SYSTEMVIEW
-            URL https://www.segger.com/downloads/systemview/SystemView_Src_V356b.zip
+            URL https://www.segger.com/downloads/systemview/SystemView_Src_V360d.zip
     )
-ELSEIF("${TARGET}" STREQUAL "test")
+ELSEIF ("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
     CPMAddPackage(
             NAME googletest
@@ -51,7 +51,7 @@ ELSEIF("${TARGET}" STREQUAL "test")
             GIT_TAG "release-1.12.1"
             GIT_SHALLOW TRUE
     )
-ENDIF()
+ENDIF ()
 
 # protobufs
 CPMAddPackage(
