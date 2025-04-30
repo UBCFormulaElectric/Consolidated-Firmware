@@ -37,6 +37,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -44,9 +45,8 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
-    embedded_no_checks("${CUBEMX_SRCS}")
 
     embedded_binary(
             "quintuna_FSM_app"
@@ -57,12 +57,14 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     #bootloader files
-    file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     # Build bootloader
     stm32f4_boot_binary(
             "quintuna_FSM_boot"
             "${BOOT_SRCS}"
+            "${BOOT_CUBEMX_SRCS}"
             "${BOOT_INCLUDE_DIRS}"
             "quintuna_FSM"
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
@@ -70,7 +72,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
-    generate_stm32cube_code("FSM" "${IOC_PATH}")
+    generate_stm32cube_code("quintuna_FSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal.c" #add more hal library here if needed
@@ -101,7 +103,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     stm32f412rx_cube_library(
-            "quintuna_FSM_stm32cube"
+            "quintuna_FSM_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
@@ -120,9 +122,9 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_FSM_jsoncan" INTERFACE "quintuna_FSM_stm32cube")
-    target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32cube" "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32cube" "quintuna_FSM_stm32cube_hal" "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "chimera_v2_proto_cm4")
     target_link_libraries("quintuna_FSM_boot.elf" PRIVATE "quintuna_FSM_commit_info")
-    
+
     embedded_image(
             "quintuna_FSM"
             "quintuna_FSM_app.hex"
