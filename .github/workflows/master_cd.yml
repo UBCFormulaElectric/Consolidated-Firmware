@@ -29,7 +29,7 @@ jobs:
             bin_name: quadruna_CRIT_app_metadata.hex
             build_dir: firmware/quadruna/CRIT
     container:
-      image: ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:arm_14
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}
@@ -54,7 +54,7 @@ jobs:
     name: Generate CAN DBC file
     runs-on: ubuntu-22.04
     container:
-      image: ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:arm_14
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}
