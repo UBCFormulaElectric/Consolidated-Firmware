@@ -8,6 +8,8 @@
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
+#include "io_imu.h"
+#include "io_log.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
@@ -23,6 +25,8 @@ void jobs_init(void)
     io_canQueue_init();
     app_canTx_init();
     app_canRx_init();
+
+    LOG_ERROR_IF(io_imu_init());
 
     // broadcast commit info
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
