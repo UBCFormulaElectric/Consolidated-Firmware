@@ -8,15 +8,20 @@
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "io_buzzer.h"
+#include "io_telemMessage.h"
+#include "io_time.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
 #include "hw_gpios.h"
+#include "hw_crc.h"
 
-#include "hw_chimera_v2.h"
-#include "hw_chimeraConfig_v2.h"
+#include <hw_chimera_v2.h>
 #include <shared.pb.h>
+#include <hw_chimeraConfig_v2.h>
+
+extern CRC_HandleTypeDef hcrc;
 
 void tasks_preInit(void)
 {
@@ -38,11 +43,18 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&can1);
     hw_usb_init();
+    hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-    
-    hw_gpio_writePin(&tsim_red_en_pin, true);
-    hw_gpio_writePin(&ntsim_green_en_pin, false);
-    jobs_init();
+
+    // hw_gpio_writePin(&tsim_red_en_pin, true);
+    // hw_gpio_writePin(&ntsim_green_en_pin, false);
+
+    io_telemMessage_init();
+}
+
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
 }
 
 _Noreturn void tasks_run1Hz(void)
@@ -54,11 +66,19 @@ _Noreturn void tasks_run1Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
+        CanMsg fake_msg = {
+            .std_id    = 0x123,
+            .dlc       = 8,
+            .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
+            .timestamp = io_time_getCurrentMs(),
+        };
+        io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -74,12 +94,20 @@ _Noreturn void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
-        jobs_run100Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
+
+        // CanMsg fake_msg = {
+        //     .std_id    = 0x124,
+        //     .dlc       = 8,
+        //     .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
+        //     .timestamp = io_time_getCurrentMs(),
+        // };
+        // io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -98,13 +126,22 @@ _Noreturn void tasks_run1kHz(void)
         // const uint32_t task_start_ms = io_time_getCurrentMs();
 
         // hw_watchdog_checkForTimeouts();
-        jobs_run1kHz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1kHz_tick();
 
         // // Watchdog check-in must be the last function called before putting the
         // // task to sleep. Prevent check in if the elapsed period is greater or
         // // equal to the period ms
-        // if (io_time_getCurrentMs() - task_start_ms <= period_ms)
+        // if (io_tBime_getCurrentMs() - task_start_ms <= period_ms)
         //     hw_watchdog_checkIn(watchdog);
+
+        // CanMsg fake_msg = {
+        //     .std_id = 0x125,
+        //     .dlc    = 8,
+        //     .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
+        //     .timestamp = io_time_getCurrentMs(),
+        // };
+        // io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -117,7 +154,14 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        if (tx_msg.is_fd)
+        {
+            hw_fdcan_transmit(&can1, &tx_msg);
+        }
+        else
+        {
+            hw_can_transmit(&can1, &tx_msg);
+        }
     }
 }
 
@@ -132,10 +176,10 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
-    osDelay(osWaitForever);
+    // osDelay(osWaitForever);
     for (;;)
     {
-        // io_telemMessage_broadcastMsgFromQueue();
+        io_telemMessage_broadcastMsgFromQueue();
     }
 }
 

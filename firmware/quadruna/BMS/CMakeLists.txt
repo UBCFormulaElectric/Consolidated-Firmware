@@ -50,7 +50,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
@@ -161,9 +161,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${SHARED_IO_INCLUDE_DIR}/io_led.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_airs.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
