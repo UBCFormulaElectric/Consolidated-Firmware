@@ -11,6 +11,8 @@
 #include "io_imu.h"
 #include "io_log.h"
 
+#include <app_imu.h>
+
 static void canTransmit(const JsonCanMsg *msg)
 {
     const CanMsg m = io_jsoncan_copyToCanMsg(msg);
@@ -38,6 +40,9 @@ void jobs_run1Hz_tick(void)
     // debug mode
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+
+    app_imu_broadcast();
+
     // cantx
     io_canTx_enqueue1HzMsgs();
 }
