@@ -131,7 +131,7 @@ _Noreturn void tasks_run1kHz(void)
         // // Watchdog check-in must be the last function called before putting the
         // // task to sleep. Prevent check in if the elapsed period is greater or
         // // equal to the period ms
-        // if (io_time_getCurrentMs() - task_start_ms <= period_ms)
+        // if (io_tBime_getCurrentMs() - task_start_ms <= period_ms)
         //     hw_watchdog_checkIn(watchdog);
 
         // CanMsg fake_msg = {
@@ -153,7 +153,14 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        if (tx_msg.is_fd)
+        {
+            hw_fdcan_transmit(&can1, &tx_msg);
+        }
+        else
+        {
+            hw_can_transmit(&can1, &tx_msg);
+        }
     }
 }
 
