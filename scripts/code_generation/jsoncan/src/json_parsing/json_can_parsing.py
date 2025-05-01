@@ -124,7 +124,7 @@ class JsonCanParser:
 
         self._register_alert_message(alerts_messages)
         # find all message transmitting on one bus but received in another bus
-        reroute = self._find_reroute()
+        reroute = self._find_reroute(can_data_dir)
         self._reroute = reroute
 
     def _parse_json_bus_data(self, can_data_dir) -> List[CanBusConfig]:
@@ -152,7 +152,6 @@ class JsonCanParser:
         }
 
         self._bus_cfg = buses
-        self._forwarder_node = bus_json_data["forwarder"]
         return buses
 
     def _parse_json_shared_enum_data(self, can_data_dir) -> List[CanEnum]:
@@ -410,58 +409,82 @@ class JsonCanParser:
         # automatically decide which port should receive the alert message
         # fix the node, message, rx object
 
-    def _find_reroute(self) -> List[CanForward]:
+    def _find_reroute(self, can_data_dir) -> List[CanForward]:
         # design choice
         # all message is on FD bus
         # some message from FD bus need to be rerouted to non-FD bus
-
+        forwarders_configs = validate_bus_json(
+            self._load_json_file(f"{can_data_dir}/bus")
+        )["forwarders"]
         # a map bus name to set of tx messages
         bus_tx_messages = {bus: set() for bus in self._bus_cfg}
 
         # a map bus name to set of rx messages
         bus_rx_messages = {bus: set() for bus in self._bus_cfg}
 
-        # list of CanForward objects
-        reroute = []
+        for _, msg in self._messages.items():
+            tx_buses = msg.bus
+            for bus in tx_buses:
+                if bus not in bus_tx_messages:
+                    raise InvalidCanJson(
+                        f"Message '{msg.name}' is not defined in the bus JSON."
+                    )
 
-        # construct the bus_tx_messages
-        for msg in self._messages:
-            for bus in msg.bus:
                 bus_tx_messages[bus].add(msg.name)
-
-        for msg in self._messages:
             for rx_node in msg.rx_nodes:
                 rx_bus = self._can_rx[rx_node].find_bus(msg.name)
                 if rx_bus is None:
                     raise InvalidCanJson(
-                        f"Message '{msg.name}' is not defined in the bus JSON."
+                        f"Message '{msg.name}' received by '{rx_node}' is not defined in the bus JSON."
                     )
                 bus_rx_messages[rx_bus].add(msg.name)
 
-        for to_bus in bus in self._bus_cfg:
-            # message is received on this bus but not transmitted on this bus
-            messages_not_on_bus = bus_rx_messages[to_bus] - bus_tx_messages[to_bus]
+        for bus_name, bus_obj in self._bus_cfg.items():
+            tx_messages = bus_tx_messages[bus_name]
+            rx_messages = bus_rx_messages[bus_name]
 
-            # find the bus that is transmitting the message
-            for msg in messages_not_on_bus:
-                tx_bus = None
-                for bus in self._bus_cfg:
-                    if msg in bus_tx_messages[bus]:
-                        tx_bus = bus
-                        break
-                if tx_bus is None:
-                    raise InvalidCanJson(
-                        f"Message '{msg}' is not defined in the bus JSON."
-                    )
+            # check intersection between tx and rx messages
+            forward_messages = rx_messages - tx_messages
+            rx_bus = bus_name
+            # if there is a rx message that is not in the tx message then the message is from another bus so we need to reroute it
 
-                # TODO: find forwarder node
-                can_forward = CanForward(
-                    message={msg},
-                    from_bus=tx_bus,
-                    to_bus=to_bus,
-                    forwarder="VC",  # TODO: find forwarder node
-                )
-                reroute.append(can_forward)
+            for forward_msg in forward_messages:
+                # find the bus that the message is transmited on
+                tx_buses = self._messages[forward_msg].bus
+
+                # check forwarder config to figure out the which bus to forward to
+                for tx_bus in tx_buses:
+                    if tx_bus == bus_name:
+                        raise InvalidCanJson(
+                            "Tx bus and rx bus should not be the same at this stage. Something is wrong"
+                        )
+                    for config in forwarders_configs:
+                        found = False
+                        if (rx_bus == config["bus1"] and tx_bus == config["bus2"]) or (
+                            rx_bus == config["bus2"] and tx_bus == config["bus1"]
+                        ):
+                            found = True
+
+                            # create a forwarder object
+                            forwarder = CanForward(
+                                from_bus=tx_bus,
+                                to_bus=rx_bus,
+                                message=forward_msg,
+                                forwarder=config["node"],
+                            )
+
+                            self._reroute.append(forwarder)
+                            break
+                        if not found:
+                            raise InvalidCanJson(
+                                f"Forwarder config for bus '{rx_bus}' and bus '{tx_bus}' is not defined in the bus JSON for message {forward_msg}."
+                            )
+        print("Reroute messages:")
+        for forward in self._reroute:
+            print(
+                f"From {forward.from_bus} to {forward.to_bus} message {forward.message}"
+            )
+        return self._reroute
 
     def _get_parsed_can_message(
         self, msg_name: str, msg_json_data: Dict, node: CanNode

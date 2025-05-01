@@ -151,7 +151,7 @@ forwarders_schema = Schema(
     )
 )
 bus_list = Schema(Or(list[single_bus_schema], []))
-bus_schema = Schema({"forwarders": forwarders_schema, "buses": bus_list})
+bus_schema = Schema({"forwarders": list[forwarders_schema], "buses": bus_list})
 
 """
 Alerts file schema

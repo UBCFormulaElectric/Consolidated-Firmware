@@ -1,9 +1,39 @@
 {
-  "forwarder": "VC",
+  "forwarders": [
+    {
+      "node": "VC",
+      "bus1": "Can",
+      "bus2": "Can2"
+    },
+    {
+      "node": "VC",
+      "bus1": "Can2",
+      "bus2": "Can3"
+    },
+    {
+      "node": "VC",
+      "bus1": "Can",
+      "bus2": "Can3"
+    }
+  ],
   "buses": [
     {
       "name": "Can",
-      "nodes": ["VC", "BMS", "FSM", "RSM", "CRIT", "Debug", "Boot", "DAM", "Elcon"],
+      "nodes": ["VC", "BMS", "DAM"],
+      "bus_speed": 500,
+      "modes": ["DEFAULT", "DEBUG"],
+      "default_mode": "DEFAULT"
+    },
+    {
+      "name": "Can",
+      "nodes": ["VC", "FSM", "RSM", "CRIT"],
+      "bus_speed": 500,
+      "modes": ["DEFAULT", "DEBUG"],
+      "default_mode": "DEFAULT"
+    },
+    {
+      "name": "Can",
+      "nodes": ["VC"],
       "bus_speed": 500,
       "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"

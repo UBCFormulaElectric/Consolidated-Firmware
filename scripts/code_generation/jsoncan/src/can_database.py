@@ -557,4 +557,4 @@ class CanForward:
     message: str  # name of the message
     forwarder: str
     from_bus: str  # name of the bus the message is forwarded from
-    to_bus: str  # list of buses the message is forwarded to
+    to_bus: str  # bus the message is forwarded to

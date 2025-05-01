@@ -1,5 +1,11 @@
 {
-  "forwarder": "VC",
+  "forwarders": [
+    {
+      "node": "VC",
+      "bus1": "bus1",
+      "bus2": "bus2"
+    }
+  ],
   "buses": [
     {
       "name": "bus1",
