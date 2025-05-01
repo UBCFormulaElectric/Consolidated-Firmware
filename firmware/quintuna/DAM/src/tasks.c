@@ -9,6 +9,7 @@
 #include "io_canQueue.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
+#include "io_buzzer.h"
 #include "io_telemMessage.h"
 #include "io_time.h"
 
