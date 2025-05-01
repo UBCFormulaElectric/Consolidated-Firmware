@@ -34,9 +34,9 @@ void tasks_init()
     hw_can_init(&can1);
     hw_usb_init();
 
-    app_canTx_CRIT_ResetReason_set((CanResetReason)hw_resetReason_get());
-
     jobs_init();
+
+    app_canTx_CRIT_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)

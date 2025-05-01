@@ -36,10 +36,11 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_usb_init();
     hw_adcs_chipsInit();
-
-    app_canTx_FSM_ResetReason_set((CanResetReason)hw_resetReason_get());
+    hw_can_init(&can);
 
     jobs_init();
+
+    app_canTx_FSM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)

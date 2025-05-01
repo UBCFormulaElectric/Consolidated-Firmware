@@ -3,6 +3,8 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "app_canTx.h"
+
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canLogging.h"
@@ -19,6 +21,7 @@
 #include <hw_chimera_v2.h>
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
+#include "hw_resetReason.h"
 
 extern CRC_HandleTypeDef hcrc;
 
@@ -49,6 +52,8 @@ void tasks_init(void)
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
     io_telemMessage_init();
+
+    app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)

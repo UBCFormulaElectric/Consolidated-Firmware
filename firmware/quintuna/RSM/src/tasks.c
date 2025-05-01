@@ -43,9 +43,9 @@ void tasks_init()
     hw_adcs_chipsInit();
     hw_can_init(&can2);
 
-    app_canTx_RSM_ResetReason_set((CanResetReason)hw_resetReason_get());
-
     jobs_init();
+
+    app_canTx_RSM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)
