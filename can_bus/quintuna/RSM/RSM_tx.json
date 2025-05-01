@@ -25,6 +25,15 @@
         "Clean": {
           "bits": 1
         }
-      }
+    },
+    "Debug": {
+        "msg_id": 707,
+        "cycle_time": 1000,
+        "description": "RSM Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
     }
 }
