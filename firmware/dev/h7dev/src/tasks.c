@@ -3,16 +3,31 @@
 #include "SEGGER_SYSVIEW.h"
 #include "cmsis_os.h"
 #include "io_log.h"
-#include "hw_can.h"
+#include "hw_fdcan.h"
 #include "io_canQueue.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "hw_hardFaultHandler.h"
 #include "io_fileSystem.h"
 #include "main.h"
 #include "fdcan_spam.h"
 #include <assert.h>
 
-CanHandle can{ .hcan = &hfdcan1 };
+static void can_msg_received_callback(const CanMsg *rx_msg)
+{
+    // TODO: check gpio present
+    static uint32_t id = 0;
+    // rx_msg->std_id     = id;
+    id++;
+    io_canQueue_pushRx(rx_msg);
+    io_canLogging_loggingQueuePush(rx_msg);
+}
+
+CanHandle        can = { .hcan = &hfdcan1, .receive_callback = can_msg_received_callback };
+const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    assert(hfdcan == can.hcan);
+    return &can;
+}
 
 void tasks_init()
 {
@@ -50,34 +65,4 @@ void tasks_canTx()
         CanMsg msg = io_canQueue_popTx();
         hw_can_transmit(&can, &msg);
     }
-}
-
-static void can_msg_received_callback(CanMsg *rx_msg)
-{
-    // TODO: check gpio present
-    static uint32_t id = 0;
-    rx_msg->std_id     = id;
-    id++;
-    io_canQueue_pushRx(rx_msg);
-    io_canLogging_loggingQueuePush(rx_msg);
-}
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
-{
-    UNUSED(RxFifo0ITs);
-    assert(hfdcan == can.hcan);
-    CanMsg rx_msg;
-    if (!hw_can_receive(&can, FDCAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    can_msg_received_callback(&rx_msg);
-}
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
-{
-    UNUSED(RxFifo1ITs);
-    assert(hfdcan == can.hcan);
-    CanMsg rx_msg;
-    if (!hw_can_receive(&can, FDCAN_RX_FIFO1, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    can_msg_received_callback(&rx_msg);
 }

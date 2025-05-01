@@ -131,12 +131,6 @@ void        runCanRxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle        can = { .hcan = &hfdcan2 };
-const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
-{
-    assert(hfdcan == can.hcan);
-    return &can;
-}
 
 SdCard sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
 
@@ -166,6 +160,8 @@ int main(void)
     /* USER CODE BEGIN 1 */
     hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
+
+    /* Enable the CPU Cache */
 
     /* Enable I-Cache---------------------------------------------------------*/
     SCB_EnableICache();
@@ -261,6 +257,7 @@ int main(void)
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
+
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -344,7 +341,7 @@ void PeriphCommonClock_Config(void)
      */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
-    PeriphClkInitStruct.PLL2.PLL2N           = 80;
+    PeriphClkInitStruct.PLL2.PLL2N           = 96;
     PeriphClkInitStruct.PLL2.PLL2P           = 2;
     PeriphClkInitStruct.PLL2.PLL2Q           = 8;
     PeriphClkInitStruct.PLL2.PLL2R           = 2;
@@ -378,10 +375,10 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.AutoRetransmission   = DISABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
+    hfdcan1.Init.NominalPrescaler     = 6;
     hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 2;
-    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 12;
+    hfdcan1.Init.NominalTimeSeg2      = 3;
     hfdcan1.Init.DataPrescaler        = 1;
     hfdcan1.Init.DataSyncJumpWidth    = 1;
     hfdcan1.Init.DataTimeSeg1         = 1;
@@ -430,13 +427,13 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
     hfdcan2.Init.NominalPrescaler     = 2;
-    hfdcan2.Init.NominalSyncJumpWidth = 5;
-    hfdcan2.Init.NominalTimeSeg1      = 34;
-    hfdcan2.Init.NominalTimeSeg2      = 5;
+    hfdcan2.Init.NominalSyncJumpWidth = 2;
+    hfdcan2.Init.NominalTimeSeg1      = 45;
+    hfdcan2.Init.NominalTimeSeg2      = 2;
     hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 5;
-    hfdcan2.Init.DataTimeSeg1         = 14;
-    hfdcan2.Init.DataTimeSeg2         = 5;
+    hfdcan2.Init.DataSyncJumpWidth    = 6;
+    hfdcan2.Init.DataTimeSeg1         = 17;
+    hfdcan2.Init.DataTimeSeg2         = 6;
     hfdcan2.Init.MessageRAMOffset     = 0;
     hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 0;
