@@ -1,5 +1,7 @@
 #pragma once
-#include "math.h"
+#include <math.h>
+#include <assert.h>
+#include "io_log.h"
 
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
@@ -57,12 +59,31 @@ typedef enum
     EXIT_CODE_OUT_OF_RANGE,
     EXIT_CODE_TIMEOUT,
     EXIT_CODE_ERROR,
+    EXIT_CODE_BUSY,
     EXIT_CODE_UNIMPLEMENTED,
+    EXIT_CODE_RETRY_FAILED,
     NUM_EXIT_CODES,
 } ExitCode;
 
-#define EXIT_OK(code) ((code) == EXIT_CODE_OK)
+#define IS_EXIT_OK(code) ((code) == EXIT_CODE_OK)
+#define IS_EXIT_ERR(code) ((code) != EXIT_CODE_OK)
+#define ASSERT_EXIT_OK(code) (assert(code == EXIT_CODE_OK))
 
-#define RETURN_CODE_IF_EXIT_NOT_OK(code) \
-    if ((code) != EXIT_CODE_OK)          \
-    return (code)
+#define RETURN_IF_ERR(err_expr)                                                \
+    {                                                                          \
+        const ExitCode exit = err_expr;                                        \
+        if (IS_EXIT_ERR(exit))                                                 \
+        {                                                                      \
+            LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
+            return exit;                                                       \
+        }                                                                      \
+    }
+
+#define LOG_IF_ERR(err_expr)                                        \
+    {                                                               \
+        const ExitCode exit = err_expr;                             \
+        if (IS_EXIT_ERR(exit))                                      \
+        {                                                           \
+            LOG_ERROR(#err_expr " exited with an error: %d", exit); \
+        }                                                           \
+    }
