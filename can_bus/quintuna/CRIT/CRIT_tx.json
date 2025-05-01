@@ -12,6 +12,16 @@
             }
         }
     },
+    "Debug": {
+        "msg_id": 807,
+        "cycle_time": 1000,
+        "description": "CRIT Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
+    },
     "Switches": {
         "msg_id": 810,
         "cycle_time": 100,
@@ -83,7 +93,7 @@
     "WatermarkLevel": {
         "msg_id": 815,
         "cycle_time": 100,
-        "description":  "",
+        "description": "",
         "signals": {
             "StackWaterMarkHighTask1HzLevel": {
                 "resolution": 1,

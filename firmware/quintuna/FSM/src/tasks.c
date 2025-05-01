@@ -2,6 +2,9 @@
 #include "cmsis_os.h"
 #include "jobs.h"
 
+// app
+#include "app_canTx.h"
+
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -17,6 +20,7 @@
 #include "hw_cans.h"
 #include "hw_usb.h"
 #include "hw_adcs.h"
+#include "hw_resetReason.h"
 
 void tasks_preInit() {}
 
@@ -32,6 +36,8 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_usb_init();
     hw_adcs_chipsInit();
+
+    app_canTx_FSM_ResetReason_set((CanResetReason)hw_resetReason_get());
 
     jobs_init();
 }
