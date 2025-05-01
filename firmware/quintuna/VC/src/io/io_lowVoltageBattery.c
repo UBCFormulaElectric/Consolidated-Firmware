@@ -87,6 +87,51 @@ typedef struct __attribute__((packed))
     uint8_t RSVD1 : 5;
 } Control_Status;
 
+typedef struct __attribute__((packed))
+{
+    uint8_t RSVD1 : 1; // Reserved
+    uint8_t RSVD2 : 1; // Reserved
+    uint8_t CUV : 1;   // Cell undervoltage
+    uint8_t COV : 1;   // Cell overvoltage
+    uint8_t OCC : 1;   // Overcurrent in charge
+    uint8_t OCD1 : 1;  // Overcurrent in discharge 1
+    uint8_t OCD2 : 1;  // Overcurrent in discharge 2
+    uint8_t SCD : 1;   // Short Circuit in Discharge
+} SafteyAlertA;        // alerts associated with the battery chip
+
+typedef struct __attribute__((packed))
+{
+    uint8_t RSVD1 : 1; // Reserved
+    uint8_t RSVD2 : 1; // Reserved
+    uint8_t CUV : 1;   // Cell undervoltage
+    uint8_t COV : 1;   // Cell overvoltage
+    uint8_t OCC : 1;   // Overcurrent in charge
+    uint8_t OCD1 : 1;  // Overcurrent in discharge 1
+    uint8_t OCD2 : 1;  // Overcurrent in discharge 2
+    uint8_t SCD : 1;   // Short Circuit in Discharge
+} SafteyFaultA;        // Faults associated with the battery chip
+
+
+typedef struct __attribute__((packed))
+{
+    uint8_t INITCOMP : 1;
+    uint8_t INITSTART : 1;
+    uint8_t MSK_PFALERT :1;
+    uint8_t MSK_SFALERT : 1;
+    uint8_t PF :1;
+    uint8_t SSA :1;
+    uint8_t SSBC : 1;
+
+    uint8_t WAKE : 1; 
+    uint8_t ADSCAN : 1; 
+    uint8_t CB : 1;   
+    uint8_t FUSE : 1; 
+    uint8_t SHUTV : 1;
+    uint8_t XDSG : 1;  
+    uint8_t XCHG : 1;  
+    uint8_t FULLSCAN : 1;   
+} AlertStatus;
+
 typedef struct
 {
     float  r_sense;
@@ -172,6 +217,61 @@ static bool recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
     return true;
 }
 
+bool io_lowVoltageBattery_SafetyStatusCheck(){
+    uint8_t buffer_safety[1] = { (uint8_t)0x64 };
+    if (!hw_i2c_transmit(&bat_mtr, buffer_safety, 1))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    AlertStatus saftey;
+    if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&saftey, 2))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+
+    uint8_t buffer_safetA[1] = { (uint8_t)0x03 };
+    if (!hw_i2c_transmit(&bat_mtr, buffer_safetA, 1))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    SafteyFaultA safteyA;
+    if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&safteyA, 1))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+
+    uint8_t buffer_safetB[1] = { (uint8_t)0x05 };
+    if (!hw_i2c_transmit(&bat_mtr, buffer_safetB, 1))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    uint8_t safteyB[1];
+    if (!hw_i2c_receive(&bat_mtr, safteyB, 1))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    uint8_t buffer_safetC[1] = { (uint8_t)0x07 };
+    if (!hw_i2c_transmit(&bat_mtr, buffer_safetC, 1))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    uint8_t safteyC[1];
+    if (!hw_i2c_receive(&bat_mtr, safteyC, 1))
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+
+    return true;
+}
+
 bool io_lowVoltageBattery_initial_setup(void)
 {
     // checking if the target is even ready to communicate with
@@ -179,7 +279,9 @@ bool io_lowVoltageBattery_initial_setup(void)
     uint8_t buffer_bat[1] = { (uint8_t)BATTERY_STATUS };
 
     if (!hw_i2c_isTargetReady(&bat_mtr))
+    {
         return false;
+    }
 
     // ask for battery status to check if the device is sleep or not
     if (!hw_i2c_transmit(&bat_mtr, buffer_bat, 1))
@@ -194,6 +296,11 @@ bool io_lowVoltageBattery_initial_setup(void)
         BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
+
+    if(!io_lowVoltageBattery_SafetyStatusCheck()){
+        return false;
+    }
+
     // ask for control status
     uint8_t buffer_control[1] = { (uint8_t)CONTROL_STATUS };
     if (!hw_i2c_transmit(&bat_mtr, buffer_control, 1))
@@ -213,7 +320,7 @@ bool io_lowVoltageBattery_initial_setup(void)
         LOG_INFO("Battery is currently in sleep mode");
 
         uint16_t disable_sleep = 0x009A;
-        if (send_subcommand(disable_sleep))
+        if (!send_subcommand(disable_sleep))
         {
             return false;
         }
@@ -223,15 +330,24 @@ bool io_lowVoltageBattery_initial_setup(void)
         LOG_INFO("Battery is currently in deep sleep mode");
 
         uint16_t exit_deep_sleep = 0x00E;
-        if (send_subcommand(exit_deep_sleep))
+        if (!send_subcommand(exit_deep_sleep))
         {
             return false;
         }
     }
 
+    if (!hw_i2c_transmit(&bat_mtr, buffer_bat, 1))
+    {
+        return false;
+    }
+
+    if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&bat_status, 2))
+    {
+        return false;
+    }
     // turn on all the fets
     uint16_t turning_on_fets_cmd = 0x0096;
-    if (send_subcommand(turning_on_fets_cmd))
+    if (!send_subcommand(turning_on_fets_cmd))
     {
         return false;
     }
@@ -264,144 +380,6 @@ typedef enum
     OCD1_THRESHOLD         = 0x9282,
     OCD_RECOVERY_THRESHOLD = 0x928D
 } protection_t;
-
-// bool io_lowVoltageBattery_OTP_write(void)
-// {
-//     if (!send_subcommand(CONFIG_UPDATE_COMMAND))
-//     {
-//         return false;
-//     }
-
-//     if (!send_subcommand(OTP_WR_CHECK))
-//     {
-//         return false;
-//     }
-
-//     uint8_t response[2] = { 0 };
-//     if (!send_subcommand(OTP_WR_CHECK, 2, response))
-//     {
-//         return false;
-//     }
-
-//     /*Check if OTP can be written to (bit 7 of byte 0 should be set).*/
-//     if (!(response[0] & 0x80))
-//     {
-//         return false;
-//     }
-
-//     /**
-//      * config start
-//      */
-
-//     /* Get the current alert config */
-//     //sending a command
-//     uint8_t alert_config;
-//     if (!hw_i2c_memoryRead(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
-//     {
-//         return false;
-//     }
-
-//     /* Set the active-low bit while preserving other bits */
-//     alert_config |= (1 << ALERT_ACTIVE_LOW_BIT);
-//     if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, &alert_config, RESPONSE_LENGTH_SIZE))
-//     {
-//         return false;
-//     }
-
-//     /* Configure ALERT pin as an interrupt output */
-//     if (!hw_i2c_memoryWrite(&bat_mtr, ALERT_PIN_CONFIG, (uint8_t[]){ ALERT_PIN_INTERRUPT_CONFIG },
-//     RESPONSE_LENGTH_SIZE))
-//     {
-//         return false;
-//     }
-
-//     /* Enable ADC scan alerts */
-//     if (!hw_i2c_memoryWrite(&bat_mtr, ALARM_ENABLE_REG, (uint8_t[]){ ALARM_ENABLE_VALUE }, RESPONSE_LENGTH_SIZE))
-//     {
-//         return false;
-//     }
-
-//     /* Enable OV (Bit 3), UV (Bit 2), OCD1 (Bit 5) and SCD (Bit 7) */
-//     uint8_t protections_a = 0xAC;
-//     if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_A, &protections_a, 1))
-//     {
-//         return false;
-//     }
-
-//     /* Enable OTD (Bit 5) */
-//     uint8_t protections_b = 0x20;
-//     if (!hw_i2c_memoryWrite(&bat_mtr, ENABLED_PROTECTIONS_B, &protections_b, 1))
-//     {
-//         return false;
-//     }
-
-//     /* Set the OV threshold to ~4200mV */
-//     uint8_t ov_threshold = 0x53;
-//     if (hw_i2c_memoryWrite(&bat_mtr, OV_THRESHOLD, &ov_threshold, 1))
-//     {
-//         return false;
-//     }
-
-//     /* Set the UV threshold to ~2500mV */
-//     uint8_t uv_threshold = 0x31;
-//     if (!hw_i2c_memoryWrite(&bat_mtr, UV_THRESHOLD, &uv_threshold, 1))
-//     {
-//         return false;
-//     }
-
-//     /* Set OCD1 threshold to 30V (the default delay is acceptable) */
-//     uint8_t ocd1_threshold = 0x5A;
-//     if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_THRESHOLD, &ocd1_threshold, 1))
-//     {
-//         return false;
-//     }
-
-//     /* Set the OV, UV, and OCD1 delay to 100ms */
-//     uint8_t ov_u_ocd1_delay = 0x1E; // 100ms in register format
-//     if (!hw_i2c_memoryWrite(&bat_mtr, OV_DELAY, &ov_u_ocd1_delay, 1))
-//     {
-//         return false;
-//     }
-//     if (!hw_i2c_memoryWrite(&bat_mtr, UV_DELAY, &ov_u_ocd1_delay, 1))
-//     {
-//         return false;
-//     }
-//     if (!hw_i2c_memoryWrite(&bat_mtr, OCD1_DELAY, &ov_u_ocd1_delay, 1))
-//     {
-//         return false;
-//     }
-
-//     /* Default hysteresis for COV and CUV (0.1012V). */
-//     /* Default Recovery time for SCD (5s). */
-//     /* Default hysteresis for OCD (0.2A). */
-
-//     /* To-do: Validate config (not needed?)*/
-
-//     /**
-//      * config end
-//      */
-
-//     if (!send_subcommand(OTP_WR))
-//     {
-//         return false;
-//     }
-
-//     if (!send_subcommand(OTP_WR, 2, response)) {
-//         return false;
-//     }
-
-//     /*Verify if the write was sucessful (bit 7 of byte 0 should be set).*/
-//     if (!(response[0] & 0x80)) {
-//         return false;
-//     }
-
-//     if (!send_subcommand(CONFIG_UPDATE_EXIT_COMMAND))
-//     {
-//         return false;
-//     }
-
-//     return true;
-// }
 
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
@@ -476,4 +454,4 @@ uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
  *
  * @param GPIO_pin from the interupt.
  */
-void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin) {}
+void io_lowVoltageBattery_completeAlert_callBack(uint16_t GPIO_pin) {}
