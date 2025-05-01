@@ -1,8 +1,8 @@
 {
     "Vitals": {
         "msg_id": 500,
-        "cycle_time": 100,
-        "description": "VC vitals message.",
+        "cycle_time": 10,
+        "description": "VC Vital signals",
         "signals": {
             "Heartbeat": {
                 "bits": 1
@@ -12,8 +12,18 @@
             }
         }
     },
+    "Debug": {
+        "msg_id": 507,
+        "cycle_time": 1000,
+        "description": "VC Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
+    },
     "VehicleDynamics": {
-        "msg_id": 610,
+        "msg_id": 510,
         "cycle_time": 100,
         "description": "Vehicle dynamics info",
         "signals": {
@@ -26,7 +36,7 @@
         }
     },
     "GlobalShdnNodeStatus": {
-        "msg_id": 611,
+        "msg_id": 511,
         "cycle_time": 100,
         "description": "Global Shutdown Node Status",
         "signals": {
