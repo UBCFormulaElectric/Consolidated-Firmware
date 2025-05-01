@@ -25,7 +25,6 @@
             }
         }
     },
-
     "Coolant": {
 		"msg_id": 702,
 		"cycle_time": 1000,
@@ -102,7 +101,6 @@
             }
         }
     },
-
     "Brakes": {
         "msg_id": 705,
         "cycle_time": 1000,
@@ -113,6 +111,16 @@
                 "min": 0,
                 "max": 100,
                 "unit": "bar"
+            }
+        }
+    },
+    "Debug": {
+        "msg_id": 707,
+        "cycle_time": 1000,
+        "description": "RSM Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
             }
         }
     }

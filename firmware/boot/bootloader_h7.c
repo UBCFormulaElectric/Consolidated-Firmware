@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "hw_flash.h"
 #include "hw_hal.h"
-#include "hw_can.h"
+#include "hw_fdcan.h"
 
 extern CanHandle can;
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
