@@ -159,6 +159,7 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
         return false;
     }
     // Start timing for measuring transmission speeds
+    bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
     const ExitCode exit =
         hw_uart_transmit(&_900k_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length

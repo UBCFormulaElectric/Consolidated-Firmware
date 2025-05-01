@@ -144,8 +144,8 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
