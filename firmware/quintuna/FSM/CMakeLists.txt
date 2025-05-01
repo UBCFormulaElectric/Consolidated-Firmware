@@ -7,13 +7,18 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
-file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
+set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
+set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -135,4 +140,34 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/quintuna_FSM_boot.hex"
     )
 elseif ("${TARGET}" STREQUAL "test")
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    compile_gtest_executable(
+            "quintuna_FSM_test"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+    )
+
+    add_compile_definitions("quintuna_FSM_test" PRIVATE STM32F412Rx)
+
+    # JSONCAN
+    jsoncan_library(FSM quintuna "${CMAKE_CURRENT_BINARY_DIR}")
+    # CommitInfo
+    commit_info_library(
+            "quintuna_FSM_test"
+            "quintuna_FSM_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+    )
+    # FakeIO
+    set(HEADERS_TO_FAKE
+            #            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/[...].h"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h" # this is used by the test fixture
+    )
+    create_fake_library(
+            "quintuna_FSM_fakes"
+            "${HEADERS_TO_FAKE}"
+    )
+
+    target_link_libraries("quintuna_FSM_test" PRIVATE "quintuna_FSM_fakes" "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info")
 endif ()
