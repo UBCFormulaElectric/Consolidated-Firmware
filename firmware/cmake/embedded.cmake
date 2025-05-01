@@ -14,16 +14,16 @@ option(BUILD_ASM "Build the assembly files" OFF)
 # STM32CUBEMX Binary Path
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     # check if you have the STM32CubeMX_PATH environment variable set
-    if(NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
+    if (NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
         set(STM32CUBEMX_BIN_PATH "$ENV{STM32CubeMX_PATH}/STM32CubeMX.exe")
-    else()
-    # if not, guess the you have it here
+    else ()
+        # if not, guess the you have it here
         set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
         # check if the file exists
-        if(NOT EXISTS ${STM32CUBEMX_BIN_PATH})
+        if (NOT EXISTS ${STM32CUBEMX_BIN_PATH})
             message(FATAL_ERROR "❌ STM32CubeMX not found at ${STM32CUBEMX_BIN_PATH}")
-        endif()
-    endif()
+        endif ()
+    endif ()
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
@@ -40,6 +40,7 @@ set(SHARED_COMPILER_DEFINES
         -DARM_MATH_ROUNDING
 )
 set(SHARED_COMPILER_FLAGS
+        --specs=nosys.specs
         -mthumb
         -mthumb-interwork
         -ffunction-sections
@@ -58,22 +59,23 @@ set(SHARED_COMPILER_FLAGS
         -Wno-unused-variable
         -Wno-unused-parameter
 )
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     list(APPEND SHARED_COMPILER_FLAGS
             -O0 # previously O0, idk why this breaks bootloader??
             -g3
     )
-else()
+else ()
     list(APPEND SHARED_COMPILER_FLAGS
             -Os
             -g0
     )
-endif()
+endif ()
 set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker
-        --specs=nosys.specs
+        -static
         --specs=nano.specs
+        --specs=nosys.specs
 )
 
 set(CM4_DEFINES
@@ -114,11 +116,11 @@ function(embedded_library
         )
 
         # Suppress source file warnings for third-party code.
-#        list(APPEND COMPILER_FLAGS -w)
+        #        list(APPEND COMPILER_FLAGS -w)
         embedded_no_checks("${LIB_SRCS}")
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
-#        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})
+        #        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})
     ENDIF ()
 
     set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
@@ -184,6 +186,7 @@ function(embedded_binary
 )
     message("  ➕ [embedded.cmake, embedded_binary()] Creating Embedded Target for ${BIN_NAME}")
     set(ELF_NAME "${BIN_NAME}.elf")
+    set_source_files_properties(${BIN_SRCS} PROPERTIES COMPILE_FLAGS "-fsanitize=undefined")
     add_executable(${ELF_NAME} ${BIN_SRCS})
 
     target_include_directories(${ELF_NAME}
@@ -282,8 +285,28 @@ function(embedded_image
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
 
-function (embedded_no_checks SRCS)
-    message("  🚫 [embedded.cmake, embedded_no_checks()] Disabling Warnings for ${SRCS}")
+function(embedded_no_checks SRCS)
+    set(unique_dirs "")  # Initialize empty list
+
+    foreach (file_path IN LISTS SRCS)
+        # Get absolute path to file
+        get_filename_component(abs_file_path "${file_path}" ABSOLUTE)
+
+        # Get directory of the file
+        get_filename_component(dir_path "${abs_file_path}" DIRECTORY)
+
+        # Get path relative to the CMake root
+        file(RELATIVE_PATH rel_path "${CMAKE_SOURCE_DIR}" "${dir_path}")
+
+        # Avoid duplicates
+        list(FIND unique_dirs "${rel_path}" found_index)
+        if (found_index EQUAL -1)
+            list(APPEND unique_dirs "${rel_path}")
+        endif ()
+    endforeach ()
+
+    list(LENGTH SRCS SRCS_LENGTH)
+    message("  🚫 [embedded.cmake, embedded_no_checks()] Disabling Warnings for ${SRCS_LENGTH} files under ${unique_dirs}")
     set_source_files_properties(
             ${SRCS}
             PROPERTIES COMPILE_FLAGS "-w"

@@ -5,12 +5,20 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
 #include "hw_pwmInput.h"
+#include "main.h"
 
 /**
  * Initialize the PWM input for measuring the IMD's PWM output
- * @param pwm_input_config The config for measuring the IMD's PWM output.
  */
-void io_imd_init(const PwmInputConfig *pwm_input_config);
+void io_imd_init(void);
+
+/**
+ * Updates the frequency and duty cycle for the IMD's PWM output. This should
+ * be called in the input capture callback function.
+ * @param htim The handle of the timer that triggered the input capture callback
+ *             function
+ */
+void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
 #endif
 
 /**
@@ -24,16 +32,6 @@ float io_imd_getFrequency(void);
  * @return The duty cycle of the IMD's PWM output
  */
 float io_imd_getDutyCycle(void);
-
-#ifdef TARGET_EMBEDDED
-/**
- * Updates the frequency and duty cycle for the IMD's PWM output. This should
- * be called in the input capture callback function.
- * @param htim The handle of the timer that triggered the input capture callback
- *             function
- */
-void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
-#endif
 
 /**
  * Get the time elapsed since the IMD was powered on
