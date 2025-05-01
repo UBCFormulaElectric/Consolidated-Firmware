@@ -1,18 +1,17 @@
 {
-    "warnings_id": 501,
-    "faults_id": 502,
-    "warnings_counts_id": 503,
-    "faults_counts_id": 504,
-    "warnings": {
-    },
-    "faults": {
-        "DummyFault": {
-            "id": 500,
-            "description": "Dummy Fault"
-        }
+  "bus": ["Can"],
+  "warnings_id": 501,
+  "faults_id": 502,
+  "warnings_counts_id": 503,
+  "faults_counts_id": 504,
+  "warnings": {},
+  "faults": {
+    "DummyFault": {
+      "id": 500,
+      "description": "Dummy Fault"
     }
   },
-  "info_id": 608,
-  "info_counts_id": 609,
+  "info_id": 505,
+  "info_counts_id": 506,
   "info": {}
 }

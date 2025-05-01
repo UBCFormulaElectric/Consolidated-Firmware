@@ -1,22 +1,24 @@
 {
-    "Vitals": {
-        "msg_id": 800,
-        "cycle_time": 10,
-        "description": "DAM Vital signals",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            }
-        }
-    },
-    "Debug": {
-        "msg_id": 807,
-        "cycle_time": 1000,
-        "description": "DAM Debug Signals",
-        "signals": {
-            "ResetReason": {
-                "enum": "CanResetReason"
-            }
-        }
+  "Vitals": {
+    "msg_id": 800,
+    "bus": ["Can"],
+    "cycle_time": 10,
+    "description": "DAM Vital signals",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      }
     }
+  },
+  "Debug": {
+    "msg_id": 807,
+    "bus": ["Can"],
+    "cycle_time": 1000,
+    "description": "DAM Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      }
+    }
+  }
 }

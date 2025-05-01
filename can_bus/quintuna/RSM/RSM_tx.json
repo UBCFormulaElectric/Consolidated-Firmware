@@ -1,39 +1,41 @@
 {
-    "Vitals": {
-      "msg_id": 700,
-      "bus": ["Can"],
-      "cycle_time": 100,
-      "description": "RSM vitals message.",
-      "signals": {
-        "Heartbeat": {
-          "bits": 1
-        },
-        "State": {
-          "enum": "RsmStates"
-        }
+  "Vitals": {
+    "msg_id": 700,
+    "bus": ["Can2"],
+    "cycle_time": 100,
+    "description": "RSM vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "State": {
+        "enum": "RsmStates"
       }
-    },
-    "CommitInfo": {
-      "msg_id": 706,
-      "bus": ["Can"],
-      "cycle_time": 100,
-      "description": "RSM Commit Info",
-      "signals": {
-        "Hash": {
-          "bits": 32
-        },
-        "Clean": {
-          "bits": 1
-        }
-    },
-    "Debug": {
-        "msg_id": 707,
-        "cycle_time": 1000,
-        "description": "RSM Debug Signals",
-        "signals": {
-            "ResetReason": {
-                "enum": "CanResetReason"
-            }
-        }
     }
+  },
+  "CommitInfo": {
+    "msg_id": 706,
+    "bus": ["Can2"],
+    "cycle_time": 100,
+    "description": "RSM Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Debug": {
+    "msg_id": 707,
+    "bus": ["Can2"],
+    "cycle_time": 1000,
+    "description": "RSM Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      }
+    }
+  }
 }
