@@ -26,6 +26,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
