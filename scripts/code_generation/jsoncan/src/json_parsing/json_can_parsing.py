@@ -12,14 +12,9 @@ from typing import Any, Tuple
 from ..can_database import *
 from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
-from .schema_validation import (
-    AlertsJson,
-    validate_alerts_json,
-    validate_bus_json,
-    validate_enum_json,
-    validate_rx_json,
-    validate_tx_json,
-)
+from .schema_validation import (AlertsJson, validate_alerts_json,
+                                validate_bus_json, validate_enum_json,
+                                validate_rx_json, validate_tx_json)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -139,7 +134,7 @@ class JsonCanParser:
             if bus["default_mode"] not in bus["modes"]:
                 raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
 
-        buses = {
+        buses_obj = {
             bus["name"]: CanBusConfig(
                 name=bus["name"],
                 default_mode=bus["default_mode"],
@@ -151,8 +146,8 @@ class JsonCanParser:
             for bus in buses
         }
 
-        self._bus_cfg = buses
-        return buses
+        self._bus_cfg = buses_obj
+        return buses_obj
 
     def _parse_json_shared_enum_data(self, can_data_dir) -> List[CanEnum]:
         """
@@ -343,22 +338,12 @@ class JsonCanParser:
             rx_msgs_obj = CanRxMessages(node=node, messages=rx_msgs_obj_map)
             self._can_rx[node] = rx_msgs_obj
 
-    def _find_node_bus(self, tx_msg: Set[CanMessage]) -> Set[CanBusConfig]:
-        """
-        Find the all the bus that a node is transmitting on.
-        """
-        bus = set()
-        for msg in tx_msg:
-            bus.update(msg.bus)
-        return bus
-
     def _consistency_check(self):
         # no same message name, signal name, enum name
         # message can't transmit and receive by the same node
         # no overlapping bus
         # object cross reference consistency
 
-        overlap_set = set()
         for node_name, node_obj in self._nodes.items():
             node_buses = node_obj.buses
             # check if the bus exist in the bus config
@@ -402,12 +387,49 @@ class JsonCanParser:
             if msg_obj.tx_node not in self._nodes:
                 raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
 
-    def _register_alert_message(self, alerts_msg: List[CanMessage]):
+    def _register_alert_message(self, alerts_msgs: List[CanMessage]):
         """
         Register the alert message to the node.x
         """
         # automatically decide which port should receive the alert message
         # fix the node, message, rx object
+
+        # alerts is recieved by all nodes
+        for alerts_msg in alerts_msgs:
+            # for all nodes
+            for _, node in self._nodes.items():
+                if (alerts_msg.tx_node == node.name):
+                    # skip the node that transmit the message
+                    continue
+                # if msg is trasmitted on the rx port on node bus
+                overlap_bus = set(alerts_msg.bus) & set(node.buses)
+                if len(overlap_bus) > 0:
+                    overlap_bus = list(overlap_bus)[0]
+                    # add the message to the node's rx messages
+                    if alerts_msg.name not in node.rx_msgs:
+                        node.rx_msgs.append(alerts_msg.name)
+
+                    # add rx message obj
+                    self._can_rx[node.name].messages.setdefault(overlap_bus, []).append(
+                        alerts_msg.name
+                    )
+                else:
+                    # if the message is not on the bus then it is not received by this node
+                    # need to reroute
+                    # random pick a rx port from the node
+
+                    rx_bus = node.buses[0] if node.buses else None
+                    if rx_bus is None:
+                        continue
+
+                    if alerts_msg.name not in node.rx_msgs:
+                        node.rx_msgs.append(alerts_msg.name)
+                    # add rx message obj
+                    self._can_rx[node.name].messages.setdefault(rx_bus, []).append(
+                        alerts_msg.name
+                    )
+
+        print("dine")
 
     def _find_reroute(self, can_data_dir) -> List[CanForward]:
         # design choice
@@ -443,7 +465,7 @@ class JsonCanParser:
             tx_messages = bus_tx_messages[bus_name]
             rx_messages = bus_rx_messages[bus_name]
 
-            # check intersection between tx and rx messages
+            # rx message that is not transmitted on the current bus
             forward_messages = rx_messages - tx_messages
             rx_bus = bus_name
             # if there is a rx message that is not in the tx message then the message is from another bus so we need to reroute it

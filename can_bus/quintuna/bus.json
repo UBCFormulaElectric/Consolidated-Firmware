@@ -25,14 +25,14 @@
       "default_mode": "DEFAULT"
     },
     {
-      "name": "Can",
+      "name": "Can2",
       "nodes": ["VC", "FSM", "RSM", "CRIT"],
       "bus_speed": 500,
       "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     },
     {
-      "name": "Can",
+      "name": "Can3",
       "nodes": ["VC"],
       "bus_speed": 500,
       "modes": ["DEFAULT", "DEBUG"],
