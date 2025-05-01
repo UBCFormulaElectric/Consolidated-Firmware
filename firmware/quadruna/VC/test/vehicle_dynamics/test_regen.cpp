@@ -12,7 +12,7 @@ extern "C"
 #include "app_vehicleDynamics.h"
 }
 
-class TestRegen : public VcBaseStateMachineTest
+class TestRegen : public VCBaseTest
 {
 };
 

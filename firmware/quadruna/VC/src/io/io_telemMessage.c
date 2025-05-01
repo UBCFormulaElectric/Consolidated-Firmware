@@ -1,4 +1,5 @@
 #include "io_telemMessage.h"
+#include "hw_uarts.h"
 #include "telem.pb.h"
 #include "pb_encode.h"
 #include "cmsis_os.h"
@@ -13,15 +14,9 @@
 #define CAN_DATA_LENGTH 12
 #define UART_LENGTH 1
 #define QUEUE_SIZE 50
-static bool modem_900_choice;
-typedef struct
-{
-    const UART *modem900M;
-    const UART *modem2_4G;
-} Modem;
-static const Modem modem = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 #define QUEUE_BYTES CAN_DATA_LENGTH *QUEUE_SIZE
 
+static bool               modem_900_choice;
 static bool               proto_status;
 static uint8_t            proto_msg_length;
 static StaticQueue_t      queue_control_block;
@@ -108,14 +103,15 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     SEGGER_SYSVIEW_MarkStart(0);
     if (modem_900_choice)
     {
-        hw_uart_transmitPoll(modem.modem900M, &proto_out_length, UART_LENGTH, UART_LENGTH);
-        hw_uart_transmitPoll(modem.modem900M, proto_out, (uint8_t)sizeof(proto_out), 100);
-        // hw_uart_transmitPoll(modem->modem900M, &zero_test, UART_LENGT/H, UART_LENGTH);
+        // TODO: Handle error codes on Quintuna!
+        hw_uart_transmit(&modem_900k_uart, &proto_out_length, UART_LENGTH);
+        hw_uart_transmit(&modem_900k_uart, proto_out, (uint8_t)sizeof(proto_out));
     }
     else
     {
-        hw_uart_transmitPoll(modem.modem2_4G, &proto_msg_length, UART_LENGTH, UART_LENGTH);
-        hw_uart_transmitPoll(modem.modem2_4G, proto_out, (uint8_t)sizeof(proto_out), 100);
+        // TODO: Handle error codes on Quintuna!
+        hw_uart_transmit(&modem_2g4_uart, &proto_msg_length, UART_LENGTH);
+        hw_uart_transmit(&modem_2g4_uart, proto_out, (uint8_t)sizeof(proto_out));
     }
     SEGGER_SYSVIEW_MarkStop(0);
 

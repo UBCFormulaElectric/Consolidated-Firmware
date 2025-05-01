@@ -44,6 +44,48 @@
       },
     },
     {
+      "name": "Debug Embedded: VC (Quintuna)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
+      ],
+      "preLaunchTask": "Build Embedded: VC (Quintuna)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H733VG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: VC",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+
+    {
       "name": "Debug Embedded: DAM (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",

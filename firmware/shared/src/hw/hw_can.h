@@ -3,38 +3,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
+#include "main.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
-#ifdef CANFD
-// STM32 HAL CAN FD handle.
-typedef struct
-{
-    FDCAN_HandleTypeDef *hcan;
-    uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
-    bool                 ready;
-} CanHandle;
-/**
- * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
- * @param hcan takes a handle to a STM32 HAL CAN object
- * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
- */
-const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
-#else
 // STM32 HAL CAN handle.
+
 typedef struct
 {
-    CAN_HandleTypeDef *hcan;
-    uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
-    bool               ready;
+    CAN_HandleTypeDef *const hcan;
+    const uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    void (*const receive_callback)(const CanMsg *rx_msg);
+    bool ready;
 } CanHandle;
+
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
-#endif
 #endif
 
 /**

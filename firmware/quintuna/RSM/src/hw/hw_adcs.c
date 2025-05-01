@@ -2,10 +2,10 @@
 #include "main.h"
 #include <assert.h>
 
-static uint16_t raw_adc_values[6];
-static float    adc_voltages[6];
+static uint16_t raw_adc_values[4];
+static float    adc_voltages[4];
 const AdcChip   adc1 = { .adc_voltages    = adc_voltages,
-                         .channel_count   = 6,
+                         .channel_count   = 4,
                          .hadc            = &hadc1,
                          .htim            = &htim2,
                          .is_differential = false,

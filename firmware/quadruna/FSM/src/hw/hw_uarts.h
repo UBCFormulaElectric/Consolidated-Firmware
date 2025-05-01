@@ -1,4 +1,5 @@
 #pragma once
+
 #include "hw_uart.h"
 
-extern const UART debug_uart;
+extern UartDevice chimera_uart;

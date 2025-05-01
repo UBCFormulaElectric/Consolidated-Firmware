@@ -1,5 +1,6 @@
 #pragma once
 
+#include "app_utils.h"
 #include "hw_hal.h"
 
 #define TICK_TO_MS(tick) ((tick) * portTICK_PERIOD_MS)
@@ -10,3 +11,5 @@
     {                                                     \
         __asm__ __volatile__("bkpt #0");                  \
     }
+
+ExitCode hw_utils_convertHalStatus(HAL_StatusTypeDef status);

@@ -8,6 +8,7 @@
 #include "hw_adcs.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
+#include "hw_uarts.h"
 
 #include "shared.pb.h"
 #include "VC.pb.h"
@@ -20,7 +21,6 @@
  */
 extern const Gpio *const       id_to_gpio[]; // TODO make these proper functions, rather than implicit list indexing?
 extern const AdcChannel *const id_to_adc[];  // TODO make these proper functions, rather than implicit list indexing?
-extern const UART             *chimera_uart;
 extern const Gpio             *n_chimera_gpio;
 
 static bool     is_mid_debug_msg;
@@ -106,7 +106,7 @@ void io_chimera_init(const uint32_t name_gpio, const uint32_t name_adc)
 
     if (chimera_button_pressed)
     {
-        hw_uart_receiveIt(chimera_uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
+        hw_uart_receiveCallback(&chimera_uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
     }
 }
 
@@ -161,8 +161,8 @@ void io_chimera_msgRxCallback(void)
         assert(pb_encode(&out_stream, DebugMessage_fields, &msg));
         uint8_t tx_packet_size = (uint8_t)out_stream.bytes_written;
 
-        hw_uart_transmitPoll(chimera_uart, &tx_packet_size, DEBUG_SIZE_MSG_BUF_SIZE, osWaitForever);
-        hw_uart_transmitPoll(chimera_uart, data, tx_packet_size, osWaitForever);
+        hw_uart_transmit(&chimera_uart, &tx_packet_size, DEBUG_SIZE_MSG_BUF_SIZE);
+        hw_uart_transmit(&chimera_uart, data, tx_packet_size);
 
         // Wait for next length message (1 byte).
         rx_packet_size   = DEBUG_SIZE_MSG_BUF_SIZE;
@@ -177,5 +177,5 @@ void io_chimera_msgRxCallback(void)
 
     // Start receiving data in interrupt mode again so this interrupt will get fired if
     // more data is recieved.
-    hw_uart_receiveIt(chimera_uart, data, rx_packet_size);
+    hw_uart_receiveCallback(&chimera_uart, data, rx_packet_size);
 }

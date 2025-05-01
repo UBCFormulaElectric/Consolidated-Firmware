@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include <assert.h>
 // protobufs
 #include "shared.pb.h"
 #include "CRIT.pb.h"
@@ -19,6 +20,7 @@
 #include "io_leds.h"
 #include "io_switches.h"
 #include "io_canQueue.h"
+#include "io_bootHandler.h"
 // can
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -40,7 +42,8 @@
 
 #include <assert.h>
 
-static CanHandle can = { .hcan = &hcan1 };
+static CanHandle can = { .hcan = &hcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
+
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
 {
     assert(hcan == can.hcan);
@@ -253,9 +256,6 @@ const AdcChannel *id_to_adc[] = {
     [CRIT_AdcNetName_REGEN_3V3] = &regen,
 };
 
-static const UART debug_uart = { .handle = &huart2 };
-
-const UART *chimera_uart   = &debug_uart;
 const Gpio *n_chimera_gpio = &n_chimera_pin;
 
 static const Leds led_config = {
@@ -396,6 +396,8 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg     rx_msg         = io_canQueue_popRx(&rx_msg);
         JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+
+        io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
@@ -461,13 +463,5 @@ _Noreturn void tasks_run1Hz(void)
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
-    }
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
-        io_chimera_msgRxCallback();
     }
 }

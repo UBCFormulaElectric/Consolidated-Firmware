@@ -222,6 +222,9 @@
       },
       "EkfSolutionMode": {
         "enum": "VcEkfStatus"
+      },
+      "EllipseQueueOverflowCount": {
+        "bits": 8
       }
     }
   },
