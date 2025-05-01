@@ -1,3 +1,3 @@
 #pragma once
 
-float io_brake_getPressure(void); 
+float io_brake_getPressure(void);

@@ -62,7 +62,6 @@ void jobs_run100Hz_tick(void)
     }
 
     LOG_INFO("Flow rate: %.2f L/min", (double)io_coolant_getFlowRate());
-    
 }
 
 void jobs_run1kHz_tick(void)

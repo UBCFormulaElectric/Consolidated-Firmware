@@ -13,7 +13,8 @@ const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c,
 
 bool io_imu_getLinAccel(float *x, float *y, float *z)
 {
-    if(io_imu_getLinearAccelerationX(x) && io_imu_getLinearAccelerationY(y) && io_imu_getLinearAccelerationZ(z)) {
+    if (io_imu_getLinearAccelerationX(x) && io_imu_getLinearAccelerationY(y) && io_imu_getLinearAccelerationZ(z))
+    {
         return true;
     }
     return false;
@@ -21,7 +22,8 @@ bool io_imu_getLinAccel(float *x, float *y, float *z)
 
 bool io_imu_getAngVel(float *x, float *y, float *z)
 {
-    if(io_imu_getAngularVelocityRoll(x) && io_imu_getAngularVelocityPitch(y) && io_imu_getAngularVelocityYaw(z)) {
+    if (io_imu_getAngularVelocityRoll(x) && io_imu_getAngularVelocityPitch(y) && io_imu_getAngularVelocityYaw(z))
+    {
         return true;
     }
     return false;

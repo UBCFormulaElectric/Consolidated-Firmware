@@ -12,6 +12,3 @@ float io_brake_getPressure(void)
     float voltage = hw_adc_getVoltage(&bps_3v3);
     return (voltage - VOLTAGE_OFFSET) / VOLTS_PER_PSI;
 }
-
-
-
