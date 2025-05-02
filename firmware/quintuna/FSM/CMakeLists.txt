@@ -162,9 +162,12 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     # FakeIO
     set(HEADERS_TO_FAKE
-            #            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/[...].h"
+            "${SHARED_IO_INCLUDE_DIR}/io_imu.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_canQueue.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h" # this is used by the test fixture
     )
+    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
+    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
     create_fake_library(
             "quintuna_FSM_fakes"
             "${HEADERS_TO_FAKE}"
