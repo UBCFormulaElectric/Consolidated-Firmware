@@ -1,37 +1,6 @@
 [
   {
     "bus": "Can",
-    "messages": [
-      "VC_Warnings",
-      "VC_WarningsCounts",
-      "VC_Faults",
-      "VC_FaultsCounts",
-      "VC_Info",
-      "VC_InfoCounts",
-      "BMS_Warnings",
-      "BMS_WarningsCounts",
-      "BMS_Faults",
-      "BMS_FaultsCounts",
-      "BMS_Info",
-      "BMS_InfoCounts",
-      "FSM_Warnings",
-      "FSM_WarningsCounts",
-      "FSM_Faults",
-      "FSM_FaultsCounts",
-      "FSM_Info",
-      "FSM_InfoCounts",
-      "RSM_Warnings",
-      "RSM_WarningsCounts",
-      "RSM_Faults",
-      "RSM_FaultsCounts",
-      "RSM_Info",
-      "RSM_InfoCounts",
-      "dimos_Warnings",
-      "dimos_WarningsCounts",
-      "dimos_Faults",
-      "dimos_FaultsCounts",
-      "dimos_Info",
-      "dimos_InfoCounts"
-    ]
+    "messages": []
   }
 ]
