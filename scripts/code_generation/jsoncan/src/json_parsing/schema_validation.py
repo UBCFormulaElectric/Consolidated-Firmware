@@ -100,7 +100,7 @@ rx_schema = Schema(
         [
             {
                 "bus": str,
-                "messages": Or([str], "all"),  # Use schema.List to define a list of strings
+                "messages": [str],  # Use schema.List to define a list of strings
             }
         ],
     )
