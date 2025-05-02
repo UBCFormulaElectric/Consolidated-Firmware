@@ -1,5 +1,6 @@
 #pragma once
 
+#include "app_utils.h"
 #ifdef TARGET_EMBEDDED
 #include "hw_gpios.h"
 #include "hw_i2cs.h"
@@ -27,7 +28,7 @@ typedef enum
  *
  * @return true if initialization was successful; false otherwise.
  */
-bool io_lowVoltageBattery_init();
+ExitCode io_lowVoltageBattery_init();
 
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
@@ -46,7 +47,7 @@ double io_lowVoltageBattery_get_SOC();
 uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
 
 // intial setup for battery monitoring chip
-bool io_lowVoltageBattery_initial_setup(void);
+ExitCode io_lowVoltageBattery_initial_setup(void);
 
 /**
  * @brief Handles releasing the semaphore after an interupt.
