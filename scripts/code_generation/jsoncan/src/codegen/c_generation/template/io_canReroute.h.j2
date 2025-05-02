@@ -5,6 +5,9 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
+#include "app_canUtils.h"
+#include "io_canTx.h"
+
 
 {# 
     1. init transmit functions
@@ -27,6 +30,9 @@ void io_canReroute_init(
     {% endfor %}
 );
 
-void io_canReroute_filter();
+{% for bus in node.buses -%}
+void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg);
+{% endfor %}
+
 
 

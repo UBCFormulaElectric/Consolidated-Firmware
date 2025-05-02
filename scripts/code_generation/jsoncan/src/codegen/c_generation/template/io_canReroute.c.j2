@@ -4,8 +4,7 @@
 // clang-format off
 
 /* ------------------------------- Includes ------------------------------- */
-
-#include "io_canRx.h"
+#include "io_canReroute.h"
 
 {# 
     1. init transmit functions
@@ -24,12 +23,7 @@
 static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
 {% endfor -%}
 
-{# static void do_transmit(const JsonCanMsg* tx_msg)
-{
-    {% for bus in node.buses -%}
-    transmit_func_{{bus.name}}(tx_msg);
-    {% endfor %}
-} #}
+
 
 
 
@@ -46,20 +40,16 @@ void io_canReroute_init(
     {% endfor %}
 }
 
-void io_canReroute(const JsonCanMsg* rx_msg)
+{% for bus in node.buses -%}
+void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg)
 {
     switch(rx_msg->std_id)
     {
-        {% for r in reroutes -%}
-        case {{ r.message.id_macro() }}:
+        {% for r in reroutes[bus] -%}
+        {%- set message = messages[r.message] -%}
+        case {{ message.id_macro() }}:
         {
-            // Reroute message from {{r.message.tx_node}} to {{ r.receive_node }}
-            {%- set buses = nodes[r.receive_node].buses -%}
-            {% for bus in buses %}
-            {% if loop.first -%}
-            transmit_func_{{ bus }}(rx_msg);
-            {%- endif -%}
-            {% endfor %}
+            transmit_func_{{bus}}(rx_msg);
         }
         {% endfor %}
 
@@ -67,4 +57,5 @@ void io_canReroute(const JsonCanMsg* rx_msg)
             break;
     }
 }
+{% endfor %}
 

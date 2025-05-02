@@ -11,9 +11,12 @@ class IoCanRerouteModule:
         self._node = node
 
     def header_template(self):
-        if self._node != "VC":
+        list_of_reroutes = []
+        for msg in self._db.reroute_msgs:
+            if msg.forwarder == self._node:
+                list_of_reroutes.append(msg)
+        if len(list_of_reroutes) == 0:
             return ""
-
         template = load_template("io_canReroute.h.j2")
         j2_env = j2.Environment(
             loader=j2.BaseLoader, extensions=["jinja2.ext.loopcontrols"]
@@ -23,17 +26,28 @@ class IoCanRerouteModule:
         return template.render(node=node_obj)
 
     def source_template(self):
-        if self._node != "VC":
+        list_of_reroutes = []
+        for msg in self._db.reroute_msgs:
+            if msg.forwarder == self._node:
+                list_of_reroutes.append(msg)
+        if len(list_of_reroutes) == 0:
             return ""
+
+        node_obj = self._db.nodes[self._node]
+
+        # dict from bus name to list of messages
+        reroutes = {bus: [] for bus in node_obj.buses}
+        for msg in list_of_reroutes:
+            reroutes[msg.from_bus].append(msg)
 
         template = load_template("io_canReroute.c.j2")
         j2_env = j2.Environment(
             loader=j2.BaseLoader, extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(template)
-        node_obj = self._db.nodes[self._node]
         return template.render(
-            reroutes=self._db.reroute_msgs,
+            reroutes=reroutes,
+            messages=self._db.msgs,
             node=node_obj,
             nodes=self._db.nodes,
         )
