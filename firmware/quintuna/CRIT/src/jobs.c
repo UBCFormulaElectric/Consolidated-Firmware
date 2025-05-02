@@ -40,7 +40,7 @@ void jobs_init(void)
 void jobs_run1Hz_tick(void)
 {
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode_Can2(CAN_MODE_DEBUG, debug_mode_enabled);
+    io_canTx_enableMode_Can2(CAN2_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
 }
 
