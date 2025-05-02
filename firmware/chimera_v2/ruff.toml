@@ -1,0 +1,10 @@
+exclude = ["./proto_autogen"]
+line-length = 88
+indent-width = 4
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
+line-ending = "auto"
+docstring-code-format = true

@@ -30,9 +30,9 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -42,7 +42,32 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef hadc1;
+    extern ADC_HandleTypeDef hadc3;
+    extern DMA_HandleTypeDef hdma_adc1;
+    extern DMA_HandleTypeDef hdma_adc3;
+    // extern CRC_HandleTypeDef   hcrc;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan2;
+    extern SD_HandleTypeDef    hsd1;
+    extern SPI_HandleTypeDef   hspi4;
+    extern TIM_HandleTypeDef   htim1;
+    extern TIM_HandleTypeDef   htim3;
+    extern TIM_HandleTypeDef   htim5;
+    extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
+    extern IWDG_HandleTypeDef  hiwdg1;
 
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t TaskCanTxHandle;
+
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -60,6 +85,7 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define TIM3_PRESCALER 10
 #define ADC_FREQUENCY 1000
+#define TASKCANTX_STACK_SIZE 512
 #define TIM1_AUTO_RELOAD_REG 0xFFFF
 #define TIMx_FREQUENCY 550000000
 #define IWDG_RESET_FREQUENCY 5
@@ -74,7 +100,10 @@ extern "C"
 #define TIM1_PWM_MIN_FREQUENCY 1
 #define LSI_FREQUENCY 32000
 #define TIM1_PRESCALER (TIM1_FREQUENCY / TIM1_AUTO_RELOAD_REG / TIM1_PWM_MIN_FREQUENCY)
-#define TASKCANTX_STACK_SIZE 512
+#define TIM5_FREQUENCY 275000000
+#define TIM5_AUTO_RELOAD_REG 0xFFFF
+#define TIM5_PWM_MIN_FREQUENCY 1
+#define TIM5_PRESCALER (TIM5_FREQUENCY / TIM5_AUTO_RELOAD_REG / TIM5_PWM_MIN_FREQUENCY)
 #define IR_P_EN_Pin GPIO_PIN_3
 #define IR_P_EN_GPIO_Port GPIOE
 #define SHDN_EN_Pin GPIO_PIN_4
@@ -97,8 +126,6 @@ extern "C"
 #define EMETER_THERM_SNS_GPIO_Port GPIOA
 #define SHDN_ISNS_Pin GPIO_PIN_2
 #define SHDN_ISNS_GPIO_Port GPIOA
-#define nEVSE_I_LIM_PWM_Pin GPIO_PIN_3
-#define nEVSE_I_LIM_PWM_GPIO_Port GPIOA
 #define TS_ISENSE_400A_Pin GPIO_PIN_4
 #define TS_ISENSE_400A_GPIO_Port GPIOA
 #define TS_ISENSE_50A_Pin GPIO_PIN_5

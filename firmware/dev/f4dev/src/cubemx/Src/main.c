@@ -24,9 +24,22 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usbd_cdc_if.h"
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
+#include "hw_usb.h"
+#include "shared.pb.h"
+#include "f4dev.pb.h"
+#include "hw_chimera_v2.h"
+#include "hw_gpio.h"
+#include "hw_gpios.h"
+#include "hw_adcs.h"
+#include "hw_chimeraConfig_v2.h"
+#include "io_log.h"
+#include "hw_can.h"
+#include <assert.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,6 +63,8 @@ ADC_HandleTypeDef hadc1;
 CAN_HandleTypeDef hcan1;
 CAN_HandleTypeDef hcan2;
 
+I2C_HandleTypeDef hi2c3;
+
 SD_HandleTypeDef hsd;
 
 UART_HandleTypeDef huart2;
@@ -58,7 +73,7 @@ UART_HandleTypeDef huart2;
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
     .name       = "defaultTask",
-    .stack_size = 128 * 4,
+    .stack_size = 512 * 4,
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
@@ -72,6 +87,7 @@ static void MX_CAN1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C3_Init(void);
 void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -80,6 +96,12 @@ void        StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+CanHandle        can = { .hcan = &hcan2 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 // int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
 // int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
 // int lfs_erase(const struct lfs_config *c, lfs_block_t block);
@@ -149,7 +171,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -166,6 +187,7 @@ int main(void)
     MX_ADC1_Init();
     MX_CAN2_Init();
     MX_USART2_UART_Init();
+    MX_I2C3_Init();
     /* USER CODE BEGIN 2 */
     // sd->hsd     = &hsd;
     // sd->timeout = 1000;
@@ -222,7 +244,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    hw_usb_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -406,6 +428,38 @@ static void MX_CAN2_Init(void)
 }
 
 /**
+ * @brief I2C3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_I2C3_Init(void)
+{
+    /* USER CODE BEGIN I2C3_Init 0 */
+
+    /* USER CODE END I2C3_Init 0 */
+
+    /* USER CODE BEGIN I2C3_Init 1 */
+
+    /* USER CODE END I2C3_Init 1 */
+    hi2c3.Instance             = I2C3;
+    hi2c3.Init.ClockSpeed      = 100000;
+    hi2c3.Init.DutyCycle       = I2C_DUTYCYCLE_2;
+    hi2c3.Init.OwnAddress1     = 0;
+    hi2c3.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    hi2c3.Init.OwnAddress2     = 0;
+    hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    hi2c3.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+    if (HAL_I2C_Init(&hi2c3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN I2C3_Init 2 */
+
+    /* USER CODE END I2C3_Init 2 */
+}
+
+/**
  * @brief SDIO Initialization Function
  * @param None
  * @retval None
@@ -481,11 +535,21 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : GPIO_6_Pin */
+    GPIO_InitStruct.Pin   = GPIO_6_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIO_6_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PA5 PA6 PA7 */
     GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
@@ -502,6 +566,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : GPIO_5_Pin */
+    GPIO_InitStruct.Pin  = GPIO_5_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIO_5_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PC6 PC7 */
     GPIO_InitStruct.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
@@ -531,25 +601,7 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    UART modem_uart = { .handle = &huart2 };
-    /* Infinite loop */
-    // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-    uint8_t num; // use this if just want numbers
-    uint8_t predicData[3];
-    predicData[1] = 13;
-    predicData[2] = 10;
-    //  uint8_t = message [8]; //use this if you want fun string
-    for (;;)
-    {
-        // hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100); // fun string
-        for (num = 48; num < 57; num++)
-        {
-            predicData[0] = num;
-            hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
-            // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
-            osDelay(1);
-        }
-    }
+    hw_chimera_v2_task(&chimera_v2_config);
     /* USER CODE END 5 */
 }
 

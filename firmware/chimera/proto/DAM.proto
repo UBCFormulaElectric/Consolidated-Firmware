@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package DAM;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  TELEM_PWR_EN = 1;
+  BUZZER_PWR_EN = 2;
+  TSIM_RED_EN = 3;
+  NTSIM_GRN_EN = 4;
+  R_SHDN_SENSE = 5;
+  L_SHDN_SENSE = 6;
+  LED = 7;
+  BOOT = 8;
+  SD_PRESENT = 9;
+  N_RTC_INT1 = 10;
+  _900M = 11;
+  SD_FAIL = 12;
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED  = 0;
+}
+
+enum I2cNetName {
+  I2C_NET_NAME_UNSPECIFIED = 0;
+  RTC_I2C= 1;
+}

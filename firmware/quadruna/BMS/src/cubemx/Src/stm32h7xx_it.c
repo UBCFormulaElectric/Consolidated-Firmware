@@ -59,6 +59,7 @@
 extern DMA_HandleTypeDef   hdma_adc1;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern SD_HandleTypeDef    hsd1;
+extern SPI_HandleTypeDef   hspi2;
 extern TIM_HandleTypeDef   htim1;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart1;
@@ -248,6 +249,20 @@ void TIM3_IRQHandler(void)
     /* USER CODE BEGIN TIM3_IRQn 1 */
 
     /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SPI2 global interrupt.
+ */
+void SPI2_IRQHandler(void)
+{
+    /* USER CODE BEGIN SPI2_IRQn 0 */
+
+    /* USER CODE END SPI2_IRQn 0 */
+    HAL_SPI_IRQHandler(&hspi2);
+    /* USER CODE BEGIN SPI2_IRQn 1 */
+
+    /* USER CODE END SPI2_IRQn 1 */
 }
 
 /**

@@ -12,6 +12,16 @@
             }
         }
     },
+    "Debug": {
+        "msg_id": 407,
+        "cycle_time": 1000,
+        "description": "BMS Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
+    },
     "LatchedFaults": {
         "msg_id": 410,
         "cycle_time": 100,
@@ -25,6 +35,39 @@
             },
             "BspdLatchedFault": {
                 "bits": 1
+            }
+        }
+    },
+    "ElconControls": {
+        "msg_id": 450,
+        "cycle_time": 1000,
+        "description": "Control parameters for Elcon charger communication",
+        "signals": {
+            "MaxChargingVoltage": {
+                "start_bit": 0,
+                "bits": 16,
+                "min": 0,
+                "max": 10000,
+                "scale": 0.1,
+                "offset": 0,
+                "unit": "V"
+            },
+            "MaxChargingCurrent": {
+                "start_bit": 16,
+                "bits": 16,
+                "min": 0,
+                "max": 1000,
+                "scale": 0.1,
+                "offset": 0,
+                "unit": "A"
+            },
+            "StopCharging": {
+                "start_bit": 32,
+                "bits": 1
+            },
+            "Reserved": {
+                "start_bit": 33,
+                "bits": 31
             }
         }
     }

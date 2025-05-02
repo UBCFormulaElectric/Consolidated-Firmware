@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2024 STMicroelectronics.
+ * Copyright (c) 2025 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -57,6 +57,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+extern CAN_HandleTypeDef hcan2;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -162,6 +163,47 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles PVD interrupt through EXTI line 16.
+ */
+void PVD_IRQHandler(void)
+{
+    /* USER CODE BEGIN PVD_IRQn 0 */
+
+    /* USER CODE END PVD_IRQn 0 */
+    HAL_PWR_PVD_IRQHandler();
+    /* USER CODE BEGIN PVD_IRQn 1 */
+
+    /* USER CODE END PVD_IRQn 1 */
+}
+
+/**
+ * @brief This function handles Flash global interrupt.
+ */
+void FLASH_IRQHandler(void)
+{
+    /* USER CODE BEGIN FLASH_IRQn 0 */
+
+    /* USER CODE END FLASH_IRQn 0 */
+    HAL_FLASH_IRQHandler();
+    /* USER CODE BEGIN FLASH_IRQn 1 */
+
+    /* USER CODE END FLASH_IRQn 1 */
+}
+
+/**
+ * @brief This function handles RCC global interrupt.
+ */
+void RCC_IRQHandler(void)
+{
+    /* USER CODE BEGIN RCC_IRQn 0 */
+
+    /* USER CODE END RCC_IRQn 0 */
+    /* USER CODE BEGIN RCC_IRQn 1 */
+
+    /* USER CODE END RCC_IRQn 1 */
+}
+
+/**
  * @brief This function handles TIM6 global interrupt.
  */
 void TIM6_IRQHandler(void)
@@ -176,6 +218,62 @@ void TIM6_IRQHandler(void)
 }
 
 /**
+ * @brief This function handles CAN2 TX interrupts.
+ */
+void CAN2_TX_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_TX_IRQn 0 */
+
+    /* USER CODE END CAN2_TX_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_TX_IRQn 1 */
+
+    /* USER CODE END CAN2_TX_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 RX0 interrupts.
+ */
+void CAN2_RX0_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_RX0_IRQn 0 */
+
+    /* USER CODE END CAN2_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_RX0_IRQn 1 */
+
+    /* USER CODE END CAN2_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 RX1 interrupt.
+ */
+void CAN2_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_RX1_IRQn 0 */
+
+    /* USER CODE END CAN2_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_RX1_IRQn 1 */
+
+    /* USER CODE END CAN2_RX1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 SCE interrupt.
+ */
+void CAN2_SCE_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_SCE_IRQn 0 */
+
+    /* USER CODE END CAN2_SCE_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_SCE_IRQn 1 */
+
+    /* USER CODE END CAN2_SCE_IRQn 1 */
+}
+
+/**
  * @brief This function handles USB On The Go FS global interrupt.
  */
 void OTG_FS_IRQHandler(void)
@@ -187,6 +285,19 @@ void OTG_FS_IRQHandler(void)
     /* USER CODE BEGIN OTG_FS_IRQn 1 */
 
     /* USER CODE END OTG_FS_IRQn 1 */
+}
+
+/**
+ * @brief This function handles FPU global interrupt.
+ */
+void FPU_IRQHandler(void)
+{
+    /* USER CODE BEGIN FPU_IRQn 0 */
+
+    /* USER CODE END FPU_IRQn 0 */
+    /* USER CODE BEGIN FPU_IRQn 1 */
+
+    /* USER CODE END FPU_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

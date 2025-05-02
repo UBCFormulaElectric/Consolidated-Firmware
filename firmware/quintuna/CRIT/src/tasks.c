@@ -2,15 +2,21 @@
 #include "cmsis_os.h"
 #include "shared.pb.h"
 #include "jobs.h"
+#include "main.h"
+
+#include "app_canTx.h"
 
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
 
 // hw
-#include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
+#include "hw_usb.h"
+#include "hw_chimera_v2.h"
+#include "hw_chimeraConfig_v2.h"
+#include "hw_resetReason.h"
 
 void tasks_preInit() {}
 
@@ -25,7 +31,17 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
 
+    hw_can_init(&can1);
+    hw_usb_init();
+
     jobs_init();
+
+    app_canTx_CRIT_ResetReason_set((CanResetReason)hw_resetReason_get());
+}
+
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
 }
 
 void tasks_runCanTx()
@@ -54,7 +70,8 @@ void tasks_run1Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -67,7 +84,8 @@ void tasks_run100Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run100Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -80,7 +98,8 @@ void tasks_run1kHz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1kHz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

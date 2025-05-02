@@ -8,7 +8,7 @@ extern "C"
 #include "io_sbgEllipse.h"
 }
 
-class VelocityCalculationTest : public VcBaseStateMachineTest
+class VelocityCalculationTest : public VCBaseTest
 {
 };
 
