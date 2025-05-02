@@ -45,28 +45,4 @@
             }
         }
     }
-  },
-  "VehicleDynamics": {
-    "msg_id": 510,
-    "cycle_time": 100,
-    "description": "Vehicle dynamics info",
-    "signals": {
-      "RegenEnabled": {
-        "bits": 1
-      },
-      "TorqueVectoringEnabled": {
-        "bits": 1
-      }
-    }
-  },
-  "GlobalShdnNodeStatus": {
-    "msg_id": 511,
-    "cycle_time": 100,
-    "description": "Global Shutdown Node Status",
-    "signals": {
-      "FirstFaultNode": {
-        "enum": "ShutdownNode"
-      }
-    }
-  }
 }

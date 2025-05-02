@@ -4,6 +4,8 @@
 
 #define BRAKE_PRESSURE_OC_THRESHOLD_V (0.33f) // Under-voltage threshold (indicative of open circuit)
 #define BRAKE_PRESSURE_SC_THRESHOLD_V (3.0f)  // Over-voltage threshold (indicative of short circuit)
+// TODO find a number for this
+#define BRAKE_ACTUATED_THRESHOLD_PSI (5.0f) // Minimum pressure (in Psi) to consider the brake actuated
 
 // Maximum measurable pressure (in Psi) over the sensor's operating range
 // Psi per Volt: (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
@@ -19,15 +21,15 @@ static float pressureFromVoltage(float voltage)
 
 bool io_brake_isActuated(void)
 {
-    return !hw_gpio_readPin(config->nbspd_brake_pressed);
+    return io_brake_getFrontPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
 }
 
 float io_brake_getFrontPressurePsi(void)
 {
-    return pressureFromVoltage(hw_adc_getVoltage(config->front_brake));
+    return pressureFromVoltage(hw_adc_getVoltage(&bps_f));
 }
 
 bool io_brake_hwOCSC(void)
 {
-    return hw_gpio_readPin(config->brake_hardware_ocsc);
+    return !hw_gpio_readPin(&nbps_f_ocsc);
 }
