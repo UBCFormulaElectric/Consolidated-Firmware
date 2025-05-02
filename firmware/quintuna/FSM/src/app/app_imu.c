@@ -1,0 +1,25 @@
+#include "app_imu.h"
+
+#include "io_imu.h"
+#include "app_canTx.h"
+#include "io_log.h"
+
+void app_imu_broadcast(void)
+{
+    float x_lin_accel, y_lin_accel, z_lin_accel;
+    float roll_ang_vel, pitch_ang_vel, yaw_ang_vel;
+
+    LOG_ERROR_IF(
+        io_imu_getLinearAccelerationX(&x_lin_accel) && io_imu_getLinearAccelerationY(&y_lin_accel) &&
+        io_imu_getLinearAccelerationZ(&z_lin_accel));
+    LOG_ERROR_IF(
+        io_imu_getAngularVelocityRoll(&roll_ang_vel) && io_imu_getAngularVelocityPitch(&pitch_ang_vel) &&
+        io_imu_getAngularVelocityYaw(&yaw_ang_vel));
+
+    app_canTx_FSM_LinearAccelerationInX_set(x_lin_accel);
+    app_canTx_FSM_LinearAccelerationInY_set(y_lin_accel);
+    app_canTx_FSM_LinearAccelerationInZ_set(z_lin_accel);
+    app_canTx_FSM_RollAngularAcceleration_set(roll_ang_vel);
+    app_canTx_FSM_PitchAngularAcceleration_set(pitch_ang_vel);
+    app_canTx_FSM_YawAngularAcceleration_set(yaw_ang_vel);
+}

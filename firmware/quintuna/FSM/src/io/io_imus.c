@@ -1,4 +1,5 @@
-#include "io_imu_config.h"
+#include "io_imu.h"
+
 #include "hw_i2cs.h"
 
 const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c,

@@ -18,6 +18,8 @@
 #include "hw_usb.h"
 #include "hw_adcs.h"
 
+#include <assert.h>
+
 void tasks_preInit() {}
 
 void tasks_init(void)
@@ -32,6 +34,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_usb_init();
     hw_adcs_chipsInit();
+    hw_can_init(&can);
 
     jobs_init();
 }
@@ -91,7 +94,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &msg);
+        assert(hw_can_transmit(&can, &msg));
     }
 }
 

@@ -1,29 +1,6 @@
 #pragma once
 #include <stdbool.h>
 
-#ifdef TARGET_EMBEDDED
-#include "hw_adc.h"
-#include "hw_gpio.h"
-
-typedef struct
-{
-    const AdcChannel *front_left_suspension;
-    const AdcChannel *front_right_suspension;
-    const Gpio       *nsusp_fl_ocsc;
-    const Gpio       *nsusp_fr_ocsc;
-} SuspensionConfig;
-
-#else
-#include "app_utils.h"
-EMPTY_STRUCT(SuspensionConfig)
-#endif
-
-/**
- * Set up adc pins for suspension sensors
- * @param suspension_config wrapper around ADC pins for suspension sensors
- */
-void io_suspension_init(const SuspensionConfig *suspension_config);
-
 /**
  * Get the travel of the front left suspension
  * @return The travel of the suspension in (TODO: add units)
