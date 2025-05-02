@@ -1,15 +1,14 @@
 {
-    "warnings_id": 601,
-    "faults_id": 602,
-    "warnings_counts_id": 603,
-    "faults_counts_id": 604,
-    "warnings": {
-    },
-    "faults": {
-        "DummyFault": {
-            "id": 600,
-            "description": "Dummy Fault"
-        }
+  "warnings_id": 601,
+  "faults_id": 602,
+  "bus": ["Can2"],
+  "warnings_counts_id": 603,
+  "faults_counts_id": 604,
+  "warnings": {},
+  "faults": {
+    "DummyFault": {
+      "id": 600,
+      "description": "Dummy Fault"
     }
   },
   "info_id": 605,

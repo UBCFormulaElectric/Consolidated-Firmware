@@ -1,6 +1,6 @@
 [
   {
-    "bus": "Can",
+    "bus": "Can2",
     "messages": [
       "BMS_Vitals",
       "FSM_Vitals",

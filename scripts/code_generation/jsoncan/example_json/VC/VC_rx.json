@@ -1,6 +1,6 @@
 [
   {
-    "bus": "Can1",
+    "bus": "Can2",
     "messages": [
       "BMS_TractiveSystem",
       "BMS_BMSShdnNodeStatus",
