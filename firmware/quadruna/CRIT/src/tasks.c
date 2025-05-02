@@ -10,6 +10,7 @@
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_stackWaterMarks.h"
+#include "app_utils.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -383,7 +384,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        ASSERT_EXIT_OK(hw_can_transmit(&can, &tx_msg));
     }
 }
 

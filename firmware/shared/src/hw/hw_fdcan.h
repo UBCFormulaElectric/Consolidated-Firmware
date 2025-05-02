@@ -39,7 +39,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Transmit a FD CAN msg on the bus, blocking until completed.
@@ -47,7 +47,7 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
  * @param msg FD CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg);
+ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a FD CAN msg from the bus, returning whether or not a message is available.
@@ -57,4 +57,4 @@ bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg);
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
  */
-bool hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg);
+ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg);

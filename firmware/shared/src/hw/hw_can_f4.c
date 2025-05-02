@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "io_time.h"
 #include "io_canQueue.h"
+#include "hw_utils.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -66,7 +67,7 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -96,17 +97,19 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t                mailbox       = 0;
-    const HAL_StatusTypeDef return_status = HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox);
-    return return_status == HAL_OK;
+
+    ExitCode exit = hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
+    return exit;
 }
 
-bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
+ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
-    if (HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
+    ExitCode            exit = hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
+    if (exit != EXIT_CODE_OK)
     {
-        return false;
+        return exit;
     }
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
@@ -115,7 +118,7 @@ bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
     msg->dlc       = header.DLC;
     msg->timestamp = io_time_getCurrentMs();
 
-    return true;
+    return exit;
 }
 
 static void handle_callback(CAN_HandleTypeDef *hfdcan)
@@ -123,7 +126,7 @@ static void handle_callback(CAN_HandleTypeDef *hfdcan)
     const CanHandle *handle = hw_can_getHandle(hfdcan);
 
     CanMsg rx_msg;
-    if (!hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg))
+    if (!IS_EXIT_OK(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&rx_msg);

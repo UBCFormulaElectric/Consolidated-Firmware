@@ -10,6 +10,7 @@
 
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canLogging.h"
@@ -184,7 +185,7 @@ _Noreturn void tasks_runCanTx(void)
         }
         else
         {
-            hw_can_transmit(&can1, &tx_msg);
+            ASSERT_EXIT_OK(hw_can_transmit(&can1, &tx_msg));
         }
     }
 }
