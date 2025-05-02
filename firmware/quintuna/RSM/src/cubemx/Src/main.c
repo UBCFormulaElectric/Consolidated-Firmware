@@ -463,7 +463,7 @@ static void MX_I2C3_Init(void)
 
     /* USER CODE END I2C3_Init 1 */
     hi2c3.Instance             = I2C3;
-    hi2c3.Init.ClockSpeed      = 400000;
+    hi2c3.Init.ClockSpeed      = 100000;
     hi2c3.Init.DutyCycle       = I2C_DUTYCYCLE_2;
     hi2c3.Init.OwnAddress1     = 0;
     hi2c3.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;

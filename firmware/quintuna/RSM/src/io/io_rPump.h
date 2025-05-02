@@ -8,21 +8,19 @@
  * Checks rPump is communitcating over I2C
  * @return True if the I2C is ready
  */
-bool io_rPump_isPumpReady(void);
+ExitCode io_rPump_isPumpReady(void);
 
 /**
- *
- * @param data
- * @return
+ * @param data data to write to the pump controller
+ * @return success of operation
  */
-void io_rPump_write(uint8_t data);
+ExitCode io_rPump_write(uint8_t data);
 
 /**
- *
- * @return
+ * @param dest destination to write the data to
+ * @return success of operation
  */
-uint8_t io_rPump_read(void);
-
+ExitCode io_rPump_read(uint8_t *dest);
 #endif
 
 /**

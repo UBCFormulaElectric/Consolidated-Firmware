@@ -41,8 +41,7 @@ void jobs_init(void)
     io_coolant_init();
 
     ASSERT_EXIT_OK(io_rPump_isPumpReady());
-    io_rPump_setPercentage(100.0f);
-    io_imu_init();
+    ASSERT_EXIT_OK(io_imu_init());
 
     app_timer_init(&timerGPIO, 100);
     app_timer_restart(&timerGPIO);
@@ -67,8 +66,6 @@ void jobs_run100Hz_tick(void)
         app_timer_restart(&timerGPIO);
         gpio_state = !gpio_state;
     }
-
-    LOG_INFO("Flow rate: %.2f L/min", (double)io_coolant_getFlowRate());
 }
 
 void jobs_run1kHz_tick(void)
