@@ -1,62 +1,54 @@
 {
-  "warnings_id": 601,
-  "faults_id": 602,
-  "warnings_counts_id": 603,
-  "faults_counts_id": 604,
-  "warnings": {
-    "WatchdogTimeout": {
-      "id": 601,
-      "description": "Watchdog timed out."
+    "warnings_id": 601,
+    "faults_id": 602,
+    "warnings_counts_id": 603,
+    "faults_counts_id": 604,
+    "warnings": {
+        "WatchdogTimeout": {
+            "id": 601,
+            "description": "Watchdog timed out."
+        },
+        "TxOverflow": {
+            "id": 602,
+            "description": "CanTx queue overflowed."
+        },
+        "RxOverflow": {
+            "id": 603,
+            "description": "CanRx queue overflowed."
+        },
+        "SteeringAngleOCSC": {
+            "id": 609,
+            "description": "Steering sensor voltage out of acceptable range (OCSC)."
+        },
+        "SteeringAngleOutOfRange": {
+            "id": 610,
+            "description": "Steering angle out of range."
+        },
+        "AppsDisagreement": {
+            "id": 611,
+            "description": "Conflict between primary and secondary accelerator pedals."
+        },
+        "FrontBrakePressureOCSC": {
+            "id": 612,
+            "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
+        },
+        "LeftSuspensionOCSC": {
+            "id": 613,
+            "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
+        },
+        "RightSuspensionOCSC": {
+            "id": 614,
+            "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
+        }
     },
-    "TxOverflow": {
-      "id": 602,
-      "description": "CanTx queue overflowed."
-    },
-    "RxOverflow": {
-      "id": 603,
-      "description": "CanRx queue overflowed."
-    },
-    "SteeringAngleOCSC": {
-      "id": 609,
-      "description": "Steering sensor voltage out of acceptable range (OCSC)."
-    },
-    "SteeringAngleOutOfRange": {
-      "id": 610,
-      "description": "Steering angle out of range."
-    },
-    "AppsDisagreement": {
-      "id": 613,
-      "description": "Conflict between primary and secondary accelerator pedals."
-    },
-    "FrontBrakePressureOutOfRange": {
-      "id": 614,
-      "description": "Front brake pressure out of range."
-    },
-    "FrontBrakePressureOcSc": {
-      "id": 616,
-      "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
-    },
-    "BrakeOcScNotOk": {
-      "id": 623,
-      "description": "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK."
-    },
-    "LeftSuspensionOCSC": {
-      "id": 617,
-      "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
-    },
-    "RightSuspensionOCSC": {
-      "id": 618,
-      "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
+    "faults": {
+        "PappsOCSC": {
+            "id": 652,
+            "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
+        },
+        "SappsOCSC": {
+            "id": 653,
+            "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
+        }
     }
-  },
-  "faults": {
-    "PappsOCSC": {
-      "id": 652,
-      "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
-    },
-    "SappsOCSC": {
-      "id": 653,
-      "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
-    }
-  }
 }

@@ -15,11 +15,6 @@ bool io_brake_isActuated(void);
 float io_brake_getFrontPressurePsi(void);
 
 /**
- * @return whether there is a open or short circuit in the front pressure sensor
- */
-bool io_brake_frontPressureSensorOCSC(void);
-
-/**
  * @return the hardware overcurrent/short-circuit status for the brake system
  */
 bool io_brake_hwOCSC(void);
