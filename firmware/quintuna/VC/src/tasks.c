@@ -3,11 +3,17 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "app_canTx.h"
+
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_time.h"
-
+// hw
 #include "hw_usb.h"
+#include "hw_resetReason.h"
+
+// chimera
+#include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
 
@@ -23,6 +29,13 @@ void tasks_init(void)
     hw_usb_init();
 
     jobs_init();
+
+    app_canTx_VC_ResetReason_set((CanResetReason)hw_resetReason_get());
+}
+
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
 }
 
 _Noreturn void tasks_run1Hz(void)
@@ -36,7 +49,8 @@ _Noreturn void tasks_run1Hz(void)
 
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -58,7 +72,8 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        jobs_run100Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run100Hz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -85,7 +100,8 @@ _Noreturn void tasks_run1kHz(void)
         const uint32_t task_start_ms = io_time_getCurrentMs();
 
         // hw_watchdog_checkForTimeouts();
-        jobs_run1kHz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1kHz_tick();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
