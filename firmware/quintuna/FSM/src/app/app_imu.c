@@ -16,10 +16,10 @@ void app_imu_broadcast(void)
         io_imu_getAngularVelocityRoll(&roll_ang_vel) && io_imu_getAngularVelocityPitch(&pitch_ang_vel) &&
         io_imu_getAngularVelocityYaw(&yaw_ang_vel));
 
-    app_canTx_FSM_LinearAccelerationInX_set(x_lin_accel);
-    app_canTx_FSM_LinearAccelerationInY_set(y_lin_accel);
-    app_canTx_FSM_LinearAccelerationInZ_set(z_lin_accel);
-    app_canTx_FSM_RollAngularAcceleration_set(roll_ang_vel);
-    app_canTx_FSM_PitchAngularAcceleration_set(pitch_ang_vel);
-    app_canTx_FSM_YawAngularAcceleration_set(yaw_ang_vel);
+    app_canTx_FSM_LinearAccelerationX_set(x_lin_accel);
+    app_canTx_FSM_LinearAccelerationY_set(y_lin_accel);
+    app_canTx_FSM_LinearAccelerationZ_set(z_lin_accel);
+    app_canTx_FSM_RollRate_set(roll_ang_vel);
+    app_canTx_FSM_PitchRate_set(pitch_ang_vel);
+    app_canTx_FSM_YawRate_set(yaw_ang_vel);
 }

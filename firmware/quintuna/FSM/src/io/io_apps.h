@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 /**
  * Calculates pedal percentage by comparing the current angle to the max angle
  * @return pedal percentage based on primary accelerator pedal sensor
