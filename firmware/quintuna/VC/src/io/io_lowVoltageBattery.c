@@ -1,16 +1,10 @@
 #include "io_lowVoltageBattery.h"
 #include "app_utils.h"
-#include "hw_i2c.h"
 #include "hw_i2cs.h"
 #include "hw_utils.h"
 #include "io_log.h"
 #include "io_lowVoltageBatReg.h"
 #include <stdbool.h>
-#include <stdint.h>
-#include <stm32_hal_legacy.h>
-#include <stm32h7xx_hal_def.h>
-#include <stm32h7xx_hal_dma.h>
-#include <stm32h7xx_hal_mdma.h>
 
 #define BYTE_MASK(x) ((x) & 0XFF)
 #define FRACTION 4294967296.0
