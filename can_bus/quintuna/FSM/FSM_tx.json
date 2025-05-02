@@ -1,15 +1,39 @@
 {
-  "Vitals": {
-    "msg_id": 600,
-    "cycle_time": 100,
-    "description": "FSM vitals message.",
-    "signals": {
-      "Heartbeat": {
-        "bits": 1
-      },
-      "State": {
-        "enum": "FSMState"
-      }
+    "Vitals": {
+        "msg_id": 600,
+        "cycle_time": 100,
+        "description": "FSM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "FSMState"
+            }
+        }
+    },
+    "CommitInfo": {
+        "msg_id": 606,
+        "cycle_time": 1000,
+        "description": "CRIT Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
+    },
+    "Debug": {
+        "msg_id": 607,
+        "cycle_time": 1000,
+        "description": "FSM Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
     }
   },
   "AlertsContext": {

@@ -4,6 +4,8 @@
 #include "jobs.h"
 #include "main.h"
 
+#include "app_canTx.h"
+
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -14,6 +16,7 @@
 #include "hw_usb.h"
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
+#include "hw_resetReason.h"
 
 void tasks_preInit() {}
 
@@ -32,6 +35,8 @@ void tasks_init()
     hw_usb_init();
 
     jobs_init();
+
+    app_canTx_CRIT_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)
