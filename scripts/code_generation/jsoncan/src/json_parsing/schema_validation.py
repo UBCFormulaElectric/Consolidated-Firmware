@@ -2,6 +2,7 @@
 Functions to validate the CAN JSON schema.
 """
 
+from dataclasses import dataclass
 from typing import Dict, List, TypedDict
 
 from schema import And, Optional, Or, Schema
@@ -117,15 +118,22 @@ Bus file schema
 """
 
 
+class ForwarderConfigJson(TypedDict):
+    forwarder: str
+    bus1: str
+    bus2: str
+
+
 class BusConfigJson(TypedDict):
     default_receiver: str
     bus_speed: int
     modes: list[str]
     default_mode: str
+    node: list[str]
 
 
 class BusJson(TypedDict):
-    forwarder: str
+    forwarder: list[ForwarderConfigJson]
     buses: list[BusConfigJson]
 
 

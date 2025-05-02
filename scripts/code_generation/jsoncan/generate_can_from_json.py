@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=args.can_data_dir).make_database()
-    pandas = can_db.make_pandas_dataframe()
-    print(pandas)
+    # pandas = can_db.make_pandas_dataframe()
+    # print(pandas)
     # Generate DBC file
     write_text(DbcGenerator(database=can_db).source(), args.dbc_output)
     if args.only_dbc:

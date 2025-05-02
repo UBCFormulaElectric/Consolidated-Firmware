@@ -124,7 +124,7 @@ class JsonCanParser:
 
         self._register_alert_message(alerts_messages)
         # find all message transmitting on one bus but received in another bus
-        reroute = self._find_reroute(can_data_dir)
+        self._find_reroute(can_data_dir)
 
     def _parse_json_bus_data(self, can_data_dir) -> List[CanBusConfig]:
         """

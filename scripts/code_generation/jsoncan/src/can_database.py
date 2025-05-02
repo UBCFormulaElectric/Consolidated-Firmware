@@ -86,7 +86,7 @@ class CanBusConfig:
     modes: List[str]
     default_mode: str
     name: str
-    nodes: List[CanNode]  # List of nodes on this bus
+    nodes: List[str]  # List of nodes on this bus
     fd: bool  # Whether or not this bus is FD
 
     def __hash__(self):
