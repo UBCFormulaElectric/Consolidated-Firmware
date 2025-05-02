@@ -3,7 +3,6 @@
 #include <assert.h>
 #include "io_time.h"
 #include "io_canQueue.h"
-#include "hw_utils.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -96,7 +95,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
         ;
 
     // Indicates the mailbox used for transmission, not currently used.
-    uint32_t                mailbox       = 0;
+    uint32_t mailbox = 0;
 
     ExitCode exit = hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
     return exit;
@@ -106,7 +105,7 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
 {
     assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
-    ExitCode            exit = hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
+    ExitCode exit = hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
     if (exit != EXIT_CODE_OK)
     {
         return exit;

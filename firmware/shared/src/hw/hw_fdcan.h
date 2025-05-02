@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
+#include "hw_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"

@@ -5,7 +5,6 @@
 #include "io_log.h"
 #include "io_time.h"
 #include "io_canQueue.h"
-#include "hw_utils.h"
 
 void hw_can_init(CanHandle *can_handle)
 {
