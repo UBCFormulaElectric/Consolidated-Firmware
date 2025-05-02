@@ -8,7 +8,7 @@
  * Checks rPump is communitcating over I2C
  * @return True if the I2C is ready
  */
-bool io_rPump_isPumpReady();
+bool io_rPump_isPumpReady(void);
 
 /**
  *
@@ -21,7 +21,7 @@ void io_rPump_write(uint8_t data);
  *
  * @return
  */
-uint8_t io_rPump_read();
+uint8_t io_rPump_read(void);
 
 #endif
 

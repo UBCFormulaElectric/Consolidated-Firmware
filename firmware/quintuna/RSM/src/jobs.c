@@ -10,9 +10,12 @@
 #include "io_jsoncan.h"
 #include "io_coolants.h"
 #include "io_log.h"
+#include "io_rPump.h"
+#include "io_imu.h"
 // testing
 #include "io_leds.h"
 #include "app_timer.h"
+
 #include <stdio.h>
 
 TimerChannel timerGPIO;
@@ -36,6 +39,10 @@ void jobs_init(void)
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
     io_coolant_init();
+
+    ASSERT_EXIT_OK(io_rPump_isPumpReady());
+    io_rPump_setPercentage(100.0f);
+    io_imu_init();
 
     app_timer_init(&timerGPIO, 100);
     app_timer_restart(&timerGPIO);

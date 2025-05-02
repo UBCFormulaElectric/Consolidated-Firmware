@@ -21,13 +21,9 @@
 // hw
 // #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_watchdog.h"
 #include "hw_cans.h"
-#include "hw_gpios.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
-
-#include <stdbool.h>
 
 void tasks_preInit()
 {
@@ -49,7 +45,6 @@ void tasks_init()
     jobs_init();
 
     app_canTx_RSM_ResetReason_set((CanResetReason)hw_resetReason_get());
-    io_imu_init();
 }
 
 _Noreturn void tasks_runChimera(void)
