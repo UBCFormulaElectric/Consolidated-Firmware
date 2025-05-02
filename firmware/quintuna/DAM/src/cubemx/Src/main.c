@@ -215,6 +215,7 @@ int main(void)
     MX_IWDG1_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
+
     /* USER CODE END 2 */
 
     /* Init scheduler */

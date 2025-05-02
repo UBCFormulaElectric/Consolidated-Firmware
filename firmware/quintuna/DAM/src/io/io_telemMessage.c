@@ -1,4 +1,5 @@
 #include "io_telemMessage.h"
+#include "app_utils.h"
 #include "telem.pb.h"
 #include "pb_encode.h"
 #include "cmsis_os.h"
@@ -160,9 +161,9 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     // Start timing for measuring transmission speeds
     bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
-    success &=
+    const ExitCode exit =
         hw_uart_transmit(&_900k_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length
-    if (success)
+    if (IS_EXIT_OK(exit))
     {
         LOG_INFO("900Mhz Telem Message Sent");
         // print the buffer up to the 27th byte

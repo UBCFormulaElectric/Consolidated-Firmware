@@ -244,7 +244,7 @@ static bool
             return false;
         }
 
-        bool ready = hw_i2c_isTargetReady(device);
+        bool ready = IS_EXIT_OK(hw_i2c_isTargetReady(device));
 
         // Format response.
         response->which_payload           = ChimeraV2Response_i2c_ready_tag;
@@ -261,7 +261,7 @@ static bool
             return false;
         }
 
-        bool success = hw_i2c_transmit(device, payload->data.bytes, payload->data.size);
+        bool success = IS_EXIT_OK(hw_i2c_transmit(device, payload->data.bytes, payload->data.size));
 
         // Format response.
         response->which_payload                = ChimeraV2Response_i2c_transmit_tag;
@@ -278,8 +278,8 @@ static bool
             return false;
         }
 
-        bool success =
-            hw_i2c_memoryWrite(device, (uint16_t)payload->memory_address, payload->data.bytes, payload->data.size);
+        bool success = IS_EXIT_OK(
+            hw_i2c_memoryWrite(device, (uint16_t)payload->memory_address, payload->data.bytes, payload->data.size));
 
         // Format response.
         response->which_payload                    = ChimeraV2Response_i2c_memory_write_tag;
@@ -298,7 +298,7 @@ static bool
         }
 
         uint8_t data[payload->length];
-        bool    success = hw_i2c_receive(device, data, (uint16_t)payload->length);
+        bool    success = IS_EXIT_OK(hw_i2c_receive(device, data, (uint16_t)payload->length));
         if (!success)
         {
             LOG_ERROR("Chimera: Failed to receive on I2C");
@@ -326,7 +326,8 @@ static bool
         }
 
         uint8_t data[payload->length];
-        bool    success = hw_i2c_memoryRead(device, (uint16_t)payload->memory_address, data, (uint16_t)payload->length);
+        bool    success =
+            IS_EXIT_OK(hw_i2c_memoryRead(device, (uint16_t)payload->memory_address, data, (uint16_t)payload->length));
         if (!success)
             LOG_ERROR("Chimera: Failed to receive on I2C");
 
@@ -356,7 +357,7 @@ static bool
 
         // Read data.
         uint8_t data[payload->length];
-        bool    success = hw_spi_receive(device, data, (uint16_t)payload->length);
+        bool    success = IS_EXIT_OK(hw_spi_receive(device, data, (uint16_t)payload->length));
         if (!success)
             LOG_ERROR("Chimera: Failed to receive on SPI");
 
@@ -380,7 +381,7 @@ static bool
         }
 
         // Transmit data.
-        bool success = hw_spi_transmit(device, payload->data.bytes, (uint16_t)payload->data.size);
+        bool success = IS_EXIT_OK(hw_spi_transmit(device, payload->data.bytes, (uint16_t)payload->data.size));
 
         // Format response.
         response->which_payload                = ChimeraV2Response_spi_transmit_tag;
@@ -399,8 +400,8 @@ static bool
 
         // Transact data.
         uint8_t rx_data[payload->rx_length];
-        bool    success = hw_spi_transmitThenReceive(
-            device, payload->tx_data.bytes, payload->tx_data.size, rx_data, (uint16_t)payload->rx_length);
+        bool    success = IS_EXIT_OK(hw_spi_transmitThenReceive(
+            device, payload->tx_data.bytes, payload->tx_data.size, rx_data, (uint16_t)payload->rx_length));
         if (!success)
         {
             LOG_ERROR("Chimera: Failed to Transact on SPI");

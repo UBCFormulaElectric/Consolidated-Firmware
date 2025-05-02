@@ -27,7 +27,7 @@ jobs:
     if: needs.determine-should-run.outputs.should_run == 'true'
     runs-on: ubuntu-22.04
     container:
-      image: ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:arm_14
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}

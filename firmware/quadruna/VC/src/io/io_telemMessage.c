@@ -103,11 +103,13 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     SEGGER_SYSVIEW_MarkStart(0);
     if (modem_900_choice)
     {
+        // TODO: Handle error codes on Quintuna!
         hw_uart_transmit(&modem_900k_uart, &proto_out_length, UART_LENGTH);
         hw_uart_transmit(&modem_900k_uart, proto_out, (uint8_t)sizeof(proto_out));
     }
     else
     {
+        // TODO: Handle error codes on Quintuna!
         hw_uart_transmit(&modem_2g4_uart, &proto_msg_length, UART_LENGTH);
         hw_uart_transmit(&modem_2g4_uart, proto_out, (uint8_t)sizeof(proto_out));
     }
