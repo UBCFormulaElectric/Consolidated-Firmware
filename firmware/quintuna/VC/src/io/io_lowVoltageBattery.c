@@ -1,136 +1,17 @@
 #include "io_lowVoltageBattery.h"
+#include "hw_i2c.h"
+#include "hw_i2cs.h"
 #include "hw_utils.h"
 #include "io_log.h"
+#include "io_lowVoltageBatReg.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stm32h7xx_hal_def.h>
+#include <stm32h7xx_hal_dma.h>
+#include <stm32h7xx_hal_mdma.h>
 
 #define BYTE_MASK(x) ((x) & 0XFF)
 #define FRACTION 4294967296.0
-
-typedef union
-{
-    float    f;
-    uint32_t u;
-} ResponseValue;
-
-typedef enum
-{
-    BQ76922_I2C_ADDR    = 0x10,
-    REG_SUBCOMMAND      = 0x3E,
-    REG_DATA_BUFFER     = 0x40,
-    REG_CHECKSUM        = 0x60,
-    REG_RESPONSE_LENGTH = 0x61,
-    ALERT_PIN_CONFIG    = 0x56,
-    ALARM_ENABLE_REG    = 0x66,
-    ALARM_STATUS_REG    = 0x62
-} register_address_t;
-
-typedef struct
-{
-    uint8_t response_buffer[32];
-    uint8_t length;
-} Subcommand_Response;
-
-typedef enum
-{
-    CONFIG_UPDATE_COMMAND      = 0x0090,
-    CONFIG_UPDATE_EXIT_COMMAND = 0x0092,
-    OTP_COMMAND                = 0x00F4,
-    OTP_WR_CHECK               = 0x00A0,
-    OTP_WR                     = 0x00A1
-} config_cmd_t;
-
-typedef enum
-{
-    ALARM_CLEAR_CMD            = 0x01,
-    ALERT_ACTIVE_LOW_BIT       = 5,    // Bit position for active-low configuration
-    ALERT_PIN_INTERRUPT_CONFIG = 0x02, // ALERT pin configured as an interrupt output
-    ALARM_ENABLE_VALUE         = 0x82  // Enable ADC scan alerts
-} alarm_config_t;
-
-typedef enum
-{
-    I2C_TIMEOUT_MS       = 100, // Timeout for I2C operations
-    CMD_SUBCOMMAND_SIZE  = 2,   // Two bytes for subcommand
-    RESPONSE_LENGTH_SIZE = 4,   // One byte for response length and checksum
-    SOC_RESPONSE_LENGTH  = 6,   // Expected response size for SOC command
-} comm_settings_t;
-
-typedef struct __attribute__((packed))
-{
-    uint8_t SEC0 : 1;
-    uint8_t SEC1 : 1;
-    uint8_t SS : 1;
-    uint8_t FUSE : 1;
-    uint8_t PF : 1;
-    uint8_t SDM : 1;
-    uint8_t RSVD : 1;
-    uint8_t SLEEP : 1;
-
-    uint8_t CFGUPDATE : 1;
-    uint8_t PCHG_MODE : 1;
-    uint8_t SLEEP_EN : 1;
-    uint8_t POR : 1;
-    uint8_t WD : 1;
-    uint8_t COW_CHECK : 1;
-    uint8_t OTPW : 1;
-    uint8_t OTPB : 1;
-} Battery_Status;
-
-typedef struct __attribute__((packed))
-{
-    uint8_t RSVD2 : 8;
-
-    uint8_t LD_ON : 1;
-    uint8_t LD_TIMEOUT : 1;
-    uint8_t DEEPSLEEP : 1;
-    uint8_t RSVD1 : 5;
-} Control_Status;
-
-typedef struct __attribute__((packed))
-{
-    uint8_t RSVD1 : 1; // Reserved
-    uint8_t RSVD2 : 1; // Reserved
-    uint8_t CUV : 1;   // Cell undervoltage
-    uint8_t COV : 1;   // Cell overvoltage
-    uint8_t OCC : 1;   // Overcurrent in charge
-    uint8_t OCD1 : 1;  // Overcurrent in discharge 1
-    uint8_t OCD2 : 1;  // Overcurrent in discharge 2
-    uint8_t SCD : 1;   // Short Circuit in Discharge
-} SafteyAlertA;        // alerts associated with the battery chip
-
-typedef struct __attribute__((packed))
-{
-    uint8_t RSVD1 : 1; // Reserved
-    uint8_t RSVD2 : 1; // Reserved
-    uint8_t CUV : 1;   // Cell undervoltage
-    uint8_t COV : 1;   // Cell overvoltage
-    uint8_t OCC : 1;   // Overcurrent in charge
-    uint8_t OCD1 : 1;  // Overcurrent in discharge 1
-    uint8_t OCD2 : 1;  // Overcurrent in discharge 2
-    uint8_t SCD : 1;   // Short Circuit in Discharge
-} SafteyFaultA;        // Faults associated with the battery chip
-
-
-typedef struct __attribute__((packed))
-{
-    uint8_t INITCOMP : 1;
-    uint8_t INITSTART : 1;
-    uint8_t MSK_PFALERT :1;
-    uint8_t MSK_SFALERT : 1;
-    uint8_t PF :1;
-    uint8_t SSA :1;
-    uint8_t SSBC : 1;
-
-    uint8_t WAKE : 1; 
-    uint8_t ADSCAN : 1; 
-    uint8_t CB : 1;   
-    uint8_t FUSE : 1; 
-    uint8_t SHUTV : 1;
-    uint8_t XDSG : 1;  
-    uint8_t XCHG : 1;  
-    uint8_t FULLSCAN : 1;   
-} AlertStatus;
 
 typedef struct
 {
@@ -168,10 +49,11 @@ static bool send_subcommand(uint16_t cmd)
     }
     return true;
 }
+//0x9286 address of scd threshod
 
 static bool recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
 {
-    bool    finished_subcmd = false;
+    bool    finished_subcmd = true;
     uint8_t buffer_read[2];
 
     // keeping waiting for the subcommand to finish operation and then proceed to read the message from the chip
@@ -182,7 +64,7 @@ static bool recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
             return false;
         }
 
-        finished_subcmd = ((buffer_read[0] << 8 | buffer_read[1]) == cmd) ? true : false;
+        finished_subcmd = ((buffer_read[0] | buffer_read[1] << 8) == cmd) ? false : true;
     }
     uint8_t length;
     if (!hw_i2c_memoryRead(&bat_mtr, REG_RESPONSE_LENGTH, &length, 1))
@@ -201,9 +83,13 @@ static bool recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
 
     // optional CRC check if we want. Gonn leave it uncommented for now
     uint8_t calcChecksum =
-        (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8))) + ((uint8_t)response->length)));
+        (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8)))));
 
-    uint8_t calc_inversion = ~calcChecksum;
+    for (uint8_t i = 0; i<response->length; i++) {
+        calcChecksum+=response->length;
+    }
+
+    uint8_t calc_inversion = ~((uint8_t)BYTE_MASK(calcChecksum));
     uint8_t checksum;
     if (!hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, 1))
     {
@@ -217,56 +103,116 @@ static bool recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
     return true;
 }
 
+static bool send_writeSubcommandToLowerSCDThresh(){
+    
+    uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(0x9286), (uint8_t) BYTE_MASK(0x9286 >> 8)};
+    //first we are writing to address 0x3E to set the subcommand
+    if(!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2)){
+        return false;
+    }
+    //what we are trying to do with info is send a number with max 15 which can be done in a byte
+    uint8_t thresh = 0x09; //13 in hex cause we are setting it 400mV max threshold
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, &thresh, 1)){
+        return false;
+    }
+    //need to add the CRC config here and we need to transmit both checksum and length in one
+
+    uint8_t calcChecksum =
+    (uint8_t)(((uint8_t)(BYTE_MASK(0x9286))) + ((uint8_t)((BYTE_MASK(0x9286 >> 8)))) + thresh);
+
+    uint8_t crc_length_thresh[2] = [~calcChecksum, 5];
+
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_CHECKSUM, crc_length_thresh, 2)) {
+        return false;
+    }
+
+    Subcommand_Response thresh_response;
+    if(!recieve_subcommand(0x9286,&thresh_response)){
+        return false;
+    }
+
+    return true;
+}
+
+static bool send_writeSubcommandToLowerSCDDelay(){
+    uint8_t delay_cmd_address[2] = {(uint8_t) BYTE_MASK(0x9287), (uint8_t)BYTE_MASK(0x9287<<8)};
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, delay_cmd_address, 2)) {
+        return false;
+    }
+
+    uint8_t delay = 0x01;
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, &delay, 1)) {
+        return false;
+    }
+    uint8_t calcChecksum1 =
+    (uint8_t)(((uint8_t)(BYTE_MASK(0x9287))) + ((uint8_t)((BYTE_MASK(0x9287 >> 8)))) + delay);
+
+    uint8_t crc_length_delay[2] = [~calcChecksum1, 5];
+
+    if (!hw_i2c_memoryWrite(&bat_mtr, REG_CHECKSUM, crc_length_thresh, 2)) {
+        return false;
+    }
+
+    Subcommand_Response delay_response;
+    if(!recieve_subcommand(0x9287,&delay_response)){
+        return false;
+    }
+}
+
 bool io_lowVoltageBattery_SafetyStatusCheck(){
+
+    //check the raw battery alarm status to see what is going on
     uint8_t buffer_safety[1] = { (uint8_t)0x64 };
     if (!hw_i2c_transmit(&bat_mtr, buffer_safety, 1))
     {
-        BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
-    AlertStatus saftey;
-    if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&saftey, 2))
+    AlertStatus saftey_status;
+    if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&saftey_status, 2))
     {
-        BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
 
-    uint8_t buffer_safetA[1] = { (uint8_t)0x03 };
-    if (!hw_i2c_transmit(&bat_mtr, buffer_safetA, 1))
-    {
-        BREAK_IF_DEBUGGER_CONNECTED();
-        return false;
+    //if there is bit set in status A check what is going on
+    //TODO: Make sure we transmit a CAN message saying there is something wrong and specifically what is wrong
+    if (saftey_status.SSA){
+        LOG_ERROR("Registered a status fault A");
+        uint8_t buffer_safetA[1] = { (uint8_t)0x03 };
+        if (!hw_i2c_transmit(&bat_mtr, buffer_safetA, 1))
+        {
+            return false;
+        }
+        SafteyStatusA safetyFaultA;
+        if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&safetyFaultA, 1))
+        {
+            return false;
+        }
+        LOG_INFO("The issue is the following binary %d", safetyFaultA);
     }
-    SafteyFaultA safteyA;
-    if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&safteyA, 1))
-    {
-        BREAK_IF_DEBUGGER_CONNECTED();
-        return false;
-    }
-
-    uint8_t buffer_safetB[1] = { (uint8_t)0x05 };
-    if (!hw_i2c_transmit(&bat_mtr, buffer_safetB, 1))
-    {
-        BREAK_IF_DEBUGGER_CONNECTED();
-        return false;
-    }
-    uint8_t safteyB[1];
-    if (!hw_i2c_receive(&bat_mtr, safteyB, 1))
-    {
-        BREAK_IF_DEBUGGER_CONNECTED();
-        return false;
-    }
-    uint8_t buffer_safetC[1] = { (uint8_t)0x07 };
-    if (!hw_i2c_transmit(&bat_mtr, buffer_safetC, 1))
-    {
-        BREAK_IF_DEBUGGER_CONNECTED();
-        return false;
-    }
-    uint8_t safteyC[1];
-    if (!hw_i2c_receive(&bat_mtr, safteyC, 1))
-    {
-        BREAK_IF_DEBUGGER_CONNECTED();
-        return false;
+    //if there is bit a bit set in status B check what is going on
+    //TODO: Make sure we transmit a CAN message saying there is something wrong and specifically 
+    else if (saftey_status.SSBC) {
+        LOG_ERROR("Registered a status fault B");
+        uint8_t buffer_safetB[1] = { (uint8_t)0x05 };
+        if (!hw_i2c_transmit(&bat_mtr, buffer_safetB, 1))
+        {
+            return false;
+        }
+        uint8_t safteyB[1];
+        if (!hw_i2c_receive(&bat_mtr, safteyB, 1))
+        {
+            return false;
+        }
+        uint8_t buffer_safetC[1] = { (uint8_t)0x07 };
+        if (!hw_i2c_transmit(&bat_mtr, buffer_safetC, 1))
+        {
+            return false;
+        }
+        uint8_t safteyC[1];
+        if (!hw_i2c_receive(&bat_mtr, safteyC, 1))
+        {
+            return false;
+        }
     }
 
     return true;
@@ -274,8 +220,6 @@ bool io_lowVoltageBattery_SafetyStatusCheck(){
 
 bool io_lowVoltageBattery_initial_setup(void)
 {
-    // checking if the target is even ready to communicate with
-    // adding debuggers to make sure the code doesnt run wild and free when we run
     uint8_t buffer_bat[1] = { (uint8_t)BATTERY_STATUS };
 
     if (!hw_i2c_isTargetReady(&bat_mtr))
@@ -286,14 +230,16 @@ bool io_lowVoltageBattery_initial_setup(void)
     // ask for battery status to check if the device is sleep or not
     if (!hw_i2c_transmit(&bat_mtr, buffer_bat, 1))
     {
-        BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
 
     Battery_Status bat_status;
     if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&bat_status, 2))
     {
-        BREAK_IF_DEBUGGER_CONNECTED();
+        return false;
+    }
+    //Put the chip into config update mode
+    if (!send_subcommand((uint16_t) 0x0090)) {
         return false;
     }
 
@@ -305,14 +251,12 @@ bool io_lowVoltageBattery_initial_setup(void)
     uint8_t buffer_control[1] = { (uint8_t)CONTROL_STATUS };
     if (!hw_i2c_transmit(&bat_mtr, buffer_control, 1))
     {
-        BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
 
     Control_Status ctrl_status;
     if (!hw_i2c_receive(&bat_mtr, (uint8_t *)&ctrl_status, 2))
     {
-        BREAK_IF_DEBUGGER_CONNECTED();
         return false;
     }
     if (bat_status.SLEEP == 1)
@@ -336,6 +280,13 @@ bool io_lowVoltageBattery_initial_setup(void)
         }
     }
 
+    if(!send_writeSubcommandToLowerSCDThresh()){
+        return false;
+    }
+    if (!send_writeSubcommandToLowerSCDDelay()) {
+        return false;
+    }
+
     if (!hw_i2c_transmit(&bat_mtr, buffer_bat, 1))
     {
         return false;
@@ -345,10 +296,41 @@ bool io_lowVoltageBattery_initial_setup(void)
     {
         return false;
     }
-    // turn on all the fets
+
+    uint16_t manu_status1 = 0x0057;
+    send_subcommand(manu_status1);
+    Subcommand_Response response;
+    if(!recieve_subcommand(manu_status1, &response)){
+        return false;
+    }
+
+    uint16_t fet_enable = 0x0022;
+    if (!send_subcommand(fet_enable))
+    {
+        return false;
+    }
+
     uint16_t turning_on_fets_cmd = 0x0096;
     if (!send_subcommand(turning_on_fets_cmd))
     {
+        return false;
+    }
+
+    while(1){
+        uint16_t manu_status = 0x0057;
+        send_subcommand(manu_status);
+        Subcommand_Response response1;
+        if(!recieve_subcommand(manu_status, &response1)){
+            return false;
+        }
+
+            // turn on all the fets
+        if (!io_lowVoltageBattery_SafetyStatusCheck()) {
+            return false;
+        }
+    }
+    //tell the chip to exit config udpate mode
+    if(!send_subcommand((uint16_t) 0x0092)){
         return false;
     }
 
