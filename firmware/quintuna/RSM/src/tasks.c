@@ -11,7 +11,7 @@
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"

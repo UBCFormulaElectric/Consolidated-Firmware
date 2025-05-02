@@ -9,11 +9,10 @@
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
-#include "shared.pb.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
@@ -28,8 +27,6 @@ void tasks_preInit() {}
 
 void tasks_init(void)
 {
-    // Configure and initialize SEGGER SystemView.
-    // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("FSM reset!");
 
