@@ -1,9 +1,9 @@
 {
-  "forwarder": "VC",
+  "forwarders": [{}],
   "buses": [
     {
       "name": "Can",
-      "nodes": [  
+      "nodes": [
         "VC",
         "BMS",
         "FSM",

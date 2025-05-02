@@ -49,7 +49,7 @@ void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg)
         {%- set message = messages[r.message] -%}
         case {{ message.id_macro() }}:
         {
-            transmit_func_{{bus}}(rx_msg);
+            transmit_func_{{r.to_bus}}(rx_msg);
         }
         {% endfor %}
 
