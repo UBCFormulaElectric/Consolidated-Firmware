@@ -49,6 +49,7 @@ bool app_tractiveSystem_checkFaults(void)
     //    Charge current is positive, discharge current is negative
     //    TS current should be in the range: (-175, 30)
     const float current_A = app_tractiveSystem_getCurrent();
+    // Check if the current is out of range
     const bool  ts_current_out_of_bounds =
         !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, current_A);
     const bool ts_overcurrent_fault =
