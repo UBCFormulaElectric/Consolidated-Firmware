@@ -50,7 +50,7 @@ bool app_tractiveSystem_checkFaults(void)
     //    TS current should be in the range: (-175, 30)
     const float current_A = app_tractiveSystem_getCurrent();
     // Check if the current is out of range
-    const bool  ts_current_out_of_bounds =
+    const bool ts_current_out_of_bounds =
         !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, current_A);
     const bool ts_overcurrent_fault =
         app_timer_runIfCondition(&overcurrent_fault_timer, ts_current_out_of_bounds) == TIMER_STATE_EXPIRED;
