@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <app_canUtils.h>
+#include "app_canUtils.h"
 
 #define NUM_OF_IMD_CONDITIONS 6
 
