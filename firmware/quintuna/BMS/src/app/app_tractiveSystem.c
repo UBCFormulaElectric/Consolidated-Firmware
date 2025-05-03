@@ -55,7 +55,7 @@ bool app_tractiveSystem_checkFaults(void)
     const bool ts_overcurrent_fault =
         app_timer_runIfCondition(&overcurrent_fault_timer, ts_current_out_of_bounds) == TIMER_STATE_EXPIRED;
 
-    app_canAlerts_BMS_Fault_TractiveSystemOvercurrent_set(ts_overcurrent_fault);
+    app_canAlerts_BMS_Warning_TractiveSystemOvercurrent_set(ts_overcurrent_fault);
 
     return ts_overcurrent_fault;
 }
