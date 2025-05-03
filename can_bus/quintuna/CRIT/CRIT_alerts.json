@@ -47,11 +47,11 @@
             "description": "Missing heartbeat signal from the FSM."
         },
         "MissingVCHeartbeat": {
-            "id": 952,
+            "id": 953,
             "description": "Missing heartbeat signal from the VC."
         },
         "MissingRSMHeartbeat": {
-            "id": 953,
+            "id": 952,
             "description": "Missing heartbeat signal from the RSM."
         },
         "MissingDAMHeartbeat": {

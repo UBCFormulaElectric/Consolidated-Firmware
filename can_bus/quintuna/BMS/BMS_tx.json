@@ -12,6 +12,16 @@
       }
     }
   },
+  "Debug": {
+    "msg_id": 407,
+    "cycle_time": 1000,
+    "description": "BMS Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      }
+    }
+  },
   "LatchedFaults": {
     "msg_id": 410,
     "cycle_time": 100,
@@ -58,22 +68,6 @@
       "Reserved": {
         "start_bit": 33,
         "bits": 31
-      }
-    }
-  },
-  "HvBatteryProperties": {
-    "msg_id": 452,
-    "cycle_time": 100,
-    "description": "Info about the battery properties",
-    "signals": {
-      "HvBatterySoc": {
-        "start_bit": 0,
-        "bits": 16,
-        "min": 0,
-        "max": 100,
-        "scale": 1,
-        "offset": 0,
-        "unit": "%"
       }
     }
   }

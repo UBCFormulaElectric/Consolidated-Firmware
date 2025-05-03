@@ -9,6 +9,16 @@
             }
         }
     },
+    "Debug": {
+        "msg_id": 907,
+        "cycle_time": 1000,
+        "description": "CRIT Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
+    },
     "Switches": {
         "msg_id": 910,
         "cycle_time": 100,
@@ -70,6 +80,22 @@
             }
         }
     },
+<<<<<<< HEAD
+=======
+    "CRITShdnNodeStatus": {
+        "msg_id": 914,
+        "cycle_time": 100,
+        "description": "CRIT Shutdown Node Status",
+        "signals": {
+            "CockpitEStopOKStatus": {
+                "bits": 1
+            },
+            "InertiaSenOKStatus": {
+                "bits": 1
+            }
+        }
+    },
+>>>>>>> master
     "WatermarkLevel": {
         "msg_id": 915,
         "cycle_time": 100,

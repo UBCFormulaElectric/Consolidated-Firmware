@@ -6,7 +6,7 @@
     "warnings": {},
     "faults": {
         "DummyFault": {
-            "id": 850,
+            "id": 800,
             "description": "Dummy Fault"
         }
     }
