@@ -1,14 +1,7 @@
-from lzma import is_check_supported
-from statistics import mode
-
 import jinja2 as j2
 
-from ...can_database import *
-from ...utils import *
-from .c_config import *
 from .c_writer import *
 from .utils import load_template
-
 
 
 class IoCanTxModule(CModule):
@@ -20,7 +13,7 @@ class IoCanTxModule(CModule):
         node_obj = self._db.nodes[self._node]
         template = load_template("io_canTx.h.j2")
         j2_env = j2.Environment(
-            loader=j2.BaseLoader, extensions=["jinja2.ext.loopcontrols"]
+            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(template)
         return template.render(
@@ -33,7 +26,7 @@ class IoCanTxModule(CModule):
         node_obj = self._db.nodes[self._node]
         template = load_template("io_canTx.c.j2")
         j2_env = j2.Environment(
-            loader=j2.BaseLoader, extensions=["jinja2.ext.loopcontrols"]
+            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(template)
         return template.render(

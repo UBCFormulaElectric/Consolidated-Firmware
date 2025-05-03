@@ -1,6 +1,5 @@
 import jinja2 as j2
 
-
 from .c_writer import *
 from .utils import load_template
 
@@ -60,7 +59,7 @@ class AppCanUtilsModule(CModule):
     def source_template(self):
         template = load_template("app_canUtils.c.j2")
         j2_env = j2.Environment(
-            loader=j2.BaseLoader, extensions=["jinja2.ext.loopcontrols"]
+            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(template)
         return template.render(
@@ -78,7 +77,7 @@ class AppCanUtilsModule(CModule):
                     can_enums.append(signal.enum)
 
         template = load_template("app_canUtils.h.j2")
-        j2_env = j2.Environment(loader=j2.BaseLoader)
+        j2_env = j2.Environment(loader=j2.BaseLoader())
         template = j2_env.from_string(template)
 
         return template.render(
@@ -86,17 +85,17 @@ class AppCanUtilsModule(CModule):
             messages=self._db.msgs_for_node(self._node),
             enums=can_enums,
         )
-
-        # Add packing/unpacking function definitions
-        cw.add_line()
-        cw.add_header_comment("Function Definitions")
-        cw.add_line()
-
-        for func in self._functions:
-            cw.add_function_definition(func)
-            cw.add_line()
-
-        return str(cw)
+        # TODO unreachable code??
+        # # Add packing/unpacking function definitions
+        # cw.add_line()
+        # cw.add_header_comment("Function Definitions")
+        # cw.add_line()
+        #
+        # for func in self._functions:
+        #     cw.add_function_definition(func)
+        #     cw.add_line()
+        #
+        # return str(cw)
 
 
 def signal_placement_comment(msg: CanMessage):
@@ -108,4 +107,4 @@ def signal_placement_comment(msg: CanMessage):
             signals[i] = chars[signal_cnt % len(chars)]
 
     signals = list(reversed(signals))
-    return f'|{"|".join("".join(signals[i*8:(i+1)*8]) for i in range(0, 8))}|'
+    return f'|{"|".join("".join(signals[i * 8:(i + 1) * 8]) for i in range(0, 8))}|'
