@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Union
 
 import pandas as pd
 from strenum import StrEnum
