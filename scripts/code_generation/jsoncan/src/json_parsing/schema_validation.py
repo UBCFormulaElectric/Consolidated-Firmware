@@ -3,8 +3,7 @@ Functions to validate the CAN JSON schema.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, TypedDict
-
+from typing import Dict, List, TypedDict, Optional as Optional_t
 from schema import And, Optional, Or, Schema
 
 """
@@ -13,7 +12,7 @@ Tx file schemas
 tx_signal_schema = Schema(
     # 4 options to define a signal"s representation...
     Or(
-        {
+        Schema({
             # Just bits, and signal will be a uint of X bits, i.e. offset=0, min=0, max=(2^bits-1)
             "bits": int,
             Optional("unit"): str,
@@ -21,8 +20,8 @@ tx_signal_schema = Schema(
             Optional("start_bit"): int,
             Optional("signed"): bool,
             Optional("scale"): Or(int, float),
-        },
-        {
+        }),
+        Schema({
             # Bits/min/max, and signal will range from min to max in X bits, scale/offset will be calculated accordingly
             "bits": int,
             "min": Or(int, float),
@@ -30,8 +29,8 @@ tx_signal_schema = Schema(
             Optional("unit"): str,
             Optional("start_value"): Or(int, float),
             Optional("start_bit"): int,
-        },
-        {
+        }),
+        Schema({
             # Resolution/min/max, and signal will range from min to max such that scale=resolution, bits/offset will be calculated accordingly
             "resolution": Or(int, float),
             "min": Or(int, float),
@@ -39,14 +38,14 @@ tx_signal_schema = Schema(
             Optional("unit"): str,
             Optional("start_value"): Or(int, float),
             Optional("start_bit"): int,
-        },
-        {
+        }),
+        Schema({
             # Enum, signal will be generated with minimum # of bits to hold all possible enum values
             "enum": str,
             Optional("start_value"): Or(int, float),
             Optional("start_bit"): int,
-        },
-        {
+        }),
+        Schema({
             # Scale/offset/bits/signedness: Basically if you want to configure like a DBC file
             "scale": Or(int, float),
             "offset": Or(int, float),
@@ -57,7 +56,7 @@ tx_signal_schema = Schema(
             Optional("start_bit"): int,
             Optional("signed"): bool,
             Optional("unit"): str,
-        },
+        }),
     )
 )
 
@@ -65,53 +64,51 @@ tx_msg_schema = Schema(
     {
         "bus": list[str],
         "msg_id": And(
-            int, lambda x: x >= 0 and x < 2**11
+            int, lambda x: 0 <= x < 2 ** 11
         ),  # Standard CAN uses 11-bit identifiers
         "signals": {
             str: tx_signal_schema,
         },
-        "cycle_time": Or(int, None, lambda x: x >= 0),
+        "cycle_time": Or(int, Schema(None), lambda x: x >= 0),
         Optional("disabled"): bool,
-        Optional("num_bytes"): Or(int, lambda x: x >= 0 and x <= 8),
+        Optional("num_bytes"): Or(int, lambda x: 0 <= x <= 8),
         Optional("description"): str,
         Optional("allowed_modes"): [str],
         Optional("data_capture"): {
-            Optional("log_cycle_time"): Or(int, None),
-            Optional("telem_cycle_time"): Or(int, None),
+            Optional("log_cycle_time"): Or(int, Schema(None)),
+            Optional("telem_cycle_time"): Or(int, Schema(None)),
         },
     }
 )
 
-tx_schema = Schema(Or({str: tx_msg_schema}, {}))
+tx_schema = Schema(Or(Schema({str: tx_msg_schema}), Schema({})))
 
 """
 Rx file schema
 """
 
 
-class RxSchema(TypedDict):
+class RxSchemaSingle(TypedDict):
+    bus: str
     messages: list[str]
 
 
-from schema import List, Or, Schema
-
 rx_schema = Schema(
     Or(
-        [],  # Allow an empty list
-        [
+        Schema([]),  # Allow an empty list
+        Schema([
             {
                 "bus": str,
                 "messages": [str],  # Use schema.List to define a list of strings
             }
-        ],
+        ]),
     )
 )
-
 
 """
 Enum file schema
 """
-enum_schema = Schema(Or({str: {str: int}}, {}))  # If the node doesn"t define any enums
+enum_schema = Schema(Or(Schema({str: {str: int}}), Schema({})))  # If the node doesn"t define any enums
 
 """
 Bus file schema
@@ -125,11 +122,14 @@ class ForwarderConfigJson(TypedDict):
 
 
 class BusConfigJson(TypedDict):
-    default_receiver: str
+    name: str
     bus_speed: int
     modes: list[str]
     default_mode: str
-    node: list[str]
+    nodes: list[str]
+    # is this optional?
+    default_receiver: Optional_t[str]
+    FD: Optional_t[bool]
 
 
 class BusJson(TypedDict):
@@ -150,15 +150,15 @@ single_bus_schema = Schema(
 
 forwarders_schema = Schema(
     Or(
-        {},
-        {
+        Schema({}),
+        Schema({
             "forwarder": str,
             "bus1": str,
             "bus2": str,
-        },
+        }),
     )
 )
-bus_list = Schema(Or(list[single_bus_schema], []))
+bus_list = Schema(Or(list[single_bus_schema], Schema([])))
 bus_schema = Schema({"forwarders": list[forwarders_schema], "buses": bus_list})
 
 """
@@ -186,7 +186,7 @@ class AlertsJson(TypedDict):
 
 alerts_schema = Schema(
     Or(
-        {
+        Schema({
             "warnings_id": And(int, lambda x: x >= 0),
             "warnings_counts_id": And(int, lambda x: x >= 0),
             "faults_id": And(int, lambda x: x >= 0),
@@ -195,46 +195,46 @@ alerts_schema = Schema(
             "info_counts_id": And(int, lambda x: x >= 0),
             "bus": list[str],
             "warnings": Or(
-                {},
-                {
+                Schema({}),
+                Schema({
                     str: Or(
-                        {},
-                        {
+                        Schema({}),
+                        Schema({
                             "id": int,
                             "description": str,
                             Optional("disabled"): bool,
-                        },
+                        }),
                     )
-                },
+                }),
             ),
             "faults": Or(
-                {},
-                {
+                Schema({}),
+                Schema({
                     str: Or(
-                        {},
-                        {
+                        Schema({}),
+                        Schema({
                             "id": int,
                             "description": str,
                             Optional("disabled"): bool,
-                        },
+                        }),
                     )
-                },
+                }),
             ),
             "info": Or(
-                {},
-                {
+                Schema({}),
+                Schema({
                     str: Or(
-                        {},
-                        {
+                        Schema({}),
+                        Schema({
                             "id": int,
                             "description": str,
                             Optional("disabled"): bool,
-                        },
+                        }),
                     )
-                },
+                }),
             ),
-        },
-        {},
+        }),
+        Schema({}),
     )
 )
 
@@ -243,7 +243,7 @@ def validate_tx_json(json: Dict) -> Dict[str, dict]:
     return tx_schema.validate(json)
 
 
-def validate_rx_json(json: Dict) -> RxSchema:
+def validate_rx_json(json: Dict) -> list[RxSchemaSingle]:
     return rx_schema.validate(json)
 
 

@@ -7,11 +7,8 @@ from __future__ import annotations
 import json
 import os
 from math import ceil
-from typing import Any, Tuple
+from typing import Any, Tuple, List, Dict, Optional
 
-from ..can_database import *
-from ..can_database import CanMessage, CanSignal
-from ..utils import max_uint_for_bits
 from .schema_validation import (
     AlertsJson,
     validate_alerts_json,
@@ -20,6 +17,9 @@ from .schema_validation import (
     validate_rx_json,
     validate_tx_json,
 )
+from ..can_database import (CanMessage, CanSignal, CanBusConfig, CanNode, CanEnum, CanAlert, AlertsEntry, CanForward,
+                            CanRxMessages, CanDatabase, CanAlertType)
+from ..utils import max_uint_for_bits
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -34,7 +34,7 @@ class InvalidCanJson(Exception):
 
 
 def calc_signal_scale_and_offset(
-    max_val: int, min_val: int, num_bits: int
+        max_val: int, min_val: int, num_bits: int
 ) -> Tuple[float, float]:
     """
     Calculate scale and offset for DBC file.
@@ -49,13 +49,15 @@ class JsonCanParser:
         self._bus_cfg: dict[str, CanBusConfig] = {}  # Set of bus configurations
         self._nodes: dict[str, CanNode] = {}  # List of node names
         self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
+        # TODO why do these have to be different?
         self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
         self._shared_enums: dict[str, CanEnum] = {}  # Set of shared enums
         self._alerts: dict[str, dict[CanAlert, AlertsEntry]] = (
             {}
         )  # Dict of node names to node's alerts
         self._reroute: List[CanForward] = []
-        self._forwarder_node: CanNode = None
+        self._forwarder_node: CanNode = None  # TODO I don't think this ever gets updated??
+        # TODO very interesting design? I suppose it would be nice to query on node name but i suppose a find also does the job (like at most how many nodes do we have?)
         self._can_rx: dict[str, CanRxMessages] = {}
         self._parse_json_data(can_data_dir=can_data_dir)
 
@@ -77,83 +79,74 @@ class JsonCanParser:
     def _parse_json_data(self, can_data_dir: str):
         """
         Load all CAN JSON data from specified directory.
-
         """
         # Load shared JSON data
+        self._parse_shared_enum_data_from_json(can_data_dir)
 
-        nodes = self._parse_json_node_data(can_data_dir)
-        bus_configs = self._parse_json_bus_data(can_data_dir)
-        shared_enums = self._parse_json_shared_enum_data(can_data_dir)
-
-        # Parse node's TX, ALERTS, and ENUM JSON
+        # populate node information
+        self._find_all_nodes_from_folders(can_data_dir)
+        self._parse_bus_data_from_json(can_data_dir)
         alerts_messages = []
-        for node, node_obj in nodes.items():
-
-            enums = self._parse_json_node_enum_data(can_data_dir, node)
-
+        for node_name, node_obj in self._nodes.items():
+            self._parse_json_node_enum_data(can_data_dir, node_name)
             # Parse ALERTS
-            alerts = self._parse_json_alert_data(can_data_dir, node)
+            alert_messages = self._parse_json_alert_data(can_data_dir, node_name)
             # Parse TX messages
-            tx_msgs = self._parse_json_tx_data(can_data_dir, node_obj)
-            if alerts is not None:
+            tx_msg_names = self._parse_json_tx_data(can_data_dir, node_obj)
+            if alert_messages is not None:
                 # add the alert messages to the tx messages
-                tx_msgs.append(alerts[0].name)
-                tx_msgs.append(alerts[1].name)
-                tx_msgs.append(alerts[2].name)
-                tx_msgs.append(alerts[3].name)
-                tx_msgs.append(alerts[4].name)
-                tx_msgs.append(alerts[5].name)
-                alerts_messages.extend(alerts)  # save for RX parsing
+                assert len(alert_messages) == 6, "Alert messages should be 6 (unless we add more types of alerts)"
+                tx_msg_names.extend([msg.name for msg in alert_messages])
+                alerts_messages.extend(alert_messages)  # save for RX parsing
 
             # update node object
-            node_obj.buses = [
-                bus_configs[bus].name
-                for bus in bus_configs
-                if node in bus_configs[bus].nodes
+            node_obj.bus_names = [
+                self._bus_cfg[bus].name
+                for bus in self._bus_cfg
+                if node_name in self._bus_cfg[bus].nodes
             ]
-            node_obj.tx_msgs = tx_msgs
+            node_obj.tx_msg_names = tx_msg_names
             node_obj.alerts = []
 
-        # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
+        # Parse all nodes' RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         self._parse_json_rx_data(can_data_dir)
 
-        # handle the alert messages here
+        # TODO?? handle the alert messages here
 
         # Consistency check
         self._consistency_check()
 
-        self._register_alert_message(alerts_messages)
-        # find all message transmitting on one bus but received in another bus
-        self._find_reroute(can_data_dir)
+        self._register_alert_messages(alerts_messages)  # TODO figure out why this is important
 
-    def _parse_json_bus_data(self, can_data_dir) -> List[CanBusConfig]:
+        # find all message transmitting on one bus but received in another bus
+        self._calculate_reroutes(can_data_dir)
+
+    def _parse_bus_data_from_json(self, can_data_dir) -> None:
         """
-        Parse bus JSON data from specified directory.
+        Parses data about buses from global configuration
         """
         assert self._nodes is not None  # need nodes to be parsed first
         bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
         # dynamic validation of bus data
         buses = bus_json_data["buses"]
+
         for bus in buses:
             if bus["default_mode"] not in bus["modes"]:
-                raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
+                raise InvalidCanJson(f"Error on bus {bus['name']}: Default CAN mode is not in the list of modes.")
 
-        buses_obj = {
+        self._bus_cfg = {
             bus["name"]: CanBusConfig(
                 name=bus["name"],
                 default_mode=bus["default_mode"],
                 modes=bus["modes"],
                 bus_speed=bus["bus_speed"],
-                nodes=bus["nodes"],  # string for now
+                nodes=bus["nodes"],
                 fd=bus.get("FD", False),
             )
             for bus in buses
         }
 
-        self._bus_cfg = buses_obj
-        return buses_obj
-
-    def _parse_json_shared_enum_data(self, can_data_dir) -> List[CanEnum]:
+    def _parse_shared_enum_data_from_json(self, can_data_dir):
         """
         Parse shared enum JSON data from specified directory.
         """
@@ -161,52 +154,40 @@ class JsonCanParser:
             self._load_json_file(f"{can_data_dir}/shared_enum")
         )
         # Parse shared enum JSON
-
-        enums = {}
         for enum_name, enum_entries in shared_enum_json_data.items():
             # Check if this enum name is a duplicate
-
             can_enum: CanEnum = self._get_parsed_can_enum(
                 enum_name=enum_name, enum_entries=enum_entries
             )
-
             if can_enum in self._shared_enums or can_enum in self._enums:
                 raise InvalidCanJson(
                     f"Enum '{enum_name}' is a duplicate, enums must have unique names."
                 )
-
             self._shared_enums[enum_name] = can_enum
             self._enums[enum_name] = can_enum
-            enums[enum_name] = can_enum
 
-        return enums
-
-    def _parse_json_node_data(self, can_data_dir) -> Dict[str, CanNode]:
+    def _find_all_nodes_from_folders(self, can_data_dir: str) -> None:
         """
-        Parse node JSON data from specified directory.
+        From a specified directory, creates empty CanNode objects for each represented nodes (from folders)
         """
         node_names = [f.name for f in os.scandir(can_data_dir) if f.is_dir()]
         # leave other node empty for now
-        node_objs = {
+        self._nodes = {
             node: CanNode(
                 name=node,
-                buses=[],
-                tx_msgs=[],
-                rx_msgs=[],
+                bus_names=[],
+                tx_msg_names=[],
+                rx_msgs_names=[],
                 alerts=[],
             )
             for node in node_names
         }
-        self._nodes = node_objs
-        return node_objs
 
-    def _parse_json_node_enum_data(self, can_data_dir, node) -> Dict[str, CanMessage]:
+    def _parse_json_node_enum_data(self, can_data_dir, node) -> None:
         node_enum_json_data = validate_enum_json(
             self._load_json_file(f"{can_data_dir}/{node}/{node}_enum")
         )
-        enums = {}
         for enum_name, enum_entries in node_enum_json_data.items():
-
             e = self._get_parsed_can_enum(
                 enum_name=enum_name, enum_entries=enum_entries
             )
@@ -217,151 +198,164 @@ class JsonCanParser:
                 )
 
             self._enums[enum_name] = e
-            enums[enum_name] = e
-        return enums
 
-    def _parse_json_tx_data(self, can_data_dir, node) -> List[str]:
-
-        node_name = node.name
-        node_tx_json_data = validate_tx_json(
-            self._load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx")
-        )
-
-        m = []
-        for tx_node_msg_name, msg_data in node_tx_json_data.items():
+    def _parse_json_tx_data(self, can_data_dir: str, node: CanNode) -> List[str]:
+        """
+        Parses TX messages from file, adds them to message list
+        :param can_data_dir: :|
+        :param node: node in question
+        :return: list of names of messages associated with the given node
+        """
+        node_tx_json_data = validate_tx_json(self._load_json_file(f"{can_data_dir}/{node.name}/{node.name}_tx"))
+        msg_names: list[str] = []
+        for tx_node_msg_name, msg_json in node_tx_json_data.items():
             # Skip if message is disabled
             msg_disabled, _ = self._get_optional_value(
-                data=msg_data, key="disabled", default=False
+                data=msg_json, key="disabled", default=False
             )
             if msg_disabled:
                 continue
 
-            tx_node_msg_name = f"{node_name}_{tx_node_msg_name}"
+            tx_node_msg_name = f"{node.name}_{tx_node_msg_name}"
 
             # Check if this message name is a duplicate
-            if tx_node_msg_name in self._messages:
+            if tx_node_msg_name in self._messages.keys():
                 raise InvalidCanJson(
-                    f"Message '{tx_node_msg_name}' transmitted by node '{node_name}' is a duplicate, messages must have unique names."
+                    f"Message '{tx_node_msg_name}' transmitted by node '{node.name}' is a duplicate, messages must have unique names."
                 )
             self._messages[tx_node_msg_name] = self._get_parsed_can_message(
-                msg_name=tx_node_msg_name, msg_json_data=msg_data, node=node
+                msg_name=tx_node_msg_name, msg_json_data=msg_json, node=node
             )
-            m.append(tx_node_msg_name)
+            msg_names.append(tx_node_msg_name)
+        return msg_names
 
-        return m
-
-    def _parse_json_alert_data(self, can_data_dir, node) -> List[CanMessage]:
-        node_name = node
+    def _parse_json_alert_data(self, can_data_dir, node_name) -> Optional[List[CanMessage]]:
+        """
+        I do not like this function very much
+        """
         node_alerts_json_data = validate_alerts_json(
             self._load_json_file(f"{can_data_dir}/{node_name}/{node_name}_alerts")
         )
-        if len(node_alerts_json_data) > 0:
-            (
-                warnings,
-                faults,
-                warnings_counts,
-                faults_counts,
-                info,
-                info_counts,
-            ), (
-                faults_meta_data,
-                warnings_meta_data,
-                info_meta_data,
-            ) = self._parse_node_alerts(node, node_alerts_json_data)
+        if len(node_alerts_json_data) <= 0:
+            return None
 
-            # Make sure alerts are received by all other boards
-            # other_nodes = [other for other in self._nodes if other != node_name]
-            # warnings.rx_nodes.extend(other_nodes)
-            # faults.rx_nodes.extend(other_nodes)
+        (
+            warnings_msg,
+            faults_msg,
+            warnings_counts_msg,
+            faults_counts_msg,
+            info_msg,
+            info_counts_msg
+        ), (
+            faults_meta_data,
+            warnings_meta_data,
+            info_meta_data,
+        ) = self._parse_node_alerts(node_name, node_alerts_json_data)
 
-            self._messages[warnings.name] = warnings
-            self._messages[faults.name] = faults
-            self._messages[warnings_counts.name] = warnings_counts
-            self._messages[faults_counts.name] = faults_counts
-            self._messages[info.name] = info
-            self._messages[info_counts.name] = info_counts
+        # TODO is this comment still relevant?
+        # Make sure alerts are received by all other boards
+        # other_nodes = [other for other in self._nodes if other != node_name]
+        # warnings.rx_nodes.extend(other_nodes)
+        # faults.rx_nodes.extend(other_nodes)
 
-            self._alerts[node_name] = {
-                **{
-                    CanAlert(alert.name, CanAlertType.WARNING): warnings_meta_data[
-                        alert.name
-                    ]
-                    for alert in warnings.signals
-                },
-                **{
-                    CanAlert(alert.name, CanAlertType.FAULT): faults_meta_data[
-                        alert.name
-                    ]
-                    for alert in faults.signals
-                },
-                **{
-                    CanAlert(alert.name, CanAlertType.INFO): info_meta_data[alert.name]
-                    for alert in info.signals
-                },
-            }
+        self._messages[warnings_msg.name] = warnings_msg
+        self._messages[faults_msg.name] = faults_msg
+        self._messages[warnings_counts_msg.name] = warnings_counts_msg
+        self._messages[faults_counts_msg.name] = faults_counts_msg
+        self._messages[info_msg.name] = info_msg
+        self._messages[info_counts_msg.name] = info_counts_msg
 
-            return [warnings, faults, warnings_counts, faults_counts, info, info_counts]
+        self._alerts[node_name] = {
+            **{
+                CanAlert(alert.name, CanAlertType.WARNING): warnings_meta_data[
+                    alert.name
+                ]
+                for alert in warnings_msg.signals
+            },
+            **{
+                CanAlert(alert.name, CanAlertType.FAULT): faults_meta_data[
+                    alert.name
+                ]
+                for alert in faults_msg.signals
+            },
+            **{
+                CanAlert(alert.name, CanAlertType.INFO): info_meta_data[alert.name]
+                for alert in info_msg.signals
+            },
+        }
 
-    def _parse_json_rx_data(self, can_data_dir) -> List[str]:
+        return [warnings_msg, faults_msg, warnings_counts_msg, faults_counts_msg, info_msg, info_counts_msg]
 
-        for node, node_obj in self._nodes.items():
+    def _parse_json_rx_data(self, can_data_dir):
+        for rx_node_name, rx_node in self._nodes.items():
             node_rx_json_data = validate_rx_json(
-                self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
-            )
+                self._load_json_file(f"{can_data_dir}/{rx_node_name}/{rx_node_name}_rx"))
 
-            rx_msgs_obj_map = {}  # bus name -> list of messages
-            for rx_msg_data in node_rx_json_data:
-                bus = rx_msg_data["bus"]
+            rx_msgs_obj_map: dict[str, list[str]] = {}  # bus name -> list of messages names
+
+            # iterate through each bus that you are listening on
+            for rx_bus_metadata in node_rx_json_data:
+                bus = rx_bus_metadata["bus"]
+                # check bus is present
                 if bus not in self._bus_cfg:
                     raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
-                messages = rx_msg_data["messages"]
 
+                # TODO check that the node is on the bus (or is this a routing functionality)
+                # i think regardless it is trivial enough, and this is a very useful check
+
+                messages = rx_bus_metadata["messages"]
                 # if "all" in messages then add all messages on this bus
+                # TODO maybe we just make the type of messages : list[str] | "all"
                 if "all" in messages:
-                    messages = [
-                        msg for msg in self._messages if msg not in node_obj.tx_msgs
-                    ]
+                    messages = list(set(self._messages) - set(rx_node.tx_msg_names))
 
                 for message in messages:
                     # Check if this message is defined
                     if message not in self._messages:
                         raise InvalidCanJson(
-                            f"Message '{message}' received by '{node}' is not defined. Make sure it is correctly defined in the TX JSON."
+                            f"Message '{message}' received by '{rx_node_name}' is not defined. Make sure it is correctly defined in the TX JSON."
                         )
-                    rx_msg = self._messages[message]
-                    if node not in rx_msg.rx_nodes:
-                        rx_msg.rx_nodes.append(node)
+
+                    msg_to_rx = self._messages[message]
+
+                    # tell msg_to_rx that the current node rxs it
+                    if rx_node_name not in msg_to_rx.rx_node_names:
+                        msg_to_rx.rx_node_names.append(rx_node_name)
 
                     # add the message to the node's rx messages
-                    rx_node = self._nodes[node]
-                    if rx_msg.name not in rx_node.rx_msgs:
-                        rx_node.rx_msgs.append(rx_msg.name)
+                    if msg_to_rx.name not in rx_node.rx_msgs_names:  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice?
+                        rx_node.rx_msgs_names.append(msg_to_rx.name)
+
                 rx_msgs_obj_map[bus] = messages
 
             # make a CanRxMessages object
-            rx_msgs_obj = CanRxMessages(node=node, messages=rx_msgs_obj_map)
-            self._can_rx[node] = rx_msgs_obj
+            self._can_rx[rx_node_name] = CanRxMessages(node=rx_node_name, messages=rx_msgs_obj_map)
 
     def _consistency_check(self):
+        # TODO should this be checked post-hoc, or should it be checked as you parse the messages.
+        # In the latter method, you would be able to guarentee that when the intermediary data is ready, that it is valid.
+        # however, I don't think this is very much part of the design philosophy at all, as there are many instances
+        # where data is instantiated but not valid
+
         # no same message name, signal name, enum name
         # message can't transmit and receive by the same node
         # no overlapping bus
         # object cross reference consistency
 
         for node_name, node_obj in self._nodes.items():
-            node_buses = node_obj.buses
+            node_buses = node_obj.bus_names
             # check if the bus exist in the bus config
             for bus in node_buses:
                 if bus not in self._bus_cfg:
                     raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
 
-            for rx_msg in node_obj.rx_msgs:
+            for rx_msg in node_obj.rx_msgs_names:
                 if rx_msg not in self._messages:
                     raise InvalidCanJson(
                         f"Message '{rx_msg}' received by '{node_name}' is not defined. Make sure it is correctly defined in the TX JSON."
                     )
 
-            for tx_msg in node_obj.tx_msgs:
+            for tx_msg in node_obj.tx_msg_names:
                 if tx_msg not in self._messages:
                     raise InvalidCanJson(
                         f"Message '{tx_msg}' transmitted by '{node_name}' is not defined. Make sure it is correctly defined in the TX JSON."
@@ -382,7 +376,7 @@ class JsonCanParser:
                 if bus not in self._bus_cfg:
                     raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
 
-            for node in msg_obj.rx_nodes:
+            for node in msg_obj.rx_node_names:
                 if node not in self._nodes:
                     raise InvalidCanJson(
                         f"Node '{node}' is not defined in the node JSON."
@@ -391,7 +385,7 @@ class JsonCanParser:
             if msg_obj.tx_node not in self._nodes:
                 raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
 
-    def _register_alert_message(self, alerts_msgs: List[CanMessage]):
+    def _register_alert_messages(self, alerts_msgs: List[CanMessage]):
         """
         Register the alert message to the node.x
         """
@@ -401,20 +395,20 @@ class JsonCanParser:
         # alerts is recieved by all nodes
         for alerts_msg in alerts_msgs:
             # for all nodes
-            for _, node in self._nodes.items():
+            for node in self._nodes.values():
                 if alerts_msg.tx_node == node.name:
                     # skip the node that transmit the message
                     continue
                 # if msg is trasmitted on the rx port on node bus
-                overlap_bus = set(alerts_msg.bus) & set(node.buses)
+                overlap_bus = set(alerts_msg.bus) & set(node.bus_names)
                 if len(overlap_bus) > 0:
                     overlap_bus = list(overlap_bus)[0]
                     # add the message to the node's rx messages
-                    if alerts_msg.name not in node.rx_msgs:
-                        node.rx_msgs.append(alerts_msg.name)
+                    if alerts_msg.name not in node.rx_msgs_names:
+                        node.rx_msgs_names.append(alerts_msg.name)
 
                     # add rx message obj
-                    alerts_msg.rx_nodes.extend(
+                    alerts_msg.rx_node_names.extend(
                         [key for key in self._nodes.keys() if key != node]
                     )
                     self._can_rx[node.name].messages.setdefault(overlap_bus, []).append(
@@ -425,23 +419,21 @@ class JsonCanParser:
                     # need to reroute
                     # random pick a rx port from the node
 
-                    rx_bus = node.buses[0] if node.buses else None
+                    rx_bus = node.bus_names[0] if node.bus_names else None
                     if rx_bus is None:
                         continue
-                    alerts_msg.rx_nodes.extend(
+                    alerts_msg.rx_node_names.extend(
                         [key for key in self._nodes.keys() if key != node]
                     )
-                    if alerts_msg.name not in node.rx_msgs:
-                        node.rx_msgs.append(alerts_msg.name)
+                    if alerts_msg.name not in node.rx_msgs_names:
+                        node.rx_msgs_names.append(alerts_msg.name)
 
                     # add rx message obj
                     self._can_rx[node.name].messages.setdefault(rx_bus, []).append(
                         alerts_msg.name
                     )
 
-        print("dine")
-
-    def _find_reroute(self, can_data_dir) -> List[CanForward]:
+    def _calculate_reroutes(self, can_data_dir) -> List[CanForward]:
         # design choice
         # all message is on FD bus
         # some message from FD bus need to be rerouted to non-FD bus
@@ -491,9 +483,9 @@ class JsonCanParser:
                     for config in forwarders_configs:
                         found = False
                         if (rx_bus == config["bus1"] and tx_bus == config["bus2"]) or (
-                            rx_bus == config["bus2"] and tx_bus == config["bus1"]
+                                rx_bus == config["bus2"] and tx_bus == config["bus1"]
                         ):
-                            found = True
+                            # found = True
 
                             # create a forwarder object
                             forwarder = CanForward(
@@ -517,7 +509,7 @@ class JsonCanParser:
         return self._reroute
 
     def _get_parsed_can_message(
-        self, msg_name: str, msg_json_data: Dict, node: CanNode
+            self, msg_name: str, msg_json_data: Dict, node: CanNode
     ) -> CanMessage:
         """
         Parse JSON data dictionary representing a CAN message.
@@ -555,7 +547,6 @@ class JsonCanParser:
                 signal_name=signal_node_name,
                 signal_json_data=signal_data,
                 next_available_bit=next_available_bit,
-                msg_name=msg_name,
             )
 
             # If we specify one start bit, we require that the rest of the message specify start bit too
@@ -590,28 +581,26 @@ class JsonCanParser:
             bus=bus_names,
             cycle_time=msg_cycle_time,
             tx_node=node_name,
-            rx_nodes=[],  # rx nodes will be updated later
+            rx_node_names=[],  # rx nodes will be updated later
             # modes=msg_modes,
             log_cycle_time=log_cycle_time,
             telem_cycle_time=telem_cycle_time,
         )
 
     def _get_parsed_can_signal(
-        self,
-        signal_name: str,
-        signal_json_data: Dict,
-        next_available_bit: int,
-        msg_name: str,
+            self,
+            signal_name: str,
+            signal_json_data: Dict,
+            next_available_bit: int,
     ) -> tuple[CanSignal, Any]:
         """
         Parse JSON data dictionary representing a CAN signal.
         """
-
-        max_val = 0
-        min_val = 0
-        scale = 0
-        offset = 0
-        bits = 0
+        # max_val = 0
+        # min_val = 0
+        # scale = 0
+        # offset = 0
+        # bits = 0
         enum = None
 
         # Parse unit and starting bit position
@@ -624,8 +613,8 @@ class JsonCanParser:
         # Get signal value data. Method depends on which data provided in JSON file.
         # Option 1: Provide DBC data
         if all(
-            datum in signal_json_data
-            for datum in ("min", "max", "scale", "offset", "bits")
+                datum in signal_json_data
+                for datum in ("min", "max", "scale", "offset", "bits")
         ):
             bits = signal_json_data["bits"]
             max_val = signal_json_data["max"]
@@ -740,7 +729,9 @@ class JsonCanParser:
 
         return CanEnum(name=enum_name, items=items)
 
-    def _parse_node_alerts(self, node: str, alerts_json: AlertsJson):
+    def _parse_node_alerts(self, node: str, alerts_json: AlertsJson) -> tuple[
+        tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage], tuple[
+            dict[str, AlertsEntry], dict[str, AlertsEntry], dict[str, AlertsEntry]]]:
         node_name = node
         """
         Parse JSON data dictionary representing a node's alerts.
@@ -785,8 +776,8 @@ class JsonCanParser:
         info_counts_id = alerts_json["info_counts_id"]
 
         if any(
-            msg_id in {msg.id for msg in self._messages.values()}
-            for msg_id in (warnings_id, faults_id, warnings_counts_id, faults_counts_id)
+                msg_id in {msg.id for msg in self._messages.values()}
+                for msg_id in (warnings_id, faults_id, warnings_counts_id, faults_counts_id)
         ):
             conflicting_node = [
                 msg
@@ -808,13 +799,13 @@ class JsonCanParser:
         info_counts_name = f"{node_name}_InfoCounts"
 
         if any(
-            msg_name in self._messages
-            for msg_name in [
-                warnings_name,
-                faults_name,
-                warnings_counts_name,
-                faults_counts_name,
-            ]
+                msg_name in self._messages
+                for msg_name in [
+                    warnings_name,
+                    faults_name,
+                    warnings_counts_name,
+                    faults_counts_name,
+                ]
         ):
             raise InvalidCanJson(
                 f"Name for alerts message transmitted by '{node_name}' is a duplicate, messages must have unique names."
@@ -841,7 +832,7 @@ class JsonCanParser:
         )
 
         # noinspection PyTypeChecker
-        alerts_msgs: tuple[CanMessage, CanMessage, CanMessage, CanMessage] = (
+        alerts_msgs: tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage] = (
             CanMessage(
                 name=name,
                 id=msg_id,
@@ -850,60 +841,60 @@ class JsonCanParser:
                 log_cycle_time=cycle_time,
                 telem_cycle_time=cycle_time,
                 signals=signals,
-                rx_nodes=[],  # will be updated later
+                rx_node_names=[],  # will be updated later
                 tx_node=node,
                 bus=alerts_json["bus"],
             )
             for name, msg_id, description, signals, cycle_time in [
-                (
-                    warnings_name,
-                    warnings_id,
-                    f"Status of warnings for the {node_name}.",
-                    warnings_signals,
-                    WARNINGS_ALERTS_CYCLE_TIME,
-                ),
-                (
-                    faults_name,
-                    faults_id,
-                    f"Status of faults for the {faults}.",
-                    faults_signals,
-                    FAULTS_ALERTS_CYCLE_TIME,
-                ),
-                (
-                    warnings_counts_name,
-                    warnings_counts_id,
-                    f"Number of times warnings have been set for the {node_name}.",
-                    warnings_counts_signals,
-                    WARNINGS_ALERTS_CYCLE_TIME,
-                ),
-                (
-                    faults_counts_name,
-                    faults_counts_id,
-                    f"Number of times faults have been set for the {node_name}.",
-                    faults_counts_signals,
-                    FAULTS_ALERTS_CYCLE_TIME,
-                ),
-                (
-                    info_name,
-                    info_id,
-                    f"Status of info for the {info}.",
-                    info_signals,
-                    FAULTS_ALERTS_CYCLE_TIME,  # TODO: what will be the cycle time for info?
-                ),
-                (
-                    info_counts_name,
-                    info_counts_id,
-                    f"Number of times info have been set for the {node_name}.",
-                    info_counts_signals,
-                    FAULTS_ALERTS_CYCLE_TIME,
-                ),
-            ]
+            (
+                warnings_name,
+                warnings_id,
+                f"Status of warnings for the {node_name}.",
+                warnings_signals,
+                WARNINGS_ALERTS_CYCLE_TIME,
+            ),
+            (
+                faults_name,
+                faults_id,
+                f"Status of faults for the {faults}.",
+                faults_signals,
+                FAULTS_ALERTS_CYCLE_TIME,
+            ),
+            (
+                warnings_counts_name,
+                warnings_counts_id,
+                f"Number of times warnings have been set for the {node_name}.",
+                warnings_counts_signals,
+                WARNINGS_ALERTS_CYCLE_TIME,
+            ),
+            (
+                faults_counts_name,
+                faults_counts_id,
+                f"Number of times faults have been set for the {node_name}.",
+                faults_counts_signals,
+                FAULTS_ALERTS_CYCLE_TIME,
+            ),
+            (
+                info_name,
+                info_id,
+                f"Status of info for the {info}.",
+                info_signals,
+                FAULTS_ALERTS_CYCLE_TIME,  # TODO: what will be the cycle time for info?
+            ),
+            (
+                info_counts_name,
+                info_counts_id,
+                f"Number of times info have been set for the {node_name}.",
+                info_counts_signals,
+                FAULTS_ALERTS_CYCLE_TIME,
+            ),
+        ]
         )
         return alerts_msgs, (faults_meta_data, warnings_meta_data, info_meta_data)
 
     @staticmethod
     def _node_alert_signals(
-        node: str, alerts: dict[str, AlertsEntry], alert_type: CanAlertType
+            node: str, alerts: dict[str, AlertsEntry], alert_type: CanAlertType
     ):
         """
         From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
@@ -935,7 +926,7 @@ class JsonCanParser:
 
     @staticmethod
     def _node_alert_count_signals(
-        node: str, alerts: Dict, alert_type: str
+            node: str, alerts: Dict, alert_type: str
     ) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals.
@@ -950,7 +941,7 @@ class JsonCanParser:
                 scale=1,
                 offset=0,
                 min_val=0,
-                max_val=2**COUNT_BITS - 1,
+                max_val=2 ** COUNT_BITS - 1,
                 start_val=0,
                 enum=None,
                 unit="",
@@ -958,15 +949,6 @@ class JsonCanParser:
             )
             for i, alert in enumerate(alerts)
         ]
-
-    @staticmethod
-    def _build_node_obj(
-        node: str,
-    ) -> CanNode:
-        """
-        Build a CanNode object from the parsed JSON data.
-        """
-        return CanNode(name=node)
 
     @staticmethod
     def _load_json_file(file_path: str) -> Dict:

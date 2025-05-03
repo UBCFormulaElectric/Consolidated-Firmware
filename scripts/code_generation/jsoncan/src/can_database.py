@@ -211,10 +211,10 @@ class CanMessage:
         int, None
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
-    # forgein key
+    # foreign key
     bus: List[str]  # List of buses this message is transmitted on
     tx_node: str  # Node which transmits this message
-    rx_nodes: List[str]  # List of nodes which receive this message
+    rx_node_names: List[str]  # List of nodes which receive this message
 
     def bytes(self):
         """
@@ -260,7 +260,7 @@ class CanMessage:
 
 
 @dataclass(frozen=True)
-class CanRxMessages:
+class CanRxMessages:  # TODO how does this fit into the existing structures?
     node: str
     messages: dict[str, list[str]]  # bus name to list of message names
 
@@ -300,15 +300,13 @@ class CanNode:
     name: str  # Name of this CAN node
 
     # forgein key
-    tx_msgs: List[str]
-    rx_msgs: List[str]
+    tx_msg_names: List[str]
+    rx_msgs_names: List[str]
     alerts: List[AlertsEntry]
-    buses: List[str]
+    bus_names: List[str]
 
     def get_all_messages(self):
-        rx = list(self.rx_msgs.values())
-        tx = list(self.tx_msgs.values())
-        return rx + tx
+        return self.rx_msgs_names + self.tx_msg_names
 
     def __hash__(self):
         return hash(self.name)
@@ -360,7 +358,7 @@ class CanDatabase:
                         "signed": signal.signed,
                         "description": signal.description,
                         "tx_node": msg.tx_node,
-                        "rx_nodes": msg.rx_nodes,
+                        "rx_nodes": msg.rx_node_names,
                         "signal_obj": signal,
                         "message_obj": msg,
                     }
@@ -376,7 +374,7 @@ class CanDatabase:
             node = self.nodes[tx_node]
         except KeyError:
             return []
-        tx = [self.msgs[msg] for msg in node.tx_msgs]
+        tx = [self.msgs[msg] for msg in node.tx_msg_names]
         return tx
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
@@ -387,7 +385,7 @@ class CanDatabase:
             node = self.nodes[rx_node]
         except KeyError:
             return []
-        return [self.msgs[msg] for msg in node.rx_msgs]
+        return [self.msgs[msg] for msg in node.rx_msgs_names]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
@@ -425,7 +423,7 @@ class CanDatabase:
         )
 
     def node_name_description(
-        self, node: str, alert_type: CanAlert
+            self, node: str, alert_type: CanAlert
     ) -> Dict[str, tuple]:
         """Returns a dictionary containing a the alert names as the key and a description and as the item"""
 
@@ -462,7 +460,7 @@ class CanDatabase:
         return new_dict
 
     def node_alerts_with_rx_check(
-        self, tx_node: str, rx_node, alert_type: CanAlertType
+            self, tx_node: str, rx_node, alert_type: CanAlertType
     ) -> List[str]:
         """
         Return list of alerts transmitted by tx_node, and received by rx_node, of a specific type.
@@ -479,7 +477,7 @@ class CanDatabase:
             return [
                 alert
                 for alert in self.node_alerts(tx_node, alert_type)
-                if rx_node in alert_msg.rx_nodes
+                if rx_node in alert_msg.rx_node_names
             ]
 
     def node_rx_alerts(self, node: str, type) -> List[str]:

@@ -75,7 +75,7 @@ class DbcGenerator:
 
             for signal in msg.signals:
                 # Generate text for current CAN signal
-                msgs_text += self._dbc_signal(signal=signal, rx_nodes=msg.rx_nodes)
+                msgs_text += self._dbc_signal(signal=signal, rx_nodes=msg.rx_node_names)
 
                 # Generate text for signal value table, if it has one
                 if signal.enum:
@@ -106,7 +106,7 @@ class DbcGenerator:
         """default_receiver
         Return space-delimitted list of all boards on the bus.
         """
-        boards = list(self._db.nodes.keys())+ ["DEBUG"]
+        boards = list(self._db.nodes.keys()) + ["DEBUG"]
 
         return DBC_BOARD_LIST.format(node_names=" ".join(boards))
 

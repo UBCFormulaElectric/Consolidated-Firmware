@@ -36,7 +36,7 @@ class IoCanRerouteModule:
         node_obj = self._db.nodes[self._node]
 
         # dict from bus name to list of messages
-        reroutes = {bus: [] for bus in node_obj.buses}
+        reroutes = {bus: [] for bus in node_obj.bus_names}
         for msg in list_of_reroutes:
             reroutes[msg.from_bus].append(msg)
 
