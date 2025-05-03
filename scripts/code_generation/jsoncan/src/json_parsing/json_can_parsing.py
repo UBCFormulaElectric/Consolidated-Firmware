@@ -9,6 +9,8 @@ import os
 from math import ceil
 from typing import Any, Tuple, List, Dict, Optional
 
+from schema import SchemaError
+
 from .schema_validation import (
     AlertsJson,
     validate_alerts_json,
@@ -56,7 +58,6 @@ class JsonCanParser:
             {}
         )  # Dict of node names to node's alerts
         self._reroute: List[CanForward] = []
-        self._forwarder_node: CanNode = None  # TODO I don't think this ever gets updated??
         # TODO very interesting design? I suppose it would be nice to query on node name but i suppose a find also does the job (like at most how many nodes do we have?)
         self._can_rx: dict[str, CanRxMessages] = {}
         self._parse_json_data(can_data_dir=can_data_dir)
@@ -72,7 +73,6 @@ class JsonCanParser:
             shared_enums=self._shared_enums,
             alerts=self._alerts,
             reroute_msgs=self._reroute,
-            forwarder=self._forwarder_node,
             rx_msgs=self._can_rx,
         )
 
@@ -126,7 +126,11 @@ class JsonCanParser:
         Parses data about buses from global configuration
         """
         assert self._nodes is not None  # need nodes to be parsed first
-        bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
+        try:
+            bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
+        except SchemaError:
+            raise InvalidCanJson("Bus JSON file is not valid")
+
         # dynamic validation of bus data
         buses = bus_json_data["buses"]
 
@@ -150,9 +154,13 @@ class JsonCanParser:
         """
         Parse shared enum JSON data from specified directory.
         """
-        shared_enum_json_data = validate_enum_json(
-            self._load_json_file(f"{can_data_dir}/shared_enum")
-        )
+        try:
+            shared_enum_json_data = validate_enum_json(
+                self._load_json_file(f"{can_data_dir}/shared_enum")
+            )
+        except SchemaError:
+            raise InvalidCanJson("Shared enum JSON file is not valid")
+
         # Parse shared enum JSON
         for enum_name, enum_entries in shared_enum_json_data.items():
             # Check if this enum name is a duplicate
@@ -184,9 +192,13 @@ class JsonCanParser:
         }
 
     def _parse_json_node_enum_data(self, can_data_dir, node) -> None:
-        node_enum_json_data = validate_enum_json(
-            self._load_json_file(f"{can_data_dir}/{node}/{node}_enum")
-        )
+        try:
+            node_enum_json_data = validate_enum_json(
+                self._load_json_file(f"{can_data_dir}/{node}/{node}_enum")
+            )
+        except SchemaError:
+            raise InvalidCanJson(f"Enum JSON file is not valid for node {node}")
+
         for enum_name, enum_entries in node_enum_json_data.items():
             e = self._get_parsed_can_enum(
                 enum_name=enum_name, enum_entries=enum_entries
@@ -206,7 +218,11 @@ class JsonCanParser:
         :param node: node in question
         :return: list of names of messages associated with the given node
         """
-        node_tx_json_data = validate_tx_json(self._load_json_file(f"{can_data_dir}/{node.name}/{node.name}_tx"))
+        try:
+            node_tx_json_data = validate_tx_json(self._load_json_file(f"{can_data_dir}/{node.name}/{node.name}_tx"))
+        except:
+            raise InvalidCanJson(f"TX json file is not valid for {node}")
+
         msg_names: list[str] = []
         for tx_node_msg_name, msg_json in node_tx_json_data.items():
             # Skip if message is disabled
@@ -230,12 +246,13 @@ class JsonCanParser:
         return msg_names
 
     def _parse_json_alert_data(self, can_data_dir, node_name) -> Optional[List[CanMessage]]:
-        """
-        I do not like this function very much
-        """
-        node_alerts_json_data = validate_alerts_json(
-            self._load_json_file(f"{can_data_dir}/{node_name}/{node_name}_alerts")
-        )
+        try:
+            node_alerts_json_data = validate_alerts_json(
+                self._load_json_file(f"{can_data_dir}/{node_name}/{node_name}_alerts")
+            )
+        except SchemaError:
+            raise InvalidCanJson(f"Alerts JSON file is not valid for node {node_name}")
+
         if len(node_alerts_json_data) <= 0:
             return None
 
@@ -288,8 +305,11 @@ class JsonCanParser:
 
     def _parse_json_rx_data(self, can_data_dir):
         for rx_node_name, rx_node in self._nodes.items():
-            node_rx_json_data = validate_rx_json(
-                self._load_json_file(f"{can_data_dir}/{rx_node_name}/{rx_node_name}_rx"))
+            try:
+                node_rx_json_data = validate_rx_json(
+                    self._load_json_file(f"{can_data_dir}/{rx_node_name}/{rx_node_name}_rx"))
+            except SchemaError:
+                raise InvalidCanJson(f"RX JSON file is not valid for node {rx_node_name}")
 
             rx_msgs_obj_map: dict[str, list[str]] = {}  # bus name -> list of messages names
 
@@ -382,6 +402,7 @@ class JsonCanParser:
                         f"Node '{node}' is not defined in the node JSON."
                     )
 
+            # TODO double check that this is correct, node below is saying that it might be used before assignment
             if msg_obj.tx_node not in self._nodes:
                 raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
 
@@ -437,9 +458,14 @@ class JsonCanParser:
         # design choice
         # all message is on FD bus
         # some message from FD bus need to be rerouted to non-FD bus
-        forwarders_configs = validate_bus_json(
-            self._load_json_file(f"{can_data_dir}/bus")
-        )["forwarders"]
+
+        # TODO do we try to do this with the bus config?
+        try:
+            forwarders_configs = validate_bus_json(
+                self._load_json_file(f"{can_data_dir}/bus")
+            )["forwarders"]
+        except SchemaError:
+            pass
         # a map bus name to set of tx messages
         bus_tx_messages = {bus: set() for bus in self._bus_cfg}
 

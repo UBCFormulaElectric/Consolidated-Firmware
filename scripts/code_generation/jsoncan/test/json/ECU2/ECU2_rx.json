@@ -1,3 +1,6 @@
-{
-  "messages": []
-}
+[
+  {
+    "bus": "bus1",
+    "messages": []
+  }
+]

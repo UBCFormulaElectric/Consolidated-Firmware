@@ -133,7 +133,7 @@ class BusConfigJson(TypedDict):
 
 
 class BusJson(TypedDict):
-    forwarder: list[ForwarderConfigJson]
+    forwarders: list[ForwarderConfigJson]
     buses: list[BusConfigJson]
 
 

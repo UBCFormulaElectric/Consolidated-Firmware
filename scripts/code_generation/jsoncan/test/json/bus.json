@@ -1,18 +1,34 @@
 {
-  "forwarder": "ECU1",
+  "forwarders": [
+    {
+      "node": "ECU1",
+      "bus1": "bus1",
+      "bus2": "bus2"
+    }
+  ],
   "buses": [
     {
       "name": "bus1",
-      "nodes": ["ECU1"],
+      "nodes": [
+        "ECU1"
+      ],
       "bus_speed": 500,
-      "modes": ["default", "debug"],
+      "modes": [
+        "default",
+        "debug"
+      ],
       "default_mode": "default"
     },
     {
       "name": "bus2",
       "bus_speed": 500,
-      "nodes": ["ECU2"],
-      "modes": ["default", "debug"],
+      "nodes": [
+        "ECU2"
+      ],
+      "modes": [
+        "default",
+        "debug"
+      ],
       "default_mode": "default"
     }
   ]

@@ -331,7 +331,6 @@ class CanDatabase:
         str, Dict[CanAlert, AlertsEntry]
     ]  # Dictionary of node to list of alerts set by node
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
-    forwarder: CanNode  # Node which forwards this message
     rx_msgs: dict[str, CanRxMessages]  # node to CanRxMessages
 
     # TODO: Add a method to check for consistence of the database
@@ -480,7 +479,7 @@ class CanDatabase:
                 if rx_node in alert_msg.rx_node_names
             ]
 
-    def node_rx_alerts(self, node: str, type) -> List[str]:
+    def node_rx_alerts(self, node: str) -> List[str]:
         """
         Return list of alerts received by a node, of a specific type.
         """
@@ -498,19 +497,19 @@ class CanDatabase:
         """
         return len(self.node_alerts(node, alert_type)) > 0
 
-    def unpack(self, id: int, data: bytes) -> Dict:
+    def unpack(self, msg_id: int, data: bytes) -> list[Dict]:
         """
         Unpack a CAN dataframe.
         Returns a dict with the signal name, value, and unit.
 
         TODO: Also add packing!
         """
-        if id not in self.msgs:
-            logger.warning(f"Message ID '{id}' is not defined in the JSON.")
+        if str(msg_id) not in self.msgs:
+            logger.warning(f"Message ID '{msg_id}' is not defined in the JSON.")
             return []
 
         signals = []
-        for signal in self.msgs[id].signals:
+        for signal in self.msgs[str(msg_id)].signals:
             # Interpret raw bytes as an int.
             data_uint = int.from_bytes(data, byteorder="little", signed=False)
 
@@ -542,7 +541,7 @@ class CanDatabase:
                     )
                     continue
 
-                signal_data["label"] = signal.enum.items[signal_value]
+                signal_data["label"] = signal.enum.items[int(signal_value)]  # this is legal as enums must be ints
 
             # Append decoded signal's data.
             signals.append(signal_data)
