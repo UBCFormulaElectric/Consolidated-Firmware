@@ -198,7 +198,6 @@ ELSEIF ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_vcShdn.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_potentiometer.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
