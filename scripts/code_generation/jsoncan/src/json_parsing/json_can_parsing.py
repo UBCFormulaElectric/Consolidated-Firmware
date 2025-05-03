@@ -224,10 +224,10 @@ class JsonCanParser:
             raise InvalidCanJson(f"TX json file is not valid for {node}")
 
         msg_names: list[str] = []
-        for tx_node_msg_name, msg_json in node_tx_json_data.items():
+        for tx_node_msg_name, tx_msg_json in node_tx_json_data.items():
             # Skip if message is disabled
             msg_disabled, _ = self._get_optional_value(
-                data=msg_json, key="disabled", default=False
+                data=tx_msg_json, key="disabled", default=False
             )
             if msg_disabled:
                 continue
@@ -240,7 +240,7 @@ class JsonCanParser:
                     f"Message '{tx_node_msg_name}' transmitted by node '{node.name}' is a duplicate, messages must have unique names."
                 )
             self._messages[tx_node_msg_name] = self._get_parsed_can_message(
-                msg_name=tx_node_msg_name, msg_json_data=msg_json, node=node
+                msg_name=tx_node_msg_name, msg_json_data=tx_msg_json, node=node
             )
             msg_names.append(tx_node_msg_name)
         return msg_names

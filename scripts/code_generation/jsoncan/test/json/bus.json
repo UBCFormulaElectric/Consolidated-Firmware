@@ -1,7 +1,7 @@
 {
   "forwarders": [
     {
-      "node": "ECU1",
+      "forwarder": "ECU1",
       "bus1": "bus1",
       "bus2": "bus2"
     }

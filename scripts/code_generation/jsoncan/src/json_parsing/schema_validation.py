@@ -2,13 +2,13 @@
 Functions to validate the CAN JSON schema.
 """
 
-from dataclasses import dataclass
 from typing import Dict, List, TypedDict, Optional as Optional_t
 from schema import And, Optional, Or, Schema
 
 """
 Tx file schemas
 """
+
 tx_signal_schema = Schema(
     # 4 options to define a signal"s representation...
     Or(
@@ -65,7 +65,7 @@ tx_msg_schema = Schema(
         "bus": list[str],
         "msg_id": And(
             int, lambda x: 0 <= x < 2 ** 11
-        ),  # Standard CAN uses 11-bit identifiers
+        ),  # Standard CAN uses 11-bit identifiers TODO add support for extended CAN (i think all busses are extended)
         "signals": {
             str: tx_signal_schema,
         },
@@ -83,32 +83,47 @@ tx_msg_schema = Schema(
 
 tx_schema = Schema(Or(Schema({str: tx_msg_schema}), Schema({})))
 
+
+def validate_tx_json(json: Dict) -> Dict[str, dict]:
+    return tx_schema.validate(json)
+
+
 """
 Rx file schema
 """
 
 
-class RxSchemaSingle(TypedDict):
+class RxEntryJson(TypedDict):
     bus: str
     messages: list[str]
 
 
-rx_schema = Schema(
+RxEntry_schema = Schema({
+    "bus": str,
+    "messages": [str],  # Use schema.List to define a list of strings
+})
+rx_entries_schema = Schema(
     Or(
         Schema([]),  # Allow an empty list
-        Schema([
-            {
-                "bus": str,
-                "messages": [str],  # Use schema.List to define a list of strings
-            }
-        ]),
+        Schema([RxEntry_schema]),
     )
 )
+
+
+def validate_rx_json(json: Dict) -> list[RxEntryJson]:
+    return rx_entries_schema.validate(json)
+
 
 """
 Enum file schema
 """
+
 enum_schema = Schema(Or(Schema({str: {str: int}}), Schema({})))  # If the node doesn"t define any enums
+
+
+def validate_enum_json(json: Dict) -> Dict[str, Dict[str, int]]:
+    return enum_schema.validate(json)
+
 
 """
 Bus file schema
@@ -122,13 +137,11 @@ class ForwarderConfigJson(TypedDict):
 
 
 class BusConfigJson(TypedDict):
-    name: str
+    name: str  # TODO Does this need to be there? it is not in the schema
     bus_speed: int
     modes: list[str]
     default_mode: str
     nodes: list[str]
-    # is this optional?
-    default_receiver: Optional_t[str]
     FD: Optional_t[bool]
 
 
@@ -137,29 +150,26 @@ class BusJson(TypedDict):
     buses: list[BusConfigJson]
 
 
-single_bus_schema = Schema(
-    {
-        "default_receiver": str,
+BusJson_schema = Schema({
+    "forwarders": Or(Schema([]), Schema([{
+        "forwarder": str,
+        "bus1": str,
+        "bus2": str,
+    }])),
+    "buses": Or(Schema([]), Schema([{
+        "name": str,
         "bus_speed": int,
         "modes": [str],
         "default_mode": str,
         "nodes": [str],
         Optional("FD"): bool,
-    }
-)
+    }]))
+})
 
-forwarders_schema = Schema(
-    Or(
-        Schema({}),
-        Schema({
-            "forwarder": str,
-            "bus1": str,
-            "bus2": str,
-        }),
-    )
-)
-bus_list = Schema(Or(list[single_bus_schema], Schema([])))
-bus_schema = Schema({"forwarders": list[forwarders_schema], "buses": bus_list})
+
+def validate_bus_json(json: Dict) -> BusJson:
+    return BusJson_schema.validate(json)
+
 
 """
 Alerts file schema
@@ -184,7 +194,7 @@ class AlertsJson(TypedDict):
     info: Dict[str, AlertsEntry]
 
 
-alerts_schema = Schema(
+AlertsJson_schema = Schema(
     Or(
         Schema({
             "warnings_id": And(int, lambda x: x >= 0),
@@ -239,21 +249,5 @@ alerts_schema = Schema(
 )
 
 
-def validate_tx_json(json: Dict) -> Dict[str, dict]:
-    return tx_schema.validate(json)
-
-
-def validate_rx_json(json: Dict) -> list[RxSchemaSingle]:
-    return rx_schema.validate(json)
-
-
-def validate_enum_json(json: Dict) -> Dict[str, Dict[str, int]]:
-    return enum_schema.validate(json)
-
-
-def validate_bus_json(json: Dict) -> BusJson:
-    return bus_schema.validate(json)
-
-
 def validate_alerts_json(json: Dict) -> AlertsJson:
-    return alerts_schema.validate(json)
+    return AlertsJson_schema.validate(json)

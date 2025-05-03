@@ -71,7 +71,7 @@ class CanSignalDatatype(StrEnum):
     """
 
     BOOL = "bool"
-    INT = "int"
+    INT = "int"  # TODO we make this an int32_t?
     UINT = "uint32_t"
     FLOAT = "float"
 
