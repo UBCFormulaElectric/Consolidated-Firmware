@@ -3,10 +3,6 @@ Module for generating a DBC file from a CanDatabase object.
 TODO: Adding descriptions of messages to DBC
 """
 
-from typing import List
-
-import cantools
-
 from ...can_database import *
 
 DBC_TEMPLATE = """\
@@ -36,6 +32,7 @@ DBC_ATTRIBUTE_TEMPLATE = (
     'BA_ "{attr_name}" {attr_operand} {id} {signal_name} {value};\n'
 )
 DBC_VALUE_TABLE_TEMPLATE = "VAL_ {id} {signal_name} {entries};\n"
+
 
 # BA_DEF_ BO_  "GenMsgCycleTime" INT {cycle_time_min} {cycle_time_max};
 # BA_DEF_ SG_  "GenSigStartValue" INT {start_value_min} {start_value_max};
@@ -110,7 +107,24 @@ class DbcGenerator:
 
         return DBC_BOARD_LIST.format(node_names=" ".join(boards))
 
-    def _dbc_message(self, msg: CanMessage, tx_node: str) -> str:
+    def _attribute_definitions(self) -> str:
+        """
+        Format and attribute definitions and defaults.
+        """
+        # TODO??
+        bus = self._db.bus_config
+        # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
+        #     cycle_time_min=bus.cycle_time_min,
+        #     cycle_time_max=bus.cycle_time_max,
+        #     cycle_time_default=bus.cycle_time_default,
+        #     start_value_min=bus.start_value_min,
+        #     start_value_max=bus.start_value_max,
+        #     start_value_default=bus.start_value_default,
+        # )
+        return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
+
+    @staticmethod
+    def _dbc_message(msg: CanMessage, tx_node: str) -> str:
         """
         Format and return DBC message definition.
         """
@@ -118,7 +132,8 @@ class DbcGenerator:
             id=msg.id, name=msg.name, num_bytes=msg.bytes(), tx_node=tx_node
         )
 
-    def _dbc_signal(self, signal: CanSignal, rx_nodes: List[str]) -> str:
+    @staticmethod
+    def _dbc_signal(signal: CanSignal, rx_nodes: List[str]) -> str:
         """
         Format and return DBC signal definition.
         """
@@ -136,22 +151,8 @@ class DbcGenerator:
             signed="-" if signal.signed else "+",
         )
 
-    def _attribute_definitions(self) -> str:
-        """
-        Format and attribute definitions and defaults.
-        """
-        bus = self._db.bus_config
-        # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
-        #     cycle_time_min=bus.cycle_time_min,
-        #     cycle_time_max=bus.cycle_time_max,
-        #     cycle_time_default=bus.cycle_time_default,
-        #     start_value_min=bus.start_value_min,
-        #     start_value_max=bus.start_value_max,
-        #     start_value_default=bus.start_value_default,
-        # )
-        return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
-
-    def _dbc_msg_cycle_time_attribute(self, value: int, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_msg_cycle_time_attribute(value: int, msg_id: int) -> str:
         """
         Format and return DBC GenMsgCycleTime message attribute.
         """
@@ -163,7 +164,8 @@ class DbcGenerator:
             value=value,
         )
 
-    def _dbc_signal_start_val_attribute(self, signal: CanSignal, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_signal_start_val_attribute(signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC GenSigStartValue signal attribute.
         """
@@ -175,7 +177,8 @@ class DbcGenerator:
             value=signal.start_val,
         )
 
-    def _dbc_value_table(self, signal: CanSignal, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_value_table(signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC value table.
         """
