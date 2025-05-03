@@ -6,14 +6,14 @@
 
 TimerChannel overcurrent_fault_timer;
 
-void app_tractiveSystem_init()
+void app_tractiveSystem_init(void)
 {
     app_timer_init(&overcurrent_fault_timer, TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
 }
 
 #define W_TO_KW 1.0e-3f
 
-float app_tractiveSystem_getVoltage()
+float app_tractiveSystem_getVoltage(void)
 {
     return io_tractiveSystem_getVoltage();
 }
@@ -33,7 +33,7 @@ float app_tractiveSystem_getCurrent(void)
     }
 }
 
-void app_tractiveSystem_broadcast()
+void app_tractiveSystem_broadcast(void)
 {
     const float ts_voltage  = app_tractiveSystem_getVoltage();
     const float ts_current  = app_tractiveSystem_getCurrent();
@@ -44,7 +44,7 @@ void app_tractiveSystem_broadcast()
     app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
 }
 
-bool app_tractiveSystem_checkFaults()
+bool app_tractiveSystem_checkFaults(void)
 {
     //    Charge current is positive, discharge current is negative
     //    TS current should be in the range: (-175, 30)

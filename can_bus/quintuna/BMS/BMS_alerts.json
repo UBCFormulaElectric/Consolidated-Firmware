@@ -6,9 +6,9 @@
     "warnings": {
     },
     "faults": {
-        "DummyFault": {
+        "TractiveSystemOvercurrent": {
             "id": 450,
-            "description": "Dummy Fault"
+            "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
         }
     }
 }
