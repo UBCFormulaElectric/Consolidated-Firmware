@@ -2,9 +2,9 @@
 #include "main.h"
 #include <assert.h>
 
-CanHandle can1 = { .hcan = &hfdcan1, .bus_num = 0 };
-CanHandle can2 = { .hcan = &hfdcan2, .bus_num = 0 };
-CanHandle can3 = { .hcan = &hfdcan3, .bus_num = 0 };
+CanHandle can1 = { .hcan = &hfdcan1, .bus_num = 1 };
+CanHandle can2 = { .hcan = &hfdcan2, .bus_num = 2 };
+CanHandle can3 = { .hcan = &hfdcan3, .bus_num = 3 };
 
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
