@@ -7,7 +7,6 @@ TODO: Why do we need start values???
 import argparse
 import os
 
-from calc_bus_load import report_bus_load
 from src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
 from src.codegen.c_generation.app_can_data_capture_module import AppCanDataCaptureModule
 from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
