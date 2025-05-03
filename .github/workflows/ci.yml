@@ -149,8 +149,8 @@ jobs:
           #  car: quadruna
           #- board: CRIT
           #  car: quadruna
-          - board: BMS
-            car: quintuna
+          # - board: BMS
+          #   car: quintuna
           #- board: CRIT
           #  car: quintuna
           #- board: DAM
