@@ -11,14 +11,14 @@
 bool io_vcShdn_TsmsFault_get(void);
 
 /*
- * Get the status of the LEStop shutdown pin
- * @return the status of the LEStop pin set in the shutdown config
+ * Get the status of the Inertia shutdown pin
+ * @return the status of the Inertia pin set in the shutdown config
  */
 bool io_vcShdn_InertiaSwitch_get(void);
 
 /*
- * Get the status of the REStop shutdown pin
- * @return the status of the REStop pin set in the shutdown config
+ * Get the status of the Rear right motor interlock shutdown pin
+ * @return the status of the Rear right motor interlock pin set in the shutdown config
  */
 bool io_vcShdn_RearRightMotorInterlock_get(void);
 
