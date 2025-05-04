@@ -5,7 +5,7 @@ Module for parsing CAN JSON, and returning a CanDatabase object.
 from __future__ import annotations
 
 # types
-from typing import List
+from typing import List, Optional
 from schema import SchemaError
 from ..can_database import (CanMessage, CanNode, CanEnum, CanAlert, CanForward,
                             CanRxMessages, CanDatabase)
@@ -88,14 +88,14 @@ class JsonCanParser:
 
         # Parse Alerts
         self._alerts = {}
-        alert_msgs = []
+        alert_msgs: list[CanMessage] = []
         for node_name in node_names:
             # Parse ALERTS
-            node_alert_msgs, alerts = parse_alert_data(can_data_dir, node_name)
+            out = parse_alert_data(can_data_dir, node_name)
             # since they are optional
-            if node_alert_msgs is None or alerts is None:
-                assert node_alert_msgs is None and alerts is None
+            if out is None:
                 continue
+            node_alert_msgs, alerts = out
             assert len(node_alert_msgs) == 6, "Alert messages should be 6 (unless we add more types of alerts)"
 
             # mutate
@@ -125,8 +125,21 @@ class JsonCanParser:
                 for msg_name in bus_rx_msg_names:
                     self._add_rx_msg(msg_name, rx_node, bus)
 
-        # TODO I think we should unify the interface where we add tx messages in general
-        self._register_alert_messages(alert_msgs)
+        for alerts_msg in alert_msgs:
+            for rx_node in self._nodes.values():
+                if alerts_msg.tx_node == rx_node.name:
+                    # skip the node that transmit the message
+                    continue
+                # check if the alert is broadcasted on a bus that is directly connected to the node
+                overlap_bus: set[str] = set(alerts_msg.bus) & set(rx_node.bus_names)
+                # if the message is not on the bus then it is not received by this node
+                # need to reroute
+                # random pick a rx port from the node
+                rx_bus: Optional[str] = list(overlap_bus)[0] if len(overlap_bus) > 0 else rx_node.bus_names[
+                    0] if rx_node.bus_names else None
+                if rx_bus is None:
+                    continue
+                self._add_rx_msg(alerts_msg.name, rx_node, rx_bus)
 
         # Consistency check
         # TODO why does it have to be here?
@@ -180,7 +193,12 @@ class JsonCanParser:
 
     def _add_rx_msg(self, msg_name: str, rx_node: CanNode, bus: str) -> None:
         """
-        This function registers a message which is to be recieved by a node on the bus
+        # This function registers a message which is to be received by a node on the bus
+
+        This function
+        1. enters the current node into the list of nodes that the message is rx'd by
+        2. adds the message name to the list of messages received by the given node
+        3. adds an entry into _rx_msgs
         :return:
         """
         # Check if this message is defined
@@ -254,60 +272,6 @@ class JsonCanParser:
             # TODO double check that this is correct, node below is saying that it might be used before assignment
             if msg_obj.tx_node not in self._nodes:
                 raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
-
-    def _register_alert_messages(self, alerts_msgs: List[CanMessage]):
-        """
-        Register the alert message to the node.
-        Every single board should recieve every other fault/warning
-        much of the work here is to automatically decide which port should receive the alert message
-        """
-        # TODO??? fix the node, message, rx object
-
-        # alerts is recieved by all nodes
-        for alerts_msg in alerts_msgs:
-            # for all nodes
-            for node in self._nodes.values():
-                if alerts_msg.tx_node == node.name:
-                    # skip the node that transmit the message
-                    continue
-
-                # check if the alert is broadcasted on a bus that is directly connected to the node
-                overlap_bus = set(alerts_msg.bus) & set(node.bus_names)
-                is_raw_connection = len(overlap_bus) > 0
-                if is_raw_connection:
-                    overlap_bus = list(overlap_bus)[0]
-                    # add the message to the node's rx messages
-                    if alerts_msg.name not in node.rx_msg_names:
-                        node.rx_msg_names.append(alerts_msg.name)
-
-                    # add rx message obj
-                    alerts_msg.rx_node_names.extend(
-                        [key for key in self._nodes.keys() if key != node]
-                    )
-                    # TODO NO NO NO NO NO
-                    self._rx_msgs[node.name].messages.setdefault(overlap_bus, []).append(
-                        alerts_msg.name
-                    )
-                else:
-                    # if the message is not on the bus then it is not received by this node
-                    # need to reroute
-                    # random pick a rx port from the node
-                    # TODO do we need to resolve which routing needs to happen here?
-
-                    rx_bus = node.bus_names[0] if node.bus_names else None
-                    if rx_bus is None:
-                        continue
-                    alerts_msg.rx_node_names.extend(
-                        [key for key in self._nodes.keys() if key != node]
-                    )
-                    if alerts_msg.name not in node.rx_msg_names:
-                        node.rx_msg_names.append(alerts_msg.name)
-
-                    # add rx message obj
-                    # TODO NO NO NO NO NO
-                    self._rx_msgs[node.name].messages.setdefault(rx_bus, []).append(
-                        alerts_msg.name
-                    )
 
     def _calculate_reroutes(self, can_data_dir) -> List[CanForward]:
         # design choice

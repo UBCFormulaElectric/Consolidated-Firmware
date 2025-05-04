@@ -1,9 +1,10 @@
 from typing import TypedDict, Dict
+
 from schema import Schema, Or, SchemaError
 
-from ..can_database import CanMessage, CanBusConfig, CanNode, CanRxMessages
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file
+from ..can_database import CanNode
 
 
 class RxBusEntry(TypedDict):
