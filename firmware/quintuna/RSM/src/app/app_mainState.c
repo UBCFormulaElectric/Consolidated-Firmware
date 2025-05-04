@@ -25,14 +25,8 @@ void mainStateRunOnTick100Hz(void)
     // const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 }
 
-const State *app_mainState_get(void)
-{
-    static State main_state = {
-        .name              = "MAIN STATE",
-        .run_on_entry      = NULL,
-        .run_on_tick_1Hz   = NULL,
-        .run_on_tick_100Hz = mainStateRunOnTick100Hz,
-        .run_on_exit       = NULL,
-    };
-    return &main_state;
-}
+State main_state = { .name              = "MAIN STATE",
+                     .run_on_entry      = NULL,
+                     .run_on_tick_1Hz   = NULL,
+                     .run_on_tick_100Hz = mainStateRunOnTick100Hz,
+                     .run_on_exit       = NULL };

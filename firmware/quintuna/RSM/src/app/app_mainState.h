@@ -6,4 +6,4 @@
  * Get a pointer to the Drive STATE
  * @return A pointer to the Drive STATE
  */
-const State *app_mainState_get(void);
+extern State main_state;

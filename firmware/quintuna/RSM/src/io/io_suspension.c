@@ -4,7 +4,7 @@
 
 #define METERS_PER_VOLT (100.0f)
 
-float travelFromVoltage(float voltage)
+static float travelFromVoltage(float voltage)
 {
     float travel_m = (voltage / METERS_PER_VOLT);
     return travel_m;

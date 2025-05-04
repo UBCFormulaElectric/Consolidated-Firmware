@@ -56,16 +56,6 @@ bool gpio_state = false;
 void jobs_run100Hz_tick(void)
 {
     io_canTx_enqueue100HzMsgs();
-
-    TimerState state = app_timer_updateAndGetState(&timerGPIO);
-
-    // Toggle LED state based on elapsed time
-    if (state == TIMER_STATE_EXPIRED)
-    {
-        io_led_enable(&led, !gpio_state);
-        app_timer_restart(&timerGPIO);
-        gpio_state = !gpio_state;
-    }
 }
 
 void jobs_run1kHz_tick(void)
