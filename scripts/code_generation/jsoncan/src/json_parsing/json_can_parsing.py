@@ -6,18 +6,27 @@ from __future__ import annotations
 
 # types
 from typing import List, Optional
+
 from schema import SchemaError
-from ..can_database import (CanMessage, CanNode, CanEnum, CanAlert, CanForward,
-                            CanRxMessages, CanDatabase)
+
+from ..can_database import (
+    CanAlert,
+    CanDatabase,
+    CanEnum,
+    CanForward,
+    CanMessage,
+    CanNode,
+    CanRxMessages,
+)
+from .parse_alert import AlertsEntry, parse_alert_data
 
 # new files
-from .parse_bus import parse_bus_data, _validate_bus_json, CanBusConfig
+from .parse_bus import CanBusConfig, _validate_bus_json, parse_bus_data
 from .parse_enum import parse_node_enum_data, parse_shared_enums
 from .parse_error import InvalidCanJson
-from .parse_utils import list_nodes_from_folders, load_json_file
-from .parse_tx import parse_tx_data
-from .parse_alert import parse_alert_data, AlertsEntry
 from .parse_rx import parse_json_rx_data
+from .parse_tx import parse_tx_data
+from .parse_utils import list_nodes_from_folders, load_json_file
 
 
 class JsonCanParser:
@@ -36,7 +45,9 @@ class JsonCanParser:
     _bus_config: dict[str, CanBusConfig]  # Set of bus configurations
     _msgs: dict[str, CanMessage]  # Dict of msg names to msg objects
     _shared_enums: dict[str, CanEnum]  # Set of shared enums
-    _alerts: dict[str, dict[CanAlert, AlertsEntry]]  # Dict of node names to node's alerts
+    _alerts: dict[
+        str, dict[CanAlert, AlertsEntry]
+    ]  # Dict of node names to node's alerts
     _reroute_msgs: List[CanForward]
     _rx_msgs: dict[str, CanRxMessages]
 
@@ -53,8 +64,9 @@ class JsonCanParser:
                 tx_msg_names=[],
                 rx_msg_names=[],
                 alerts=[],
-                bus_names=[]
-            ) for node_name in node_names
+                bus_names=[],
+            )
+            for node_name in node_names
         }
 
         # parse the bus config
@@ -96,7 +108,9 @@ class JsonCanParser:
             if out is None:
                 continue
             node_alert_msgs, alerts = out
-            assert len(node_alert_msgs) == 6, "Alert messages should be 6 (unless we add more types of alerts)"
+            assert (
+                len(node_alert_msgs) == 6
+            ), "Alert messages should be 6 (unless we add more types of alerts)"
 
             # mutate
             for msg_name in node_alert_msgs:
@@ -114,7 +128,10 @@ class JsonCanParser:
         for rx_node in self._nodes.values():
             # multiple buses can be defined in the RX JSON
             for rx_bus_metadata in parse_json_rx_data(can_data_dir, rx_node):
-                bus, bus_rx_msg_names = rx_bus_metadata["bus"], rx_bus_metadata["messages"]
+                bus, bus_rx_msg_names = (
+                    rx_bus_metadata["bus"],
+                    rx_bus_metadata["messages"],
+                )
                 # check bus is present
                 if bus not in self._bus_config.keys():
                     raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
@@ -135,8 +152,11 @@ class JsonCanParser:
                 # if the message is not on the bus then it is not received by this node
                 # need to reroute
                 # random pick a rx port from the node
-                rx_bus: Optional[str] = list(overlap_bus)[0] if len(overlap_bus) > 0 else rx_node.bus_names[
-                    0] if rx_node.bus_names else None
+                rx_bus: Optional[str] = (
+                    list(overlap_bus)[0]
+                    if len(overlap_bus) > 0
+                    else rx_node.bus_names[0] if rx_node.bus_names else None
+                )
                 if rx_bus is None:
                     continue
                 self._add_rx_msg(alerts_msg.name, rx_node, rx_bus)
@@ -211,7 +231,9 @@ class JsonCanParser:
         if rx_node.name not in msg_to_rx.rx_node_names:
             msg_to_rx.rx_node_names.append(rx_node.name)
         # add the message to the node's rx messages
-        if msg_to_rx.name not in rx_node.rx_msg_names:  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice?
+        if (
+            msg_to_rx.name not in rx_node.rx_msg_names
+        ):  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice?
             rx_node.rx_msg_names.append(msg_to_rx.name)
 
         if bus not in self._rx_msgs[rx_node.name].messages:
@@ -328,7 +350,7 @@ class JsonCanParser:
                     for config in forwarders_configs:
                         found = False
                         if (rx_bus == config["bus1"] and tx_bus == config["bus2"]) or (
-                                rx_bus == config["bus2"] and tx_bus == config["bus1"]
+                            rx_bus == config["bus2"] and tx_bus == config["bus1"]
                         ):
                             # found = True
 
@@ -337,7 +359,7 @@ class JsonCanParser:
                                 from_bus=tx_bus,
                                 to_bus=rx_bus,
                                 message=forward_msg,
-                                forwarder=config["node"],
+                                forwarder=config["forwarder"],
                             )
 
                             self._reroute_msgs.append(forwarder)

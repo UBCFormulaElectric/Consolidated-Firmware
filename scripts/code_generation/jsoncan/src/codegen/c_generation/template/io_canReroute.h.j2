@@ -25,12 +25,12 @@
  
 
 void io_canReroute_init(
-    {% for bus in node.buses -%}
+    {% for bus in node.bus_names -%}
     void (*transmit_{{bus}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
     {% endfor %}
 );
 
-{% for bus in node.buses -%}
+{% for bus in node.bus_names -%}
 void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg);
 {% endfor %}
 

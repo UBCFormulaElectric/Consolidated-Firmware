@@ -19,7 +19,7 @@
     Call 2. function in the canRx callback
  #}
 
-{% for bus in node.buses -%}
+{% for bus in node.bus_names -%}
 static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
 {% endfor -%}
 
@@ -30,17 +30,17 @@ static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
 
 
 void io_canReroute_init( 
-    {% for bus in node.buses -%}
+    {% for bus in node.bus_names -%}
     void (*transmit_func_{{bus}})(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
     {% endfor %}
 )
 {
-    {% for bus in node.buses -%}
+    {% for bus in node.bus_names -%}
     transmit_func_{{bus}} = transmit_func_{{bus}};
     {% endfor %}
 }
 
-{% for bus in node.buses -%}
+{% for bus in node.bus_names -%}
 void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg)
 {
     switch(rx_msg->std_id)

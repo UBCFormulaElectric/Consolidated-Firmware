@@ -1,17 +1,17 @@
 {
   "forwarders": [
     {
-      "node": "VC",
+      "forwarder": "VC",
       "bus1": "Can",
       "bus2": "Can2"
     },
     {
-      "node": "VC",
+      "forwarder": "VC",
       "bus1": "Can2",
       "bus2": "Can3"
     },
     {
-      "node": "VC",
+      "forwarder": "VC",
       "bus1": "Can",
       "bus2": "Can3"
     }

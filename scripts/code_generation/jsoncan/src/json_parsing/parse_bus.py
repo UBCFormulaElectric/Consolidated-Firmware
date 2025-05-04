@@ -1,6 +1,9 @@
 from dataclasses import dataclass
-from typing import TypedDict, Optional as Optional_t, Dict, List
-from schema import SchemaError, Schema, Or, Optional
+from typing import Dict, List
+from typing import Optional as Optional_t
+from typing import TypedDict
+
+from schema import Optional, Or, Schema, SchemaError
 
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file
@@ -13,7 +16,7 @@ class ForwarderConfigJson(TypedDict):
 
 
 class BusConfigJson(TypedDict):
-    name: str  # TODO Does this need to be there? it is not in the schema
+    name: str 
     bus_speed: int
     modes: list[str]
     default_mode: str
