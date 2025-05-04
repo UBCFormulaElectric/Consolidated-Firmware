@@ -315,15 +315,10 @@ class CanDatabase:
 
     nodes: Dict[str, CanNode]  # List of names of the nodes on the bus
     bus_config: Dict[str, CanBusConfig]  # Various bus params
-    msgs: dict[
-        str, CanMessage
-    ]  # All messages being sent to the bus (dict of (ID to message)
-    shared_enums: Dict[str, CanEnum]  # Enums used by all nodes
-    alerts: Dict[
-        str, Dict[CanAlert, AlertsEntry]
-    ]  # Dictionary of node to list of alerts set by node
+    msgs: Dict[str, CanMessage]  # All messages being sent to the bus (dict of (ID to message)
+    alerts: Dict[str, Dict[CanAlert, AlertsEntry]]  # Dictionary of node to list of alerts set by node
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
-    rx_msgs: dict[str, CanRxMessages]  # node to CanRxMessages
+    rx_msgs: Dict[str, CanRxMessages]  # node to CanRxMessages
 
     # TODO: Add a method to check for consistence of the database
     def consistence_check(self):

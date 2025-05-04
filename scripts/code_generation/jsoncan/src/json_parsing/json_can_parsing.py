@@ -44,7 +44,6 @@ class JsonCanParser:
     _nodes: dict[str, CanNode]  # List of node names
     _bus_config: dict[str, CanBusConfig]  # Set of bus configurations
     _msgs: dict[str, CanMessage]  # Dict of msg names to msg objects
-    _shared_enums: dict[str, CanEnum]  # Set of shared enums
     _alerts: dict[
         str, dict[CanAlert, AlertsEntry]
     ]  # Dict of node names to node's alerts
@@ -81,21 +80,17 @@ class JsonCanParser:
                 if node_name in self._bus_config[bus].nodes
             ]
 
-        # PARSE ENUMS JSON DATA
-        # updates self._shared_enums
-        self._shared_enums = parse_shared_enums(can_data_dir)
-        enums = self._shared_enums.copy()
-        # enum data
-        for node_name in node_names:
-            # writes node enums into global enum bucket
-            # TODO i wonder why this is not per board like literally everything else? - check app_can_utils_module only used enum will be generated
-            node_enums = parse_node_enum_data(can_data_dir, node_name)
-            enums.update(node_enums)
-
         # PARSE TX JSON DATA
+        # collect shared enums outside of loop
+        shared_enums = parse_shared_enums(can_data_dir)
+        # populate this boy
         self._msgs = {}
         for node_name in node_names:
-            for msg_name in parse_tx_data(can_data_dir, node_name, enums):
+            node_enums: dict[str, CanEnum] = {
+                **shared_enums,
+                **parse_node_enum_data(can_data_dir, node_name)
+            }
+            for msg_name in parse_tx_data(can_data_dir, node_name, node_enums):
                 self._add_tx_msg(msg_name, node_name)
 
         # PARSE ALERTS DATA
@@ -180,7 +175,6 @@ class JsonCanParser:
             nodes=self._nodes,
             bus_config=self._bus_config,
             msgs=self._msgs,
-            shared_enums=self._shared_enums,
             alerts=self._alerts,
             reroute_msgs=self._reroute_msgs,
             rx_msgs=self._rx_msgs,

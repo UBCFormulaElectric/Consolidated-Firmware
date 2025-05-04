@@ -58,7 +58,7 @@ class AppCanUtilsModule(CModule):
         )
 
     def header_template(self):
-        can_enums = list(self._db.shared_enums.values())
+        can_enums = []
         for msg in self._db.msgs_for_node(self._node):
             for signal in msg.signals:
                 if signal.enum and signal.enum not in can_enums:
