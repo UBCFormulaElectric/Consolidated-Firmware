@@ -25,7 +25,7 @@ void io_canTx_set_lockfunction(
 #endif
 
 /* --------------------------- Static Variables --------------------------- */
-{% for bus in node.buses %}
+{% for bus in node.bus_names %}
 static uint32_t can_mode_{{bus}};
 static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
 {% endfor %}
@@ -63,17 +63,17 @@ void io_canTx_{{msg.name}}_sendAperiodic()
 /* --------------------- Public Function Definitions ---------------------- */
 
 void io_canTx_init( 
-    {% for bus in node.buses -%}
+    {% for bus in node.bus_names -%}
     void (*transmit_{{bus}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
     {% endfor %}
 )
 {
-    {% for bus in node.buses -%}
+    {% for bus in node.bus_names -%}
     transmit_func_{{bus}} = transmit_{{bus}}_msg_func;
     {% endfor %}
 }
 
-{% for bus in node.buses %}
+{% for bus in node.bus_names %}
 void io_canTx_enableMode_{{bus}}({{bus}}Mode mode, bool enable)
 {
     if (enable)
