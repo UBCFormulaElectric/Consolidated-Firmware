@@ -6,12 +6,11 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Union, Optional, TypedDict
 
 import pandas as pd
 from strenum import StrEnum
 
-from .json_parsing.schema_validation import AlertsEntry
 from .utils import (
     bits_for_uint,
     bits_to_bytes,
@@ -21,6 +20,13 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# TODO surely we are not rawdogging?
+class AlertsEntry(TypedDict):
+    id: int
+    description: str
+    disabled: Optional[bool]
 
 
 @dataclass(frozen=True)
