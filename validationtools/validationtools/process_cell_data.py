@@ -34,7 +34,7 @@ def main():
 
     print("Average Cell Capacity: ", avgCellCapacity)
 
-    summedVoltageDf = pd.DataFrame({"Normalized SOC [%]": np.arange(0, 101, 1)[::-1], "Voltage [V]": np.zeros(101), "Number of Values Averaged": np.zeros(101)})
+    summedVoltageDf = pd.DataFrame({"Normalized SOC [%]": np.arange(0, 100.5, 0.5)[::-1], "Voltage [V]": np.zeros(201), "Number of Values Averaged": np.zeros(201)})
     socLUT = pd.DataFrame()
     for voltageDf in voltageDfList:
         voltageDf["Normalized SOC [%]"] = (1- voltageDf["Discharging Coulombs [Ah]"] / avgCellCapacity )* 100
@@ -43,7 +43,7 @@ def main():
         minSOC = voltageDf["Normalized SOC [%]"].min().round(0)
         if not minSOC > 0:
             minSOC = 0
-        newSOC = np.arange(minSOC, 101, 1).astype(float)
+        newSOC = np.arange(minSOC, 100.5, 0.5).astype(float)
 
         # Numpy needs strictly sorted arrays for interpolation, we used discharge cycles so reverse is needed
         reversedSOCs = voltageDf["Normalized SOC [%]"][::-1]
@@ -56,7 +56,7 @@ def main():
         resampledDf = resampledDf[::-1].reset_index()
 
         resampledDf["Number of Values Averaged"] = 1                # Tracks # of datapoints to get average for mismatched discharge cycles
-        resampledDf = resampledDf.reindex(range(101), fill_value=0)    
+        resampledDf = resampledDf.reindex(range(201), fill_value=0)    
         summedVoltageDf["Voltage [V]"] += resampledDf["Voltage [V]"]
         summedVoltageDf["Number of Values Averaged"] += resampledDf["Number of Values Averaged"]
     
