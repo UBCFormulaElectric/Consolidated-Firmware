@@ -109,7 +109,7 @@ class JsonCanParser:
                 continue
             node_alert_msgs, alerts = out
             assert (
-                len(node_alert_msgs) == 6
+                    len(node_alert_msgs) == 6
             ), "Alert messages should be 6 (unless we add more types of alerts)"
 
             # mutate
@@ -162,7 +162,6 @@ class JsonCanParser:
                 self._add_rx_msg(alerts_msg.name, rx_node, rx_bus)
 
         # Consistency check
-        # TODO why does it have to be here? - just in case we need extra checks besides the ones in the parsing functions
         self._consistency_check()
 
         # find all message transmitting on one bus but received in another bus
@@ -191,6 +190,8 @@ class JsonCanParser:
         It
         1. adds the msg to the global dump of messages (self._msgs)
         2. adds the msg name to the list of messages broadcasted by the given node (self._nodes[node_name].tx_msg_names)
+
+        Note this function expects a valid CanMessage object
         """
         # Check if this message name is a duplicate
         if msg.name in self._msgs.keys():
@@ -226,12 +227,19 @@ class JsonCanParser:
                 f"Message '{msg_name}' received by '{rx_node.name}' is not defined. Make sure it is correctly defined in the TX JSON."
             )
         msg_to_rx = self._msgs[msg_name]
+
+        # check that the rx node is not the same as the node which txs msg_name
+        if msg_to_rx.tx_node == rx_node.name:
+            raise InvalidCanJson(
+                f"Message '{msg_name}' is transmitted by '{msg_to_rx.tx_node}' and received by '{rx_node.name}'. A node cannot transmit and receive the same message."
+            )
+
         # tell msg_to_rx that the current node rxs it
         if rx_node.name not in msg_to_rx.rx_node_names:
             msg_to_rx.rx_node_names.append(rx_node.name)
         # add the message to the node's rx messages
         if (
-            msg_to_rx.name not in rx_node.rx_msg_names
+                msg_to_rx.name not in rx_node.rx_msg_names
         ):  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice? - can be a way to do it but I argue the set takes way more memory than a list. 
             rx_node.rx_msg_names.append(msg_to_rx.name)
 
@@ -241,12 +249,13 @@ class JsonCanParser:
 
     def _consistency_check(self) -> None:
         # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other 
+        # just in case we need extra checks besides the ones in the parsing functions
         # In the latter method, you would be able to guarentee that when the intermediary data is ready, that it is valid.
         # however, I don't think this is very much part of the design philosophy at all, as there are many instances
         # where data is instantiated but not valid
 
-        # no same message name, signal name, enum name
-        # message can't transmit and receive by the same node
+        # no same message name, signal name, enum name TODO I think this is already checked in _add_tx_msg?
+        # message can't transmit and receive by the same node TODO this is already checked in _add_rx_msg
         # no overlapping bus
         # object cross reference consistency
 
@@ -297,12 +306,10 @@ class JsonCanParser:
         # design choice
         # all message is on FD bus
         # some message from FD bus need to be rerouted to non-FD bus
+        # TODO just to note that this behaviour can be created by using the all rx message
 
-        # TODO do we try to do this with the bus config? - better not because it is different logic so need sperate function to handle it and passing information around is annoying
         try:
-            forwarders_configs = _validate_bus_json(
-                load_json_file(f"{can_data_dir}/bus")
-            )["forwarders"]
+            forwarders_configs = _validate_bus_json(load_json_file(f"{can_data_dir}/bus"))["forwarders"]
         except SchemaError:
             pass
         # a map bus name to set of tx messages
@@ -349,7 +356,7 @@ class JsonCanParser:
                     for config in forwarders_configs:
                         found = False
                         if (rx_bus == config["bus1"] and tx_bus == config["bus2"]) or (
-                            rx_bus == config["bus2"] and tx_bus == config["bus1"]
+                                rx_bus == config["bus2"] and tx_bus == config["bus1"]
                         ):
                             # found = True
 

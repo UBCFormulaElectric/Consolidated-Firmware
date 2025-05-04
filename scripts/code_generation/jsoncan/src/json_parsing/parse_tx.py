@@ -118,11 +118,11 @@ def _get_parsed_can_signal(
     enum = None
 
     # Parse unit and starting bit position
-    unit, _ = get_optional_value(signal_json_data, "unit", "")
+    unit = signal_json_data.get("unit", "")
     start_bit, specified_start_bit = get_optional_value(
         signal_json_data, "start_bit", next_available_bit
     )
-    signed, _ = get_optional_value(signal_json_data, "signed", False)
+    signed = signal_json_data.get("signed", False)
 
     # Get signal value data. Method depends on which data provided in JSON file.
     # Option 1: Provide DBC data
@@ -182,7 +182,7 @@ def _get_parsed_can_signal(
         else:
             max_val = max_uint_for_bits(bits)
             min_val = 0
-        scale = get_optional_value(signal_json_data, "scale", 1)[0]
+        scale = signal_json_data.get("scale", 1)
         offset = 0
 
     # Otherwise, payload data was not inputted correctly
@@ -192,9 +192,7 @@ def _get_parsed_can_signal(
         )
 
     # Parse start value
-    start_val, _ = get_optional_value(
-        signal_json_data, "start_value", min_val
-    )
+    start_val = signal_json_data.get("start_value", min_val)
 
     # Signals can"t be longer than 32 bits, to maintain atomic read/write
     if bits < 1 or bits > 32:
@@ -230,22 +228,18 @@ def _get_parsed_can_message(
     Parse JSON data dictionary representing a CAN message.
     """
     msg_id = msg_json_data["msg_id"]
-    description, _ = get_optional_value(msg_json_data, "description", "")
+    description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
     bus_names = msg_json_data["bus"]
 
     # will use mode from bus if none
-    msg_modes, _ = get_optional_value(msg_json_data, "allowed_modes", [])
+    msg_modes = msg_json_data.get("allowed_modes", [])  # TODO not used?
 
     log_cycle_time = msg_cycle_time
     telem_cycle_time = msg_cycle_time
     if "data_capture" in msg_json_data:
-        log_cycle_time, _ = get_optional_value(
-            msg_json_data["data_capture"], "log_cycle_time", msg_cycle_time
-        )
-        telem_cycle_time, _ = get_optional_value(
-            msg_json_data["data_capture"], "telem_cycle_time", msg_cycle_time
-        )
+        log_cycle_time = msg_json_data["data_capture"].get("log_cycle_time", msg_cycle_time)
+        telem_cycle_time = msg_json_data["data_capture"].get("telem_cycle_time", msg_cycle_time)
 
     # Check if message ID is unique
 
@@ -297,36 +291,33 @@ def _get_parsed_can_message(
         cycle_time=msg_cycle_time,
         tx_node=node_name,
         rx_node_names=[],  # rx nodes will be updated later
-        # modes=msg_modes,
+        # modes=msg_modes, # TODO not used? It's not declared at least
         log_cycle_time=log_cycle_time,
         telem_cycle_time=telem_cycle_time,
     )
 
 
-def parse_tx_data(can_data_dir: str, node_name: str, enums: dict[str, CanEnum]) -> list[CanMessage]:
+def parse_tx_data(can_data_dir: str, tx_node_name: str, enums_map: dict[str, CanEnum]) -> list[CanMessage]:
     """
     Parses TX messages from file, adds them to message list
-    :param enums:
     :param can_data_dir: :|
-    :param node_name: name of the node
+    :param tx_node_name: name of the node
+    :param enums_map: just used to access the enums we have
     :return: list of names of messages associated with the given node
     """
     try:
-        node_tx_json_data = _validate_tx_json(load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx"))
+        node_tx_json_data = _validate_tx_json(load_json_file(f"{can_data_dir}/{tx_node_name}/{tx_node_name}_tx"))
     except SchemaError:
-        raise InvalidCanJson(f"TX json file is not valid for {node_name}")
+        raise InvalidCanJson(f"TX json file is not valid for {tx_node_name}")
 
     msgs: list[CanMessage] = []
     for tx_msg_name_json, tx_msg_json in node_tx_json_data.items():
         # Skip if message is disabled
-        msg_disabled, _ = get_optional_value(
-            data=tx_msg_json, key="disabled", default=False
-        )
-        if bool(msg_disabled):
+        if bool(tx_msg_json.get("disabled", False)):
             continue
 
-        tx_msg_name = f"{node_name}_{tx_msg_name_json}"
+        tx_msg_name = f"{tx_node_name}_{tx_msg_name_json}"
         msgs.append(_get_parsed_can_message(
-            msg_name=tx_msg_name, msg_json_data=tx_msg_json, node_name=node_name, enums=enums
+            msg_name=tx_msg_name, msg_json_data=tx_msg_json, node_name=tx_node_name, enums=enums_map
         ))
     return msgs

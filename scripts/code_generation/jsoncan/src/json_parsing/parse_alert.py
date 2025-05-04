@@ -1,8 +1,10 @@
 from typing import TypedDict, Optional as Optional_t, Dict, List
+
 from schema import Schema, Or, And, Optional, SchemaError
-from ..can_database import CanAlertType, CanSignal, CanMessage, CanAlert
-from .parse_utils import load_json_file, get_optional_value
+
 from .parse_error import InvalidCanJson
+from .parse_utils import load_json_file
+from ..can_database import CanAlertType, CanSignal, CanMessage, CanAlert
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -154,23 +156,17 @@ def _parse_node_alerts(node: str, alerts_json: AlertsJson):
     warnings = {
         name: alert
         for name, alert in alerts_json["warnings"].items()
-        if not get_optional_value(data=alert, key="disabled", default=False)[
-            0
-        ]
+        if not alert.get("disabled", False)
     }
     faults = {
         name: alert
         for name, alert in alerts_json["faults"].items()
-        if not get_optional_value(data=alert, key="disabled", default=False)[
-            0
-        ]
+        if not alert.get("disabled", False)
     }
     info = {
         name: alert
         for name, alert in alerts_json["info"].items()
-        if not get_optional_value(data=alert, key="disabled", default=False)[
-            0
-        ]
+        if not alert.get("disabled", False)
     }
 
     # Number of alerts can't exceed 21. This is because we transmit a "counts" message for faults and warnings
