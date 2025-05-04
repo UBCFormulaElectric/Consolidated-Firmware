@@ -81,7 +81,7 @@ class JsonCanParser:
                 if node_name in self._bus_config[bus].nodes
             ]
 
-        # parse enums
+        # PARSE ENUMS JSON DATA
         # updates self._shared_enums
         self._shared_enums = parse_shared_enums(can_data_dir)
         enums = self._shared_enums.copy()
@@ -92,13 +92,13 @@ class JsonCanParser:
             node_enums = parse_node_enum_data(can_data_dir, node_name)
             enums.update(node_enums)
 
-        # tx messages
+        # PARSE TX JSON DATA
         self._msgs = {}
         for node_name in node_names:
             for msg_name in parse_tx_data(can_data_dir, node_name, enums):
                 self._add_tx_msg(msg_name, node_name)
 
-        # Parse Alerts
+        # PARSE ALERTS DATA
         self._alerts = {}
         alert_msgs: list[CanMessage] = []
         for node_name in node_names:
@@ -119,7 +119,7 @@ class JsonCanParser:
             self._alerts[node_name] = alerts
             alert_msgs.extend(node_alert_msgs)  # save for RX parsing
 
-        # Parse all nodes' RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
+        # PARSE RX JSON
         # IMPORTANT: make sure to handle RX only after all the TX msgs are handled
         self._rx_msgs = {
             rx_node.name: CanRxMessages(node=rx_node.name, messages={})
@@ -142,6 +142,7 @@ class JsonCanParser:
                 for msg_name in bus_rx_msg_names:
                     self._add_rx_msg(msg_name, rx_node, bus)
 
+        # PARSE ALERTS RX TODO figure out how to make this work with reroute and rx systems better
         for alerts_msg in alert_msgs:
             for rx_node in self._nodes.values():
                 if alerts_msg.tx_node == rx_node.name:
@@ -163,9 +164,10 @@ class JsonCanParser:
                     continue  # TODO surely we want this to not fail silently
                 self._add_rx_msg(alerts_msg.name, rx_node, rx_bus)
 
-        # Consistency check
+        # CONSISTENCY TODO remove or localize
         self._consistency_check()
 
+        # REROUTE
         # find all message transmitting on one bus but received in another bus
         # IMPORTANT: reroutes can only be calculated after all the RXs are figured out
         self._reroute_msgs = self._calculate_reroutes(can_data_dir)
