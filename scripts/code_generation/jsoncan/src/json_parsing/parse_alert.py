@@ -37,7 +37,8 @@ AlertsJson_schema = Schema(
             "faults_counts_id": And(int, lambda x: x >= 0),
             "info_id": And(int, lambda x: x >= 0),
             "info_counts_id": And(int, lambda x: x >= 0),
-            "bus": list[str],  # TODO why does this need to exist? - to specify which bus/buses to send the alerts same as tx messages
+            "bus": list[str],
+            # TODO why does this need to exist? - to specify which bus/buses to send the alerts same as tx messages
             "warnings": Or(
                 Schema({}),
                 Schema({
@@ -181,50 +182,12 @@ def _parse_node_alerts(node: str, alerts_json: AlertsJson):
         )
 
     # Check alert messages ID are unique
-    warnings_id = alerts_json["warnings_id"]
-    faults_id = alerts_json["faults_id"]
-    warnings_counts_id = alerts_json["warnings_counts_id"]
-    faults_counts_id = alerts_json["faults_counts_id"]
-    info_id = alerts_json["info_id"]
-    info_counts_id = alerts_json["info_counts_id"]
-
-    # TODO check conflict ID elsewhere - checked in _add_tx_msg()
-    # if any(
-    #         msg_id in {msg.id for msg in self._messages.values()}
-    #         for msg_id in (warnings_id, faults_id, warnings_counts_id, faults_counts_id)
-    # ):
-    #     conflicting_node = [
-    #         msg
-    #         for msg in self._messages.values()
-    #         for i in (warnings_id, faults_id, warnings_counts_id, faults_counts_id)
-    #         if msg.id == i
-    #     ][0]
-    #     raise InvalidCanJson(
-    #         f"ID for alerts message transmitted by '{node_name}' is a duplicate with '{conflicting_node.name}'. Messages "
-    #         f"must have unique IDs."
-    #     )
-
-    # Check if message name is unique
     warnings_name = f"{node_name}_Warnings"
     faults_name = f"{node_name}_Faults"
     warnings_counts_name = f"{node_name}_WarningsCounts"
     faults_counts_name = f"{node_name}_FaultsCounts"
     info_name = f"{node_name}_Info"
     info_counts_name = f"{node_name}_InfoCounts"
-
-    # TODO check conflict CANID elsewhere - checked in _add_tx_msg()
-    # if any(
-    #         msg_name in self._messages
-    #         for msg_name in [
-    #             warnings_name,
-    #             faults_name,
-    #             warnings_counts_name,
-    #             faults_counts_name,
-    #         ]
-    # ):
-    #     raise InvalidCanJson(
-    #         f"Name for alerts message transmitted by '{node_name}' is a duplicate, messages must have unique names."
-    #     )
 
     # Make alert signals
     warnings_meta_data, warnings_signals = _parse_node_alert_signals(
@@ -263,42 +226,42 @@ def _parse_node_alerts(node: str, alerts_json: AlertsJson):
         for name, msg_id, description, signals, cycle_time in [
             (
                 warnings_name,
-                warnings_id,
+                (alerts_json["warnings_id"]),
                 f"Status of warnings for the {node_name}.",
                 warnings_signals,
                 WARNINGS_ALERTS_CYCLE_TIME,
             ),
             (
                 faults_name,
-                faults_id,
+                (alerts_json["faults_id"]),
                 f"Status of faults for the {faults}.",
                 faults_signals,
                 FAULTS_ALERTS_CYCLE_TIME,
             ),
             (
                 warnings_counts_name,
-                warnings_counts_id,
+                (alerts_json["warnings_counts_id"]),
                 f"Number of times warnings have been set for the {node_name}.",
                 warnings_counts_signals,
                 WARNINGS_ALERTS_CYCLE_TIME,
             ),
             (
                 faults_counts_name,
-                faults_counts_id,
+                (alerts_json["faults_counts_id"]),
                 f"Number of times faults have been set for the {node_name}.",
                 faults_counts_signals,
                 FAULTS_ALERTS_CYCLE_TIME,
             ),
             (
                 info_name,
-                info_id,
+                (alerts_json["info_id"]),
                 f"Status of info for the {info}.",
                 info_signals,
                 INFO_ALERTS_CYCLE_TIME,  # TODO: what will be the cycle time for info?
             ),
             (
                 info_counts_name,
-                info_counts_id,
+                (alerts_json["info_counts_id"]),
                 f"Number of times info have been set for the {node_name}.",
                 info_counts_signals,
                 INFO_ALERTS_CYCLE_TIME,
@@ -321,7 +284,6 @@ def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[
     except SchemaError:
         raise InvalidCanJson(f"Alerts JSON file is not valid for node {node_name}")
     # TODO catch file not found error? I imagine for it to be truly optional that must - how do you want to handle that? return a None?
-    
 
     if len(node_alerts_json_data) <= 0:
         return None

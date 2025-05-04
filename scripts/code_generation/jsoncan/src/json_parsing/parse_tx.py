@@ -1,11 +1,11 @@
 from math import ceil
+from typing import Dict, Tuple, Optional as Optional_t
 
-from typing import Dict, Any, Tuple, Optional as Optional_t
 from schema import Schema, And, Optional, Or, SchemaError
-from ..can_database import CanEnum, CanMessage, CanSignal
 
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file, get_optional_value
+from ..can_database import CanEnum, CanMessage, CanSignal
 from ..utils import max_uint_for_bits
 
 
@@ -106,7 +106,7 @@ def _get_parsed_can_signal(
         signal_json_data: Dict,
         next_available_bit: int,
         enums: dict[str, CanEnum]
-) -> tuple[CanSignal, Any]:  # TODO no way this is any
+) -> tuple[CanSignal, bool]:
     """
     Parse JSON data dictionary representing a CAN signal.
     """
