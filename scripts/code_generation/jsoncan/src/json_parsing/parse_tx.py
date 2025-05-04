@@ -9,7 +9,7 @@ from .parse_utils import load_json_file, get_optional_value
 from ..utils import max_uint_for_bits
 
 
-def calc_signal_scale_and_offset(
+def _calc_signal_scale_and_offset(
         max_val: int, min_val: int, num_bits: int
 ) -> Tuple[float, float]:
     """
@@ -20,7 +20,7 @@ def calc_signal_scale_and_offset(
     return scale, offset
 
 
-tx_signal_schema = Schema(
+_tx_signal_schema = Schema(
     # 4 options to define a signal"s representation...
     Or(
         Schema({
@@ -71,7 +71,7 @@ tx_signal_schema = Schema(
     )
 )
 
-tx_msg_schema = Schema(
+_tx_msg_schema = Schema(
     {
         "bus": Schema([str]),
         "msg_id": And(
@@ -79,7 +79,7 @@ tx_msg_schema = Schema(
         ),
         # Standard CAN uses 11-bit identifiers TODO add support for extended CAN (i think all busses are extended, you can also add a discriminated union for that)
         "signals": {
-            str: tx_signal_schema,
+            str: _tx_signal_schema,
         },
         "cycle_time": Or(int, Schema(None), lambda x: x >= 0),
         Optional("disabled"): bool,
@@ -94,9 +94,9 @@ tx_msg_schema = Schema(
 )
 
 
-def validate_tx_json(json: Dict) -> Dict[str, dict]:
+def _validate_tx_json(json: Dict) -> Dict[str, dict]:
     return Or(
-        Schema({str: tx_msg_schema}),
+        Schema({str: _tx_msg_schema}),
         Schema({})
     ).validate(json)
 
@@ -142,7 +142,7 @@ def _get_parsed_can_signal(
         min_val = signal_json_data["min"]
         bits = signal_json_data["bits"]
 
-        scale, offset = calc_signal_scale_and_offset(
+        scale, offset = _calc_signal_scale_and_offset(
             max_val=max_val, min_val=min_val, num_bits=bits
         )
 
@@ -312,7 +312,7 @@ def parse_tx_data(can_data_dir: str, node_name: str, enums: dict[str, CanEnum]) 
     :return: list of names of messages associated with the given node
     """
     try:
-        node_tx_json_data = validate_tx_json(load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx"))
+        node_tx_json_data = _validate_tx_json(load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx"))
     except SchemaError:
         raise InvalidCanJson(f"TX json file is not valid for {node_name}")
 

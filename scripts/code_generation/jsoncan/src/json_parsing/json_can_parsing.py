@@ -83,8 +83,8 @@ class JsonCanParser:
         # tx messages
         self._msgs = {}
         for node_name in node_names:
-            for msg in parse_tx_data(can_data_dir, node_name, enums):
-                self._add_tx_msg(msg, node_name)
+            for msg_name in parse_tx_data(can_data_dir, node_name, enums):
+                self._add_tx_msg(msg_name, node_name)
 
         # Parse Alerts
         self._alerts = {}
@@ -99,17 +99,31 @@ class JsonCanParser:
             assert len(node_alert_msgs) == 6, "Alert messages should be 6 (unless we add more types of alerts)"
 
             # mutate
-            for msg in node_alert_msgs:
-                self._add_tx_msg(msg, node_name)
+            for msg_name in node_alert_msgs:
+                self._add_tx_msg(msg_name, node_name)
             # extra alerts logging?
             self._alerts[node_name] = alerts
             alert_msgs.extend(node_alert_msgs)  # save for RX parsing
 
         # Parse all nodes' RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         # IMPORTANT: make sure to handle RX only after all the TX msgs are handled
-        self._rx_msgs = {}
+        self._rx_msgs = {
+            rx_node.name: CanRxMessages(node=rx_node.name, messages={})
+            for rx_node in self._nodes.values()
+        }
         for rx_node in self._nodes.values():
-            self._rx_msgs[rx_node.name] = parse_json_rx_data(can_data_dir, self._msgs, self._bus_config, rx_node)
+            # multiple buses can be defined in the RX JSON
+            for rx_bus_metadata in parse_json_rx_data(can_data_dir, rx_node):
+                bus, bus_rx_msg_names = rx_bus_metadata["bus"], rx_bus_metadata["messages"]
+                # check bus is present
+                if bus not in self._bus_config.keys():
+                    raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
+                if "all" in bus_rx_msg_names:
+                    # TODO maybe we just make the type of messages : list[str] | "all"
+                    # if "all" in messages then add all messages on this bus
+                    bus_rx_msg_names = list(set(self._msgs) - set(rx_node.tx_msg_names))
+                for msg_name in bus_rx_msg_names:
+                    self._add_rx_msg(msg_name, rx_node, bus)
 
         # TODO I think we should unify the interface where we add tx messages in general
         self._register_alert_messages(alert_msgs)
@@ -164,12 +178,27 @@ class JsonCanParser:
         self._msgs[msg.name] = msg
         self._nodes[node_name].tx_msg_names.append(msg.name)
 
-    def _add_rx_msg(self):
+    def _add_rx_msg(self, msg_name: str, rx_node: CanNode, bus: str) -> None:
         """
         This function registers a message which is to be recieved by a node on the bus
         :return:
         """
-        pass
+        # Check if this message is defined
+        if msg_name not in self._msgs.keys():
+            raise InvalidCanJson(
+                f"Message '{msg_name}' received by '{rx_node.name}' is not defined. Make sure it is correctly defined in the TX JSON."
+            )
+        msg_to_rx = self._msgs[msg_name]
+        # tell msg_to_rx that the current node rxs it
+        if rx_node.name not in msg_to_rx.rx_node_names:
+            msg_to_rx.rx_node_names.append(rx_node.name)
+        # add the message to the node's rx messages
+        if msg_to_rx.name not in rx_node.rx_msg_names:  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice?
+            rx_node.rx_msg_names.append(msg_to_rx.name)
+
+        if bus not in self._rx_msgs[rx_node.name].messages:
+            self._rx_msgs[rx_node.name].messages[bus] = []
+        self._rx_msgs[rx_node.name].messages[bus].append(msg_name)
 
     def _consistency_check(self) -> None:
         # TODO should this be checked post-hoc, or should it be checked as you parse the messages.
