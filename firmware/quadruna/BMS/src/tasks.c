@@ -26,6 +26,7 @@
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
+#include "app_utils.h"
 
 #include "shared.pb.h"
 
@@ -196,7 +197,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        ASSERT_EXIT_OK(hw_can_transmit(&can1, &tx_msg));
     }
 }
 

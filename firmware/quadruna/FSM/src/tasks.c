@@ -9,6 +9,7 @@
 #include "app_commitInfo.h"
 #include "app_apps.h"
 #include "app_stackWaterMarks.h"
+#include "app_utils.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -249,7 +250,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        ASSERT_EXIT_OK(hw_can_transmit(&can, &tx_msg));
     }
 }
 

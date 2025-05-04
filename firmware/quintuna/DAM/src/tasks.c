@@ -4,6 +4,7 @@
 #include "cmsis_os.h"
 
 #include "app_canTx.h"
+#include "app_units.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -165,7 +166,7 @@ _Noreturn void tasks_runCanTx(void)
         }
         else
         {
-            hw_can_transmit(&can1, &tx_msg);
+            ASSERT_EXIT_OK(hw_can_transmit(&can1, &tx_msg));
         }
     }
 }
