@@ -26,10 +26,6 @@ class IoCanRxModule(CModule):
         j2_env = j2.Environment(
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
-        for a, b in self._db.rx_msgs[self._node].messages.items():
-            print(a)
-            print(b)
-
         template = j2_env.from_string(template)
         return template.render(
             rx_messages=self._db.rx_msgs[self._node],

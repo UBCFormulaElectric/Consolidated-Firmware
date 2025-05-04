@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 
 import pandas as pd
 from strenum import StrEnum
@@ -108,11 +108,11 @@ class CanSignal:
     max_val: float  # Max allowed value
     # Default starting value, None if doesn't specify one
     start_val: Union[int, float]
-    enum: Union[CanEnum, None]  # Value table, None if doesn't specify one
+    enum: Optional[CanEnum]  # Value table, None if doesn't specify one
     unit: str  # Signal's unit
     signed: bool  # Whether or not signal is represented as signed or unsigned
     description: str = "N/A"  # Description of signal
-    message: CanMessage = None  # Message this signal belongs to
+    message: Optional[CanMessage] = None  # Message this signal belongs to
 
     def represent_as_integer(self):
         """
@@ -299,14 +299,14 @@ class CanNode:
 
     name: str  # Name of this CAN node
 
-    # forgein key
+    # foreign key
     tx_msg_names: List[str]
-    rx_msgs_names: List[str]
+    rx_msg_names: List[str]
     alerts: List[AlertsEntry]
     bus_names: List[str]
 
     def get_all_messages(self):
-        return self.rx_msgs_names + self.tx_msg_names
+        return self.rx_msg_names + self.tx_msg_names
 
     def __hash__(self):
         return hash(self.name)
@@ -384,7 +384,7 @@ class CanDatabase:
             node = self.nodes[rx_node]
         except KeyError:
             return []
-        return [self.msgs[msg] for msg in node.rx_msgs_names]
+        return [self.msgs[msg] for msg in node.rx_msg_names]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """

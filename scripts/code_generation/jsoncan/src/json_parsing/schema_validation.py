@@ -93,7 +93,7 @@ Rx file schema
 """
 
 
-class RxEntryJson(TypedDict):
+class RxBusEntryJson(TypedDict):
     bus: str
     messages: list[str]
 
@@ -110,7 +110,7 @@ rx_entries_schema = Schema(
 )
 
 
-def validate_rx_json(json: Dict) -> list[RxEntryJson]:
+def validate_rx_json(json: Dict) -> list[RxBusEntryJson]:
     return rx_entries_schema.validate(json)
 
 
@@ -179,6 +179,7 @@ Alerts file schema
 class AlertsEntry(TypedDict):
     id: int
     description: str
+    disabled: Optional_t[bool]
 
 
 class AlertsJson(TypedDict):
