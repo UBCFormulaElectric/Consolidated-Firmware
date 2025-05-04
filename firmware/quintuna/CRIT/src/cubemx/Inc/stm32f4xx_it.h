@@ -58,6 +58,7 @@ extern "C"
     void RCC_IRQHandler(void);
     void EXTI0_IRQHandler(void);
     void EXTI4_IRQHandler(void);
+    void EXTI9_5_IRQHandler(void);
     void TIM4_IRQHandler(void);
     void TIM8_BRK_TIM12_IRQHandler(void);
     void TIM6_IRQHandler(void);

@@ -1,6 +1,5 @@
 #include "tasks.h"
 #include "cmsis_os.h"
-#include "hw_gpios.h"
 #include "shared.pb.h"
 #include "jobs.h"
 #include "main.h"
@@ -10,7 +9,6 @@
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
-#include "io_rotary.h"
 
 // hw
 #include "hw_hardFaultHandler.h"

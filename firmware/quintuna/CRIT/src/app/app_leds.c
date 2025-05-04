@@ -5,7 +5,7 @@
 #include "app_canAlerts.h"
 #include "io_shift_register.h"
 
-// Macro to clear and then set an RGB LED.
+// Macro to set an RGB LED.
 #define SET_BOARD_RGB(name, status)                  \
     do                                               \
     {                                                \
@@ -25,7 +25,6 @@
                 leds.bits.name##_r = 1;              \
                 break;                               \
             case BOARD_LED_STATUS_MISSING_HEARTBEAT: \
-                leds.bits.name##_b = 1;              \
                 break;                               \
             default:                                 \
                 break;                               \
@@ -202,18 +201,4 @@ void app_leds_update(void)
 
     // Shift out all 4 bytes (LSB first)
     io_shift_register_updateLedRegisters((uint8_t *)&leds.value);
-}
-
-void led_self_test(void)
-{
-    io_shift_register_led_init();
-
-    for (uint32_t bit = 0; bit < 32; ++bit)
-    {
-        LedReg_t r = { .value = (1u << bit) };
-        io_shift_register_updateLedRegisters((uint8_t *)&r.value);
-        HAL_Delay(1000);
-    }
-
-    io_shift_register_updateLedRegisters((uint8_t *)&(uint32_t){ 0 });
 }

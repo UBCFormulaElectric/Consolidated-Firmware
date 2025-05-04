@@ -6,25 +6,17 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"
-#include "hw/hw_pwms.h"
-#include "io_shift_register.h"
 #include "screens/app_screens.h"
 #include "app_leds.h"
 #include "app_switches.h"
+#include "app_stackWaterMarks.h"
 
 // IO
 #include "io_canTx.h"
 #include "io_canRx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
-#include "io_rotary.h"
-
-// HW
-#include "hw_gpios.h"
-
-#include "hw_pwmOutput.h"
-#include "hw_pwms.h"
-#include <stm32f4xx_hal.h>
+#include "io_shift_register.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
@@ -47,10 +39,8 @@ void jobs_init(void)
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 
-    io_shift_register_led_init();
+    // io_shift_register_led_init();
     app_screens_init();
-    hw_pwmOutput_setDutyCycle(&seven_seg_dimming, 2.0f);
-    // led_self_test();
 }
 
 void jobs_run1Hz_tick(void)
@@ -58,6 +48,7 @@ void jobs_run1Hz_tick(void)
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
+    app_stackWaterMark_check();
 }
 
 void jobs_run100Hz_tick(void)
@@ -65,7 +56,7 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    app_leds_update();
+    // app_leds_update();
     app_screens_update();
     app_switches_broadcast();
 

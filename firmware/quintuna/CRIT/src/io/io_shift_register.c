@@ -1,5 +1,5 @@
 #include "io_shift_register.h"
-#include "hw_gpio.h"
+
 #include "hw_gpios.h"
 #include "hw_pwmOutput.h"
 #include "hw_pwms.h"
@@ -7,11 +7,11 @@
 #define MAX_BRIGHTNESS 100.0f
 
 /**
- * @brief Shift out one byte to the shift register (MSB-first).
+ * @brief Shift out one byte to the shift register (MSB first).
  *
  * @param serin  Pointer to the GPIO used for serial data input.
  * @param srck   Pointer to the GPIO used for the shift register clock.
- * @param data   The 8-bit value to send, MSB first.
+ * @param data   The 8 bit value to send, MSB first.
  */
 static void shiftOutByte(const Gpio *serin, const Gpio *srck, uint8_t data)
 {
@@ -29,7 +29,7 @@ static void shiftOutByte(const Gpio *serin, const Gpio *srck, uint8_t data)
 }
 
 /**
- * @brief Initialize LED shift register by enabling its PWM dimming.
+ * @brief Initialize LED shift reg by enabling its PWM dimmin.
  */
 void io_shift_register_led_init(void)
 {
@@ -38,7 +38,7 @@ void io_shift_register_led_init(void)
 }
 
 /**
- * @brief Initialize seven-segment display to max brightness.
+ * @brief Initialize seven seg display to max brightness.
  */
 void io_shift_register_seven_seg_init(void)
 {
@@ -47,14 +47,14 @@ void io_shift_register_seven_seg_init(void)
 }
 
 /**
- * @brief Update the LED shift register outputs.
- * Sends an array of bytes to the LED shift registers (MSB-first), then latches them.
+ * @brief Update the led shift register outputs.
+ * Sends an array of bytes to the led shift registers (MSB-first), then latches them.
  *
  * @param data  Array of bytes.
  */
 void io_shift_register_updateLedRegisters(uint8_t *data)
 {
-    // Pull the LED register latch low to prepare shifting.
+    // Pull the led register latch low to prepare shifting.
     hw_gpio_writePin(&led_rck, false);
 
     // Shift out each byte in reverse order so data[0] maps to the first register.
@@ -69,8 +69,8 @@ void io_shift_register_updateLedRegisters(uint8_t *data)
 }
 
 /**
- * @brief Update the seven-segment display shift register outputs.
- * Sends an array of bytes to the seven-segment shift registers (MSB-first), then latches them.
+ * @brief Update the seven seg display shift register outputs.
+ * Sends an array of bytes to the seven seg shift registers (MSB-first), then latches them.
  *
  * @param data  Array of bytes of length SEVEN_SEG_DATA_LENGTH to shift out.
  */
@@ -91,11 +91,10 @@ void io_shift_register_updateSevenSegRegisters(uint8_t *data)
 }
 
 /**
- * @brief Set the dimming level of the LED shift register.
- * @param brightness_percent  Duty cycle for LED PWM (0.0f – 100.0f).
+ * @brief Set the dimming level of the led shift register.
+ * @param brightness_percent  Duty cycle for led pwm (0.0f to 100.0f).
  */
 void io_shift_register_led_setDimming(float brightness_percent)
 {
-    // Update the PWM duty cycle to control LED brightness
     hw_pwmOutput_setDutyCycle(&led_dimming, brightness_percent);
 }

@@ -71,7 +71,6 @@ typedef struct
 } Screen;
 
 Screen *get_main_drive_screen(void);
-Screen *get_test_screen(void);
 Screen *get_init_screen(void);
 Screen *get_start_up_screen(void);
 Screen *get_vd_screen(void);

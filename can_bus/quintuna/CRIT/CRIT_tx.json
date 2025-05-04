@@ -80,8 +80,6 @@
             }
         }
     },
-<<<<<<< HEAD
-=======
     "CRITShdnNodeStatus": {
         "msg_id": 914,
         "cycle_time": 100,
@@ -95,7 +93,6 @@
             }
         }
     },
->>>>>>> master
     "WatermarkLevel": {
         "msg_id": 915,
         "cycle_time": 100,

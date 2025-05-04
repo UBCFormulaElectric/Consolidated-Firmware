@@ -1,8 +1,7 @@
 #include "app_screens.h"
 #include "app_canTx.h"
-#include <app_canRx.h>
-#include <app_canUtils.h>
-#include <stdint.h>
+#include "app_canRx.h"
+#include "app_canUtils.h"
 #include "io_shift_register.h"
 
 /*********************** Function Definitions ***************************/

@@ -25,13 +25,12 @@ static void app_screens_rotaryCCW(void);
  */
 void app_screens_init(void)
 {
+    io_rotary_init();
     io_shift_register_seven_seg_init();
-
     io_rotary_setClockwiseCallback(app_screens_rotaryCW);
     io_rotary_setCounterClockwiseCallback(app_screens_rotaryCCW);
     io_rotary_setPushCallback(app_screens_next);
 
-    test_screen     = get_test_screen();
     init_screen     = get_init_screen();
     start_up_screen = get_start_up_screen();
 
@@ -42,7 +41,7 @@ void app_screens_init(void)
 }
 
 /**
- * @brief Screen specific clockwise rotary callback.
+ * @brief Screen specific cw rotary callback.
  */
 static void app_screens_rotaryCW(void)
 {
@@ -53,7 +52,7 @@ static void app_screens_rotaryCW(void)
 }
 
 /**
- * @brief Screen specific counter-clockwise rotary callback.
+ * @brief Screen specific ccw rotary callback.
  */
 static void app_screens_rotaryCCW(void)
 {
@@ -64,7 +63,7 @@ static void app_screens_rotaryCCW(void)
 }
 
 /**
- * Called every 100Hz, updates seven seg.
+ * @brief Called every 100Hz, updates seven seg.
  */
 void app_screens_update(void)
 {

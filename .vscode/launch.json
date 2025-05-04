@@ -84,6 +84,7 @@
         ]
       },
     },
+
     {
       "name": "Debug Embedded: DAM (Quintuna)",
       "cwd": "${workspaceRoot}",
@@ -423,9 +424,9 @@
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf",
       // "symbolFiles": [
-      // This order matters, or RTT won't work! (app has to be last)
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf",
+        // This order matters, or RTT won't work! (app has to be last)
+        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
+        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf",
       // ],
       "preLaunchTask": "Build Embedded: BMS (Quintuna)",
       // cortex configurations
@@ -494,6 +495,7 @@
         "address": "auto",
         "decoders": [
           {
+
             "label": "Debug logs: SSM",
             "port": 0,
             "type": "console"
