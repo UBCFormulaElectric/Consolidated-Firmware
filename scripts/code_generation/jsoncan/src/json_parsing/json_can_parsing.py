@@ -167,8 +167,7 @@ class JsonCanParser:
 
         # find all message transmitting on one bus but received in another bus
         # IMPORTANT: reroutes can only be calculated after all the RXs are figured out
-        self._reroute_msgs = []
-        self._calculate_reroutes(can_data_dir)
+        self._reroute_msgs = self._calculate_reroutes(can_data_dir)
 
     def make_database(self) -> CanDatabase:
         """
@@ -327,6 +326,7 @@ class JsonCanParser:
                     continue
                 bus_rx_messages[rx_bus].add(msg.name)
 
+        reroute_msgs = []
         for bus_name, bus_obj in self._bus_config.items():
             tx_messages = bus_tx_messages[bus_name]
             rx_messages = bus_rx_messages[bus_name]
@@ -361,10 +361,10 @@ class JsonCanParser:
                                 forwarder=config["forwarder"],
                             )
 
-                            self._reroute_msgs.append(forwarder)
+                            reroute_msgs.append(forwarder)
                             break
                         if not found:
                             raise InvalidCanJson(
                                 f"Forwarder config for bus '{rx_bus}' and bus '{tx_bus}' is not defined in the bus JSON for message {forward_msg}."
                             )
-        return self._reroute_msgs
+        return reroute_msgs
