@@ -5,12 +5,14 @@ This file contains various classes to fully describes a CAN bus: The nodes, mess
 from __future__ import annotations
 
 import logging
+from abc import ABC
 from dataclasses import dataclass
-from typing import Dict, List, Union, Optional, TypedDict
+from typing import Dict, List, Optional, TypedDict, Union
 
 import pandas as pd
 from strenum import StrEnum
 
+from .json_parsing.parse_bus import CanBusConfig
 from .utils import (
     bits_for_uint,
     bits_to_bytes,
@@ -18,8 +20,6 @@ from .utils import (
     pascal_to_screaming_snake_case,
     pascal_to_snake_case,
 )
-
-from .json_parsing.parse_bus import CanBusConfig
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ class CanSignalDatatype(StrEnum):
     """
 
     BOOL = "bool"
-    INT = "int"  # TODO we make this an int32_t?
+    INT = "int32_t"  # TODO we make this an int32_t? check
     UINT = "uint32_t"
     FLOAT = "float"
 
@@ -251,7 +251,7 @@ class CanMessage:
 
 
 @dataclass(frozen=True)
-class CanRxMessages:  # TODO how does this fit into the existing structures?
+class CanRxMessages:  # TODO how does this fit into the existing structures? - New data class for extra info about the messages received by which port for every node
     node: str
     messages: dict[str, list[str]]  # bus name to list of message names
 
@@ -325,7 +325,6 @@ class CanDatabase:
     rx_msgs: dict[str, CanRxMessages]  # node to CanRxMessages
 
     # TODO: Add a method to check for consistence of the database
-    # TODO: if frozen is enabled, do we need this?
     def consistence_check(self):
         pass
 
@@ -414,7 +413,7 @@ class CanDatabase:
         )
 
     def node_name_description(
-            self, node: str, alert_type: CanAlert
+        self, node: str, alert_type: CanAlert
     ) -> Dict[str, tuple]:
         """Returns a dictionary containing a the alert names as the key and a description and as the item"""
 
@@ -451,7 +450,7 @@ class CanDatabase:
         return new_dict
 
     def node_alerts_with_rx_check(
-            self, tx_node: str, rx_node, alert_type: CanAlertType
+        self, tx_node: str, rx_node, alert_type: CanAlertType
     ) -> List[str]:
         """
         Return list of alerts transmitted by tx_node, and received by rx_node, of a specific type.
@@ -533,7 +532,9 @@ class CanDatabase:
                     )
                     continue
 
-                signal_data["label"] = signal.enum.items[int(signal_value)]  # this is legal as enums must be ints
+                signal_data["label"] = signal.enum.items[
+                    int(signal_value)
+                ]  # this is legal as enums must be ints
 
             # Append decoded signal's data.
             signals.append(signal_data)
@@ -547,3 +548,17 @@ class CanForward:
     forwarder: str
     from_bus: str  # name of the bus the message is forwarded from
     to_bus: str  # bus the message is forwarded to
+
+
+class CModule(ABC):
+    """
+    ABC for a C module (i.e. pair of header .h and source .c files)
+    """
+
+    def header(self) -> str: ...
+
+    def source(self) -> str: ...
+
+    def header_template(self): ...
+
+    def source_template(self): ...

@@ -88,7 +88,7 @@ class JsonCanParser:
         # enum data
         for node_name in node_names:
             # writes node enums into global enum bucket
-            # TODO i wonder why this is not per board like literally everything else?
+            # TODO i wonder why this is not per board like literally everything else? - check app_can_utils_module only used enum will be generated
             node_enums = parse_node_enum_data(can_data_dir, node_name)
             enums.update(node_enums)
 
@@ -162,7 +162,7 @@ class JsonCanParser:
                 self._add_rx_msg(alerts_msg.name, rx_node, rx_bus)
 
         # Consistency check
-        # TODO why does it have to be here?
+        # TODO why does it have to be here? - just in case we need extra checks besides the ones in the parsing functions
         self._consistency_check()
 
         # find all message transmitting on one bus but received in another bus
@@ -233,7 +233,7 @@ class JsonCanParser:
         # add the message to the node's rx messages
         if (
             msg_to_rx.name not in rx_node.rx_msg_names
-        ):  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice?
+        ):  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice? - can be a way to do it but I argue the set takes way more memory than a list. 
             rx_node.rx_msg_names.append(msg_to_rx.name)
 
         if bus not in self._rx_msgs[rx_node.name].messages:
@@ -291,16 +291,15 @@ class JsonCanParser:
                         f"Node '{node}' is not defined in the node JSON."
                     )
 
-            # TODO double check that this is correct, node below is saying that it might be used before assignment
-            if msg_obj.tx_node not in self._nodes:
-                raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
+                if msg_obj.tx_node not in self._nodes:
+                    raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
 
     def _calculate_reroutes(self, can_data_dir) -> List[CanForward]:
         # design choice
         # all message is on FD bus
         # some message from FD bus need to be rerouted to non-FD bus
 
-        # TODO do we try to do this with the bus config?
+        # TODO do we try to do this with the bus config? - better not because it is different logic so need sperate function to handle it and passing information around is annoying
         try:
             forwarders_configs = _validate_bus_json(
                 load_json_file(f"{can_data_dir}/bus")

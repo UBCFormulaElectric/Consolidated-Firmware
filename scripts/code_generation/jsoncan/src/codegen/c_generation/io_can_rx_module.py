@@ -1,6 +1,6 @@
 import jinja2 as j2
 
-from .c_writer import *
+from ...can_database import *
 from .utils import load_template
 
 
@@ -31,5 +31,5 @@ class IoCanRxModule(CModule):
             rx_messages=self._db.rx_msgs[self._node],
             node=self._node,
             messages=self._db.msgs,
-            db=self._db
+            db=self._db,
         )

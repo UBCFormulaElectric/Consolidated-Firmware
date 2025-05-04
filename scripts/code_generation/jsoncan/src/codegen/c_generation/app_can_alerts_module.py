@@ -1,6 +1,6 @@
 import jinja2 as j2
 
-from .c_writer import *
+from ...can_database import *
 from .utils import load_template
 
 NUM_ALERTS = "NUM_{node}_{alert_type}S"
@@ -20,8 +20,8 @@ class AppCanAlertsModule(CModule):
             node
             for node in self._db.nodes
             if self._db.node_alerts(node, CanAlertType.FAULT)
-               or self._db.node_alerts(node, CanAlertType.WARNING)
-               or self._db.node_alerts(node, CanAlertType.INFO)
+            or self._db.node_alerts(node, CanAlertType.WARNING)
+            or self._db.node_alerts(node, CanAlertType.INFO)
         ]
         return nodes_with_alerts
 

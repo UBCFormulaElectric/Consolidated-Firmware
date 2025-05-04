@@ -1,10 +1,7 @@
 import jinja2 as j2
 
-from .c_writer import *
+from ...can_database import *
 from .utils import load_template
-
-CAPTURE_LENGTH_MACRO = "{name}_{type}_CYCLE_TIME"
-NEXT_CAPTURE_TIME_VAR = "{name}_next_{type}_time_ms"
 
 
 class AppCanDataCaptureModule(CModule):

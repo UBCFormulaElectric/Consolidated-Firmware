@@ -1,6 +1,6 @@
 import jinja2 as j2
 
-from .c_writer import *
+from ...can_database import *
 from .utils import load_template
 
 

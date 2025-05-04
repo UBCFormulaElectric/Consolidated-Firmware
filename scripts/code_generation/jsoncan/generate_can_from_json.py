@@ -1,7 +1,6 @@
 """
 Entry point for generating CAN drivers and DBC from JSON data, as a command line utility.
-TODO: Generate callback functions for received messages? Could be cool
-TODO: Why do we need start values???
+
 """
 
 import argparse
