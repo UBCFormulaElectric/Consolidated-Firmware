@@ -150,15 +150,17 @@ class JsonCanParser:
                 # check if the alert is broadcasted on a bus that is directly connected to the node
                 overlap_bus: set[str] = set(alerts_msg.bus) & set(rx_node.bus_names)
                 # if the message is not on the bus then it is not received by this node
-                # need to reroute
-                # random pick a rx port from the node
+                # need to reroute, randomly pick a rx port from the node
+                # TODO i really suspect this is a smarter way of doing this to load balance as well on the peripheral
+                #    but i suppose we're on a single core so it doesn't matter
+                #    this should really be resolved in the rerouting logic
                 rx_bus: Optional[str] = (
                     list(overlap_bus)[0]
                     if len(overlap_bus) > 0
-                    else rx_node.bus_names[0] if rx_node.bus_names else None
+                    else rx_node.bus_names[0] if len(rx_node.bus_names) > 0 else None
                 )
                 if rx_bus is None:
-                    continue
+                    continue  # TODO surely we want this to not fail silently
                 self._add_rx_msg(alerts_msg.name, rx_node, rx_bus)
 
         # Consistency check
@@ -243,6 +245,7 @@ class JsonCanParser:
         ):  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice? - can be a way to do it but I argue the set takes way more memory than a list. 
             rx_node.rx_msg_names.append(msg_to_rx.name)
 
+        # log in _rx_msgs that the node is recieving this message on this bus
         if bus not in self._rx_msgs[rx_node.name].messages:
             self._rx_msgs[rx_node.name].messages[bus] = []
         self._rx_msgs[rx_node.name].messages[bus].append(msg_name)

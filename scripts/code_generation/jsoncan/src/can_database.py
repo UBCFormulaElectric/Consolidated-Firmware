@@ -290,11 +290,12 @@ class CanNode:
 
     name: str  # Name of this CAN node
 
-    # foreign key
+    # foreign key into CanDatabase.msgs
     tx_msg_names: List[str]
     rx_msg_names: List[str]
+    bus_names: List[str]  # busses which the node is attached to
+
     alerts: List[AlertsEntry]
-    bus_names: List[str]
 
     def get_all_messages(self):
         return self.rx_msg_names + self.tx_msg_names
@@ -413,7 +414,7 @@ class CanDatabase:
         )
 
     def node_name_description(
-        self, node: str, alert_type: CanAlert
+            self, node: str, alert_type: CanAlert
     ) -> Dict[str, tuple]:
         """Returns a dictionary containing a the alert names as the key and a description and as the item"""
 
@@ -450,7 +451,7 @@ class CanDatabase:
         return new_dict
 
     def node_alerts_with_rx_check(
-        self, tx_node: str, rx_node, alert_type: CanAlertType
+            self, tx_node: str, rx_node, alert_type: CanAlertType
     ) -> List[str]:
         """
         Return list of alerts transmitted by tx_node, and received by rx_node, of a specific type.
