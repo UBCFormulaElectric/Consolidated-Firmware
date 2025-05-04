@@ -1,8 +1,9 @@
-from typing import Dict, Any, Tuple
 from math import ceil
 
+from typing import Dict, Any, Tuple, Optional as Optional_t
 from schema import Schema, And, Optional, Or
 from ..can_database import CanEnum, CanMessage, CanSignal
+
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file, get_optional_value
 from ..utils import max_uint_for_bits
@@ -91,40 +92,12 @@ tx_msg_schema = Schema(
     }
 )
 
-tx_schema = Schema(Or(Schema({str: tx_msg_schema}), Schema({})))
-
 
 def validate_tx_json(json: Dict) -> Dict[str, dict]:
-    return tx_schema.validate(json)
-
-
-def parse_tx_data(can_data_dir: str, node_name: str, enums: dict[str, CanEnum]) -> list[CanMessage]:
-    """
-    Parses TX messages from file, adds them to message list
-    :param enums:
-    :param can_data_dir: :|
-    :param node_name: name of the node
-    :return: list of names of messages associated with the given node
-    """
-    try:
-        node_tx_json_data = validate_tx_json(load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx"))
-    except:
-        raise InvalidCanJson(f"TX json file is not valid for {node_name}")
-
-    msgs: list[CanMessage] = []
-    for tx_msg_name_json, tx_msg_json in node_tx_json_data.items():
-        # Skip if message is disabled
-        msg_disabled, _ = get_optional_value(
-            data=tx_msg_json, key="disabled", default=False
-        )
-        if bool(msg_disabled):
-            continue
-
-        tx_msg_name = f"{node_name}_{tx_msg_name_json}"
-        msgs.append(_get_parsed_can_message(
-            msg_name=tx_msg_name, msg_json_data=tx_msg_json, node_name=node_name, enums=enums
-        ))
-    return msgs
+    return Or(
+        Schema({str: tx_msg_schema}),
+        Schema({})
+    ).validate(json)
 
 
 def _get_parsed_can_signal(
@@ -277,7 +250,7 @@ def _get_parsed_can_message(
 
     signals = []
     next_available_bit = 0
-    occupied_bits: list[Optional[str]] = [None] * 64
+    occupied_bits: list[Optional_t[str]] = [None] * 64
     require_start_bit_specified = False
 
     # Parse message signals
@@ -327,3 +300,32 @@ def _get_parsed_can_message(
         log_cycle_time=log_cycle_time,
         telem_cycle_time=telem_cycle_time,
     )
+
+
+def parse_tx_data(can_data_dir: str, node_name: str, enums: dict[str, CanEnum]) -> list[CanMessage]:
+    """
+    Parses TX messages from file, adds them to message list
+    :param enums:
+    :param can_data_dir: :|
+    :param node_name: name of the node
+    :return: list of names of messages associated with the given node
+    """
+    try:
+        node_tx_json_data = validate_tx_json(load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx"))
+    except:
+        raise InvalidCanJson(f"TX json file is not valid for {node_name}")
+
+    msgs: list[CanMessage] = []
+    for tx_msg_name_json, tx_msg_json in node_tx_json_data.items():
+        # Skip if message is disabled
+        msg_disabled, _ = get_optional_value(
+            data=tx_msg_json, key="disabled", default=False
+        )
+        if bool(msg_disabled):
+            continue
+
+        tx_msg_name = f"{node_name}_{tx_msg_name_json}"
+        msgs.append(_get_parsed_can_message(
+            msg_name=tx_msg_name, msg_json_data=tx_msg_json, node_name=node_name, enums=enums
+        ))
+    return msgs

@@ -7,11 +7,11 @@ from __future__ import annotations
 # types
 from typing import List
 from schema import SchemaError
-from ..can_database import (CanMessage, CanBusConfig, CanNode, CanEnum, CanAlert, CanForward,
+from ..can_database import (CanMessage, CanNode, CanEnum, CanAlert, CanForward,
                             CanRxMessages, CanDatabase)
 
 # new files
-from .parse_bus import parse_bus_data, validate_bus_json
+from .parse_bus import parse_bus_data, _validate_bus_json, CanBusConfig
 from .parse_enum import parse_node_enum_data, parse_shared_enums
 from .parse_error import InvalidCanJson
 from .parse_utils import list_nodes_from_folders, load_json_file
@@ -76,26 +76,15 @@ class JsonCanParser:
         # enum data
         for node_name in node_names:
             # writes node enums into global enum bucket
+            # TODO i wonder why this is not per board like literally everything else?
             node_enums = parse_node_enum_data(can_data_dir, node_name)
             enums.update(node_enums)
 
         # tx messages
-        # updates self._msgs
-        # update self._nodes[node].tx_msg_names
         self._msgs = {}
         for node_name in node_names:
-            node_msgs = parse_tx_data(can_data_dir, node_name, enums)
-            # TODO globalize this functionality
-            for msg in node_msgs:
-                # Check if this message name is a duplicate
-                if msg.name in self._msgs.keys():
-                    # TODO find the other node which also transmits the given message name
-                    raise InvalidCanJson(
-                        f"Message '{msg.name}' transmitted by node '{node_name}' is a duplicate, messages must have unique names. {self._msgs.keys()}"
-                    )
-                # TODO check if the message ID is unique
-                self._msgs[msg.name] = msg
-            self._nodes[node_name].tx_msg_names.extend([msg.name for msg in node_msgs])
+            for msg in parse_tx_data(can_data_dir, node_name, enums):
+                self._add_tx_msg(msg, node_name)
 
         # Parse Alerts
         self._alerts = {}
@@ -110,9 +99,10 @@ class JsonCanParser:
             assert len(node_alert_msgs) == 6, "Alert messages should be 6 (unless we add more types of alerts)"
 
             # mutate
+            for msg in node_alert_msgs:
+                self._add_tx_msg(msg, node_name)
+            # extra alerts logging?
             self._alerts[node_name] = alerts
-            self._msgs.update({msg.name: msg for msg in node_alert_msgs})
-            self._nodes[node_name].tx_msg_names.extend([msg.name for msg in node_alert_msgs])
             alert_msgs.extend(node_alert_msgs)  # save for RX parsing
 
         # Parse all nodes' RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
@@ -147,7 +137,42 @@ class JsonCanParser:
             rx_msgs=self._rx_msgs,
         )
 
-    # Both?
+    # TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
+    def _add_tx_msg(self, msg: CanMessage, node_name: str) -> None:
+        """
+        This function registers a new message, transmitted by a node on the bus
+
+        It
+        1. adds the msg to the global dump of messages (self._msgs)
+        2. adds the msg name to the list of messages broadcasted by the given node (self._nodes[node_name].tx_msg_names)
+        """
+        # Check if this message name is a duplicate
+        if msg.name in self._msgs.keys():
+            other_node = self._msgs[msg.name].tx_node
+            raise InvalidCanJson(
+                f"Message '{msg.name}' transmitted by node '{node_name}' is a duplicate to a message transmitted by {other_node}, messages must have unique names."
+            )
+
+        # Check if this message ID is a duplicate
+        find = [m for m in self._msgs.values() if m.id == msg.id]
+        if len(find) > 0:
+            assert len(find) == 1, "There should only be one message with the same ID"
+            other_node = find[0].tx_node
+            raise InvalidCanJson(
+                f"Message ID '{msg.id}' transmitted by node '{node_name}' is a duplicate to a message transmitted by {other_node}, messages must have unique IDs."
+            )
+
+        # mutate
+        self._msgs[msg.name] = msg
+        self._nodes[node_name].tx_msg_names.append(msg.name)
+
+    def _add_rx_msg(self):
+        """
+        This function registers a message which is to be recieved by a node on the bus
+        :return:
+        """
+        pass
+
     def _consistency_check(self) -> None:
         # TODO should this be checked post-hoc, or should it be checked as you parse the messages.
         # In the latter method, you would be able to guarentee that when the intermediary data is ready, that it is valid.
@@ -203,7 +228,6 @@ class JsonCanParser:
             if msg_obj.tx_node not in self._nodes:
                 raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
 
-    # RX
     def _register_alert_messages(self, alerts_msgs: List[CanMessage]):
         """
         Register the alert message to the node.
@@ -258,7 +282,6 @@ class JsonCanParser:
                         alerts_msg.name
                     )
 
-    # Both
     def _calculate_reroutes(self, can_data_dir) -> List[CanForward]:
         # design choice
         # all message is on FD bus
@@ -266,7 +289,7 @@ class JsonCanParser:
 
         # TODO do we try to do this with the bus config?
         try:
-            forwarders_configs = validate_bus_json(
+            forwarders_configs = _validate_bus_json(
                 load_json_file(f"{can_data_dir}/bus")
             )["forwarders"]
         except SchemaError:

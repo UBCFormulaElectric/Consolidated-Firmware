@@ -1,7 +1,7 @@
-from typing import TypedDict, Optional as Optional_t, Dict
+from dataclasses import dataclass
+from typing import TypedDict, Optional as Optional_t, Dict, List
 from schema import SchemaError, Schema, Or, Optional
 
-from ..can_database import CanBusConfig
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file
 
@@ -43,8 +43,25 @@ BusJson_schema = Schema({
 })
 
 
-def validate_bus_json(json: Dict) -> BusJson:
+def _validate_bus_json(json: Dict) -> BusJson:
     return BusJson_schema.validate(json)
+
+
+@dataclass()
+class CanBusConfig:
+    """
+    Dataclass for holding bus config.
+    """
+
+    bus_speed: int
+    modes: List[str]
+    default_mode: str
+    name: str
+    nodes: List[str]  # List of nodes on this bus
+    fd: bool  # Whether or not this bus is FD
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 def parse_bus_data(can_data_dir: str) -> dict[str, CanBusConfig]:
@@ -53,7 +70,7 @@ def parse_bus_data(can_data_dir: str) -> dict[str, CanBusConfig]:
     CONSISTENCY: bus.default_mode not in bus.modes
     """
     try:
-        bus_json_data = validate_bus_json(load_json_file(f"{can_data_dir}/bus"))
+        bus_json_data = _validate_bus_json(load_json_file(f"{can_data_dir}/bus"))
     except SchemaError:
         raise InvalidCanJson("Bus JSON file is not valid")
 

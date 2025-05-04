@@ -6,39 +6,36 @@ from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file
 
 
-class RxBusEntryJson(TypedDict):
+class _RxBusEntry(TypedDict):
     bus: str
     messages: list[str]
 
 
-RxEntry_schema = Schema({
+_RxEntry_schema = Schema({
     "bus": str,
     "messages": [str],  # Use schema.List to define a list of strings
 })
-rx_entries_schema = Schema(
-    Or(
+
+
+def _validate_rx_json(json: Dict) -> list[_RxBusEntry]:
+    return Or(
         Schema([]),  # Allow an empty list
-        Schema([RxEntry_schema]),
-    )
-)
+        Schema([_RxEntry_schema]),
+    ).validate(json)
 
 
-def validate_rx_json(json: Dict) -> list[RxBusEntryJson]:
-    return rx_entries_schema.validate(json)
-
-
-def parse_json_rx_data(can_data_dir: str, _msgs: dict[str, CanMessage], _bus_config: dict[str, CanBusConfig],
+def parse_json_rx_data(can_data_dir: str, msgs: dict[str, CanMessage], bus_config: dict[str, CanBusConfig],
                        rx_node: CanNode) -> CanRxMessages:
     """
     :param can_data_dir:
-    :param _msgs: READONLY this is required as rx message names map to created (tx) messages
-    :param _bus_config: READONlY this is required as rx messages specify which bus they are on
+    :param msgs: READONLY this is required as rx message names map to created (tx) messages
+    :param bus_config: READONlY this is required as rx messages specify which bus they are on
     note: this function validates that the rx_msg reads on a existant bus
     :param rx_node: rx node we are processing messages for
     :return:
     """
     try:
-        node_rx_json_data = validate_rx_json(load_json_file(f"{can_data_dir}/{rx_node.name}/{rx_node.name}_rx"))
+        node_rx_json_data = _validate_rx_json(load_json_file(f"{can_data_dir}/{rx_node.name}/{rx_node.name}_rx"))
     except SchemaError:
         raise InvalidCanJson(f"RX JSON file is not valid for node {rx_node.name}")
 
@@ -48,7 +45,7 @@ def parse_json_rx_data(can_data_dir: str, _msgs: dict[str, CanMessage], _bus_con
     for rx_bus_metadata in node_rx_json_data:
         bus = rx_bus_metadata["bus"]
         # check bus is present
-        if bus not in _bus_config:
+        if bus not in bus_config:
             raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
 
         # TODO check that the node is on the bus (or is this a routing functionality)
@@ -58,16 +55,16 @@ def parse_json_rx_data(can_data_dir: str, _msgs: dict[str, CanMessage], _bus_con
         # if "all" in messages then add all messages on this bus
         # TODO maybe we just make the type of messages : list[str] | "all"
         if "all" in messages:
-            messages = list(set(_msgs) - set(rx_node.tx_msg_names))
+            messages = list(set(msgs) - set(rx_node.tx_msg_names))
 
         for message in messages:
             # Check if this message is defined
-            if message not in _msgs:
+            if message not in msgs:
                 raise InvalidCanJson(
                     f"Message '{message}' received by '{rx_node.name}' is not defined. Make sure it is correctly defined in the TX JSON."
                 )
 
-            msg_to_rx = _msgs[message]
+            msg_to_rx = msgs[message]
 
             # tell msg_to_rx that the current node rxs it
             if rx_node.name not in msg_to_rx.rx_node_names:

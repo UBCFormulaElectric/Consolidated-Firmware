@@ -19,6 +19,8 @@ from .utils import (
     pascal_to_snake_case,
 )
 
+from .json_parsing.parse_bus import CanBusConfig
+
 logger = logging.getLogger(__name__)
 
 
@@ -80,23 +82,6 @@ class CanSignalDatatype(StrEnum):
     INT = "int"  # TODO we make this an int32_t?
     UINT = "uint32_t"
     FLOAT = "float"
-
-
-@dataclass()
-class CanBusConfig:
-    """
-    Dataclass for holding bus config.
-    """
-
-    bus_speed: int
-    modes: List[str]
-    default_mode: str
-    name: str
-    nodes: List[str]  # List of nodes on this bus
-    fd: bool  # Whether or not this bus is FD
-
-    def __hash__(self):
-        return hash(self.name)
 
 
 @dataclass(frozen=True)
@@ -321,7 +306,7 @@ class CanNode:
         return self.name
 
 
-@dataclass()
+@dataclass(frozen=True)
 class CanDatabase:
     """
     Dataclass for fully describing a CAN bus, its nodes, and their messages.
@@ -340,6 +325,7 @@ class CanDatabase:
     rx_msgs: dict[str, CanRxMessages]  # node to CanRxMessages
 
     # TODO: Add a method to check for consistence of the database
+    # TODO: if frozen is enabled, do we need this?
     def consistence_check(self):
         pass
 
