@@ -241,7 +241,7 @@ class JsonCanParser:
         self._rx_msgs[rx_node.name].messages[bus].append(msg_name)
 
     def _consistency_check(self) -> None:
-        # TODO should this be checked post-hoc, or should it be checked as you parse the messages.
+        # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other 
         # In the latter method, you would be able to guarentee that when the intermediary data is ready, that it is valid.
         # however, I don't think this is very much part of the design philosophy at all, as there are many instances
         # where data is instantiated but not valid

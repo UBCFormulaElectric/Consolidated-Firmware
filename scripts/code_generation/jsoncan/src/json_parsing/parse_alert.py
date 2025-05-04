@@ -37,7 +37,7 @@ AlertsJson_schema = Schema(
             "faults_counts_id": And(int, lambda x: x >= 0),
             "info_id": And(int, lambda x: x >= 0),
             "info_counts_id": And(int, lambda x: x >= 0),
-            "bus": list[str],  # TODO why does this need to exist?
+            "bus": list[str],  # TODO why does this need to exist? - to specify which bus/buses to send the alerts same as tx messages
             "warnings": Or(
                 Schema({}),
                 Schema({
@@ -188,7 +188,7 @@ def _parse_node_alerts(node: str, alerts_json: AlertsJson):
     info_id = alerts_json["info_id"]
     info_counts_id = alerts_json["info_counts_id"]
 
-    # TODO check conflict ID elsewhere
+    # TODO check conflict ID elsewhere - checked in _add_tx_msg()
     # if any(
     #         msg_id in {msg.id for msg in self._messages.values()}
     #         for msg_id in (warnings_id, faults_id, warnings_counts_id, faults_counts_id)
@@ -212,7 +212,7 @@ def _parse_node_alerts(node: str, alerts_json: AlertsJson):
     info_name = f"{node_name}_Info"
     info_counts_name = f"{node_name}_InfoCounts"
 
-    # TODO check conflict CANID elsewhere
+    # TODO check conflict CANID elsewhere - checked in _add_tx_msg()
     # if any(
     #         msg_name in self._messages
     #         for msg_name in [
@@ -320,7 +320,8 @@ def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[
         )
     except SchemaError:
         raise InvalidCanJson(f"Alerts JSON file is not valid for node {node_name}")
-    # TODO catch file not found error? I imagine for it to be truly optional that must happen
+    # TODO catch file not found error? I imagine for it to be truly optional that must - how do you want to handle that? return a None?
+    
 
     if len(node_alerts_json_data) <= 0:
         return None
@@ -337,12 +338,6 @@ def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[
         warnings_meta_data,
         info_meta_data,
     ) = _parse_node_alerts(node_name, node_alerts_json_data)
-
-    # TODO is this comment still relevant?
-    # Make sure alerts are received by all other boards
-    # other_nodes = [other for other in self._nodes if other != node_name]
-    # warnings.rx_nodes.extend(other_nodes)
-    # faults.rx_nodes.extend(other_nodes)
 
     can_alerts: dict[CanAlert, AlertsEntry] = {
         **{
