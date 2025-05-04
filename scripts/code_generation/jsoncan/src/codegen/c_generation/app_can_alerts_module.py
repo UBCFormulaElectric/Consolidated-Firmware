@@ -15,13 +15,13 @@ class AppCanAlertsModule(CModule):
         self._db = db
         self._node = node
 
-    def get_board_node(self):
-        nodes_with_alerts = [
+    def get_board_node(self) -> list[str]:
+        nodes_with_alerts: list[str] = [
             node
-            for node in self._db.nodes
+            for node in self._db.nodes.keys()
             if self._db.node_alerts(node, CanAlertType.FAULT)
-            or self._db.node_alerts(node, CanAlertType.WARNING)
-            or self._db.node_alerts(node, CanAlertType.INFO)
+               or self._db.node_alerts(node, CanAlertType.WARNING)
+               or self._db.node_alerts(node, CanAlertType.INFO)
         ]
         return nodes_with_alerts
 

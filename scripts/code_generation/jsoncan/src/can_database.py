@@ -313,12 +313,14 @@ class CanDatabase:
     Dataclass for fully describing a CAN bus, its nodes, and their messages.
     """
 
-    nodes: Dict[str, CanNode]  # List of names of the nodes on the bus
+    nodes: Dict[str, CanNode]  # node name -> CanNode, collection of all nodes the network
     bus_config: Dict[str, CanBusConfig]  # Various bus params
-    msgs: Dict[str, CanMessage]  # All messages being sent to the bus (dict of (ID to message)
+    msgs: Dict[str, CanMessage]  # message name -> CanMessage, collection of all messages on the bus
+
     alerts: Dict[str, Dict[CanAlert, AlertsEntry]]  # Dictionary of node to list of alerts set by node
     reroute_msgs: List[CanForward]  # List of messages to be forwarded to another bus
-    rx_msgs: Dict[str, CanRxMessages]  # node to CanRxMessages
+    # node -> CanRxMessages. Contains metadata about rx messages, each node has a foreign key into this
+    rx_msgs: Dict[str, CanRxMessages]
 
     # TODO: Add a method to check for consistence of the database
     def consistence_check(self):
