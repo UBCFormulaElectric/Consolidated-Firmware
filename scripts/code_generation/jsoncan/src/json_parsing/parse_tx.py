@@ -1,7 +1,7 @@
 from math import ceil
 
 from typing import Dict, Any, Tuple, Optional as Optional_t
-from schema import Schema, And, Optional, Or
+from schema import Schema, And, Optional, Or, SchemaError
 from ..can_database import CanEnum, CanMessage, CanSignal
 
 from .parse_error import InvalidCanJson
@@ -73,10 +73,11 @@ tx_signal_schema = Schema(
 
 tx_msg_schema = Schema(
     {
-        "bus": list[str],
+        "bus": Schema([str]),
         "msg_id": And(
             int, lambda x: 0 <= x < 2 ** 11
-        ),  # Standard CAN uses 11-bit identifiers TODO add support for extended CAN (i think all busses are extended)
+        ),
+        # Standard CAN uses 11-bit identifiers TODO add support for extended CAN (i think all busses are extended, you can also add a discriminated union for that)
         "signals": {
             str: tx_signal_schema,
         },
@@ -84,7 +85,7 @@ tx_msg_schema = Schema(
         Optional("disabled"): bool,
         Optional("num_bytes"): Or(int, lambda x: 0 <= x <= 8),
         Optional("description"): str,
-        Optional("allowed_modes"): [str],
+        Optional("allowed_modes"): Schema([str]),
         Optional("data_capture"): {
             Optional("log_cycle_time"): Or(int, Schema(None)),
             Optional("telem_cycle_time"): Or(int, Schema(None)),
@@ -312,7 +313,7 @@ def parse_tx_data(can_data_dir: str, node_name: str, enums: dict[str, CanEnum]) 
     """
     try:
         node_tx_json_data = validate_tx_json(load_json_file(f"{can_data_dir}/{node_name}/{node_name}_tx"))
-    except:
+    except SchemaError:
         raise InvalidCanJson(f"TX json file is not valid for {node_name}")
 
     msgs: list[CanMessage] = []

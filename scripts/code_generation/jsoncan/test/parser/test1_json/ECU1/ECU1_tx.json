@@ -1,7 +1,10 @@
 {
   "BasicSignalTypes": {
-    "msg_id": 104,
-    "bus": ["bus1", "bus2"],
+    "msg_id": 106,
+    "bus": [
+      "bus1",
+      "bus2"
+    ],
     "cycle_time": 1000,
     "description": "N/A",
     "signals": {
@@ -30,8 +33,11 @@
     }
   },
   "DecimalNumbers": {
-    "msg_id": 105,
-    "bus": ["bus1", "bus2"],
+    "msg_id": 107,
+    "bus": [
+      "bus1",
+      "bus2"
+    ],
     "cycle_time": 1000,
     "description": "N/A",
     "signals": {
@@ -52,8 +58,11 @@
     }
   },
   "DbcMatching": {
-    "msg_id": 106,
-    "bus": ["bus1", "bus2"],
+    "msg_id": 108,
+    "bus": [
+      "bus1",
+      "bus2"
+    ],
     "cycle_time": 1000,
     "description": "N/A",
     "signals": {
@@ -84,8 +93,11 @@
     }
   },
   "MinMaxClamping": {
-    "msg_id": 107,
-    "bus": ["bus1", "bus2"],
+    "msg_id": 109,
+    "bus": [
+      "bus1",
+      "bus2"
+    ],
     "cycle_time": 1000,
     "description": "N/A",
     "signals": {

@@ -148,18 +148,16 @@ class JsonCanParser:
         """
         # Check if this message name is a duplicate
         if msg.name in self._msgs.keys():
-            other_node = self._msgs[msg.name].tx_node
             raise InvalidCanJson(
-                f"Message '{msg.name}' transmitted by node '{node_name}' is a duplicate to a message transmitted by {other_node}, messages must have unique names."
+                f"Message '{msg.name}' transmitted by node '{node_name}' is also transmitted by '{self._msgs[msg.name].tx_node}'"
             )
 
         # Check if this message ID is a duplicate
         find = [m for m in self._msgs.values() if m.id == msg.id]
         if len(find) > 0:
             assert len(find) == 1, "There should only be one message with the same ID"
-            other_node = find[0].tx_node
             raise InvalidCanJson(
-                f"Message ID '{msg.id}' transmitted by node '{node_name}' is a duplicate to a message transmitted by {other_node}, messages must have unique IDs."
+                f"Message ID '{msg.id}' transmitted by node '{node_name}' is also transmitted by '{find[0].tx_node}'"
             )
 
         # mutate

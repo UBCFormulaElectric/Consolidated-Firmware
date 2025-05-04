@@ -37,7 +37,7 @@ AlertsJson_schema = Schema(
             "faults_counts_id": And(int, lambda x: x >= 0),
             "info_id": And(int, lambda x: x >= 0),
             "info_counts_id": And(int, lambda x: x >= 0),
-            "bus": list[str],
+            "bus": list[str],  # TODO why does this need to exist?
             "warnings": Or(
                 Schema({}),
                 Schema({

@@ -2,9 +2,9 @@
   "warnings_id": 100,
   "faults_id": 101,
   "info_id": 102,
-  "warnings_counts_id": 102,
-  "faults_counts_id": 103,
-  "info_counts_id": 104,
+  "warnings_counts_id": 103,
+  "faults_counts_id": 104,
+  "info_counts_id": 105,
   "bus": [
     "bus1",
     "bus2"
