@@ -751,10 +751,11 @@ class JsonCanParser:
 
     def _register_alert_messages(self, alerts_msgs: List[CanMessage]):
         """
-        Register the alert message to the node.x
+        Register the alert message to the node.
+        Every single board should recieve every other fault/warning
+        much of the work here is to automatically decide which port should receive the alert message
         """
-        # automatically decide which port should receive the alert message
-        # fix the node, message, rx object
+        # TODO??? fix the node, message, rx object
 
         # alerts is recieved by all nodes
         for alerts_msg in alerts_msgs:
@@ -763,9 +764,11 @@ class JsonCanParser:
                 if alerts_msg.tx_node == node.name:
                     # skip the node that transmit the message
                     continue
-                # if msg is trasmitted on the rx port on node bus
+
+                # check if the alert is broadcasted on a bus that is directly connected to the node
                 overlap_bus = set(alerts_msg.bus) & set(node.bus_names)
-                if len(overlap_bus) > 0:
+                is_raw_connection = len(overlap_bus) > 0
+                if is_raw_connection:
                     overlap_bus = list(overlap_bus)[0]
                     # add the message to the node's rx messages
                     if alerts_msg.name not in node.rx_msg_names:
