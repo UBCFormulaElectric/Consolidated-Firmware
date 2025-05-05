@@ -17,7 +17,26 @@ from .src.codegen.c_generation.io_can_rx_module import IoCanRxModule
 from .src.codegen.c_generation.io_can_tx_module import IoCanTxModule
 from .src.codegen.dbc_generation.dbc_generation import DbcGenerator
 from .src.json_parsing.json_can_parsing import JsonCanParser
-from .src.utils import write_text
+
+
+def write_text(text: str, output_path: str) -> None:
+    """
+    Write the text stored in text to output_path.
+    """
+    output_dir = (
+        os.getcwd()
+        if os.path.dirname(output_path) == ""
+        else os.path.dirname(output_path)
+    )
+    output_name = os.path.basename(output_path)
+
+    # Generate output folder if it doesn't exist yet
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Write file to disk
+    with open(os.path.join(output_dir, output_name), "w") as fout:
+        fout.write(text)
 
 
 def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, board: str, output_dir: str):

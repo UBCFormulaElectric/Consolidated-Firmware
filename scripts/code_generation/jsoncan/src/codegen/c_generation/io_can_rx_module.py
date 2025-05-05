@@ -32,5 +32,5 @@ class IoCanRxModule(CModule):
             rx_messages=self._db.rx_msgs[self._node],
             # TODO come back to this, as all busses should generate a io_canRx_filterMessageId function
             messages=self._db.msgs,  # this map might need to be precomputed
-            # db=self._db,
+            rx_messages_for_node=self._db.rx_msgs_for_node(self._node),
         )
