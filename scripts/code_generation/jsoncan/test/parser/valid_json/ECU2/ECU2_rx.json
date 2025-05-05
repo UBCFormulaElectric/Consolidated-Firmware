@@ -1,6 +1,3 @@
-[
-  {
-    "bus": "bus1",
-    "messages": []
-  }
-]
+{
+  "messages": []
+}

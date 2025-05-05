@@ -8,24 +8,19 @@ from ..can_database import CanNode
 
 
 class RxBusEntry(TypedDict):
-    bus: str
     messages: list[str]
 
 
-_RxEntry_schema = Schema({
-    "bus": str,
-    "messages": [str],  # Use schema.List to define a list of strings
-})
-
-
-def _validate_rx_json(json: Dict) -> list[RxBusEntry]:
+def _validate_rx_json(json: Dict) -> RxBusEntry | str:
     return Or(
-        Schema([]),  # Allow an empty list
-        Schema([_RxEntry_schema]),
+        Schema("all"),
+        Schema({
+            "messages": Schema([str]),  # Use schema.List to define a list of strings
+        })
     ).validate(json)
 
 
-def parse_json_rx_data(can_data_dir: str, rx_node: CanNode) -> list[RxBusEntry]:
+def parse_json_rx_data(can_data_dir: str, rx_node: CanNode) -> RxBusEntry | str:
     """
     :param can_data_dir:
     note: this function validates that the rx_msg reads on a existant bus

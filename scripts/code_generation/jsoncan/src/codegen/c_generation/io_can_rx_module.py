@@ -16,9 +16,8 @@ class IoCanRxModule(CModule):
         )
         template = j2_env.from_string(template)
         return template.render(
-            rx_messages=self._db.rx_msgs[self._node],
             node=self._node,
-            messages=self._db.msgs,
+            node_bus_names=self._db.nodes[self._node].bus_names,
         )
 
     def source_template(self):
@@ -28,8 +27,10 @@ class IoCanRxModule(CModule):
         )
         template = j2_env.from_string(template)
         return template.render(
-            rx_messages=self._db.rx_msgs[self._node],
             node=self._node,
-            messages=self._db.msgs,
-            db=self._db,
+            node_bus_names=self._db.nodes[self._node].bus_names,
+            rx_messages=self._db.rx_msgs[self._node],
+            # TODO come back to this, as all busses should generate a io_canRx_filterMessageId function
+            messages=self._db.msgs,  # this map might need to be precomputed
+            # db=self._db,
         )

@@ -14,9 +14,9 @@
 /* ------------------------- Function Prototypes -------------------------- */
 
 /**
- * Returns true if BMS receives the specified message ID.
+ * Returns true if {{node}} receives the specified message ID.
  */
-{% for bus in rx_messages.messages.keys() -%}
+{% for bus in node_bus_names -%}
 bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id);
 {%  endfor  %}
 

@@ -216,7 +216,7 @@ def _parse_node_alerts(node: str, alerts_json: AlertsJson):
             telem_cycle_time=cycle_time,
             signals=signals,
             rx_node_names=[],  # will be updated later
-            tx_node=node,
+            tx_node_name=node,
             bus=alerts_json["bus"],
         )
         for name, msg_id, description, signals, cycle_time in [

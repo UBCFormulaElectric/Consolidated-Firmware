@@ -15,22 +15,18 @@
 /**
  * Struct for holding all messages transmitted by BMS (i.e. the TX table).
  */
-typedef struct
+static struct
 {
     {%- for msg in messages %}
     {{ msg.c_type() }} {{ msg.name }}_signals;
     {%- endfor %}
-} {{node}}_TxMsgs;
-
-/* -------------------------- Private Variables --------------------------- */
-
-static {{node}}_TxMsgs tx_table;
+} tx_table;
 
 /* ------------------------- Function Definitions ------------------------- */
 
 void app_canTx_init()
 {
-    memset(&tx_table, 0, sizeof({{node}}_TxMsgs));
+    memset(&tx_table, 0, sizeof(tx_table));
     {%- for msg in messages %}
     {%- for signal in msg.signals %}
     app_canTx_{{ signal.name }}_set({{ signal.start_val_macro() }});

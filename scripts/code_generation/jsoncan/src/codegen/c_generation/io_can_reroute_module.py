@@ -9,13 +9,14 @@ class IoCanRerouteModule:
     def __init__(self, db: CanDatabase, node: str):
         self._db = db
         self._node = node
+        self._list_of_reroutes = [
+            msg
+            for msg in self._db.reroute_msgs
+            if msg.forwarder == self._node
+        ]
 
     def header_template(self):
-        list_of_reroutes = []
-        for msg in self._db.reroute_msgs:
-            if msg.forwarder == self._node:
-                list_of_reroutes.append(msg)
-        if len(list_of_reroutes) == 0:
+        if len(self._list_of_reroutes) == 0:
             return ""
         template = load_template("io_canReroute.h.j2")
         j2_env = j2.Environment(
@@ -26,18 +27,14 @@ class IoCanRerouteModule:
         return template.render(node=node_obj)
 
     def source_template(self):
-        list_of_reroutes = []
-        for msg in self._db.reroute_msgs:
-            if msg.forwarder == self._node:
-                list_of_reroutes.append(msg)
-        if len(list_of_reroutes) == 0:
+        if len(self._list_of_reroutes) == 0:
             return ""
 
         node_obj = self._db.nodes[self._node]
 
         # dict from bus name to list of messages
         reroutes = {bus: [] for bus in node_obj.bus_names}
-        for msg in list_of_reroutes:
+        for msg in self._list_of_reroutes:
             reroutes[msg.from_bus].append(msg)
 
         template = load_template("io_canReroute.c.j2")

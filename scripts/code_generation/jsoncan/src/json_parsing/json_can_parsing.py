@@ -48,14 +48,13 @@ class JsonCanParser:
         str, dict[CanAlert, AlertsEntry]
     ]  # Dict of node names to node's alerts
     _reroute_msgs: List[CanForward]
-    _rx_msgs: dict[str, CanRxMessages]
 
     def __init__(self, can_data_dir: str):
         """
         Parses JSON data
         :param can_data_dir: Location of all the json files
         """
-        node_names = list_nodes_from_folders(can_data_dir)
+        node_names: list[str] = list_nodes_from_folders(can_data_dir)
         # create node objects for each node
         self._nodes = {
             node_name: CanNode(
@@ -93,76 +92,49 @@ class JsonCanParser:
             for msg_name in parse_tx_data(can_data_dir, node_name, node_enums):
                 self._add_tx_msg(msg_name, node_name)
 
-        # PARSE ALERTS DATA
-        self._alerts = {}
-        alert_msgs: list[CanMessage] = []
-        for node_name in node_names:
-            # Parse ALERTS
-            out = parse_alert_data(can_data_dir, node_name)
-            # since they are optional
-            if out is None:
-                continue
-            node_alert_msgs, alerts = out
-            assert (
-                    len(node_alert_msgs) == 6
-            ), "Alert messages should be 6 (unless we add more types of alerts)"
-
-            # mutate
-            for msg_name in node_alert_msgs:
-                self._add_tx_msg(msg_name, node_name)
-            # extra alerts logging?
-            self._alerts[node_name] = alerts
-            alert_msgs.extend(node_alert_msgs)  # save for RX parsing
-
         # PARSE RX JSON
-        # IMPORTANT: make sure to handle RX only after all the TX msgs are handled
-        self._rx_msgs = {
-            rx_node.name: CanRxMessages(node=rx_node.name, messages={})
-            for rx_node in self._nodes.values()
-        }
+        # self._rx_msgs = {
+        #     rx_node.name: CanRxMessages(node=rx_node.name, messages={
+        #         bus: [] for bus in self._bus_config.keys()
+        #     })
+        #     for rx_node in self._nodes.values()
+        # }
         for rx_node in self._nodes.values():
             # multiple buses can be defined in the RX JSON
-            for rx_bus_metadata in parse_json_rx_data(can_data_dir, rx_node):
-                bus, bus_rx_msg_names = (
-                    rx_bus_metadata["bus"],
-                    rx_bus_metadata["messages"],
-                )
-                # check bus is present
-                if bus not in self._bus_config.keys():
-                    raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
-                if "all" in bus_rx_msg_names:
-                    # TODO maybe we just make the type of messages : list[str] | "all"
-                    # if "all" in messages then add all messages on this bus
-                    bus_rx_msg_names = list(set(self._msgs) - set(rx_node.tx_msg_names))
-                for msg_name in bus_rx_msg_names:
-                    self._add_rx_msg(msg_name, rx_node, bus)
+            bus_rx_msgs_json = parse_json_rx_data(can_data_dir, rx_node)
+            if type(bus_rx_msgs_json) == str:
+                assert bus_rx_msgs_json == "all", "Schema check has failed"
+                # if "all" in messages then add all messages on this bus
+                bus_rx_msg_names = list(set(self._msgs) - set(rx_node.tx_msg_names))
+            else:
+                bus_rx_msg_names = bus_rx_msgs_json["messages"]
+            for msg_name in bus_rx_msg_names:
+                self._add_rx_msg(msg_name, rx_node)
 
-        # PARSE ALERTS RX TODO figure out how to make this work with reroute and rx systems better
-        for alerts_msg in alert_msgs:
-            for rx_node in self._nodes.values():
-                if alerts_msg.tx_node == rx_node.name:
+        # PARSE ALERTS DATA
+        self._alerts = {}
+        for node_name in node_names:
+            # Parse ALERTS
+            alerts_json = parse_alert_data(can_data_dir, node_name)
+            # since they are optional
+            if alerts_json is None:
+                continue
+            node_alert_msgs, alerts = alerts_json
+            assert len(node_alert_msgs) == 6, "Alert messages should be 6"
+            for alert_msg in node_alert_msgs:
+                self._add_tx_msg(alert_msg, node_name)  # tx handling
+                for other_rx_node in self._nodes.values():  # rx handling
                     # skip the node that transmit the message
-                    continue
-                # check if the alert is broadcasted on a bus that is directly connected to the node
-                overlap_bus: set[str] = set(alerts_msg.bus) & set(rx_node.bus_names)
-                # if the message is not on the bus then it is not received by this node
-                # need to reroute, randomly pick a rx port from the node
-                # TODO i really suspect this is a smarter way of doing this to load balance as well on the peripheral
-                #    but i suppose we're on a single core so it doesn't matter
-                #    this should really be resolved in the rerouting logic
-                rx_bus: Optional[str] = (
-                    list(overlap_bus)[0]
-                    if len(overlap_bus) > 0
-                    else rx_node.bus_names[0] if len(rx_node.bus_names) > 0 else None
-                )
-                if rx_bus is None:
-                    continue  # TODO surely we want this to not fail silently
-                self._add_rx_msg(alerts_msg.name, rx_node, rx_bus)
+                    if node_name == other_rx_node.name: continue
+                    self._add_rx_msg(node_name, other_rx_node)
+            self._alerts[node_name] = alerts
 
-        # CONSISTENCY TODO remove or localize
+        # CONSISTENCY
         self._consistency_check()
 
-        # REROUTE
+        self._resolve_tx_rx_reroute()
+
+        # TODO join with above
         # find all message transmitting on one bus but received in another bus
         # IMPORTANT: reroutes can only be calculated after all the RXs are figured out
         self._reroute_msgs = self._calculate_reroutes(can_data_dir)
@@ -181,7 +153,7 @@ class JsonCanParser:
         )
 
     # TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
-    def _add_tx_msg(self, msg: CanMessage, node_name: str) -> None:
+    def _add_tx_msg(self, msg: CanMessage, tx_node_name: str) -> None:
         """
         This function registers a new message, transmitted by a node on the bus
 
@@ -192,9 +164,9 @@ class JsonCanParser:
         Note this function expects a valid CanMessage object
         """
         # Check if this message name is a duplicate
-        if msg.name in self._msgs.keys():
+        if msg.name in self._msgs:
             raise InvalidCanJson(
-                f"Message '{msg.name}' transmitted by node '{node_name}' is also transmitted by '{self._msgs[msg.name].tx_node}'"
+                f"Message '{msg.name}' transmitted by node '{tx_node_name}' is also transmitted by '{self._msgs[msg.name].tx_node_name}'"
             )
 
         # Check if this message ID is a duplicate
@@ -202,52 +174,48 @@ class JsonCanParser:
         if len(find) > 0:
             assert len(find) == 1, "There should only be one message with the same ID"
             raise InvalidCanJson(
-                f"Message ID '{msg.id}' transmitted by node '{node_name}' is also transmitted by '{find[0].tx_node}'"
+                f"Message ID '{msg.id}' transmitted by node '{tx_node_name}' is also transmitted by '{find[0].tx_node_name}'"
             )
 
-        # mutate
         self._msgs[msg.name] = msg
-        self._nodes[node_name].tx_msg_names.append(msg.name)
+        self._nodes[tx_node_name].tx_msg_names.append(msg.name)
 
-    def _add_rx_msg(self, msg_name: str, rx_node: CanNode, bus: str) -> None:
+    def _add_rx_msg(self, msg_name: str, rx_node: CanNode) -> None:
         """
-        # This function registers a message which is to be received by a node on the bus
+        This function registers a message which is to be received by a node on the bus
+
+        Note that this function does not know
+        1. which bus the sender will tx will send the message on
+        2. which bus the reciever will rx the message on
 
         This function
         1. enters the current node into the list of nodes that the message is rx'd by
         2. adds the message name to the list of messages received by the given node
-        3. adds an entry into _rx_msgs
-        :return:
         """
         # Check if this message is defined
-        if msg_name not in self._msgs.keys():
+        if msg_name not in self._msgs:
             raise InvalidCanJson(
                 f"Message '{msg_name}' received by '{rx_node.name}' is not defined. Make sure it is correctly defined in the TX JSON."
             )
-        msg_to_rx = self._msgs[msg_name]
-
+        rx_msg = self._msgs[msg_name]
         # check that the rx node is not the same as the node which txs msg_name
-        if msg_to_rx.tx_node == rx_node.name:
+        if rx_msg.tx_node_name == rx_node.name:
             raise InvalidCanJson(
-                f"Message '{msg_name}' is transmitted by '{msg_to_rx.tx_node}' and received by '{rx_node.name}'. A node cannot transmit and receive the same message."
+                f"{rx_node.name} cannot both transmit and receive {msg_name}"
             )
-
-        # tell msg_to_rx that the current node rxs it
-        if rx_node.name not in msg_to_rx.rx_node_names:
-            msg_to_rx.rx_node_names.append(rx_node.name)
+        # tell rx_msg that the current node rxs it
         # add the message to the node's rx messages
-        if (
-                msg_to_rx.name not in rx_node.rx_msg_names
-        ):  # TODO why do we need to check uniqueness? if they need to be unique just enforce with a set, and error if twice? - can be a way to do it but I argue the set takes way more memory than a list. 
-            rx_node.rx_msg_names.append(msg_to_rx.name)
+        if rx_node.name in rx_msg.rx_node_names or msg_name in rx_node.rx_msg_names:
+            assert rx_node.name in rx_msg.rx_node_names and msg_name in rx_node.rx_msg_names, "should have been added together"
+            raise InvalidCanJson(f"Message {msg_name} is already registered to be received by node {rx_node.name}")
+        rx_msg.rx_node_names.append(rx_node.name)
+        rx_node.rx_msg_names.append(msg_name)
 
-        # log in _rx_msgs that the node is recieving this message on this bus
-        if bus not in self._rx_msgs[rx_node.name].messages:
-            self._rx_msgs[rx_node.name].messages[bus] = []
-        self._rx_msgs[rx_node.name].messages[bus].append(msg_name)
+    def _resolve_tx_rx_reroute(self):
+        self._rx_msgs = {}
 
     def _consistency_check(self) -> None:
-        # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other 
+        # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other
         # just in case we need extra checks besides the ones in the parsing functions
         # In the latter method, you would be able to guarentee that when the intermediary data is ready, that it is valid.
         # however, I don't think this is very much part of the design philosophy at all, as there are many instances
@@ -298,7 +266,7 @@ class JsonCanParser:
                         f"Node '{node}' is not defined in the node JSON."
                     )
 
-                if msg_obj.tx_node not in self._nodes:
+                if msg_obj.tx_node_name not in self._nodes:
                     raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
 
     def _calculate_reroutes(self, can_data_dir) -> List[CanForward]:

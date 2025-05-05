@@ -24,11 +24,6 @@ static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
 {% endfor -%}
 
 
-
-
-
-
-
 void io_canReroute_init( 
     {% for bus in node.bus_names -%}
     void (*transmit_func_{{bus}})(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
@@ -58,4 +53,3 @@ void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg)
     }
 }
 {% endfor %}
-

@@ -161,7 +161,7 @@ def _get_parsed_can_signal(
     # Scale and offset are assumed to be 1 and 0, respectively (so start your enums at 0!)
     elif "enum" in signal_json_data:
         enum_name = signal_json_data["enum"]
-        if enum_name not in enums.keys():
+        if enum_name not in enums:
             raise InvalidCanJson(
                 f"Signal '{signal_name}' requests an enum named '{enum_name}', but an enum by that name was not defined."
             )
@@ -289,7 +289,7 @@ def _get_parsed_can_message(
         signals=signals,
         bus=bus_names,
         cycle_time=msg_cycle_time,
-        tx_node=node_name,
+        tx_node_name=node_name,
         rx_node_names=[],  # rx nodes will be updated later
         # modes=msg_modes, # TODO not used? It's not declared at least
         log_cycle_time=log_cycle_time,

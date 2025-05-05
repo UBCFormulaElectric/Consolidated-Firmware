@@ -61,7 +61,7 @@ class DbcGenerator:
         signal_start_values_text = ""
         for msg in self._db.msgs.values():
             # Generate text for CAN message
-            msgs_text += self._dbc_message(msg=msg, tx_node=msg.tx_node)
+            msgs_text += self._dbc_message(msg=msg, tx_node=msg.tx_node_name)
 
             # If message has cycle time, generate text
             if msg.is_periodic():

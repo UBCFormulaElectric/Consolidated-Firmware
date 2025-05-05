@@ -1,8 +1,5 @@
-[
-  {
-    "bus": "bus1",
-    "messages": [
-      "ECU2_BasicSignalTypes"
-    ]
-  }
-]
+{
+  "messages": [
+    "ECU2_BasicSignalTypes"
+  ]
+}

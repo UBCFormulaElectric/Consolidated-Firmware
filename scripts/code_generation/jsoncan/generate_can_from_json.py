@@ -6,6 +6,7 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 import argparse
 import os
 
+from src.can_database import CModule
 from src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
 from src.codegen.c_generation.app_can_data_capture_module import AppCanDataCaptureModule
 from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
@@ -38,17 +39,20 @@ if __name__ == "__main__":
     if args.only_dbc:
         exit()
 
-    modules = {
-        AppCanUtilsModule(can_db, args.board): os.path.join("app", "app_canUtils"),
-        AppCanTxModule(can_db, args.board): os.path.join("app", "app_canTx"),
-        AppCanRxModule(can_db, args.board): os.path.join("app", "app_canRx"),
-        AppCanAlertsModule(can_db, args.board): os.path.join("app", "app_canAlerts"),
-        IoCanTxModule(can_db, args.board): os.path.join("io", "io_canTx"),
-        IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
-        AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"),
-        IoCanRerouteModule(can_db, args.board): os.path.join("io", "io_canReroute"),
-    }
-    for module, module_path in modules.items():
+    modules: list[tuple[CModule, str]] = [
+        (AppCanUtilsModule(can_db, args.board), os.path.join("app", "app_canUtils")),
+        (AppCanTxModule(can_db, args.board), os.path.join("app", "app_canTx")),
+        (AppCanRxModule(can_db, args.board), os.path.join("app", "app_canRx")),
+        (IoCanTxModule(can_db, args.board), os.path.join("io", "io_canTx")),
+        (IoCanRxModule(can_db, args.board), os.path.join("io", "io_canRx")),
+        # TODO only generate this if the current node can capture data
+        (AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")),
+        # TODO only generate this if node has alerts. this is less priority because all nodes generate alerts
+        (AppCanAlertsModule(can_db, args.board), os.path.join("app", "app_canAlerts")),
+        # TODO only do this if the current node is a rerouter
+        (IoCanRerouteModule(can_db, args.board), os.path.join("io", "io_canReroute")),
+    ]
+    for module, module_path in modules:
         module_full_path = os.path.join(args.output_dir, module_path)
         write_text(module.header_template(), module_full_path + ".h")
         write_text(module.source_template(), module_full_path + ".c")

@@ -31,13 +31,13 @@ typedef struct
 /* -------------------------------- Enums --------------------------------- */
 typedef enum
 {
-{% for bus in node.bus_names %}
+{% for bus in bus_names %}
     Bus_{{bus}} = {{loop.index0}},
 {% endfor %}
 } BusEnum;
 
 
-{% for bus in node.bus_names %}
+{% for bus in bus_names %}
 typedef enum
 {
     {% for mode in bus_config[bus].modes -%}
@@ -51,10 +51,10 @@ typedef enum
 /* ------------------------- Function Prototypes -------------------------- */
 
 /**
- * Initialzie the IO CAN TX module.
+ * Initialize the IO CAN TX module.
  */
 void io_canTx_init(
-    {% for bus in node.bus_names -%}
+    {% for bus in bus_names -%}
     void (*transmit_{{bus}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
     {%- endfor %}
 );
@@ -62,16 +62,16 @@ void io_canTx_init(
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
  */
-{% for bus in node.bus_names -%}
+{% for bus in bus_names -%}
 void io_canTx_enableMode_{{bus}}({{bus}}Mode mode, bool enable);
  {%- endfor %}
 /**
- * Enqeue periodic CAN msgs of period 1000ms.
+ * Enqueue periodic CAN msgs of period 1000ms.
  */
 void io_canTx_enqueue1HzMsgs(void);
 
 /**
- * Enqeue periodic CAN msgs of period 10ms.
+ * Enqueue periodic CAN msgs of period 10ms.
  */
 void io_canTx_enqueue100HzMsgs(void);
 

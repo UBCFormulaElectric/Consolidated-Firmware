@@ -40,10 +40,18 @@ class AppCanAlertsModule(CModule):
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(template)
+
+        """Returns a dictionary containing a the alert names as the key and a description and as the item"""
+        alert_description = {}
+        for node, alerts in self._db.alerts.items():
+            for alert, info in alerts.items():
+                if info != {}:
+                    alert_description[alert.name] = (info["id"], info["description"])
+
         return template.render(
             alerts=self._db.alerts,
             CanAlertType=CanAlertType,
-            alert_description=self._db.node_alerts_all_description(),
+            alert_description=alert_description,
             boards=self.get_board_node(),
             node=self._node,
         )
