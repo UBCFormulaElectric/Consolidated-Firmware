@@ -212,7 +212,6 @@ class CanMessage:
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
     # back references, hence are foreign keys
-    bus: List[str]  # List of buses this message is transmitted on
     tx_node_name: str  # Node which transmits this message
     rx_node_names: List[str]  # List of nodes which receive this message
 

@@ -1,10 +1,6 @@
 {
   "BasicSignalTypes": {
     "msg_id": 206,
-    "bus": [
-      "bus1",
-      "bus2"
-    ],
     "cycle_time": 1000,
     "description": "N/A",
     "signals": {

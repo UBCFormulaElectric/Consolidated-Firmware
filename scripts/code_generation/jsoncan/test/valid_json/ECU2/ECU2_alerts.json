@@ -5,10 +5,6 @@
   "warnings_counts_id": 203,
   "faults_counts_id": 204,
   "info_counts_id": 205,
-  "bus": [
-    "bus1",
-    "bus2"
-  ],
   "info": {},
   "warnings": {
     "Warning1": {

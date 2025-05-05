@@ -31,11 +31,10 @@ typedef struct
 /* -------------------------------- Enums --------------------------------- */
 typedef enum
 {
-{% for bus in bus_names %}
+    {% for bus in bus_names -%}
     Bus_{{bus}} = {{loop.index0}},
-{% endfor %}
+    {% endfor %}
 } BusEnum;
-
 
 {% for bus in bus_names %}
 typedef enum
@@ -80,10 +79,9 @@ void io_canTx_enqueue100HzMsgs(void);
  */
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
 
-
 // send aperiodic messages
 {% for msg in messages %}
 {%- if msg.cycle_time == None -%}
 void io_canTx_{{msg.name}}_sendAperiodic();
-{%- endif %}
+{%- endif -%}
 {% endfor %}

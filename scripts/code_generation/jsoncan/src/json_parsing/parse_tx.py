@@ -73,7 +73,6 @@ _tx_signal_schema = Schema(
 
 _tx_msg_schema = Schema(
     {
-        "bus": Schema([str]),
         "msg_id": And(
             int, lambda x: 0 <= x < 2 ** 11
         ),
@@ -230,7 +229,6 @@ def _get_parsed_can_message(
     msg_id = msg_json_data["msg_id"]
     description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
-    bus_names = msg_json_data["bus"]
 
     # will use mode from bus if none
     msg_modes = msg_json_data.get("allowed_modes", [])  # TODO not used?
@@ -287,7 +285,6 @@ def _get_parsed_can_message(
         id=msg_id,
         description=description,
         signals=signals,
-        bus=bus_names,
         cycle_time=msg_cycle_time,
         tx_node_name=node_name,
         rx_node_names=[],  # rx nodes will be updated later

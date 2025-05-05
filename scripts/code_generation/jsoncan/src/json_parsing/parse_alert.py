@@ -24,7 +24,7 @@ class _AlertsJson(TypedDict):
     faults_counts_id: int
     info_id: int
     info_counts_id: int
-    bus: List[str]
+    # bus: List[str]
     warnings: Dict[str, _AlertsEntryJson]
     faults: Dict[str, _AlertsEntryJson]
     info: Dict[str, _AlertsEntryJson]
@@ -39,7 +39,6 @@ _AlertsJson_schema = Schema(
             "faults_counts_id": And(int, lambda x: x >= 0),
             "info_id": And(int, lambda x: x >= 0),
             "info_counts_id": And(int, lambda x: x >= 0),
-            "bus": list[str],
             # TODO why does this need to exist? - to specify which bus/buses to send the alerts same as tx messages
             "warnings": Or(
                 Schema({}),
@@ -217,7 +216,6 @@ def _parse_node_alerts(node: str, alerts_json: _AlertsJson):
             signals=signals,
             rx_node_names=[],  # will be updated later
             tx_node_name=node,
-            bus=alerts_json["bus"],
         )
         for name, msg_id, description, signals, cycle_time in [
             (

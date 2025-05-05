@@ -327,10 +327,6 @@ class JsonCanParser:
 
         # message consistency check
         for msg_name, msg_obj in self._msgs.items():
-            for bus in msg_obj.bus:
-                if bus not in self._busses:
-                    raise InvalidCanJson(f"Bus '{bus}' is not defined in the bus JSON.")
-
             for node in msg_obj.rx_node_names:
                 if node not in self._nodes:
                     raise InvalidCanJson(
