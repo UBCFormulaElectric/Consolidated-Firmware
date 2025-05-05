@@ -5,6 +5,7 @@
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
+#include "io_canMsg.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {

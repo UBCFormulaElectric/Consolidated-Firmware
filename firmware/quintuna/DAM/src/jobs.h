@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "io_canMsg.h"
-
 /**
  * Anything that needs to be initialized for unit testing must be put here
  */
