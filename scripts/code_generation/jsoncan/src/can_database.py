@@ -292,7 +292,7 @@ class CanTxConfigs:
     def add_tx(self, msg_name: str, tx_bus: str):
         self._map_by_msg_name[msg_name].append(tx_bus)
 
-    def list_names(self):
+    def list_msg_names(self):
         return self._map_by_msg_name.keys()
 
 
@@ -398,7 +398,7 @@ class CanDatabase:
         """
         if tx_node not in self.nodes:
             raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
-        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config.list_names()]
+        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config.list_msg_names()]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """

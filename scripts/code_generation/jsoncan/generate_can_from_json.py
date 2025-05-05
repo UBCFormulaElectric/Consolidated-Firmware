@@ -50,18 +50,21 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
         exit()
 
     modules: list[tuple[CModule, str]] = [
-        (AppCanUtilsModule(can_db, board), os.path.join("app", "app_canUtils")),
-        (AppCanTxModule(can_db, board), os.path.join("app", "app_canTx")),
-        (AppCanRxModule(can_db, board), os.path.join("app", "app_canRx")),
-        (IoCanTxModule(can_db, board), os.path.join("io", "io_canTx")),
-        (IoCanRxModule(can_db, board), os.path.join("io", "io_canRx")),
-        # TODO only generate this if the current node can capture data
-        (AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")),
-        # TODO only generate this if node has alerts. this is less priority because all nodes generate alerts
-        (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
-        # TODO only do this if the current node is a rerouter
-        (IoCanRerouteModule(can_db, board), os.path.join("io", "io_canReroute")),
-    ]
+                                             (AppCanUtilsModule(can_db, board), os.path.join("app", "app_canUtils")),
+                                             (AppCanTxModule(can_db, board), os.path.join("app", "app_canTx")),
+                                             (AppCanRxModule(can_db, board), os.path.join("app", "app_canRx")),
+                                             (IoCanTxModule(can_db, board), os.path.join("io", "io_canTx")),
+                                             (IoCanRxModule(can_db, board), os.path.join("io", "io_canRx")),
+                                             # TODO only generate this if the current node can capture data
+                                             (AppCanDataCaptureModule(can_db),
+                                              os.path.join("app", "app_canDataCapture")),
+                                             # TODO only generate this if node has alerts. this is less priority because all nodes generate alerts
+                                             (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
+
+                                         ] + ([
+                                                  (IoCanRerouteModule(can_db, board),
+                                                   os.path.join("io", "io_canReroute"))
+                                              ] if can_db.nodes[board].reroute_config is not None else [])
     for module, module_path in modules:
         module_full_path = os.path.join(output_dir, module_path)
         write_text(module.header_template(), module_full_path + ".h")

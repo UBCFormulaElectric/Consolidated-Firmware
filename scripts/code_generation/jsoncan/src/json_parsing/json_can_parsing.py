@@ -96,7 +96,7 @@ class JsonCanParser:
             if type(bus_rx_msgs_json) == str:
                 assert bus_rx_msgs_json == "all", "Schema check has failed"
                 # if "all" in messages then add all messages on this bus
-                bus_rx_msg_names = list(set(self._msgs.keys()) - set(rx_node.tx_config.list_names()))
+                bus_rx_msg_names = list(set(self._msgs.keys()) - set(rx_node.tx_config.list_msg_names()))
             else:
                 bus_rx_msg_names = bus_rx_msgs_json["messages"]
             for msg_name in bus_rx_msg_names:
