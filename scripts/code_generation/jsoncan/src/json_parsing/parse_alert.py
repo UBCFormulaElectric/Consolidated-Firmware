@@ -147,7 +147,9 @@ def _parse_node_alert_count_signals(node: str, alerts: dict[str, _AlertsEntryJso
     ]
 
 
-def _parse_node_alerts(node: str, alerts_json: _AlertsJson):
+def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
+    tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage], tuple[
+        dict[str, _AlertsEntryJson], dict[str, _AlertsEntryJson], dict[str, _AlertsEntryJson]]]:
     node_name = node
     """
     Parse JSON data dictionary representing a node's alerts.
@@ -296,15 +298,18 @@ def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[tuple[List
 
     can_alerts: list[CanAlert] = [
         *[
-            CanAlert(alert.name, CanAlertType.WARNING, **warnings_meta_data[alert.name])
+            CanAlert(alert.name, CanAlertType.WARNING, warnings_meta_data[alert.name]["id"],
+                     warnings_meta_data[alert.name]["description"])
             for alert in warnings_msg.signals
         ],
         *[
-            CanAlert(alert.name, CanAlertType.FAULT, **faults_meta_data[alert.name])
+            CanAlert(alert.name, CanAlertType.FAULT, faults_meta_data[alert.name]["id"],
+                     faults_meta_data[alert.name]["description"])
             for alert in faults_msg.signals
         ],
         *[
-            CanAlert(alert.name, CanAlertType.INFO, **info_meta_data[alert.name])
+            CanAlert(alert.name, CanAlertType.INFO, info_meta_data[alert.name]["id"],
+                     info_meta_data[alert.name]["description"])
             for alert in info_msg.signals
         ],
     ]

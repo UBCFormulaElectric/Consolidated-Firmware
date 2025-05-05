@@ -277,12 +277,10 @@ class CanAlert:
     """
     Dataclass for a CAN alert.
     """
-
     name: str
     alert_type: CanAlertType
     id: int
     description: str
-    disabled: Optional[bool] = None
 
 
 @dataclass()
