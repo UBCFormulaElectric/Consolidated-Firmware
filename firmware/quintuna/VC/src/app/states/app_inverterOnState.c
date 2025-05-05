@@ -1,4 +1,4 @@
-#include "app_inverterOnState.h"
+#include "app_states.h"
 
 static void inverterOnStateRunOnEntry(void) {}
 static void inverterOnStateRunOnTick1Hz(void) {}
