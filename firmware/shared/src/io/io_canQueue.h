@@ -5,8 +5,11 @@
 #include "io_canMsg.h"
 
 /**
- * This module is a CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS queues: One for
- * TX, and one for RX.
+ * This module is a CAN and FD CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS
+ * queues: One for TX, and one for RX.
+ *
+ * Depending on the MCU it will provide either the FD CAN or ClASSIC CAN methods
+ * ClASSIC and FD CAN messages are both excepted, ClASSIC CAN messages are converted to FD CAN messages
  *
  * Transmission:
  * 1. Enqueue msgs via `io_can_enqueueTxMsg`. If the TX queue is full, the `tx_overflow_callback` function is called.

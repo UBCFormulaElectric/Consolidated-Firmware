@@ -1,4 +1,5 @@
 // TODO: make it so that configs are stored here, and are enforced
+#include "app_utils.h"
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"
@@ -99,7 +100,7 @@ static SegmentConfig build_config()
  * @attention For more information on how to configure the LTC, see table 56
  * @return Success if both succeeded. Fail if at least one failed.
  */
-bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT])
+ExitCode io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT])
 {
     // as per table 33
     struct __attribute__((__packed__))
@@ -169,24 +170,19 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
         seg_b->pec = io_ltc6813_build_data_pec((uint8_t *)seg_b_cfg, sizeof(CFGBR));
     }
     // Write to configuration registers
-    if (!hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a)))
-        return false;
-    if (!hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b)))
-        return false;
-    return true;
+    RETURN_IF_ERR(hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a)))
+    RETURN_IF_ERR(hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b)))
+    return EXIT_CODE_OK;
 }
 
-bool io_ltc6813_readConfigurationRegisters()
+ExitCode io_ltc6813_readConfigurationRegisters(void)
 {
 #define RDCFGA (0x0002)
 #define RDCFGB (0x0026)
     ltc6813_tx tx_msg_a = io_ltc6813_build_tx_cmd(RDCFGA);
     CFGAR_msg  rx_buf_a[NUM_SEGMENTS];
-    if (!hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)rx_buf_a, sizeof(rx_buf_a)))
-    {
-        return false;
-    }
+    RETURN_IF_ERR(hw_spi_transmitThenReceive(
+        &ltc6813_spi, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)rx_buf_a, sizeof(rx_buf_a)));
 
     for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
     {
@@ -196,18 +192,18 @@ bool io_ltc6813_readConfigurationRegisters()
 
     ltc6813_tx tx_msg_b = io_ltc6813_build_tx_cmd(RDCFGA);
     CFGBR_msg  rx_buf_b[NUM_SEGMENTS];
-    if (!hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)rx_buf_b, sizeof(rx_buf_b)))
-    {
-        return false;
-    }
+    RETURN_IF_ERR(hw_spi_transmitThenReceive(
+        &ltc6813_spi, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)rx_buf_b, sizeof(rx_buf_b)));
 
     for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
     {
-        assert(io_ltc6813_check_pec(
-            (uint8_t *)&rx_buf_b[curr_segment].config, sizeof(rx_buf_b[curr_segment].config),
-            &rx_buf_b[curr_segment].pec));
+        RETURN_IF_ERR(
+            io_ltc6813_check_pec(
+                (uint8_t *)&rx_buf_b[curr_segment].config, sizeof(rx_buf_b[curr_segment].config),
+                &rx_buf_b[curr_segment].pec)
+                ? EXIT_CODE_OK
+                : EXIT_CODE_ERROR);
     }
 
-    return true;
+    return EXIT_CODE_OK;
 }

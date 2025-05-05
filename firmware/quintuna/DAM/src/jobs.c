@@ -1,4 +1,7 @@
 #include "jobs.h"
+#include "io_buzzer.h"
+#include "io_rtc.h"
+#include "io_log.h"
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
@@ -11,6 +14,7 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 
 void jobs_init()
 {
+    io_rtc_init();
     io_canTx_init(jsoncan_transmit_func);
     io_canQueue_init();
 }
