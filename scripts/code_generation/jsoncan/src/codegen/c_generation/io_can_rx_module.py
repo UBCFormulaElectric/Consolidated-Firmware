@@ -30,5 +30,6 @@ class IoCanRxModule(CModule):
         return template.render(
             node=self._node,
             node_bus_names=self._db.nodes[self._node].bus_names,
-            rx_config=self._db.nodes[self._node].rx_config
+            rx_config=self._db.nodes[self._node].rx_config,
+            msg_map=self._db.msgs
         )

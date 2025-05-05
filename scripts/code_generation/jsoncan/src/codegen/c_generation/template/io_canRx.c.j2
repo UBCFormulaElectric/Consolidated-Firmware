@@ -18,8 +18,8 @@ bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id)
     switch (std_id)
     {
         {%- if not rx_config.empty() %}
-        {%- for msg in rx_config.list() %}
-        case {{msg.id_macro()}}:
+        {%- for msg_name in rx_config.get_msgs_on_bus(bus) %}
+        case {{msg_map[msg_name].id_macro()}}:
         {%- endfor %}
         {
             is_found = true;

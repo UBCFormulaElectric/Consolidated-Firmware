@@ -5,6 +5,7 @@ This file contains various classes to fully describes a CAN bus: The nodes, mess
 from __future__ import annotations
 
 import logging
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union, DefaultDict
 
@@ -286,10 +287,9 @@ class CanAlert:
 
 @dataclass()
 class CanTxConfigs:
-    # TODO make this more clean based on the actual usage
     _map_by_msg_name: DefaultDict[str, List[str]]
 
-    def add_tx(self, msg_name: str, tx_bus: str):
+    def add_tx_msg(self, msg_name: str, tx_bus: str):
         self._map_by_msg_name[msg_name].append(tx_bus)
 
     def list_msg_names(self):
@@ -297,35 +297,26 @@ class CanTxConfigs:
 
 
 @dataclass()
-class CanRxConfig:
-    msg_name: str
-    rx_bus: str
-
-
-@dataclass()
 class CanRxConfigs:
     # generates lists by default
-    _map_by_bus: DefaultDict[str, CanRxConfig]
-    _map_by_msg_name: DefaultDict[str, CanRxConfig]
-    _list: List[CanRxConfig]
+    _map_by_bus: DefaultDict[str, List[str]]  # each bus can receive many messages
+    _map_by_msg_name: DefaultDict[str, str]  # each message can only be received by one bus
 
-    def add_rx(self, msg_name: str, rx_bus: str):
-        rx_config = CanRxConfig(msg_name, rx_bus)
-        self._map_by_bus[rx_bus] = rx_config
-        self._map_by_msg_name[msg_name] = rx_config
-        self._list.append(rx_config)
+    def add_rx_msg(self, msg_name: str, rx_bus: str):
+        self._map_by_bus[rx_bus].append(msg_name)
+        self._map_by_msg_name[msg_name] = rx_bus
 
-    def get_by_bus(self, bus_name: str):
+    def get_msgs_on_bus(self, bus_name: str) -> List[str]:
         return self._map_by_bus[bus_name]
 
-    def get_by_msg_name(self, msg_name: str):
+    def get_bus_of_msg(self, msg_name: str) -> str:
         return self._map_by_msg_name[msg_name]
 
-    def empty(self):
-        return len(self._list) == 0
+    def get_all_rx_msgs_names(self) -> List[str]:
+        return list(self._map_by_msg_name.keys())
 
-    def list(self):
-        return self._list
+    def empty(self):
+        return len(self._map_by_msg_name) == 0
 
 
 @dataclass()
@@ -337,9 +328,7 @@ class CanNode:
     bus_names: List[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
 
     # CALCULATED VALUES
-    # TODO check if we need this to be dict, or list is sufficient
     # rx_config[msg_name] gives a rx config for that message
-    # TODO this is also queried by bus
     rx_config: CanRxConfigs
     # tx_config[msg_name] gives a tx config for that message
     tx_config: CanTxConfigs
@@ -406,7 +395,7 @@ class CanDatabase:
         """
         if rx_node not in self.nodes:
             raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
-        return [self.msgs[msg.msg_name] for msg in self.nodes[rx_node].rx_config.list()]
+        return [self.msgs[msg_name] for msg_name in self.nodes[rx_node].rx_config.get_all_rx_msgs_names()]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """

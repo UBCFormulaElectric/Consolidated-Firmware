@@ -59,7 +59,7 @@ class JsonCanParser:
                 name=node_name,
                 bus_names=[],
                 tx_config=CanTxConfigs(defaultdict()),
-                rx_config=CanRxConfigs(defaultdict(), defaultdict(), []),
+                rx_config=CanRxConfigs(defaultdict(), defaultdict()),
             )
             for node_name in node_names
         }
