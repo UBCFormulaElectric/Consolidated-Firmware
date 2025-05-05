@@ -1,11 +1,12 @@
 import jinja2 as j2
 
-from ...can_database import *
 from .utils import load_template
+from ...can_database import CanDatabase
+from .cmodule import CModule
 
 
 # only VC run this module
-class IoCanRerouteModule:
+class IoCanRerouteModule(CModule):
     def __init__(self, db: CanDatabase, node: str):
         self._db = db
         self._node = node

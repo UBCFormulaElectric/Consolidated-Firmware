@@ -1,7 +1,8 @@
 import jinja2 as j2
 
-from ...can_database import *
+from ...can_database import CanDatabase
 from .utils import load_template
+from .cmodule import CModule
 
 
 class IoCanTxModule(CModule):
@@ -18,7 +19,7 @@ class IoCanTxModule(CModule):
         return template.render(
             bus_names=self._db.nodes[self._node].bus_names,
             messages=self._db.tx_msgs_for_node(self._node),
-            bus_config=self._db.busses,
+            bus_config=self._db.busses,  # template uses modes and default modes
         )
 
     def source_template(self):

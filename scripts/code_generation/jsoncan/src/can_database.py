@@ -5,7 +5,6 @@ This file contains various classes to fully describes a CAN bus: The nodes, mess
 from __future__ import annotations
 
 import logging
-from abc import ABC
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 
@@ -29,12 +28,14 @@ class CanBus:
     Dataclass for holding bus config.
     """
 
+    name: str
     bus_speed: int
     modes: List[str]
     default_mode: str
-    name: str
-    nodes: List[str]  # List of nodes on this bus
     fd: bool  # Whether or not this bus is FD
+
+    # foreign key into CanDatabase.nodes
+    node_names: List[str]  # List of nodes on this bus
 
     def __hash__(self):
         return hash(self.name)
@@ -212,6 +213,10 @@ class CanMessage:
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
     # back references, hence are foreign keys
+    # note that these simply list sources and destinations of messages, and not how to get between them
+    # THIS MEANS YOU CANNOT USE THEM TO
+    # in fact, we store them to find how to travel between them
+    # also they are used in dbcs
     tx_node_name: str  # Node which transmits this message
     rx_node_names: List[str]  # List of nodes which receive this message
 
@@ -299,18 +304,12 @@ class CanNode:
     """
     Dataclass for fully describing a CAN node.
     """
-
     name: str  # Name of this CAN node
 
     # foreign key into CanDatabase.msgs
     tx_msg_names: List[str]
     rx_msg_names: List[str]
     bus_names: List[str]  # busses which the node is attached to
-
-    alerts: List[CanAlert]
-
-    def get_all_messages(self):
-        return self.rx_msg_names + self.tx_msg_names
 
     def __hash__(self):
         return hash(self.name)
@@ -328,7 +327,7 @@ class CanDatabase:
     nodes: Dict[str, CanNode]  # nodes[node_name] gives metadata for node_name
     busses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
     msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
-    alerts: Dict[str, list[CanAlert]]  # alerts[node_name] = dict[CanAlert, AlertsEntry]
+    alerts: Dict[str, list[CanAlert]]  # alerts[node_name] gives a list of alerts on that node
 
     # List of messages to be forwarded to another bus
     # TODO I would imagine it is more productive to be able to query this by router_node_name
@@ -368,30 +367,23 @@ class CanDatabase:
         """
         Return list of all CAN messages transmitted by a specific node.
         """
-        try:
-            node = self.nodes[tx_node]
-        except KeyError:
-            return []
-        return [self.msgs[msg] for msg in node.tx_msg_names]
+        if tx_node not in self.nodes:
+            raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
+        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_msg_names]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
-        try:
-            node = self.nodes[rx_node]
-        except KeyError:
-            return []
-        return [self.msgs[msg] for msg in node.rx_msg_names]
+        if rx_node not in self.nodes:
+            raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
+        return [self.msgs[msg] for msg in self.nodes[rx_node].rx_msg_names]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages either transmitted or received by a specific node.
         """
-        tx = self.tx_msgs_for_node(tx_node=node)
-        rx = self.rx_msgs_for_node(rx_node=node)
-        a = tx + rx
-        return a
+        return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
 
     def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
         """
@@ -531,17 +523,3 @@ class CanForward:
     forwarder: str
     from_bus: str  # name of the bus the message is forwarded from
     to_bus: str  # bus the message is forwarded to
-
-
-class CModule(ABC):
-    """
-    ABC for a C module (i.e. pair of header .h and source .c files)
-    """
-
-    def header(self) -> str: ...
-
-    def source(self) -> str: ...
-
-    def header_template(self): ...
-
-    def source_template(self): ...

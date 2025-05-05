@@ -6,7 +6,7 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 import argparse
 import os
 
-from .src.can_database import CModule
+from .src.codegen.c_generation.cmodule import CModule
 from .src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
 from .src.codegen.c_generation.app_can_data_capture_module import AppCanDataCaptureModule
 from .src.codegen.c_generation.app_can_rx_module import AppCanRxModule

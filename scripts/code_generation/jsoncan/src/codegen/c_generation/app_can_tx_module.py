@@ -1,6 +1,7 @@
 import jinja2 as j2
 
-from ...can_database import *
+from .cmodule import CModule
+from ...can_database import CanDatabase
 from .utils import load_template
 
 

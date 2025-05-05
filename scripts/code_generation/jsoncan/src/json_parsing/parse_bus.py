@@ -73,7 +73,7 @@ def parse_bus_data(can_data_dir: str) -> tuple[dict[str, CanBus], list[Forwarder
             default_mode=bus["default_mode"],
             modes=bus["modes"],
             bus_speed=bus["bus_speed"],
-            nodes=bus["nodes"],
+            node_names=bus["nodes"],
             fd=bus.get("FD", False),
         )
         for bus in buses

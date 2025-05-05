@@ -57,7 +57,6 @@ class JsonCanParser:
                 name=node_name,
                 tx_msg_names=[],
                 rx_msg_names=[],
-                alerts=[],
                 bus_names=[],
             )
             for node_name in node_names
@@ -70,9 +69,9 @@ class JsonCanParser:
         # add busses each node is on
         for node_name in node_names:
             self._nodes[node_name].bus_names = [
-                self._busses[bus].name
-                for bus in self._busses
-                if node_name in self._busses[bus].nodes
+                self._busses[bus_name].name
+                for bus_name in self._busses
+                if node_name in self._busses[bus_name].node_names
             ]
 
         # PARSE TX JSON DATA
@@ -318,7 +317,7 @@ class JsonCanParser:
 
         # bus consistency check
         for bus_name, bus_obj in self._busses.items():
-            for node in bus_obj.nodes:
+            for node in bus_obj.node_names:
                 if node not in self._nodes:
                     raise InvalidCanJson(
                         f"Node '{node}' is not defined in the node JSON."

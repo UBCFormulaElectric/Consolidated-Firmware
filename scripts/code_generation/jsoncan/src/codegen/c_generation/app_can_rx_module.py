@@ -1,7 +1,8 @@
 import jinja2 as j2
 
-from ...can_database import *
+from ...can_database import CanDatabase
 from .utils import load_template
+from .cmodule import CModule
 
 
 class AppCanRxModule(CModule):

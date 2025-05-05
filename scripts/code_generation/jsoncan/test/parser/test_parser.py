@@ -51,10 +51,6 @@ class NodeTests(unittest.TestCase):
         self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].bus_names), {"bus1", "bus2"})
         self.assertEqual(set(self.cdb_valid.nodes["ECU2"].bus_names), {"bus2"})
 
-    def test_alerts(self):
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].alerts), set())  # TODO this is not correct
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].alerts), set())
-
 
 class ConsistencyCheckTests(unittest.TestCase):
     def test_check_consistency(self):
