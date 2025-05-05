@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, DefaultDict
 
 import pandas as pd
 from strenum import StrEnum
@@ -285,13 +285,47 @@ class CanAlert:
 
 
 @dataclass()
-class CanTxConfig:
-    tx_busses: List[str]
+class CanTxConfigs:
+    # TODO make this more clean based on the actual usage
+    _map_by_msg_name: DefaultDict[str, List[str]]
+
+    def add_tx(self, msg_name: str, tx_bus: str):
+        self._map_by_msg_name[msg_name].append(tx_bus)
+
+    def list_names(self):
+        return self._map_by_msg_name.keys()
 
 
 @dataclass()
 class CanRxConfig:
+    msg_name: str
     rx_bus: str
+
+
+@dataclass()
+class CanRxConfigs:
+    # generates lists by default
+    _map_by_bus: DefaultDict[str, CanRxConfig]
+    _map_by_msg_name: DefaultDict[str, CanRxConfig]
+    _list: List[CanRxConfig]
+
+    def add_rx(self, msg_name: str, rx_bus: str):
+        rx_config = CanRxConfig(msg_name, rx_bus)
+        self._map_by_bus[rx_bus] = rx_config
+        self._map_by_msg_name[msg_name] = rx_config
+        self._list.append(rx_config)
+
+    def get_by_bus(self, bus_name: str):
+        return self._map_by_bus[bus_name]
+
+    def get_by_msg_name(self, msg_name: str):
+        return self._map_by_msg_name[msg_name]
+
+    def empty(self):
+        return len(self._list) == 0
+
+    def list(self):
+        return self._list
 
 
 @dataclass()
@@ -305,9 +339,10 @@ class CanNode:
     # CALCULATED VALUES
     # TODO check if we need this to be dict, or list is sufficient
     # rx_config[msg_name] gives a rx config for that message
-    rx_config: dict[str, CanRxConfig]
+    # TODO this is also queried by bus
+    rx_config: CanRxConfigs
     # tx_config[msg_name] gives a tx config for that message
-    tx_config: dict[str, CanTxConfig]
+    tx_config: CanTxConfigs
     # reroute_config: List[CanForward]  # list of messages that are forwarded to other busses
     reroute_config: Optional[List[CanForward]] = None
 
@@ -363,7 +398,7 @@ class CanDatabase:
         """
         if tx_node not in self.nodes:
             raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
-        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config]
+        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config.list_names()]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
@@ -371,7 +406,7 @@ class CanDatabase:
         """
         if rx_node not in self.nodes:
             raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
-        return [self.msgs[msg] for msg in self.nodes[rx_node].rx_config]
+        return [self.msgs[msg.msg_name] for msg in self.nodes[rx_node].rx_config.list()]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """

@@ -30,8 +30,8 @@ class IoCanRxModule(CModule):
         return template.render(
             node=self._node,
             node_bus_names=self._db.nodes[self._node].bus_names,
-            rx_messages=self._db.rx_msgs[self._node],
-            # TODO come back to this, as all busses should generate a io_canRx_filterMessageId function
-            messages=self._db.msgs,  # this map might need to be precomputed
-            rx_messages_for_node=self._db.rx_msgs_for_node(self._node),
+            rx_config=self._db.nodes[self._node].rx_config
+            # rx_messages=self._db.rx_msgs[self._node],
+            # messages=self._db.msgs,  # this map might need to be precomputed
+            # rx_messages_for_node=self._db.rx_msgs_for_node(self._node),
         )

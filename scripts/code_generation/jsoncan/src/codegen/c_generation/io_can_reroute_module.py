@@ -1,7 +1,7 @@
 import jinja2 as j2
 
 from .utils import load_template
-from ...can_database import CanDatabase
+from ...can_database import CanDatabase, CanForward
 from .cmodule import CModule
 
 
@@ -10,11 +10,8 @@ class IoCanRerouteModule(CModule):
     def __init__(self, db: CanDatabase, node: str):
         self._db = db
         self._node = node
-        self._list_of_reroutes = [
-            msg
-            for msg in self._db.reroute_msgs
-            if msg.forwarder == self._node
-        ]
+        self._list_of_reroutes: list[CanForward] = self._db.nodes[self._node].reroute_config
+        assert self._list_of_reroutes is not None, f"Node {self._node} has no reroutes"
 
     def header_template(self):
         if len(self._list_of_reroutes) == 0:

@@ -11,20 +11,21 @@
 
 /* ------------------------- Function Definitions ------------------------- */
 // each bus has its own filter function
-{% for bus, message_names  in rx_messages.messages.items() %}
+{% for bus in node_bus_names %}
 bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id)
 {
     bool is_found = false;
     switch (std_id)
     {
-        {%- for msg_name in message_names %}
-        {%- set msg =  messages[msg_name]%}
+        {%- if not rx_config.empty() %}
+        {%- for msg in rx_config.list() %}
         case {{msg.id_macro()}}:
         {%- endfor %}
         {
             is_found = true;
             break;
         }
+        {%- endif %}
         default:
         {
             // Do nothing

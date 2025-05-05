@@ -4,6 +4,7 @@ Module for parsing CAN JSON, and returning a CanDatabase object.
 
 from __future__ import annotations
 
+from collections import defaultdict
 # types
 from typing import Dict
 
@@ -19,7 +20,7 @@ from ..can_database import (
     CanDatabase,
     CanEnum,
     CanMessage,
-    CanNode,
+    CanNode, CanTxConfigs, CanRxConfigs,
 )
 
 
@@ -57,8 +58,8 @@ class JsonCanParser:
             node_name: CanNode(
                 name=node_name,
                 bus_names=[],
-                tx_config={},
-                rx_config={},
+                tx_config=CanTxConfigs(defaultdict()),
+                rx_config=CanRxConfigs(defaultdict(), defaultdict(), []),
             )
             for node_name in node_names
         }
@@ -95,7 +96,7 @@ class JsonCanParser:
             if type(bus_rx_msgs_json) == str:
                 assert bus_rx_msgs_json == "all", "Schema check has failed"
                 # if "all" in messages then add all messages on this bus
-                bus_rx_msg_names = list(set(self._msgs.keys()) - set(rx_node.tx_config.keys()))
+                bus_rx_msg_names = list(set(self._msgs.keys()) - set(rx_node.tx_config.list_names()))
             else:
                 bus_rx_msg_names = bus_rx_msgs_json["messages"]
             for msg_name in bus_rx_msg_names:
@@ -221,8 +222,8 @@ class JsonCanParser:
                 # this will return
                 # tx_bus_name: CanBus, rx_bus: CanBus, rerouters: list[CanForward]
 
-                # add tx_bus_name and current message into tx_node.tx_config
-                # add rx_bus_name and current messsage into rx_node.rx_config
+                # tx_node.tx_config.add_tx(...)
+                # rx_node.rx_config.add_rx(...)
 
                 # since the rerouter will be created with the message metadata, we can guarentee that it is unique with all other messages in the array
                 # rerouter_nodes: list[str]
