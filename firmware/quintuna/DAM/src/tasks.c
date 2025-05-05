@@ -159,26 +159,25 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
-    osDelay(osWaitForever);
     for (;;)
     {
-        // Can we either move this inside a job similar to jobs_runCanRx_tick();
-        // or pull out the code from jobs_runCanRx_tick() and put in in tasks_runCanRx()?
         CanMsg tx_msg = io_canQueue_popTx();
-        if (tx_msg.is_fd)
-        {
-            hw_fdcan_transmit(&can1, &tx_msg);
-        }
-        else
-        {
-            hw_can_transmit(&can1, &tx_msg);
-        }
+        hw_fdcan_transmit(&can1, &tx_msg);
+        hw_fdcan_transmit(&can1, &tx_msg);
+        // ToDo: check if this is needed and investigate why is_fd is not a bool
+        //  if (tx_msg.is_fd)
+        //  {
+        //      hw_fdcan_transmit(&can1, &tx_msg);
+        //  }
+        //  else
+        //  {
+        //      hw_can_transmit(&can1, &tx_msg);
+        //  }
     }
 }
 
 _Noreturn void tasks_runCanRx(void)
 {
-    osDelay(osWaitForever);
     for (;;)
     {
         jobs_runCanRx_tick();

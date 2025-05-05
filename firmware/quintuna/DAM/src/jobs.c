@@ -17,11 +17,20 @@ void jobs_init()
     io_rtc_init();
     io_canTx_init(jsoncan_transmit_func);
     io_canQueue_init();
+
+    io_canTx_init(jsoncan_transmit_func);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
 }
 
-void jobs_run1Hz_tick(void) {}
+void jobs_run1Hz_tick(void)
+{
+    io_canTx_enqueue1HzMsgs();
+}
 
-void jobs_run100Hz_tick(void) {}
+void jobs_run100Hz_tick(void)
+{
+    io_canTx_enqueue100HzMsgs();
+}
 
 void jobs_run1kHz_tick(void) {}
 
