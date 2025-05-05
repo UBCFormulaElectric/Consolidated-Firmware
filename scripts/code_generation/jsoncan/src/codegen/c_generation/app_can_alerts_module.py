@@ -43,13 +43,12 @@ class AppCanAlertsModule(CModule):
 
         """Returns a dictionary containing a the alert names as the key and a description and as the item"""
         alert_description = {}
-        for node, alerts in self._db.alerts.items():
-            for alert, info in alerts.items():
-                if info != {}:
-                    alert_description[alert.name] = (info["id"], info["description"])
+        for alerts in self._db.alerts.values():
+            for alert in alerts:
+                alert_description[alert.name] = (alert.id, alert.description)
 
         return template.render(
-            alerts=self._db.alerts,
+            alerts=self._db.alerts, # TODO probably a fat refactor under the JINJA
             CanAlertType=CanAlertType,
             alert_description=alert_description,
             boards=self.get_board_node(),

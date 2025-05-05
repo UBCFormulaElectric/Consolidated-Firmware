@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict
 from typing import Optional as Optional_t
 from typing import TypedDict
 
@@ -7,6 +6,7 @@ from schema import Optional, Or, Schema, SchemaError
 
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file
+from ..can_database import CanBus
 
 
 class ForwarderConfigJson(TypedDict):
@@ -15,8 +15,8 @@ class ForwarderConfigJson(TypedDict):
     bus2: str
 
 
-class BusConfigJson(TypedDict):
-    name: str 
+class _BusConfigJson(TypedDict):
+    name: str
     bus_speed: int
     modes: list[str]
     default_mode: str
@@ -24,12 +24,12 @@ class BusConfigJson(TypedDict):
     FD: Optional_t[bool]
 
 
-class BusJson(TypedDict):
+class _BusJson(TypedDict):
     forwarders: list[ForwarderConfigJson]
-    buses: list[BusConfigJson]
+    buses: list[_BusConfigJson]
 
 
-BusJson_schema = Schema({
+_BusJson_schema = Schema({
     "forwarders": Or(Schema([]), Schema([{
         "forwarder": str,
         "bus1": str,
@@ -46,28 +46,11 @@ BusJson_schema = Schema({
 })
 
 
-def _validate_bus_json(json: Dict) -> BusJson:
-    return BusJson_schema.validate(json)
+def _validate_bus_json(json: Dict) -> _BusJson:
+    return _BusJson_schema.validate(json)
 
 
-@dataclass()
-class CanBusConfig:
-    """
-    Dataclass for holding bus config.
-    """
-
-    bus_speed: int
-    modes: List[str]
-    default_mode: str
-    name: str
-    nodes: List[str]  # List of nodes on this bus
-    fd: bool  # Whether or not this bus is FD
-
-    def __hash__(self):
-        return hash(self.name)
-
-
-def parse_bus_data(can_data_dir: str) -> dict[str, CanBusConfig]:
+def parse_bus_data(can_data_dir: str) -> tuple[dict[str, CanBus], list[ForwarderConfigJson]]:
     """
     Parses data about buses from global configuration
     CONSISTENCY: bus.default_mode not in bus.modes
@@ -85,7 +68,7 @@ def parse_bus_data(can_data_dir: str) -> dict[str, CanBusConfig]:
             raise InvalidCanJson(f"Error on bus {bus['name']}: Default CAN mode is not in the list of modes.")
 
     return {
-        bus["name"]: CanBusConfig(
+        bus["name"]: CanBus(
             name=bus["name"],
             default_mode=bus["default_mode"],
             modes=bus["modes"],
@@ -94,4 +77,4 @@ def parse_bus_data(can_data_dir: str) -> dict[str, CanBusConfig]:
             fd=bus.get("FD", False),
         )
         for bus in buses
-    }
+    }, bus_json_data["forwarders"]

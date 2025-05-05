@@ -18,7 +18,7 @@ class IoCanTxModule(CModule):
         return template.render(
             bus_names=self._db.nodes[self._node].bus_names,
             messages=self._db.tx_msgs_for_node(self._node),
-            bus_config=self._db.bus_config,
+            bus_config=self._db.busses,
         )
 
     def source_template(self):
@@ -30,5 +30,5 @@ class IoCanTxModule(CModule):
         return template.render(
             bus_names=self._db.nodes[self._node].bus_names,
             messages=self._db.tx_msgs_for_node(self._node),
-            bus_config=self._db.bus_config,
+            bus_config=self._db.busses,
         )

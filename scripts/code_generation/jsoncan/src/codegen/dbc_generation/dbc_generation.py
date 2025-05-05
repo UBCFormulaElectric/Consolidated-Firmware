@@ -112,7 +112,7 @@ class DbcGenerator:
         Format and attribute definitions and defaults.
         """
         # TODO??
-        bus = self._db.bus_config
+        bus = self._db.busses
         # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
         #     cycle_time_min=bus.cycle_time_min,
         #     cycle_time_max=bus.cycle_time_max,

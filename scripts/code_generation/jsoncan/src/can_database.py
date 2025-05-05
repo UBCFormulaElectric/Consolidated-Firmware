@@ -7,12 +7,11 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from dataclasses import dataclass
-from typing import Dict, List, Optional, TypedDict, Union
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from strenum import StrEnum
 
-from .json_parsing.parse_bus import CanBusConfig
 from .utils import (
     bits_for_uint,
     bits_to_bytes,
@@ -24,11 +23,21 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 
-# TODO surely we are not rawdogging?
-class AlertsEntry(TypedDict):
-    id: int
-    description: str
-    disabled: Optional[bool]
+@dataclass()
+class CanBus:
+    """
+    Dataclass for holding bus config.
+    """
+
+    bus_speed: int
+    modes: List[str]
+    default_mode: str
+    name: str
+    nodes: List[str]  # List of nodes on this bus
+    fd: bool  # Whether or not this bus is FD
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 @dataclass(frozen=True)
@@ -281,6 +290,9 @@ class CanAlert:
 
     name: str
     alert_type: CanAlertType
+    id: int
+    description: str
+    disabled: Optional[bool] = None
 
 
 @dataclass()
@@ -296,7 +308,7 @@ class CanNode:
     rx_msg_names: List[str]
     bus_names: List[str]  # busses which the node is attached to
 
-    alerts: List[AlertsEntry]
+    alerts: List[CanAlert]
 
     def get_all_messages(self):
         return self.rx_msg_names + self.tx_msg_names
@@ -314,18 +326,16 @@ class CanDatabase:
     Dataclass for fully describing a CAN bus, its nodes, and their messages.
     """
 
-    nodes: Dict[str, CanNode]  # node name -> CanNode, collection of all nodes the network
-    bus_config: Dict[str, CanBusConfig]  # Various bus params
-    msgs: Dict[str, CanMessage]  # message name -> CanMessage, collection of all messages on the bus
+    nodes: Dict[str, CanNode]  # nodes[node_name] gives metadata for node_name
+    busses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
+    msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
+    alerts: Dict[str, list[CanAlert]]  # alerts[node_name] = dict[CanAlert, AlertsEntry]
 
     # List of messages to be forwarded to another bus
     # TODO I would imagine it is more productive to be able to query this by router_node_name
     reroute_msgs: List[CanForward]
     # rx_msgs[node_name] gives data about which messages are received by the node on which bus
     rx_msgs: Dict[str, CanRxMessages]
-
-    # TODO refactor alerts backend
-    alerts: Dict[str, Dict[CanAlert, AlertsEntry]]  # node name -> (canalert -> alert entry????)
 
     def make_pandas_dataframe(self):
         # Create a pandas dataframe from the messages
@@ -412,7 +422,7 @@ class CanDatabase:
         ]:
             if tx_node == node:
                 continue  # Skip self-transmitted alerts
-            for alert, alert_entry in self.alerts[tx_node].items():
+            for alert in self.alerts[tx_node]:
                 rte.append(alert.name)
         return rte
 

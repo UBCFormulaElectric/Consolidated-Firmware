@@ -11,13 +11,13 @@ FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
 INFO_ALERTS_CYCLE_TIME = 100  # 10Hz TODO figure out a good number for this
 
 
-class AlertsEntry(TypedDict):
+class _AlertsEntryJson(TypedDict):
     id: int
     description: str
     disabled: Optional_t[bool]
 
 
-class AlertsJson(TypedDict):
+class _AlertsJson(TypedDict):
     warnings_id: int
     warnings_counts_id: int
     faults_id: int
@@ -25,12 +25,12 @@ class AlertsJson(TypedDict):
     info_id: int
     info_counts_id: int
     bus: List[str]
-    warnings: Dict[str, AlertsEntry]
-    faults: Dict[str, AlertsEntry]
-    info: Dict[str, AlertsEntry]
+    warnings: Dict[str, _AlertsEntryJson]
+    faults: Dict[str, _AlertsEntryJson]
+    info: Dict[str, _AlertsEntryJson]
 
 
-AlertsJson_schema = Schema(
+_AlertsJson_schema = Schema(
     Or(
         Schema({
             "warnings_id": And(int, lambda x: x >= 0),
@@ -86,19 +86,19 @@ AlertsJson_schema = Schema(
 )
 
 
-def validate_alerts_json(json: Dict) -> AlertsJson:
-    return AlertsJson_schema.validate(json)
+def _validate_alerts_json(json: Dict) -> _AlertsJson:
+    return _AlertsJson_schema.validate(json)
 
 
 def _parse_node_alert_signals(
-        node: str, alerts: dict[str, AlertsEntry], alert_type: CanAlertType
-) -> tuple[dict[str, AlertsEntry], list[CanSignal]]:
+        node: str, alerts: dict[str, _AlertsEntryJson], alert_type: CanAlertType
+) -> tuple[dict[str, _AlertsEntryJson], list[CanSignal]]:
     """
     From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
     :returns metadata which maps names of alert signals to their AlertsEntry, list of CanSignals for the alert message
     """
     signals: list[CanSignal] = []
-    meta_data: dict[str, AlertsEntry] = {}
+    meta_data: dict[str, _AlertsEntryJson] = {}
     bit_pos = 0
 
     for alerts_name, alerts_entry in alerts.items():
@@ -123,7 +123,7 @@ def _parse_node_alert_signals(
     return meta_data, signals
 
 
-def _parse_node_alert_count_signals(node: str, alerts: dict[str, AlertsEntry], alert_type: str) -> List[CanSignal]:
+def _parse_node_alert_count_signals(node: str, alerts: dict[str, _AlertsEntryJson], alert_type: str) -> List[CanSignal]:
     """
     From a list of strings of alert names, return a list of CAN signals.
     Each signal will represent the number of times the corresponding alert has been set.
@@ -148,7 +148,7 @@ def _parse_node_alert_count_signals(node: str, alerts: dict[str, AlertsEntry], a
     ]
 
 
-def _parse_node_alerts(node: str, alerts_json: AlertsJson):
+def _parse_node_alerts(node: str, alerts_json: _AlertsJson):
     node_name = node
     """
     Parse JSON data dictionary representing a node's alerts.
@@ -271,10 +271,9 @@ def _parse_node_alerts(node: str, alerts_json: AlertsJson):
     return alerts_msgs, (faults_meta_data, warnings_meta_data, info_meta_data)
 
 
-def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[
-    tuple[List[CanMessage], dict[CanAlert, AlertsEntry]]]:
+def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[tuple[List[CanMessage], list[CanAlert]]]:
     try:
-        node_alerts_json_data = validate_alerts_json(
+        node_alerts_json_data = _validate_alerts_json(
             load_json_file(f"{can_data_dir}/{node_name}/{node_name}_alerts")
         )
     except SchemaError:
@@ -297,18 +296,18 @@ def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[
         info_meta_data,
     ) = _parse_node_alerts(node_name, node_alerts_json_data)
 
-    can_alerts: dict[CanAlert, AlertsEntry] = {
-        **{
-            CanAlert(alert.name, CanAlertType.WARNING): warnings_meta_data[alert.name]
+    can_alerts: list[CanAlert] = [
+        *[
+            CanAlert(alert.name, CanAlertType.WARNING, **warnings_meta_data[alert.name])
             for alert in warnings_msg.signals
-        },
-        **{
-            CanAlert(alert.name, CanAlertType.FAULT): faults_meta_data[alert.name]
+        ],
+        *[
+            CanAlert(alert.name, CanAlertType.FAULT, **faults_meta_data[alert.name])
             for alert in faults_msg.signals
-        },
-        **{
-            CanAlert(alert.name, CanAlertType.INFO): info_meta_data[alert.name]
+        ],
+        *[
+            CanAlert(alert.name, CanAlertType.INFO, **info_meta_data[alert.name])
             for alert in info_msg.signals
-        },
-    }
+        ],
+    ]
     return [warnings_msg, faults_msg, warnings_counts_msg, faults_counts_msg, info_msg, info_counts_msg], can_alerts
