@@ -2,6 +2,7 @@ import jinja2 as j2
 
 from ...can_database import *
 from .utils import load_template
+from .cmodule import CModule
 
 NUM_ALERTS = "NUM_{node}_{alert_type}S"
 BOARD_HAS_ALERT_FUNC_NAME = "app_canAlerts_BoardHas{alert_type}"

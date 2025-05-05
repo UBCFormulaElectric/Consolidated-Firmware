@@ -214,9 +214,7 @@ class CanMessage:
 
     # back references, hence are foreign keys
     # note that these simply list sources and destinations of messages, and not how to get between them
-    # THIS MEANS YOU CANNOT USE THEM TO
-    # in fact, we store them to find how to travel between them
-    # also they are used in dbcs
+    # we store them to find how to travel between them, and they are used in dbcs
     tx_node_name: str  # Node which transmits this message
     rx_node_names: List[str]  # List of nodes which receive this message
 
@@ -263,19 +261,6 @@ class CanMessage:
         return hash(self.id)
 
 
-@dataclass(frozen=True)
-class CanRxMessages:
-    node: str
-    # messages[bus_name] gives list of message names on bus_name received by the current node
-    messages: dict[str, list[str]]
-
-    def find_bus(self, message_name: str):
-        for bus, messages in self.messages.items():
-            if message_name in messages:
-                return bus
-        return None
-
-
 class CanAlertType(StrEnum):
     """
     Enum for the possible types of CAN alerts.
@@ -300,16 +285,31 @@ class CanAlert:
 
 
 @dataclass()
+class CanTxConfig:
+    tx_busses: List[str]
+
+
+@dataclass()
+class CanRxConfig:
+    rx_bus: str
+
+
+@dataclass()
 class CanNode:
     """
     Dataclass for fully describing a CAN node.
     """
     name: str  # Name of this CAN node
+    bus_names: List[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
 
-    # foreign key into CanDatabase.msgs
-    tx_msg_names: List[str]
-    rx_msg_names: List[str]
-    bus_names: List[str]  # busses which the node is attached to
+    # CALCULATED VALUES
+    # TODO check if we need this to be dict, or list is sufficient
+    # rx_config[msg_name] gives a rx config for that message
+    rx_config: dict[str, CanRxConfig]
+    # tx_config[msg_name] gives a tx config for that message
+    tx_config: dict[str, CanTxConfig]
+    # reroute_config: List[CanForward]  # list of messages that are forwarded to other busses
+    reroute_config: Optional[List[CanForward]] = None
 
     def __hash__(self):
         return hash(self.name)
@@ -328,12 +328,6 @@ class CanDatabase:
     busses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
     msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
     alerts: Dict[str, list[CanAlert]]  # alerts[node_name] gives a list of alerts on that node
-
-    # List of messages to be forwarded to another bus
-    # TODO I would imagine it is more productive to be able to query this by router_node_name
-    reroute_msgs: List[CanForward]
-    # rx_msgs[node_name] gives data about which messages are received by the node on which bus
-    rx_msgs: Dict[str, CanRxMessages]
 
     def make_pandas_dataframe(self):
         # Create a pandas dataframe from the messages
@@ -369,7 +363,7 @@ class CanDatabase:
         """
         if tx_node not in self.nodes:
             raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
-        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_msg_names]
+        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
@@ -377,7 +371,7 @@ class CanDatabase:
         """
         if rx_node not in self.nodes:
             raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
-        return [self.msgs[msg] for msg in self.nodes[rx_node].rx_msg_names]
+        return [self.msgs[msg] for msg in self.nodes[rx_node].rx_config]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """

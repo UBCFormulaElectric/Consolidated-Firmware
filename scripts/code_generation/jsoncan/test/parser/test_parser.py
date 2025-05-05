@@ -34,17 +34,17 @@ class NodeTests(unittest.TestCase):
         :return:
         """
         self.assertSetEqual(
-            set(self.cdb_valid.nodes["ECU1"].tx_msg_names),
+            set(self.cdb_valid.nodes["ECU1"].tx_config.keys()),
             {'ECU1_BasicSignalTypes', 'ECU1_DecimalNumbers', 'ECU1_DbcMatching', 'ECU1_MinMaxClamping', 'ECU1_Warnings',
              'ECU1_Faults', 'ECU1_WarningsCounts', 'ECU1_FaultsCounts', 'ECU1_Info', 'ECU1_InfoCounts'}
         )
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].tx_msg_names),
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].tx_config.keys()),
                             {"ECU2_BasicSignalTypes", 'ECU2_Warnings', 'ECU2_Faults', 'ECU2_WarningsCounts',
                              'ECU2_FaultsCounts', 'ECU2_Info', 'ECU2_InfoCounts'})
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].rx_msg_names),
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].tx_config.keys()),
                             {"ECU2_BasicSignalTypes", 'ECU2_Warnings', 'ECU2_Faults', 'ECU2_WarningsCounts',
                              'ECU2_FaultsCounts', 'ECU2_Info', 'ECU2_InfoCounts'})
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].rx_msg_names), {
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].tx_config.keys()), {
             'ECU1_FaultsCounts', 'ECU1_Info', 'ECU1_WarningsCounts', 'ECU1_Faults', 'ECU1_InfoCounts', 'ECU1_Warnings'})
 
     def test_node_on_busses(self):

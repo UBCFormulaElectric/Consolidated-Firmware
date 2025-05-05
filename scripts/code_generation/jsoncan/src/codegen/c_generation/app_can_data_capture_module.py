@@ -2,6 +2,7 @@ import jinja2 as j2
 
 from ...can_database import *
 from .utils import load_template
+from .cmodule import CModule
 
 
 class AppCanDataCaptureModule(CModule):
