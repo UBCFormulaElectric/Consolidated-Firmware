@@ -4,7 +4,7 @@ import os
 from ...src.json_parsing.json_can_parsing import JsonCanParser
 from ...src.can_database import CanDatabase
 
-valid_json_folder = os.path.abspath("./test/parser/valid_json")
+valid_json_folder = os.path.abspath("./test/valid_json")
 
 # disable test sorting, so that the order of tests is consistent and per given
 unittest.TestLoader.sortTestMethodsUsing = None

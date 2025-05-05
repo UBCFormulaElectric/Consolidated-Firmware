@@ -215,7 +215,7 @@ class JsonCanParser:
                 # TODO find shortest path between tx_node.bus_names and rx_node.bus_names
                 pass
 
-    def _DEPR_calculate_reroutes(self) -> List[CanForward]:
+    def _depr_calculate_reroutes(self) -> List[CanForward]:
         # design choice
         # all message is on FD bus
         # some message from FD bus need to be rerouted to non-FD bus
