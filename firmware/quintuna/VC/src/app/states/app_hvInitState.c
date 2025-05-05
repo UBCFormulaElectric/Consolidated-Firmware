@@ -1,4 +1,5 @@
-#include "app_hvInitState.h"
+#include "app_states.h"
+
 
 static void hvInitStateRunOnEntry(void) {}
 static void hvInitStateRunOnTick1Hz(void) {}
