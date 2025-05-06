@@ -18,7 +18,6 @@
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
-#include "shared.pb.h"
 
 void tasks_preInit(void) {}
 
@@ -127,17 +126,11 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        if (tx_msg.is_fd || true)
-        {
-            hw_fdcan_transmit(&can1, &tx_msg);
-        }
-        else
-        {
-            // this logic is going to be changed once we have the
-            // json to can code merged in
-            // hw_can_transmit(&can2, &tx_msg);
-            // hw_can_transmit(&can3, &tx_msg);
-        }
+
+        // TODO this canmsg will tell you which bus to transmit it on
+        hw_fdcan_transmit(&can1, &tx_msg);
+        // hw_can_transmit(&can2, &tx_msg);
+        // hw_can_transmit(&can3, &tx_msg);
     }
 }
 
