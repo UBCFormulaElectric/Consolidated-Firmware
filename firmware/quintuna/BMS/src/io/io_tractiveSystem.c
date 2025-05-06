@@ -41,7 +41,7 @@
 // #define OUTPUT2_CHARGING_ERROR_SLOPE (0.2324f)
 // #define OUTPUT2_CHARGING_ERROR_OFFSET (2.4038f)
 
-float io_tractiveSystem_getVoltage()
+float io_tractiveSystem_getVoltage(void)
 {
     // The tractive system voltage is divided down by several resistors, then
     // fed through an amplifier.
@@ -87,7 +87,7 @@ float io_tractiveSystem_getVoltage()
     }
 }
 
-float io_tractiveSystem_getCurrentHighResolution()
+float io_tractiveSystem_getCurrentHighResolution(void)
 {
     float adc_voltage = hw_adc_getVoltage(&ts_isns_75a);
 
@@ -137,7 +137,7 @@ float io_tractiveSystem_getCurrentHighResolution()
     return -(high_res_current + high_res_curr_calibration);
 }
 
-float io_tractiveSystem_getCurrentLowResolution()
+float io_tractiveSystem_getCurrentLowResolution(void)
 {
     float adc_voltage = hw_adc_getVoltage(&ts_isns_400a);
 
