@@ -6,8 +6,6 @@
 // Reset reasons for the STM32F412 MCU are described in the reference manual (RM0402).
 // See "RCC clock control & status register (RCC_CSR)", section 6.3.21, page 156.
 
-#include <stdbool.h>
-
 // Must be kept up to date with `CanResetReason` in `shared_enum.json`!!!
 typedef enum
 {
