@@ -14,11 +14,9 @@ void jobs_runCanRx_tick(void) {}
 
 void jobs_pollPwrMtr(void)
 {
-    // I'm #clueless
-
-    if (io_power_monitor_init())
+    if (!io_power_monitor_init())
     {
-        app_canTx_VC_Warning_pwrmtrinitFailed_set(1); // Haven't made the CAN message
+        // TODO: can message for pwrmtrinitfailed
     }
     float ext_voltage = io_power_monitor_read_voltage(&ext);
     float acc_voltage = io_power_monitor_read_voltage(&acc);

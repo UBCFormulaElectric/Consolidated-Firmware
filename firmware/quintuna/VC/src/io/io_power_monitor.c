@@ -15,8 +15,15 @@ const PowerRail acc = { .bus_address = 0x08, .sense_address = 0x0C, .power_addre
 
 bool io_power_monitor_init()
 {
+    bool ready = hw_i2c_isTargetReady(&pwr_mtr);
+
     // Configuration of the ctrl register may be needed
-    return hw_i2c_isTargetReady(&pwr_mtr);
+    uint8_t buffer[2];
+    buffer[0] = 0x00; // default innit
+    buffer[1] = 0x6F; // 64 sps slow slow
+    hw_i2c_transmit(&pwr_mtr, buffer, 2);
+
+    return ready;
 }
 
 #define REFRESH 0x1F
