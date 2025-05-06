@@ -130,10 +130,10 @@ _Noreturn void tasks_runCanTx(void)
         }
         else
         {
-            //this logic is going to be changed once we have the 
-            //json to can code merged in
+            // this logic is going to be changed once we have the
+            // json to can code merged in
             hw_can_transmit(&can2, &tx_msg);
-            hw_can_transmit(&can3,  &tx_msg);
+            hw_can_transmit(&can3, &tx_msg);
         }
     }
 }

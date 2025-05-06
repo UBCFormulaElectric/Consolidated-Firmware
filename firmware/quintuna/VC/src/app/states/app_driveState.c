@@ -1,7 +1,6 @@
 #include "app_allStates.h"
 #include "app_states.h"
 
-
 static void driveStateRunOnEntry(void) {}
 
 static void driveStateRunOnTick1Hz(void) {}
