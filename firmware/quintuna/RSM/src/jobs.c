@@ -44,3 +44,5 @@ void jobs_run1kHz_tick(void)
     const uint32_t ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(ms);
 }
+
+a
