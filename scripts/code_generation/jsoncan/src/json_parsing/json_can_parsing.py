@@ -240,8 +240,7 @@ class JsonCanParser:
             best_path.append((target_node, previous_edge[target_node]))
             target_node = previous_node[target_node]
             if target_node in previous_node and target_node == previous_node[target_node]:
-                print("WTF")
-                break
+                raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
         best_path.append((target_node, None))
         best_path.reverse()
 
