@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections import deque
 from collections import defaultdict
 # types
-from typing import Dict
+from typing import Dict, Optional, List, Tuple, Set
 
 from .parse_alert import parse_alert_data, CanAlert
 # new files
@@ -201,24 +201,27 @@ class JsonCanParser:
 
         rx_msg.rx_node_names.append(rx_node.name)  # TODO is this necessary??
         self._node_rx_msgs[rx_node.name].append(msg_name)
-    
-    def _fast_fourier_transform_stochastic_gradient_descent(self, adj_list, tx_node: CanNode, rx_node: CanNode):
-        previous_node = {}
-        previous_edge = {}
-        destination_nodes = set()
-        target_node = None
-        queue = deque()
+
+    def _fast_fourier_transform_stochastic_gradient_descent(self, adj_list: Dict[str, List[Tuple[str, str]]],
+                                                            tx_node: CanNode,
+                                                            rx_node: CanNode) -> \
+            tuple[str, str, list[tuple[str, str, str]]]:
+        previous_node: Dict[str, Optional[str]] = {}
+        previous_edge: Dict[str, str] = {}
+        destination_nodes: Set[str] = set()
+        queue: deque[str] = deque()
 
         # populate w/ start nodes
         for bus_name in tx_node.bus_names:
             queue.append(bus_name)
             previous_node[bus_name] = None
-        
+
         # population destination w/ end nodes
         for bus_name in rx_node.bus_names:
             destination_nodes.add(bus_name)
 
         # basic bfs
+        target_node: Optional[str] = None
         while len(queue) > 0:
             cur_node = queue.popleft()
             if cur_node in destination_nodes:
@@ -235,14 +238,14 @@ class JsonCanParser:
             raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
 
         # recover path
-        best_path = []
+        best_path: List[Tuple[str, Optional[str]]] = []
         while previous_node[target_node] is not None:
             best_path.append((target_node, previous_edge[target_node]))
             target_node = previous_node[target_node]
             if target_node in previous_node and target_node == previous_node[target_node]:
                 raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
         best_path.append((target_node, None))
-        best_path.reverse()
+        best_path.reverse()  # TODO not necessary, just interpret the list backwards
 
         # if counter == 0:
         #     print(previous_node)
@@ -255,10 +258,10 @@ class JsonCanParser:
         # parse some stuff
         initial_node = best_path[0][0]
         final_node = best_path[-1][0]
-        rerouter_nodes = []
+        rerouter_nodes: List[Tuple[str, str, str]] = []
         for index in range(1, len(best_path)):
-            rerouter_nodes.append((best_path[index][1], best_path[index-1][0], best_path[index][0]))
-    
+            rerouter_nodes.append((best_path[index][1], best_path[index - 1][0], best_path[index][0]))
+
         return initial_node, final_node, rerouter_nodes
 
     def _resolve_tx_rx_reroute(self, forwarder_config: list[ForwarderConfigJson]) -> None:
@@ -282,8 +285,8 @@ class JsonCanParser:
 
         # graph representation of canBuses
         # im sorry this is about to be just tuples and shit
-        adj_list = {}
-    
+        adj_list: dict[str, list[tuple[str, str]]] = {}
+
         for f_config in forwarder_config:
             node_name = f_config["forwarder"]
             if node_name not in self._nodes:
@@ -316,10 +319,13 @@ class JsonCanParser:
                 # this will return
                 # tx_bus_name: CanBus, rx_bus: CanBus, rerouters: list[CanForward]
 
-                initial_node, final_node, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(adj_list, tx_node, rx_node)
+                initial_node, final_node, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(
+                    adj_list, tx_node, rx_node)
                 # print(initial_node)
                 # print(final_node)
                 # print(rerouter_nodes)
+
+                self._nodes[initial_node].tx_config.add_tx_msg()
 
                 # tx_node.tx_config.add_tx(...)  <- initial_bus
                 # rx_node.rx_config.add_rx(...) <- final_bus
@@ -332,8 +338,6 @@ class JsonCanParser:
                 # rerouter_nodes: list[str]
                 # for rerouter_node in rerouter_nodes:
                 #     add config to rerouter_node.reroute_config
-
-
 
     # def _depr_calculate_reroutes(self) -> List[CanForward]:
     #     # design choice
