@@ -1,27 +1,6 @@
 #pragma once
 #include <stdbool.h>
 
-#ifdef TARGET_EMBEDDED
-#include "hw_adc.h"
-#include "hw_gpio.h"
-
-typedef struct
-{
-    const AdcChannel *steering;
-    const Gpio       *steering_ocsc;
-} SteeringConfig;
-
-#else
-#include "app_utils.h"
-EMPTY_STRUCT(SteeringConfig)
-#endif
-
-/**
- * Initialize pins for steering sensor
- * @param steering_config wrapper around steering adc pin
- */
-void io_steering_init(const SteeringConfig *steering_config);
-
 /**
  * Get the steering angle in degrees from the steering angle sensor
  * @return The steering angle of the steering angle sensor in degrees
