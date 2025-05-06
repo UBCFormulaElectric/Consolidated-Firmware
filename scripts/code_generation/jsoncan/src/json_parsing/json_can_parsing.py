@@ -4,6 +4,7 @@ Module for parsing CAN JSON, and returning a CanDatabase object.
 
 from __future__ import annotations
 
+from collections import deque
 from collections import defaultdict
 # types
 from typing import Dict
@@ -200,16 +201,102 @@ class JsonCanParser:
 
         rx_msg.rx_node_names.append(rx_node.name)  # TODO is this necessary??
         self._node_rx_msgs[rx_node.name].append(msg_name)
+    
+    def _fast_fourier_transform_stochastic_gradient_descent(self, adj_list, tx_node: CanNode, rx_node: CanNode):
+        previous_node = {}
+        previous_edge = {}
+        destination_nodes = set()
+        target_node = None
+        queue = deque()
+
+        # populate distance w/ start nodes
+        for bus_name in tx_node.bus_names:
+            queue.append(bus_name)
+        
+        # population destination w/ end nodes
+        for bus_name in rx_node.bus_names:
+            destination_nodes.add(bus_name)
+
+        # basic bfs
+        while len(queue) > 0:
+            cur_node = queue.popleft()
+            if cur_node in destination_nodes:
+                target_node = cur_node
+                break
+            for (next_node, edge) in adj_list[cur_node]:
+                if next_node not in previous_node:
+                    previous_node[next_node] = cur_node
+                    previous_edge[next_node] = edge
+                    queue.append(next_node)
+        
+
+        # graph is disconnected
+        if target_node is None:
+            raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
+
+        # recover path
+        best_path = []
+        while target_node in previous_edge:
+            counter -= 1
+            best_path.append((target_node, previous_edge[target_node]))
+            target_node = previous_node[target_node]
+        best_path.append((target_node, None))
+        best_path.reverse()
+
+        print(best_path)
+
+        # parse some stuff
+        initial_node = best_path[0][0]
+        final_node = best_path[-1][0]
+        rerouter_nodes = []
+        for index in range(1, len(best_path)):
+            rerouter_nodes.append((best_path[index][1], best_path[index-1][0], best_path[index][0]))
+    
+        return initial_node, final_node, rerouter_nodes
 
     def _resolve_tx_rx_reroute(self, forwarder_config: list[ForwarderConfigJson]) -> None:
         # make all forwarders
+        # OVERVIEW
+        # what we gotta do is make a graph representation of canBuses
+        # where buses are connected by edges which are boards
+        # then we create start nodes -> buses connected with TX node
+        # and destination nodes -> buses connected with RX node
+        # and we run BFS, keeping track of three things
+        # 1. shortest path to each bus (all destination nodes init as 0)
+        # 2. previous bus to each bus on shortest path
+        # 3. previous edge to each bus on shortest path
+        # we recover the path we want by finding the destination node w/ the shortest distance
+        # and backtrack 
+        # lastly to update our config we do the following
+        # we make the first tx board forward to the first bus
+        # for the buses/boards in order
+        # we add a rerouter config for board i from {prev bus, next bus}
+        # we make the last rx board take shit in from the last bus 
+
+        # graph representation of canBuses
+        # im sorry this is about to be just tuples and shit
+        adj_list = {}
+    
         for f_config in forwarder_config:
             node_name = f_config["forwarder"]
             if node_name not in self._nodes:
                 raise InvalidCanJson(f"Forwarder node '{node_name}' is not defined in the node JSON.")
             # init the reroute_config
             self._nodes[node_name].reroute_config = {}
+
             # TODO add edge between f_config["bus1"] and f_config["bus2"]
+            bus1 = f_config["bus1"]
+            bus2 = f_config["bus2"]
+            if bus1 not in self._busses:
+                raise InvalidCanJson(f"Forwarder bus '{bus1}' is not defined in the node JSON.")
+            if bus2 not in self._busses:
+                raise InvalidCanJson(f"Forwarder bus '{bus2}' is not defined in the node JSON.")
+            if bus1 not in adj_list:
+                adj_list[bus1] = []
+            if bus2 not in adj_list:
+                adj_list[bus2] = []
+            adj_list[bus1].append((bus2, node_name))
+            adj_list[bus2].append((bus1, node_name))
 
         for msg in self._msgs.values():
             if len(msg.rx_node_names) <= 0:
@@ -222,13 +309,24 @@ class JsonCanParser:
                 # this will return
                 # tx_bus_name: CanBus, rx_bus: CanBus, rerouters: list[CanForward]
 
-                # tx_node.tx_config.add_tx(...)
-                # rx_node.rx_config.add_rx(...)
+                initial_node, final_node, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(adj_list, tx_node, rx_node)
+                print(initial_node)
+                print(final_node)
+                print(rerouter_nodes)
+
+                # tx_node.tx_config.add_tx(...)  <- initial_bus
+                # rx_node.rx_config.add_rx(...) <- final_bus
+
+                # for each rerouter node there are three important values
+                # the first value is the board which is the rerouter
+                # the other two are the two buses which the board is routing
 
                 # since the rerouter will be created with the message metadata, we can guarentee that it is unique with all other messages in the array
                 # rerouter_nodes: list[str]
                 # for rerouter_node in rerouter_nodes:
                 #     add config to rerouter_node.reroute_config
+
+
 
     # def _depr_calculate_reroutes(self) -> List[CanForward]:
     #     # design choice

@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union, DefaultDict
+from typing import Dict, List, Optional, Set, Union, DefaultDict
 
 import pandas as pd
 from strenum import StrEnum
@@ -285,10 +285,10 @@ class CanAlert:
 
 @dataclass()
 class CanTxConfigs:
-    _map_by_msg_name: DefaultDict[str, List[str]]
+    _map_by_msg_name: DefaultDict[str, Set[str]]
 
     def add_tx_msg(self, msg_name: str, tx_bus: str):
-        self._map_by_msg_name[msg_name].append(tx_bus)
+        self._map_by_msg_name[msg_name].add(tx_bus)
 
     def list_msg_names(self):
         return self._map_by_msg_name.keys()
