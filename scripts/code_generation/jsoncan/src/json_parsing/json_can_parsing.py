@@ -209,9 +209,10 @@ class JsonCanParser:
         target_node = None
         queue = deque()
 
-        # populate distance w/ start nodes
+        # populate w/ start nodes
         for bus_name in tx_node.bus_names:
             queue.append(bus_name)
+            previous_node[bus_name] = None
         
         # population destination w/ end nodes
         for bus_name in rx_node.bus_names:
@@ -228,7 +229,6 @@ class JsonCanParser:
                     previous_node[next_node] = cur_node
                     previous_edge[next_node] = edge
                     queue.append(next_node)
-        
 
         # graph is disconnected
         if target_node is None:
@@ -236,14 +236,22 @@ class JsonCanParser:
 
         # recover path
         best_path = []
-        while target_node in previous_edge:
-            counter -= 1
+        while previous_node[target_node] is not None:
             best_path.append((target_node, previous_edge[target_node]))
             target_node = previous_node[target_node]
+            if target_node in previous_node and target_node == previous_node[target_node]:
+                print("WTF")
+                break
         best_path.append((target_node, None))
         best_path.reverse()
 
-        print(best_path)
+        # if counter == 0:
+        #     print(previous_node)
+        #     print(previous_edge)
+        #     print(tx_node)
+        #     print(rx_node)
+        #     print(adj_list)
+        #     raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
 
         # parse some stuff
         initial_node = best_path[0][0]
@@ -310,9 +318,9 @@ class JsonCanParser:
                 # tx_bus_name: CanBus, rx_bus: CanBus, rerouters: list[CanForward]
 
                 initial_node, final_node, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(adj_list, tx_node, rx_node)
-                print(initial_node)
-                print(final_node)
-                print(rerouter_nodes)
+                # print(initial_node)
+                # print(final_node)
+                # print(rerouter_nodes)
 
                 # tx_node.tx_config.add_tx(...)  <- initial_bus
                 # rx_node.rx_config.add_rx(...) <- final_bus
