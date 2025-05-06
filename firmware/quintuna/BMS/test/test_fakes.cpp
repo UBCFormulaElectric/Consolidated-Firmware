@@ -3,7 +3,6 @@ extern "C"
 #include "io_ltc6813.h"
 }
 
-
 static bool state = false;
 void        io_ltc6813_writeConfigurationRegisters_setOutput(bool output)
 {
