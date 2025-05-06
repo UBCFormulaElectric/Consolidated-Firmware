@@ -24,8 +24,8 @@ void io_coolant_inputCaptureCallback()
 
 float io_coolant_getFlowRate()
 {
-    const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter_5v5);
-    return freq_read / LITER_PER_MINUTE_SENSOR_PERIOD_SECS;
+    float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter_5v5);
+    return LITER_PER_MINUTE_SENSOR_PERIOD_SECS / freq_read;
 }
 
 void io_coolant_checkIfFlowMeterActive()
