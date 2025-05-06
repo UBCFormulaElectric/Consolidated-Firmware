@@ -223,6 +223,7 @@ bool io_sbgEllipse_init(void)
     assert(uart_sbuf_handle != NULL);
 
     // Start waiting for UART packets
+    // TODO: Handle error codes on Quintuna!
     hw_uart_receiveCallback(&sbg_ellipse_uart, uart_dma_buf, UART_RX_PACKET_SIZE);
 
     return true;

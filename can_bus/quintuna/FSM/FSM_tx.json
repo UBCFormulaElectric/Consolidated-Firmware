@@ -24,5 +24,15 @@
                 "bits": 1
             }
         }
+    },
+    "Debug": {
+        "msg_id": 607,
+        "cycle_time": 1000,
+        "description": "FSM Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
     }
 }

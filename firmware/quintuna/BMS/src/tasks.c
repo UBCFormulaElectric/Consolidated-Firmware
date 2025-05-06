@@ -1,6 +1,8 @@
 #include "tasks.h"
 #include "jobs.h"
 
+#include "app_canTx.h"
+
 #include "io_log.h"
 #include "io_canQueue.h"
 
@@ -14,6 +16,7 @@
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
+#include "hw_resetReason.h"
 #include "shared.pb.h"
 
 void tasks_runChimera(void)
@@ -33,6 +36,8 @@ void tasks_init(void)
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
+    app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 void tasks_run1Hz(void)

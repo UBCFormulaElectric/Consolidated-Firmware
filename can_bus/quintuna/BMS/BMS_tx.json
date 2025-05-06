@@ -12,6 +12,16 @@
             }
         }
     },
+    "Debug": {
+        "msg_id": 407,
+        "cycle_time": 1000,
+        "description": "BMS Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
+    },
     "LatchedFaults": {
         "msg_id": 410,
         "cycle_time": 100,
@@ -28,39 +38,89 @@
             }
         }
     },
-    "ElconControls": {
-        "msg_id": 450,
-        "cycle_time": 1000,
-        "description": "Control parameters for Elcon charger communication",
+    "Contactors": {
+        "msg_id": 411,
+        "cycle_time": 100,
+        "description": "BMS IR state statuses",
         "signals": {
-            "MaxChargingVoltage": {
-              "start_bit": 0,
-              "bits": 16,
-              "min": 0,
-              "max": 10000,
-              "scale": 0.1,
-              "offset": 0,
-              "unit": "V"
+            "IrPositive": {
+                "enum": "ContactorState"
             },
-            "MaxChargingCurrent": {
-              "start_bit": 16,
-              "bits": 16,
-              "min": 0,
-              "max": 1000,
-              "scale": 0.1,
-              "offset": 0,
-              "unit": "A"
+            "IrNegative": {
+                "enum": "ContactorState"
             },
-            "StopCharging": {
-              "start_bit": 32,
-              "bits": 1
-            },
-            "Reserved": {
-              "start_bit": 33,
-              "bits": 31
+            "PrechargeRelay": {
+                "enum": "ContactorState"
             }
         }
     },
+    "TractiveSystem": {
+        "msg_id": 412,
+        "cycle_time": 100,
+        "description": "BMS Tractive System Data",
+        "signals": {
+            "TractiveSystemVoltage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 600,
+                "unit": "V"
+            },
+            "TractiveSystemCurrent": {
+                "resolution": 0.1,
+                "min": -300,
+                "max": 300,
+                "unit": "A"
+            },
+            "TractiveSystemPower": {
+                "resolution": 0.1,
+                "min": -100,
+                "max": 100,
+                "unit": "kW"
+            },
+            "AvailablePower": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100000,
+                "unit": "W"
+            },
+            "BSPDCurrentThresholdExceeded": {
+                "bits": 1
+            }
+        }
+    },
+     "ElconControls": {
+            "msg_id": 450,
+            "cycle_time": 1000,
+            "description": "Control parameters for Elcon charger communication",
+            "signals": {
+                  "MaxChargingVoltage": {
+                      "start_bit": 0,
+                      "bits": 16,
+                      "min": 0,
+                      "max": 10000,
+                      "scale": 0.1,
+                      "offset": 0,
+                      "unit": "V"
+                  },
+                  "MaxChargingCurrent": {
+                      "start_bit": 16,
+                      "bits": 16,
+                      "min": 0,
+                      "max": 1000,
+                      "scale": 0.1,
+                      "offset": 0,
+                      "unit": "A"
+                  },
+                  "StopCharging": {
+                      "start_bit": 32,
+                      "bits": 1
+                  },
+                  "Reserved": {
+                      "start_bit": 33,
+                      "bits": 31
+                  }
+            }
+      },
     "CellStats": {
         "msg_id": 459,
         "cycle_time": 100,

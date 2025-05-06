@@ -26,7 +26,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
-        # "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
@@ -51,6 +51,9 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -58,7 +61,7 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -70,12 +73,14 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # Bootloader files.
-    file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     #Build Bootloader
     stm32h7_boot_binary(
             "quintuna_DAM_boot"
             "${BOOT_SRCS}"
+            "${BOOT_CUBEMX_SRCS}"
             "${BOOT_INCLUDE_DIRS}"
             "quintuna_DAM"
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
@@ -84,7 +89,7 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc")
 
-    generate_stm32cube_code("DAM" "${IOC_PATH}")
+    generate_stm32cube_code("quintuna_DAM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal.c"
@@ -120,7 +125,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     stm32h733xx_cube_library(
-            "quintuna_DAM_stm32cube"
+            "quintuna_DAM_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
@@ -150,7 +155,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1")
     target_link_libraries("quintuna_DAM_boot.elf" PRIVATE "quintuna_DAM_commit_info")
 
     #create image
