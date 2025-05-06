@@ -1,10 +1,11 @@
-extern "C" {
+extern "C"
+{
     #include "io_ltc6813.h"
 }
 
 
 static bool state = false;
-void io_ltc6813_writeConfigurationRegisters_setOutput(bool output)
+void        io_ltc6813_writeConfigurationRegisters_setOutput(bool output)
 {
     state = output;
 }
@@ -15,7 +16,7 @@ extern "C" bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_S
 }
 
 static bool startCellAdcConv = false;
-void io_ltc6813_startCellsAdcConversion_setOutput(bool output)
+void        io_ltc6813_startCellsAdcConversion_setOutput(bool output)
 {
     startCellAdcConv = output;
 }
@@ -31,7 +32,7 @@ extern "C" void io_ltc6813_readVoltages(
 }
 
 static bool startThermAdcConv = false;
-void io_ltc6813_startThermistorsAdcConversion_setOutput(bool output)
+void        io_ltc6813_startThermistorsAdcConversion_setOutput(bool output)
 {
     startThermAdcConv = output;
 }
