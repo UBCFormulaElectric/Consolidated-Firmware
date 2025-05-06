@@ -3,13 +3,14 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "app_canTx.h"
+
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_time.h"
 // hw
 #include "hw_usb.h"
-#include "hw_cans.h"
-#include "hw_adcs.h"
+#include "hw_resetReason.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -28,6 +29,8 @@ void tasks_init(void)
     hw_usb_init();
 
     jobs_init();
+
+    app_canTx_VC_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)

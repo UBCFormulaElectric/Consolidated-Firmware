@@ -17,7 +17,15 @@
 #include "hw_utils.h"
 #include "hw_crc.h"
 #include "hw_hal.h"
+
+#ifdef STM32H733xx
+#include "hw_fdcan.h"
+#elif STM32F412Rx
 #include "hw_can.h"
+#else
+#error "Please define what MCU is used"
+#endif
+
 #include <assert.h>
 
 extern CRC_HandleTypeDef hcrc;
@@ -39,16 +47,6 @@ void canTxQueueOverflowCallBack(const uint32_t unused)
 }
 
 // App code block. Start/size included from the linker script.
-extern uint32_t __app_metadata_start__; // NOLINT(*-reserved-identifier)
-extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
-
-// App metadata block. Start/size included from the linker script.
-extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
-extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
-
-// Boot flag from RAM
-__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
-
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
 typedef struct
@@ -57,6 +55,16 @@ typedef struct
     uint32_t size_bytes;
     uint32_t bootloader_status;
 } Metadata;
+
+extern Metadata __app_metadata_start__; // NOLINT(*-reserved-identifier)
+extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
+
+// App metadata block. Start/size included from the linker script.
+extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
+extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
+
+// Boot flag from RAM
+__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
 
 typedef enum
 {
@@ -116,13 +124,14 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 
 static BootStatus verifyAppCodeChecksum(void)
 {
+    // ReSharper disable once CppRedundantDereferencingAndTakingAddress
     if (*&__app_code_start__ == 0xFFFFFFFF)
     {
         // If app initial stack pointer is all 0xFF, assume app is not present.
         return BOOT_STATUS_NO_APP;
     }
 
-    const Metadata *metadata = (Metadata *)&__app_metadata_start__;
+    const Metadata *metadata = &__app_metadata_start__;
     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
     {
         // App binary size field is invalid.
