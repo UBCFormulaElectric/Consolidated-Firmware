@@ -93,10 +93,10 @@ class JsonCanParser:
         for rx_node in self._nodes.values():
             # multiple buses can be defined in the RX JSON
             bus_rx_msgs_json = parse_json_rx_data(can_data_dir, rx_node)
-            if type(bus_rx_msgs_json) == str:
-                assert bus_rx_msgs_json == "all", "Schema check has failed"
+            if type(bus_rx_msgs_json["messages"]) == str:
+                assert bus_rx_msgs_json["messages"] == "all", "Schema check has failed"
                 # if "all" in messages then add all messages on this bus
-                bus_rx_msg_names = list(set(self._msgs.keys()) - set(rx_node.tx_config.list_msg_names()))
+                bus_rx_msg_names = list(set(self._msgs.keys()) - set(self._node_tx_msgs[rx_node.name]))
             else:
                 bus_rx_msg_names = bus_rx_msgs_json["messages"]
             for msg_name in bus_rx_msg_names:

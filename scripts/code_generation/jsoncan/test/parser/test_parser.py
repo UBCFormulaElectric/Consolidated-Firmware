@@ -22,11 +22,9 @@ class NodeTests(unittest.TestCase):
 
     def test_all_nodes_present(self):
         """
-        Checks that ECU1 and ECU2 are the only nodes present in the database.
+        Checks that ECU1-5 are the only nodes present in the database.
         """
-        self.assertIn("ECU1", self.cdb_valid.nodes.keys())
-        self.assertIn("ECU2", self.cdb_valid.nodes.keys())
-        self.assertEqual(len(self.cdb_valid.nodes), 2)
+        self.assertSetEqual(set(self.cdb_valid.nodes.keys()), {"ECU1", "ECU2", "ECU3", "ECU4", "ECU5"})
 
     def test_all_messages_present(self):
         """
@@ -48,8 +46,11 @@ class NodeTests(unittest.TestCase):
             'ECU1_FaultsCounts', 'ECU1_Info', 'ECU1_WarningsCounts', 'ECU1_Faults', 'ECU1_InfoCounts', 'ECU1_Warnings'})
 
     def test_node_on_busses(self):
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].bus_names), {"bus1", "bus2"})
-        self.assertEqual(set(self.cdb_valid.nodes["ECU2"].bus_names), {"bus2"})
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].bus_names), {"can1", "can2", "can3"})
+        self.assertEqual(set(self.cdb_valid.nodes["ECU2"].bus_names), {"can3"})
+        self.assertEqual(set(self.cdb_valid.nodes["ECU3"].bus_names), {"can1", "can2"})
+        self.assertEqual(set(self.cdb_valid.nodes["ECU4"].bus_names), {"can1"})
+        self.assertEqual(set(self.cdb_valid.nodes["ECU5"].bus_names), {"can2"})
 
 
 class ConsistencyCheckTests(unittest.TestCase):
