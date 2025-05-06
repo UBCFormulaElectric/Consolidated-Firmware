@@ -32,6 +32,9 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     ASSERT_EXIT_OK(hw_usb_init());
+    hw_can_init(&can1);
+    hw_can_init(&can2);
+    hw_can_init(&can3);
 
     jobs_init();
 
@@ -124,7 +127,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        if (tx_msg.is_fd)
+        if (tx_msg.is_fd || true)
         {
             hw_fdcan_transmit(&can1, &tx_msg);
         }
@@ -132,8 +135,8 @@ _Noreturn void tasks_runCanTx(void)
         {
             // this logic is going to be changed once we have the
             // json to can code merged in
-            hw_can_transmit(&can2, &tx_msg);
-            hw_can_transmit(&can3, &tx_msg);
+            // hw_can_transmit(&can2, &tx_msg);
+            // hw_can_transmit(&can3, &tx_msg);
         }
     }
 }
