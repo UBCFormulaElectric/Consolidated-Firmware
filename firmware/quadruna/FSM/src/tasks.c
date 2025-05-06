@@ -10,7 +10,7 @@
 #include "app_apps.h"
 #include "app_stackWaterMarks.h"
 
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
 #include "io_canQueue.h"

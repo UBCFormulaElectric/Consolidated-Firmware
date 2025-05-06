@@ -25,7 +25,7 @@ file(GLOB_RECURSE SHARED_IO_SRCS "${SHARED_IO_INCLUDE_DIR}/*.c")
 file(GLOB_RECURSE SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/*.c")
 
 # Test Utils
-set(SHARED_TEST_UTILS_INCLUDE_DIRS "${SHARED_DIR}/test_utils")
+set(SHARED_TEST_UTILS_INCLUDE_DIRS "${SHARED_DIR}/test")
 
 # Generate library with header file for commit message
 message("  🔃 Registered commit_info_library() function")

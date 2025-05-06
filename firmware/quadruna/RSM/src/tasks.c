@@ -11,7 +11,7 @@
 #include "app_heartbeatMonitors.h"
 #include "app_stackWaterMarks.h"
 
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canTx.h"
 #include "io_log.h"
 #include "io_chimera.h"
