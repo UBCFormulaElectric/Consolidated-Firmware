@@ -66,14 +66,11 @@ class NodeTests(CDBTests):
 
     def test_reroute_configs(self):
         ecu1rrc = self.cdb_valid.nodes["ECU1"].reroute_config
-        ecu2rrc = self.cdb_valid.nodes["ECU2"].reroute_config
+        ecu3rrc = self.cdb_valid.nodes["ECU3"].reroute_config
         self.assertSetEqual(set(ecu1rrc),
-                            set())
-        self.assertSetEqual(set(ecu2rrc),
-                            {CanForward("", "ECU2", "", ""), CanForward("", "ECU2", "", ""),
-                             CanForward("", "ECU2", "", ""),
-                             CanForward("", "ECU2", "", ""), CanForward("", "ECU2", "", ""),
-                             CanForward("", "ECU2", "", ""), })
+                            set([CanForward(msg_name, "ECU1", "can3", "can1") for msg_name in self.ecu2_msgs]))
+        self.assertSetEqual(set(ecu3rrc),
+                            set([CanForward(msg_name, "ECU3", "can2", "can1") for msg_name in self.ecu5_msgs]))
 
 
 class BusTests(CDBTests):
