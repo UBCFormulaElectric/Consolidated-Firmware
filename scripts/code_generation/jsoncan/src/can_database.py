@@ -549,7 +549,7 @@ class CanForward:
         )
 
     def __hash__(self):
-        return hash((self.message, self.forwarder, self.from_bus, self.to_bus)
+        return hash((self.message, self.forwarder, self.from_bus, self.to_bus))
 
     def __str__(self):
         return f"Forwarding {self.message} from {self.from_bus} to {self.to_bus} via {self.forwarder}"
