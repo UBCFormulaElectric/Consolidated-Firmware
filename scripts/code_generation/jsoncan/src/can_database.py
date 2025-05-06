@@ -547,3 +547,6 @@ class CanForward:
                 and self.from_bus == other.from_bus
                 and self.to_bus == other.to_bus
         )
+
+    def __str__(self):
+        return f"Forwarding {self.message} from {self.from_bus} to {self.to_bus} via {self.forwarder}"

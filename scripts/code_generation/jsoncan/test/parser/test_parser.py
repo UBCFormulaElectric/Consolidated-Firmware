@@ -23,6 +23,18 @@ class NodeTests(CDBTests):
     These tests check that nodes are created correctly.
     """
 
+    ecu1_msgs = {"ECU1_BasicSignalTypes", "ECU1_DecimalNumbers", "ECU1_DbcMatching", "ECU1_MinMaxClamping",
+                 "ECU1_Warnings",
+                 "ECU1_WarningsCounts", "ECU1_Faults", "ECU1_FaultsCounts", "ECU1_Info", "ECU1_InfoCounts"}
+    ecu2_msgs = {"ECU2_BasicSignalTypes", "ECU2_Warnings",
+                 "ECU2_WarningsCounts", "ECU2_Faults", "ECU2_FaultsCounts", "ECU2_Info", "ECU2_InfoCounts"}
+    ecu3_msgs = {"ECU3_TEST", "ECU3_Warnings", "ECU3_WarningsCounts", "ECU3_Faults", "ECU3_FaultsCounts",
+                 "ECU3_Info", "ECU3_InfoCounts"}
+    ecu4_msgs = {"ECU4_TEST", "ECU4_Warnings", "ECU4_WarningsCounts", "ECU4_Faults", "ECU4_FaultsCounts", "ECU4_Info",
+                 "ECU4_InfoCounts"}
+    ecu5_msgs = {"ECU5_TEST", "ECU5_Warnings", "ECU5_WarningsCounts", "ECU5_Faults", "ECU5_FaultsCounts",
+                 "ECU5_Info", "ECU5_InfoCounts"}
+
     def test_all_nodes_present(self):
         """
         Checks that ECU1-5 are the only nodes present in the database.
@@ -41,23 +53,11 @@ class NodeTests(CDBTests):
         Checks that all tx/rx messages are present
         :return:
         """
-        self.assertSetEqual(
-            set(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names()),
-            {"ECU1_BasicSignalTypes", "ECU1_DecimalNumbers", "ECU1_DbcMatching", "ECU1_MinMaxClamping", "ECU1_Warnings",
-             "ECU1_WarningsCounts", "ECU1_Faults", "ECU1_FaultsCounts", "ECU1_Info", "ECU1_InfoCounts"}
-        )
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names()),
-                            {"ECU2_BasicSignalTypes", "ECU2_Warnings",
-                             "ECU2_WarningsCounts", "ECU2_Faults", "ECU2_FaultsCounts", "ECU2_Info", "ECU2_InfoCounts"})
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names()),
-                            {"ECU3_TEST", "ECU3_Warnings", "ECU3_WarningsCounts", "ECU3_Faults", "ECU3_FaultsCounts",
-                             "ECU3_Info", "ECU3_InfoCounts"})
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names()),
-                            {"ECU4_TEST", "ECU4_Warnings", "ECU4_WarningsCounts", "ECU4_Faults", "ECU4_FaultsCounts",
-                             "ECU4_Info", "ECU4_InfoCounts"})
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names()),
-                            {"ECU5_TEST", "ECU5_Warnings", "ECU5_WarningsCounts", "ECU5_Faults", "ECU5_FaultsCounts",
-                             "ECU5_Info", "ECU5_InfoCounts"})
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names()), self.ecu1_msgs)
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names()), self.ecu2_msgs)
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names()), self.ecu3_msgs)
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names()), self.ecu4_msgs)
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names()), self.ecu5_msgs)
 
     def test_nonpresent_reroute_configs(self):
         self.assertEqual(self.cdb_valid.nodes["ECU2"].reroute_config, None)
@@ -68,11 +68,12 @@ class NodeTests(CDBTests):
         ecu1rrc = self.cdb_valid.nodes["ECU1"].reroute_config
         ecu2rrc = self.cdb_valid.nodes["ECU2"].reroute_config
         self.assertSetEqual(set(ecu1rrc),
-                            {CanForward("", "", "", ""), CanForward("", "", "", ""), CanForward("", "", "", ""),
-                             CanForward("", "", "", ""), CanForward("", "", "", ""), CanForward("", "", "", ""), })
+                            set())
         self.assertSetEqual(set(ecu2rrc),
-                            {CanForward("", "", "", ""), CanForward("", "", "", ""), CanForward("", "", "", ""),
-                             CanForward("", "", "", ""), CanForward("", "", "", ""), CanForward("", "", "", ""), })
+                            {CanForward("", "ECU2", "", ""), CanForward("", "ECU2", "", ""),
+                             CanForward("", "ECU2", "", ""),
+                             CanForward("", "ECU2", "", ""), CanForward("", "ECU2", "", ""),
+                             CanForward("", "ECU2", "", ""), })
 
 
 class BusTests(CDBTests):

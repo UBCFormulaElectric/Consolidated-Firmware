@@ -2,13 +2,13 @@
   "forwarders": [
     {
       "forwarder": "ECU1",
-      "bus1": "bus1",
-      "bus2": "bus3"
+      "bus1": "can1",
+      "bus2": "can3"
     },
     {
       "forwarder": "ECU3",
-      "bus1": "bus1",
-      "bus2": "bus2"
+      "bus1": "can1",
+      "bus2": "can2"
     }
   ],
   "buses": [
