@@ -1,5 +1,5 @@
 # Chimera V2
-Control UBC Formula Electric STM boards over USB with Python, and talk to them over CAN.
+Control UBC Formula Electric STM boards over USB with Python.
 
 ![Chimera Architecture](../../images/chimera/chimera_v2_high_res.drawio.png)
 
