@@ -1147,6 +1147,31 @@
                 "unit": "V"
             }
         }
+    },
+    "Segment0_Tests": {
+        "msg_id": 480,
+        "cycle_time": 100,
+        "description": "Segment 0 LTC tests and checks",
+        "signals": {
+            "Self_Test_Voltages": {
+                "bits": 1
+            },
+            "Self_Test_Aux": {
+                "bits": 1
+            },
+            "Self_Test_Stat": {
+                "bits": 1
+            },
+            "Diagnose_MUX": {
+                "bits": 1
+            },
+            "Overlap_ADC_Test": {
+                "bits": 1
+            },
+            "OWC_Pull": {
+                "bits": 1
+            }
+        }
     }
     
 }
