@@ -539,3 +539,11 @@ class CanForward:
     forwarder: str
     from_bus: str  # name of the bus the message is forwarded from
     to_bus: str  # bus the message is forwarded to
+
+    def __eq__(self, other):
+        return (
+                self.message == other.message
+                and self.forwarder == other.forwarder
+                and self.from_bus == other.from_bus
+                and self.to_bus == other.to_bus
+        )

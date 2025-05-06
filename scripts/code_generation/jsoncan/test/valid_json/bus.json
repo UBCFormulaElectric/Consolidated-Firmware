@@ -19,6 +19,7 @@
         "ECU3",
         "ECU4"
       ],
+      "FD": true,
       "bus_speed": 4000,
       "modes": [
         "default",
