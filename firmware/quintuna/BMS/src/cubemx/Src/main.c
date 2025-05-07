@@ -86,7 +86,7 @@ const osThreadAttr_t TaskCanRx_attributes = {
     .cb_size    = sizeof(TaskCanRxControlBlock),
     .stack_mem  = &TaskCanRxBuffer[0],
     .stack_size = sizeof(TaskCanRxBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for TaskCanTx */
 osThreadId_t         TaskCanTxHandle;
@@ -98,7 +98,7 @@ const osThreadAttr_t TaskCanTx_attributes = {
     .cb_size    = sizeof(TaskCanTxControlBlock),
     .stack_mem  = &TaskCanTxBuffer[0],
     .stack_size = sizeof(TaskCanTxBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
@@ -599,10 +599,10 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 3;
-    hfdcan1.Init.NominalSyncJumpWidth = 3;
-    hfdcan1.Init.NominalTimeSeg1      = 12;
-    hfdcan1.Init.NominalTimeSeg2      = 3;
+    hfdcan1.Init.NominalPrescaler     = 2;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 45;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
     hfdcan1.Init.DataPrescaler        = 1;
     hfdcan1.Init.DataSyncJumpWidth    = 1;
     hfdcan1.Init.DataTimeSeg1         = 1;
