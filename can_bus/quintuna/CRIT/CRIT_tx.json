@@ -6,9 +6,6 @@
         "signals": {
             "Heartbeat": {
                 "bits": 1
-            },
-            "State": {
-                "enum": "CritState"
             }
         }
     },
@@ -35,6 +32,12 @@
             },
             "TorqueVecSwitch": {
                 "enum": "SwitchState"
+            },
+            "LaunchControlSwitch": {
+                "enum": "SwitchState"
+            },
+            "TelemSwitch": {
+                "enum": "SwitchState"
             }
         }
     },
@@ -44,7 +47,7 @@
         "description": "Drive Mode.",
         "signals": {
             "DriveMode": {
-                "bits": 4
+                "enum": "DriveMode"
             }
         }
     },

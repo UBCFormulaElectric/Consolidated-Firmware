@@ -3,8 +3,7 @@
     "faults_id": 802,
     "warnings_counts_id": 803,
     "faults_counts_id": 804,
-    "warnings": {
-    },
+    "warnings": {},
     "faults": {
         "DummyFault": {
             "id": 800,

@@ -4,9 +4,11 @@
         "FSM_Vitals",
         "RSM_Vitals",
         "VC_Vitals",
+        "DAM_Vitals",
         "BMS_LatchedFaults",
         "VC_VehicleDynamics",
         "VC_GlobalShdnNodeStatus",
-        "Debug_CanMode"
+        "Debug_CanMode",
+        "BMS_HvBatteryProperties"
     ]
 }
