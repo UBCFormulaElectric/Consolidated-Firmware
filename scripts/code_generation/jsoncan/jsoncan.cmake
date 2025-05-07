@@ -43,7 +43,7 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_
             ${APP_CAN_ALERTS_HEADER_OUTPUT}
             ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
             ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
-            COMMAND ${PYTHON_COMMAND}
+            COMMAND ${PYTHON_COMMAND} -m
             ${SCRIPTS_DIR}/code_generation/jsoncan/generate_can_from_json.py
             --board ${JSONCAN_PY_BOARD}
             --can_data_dir ${CAN_JSON_DIR}
@@ -92,11 +92,11 @@ function(log_bus_load CAR)
     set(CAN_JSON_DIR "${CAN_DIR}/${CAR}")
     message("  📚 [jsoncan.cmake, log_bus_load()] Registering CAN bus load calculation for ${CAR}")
     add_custom_target(
-        can_bus_load_${CAR}
-        COMMAND ${PYTHON_COMMAND} "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
-        --can_data_dir "${CAN_JSON_DIR}"
-        WORKING_DIRECTORY "${REPO_ROOT_DIR}"
-        COMMENT "Calculating CAN bus load using JSON CAN data for ${CAR}"
+            can_bus_load_${CAR}
+            COMMAND ${PYTHON_COMMAND} "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
+            --can_data_dir "${CAN_JSON_DIR}"
+            WORKING_DIRECTORY "${REPO_ROOT_DIR}"
+            COMMENT "Calculating CAN bus load using JSON CAN data for ${CAR}"
     )
 endfunction()
 
