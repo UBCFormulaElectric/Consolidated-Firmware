@@ -39,11 +39,11 @@ class JsonCanParser:
     _nodes: Dict[str, CanNode]  # _nodes[node_name] gives metadata for node_name
     _busses: Dict[str, CanBus]  # _bus_config[bus_name] gives metadata for bus_name
     _msgs: Dict[str, CanMessage]  # _msgs[msg_name] gives metadata for msg_name
-    _alerts: Dict[str, list[CanAlert]]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
+    _alerts: Dict[str, List[CanAlert]]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
 
     # internal state
-    _node_tx_msgs: Dict[str, list[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
-    _node_rx_msgs: Dict[str, list[str]]  # _rx_msgs[node_name] gives a list of all the messages it rxs
+    _node_tx_msgs: Dict[str, List[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
+    _node_rx_msgs: Dict[str, List[str]]  # _rx_msgs[node_name] gives a list of all the messages it rxs
 
     def __init__(self, can_data_dir: str):
         """
@@ -53,15 +53,10 @@ class JsonCanParser:
         self._node_tx_msgs = {}
         self._node_rx_msgs = {}
 
-        node_names: list[str] = list_nodes_from_folders(can_data_dir)
+        node_names: List[str] = list_nodes_from_folders(can_data_dir)
         # create node objects for each node
         self._nodes = {
-            node_name: CanNode(
-                name=node_name,
-                bus_names=[],
-                tx_config=CanTxConfigs(defaultdict(set)),
-                rx_config=CanRxConfigs(defaultdict(list), defaultdict(str)),
-            )
+            node_name: CanNode(node_name)
             for node_name in node_names
         }
 
@@ -71,11 +66,9 @@ class JsonCanParser:
         # populate self._nodes[node_name].bus_names
         # add busses each node is on
         for node_name in node_names:
-            self._nodes[node_name].bus_names = [
-                self._busses[bus_name].name
-                for bus_name in self._busses
-                if node_name in self._busses[bus_name].node_names
-            ]
+            for bus_name in self._busses:
+                if node_name in self._busses[bus_name].node_names:
+                    self._nodes[node_name].add_bus(bus_name)
 
         # PARSE TX JSON DATA
         # collect shared enums outside of loop
@@ -209,10 +202,11 @@ class JsonCanParser:
         rx_msg.rx_node_names.append(rx_node.name)  # TODO is this necessary??
         self._node_rx_msgs[rx_node.name].append(msg_name)
 
-    def _fast_fourier_transform_stochastic_gradient_descent(self, adj_list: Dict[str, List[Tuple[str, str]]],
+    @staticmethod
+    def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List[Tuple[str, str]]],
                                                             tx_node: CanNode,
                                                             rx_node: CanNode) -> \
-            tuple[str, str, list[tuple[str, str, str]]]:
+            Tuple[str, str, List[Tuple[str, str, str]]]:
         previous_node: Dict[str, Optional[str]] = {}
         previous_edge: Dict[str, str] = {}
         destination_nodes: Set[str] = set()
@@ -271,7 +265,7 @@ class JsonCanParser:
 
         return initial_node, final_node, rerouter_nodes
 
-    def _resolve_tx_rx_reroute(self, forwarder_config: list[ForwarderConfigJson]) -> None:
+    def _resolve_tx_rx_reroute(self, forwarder_config: List[ForwarderConfigJson]) -> None:
         # make all forwarders
         # OVERVIEW
         # what we gotta do is make a graph representation of canBuses
@@ -292,18 +286,15 @@ class JsonCanParser:
 
         # graph representation of canBuses
         # im sorry this is about to be just tuples and shit
-        adj_list: dict[str, list[tuple[str, str]]] = {}
+        adj_list: Dict[str, List[Tuple[str, str]]] = defaultdict(list)
 
-        for f_config in forwarder_config:
-            node_name = f_config["forwarder"]
-            if node_name not in self._nodes:
-                raise InvalidCanJson(f"Forwarder node '{node_name}' is not defined in the node JSON.")
-            # init the reroute_config
-            self._nodes[node_name].reroute_config = []
-
-            # TODO add edge between f_config["bus1"] and f_config["bus2"]
-            bus1 = f_config["bus1"]
-            bus2 = f_config["bus2"]
+        for forwarder_json in forwarder_config:
+            forwarder_node_name = forwarder_json["forwarder"]
+            if forwarder_node_name not in self._nodes:
+                raise InvalidCanJson(f"Forwarder node '{forwarder_node_name}' is not defined in the node JSON.")
+            self._nodes[forwarder_node_name].reroute_config = []
+            bus1 = forwarder_json["bus1"]
+            bus2 = forwarder_json["bus2"]
             if bus1 not in self._busses:
                 raise InvalidCanJson(f"Forwarder bus '{bus1}' is not defined in the node JSON.")
             if bus2 not in self._busses:
@@ -312,93 +303,25 @@ class JsonCanParser:
                 adj_list[bus1] = []
             if bus2 not in adj_list:
                 adj_list[bus2] = []
-            adj_list[bus1].append((bus2, node_name))
-            adj_list[bus2].append((bus1, node_name))
+            adj_list[bus1].append((bus2, forwarder_node_name))
+            adj_list[bus2].append((bus1, forwarder_node_name))
 
         for msg in self._msgs.values():
             if len(msg.rx_node_names) <= 0:
                 print(f"[WARN] Message {msg.name} has no receiver")
                 continue
             tx_node = self._nodes[msg.tx_node_name]
+            tx_node.tx_config.add_tx_msg(msg.name)
+
             for rx_node_name in msg.rx_node_names:
                 rx_node = self._nodes[rx_node_name]
                 initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(
                     adj_list, tx_node, rx_node)
-                tx_node.tx_config.add_tx_msg(msg.name, initial_node_tx_bus)
+                tx_node.tx_config.add_bus_to_tx_msg(msg.name, initial_node_tx_bus)
                 rx_node.rx_config.add_rx_msg(msg.name, final_node_rx_bus)
                 for rerouter_node in rerouter_nodes:
                     self._nodes[rerouter_node[0]].reroute_config.append(
                         CanForward(msg.name, rerouter_node[0], rerouter_node[1], rerouter_node[2]))
-
-    # def _depr_calculate_reroutes(self) -> List[CanForward]:
-    #     # design choice
-    #     # all message is on FD bus
-    #     # some message from FD bus need to be rerouted to non-FD bus
-    #     # TODO just to note that this behaviour can be created by using the all rx message
-    #
-    #     # a map bus name to set of tx messages
-    #     bus_tx_messages = {bus: set() for bus in self._busses}
-    #
-    #     # a map bus name to set of rx messages
-    #     bus_rx_messages = {bus: set() for bus in self._busses}
-    #
-    #     for _, msg in self._msgs.items():
-    #         tx_buses = msg.bus
-    #         for bus in tx_buses:
-    #             if bus not in bus_tx_messages:
-    #                 raise InvalidCanJson(
-    #                     f"Message '{msg.name}' is not defined in the bus JSON."
-    #                 )
-    #
-    #             bus_tx_messages[bus].add(msg.name)
-    #         for rx_node, _ in self._nodes.items():
-    #             rx_bus = self._rx_msgs[rx_node].find_bus(msg.name)
-    #             if rx_bus is None:
-    #                 continue
-    #             bus_rx_messages[rx_bus].add(msg.name)
-    #
-    #     reroute_msgs = []
-    #     for bus_name, bus_obj in self._busses.items():
-    #         tx_messages = bus_tx_messages[bus_name]
-    #         rx_messages = bus_rx_messages[bus_name]
-    #
-    #         # rx message that is not transmitted on the current bus
-    #         forward_messages = rx_messages - tx_messages
-    #         rx_bus = bus_name
-    #         # if there is a rx message that is not in the tx message then the message is from another bus so we need to reroute it
-    #
-    #         for forward_msg in forward_messages:
-    #             # find the bus that the message is transmited on
-    #             tx_buses = self._msgs[forward_msg].bus
-    #
-    #             # check forwarder config to figure out the which bus to forward to
-    #             for tx_bus in tx_buses:
-    #                 if tx_bus == bus_name:
-    #                     raise InvalidCanJson(
-    #                         "Tx bus and rx bus should not be the same at this stage. Something is wrong"
-    #                     )
-    #                 for config in forwarders_configs:
-    #                     found = False
-    #                     if (rx_bus == config["bus1"] and tx_bus == config["bus2"]) or (
-    #                             rx_bus == config["bus2"] and tx_bus == config["bus1"]
-    #                     ):
-    #                         # found = True
-    #
-    #                         # create a forwarder object
-    #                         forwarder = CanForward(
-    #                             from_bus=tx_bus,
-    #                             to_bus=rx_bus,
-    #                             message=forward_msg,
-    #                             forwarder=config["forwarder"],
-    #                         )
-    #
-    #                         reroute_msgs.append(forwarder)
-    #                         break
-    #                     if not found:
-    #                         raise InvalidCanJson(
-    #                             f"Forwarder config for bus '{rx_bus}' and bus '{tx_bus}' is not defined in the bus JSON for message {forward_msg}."
-    #                         )
-    #     return reroute_msgs
 
     # def _consistency_check(self) -> None:
     #     # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other

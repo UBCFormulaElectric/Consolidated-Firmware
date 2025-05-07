@@ -5,7 +5,6 @@ This file contains various classes to fully describes a CAN bus: The nodes, mess
 from __future__ import annotations
 
 import logging
-from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Union, DefaultDict
 
@@ -283,32 +282,41 @@ class CanAlert:
     description: str
 
 
-@dataclass()
 class CanTxConfigs:
-    _map_by_msg_name: DefaultDict[
-        str, Set[str]]  # TODO remove defaultdict, make it so that every tx message creates a manual entry
+    _map_by_msg_name: Dict[str, Set[str]]  # each message can be sent on many busses
 
-    def add_tx_msg(self, msg_name: str, tx_bus: str):
+    def __init__(self):
+        self._map_by_msg_name = {}
+
+    def add_tx_msg(self, msg_name: str):
+        self._map_by_msg_name[msg_name] = set()
+
+    def add_bus_to_tx_msg(self, msg_name: str, tx_bus: str):
         self._map_by_msg_name[msg_name].add(tx_bus)
 
     def list_msg_names(self):
         return self._map_by_msg_name.keys()
 
 
-@dataclass()
 class CanRxConfigs:
-    # generates lists by default
+    _map_by_bus: Dict[str, Set[str]]  # each bus can receive many messages
+    _map_by_msg_name: Dict[str, str]  # each message can only be received by one bus
 
-    # TODO remove defaultdict
-    _map_by_bus: DefaultDict[str, List[str]]  # each bus can receive many messages
-    _map_by_msg_name: DefaultDict[str, str]  # each message can only be received by one bus
+    def __init__(self):
+        self._map_by_bus = {}
+        self._map_by_msg_name = {}
+
+    def add_rx_bus(self, bus_name: str):
+        assert bus_name not in self._map_by_bus, "Bus already exists"
+        self._map_by_bus[bus_name] = set()
 
     def add_rx_msg(self, msg_name: str, rx_bus: str):
-        self._map_by_bus[rx_bus].append(msg_name)
+        assert msg_name not in self._map_by_msg_name  # do this instead of figuring out how to remove them
+        self._map_by_bus[rx_bus].add(msg_name)
         self._map_by_msg_name[msg_name] = rx_bus
 
     def get_msgs_on_bus(self, bus_name: str) -> List[str]:
-        return self._map_by_bus[bus_name]
+        return list(self._map_by_bus[bus_name])
 
     def get_bus_of_msg(self, msg_name: str) -> str:
         return self._map_by_msg_name[msg_name]
@@ -320,7 +328,6 @@ class CanRxConfigs:
         return len(self._map_by_msg_name) == 0
 
 
-@dataclass()
 class CanNode:
     """
     Dataclass for fully describing a CAN node.
@@ -335,6 +342,21 @@ class CanNode:
     tx_config: CanTxConfigs
     # reroute_config: List[CanForward]  # list of messages that are forwarded to other busses
     reroute_config: Optional[List[CanForward]] = None
+
+    def __init__(self, name: str):
+        self.name = name
+        self.bus_names = []
+        self.rx_config = CanRxConfigs()
+        self.tx_config = CanTxConfigs()
+        self.reroute_config = None
+
+    def add_bus(self, bus_name: str):
+        """
+        Add a bus to this node.
+        """
+        assert bus_name not in self.bus_names, "Bus already exists"
+        self.bus_names.append(bus_name)
+        self.rx_config.add_rx_bus(bus_name)
 
     def __hash__(self):
         return hash(self.name)

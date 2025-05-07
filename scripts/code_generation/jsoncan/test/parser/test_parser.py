@@ -1,9 +1,8 @@
-import unittest
 import os
-from unittest import SkipTest
+import unittest
 
-from ...src.json_parsing.json_can_parsing import JsonCanParser
 from ...src.can_database import CanDatabase, CanForward
+from ...src.json_parsing.json_can_parsing import JsonCanParser
 
 valid_json_folder = os.path.abspath("./test/valid_json")
 
@@ -57,12 +56,26 @@ class NodeTests(CDBTests):
         """
         self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names()),
                             self.ecu1_msgs | self.ec1_alerts)
+        self.assertEqual(len(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names()),
+                         len(set(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names())))
+
         self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names()), self.ecu2_msgs)
+        self.assertEqual(len(self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names()), len(set(
+            self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names())))
+
         self.assertSetEqual(set(self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names()),
                             self.ecu3_msgs | self.ecu3_alerts)
+        self.assertEqual(len(self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names()), len(set(
+            self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names())))
+
         self.assertSetEqual(set(self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names()), self.ecu4_alerts)
+        self.assertEqual(len(self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names()), len(set(
+            self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names())))
+
         self.assertSetEqual(set(self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names()),
                             self.ecu5_msgs | self.ecu5_alerts)
+        self.assertEqual(len(self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names()), len(set(
+            self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names())))
 
     def test_nonpresent_reroute_configs(self):
         self.assertEqual(self.cdb_valid.nodes["ECU2"].reroute_config, None)
