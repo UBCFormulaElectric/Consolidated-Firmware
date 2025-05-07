@@ -285,7 +285,8 @@ class CanAlert:
 
 @dataclass()
 class CanTxConfigs:
-    _map_by_msg_name: DefaultDict[str, Set[str]]
+    _map_by_msg_name: DefaultDict[
+        str, Set[str]]  # TODO remove defaultdict, make it so that every tx message creates a manual entry
 
     def add_tx_msg(self, msg_name: str, tx_bus: str):
         self._map_by_msg_name[msg_name].add(tx_bus)
@@ -297,6 +298,8 @@ class CanTxConfigs:
 @dataclass()
 class CanRxConfigs:
     # generates lists by default
+
+    # TODO remove defaultdict
     _map_by_bus: DefaultDict[str, List[str]]  # each bus can receive many messages
     _map_by_msg_name: DefaultDict[str, str]  # each message can only be received by one bus
 

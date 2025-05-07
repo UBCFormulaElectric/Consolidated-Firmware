@@ -21,7 +21,7 @@ from ..can_database import (
     CanDatabase,
     CanEnum,
     CanMessage,
-    CanNode, CanTxConfigs, CanRxConfigs,
+    CanNode, CanTxConfigs, CanRxConfigs, CanForward,
 )
 
 
@@ -59,8 +59,8 @@ class JsonCanParser:
             node_name: CanNode(
                 name=node_name,
                 bus_names=[],
-                tx_config=CanTxConfigs(defaultdict()),
-                rx_config=CanRxConfigs(defaultdict(), defaultdict()),
+                tx_config=CanTxConfigs(defaultdict(set)),
+                rx_config=CanRxConfigs(defaultdict(list), defaultdict(str)),
             )
             for node_name in node_names
         }
@@ -105,6 +105,7 @@ class JsonCanParser:
 
         # PARSE ALERTS DATA
         self._alerts = {}
+        alert_msgs: List[CanMessage] = []
         for node_name in node_names:
             # Parse ALERTS
             alerts_json = parse_alert_data(can_data_dir, node_name)
@@ -113,13 +114,18 @@ class JsonCanParser:
                 continue
             node_alert_msgs, alerts = alerts_json
             assert len(node_alert_msgs) == 6, "Alert messages should be 6"
+            self._alerts[node_name] = alerts
+
             for alert_msg in node_alert_msgs:
                 self._add_tx_msg(alert_msg, node_name)  # tx handling
-                for other_rx_node in self._nodes.values():  # rx handling
-                    # skip the node that transmit the message
-                    if node_name == other_rx_node.name: continue
-                    self._add_rx_msg(alert_msg.name, other_rx_node)
-            self._alerts[node_name] = alerts
+            alert_msgs.extend(node_alert_msgs)
+
+        for alert_msg in alert_msgs:
+            for other_rx_node_name in self._alerts.keys():  # rx handling
+                other_rx_node = self._nodes[other_rx_node_name]
+                # skip the node that transmit the message
+                if alert_msg.tx_node_name == other_rx_node.name: continue
+                self._add_rx_msg(alert_msg.name, other_rx_node)
 
         # CONSISTENCY TODO work this in?
         # self._consistency_check()
@@ -292,7 +298,7 @@ class JsonCanParser:
             if node_name not in self._nodes:
                 raise InvalidCanJson(f"Forwarder node '{node_name}' is not defined in the node JSON.")
             # init the reroute_config
-            self._nodes[node_name].reroute_config = {}
+            self._nodes[node_name].reroute_config = []
 
             # TODO add edge between f_config["bus1"] and f_config["bus2"]
             bus1 = f_config["bus1"]
@@ -315,29 +321,13 @@ class JsonCanParser:
             tx_node = self._nodes[msg.tx_node_name]
             for rx_node_name in msg.rx_node_names:
                 rx_node = self._nodes[rx_node_name]
-                # TODO find shortest path between tx_node.bus_names and rx_node.bus_names
-                # this will return
-                # tx_bus_name: CanBus, rx_bus: CanBus, rerouters: list[CanForward]
-
-                initial_node, final_node, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(
+                initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(
                     adj_list, tx_node, rx_node)
-                # print(initial_node)
-                # print(final_node)
-                # print(rerouter_nodes)
-
-                self._nodes[initial_node].tx_config.add_tx_msg()
-
-                # tx_node.tx_config.add_tx(...)  <- initial_bus
-                # rx_node.rx_config.add_rx(...) <- final_bus
-
-                # for each rerouter node there are three important values
-                # the first value is the board which is the rerouter
-                # the other two are the two buses which the board is routing
-
-                # since the rerouter will be created with the message metadata, we can guarentee that it is unique with all other messages in the array
-                # rerouter_nodes: list[str]
-                # for rerouter_node in rerouter_nodes:
-                #     add config to rerouter_node.reroute_config
+                tx_node.tx_config.add_tx_msg(msg.name, initial_node_tx_bus)
+                rx_node.rx_config.add_rx_msg(msg.name, final_node_rx_bus)
+                for rerouter_node in rerouter_nodes:
+                    self._nodes[rerouter_node[0]].reroute_config.append(
+                        CanForward(msg.name, rerouter_node[0], rerouter_node[1], rerouter_node[2]))
 
     # def _depr_calculate_reroutes(self) -> List[CanForward]:
     #     # design choice

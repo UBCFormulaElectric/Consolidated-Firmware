@@ -279,6 +279,8 @@ def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[tuple[List
     except SchemaError:
         raise InvalidCanJson(f"Alerts JSON file is not valid for node {node_name}")
     # TODO catch file not found error? I imagine for it to be truly optional that must - how do you want to handle that? return a None?
+    except FileNotFoundError:
+        return None
 
     if len(node_alerts_json_data) <= 0:
         return None
