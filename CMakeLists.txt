@@ -6,6 +6,7 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 # use this for debugging
 #set(CMAKE_VERBOSE_MAKEFILE on)
 # Generates a comple_commands.json file which helps with VSCode intellisense
