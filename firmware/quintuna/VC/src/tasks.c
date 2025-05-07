@@ -27,9 +27,9 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     hw_usb_init();
-    hw_can_init(&can1);
+    // hw_can_init(&can1);
     hw_can_init(&can2);
-    hw_can_init(&can3);
+    // hw_can_init(&can3);
 
     jobs_init();
 
@@ -124,8 +124,8 @@ _Noreturn void tasks_runCanTx(void)
         CanMsg tx_msg = io_canQueue_popTx();
 
         // TODO this canmsg will tell you which bus to transmit it on
-        hw_fdcan_transmit(&can1, &tx_msg);
-        // hw_can_transmit(&can2, &tx_msg);
+        // hw_fdcan_transmit(&can1, &tx_msg);
+        hw_fdcan_transmit(&can2, &tx_msg);
         // hw_can_transmit(&can3, &tx_msg);
     }
 }
