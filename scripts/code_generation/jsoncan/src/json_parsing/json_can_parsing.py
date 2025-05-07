@@ -120,6 +120,7 @@ class JsonCanParser:
                 self._add_tx_msg(alert_msg, node_name)  # tx handling
             alert_msgs.extend(node_alert_msgs)
 
+        # handling alerts rx, note that only other alert broadcasters can receive the alert
         for alert_msg in alert_msgs:
             for other_rx_node_name in self._alerts.keys():  # rx handling
                 other_rx_node = self._nodes[other_rx_node_name]
