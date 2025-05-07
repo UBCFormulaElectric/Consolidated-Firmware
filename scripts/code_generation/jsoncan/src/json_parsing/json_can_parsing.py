@@ -4,10 +4,8 @@ Module for parsing CAN JSON, and returning a CanDatabase object.
 
 from __future__ import annotations
 
-from collections import deque
-from collections import defaultdict
 # types
-from typing import Dict, Optional, List, Tuple, Set
+from typing import Dict, List
 
 from .parse_alert import parse_alert_data, CanAlert
 # new files
@@ -17,11 +15,12 @@ from .parse_error import InvalidCanJson
 from .parse_rx import parse_json_rx_data
 from .parse_tx import parse_tx_data
 from .parse_utils import list_nodes_from_folders
+from .routing import build_adj_list, fast_fourier_transform_stochastic_gradient_descent
 from ..can_database import (
     CanDatabase,
     CanEnum,
     CanMessage,
-    CanNode, CanTxConfigs, CanRxConfigs, CanForward,
+    CanNode, CanForward,
 )
 
 
@@ -202,120 +201,23 @@ class JsonCanParser:
         rx_msg.rx_node_names.append(rx_node.name)  # TODO is this necessary??
         self._node_rx_msgs[rx_node.name].append(msg_name)
 
-    @staticmethod
-    def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List[Tuple[str, str]]],
-                                                            tx_node: CanNode,
-                                                            rx_node: CanNode) -> \
-            Tuple[str, str, List[Tuple[str, str, str]]]:
-        previous_node: Dict[str, Optional[str]] = {}
-        previous_edge: Dict[str, str] = {}
-        destination_nodes: Set[str] = set()
-        queue: deque[str] = deque()
-
-        # populate w/ start nodes
-        for bus_name in tx_node.bus_names:
-            queue.append(bus_name)
-            previous_node[bus_name] = None
-
-        # population destination w/ end nodes
-        for bus_name in rx_node.bus_names:
-            destination_nodes.add(bus_name)
-
-        # basic bfs
-        target_node: Optional[str] = None
-        while len(queue) > 0:
-            cur_node = queue.popleft()
-            if cur_node in destination_nodes:
-                target_node = cur_node
-                break
-            for (next_node, edge) in adj_list[cur_node]:
-                if next_node not in previous_node:
-                    previous_node[next_node] = cur_node
-                    previous_edge[next_node] = edge
-                    queue.append(next_node)
-
-        # graph is disconnected
-        if target_node is None:
-            raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
-
-        # recover path
-        best_path: List[Tuple[str, Optional[str]]] = []
-        while previous_node[target_node] is not None:
-            best_path.append((target_node, previous_edge[target_node]))
-            target_node = previous_node[target_node]
-            if target_node in previous_node and target_node == previous_node[target_node]:
-                raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
-        best_path.append((target_node, None))
-        best_path.reverse()  # TODO not necessary, just interpret the list backwards
-
-        # if counter == 0:
-        #     print(previous_node)
-        #     print(previous_edge)
-        #     print(tx_node)
-        #     print(rx_node)
-        #     print(adj_list)
-        #     raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
-
-        # parse some stuff
-        initial_node = best_path[0][0]
-        final_node = best_path[-1][0]
-        rerouter_nodes: List[Tuple[str, str, str]] = []
-        for index in range(1, len(best_path)):
-            rerouter_nodes.append((best_path[index][1], best_path[index - 1][0], best_path[index][0]))
-
-        return initial_node, final_node, rerouter_nodes
-
     def _resolve_tx_rx_reroute(self, forwarder_config: List[ForwarderConfigJson]) -> None:
-        # make all forwarders
-        # OVERVIEW
-        # what we gotta do is make a graph representation of canBuses
-        # where buses are connected by edges which are boards
-        # then we create start nodes -> buses connected with TX node
-        # and destination nodes -> buses connected with RX node
-        # and we run BFS, keeping track of three things
-        # 1. shortest path to each bus (all destination nodes init as 0)
-        # 2. previous bus to each bus on shortest path
-        # 3. previous edge to each bus on shortest path
-        # we recover the path we want by finding the destination node w/ the shortest distance
-        # and backtrack 
-        # lastly to update our config we do the following
-        # we make the first tx board forward to the first bus
-        # for the buses/boards in order
-        # we add a rerouter config for board i from {prev bus, next bus}
-        # we make the last rx board take shit in from the last bus 
-
-        # graph representation of canBuses
-        # im sorry this is about to be just tuples and shit
-        adj_list: Dict[str, List[Tuple[str, str]]] = defaultdict(list)
-
         for forwarder_json in forwarder_config:
-            forwarder_node_name = forwarder_json["forwarder"]
-            if forwarder_node_name not in self._nodes:
-                raise InvalidCanJson(f"Forwarder node '{forwarder_node_name}' is not defined in the node JSON.")
-            self._nodes[forwarder_node_name].reroute_config = []
-            bus1 = forwarder_json["bus1"]
-            bus2 = forwarder_json["bus2"]
-            if bus1 not in self._busses:
-                raise InvalidCanJson(f"Forwarder bus '{bus1}' is not defined in the node JSON.")
-            if bus2 not in self._busses:
-                raise InvalidCanJson(f"Forwarder bus '{bus2}' is not defined in the node JSON.")
-            if bus1 not in adj_list:
-                adj_list[bus1] = []
-            if bus2 not in adj_list:
-                adj_list[bus2] = []
-            adj_list[bus1].append((bus2, forwarder_node_name))
-            adj_list[bus2].append((bus1, forwarder_node_name))
-
+            self._nodes[forwarder_json["forwarder"]].reroute_config = []
+        adj_list = build_adj_list(forwarder_config, self._nodes, self._busses)
         for msg in self._msgs.values():
             if len(msg.rx_node_names) <= 0:
                 print(f"[WARN] Message {msg.name} has no receiver")
                 continue
+
+            # register tx with the given msg
             tx_node = self._nodes[msg.tx_node_name]
             tx_node.tx_config.add_tx_msg(msg.name)
 
+            # register rx with all the nodes listening
             for rx_node_name in msg.rx_node_names:
                 rx_node = self._nodes[rx_node_name]
-                initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = self._fast_fourier_transform_stochastic_gradient_descent(
+                initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = fast_fourier_transform_stochastic_gradient_descent(
                     adj_list, tx_node, rx_node)
                 tx_node.tx_config.add_bus_to_tx_msg(msg.name, initial_node_tx_bus)
                 rx_node.rx_config.add_rx_msg(msg.name, final_node_rx_bus)
