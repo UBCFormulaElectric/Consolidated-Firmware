@@ -1,7 +1,5 @@
-[
-  {
-    "bus": "Can2",
-    "messages": [
+{
+  "messages": [
       "BMS_Vitals",
       "FSM_Vitals",
       "RSM_Vitals",
@@ -10,6 +8,5 @@
       "VC_VehicleDynamics",
       "VC_GlobalShdnNodeStatus",
       "Debug_CanMode"
-    ]
-  }
-]
+  ]
+}

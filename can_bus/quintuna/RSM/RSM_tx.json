@@ -1,7 +1,6 @@
 {
   "Vitals": {
     "msg_id": 700,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "RSM vitals message.",
     "signals": {
@@ -15,7 +14,6 @@
   },
   "CommitInfo": {
     "msg_id": 706,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "RSM Commit Info",
     "signals": {
@@ -29,7 +27,6 @@
   },
   "Debug": {
     "msg_id": 707,
-    "bus": ["Can2"],
     "cycle_time": 1000,
     "description": "RSM Debug Signals",
     "signals": {

@@ -1,7 +1,6 @@
 {
   "CanMode": {
     "msg_id": 1000,
-    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Signals related to CAN modes.",
     "signals": {
@@ -12,7 +11,6 @@
   },
   "Charging": {
     "msg_id": 1001,
-    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Value set by user to start charging BMS.",
     "signals": {
@@ -47,7 +45,6 @@
   },
   "CellBalancing": {
     "msg_id": 1002,
-    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Signals related to BMS cell balancing.",
     "signals": {
@@ -82,7 +79,6 @@
   },
   "ResetSoc": {
     "msg_id": 1003,
-    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Value set by user to set SOC based on min cell voltage.",
     "signals": {
@@ -102,7 +98,6 @@
   },
   "SetCoolantPump": {
     "msg_id": 1004,
-    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Value set by the user to set the coolant pump flow rate.",
     "signals": {
@@ -119,7 +114,6 @@
   },
   "SetBSPDTestCurrent": {
     "msg_id": 1005,
-    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Enable BSPD Test Current",
     "signals": {

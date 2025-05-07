@@ -1,7 +1,6 @@
 {
   "warnings_id": 901,
   "faults_id": 902,
-  "bus": ["Can2"],
   "warnings_counts_id": 903,
   "faults_counts_id": 904,
   "info_id": 905,

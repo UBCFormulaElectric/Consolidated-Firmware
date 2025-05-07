@@ -1,7 +1,6 @@
 {
     "BMS": {
       "msg_id": 499,
-      "bus": ["Can"],
       "cycle_time": 100,
       "signals": {
         "BMS_Hash": {
@@ -17,7 +16,6 @@
     },
     "FSM": {
       "msg_id": 599,
-      "bus": ["Can"],
       "cycle_time": 100,
       "signals": {
         "FSM_Hash": {
@@ -33,7 +31,6 @@
     },
     "VC": {
       "msg_id": 699,
-      "bus": ["Can"],
       "cycle_time": 100,
       "signals": {
         "VC_Hash": {
@@ -49,7 +46,6 @@
     },
     "RSM": {
       "msg_id": 799,
-      "bus": ["Can"],
       "cycle_time": 100,
       "signals": {
         "RSM_Hash": {
@@ -65,7 +61,6 @@
     },
     "CRIT": {
       "msg_id": 899,
-      "bus": ["Can"],
       "cycle_time": 100,
       "signals": {
         "CRIT_Hash": {
@@ -81,7 +76,6 @@
     },
     "H7Dev": {
       "msg_id": 1199,
-      "bus": ["Can"],
       "cycle_time": 100,
       "signals": {
         "H7Dev_Hash": {

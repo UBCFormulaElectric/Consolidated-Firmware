@@ -5,7 +5,6 @@
   "faults_counts_id": 804,
   "info_id": 805,
   "info_counts_id": 806,
-  "bus": ["Can"],
   "warnings": {},
   "faults": {
     "DummyFault": {

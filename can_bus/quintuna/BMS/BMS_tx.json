@@ -124,7 +124,6 @@
   },
   "Debug": {
     "msg_id": 407,
-    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "BMS Debug Signals",
     "signals": {
@@ -135,7 +134,6 @@
   },
   "LatchedFaults": {
     "msg_id": 410,
-    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Latched faults for the BMS",
     "signals": {
@@ -152,7 +150,6 @@
   },
   "ElconControls": {
     "msg_id": 450,
-    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "Control parameters for Elcon charger communication",
     "signals": {

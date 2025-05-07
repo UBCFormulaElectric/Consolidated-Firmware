@@ -1,7 +1,6 @@
 {
     "Vitals": {
       "msg_id": 800,
-      "bus": ["Can"],
       "cycle_time": 10,
       "description": "DAM Vital signals",
       "signals": {
@@ -12,7 +11,6 @@
     },
     "Debug": {
       "msg_id": 807,
-      "bus": ["Can"],
       "cycle_time": 1000,
       "description": "DAM Debug Signals",
       "signals": {

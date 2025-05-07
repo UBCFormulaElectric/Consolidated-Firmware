@@ -1,14 +1,3 @@
-[
-  {
-    "bus": "Can",
-    "messages": []
-  },
-  {
-    "bus": "Can2",
-    "messages": []
-  },
-  {
-    "bus": "Can3",
-    "messages": []
-  }
-]
+{
+  "messages": []
+}

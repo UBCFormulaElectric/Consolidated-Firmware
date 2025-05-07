@@ -1,7 +1,6 @@
 {
   "Vitals": {
     "msg_id": 900,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "CRIT vitals message.",
     "signals": {
@@ -15,7 +14,6 @@
   },
   "Debug": {
     "msg_id": 907,
-    "bus": ["Can2"],
     "cycle_time": 1000,
     "description": "CRIT Debug Signals",
     "signals": {
@@ -26,7 +24,6 @@
   },
   "Switches": {
     "msg_id": 910,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "States of the switches on the CRIT.",
     "signals": {
@@ -43,7 +40,6 @@
   },
   "DriveMode": {
     "msg_id": 911,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "Drive Mode.",
     "signals": {
@@ -54,7 +50,6 @@
   },
   "AlertsContext": {
     "msg_id": 912,
-    "bus": ["Can2"],
     "cycle_time": 1000,
     "description": "Context info for CRIT alerts",
     "signals": {
@@ -71,7 +66,6 @@
   },
   "CommitInfo": {
     "msg_id": 913,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "CRIT Current Running Git Commit Info",
     "signals": {
@@ -85,7 +79,6 @@
   },
   "CRITShdnNodeStatus": {
     "msg_id": 914,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "CRIT Shutdown Node Status",
     "signals": {
@@ -99,7 +92,6 @@
   },
   "WatermarkLevel": {
     "msg_id": 915,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "",
     "signals": {

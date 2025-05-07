@@ -1,7 +1,6 @@
 {
   "Vitals": {
     "msg_id": 500,
-    "bus": ["Can"],
     "cycle_time": 10,
     "description": "VC Vital signals",
     "signals": {
@@ -15,7 +14,6 @@
   },
   "Debug": {
     "msg_id": 507,
-    "bus": ["Can"],
     "cycle_time": 1000,
     "description": "VC Debug Signals",
     "signals": {
@@ -26,7 +24,6 @@
   },
   "VehicleDynamics": {
     "msg_id": 510,
-    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Vehicle dynamics info",
     "signals": {
@@ -40,7 +37,6 @@
   },
   "GlobalShdnNodeStatus": {
     "msg_id": 511,
-    "bus": ["Can"],
     "cycle_time": 100,
     "description": "Global Shutdown Node Status",
     "signals": {

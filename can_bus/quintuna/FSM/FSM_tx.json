@@ -1,7 +1,6 @@
 {
   "Vitals": {
     "msg_id": 600,
-    "bus": ["Can2"],
     "cycle_time": 100,
     "description": "FSM vitals message.",
     "signals": {
@@ -15,7 +14,6 @@
   },
   "CommitInfo": {
     "msg_id": 607,
-    "bus": ["Can2"],
     "cycle_time": 1000,
     "description": "CRIT Current Running Git Commit Info",
     "signals": {
@@ -29,7 +27,6 @@
   },
   "Debug": {
     "msg_id": 608,
-    "bus": ["Can2"],
     "cycle_time": 1000,
     "description": "FSM Debug Signals",
     "signals": {
