@@ -215,8 +215,10 @@ class CanMessage:
     # back references, hence are foreign keys
     # note that these simply list sources and destinations of messages, and not how to get between them
     # we store them to find how to travel between them, and they are used in dbcs
+    # TODO remove
     tx_node_name: str  # Node which transmits this message
-    rx_node_names: List[str]  # List of nodes which receive this message
+
+    # rx_node_names: List[str]  # List of nodes which receive this message
 
     def bytes(self):
         """
@@ -323,6 +325,9 @@ class CanRxConfigs:
 
     def get_all_rx_msgs_names(self) -> List[str]:
         return list(self._map_by_msg_name.keys())
+
+    def contains_rx_msg(self, msg_name: str) -> bool:
+        return msg_name in self._map_by_msg_name
 
     def empty(self):
         return len(self._map_by_msg_name) == 0

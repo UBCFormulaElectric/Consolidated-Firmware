@@ -5,7 +5,7 @@ Module for parsing CAN JSON, and returning a CanDatabase object.
 from __future__ import annotations
 
 # types
-from typing import Dict, List
+from typing import Dict, List, Set
 
 from .parse_alert import parse_alert_data, CanAlert
 # new files
@@ -41,8 +41,8 @@ class JsonCanParser:
     _alerts: Dict[str, List[CanAlert]]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
 
     # internal state
-    _node_tx_msgs: Dict[str, List[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
-    _node_rx_msgs: Dict[str, List[str]]  # _rx_msgs[node_name] gives a list of all the messages it rxs
+    _node_tx_msgs: Dict[str, Set[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
+    _node_rx_msgs: Dict[str, Set[str]]  # _rx_msgs[msg_name] gives a list of all nodes which rxs it
 
     def __init__(self, can_data_dir: str):
         """
@@ -163,8 +163,8 @@ class JsonCanParser:
 
         self._msgs[msg.name] = msg
         if tx_node_name not in self._node_tx_msgs:
-            self._node_tx_msgs[tx_node_name] = []
-        self._node_tx_msgs[tx_node_name].append(msg.name)
+            self._node_tx_msgs[tx_node_name] = set()
+        self._node_tx_msgs[tx_node_name].add(msg.name)
 
     def _add_rx_msg(self, msg_name: str, rx_node: CanNode) -> None:
         """
@@ -191,22 +191,18 @@ class JsonCanParser:
             )
         # tell rx_msg that the current node rxs it
         # add the message to the node's rx messages
-        if rx_node.name not in self._node_rx_msgs:
-            self._node_rx_msgs[rx_node.name] = []
-        if rx_node.name in rx_msg.rx_node_names or msg_name in self._node_rx_msgs[rx_node.name]:
-            assert rx_node.name in rx_msg.rx_node_names and msg_name in self._node_rx_msgs[
-                rx_node.name], "should have been added together"
+        if msg_name not in self._node_rx_msgs:
+            self._node_rx_msgs[msg_name] = set()
+        if rx_node.name in self._node_rx_msgs[msg_name]:
             raise InvalidCanJson(f"Message {msg_name} is already registered to be received by node {rx_node.name}")
-
-        rx_msg.rx_node_names.append(rx_node.name)  # TODO is this necessary??
-        self._node_rx_msgs[rx_node.name].append(msg_name)
+        self._node_rx_msgs[msg_name].add(rx_node.name)
 
     def _resolve_tx_rx_reroute(self, forwarder_config: List[ForwarderConfigJson]) -> None:
         for forwarder_json in forwarder_config:
             self._nodes[forwarder_json["forwarder"]].reroute_config = []
         adj_list = build_adj_list(forwarder_config, self._nodes, self._busses)
         for msg in self._msgs.values():
-            if len(msg.rx_node_names) <= 0:
+            if msg.name not in self._node_rx_msgs:
                 print(f"[WARN] Message {msg.name} has no receiver")
                 continue
 
@@ -215,7 +211,7 @@ class JsonCanParser:
             tx_node.tx_config.add_tx_msg(msg.name)
 
             # register rx with all the nodes listening
-            for rx_node_name in msg.rx_node_names:
+            for rx_node_name in self._node_rx_msgs[msg.name]:
                 rx_node = self._nodes[rx_node_name]
                 initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = fast_fourier_transform_stochastic_gradient_descent(
                     adj_list, tx_node, rx_node)

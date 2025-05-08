@@ -70,9 +70,11 @@ class DbcGenerator:
                     msg_id=msg.id,
                 )
 
+            rx_nodes: List[str] = [node_name for node_name in self._db.nodes.keys() if
+                                   self._db.nodes[node_name].rx_config.contains_rx_msg(msg.name)]
             for signal in msg.signals:
                 # Generate text for current CAN signal
-                msgs_text += self._dbc_signal(signal=signal, rx_nodes=msg.rx_node_names)
+                msgs_text += self._dbc_signal(signal=signal, rx_nodes=rx_nodes)
 
                 # Generate text for signal value table, if it has one
                 if signal.enum:

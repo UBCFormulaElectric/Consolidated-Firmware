@@ -287,7 +287,7 @@ def _get_parsed_can_message(
         signals=signals,
         cycle_time=msg_cycle_time,
         tx_node_name=node_name,
-        rx_node_names=[],  # rx nodes will be updated later
+        # rx_node_names=[],  # rx nodes will be updated later
         # modes=msg_modes, # TODO not used? It's not declared at least
         log_cycle_time=log_cycle_time,
         telem_cycle_time=telem_cycle_time,
