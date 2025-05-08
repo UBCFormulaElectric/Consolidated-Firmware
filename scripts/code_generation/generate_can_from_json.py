@@ -5,9 +5,11 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 
 import argparse
 import os
+from typing import List, Optional
 
 from jsoncan import CModule, AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, \
-    AppCanUtilsModule, IoCanRerouteModule, IoCanRxModule, IoCanTxModule, DbcGenerator, JsonCanParser
+    AppCanUtilsModule, IoCanRerouteModule, IoCanRxModule, IoCanTxModule, DbcGenerator, JsonCanParser, CanRxConfigs, \
+    CanTxConfigs, CanForward
 
 
 def write_text(text: str, output_path: str) -> None:
@@ -31,6 +33,11 @@ def write_text(text: str, output_path: str) -> None:
 
 
 def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, board: str, output_dir: str):
+    # CALCULATED VALUES
+    rx_config: CanRxConfigs  # rx_config[msg_name] gives a rx config for that message
+    tx_config: CanTxConfigs  # tx_config[msg_name] gives a tx config for that message
+    reroute_config: Optional[List[CanForward]] = None  # forwarding rule table
+
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=can_data_dir).make_database()
     # pandas = can_db.make_pandas_dataframe()
