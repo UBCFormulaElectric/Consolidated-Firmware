@@ -16,11 +16,6 @@
  */
 void app_canRx_init(void);
 
-/**
- * Update value stored in RX table of signal BRUSA_IsConnected in msg BRUSA_Vitals.
- */
-void app_canRx_BRUSA_IsConnected_update(bool value);
-
 {% for msg in messages -%}
 {%- for signal in msg.signals -%}
 /**

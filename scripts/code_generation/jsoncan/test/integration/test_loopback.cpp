@@ -48,7 +48,7 @@ TEST_F(JsonCanLoopbackTest, transmit_1hz_works)
     {
         constexpr array expected = { 106, 107, 108, 109, 100, 103 };
         ASSERT_EQ(tx_msg_1.size(), expected.size());
-        for (int i = 0; i < expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
             ASSERT_EQ(tx_msg_1[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
         }
@@ -56,7 +56,7 @@ TEST_F(JsonCanLoopbackTest, transmit_1hz_works)
     {
         constexpr array expected = { 100, 103 };
         ASSERT_EQ(tx_msg_2.size(), expected.size());
-        for (int i = 0; i < expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
             ASSERT_EQ(tx_msg_2[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
         }
@@ -64,7 +64,7 @@ TEST_F(JsonCanLoopbackTest, transmit_1hz_works)
     {
         constexpr array<int, 0> expected = {};
         ASSERT_EQ(tx_msg_3.size(), expected.size());
-        for (int i = 0; i < expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
             ASSERT_EQ(tx_msg_3[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
         }
@@ -77,7 +77,7 @@ TEST_F(JsonCanLoopbackTest, transmit_100hz_works)
     {
         constexpr array<int, 0> expected = {};
         ASSERT_EQ(tx_msg_1.size(), expected.size());
-        for (int i = 0; i < expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
             ASSERT_EQ(tx_msg_1[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
         }
@@ -85,7 +85,7 @@ TEST_F(JsonCanLoopbackTest, transmit_100hz_works)
     {
         constexpr array<int, 0> expected = {};
         ASSERT_EQ(tx_msg_2.size(), expected.size());
-        for (int i = 0; i < expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
             ASSERT_EQ(tx_msg_2[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
         }
@@ -93,7 +93,7 @@ TEST_F(JsonCanLoopbackTest, transmit_100hz_works)
     {
         constexpr array<int, 0> expected = {};
         ASSERT_EQ(tx_msg_3.size(), expected.size());
-        for (int i = 0; i < expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
             ASSERT_EQ(tx_msg_3[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
         }

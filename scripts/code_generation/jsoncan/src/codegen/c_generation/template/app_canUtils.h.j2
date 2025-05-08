@@ -13,7 +13,6 @@
 /* -------------------------------- Macros -------------------------------- */
 
 // Msg IDs
-// #define CAN_MSG_BMS_VITALS_ID (100)
 {% for message in all_messages -%}
 #define {{ message.id_macro() }} ({{ message.id }})
 {% endfor %}

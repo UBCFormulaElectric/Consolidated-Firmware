@@ -14,9 +14,9 @@
 
 typedef enum
 {
-    {% for board in boards -%}
+    {%- for board in boards %}
     {{board}}_ALERT_BOARD = {{loop.index0}},
-    {% endfor %}
+    {%- endfor %}
 } CanAlertBoard;
 
 typedef struct
@@ -24,37 +24,12 @@ typedef struct
     char* description;
     char* name;
     uint16_t id;
-
 } Fault_Warning_Info;
 
 /* ------------------------- Function Prototypes -------------------------- */
 
-{% for warning in tx_warnings %}
-/**
- * Set or clear an warning for {{node}} board.
- */
-void app_canAlerts_{{warning}}_set(bool set_alert);
-
-/**
- * Return whether or not a specific warning transmitted by {{node}} is set.
- */
-bool app_canAlerts_{{warning}}_get(void);
-{% endfor %}
-
-
-{% for fault in tx_faults %}
-/**
- * Set or clear an fault for {{node}} board.
- */
-void app_canAlerts_{{fault}}_set(bool set_alert);
-
-/**
- * Return whether or not a specific fault transmitted by {{node}} is set.
- */
-bool app_canAlerts_{{fault}}_get(void);
-{% endfor %}
-
-{% for info in tx_info %}
+/* ----------- Infos -----------*/
+{%- for info in tx_info %}
 /**
  * Set or clear an info for {{node}} board.
  */
@@ -64,50 +39,70 @@ void app_canAlerts_{{info}}_set(bool set_alert);
  * Return whether or not a specific info transmitted by {{node}} is set.
  */
 bool app_canAlerts_{{info}}_get(void);
-{% endfor %}
+{%- endfor %}
 
+/* ----------- Warnings -----------*/
+{%- for warning in tx_warnings %}
 /**
- * Return whether or not a board has set a warning.
+ * Set or clear an warning for {{node}} board.
  */
-bool app_canAlerts_BoardHasWarning(CanAlertBoard board);
+void app_canAlerts_{{warning}}_set(bool set_alert);
+/**
+ * Return whether or not a specific warning transmitted by {{node}} is set.
+ */
+bool app_canAlerts_{{warning}}_get(void);
+{%- endfor %}
 
+/* ----------- Faults -----------*/
+{%- for fault in tx_faults %}
 /**
- * Return whether or not a board has set a fault.
+ * Set or clear an fault for {{node}} board.
  */
-bool app_canAlerts_BoardHasFault(CanAlertBoard board);
+void app_canAlerts_{{fault}}_set(bool set_alert);
+/**
+ * Return whether or not a specific fault transmitted by {{node}} is set.
+ */
+bool app_canAlerts_{{fault}}_get(void);
+{%- endfor %}
+
 
 /**
  * Return whether or not a board has set a info.
  */
 bool app_canAlerts_BoardHasInfo(CanAlertBoard board);
-
 /**
- * Return whether or not any board has set a warning.
+ * Return whether or not a board has set a warning.
  */
-bool app_canAlerts_AnyBoardHasWarning(void);
-
+bool app_canAlerts_BoardHasWarning(CanAlertBoard board);
 /**
- * Return whether or not any board has set a fault.
+ * Return whether or not a board has set a fault.
  */
-bool app_canAlerts_AnyBoardHasFault(void);
+bool app_canAlerts_BoardHasFault(CanAlertBoard board);
+
 
 /**
  * Return whether or not any board has set a info.
  */
 bool app_canAlerts_AnyBoardHasInfo(void);
-
 /**
- * Return whether or not a board has set a warning.
+ * Return whether or not any board has set a warning.
  */
-uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array);
-
+bool app_canAlerts_AnyBoardHasWarning(void);
 /**
- * Return whether or not a board has set a fault.
+ * Return whether or not any board has set a fault.
  */
-uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array);
+bool app_canAlerts_AnyBoardHasFault(void);
+
 
 /**
- * Return whether or not a board has set a warning.
+ * Fetches the info info into alert_array, returns amount of elements in alert_array.
  */
 uint8_t app_canAlerts_InfoInfo(Fault_Warning_Info *alert_array);
-
+/**
+ * Fetches the warning info into alert_array, returns amount of elements in alert_array.
+ */
+uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array);
+/**
+ * Fetches the fault info into alert_array, returns amount of elements in alert_array.
+ */
+uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array);

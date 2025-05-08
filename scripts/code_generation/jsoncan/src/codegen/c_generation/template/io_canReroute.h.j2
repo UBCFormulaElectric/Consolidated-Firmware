@@ -7,9 +7,7 @@
 
 #include "app_canUtils.h"
 #include "io_canTx.h"
-
-
-{# 
+{#
     1. init transmit functions
     2. generate switch case to check if the message needs to be rerouted
     3. generate the reroute function arg is the message, use transmit function to send the message
@@ -21,18 +19,11 @@
         the transmit function can be push stuff to the queue or send the message directly
     Call 2. function in the canRx callback
  #}
-
- 
-
 void io_canReroute_init(
-    {% for bus in node.bus_names -%}
+    {%- for bus in node.bus_names %}
     void (*transmit_{{bus}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
-    {% endfor %}
+    {%- endfor %}
 );
-
-{% for bus in node.bus_names -%}
+{% for bus in node.bus_names %}
 void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg);
-{% endfor %}
-
-
-
+{%- endfor %}
