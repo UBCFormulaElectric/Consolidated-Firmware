@@ -106,5 +106,18 @@
       "log_cycle_time": 1000,
       "telem_cycle_time": 1000
     }
+  },
+  "Debug_Only": {
+    "msg_id": 110,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "DebugOnlySignal": {
+        "bits": 8
+      }
+    }
   }
 }

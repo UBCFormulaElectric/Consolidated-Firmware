@@ -1,7 +1,6 @@
 #include "app_canUtils.h"
 #include <cstring>
 #include <gtest/gtest.h>
-#include <iostream>
 
 extern "C"
 {
@@ -13,7 +12,7 @@ extern "C"
 class JsonCanTablesTest : public testing::Test
 {
   protected:
-    void SetUp()
+    void SetUp() override
     {
         app_canTx_init();
         app_canRx_init();
@@ -51,9 +50,13 @@ TEST_F(JsonCanTablesTest, test_tx_basic_signals)
     }
 
     // Test clamping.
-    app_canTx_ECU1_Boolean1_set(0xFF);
-    app_canTx_ECU1_Boolean2_set(0xFF);
-    app_canTx_ECU1_Enum_set((EnumExample)0xFF);
+    // ReSharper disable once CppCompileTimeConstantCanBeReplacedWithBooleanConstant
+    app_canTx_ECU1_Boolean1_set(0xFF); // NOLINT(*-use-bool-literals)
+
+    // ReSharper disable once CppCompileTimeConstantCanBeReplacedWithBooleanConstant
+    app_canTx_ECU1_Boolean2_set(0xFF); // NOLINT(*-use-bool-literals)
+
+    app_canTx_ECU1_Enum_set(static_cast<EnumExample>(0xFF));
     app_canTx_ECU1_UInt8_set(0xFFFFFFFF);
     app_canTx_ECU1_UInt16_set(0xFFFFFFFF);
     app_canTx_ECU1_UInt32_set(0xFFFFFFFF);
@@ -120,11 +123,11 @@ TEST_F(JsonCanTablesTest, test_rx_basic_signals)
         ASSERT_EQ(app_canRx_ECU2_UInt32_get(), 0xABCDEF12);
     }
 
-    // Test clamping.
-    JsonCanMsg p = { .std_id = CAN_MSG_ECU2_BASIC_SIGNAL_TYPES_ID,
-                     .dlc    = 8,
-                     .data   = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF } };
-    io_canRx_updateRxTableWithMessage(&p);
+    // Test clamping and unpacking.
+    JsonCanMsg test_rx_msg = { .std_id = CAN_MSG_ECU2_BASIC_SIGNAL_TYPES_ID,
+                               .dlc    = 8,
+                               .data   = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF } };
+    io_canRx_updateRxTableWithMessage(&test_rx_msg);
     {
         ASSERT_EQ(app_canRx_ECU2_Boolean1_get(), true);
         ASSERT_EQ(app_canRx_ECU2_Boolean2_get(), true);

@@ -89,7 +89,7 @@ class CanSignalDatatype(StrEnum):
     """
 
     BOOL = "bool"
-    INT = "int32_t"  # TODO we make this an int32_t? check
+    INT = "int32_t"
     UINT = "uint32_t"
     FLOAT = "float"
 
@@ -217,6 +217,8 @@ class CanMessage:
     # we store them to find how to travel between them, and they are used in dbcs
     tx_node_name: str  # Node which transmits this message
 
+    modes: Optional[List[str]]  # if this is None, then only use the bus default
+
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -336,17 +338,15 @@ class CanRxConfigs:
 class CanNode:
     """
     Dataclass for fully describing a CAN node.
+    Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
     """
     name: str  # Name of this CAN node
     bus_names: List[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
 
     # CALCULATED VALUES
-    # rx_config[msg_name] gives a rx config for that message
-    rx_config: CanRxConfigs
-    # tx_config[msg_name] gives a tx config for that message
-    tx_config: CanTxConfigs
-    # reroute_config: List[CanForward]  # list of messages that are forwarded to other busses
-    reroute_config: Optional[List[CanForward]] = None
+    rx_config: CanRxConfigs  # rx_config[msg_name] gives a rx config for that message
+    tx_config: CanTxConfigs  # tx_config[msg_name] gives a tx config for that message
+    reroute_config: Optional[List[CanForward]] = None  # forwarding rule table
 
     def __init__(self, name: str):
         self.name = name
@@ -359,7 +359,7 @@ class CanNode:
         """
         Add a bus to this node.
         """
-        assert bus_name not in self.bus_names, "Bus already exists"
+        assert bus_name not in self.bus_names, "Bus already exists"  # do this instead of figuring out how to remove them
         self.bus_names.append(bus_name)
         self.rx_config.add_rx_bus(bus_name)
 

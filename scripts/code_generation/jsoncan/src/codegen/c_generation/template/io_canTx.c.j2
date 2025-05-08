@@ -10,17 +10,17 @@
 #include "app_canTx.h"
 #include "app_canUtils.h"
 
-#ifdef THREAD_SAFE_CAN_PACKING
+#ifndef THREAD_SAFE_CAN_PACKING
 void (*lock)(void);
 void (*unlock)(void); 
 
 void io_canTx_set_lockfunction(
-    void (*lock)(void),
-    void (*unlock)(void)
+    void (*lock_in)(void),
+    void (*unlock_in)(void)
 )
 {
-    lock = lock;
-    unlock = unlock;
+    lock = lock_in;
+    unlock = unlock_in;
 }
 #endif
 
@@ -43,15 +43,20 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     memset(&tx_msg, 0, sizeof(JsonCanMsg));
     tx_msg.std_id = {{msg.id_macro()}};
     tx_msg.dlc = {{msg.bytes_macro()}};
-    #ifdef THREAD_SAFE_CAN_PACKING
+    #ifndef THREAD_SAFE_CAN_PACKING
     lock();
     #endif
     app_canUtils_{{msg.name}}_pack(app_canTx_{{msg.name}}_getData(), tx_msg.data);
-    #ifdef THREAD_SAFE_CAN_PACKING
+    #ifndef THREAD_SAFE_CAN_PACKING
     unlock();
     #endif
     {%- for msg_bus in busses_for_msg(msg.name) %}
-    if (can_mode_{{msg_bus}} & ({{msg_bus.upper()}}_MODE_{{bus_config[msg_bus].default_mode}}))
+    if (
+    bus_config[msg_bus].default_mode
+    {% for mode in msg.modes %}
+        can_mode_{{msg_bus}} & ({{msg_bus.upper()}}_MODE_{{mode}})
+    {% endfor %}
+    )
     {
         transmit_func_{{msg_bus}}(&tx_msg);
     }

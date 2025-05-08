@@ -1,5 +1,5 @@
 from math import ceil
-from typing import Dict, Tuple, Optional as Optional_t
+from typing import Dict, Tuple, Optional as Optional_t, List
 
 from schema import Schema, And, Optional, Or, SchemaError
 
@@ -221,7 +221,7 @@ def _get_parsed_can_message(
         msg_name: str,
         msg_json_data: Dict,
         node_name: str,
-        enums: dict[str, CanEnum]
+        enums: dict[str, CanEnum],
 ) -> CanMessage:
     """
     Parse JSON data dictionary representing a CAN message.
@@ -231,7 +231,7 @@ def _get_parsed_can_message(
     msg_cycle_time = msg_json_data["cycle_time"]
 
     # will use mode from bus if none
-    msg_modes = msg_json_data.get("allowed_modes", [])  # TODO not used?
+    msg_modes = msg_json_data.get("allowed_modes", None)
 
     log_cycle_time = msg_cycle_time
     telem_cycle_time = msg_cycle_time
@@ -287,8 +287,7 @@ def _get_parsed_can_message(
         signals=signals,
         cycle_time=msg_cycle_time,
         tx_node_name=node_name,
-        # rx_node_names=[],  # rx nodes will be updated later
-        # modes=msg_modes, # TODO not used? It's not declared at least
+        modes=msg_modes,
         log_cycle_time=log_cycle_time,
         telem_cycle_time=telem_cycle_time,
     )
