@@ -7,7 +7,10 @@ from .parse_bus import ForwarderConfigJson
 
 def build_adj_list(forwarder_config: List[ForwarderConfigJson], nodes: Dict[str, CanNode],
                    busses: Dict[str, CanBus]) -> Dict[str, List[Tuple[str, str]]]:
-    adj_list: Dict[str, List[Tuple[str, str]]] = {}
+    adj_list: Dict[str, List[Tuple[str, str]]] = {
+        bus_name: []
+        for bus_name in busses.keys()
+    }
     for forwarder_json in forwarder_config:
         forwarder_node_name = forwarder_json["forwarder"]
         if forwarder_node_name not in nodes:
@@ -18,10 +21,6 @@ def build_adj_list(forwarder_config: List[ForwarderConfigJson], nodes: Dict[str,
             raise InvalidCanJson(f"Forwarder bus '{bus1}' is not defined in the node JSON.")
         if bus2 not in busses:
             raise InvalidCanJson(f"Forwarder bus '{bus2}' is not defined in the node JSON.")
-        if bus1 not in adj_list:
-            adj_list[bus1] = []
-        if bus2 not in adj_list:
-            adj_list[bus2] = []
         adj_list[bus1].append((bus2, forwarder_node_name))
         adj_list[bus2].append((bus1, forwarder_node_name))
     return adj_list
@@ -80,7 +79,8 @@ def fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List[
 
     # graph is disconnected
     if target_node is None:
-        raise InvalidCanJson(f"Unreachable CAN message, likely error in forwarder topology")
+        raise InvalidCanJson(
+            f"Unable to navigate from {tx_node.name} to {rx_node.name} using the provided forwarder topology.")
 
     # recover path
     best_path: List[Tuple[str, Optional[str]]] = []
