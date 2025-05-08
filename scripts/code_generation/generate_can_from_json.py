@@ -6,17 +6,8 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 import argparse
 import os
 
-from jsoncan.src.codegen.c_generation.cmodule import CModule
-from jsoncan.src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
-from jsoncan.src.codegen.c_generation.app_can_data_capture_module import AppCanDataCaptureModule
-from jsoncan.src.codegen.c_generation.app_can_rx_module import AppCanRxModule
-from jsoncan.src.codegen.c_generation.app_can_tx_module import AppCanTxModule
-from jsoncan.src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
-from jsoncan.src.codegen.c_generation.io_can_reroute_module import IoCanRerouteModule
-from jsoncan.src.codegen.c_generation.io_can_rx_module import IoCanRxModule
-from jsoncan.src.codegen.c_generation.io_can_tx_module import IoCanTxModule
-from jsoncan.src.codegen.dbc_generation.dbc_generation import DbcGenerator
-from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan import CModule, AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, \
+    AppCanUtilsModule, IoCanRerouteModule, IoCanRxModule, IoCanTxModule, DbcGenerator, JsonCanParser
 
 
 def write_text(text: str, output_path: str) -> None:
