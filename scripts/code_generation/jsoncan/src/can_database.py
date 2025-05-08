@@ -215,10 +215,7 @@ class CanMessage:
     # back references, hence are foreign keys
     # note that these simply list sources and destinations of messages, and not how to get between them
     # we store them to find how to travel between them, and they are used in dbcs
-    # TODO remove
     tx_node_name: str  # Node which transmits this message
-
-    # rx_node_names: List[str]  # List of nodes which receive this message
 
     def bytes(self):
         """
@@ -295,6 +292,9 @@ class CanTxConfigs:
 
     def add_bus_to_tx_msg(self, msg_name: str, tx_bus: str):
         self._map_by_msg_name[msg_name].add(tx_bus)
+
+    def get_busses_for_msg(self, msg_name: str) -> List[str]:
+        return list(self._map_by_msg_name[msg_name])
 
     def list_msg_names(self):
         return self._map_by_msg_name.keys()
@@ -401,7 +401,6 @@ class CanDatabase:
                         "signed": signal.signed,
                         "description": signal.description,
                         "tx_node": msg.tx_node_name,
-                        "rx_nodes": msg.rx_node_names,
                         "signal_obj": signal,
                         "message_obj": msg,
                     }

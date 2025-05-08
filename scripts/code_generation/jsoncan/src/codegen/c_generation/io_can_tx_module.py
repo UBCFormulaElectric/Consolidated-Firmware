@@ -18,8 +18,7 @@ class IoCanTxModule(CModule):
         template = j2_env.from_string(template)
         return template.render(
             bus_names=self._db.nodes[self._node].bus_names,  # for bus boilerplate
-            # iterate through each tx message, and each has the list of busses which it must broadcast on
-            messages=self._db.tx_msgs_for_node(self._node),  # for rendering each message
+            messages=[self._db.msgs[msg_name] for msg_name in self._db.nodes[self._node].tx_config.list_msg_names()],
             bus_config=self._db.busses,  # template uses modes and default modes
         )
 
@@ -31,6 +30,7 @@ class IoCanTxModule(CModule):
         template = j2_env.from_string(template)
         return template.render(
             bus_names=self._db.nodes[self._node].bus_names,
-            messages=self._db.tx_msgs_for_node(self._node),
+            messages=[self._db.msgs[msg_name] for msg_name in self._db.nodes[self._node].tx_config.list_msg_names()],
+            busses_for_msg=self._db.nodes[self._node].tx_config.get_busses_for_msg,
             bus_config=self._db.busses,
         )
