@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "hw_sd.h"
+#include "hw_stackMonitor.h"
 #include "main.h"
 #include "cmsis_os.h"
 #include "shared.pb.h"
@@ -108,6 +109,7 @@ _Noreturn void tasks_run1Hz(void)
     for (;;)
     {
         jobs_run1Hz_tick();
+        hw_stackMonitor_check();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

@@ -162,6 +162,7 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FAKE IO
     set(HEADERS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/hw_stackMonitor.h"
             "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${SHARED_IO_INCLUDE_DIR}/io_led.h"
