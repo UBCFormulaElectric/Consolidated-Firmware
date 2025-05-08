@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Union, DefaultDict
+from typing import Dict, List, Optional, Union, Set
 
 import pandas as pd
 from strenum import StrEnum
@@ -19,10 +19,12 @@ from .utils import (
     pascal_to_snake_case,
 )
 
+from .json_parsing.parse_bus import BusForwarder
+
 logger = logging.getLogger(__name__)
 
 
-@dataclass()
+@dataclass(frozen=True)
 class CanBus:
     """
     Dataclass for holding bus config.
@@ -33,9 +35,7 @@ class CanBus:
     modes: List[str]
     default_mode: str
     fd: bool  # Whether or not this bus is FD
-
-    # foreign key into CanDatabase.nodes
-    node_names: List[str]  # List of nodes on this bus
+    node_names: List[str]  # List of nodes on this bus, foreign key into CanDatabase.nodes, although provided in json
 
     def __hash__(self):
         return hash(self.name)
@@ -192,7 +192,7 @@ class CanSignal:
         return hash(self.name)
 
 
-@dataclass()
+@dataclass(frozen=True)
 class CanMessage:
     """
     Dataclass for fully describing a CAN message.
@@ -283,85 +283,19 @@ class CanAlert:
     description: str
 
 
-class CanTxConfigs:
-    _map_by_msg_name: Dict[str, Set[str]]  # each message can be sent on many busses
-
-    def __init__(self):
-        self._map_by_msg_name = {}
-
-    def add_tx_msg(self, msg_name: str):
-        self._map_by_msg_name[msg_name] = set()
-
-    def add_bus_to_tx_msg(self, msg_name: str, tx_bus: str):
-        self._map_by_msg_name[msg_name].add(tx_bus)
-
-    def get_busses_for_msg(self, msg_name: str) -> List[str]:
-        return list(self._map_by_msg_name[msg_name])
-
-    def list_msg_names(self):
-        return self._map_by_msg_name.keys()
+class All:
+    pass
 
 
-class CanRxConfigs:
-    _map_by_bus: Dict[str, Set[str]]  # each bus can receive many messages
-    _map_by_msg_name: Dict[str, str]  # each message can only be received by one bus
-
-    def __init__(self):
-        self._map_by_bus = {}
-        self._map_by_msg_name = {}
-
-    def add_rx_bus(self, bus_name: str):
-        assert bus_name not in self._map_by_bus, "Bus already exists"
-        self._map_by_bus[bus_name] = set()
-
-    def add_rx_msg(self, msg_name: str, rx_bus: str):
-        assert msg_name not in self._map_by_msg_name  # do this instead of figuring out how to remove them
-        self._map_by_bus[rx_bus].add(msg_name)
-        self._map_by_msg_name[msg_name] = rx_bus
-
-    def get_msgs_on_bus(self, bus_name: str) -> List[str]:
-        return list(self._map_by_bus[bus_name])
-
-    def get_bus_of_msg(self, msg_name: str) -> str:
-        return self._map_by_msg_name[msg_name]
-
-    def get_all_rx_msgs_names(self) -> List[str]:
-        return list(self._map_by_msg_name.keys())
-
-    def contains_rx_msg(self, msg_name: str) -> bool:
-        return msg_name in self._map_by_msg_name
-
-    def empty(self):
-        return len(self._map_by_msg_name) == 0
-
-
+@dataclass(frozen=True)
 class CanNode:
     """
     Dataclass for fully describing a CAN node.
     Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
     """
     name: str  # Name of this CAN node
-    bus_names: List[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
-
-    # CALCULATED VALUES
-    rx_config: CanRxConfigs  # rx_config[msg_name] gives a rx config for that message
-    tx_config: CanTxConfigs  # tx_config[msg_name] gives a tx config for that message
-    reroute_config: Optional[List[CanForward]] = None  # forwarding rule table
-
-    def __init__(self, name: str):
-        self.name = name
-        self.bus_names = []
-        self.rx_config = CanRxConfigs()
-        self.tx_config = CanTxConfigs()
-        self.reroute_config = None
-
-    def add_bus(self, bus_name: str):
-        """
-        Add a bus to this node.
-        """
-        assert bus_name not in self.bus_names, "Bus already exists"  # do this instead of figuring out how to remove them
-        self.bus_names.append(bus_name)
-        self.rx_config.add_rx_bus(bus_name)
+    bus_names: Set[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
+    rx_msgs_names: Set[str] | All  # list of messages that it is listening
 
     def __hash__(self):
         return hash(self.name)
@@ -380,6 +314,10 @@ class CanDatabase:
     busses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
     msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
     alerts: Dict[str, list[CanAlert]]  # alerts[node_name] gives a list of alerts on that node
+
+    # this must be global state rather than local (node) state as the common usecase is navigation
+    # which requires global information
+    forwarding: List[BusForwarder]
 
     def make_pandas_dataframe(self):
         # Create a pandas dataframe from the messages
@@ -407,60 +345,6 @@ class CanDatabase:
                 )
         pandas_data = pd.DataFrame(data)
         return pandas_data
-
-    def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages transmitted by a specific node.
-        """
-        if tx_node not in self.nodes:
-            raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
-        return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config.list_msg_names()]
-
-    def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages received by a specific node.
-        """
-        if rx_node not in self.nodes:
-            raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
-        return [self.msgs[msg_name] for msg_name in self.nodes[rx_node].rx_config.get_all_rx_msgs_names()]
-
-    def msgs_for_node(self, node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages either transmitted or received by a specific node.
-        """
-        return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
-
-    def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
-        """
-        Return list of alerts transmitted by a node, of a specific type.
-        """
-        return (
-            [
-                alert.name
-                for alert in self.alerts[node]
-                if alert.alert_type == alert_type
-            ]
-            if node in self.alerts
-            else []
-        )
-
-    def node_rx_alerts(self, node: str) -> List[str]:
-        """
-        Return list of alerts received by a node, of a specific type.
-        """
-        rte = []
-        for tx_node in [
-            node1
-            for node1 in self.nodes
-            if any(
-                [len(self.node_alerts(node1, alert_type)) > 0 for alert_type in CanAlertType]
-            )
-        ]:
-            if tx_node == node:
-                continue  # Skip self-transmitted alerts
-            for alert in self.alerts[tx_node]:
-                rte.append(alert.name)
-        return rte
 
     def unpack(self, msg_id: int, data: bytes) -> list[Dict]:
         """
@@ -515,6 +399,59 @@ class CanDatabase:
 
         return signals
 
+    # def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
+    #     """
+    #     Return list of all CAN messages transmitted by a specific node.
+    #     """
+    #     if tx_node not in self.nodes:
+    #         raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
+    #     return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config.list_msg_names()]
+    #
+    # def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
+    #     """
+    #     Return list of all CAN messages received by a specific node.
+    #     """
+    #     if rx_node not in self.nodes:
+    #         raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
+    #     return [self.msgs[msg_name] for msg_name in self.nodes[rx_node].rx_config.get_all_rx_msgs_names()]
+    #
+    # def msgs_for_node(self, node: str) -> List[CanMessage]:
+    #     """
+    #     Return list of all CAN messages either transmitted or received by a specific node.
+    #     """
+    #     return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
+    #
+    # def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
+    #     """
+    #     Return list of alerts transmitted by a node, of a specific type.
+    #     """
+    #     return (
+    #         [
+    #             alert.name
+    #             for alert in self.alerts[node]
+    #             if alert.alert_type == alert_type
+    #         ]
+    #         if node in self.alerts
+    #         else []
+    #     )
+    #
+    # def node_rx_alerts(self, node: str) -> List[str]:
+    #     """
+    #     Return list of alerts received by a node, of a specific type.
+    #     """
+    #     rte = []
+    #     for tx_node in [
+    #         node1
+    #         for node1 in self.nodes
+    #         if any(
+    #             [len(self.node_alerts(node1, alert_type)) > 0 for alert_type in CanAlertType]
+    #         )
+    #     ]:
+    #         if tx_node == node:
+    #             continue  # Skip self-transmitted alerts
+    #         for alert in self.alerts[tx_node]:
+    #             rte.append(alert.name)
+    #     return rte
     # def node_name_description(
     #         self, node: str, alert_type: CanAlert
     # ) -> Dict[str, tuple]:
@@ -560,25 +497,3 @@ class CanDatabase:
     #     Return whether or not a node receives any messages.
     #     """
     #     return len(self.rx_msgs_for_node(node)) > 0
-
-
-@dataclass()
-class CanForward:
-    message: str  # name of the message
-    forwarder: str
-    from_bus: str  # name of the bus the message is forwarded from
-    to_bus: str  # bus the message is forwarded to
-
-    def __eq__(self, other):
-        return (
-                self.message == other.message
-                and self.forwarder == other.forwarder
-                and self.from_bus == other.from_bus
-                and self.to_bus == other.to_bus
-        )
-
-    def __hash__(self):
-        return hash((self.message, self.forwarder, self.from_bus, self.to_bus))
-
-    def __str__(self):
-        return f"Forwarding {self.message} from {self.from_bus} to {self.to_bus} via {self.forwarder}"

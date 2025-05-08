@@ -1,7 +1,5 @@
-from typing import Dict
-from typing import Optional as Optional_t
-from typing import TypedDict
-
+from dataclasses import dataclass
+from typing import Dict, Optional as Optional_t, TypedDict, List
 from schema import Optional, Or, Schema, SchemaError
 
 from .parse_error import InvalidCanJson
@@ -9,7 +7,14 @@ from .parse_utils import load_json_file
 from ..can_database import CanBus
 
 
-class ForwarderConfigJson(TypedDict):
+@dataclass()
+class BusForwarder:
+    forwarder: str
+    bus1: str
+    bus2: str
+
+
+class _BusForwarderJson(TypedDict):
     forwarder: str
     bus1: str
     bus2: str
@@ -25,7 +30,7 @@ class _BusConfigJson(TypedDict):
 
 
 class _BusJson(TypedDict):
-    forwarders: list[ForwarderConfigJson]
+    forwarders: list[_BusForwarderJson]
     buses: list[_BusConfigJson]
 
 
@@ -50,7 +55,7 @@ def _validate_bus_json(json: Dict) -> _BusJson:
     return _BusJson_schema.validate(json)
 
 
-def parse_bus_data(can_data_dir: str) -> tuple[dict[str, CanBus], list[ForwarderConfigJson]]:
+def parse_bus_data(can_data_dir: str, node_names: List[str]) -> tuple[dict[str, CanBus], list[BusForwarder]]:
     """
     Parses data about buses from global configuration
     CONSISTENCY: bus.default_mode not in bus.modes
@@ -67,6 +72,14 @@ def parse_bus_data(can_data_dir: str) -> tuple[dict[str, CanBus], list[Forwarder
         if bus["default_mode"] not in bus["modes"]:
             raise InvalidCanJson(f"Error on bus {bus['name']}: Default CAN mode is not in the list of modes.")
 
+    # check that the nodes in the busses are all valid
+    for bus in buses:
+        for node in bus["nodes"]:
+            if node not in node_names:
+                raise InvalidCanJson(
+                    f"Node '{node}' is not defined in the node JSON."
+                )
+
     return {
         bus["name"]: CanBus(
             name=bus["name"],
@@ -77,4 +90,7 @@ def parse_bus_data(can_data_dir: str) -> tuple[dict[str, CanBus], list[Forwarder
             fd=bus.get("FD", False),
         )
         for bus in buses
-    }, bus_json_data["forwarders"]
+    }, [
+        BusForwarder(forwarder["forwarder"], forwarder["bus1"], forwarder["bus2"])
+        for forwarder in bus_json_data["forwarders"]
+    ]

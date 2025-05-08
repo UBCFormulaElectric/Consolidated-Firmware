@@ -10,3 +10,6 @@ from .src.codegen.c_generation.io_can_tx_module import IoCanTxModule
 
 from .src.codegen.dbc_generation.dbc_generation import DbcGenerator
 from .src.json_parsing.json_can_parsing import JsonCanParser
+
+from .src.can_database import CanDatabase, CanMessage, CanBus, CanAlert, CanNode, CanEnum, CanSignal, CanAlertType, \
+    CanSignalDatatype

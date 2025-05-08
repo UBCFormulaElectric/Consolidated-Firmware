@@ -1,5 +1,4 @@
-from typing import TypedDict, Dict
-
+from typing import TypedDict, Dict, List
 from schema import Schema, Or, SchemaError
 
 from .parse_error import InvalidCanJson
@@ -7,17 +6,17 @@ from .parse_utils import load_json_file
 from ..can_database import CanNode
 
 
-class RxBusEntry(TypedDict):
+class _RxBusEntry(TypedDict):
     messages: list[str] | str
 
 
-def _validate_rx_json(json: Dict) -> RxBusEntry:
+def _validate_rx_json(json: Dict) -> _RxBusEntry:
     return Schema({
         "messages": Or(Schema([str]), Schema("all")),  # Use schema.List to define a list of strings
     }).validate(json)
 
 
-def parse_json_rx_data(can_data_dir: str, rx_node: CanNode) -> RxBusEntry:
+def parse_json_rx_data(can_data_dir: str, rx_node: CanNode) -> List[str] | str:
     """
     :param can_data_dir:
     note: this function validates that the rx_msg reads on a existant bus
@@ -28,4 +27,4 @@ def parse_json_rx_data(can_data_dir: str, rx_node: CanNode) -> RxBusEntry:
         node_rx_json_data = _validate_rx_json(load_json_file(f"{can_data_dir}/{rx_node.name}/{rx_node.name}_rx"))
     except SchemaError:
         raise InvalidCanJson(f"RX JSON file is not valid for node {rx_node.name}")
-    return node_rx_json_data
+    return node_rx_json_data["messages"]

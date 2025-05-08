@@ -6,22 +6,16 @@ from __future__ import annotations
 
 # types
 from typing import Dict, List, Set
+# types to populate up
+from ..can_database import CanDatabase, CanEnum, CanMessage, CanNode, All
 
 from .parse_alert import parse_alert_data, CanAlert
-# new files
-from .parse_bus import CanBus, parse_bus_data, ForwarderConfigJson
+from .parse_bus import CanBus, parse_bus_data, BusForwarder
 from .parse_enum import parse_node_enum_data, parse_shared_enums
 from .parse_error import InvalidCanJson
 from .parse_rx import parse_json_rx_data
 from .parse_tx import parse_tx_data
 from .parse_utils import list_nodes_from_folders
-from .routing import build_adj_list, fast_fourier_transform_stochastic_gradient_descent
-from ..can_database import (
-    CanDatabase,
-    CanEnum,
-    CanMessage,
-    CanNode, CanForward,
-)
 
 
 class JsonCanParser:
@@ -39,35 +33,22 @@ class JsonCanParser:
     _busses: Dict[str, CanBus]  # _bus_config[bus_name] gives metadata for bus_name
     _msgs: Dict[str, CanMessage]  # _msgs[msg_name] gives metadata for msg_name
     _alerts: Dict[str, List[CanAlert]]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
+    _forwarding: List[BusForwarder]  # _forwarding[bus_name] gives metadata for bus_name
 
     # internal state
-    _node_tx_msgs: Dict[str, Set[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
-    _node_rx_msgs: Dict[str, Set[str]]  # _rx_msgs[msg_name] gives a list of all nodes which rxs it
+    # _node_tx_msgs: Dict[str, Set[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
+    _node_rx_msgs: Dict[str, Set[str] | All]  # _rx_msgs[node_name] gives a list of all messages it rxs
 
     def __init__(self, can_data_dir: str):
         """
         Parses JSON data
         :param can_data_dir: Location of all the json files
         """
-        self._node_tx_msgs = {}
-        self._node_rx_msgs = {}
-
         node_names: List[str] = list_nodes_from_folders(can_data_dir)
-        # create node objects for each node
-        self._nodes = {
-            node_name: CanNode(node_name)
-            for node_name in node_names
-        }
-
+        # self._node_tx_msgs = {node_name: set() for node_name in node_names}
+        self._node_rx_msgs = {node_name: set() for node_name in node_names}
         # parse the bus config
-        self._busses, forwarder_config = parse_bus_data(can_data_dir)
-
-        # populate self._nodes[node_name].bus_names
-        # add busses each node is on
-        for node_name in node_names:
-            for bus_name in self._busses:
-                if node_name in self._busses[bus_name].node_names:
-                    self._nodes[node_name].add_bus(bus_name)
+        self._busses, self._forwarding = parse_bus_data(can_data_dir, node_names)
 
         # PARSE TX JSON DATA
         # collect shared enums outside of loop
@@ -84,16 +65,15 @@ class JsonCanParser:
 
         # PARSE RX JSON
         for rx_node in self._nodes.values():
-            # multiple buses can be defined in the RX JSON
             bus_rx_msgs_json = parse_json_rx_data(can_data_dir, rx_node)
-            if type(bus_rx_msgs_json["messages"]) == str:
-                assert bus_rx_msgs_json["messages"] == "all", "Schema check has failed"
-                # if "all" in messages then add all messages on this bus
-                bus_rx_msg_names = list(set(self._msgs.keys()) - set(self._node_tx_msgs[rx_node.name]))
+            if type(bus_rx_msgs_json) == str:
+                assert bus_rx_msgs_json == "all", "Schema check has failed"
+                # if "all" in messages then add all messages on all busses
+                self._node_rx_msgs[rx_node.name] = All()
             else:
-                bus_rx_msg_names = bus_rx_msgs_json["messages"]
-            for msg_name in bus_rx_msg_names:
-                self._add_rx_msg(msg_name, rx_node)
+                assert type(bus_rx_msgs_json) == list, "Schema check has failed"
+                for msg_name in bus_rx_msgs_json:
+                    self._add_rx_msg(msg_name, rx_node)
 
         # PARSE ALERTS DATA
         self._alerts = {}
@@ -119,11 +99,16 @@ class JsonCanParser:
                 # skip the node that transmit the message
                 if alert_msg.tx_node_name == other_rx_node.name: continue
                 self._add_rx_msg(alert_msg.name, other_rx_node)
-
         # CONSISTENCY TODO work this in?
         # self._consistency_check()
 
-        self._resolve_tx_rx_reroute(forwarder_config)
+        # create node objects for each node
+        self._nodes = {
+            node_name: CanNode(node_name,
+                               {bus_name for bus_name, bus in self._busses.items() if node_name in bus.node_names},
+                               self._node_rx_msgs[node_name])
+            for node_name in node_names
+        }
 
     def make_database(self) -> CanDatabase:
         """
@@ -134,6 +119,7 @@ class JsonCanParser:
             busses=self._busses,
             msgs=self._msgs,
             alerts=self._alerts,
+            forwarding=self._forwarding
         )
 
     # TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
@@ -160,11 +146,11 @@ class JsonCanParser:
             raise InvalidCanJson(
                 f"Message ID '{msg.id}' transmitted by node '{tx_node_name}' is also transmitted by '{find[0].tx_node_name}'"
             )
-
+        # register the message with the database of all messages
         self._msgs[msg.name] = msg
-        if tx_node_name not in self._node_tx_msgs:
-            self._node_tx_msgs[tx_node_name] = set()
-        self._node_tx_msgs[tx_node_name].add(msg.name)
+        # register the message with the list of messages that the current node broadcasts
+        # TODO might not be important
+        # self._node_tx_msgs[tx_node_name].add(msg.name)
 
     def _add_rx_msg(self, msg_name: str, rx_node: CanNode) -> None:
         """
@@ -172,54 +158,27 @@ class JsonCanParser:
 
         Note that this function does not know
         1. which bus the sender will tx will send the message on
-        2. which bus the reciever will rx the message on
+        2. which bus the receiver will rx the message on
 
         This function
         1. enters the current node into the list of nodes that the message is rx'd by
         2. adds the message name to the list of messages received by the given node
         """
+        # if we are already listening to all, we don't need to register this specific message
+        # in particular, this is useful for alerts which will blindly make everyone accept them
+        if self._node_rx_msgs[rx_node.name] == All():
+            return
         # Check if this message is defined
         if msg_name not in self._msgs:
             raise InvalidCanJson(
                 f"Message '{msg_name}' received by '{rx_node.name}' is not defined. Make sure it is correctly defined in the TX JSON."
             )
         rx_msg = self._msgs[msg_name]
-        # check that the rx node is not the same as the node which txs msg_name
         if rx_msg.tx_node_name == rx_node.name:
-            raise InvalidCanJson(
-                f"{rx_node.name} cannot both transmit and receive {msg_name}"
-            )
-        # tell rx_msg that the current node rxs it
-        # add the message to the node's rx messages
-        if msg_name not in self._node_rx_msgs:
-            self._node_rx_msgs[msg_name] = set()
-        if rx_node.name in self._node_rx_msgs[msg_name]:
+            raise InvalidCanJson(f"{rx_node.name} cannot both transmit and receive {msg_name}")
+        if msg_name in self._node_rx_msgs[rx_node.name]:
             raise InvalidCanJson(f"Message {msg_name} is already registered to be received by node {rx_node.name}")
         self._node_rx_msgs[msg_name].add(rx_node.name)
-
-    def _resolve_tx_rx_reroute(self, forwarder_config: List[ForwarderConfigJson]) -> None:
-        for forwarder_json in forwarder_config:
-            self._nodes[forwarder_json["forwarder"]].reroute_config = []
-        adj_list = build_adj_list(forwarder_config, self._nodes, self._busses)
-        for msg in self._msgs.values():
-            if msg.name not in self._node_rx_msgs:
-                print(f"[WARN] Message {msg.name} has no receiver")
-                continue
-
-            # register tx with the given msg
-            tx_node = self._nodes[msg.tx_node_name]
-            tx_node.tx_config.add_tx_msg(msg.name)
-
-            # register rx with all the nodes listening
-            for rx_node_name in self._node_rx_msgs[msg.name]:
-                rx_node = self._nodes[rx_node_name]
-                initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = fast_fourier_transform_stochastic_gradient_descent(
-                    adj_list, tx_node, rx_node)
-                tx_node.tx_config.add_bus_to_tx_msg(msg.name, initial_node_tx_bus)
-                rx_node.rx_config.add_rx_msg(msg.name, final_node_rx_bus)
-                for rerouter_node in rerouter_nodes:
-                    self._nodes[rerouter_node[0]].reroute_config.append(
-                        CanForward(msg.name, rerouter_node[0], rerouter_node[1], rerouter_node[2]))
 
     # def _consistency_check(self) -> None:
     #     # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other
