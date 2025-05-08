@@ -9,6 +9,7 @@
 #include <string.h>
 
 #define V_PER_100UV (1E-4f)
+#define THERMISTOR_GROUPS (2U)
 
 // TODO assert that for each speed that the ADCOPT is correct
 ExitCode io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
@@ -175,32 +176,46 @@ void io_ltc6813_readAuxRegisters(
     }
 }
 
+void io_ltc_setThermGroup(uint8_t group){
+    assert(group == 1 || group == 0);
+#define WRCFGB (0x0024U)
+#define THERMSEL (0x08U)
+    const uint16_t cfg_b_command[5] = { WRCFGB, THERMSEL & (group << 3), 0x00, 0x00, 0x00, 0x00};
+
+    hw_spi_transmit(&ltc6813_spi, (uint8_t *)cfg_b_command, sizeof(cfg_b_command));
+
+}
+
 void io_ltc6813_readTemperatures(
     float  cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
     float *vref,
     bool   success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
 {
-    memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
+    memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * THERMISTOR_GROUPS * sizeof(float));
     *vref = 0;
 
-    uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-    io_ltc6813_readAuxRegisters(aux_regs, success);
+    for(uint8_t group = 0U; group < THERMISTOR_GROUPS; group++){
+        uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+        io_ltc6813_setThermGroup(group);
+        io_ltc6813_readAuxRegisters(aux_regs, success);
 
-    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
-    {
-        for (uint8_t aux_gpio = 0U; aux_gpio < THERMISTORS_PER_SEGMENT; aux_gpio++)
+        for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
         {
-            if (!success[segment][aux_gpio / 3])
+            
+            for (uint8_t aux_gpio = 0U; aux_gpio < THERMISTORS_PER_SEGMENT; aux_gpio++)
             {
-                continue;
+                if (!success[segment][aux_gpio / 3])
+                {
+                    continue;
+                }
+                if (aux_gpio == 5)
+                {
+                    *vref = (float)aux_regs[segment][aux_gpio] * V_PER_100UV;
+                    continue;
+                }
+                const int8_t adj                    = aux_gpio >= 6 ? -1 : 0;
+                cell_temps[segment][aux_gpio - adj + group * THERMISTORS_PER_SEGMENT] = calculateThermistorTempDeciDegC(aux_regs[segment][aux_gpio]);
             }
-            if (aux_gpio == 5)
-            {
-                *vref = (float)aux_regs[segment][aux_gpio] * V_PER_100UV;
-                continue;
-            }
-            const int8_t adj                    = aux_gpio >= 6 ? -1 : 0;
-            cell_temps[segment][aux_gpio - adj] = calculateThermistorTempDeciDegC(aux_regs[segment][aux_gpio]);
         }
     }
 }
