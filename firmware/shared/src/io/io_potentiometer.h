@@ -9,12 +9,17 @@
 
 typedef struct {
     const I2cDevice *i2c_handle;
-} Potentiometer
+} Potentiometer;
 
 #else
 #include "app_utils.h"
 EMPTY_STRUCT(Potentiometer)
 #endif
+
+typedef enum {
+    POTENTIOMETER_WIPER_0_ADD = 0x00,
+    POTENTIOMETER_WIPER_1_ADD = 0x01,
+} POTENTIOMETER_ADD;
 
 /**
  * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
@@ -51,3 +56,12 @@ ExitCode io_potentiometer_readWiper(Potentiometer *potentiometer, POTENTIOMETER_
  * @return If write was successful
  */
 ExitCode io_potentiometer_writeWiper(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t data);
+
+/**
+ * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
+ * @param potentiometer Pointer to the potentiometer object
+ * @param wiper The wiper to read
+ * @param dest Pointer to store the read percentage
+ * @return If read was successful
+ */
+ExitCode io_potentiometer_readPercentage(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
