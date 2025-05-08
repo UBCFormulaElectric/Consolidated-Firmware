@@ -65,41 +65,30 @@
 /* -------------------------------- Enums --------------------------------- */
 {%- for enum in enums %}
 typedef enum
-{ 
-    {%  for key, value in enum.items.items() -%}
+{
+    {% for key, value in enum.items.items() -%}
     {{ value }} = {{ key }},
-    {% endfor %}
-    {# add number of choice #}
+    {% endfor -%}
     NUM_{{ enum.scremming_snake_name() }}_CHOICES = {{ enum.items.items() | length }},
 } {{ enum.name }};
 {% endfor %}
-
 
 /* ------------------------------- Structs -------------------------------- */
 
 {% for message in messages %}
 typedef struct
 {
-    {% for signal in message.signals -%}
+    {%- for signal in message.signals %}
     {{ signal.datatype() }} {{ signal.name }}_value;
-    {% endfor %}
+    {%- endfor %}
 } {{ message.name }}_Signals;
 {% endfor %}
 
-
-
 /* ------------------------- Function Prototypes -------------------------- */
 
-
-{% for message in messages -%}
-void app_canUtils_{{ message.name }}_pack(const {{ message.name }}_Signals* const in_msg, uint8_t* const out_data);
-{% endfor %}
-
-
-
-
-{% for message in messages -%}
-void app_canUtils_{{ message.name }}_unpack(const uint8_t* const in_data, {{ message.name }}_Signals* const out_msg);
-{% endfor %}
-
-
+{% for message in messages %}
+void app_canUtils_{{ message.name }}_pack(const {{ message.name }}_Signals* in_msg, uint8_t* out_data);
+{%- endfor %}
+{% for message in messages %}
+void app_canUtils_{{ message.name }}_unpack(const uint8_t* in_data, {{ message.name }}_Signals* out_msg);
+{%- endfor %}

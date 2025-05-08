@@ -7,6 +7,7 @@ extern "C"
 {
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include "io_canRx.h"
 }
 
 class JsonCanTablesTest : public testing::Test
@@ -120,13 +121,10 @@ TEST_F(JsonCanTablesTest, test_rx_basic_signals)
     }
 
     // Test clamping.
-    app_canRx_ECU2_Boolean1_update(0xFF);
-    app_canRx_ECU2_Boolean2_update(0xFF);
-    app_canRx_ECU2_Enum_update((EnumExample)0xFF);
-    app_canRx_ECU2_UInt8_update(0xFFFFFFFF);
-    app_canRx_ECU2_UInt16_update(0xFFFFFFFF);
-    app_canRx_ECU2_UInt32_update(0xFFFFFFFF);
-
+    JsonCanMsg p = { .std_id = CAN_MSG_ECU2_BASIC_SIGNAL_TYPES_ID,
+                     .dlc    = 8,
+                     .data   = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF } };
+    io_canRx_updateRxTableWithMessage(&p);
     {
         ASSERT_EQ(app_canRx_ECU2_Boolean1_get(), true);
         ASSERT_EQ(app_canRx_ECU2_Boolean2_get(), true);

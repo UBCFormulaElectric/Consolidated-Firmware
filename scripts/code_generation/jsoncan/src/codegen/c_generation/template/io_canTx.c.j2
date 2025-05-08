@@ -92,31 +92,25 @@ void io_canTx_enableMode_{{bus}}({{bus}}Mode mode, bool enable)
 
 void io_canTx_enqueue1HzMsgs()
 {
-    {%- for msg in messages %}
-    {%- if msg.cycle_time == 1000 -%}
-    io_canTx_{{msg.name}}_sendPeriodic();
-    {%- endif %}
-    {% endfor %}
+    {%- for msg in messages if msg.cycle_time == 1000 %}
+    io_canTx_{{ msg.name }}_sendPeriodic();
+    {%- endfor %}
 }
 
 void io_canTx_enqueue100HzMsgs()
 {
-    {%- for msg in messages -%}
-    {%- if msg.cycle_time == 10 %}
-    io_canTx_{{msg.name}}_sendPeriodic();
-    {%- endif -%}
-    {% endfor %}
+    {%- for msg in messages if msg.cycle_time == 10 %}
+    io_canTx_{{ msg.name }}_sendPeriodic();
+    {%- endfor %}
 }
 
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms)
 {
-    {% for msg in messages -%}
-    {%- if msg.cycle_time != 1000 and msg.cycle_time != 10 and msg.cycle_time != None -%}
+    {% for msg in messages if msg.cycle_time != 1000 and msg.cycle_time != 10 and msg.cycle_time != None -%}
     if (time_ms % {{msg.cycle_time_macro()}} == 0)
     {
         io_canTx_{{msg.name}}_sendPeriodic();
     }
-    {%- endif -%}
-    {% endfor %}
+    {%- endfor %}
 }
 

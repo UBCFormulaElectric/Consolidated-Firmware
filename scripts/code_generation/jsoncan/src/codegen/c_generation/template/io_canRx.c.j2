@@ -42,7 +42,8 @@ void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg)
 {
     switch (msg->std_id)
     {
-        {%- for msg in rx_messages_for_node %}
+        {%- for msg_name in rx_config.get_all_rx_msgs_names() %}
+        {% set msg = msg_map[msg_name] %}
         case {{msg.id_macro()}}:
         {
             {{msg.name}}_Signals out_msg;

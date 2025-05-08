@@ -51,7 +51,6 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
         return;
     }
     {%- endif %}
-    rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
     // Clamp value to min/max
     {%- if signal.max_val is defined %}
     if (value >= {{ signal.max_val_macro() }})
@@ -65,6 +64,7 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
         value = {{ signal.min_val_macro() }};
     }
     {%- endif %}
+    rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
 }
 {% endfor %}
 {% endfor %}
