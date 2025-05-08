@@ -12,6 +12,159 @@
             }
         }
     },
+    "EllipseStatus": {
+        "msg_id": 223,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseGeneralStatusBitmask": {
+                "bits": 16
+            },
+            "EllipseComStatusBitmask": {
+                "bits": 32
+            },
+            "EllipseErrorCode": {
+                "enum": "EllipseErrorCode"
+            },
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
+            },
+            "EllipseQueueOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
+    "EllipseTime": {
+        "msg_id": 209,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N sensor.",
+        "signals": {
+        "EllipseTimestamp": {
+            "bits": 32,
+            "unit": "us"
+        }
+        }
+    },
+    "EllipseAcceleration": {
+        "disabled": true,
+        "msg_id": 201,
+        "cycle_time": 1000,
+        "description": "Acceleration from the SBG Ellipse N sensor.",
+        "signals": {
+        "AccelerationForward": {
+            "min": -30,
+            "max": 30,
+            "resolution": 0.01,
+            "unit": "m/s^2"
+        },
+        "AccelerationLateral": {
+            "min": -30,
+            "max": 30,
+            "resolution": 0.01,
+            "unit": "m/s^2"
+        },
+        "AccelerationVertical": {
+            "min": -30,
+            "max": 30,
+            "resolution": 0.01,
+            "unit": "m/s^2"
+        }
+        }
+    },
+    "EllipseAngularVelocity": {
+        "disabled": true,
+        "msg_id": 203,
+        "cycle_time": 1000,
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
+        "signals": {
+        "AngularVelocityRoll": {
+            "min": -360,
+            "max": 360,
+            "resolution": 1,
+            "unit": "deg/s"
+        },
+        "AngularVelocityPitch": {
+            "min": -360,
+            "max": 360,
+            "resolution": 1,
+            "unit": "deg/s"
+        },
+        "AngularVelocityYaw": {
+            "min": -360,
+            "max": 360,
+            "resolution": 1,
+            "unit": "deg/s"
+        }
+        }
+    },
+    "EllipseEulerAngles": {
+        "msg_id": 222,
+        "cycle_time": 1000,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+        "EulerAnglesRoll": {
+            "min": -180,
+            "max": 180,
+            "resolution": 0.1,
+            "unit": "deg"
+        },
+        "EulerAnglesPitch": {
+            "min": -180,
+            "max": 180,
+            "resolution": 0.1,
+            "unit": "deg"
+        },
+        "EulerAnglesYaw": {
+            "min": -180,
+            "max": 180,
+            "resolution": 0.1,
+            "unit": "deg"
+        }
+        }
+    },
+    "EllipseEkfNavVelocity": {
+        "msg_id": 218,
+        "cycle_time": 100,
+        "description": "Car Velocity info",
+        "signals": {
+        "VelocityNorth": {
+            "resolution": 0.05,
+            "min": -35,
+            "max": 35,
+            "unit": "m/s"
+        },
+        "VelocityNorthAccuracy": {
+            "resolution": 0.1,
+            "min": 0,
+            "max": 35,
+            "unit": "m/s"
+        },
+        "VelocityEast": {
+            "resolution": 0.05,
+            "min": -35,
+            "max": 35,
+            "unit": "m/s"
+        },
+        "VelocityEastAccuracy": {
+            "resolution": 0.1,
+            "min": 0,
+            "max": 35,
+            "unit": "m/s"
+        },
+        "VelocityDown": {
+            "resolution": 0.05,
+            "min": -35,
+            "max": 35,
+            "unit": "m/s"
+        },
+        "VelocityDownAccuracy": {
+            "resolution": 0.1,
+            "min": 0,
+            "max": 35,
+            "unit": "m/s"
+        }
+        }
+    },
     "Debug": {
         "msg_id": 507,
         "cycle_time": 1000,
@@ -32,6 +185,18 @@
             },
             "TorqueVectoringEnabled": {
                 "bits": 1
+            },
+            "VehicleVelocity": {
+                "resolution": 0.01,
+                "min": -150,
+                "max": 150,
+                "unit": "km/h"
+            },
+            "VehicleVelocityCalculated": {
+                "resolution": 0.01,
+                "min": -150,
+                "max": 150,
+                "unit": "km/h"
             }
         }
     },
