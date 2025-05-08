@@ -6,17 +6,17 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 import argparse
 import os
 
-from .src.codegen.c_generation.cmodule import CModule
-from .src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
-from .src.codegen.c_generation.app_can_data_capture_module import AppCanDataCaptureModule
-from .src.codegen.c_generation.app_can_rx_module import AppCanRxModule
-from .src.codegen.c_generation.app_can_tx_module import AppCanTxModule
-from .src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
-from .src.codegen.c_generation.io_can_reroute_module import IoCanRerouteModule
-from .src.codegen.c_generation.io_can_rx_module import IoCanRxModule
-from .src.codegen.c_generation.io_can_tx_module import IoCanTxModule
-from .src.codegen.dbc_generation.dbc_generation import DbcGenerator
-from .src.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan.src.codegen.c_generation.cmodule import CModule
+from jsoncan.src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
+from jsoncan.src.codegen.c_generation.app_can_data_capture_module import AppCanDataCaptureModule
+from jsoncan.src.codegen.c_generation.app_can_rx_module import AppCanRxModule
+from jsoncan.src.codegen.c_generation.app_can_tx_module import AppCanTxModule
+from jsoncan.src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
+from jsoncan.src.codegen.c_generation.io_can_reroute_module import IoCanRerouteModule
+from jsoncan.src.codegen.c_generation.io_can_rx_module import IoCanRxModule
+from jsoncan.src.codegen.c_generation.io_can_tx_module import IoCanTxModule
+from jsoncan.src.codegen.dbc_generation.dbc_generation import DbcGenerator
+from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
 
 
 def write_text(text: str, output_path: str) -> None:
@@ -73,12 +73,12 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--board", help="Choose a board name")
-    parser.add_argument("--can_data_dir", help="Path to JSON CAN data")
-    parser.add_argument("--output_dir", help="Path to the output source files")
-    parser.add_argument("--dbc_output", help="Path to the DBC file")
+    parser.add_argument("--board", help="Choose a board name", required=True)
+    parser.add_argument("--can_data_dir", help="Path to JSON CAN data", required=True)
+    parser.add_argument("--output_dir", help="Path to the output source files", required=True)
+    parser.add_argument("--dbc_output", help="Path to the DBC file", required=True)
     parser.add_argument(
-        "--only_dbc", action="store_true", help="Only generate DBC file"
+        "--only_dbc", action="store_true", help="Only generate DBC file", required=True
     )
     args = parser.parse_args()
     generate_can_from_json(args.can_data_dir, args.dbc_output, args.only_dbc, args.board, args.output_dir)
