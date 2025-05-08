@@ -19,7 +19,7 @@ typedef enum {
 
 ExitCode io_potentiometer_readPercentage(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest){
     uint8_t data;
-    RETURN_IF_ERR(io_rPump_read(potentiometer->i2c_handle, wiper, &data));
+    RETURN_IF_ERR(io_potentiometer_readWiper(potentiometer->i2c_handle, wiper, &data));
     *dest = data/MAX_WIPER_VALUE * 100;
     return EXIT_CODE_OK;
 }
