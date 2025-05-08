@@ -78,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", help="Path to the output source files", required=True)
     parser.add_argument("--dbc_output", help="Path to the DBC file", required=True)
     parser.add_argument(
-        "--only_dbc", action="store_true", help="Only generate DBC file", required=True
+        "--only_dbc", action="store_true", help="Only generate DBC file"
     )
     args = parser.parse_args()
     generate_can_from_json(args.can_data_dir, args.dbc_output, args.only_dbc, args.board, args.output_dir)
