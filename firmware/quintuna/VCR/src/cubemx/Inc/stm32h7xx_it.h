@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2024 STMicroelectronics.
+ * Copyright (c) 2025 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -53,24 +53,7 @@ extern "C"
     void BusFault_Handler(void);
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
-    void ADC_IRQHandler(void);
-    void FDCAN1_IT0_IRQHandler(void);
-    void FDCAN2_IT0_IRQHandler(void);
-    void FDCAN1_IT1_IRQHandler(void);
-    void FDCAN2_IT1_IRQHandler(void);
-    void EXTI9_5_IRQHandler(void);
-    void TIM2_IRQHandler(void);
-    void I2C2_EV_IRQHandler(void);
-    void I2C2_ER_IRQHandler(void);
-    void EXTI15_10_IRQHandler(void);
-    void I2C3_EV_IRQHandler(void);
-    void I2C3_ER_IRQHandler(void);
-    void OTG_HS_IRQHandler(void);
-    void UART8_IRQHandler(void);
-    void I2C4_EV_IRQHandler(void);
-    void I2C4_ER_IRQHandler(void);
-    void I2C5_EV_IRQHandler(void);
-    void I2C5_ER_IRQHandler(void);
+    void TIM6_DAC_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

@@ -1,4 +1,4 @@
-#include "app_initState.h"
+#include "app_states.h"
 
 static void initStateRunOnEntry(void) {}
 static void initStateRunOnTick1Hz(void) {}
