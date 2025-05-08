@@ -2,23 +2,28 @@
   "forwarders": [
     {
       "forwarder": "VC",
-      "bus1": "Can",
-      "bus2": "Can2"
+      "bus1": "can1",
+      "bus2": "can2"
     },
     {
       "forwarder": "VC",
-      "bus1": "Can2",
-      "bus2": "Can3"
+      "bus1": "can2",
+      "bus2": "can3"
     },
     {
       "forwarder": "VC",
-      "bus1": "Can",
-      "bus2": "Can3"
+      "bus1": "can1",
+      "bus2": "can3"
+    },
+    {
+      "forwarder": "BMS",
+      "bus1": "can1",
+      "bus2": "charger"
     }
   ],
   "buses": [
     {
-      "name": "Can",
+      "name": "can1",
       "nodes": [
         "VC",
         "BMS",
@@ -33,7 +38,7 @@
       "default_mode": "DEFAULT"
     },
     {
-      "name": "Can2",
+      "name": "can2",
       "nodes": [
         "VC",
         "FSM",
@@ -49,7 +54,7 @@
       "default_mode": "DEFAULT"
     },
     {
-      "name": "Can3",
+      "name": "can3",
       "nodes": [
         "VC"
       ],
@@ -62,9 +67,10 @@
     },
     {
       "name": "charger",
-      "nodes": "BMS",
-      "Elcon"
-    ],
+      "nodes": [
+        "BMS",
+        "Elcon"
+      ],
       "bus_speed": 500,
       "modes": [
         "DEFAULT",
