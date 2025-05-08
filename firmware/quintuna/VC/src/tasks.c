@@ -144,3 +144,12 @@ _Noreturn void tasks_batteryMonitoring(void)
         osDelay(1000);
     }
 }
+
+_Noreturn void tasks_powerMonitoring(void)
+{
+    osDelay(osWaitForever);
+    for (;;)
+    {
+        jobs_pollPwrMtr();
+    }
+}
