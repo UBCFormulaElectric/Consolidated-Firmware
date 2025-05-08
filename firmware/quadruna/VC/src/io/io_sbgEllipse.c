@@ -37,12 +37,12 @@ static SbgErrorCode io_sbgEllipse_logReceivedCallback(
     SbgEComHandle          *handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
-    const SbgBinaryLogData *log_data,
+    const SbgEComLogUnion *log_data,
     void                   *user_arg);
-static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data);
-static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data);
-static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data);
-static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data);
+static void io_sbgEllipse_processMsg_Imu(const SbgEComLogUnion *log_data);
+static void io_sbgEllipse_processMsg_eulerAngles(const SbgEComLogUnion *log_data);
+static void io_sbgEllipse_processMsg_status(const SbgEComLogUnion *log_data);
+static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgEComLogUnion *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 /*
@@ -88,7 +88,7 @@ SbgErrorCode io_sbgEllipse_logReceivedCallback(
     SbgEComHandle          *handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
-    const SbgBinaryLogData *log_data,
+    const SbgEComLogUnion *log_data,
     void                   *user_arg)
 {
     assert(log_data);
@@ -132,7 +132,7 @@ SbgErrorCode io_sbgEllipse_logReceivedCallback(
 /*
  * Process and save a new IMU data msg.
  */
-static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data)
+static void io_sbgEllipse_processMsg_Imu(const SbgEComLogUnion *log_data)
 {
     // Save acceleration, in m/s^2
     sensor_data.imu_data.acceleration.x = log_data->imuData.accelerometers[0];
@@ -148,7 +148,7 @@ static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data)
 /*
  * Process and save a new euler angles msg.
  */
-static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data)
+static void io_sbgEllipse_processMsg_eulerAngles(const SbgEComLogUnion *log_data)
 {
     // Save euler angles, in deg
     sensor_data.ekf_euler_data.euler_angles.roll  = RAD_TO_DEG(log_data->ekfEulerData.euler[0]);
@@ -159,7 +159,7 @@ static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_dat
 /*
  * Process and save a new status msg.
  */
-static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
+static void io_sbgEllipse_processMsg_status(const SbgEComLogUnion *log_data)
 {
     sensor_data.status_data.timestamp_us   = log_data->statusData.timeStamp;
     sensor_data.status_data.general_status = log_data->statusData.generalStatus;
@@ -169,7 +169,7 @@ static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
 /*
  * Process and save relevant EKF Navigation Velocity and Position information.
  */
-static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data)
+static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgEComLogUnion *log_data)
 {
     // TODO: uncomment after initial testing, if this occurs skip reading data
 
