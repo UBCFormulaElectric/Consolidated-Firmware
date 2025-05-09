@@ -67,11 +67,11 @@ void io_ltc6813_readVoltageRegisters(
         const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[reg_group]);
         VoltageRegGroup  rx_buffer[NUM_SEGMENTS];
 
-        const bool voltage_read_success = hw_spi_transmitThenReceive(
-            &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
-        if (!voltage_read_success)
+        if (hw_spi_transmitThenReceive(
+                &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer)) !=
+            EXIT_CODE_OK)
         {
-            continue;
+            return;
         }
 
         for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)

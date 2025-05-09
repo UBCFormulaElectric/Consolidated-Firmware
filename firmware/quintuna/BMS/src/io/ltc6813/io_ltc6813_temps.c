@@ -10,11 +10,10 @@
 #define V_PER_100UV (1E-4f)
 
 // TODO assert that for each speed that the ADCOPT is correct
-bool io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
+ExitCode io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
 {
 #define CLRAUX (0x0712)
-    if (!io_ltc6813_sendCommand(CLRAUX))
-        return false;
+    RETURN_IF_ERR(io_ltc6813_sendCommand(CLRAUX))
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // GPIO Selection for ADC conversion
 #define CHG (0x000U)

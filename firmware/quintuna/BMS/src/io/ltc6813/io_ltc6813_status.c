@@ -27,7 +27,7 @@ typedef struct __attribute__((__packed__))
 } StatB;
 static_assert(sizeof(StatB) == REGISTER_GROUP_SIZE);
 
-void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
+void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGMENTS])
 {
     memset(success, 0, NUM_SEGMENTS * sizeof(bool));
     if (!io_ltc6813_pollAdcConversions())
@@ -68,6 +68,14 @@ void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
             continue;
         }
         success[i] = true;
+
+        status[i].sum_cells                 = (float)reg_stat_a[i].stat.SC * 1e4f * 30;
+        status[i].internal_temp             = (float)reg_stat_a[i].stat.ITMP * 0.00152587890625f; // 2^(-11)
+        status[i].analog_power_supply       = (float)reg_stat_a[i].stat.VA * 0.00152587890625f;   // 2^(-11)
+        status[i].digital_power_supply      = (float)reg_stat_b[i].stat.VD * 0.00152587890625f;   // 2^(-11)
+        status[i].cell_voltage_bound_faults = reg_stat_b[i].stat.CVBF;
+        status[i].thermal_shutdown          = reg_stat_b[i].stat.THSD;
+        status[i].mux_fail                  = reg_stat_b[i].stat.MUXFAIL;
+        status[i].revision                  = reg_stat_b[i].stat.REV;
     }
-    // TODO idk what to do with the values we just got
 }

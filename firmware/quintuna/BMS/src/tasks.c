@@ -17,8 +17,6 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
-#include "jobs.h"
-#include "shared.pb.h"
 
 void tasks_runChimera(void)
 {

@@ -134,7 +134,7 @@ const osThreadAttr_t TaskChimera_attributes = {
     .cb_size    = sizeof(TaskChimeraControlBlock),
     .stack_mem  = &TaskChimeraBuffer[0],
     .stack_size = sizeof(TaskChimeraBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
+    .priority   = (osPriority_t)osPriorityHigh,
 };
 /* Definitions for TaskLTC */
 osThreadId_t         TaskLTCHandle;

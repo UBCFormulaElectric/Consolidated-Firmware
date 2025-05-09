@@ -6,6 +6,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#include "app_utils.h"
 
 // physical constants
 #define NUM_SEGMENTS 1
@@ -106,7 +107,7 @@ void io_ltc6813_readTemperatures(
  * sends a command to read all temperatures from all segments
  * @return success of the operation
  */
-bool io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
+ExitCode io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_utils.c
@@ -116,7 +117,7 @@ bool io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
  * polls the LTC6813 for the completion of the ADC conversions
  * @return success of the operation
  */
-bool io_ltc6813_pollAdcConversions();
+ExitCode io_ltc6813_pollAdcConversions();
 
 /**
  * @file ltc6813/io_ltc6813_balance.c
@@ -126,13 +127,13 @@ bool io_ltc6813_pollAdcConversions();
  * Sends a command to enable balancing
  * @return success of operation
  */
-bool io_ltc6813_sendBalanceCommand(void);
+ExitCode io_ltc6813_sendBalanceCommand(void);
 
 /**
  * Send a command to disable balancing
  * @return success of operation
  */
-bool io_ltc6813_sendStopBalanceCommand(void);
+ExitCode io_ltc6813_sendStopBalanceCommand(void);
 
 /**
  * @file ltc6813/io_ltc6813_owc.c
@@ -148,7 +149,7 @@ typedef enum
  * @param pull_direction The pull up or pull down phase of the open wire check
  * @return success of operation
  */
-bool io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
+ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
 
 /**
  * @file ltc6813/io_ltc6813_tests.c
@@ -160,7 +161,7 @@ bool io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
  * @note this does not mean that the test has passed.
  * you still need to assert the values in the reg groups
  */
-bool io_ltc6813_sendSelfTestVoltages(ADCSpeed speed);
+ExitCode io_ltc6813_sendSelfTestVoltages(ADCSpeed speed);
 
 /**
  * dispatches a command to test the aux adcs
@@ -168,7 +169,7 @@ bool io_ltc6813_sendSelfTestVoltages(ADCSpeed speed);
  * @note this does not mean that the test has passed.
  * you still need to assert the values in the reg groups
  */
-bool io_ltc6813_sendSelfTestAux(ADCSpeed speed);
+ExitCode io_ltc6813_sendSelfTestAux(ADCSpeed speed);
 
 /**
  * dispatches a command to test the stat registers
@@ -176,13 +177,13 @@ bool io_ltc6813_sendSelfTestAux(ADCSpeed speed);
  * @note this does not mean that the test has passed.
  * you still need to assert the values in the reg groups
  */
-bool io_ltc6813_sendSelfTestStat(ADCSpeed speed);
+ExitCode io_ltc6813_sendSelfTestStat(ADCSpeed speed);
 
 /**
  * Sends a command to diagnose the MUX. Populates the MUXFAIL bit in the status register
  * @return success of operation
  */
-bool io_ltc6813_diagnoseMUX();
+ExitCode io_ltc6813_diagnoseMUX();
 
 /**
  * Sends a command to test the ADC overlap. In particular
@@ -192,14 +193,26 @@ bool io_ltc6813_diagnoseMUX();
  * @param speed speed of adc
  * @return success of operation
  */
-bool io_ltc6813_overlapADCTest(ADCSpeed speed);
+ExitCode io_ltc6813_overlapADCTest(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_status.c
  */
 
+typedef struct
+{
+    float    sum_cells;
+    float    internal_temp;
+    float    analog_power_supply;
+    float    digital_power_supply;
+    uint32_t cell_voltage_bound_faults;
+    bool     thermal_shutdown;
+    bool     mux_fail;
+    uint8_t  revision;
+} LTCStatus;
 /**
  * Gets the status registers from all the segments
+ * @param status The status registers
  * @param success success of operations
  */
-void io_ltc6813_getStatus(bool success[NUM_SEGMENTS]);
+void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGMENTS]);

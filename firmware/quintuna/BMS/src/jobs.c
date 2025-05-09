@@ -1,14 +1,12 @@
 #include "jobs.h"
 
 #include "io_bootHandler.h"
-#include "io_log.h"
 #include "io_canTx.h"
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
 #include <io_canRx.h>
-#include "app_canTx.h"
 #include "io_ltc6813.h"
 
 void jobs_runLtc(void)

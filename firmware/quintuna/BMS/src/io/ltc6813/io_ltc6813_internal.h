@@ -3,6 +3,7 @@
  * @note this file SHOULD NOT BE imported outside of ltc drivers.
  */
 #pragma once
+#include <app_utils.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -59,4 +60,4 @@ ltc6813_tx io_ltc6813_build_tx_cmd(uint16_t command);
  * @param command command to send
  * @return success of operation
  */
-bool io_ltc6813_sendCommand(uint16_t command);
+ExitCode io_ltc6813_sendCommand(uint16_t command);
