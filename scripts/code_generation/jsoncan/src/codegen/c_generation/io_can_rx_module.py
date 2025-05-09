@@ -1,13 +1,13 @@
 import jinja2 as j2
 
-from .routing import CanRxConfigs
+from .routing import CanRxConfig
 from ...can_database import CanDatabase
 from .utils import load_template
 from .cmodule import CModule
 
 
 class IoCanRxModule(CModule):
-    def __init__(self, db: CanDatabase, node: str, rx_config: CanRxConfigs):
+    def __init__(self, db: CanDatabase, node: str, rx_config: CanRxConfig):
         self._db = db
         self._node = node
         self._node_bus_names = self._db.nodes[self._node].bus_names

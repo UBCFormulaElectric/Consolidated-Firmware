@@ -38,7 +38,7 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
     # pandas = can_db.make_pandas_dataframe()
     # print(pandas)
     # Generate DBC file
-    write_text(DbcGenerator(database=can_db).source(), dbc_output)
+    write_text(DbcGenerator(database=can_db, rx_configs=rx_config).source(), dbc_output)
     if only_dbc:
         exit()
 

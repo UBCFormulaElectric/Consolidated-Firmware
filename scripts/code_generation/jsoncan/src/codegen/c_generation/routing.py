@@ -103,7 +103,7 @@ def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List
     return initial_node, final_node, rerouter_nodes
 
 
-class CanTxConfigs:
+class CanTxConfig:
     _map_by_msg_name: Dict[str, Set[str]]  # each message can be sent on many busses
 
     # query by msg_name -> set of busses to broadcast them on
@@ -124,7 +124,7 @@ class CanTxConfigs:
         return list(self._map_by_msg_name.keys())
 
 
-class CanRxConfigs:
+class CanRxConfig:
     _map_by_bus: Dict[str, Set[str]]  # each bus can receive many messages
     _map_by_msg_name: Dict[str, str]  # each message can only be received by one bus
 
@@ -180,12 +180,12 @@ class CanForward:
 
 
 def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
-    Dict[str, CanTxConfigs], Dict[str, CanRxConfigs], Dict[str, List[CanForward]]]:
+    Dict[str, CanTxConfig], Dict[str, CanRxConfig], Dict[str, List[CanForward]]]:
     reroute_configs: Dict[str, List[CanForward]] = {
         forwarder_json.forwarder: [] for forwarder_json in can_db.forwarding
     }
-    tx_configs = {node_name: CanTxConfigs() for node_name in can_db.nodes.keys()}
-    rx_configs = {node_name: CanRxConfigs() for node_name in can_db.nodes.keys()}
+    tx_configs = {node_name: CanTxConfig() for node_name in can_db.nodes.keys()}
+    rx_configs = {node_name: CanRxConfig() for node_name in can_db.nodes.keys()}
 
     adj_list = _build_adj_list(can_db.forwarding, can_db.nodes, can_db.busses)
 
@@ -197,6 +197,8 @@ def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
             rx_configs[rx_node.name].add_rx_bus(rx_bus_name)
 
         if type(rx_node.rx_msgs_names) == All:
+            # TODO generate a new function to do this? This is a nontrivial usage of state??
+            #    but also it is very specific to this application
             rx_msgs_names = set([msg.name for msg in can_db.msgs.values() if msg.tx_node_name != rx_node.name])
         else:
             rx_msgs_names = rx_node.rx_msgs_names

@@ -4,6 +4,7 @@ TODO: Adding descriptions of messages to DBC
 """
 
 from ...can_database import *
+from ..c_generation.routing import CanRxConfig
 
 DBC_TEMPLATE = """\
 VERSION ""
@@ -45,8 +46,9 @@ class DbcGenerator:
     Class for generating a DBC file from a CanDatabase object.
     """
 
-    def __init__(self, database: CanDatabase):
+    def __init__(self, database: CanDatabase, rx_configs: Dict[str, CanRxConfig]):
         self._db = database
+        self._rx_configs = rx_configs
 
     def source(self) -> str:
         """
@@ -70,10 +72,8 @@ class DbcGenerator:
                     msg_id=msg.id,
                 )
 
-            # TODO we need some method of
-            rx_nodes: List[str] = [node_name for node_name in self._db.nodes.keys() if
-                                   type(self._db.nodes[node_name].rx_msgs_names) == All or msg.name in self._db.nodes[
-                                       node_name].rx_msgs_names]
+            rx_nodes: List[str] = [node_name for node_name, node_rx_config in self._rx_configs.items() if
+                                   msg.name in node_rx_config.get_all_rx_msgs_names()]
             for signal in msg.signals:
                 # Generate text for current CAN signal
                 msgs_text += self._dbc_signal(signal=signal, rx_nodes=rx_nodes)
@@ -116,7 +116,7 @@ class DbcGenerator:
         Format and attribute definitions and defaults.
         """
         # TODO??
-        bus = self._db.busses
+        # bus = self._db.busses
         # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
         #     cycle_time_min=bus.cycle_time_min,
         #     cycle_time_max=bus.cycle_time_max,

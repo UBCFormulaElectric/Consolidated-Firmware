@@ -4,11 +4,11 @@ from ...can_database import CanDatabase
 from .utils import load_template
 from .cmodule import CModule
 
-from .routing import CanTxConfigs
+from .routing import CanTxConfig
 
 
 class IoCanTxModule(CModule):
-    def __init__(self, db: CanDatabase, node: str, tx_config: CanTxConfigs):
+    def __init__(self, db: CanDatabase, node: str, tx_config: CanTxConfig):
         self._messages = [db.msgs[msg_name] for msg_name in tx_config.list_msg_names()]
         self._node_bus_names = db.nodes[node].bus_names
         self._bus_config = db.busses
