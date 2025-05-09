@@ -28,7 +28,7 @@ typedef enum {
  * @param dest Pointer to store the read percentage
  * @return If read was successful
  */
-ExitCode io_potentiometer_readPercentage(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
+ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
 
 /**
  * Writes the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
@@ -37,7 +37,7 @@ ExitCode io_potentiometer_readPercentage(Potentiometer *potentiometer, POTENTIOM
  * @param percentage The percentage to write to the potentiometer
  * @return If write was successful
  */
-ExitCode io_potentiometer_writePercentage(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t percentage);
+ExitCode io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t percentage);
 
 /**
  * Reads the potentiometer wiper value.
@@ -46,7 +46,7 @@ ExitCode io_potentiometer_writePercentage(Potentiometer *potentiometer, POTENTIO
  * @param dest Pointer to store the read wiper value
  * @return If read was successful
  */
-ExitCode io_potentiometer_readWiper(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
+ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
 
 /**
  * Writes the potentiometer wiper value.
@@ -55,7 +55,7 @@ ExitCode io_potentiometer_readWiper(Potentiometer *potentiometer, POTENTIOMETER_
  * @param data The wiper value to write to the potentiometer
  * @return If write was successful
  */
-ExitCode io_potentiometer_writeWiper(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t data);
+ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t data);
 
 /**
  * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
@@ -64,4 +64,4 @@ ExitCode io_potentiometer_writeWiper(Potentiometer *potentiometer, POTENTIOMETER
  * @param dest Pointer to store the read percentage
  * @return If read was successful
  */
-ExitCode io_potentiometer_readPercentage(Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
+ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
