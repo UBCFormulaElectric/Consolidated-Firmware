@@ -4,10 +4,10 @@ import unittest
 
 from ...generate_can_from_json import generate_can_from_json
 
-valid_json_folder = os.path.abspath("./test/valid_json")
-dbc_output = os.path.abspath("./test/codegen/test.dbc")
-ecu1_output = os.path.abspath("./test/codegen/ecu1")
-ecu2_output = os.path.abspath("./test/codegen/ecu2")
+valid_json_folder = os.path.join(os.path.dirname(__file__), os.pardir, "valid_json")
+dbc_output = os.path.join(os.path.dirname(__file__), "test.dbc")
+ecu1_output = os.path.join(os.path.dirname(__file__), "ecu1")
+ecu2_output = os.path.join(os.path.dirname(__file__), "ecu2")
 
 
 class CodegenSmoke(unittest.TestCase):
