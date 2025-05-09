@@ -24,7 +24,7 @@
       }
     },
     "data_capture": {
-      "log_cycle_time": 1000,
+      "log_cycle_time": 100,
       "telem_cycle_time": 1000
     }
   },
