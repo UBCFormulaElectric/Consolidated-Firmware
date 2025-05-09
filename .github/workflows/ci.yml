@@ -288,3 +288,28 @@ jobs:
           cmake --preset "FW Test CI" -B $BUILD_DIR
           cmake --build $BUILD_DIR --target install_python_logfs
           pytest -v firmware/logfs/test
+  test-jsoncan:
+    name: Test jsonCAN
+    runs-on: ubuntu-22.04
+    needs: [ clang-format ]
+    container:
+      image: ubcformulaelectric/environment:arm_14
+    env:
+      BUILD_DIR: build_fw_test
+    steps:
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run jsoncan unit tests
+        run: python -m pytest ./scripts/code_generation/jsoncan/test
+      - name: Run jsoncan integration
+        run: test
+      - name: Build
+        run: |
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target jsoncan_test
+      - name: Run tests
+        run: |
+          cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
+          valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
