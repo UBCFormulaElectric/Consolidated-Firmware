@@ -25,7 +25,7 @@ void io_canTx_set_lockfunction(
 #endif
 
 /* --------------------------- Static Variables --------------------------- */
-{% for bus in bus_names %}
+{% for bus in node_bus_names %}
 static uint32_t can_mode_{{bus}};
 static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
 {% endfor %}
@@ -50,15 +50,18 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     #ifndef THREAD_SAFE_CAN_PACKING
     unlock();
     #endif
-    {%- for msg_bus in busses_for_msg(msg.name) %}
+    {%- for msg_bus_name in busses_for_msg(msg.name) %}
     if (
-    bus_config[msg_bus].default_mode
+    {% if msg.modes == None %}
+        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{bus_config[msg_bus_name].default_mode}})
+    {% else %}
     {% for mode in msg.modes %}
-        can_mode_{{msg_bus}} & ({{msg_bus.upper()}}_MODE_{{mode}})
+        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{mode}})
     {% endfor %}
+    {% endif %}
     )
     {
-        transmit_func_{{msg_bus}}(&tx_msg);
+        transmit_func_{{msg_bus_name}}(&tx_msg);
     }
     {%- endfor %}
 }
@@ -68,27 +71,27 @@ void io_canTx_{{msg.name}}_sendAperiodic()
 /* --------------------- Public Function Definitions ---------------------- */
 
 void io_canTx_init( 
-    {% for bus in bus_names -%}
-    void (*transmit_{{bus}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
+    {% for bus_name in node_bus_names -%}
+    void (*transmit_{{bus_name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
     {% endfor %}
 )
 {
-    {% for bus in bus_names -%}
-    transmit_func_{{bus}} = transmit_{{bus}}_msg_func;
+    {% for bus_name in node_bus_names -%}
+    transmit_func_{{bus_name}} = transmit_{{bus}}_msg_func;
     {% endfor %}
 }
 
-{% for bus in bus_names %}
-void io_canTx_enableMode_{{bus}}({{bus}}Mode mode, bool enable)
+{% for bus_name in node_bus_names %}
+void io_canTx_enableMode_{{bus_name}}({{bus_name}}Mode mode, bool enable)
 {
     if (enable)
     {
-        can_mode_{{bus}} |= (uint32_t)mode; // Enable mode
+        can_mode_{{bus_name}} |= (uint32_t)mode; // Enable mode
         
     }
     else
     {
-        can_mode_{{bus}} &= ~((uint32_t)mode); // Disable mode
+        can_mode_{{bus_name}} &= ~((uint32_t)mode); // Disable mode
     }
 }
 {% endfor %}

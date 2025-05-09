@@ -397,28 +397,28 @@ class CanDatabase:
 
         return signals
 
-    # def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
-    #     """
-    #     Return list of all CAN messages transmitted by a specific node.
-    #     """
-    #     if tx_node not in self.nodes:
-    #         raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
-    #     return [self.msgs[msg] for msg in self.nodes[tx_node].tx_config.list_msg_names()]
-    #
-    # def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
-    #     """
-    #     Return list of all CAN messages received by a specific node.
-    #     """
-    #     if rx_node not in self.nodes:
-    #         raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
-    #     return [self.msgs[msg_name] for msg_name in self.nodes[rx_node].rx_config.get_all_rx_msgs_names()]
-    #
-    # def msgs_for_node(self, node: str) -> List[CanMessage]:
-    #     """
-    #     Return list of all CAN messages either transmitted or received by a specific node.
-    #     """
-    #     return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
-    #
+    def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
+        """
+        Return list of all CAN messages transmitted by a specific node.
+        """
+        if tx_node not in self.nodes:
+            raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
+        return [msg for msg in self.msgs.values() if msg.tx_node_name == tx_node]
+
+    def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
+        """
+        Return list of all CAN messages received by a specific node.
+        """
+        if rx_node not in self.nodes:
+            raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
+        return [self.msgs[msg_name] for msg_name in self.nodes[rx_node].rx_msgs_names]
+
+    def msgs_for_node(self, node: str) -> List[CanMessage]:
+        """
+        Return list of all CAN messages either transmitted or received by a specific node.
+        """
+        return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
+
     # def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
     #     """
     #     Return list of alerts transmitted by a node, of a specific type.

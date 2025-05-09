@@ -4,11 +4,15 @@ from ...can_database import CanDatabase
 from .utils import load_template
 from .cmodule import CModule
 
+from .routing import CanTxConfigs
+
 
 class IoCanTxModule(CModule):
-    def __init__(self, db: CanDatabase, node: str):
-        self._db = db
-        self._node = node
+    def __init__(self, db: CanDatabase, node: str, tx_config: CanTxConfigs):
+        self._messages = [db.msgs[msg_name] for msg_name in tx_config.list_msg_names()]
+        self._node_bus_names = db.nodes[node].bus_names
+        self._bus_config = db.busses
+        self._tx_config = tx_config
 
     def header_template(self):
         template = load_template("io_canTx.h.j2")
@@ -17,9 +21,9 @@ class IoCanTxModule(CModule):
         )
         template = j2_env.from_string(template)
         return template.render(
-            bus_names=self._db.nodes[self._node].bus_names,  # for bus boilerplate
-            messages=[self._db.msgs[msg_name] for msg_name in self._db.nodes[self._node].tx_config.list_msg_names()],
-            bus_config=self._db.busses,  # template uses modes and default modes
+            bus_config=self._bus_config,
+            node_bus_names=self._node_bus_names,
+            messages=self._messages,
         )
 
     def source_template(self):
@@ -29,8 +33,8 @@ class IoCanTxModule(CModule):
         )
         template = j2_env.from_string(template)
         return template.render(
-            bus_names=self._db.nodes[self._node].bus_names,
-            messages=[self._db.msgs[msg_name] for msg_name in self._db.nodes[self._node].tx_config.list_msg_names()],
-            busses_for_msg=self._db.nodes[self._node].tx_config.get_busses_for_msg,
-            bus_config=self._db.busses,
+            bus_config=self._bus_config,
+            node_bus_names=self._node_bus_names,
+            busses_for_msg=self._tx_config.get_busses_for_msg,
+            messages=self._messages
         )

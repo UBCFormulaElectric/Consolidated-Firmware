@@ -11,14 +11,14 @@
 
 /* ------------------------- Function Definitions ------------------------- */
 // each bus has its own filter function
-{% for bus in node_bus_names %}
-bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id)
+{% for bus_name in node_bus_names %}
+bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id)
 {
     bool is_found = false;
     switch (std_id)
     {
-        {%- if not rx_config.empty() %}
-        {%- for msg_name in rx_config.get_msgs_on_bus(bus) %}
+        {%- if not rx_config.empty_bus(bus_name) %}
+        {%- for msg_name in rx_config.get_msgs_on_bus(bus_name) %}
         case {{msg_map[msg_name].id_macro()}}:
         {%- endfor %}
         {

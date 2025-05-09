@@ -7,9 +7,11 @@ import argparse
 import os
 from typing import List, Optional
 
-from jsoncan import CModule, AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, \
+from . import CModule, AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, \
     AppCanUtilsModule, IoCanRerouteModule, IoCanRxModule, IoCanTxModule, DbcGenerator, JsonCanParser, CanRxConfigs, \
     CanTxConfigs, CanForward
+
+from .src.codegen.c_generation.routing import resolve_tx_rx_reroute
 
 
 def write_text(text: str, output_path: str) -> None:
@@ -33,13 +35,9 @@ def write_text(text: str, output_path: str) -> None:
 
 
 def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, board: str, output_dir: str):
-    # CALCULATED VALUES
-    rx_config: CanRxConfigs  # rx_config[msg_name] gives a rx config for that message
-    tx_config: CanTxConfigs  # tx_config[msg_name] gives a tx config for that message
-    reroute_config: Optional[List[CanForward]] = None  # forwarding rule table
-
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=can_data_dir).make_database()
+    tx_config, rx_config, reroute_config = resolve_tx_rx_reroute(can_db)
     # pandas = can_db.make_pandas_dataframe()
     # print(pandas)
     # Generate DBC file
@@ -51,7 +49,8 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
                                              (AppCanUtilsModule(can_db, board), os.path.join("app", "app_canUtils")),
                                              (AppCanTxModule(can_db, board), os.path.join("app", "app_canTx")),
                                              (AppCanRxModule(can_db, board), os.path.join("app", "app_canRx")),
-                                             (IoCanTxModule(can_db, board), os.path.join("io", "io_canTx")),
+                                             (IoCanTxModule(can_db, board, tx_config[board]),
+                                              os.path.join("io", "io_canTx")),
                                              (IoCanRxModule(can_db, board), os.path.join("io", "io_canRx")),
                                              # TODO only generate this if the current node can capture data
                                              (AppCanDataCaptureModule(can_db),
@@ -60,9 +59,9 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
                                              (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
 
                                          ] + ([
-                                                  (IoCanRerouteModule(can_db, board),
+                                                  (IoCanRerouteModule(can_db, board, reroute_config[board]),
                                                    os.path.join("io", "io_canReroute"))
-                                              ] if can_db.nodes[board].reroute_config is not None else [])
+                                              ] if reroute_config.get(board) is not None else [])
     for module, module_path in modules:
         module_full_path = os.path.join(output_dir, module_path)
         write_text(module.header_template(), module_full_path + ".h")

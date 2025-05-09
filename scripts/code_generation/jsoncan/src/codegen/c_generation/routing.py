@@ -106,6 +106,8 @@ def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List
 class CanTxConfigs:
     _map_by_msg_name: Dict[str, Set[str]]  # each message can be sent on many busses
 
+    # query by msg_name -> set of busses to broadcast them on
+
     def __init__(self):
         self._map_by_msg_name = {}
 
@@ -119,7 +121,7 @@ class CanTxConfigs:
         return list(self._map_by_msg_name[msg_name])
 
     def list_msg_names(self):
-        return self._map_by_msg_name.keys()
+        return list(self._map_by_msg_name.keys())
 
 
 class CanRxConfigs:
@@ -151,8 +153,8 @@ class CanRxConfigs:
     def contains_rx_msg(self, msg_name: str) -> bool:
         return msg_name in self._map_by_msg_name
 
-    def empty(self):
-        return len(self._map_by_msg_name) == 0
+    def empty_bus(self, bus_name: str) -> bool:
+        return len(self._map_by_bus[bus_name]) == 0
 
 
 @dataclass()
