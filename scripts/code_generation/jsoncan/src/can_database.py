@@ -313,6 +313,7 @@ class CanDatabase:
     msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
     alerts: Dict[str, list[CanAlert]]  # alerts[node_name] gives a list of alerts on that node
     enums: Dict[str, CanEnum]  # enums[enum_name] gives metadata for enum_name
+    collects_data: Dict[str, bool]  # collects_data[node_name] is true if this node collects data
 
     # this must be global state rather than local (node) state as the common usecase is navigation
     # which requires global information

@@ -35,6 +35,7 @@ class JsonCanParser:
     _alerts: Dict[str, List[CanAlert]]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
     _forwarding: List[BusForwarder]  # _forwarding[bus_name] gives metadata for bus_name
     _enums: Dict[str, CanEnum]  # _enums[enum_name] gives metadata for enum_name
+    _collects_data: Dict[str, bool]  # _collects_data[node_name] = True if the node collects data
 
     # internal state
     # _node_tx_msgs: Dict[str, Set[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
@@ -49,7 +50,8 @@ class JsonCanParser:
         # self._node_tx_msgs = {node_name: set() for node_name in node_names}
         self._node_rx_msgs = {node_name: set() for node_name in node_names}
         # parse the bus config
-        self._busses, self._forwarding = parse_bus_data(can_data_dir, node_names)
+        self._busses, self._forwarding, loggers = parse_bus_data(can_data_dir, node_names)
+        self._collects_data = {node_name: node_name in loggers for node_name in node_names}
 
         # PARSE TX JSON DATA
         # collect shared enums outside of loop
@@ -122,6 +124,7 @@ class JsonCanParser:
             alerts=self._alerts,
             forwarding=self._forwarding,
             enums=self._enums,
+            collects_data=self._collects_data,
         )
 
     # TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized

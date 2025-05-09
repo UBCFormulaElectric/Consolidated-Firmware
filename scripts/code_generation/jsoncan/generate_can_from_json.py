@@ -48,12 +48,11 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
         (AppCanRxModule(can_db, board, rx_configs[board]), os.path.join("app", "app_canRx")),
         (IoCanTxModule(can_db, board, tx_configs[board]), os.path.join("io", "io_canTx")),
         (IoCanRxModule(can_db, board, rx_configs[board]), os.path.join("io", "io_canRx")),
-        # TODO only generate this if the current node can capture data
-        (AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")),
-        # TODO only generate this if node has alerts. this is less priority because all nodes generate alerts
-        (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
-
     ]
+    if board in can_db.alerts.items():
+        modules.append((AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")))
+    if can_db.collects_data[board]:
+        modules.append((AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")))
     if reroute_config.get(board) is not None:
         modules.append((IoCanRerouteModule(can_db, board, reroute_config[board]),
                         os.path.join("io", "io_canReroute")))
