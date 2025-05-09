@@ -399,15 +399,6 @@ class CanDatabase:
 
         return signals
 
-    def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
-        """
-        Return list of alerts transmitted by a node, of a specific type.
-        """
-        if node not in self.alerts:
-            # raise KeyError(f"Node '{node}' is not defined in the JSON.")
-            return []  # TODO i really don't like this
-        return [alert.name for alert in self.alerts[node] if alert.alert_type == alert_type]
-
 
 @dataclass()
 class BusForwarder:

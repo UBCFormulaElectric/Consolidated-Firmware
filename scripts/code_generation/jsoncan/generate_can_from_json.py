@@ -39,12 +39,10 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
     if board not in can_db.nodes:
         raise ValueError(f"Board {board} not found in CAN database.")
 
-    # pandas = can_db.make_pandas_dataframe()
-    # print(pandas)
     # Generate DBC file
     write_text(DbcGenerator(database=can_db, rx_configs=rx_configs).source(), dbc_output)
     if only_dbc:
-        exit()
+        return
 
     # NOTE that not all files are required, but it's very hard to communicate to cmake at generate time
     # which files are required.
