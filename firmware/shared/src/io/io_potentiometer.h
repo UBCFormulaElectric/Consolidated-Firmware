@@ -7,7 +7,8 @@
 
 #include "hw_i2cs.h"
 
-typedef struct {
+typedef struct
+{
     const I2cDevice *i2c_handle;
 } Potentiometer;
 
@@ -16,7 +17,8 @@ typedef struct {
 EMPTY_STRUCT(Potentiometer)
 #endif
 
-typedef enum {
+typedef enum
+{
     POTENTIOMETER_WIPER_0_ADD = 0x00,
     POTENTIOMETER_WIPER_1_ADD = 0x01,
 } POTENTIOMETER_ADD;
@@ -37,7 +39,8 @@ ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POT
  * @param percentage The percentage to write to the potentiometer
  * @return If write was successful
  */
-ExitCode io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t percentage);
+ExitCode
+    io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t percentage);
 
 /**
  * Reads the potentiometer wiper value.
