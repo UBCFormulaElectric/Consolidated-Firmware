@@ -419,82 +419,19 @@ class CanDatabase:
         """
         return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
 
-    # def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
-    #     """
-    #     Return list of alerts transmitted by a node, of a specific type.
-    #     """
-    #     return (
-    #         [
-    #             alert.name
-    #             for alert in self.alerts[node]
-    #             if alert.alert_type == alert_type
-    #         ]
-    #         if node in self.alerts
-    #         else []
-    #     )
-    #
-    # def node_rx_alerts(self, node: str) -> List[str]:
-    #     """
-    #     Return list of alerts received by a node, of a specific type.
-    #     """
-    #     rte = []
-    #     for tx_node in [
-    #         node1
-    #         for node1 in self.nodes
-    #         if any(
-    #             [len(self.node_alerts(node1, alert_type)) > 0 for alert_type in CanAlertType]
-    #         )
-    #     ]:
-    #         if tx_node == node:
-    #             continue  # Skip self-transmitted alerts
-    #         for alert in self.alerts[tx_node]:
-    #             rte.append(alert.name)
-    #     return rte
-    # def node_name_description(
-    #         self, node: str, alert_type: CanAlert
-    # ) -> Dict[str, tuple]:
-    #     """Returns a dictionary containing a the alert names as the key and a description and as the item"""
-    #
-    #     new_dict = {}
-    #     if node not in self.alerts:
-    #         return {}
-    #     for alert, info in self.alerts[node].items():
-    #         if alert.alert_type == alert_type and info != {}:
-    #             new_dict[alert.name] = (info["id"], info["description"])
-    #
-    #         elif info == {}:
-    #             new_dict[alert.name] = {}
-    #     return new_dict
-    # def node_alerts_with_rx_check(
-    #         self, tx_node: str, rx_node, alert_type: CanAlertType
-    # ) -> List[str]:
-    #     """
-    #     Return list of alerts transmitted by tx_node, and received by rx_node, of a specific type.
-    #     """
-    #     if tx_node == rx_node:
-    #         # A node "receives" its own alerts
-    #         return self.node_alerts(tx_node, alert_type)
-    #     else:
-    #         alert_msg = next(
-    #             msg
-    #             for msg in self.msgs.values()
-    #             if msg.name == f"{tx_node}_{alert_type}s"
-    #         )
-    #         return [
-    #             alert
-    #             for alert in self.node_alerts(tx_node, alert_type)
-    #             if rx_node in alert_msg.rx_node_names
-    #         ]
-    # def node_has_tx_msgs(self, node: str) -> bool:
-    #     """
-    #     Return whether or not a node transmits any messages.
-    #     """
-    #     return len(self.tx_msgs_for_node(node)) > 0
-    # def node_has_rx_msgs(self, node: str) -> bool:
-    #     """
-    #     Return whether or not a node receives any messages.
-    #     """
-    #     return len(self.rx_msgs_for_node(node)) > 0
+    def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
+        """
+        Return list of alerts transmitted by a node, of a specific type.
+        """
+        return (
+            [
+                alert.name
+                for alert in self.alerts[node]
+                if alert.alert_type == alert_type
+            ]
+            if node in self.alerts
+            else []
+        )
 
 
 @dataclass()

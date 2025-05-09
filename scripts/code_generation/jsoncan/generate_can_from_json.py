@@ -51,7 +51,8 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
                                              (AppCanRxModule(can_db, board), os.path.join("app", "app_canRx")),
                                              (IoCanTxModule(can_db, board, tx_config[board]),
                                               os.path.join("io", "io_canTx")),
-                                             (IoCanRxModule(can_db, board), os.path.join("io", "io_canRx")),
+                                             (IoCanRxModule(can_db, board, rx_config[board]),
+                                              os.path.join("io", "io_canRx")),
                                              # TODO only generate this if the current node can capture data
                                              (AppCanDataCaptureModule(can_db),
                                               os.path.join("app", "app_canDataCapture")),

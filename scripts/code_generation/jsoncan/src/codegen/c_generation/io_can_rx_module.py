@@ -10,7 +10,7 @@ class IoCanRxModule(CModule):
     def __init__(self, db: CanDatabase, node: str, rx_config: CanRxConfigs):
         self._db = db
         self._node = node
-        self._node_bus_names = self._db.nodes[self._node].bus_names,
+        self._node_bus_names = self._db.nodes[self._node].bus_names
         self._rx_config = rx_config
 
     def header_template(self):
@@ -34,5 +34,5 @@ class IoCanRxModule(CModule):
             node=self._node,
             node_bus_names=self._node_bus_names,
             rx_config=self._rx_config,
-            # msg_map=self._db.msgs
+            msg_map=self._db.msgs
         )
