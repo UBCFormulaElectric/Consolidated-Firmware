@@ -4,14 +4,16 @@ import unittest
 from ...src.can_database import CanDatabase
 from ...src.json_parsing.json_can_parsing import JsonCanParser
 
-valid_json_folder = os.path.abspath("./test/valid_json")
+# valid_json_folder = os.path.abspath("./test/valid_json")
+valid_json_folder = os.path.join(os.path.dirname(__file__), os.pardir, "valid_json")
 
 # disable test sorting, so that the order of tests is consistent and per given
 unittest.TestLoader.sortTestMethodsUsing = None
 
 
 class CDBTests(unittest.TestCase):
-    ecu1_msgs = {"ECU1_BasicSignalTypes", "ECU1_DecimalNumbers", "ECU1_DbcMatching", "ECU1_MinMaxClamping", "ECU1_Debug_Only"}
+    ecu1_msgs = {"ECU1_BasicSignalTypes", "ECU1_DecimalNumbers", "ECU1_DbcMatching", "ECU1_MinMaxClamping",
+                 "ECU1_Debug_Only"}
     ec1_alerts = {"ECU1_Warnings",
                   "ECU1_WarningsCounts", "ECU1_Faults", "ECU1_FaultsCounts", "ECU1_Info", "ECU1_InfoCounts"}
     ecu2_msgs = {"ECU2_BasicSignalTypes"}
