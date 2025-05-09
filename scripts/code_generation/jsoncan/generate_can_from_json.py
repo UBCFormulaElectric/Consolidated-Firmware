@@ -35,6 +35,10 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=can_data_dir).make_database()
     tx_configs, rx_configs, reroute_config = resolve_tx_rx_reroute(can_db)
+
+    if board not in can_db.nodes:
+        raise ValueError(f"Board {board} not found in CAN database.")
+
     # pandas = can_db.make_pandas_dataframe()
     # print(pandas)
     # Generate DBC file
@@ -45,12 +49,11 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
     modules: list[tuple[CModule, str]] = [
         (AppCanUtilsModule(can_db, tx_configs[board], rx_configs[board]), os.path.join("app", "app_canUtils")),
         (AppCanTxModule(can_db, tx_configs[board]), os.path.join("app", "app_canTx")),
+        (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
         (AppCanRxModule(can_db, board, rx_configs[board]), os.path.join("app", "app_canRx")),
         (IoCanTxModule(can_db, board, tx_configs[board]), os.path.join("io", "io_canTx")),
         (IoCanRxModule(can_db, board, rx_configs[board]), os.path.join("io", "io_canRx")),
     ]
-    if board in can_db.alerts.items():
-        modules.append((AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")))
     if can_db.collects_data[board]:
         modules.append((AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")))
     if reroute_config.get(board) is not None:
