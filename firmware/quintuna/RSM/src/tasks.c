@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "io_imus.h"
 #include "jobs.h"
 #include "cmsis_os.h"
 #include "main.h"
@@ -12,6 +13,7 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_jsoncan.h"
+#include "io_coolants.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
@@ -19,9 +21,7 @@
 // hw
 // #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_watchdog.h"
 #include "hw_cans.h"
-#include "hw_gpios.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 
@@ -38,7 +38,6 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-    hw_gpio_writePin(&brake_light_en_pin, false);
 
     hw_adcs_chipsInit();
     hw_can_init(&can2);
@@ -116,4 +115,9 @@ _Noreturn void tasks_runCanRx(void)
         JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&msg);
         io_canRx_updateRxTableWithMessage(&json_msg);
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_coolant_inputCaptureCallback();
 }
