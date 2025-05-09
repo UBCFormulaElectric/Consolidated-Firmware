@@ -85,6 +85,7 @@ void io_ltc6813_readVoltageRegisters(
             // Calculate PEC15 from the data received on rx_buffer
             if (!io_ltc6813_check_pec((uint8_t *)seg_reg_group, 6, &seg_reg_group->pec))
             {
+                comm_success[seg_idx][reg_group] = EXIT_CODE_ERROR;
                 continue;
             }
             // fuck it we already here
@@ -120,7 +121,13 @@ void io_ltc6813_readVoltages(
             if (success[i][j / 3] != EXIT_CODE_OK)
                 continue;
             // see page 68, 0xffff is invalid (either not populated or faulted)
-            cell_voltages[i][j] = reg_vals[i][j] == 0xffff ? 0 : CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
+            if (reg_vals[i][j] == 0xffff)
+            {
+                cell_voltages[i][j] = 0.0f;
+                success[i][j / 3]   = EXIT_CODE_ERROR;
+                continue;
+            }
+            cell_voltages[i][j] = CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
         }
     }
 }
