@@ -30,31 +30,34 @@ void app_canAlerts_{{ alert.name }}_set(bool set_alert)
 
 // alert signal getter functions
 {%- for alert in node_tx_alerts %}
-bool app_canAlerts_{{ alert.name }}_get()
+bool app_canAlerts_{{ alert.name }}_get(void)
 {
     return app_canTx_{{ alert.name }}_get();
 }
 {%- endfor %}
 
-
-bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
+bool app_canAlerts_BoardHasInfo(CanAlertBoard board)
 {
     switch (board)
     {
         {%- for board_name, board_alerts in node_name_and_alerts %}
+        {% set board_infos = board_alerts | selectattr("alert_type", "equalto", CanAlertType.INFO) | list -%}
         case {{board_name.upper()}}_ALERT_BOARD :
         {
+            {%- if board_infos | length > 0 %}
             return (
-                {% set board_warnings = board_alerts | selectattr("alert_type", "equalto", CanAlertType.WARNING) | list -%}
-                {%- for alert in board_warnings %}
-                    {%- if board_name == node_name -%}
-                    app_canTx_{{ alert.name }}_get()
-                    {%- else -%}
-                    app_canRx_{{ alert.name }}_get()
-                    {%- endif -%}
-                    {%- if not loop.last %} || {% endif -%}
+                {%- for alert in board_infos %}
+                {%- if board_name == node_name -%}
+                app_canTx_{{ alert.name }}_get()
+                {%- else -%}
+                app_canRx_{{ alert.name }}_get()
+                {%- endif -%}
+                {%- if not loop.last %} || {% endif -%}
                 {%- endfor %}
             );
+            {%- else %}
+            return false;
+            {%- endif %}
         }
         {%- endfor %}
         default:
@@ -62,25 +65,57 @@ bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
     }
     return false;
 }
-
+bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
+{
+    switch (board)
+    {
+        {%- for board_name, board_alerts in node_name_and_alerts %}
+        {% set board_warnings = board_alerts | selectattr("alert_type", "equalto", CanAlertType.WARNING) | list -%}
+        case {{board_name.upper()}}_ALERT_BOARD :
+        {
+            {%- if board_warnings | length > 0 %}
+            return (
+                {%- for alert in board_warnings %}
+                {%- if board_name == node_name -%}
+                app_canTx_{{ alert.name }}_get()
+                {%- else -%}
+                app_canRx_{{ alert.name }}_get()
+                {%- endif -%}
+                {%- if not loop.last %} || {% endif -%}
+                {%- endfor %}
+            );
+            {%- else %}
+            return false;
+            {%- endif %}
+        }
+        {%- endfor %}
+        default:
+            break;
+    }
+    return false;
+}
 bool app_canAlerts_BoardHasFault(CanAlertBoard board)
 {
     switch (board)
     {
         {%- for board_name, board_alerts in node_name_and_alerts %}
+        {% set board_faults = board_alerts | selectattr("alert_type", "equalto", CanAlertType.FAULT) | list -%}
         case {{board_name.upper()}}_ALERT_BOARD :
         {
+            {%- if board_faults | length > 0 %}
             return (
-                {% set board_faults = board_alerts | selectattr("alert_type", "equalto", CanAlertType.FAULT) | list -%}
                 {%- for alert in board_faults %}
-                    {%- if board_name == node_name -%}
-                    app_canTx_{{ alert.name }}_get()
-                    {%- else -%}
-                    app_canRx_{{ alert.name }}_get()
-                    {%- endif -%}
-                    {%- if not loop.last %} || {% endif -%}
+                {%- if board_name == node_name -%}
+                app_canTx_{{ alert.name }}_get()
+                {%- else -%}
+                app_canRx_{{ alert.name }}_get()
+                {%- endif -%}
+                {%- if not loop.last %} || {% endif -%}
                 {%- endfor %}
             );
+            {%- else %}
+            return false;
+            {%- endif %}
         }
         {% endfor %}
         default:
@@ -89,43 +124,8 @@ bool app_canAlerts_BoardHasFault(CanAlertBoard board)
     return false;
 }
 
-bool app_canAlerts_BoardHasInfo(CanAlertBoard board)
-{
-    switch (board)
-    {
-        {%- for board_name, board_alerts in node_name_and_alerts %}
-        case {{board_name.upper()}}_ALERT_BOARD :
-        {
-            {% for alert in board_alerts %}
-            {%- if alert.alert_type == CanAlertType.INFO -%}
-            {%- if board_name == node_name -%}
-            if (app_canTx_{{ alert.name }}_get()) 
-            {
-                return true;
-            }
-            {%- else -%}
-            if (app_canRx_{{ alert.name }}_get()) 
-            {
-                return true;
-            }
-            {%- endif -%}
-            {% endif -%}
-            {% endfor %}
-            break;
-        }
-        {% endfor %}
-        
-        default:
-        {
-            // Do nothing
-            break;
-        }
-    }
-    return false;
-}
 
-
-bool app_canAlerts_AnyBoardHasInfo()
+bool app_canAlerts_AnyBoardHasInfo(void)
 {
     // Check if any board has an info
     return (
@@ -135,7 +135,7 @@ bool app_canAlerts_AnyBoardHasInfo()
     );
 }
 
-bool app_canAlerts_AnyBoardHasWarning()
+bool app_canAlerts_AnyBoardHasWarning(void)
 {
     //Check if any board has a warning
     return (
@@ -145,7 +145,7 @@ bool app_canAlerts_AnyBoardHasWarning()
     );
 }
 
-bool app_canAlerts_AnyBoardHasFault()
+bool app_canAlerts_AnyBoardHasFault(void)
 {
     //Check if any board has a fault
     return (
@@ -227,3 +227,4 @@ uint8_t app_canAlerts_FaultInfo(Alert_Info *alert_array)
     {%- endfor %}
     return element_num;
 }
+
