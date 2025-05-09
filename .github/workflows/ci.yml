@@ -302,7 +302,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Run jsoncan unit tests
-        run: python -m pytest ./scripts/code_generation/jsoncan/test
+        run: python3 -m pytest ./scripts/code_generation/jsoncan/test
       - name: Run jsoncan integration
         run: test
       - name: Build
