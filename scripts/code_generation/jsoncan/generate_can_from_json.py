@@ -46,19 +46,18 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
     if only_dbc:
         exit()
 
+    # NOTE that not all files are required, but it's very hard to communicate to cmake at generate time
+    # which files are required.
     modules: list[tuple[CModule, str]] = [
         (AppCanUtilsModule(can_db, tx_configs[board], rx_configs[board]), os.path.join("app", "app_canUtils")),
         (AppCanTxModule(can_db, tx_configs[board]), os.path.join("app", "app_canTx")),
         (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
+        (AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")),
         (AppCanRxModule(can_db, board, rx_configs[board]), os.path.join("app", "app_canRx")),
         (IoCanTxModule(can_db, board, tx_configs[board]), os.path.join("io", "io_canTx")),
         (IoCanRxModule(can_db, board, rx_configs[board]), os.path.join("io", "io_canRx")),
+        (IoCanRerouteModule(can_db, board, reroute_config[board]), os.path.join("io", "io_canReroute"))
     ]
-    if can_db.collects_data[board]:
-        modules.append((AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")))
-    if reroute_config.get(board) is not None:
-        modules.append((IoCanRerouteModule(can_db, board, reroute_config[board]),
-                        os.path.join("io", "io_canReroute")))
 
     for module, module_path in modules:
         module_full_path = os.path.join(output_dir, module_path)

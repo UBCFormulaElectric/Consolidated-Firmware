@@ -24,6 +24,8 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_
     set(APP_CAN_ALERTS_HEADER_OUTPUT "${OUTPUT_DIR}/app/app_canAlerts.h")
     set(APP_CAN_DATA_CAPTURE_SRC_OUTPUT "${OUTPUT_DIR}/app/app_canDataCapture.c")
     set(APP_CAN_DATA_CAPTURE_HEADER_OUTPUT "${OUTPUT_DIR}/app/app_canDataCapture.h")
+    set(IO_CAN_REROUTE_SRC_OUTPUT "${OUTPUT_DIR}/io/io_canReroute.c")
+    set(IO_CAN_REROUTE_HEADER_OUTPUT "${OUTPUT_DIR}/io/io_canReroute.h")
 
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)
     file(GLOB_RECURSE CAN_JSON_PY_SRCS ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.py ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.j2)
@@ -43,6 +45,8 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_
             ${APP_CAN_ALERTS_HEADER_OUTPUT}
             ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
             ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
+            ${IO_CAN_REROUTE_SRC_OUTPUT}
+            ${IO_CAN_REROUTE_HEADER_OUTPUT}
             COMMAND ${PYTHON_COMMAND} -m jsoncan.generate_can_from_json
             --board ${JSONCAN_PY_BOARD}
             --can_data_dir ${CAN_JSON_DIR}
@@ -62,6 +66,7 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_
                 ${APP_CAN_UTILS_SRC_OUTPUT}
                 ${APP_CAN_ALERTS_SRC_OUTPUT}
                 ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
+                ${IO_CAN_REROUTE_SRC_OUTPUT}
                 PARENT_SCOPE
         )
     ELSE ()
