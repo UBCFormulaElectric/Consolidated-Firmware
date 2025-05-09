@@ -1,4 +1,5 @@
 #pragma once
+#include "app_utils.h"
 #include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
@@ -27,10 +28,10 @@ ExitCode io_rPump_read(uint8_t *dest);
  *
  * @param percentage
  */
-void io_rPump_setPercentage(float percentage);
+ExitCode io_rPump_setPercentage(float percentage);
 
 /**
  *
  * @return
  */
-float io_rPump_readPercentage();
+ ExitCode io_rPump_readPercentage(float *dest);
