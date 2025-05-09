@@ -60,7 +60,7 @@ typedef enum
  */
 void io_ltc6813_readVoltageRegisters(
     uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    bool     comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
+    ExitCode comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
 
 /**
  * Reads all voltages from all segments
@@ -69,8 +69,8 @@ void io_ltc6813_readVoltageRegisters(
  * @return
  */
 void io_ltc6813_readVoltages(
-    float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
+    float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    ExitCode success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
 
 /**
  * sends a command to read all voltages from all segments
@@ -89,7 +89,7 @@ bool io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
  */
 void io_ltc6813_readAuxRegisters(
     uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    bool     comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
+    ExitCode comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
 
 /**
  * Reads all temperatures from all segments
@@ -99,9 +99,9 @@ void io_ltc6813_readAuxRegisters(
  * @return
  */
 void io_ltc6813_readTemperatures(
-    float  cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    float *vref,
-    bool   success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
+    float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    float   *vref,
+    ExitCode success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
 
 /**
  * sends a command to read all temperatures from all segments
