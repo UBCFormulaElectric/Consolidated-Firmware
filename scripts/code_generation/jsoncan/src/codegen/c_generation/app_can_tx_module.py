@@ -13,9 +13,9 @@ class AppCanTxModule(CModule):
     def header_template(self):
         j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
         template = j2_env.from_string(load_template("app_canTx.h.j2"))
-        return template.render(messages=self._tx_messages)
+        return template.render(tx_messages=self._tx_messages)
 
     def source_template(self):
         j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
         template = j2_env.from_string(load_template("app_canTx.c.j2"))
-        return template.render(messages=self._tx_messages)
+        return template.render(tx_messages=self._tx_messages)

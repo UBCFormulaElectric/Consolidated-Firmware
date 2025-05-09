@@ -12,11 +12,11 @@
 /* ------------------------------- Structs -------------------------------- */
 
 /**
- * Struct for holding all messages transmitted by BMS (i.e. the TX table).
+ * Struct for holding all tx_messages transmitted by BMS (i.e. the TX table).
  */
 static struct
 {
-    {%- for msg in messages %}
+    {%- for msg in tx_messages %}
     {{ msg.c_type() }} {{ msg.name }}_signals;
     {%- endfor %}
 } tx_table;
@@ -26,14 +26,15 @@ static struct
 void app_canTx_init()
 {
     memset(&tx_table, 0, sizeof(tx_table));
-    {%- for msg in messages %}
+    {%- for msg in tx_messages %}
     {%- for signal in msg.signals %}
     app_canTx_{{ signal.name }}_set({{ signal.start_val_macro() }});
     {%- endfor %}
     {%- endfor %}
 }
 
-{%- for msg in messages %}
+/* -------- UPDATE -------- */
+{% for msg in tx_messages %}
 {%- for signal in msg.signals %}
 void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
 {
@@ -61,7 +62,8 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
 {%- endfor %}
 {%- endfor %}
 
-{%- for msg in messages %}
+/* -------- GET -------- */
+{% for msg in tx_messages %}
 {%- for signal in msg.signals %}
 {{ signal.datatype() }} app_canTx_{{ signal.name }}_get(void)
 {
@@ -70,7 +72,7 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value)
 {%- endfor %}
 {%- endfor %}
 
-{%- for msg in messages %}
+{%- for msg in tx_messages %}
 {{ msg.c_type() }}* app_canTx_{{ msg.name }}_getData()
 {
     return &tx_table.{{ msg.name }}_signals;
