@@ -175,29 +175,29 @@ class CanRxConfig:
 
 @dataclass()
 class CanForward:
-    message: str  # name of the message
-    forwarder: str
-    from_bus: str  # name of the bus the message is forwarded from
-    to_bus: str  # bus the message is forwarded to
+    message_name: str  # name of the message
+    forwarder_name: str  # name of the forwarder node
+    from_bus_name: str  # name of the bus the message is forwarded from
+    to_bus_name: str  # name of the bus the message is forwarded to
 
     def __eq__(self, other):
         return (
-                self.message == other.message
-                and self.forwarder == other.forwarder
-                and self.from_bus == other.from_bus
-                and self.to_bus == other.to_bus
+                self.message_name == other.message_name
+                and self.forwarder_name == other.forwarder_name
+                and self.from_bus_name == other.from_bus_name
+                and self.to_bus_name == other.to_bus_name
         )
 
     def __hash__(self):
-        return hash((self.message, self.forwarder, self.from_bus, self.to_bus))
+        return hash((self.message_name, self.forwarder_name, self.from_bus_name, self.to_bus_name))
 
     def __str__(self):
-        return f"Forwarding {self.message} from {self.from_bus} to {self.to_bus} via {self.forwarder}"
+        return f"CanForward({self.message_name} from {self.from_bus_name} to {self.to_bus_name} via {self.forwarder_name})"
 
 
 def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
     Dict[str, CanTxConfig], Dict[str, CanRxConfig], Dict[str, List[CanForward]]]:
-    reroute_configs: Dict[str, List[CanForward]] = {
+    reroute_configs: Dict[str, List[CanForward]] = {  # TODO consider making the inside keyed by from_bus
         forwarder_json.forwarder: [] for forwarder_json in can_db.forwarding
     }
     tx_configs = {node_name: CanTxConfig() for node_name in can_db.nodes.keys()}
