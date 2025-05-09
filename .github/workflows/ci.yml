@@ -303,13 +303,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Run jsoncan unit tests
         run: python3 -m pytest ./scripts/code_generation/jsoncan/test
-      - name: Run jsoncan integration
-        run: test
-      - name: Build
+      - name: Build jsonCAN integration tests
         run: |
           cmake --preset "FW Test CI" -B $BUILD_DIR
           cmake --build $BUILD_DIR --target jsoncan_test
-      - name: Run tests
+      - name: Run jsonCAN integration tests
         run: |
           cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
           valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
