@@ -49,9 +49,8 @@ class AppCanUtilsModule(CModule):
         self._all_enums = db.enums.values()
 
     def source_template(self):
-        template = load_template("app_canUtils.c.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
-        template = j2_env.from_string(template)
+        template = j2_env.from_string(load_template("app_canUtils.c.j2"))
         return template.render(
             messages=self._messages,
             signal_placement_comment=signal_placement_comment,
@@ -60,10 +59,8 @@ class AppCanUtilsModule(CModule):
         )
 
     def header_template(self):
-        template = load_template("app_canUtils.h.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader())
-        template = j2_env.from_string(template)
-
+        template = j2_env.from_string(load_template("app_canUtils.h.j2"))
         return template.render(
             all_messages=self._db.msgs.values(),
             messages=self._messages,

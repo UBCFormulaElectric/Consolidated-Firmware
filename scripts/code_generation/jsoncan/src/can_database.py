@@ -309,7 +309,7 @@ class CanDatabase:
     """
 
     nodes: Dict[str, CanNode]  # nodes[node_name] gives metadata for node_name
-    busses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
+    buses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
     msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
     alerts: Dict[str, list[CanAlert]]  # alerts[node_name] gives a list of alerts on that node
     enums: Dict[str, CanEnum]  # enums[enum_name] gives metadata for enum_name

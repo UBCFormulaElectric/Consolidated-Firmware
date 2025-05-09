@@ -14,22 +14,16 @@ class IoCanRxModule(CModule):
         self._rx_config = rx_config
 
     def header_template(self):
-        template = load_template("io_canRx.h.j2")
-        j2_env = j2.Environment(
-            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
-        )
-        template = j2_env.from_string(template)
+        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        template = j2_env.from_string(load_template("io_canRx.h.j2"))
         return template.render(
             node=self._node,
             node_bus_names=self._node_bus_names
         )
 
     def source_template(self):
-        template = load_template("io_canRx.c.j2")
-        j2_env = j2.Environment(
-            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
-        )
-        template = j2_env.from_string(template)
+        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        template = j2_env.from_string(load_template("io_canRx.c.j2"))
         return template.render(
             node=self._node,
             node_bus_names=self._node_bus_names,

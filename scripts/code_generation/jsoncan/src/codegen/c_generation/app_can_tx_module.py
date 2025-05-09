@@ -11,17 +11,11 @@ class AppCanTxModule(CModule):
         self._tx_messages = [db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()]
 
     def header_template(self):
-        template = load_template("app_canTx.h.j2")
-        j2_env = j2.Environment(
-            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
-        )
-        template = j2_env.from_string(template)
+        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        template = j2_env.from_string(load_template("app_canTx.h.j2"))
         return template.render(messages=self._tx_messages)
 
     def source_template(self):
-        template = load_template("app_canTx.c.j2")
-        j2_env = j2.Environment(
-            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
-        )
-        template = j2_env.from_string(template)
+        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        template = j2_env.from_string(load_template("app_canTx.c.j2"))
         return template.render(messages=self._tx_messages)

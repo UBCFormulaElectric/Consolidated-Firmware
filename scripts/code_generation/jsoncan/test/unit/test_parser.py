@@ -43,10 +43,10 @@ class NodeTests(CDBTests):
 
 class BusTests(CDBTests):
     def test_busses_present(self):
-        self.assertSetEqual(set(self.cdb_valid.busses.keys()), {"can1", "can2", "can3"})
+        self.assertSetEqual(set(self.cdb_valid.buses.keys()), {"can1", "can2", "can3"})
 
     def test_bus1_properties(self):
-        can1 = self.cdb_valid.busses["can1"]
+        can1 = self.cdb_valid.buses["can1"]
         self.assertEqual(can1.name, "can1")
         self.assertEqual(can1.bus_speed, 4000)
         self.assertEqual(can1.fd, True)
@@ -54,7 +54,7 @@ class BusTests(CDBTests):
         self.assertSetEqual(set(can1.modes), {"default", "debug"})
 
     def test_bus2_properties(self):
-        can2 = self.cdb_valid.busses["can2"]
+        can2 = self.cdb_valid.buses["can2"]
         self.assertEqual(can2.name, "can2")
         self.assertEqual(can2.bus_speed, 1000)
         self.assertEqual(can2.fd, False)
@@ -62,7 +62,7 @@ class BusTests(CDBTests):
         self.assertSetEqual(set(can2.modes), {"default", "debug"})
 
     def test_bus3_properties(self):
-        can3 = self.cdb_valid.busses["can3"]
+        can3 = self.cdb_valid.buses["can3"]
         self.assertEqual(can3.name, "can3")
         self.assertEqual(can3.bus_speed, 500)
         self.assertEqual(can3.fd, False)

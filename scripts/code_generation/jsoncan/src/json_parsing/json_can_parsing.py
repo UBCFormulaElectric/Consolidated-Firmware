@@ -119,7 +119,7 @@ class JsonCanParser:
         """
         return CanDatabase(
             nodes=self._nodes,
-            busses=self._busses,
+            buses=self._busses,
             msgs=self._msgs,
             alerts=self._alerts,
             forwarding=self._forwarding,

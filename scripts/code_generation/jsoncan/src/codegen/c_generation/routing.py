@@ -203,7 +203,7 @@ def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
     tx_configs = {node_name: CanTxConfig() for node_name in can_db.nodes.keys()}
     rx_configs = {node_name: CanRxConfig() for node_name in can_db.nodes.keys()}
 
-    adj_list = _build_adj_list(can_db.forwarding, can_db.nodes, can_db.busses)
+    adj_list = _build_adj_list(can_db.forwarding, can_db.nodes, can_db.buses)
 
     for msg in can_db.msgs.values():
         tx_configs[msg.tx_node_name].add_tx_msg(msg.name)
