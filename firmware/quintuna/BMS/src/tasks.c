@@ -17,6 +17,7 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
+#include "jobs.h"
 #include "shared.pb.h"
 
 void tasks_runChimera(void)
@@ -35,7 +36,11 @@ void tasks_init(void)
     hw_usb_init();
     hw_adcs_chipsInit();
     hw_pwms_init();
+    hw_can_init(&can1);
+    hw_can_init(&can2);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
+    jobs_init();
 
     app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
@@ -46,6 +51,10 @@ void tasks_run1Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+        if (!hw_chimera_v2_enabled)
+        {
+            jobs_run1Hz_tick();
+        }
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -57,6 +66,10 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
+        if (!hw_chimera_v2_enabled)
+        {
+            jobs_run100Hz_tick();
+        }
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -80,7 +93,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        hw_fdcan_transmit(&can1, &tx_msg);
     }
 }
 
@@ -88,8 +101,7 @@ void tasks_runCanRx(void)
 {
     for (;;)
     {
-        const CanMsg rx_msg = io_canQueue_popRx();
-        UNUSED(rx_msg);
+        jobs_runCanRx_tick();
     }
 }
 
