@@ -34,6 +34,7 @@ class JsonCanParser:
     _msgs: Dict[str, CanMessage]  # _msgs[msg_name] gives metadata for msg_name
     _alerts: Dict[str, List[CanAlert]]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
     _forwarding: List[BusForwarder]  # _forwarding[bus_name] gives metadata for bus_name
+    _enums: Dict[str, CanEnum]  # _enums[enum_name] gives metadata for enum_name
 
     # internal state
     # _node_tx_msgs: Dict[str, Set[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
@@ -52,14 +53,15 @@ class JsonCanParser:
 
         # PARSE TX JSON DATA
         # collect shared enums outside of loop
+        self._enums = {}
         shared_enums = parse_shared_enums(can_data_dir)
+        self._enums.update(shared_enums)
         # populate this boy
         self._msgs = {}
         for node_name in node_names:
-            node_enums: dict[str, CanEnum] = {
-                **shared_enums,
-                **parse_node_enum_data(can_data_dir, node_name)
-            }
+            node_specific_enums = parse_node_enum_data(can_data_dir, node_name)
+            self._enums.update(node_specific_enums)
+            node_enums: dict[str, CanEnum] = {**shared_enums, **node_specific_enums}
             for tx_msg in parse_tx_data(can_data_dir, node_name, node_enums):
                 self._add_tx_msg(tx_msg, node_name)
 
@@ -118,7 +120,8 @@ class JsonCanParser:
             busses=self._busses,
             msgs=self._msgs,
             alerts=self._alerts,
-            forwarding=self._forwarding
+            forwarding=self._forwarding,
+            enums=self._enums,
         )
 
     # TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized

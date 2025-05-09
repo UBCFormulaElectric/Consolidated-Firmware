@@ -112,15 +112,31 @@ class CanTxConfig:
         self._map_by_msg_name = {}
 
     def add_tx_msg(self, msg_name: str):
+        """
+        Makes the struct aware of a new msg_name to be broadcast
+        """
         self._map_by_msg_name[msg_name] = set()
 
     def add_bus_to_tx_msg(self, msg_name: str, tx_bus: str):
+        """
+        :param msg_name: msg_name (as added before)
+        :param tx_bus: bus to broadcast on
+        """
         self._map_by_msg_name[msg_name].add(tx_bus)
 
     def get_busses_for_msg(self, msg_name: str) -> List[str]:
+        """
+        Get all the busses that a message is broadcast on, on a certain node
+        :param msg_name:
+        :return:
+        """
         return list(self._map_by_msg_name[msg_name])
 
-    def list_msg_names(self):
+    def get_all_msg_names(self):
+        """
+        Gets all messages which are broadcast by a certain node
+        :return:
+        """
         return list(self._map_by_msg_name.keys())
 
 

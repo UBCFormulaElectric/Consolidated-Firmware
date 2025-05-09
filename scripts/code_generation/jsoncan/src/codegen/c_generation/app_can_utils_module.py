@@ -1,5 +1,6 @@
 import jinja2 as j2
 
+from .routing import CanTxConfig, CanRxConfig
 from ...can_database import CanDatabase, CanMessage
 from ...utils import *
 from .utils import load_template
@@ -41,38 +42,32 @@ def calculate_packing_iterations(signal):
 
 
 class AppCanUtilsModule(CModule):
-    def __init__(self, db: CanDatabase, node: str):
+    def __init__(self, db: CanDatabase, tx_config: CanTxConfig, rx_config: CanRxConfig):
         self._db = db
-        self._node = node
+        self._messages = ([db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()] +
+                          [db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()])
+        self._all_enums = db.enums.values()
 
     def source_template(self):
         template = load_template("app_canUtils.c.j2")
-        j2_env = j2.Environment(
-            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
-        )
+        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
         template = j2_env.from_string(template)
         return template.render(
-            messages=self._db.msgs_for_node(self._node),
+            messages=self._messages,
             signal_placement_comment=signal_placement_comment,
             iterations=calculate_packing_iterations,
             max_uint_for_bits=max_uint_for_bits,
         )
 
     def header_template(self):
-        can_enums = []
-        for msg in self._db.msgs_for_node(self._node):
-            for signal in msg.signals:
-                if signal.enum and signal.enum not in can_enums:
-                    can_enums.append(signal.enum)
-
         template = load_template("app_canUtils.h.j2")
         j2_env = j2.Environment(loader=j2.BaseLoader())
         template = j2_env.from_string(template)
 
         return template.render(
             all_messages=self._db.msgs.values(),
-            messages=self._db.msgs_for_node(self._node),
-            enums=can_enums,
+            messages=self._messages,
+            enums=self._all_enums,
         )
 
 

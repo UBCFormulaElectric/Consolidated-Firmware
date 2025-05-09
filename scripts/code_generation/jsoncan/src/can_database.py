@@ -312,6 +312,7 @@ class CanDatabase:
     busses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
     msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
     alerts: Dict[str, list[CanAlert]]  # alerts[node_name] gives a list of alerts on that node
+    enums: Dict[str, CanEnum]  # enums[enum_name] gives metadata for enum_name
 
     # this must be global state rather than local (node) state as the common usecase is navigation
     # which requires global information
@@ -397,44 +398,14 @@ class CanDatabase:
 
         return signals
 
-    # TODO get rid of these from app
-    def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages transmitted by a specific node.
-        """
-        if tx_node not in self.nodes:
-            raise KeyError(f"Node '{tx_node}' is not defined in the JSON.")
-        return [msg for msg in self.msgs.values() if msg.tx_node_name == tx_node]
-
-    def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages received by a specific node.
-        """
-        if rx_node not in self.nodes:
-            raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
-        if type(self.nodes[rx_node].rx_msgs_names) == All:
-            return [msg for msg in self.msgs.values() if msg.tx_node_name != rx_node]
-        return [self.msgs[msg_name] for msg_name in self.nodes[rx_node].rx_msgs_names]
-
-    def msgs_for_node(self, node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages either transmitted or received by a specific node.
-        """
-        return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
-
     def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
         """
         Return list of alerts transmitted by a node, of a specific type.
         """
-        return (
-            [
-                alert.name
-                for alert in self.alerts[node]
-                if alert.alert_type == alert_type
-            ]
-            if node in self.alerts
-            else []
-        )
+        if node not in self.alerts:
+            # raise KeyError(f"Node '{node}' is not defined in the JSON.")
+            return []  # TODO i really don't like this
+        return [alert.name for alert in self.alerts[node] if alert.alert_type == alert_type]
 
 
 @dataclass()

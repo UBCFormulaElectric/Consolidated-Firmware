@@ -9,7 +9,7 @@ from .routing import CanTxConfig
 
 class IoCanTxModule(CModule):
     def __init__(self, db: CanDatabase, node: str, tx_config: CanTxConfig):
-        self._messages = [db.msgs[msg_name] for msg_name in tx_config.list_msg_names()]
+        self._messages = [db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()]
         self._node_bus_names = db.nodes[node].bus_names
         self._bus_config = db.busses
         self._tx_config = tx_config

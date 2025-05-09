@@ -34,32 +34,30 @@ def write_text(text: str, output_path: str) -> None:
 def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, board: str, output_dir: str):
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=can_data_dir).make_database()
-    tx_config, rx_config, reroute_config = resolve_tx_rx_reroute(can_db)
+    tx_configs, rx_configs, reroute_config = resolve_tx_rx_reroute(can_db)
     # pandas = can_db.make_pandas_dataframe()
     # print(pandas)
     # Generate DBC file
-    write_text(DbcGenerator(database=can_db, rx_configs=rx_config).source(), dbc_output)
+    write_text(DbcGenerator(database=can_db, rx_configs=rx_configs).source(), dbc_output)
     if only_dbc:
         exit()
 
     modules: list[tuple[CModule, str]] = [
-                                             (AppCanUtilsModule(can_db, board), os.path.join("app", "app_canUtils")),
-                                             (AppCanTxModule(can_db, board), os.path.join("app", "app_canTx")),
-                                             (AppCanRxModule(can_db, board), os.path.join("app", "app_canRx")),
-                                             (IoCanTxModule(can_db, board, tx_config[board]),
-                                              os.path.join("io", "io_canTx")),
-                                             (IoCanRxModule(can_db, board, rx_config[board]),
-                                              os.path.join("io", "io_canRx")),
-                                             # TODO only generate this if the current node can capture data
-                                             (AppCanDataCaptureModule(can_db),
-                                              os.path.join("app", "app_canDataCapture")),
-                                             # TODO only generate this if node has alerts. this is less priority because all nodes generate alerts
-                                             (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
+        (AppCanUtilsModule(can_db, tx_configs[board], rx_configs[board]), os.path.join("app", "app_canUtils")),
+        (AppCanTxModule(can_db, tx_configs[board]), os.path.join("app", "app_canTx")),
+        (AppCanRxModule(can_db, board, rx_configs[board]), os.path.join("app", "app_canRx")),
+        (IoCanTxModule(can_db, board, tx_configs[board]), os.path.join("io", "io_canTx")),
+        (IoCanRxModule(can_db, board, rx_configs[board]), os.path.join("io", "io_canRx")),
+        # TODO only generate this if the current node can capture data
+        (AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")),
+        # TODO only generate this if node has alerts. this is less priority because all nodes generate alerts
+        (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
 
-                                         ] + ([
-                                                  (IoCanRerouteModule(can_db, board, reroute_config[board]),
-                                                   os.path.join("io", "io_canReroute"))
-                                              ] if reroute_config.get(board) is not None else [])
+    ]
+    if reroute_config.get(board) is not None:
+        modules.append((IoCanRerouteModule(can_db, board, reroute_config[board]),
+                        os.path.join("io", "io_canReroute")))
+
     for module, module_path in modules:
         module_full_path = os.path.join(output_dir, module_path)
         write_text(module.header_template(), module_full_path + ".h")
