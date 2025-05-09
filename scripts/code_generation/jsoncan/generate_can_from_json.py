@@ -56,8 +56,8 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
         (AppCanRxModule(can_db, board, rx_configs[board]), os.path.join("app", "app_canRx")),
         (IoCanTxModule(can_db, board, tx_configs[board]), os.path.join("io", "io_canTx")),
         (IoCanRxModule(can_db, board, rx_configs[board]), os.path.join("io", "io_canRx")),
-        (IoCanRerouteModule(can_db, board, reroute_config[board]), os.path.join("io", "io_canReroute")) if
-        board in reroute_config else [],
+        (IoCanRerouteModule(can_db, board, reroute_config[board]) if board in reroute_config else [],
+         os.path.join("io", "io_canReroute")),
     ]
 
     for module, module_path in modules:
