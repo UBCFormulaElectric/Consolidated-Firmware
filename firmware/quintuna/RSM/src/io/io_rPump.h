@@ -34,4 +34,4 @@ ExitCode io_rPump_setPercentage(float percentage);
  *
  * @return
  */
- ExitCode io_rPump_readPercentage(float *dest);
+ExitCode io_rPump_readPercentage(float *dest);

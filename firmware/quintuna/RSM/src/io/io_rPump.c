@@ -3,7 +3,7 @@
 #include "io_potentiometer.h"
 
 // SOURCE (for pot in shared file):
-// https://datasheet.ciiva.com/41459/001083254-da-01-en-ic-dgtl-pot-mcp4661-502e-st-tssop-14-mcp-41459017.pdf?src-supplier=Conrad 
+// https://datasheet.ciiva.com/41459/001083254-da-01-en-ic-dgtl-pot-mcp4661-502e-st-tssop-14-mcp-41459017.pdf?src-supplier=Conrad
 
 static const Potentiometer rsm_pot = {
     .i2c_handle = &r_pump_i2c,
@@ -13,7 +13,7 @@ static const Potentiometer rsm_pot = {
 
 ExitCode io_rPump_isPumpReady()
 {
-   return hw_i2c_isTargetReady(&r_pump_i2c);
+    return hw_i2c_isTargetReady(&r_pump_i2c);
 }
 
 ExitCode io_rPump_write(const uint8_t data)

@@ -1,7 +1,6 @@
 #include "io_potentiometer.h"
 #include <stdbool.h>
 
-
 typedef enum
 {
     POTENTIOMETER_WRITE_CMD = 0x00,

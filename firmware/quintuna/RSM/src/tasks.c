@@ -120,5 +120,4 @@ _Noreturn void tasks_runCanRx(void)
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
     io_coolant_inputCaptureCallback();
-    
 }

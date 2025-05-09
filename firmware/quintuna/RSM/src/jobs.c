@@ -57,8 +57,7 @@ void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
     float flow_rate = io_coolant_getFlowRate();
-    LOG_INFO("Flow rate: %.d L/min", (int)io_coolant_getFlowRate()*1000);
-
+    LOG_INFO("Flow rate: %.d L/min", (int)io_coolant_getFlowRate() * 1000);
 }
 bool gpio_state = false;
 
