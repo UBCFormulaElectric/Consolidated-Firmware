@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import jinja2 as j2
-from typing import List
+from typing import List, Set
 
 from .utils import load_template
 from ...can_database import CanDatabase, CanMessage
@@ -16,7 +16,7 @@ class IoCanRerouteModule(CModule):
         to_bus_name: str
         message: CanMessage
 
-    def __init__(self, db: CanDatabase, node: str, node_reroutes: List[CanForward] | None):
+    def __init__(self, db: CanDatabase, node: str, node_reroutes: Set[CanForward] | None):
         self._db = db
         self._node_reroutes = node_reroutes
         self._node_bus_names = db.nodes[node].bus_names

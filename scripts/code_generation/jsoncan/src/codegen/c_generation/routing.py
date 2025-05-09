@@ -191,14 +191,14 @@ class CanForward:
     def __hash__(self):
         return hash((self.message_name, self.forwarder_name, self.from_bus_name, self.to_bus_name))
 
-    def __str__(self):
+    def __repr__(self):
         return f"CanForward({self.message_name} from {self.from_bus_name} to {self.to_bus_name} via {self.forwarder_name})"
 
 
 def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
-    Dict[str, CanTxConfig], Dict[str, CanRxConfig], Dict[str, List[CanForward]]]:
-    reroute_configs: Dict[str, List[CanForward]] = {  # TODO consider making the inside keyed by from_bus
-        forwarder_json.forwarder: [] for forwarder_json in can_db.forwarding
+    Dict[str, CanTxConfig], Dict[str, CanRxConfig], Dict[str, Set[CanForward]]]:
+    reroute_configs: Dict[str, Set[CanForward]] = {  # TODO consider making the inside keyed by from_bus
+        forwarder_json.forwarder: set() for forwarder_json in can_db.forwarding
     }
     tx_configs = {node_name: CanTxConfig() for node_name in can_db.nodes.keys()}
     rx_configs = {node_name: CanRxConfig() for node_name in can_db.nodes.keys()}
@@ -229,7 +229,7 @@ def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
             tx_configs[tx_node.name].add_bus_to_tx_msg(msg_name, initial_node_tx_bus)
             rx_configs[rx_node.name].add_rx_msg(msg_name, final_node_rx_bus)
             for (reroute_node, from_bus, to_bus) in rerouter_nodes:
-                reroute_configs[reroute_node].append(CanForward(msg_name, reroute_node, from_bus, to_bus))
+                reroute_configs[reroute_node].add(CanForward(msg_name, reroute_node, from_bus, to_bus))
     return tx_configs, rx_configs, reroute_configs
 
 # TODO have some check for tx_msgs without rx_msgs??
