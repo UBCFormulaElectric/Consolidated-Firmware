@@ -115,7 +115,7 @@ TEST_F(io_fixture, can_bus_mod_works)
 
     io_canTx_enqueue1HzMsgs();
     {
-        constexpr array expected = { 106, 107, 108, 109, 100, 103 };
+        constexpr array expected = { 106, 107, 108, 109, 110, 100, 103 };
         ASSERT_EQ(tx_msg_1.size(), expected.size());
         for (size_t i = 0; i < expected.size(); i++)
         {

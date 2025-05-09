@@ -43,14 +43,13 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_
             ${APP_CAN_ALERTS_HEADER_OUTPUT}
             ${APP_CAN_DATA_CAPTURE_SRC_OUTPUT}
             ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
-            COMMAND ${PYTHON_COMMAND}
-            ${SCRIPTS_DIR}/code_generation/jsoncan/generate_can_from_json.py
+            COMMAND ${PYTHON_COMMAND} -m jsoncan.generate_can_from_json
             --board ${JSONCAN_PY_BOARD}
             --can_data_dir ${CAN_JSON_DIR}
             --output_dir ${OUTPUT_DIR}
             --dbc_output ${DBC_OUTPUT}
             DEPENDS ${CAN_JSON_SRCS} ${CAN_JSON_PY_SRCS}
-            WORKING_DIRECTORY ${REPO_ROOT_DIR}
+            WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation
     )
 
 

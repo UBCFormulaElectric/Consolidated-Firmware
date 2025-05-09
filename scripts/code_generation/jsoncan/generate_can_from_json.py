@@ -5,12 +5,9 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 
 import argparse
 import os
-from typing import List, Optional
 
 from . import CModule, AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, \
-    AppCanUtilsModule, IoCanRerouteModule, IoCanRxModule, IoCanTxModule, DbcGenerator, JsonCanParser, CanRxConfigs, \
-    CanTxConfigs, CanForward
-
+    AppCanUtilsModule, IoCanRerouteModule, IoCanRxModule, IoCanTxModule, DbcGenerator, JsonCanParser
 from .src.codegen.c_generation.routing import resolve_tx_rx_reroute
 
 

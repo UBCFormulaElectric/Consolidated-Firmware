@@ -76,9 +76,9 @@ void io_canTx_init(
     {% endfor %}
 )
 {
-    {% for bus_name in node_bus_names -%}
-    transmit_func_{{bus_name}} = transmit_{{bus}}_msg_func;
-    {% endfor %}
+    {%- for bus_name in node_bus_names %}
+    transmit_func_{{bus_name}} = transmit_{{bus_name}}_msg_func;
+    {%- endfor %}
 }
 
 {% for bus_name in node_bus_names %}

@@ -104,7 +104,7 @@ class JsonCanParser:
         # create node objects for each node
         self._nodes = {
             node_name: CanNode(node_name,
-                               {bus_name for bus_name, bus in self._busses.items() if node_name in bus.node_names},
+                               [bus_name for bus_name, bus in self._busses.items() if node_name in bus.node_names],
                                self._node_rx_msgs[node_name])
             for node_name in node_names
         }

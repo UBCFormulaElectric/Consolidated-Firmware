@@ -292,7 +292,7 @@ class CanNode:
     Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
     """
     name: str  # Name of this CAN node
-    bus_names: Set[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
+    bus_names: List[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
     rx_msgs_names: Set[str] | All  # list of messages that it is listening
 
     def __hash__(self):
