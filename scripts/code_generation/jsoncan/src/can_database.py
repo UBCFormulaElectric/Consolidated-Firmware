@@ -397,6 +397,7 @@ class CanDatabase:
 
         return signals
 
+    # TODO get rid of these from app
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages transmitted by a specific node.
@@ -411,6 +412,8 @@ class CanDatabase:
         """
         if rx_node not in self.nodes:
             raise KeyError(f"Node '{rx_node}' is not defined in the JSON.")
+        if type(self.nodes[rx_node].rx_msgs_names) == All:
+            return [msg for msg in self.msgs.values() if msg.tx_node_name != rx_node]
         return [self.msgs[msg_name] for msg_name in self.nodes[rx_node].rx_msgs_names]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:

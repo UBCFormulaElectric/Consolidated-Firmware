@@ -197,7 +197,7 @@ def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
             rx_configs[rx_node.name].add_rx_bus(rx_bus_name)
 
         if type(rx_node.rx_msgs_names) == All:
-            rx_msgs_names = set(can_db.msgs.keys())
+            rx_msgs_names = set([msg.name for msg in can_db.msgs.values() if msg.tx_node_name != rx_node.name])
         else:
             rx_msgs_names = rx_node.rx_msgs_names
         for msg_name in rx_msgs_names:

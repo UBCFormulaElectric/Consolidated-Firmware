@@ -70,6 +70,7 @@ class DbcGenerator:
                     msg_id=msg.id,
                 )
 
+            # TODO we need some method of
             rx_nodes: List[str] = [node_name for node_name in self._db.nodes.keys() if
                                    type(self._db.nodes[node_name].rx_msgs_names) == All or msg.name in self._db.nodes[
                                        node_name].rx_msgs_names]
