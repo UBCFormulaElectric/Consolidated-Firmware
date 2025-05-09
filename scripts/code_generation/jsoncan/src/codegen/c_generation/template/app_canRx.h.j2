@@ -16,20 +16,22 @@
  */
 void app_canRx_init(void);
 
-{% for msg in messages -%}
-{%- for signal in msg.signals -%}
+/* --------- UPDATE --------- */
+{% for msg in messages %}
+{%- for signal in msg.signals %}
 /**
  * Update value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
 void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value);
 {%- endfor %}
-{% endfor %}
+{%- endfor %}
 
-{% for msg in messages -%}
-{%- for signal in msg.signals -%}
+/* --------- GET --------- */
+{% for msg in messages %}
+{%- for signal in msg.signals %}
 /**
  * Get value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
 {{ signal.datatype() }} app_canRx_{{ signal.name }}_get(void);
 {%- endfor %}
-{% endfor %}
+{%- endfor %}

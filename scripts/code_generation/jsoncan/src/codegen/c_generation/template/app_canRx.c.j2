@@ -40,8 +40,9 @@ void app_canRx_init()
     {%- endfor %}
 }
 
-{% for msg in messages -%}
-{%- for signal in msg.signals -%}
+/* ------- UPDATE -------- */
+{% for msg in messages %}
+{%- for signal in msg.signals %}
 void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
 {
     {%- if signal.representation() == "float" %}
@@ -65,15 +66,15 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
     {%- endif %}
     rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
 }
-{% endfor %}
-{% endfor %}
+{%- endfor %}
+{%- endfor %}
 
-
-{% for msg in messages -%}
-{%- for signal in msg.signals -%}
+/* ------- GET -------- */
+{% for msg in messages %}
+{%- for signal in msg.signals %}
 {{ signal.datatype() }} app_canRx_{{ signal.name }}_get()
 {
     return rx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
 }
-{% endfor %}
-{% endfor %}
+{%- endfor %}
+{%- endfor %}
