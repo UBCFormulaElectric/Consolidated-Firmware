@@ -20,25 +20,24 @@ typedef struct
     {%- for msg in messages %}
     {{ msg.c_type() }} {{ msg.name }}_signals;
     {%- endfor %}
-} BMS_RxMsgs;
+} {{node}}_RxMsgs;
 
 
 /* -------------------------- Private Variables --------------------------- */
 
-static BMS_RxMsgs rx_table;
+static {{node}}_RxMsgs rx_table;
 
 /* ------------------------- Function Definitions ------------------------- */
 
 void app_canRx_init()
 {
-    memset(&rx_table, 0, sizeof(BMS_RxMsgs));
+    memset(&rx_table, 0, sizeof({{node}}_RxMsgs));
     // Initialize all signals to Start-up value
     {%- for msg in messages %}
     {%- for signal in msg.signals %}
     app_canRx_{{ signal.name }}_update({{ signal.start_val_macro() }});
     {%- endfor %}
     {%- endfor %}
-    
 }
 
 {% for msg in messages -%}

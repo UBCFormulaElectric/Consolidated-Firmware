@@ -15,9 +15,9 @@ class AppCanRxModule(CModule):
     def header_template(self):
         j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
         template = j2_env.from_string(load_template("app_canRx.h.j2"))
-        return template.render(messages=self._rx_msgs)
+        return template.render(messages=self._rx_msgs, node=self._node)
 
     def source_template(self):
         j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
         template = j2_env.from_string(load_template("app_canRx.c.j2"))
-        return template.render(messages=self._rx_msgs)
+        return template.render(messages=self._rx_msgs, node=self._node)
