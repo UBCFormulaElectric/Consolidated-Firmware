@@ -1,17 +1,9 @@
-from dataclasses import dataclass
 from typing import Dict, Optional as Optional_t, TypedDict, List
 from schema import Optional, Or, Schema, SchemaError
 
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file
-from ..can_database import CanBus
-
-
-@dataclass()
-class BusForwarder:
-    forwarder: str
-    bus1: str
-    bus2: str
+from ..can_database import CanBus, BusForwarder
 
 
 class _BusForwarderJson(TypedDict):

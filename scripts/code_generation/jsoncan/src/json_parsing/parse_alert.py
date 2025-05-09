@@ -216,8 +216,8 @@ def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
             log_cycle_time=cycle_time,
             telem_cycle_time=cycle_time,
             signals=signals,
-            # rx_node_names=[],  # will be updated later
             tx_node_name=node,
+            modes=None
         )
         for name, msg_id, description, signals, cycle_time in [
             (

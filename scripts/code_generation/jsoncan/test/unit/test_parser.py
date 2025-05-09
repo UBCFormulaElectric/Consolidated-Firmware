@@ -1,20 +1,8 @@
-import os
 import unittest
+from typing import Set
 
-from ...src.can_database import CanDatabase, CanForward
-from ...src.json_parsing.json_can_parsing import JsonCanParser
-
-valid_json_folder = os.path.abspath("./test/valid_json")
-
-# disable test sorting, so that the order of tests is consistent and per given
-unittest.TestLoader.sortTestMethodsUsing = None
-
-
-class CDBTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.parser_valid: JsonCanParser = JsonCanParser(valid_json_folder)  # slight white box testing situation
-        cls.cdb_valid: CanDatabase = cls.parser_valid.make_database()
+from ...src.can_database import CanMessage
+from .fixture import CDBTests
 
 
 class NodeTests(CDBTests):
@@ -22,19 +10,11 @@ class NodeTests(CDBTests):
     These tests check that nodes are created correctly.
     """
 
-    ecu1_msgs = {"ECU1_BasicSignalTypes", "ECU1_DecimalNumbers", "ECU1_DbcMatching", "ECU1_MinMaxClamping"}
-    ec1_alerts = {"ECU1_Warnings",
-                  "ECU1_WarningsCounts", "ECU1_Faults", "ECU1_FaultsCounts", "ECU1_Info", "ECU1_InfoCounts"}
-    ecu2_msgs = {"ECU2_BasicSignalTypes"}
-    ecu3_msgs = {"ECU3_TEST"}
-    ecu3_alerts = {"ECU3_Warnings", "ECU3_WarningsCounts", "ECU3_Faults", "ECU3_FaultsCounts", "ECU3_Info",
-                   "ECU3_InfoCounts"}
-    ecu4_msgs = {"ECU4_TEST"}
-    ecu4_alerts = {"ECU4_Warnings", "ECU4_WarningsCounts", "ECU4_Faults", "ECU4_FaultsCounts", "ECU4_Info",
-                   "ECU4_InfoCounts"}
-    ecu5_msgs = {"ECU5_TEST"}
-    ecu5_alerts = {"ECU5_Warnings", "ECU5_WarningsCounts", "ECU5_Faults", "ECU5_FaultsCounts",
-                   "ECU5_Info", "ECU5_InfoCounts"}
+    def get_messages_from_ecu(self, ecu_name: str) -> Set[str]:
+        raw = [msg.name for msg in self.cdb_valid.msgs.values() if msg.tx_node_name == ecu_name]
+        setted = set(raw)
+        self.assertEqual(len(raw), len(setted))
+        return setted
 
     def test_all_nodes_present(self):
         """
@@ -54,43 +34,11 @@ class NodeTests(CDBTests):
         Checks that all tx/rx messages are present
         :return:
         """
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names()),
-                            self.ecu1_msgs | self.ec1_alerts)
-        self.assertEqual(len(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names()),
-                         len(set(self.cdb_valid.nodes["ECU1"].tx_config.list_msg_names())))
-
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names()), self.ecu2_msgs)
-        self.assertEqual(len(self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names()), len(set(
-            self.cdb_valid.nodes["ECU2"].tx_config.list_msg_names())))
-
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names()),
-                            self.ecu3_msgs | self.ecu3_alerts)
-        self.assertEqual(len(self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names()), len(set(
-            self.cdb_valid.nodes["ECU3"].tx_config.list_msg_names())))
-
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names()), self.ecu4_alerts)
-        self.assertEqual(len(self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names()), len(set(
-            self.cdb_valid.nodes["ECU4"].tx_config.list_msg_names())))
-
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names()),
-                            self.ecu5_msgs | self.ecu5_alerts)
-        self.assertEqual(len(self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names()), len(set(
-            self.cdb_valid.nodes["ECU5"].tx_config.list_msg_names())))
-
-    def test_nonpresent_reroute_configs(self):
-        self.assertEqual(self.cdb_valid.nodes["ECU2"].reroute_config, None)
-        self.assertEqual(self.cdb_valid.nodes["ECU4"].reroute_config, None)
-        self.assertEqual(self.cdb_valid.nodes["ECU5"].reroute_config, None)
-
-    def test_reroute_configs(self):
-        ecu1rrc = self.cdb_valid.nodes["ECU1"].reroute_config
-        ecu3rrc = self.cdb_valid.nodes["ECU3"].reroute_config
-        self.assertSetEqual(set(ecu1rrc),
-                            set([CanForward(msg_name, "ECU1", "can3", "can1") for msg_name in self.ecu2_msgs]))
-        self.assertSetEqual(set(ecu3rrc),
-                            set([CanForward(msg_name, "ECU3", "can2", "can1") for msg_name in
-                                 self.ecu5_msgs | self.ecu5_alerts]) | set(
-                                [CanForward(msg_name, "ECU3", "can1", "can2") for msg_name in self.ecu4_alerts]))
+        self.assertSetEqual(self.get_messages_from_ecu("ECU1"), self.ecu1_msgs | self.ec1_alerts)
+        self.assertSetEqual(self.get_messages_from_ecu("ECU2"), self.ecu2_msgs)
+        self.assertSetEqual(self.get_messages_from_ecu("ECU3"), self.ecu3_msgs | self.ecu3_alerts)
+        self.assertSetEqual(self.get_messages_from_ecu("ECU4"), self.ecu4_msgs | self.ecu4_alerts)
+        self.assertSetEqual(self.get_messages_from_ecu("ECU5"), self.ecu5_msgs | self.ecu5_alerts)
 
 
 class BusTests(CDBTests):

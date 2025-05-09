@@ -16,15 +16,15 @@ def _validate_rx_json(json: Dict) -> _RxBusEntry:
     }).validate(json)
 
 
-def parse_json_rx_data(can_data_dir: str, rx_node: CanNode) -> List[str] | str:
+def parse_json_rx_data(can_data_dir: str, rx_node_name: str) -> List[str] | str:
     """
     :param can_data_dir:
     note: this function validates that the rx_msg reads on a existant bus
-    :param rx_node: rx node we are processing messages for
+    :param rx_node_name: Name of the rx node we are processing messages for
     :return:
     """
     try:
-        node_rx_json_data = _validate_rx_json(load_json_file(f"{can_data_dir}/{rx_node.name}/{rx_node.name}_rx"))
+        node_rx_json_data = _validate_rx_json(load_json_file(f"{can_data_dir}/{rx_node_name}/{rx_node_name}_rx"))
     except SchemaError:
-        raise InvalidCanJson(f"RX JSON file is not valid for node {rx_node.name}")
+        raise InvalidCanJson(f"RX JSON file is not valid for node {rx_node_name}")
     return node_rx_json_data["messages"]

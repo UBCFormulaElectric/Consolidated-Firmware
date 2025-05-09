@@ -1,8 +1,9 @@
 import jinja2 as j2
 
 from .utils import load_template
-from ...can_database import CanDatabase, CanForward
+from ...can_database import CanDatabase
 from .cmodule import CModule
+from .routing import CanForward
 
 
 # only VC run this module

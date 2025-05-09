@@ -2,7 +2,7 @@ from collections import deque
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional, Set
 
-from ...can_database import CanNode, CanBus, BusForwarder, CanDatabase
+from ...can_database import CanNode, CanBus, BusForwarder, CanDatabase, All
 from ...json_parsing.parse_error import InvalidCanJson
 
 
@@ -179,16 +179,26 @@ class CanForward:
 
 def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
     Dict[str, CanTxConfigs], Dict[str, CanRxConfigs], Dict[str, List[CanForward]]]:
-    reroute_configs: Dict[str, List[CanForward]] = {node_name: [] for node_name in can_db.nodes.keys()}
+    reroute_configs: Dict[str, List[CanForward]] = {
+        forwarder_json.forwarder: [] for forwarder_json in can_db.forwarding
+    }
     tx_configs = {node_name: CanTxConfigs() for node_name in can_db.nodes.keys()}
     rx_configs = {node_name: CanRxConfigs() for node_name in can_db.nodes.keys()}
 
-    for forwarder_json in can_db.forwarding:
-        reroute_configs[forwarder_json.forwarder] = []
     adj_list = _build_adj_list(can_db.forwarding, can_db.nodes, can_db.busses)
 
+    for msg in can_db.msgs.values():
+        tx_configs[msg.tx_node_name].add_tx_msg(msg.name)
+
     for rx_node in can_db.nodes.values():
-        for msg_name in rx_node.rx_msgs_names:
+        for rx_bus_name in rx_node.bus_names:
+            rx_configs[rx_node.name].add_rx_bus(rx_bus_name)
+
+        if type(rx_node.rx_msgs_names) == All:
+            rx_msgs_names = set(can_db.msgs.keys())
+        else:
+            rx_msgs_names = rx_node.rx_msgs_names
+        for msg_name in rx_msgs_names:
             tx_node = can_db.nodes[can_db.msgs[msg_name].tx_node_name]
 
             # calculate the reroute

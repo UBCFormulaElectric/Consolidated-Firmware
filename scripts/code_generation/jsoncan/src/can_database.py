@@ -19,8 +19,6 @@ from .utils import (
     pascal_to_snake_case,
 )
 
-from .json_parsing.parse_bus import BusForwarder
-
 logger = logging.getLogger(__name__)
 
 
@@ -497,3 +495,10 @@ class CanDatabase:
     #     Return whether or not a node receives any messages.
     #     """
     #     return len(self.rx_msgs_for_node(node)) > 0
+
+
+@dataclass()
+class BusForwarder:
+    forwarder: str
+    bus1: str
+    bus2: str
