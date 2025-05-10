@@ -15,9 +15,6 @@ void jobs_runLtc(void)
 {
     const ADCSpeed s = ADCSpeed_3kHz;
 
-    static bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
-    ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(balance_config)); // no balancing
-
     static float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
     static ExitCode volt_success_buf[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS],
         aux_success_buf[NUM_SEGMENTS][AUX_REGISTER_GROUPS];
@@ -74,6 +71,9 @@ void jobs_init()
 
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+
+    static bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
+    ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(balance_config)); // no balancing
 }
 
 void jobs_run1Hz_tick(void)

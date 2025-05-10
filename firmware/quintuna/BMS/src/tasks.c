@@ -29,12 +29,13 @@ void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS Reset");
+    __HAL_DBGMCU_FREEZE_IWDG1();
     hw_usb_init();
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_can_init(&can1);
     hw_can_init(&can2);
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     jobs_init();
 
@@ -77,7 +78,7 @@ void tasks_run1kHz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        hw_watchdog_checkForTimeouts();
+        // hw_watchdog_checkForTimeouts();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -106,6 +107,6 @@ void tasks_runLtc(void)
     for (;;)
     {
         jobs_runLtc();
-        osDelay(50);
+        osDelay(30);
     }
 }

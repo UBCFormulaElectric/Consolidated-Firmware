@@ -227,7 +227,7 @@ int main(void)
     MX_FDCAN2_Init();
     MX_CRC_Init();
     MX_TIM5_Init();
-    MX_IWDG1_Init();
+    // MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -775,7 +775,7 @@ static void MX_SPI4_Init(void)
     hspi4.Init.CLKPolarity                = SPI_POLARITY_HIGH;
     hspi4.Init.CLKPhase                   = SPI_PHASE_2EDGE;
     hspi4.Init.NSS                        = SPI_NSS_SOFT;
-    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_128;
+    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_256;
     hspi4.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi4.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi4.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;
@@ -1034,12 +1034,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LEDR_Pin SPI_CS_LS_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin | SPI_CS_LS_Pin;
+    /*Configure GPIO pin : LEDR_Pin */
+    GPIO_InitStruct.Pin   = LEDR_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(LEDR_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : SPI_CS_LS_Pin */
+    GPIO_InitStruct.Pin   = SPI_CS_LS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(SPI_CS_LS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
                              DIAG_Pin SD_CD_Pin */
