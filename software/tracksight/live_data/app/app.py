@@ -68,7 +68,7 @@ if __name__ == "__main__":
     # Setup the Message Populate Thread
     if args.mode == "wireless":
         InfluxHandler.setup()
-        read_thread = get_wireless_task(args.serial_port)
+        read_thread = get_wireless_task("/dev/tty.usbserial-FT76H2U7")
     elif args.mode == "mock":
         InfluxHandler.setup()
         read_thread = get_mock_task(args.data_file)

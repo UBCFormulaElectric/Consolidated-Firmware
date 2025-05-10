@@ -31,10 +31,24 @@ def find_magic_in_buffer(buffer, magic=MAGIC): # do i need to set magic here
             return i
     return -1
 
+
+def calculate_message_timestamp(message_timestamp, base_time):
+    if message_timestamp > 0:
+        # Convert milliseconds to seconds and create a timedelta
+        delta = datetime.timedelta(milliseconds=message_timestamp)
+        timestamp = base_time + delta
+        logger.debug(f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}")
+    else:
+        timestamp = datetime.datetime.now()
+        logger.warning(f"Invalid timestamp received: {message_timestamp}, using current time")
+    
+    return timestamp
+
 def read_packet(ser: serial.Serial):
 	buffer = bytearray()
 	while True:
 		data = ser.read(1)
+		print(data)
 		if not data:
 			continue
 		buffer += data
@@ -82,8 +96,12 @@ def _read_messages(port: str):
 	ser.reset_input_buffer()
 	ser.reset_output_buffer()
 
+	base_time = None
+
 	while True:	
+		print("hi")
 		packet, payload_length, expected_crc = read_packet(ser)
+		print("hi2")
 		payload = packet[HEADER_SIZE:]
 		if len(payload) != payload_length:
 			logger.error(f"Payload length mismatch: expected {payload_length}, got {len(payload)}")
@@ -102,7 +120,26 @@ def _read_messages(port: str):
 		except Exception as e:
 			logger.error(f"Error decoding protobuf message: {e}")
 			continue
-		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received), datetime.datetime.now()))
+
+		# decode for start_time messages, don't push this to the queue
+		if message_received.can_id == 0x999:
+			#parse start_time from data if this pacakage is correct
+			base_time = datetime.datetime(
+				year=message_received.data[0],
+				month=message_received.data[1],
+				day=message_received.data[2],
+				hour=message_received.data[3],
+				minute=message_received.data[4],
+				second=message_received.data[5]
+			)
+			logger.info(f"Base time recieved: {base_time}")
+			continue 
+		# if not base_time: 
+		# 	#we do not know the base time so skip
+		# 	continue
+		print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
+		timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
+		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received), timestamp))
 
 def get_wireless_task(serial_port: str | None) -> Thread:
 	if serial_port is None:
