@@ -1,14 +1,17 @@
-{
+[
+  {
+    "bus": "Can",
     "messages": [
-        "FSM_Wheels",
-        "FSM_Apps",
-        "FSM_Brake",
-        "BMS_VoltageAndChargeStats",
-        "BMS_TractiveSystem",
-        "BMS_CellTemperatures",
-        "VC_PowerLimit",
-        "VC_GlobalShdnNodeStatus",
-        "INVL_Temperatures1",
-        "INVR_Temperatures3"
+      "FSM_Wheels",
+      "FSM_Apps",
+      "FSM_Brake",
+      "BMS_VoltageAndChargeStats",
+      "BMS_TractiveSystem",
+      "BMS_CellTemperatures",
+      "VC_PowerLimit",
+      "VC_GlobalShdnNodeStatus",
+      "INVL_Temperatures1",
+      "INVR_Temperatures3"
     ]
-}
+  }
+]

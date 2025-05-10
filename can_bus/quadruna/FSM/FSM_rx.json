@@ -1,6 +1,6 @@
-{
-    "messages": [
-        "Debug_CanMode",
-        "Debug_BootloaderCAN"
-    ]
-}
+[
+  {
+    "bus": "Can",
+    "messages": ["Debug_CanMode", "Debug_BootloaderCAN"]
+  }
+]

@@ -1,14 +1,16 @@
 {
-    "warnings_id": 701,
-    "faults_id": 702,
-    "warnings_counts_id": 703,
-    "faults_counts_id": 704,
-    "warnings": {
-    },
-    "faults": {
-        "DummyFault": {
-            "id": 700,
-            "description": "Dummy Fault"
-        }
+  "warnings_id": 701,
+  "faults_id": 702,
+  "warnings_counts_id": 703,
+  "faults_counts_id": 704,
+  "warnings": {},
+  "faults": {
+    "DummyFault": {
+      "id": 700,
+      "description": "Dummy Fault"
     }
+  },
+  "info_id": 708,
+  "info_counts_id": 709,
+  "info": {}
 }

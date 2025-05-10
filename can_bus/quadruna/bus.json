@@ -1,9 +1,24 @@
 {
-    "default_receiver": "DEBUG",
-    "bus_speed": 500,
-    "modes": [
-        "default",
-        "debug"
-    ],
-    "default_mode": "default"
+  "forwarders": [{}],
+  "buses": [
+    {
+      "name": "Can",
+      "nodes": [
+        "VC",
+        "BMS",
+        "FSM",
+        "RSM",
+        "CRIT",
+        "Debug",
+        "dimos",
+        "INVL",
+        "INVR",
+        "Boot",
+        "BRUSA"
+      ],
+      "bus_speed": 500,
+      "modes": ["DEFAULT", "DEBUG"],
+      "default_mode": "DEFAULT"
+    }
+  ]
 }

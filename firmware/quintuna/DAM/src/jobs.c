@@ -20,7 +20,7 @@ void jobs_init()
     io_canQueue_init();
 
     io_canTx_init(jsoncan_transmit_func);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
 }
 
 void jobs_run1Hz_tick(void)
