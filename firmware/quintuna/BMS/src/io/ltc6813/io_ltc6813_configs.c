@@ -169,9 +169,9 @@ bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CE
         seg_b->pec = io_ltc6813_build_data_pec((uint8_t *)seg_b_cfg, sizeof(CFGBR));
     }
     // Write to configuration registers
-    if (!hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a)))
+    if (hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a)) != EXIT_CODE_OK)
         return false;
-    if (!hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b)))
+    if (hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b)) != EXIT_CODE_OK)
         return false;
     return true;
 }

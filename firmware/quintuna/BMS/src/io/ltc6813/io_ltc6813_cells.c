@@ -13,7 +13,7 @@
 static bool clearCellRegisters()
 {
 #define CLRCELL (0x0711)
-    return io_ltc6813_sendCommand(CLRCELL);
+    return (io_ltc6813_sendCommand(CLRCELL) == EXIT_CODE_OK);
 }
 
 // TODO assert that for each speed that the ADCOPT is correct
