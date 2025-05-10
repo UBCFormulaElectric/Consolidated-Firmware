@@ -131,6 +131,18 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+/* Definitions for TaskLTC */
+osThreadId_t         TaskLTCHandle;
+uint32_t             TaskLTCBuffer[512];
+osStaticThreadDef_t  TaskLTCControlBlock;
+const osThreadAttr_t TaskLTC_attributes = {
+    .name       = "TaskLTC",
+    .cb_mem     = &TaskLTCControlBlock,
+    .cb_size    = sizeof(TaskLTCControlBlock),
+    .stack_mem  = &TaskLTCBuffer[0],
+    .stack_size = sizeof(TaskLTCBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
 /* USER CODE BEGIN PV */
 
 const Gpio sd_cd = {
@@ -160,6 +172,7 @@ void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
+void        RunTaskLTC(void *argument);
 
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
@@ -247,6 +260,9 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskLTC */
+    TaskLTCHandle = osThreadNew(RunTaskLTC, NULL, &TaskLTC_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1054,6 +1070,24 @@ void RunTask1Hz(void *argument)
     UNUSED(argument);
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTaskLTC */
+/**
+ * @brief Function implementing the TaskLTC thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLTC */
+void RunTaskLTC(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLTC */
+    /* Infinite loop */
+    for (;;)
+    {
+        tasks_runLtc();
+    }
+    /* USER CODE END RunTaskLTC */
 }
 
 /**

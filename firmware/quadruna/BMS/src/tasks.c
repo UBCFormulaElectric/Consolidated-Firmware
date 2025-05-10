@@ -207,3 +207,11 @@ _Noreturn void tasks_runCanRx(void)
     for (;;)
         jobs_runCanRx_tick();
 }
+
+_Noreturn void tasks_runLtc(void)
+{
+    for (;;)
+    {
+        jobs_runLtc();
+    }
+}

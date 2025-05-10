@@ -15,6 +15,7 @@
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_bootHandler.h"
+#include "io_ltc6813.h"
 
 static void jsoncan_transmit(const JsonCanMsg *tx_msg)
 {
@@ -66,4 +67,26 @@ void jobs_runCanRx_callBack(const CanMsg *rx_msg)
     }
     // check and process CAN msg for bootloader start msg
     io_bootHandler_processBootRequest(rx_msg);
+}
+
+void jobs_runLtc(void)
+{
+    static float cell_Voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+    static float cell_Temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+
+    static bool voltage_read_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { false };
+    static bool temp_read_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]        = { false };
+
+    static bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
+    io_ltc6813_writeConfigurationRegisters(balance_config); // no balancing
+
+    // io_ltc6813_startCellsAdcConversion(ADCSpeed_3kHz);
+    // io_ltc6813_readVoltages(cell_Voltages, voltage_read_success);
+
+    float vref = 0.0f;
+    io_ltc6813_startThermistorsAdcConversion(ADCSpeed_3kHz);
+    io_ltc6813_readTemperatures(cell_Temps, &vref, temp_read_success);
+
+
+    osDelay(10);
 }
