@@ -73,7 +73,9 @@ void jobs_init()
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
 
     static bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
-    ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(balance_config)); // no balancing
+    io_ltc6813_writeConfigurationRegisters(balance_config);
+    io_ltc6813_writeConfigurationRegisters(balance_config);
+    // ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(balance_config)); // no balancing
 }
 
 void jobs_run1Hz_tick(void)
