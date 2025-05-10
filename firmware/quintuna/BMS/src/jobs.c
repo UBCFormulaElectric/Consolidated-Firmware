@@ -6,26 +6,26 @@
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
-#include <io_canRx.h>
+#include "io_canRx.h"
 #include "io_ltc6813.h"
 
 void jobs_runLtc(void)
 {
     static float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    static float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+    // static float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
-    static bool voltage_read_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS] = { false };
-    static bool temp_read_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]        = { false };
+    static ExitCode voltage_read_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS];
+    // static ExitCode temp_read_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS];
 
     static bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
     io_ltc6813_writeConfigurationRegisters(balance_config); // no balancing
 
-    io_ltc6813_startCellsAdcConversion(ADCSpeed_3kHz);
+    ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion(ADCSpeed_3kHz));
     io_ltc6813_readVoltages(cell_voltages, voltage_read_success);
 
-    float vref = 0.0f;
-    io_ltc6813_startThermistorsAdcConversion(ADCSpeed_3kHz);
-    io_ltc6813_readTemperatures(cell_temps, &vref, temp_read_success);
+    // float vref = 0.0f;
+    // ASSERT_EXIT_OK(io_ltc6813_startThermistorsAdcConversion(ADCSpeed_3kHz));
+    // io_ltc6813_readTemperatures(cell_temps, &vref, temp_read_success);
 }
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)

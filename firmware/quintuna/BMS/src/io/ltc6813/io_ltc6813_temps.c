@@ -126,9 +126,9 @@ static_assert(sizeof(AuxRegGroup) == REGISTER_GROUP_SIZE + PEC_SIZE);
 
 void io_ltc6813_readAuxRegisters(
     uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    bool     comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
+    ExitCode comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
 {
-    memset(comm_success, false, NUM_SEGMENTS * AUX_REGISTER_GROUPS);
+    memset(comm_success, EXIT_CODE_BUSY, NUM_SEGMENTS * AUX_REGISTER_GROUPS * sizeof(ExitCode));
     memset(aux_regs, 0, NUM_SEGMENTS * AUX_REGS_PER_SEGMENT * sizeof(uint16_t));
     if (!io_ltc6813_pollAdcConversions())
     {
@@ -165,7 +165,7 @@ void io_ltc6813_readAuxRegisters(
             }
 
             // since we are ignoring REF variable, we need to offset all further readings by 1 backwards
-            comm_success[seg_idx][reg_group]     = true;
+            comm_success[seg_idx][reg_group]     = EXIT_CODE_OK;
             aux_regs[seg_idx][reg_group * 3 + 0] = seg_reg_group->a;
             aux_regs[seg_idx][reg_group * 3 + 1] = seg_reg_group->b;
             aux_regs[seg_idx][reg_group * 3 + 2] = seg_reg_group->c;
@@ -174,9 +174,9 @@ void io_ltc6813_readAuxRegisters(
 }
 
 void io_ltc6813_readTemperatures(
-    float  cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    float *vref,
-    bool   success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
+    float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
+    float   *vref,
+    ExitCode success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
 {
     memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
     *vref = 0;

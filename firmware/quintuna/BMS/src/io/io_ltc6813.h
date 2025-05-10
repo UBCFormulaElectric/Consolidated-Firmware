@@ -76,7 +76,7 @@ void io_ltc6813_readVoltages(
  * sends a command to read all voltages from all segments
  * @return success of the operation
  */
-bool io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
+ExitCode io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
 
 /**
  * @file ltc6813/io_ltc6813_temps.c

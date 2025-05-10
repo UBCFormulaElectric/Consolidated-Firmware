@@ -17,7 +17,7 @@ static bool clearCellRegisters()
 }
 
 // TODO assert that for each speed that the ADCOPT is correct
-bool io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
+ExitCode io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
     if (!clearCellRegisters())
         return false;
@@ -47,9 +47,10 @@ void io_ltc6813_readVoltageRegisters(
     memset(comm_success, EXIT_CODE_BUSY, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(ExitCode));
     memset(cell_voltage_regs, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(uint16_t));
     // Exit early if ADC conversion fails
-    if (!io_ltc6813_pollAdcConversions())
+    const ExitCode poll_exit = io_ltc6813_pollAdcConversions();
+    if (poll_exit != EXIT_CODE_OK)
     {
-        memset(comm_success, EXIT_CODE_TIMEOUT, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(ExitCode));
+        memset(comm_success, poll_exit, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(ExitCode));
         return;
     }
 

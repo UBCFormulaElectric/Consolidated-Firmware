@@ -23,14 +23,12 @@ void tasks_runChimera(void)
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-void tasks_preInit(void)
-{
-    LOG_INFO("BMS Reset");
-}
+void tasks_preInit(void) {}
 
 void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS Reset");
     hw_usb_init();
     hw_adcs_chipsInit();
     hw_pwms_init();
@@ -60,6 +58,7 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    osDelay(osWaitForever);
     static const TickType_t period_ms   = 10U;
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
@@ -75,6 +74,7 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    osDelay(osWaitForever);
     static const TickType_t period_ms   = 1U;
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
@@ -88,6 +88,7 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
@@ -97,6 +98,7 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         jobs_runCanRx_tick();
@@ -105,8 +107,10 @@ void tasks_runCanRx(void)
 
 void tasks_runLtc(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         jobs_runLtc();
+        osDelay(100);
     }
 }
