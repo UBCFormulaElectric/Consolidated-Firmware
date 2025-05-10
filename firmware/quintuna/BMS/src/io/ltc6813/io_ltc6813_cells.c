@@ -10,17 +10,16 @@
  * Clears the register groups which contain the cell voltage data
  * @return success of operation
  */
-static bool clearCellRegisters()
+static ExitCode clearCellRegisters()
 {
 #define CLRCELL (0x0711)
-    return (io_ltc6813_sendCommand(CLRCELL) == EXIT_CODE_OK);
+    return io_ltc6813_sendCommand(CLRCELL);
 }
 
 // TODO assert that for each speed that the ADCOPT is correct
 ExitCode io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
-    if (!clearCellRegisters())
-        return false;
+    RETURN_IF_ERR(clearCellRegisters());
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // Cell selection for ADC conversion
 #define CH (000U)
@@ -44,13 +43,17 @@ void io_ltc6813_readVoltageRegisters(
     uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
     ExitCode comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
 {
-    memset(comm_success, EXIT_CODE_BUSY, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(ExitCode));
+    for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+        for (uint8_t j = 0; j < VOLTAGE_REGISTER_GROUPS; j++)
+            comm_success[i][j] = EXIT_INDETERMINATE;
     memset(cell_voltage_regs, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(uint16_t));
     // Exit early if ADC conversion fails
-    const ExitCode poll_exit = io_ltc6813_pollAdcConversions();
-    if (poll_exit != EXIT_CODE_OK)
+    const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
+    if (IS_EXIT_ERR(poll_ok))
     {
-        memset(comm_success, poll_exit, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(ExitCode));
+        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+            for (uint8_t j = 0; j < VOLTAGE_REGISTER_GROUPS; j++)
+                comm_success[i][j] = poll_ok;
         return;
     }
 
@@ -69,14 +72,12 @@ void io_ltc6813_readVoltageRegisters(
         const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[reg_group]);
         VoltageRegGroup  rx_buffer[NUM_SEGMENTS];
 
-        const ExitCode p = hw_spi_transmitThenReceive(
+        const ExitCode read_vreg_group_ok = hw_spi_transmitThenReceive(
             &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
-        if (p != EXIT_CODE_OK)
+        if (IS_EXIT_ERR(read_vreg_group_ok))
         {
             for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
-            {
-                comm_success[seg_idx][reg_group] = p;
-            }
+                comm_success[seg_idx][reg_group] = read_vreg_group_ok;
             return;
         }
 
@@ -119,12 +120,12 @@ void io_ltc6813_readVoltages(
     {
         for (int j = 0; j < CELLS_PER_SEGMENT; j++)
         {
-            if (success[i][j / 3] != EXIT_CODE_OK)
+            if (IS_EXIT_ERR(success[i][j / 3]))
                 continue;
             // see page 68, 0xffff is invalid (either not populated or faulted)
             if (reg_vals[i][j] == 0xffff)
             {
-                cell_voltages[i][j] = 0.0f;
+                cell_voltages[i][j] = 0xffff;
                 success[i][j / 3]   = EXIT_CODE_ERROR;
                 continue;
             }

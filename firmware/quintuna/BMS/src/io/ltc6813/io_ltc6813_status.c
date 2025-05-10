@@ -27,11 +27,15 @@ typedef struct __attribute__((__packed__))
 } StatB;
 static_assert(sizeof(StatB) == REGISTER_GROUP_SIZE);
 
-void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGMENTS])
+void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
 {
-    memset(success, 0, NUM_SEGMENTS * sizeof(bool));
-    if (!io_ltc6813_pollAdcConversions())
+    for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+        success[i] = EXIT_INDETERMINATE;
+
+    const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
+    if (IS_EXIT_ERR(poll_ok))
         return;
+
 #define RDSTATA (0x0010)
 #define RDSTATB (0x0012)
     struct
@@ -40,10 +44,13 @@ void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGME
         PEC   pec;
     } reg_stat_a[NUM_SEGMENTS];
     static_assert(sizeof(reg_stat_a) == NUM_SEGMENTS * (sizeof(StatA) + sizeof(PEC)));
-    const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(RDSTATA);
-    if (!hw_spi_transmitThenReceive(
-            &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)reg_stat_a, sizeof(reg_stat_a)))
+    const ltc6813_tx tx_cmd        = io_ltc6813_build_tx_cmd(RDSTATA);
+    const ExitCode   stat_a_status = hw_spi_transmitThenReceive(
+        &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)reg_stat_a, sizeof(reg_stat_a));
+    if (IS_EXIT_ERR(stat_a_status))
     {
+        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+            success[i] = stat_a_status;
         return;
     }
 
@@ -53,10 +60,13 @@ void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGME
         PEC   pec;
     } reg_stat_b[NUM_SEGMENTS];
     static_assert(sizeof(reg_stat_b) == NUM_SEGMENTS * (sizeof(StatB) + sizeof(PEC)));
-    const ltc6813_tx tx_cmd_2 = io_ltc6813_build_tx_cmd(RDSTATB);
-    if (!hw_spi_transmitThenReceive(
-            &ltc6813_spi_ls, (uint8_t *)&tx_cmd_2, sizeof(tx_cmd_2), (uint8_t *)reg_stat_b, sizeof(reg_stat_b)))
+    const ltc6813_tx tx_cmd_2      = io_ltc6813_build_tx_cmd(RDSTATB);
+    const ExitCode   stat_b_status = hw_spi_transmitThenReceive(
+        &ltc6813_spi_ls, (uint8_t *)&tx_cmd_2, sizeof(tx_cmd_2), (uint8_t *)reg_stat_b, sizeof(reg_stat_b));
+    if (IS_EXIT_ERR(stat_b_status))
     {
+        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+            success[i] = stat_b_status;
         return;
     }
 
@@ -67,13 +77,13 @@ void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGME
         {
             continue;
         }
-        success[i] = true;
+        success[i] = EXIT_CODE_OK;
 
         status[i].sum_cells                 = (float)reg_stat_a[i].stat.SC * 1e4f * 30;
-        status[i].internal_temp             = (float)reg_stat_a[i].stat.ITMP * 0.00152587890625f; // 2^(-11)
-        status[i].analog_power_supply       = (float)reg_stat_a[i].stat.VA * 0.00152587890625f;   // 2^(-11)
-        status[i].digital_power_supply      = (float)reg_stat_b[i].stat.VD * 0.00152587890625f;   // 2^(-11)
-        status[i].cell_voltage_bound_faults = reg_stat_b[i].stat.CVBF;
+        status[i].internal_temp             = (float)reg_stat_a[i].stat.ITMP; // TODO
+        status[i].analog_power_supply       = (float)reg_stat_a[i].stat.VA;   // TODO
+        status[i].digital_power_supply      = (float)reg_stat_b[i].stat.VD;   // TODO
+        status[i].cell_voltage_bound_faults = reg_stat_b[i].stat.CVBF;        // TODO
         status[i].thermal_shutdown          = reg_stat_b[i].stat.THSD;
         status[i].mux_fail                  = reg_stat_b[i].stat.MUXFAIL;
         status[i].revision                  = reg_stat_b[i].stat.REV;

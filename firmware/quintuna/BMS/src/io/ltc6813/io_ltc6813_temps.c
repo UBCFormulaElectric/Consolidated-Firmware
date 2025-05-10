@@ -128,11 +128,17 @@ void io_ltc6813_readAuxRegisters(
     uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
     ExitCode comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS])
 {
-    memset(comm_success, EXIT_CODE_BUSY, NUM_SEGMENTS * AUX_REGISTER_GROUPS * sizeof(ExitCode));
+    for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+        for (uint8_t j = 0; j < AUX_REGISTER_GROUPS; j++)
+            comm_success[i][j] = EXIT_INDETERMINATE;
     memset(aux_regs, 0, NUM_SEGMENTS * AUX_REGS_PER_SEGMENT * sizeof(uint16_t));
-    if (!io_ltc6813_pollAdcConversions())
+
+    const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
+    if (IS_EXIT_ERR(poll_ok))
     {
-        return;
+        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+            for (uint8_t j = 0; j < AUX_REGISTER_GROUPS; j++)
+                comm_success[i][j] = poll_ok;
     }
 
     // Read thermistor voltages stored in the AUX register groups

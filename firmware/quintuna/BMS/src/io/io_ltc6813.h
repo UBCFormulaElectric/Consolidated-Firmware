@@ -26,7 +26,7 @@
  * Reads the configuration registers, and returns them into the pointer you give it
  * @return success of the operation
  */
-bool io_ltc6813_readConfigurationRegisters();
+ExitCode io_ltc6813_readConfigurationRegisters();
 
 /**
  * Writes a configuration to all segments on the daisy chain.
@@ -35,7 +35,7 @@ bool io_ltc6813_readConfigurationRegisters();
  * @param balance_config The balance configuration to write to the LTCs
  * @return success of the operation
  */
-bool io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
+ExitCode io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
 typedef enum
 {
@@ -215,4 +215,4 @@ typedef struct
  * @param status The status registers
  * @param success success of operations
  */
-void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGMENTS]);
+void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS]);
