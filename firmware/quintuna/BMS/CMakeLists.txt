@@ -43,6 +43,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"

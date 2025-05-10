@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "jobs.h"
 
 #include "app_canTx.h"
 
@@ -16,28 +17,25 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
-#include "jobs.h"
-#include "shared.pb.h"
 
 void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-void tasks_preInit(void)
-{
-    LOG_INFO("BMS Reset");
-}
+void tasks_preInit(void) {}
 
 void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS Reset");
+    __HAL_DBGMCU_FREEZE_IWDG1();
     hw_usb_init();
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_can_init(&can1);
     hw_can_init(&can2);
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     jobs_init();
 
@@ -80,7 +78,7 @@ void tasks_run1kHz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        hw_watchdog_checkForTimeouts();
+        // hw_watchdog_checkForTimeouts();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -101,5 +99,14 @@ void tasks_runCanRx(void)
     for (;;)
     {
         jobs_runCanRx_tick();
+    }
+}
+
+void tasks_runLtc(void)
+{
+    for (;;)
+    {
+        jobs_runLtc();
+        osDelay(30);
     }
 }
