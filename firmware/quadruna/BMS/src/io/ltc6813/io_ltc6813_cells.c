@@ -1,4 +1,3 @@
-#include "app_utils.h"
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"
@@ -11,17 +10,17 @@
  * Clears the register groups which contain the cell voltage data
  * @return success of operation
  */
-static ExitCode clearCellRegisters()
+static bool clearCellRegisters()
 {
 #define CLRCELL (0x0711)
     return io_ltc6813_sendCommand(CLRCELL);
 }
 
 // TODO assert that for each speed that the ADCOPT is correct
-ExitCode io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
+bool io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
-    RETURN_IF_ERR(clearCellRegisters());
-
+    if (!clearCellRegisters())
+        return false;
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // Cell selection for ADC conversion
 #define CH (000U)
@@ -43,13 +42,14 @@ static_assert(sizeof(VoltageRegGroup) == REGISTER_GROUP_SIZE + PEC_SIZE);
 
 void io_ltc6813_readVoltageRegisters(
     uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    bool     comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
+    ExitCode comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
 {
-    memset(comm_success, false, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(bool));
+    memset(comm_success, EXIT_CODE_BUSY, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(ExitCode));
     memset(cell_voltage_regs, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(uint16_t));
     // Exit early if ADC conversion fails
-    if (IS_EXIT_ERR(io_ltc6813_pollAdcConversions()))
+    if (!io_ltc6813_pollAdcConversions())
     {
+        memset(comm_success, EXIT_CODE_TIMEOUT, NUM_SEGMENTS * VOLTAGE_REGISTER_GROUPS * sizeof(ExitCode));
         return;
     }
 
@@ -68,11 +68,15 @@ void io_ltc6813_readVoltageRegisters(
         const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(cv_read_cmds[reg_group]);
         VoltageRegGroup  rx_buffer[NUM_SEGMENTS];
 
-        const ExitCode voltage_read_exit = hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
-        if (IS_EXIT_ERR(voltage_read_exit))
+        const ExitCode p = hw_spi_transmitThenReceive(
+            &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
+        if (p != EXIT_CODE_OK)
         {
-            continue;
+            for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
+            {
+                comm_success[seg_idx][reg_group] = p;
+            }
+            return;
         }
 
         for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
@@ -81,10 +85,11 @@ void io_ltc6813_readVoltageRegisters(
             // Calculate PEC15 from the data received on rx_buffer
             if (!io_ltc6813_check_pec((uint8_t *)seg_reg_group, 6, &seg_reg_group->pec))
             {
+                comm_success[seg_idx][reg_group] = EXIT_CODE_ERROR;
                 continue;
             }
             // fuck it we already here
-            comm_success[seg_idx][reg_group] = true;
+            comm_success[seg_idx][reg_group] = EXIT_CODE_OK;
 
             // Conversion factor used to convert raw voltages (100µV) to voltages (V)
             cell_voltage_regs[seg_idx][reg_group * 3 + 0] = seg_reg_group->a;
@@ -101,8 +106,8 @@ void io_ltc6813_readVoltageRegisters(
  * what is the value of the register group in that segment
  */
 void io_ltc6813_readVoltages(
-    float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    bool  success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
+    float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    ExitCode success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
 {
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
@@ -113,10 +118,16 @@ void io_ltc6813_readVoltages(
     {
         for (int j = 0; j < CELLS_PER_SEGMENT; j++)
         {
-            if (!success[i][j / 3])
+            if (success[i][j / 3] != EXIT_CODE_OK)
                 continue;
             // see page 68, 0xffff is invalid (either not populated or faulted)
-            cell_voltages[i][j] = reg_vals[i][j] == 0xffff ? 0 : CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
+            if (reg_vals[i][j] == 0xffff)
+            {
+                cell_voltages[i][j] = 0.0f;
+                success[i][j / 3]   = EXIT_CODE_ERROR;
+                continue;
+            }
+            cell_voltages[i][j] = CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
         }
     }
 }

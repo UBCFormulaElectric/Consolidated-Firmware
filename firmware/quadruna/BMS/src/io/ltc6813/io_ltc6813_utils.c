@@ -1,4 +1,3 @@
-#include "app_utils.h"
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"
@@ -15,13 +14,11 @@ ExitCode io_ltc6813_pollAdcConversions(void)
     {
         uint8_t rx_data;
         RETURN_IF_ERR(
-            hw_spi_transmitThenReceive(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), &rx_data, sizeof(rx_data)));
-
+            hw_spi_transmitThenReceive(&ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), &rx_data, sizeof(rx_data)))
         if (rx_data == ADC_CONV_COMPLETE)
         {
             return EXIT_CODE_OK;
         }
     }
-
-    return EXIT_CODE_RETRY_FAILED;
+    return EXIT_CODE_TIMEOUT;
 }

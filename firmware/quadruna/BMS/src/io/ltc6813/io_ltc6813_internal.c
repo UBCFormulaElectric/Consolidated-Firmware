@@ -1,6 +1,5 @@
 #include "io_ltc6813_internal.h"
 
-#include "app_utils.h"
 #include "io_log.h"
 #include "hw_spis.h"
 
@@ -68,5 +67,5 @@ ltc6813_tx io_ltc6813_build_tx_cmd(const uint16_t command)
 ExitCode io_ltc6813_sendCommand(const uint16_t command)
 {
     const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(command);
-    return hw_spi_transmit(&ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
+    return hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
 }

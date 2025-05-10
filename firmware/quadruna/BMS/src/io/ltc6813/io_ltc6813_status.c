@@ -1,4 +1,3 @@
-#include "app_utils.h"
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"
@@ -28,10 +27,10 @@ typedef struct __attribute__((__packed__))
 } StatB;
 static_assert(sizeof(StatB) == REGISTER_GROUP_SIZE);
 
-void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
+void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], bool success[NUM_SEGMENTS])
 {
     memset(success, 0, NUM_SEGMENTS * sizeof(bool));
-    if (IS_EXIT_ERR(io_ltc6813_pollAdcConversions()))
+    if (!io_ltc6813_pollAdcConversions())
         return;
 #define RDSTATA (0x0010)
 #define RDSTATB (0x0012)
@@ -42,8 +41,8 @@ void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
     } reg_stat_a[NUM_SEGMENTS];
     static_assert(sizeof(reg_stat_a) == NUM_SEGMENTS * (sizeof(StatA) + sizeof(PEC)));
     const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(RDSTATA);
-    if (IS_EXIT_ERR(hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)reg_stat_a, sizeof(reg_stat_a))))
+    if (!hw_spi_transmitThenReceive(
+            &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)reg_stat_a, sizeof(reg_stat_a)))
     {
         return;
     }
@@ -55,8 +54,8 @@ void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
     } reg_stat_b[NUM_SEGMENTS];
     static_assert(sizeof(reg_stat_b) == NUM_SEGMENTS * (sizeof(StatB) + sizeof(PEC)));
     const ltc6813_tx tx_cmd_2 = io_ltc6813_build_tx_cmd(RDSTATB);
-    if (IS_EXIT_ERR(hw_spi_transmitThenReceive(
-            &ltc6813_spi, (uint8_t *)&tx_cmd_2, sizeof(tx_cmd_2), (uint8_t *)reg_stat_b, sizeof(reg_stat_b))))
+    if (!hw_spi_transmitThenReceive(
+            &ltc6813_spi_ls, (uint8_t *)&tx_cmd_2, sizeof(tx_cmd_2), (uint8_t *)reg_stat_b, sizeof(reg_stat_b)))
     {
         return;
     }
@@ -69,6 +68,14 @@ void io_ltc6813_getStatus(bool success[NUM_SEGMENTS])
             continue;
         }
         success[i] = true;
+
+        status[i].sum_cells                 = (float)reg_stat_a[i].stat.SC * 1e4f * 30;
+        status[i].internal_temp             = (float)reg_stat_a[i].stat.ITMP * 0.00152587890625f; // 2^(-11)
+        status[i].analog_power_supply       = (float)reg_stat_a[i].stat.VA * 0.00152587890625f;   // 2^(-11)
+        status[i].digital_power_supply      = (float)reg_stat_b[i].stat.VD * 0.00152587890625f;   // 2^(-11)
+        status[i].cell_voltage_bound_faults = reg_stat_b[i].stat.CVBF;
+        status[i].thermal_shutdown          = reg_stat_b[i].stat.THSD;
+        status[i].mux_fail                  = reg_stat_b[i].stat.MUXFAIL;
+        status[i].revision                  = reg_stat_b[i].stat.REV;
     }
-    // TODO idk what to do with the values we just got
 }

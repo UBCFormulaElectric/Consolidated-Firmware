@@ -1,4 +1,3 @@
-#include "app_utils.h"
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"
@@ -14,8 +13,7 @@
 ExitCode io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
 {
 #define CLRAUX (0x0712)
-    RETURN_IF_ERR(io_ltc6813_sendCommand(CLRAUX));
-
+    RETURN_IF_ERR(io_ltc6813_sendCommand(CLRAUX))
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // GPIO Selection for ADC conversion
 #define CHG (0x000U)
@@ -132,7 +130,7 @@ void io_ltc6813_readAuxRegisters(
 {
     memset(comm_success, false, NUM_SEGMENTS * AUX_REGISTER_GROUPS);
     memset(aux_regs, 0, NUM_SEGMENTS * AUX_REGS_PER_SEGMENT * sizeof(uint16_t));
-    if (IS_EXIT_ERR(io_ltc6813_pollAdcConversions()))
+    if (!io_ltc6813_pollAdcConversions())
     {
         return;
     }
@@ -150,8 +148,8 @@ void io_ltc6813_readAuxRegisters(
         AuxRegGroup rx_buffer[NUM_SEGMENTS];
 
         // send command and receive data
-        if (IS_EXIT_ERR(hw_spi_transmitThenReceive(
-                &ltc6813_spi, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer))))
+        if (!hw_spi_transmitThenReceive(
+                &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer)))
         {
             continue;
         }
