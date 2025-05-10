@@ -1,1237 +1,1233 @@
 {
-    "Vitals": {
-        "msg_id": 400,
-        "cycle_time": 10,
-        "description": "Vitals message for the BMS.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "BmsState"
-            }
-        }
-    },
-    "Debug": {
-        "msg_id": 407,
-        "cycle_time": 1000,
-        "description": "BMS Debug Signals",
-        "signals": {
-            "ResetReason": {
-                "enum": "CanResetReason"
-            }
-        }
-    },
-    "LatchedFaults": {
-        "msg_id": 410,
-        "cycle_time": 100,
-        "description": "Latched faults for the BMS",
-        "signals": {
-            "BmsLatchedFault": {
-                "bits": 1
-            },
-            "ImdLatchedFault": {
-                "bits": 1
-            },
-            "BspdLatchedFault": {
-                "bits": 1
-            }
-        }
-    },
-    "Contactors": {
-        "msg_id": 411,
-        "cycle_time": 100,
-        "description": "BMS IR state statuses",
-        "signals": {
-            "IrPositive": {
-                "enum": "ContactorState"
-            },
-            "IrNegative": {
-                "enum": "ContactorState"
-            },
-            "PrechargeRelay": {
-                "enum": "ContactorState"
-            }
-        }
-    },
-    "TractiveSystem": {
-        "msg_id": 412,
-        "cycle_time": 100,
-        "description": "BMS Tractive System Data",
-        "signals": {
-            "TractiveSystemVoltage": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 600,
-                "unit": "V"
-            },
-            "TractiveSystemCurrent": {
-                "resolution": 0.1,
-                "min": -300,
-                "max": 300,
-                "unit": "A"
-            },
-            "TractiveSystemPower": {
-                "resolution": 0.1,
-                "min": -100,
-                "max": 100,
-                "unit": "kW"
-            },
-            "AvailablePower": {
-                "resolution": 1,
-                "min": 0,
-                "max": 100000,
-                "unit": "W"
-            },
-            "BSPDCurrentThresholdExceeded": {
-                "bits": 1
-            }
-        }
-    },
-     "ElconControls": {
-            "msg_id": 450,
-            "cycle_time": 1000,
-            "description": "Control parameters for Elcon charger communication",
-            "signals": {
-                  "MaxChargingVoltage": {
-                      "start_bit": 0,
-                      "bits": 16,
-                      "min": 0,
-                      "max": 10000,
-                      "scale": 0.1,
-                      "offset": 0,
-                      "unit": "V"
-                  },
-                  "MaxChargingCurrent": {
-                      "start_bit": 16,
-                      "bits": 16,
-                      "min": 0,
-                      "max": 1000,
-                      "scale": 0.1,
-                      "offset": 0,
-                      "unit": "A"
-                  },
-                  "StopCharging": {
-                      "start_bit": 32,
-                      "bits": 1
-                  },
-                  "Reserved": {
-                      "start_bit": 33,
-                      "bits": 31
-                  }
-            }
+  "Vitals": {
+    "msg_id": 400,
+    "cycle_time": 10,
+    "description": "Vitals message for the BMS.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
       },
-    "CellStats": {
-        "msg_id": 459,
-        "cycle_time": 100,
-        "description": "Avg BMS Cell Stats",
-        "signals": {
-            "MinCellVoltageSegment": {
-                "resolution": 1,
-                "min": 0,
-                "max": 9
-            },
-            "MinCellVoltageIdx": {
-                "resolution": 1,
-                "min": 0,
-                "max": 13
-            },
-            "MaxCellVoltageSegment": {
-                "bits": 3,
-                "min": 0,
-                "max": 9
-            },
-            "MaxCellVoltageIdx": {
-                "resolution": 1,
-                "min": 0,
-                "max": 13
-            },
-            "MinTempSegment": {
-                "resolution": 1,
-                "min": 0,
-                "max": 9
-            },
-            "MinTempIdx": {
-                "resolution": 1,
-                "min": 0,
-                "max": 13
-            },
-            "MaxTempSegment": {
-                "resolution": 1,
-                "min": 0,
-                "max": 9
-            },
-            "MaxTempIdx": {
-                "resolution": 1,
-                "min": 0,
-                "max": 13
-            }
-        }
-    },
-    "Segment0_VoltageStats_0": {
-        "msg_id": 460,
-        "cycle_time": 10,
-        "description": "BMS Segment 0 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg0_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment0_VoltageStats_1": {
-        "msg_id": 461,
-        "cycle_time": 10,
-        "description": "BMS Segment 0 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg0_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg0_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment1_VoltageStats_0": {
-        "msg_id": 462,
-        "cycle_time": 10,
-        "description": "BMS Segment 1 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg1_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment1_VoltageStats_1": {
-        "msg_id": 463,
-        "cycle_time": 10,
-        "description": "BMS Segment 1 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg1_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg1_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment2_VoltageStats_0": {
-        "msg_id": 464,
-        "cycle_time": 10,
-        "description": "BMS Segment 2 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg2_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment2_VoltageStats_1": {
-        "msg_id": 465,
-        "cycle_time": 10,
-        "description": "BMS Segment 2 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg2_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg2_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment3_VoltageStats_0": {
-        "msg_id": 466,
-        "cycle_time": 10,
-        "description": "BMS Segment 3 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg3_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment3_VoltageStats_1": {
-        "msg_id": 467,
-        "cycle_time": 10,
-        "description": "BMS Segment 3 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg3_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg3_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment4_VoltageStats_0": {
-        "msg_id": 468,
-        "cycle_time": 10,
-        "description": "BMS Segment 4 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg4_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment4_VoltageStats_1": {
-        "msg_id": 469,
-        "cycle_time": 10,
-        "description": "BMS Segment 4 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg4_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg4_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment5_VoltageStats_0": {
-        "msg_id": 470,
-        "cycle_time": 10,
-        "description": "BMS Segment 5 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg5_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment5_VoltageStats_1": {
-        "msg_id": 471,
-        "cycle_time": 10,
-        "description": "BMS Segment 5 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg5_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg5_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment6_VoltageStats_0": {
-        "msg_id": 472,
-        "cycle_time": 10,
-        "description": "BMS Segment 6 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg6_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment6_VoltageStats_1": {
-        "msg_id": 473,
-        "cycle_time": 10,
-        "description": "BMS Segment 6 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg6_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg6_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment7_VoltageStats_0": {
-        "msg_id": 474,
-        "cycle_time": 10,
-        "description": "BMS Segment 7 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg7_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment7_VoltageStats_1": {
-        "msg_id": 475,
-        "cycle_time": 10,
-        "description": "BMS Segment 7 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg7_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg7_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment8_VoltageStats_0": {
-        "msg_id": 476,
-        "cycle_time": 10,
-        "description": "BMS Segment 8 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg8_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment8_VoltageStats_1": {
-        "msg_id": 477,
-        "cycle_time": 10,
-        "description": "BMS Segment 8 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg8_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg8_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment9_VoltageStats_0": {
-        "msg_id": 478,
-        "cycle_time": 10,
-        "description": "BMS Segment 9 Voltage Stats Part 0",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg9_Cell0_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell1_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell2_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell3_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell4_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell5_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell6_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment9_VoltageStats_1": {
-        "msg_id": 479,
-        "cycle_time": 10,
-        "description": "BMS Segment 9 Voltage Stats Part 1",
-        "allowed_modes": [
-            "debug"
-        ],
-        "signals": {
-            "Seg9_Cell7_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell8_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell9_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell10_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell11_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell12_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            },
-            "Seg9_Cell13_Voltage": {
-                "resolution": 0.01,
-                "min": -0.1,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "Segment0_Tests": {
-        "msg_id": 480,
-        "cycle_time": 100,
-        "description": "Segment 0 LTC tests and checks",
-        "signals": {
-            "Self_Test_Voltages": {
-                "bits": 1
-            },
-            "Self_Test_Aux": {
-                "bits": 1
-            },
-            "Self_Test_Stat": {
-                "bits": 1
-            },
-            "Diagnose_MUX": {
-                "bits": 1
-            },
-            "Overlap_ADC_Test": {
-                "bits": 1
-            },
-            "OWC_Pull": {
-                "bits": 1
-            }
-        }
+      "State": {
+        "enum": "BmsState"
+      }
     }
-    
+  },
+  "Debug": {
+    "msg_id": 407,
+    "cycle_time": 1000,
+    "description": "BMS Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      }
+    }
+  },
+  "LatchedFaults": {
+    "msg_id": 410,
+    "cycle_time": 100,
+    "description": "Latched faults for the BMS",
+    "signals": {
+      "BmsLatchedFault": {
+        "bits": 1
+      },
+      "ImdLatchedFault": {
+        "bits": 1
+      },
+      "BspdLatchedFault": {
+        "bits": 1
+      }
+    }
+  },
+  "Contactors": {
+    "msg_id": 411,
+    "cycle_time": 100,
+    "description": "BMS IR state statuses",
+    "signals": {
+      "IrPositive": {
+        "enum": "ContactorState"
+      },
+      "IrNegative": {
+        "enum": "ContactorState"
+      },
+      "PrechargeRelay": {
+        "enum": "ContactorState"
+      }
+    }
+  },
+  "TractiveSystem": {
+    "msg_id": 412,
+    "cycle_time": 100,
+    "description": "BMS Tractive System Data",
+    "signals": {
+      "TractiveSystemVoltage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 600,
+        "unit": "V"
+      },
+      "TractiveSystemCurrent": {
+        "resolution": 0.1,
+        "min": -300,
+        "max": 300,
+        "unit": "A"
+      },
+      "TractiveSystemPower": {
+        "resolution": 0.1,
+        "min": -100,
+        "max": 100,
+        "unit": "kW"
+      },
+      "AvailablePower": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "BSPDCurrentThresholdExceeded": {
+        "bits": 1
+      }
+    }
+  },
+  "ElconControls": {
+    "msg_id": 450,
+    "cycle_time": 1000,
+    "description": "Control parameters for Elcon charger communication",
+    "signals": {
+      "MaxChargingVoltage": {
+        "start_bit": 0,
+        "bits": 16,
+        "min": 0,
+        "max": 10000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "V"
+      },
+      "MaxChargingCurrent": {
+        "start_bit": 16,
+        "bits": 16,
+        "min": 0,
+        "max": 1000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "A"
+      },
+      "StopCharging": {
+        "start_bit": 32,
+        "bits": 1
+      },
+      "Reserved": {
+        "start_bit": 33,
+        "bits": 31
+      }
+    }
+  },
+  "CellStats": {
+    "msg_id": 459,
+    "cycle_time": 100,
+    "description": "Avg BMS Cell Stats",
+    "signals": {
+      "MinCellVoltageSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MinCellVoltageIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      },
+      "MaxCellVoltageSegment": {
+        "bits": 3,
+        "min": 0,
+        "max": 9
+      },
+      "MaxCellVoltageIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      },
+      "MinTempSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MinTempIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      },
+      "MaxTempSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "MaxTempIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
+  "Segment0_VoltageStats_0": {
+    "msg_id": 460,
+    "cycle_time": 10,
+    "description": "BMS Segment 0 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg0_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment0_VoltageStats_1": {
+    "msg_id": 461,
+    "cycle_time": 10,
+    "description": "BMS Segment 0 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg0_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg0_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment1_VoltageStats_0": {
+    "msg_id": 462,
+    "cycle_time": 10,
+    "description": "BMS Segment 1 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg1_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment1_VoltageStats_1": {
+    "msg_id": 463,
+    "cycle_time": 10,
+    "description": "BMS Segment 1 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg1_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment2_VoltageStats_0": {
+    "msg_id": 464,
+    "cycle_time": 10,
+    "description": "BMS Segment 2 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg2_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment2_VoltageStats_1": {
+    "msg_id": 465,
+    "cycle_time": 10,
+    "description": "BMS Segment 2 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg2_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment3_VoltageStats_0": {
+    "msg_id": 466,
+    "cycle_time": 10,
+    "description": "BMS Segment 3 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg3_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment3_VoltageStats_1": {
+    "msg_id": 467,
+    "cycle_time": 10,
+    "description": "BMS Segment 3 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg3_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment4_VoltageStats_0": {
+    "msg_id": 468,
+    "cycle_time": 10,
+    "description": "BMS Segment 4 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg4_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment4_VoltageStats_1": {
+    "msg_id": 469,
+    "cycle_time": 10,
+    "description": "BMS Segment 4 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg4_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment5_VoltageStats_0": {
+    "msg_id": 470,
+    "cycle_time": 10,
+    "description": "BMS Segment 5 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg5_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment5_VoltageStats_1": {
+    "msg_id": 471,
+    "cycle_time": 10,
+    "description": "BMS Segment 5 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg5_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment6_VoltageStats_0": {
+    "msg_id": 472,
+    "cycle_time": 10,
+    "description": "BMS Segment 6 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg6_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment6_VoltageStats_1": {
+    "msg_id": 473,
+    "cycle_time": 10,
+    "description": "BMS Segment 6 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg6_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment7_VoltageStats_0": {
+    "msg_id": 474,
+    "cycle_time": 10,
+    "description": "BMS Segment 7 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg7_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment7_VoltageStats_1": {
+    "msg_id": 475,
+    "cycle_time": 10,
+    "description": "BMS Segment 7 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg7_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment8_VoltageStats_0": {
+    "msg_id": 476,
+    "cycle_time": 10,
+    "description": "BMS Segment 8 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg8_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment8_VoltageStats_1": {
+    "msg_id": 477,
+    "cycle_time": 10,
+    "description": "BMS Segment 8 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg8_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment9_VoltageStats_0": {
+    "msg_id": 478,
+    "cycle_time": 10,
+    "description": "BMS Segment 9 Voltage Stats Part 0",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg9_Cell0_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell1_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell2_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell3_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell4_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell5_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell6_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment9_VoltageStats_1": {
+    "msg_id": 479,
+    "cycle_time": 10,
+    "description": "BMS Segment 9 Voltage Stats Part 1",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "Seg9_Cell7_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell8_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell9_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell10_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell11_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell12_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_Cell13_Voltage": {
+        "resolution": 0.01,
+        "min": -0.1,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "Segment0_Tests": {
+    "msg_id": 480,
+    "cycle_time": 100,
+    "description": "Segment 0 LTC tests and checks",
+    "signals": {
+      "Self_Test_Voltages": {
+        "bits": 1
+      },
+      "Self_Test_Aux": {
+        "bits": 1
+      },
+      "Self_Test_Stat": {
+        "bits": 1
+      },
+      "Diagnose_MUX": {
+        "bits": 1
+      },
+      "Overlap_ADC_Test": {
+        "bits": 1
+      }
+    }
+  }
 }
