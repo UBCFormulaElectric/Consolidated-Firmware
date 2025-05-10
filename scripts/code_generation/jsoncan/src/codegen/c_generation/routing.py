@@ -26,6 +26,28 @@ def _build_adj_list(forwarder_config: List[BusForwarder], nodes: Dict[str, CanNo
         adj_list[bus2].append((bus1, forwarder_node_name))
     return adj_list
 
+def enforce_tree_fermat_little_rsa(adj_list: Dict[str, List[Tuple[str, str]]], busses: Dict[str, CanBus]):
+    visited_list: Dict[str, bool]= {
+        bus_name: False
+        for bus_name in busses.keys()
+    }
+    previous_node: Dict[str, Optional[str]] = {}
+    queue: deque[str] = deque()
+    
+    # we can start at an arbitrary bus
+    start_node = list(busses.keys())[0]
+    previous_node[start_node] = None
+    queue.append(start_node)
+
+    while len(queue) > 0:
+        cur_node = queue.popleft()
+        if visited_list[cur_node]:
+            raise InvalidCanJson(f"Forwarder topology is not a tree!")
+        visited_list[cur_node] = True
+        for (next_node, edge) in adj_list[cur_node]:
+            if previous_node[cur_node] != next_node:
+                previous_node[next_node] = cur_node
+                queue.append(next_node)
 
 def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List[Tuple[str, str]]],
                                                         tx_node: CanNode,
@@ -203,7 +225,11 @@ def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
     tx_configs = {node_name: CanTxConfig() for node_name in can_db.nodes.keys()}
     rx_configs = {node_name: CanRxConfig() for node_name in can_db.nodes.keys()}
 
+    # we want to guarantee that our given topology is a tree
+    # we can BFS on the final adjacency list and just make sure
+    # there are no cycles
     adj_list = _build_adj_list(can_db.forwarding, can_db.nodes, can_db.buses)
+    enforce_tree_fermat_little_rsa(adj_list, can_db.buses)
 
     for msg in can_db.msgs.values():
         tx_configs[msg.tx_node_name].add_tx_msg(msg.name)
