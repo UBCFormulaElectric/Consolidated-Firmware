@@ -106,6 +106,6 @@ void tasks_runLtc(void)
     for (;;)
     {
         jobs_runLtc();
-        osDelay(100);
+        osDelay(50);
     }
 }
