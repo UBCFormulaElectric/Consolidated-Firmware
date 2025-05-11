@@ -1,10 +1,10 @@
 {
     "messages": [
         "BMS_TractiveSystem",
-        "BMS_BMSShdnNodeStatus",
         "BMS_Vitals",
         "BMS_ShdnNodeStatus",
         "FSM_ShdnNodeStatus",
-        "DAM_ShdnNodeStatus"
+        "DAM_ShdnNodeStatus",
+        "RSM_ShdnNodeStatus"
     ]
 }

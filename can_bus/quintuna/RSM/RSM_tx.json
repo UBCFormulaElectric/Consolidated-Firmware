@@ -34,5 +34,15 @@
                 "enum": "CanResetReason"
             }
         }
+    },
+    "ShdnNodeStatus" :{
+        "msg_id" : 710,
+        "cycle_time" : 10,
+        "description" : "RSM shutdown nodes",
+        "signals" :{
+            "RearLeftMotorInterlock":{
+                "bits" : 1
+            }
+        }
     }
 }

@@ -168,10 +168,10 @@
             "COCKPITOKStatus": {
                 "bits": 1
             },
-            "FLOKStatus": {
+            "FrontLeftILCKOKStatus": {
                 "bits": 1
             },
-            "FROKStatus": {
+            "FrontRightILCKOKStatus": {
                 "bits": 1
             }
         }
