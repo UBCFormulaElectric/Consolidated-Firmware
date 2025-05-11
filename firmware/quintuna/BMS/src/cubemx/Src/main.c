@@ -229,6 +229,7 @@ int main(void)
     MX_TIM5_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -247,7 +248,6 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
