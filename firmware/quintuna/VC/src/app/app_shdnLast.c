@@ -30,7 +30,7 @@ void app_shdnLast_broadcast(void)
     {
         node = SHDN_BOTS;
     }
-    else if (!app_canTx_VC_InertiaSenOKStatus_get())
+    else if (!app_canTx_VC_InertiaSwitch_get())
     {
         node = SHDN_Inertia;
     }
