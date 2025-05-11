@@ -117,8 +117,8 @@ ExitCode hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t t
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
-        const bool status =
-            HAL_SPI_Transmit(device->bus->handle, tx_buffer, tx_buffer_size, device->timeout_ms) == HAL_OK;
+        const ExitCode status =
+            hw_utils_convertHalStatus(HAL_SPI_Transmit(device->bus->handle, tx_buffer, tx_buffer_size, device->timeout_ms));
         disableNss(device);
         return status;
     }

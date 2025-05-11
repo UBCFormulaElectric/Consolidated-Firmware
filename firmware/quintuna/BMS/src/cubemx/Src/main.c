@@ -227,7 +227,7 @@ int main(void)
     MX_FDCAN2_Init();
     MX_CRC_Init();
     MX_TIM5_Init();
-    // MX_IWDG1_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -788,7 +788,7 @@ static void MX_SPI4_Init(void)
     hspi4.Init.MasterSSIdleness           = SPI_MASTER_SS_IDLENESS_00CYCLE;
     hspi4.Init.MasterInterDataIdleness    = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
     hspi4.Init.MasterReceiverAutoSusp     = SPI_MASTER_RX_AUTOSUSP_DISABLE;
-    hspi4.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_DISABLE;
+    hspi4.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_ENABLE;
     hspi4.Init.IOSwap                     = SPI_IO_SWAP_DISABLE;
     if (HAL_SPI_Init(&hspi4) != HAL_OK)
     {
