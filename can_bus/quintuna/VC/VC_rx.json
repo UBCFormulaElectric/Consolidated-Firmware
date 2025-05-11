@@ -3,6 +3,8 @@
         "BMS_TractiveSystem",
         "BMS_BMSShdnNodeStatus",
         "BMS_Vitals",
-        "BMS_LatchedFaults"
+        "BMS_ShdnNodeStatus",
+        "FSM_ShdnNodeStatus",
+        "DAM_ShdnNodeStatus"
     ]
 }
