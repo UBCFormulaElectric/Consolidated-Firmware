@@ -1,22 +1,35 @@
 #include "app_shdnLast.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include <app_canUtils.h>
 
 void app_shdnLast_broadcast(void)
 {
     ShutdownNode node;
 
-    if (!app_canRx_BMS_HVDShdnOKStatus_get())
-    {
-        node = SHDN_HVD_ILCK;
-    }
-    else if (!app_canTx_VC_SplitterBoxInterlockOKStatus_get())
-    {
-        node = SHDN_SB_ILCK;
-    }
-    else if (!app_canTx_VC_TSMSOKStatus_get())
+    if (!app_canTx_VC_TSMSOKStatus_get())
     {
         node = SHDN_TSMS;
+    }
+    else if (!app_canTx_VC_InertiaSwitch_get())
+    {
+        node = SHDN_INERTIA;
+    }
+    else if (!app_canRx_FSM_FrontRightILCKOKStatus_get())
+    {
+        node = SHDN_FL_ILCK;
+    }
+    else if (!app_canRx_FSM_FrontLeftILCKOKStatus_get())
+    {
+        node = SHDN_FL_ILCK;
+    }
+    else if (!app_canRx_FSM_BOTSOKStatus_get())
+    {
+        node = SHDN_BOTS;
+    }
+    else if (!app_canRx_FSM_COCKPITOKStatus_get())
+    {
+        node = SHDN_Cockpit_EStop;
     }
     else if (!app_canRx_DAM_REStopOKStatus_get())
     {
@@ -26,17 +39,17 @@ void app_shdnLast_broadcast(void)
     {
         node = SHDN_L_EStop;
     }
-    else if (!app_canRx_FSM_BOTSOKStatus_get())
+    else if (!app_canTx_VC_SplitterBoxInterlockOKStatus_get())
     {
-        node = SHDN_BOTS;
+        node = SHDN_SB_ILCK;
     }
-    else if (!app_canTx_VC_InertiaSwitch_get())
+    else if (!app_canTx_VC_RearRightMotorInterlock_get())
     {
-        node = SHDN_Inertia;
+        node = SHDN_INERTIA;
     }
-    else if (!app_canRx_DAM_COCKPITOKStatus_get())
+    else if (!app_canRx_RSM_RearLeftMotorInterlock_get())
     {
-        node = SHDN_Cockpit_EStop;
+        node = SHDN_RR_ILCK;
     }
     else if (!app_canRx_BMS_TSIlckOKStatus_get())
     {

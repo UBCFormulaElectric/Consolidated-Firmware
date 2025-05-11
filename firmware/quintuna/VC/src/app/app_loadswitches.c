@@ -21,18 +21,18 @@ static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_R_RAD]   = app_canTx_VC_RightRadiatorFanStatus_set
 };
 
-static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(
-    float) = { [EFUSE_CHANNEL_F_INV]   = app_canTx_VC_FrontInvertersCurrent_set,
-               [EFUSE_CHANNEL_RSM]     = app_canTx_VC_RSMCurrent_set,
-               [EFUSE_CHANNEL_BMS]     = app_canTx_VC_BMSCurrent_set,
-               [EFUSE_CHANNEL_R_INV]   = app_canTx_VC_RearInvertersCurrent_set,
-               [EFUSE_CHANNEL_DAM]     = app_canTx_VC_DAMCurrent_set,
-               [EFUSE_CHANNEL_FRONT]   = app_canTx_VC_FrontCurrent_set,
-               [EFUSE_CHANNEL_RL_PUMP] = app_canTx_VC_RearLeftPumpCurrent_set,
-               [EFUSE_CHANNEL_RR_PUMP] = app_canTx_VC_RearRightPumpCurrent_set,
-               [EFUSE_CHANNEL_F_PUMP]  = app_canTx_VC_FrontPumpCurrent_set,
-               [EFUSE_CHANNEL_L_RAD]   = app_canTx_VC_LeftRadiatorFanCurrent_set,
-               [EFUSE_CHANNEL_R_RAD]   = app_canTx_VC_RightRadiatorFanCurrent_set 
+static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
+    [EFUSE_CHANNEL_F_INV]   = app_canTx_VC_FrontInvertersCurrent_set,
+    [EFUSE_CHANNEL_RSM]     = app_canTx_VC_RSMCurrent_set,
+    [EFUSE_CHANNEL_BMS]     = app_canTx_VC_BMSCurrent_set,
+    [EFUSE_CHANNEL_R_INV]   = app_canTx_VC_RearInvertersCurrent_set,
+    [EFUSE_CHANNEL_DAM]     = app_canTx_VC_DAMCurrent_set,
+    [EFUSE_CHANNEL_FRONT]   = app_canTx_VC_FrontCurrent_set,
+    [EFUSE_CHANNEL_RL_PUMP] = app_canTx_VC_RearLeftPumpCurrent_set,
+    [EFUSE_CHANNEL_RR_PUMP] = app_canTx_VC_RearRightPumpCurrent_set,
+    [EFUSE_CHANNEL_F_PUMP]  = app_canTx_VC_FrontPumpCurrent_set,
+    [EFUSE_CHANNEL_L_RAD]   = app_canTx_VC_LeftRadiatorFanCurrent_set,
+    [EFUSE_CHANNEL_R_RAD]   = app_canTx_VC_RightRadiatorFanCurrent_set
 };
 
 void app_efuse_broadcast(void)
