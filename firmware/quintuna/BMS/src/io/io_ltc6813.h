@@ -22,6 +22,7 @@
  * @file ltc6813/io_ltc6813_configs.c
  */
 
+// TODO app layer read and write configs more frequently in case of power loss
 /**
  * Reads the configuration registers, and returns them into the pointer you give it
  * @return success of the operation
@@ -37,6 +38,7 @@ ExitCode io_ltc6813_readConfigurationRegisters();
  */
 ExitCode io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
+// TODO Everytime an ADCSpeed is used, ensure that the ADCOPT is sufficient
 typedef enum
 {
     ADCSpeed_422Hz = 0,
@@ -147,9 +149,11 @@ typedef enum
 /**
  * Sends command to initiate open wire check
  * @param pull_direction The pull up or pull down phase of the open wire check
+ * @param speed ADC speed at which to test
+ * @param dcp Discharge permitted bit
  * @return success of operation
  */
-ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
+ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction, ADCSpeed speed, bool dcp);
 
 /**
  * @file ltc6813/io_ltc6813_tests.c
@@ -162,6 +166,12 @@ ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
  * you still need to assert the values in the reg groups
  */
 ExitCode io_ltc6813_sendSelfTestVoltages(ADCSpeed speed);
+
+/**
+ * @param speed speed to do test
+ * @return expected value of the voltage register at test time
+ */
+uint16_t io_ltc6813_selfTestExpectedValue(ADCSpeed speed);
 
 /**
  * dispatches a command to test the aux adcs

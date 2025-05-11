@@ -83,7 +83,7 @@ static SegmentConfig build_config()
 
     // very important setting, determines which speeds are valid
     // TODO configure based on desired ADC speed
-    seg_a_cfg->adcopt = 1;
+    seg_a_cfg->adcopt = 0;
 
 #define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
     seg_a_cfg->vuv_0_7  = VUV & 0xFF;

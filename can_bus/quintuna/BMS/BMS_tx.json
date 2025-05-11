@@ -1225,7 +1225,52 @@
       "Diagnose_MUX": {
         "bits": 1
       },
-      "Overlap_ADC_Test": {
+      "Overlap_ADC_1_2_Test": {
+        "bits": 1
+      },
+      "Overlap_ADC_2_3_Test": {
+        "bits": 1
+      },
+      "Cell0_OWC": {
+        "bits": 1
+      },
+      "Cell1_OWC": {
+        "bits": 1
+      },
+      "Cell2_OWC": {
+        "bits": 1
+      },
+      "Cell3_OWC": {
+        "bits": 1
+      },
+      "Cell4_OWC": {
+        "bits": 1
+      },
+      "Cell5_OWC": {
+        "bits": 1
+      },
+      "Cell6_OWC": {
+        "bits": 1
+      },
+      "Cell7_OWC": {
+        "bits": 1
+      },
+      "Cell8_OWC": {
+        "bits": 1
+      },
+      "Cell9_OWC": {
+        "bits": 1
+      },
+      "Cell10_OWC": {
+        "bits": 1
+      },
+      "Cell11_OWC": {
+        "bits": 1
+      },
+      "Cell12_OWC": {
+        "bits": 1
+      },
+      "Cell13_OWC": {
         "bits": 1
       }
     }

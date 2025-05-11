@@ -227,7 +227,7 @@ int main(void)
     MX_FDCAN2_Init();
     MX_CRC_Init();
     MX_TIM5_Init();
-    MX_IWDG1_Init();
+    // MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */

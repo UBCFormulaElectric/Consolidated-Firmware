@@ -4,23 +4,14 @@
 
 // OPEN WIRE CHECK
 // TODO more configs here probably
-ExitCode io_ltc6813CellVoltages_owcPull(const PullDirection pull_direction)
+ExitCode io_ltc6813CellVoltages_owcPull(const PullDirection pull_direction, const ADCSpeed speed, const bool dcp)
 {
-// ADOW mode selection
-#define PUP_PU (1U) // Pull-up current
-#define PUP_PD (0U) // Pull-down current
-
-// Discharge permitted
-#define DCP (0U)
-
 // Cell selection for ADC conversion
-#define CH_OWC (0U)
-
-#define MD (0x11U)
-
-// TODO make backwards
-#define ADOW_PU_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PU << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
-#define ADOW_PD_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PD << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
-
-    return pull_direction == PULL_UP ? io_ltc6813_sendCommand(ADOW_PU_FIL) : io_ltc6813_sendCommand(ADOW_PD_FIL);
+#define CH (0U)
+    const uint16_t MD_SHIFT_7  = (speed & 0x3) << 7;
+    const uint16_t DCP_SHIFT_4 = (dcp & 0x1) << 4;
+#define ADOW_PU (MD_SHIFT_7 | DCP_SHIFT_4 | CH | 0x0228U)
+#define ADOW_PD (MD_SHIFT_7 | DCP_SHIFT_4 | CH | 0x0268U)
+    const uint16_t cmd = pull_direction == PULL_UP ? ADOW_PU : ADOW_PD;
+    return io_ltc6813_sendCommand(cmd);
 }

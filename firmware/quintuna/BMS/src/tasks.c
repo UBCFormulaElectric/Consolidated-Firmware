@@ -35,7 +35,7 @@ void tasks_init(void)
     hw_pwms_init();
     hw_can_init(&can1);
     hw_can_init(&can2);
-    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     jobs_init();
 
@@ -79,7 +79,7 @@ void tasks_run1kHz(void)
     for (;;)
     {
         // hw_watchdog_checkForTimeouts();
-
+        jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -107,6 +107,6 @@ void tasks_runLtc(void)
     for (;;)
     {
         jobs_runLtc();
-        osDelay(50);
+        osDelay(100);
     }
 }

@@ -3,7 +3,7 @@
 #include "io_ltc6813_internal.h"
 #include "hw_spis.h"
 
-#define MAX_NUM_ADC_COMPLETE_CHECKS (10000U)
+#define MAX_NUM_ADC_COMPLETE_CHECKS (10U)
 #define PLADC (0x0714U)
 #define ADC_CONV_COMPLETE (255U) // experimentally this is true?? it generally reads 127 if it is pending
 ExitCode io_ltc6813_pollAdcConversions(void)
@@ -15,11 +15,28 @@ ExitCode io_ltc6813_pollAdcConversions(void)
         uint8_t rx_data;
         RETURN_IF_ERR(
             hw_spi_transmitThenReceive(&ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), &rx_data, sizeof(rx_data)))
-        LOG_INFO("%d", rx_data);
         if (rx_data == ADC_CONV_COMPLETE)
         {
             return EXIT_CODE_OK;
         }
     }
     return EXIT_CODE_TIMEOUT;
+}
+
+ExitCode io_ltc6813_clearCellRegisters()
+{
+#define CLRCELL (0x0711)
+    return io_ltc6813_sendCommand(CLRCELL);
+}
+
+ExitCode io_ltc6813_clearAuxRegisters()
+{
+#define CLRAUX (0x0712)
+    return io_ltc6813_sendCommand(CLRAUX);
+}
+
+ExitCode io_ltc6813_clearStatRegisters()
+{
+#define CLRSTAT (0x0713)
+    return io_ltc6813_sendCommand(CLRSTAT);
 }

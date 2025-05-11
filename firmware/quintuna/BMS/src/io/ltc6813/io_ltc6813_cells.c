@@ -6,20 +6,10 @@
 #include <assert.h>
 #include <string.h>
 
-/**
- * Clears the register groups which contain the cell voltage data
- * @return success of operation
- */
-static ExitCode clearCellRegisters()
-{
-#define CLRCELL (0x0711)
-    return io_ltc6813_sendCommand(CLRCELL);
-}
-
 // TODO assert that for each speed that the ADCOPT is correct
 ExitCode io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
-    RETURN_IF_ERR(clearCellRegisters());
+    RETURN_IF_ERR(io_ltc6813_clearCellRegisters());
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 // Cell selection for ADC conversion
 #define CH (000U)
