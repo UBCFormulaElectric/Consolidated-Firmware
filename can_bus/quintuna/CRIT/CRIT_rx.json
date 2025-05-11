@@ -4,7 +4,7 @@
         "FSM_Vitals",
         "RSM_Vitals",
         "VC_Vitals",
-        "BMS_LatchedFaults",
+        "BMS_ShdnNodeStatus",
         "VC_VehicleDynamics",
         "VC_GlobalShdnNodeStatus",
         "Debug_CanMode"
