@@ -1,4 +1,8 @@
 {
     "messages": [
+        "BMS_TractiveSystem",
+        "BMS_BMSShdnNodeStatus",
+        "BMS_Vitals",
+        "BMS_LatchedFaults"
     ]
 }

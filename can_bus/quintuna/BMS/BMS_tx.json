@@ -39,7 +39,7 @@
         }
     },
     "Contactors": {
-        "msg_id": 411,
+        "msg_id": 416,
         "cycle_time": 100,
         "description": "BMS IR state statuses",
         "signals": {
@@ -118,6 +118,19 @@
             "Reserved": {
                 "start_bit": 33,
                 "bits": 31
+            }
+        }
+    },
+    "BMSShdnNodeStatus": {
+        "msg_id": 443,
+        "cycle_time": 100,
+        "description": "BMS Shutdown Node Status",
+        "signals": {
+            "HVDShdnOKStatus": {
+                "bits": 1
+            },
+            "TSIlckOKStatus": {
+                "bits": 1
             }
         }
     }
