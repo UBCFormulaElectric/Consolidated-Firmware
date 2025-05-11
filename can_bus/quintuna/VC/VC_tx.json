@@ -80,6 +80,57 @@
         "BuzzerControl": {
           "enum": "TsimColor"
         }
+      },
+      "ConnectorBoardEfuse" : {
+        "msg_id": 233,
+        "cycle_time": 100,
+        "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
+        "signals":{   
+          "RearLeftPumpCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "RearLeftPumpStatus": {
+            "bits": 1
+          },
+          "RearRightPumpCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "RearRightPumpStatus": {
+            "bits": 1
+          },
+          "FrontPumpCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "FrontPumpStatus": {
+            "bits": 1
+          },
+          "LeftRadiatorFanCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "LeftRadiatorFanStatus": {
+            "bits": 1
+          },
+          "RightRadiatorFanCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "RightRadiatorFanStatus": {
+            "bits": 1
+          }
       }
     },
     "EllipseStatus": {
