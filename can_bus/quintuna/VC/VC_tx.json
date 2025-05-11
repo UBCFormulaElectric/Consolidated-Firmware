@@ -80,6 +80,26 @@
         "BuzzerControl": {
           "enum": "TsimColor"
         }
+      }
+    },
+      "ShdnNodeStatus": {
+        "msg_id": 228,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+          "RearRightMotorInterlock": {
+            "bits": 1
+          },
+          "InertiaSwitch": {
+            "bits": 1
+          },
+          "TSMSOKStatus": {
+            "bits": 1
+          },
+          "SplitterBoxInterlockOKStatus": {
+            "bits": 1
+          }
+        }
       },
       "ConnectorBoardEfuse" : {
         "msg_id": 233,
