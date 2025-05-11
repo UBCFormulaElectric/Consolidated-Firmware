@@ -329,4 +329,30 @@
         }
       }
     }
+  },
+  "ImuAngularData": {
+    "msg_id": 227,
+    "cycle_time": 10,
+    "description": "Angular Velocity in x, y and z direction from the IMU",
+    "signals": {
+      "ImuAngularVelocityRoll": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      },
+      "ImuAngularVelocityPitch": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      },
+      "ImuAngularVelocityYaw": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      }
+    }
+  }
 }
