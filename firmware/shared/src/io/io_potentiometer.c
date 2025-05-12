@@ -1,9 +1,16 @@
 #include "io_potentiometer.h"
+#include "app_utils.h"
+#include "hw_i2c.h"
 #include "hw_utils.h"
 #include "hw_i2cs.h"
 #include <stdbool.h>
+#include <stdint.h>
 
-#define MAX_WIPER_VALUE (256)
+#define MAX_WIPER_VALUE (256.0f)
+#define MIN_WIPER_VALUE (0.0f)
+
+#define POT_WIPER0_REGISTER (0x0)
+#define POT_WIPER1_REGISTER (0x1)
 
 typedef enum
 {
@@ -13,28 +20,47 @@ typedef enum
     POTENTIOMETER_READ_CMD  = 0x03,
 } POTENTIOMETER_CMD;
 
-ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest)
+typedef struct
 {
+    // byte 1
+    uint8_t   _padding : 2;
+    POTENTIOMETER_CMD cmd : 2;
+    uint8_t   addr : 4;
+    // byte 2
     uint8_t data;
-    RETURN_IF_ERR(io_potentiometer_readWiper(potentiometer->i2c_handle, wiper, &data));
-    *dest = (uint8_t)((uint16_t)data * 100 / MAX_WIPER_VALUE);
+} pump_write_command;
+
+ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t *dest)
+{
+    uint8_t data[2];
+    RETURN_IF_ERR(io_potentiometer_readWiper(potentiometer, wiper, data));
+    uint16_t read_data = (uint16_t)(data[1] << 8| data[0]);
+    *dest = (uint8_t)(read_data * 100 / MAX_WIPER_VALUE);
     return EXIT_CODE_OK;
 }
 
-ExitCode
-    io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t percentage)
+ExitCode io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t percentage)
 {
     return io_potentiometer_writeWiper(
-        potentiometer->i2c_handle, wiper, CLAMP(percentage, 0, 100) * MAX_WIPER_VALUE / 100);
+        potentiometer, wiper, (uint8_t)(CLAMP(percentage, 0, 100) * MAX_WIPER_VALUE / 100));
 }
 
-ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest)
+ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t dest[2])
 {
-    return hw_i2c_memoryRead(potentiometer->i2c_handle, wiper, dest, sizeof(*dest));
+    uint8_t read_cmd = (uint8_t)(((wiper == WIPER0) ? POT_WIPER0_REGISTER : POT_WIPER1_REGISTER) << 4) |(uint8_t)POTENTIOMETER_READ_CMD << 2;
+    RETURN_IF_ERR(hw_i2c_transmit(potentiometer->i2c_handle, &read_cmd, sizeof(read_cmd)));
+    return hw_i2c_receive(potentiometer->i2c_handle, dest, 2);
 }
 
-ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t data)
+ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t data)
 {
-    uint8_t packet[2] = { (uint8_t)((uint8_t)wiper | (uint8_t)POTENTIOMETER_WRITE_CMD), data };
-    return hw_i2c_transmit(potentiometer->i2c_handle, packet, sizeof(packet));
+
+    assert(wiper == WIPER0 || wiper == WIPER1);
+
+    const pump_write_command tx_cmd = (pump_write_command){
+        .addr = (uint8_t)((wiper == WIPER0) ? POT_WIPER0_REGISTER : POT_WIPER1_REGISTER),
+        .cmd  = POTENTIOMETER_WRITE_CMD,
+        .data = data,
+    };
+    return hw_i2c_transmit(potentiometer->i2c_handle, (uint8_t*)&tx_cmd, sizeof(tx_cmd));
 }

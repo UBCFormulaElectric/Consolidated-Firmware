@@ -17,12 +17,10 @@ typedef struct
 EMPTY_STRUCT(Potentiometer)
 #endif
 
-typedef enum
-{
-    POTENTIOMETER_WIPER_0_ADD = 0x00,
-    POTENTIOMETER_WIPER_1_ADD = 0x01,
-} POTENTIOMETER_ADD;
-
+typedef enum{
+    WIPER0,
+    WIPER1,
+} POTENTIOMETER_WIPER;
 /**
  * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
  * @param potentiometer Pointer to the potentiometer object
@@ -30,7 +28,7 @@ typedef enum
  * @param dest Pointer to store the read percentage
  * @return If read was successful
  */
-ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
+ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t *dest);
 
 /**
  * Writes the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
@@ -40,7 +38,7 @@ ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POT
  * @return If write was successful
  */
 ExitCode
-    io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t percentage);
+    io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t percentage);
 
 /**
  * Reads the potentiometer wiper value.
@@ -49,7 +47,7 @@ ExitCode
  * @param dest Pointer to store the read wiper value
  * @return If read was successful
  */
-ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
+ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t *dest);
 
 /**
  * Writes the potentiometer wiper value.
@@ -58,7 +56,7 @@ ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIO
  * @param data The wiper value to write to the potentiometer
  * @return If write was successful
  */
-ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t data);
+ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t data)
 
 /**
  * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
@@ -67,4 +65,4 @@ ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTI
  * @param dest Pointer to store the read percentage
  * @return If read was successful
  */
-ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_ADD wiper, uint8_t *dest);
+ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t *dest);
