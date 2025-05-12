@@ -92,34 +92,3 @@ void io_ltc6813_readVoltageRegisters(
         }
     }
 }
-
-/**
- * This functions works by iterating through all register groups, and for each register group asking each segment
- * what is the value of the register group in that segment
- */
-void io_ltc6813_readVoltages(
-    float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    ExitCode success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS])
-{
-#define V_PER_100UV (1E-4f)
-#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-    uint16_t reg_vals[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    io_ltc6813_readVoltageRegisters(reg_vals, success);
-    memset(cell_voltages, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
-    for (int i = 0; i < NUM_SEGMENTS; i++)
-    {
-        for (int j = 0; j < CELLS_PER_SEGMENT; j++)
-        {
-            if (IS_EXIT_ERR(success[i][j / 3]))
-                continue;
-            // see page 68, 0xffff is invalid (either not populated or faulted)
-            if (reg_vals[i][j] == 0xffff)
-            {
-                cell_voltages[i][j] = 0xffff;
-                success[i][j / 3]   = EXIT_CODE_ERROR;
-                continue;
-            }
-            cell_voltages[i][j] = CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
-        }
-    }
-}

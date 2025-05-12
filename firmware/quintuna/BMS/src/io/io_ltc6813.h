@@ -69,16 +69,6 @@ void io_ltc6813_readVoltageRegisters(
     ExitCode comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
 
 /**
- * Reads all voltages from all segments
- * @param cell_voltages The resultant cell voltages
- * @param success This parameter will be assumed to contain all falses at the beginning
- * @return
- */
-void io_ltc6813_readVoltages(
-    float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    ExitCode success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
-
-/**
  * sends a command to read all voltages from all segments
  * @return success of the operation
  */

@@ -64,7 +64,27 @@ void app_segments_broadcastVoltages()
 {
     ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion(s));
     io_time_delay(10); // TODO tweak timings
-    io_ltc6813_readVoltages(cell_voltages, volt_success_buf);
+#define V_PER_100UV (1E-4f)
+#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
+    uint16_t reg_vals[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+    io_ltc6813_readVoltageRegisters(reg_vals, volt_success_buf);
+    memset(cell_voltages, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(float));
+    for (int i = 0; i < NUM_SEGMENTS; i++)
+    {
+        for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+        {
+            if (IS_EXIT_ERR(volt_success_buf[i][j / 3]))
+                continue;
+            // see page 68, 0xffff is invalid (either not populated or faulted)
+            if (reg_vals[i][j] == 0xffff)
+            {
+                cell_voltages[i][j]        = 0xffff;
+                volt_success_buf[i][j / 3] = EXIT_CODE_ERROR;
+                continue;
+            }
+            cell_voltages[i][j] = CONVERT_100UV_TO_VOLTAGE(reg_vals[i][j]);
+        }
+    }
 
     // for debug mode
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
