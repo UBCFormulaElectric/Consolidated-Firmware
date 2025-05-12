@@ -5,7 +5,7 @@
 #include <app_canUtils.h>
 #include <stdbool.h>
 
-static const PowerState power_manager_shutdown_init = {
+static const PowerState power_manager_init = {
     .efuses = { [EFUSE_CHANNEL_F_INV]   = false,
                 [EFUSE_CHANNEL_RSM]     = true,
                 [EFUSE_CHANNEL_BMS]     = true,
@@ -22,7 +22,7 @@ static const PowerState power_manager_shutdown_init = {
 static void initStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INIT_STATE);
-    app_powerManager_updateConfig(power_manager_shutdown_init);
+    app_powerManager_updateConfig(power_manager_init);
 }
 static void initStateRunOnTick1Hz(void) {}
 static void initStateRunOnTick100Hz(void) {}
