@@ -24,6 +24,7 @@ void jobs_runLtc(void)
         app_segments_ADCAccuracyTest();
         app_segments_voltageSelftest();
         app_segments_auxSelftest();
+        app_segments_statusSelftest();
     }
     // io_ltc6813_diagnoseMUX();
     // static LTCStatus statuses[NUM_SEGMENTS];

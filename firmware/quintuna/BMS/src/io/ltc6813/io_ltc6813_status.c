@@ -27,14 +27,18 @@ typedef struct __attribute__((__packed__))
 } StatB;
 static_assert(sizeof(StatB) == REGISTER_GROUP_SIZE);
 
-void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
+void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
 {
     for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
         success[i] = EXIT_INDETERMINATE;
 
     const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
     if (IS_EXIT_ERR(poll_ok))
+    {
+        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+            success[i] = poll_ok;
         return;
+    }
 
 #define RDSTATA (0x0010)
 #define RDSTATB (0x0012)
@@ -77,15 +81,15 @@ void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], ExitCode success[NUM_S
         {
             continue;
         }
-        success[i] = EXIT_CODE_OK;
-
-        status[i].sum_cells                 = (float)reg_stat_a[i].stat.SC * 1e4f * 30;
-        status[i].internal_temp             = (float)reg_stat_a[i].stat.ITMP; // TODO
-        status[i].analog_power_supply       = (float)reg_stat_a[i].stat.VA;   // TODO
-        status[i].digital_power_supply      = (float)reg_stat_b[i].stat.VD;   // TODO
-        status[i].cell_voltage_bound_faults = reg_stat_b[i].stat.CVBF;        // TODO
-        status[i].thermal_shutdown          = reg_stat_b[i].stat.THSD;
-        status[i].mux_fail                  = reg_stat_b[i].stat.MUXFAIL;
-        status[i].revision                  = reg_stat_b[i].stat.REV;
+        success[i]        = EXIT_CODE_OK;
+        status[i].SC      = reg_stat_a[i].stat.SC;
+        status[i].ITMP    = reg_stat_a[i].stat.ITMP;
+        status[i].VA      = reg_stat_a[i].stat.VA;
+        status[i].VD      = reg_stat_b[i].stat.VD;
+        status[i].CVBF    = reg_stat_b[i].stat.CVBF;
+        status[i].THSD    = reg_stat_b[i].stat.THSD;
+        status[i].MUXFAIL = reg_stat_b[i].stat.MUXFAIL;
+        status[i].RSVD    = reg_stat_b[i].stat.RSVD;
+        status[i].REV     = reg_stat_b[i].stat.REV;
     }
 }

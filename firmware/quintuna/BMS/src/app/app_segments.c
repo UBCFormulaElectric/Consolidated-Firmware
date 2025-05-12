@@ -102,6 +102,21 @@ void app_segments_broadcastTempsVRef()
     }
 }
 
+void app_segments_broadcastStatus()
+{
+    // typedef struct
+    // {
+    //     float    sum_cells;
+    //     float    internal_temp;
+    //     float    analog_power_supply;
+    //     float    digital_power_supply;
+    //     uint32_t cell_voltage_bound_faults;
+    //     bool     thermal_shutdown;
+    //     bool     mux_fail;
+    //     uint8_t  revision;
+    // } LTCStatus;
+}
+
 void app_segments_ADCAccuracyTest()
 {
     static void (*const segmentVRefTrueSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_VREF_Test_set };
@@ -167,11 +182,26 @@ void app_segments_auxSelftest()
 
 void app_segments_statusSelftest()
 {
+    static void (*const segmentStatTestSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Self_Test_Stat_set };
+
     ASSERT_EXIT_OK(io_ltc6813_sendSelfTestStat(s));
     io_time_delay(10); // TODO tweak timings
-    static LTCStatus statuses[NUM_SEGMENTS];
-    static ExitCode  success[NUM_SEGMENTS];
+    static StatusRegGroups statuses[NUM_SEGMENTS];
+    static ExitCode        success[NUM_SEGMENTS];
     io_ltc6813_getStatus(statuses, success);
+
+    for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
+    {
+        const uint16_t *statuses_buffer = (uint16_t *)&statuses[segment];
+        bool            self_test_pass  = true;
+
+        static_assert(sizeof(StatusRegGroups) == sizeof(uint16_t) * 6);
+        for (uint8_t word = 0; word < 4; word++) // NOTE: only the first four words we need to check
+        {
+            self_test_pass &= statuses_buffer[word] == io_ltc6813_selfTestExpectedValue(s);
+        }
+        segmentStatTestSelfTestSetters[segment](self_test_pass);
+    }
 }
 
 void app_segments_openWireCheck()

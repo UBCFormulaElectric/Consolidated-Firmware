@@ -191,20 +191,24 @@ ExitCode io_ltc6813_overlapADCTest(ADCSpeed speed);
  * @file ltc6813/io_ltc6813_status.c
  */
 
-typedef struct
+typedef struct __attribute__((__packed__))
 {
-    float    sum_cells;
-    float    internal_temp;
-    float    analog_power_supply;
-    float    digital_power_supply;
-    uint32_t cell_voltage_bound_faults;
-    bool     thermal_shutdown;
-    bool     mux_fail;
-    uint8_t  revision;
-} LTCStatus;
+    uint16_t SC;   // sum of cells
+    uint16_t ITMP; // internal temperature
+    uint16_t VA;   // analog power supply voltage
+
+    uint16_t VD;        // digital power supply voltage
+    uint32_t CVBF : 24; // cell voltage bound faults
+
+    // final byte
+    uint8_t THSD : 1;    // thermal shutdown
+    uint8_t MUXFAIL : 1; // mux fail
+    uint8_t RSVD : 2;    // reserved bits
+    uint8_t REV : 4;     // revision code
+} StatusRegGroups;
 /**
  * Gets the status registers from all the segments
  * @param status The status registers
  * @param success success of operations
  */
-void io_ltc6813_getStatus(LTCStatus status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS]);
+void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS]);

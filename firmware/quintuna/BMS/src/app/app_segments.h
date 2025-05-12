@@ -31,6 +31,12 @@ void app_segments_voltageSelftest();
 void app_segments_auxSelftest();
 
 /**
+ * Performs a status self test: it sends a command, which forces a generator to put specific values into the registers
+ * This gives us confidence that there are no internal digital ADC problems in the ltc
+ */
+void app_segments_statusSelftest();
+
+/**
  * Checks for open wires
  * It does this by pulling up then pulling down the GPIOs
  * @note That this function cleans up after itself, it will pull it back down once it is done
