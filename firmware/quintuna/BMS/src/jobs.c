@@ -17,13 +17,13 @@
 void jobs_runLtc(void)
 {
     app_segments_broadcastVoltages();
-    // app_segments_broadcastTempsVRef();
+    app_segments_broadcastTempsVRef();
     if (app_canRx_Debug_EnableDebugMode_get())
     {
         app_segments_openWireCheck();
-        app_segments_overlapADCTest(); // TODO this is destructive
+        app_segments_ADCAccuracyTest();
         app_segments_voltageSelftest();
-        // app_segments_auxSelftest();
+        app_segments_auxSelftest();
     }
     // io_ltc6813_diagnoseMUX();
     // static LTCStatus statuses[NUM_SEGMENTS];

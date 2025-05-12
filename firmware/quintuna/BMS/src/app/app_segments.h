@@ -16,7 +16,7 @@ void app_segments_broadcastTempsVRef();
  * Then, it measures cells 7/13 (index 6/12) on ADC1/2 and ADC2/3 respectively.
  * If all tests pass, by transitivity, all ADCs must be working correctly.
  */
-void app_segments_overlapADCTest();
+void app_segments_ADCAccuracyTest();
 
 /**
  * Performs a voltage self test: it sends a command, which forces a generator to put specific values into the registers

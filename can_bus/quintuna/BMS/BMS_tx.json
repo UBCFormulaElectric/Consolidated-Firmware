@@ -1225,6 +1225,9 @@
       "Diagnose_MUX": {
         "bits": 1
       },
+      "VREF_Test": {
+        "bits": 1
+      },
       "Overlap_ADC_1_2_Test": {
         "bits": 1
       },

@@ -11,12 +11,16 @@
 // physical constants
 #define NUM_SEGMENTS 1
 #define CELLS_PER_SEGMENT 14
-#define THERMISTORS_PER_SEGMENT 14
+#define THERMISTORS_PER_SEGMENT 16
 
 // LTC6813 realities
 #define VOLTAGE_REGISTER_GROUPS 5
-#define AUX_REGISTER_GROUPS 3
+#define AUX_REG_GROUPS 3
 #define AUX_REGS_PER_SEGMENT 9
+
+// subtract one as there is a vref in that reg group
+// times 2 for the two muxes
+static_assert(THERMISTORS_PER_SEGMENT == (AUX_REGS_PER_SEGMENT - 1) * 2);
 
 /**
  * @file ltc6813/io_ltc6813_configs.c
@@ -91,19 +95,7 @@ ExitCode io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
  */
 void io_ltc6813_readAuxRegisters(
     uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    ExitCode comm_success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
-
-/**
- * Reads all temperatures from all segments
- * @param cell_temps The resultant cell temperatures
- * @param vref The 2ND reference voltage
- * @param success This parameter will be assumed to contain all falses at the beginning
- * @return
- */
-void io_ltc6813_readTemperatures(
-    float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT],
-    float   *vref,
-    ExitCode success[NUM_SEGMENTS][AUX_REGISTER_GROUPS]);
+    ExitCode comm_success[NUM_SEGMENTS][AUX_REG_GROUPS]);
 
 /**
  * sends a command to read all temperatures from all segments
