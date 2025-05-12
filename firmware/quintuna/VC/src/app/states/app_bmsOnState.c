@@ -26,24 +26,25 @@ static void bmsOnStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_BMS_ON_STATE);
     app_powerManager_updateConfig(power_manager_shutdown_bms_on);
 }
-static void bmsOnStateRunOnTick1Hz(void) {
+static void bmsOnStateRunOnTick1Hz(void)
+{
+    // Once we have succesfully transitioned here, the BMS will read the state of the VC based on the associated CAN
+    // message and then transition to the appropriate stage Note that if the BMS transitons to drive state we transition
+    // to PCM_ON state
 
-    //Once we have succesfully transitioned here, the BMS will read the state of the VC based on the associated CAN message and then transition to the appropriate stage
-    //Note that if the BMS transitons to drive state we transition to PCM_ON state
-
-    //Note: Still unsure what is happening with PCM state as there PCM is still in the air in terms of progress
+    // Note: Still unsure what is happening with PCM state as there PCM is still in the air in terms of progress
     const bool bms_ready_for_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    const bool bms_in_faultstate = app_canRx_BMS_State_get() == BMS_FAULT_STATE;
+    const bool bms_in_faultstate   = app_canRx_BMS_State_get() == BMS_FAULT_STATE;
 
-    if (bms_ready_for_drive){
+    if (bms_ready_for_drive)
+    {
         app_stateMachine_setNextState(&pcmOn_state);
     }
 
-    else if (bms_in_faultstate) {
+    else if (bms_in_faultstate)
+    {
         app_stateMachine_setNextState(&fault_state);
     }
-
-
 }
 static void bmsOnStateRunOnTick100Hz(void) {}
 static void bmsOnStateRunOnExit(void) {}

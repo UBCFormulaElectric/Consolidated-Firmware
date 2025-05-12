@@ -27,14 +27,14 @@ static void inverterOnStateRunOnEntry(void)
 }
 
 static void inverterOnStateRunOnTick1Hz(void) {}
-static void inverterOnStateRunOnTick100Hz(void) {
-    //here we need to check if the inverters are alive and are sending us active can messages
-    //TODO: Configure inverter CAN messages
+static void inverterOnStateRunOnTick100Hz(void)
+{
+    // here we need to check if the inverters are alive and are sending us active can messages
+    // TODO: Configure inverter CAN messages
 
-    //Once inverters are online transition to next state which is BMS on state
+    // Once inverters are online transition to next state which is BMS on state
 
-    //const bool inverters_on = inverter one and two are on
-    
+    // const bool inverters_on = inverter one and two are on
 
     // if (inverters_on) {
     //     app_stateMachine_setNextState(&bmsOn_state);
