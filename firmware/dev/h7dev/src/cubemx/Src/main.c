@@ -30,7 +30,7 @@
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
-#include "hw_can.h"
+#include "hw_fdcan.h"
 #include "io_canQueue.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"

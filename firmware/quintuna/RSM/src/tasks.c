@@ -2,6 +2,9 @@
 #include "jobs.h"
 #include "cmsis_os.h"
 #include "main.h"
+
+#include "app_canTx.h"
+
 // io
 #include "io_time.h"
 #include "io_log.h"
@@ -20,6 +23,7 @@
 #include "hw_cans.h"
 #include "hw_gpios.h"
 #include "hw_adcs.h"
+#include "hw_resetReason.h"
 
 void tasks_preInit()
 {
@@ -38,7 +42,15 @@ void tasks_init()
 
     hw_adcs_chipsInit();
     hw_can_init(&can2);
+
     jobs_init();
+
+    app_canTx_RSM_ResetReason_set((CanResetReason)hw_resetReason_get());
+}
+
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
 }
 
 _Noreturn void tasks_run1Hz()
@@ -63,8 +75,6 @@ _Noreturn void tasks_run100Hz()
 
     for (;;)
     {
-        hw_chimera_v2_mainOrContinue(&chimera_v2_config);
-
         if (!hw_chimera_v2_enabled)
             jobs_run100Hz_tick();
 

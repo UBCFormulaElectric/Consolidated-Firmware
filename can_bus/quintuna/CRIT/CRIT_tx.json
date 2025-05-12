@@ -1,6 +1,6 @@
 {
     "Vitals": {
-        "msg_id": 800,
+        "msg_id": 900,
         "cycle_time": 100,
         "description": "CRIT vitals message.",
         "signals": {
@@ -12,8 +12,18 @@
             }
         }
     },
+    "Debug": {
+        "msg_id": 907,
+        "cycle_time": 1000,
+        "description": "CRIT Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            }
+        }
+    },
     "Switches": {
-        "msg_id": 810,
+        "msg_id": 910,
         "cycle_time": 100,
         "description": "States of the switches on the CRIT.",
         "signals": {
@@ -29,7 +39,7 @@
         }
     },
     "DriveMode": {
-        "msg_id": 811,
+        "msg_id": 911,
         "cycle_time": 100,
         "description": "Drive Mode.",
         "signals": {
@@ -39,7 +49,7 @@
         }
     },
     "AlertsContext": {
-        "msg_id": 812,
+        "msg_id": 912,
         "cycle_time": 1000,
         "description": "Context info for CRIT alerts",
         "signals": {
@@ -55,7 +65,7 @@
         }
     },
     "CommitInfo": {
-        "msg_id": 813,
+        "msg_id": 913,
         "cycle_time": 100,
         "description": "CRIT Current Running Git Commit Info",
         "signals": {
@@ -68,7 +78,7 @@
         }
     },
     "CRITShdnNodeStatus": {
-        "msg_id": 814,
+        "msg_id": 914,
         "cycle_time": 100,
         "description": "CRIT Shutdown Node Status",
         "signals": {
@@ -81,9 +91,9 @@
         }
     },
     "WatermarkLevel": {
-        "msg_id": 815,
+        "msg_id": 915,
         "cycle_time": 100,
-        "description":  "",
+        "description": "",
         "signals": {
             "StackWaterMarkHighTask1HzLevel": {
                 "resolution": 1,

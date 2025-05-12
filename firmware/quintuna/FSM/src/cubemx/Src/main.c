@@ -113,6 +113,18 @@ const osThreadAttr_t TaskCanRx_attributes = {
     .stack_size = sizeof(TaskCanRxBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -130,6 +142,7 @@ void        RunTask100Hz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskCanTx(void *argument);
 void        RunTaskCanRx(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -212,6 +225,9 @@ int main(void)
 
     /* creation of TaskCanRx */
     TaskCanRxHandle = osThreadNew(RunTaskCanRx, NULL, &TaskCanRx_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -634,6 +650,21 @@ void RunTaskCanRx(void *argument)
     /* USER CODE BEGIN RunTaskCanRx */
     tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskChimera */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
 }
 
 /**

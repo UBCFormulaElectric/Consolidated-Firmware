@@ -21,6 +21,9 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
 )
 
 # Collect include dirs and srcs.
@@ -28,14 +31,15 @@ set(EMBEDDED_INCLUDE_DIRS
         "${HW_INCLUDE_DIR}" "${IO_INCLUDE_DIR}" "${MAIN_INCLUDE_DIR}"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}"
 )
-set(EMBEDDED_SRCS "${HW_SRCS}" "${IO_SRCS}" "${MAIN_SRCS}" "${HW_SHARED_SRCS}")
+set(EMBEDDED_SRCS "${HW_SRCS}" "${IO_SRCS}" "${HW_SHARED_SRCS}")
 
 # Only binary targets supported for SSM.
 IF ("${TARGET}" STREQUAL "binary")
     # STM code.
     generate_stm32cube_code(
-            "ssm"
+            "ssm_stm32cube"
             "${IOC_PATH}"
+            "${MAIN_SRCS}"
     )
 
     # Collect HAL.
@@ -71,7 +75,7 @@ IF ("${TARGET}" STREQUAL "binary")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-            "ssm_stm32cube"
+            "ssm_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -96,5 +100,5 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # Link.
-    target_link_libraries("ssm.elf" "ssm_stm32cube" "ssm_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("ssm.elf" "ssm_stm32cube" "ssm_stm32cube_hal" "ssm_commit_info" "chimera_v2_proto_cm4")
 ENDIF ()

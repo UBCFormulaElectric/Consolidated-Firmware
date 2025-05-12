@@ -37,6 +37,9 @@
 #include "hw_adcs.h"
 #include "hw_chimeraConfig_v2.h"
 #include "io_log.h"
+#include "hw_can.h"
+#include <assert.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,13 +76,6 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = 512 * 4,
     .priority   = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for anotherTask */
-osThreadId_t         anotherTaskHandle;
-const osThreadAttr_t anotherTask_attributes = {
-    .name       = "anotherTask",
-    .stack_size = 512 * 4,
-    .priority   = (osPriority_t)osPriorityLow,
-};
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
 
@@ -93,7 +89,6 @@ static void MX_CAN2_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C3_Init(void);
 void        StartDefaultTask(void *argument);
-void        StartAnotherTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -101,6 +96,12 @@ void        StartAnotherTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+CanHandle        can = { .hcan = &hcan2 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 // int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
 // int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
 // int lfs_erase(const struct lfs_config *c, lfs_block_t block);
@@ -249,9 +250,6 @@ int main(void)
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
-    /* creation of anotherTask */
-    anotherTaskHandle = osThreadNew(StartAnotherTask, NULL, &anotherTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -603,27 +601,8 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    hw_chimera_v2_mainOrContinue(&chimera_v2_config);
+    hw_chimera_v2_task(&chimera_v2_config);
     /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_StartAnotherTask */
-/**
- * @brief Function implementing the anotherTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartAnotherTask */
-void StartAnotherTask(void *argument)
-{
-    /* USER CODE BEGIN StartAnotherTask */
-    /* Infinite loop */
-    for (;;)
-    {
-        LOG_INFO("Another Task: Another Task Tick");
-        osDelay(1000);
-    }
-    /* USER CODE END StartAnotherTask */
 }
 
 /**
