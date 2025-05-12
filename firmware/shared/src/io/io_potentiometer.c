@@ -34,7 +34,7 @@ ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POT
 {
     uint8_t data[2];
     RETURN_IF_ERR(io_potentiometer_readWiper(potentiometer, wiper, data));
-    uint16_t read_data = (uint16_t)(data[1] << 8| data[0]);
+    uint16_t read_data = (uint16_t)(data[0] << 8| data[1]);
     *dest = (uint8_t)(read_data * 100 / MAX_WIPER_VALUE);
     return EXIT_CODE_OK;
 }
@@ -42,7 +42,7 @@ ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POT
 ExitCode io_potentiometer_writePercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t percentage)
 {
     return io_potentiometer_writeWiper(
-        potentiometer, wiper, (uint8_t)(CLAMP(percentage, 0, 100) * MAX_WIPER_VALUE / 100));
+        potentiometer, wiper, (uint8_t)((percentage / 100.0f) * MAX_WIPER_VALUE));
 }
 
 ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t dest[2])
@@ -58,7 +58,7 @@ ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTI
     assert(wiper == WIPER0 || wiper == WIPER1);
 
     const pump_write_command tx_cmd = (pump_write_command){
-        .addr = (uint8_t)((wiper == WIPER0) ? POT_WIPER0_REGISTER : POT_WIPER1_REGISTER),
+        .addr = (uint8_t)(((wiper == WIPER0) ? POT_WIPER0_REGISTER : POT_WIPER1_REGISTER) & 0xF),
         .cmd  = POTENTIOMETER_WRITE_CMD,
         .data = data,
     };

@@ -56,7 +56,7 @@ ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIO
  * @param data The wiper value to write to the potentiometer
  * @return If write was successful
  */
-ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t data)
+ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t data);
 
 /**
  * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.

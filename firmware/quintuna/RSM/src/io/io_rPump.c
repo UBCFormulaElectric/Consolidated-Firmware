@@ -10,6 +10,8 @@ static const Potentiometer rsm_pot = {
 };
 
 #define RPUMP_WIPER (0x00)
+#define MAX_WIPER_VALUE (256.0f)
+
 
 ExitCode io_rPump_isPumpReady()
 {
