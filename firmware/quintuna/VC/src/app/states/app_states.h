@@ -8,3 +8,4 @@ extern State inverterOn_state;
 extern State driveWarning_state;
 extern State pcmOn_state;
 extern State hv_state;
+extern State fault_state;

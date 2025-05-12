@@ -1,3 +1,4 @@
+#include "app_stateMachine.h"
 #include "app_states.h"
 #include "app_loadswitches.h"
 #include "app_powerManager.h"
@@ -5,7 +6,7 @@
 #include <app_canUtils.h>
 #include <stdbool.h>
 
-static const PowerState power_manager_shutdown_inverter_on = {
+static const PowerState power_manager_inverter_on = {
     .efuses = { [EFUSE_CHANNEL_F_INV]   = true,
                 [EFUSE_CHANNEL_RSM]     = true,
                 [EFUSE_CHANNEL_BMS]     = true,
@@ -22,11 +23,23 @@ static const PowerState power_manager_shutdown_inverter_on = {
 static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
-    app_powerManager_updateConfig(power_manager_shutdown_inverter_on);
+    app_powerManager_updateConfig(power_manager_inverter_on);
 }
 
 static void inverterOnStateRunOnTick1Hz(void) {}
-static void inverterOnStateRunOnTick100Hz(void) {}
+static void inverterOnStateRunOnTick100Hz(void) {
+    //here we need to check if the inverters are alive and are sending us active can messages
+    //TODO: Configure inverter CAN messages
+
+    //Once inverters are online transition to next state which is BMS on state
+
+    //const bool inverters_on = inverter one and two are on
+    
+
+    // if (inverters_on) {
+    //     app_stateMachine_setNextState(&bmsOn_state);
+    // }
+}
 static void inverterOnStateRunOnExit(void) {}
 
 State inverterOn_state = { .name              = "INVERTER ON",
