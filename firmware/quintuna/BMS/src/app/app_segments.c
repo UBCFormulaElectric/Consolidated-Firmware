@@ -5,6 +5,7 @@
 #include "io_ltc6813.h"
 #include "io_time.h"
 
+#include <hw_utils.h>
 #include <string.h>
 
 static const ADCSpeed s = ADCSpeed_7kHz;
@@ -13,7 +14,7 @@ static uint16_t segment_vref[NUM_SEGMENTS];
 
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-#define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
+#define CONVERT_VOLTAGE_TO_100UV(v) ((int16_t)(v * 1E4f))
 // This buffer is only used for storing valid cell voltage data
 // dump whatever you want in here fr
 static uint16_t voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
@@ -245,9 +246,12 @@ void app_segments_openWireCheck()
     // perform the check
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
-        cellOWCSetters[segment][0](owc_pucv[segment][0] == 0);
+        cellOWCSetters[segment][0](owc_pucv[segment][0] != 0);
         for (uint8_t cell = 1; cell < CELLS_PER_SEGMENT; cell++)
-            cellOWCSetters[segment][cell](owc_pucv[segment][cell] - owc_pdcv[segment][cell] < -4000);
+        {
+            const bool owc_passing = owc_pdcv[segment][cell] - owc_pucv[segment][cell] > CONVERT_VOLTAGE_TO_100UV(0.4f);
+            cellOWCSetters[segment][cell](owc_passing);
+        }
 #if CELLS_PER_SEGMENT >= 18
         completeness cellOWCSetters[segment][17](owc_pdcv[segment][cell] == 0.0f);
 #endif
