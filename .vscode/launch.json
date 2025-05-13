@@ -2,20 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug JSON CAN",
-      "type": "debugpy",
+      "name": "Debug JSON CAN (module)",
+      "type": "python",
       "request": "launch",
-      "program": "scripts/code_generation/jsoncan/generate_can_from_json.py",
+      "module": "scripts.code_generation.jsoncan.generate_can_from_json",
       "args": [
         "--board",
         "VC",
         "--can_data_dir",
-        "${workspaceRoot}/can_bus/quintuna",
+        "${workspaceFolder}/can_bus/quintuna",
         "--output_dir",
         "temp",
         "--dbc_output",
         "temp/quadruna_can.dbc"
-      ]
+      ],
+      "console": "integratedTerminal"
     },
     {
       "name": "Debug Embedded: VC (Quadruna)",
@@ -62,7 +63,7 @@
       "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
+        "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VC (Quintuna)",
       // cortex configurations
@@ -70,18 +71,15 @@
       "type": "cortex-debug",
       "servertype": "jlink",
       "linux": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer",
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCL",
+        "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
+      "serverArgs": ["-speed", "4000"],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -95,7 +93,7 @@
             "type": "console"
           }
         ]
-      },
+      }
     },
 
     {
@@ -104,7 +102,7 @@
       "executable": "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
+        "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: DAM (Quintuna)",
       // cortex configurations
@@ -112,18 +110,15 @@
       "type": "cortex-debug",
       "servertype": "jlink",
       "linux": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer",
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCL",
+        "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
+      "serverArgs": ["-speed", "4000"],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -137,7 +132,7 @@
             "type": "console"
           }
         ]
-      },
+      }
     },
     {
       "name": "Debug Embedded: BMS (Quadruna)",
@@ -223,7 +218,7 @@
       "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
+        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: FSM (Quintuna)",
       // cortex configurations
@@ -231,18 +226,15 @@
       "type": "cortex-debug",
       "servertype": "jlink",
       "linux": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer",
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCL",
+        "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
+      "serverArgs": ["-speed", "4000"],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -256,7 +248,7 @@
             "type": "console"
           }
         ]
-      },
+      }
     },
     {
       "name": "Debug Embedded: FSM (Quintuna)",
@@ -264,7 +256,7 @@
       "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
+        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: FSM (Quintuna)",
       // cortex configurations
@@ -272,18 +264,15 @@
       "type": "cortex-debug",
       "servertype": "jlink",
       "linux": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer",
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCL",
+        "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
+      "serverArgs": ["-speed", "4000"],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -297,7 +286,7 @@
             "type": "console"
           }
         ]
-      },
+      }
     },
     {
       "name": "Debug Embedded: RSM (Quadruna)",
@@ -344,7 +333,7 @@
       "executable": "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf",
+        "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: RSM (Quintuna)",
       // cortex configurations
@@ -352,18 +341,15 @@
       "type": "cortex-debug",
       "servertype": "jlink",
       "linux": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer",
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCL",
+        "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
+      "serverArgs": ["-speed", "4000"],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -377,7 +363,7 @@
             "type": "console"
           }
         ]
-      },
+      }
     },
     {
       "name": "Debug Embedded: CRIT (Quadruna)",
@@ -427,7 +413,7 @@
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_boot.elf",
-        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
+        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf"
       ],
       "preLaunchTask": "Build Embedded: CRIT (Quintuna)",
       // cortex configurations
@@ -464,9 +450,9 @@
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf",
       // "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
-        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf",
+      // This order matters, or RTT won't work! (app has to be last)
+      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
+      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf",
       // ],
       "preLaunchTask": "Build Embedded: BMS (Quintuna)",
       // cortex configurations
@@ -474,18 +460,15 @@
       "type": "cortex-debug",
       "servertype": "jlink",
       "linux": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer",
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCL",
+        "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
+      "serverArgs": ["-speed", "4000"],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -499,34 +482,29 @@
             "type": "console"
           }
         ]
-      },
+      }
     },
     {
       "name": "Debug Embedded: SSM",
       "cwd": "${workspaceRoot}",
       // binary config
       "executable": "build_fw_dev/firmware/dev/SSM/ssm.elf",
-      "symbolFiles": [
-        "build_fw_dev/firmware/dev/SSM/ssm.elf",
-      ],
+      "symbolFiles": ["build_fw_dev/firmware/dev/SSM/ssm.elf"],
       "preLaunchTask": "Build Embedded: SSM",
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
       "linux": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer",
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
-        "serverpath": "JLinkGDBServerCL",
+        "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
+      "serverArgs": ["-speed", "4000"],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -535,13 +513,12 @@
         "address": "auto",
         "decoders": [
           {
-
             "label": "Debug logs: SSM",
             "port": 0,
             "type": "console"
           }
         ]
-      },
+      }
     },
     {
       "name": "Debug Embedded: f4dev",
