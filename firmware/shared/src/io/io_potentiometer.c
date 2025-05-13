@@ -1,8 +1,6 @@
 #include "io_potentiometer.h"
 #include "app_utils.h"
 #include "hw_i2c.h"
-#include "hw_utils.h"
-#include "hw_i2cs.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -20,7 +18,7 @@ typedef enum
     POTENTIOMETER_READ_CMD  = 0x03,
 } POTENTIOMETER_CMD;
 
-typedef struct
+typedef struct __attribute__((packed))
 {
     // byte 1
     uint8_t           _padding : 2;
