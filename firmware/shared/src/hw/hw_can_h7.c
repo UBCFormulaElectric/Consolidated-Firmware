@@ -110,6 +110,7 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
     }
 }
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);

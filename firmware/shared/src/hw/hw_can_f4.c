@@ -71,6 +71,7 @@ void hw_can_deinit(const CanHandle *can_handle)
 // NOTE this design assumes that there is only one task calling this function
 static TaskHandle_t transmit_task = NULL;
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef -> this breaks compatibility with FDCAN
 bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
@@ -134,9 +135,10 @@ bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
     return true;
 }
 
-static void handle_callback(CAN_HandleTypeDef *hfdcan)
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+static void handle_callback(CAN_HandleTypeDef *hcan)
 {
-    const CanHandle *handle = hw_can_getHandle(hfdcan);
+    const CanHandle *handle = hw_can_getHandle(hcan);
 
     CanMsg rx_msg;
     if (!hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg))
