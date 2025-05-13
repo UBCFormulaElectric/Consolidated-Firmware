@@ -622,7 +622,7 @@ void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg)
                 SystemClock_Config();
 
                 /* Reset SLEEPDEEP bit of Cortex System Control Register. */
-                SCB->SCR &= (uint32_t)~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+                SCB->SCR &= (uint32_t) ~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
             }
             __HAL_PCD_UNGATE_PHYCLOCK(hpcd);
             USBD_LL_Resume(hpcd->pData);
