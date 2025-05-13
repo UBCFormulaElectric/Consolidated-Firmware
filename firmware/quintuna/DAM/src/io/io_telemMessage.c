@@ -131,11 +131,11 @@ void io_telemMessage_init()
 void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time)
 {
     CanMsg start_time_msg = {
-        .std_id    = 0x999, // this id could change asking edwin!!!
-        .dlc       = 6,
-        .data      = { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
-                       start_time.seconds },
-        .timestamp = (uint32_t)
+        .std_id = 0x999, // this id could change asking edwin!!!
+        .dlc    = 6,
+        .data   = { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
+                    start_time.seconds },
+        .timestamp =
             io_time_getCurrentMs(), // note, this represents the timestamp of the current message NOT the basetime
     };
     *msg = start_time_msg;
