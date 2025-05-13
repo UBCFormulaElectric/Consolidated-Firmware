@@ -96,8 +96,13 @@ bool hw_can_transmit(const CanHandle *can_handle, const CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
+    for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
     {
+        if (poll_count <= 1000) // poll a bit before waiting for an interrupt
+        {
+            poll_count++;
+            continue;
+        }
         assert(transmit_task == NULL);
         transmit_task           = xTaskGetCurrentTaskHandle();
         const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
