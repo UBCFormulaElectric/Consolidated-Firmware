@@ -12,7 +12,7 @@
 #define USB_CHECK_COOLDOWN_MS (1000)
 
 // Milliseconds to wait on every usb request.
-#define USB_REQUEST_TIMEOUT_MS (100)
+#define USB_REQUEST_TIMEOUT_MS (osWaitForever)
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 // Yes, this is 65kb of RAM - it's a lot, but doable.
@@ -70,7 +70,7 @@ static const Gpio *hw_chimera_v2_getGpio(const hw_chimera_v2_Config *config, con
  * @param net_name Pointer to the protobuf-generated adc net name struct.
  * @return A pointer to the adc peripheral, or NULL if an error occurred.
  */
-static const AdcChannel *hw_chimera_v2_getAdc(hw_chimera_v2_Config *config, const AdcNetName *net_name)
+static const AdcChannel *hw_chimera_v2_getAdc(const hw_chimera_v2_Config *config, const AdcNetName *net_name)
 {
     if (config->adc_net_name_tag != net_name->which_name)
     {
@@ -101,7 +101,7 @@ static const AdcChannel *hw_chimera_v2_getAdc(hw_chimera_v2_Config *config, cons
  * @param net_name Pointer to the protobuf-generated I2c net name struct.
  * @return A pointer to the i2c peripheral, or NULL if an error occurred.
  */
-static const I2cDevice *hw_chimera_v2_getI2c(hw_chimera_v2_Config *config, const I2cNetName *net_name)
+static const I2cDevice *hw_chimera_v2_getI2c(const hw_chimera_v2_Config *config, const I2cNetName *net_name)
 {
     if (config->i2c_net_name_tag != net_name->which_name)
     {
@@ -132,7 +132,7 @@ static const I2cDevice *hw_chimera_v2_getI2c(hw_chimera_v2_Config *config, const
  * @param net_name Pointer to the protobuf-generated spi net name struct.
  * @return A pointer to the spi peripheral, or NULL if an error occurred.
  */
-static const SpiDevice *hw_chimera_v2_getSpi(hw_chimera_v2_Config *config, const SpiNetName *net_name)
+static const SpiDevice *hw_chimera_v2_getSpi(const hw_chimera_v2_Config *config, const SpiNetName *net_name)
 {
     if (config->spi_net_name_tag != net_name->which_name)
     {
@@ -157,8 +157,10 @@ static const SpiDevice *hw_chimera_v2_getSpi(hw_chimera_v2_Config *config, const
  * @param response Pointer to the response struct to write the result to.
  * @return True if success, otherwise false.
  */
-static bool
-    hw_chimera_v2_evaluateRequest(hw_chimera_v2_Config *config, ChimeraV2Request *request, ChimeraV2Response *response)
+static bool hw_chimera_v2_evaluateRequest(
+    const hw_chimera_v2_Config *config,
+    ChimeraV2Request           *request,
+    ChimeraV2Response          *response)
 {
     // Empty provided response pointer.
     const ChimeraV2Response init = ChimeraV2Response_init_zero;
@@ -178,12 +180,9 @@ static bool
             LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
             return false;
         }
-
-        bool value = hw_gpio_readPin(gpio);
-
         // Format response.
+        response->payload.gpio_read.value = hw_gpio_readPin(gpio);
         response->which_payload           = ChimeraV2Response_gpio_read_tag;
-        response->payload.gpio_read.value = value;
     }
     else if (request->which_payload == ChimeraV2Request_gpio_write_tag)
     {
@@ -220,12 +219,9 @@ static bool
             LOG_ERROR("Chimera: Error fetching ADC peripheral.");
             return false;
         }
-
-        float value = hw_adc_getVoltage(adc_channel);
-
         // Format response.
+        response->payload.adc_read.value = hw_adc_getVoltage(adc_channel);
         response->which_payload          = ChimeraV2Response_adc_read_tag;
-        response->payload.adc_read.value = value;
     }
 #endif
 
@@ -244,11 +240,9 @@ static bool
             return false;
         }
 
-        bool ready = IS_EXIT_OK(hw_i2c_isTargetReady(device));
-
         // Format response.
+        response->payload.i2c_ready.ready = IS_EXIT_OK(hw_i2c_isTargetReady(device));
         response->which_payload           = ChimeraV2Response_i2c_ready_tag;
-        response->payload.i2c_ready.ready = ready;
     }
     else if (request->which_payload == ChimeraV2Request_i2c_transmit_tag)
     {
@@ -433,7 +427,7 @@ static bool
  * @param length Length of content buffer.
  * @return True if success, otherwise false.
  */
-static bool hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *content, uint16_t length)
+static bool hw_chimera_v2_handleContent(const hw_chimera_v2_Config *config, uint8_t *content, uint16_t length)
 {
     // Keep track if an error occured.
     // We do this instead of immediate returns,
@@ -485,7 +479,7 @@ static bool hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *c
     LOG_PRINTF("\n");
 
     // Transmit.
-    if (!hw_usb_transmit(response_packet, response_packet_size))
+    if (IS_EXIT_ERR(hw_usb_transmit(response_packet, response_packet_size)))
     {
         LOG_ERROR("Chimera: Error transmitting response packet.");
         error_occurred = true;
@@ -499,17 +493,20 @@ static bool hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *c
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
  * @return True if success, otherwise false.
  */
-static void hw_chimera_v2_tick(hw_chimera_v2_Config *config)
+static void hw_chimera_v2_tick(const hw_chimera_v2_Config *config)
 {
     // CHIMERA Packet Format:
     // [ length low byte  | length high byte | content bytes    | ... ]
 
     // Get length bytes.
     uint8_t length_bytes[2] = { 0, 0 };
-    if (!hw_usb_receive(length_bytes, 2, USB_REQUEST_TIMEOUT_MS))
+    for (uint8_t byte = 0; byte < 2; byte++)
     {
-        // If we don't receive length bytes, stop processing.
-        return;
+        if (IS_EXIT_ERR(hw_usb_receive(length_bytes + byte, USB_REQUEST_TIMEOUT_MS)))
+        {
+            // If we don't receive length bytes, stop processing.
+            return;
+        }
     }
 
     // Compute length (little endian).
@@ -519,10 +516,12 @@ static void hw_chimera_v2_tick(hw_chimera_v2_Config *config)
 
     // Receive content.
     uint8_t content[length];
-    if (!hw_usb_receive(content, length, USB_REQUEST_TIMEOUT_MS))
+    for (uint16_t byte = 0; byte < length; byte++)
     {
-        LOG_ERROR("Chimera: Error receiving message content.");
-        return;
+        if (IS_EXIT_ERR(hw_usb_receive(content + byte, USB_REQUEST_TIMEOUT_MS)))
+        {
+            return;
+        }
     }
 
     // Print bytes.
@@ -533,7 +532,6 @@ static void hw_chimera_v2_tick(hw_chimera_v2_Config *config)
     if (!hw_chimera_v2_handleContent(config, content, length))
     {
         LOG_ERROR("Chimera: Error processing request.");
-        return;
     }
 }
 

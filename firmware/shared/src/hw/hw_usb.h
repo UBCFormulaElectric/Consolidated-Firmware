@@ -24,17 +24,17 @@ bool hw_usb_checkConnection();
  * @param len The length of the buffer.
  * @return True if data is transmitted successfully, otherwise false.
  */
-bool hw_usb_transmit(uint8_t *msg, uint16_t len);
+ExitCode hw_usb_transmit(uint8_t *msg, uint16_t len);
 
 /**
  * @brief Receive data from the usb host.
  * @param dest A pointer to the destination buffer.
- * @param len Number of bytes to receive.
  * @param timeout_ms Maximum timeout to wait.
  * @return True if data is received successfully,
  *         false if an error occurred or the timeout has passed.
+ * @note that this function will return one byte from the buffer
  */
-bool hw_usb_receive(uint8_t *dest, uint32_t len, uint32_t timeout_ms);
+ExitCode hw_usb_receive(uint8_t *dest, uint32_t timeout_ms);
 
 /**
  * @brief Push a message to the RX queue. To be called from usbd_cdc_if.c, CDC_Receive_FS.
