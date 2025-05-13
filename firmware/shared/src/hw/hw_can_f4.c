@@ -1,10 +1,11 @@
 #include "hw_can.h"
+
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
+#include <FreeRTOS.h>
+
 #include "io_time.h"
 #include "io_canQueue.h"
-
-#include <io_log.h>
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
