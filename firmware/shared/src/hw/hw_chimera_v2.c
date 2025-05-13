@@ -30,7 +30,7 @@ bool hw_chimera_v2_enabled = false;
  * @param net_name Pointer to the protobuf-generated gpio net name struct.
  * @return A pointer to the gpio peripheral, or NULL if an error occurred.
  */
-static const Gpio *hw_chimera_v2_getGpio(hw_chimera_v2_Config *config, const GpioNetName *net_name)
+static const Gpio *hw_chimera_v2_getGpio(const hw_chimera_v2_Config *config, const GpioNetName *net_name)
 {
     if (config->gpio_net_name_tag != net_name->which_name)
     {
@@ -161,8 +161,8 @@ static bool
     hw_chimera_v2_evaluateRequest(hw_chimera_v2_Config *config, ChimeraV2Request *request, ChimeraV2Response *response)
 {
     // Empty provided response pointer.
-    ChimeraV2Response init = ChimeraV2Response_init_zero;
-    *response              = init;
+    const ChimeraV2Response init = ChimeraV2Response_init_zero;
+    *response                    = init;
 
 /* GPIO commands. */
 #ifdef HAL_GPIO_MODULE_ENABLED
@@ -499,9 +499,8 @@ static bool hw_chimera_v2_handleContent(hw_chimera_v2_Config *config, uint8_t *c
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
  * @return True if success, otherwise false.
  */
-static bool hw_chimera_v2_tick(hw_chimera_v2_Config *config)
+static void hw_chimera_v2_tick(hw_chimera_v2_Config *config)
 {
-    LOG_INFO("Chimera: Running tick, waiting for message...");
     // CHIMERA Packet Format:
     // [ length low byte  | length high byte | content bytes    | ... ]
 
@@ -510,39 +509,32 @@ static bool hw_chimera_v2_tick(hw_chimera_v2_Config *config)
     if (!hw_usb_receive(length_bytes, 2, USB_REQUEST_TIMEOUT_MS))
     {
         // If we don't receive length bytes, stop processing.
-        LOG_INFO("Chimera: No request received in this tick.");
-        return true;
+        return;
     }
 
     // Compute length (little endian).
-    uint16_t low    = (uint16_t)length_bytes[0];
-    uint16_t high   = (uint16_t)length_bytes[1];
-    uint16_t length = (uint16_t)(low + (high << 8));
-    LOG_INFO("Chimera: RPC packet received of length %d", length);
+    const uint16_t low    = (uint16_t)length_bytes[0];
+    const uint16_t high   = (uint16_t)length_bytes[1];
+    const uint16_t length = (uint16_t)(low + (high << 8));
 
     // Receive content.
     uint8_t content[length];
     if (!hw_usb_receive(content, length, USB_REQUEST_TIMEOUT_MS))
     {
         LOG_ERROR("Chimera: Error receiving message content.");
-        return false;
+        return;
     }
 
     // Print bytes.
-    LOG_INFO("Chimera: Received content bytes (without length header):");
     for (int i = 0; i < length; i += 1)
         LOG_PRINTF("%02x ", content[i]);
-    LOG_PRINTF("\n");
 
     // Parse content and return response.
     if (!hw_chimera_v2_handleContent(config, content, length))
     {
         LOG_ERROR("Chimera: Error processing request.");
-        return false;
-    };
-
-    LOG_INFO("Chimera: Processed request.");
-    return true;
+        return;
+    }
 }
 
 _Noreturn void hw_chimera_v2_task(hw_chimera_v2_Config *config)
@@ -550,19 +542,16 @@ _Noreturn void hw_chimera_v2_task(hw_chimera_v2_Config *config)
     // Main loop.
     for (;;)
     {
-        if (!hw_usb_checkConnection())
-        {
-            // If usb is not connected, skip Chimera.
-            hw_chimera_v2_enabled = false;
-            osDelay(USB_CHECK_COOLDOWN_MS);
-            continue;
-        }
-
-        // Otherwise tick.
+        // block until USB connected is ok
+        hw_usb_waitForConnected();
+        LOG_INFO("starting chimera");
         hw_chimera_v2_enabled = true;
-        if (!hw_chimera_v2_tick(config))
+        // Otherwise tick.
+        while (hw_usb_connected())
         {
-            LOG_ERROR("Chimera: Error occurred during tick.");
+            hw_chimera_v2_tick(config);
         }
+        LOG_ERROR("exiting chimera");
+        hw_chimera_v2_enabled = false;
     }
 }

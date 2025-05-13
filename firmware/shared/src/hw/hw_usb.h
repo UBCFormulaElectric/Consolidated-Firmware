@@ -1,12 +1,16 @@
 #pragma once
 
+#include "app_utils.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
 /**
  * @brief Initialize the USB CDC peripheral, must be called in the `USER CODE BEGIN RTOS_QUEUES` section.
+ * @returns whether the USB is ok to be used
+ * @note you can call it multiple times
  */
-void hw_usb_init();
+ExitCode hw_usb_init();
 
 /**
  * @brief Check if the USB port is connected (in a "configured" state).
@@ -38,7 +42,7 @@ bool hw_usb_receive(uint8_t *dest, uint32_t len, uint32_t timeout_ms);
  * @param len Number of bytes to receive.
  * @return True if data is pushed to the queue successfully, otherwise false.
  */
-bool hw_usb_pushRxMsgToQueue(uint8_t *msg, uint32_t len);
+bool hw_usb_pushRxMsgToQueue(const uint8_t *msg, uint32_t len);
 
 /**
  * @brief Transmits "hello" repeatedly over USB.
@@ -49,3 +53,26 @@ void hw_usb_transmit_example();
  * @brief Logs all received bytes as chars.
  */
 void hw_usb_receive_example();
+
+// CONNECTION HANDLER
+
+/**
+ * Blocks the thread until the USB is connected
+ */
+void hw_usb_waitForConnected();
+
+/**
+ *
+ * @return Whether the USB is connected
+ */
+bool hw_usb_connected();
+
+/**
+ *
+ */
+void hw_usb_connect_callback();
+
+/**
+ *
+ */
+void hw_usb_disconnect_callback();
