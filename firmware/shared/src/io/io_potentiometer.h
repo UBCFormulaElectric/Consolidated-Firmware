@@ -17,7 +17,8 @@ typedef struct
 EMPTY_STRUCT(Potentiometer)
 #endif
 
-typedef enum{
+typedef enum
+{
     WIPER0,
     WIPER1,
 } POTENTIOMETER_WIPER;
@@ -58,11 +59,12 @@ ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIO
  */
 ExitCode io_potentiometer_writeWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t data)
 
-/**
- * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
- * @param potentiometer Pointer to the potentiometer object
- * @param wiper The wiper to read
- * @param dest Pointer to store the read percentage
- * @return If read was successful
- */
-ExitCode io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t *dest);
+    /**
+     * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.
+     * @param potentiometer Pointer to the potentiometer object
+     * @param wiper The wiper to read
+     * @param dest Pointer to store the read percentage
+     * @return If read was successful
+     */
+    ExitCode
+    io_potentiometer_readPercentage(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t *dest);
