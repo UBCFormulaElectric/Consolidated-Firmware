@@ -7,7 +7,6 @@
 #include "hw_uarts.h"
 #include "hw_crc.h"
 #include "hw_gpios.h"
-#include "io_rtc.h"
 #include <assert.h>
 #include "io_time.h"
 

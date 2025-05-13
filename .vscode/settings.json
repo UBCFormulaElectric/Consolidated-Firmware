@@ -11,7 +11,13 @@
 	"cmake.configureOnOpen": false,
 	"clangd.arguments": [
 		"--compile-commands-dir=build_fw_dev",
- 		// "--compile-commands-dir=build_fw_test",
+		// "--compile-commands-dir=build_fw_test",
 		"--query-driver=/usr/local/bin/arm-none-eabi-gcc",
-	]
+	],
+	"files.associations": {
+		"*.sqlbook": "sql",
+		"*.ndjson": "jsonl",
+		"*.dbclient-js": "javascript",
+		"io_jsoncan.h": "c"
+	}
 }
