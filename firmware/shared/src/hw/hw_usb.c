@@ -187,7 +187,7 @@ void hw_usb_receive_example()
     for (;;)
     {
         uint8_t result = 0;
-        if (IS_EXIT_ERR(hw_usb_receive(&result, 100)))
+        if (IS_EXIT_OK(hw_usb_receive(&result, 100)))
             LOG_PRINTF("%c", result);
         osDelay(100);
     }
