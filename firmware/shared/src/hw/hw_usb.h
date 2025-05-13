@@ -42,7 +42,7 @@ ExitCode hw_usb_receive(uint8_t *dest, uint32_t timeout_ms);
  * @param len Number of bytes to receive.
  * @return True if data is pushed to the queue successfully, otherwise false.
  */
-bool hw_usb_pushRxMsgToQueue(const uint8_t *msg, uint32_t len);
+bool hw_usb_pushRxMsgToQueue(const uint8_t *msg, uint32_t len); // TODO make this use ExitCodes
 
 /**
  * @brief Transmits "hello" repeatedly over USB.
@@ -62,8 +62,10 @@ void hw_usb_receive_example();
 void hw_usb_waitForConnected();
 
 /**
- *
  * @return Whether the USB is connected
+ * @note This might not be the true source of truth on whether the USB is connected. Please use hw_usb_checkConnection
+ * to verify that it is connected.
+ * @note Use this in conjunction with hw_usb_waitForConnected to handle async USB behaviour
  */
 bool hw_usb_connected();
 
