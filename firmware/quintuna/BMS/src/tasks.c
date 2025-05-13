@@ -93,7 +93,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_fdcan_transmit(&can1, &tx_msg);
+        ASSERT_EXIT_OK(hw_fdcan_transmit(&can1, &tx_msg));
     }
 }
 
