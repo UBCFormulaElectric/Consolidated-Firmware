@@ -55,7 +55,8 @@ void tasks_run1Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

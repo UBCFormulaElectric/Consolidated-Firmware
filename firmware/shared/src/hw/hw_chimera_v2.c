@@ -541,14 +541,14 @@ _Noreturn void hw_chimera_v2_task(const hw_chimera_v2_Config *config)
     {
         // block until USB connected is ok
         hw_usb_waitForConnected();
-        LOG_INFO("starting chimera");
+        LOG_INFO("[CHIMERA] USB CONNECTED!");
         hw_chimera_v2_enabled = true;
         // Otherwise tick.
         while (hw_usb_connected())
         {
             hw_chimera_v2_tick(config);
         }
-        LOG_ERROR("exiting chimera");
+        LOG_INFO("[CHIMERA] USB DISCONNECTED!");
         hw_chimera_v2_enabled = false;
     }
 }

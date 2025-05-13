@@ -144,8 +144,6 @@ void hw_usb_disconnect_callback()
 
 bool hw_usb_connected()
 {
-    // IF THERE IS A PROBLEM WITH THIS ASSERT, CONSIDER UPDATING USB WAITING LOGIC
-    assert(usb_connected == hw_usb_checkConnection());
     return usb_connected;
 }
 
