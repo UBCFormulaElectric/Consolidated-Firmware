@@ -27,7 +27,7 @@
 #include "usbd_cdc.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "hw_usb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -233,6 +233,7 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
     __HAL_PCD_GATE_PHYCLOCK(hpcd);
     /* Enter in STOP mode. */
     /* USER CODE BEGIN 2 */
+    hw_usb_disconnect_callback();
     if (hpcd->Init.low_power_enable)
     {
         /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
@@ -254,7 +255,7 @@ void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 {
     /* USER CODE BEGIN 3 */
-
+    hw_usb_connect_callback();
     /* USER CODE END 3 */
     USBD_LL_Resume((USBD_HandleTypeDef *)hpcd->pData);
 }
@@ -621,7 +622,7 @@ void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg)
                 SystemClock_Config();
 
                 /* Reset SLEEPDEEP bit of Cortex System Control Register. */
-                SCB->SCR &= (uint32_t) ~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+                SCB->SCR &= (uint32_t)~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
             }
             __HAL_PCD_UNGATE_PHYCLOCK(hpcd);
             USBD_LL_Resume(hpcd->pData);

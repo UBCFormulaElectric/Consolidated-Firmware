@@ -68,11 +68,11 @@ void hw_usb_waitForConnected();
 bool hw_usb_connected();
 
 /**
- *
+ * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_ResumeCallback IN USBD_CONF.c (for now)
  */
 void hw_usb_connect_callback();
 
 /**
- *
+ * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_SuspendCallback IN USBD_CONF.c (for now)
  */
 void hw_usb_disconnect_callback();

@@ -26,7 +26,7 @@ extern USBD_HandleTypeDef hUsbDeviceHS;
 #endif
 
 // Setup the rx queue.
-#define RX_QUEUE_SIZE (2048)
+#define RX_QUEUE_SIZE (20)
 static StaticQueue_t              rx_queue_control_block;
 static uint8_t                    rx_queue_buffer[RX_QUEUE_SIZE];
 static const osMessageQueueAttr_t rx_queue_attr = { .name      = "USB RX Queue",

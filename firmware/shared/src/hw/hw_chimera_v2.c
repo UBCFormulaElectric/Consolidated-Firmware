@@ -1,4 +1,5 @@
 #include "hw_chimera_v2.h"
+
 #include "main.h"
 #include "hw_usb.h"
 #include "io_log.h"
@@ -7,12 +8,6 @@
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "shared.pb.h"
-
-// Milliseconds to wait every loop before checking for a usb connection again.
-#define USB_CHECK_COOLDOWN_MS (1000)
-
-// Milliseconds to wait on every usb request.
-#define USB_REQUEST_TIMEOUT_MS (osWaitForever)
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 // Yes, this is 65kb of RAM - it's a lot, but doable.
@@ -495,6 +490,10 @@ static bool hw_chimera_v2_handleContent(const hw_chimera_v2_Config *config, uint
  */
 static void hw_chimera_v2_tick(const hw_chimera_v2_Config *config)
 {
+// Milliseconds to wait on every usb request.
+// NOTE: this cannot be forever as we need to check periodically when chimera is running
+// whether USB has been disconnected
+#define USB_REQUEST_TIMEOUT_MS (1000)
     // CHIMERA Packet Format:
     // [ length low byte  | length high byte | content bytes    | ... ]
 
@@ -535,7 +534,7 @@ static void hw_chimera_v2_tick(const hw_chimera_v2_Config *config)
     }
 }
 
-_Noreturn void hw_chimera_v2_task(hw_chimera_v2_Config *config)
+_Noreturn void hw_chimera_v2_task(const hw_chimera_v2_Config *config)
 {
     // Main loop.
     for (;;)
