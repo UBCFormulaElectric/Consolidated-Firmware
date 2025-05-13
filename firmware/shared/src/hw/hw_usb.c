@@ -3,6 +3,7 @@
 #include "usbd_cdc_if.h" // gotta be very high for some reason
 
 #include <cmsis_os2.h>
+#include <FreeRTOS.h>
 #include <event_groups.h>
 
 #include "io_log.h"
