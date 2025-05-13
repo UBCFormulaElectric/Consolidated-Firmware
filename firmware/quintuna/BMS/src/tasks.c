@@ -32,7 +32,7 @@ void tasks_preInit(void)
 void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_can_init(&can1);
