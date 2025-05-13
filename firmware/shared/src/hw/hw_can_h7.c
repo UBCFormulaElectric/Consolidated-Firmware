@@ -1,7 +1,10 @@
 #include "hw_fdcan.h"
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
+#include <FreeRTOS.h>
+#include <task.h>
 #include <string.h>
+
 #include "io_log.h"
 #include "io_time.h"
 #include "io_canQueue.h"
@@ -38,6 +41,27 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
+static TaskHandle_t transmit_task = NULL;
+
+static bool tx(const CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMsg *msg)
+{
+    for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
+    {
+        // if (poll <= 1000)
+        // {
+        //     poll++;
+        //     continue;
+        // }
+        // assert(transmit_task == NULL);
+        // transmit_task           = xTaskGetCurrentTaskHandle();
+        // const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
+        // assert(status == pdPASS);
+        // transmit_task = NULL;
+    }
+
+    return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
+}
+
 bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
@@ -51,11 +75,7 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-
-    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
-        ;
-
-    return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
+    return tx(can_handle, tx_header, msg);
 }
 
 bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
@@ -71,11 +91,7 @@ bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-
-    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
-        ;
-
-    return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
+    return tx(can_handle, tx_header, msg);
 }
 
 bool hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
@@ -131,4 +147,9 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
 {
     UNUSED(RxFifo1ITs);
     handle_callback(hfdcan);
+}
+
+void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t TxEventFifoITs)
+{
+    LOG_INFO("[TX EVENT] %d", TxEventFifoITs);
 }

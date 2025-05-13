@@ -3,6 +3,7 @@
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
 #include <FreeRTOS.h>
+#include <task.h>
 
 #include "io_time.h"
 #include "io_canQueue.h"
