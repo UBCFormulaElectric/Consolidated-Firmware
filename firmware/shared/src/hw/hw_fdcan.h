@@ -39,7 +39,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-bool hw_can_transmit(const CanHandle *can_handle, const CanMsg *msg);
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Transmit a FD CAN msg on the bus, blocking until completed.

@@ -54,8 +54,8 @@ void hw_can_init(CanHandle *can_handle)
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_CAN_ActivateNotification(
-            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING |
-                                  CAN_IT_WAKEUP | CAN_IT_BUSOFF) == HAL_OK);
+            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
+        HAL_OK);
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
@@ -71,7 +71,7 @@ void hw_can_deinit(const CanHandle *can_handle)
 // NOTE this design assumes that there is only one task calling this function
 static TaskHandle_t transmit_task = NULL;
 
-bool hw_can_transmit(const CanHandle *can_handle, const CanMsg *msg)
+bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
