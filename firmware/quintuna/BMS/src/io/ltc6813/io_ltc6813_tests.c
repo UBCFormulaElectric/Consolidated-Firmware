@@ -77,6 +77,7 @@ uint16_t io_ltc6813_selfTestExpectedValue(const ADCSpeed speed)
 #else
 #error "ST must be 0x1 or 0x2"
 #endif
+    return 0xffff;
 }
 
 ExitCode io_ltc6813_diagnoseMUX()
