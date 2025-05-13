@@ -7,7 +7,9 @@
 #include "hw_uarts.h"
 #include "hw_crc.h"
 #include "hw_gpios.h"
+#include "io_rtc.h"
 #include <assert.h>
+#include "io_time.h"
 
 // create the truth table for now to decide which amount of things to use
 // create or grab the constants for the different modem and pins and such
@@ -23,11 +25,18 @@
 
 // UartDevice        *_2_4G_uart = NULL;
 
+// TX
 static bool               proto_status;
 static uint8_t            proto_msg_length;
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
 static osMessageQueueId_t message_queue_id;
+
+// RX
+
+static uint8_t  rx_buffer[MAX_FRAME_SIZE];
+static uint32_t rx_buffer_pos     = 0;
+static bool     message_available = false;
 
 TelemMessage t_message = TelemMessage_init_zero;
 
@@ -117,6 +126,20 @@ void io_telemMessage_init()
     assert(message_queue_id != NULL);
     init = true;
     hw_gpio_writePin(&telem_pwr_en_pin, true);
+}
+
+// lol should this be here? is this exposed the right amount also? this is start time TX code
+void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time)
+{
+    CanMsg start_time_msg = {
+        .std_id    = 0x999, // this id could change asking edwin!!!
+        .dlc       = 6,
+        .data      = { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
+                       start_time.seconds },
+        .timestamp = (uint32_t)
+            io_time_getCurrentMs(), // note, this represents the timestamp of the current message NOT the basetime
+    };
+    *msg = start_time_msg;
 }
 
 bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)

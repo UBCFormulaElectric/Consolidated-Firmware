@@ -1,11 +1,17 @@
 #pragma once
 #include "io_canMsg.h"
 #include <stdbool.h>
+#include "io_rtc.h"
 
 /**
  * Creates a new message queue for storing telem messages
  */
 void io_telemMessage_init();
+
+/**
+ * Initializes a CAN message with the start time
+ */
+void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time);
 
 /**
  * Serializes the can msg and pushes it to the queue
