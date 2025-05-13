@@ -34,11 +34,11 @@ static uint32_t             sbg_queue_overflow_count;
 static void         io_sbgEllipse_createSerialInterface(SbgInterface *interface);
 static SbgErrorCode io_sbgEllipse_read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
 static SbgErrorCode io_sbgEllipse_logReceivedCallback(
-    SbgEComHandle          *handle,
-    SbgEComClass            msg_class,
-    SbgEComMsgId            msg_id,
+    SbgEComHandle         *handle,
+    SbgEComClass           msg_class,
+    SbgEComMsgId           msg_id,
     const SbgEComLogUnion *log_data,
-    void                   *user_arg);
+    void                  *user_arg);
 static void io_sbgEllipse_processMsg_Imu(const SbgEComLogUnion *log_data);
 static void io_sbgEllipse_processMsg_eulerAngles(const SbgEComLogUnion *log_data);
 static void io_sbgEllipse_processMsg_status(const SbgEComLogUnion *log_data);
@@ -85,11 +85,11 @@ static SbgErrorCode io_sbgEllipse_read(SbgInterface *interface, void *buffer, si
  * Callback called when a log is successfully received and parsed.
  */
 SbgErrorCode io_sbgEllipse_logReceivedCallback(
-    SbgEComHandle          *handle,
-    SbgEComClass            msg_class,
-    SbgEComMsgId            msg_id,
+    SbgEComHandle         *handle,
+    SbgEComClass           msg_class,
+    SbgEComMsgId           msg_id,
     const SbgEComLogUnion *log_data,
-    void                   *user_arg)
+    void                  *user_arg)
 {
     assert(log_data);
 
