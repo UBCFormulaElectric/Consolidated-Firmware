@@ -4,6 +4,8 @@
 #include "io_time.h"
 #include "io_canQueue.h"
 
+#include <io_log.h>
+
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
 // registers are associated with mask registers specifying which bits of the
@@ -52,8 +54,8 @@ void hw_can_init(CanHandle *can_handle)
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_CAN_ActivateNotification(
-            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
-        HAL_OK);
+            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING |
+                                  CAN_IT_WAKEUP | CAN_IT_BUSOFF) == HAL_OK);
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
@@ -66,7 +68,10 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+// NOTE this design assumes that there is only one task calling this function
+static TaskHandle_t transmit_task = NULL;
+
+bool hw_can_transmit(const CanHandle *can_handle, const CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -92,7 +97,13 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 
     // Spin until a TX mailbox becomes available.
     while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
-        ;
+    {
+        assert(transmit_task == NULL);
+        transmit_task           = xTaskGetCurrentTaskHandle();
+        const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
+        assert(status == pdPASS);
+        transmit_task = NULL;
+    }
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t                mailbox       = 0;
@@ -137,4 +148,28 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     handle_callback(hcan);
+}
+
+static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
+{
+    if (transmit_task == NULL)
+    {
+        return;
+    }
+    BaseType_t       higherPriorityTaskWoken = pdFALSE;
+    const BaseType_t status                  = xTaskNotifyFromISR(transmit_task, 0, 0, &higherPriorityTaskWoken);
+    assert(status == pdPASS);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+}
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
 }
