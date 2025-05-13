@@ -185,7 +185,7 @@ _Noreturn void tasks_runCanTx(void)
         }
         else
         {
-            ASSERT_EXIT_OK(hw_can_transmit(&can1, &tx_msg));
+            LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
         }
     }
 }

@@ -270,7 +270,7 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        ASSERT_EXIT_OK(hw_can_transmit(&can, &tx_msg));
+        LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
     }
 }
 

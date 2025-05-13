@@ -54,7 +54,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
-    ExitCode exit = hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
+    const ExitCode exit = hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
     return exit;
 }
 
@@ -75,7 +75,7 @@ ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
-    ExitCode exit = hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
+    const ExitCode exit = hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
     return exit;
 }
 
@@ -84,7 +84,7 @@ ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, C
     assert(can_handle->ready);
     FDCAN_RxHeaderTypeDef header;
 
-    ExitCode exit = hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
+    const ExitCode exit = hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
 
     if (exit != EXIT_CODE_OK)
     {
