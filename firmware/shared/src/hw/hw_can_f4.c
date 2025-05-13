@@ -97,7 +97,8 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
 
-    const ExitCode exit = hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
+    const ExitCode exit =
+        hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
     return exit;
 }
 
@@ -105,7 +106,8 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
 {
     assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
-    const ExitCode exit = hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
+    const ExitCode      exit =
+        hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
     if (exit != EXIT_CODE_OK)
     {
         return exit;
