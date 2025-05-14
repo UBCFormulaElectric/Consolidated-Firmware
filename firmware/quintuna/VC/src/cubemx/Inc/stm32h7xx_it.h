@@ -71,8 +71,6 @@ extern "C"
     void I2C4_ER_IRQHandler(void);
     void I2C5_EV_IRQHandler(void);
     void I2C5_ER_IRQHandler(void);
-    void FDCAN3_IT0_IRQHandler(void);
-    void FDCAN3_IT1_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

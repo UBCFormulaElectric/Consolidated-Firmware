@@ -9,6 +9,11 @@
             },
             "State": {
                 "enum": "VCState"
+            },
+            "CanLoggingRemainingErrors": {
+                "resolution": 1,
+                "min": 0,
+                "max": 10
             }
         }
     },
@@ -44,5 +49,315 @@
                 "enum": "ShutdownNode"
             }
         }
+    },
+    "AlertsContext": {
+        "msg_id": 512,
+        "cycle_time": 10,
+        "signals": {
+          "WatchdogTimeout": {
+            "bits": 1
+          },
+          "WatchdogTimeoutTaskName": {
+            "enum": "RtosTaskName"
+          },
+          "TxOverflowCount": {
+            "bits": 16
+          },
+          "RxOverflowCount": {
+            "bits": 16
+          }
+        }
+      },
+      "ShdnNodeStatus": {
+        "msg_id": 228,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+          "RearRightMotorInterlock": {
+            "bits": 1
+          },
+          "InertiaSwitch": {
+            "bits": 1
+          },
+          "TSMSOKStatus": {
+            "bits": 1
+          },
+          "SplitterBoxInterlockOKStatus": {
+            "bits": 1
+          }
+        }
+      },
+      "EllipseStatus": {
+        "msg_id": 223,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+          "EllipseGeneralStatusBitmask": {
+            "bits": 16
+          },
+          "EllipseComStatusBitmask": {
+            "bits": 32
+          },
+          "EllipseErrorCode": {
+            "enum": "EllipseErrorCode"
+          },
+          "EkfSolutionMode": {
+            "enum": "VcEkfStatus"
+          },
+          "EllipseQueueOverflowCount": {
+            "bits": 8
+          }
+        }
+      },
+      "EllipseTime": {
+        "msg_id": 209,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N sensor.",
+        "signals": {
+          "EllipseTimestamp": {
+            "bits": 32,
+            "unit": "us"
+          }
+        }
+      },
+      "EllipseAcceleration": {
+        "disabled": true,
+        "msg_id": 201,
+        "cycle_time": 1000,
+        "description": "Acceleration from the SBG Ellipse N sensor.",
+        "signals": {
+          "AccelerationForward": {
+            "min": -30,
+            "max": 30,
+            "resolution": 0.01,
+            "unit": "m/s^2"
+          },
+          "AccelerationLateral": {
+            "min": -30,
+            "max": 30,
+            "resolution": 0.01,
+            "unit": "m/s^2"
+          },
+          "AccelerationVertical": {
+            "min": -30,
+            "max": 30,
+            "resolution": 0.01,
+            "unit": "m/s^2"
+          }
+        }
+      },
+      "EllipseAngularVelocity": {
+        "disabled": true,
+        "msg_id": 203,
+        "cycle_time": 1000,
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
+        "signals": {
+          "AngularVelocityRoll": {
+            "min": -360,
+            "max": 360,
+            "resolution": 1,
+            "unit": "deg/s"
+          },
+          "AngularVelocityPitch": {
+            "min": -360,
+            "max": 360,
+            "resolution": 1,
+            "unit": "deg/s"
+          },
+          "AngularVelocityYaw": {
+            "min": -360,
+            "max": 360,
+            "resolution": 1,
+            "unit": "deg/s"
+          }
+        }
+      },
+      "EllipseEulerAngles": {
+        "msg_id": 222,
+        "cycle_time": 1000,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+          "EulerAnglesRoll": {
+            "min": -180,
+            "max": 180,
+            "resolution": 0.1,
+            "unit": "deg"
+          },
+          "EulerAnglesPitch": {
+            "min": -180,
+            "max": 180,
+            "resolution": 0.1,
+            "unit": "deg"
+          },
+          "EulerAnglesYaw": {
+            "min": -180,
+            "max": 180,
+            "resolution": 0.1,
+            "unit": "deg"
+          }
+        }
+      },
+      "MainBoardEfuse": {
+        "msg_id": 221,
+        "cycle_time": 100,
+        "description": "Efuse info for Front Inverters/RSM/BMS/Rear Inverters/DAN/Front efuses.",
+        "signals": {
+          "FrontInvertersCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "FrontInvertersStatus": {
+            "bits": 1
+          },
+          "RSMCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 20,
+            "unit": "A"
+          },
+          "RSMStatus": {
+            "bits": 1
+          },
+          "BMSCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "BMSStatus": {
+            "bits": 1
+          },
+          "RearInvertersCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "RearInvertersStatus": {
+            "bits": 1
+          },
+          "DAMCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "DAMStatus": {
+            "bits": 1
+          },
+          "FrontCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "FrontStatus": {
+            "bits": 1
+          }
+        }
+      },
+      "ConnectorBoardEfuse" : {
+        "msg_id": 233,
+        "cycle_time": 100,
+        "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
+        "signals":{   
+          "RearLeftPumpCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "RearLeftPumpStatus": {
+            "bits": 1
+          },
+          "RearRightPumpCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "RearRightPumpStatus": {
+            "bits": 1
+          },
+          "FrontPumpCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "FrontPumpStatus": {
+            "bits": 1
+          },
+          "LeftRadiatorFanCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "LeftRadiatorFanStatus": {
+            "bits": 1
+          },
+          "RightRadiatorFanCurrent": {
+            "resolution": 0.01,
+            "min": 0,
+            "max": 5,
+            "unit": "A"
+          },
+          "RightRadiatorFanStatus": {
+            "bits": 1
+          }
+      }
+    },
+    "ImuData": {
+    "msg_id": 225,
+    "cycle_time": 10,
+    "description": "Linear Acceleration x, y and z direction from the IMU",
+    "signals": {
+      "ImuAccelerationX": {
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
+      },
+      "ImuAccelerationY": {
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
+      },
+      "ImuAccelerationZ": {
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
+      }
     }
+  },
+  "ImuAngularData": {
+    "msg_id": 227,
+    "cycle_time": 10,
+    "description": "Angular Velocity in x, y and z direction from the IMU",
+    "signals": {
+      "ImuAngularVelocityRoll": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      },
+      "ImuAngularVelocityPitch": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      },
+      "ImuAngularVelocityYaw": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      }
+    }
+  }
 }

@@ -22,7 +22,7 @@
             }
         }
     },
-    "LatchedFaults": {
+    "ShdnNodeStatus": {
         "msg_id": 410,
         "cycle_time": 100,
         "description": "Latched faults for the BMS",
@@ -35,11 +35,23 @@
             },
             "BspdLatchedFault": {
                 "bits": 1
+            },
+            "TSIlckOKStatus" : {
+                "bits" : 1
+            },
+            "BmsOk": {
+                "bits": 1
+            },
+            "ImdOk": {
+                "bits": 1
+            },
+            "BspdOk": {
+                "bits": 1
             }
         }
     },
     "Contactors": {
-        "msg_id": 411,
+        "msg_id": 416,
         "cycle_time": 100,
         "description": "BMS IR state statuses",
         "signals": {
