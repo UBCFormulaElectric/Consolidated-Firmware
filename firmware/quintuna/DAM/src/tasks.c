@@ -3,10 +3,13 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "app_canTx.h"
+
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
+#include "io_buzzer.h"
 #include "io_telemMessage.h"
 #include "io_time.h"
 
@@ -19,6 +22,7 @@
 #include <hw_chimera_v2.h>
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
+#include "hw_resetReason.h"
 
 extern CRC_HandleTypeDef hcrc;
 
@@ -48,7 +52,13 @@ void tasks_init(void)
     // hw_gpio_writePin(&tsim_red_en_pin, true);
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
+    jobs_init();
+    // hw_gpio_writePin(&tsim_red_en_pin, true);
+    // hw_gpio_writePin(&ntsim_green_en_pin, false);
+
     io_telemMessage_init();
+
+    app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -149,24 +159,25 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
-    osDelay(osWaitForever);
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        if (tx_msg.is_fd)
-        {
-            hw_fdcan_transmit(&can1, &tx_msg);
-        }
-        else
-        {
-            hw_can_transmit(&can1, &tx_msg);
-        }
+        hw_fdcan_transmit(&can1, &tx_msg);
+        hw_fdcan_transmit(&can1, &tx_msg);
+        // ToDo: check if this is needed and investigate why is_fd is not a bool
+        //  if (tx_msg.is_fd)
+        //  {
+        //      hw_fdcan_transmit(&can1, &tx_msg);
+        //  }
+        //  else
+        //  {
+        //      hw_can_transmit(&can1, &tx_msg);
+        //  }
     }
 }
 
 _Noreturn void tasks_runCanRx(void)
 {
-    osDelay(osWaitForever);
     for (;;)
     {
         jobs_runCanRx_tick();
