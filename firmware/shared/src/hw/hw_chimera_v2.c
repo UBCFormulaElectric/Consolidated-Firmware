@@ -154,7 +154,7 @@ static const SpiDevice *hw_chimera_v2_getSpi(const hw_chimera_v2_Config *config,
  */
 static bool hw_chimera_v2_evaluateRequest(
     const hw_chimera_v2_Config *config,
-    ChimeraV2Request           *request,
+    const ChimeraV2Request     *request,
     ChimeraV2Response          *response)
 {
     // Empty provided response pointer.
@@ -166,7 +166,7 @@ static bool hw_chimera_v2_evaluateRequest(
     if (request->which_payload == ChimeraV2Request_gpio_read_tag)
     {
         // Extract payload
-        GpioReadRequest *payload = &request->payload.gpio_read;
+        const GpioReadRequest *payload = &request->payload.gpio_read;
 
         // GPIO read.
         const Gpio *gpio = hw_chimera_v2_getGpio(config, &payload->net_name);
@@ -182,7 +182,7 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_gpio_write_tag)
     {
         // Extract payload
-        GpioWriteRequest *payload = &request->payload.gpio_write;
+        const GpioWriteRequest *payload = &request->payload.gpio_write;
 
         // GPIO write.
         const Gpio *gpio = hw_chimera_v2_getGpio(config, &payload->net_name);
@@ -205,7 +205,7 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_adc_read_tag)
     {
         // Extract payload
-        AdcReadRequest *payload = &request->payload.adc_read;
+        const AdcReadRequest *payload = &request->payload.adc_read;
 
         // ADC read.
         const AdcChannel *adc_channel = hw_chimera_v2_getAdc(config, &payload->net_name);
@@ -225,7 +225,7 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_i2c_ready_tag)
     {
         // Extract payload
-        I2cReadyRequest *payload = &request->payload.i2c_ready;
+        const I2cReadyRequest *payload = &request->payload.i2c_ready;
 
         // I2C ready check.
         const I2cDevice *device = hw_chimera_v2_getI2c(config, &payload->net_name);
@@ -242,8 +242,8 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_i2c_transmit_tag)
     {
         // Extract payload
-        I2cTransmitRequest *payload = &request->payload.i2c_transmit;
-        const I2cDevice    *device  = hw_chimera_v2_getI2c(config, &payload->net_name);
+        const I2cTransmitRequest *payload = &request->payload.i2c_transmit;
+        const I2cDevice          *device  = hw_chimera_v2_getI2c(config, &payload->net_name);
         if (device == NULL)
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
@@ -259,8 +259,8 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_i2c_memory_write_tag)
     {
         // Extract payload
-        I2cMemoryWriteRequest *payload = &request->payload.i2c_memory_write;
-        const I2cDevice       *device  = hw_chimera_v2_getI2c(config, &payload->net_name);
+        const I2cMemoryWriteRequest *payload = &request->payload.i2c_memory_write;
+        const I2cDevice             *device  = hw_chimera_v2_getI2c(config, &payload->net_name);
         if (device == NULL)
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
@@ -277,7 +277,7 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_i2c_receive_tag)
     {
         // Extract payload
-        I2cReceiveRequest *payload = &request->payload.i2c_receive;
+        const I2cReceiveRequest *payload = &request->payload.i2c_receive;
 
         const I2cDevice *device = hw_chimera_v2_getI2c(config, &payload->net_name);
         if (device == NULL)
@@ -306,8 +306,8 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_i2c_memory_read_tag)
     {
         // Extract payload
-        I2cMemoryReadRequest *payload = &request->payload.i2c_memory_read;
-        const I2cDevice      *device  = hw_chimera_v2_getI2c(config, &payload->net_name);
+        const I2cMemoryReadRequest *payload = &request->payload.i2c_memory_read;
+        const I2cDevice            *device  = hw_chimera_v2_getI2c(config, &payload->net_name);
         if (device == NULL)
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
