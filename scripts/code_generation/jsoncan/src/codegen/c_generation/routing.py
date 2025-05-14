@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from re import M
 from typing import Dict, List, Optional, Set, Tuple
 
-from numpy import source
-
 from ...can_database import All, BusForwarder, CanBus, CanDatabase, CanNode
 from ...json_parsing.parse_error import InvalidCanJson
 
@@ -171,7 +169,7 @@ def _simple_fast_fourier_transform_stochastic_gradient_descent(bus_forwarder: Li
             return bus1, bus2, forwarder_node_name
         elif bus2 in source_nodes and bus1 in destination_nodes:
             return bus2, bus1, forwarder_node_name
-    
+
     # if no rerouter found, raise an error
     raise InvalidCanJson(
         f"Unable to navigate from {tx_node.name} to {rx_node.name} using the provided forwarder topology.")
