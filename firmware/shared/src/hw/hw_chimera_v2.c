@@ -336,8 +336,8 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_spi_receive_tag)
     {
         // Extract payload.
-        SpiReceiveRequest *payload = &request->payload.spi_receive;
-        const SpiDevice   *device  = hw_chimera_v2_getSpi(config, &payload->net_name);
+        const SpiReceiveRequest *payload = &request->payload.spi_receive;
+        const SpiDevice         *device  = hw_chimera_v2_getSpi(config, &payload->net_name);
         if (device == NULL)
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
@@ -361,8 +361,8 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_spi_transmit_tag)
     {
         // Extract payload.
-        SpiTransmitRequest *payload = &request->payload.spi_transmit;
-        const SpiDevice    *device  = hw_chimera_v2_getSpi(config, &payload->net_name);
+        const SpiTransmitRequest *payload = &request->payload.spi_transmit;
+        const SpiDevice          *device  = hw_chimera_v2_getSpi(config, &payload->net_name);
         if (device == NULL)
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
@@ -379,8 +379,8 @@ static bool hw_chimera_v2_evaluateRequest(
     else if (request->which_payload == ChimeraV2Request_spi_transaction_tag)
     {
         // Extract payload.
-        SpiTransactionRequest *payload = &request->payload.spi_transaction;
-        const SpiDevice       *device  = hw_chimera_v2_getSpi(config, &payload->net_name);
+        const SpiTransactionRequest *payload = &request->payload.spi_transaction;
+        const SpiDevice             *device  = hw_chimera_v2_getSpi(config, &payload->net_name);
         if (device == NULL)
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
