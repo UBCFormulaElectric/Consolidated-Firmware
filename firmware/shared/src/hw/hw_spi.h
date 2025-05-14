@@ -38,7 +38,7 @@ SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle);
  */
 ExitCode hw_spi_transmitThenReceive(
     const SpiDevice *device,
-    const uint8_t         *tx_buffer,
+    const uint8_t   *tx_buffer,
     uint16_t         tx_buffer_size,
     uint8_t         *rx_buffer,
     uint16_t         rx_buffer_size);
