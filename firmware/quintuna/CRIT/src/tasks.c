@@ -32,7 +32,7 @@ void tasks_init()
     hw_hardFaultHandler_init();
 
     hw_can_init(&can1);
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
 
     jobs_init();
 
