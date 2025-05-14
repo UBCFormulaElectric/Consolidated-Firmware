@@ -75,7 +75,7 @@ void hw_can_deinit(const CanHandle *can_handle)
 static TaskHandle_t transmit_task = NULL;
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef -> this breaks compatibility with FDCAN
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -116,19 +116,18 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     }
 
     // Indicates the mailbox used for transmission, not currently used.
-    uint32_t                mailbox       = 0;
-    const HAL_StatusTypeDef return_status = HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox);
-    return return_status == HAL_OK;
+    uint32_t mailbox = 0;
+
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
+    ;
 }
 
-bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
+ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
-    if (HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
-    {
-        return false;
-    }
+
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data)););
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -136,7 +135,7 @@ bool hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg 
     msg->dlc       = header.DLC;
     msg->timestamp = io_time_getCurrentMs();
 
-    return true;
+    return EXIT_CODE_OK;
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
@@ -145,7 +144,7 @@ static void handle_callback(CAN_HandleTypeDef *hcan)
     const CanHandle *handle = hw_can_getHandle(hcan);
 
     CanMsg rx_msg;
-    if (!hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg))
+    if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&rx_msg);
