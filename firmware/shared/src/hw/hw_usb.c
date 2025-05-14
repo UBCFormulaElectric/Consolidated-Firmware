@@ -1,11 +1,9 @@
 #include "hw_usb.h"
 
-#include "usbd_cdc_if.h" // gotta be very high for some reason
-
 #include <cmsis_os2.h>
 #include <FreeRTOS.h>
-#include <event_groups.h>
 
+#include "usbd_cdc_if.h"
 #include "io_log.h"
 
 // Select between FS or HS methods.
