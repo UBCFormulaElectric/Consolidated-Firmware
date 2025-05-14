@@ -1,20 +1,14 @@
 #pragma once
 
-/**
- * call once at initialization to ensure state B (not ready to accept charge)
- */
-void io_charger_init(void);
+typedef enum {
+    EVSE_DISCONNECTED,
+    EVSE_CONNECTED
+} ConnectionStatus;
 
 /**
- * vehicle inserted (pwm detected), waiting for EVSE to enable (kinda redundant to io_charger_init but different use
- * case)
+ * get the status of the EVSE CP PWM
  */
-void io_charger_vehiclePresent(void);
-
-/**
- * ask EVSE to start charging (high -> off, low -> on)
- */
-void io_charger_requestCharge(void);
+ConnectionStatus io_charger_getConnectionStatus();
 
 /**
  * hw interrupt to update PWM values

@@ -4,24 +4,17 @@
 #include "cmsis_os.h"
 #include "assert.h"
 
-void io_charger_init(void)
+ConnectionStatus io_charger_getConnectionStatus()
 {
-    hw_gpio_writePin(&n_evse_i_lim_pin, true);
-}
-
-void io_charger_vehiclePresent(void)
-{
-    io_charger_init();
-}
-
-void io_charger_requestCharge(void)
-{
-    hw_gpio_writePin(&n_evse_i_lim_pin, false);
+    if(990 <= evse_pwm_input.frequency_hz && evse_pwm_input.frequency_hz <= 1010)
+    {
+        return EVSE_CONNECTED;
+    }
+    return EVSE_DISCONNECTED;
 }
 
 void io_charger_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
     assert(htim == evse_pwm_input.htim);
-
     hw_pwmInput_tick(&evse_pwm_input);
 }

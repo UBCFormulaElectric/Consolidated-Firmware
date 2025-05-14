@@ -17,6 +17,7 @@
 	"files.associations": {
 		"hw_gpios.h": "c",
 		"cmsis_os.h": "c",
-		"app_statemachine.h": "c"
+		"app_statemachine.h": "c",
+		"hw_pwminput.h": "c"
 	}
 }
