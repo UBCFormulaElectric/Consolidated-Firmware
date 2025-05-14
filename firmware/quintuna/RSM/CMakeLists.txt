@@ -1,9 +1,6 @@
 message("")
 message("⚙️ Configuring RSM (Quintuna)")
 
-set(ARM_CORE "cm4")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
-
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
@@ -58,8 +55,14 @@ set(HW_INCLUDE_DIRS
         "${SHARED_HW_INCLUDE_DIR}"
 )
 
-if("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS} )
+if ("${TARGET}" STREQUAL "binary")
+    set(ARM_CORE "cm4")
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32f412rgtx_app.ld")
+    else ()
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
+    endif ()
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -68,21 +71,6 @@ if("${TARGET}" STREQUAL "binary")
             "${INCLUDE_DIRS}"
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
-    )
-
-    # Bootloader files.
-    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-
-    stm32f4_boot_binary(
-            "quintuna_RSM_boot"
-            "${BOOT_SRCS}"
-            "${BOOT_CUBEMX_SRCS}"
-            "${BOOT_INCLUDE_DIRS}"
-            "quintuna_RSM"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/RSM_boot.ioc"
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
@@ -131,14 +119,29 @@ if("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_stm32cube_hal" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4")
-    target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
 
-    embedded_image(
-            "quintuna_RSM"
-            "quintuna_RSM_app.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_app.hex"
-            "quintuna_RSM_boot.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_boot.hex"
-    )
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+        # Bootloader files.
+        file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+        file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        stm32f4_boot_binary(
+                "quintuna_RSM_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "quintuna_RSM"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/RSM_boot.ioc"
+        )
+        target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
+        embedded_image(
+                "quintuna_RSM"
+                "quintuna_RSM_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_app.hex"
+                "quintuna_RSM_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_RSM_boot.hex"
+        )
+    endif ()
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
