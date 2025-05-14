@@ -107,6 +107,7 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
             continue;
         }
         assert(transmit_task == NULL);
+        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
         transmit_task           = xTaskGetCurrentTaskHandle();
         const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
         assert(status == pdPASS);

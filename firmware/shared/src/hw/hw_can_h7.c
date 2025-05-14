@@ -1,6 +1,7 @@
 #include "hw_fdcan.h"
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
+#include <cmsis_os2.h>
 #include <FreeRTOS.h>
 #include <task.h>
 #include <string.h>
@@ -27,8 +28,9 @@ void hw_can_init(CanHandle *can_handle)
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_FDCAN_ActivateNotification(
-            can_handle->hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0) == HAL_OK);
-    assert(HAL_FDCAN_ActivateNotification(can_handle->hcan, FDCAN_IT_BUS_OFF, 0) == HAL_OK);
+            can_handle->hcan,
+            FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
+            1) == HAL_OK);
 
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(can_handle->hcan) == HAL_OK);
@@ -47,16 +49,17 @@ static bool tx(const CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, Can
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
     {
-        // if (poll <= 1000)
-        // {
-        //     poll++;
-        //     continue;
-        // }
-        // assert(transmit_task == NULL);
-        // transmit_task           = xTaskGetCurrentTaskHandle();
-        // const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
-        // assert(status == pdPASS);
-        // transmit_task = NULL;
+        if (poll <= 1000)
+        {
+            poll++;
+            continue;
+        }
+        assert(transmit_task == NULL);
+        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+        transmit_task           = xTaskGetCurrentTaskHandle();
+        const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
+        assert(status == pdPASS);
+        transmit_task = NULL;
     }
 
     return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
@@ -149,7 +152,14 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     handle_callback(hfdcan);
 }
 
-void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t TxEventFifoITs)
+void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
-    LOG_INFO("[TX EVENT] %d", TxEventFifoITs);
+    if (transmit_task == NULL)
+    {
+        return;
+    }
+    BaseType_t       higherPriorityTaskWoken = pdFALSE;
+    const BaseType_t status                  = xTaskNotifyFromISR(transmit_task, 0, 0, &higherPriorityTaskWoken);
+    assert(status == pdPASS);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
