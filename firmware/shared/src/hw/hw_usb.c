@@ -2,6 +2,7 @@
 
 #include <cmsis_os2.h>
 #include <FreeRTOS.h>
+#include <task.h>
 
 #include "usbd_cdc_if.h"
 #include "io_log.h"
