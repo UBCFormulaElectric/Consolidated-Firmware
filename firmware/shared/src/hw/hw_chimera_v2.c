@@ -370,7 +370,7 @@ static bool hw_chimera_v2_evaluateRequest(
         }
 
         // Transmit data.
-        bool success = IS_EXIT_OK(hw_spi_transmit(device, payload->data.bytes, (uint16_t)payload->data.size));
+        const bool success = IS_EXIT_OK(hw_spi_transmit(device, payload->data.bytes, (uint16_t)payload->data.size));
 
         // Format response.
         response->which_payload                = ChimeraV2Response_spi_transmit_tag;
@@ -388,8 +388,8 @@ static bool hw_chimera_v2_evaluateRequest(
         }
 
         // Transact data.
-        uint8_t rx_data[payload->rx_length];
-        bool    success = IS_EXIT_OK(hw_spi_transmitThenReceive(
+        uint8_t    rx_data[payload->rx_length];
+        const bool success = IS_EXIT_OK(hw_spi_transmitThenReceive(
             device, payload->tx_data.bytes, payload->tx_data.size, rx_data, (uint16_t)payload->rx_length));
         if (!success)
         {
