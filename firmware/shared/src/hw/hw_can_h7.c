@@ -38,7 +38,7 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -55,10 +55,11 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
-    return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
+    ;
 }
 
-bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -75,24 +76,23 @@ bool hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
-    return HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data) == HAL_OK;
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
+    ;
 }
 
-bool hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
+ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     assert(can_handle->ready);
     FDCAN_RxHeaderTypeDef header;
-    if (HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data) != HAL_OK)
-    {
-        return false;
-    }
+
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data)));
 
     msg->std_id    = header.Identifier;
     msg->dlc       = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
     msg->timestamp = io_time_getCurrentMs();
     msg->bus       = can_handle->bus_num;
 
-    return true;
+    return EXIT_CODE_OK;
 }
 
 // ReSharper disable once CppParameterMayBeConst
@@ -114,7 +114,7 @@ static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
     CanMsg           rx_msg;
-    if (!hw_fdcan_receive(handle, FDCAN_RX_FIFO0, &rx_msg))
+    if (IS_EXIT_ERR(hw_fdcan_receive(handle, FDCAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&rx_msg);

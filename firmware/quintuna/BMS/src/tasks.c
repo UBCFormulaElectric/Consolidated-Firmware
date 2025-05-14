@@ -1,6 +1,7 @@
 #include "tasks.h"
 
 #include "app_canTx.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -92,7 +93,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_fdcan_transmit(&can1, &tx_msg);
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
     }
 }
 
