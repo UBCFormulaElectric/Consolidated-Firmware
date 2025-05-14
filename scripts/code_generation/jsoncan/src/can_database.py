@@ -6,18 +6,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union, Set
+from typing import Dict, List, Optional, Set, Union
 
 import pandas as pd
 from strenum import StrEnum
 
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +28,8 @@ class CanBus:
     modes: List[str]
     default_mode: str
     fd: bool  # Whether or not this bus is FD
-    node_names: List[str]  # List of nodes on this bus, foreign key into CanDatabase.nodes, although provided in json
+    # List of nodes on this bus, foreign key into CanDatabase.nodes, although provided in json
+    node_names: List[str]
 
     def __hash__(self):
         return hash(self.name)
@@ -215,7 +211,8 @@ class CanMessage:
     # we store them to find how to travel between them, and they are used in dbcs
     tx_node_name: str  # Node which transmits this message
 
-    modes: Optional[List[str]]  # if this is None, then only use the bus default
+    # if this is None, then only use the bus default
+    modes: Optional[List[str]]
 
     def bytes(self):
         """
@@ -292,7 +289,8 @@ class CanNode:
     Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
     """
     name: str  # Name of this CAN node
-    bus_names: List[str]  # busses which the node is attached to, foreign key into CanDatabase.msgs
+    # busses which the node is attached to, foreign key into CanDatabase.msgs
+    bus_names: List[str]
     rx_msgs_names: Set[str] | All  # list of messages that it is listening
 
     def __hash__(self):
@@ -309,11 +307,14 @@ class CanDatabase:
     """
 
     nodes: Dict[str, CanNode]  # nodes[node_name] gives metadata for node_name
-    buses: Dict[str, CanBus]  # bus_config[bus_name] gives metadata for bus_name
+    # bus_config[bus_name] gives metadata for bus_name
+    buses: Dict[str, CanBus]
     msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
-    alerts: Dict[str, list[CanAlert]]  # alerts[node_name] gives a list of alerts on that node
+    # alerts[node_name] gives a list of alerts on that node
+    alerts: Dict[str, list[CanAlert]]
     enums: Dict[str, CanEnum]  # enums[enum_name] gives metadata for enum_name
-    collects_data: Dict[str, bool]  # collects_data[node_name] is true if this node collects data
+    # collects_data[node_name] is true if this node collects data
+    collects_data: Dict[str, bool]
 
     # this must be global state rather than local (node) state as the common usecase is navigation
     # which requires global information
@@ -354,7 +355,8 @@ class CanDatabase:
         TODO: Also add packing!
         """
         if str(msg_id) not in self.msgs:
-            logger.warning(f"Message ID '{msg_id}' is not defined in the JSON.")
+            logger.warning(
+                f"Message ID '{msg_id}' is not defined in the JSON.")
             return []
 
         signals = []
@@ -405,3 +407,21 @@ class BusForwarder:
     forwarder: str
     bus1: str
     bus2: str
+
+    def __eq__(self, value):
+        if isinstance(value, BusForwarder):
+            return (
+                self.forwarder == value.forwarder
+                and self.bus1 == value.bus1
+                and self.bus2 == value.bus2
+            )
+        return False
+
+    def __lt__(self, value):
+        if isinstance(value, BusForwarder):
+            return (
+                self.forwarder < value.forwarder
+                or (self.forwarder == value.forwarder and self.bus1 < value.bus1)
+                or (self.forwarder == value.forwarder and self.bus1 == value.bus1 and self.bus2 < value.bus2)
+            )
+        return False
