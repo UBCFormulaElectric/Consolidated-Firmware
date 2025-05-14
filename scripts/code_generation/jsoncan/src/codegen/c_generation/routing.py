@@ -171,6 +171,9 @@ def _simple_fast_fourier_transform_stochastic_gradient_descent(bus_forwarder: Li
             return bus1, bus2, forwarder_node_name
         elif bus2 in source_nodes and bus1 in destination_nodes:
             return bus2, bus1, forwarder_node_name
+        else:
+            raise InvalidCanJson(
+                f"Unable to navigate from {tx_node.name} to {rx_node.name} using the provided forwarder topology.")
 
 
 class CanTxConfig:
