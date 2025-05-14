@@ -30,7 +30,7 @@ void hw_can_init(CanHandle *can_handle)
         HAL_FDCAN_ActivateNotification(
             can_handle->hcan,
             FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
-            1) == HAL_OK);
+            FDCAN_TX_BUFFER0) == HAL_OK);
 
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(can_handle->hcan) == HAL_OK);
