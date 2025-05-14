@@ -499,9 +499,9 @@ static void hw_chimera_v2_tick(const hw_chimera_v2_Config *config)
 
     // Get length bytes.
     uint8_t length_bytes[2] = { 0, 0 };
-    for (uint8_t byte = 0; byte < 2; byte++)
+    for (uint8_t idx = 0; idx < 2; idx++)
     {
-        if (IS_EXIT_ERR(hw_usb_receive(length_bytes + byte, USB_REQUEST_TIMEOUT_MS)))
+        if (IS_EXIT_ERR(hw_usb_receive(length_bytes + idx, USB_REQUEST_TIMEOUT_MS)))
         {
             // If we don't receive length bytes, stop processing.
             return;
@@ -515,9 +515,9 @@ static void hw_chimera_v2_tick(const hw_chimera_v2_Config *config)
 
     // Receive content.
     uint8_t content[length];
-    for (uint16_t byte = 0; byte < length; byte++)
+    for (uint16_t idx = 0; idx < length; idx++)
     {
-        if (IS_EXIT_ERR(hw_usb_receive(content + byte, USB_REQUEST_TIMEOUT_MS)))
+        if (IS_EXIT_ERR(hw_usb_receive(&content[idx], USB_REQUEST_TIMEOUT_MS)))
         {
             return;
         }
