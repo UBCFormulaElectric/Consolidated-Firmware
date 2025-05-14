@@ -97,21 +97,16 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
 
-    const ExitCode exit =
-        hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
-    return exit;
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
+    ;
 }
 
 ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
-    const ExitCode      exit =
-        hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data));
-    if (exit != EXIT_CODE_OK)
-    {
-        return exit;
-    }
+
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data)););
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -119,7 +114,7 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
     msg->dlc       = header.DLC;
     msg->timestamp = io_time_getCurrentMs();
 
-    return exit;
+    return EXIT_CODE_OK;
 }
 
 static void handle_callback(CAN_HandleTypeDef *hfdcan)
@@ -127,7 +122,7 @@ static void handle_callback(CAN_HandleTypeDef *hfdcan)
     const CanHandle *handle = hw_can_getHandle(hfdcan);
 
     CanMsg rx_msg;
-    if (!IS_EXIT_OK(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
+    if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
     io_canQueue_pushRx(&rx_msg);
