@@ -132,8 +132,9 @@ void hw_usb_connect_callback()
         LOG_WARN("USB: No task to notify.");
         return;
     }
-    BaseType_t       higherPriorityTaskWoken = pdFALSE;
-    const BaseType_t status                  = xTaskNotifyFromISR(xTaskToNotify, 0, 0, &higherPriorityTaskWoken);
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    // notify the task which is waiting for the USB connection
+    const BaseType_t status = xTaskNotifyFromISR(xTaskToNotify, 0, 0, &higherPriorityTaskWoken);
     assert(status == pdPASS);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
@@ -154,7 +155,9 @@ void hw_usb_waitForConnected()
         return;
 
     assert(xTaskToNotify == NULL);
-    xTaskToNotify           = xTaskGetCurrentTaskHandle();
+    // save which task we need to notify
+    xTaskToNotify = xTaskGetCurrentTaskHandle();
+    // block this task until notification comes
     const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
     assert(status == pdPASS);
     xTaskToNotify = NULL;
