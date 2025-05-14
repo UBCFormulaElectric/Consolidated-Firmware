@@ -37,6 +37,9 @@
 #include "hw_adcs.h"
 #include "hw_chimeraConfig_v2.h"
 #include "io_log.h"
+#include "hw_can.h"
+#include <assert.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,6 +96,12 @@ void        StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+CanHandle        can = { .hcan = &hcan2 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 // int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
 // int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
 // int lfs_erase(const struct lfs_config *c, lfs_block_t block);
