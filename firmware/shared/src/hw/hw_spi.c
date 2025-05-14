@@ -59,7 +59,6 @@ ExitCode hw_spi_transmitThenReceive(
     const uint16_t   tx_buffer_size,
     uint8_t         *rx_buffer,
     const uint16_t   rx_buffer_size)
-
 {
     // HAL_SPI_TransmitReceive_IT requires tx buffer and rx buffer to be of size equal to number of bytes to transmit
     // and receive
