@@ -28,7 +28,7 @@ static bool ready_for_drive       = false;
 static void hvInitStateRunOnEntry(void)
 {
     app_powerManager_updateConfig(power_manager_hvInit);
-    app_canTx_VC_State_set(VC_HV_INIT_STATE);
+    app_canTx_VC_State_set(VC_HV_STATE);
     app_powerSequencing_init();
 }
 static void hvInitStateRunOnTick1Hz(void) {}
