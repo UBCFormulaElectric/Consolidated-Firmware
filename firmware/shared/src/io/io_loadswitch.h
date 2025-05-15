@@ -1,5 +1,6 @@
 #pragma once
 
+#include "io_loadswitch.h"
 #include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
@@ -62,8 +63,15 @@ void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch);
 void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch);
 
 /**
- * Check PGOOD to see if we need to reset the Loadswitch
+ * Check PGOOD  to see if we need to reset the Loadswitch
  * @param loadswitch The loadswitch you want to check is okay
  * @return The state of PGOOD
  */
-bool io_STloadswitch_checkPgood(const TI_LoadSwitch *loadswitch);
+bool io_TILoadswitch_Status(const TI_LoadSwitch *loadswitch);
+
+/**
+ * Check frstby  to see if we need to reset the Loadswitch
+ * @param loadswitch The loadswitch you want to check is okay
+ * @return The state of laodswitch
+ */
+bool io_STLoadswitch_Status(const ST_LoadSwitch *loadSwitch);
