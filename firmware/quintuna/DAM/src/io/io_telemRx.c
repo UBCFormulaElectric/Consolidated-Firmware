@@ -2,13 +2,15 @@
 #include "hw_uart.h"
 #include "hw_uarts.h"
 
+#define BUFFER_SIZE sizeof(IoRtcTime) + 2
+
 static IoRtcTime received_time_data = { 0 };
 
 void io_telemRx()
 {
     // for now we just simply recieve the data and set the time
-    uint8_t data[sizeof(IoRtcTime)];
-    hw_uart_receive(&_900k_uart, data, sizeof(IoRtcTime));
+    uint8_t data[BUFFER_SIZE];
+    hw_uart_receive(&_900k_uart, data, BUFFER_SIZE);
     if (data[0] == 0xAA && data[1] == 0x55)
     {
         // Extract the time data from the received data
