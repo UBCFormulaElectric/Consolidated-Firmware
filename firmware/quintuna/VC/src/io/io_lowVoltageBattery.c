@@ -107,6 +107,30 @@ static ExitCode send_writeSubcommandToLowerSCDThresh(){
     return EXIT_CODE_OK;
 }
 
+static ExitCode send_writeSubcommandToLowerCUVThresh(){
+    
+    uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(0x9275), (uint8_t) BYTE_MASK(0x9275 >> 8)};
+    //first we are writing to address 0x3E to set the subcommand
+    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
+    //what we are trying to do with info is send a number with max 15 which can be done in a byte
+    uint8_t thresh[2] = {0x37,0x00}; //13 in hex cause we are setting it 400mV max threshold
+    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, thresh, 2));
+    //need to add the CRC config here and we need to transmit both checksum and length in one
+
+    uint8_t calcChecksum =
+    (uint8_t)(((uint8_t)(BYTE_MASK(0x9275))) + ((uint8_t)((BYTE_MASK(0x9275 >> 8)))) + thresh[0]);
+
+    uint8_t crc_length_thresh[2] = {~((uint8_t)BYTE_MASK(calcChecksum)), 6};
+
+    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_CHECKSUM, crc_length_thresh, 2));
+
+    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
+    Subcommand_Response thresh_response;
+    RETURN_IF_ERR(recieve_subcommand(0x9275,&thresh_response));
+
+    return EXIT_CODE_OK;
+}
+
 // static ExitCode send_writeSubcommandToLowerSCDDelay(){
 //     uint8_t delay_cmd_address[2] = {(uint8_t) BYTE_MASK(0x9287), (uint8_t)BYTE_MASK(0x9287<<8)};
 
