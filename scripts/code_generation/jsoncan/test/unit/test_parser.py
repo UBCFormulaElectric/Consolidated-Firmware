@@ -1,7 +1,6 @@
 import unittest
 from typing import Set
 
-from pydantic import InstanceOf
 
 from ...src.can_database import All, CanMessage
 from .fixture import CDBTests
