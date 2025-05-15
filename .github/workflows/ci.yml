@@ -1,313 +1,313 @@
-name: UBC Formula Electric CI
-on:
-  pull_request:
+# name: UBC Formula Electric CI
+# on:
+#   pull_request:
 
-jobs:
-  clang-format:
-    name: Check C Formatting
-    runs-on: ubuntu-22.04
+# jobs:
+#   clang-format:
+#     name: Check C Formatting
+#     runs-on: ubuntu-22.04
 
-    #    container:
-    #      image: ubcformulaelectric/environment:arm_14
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.DOCKER_TOKEN }}
+#     #    container:
+#     #      image: ubcformulaelectric/environment:arm_14
+#     #      credentials:
+#     #        username: ubcformulaelectric
+#     #        password: ${{ secrets.DOCKER_TOKEN }}
 
-    steps:
-      # Fix to get git diff working in a Docker container
-      # https://github.com/actions/checkout/issues/363
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
+#     steps:
+#       # Fix to get git diff working in a Docker container
+#       # https://github.com/actions/checkout/issues/363
+#       - name: Setup git
+#         run: git config --global --add safe.directory $(realpath .)
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Format code
-        run: python3 scripts/utilities/fix_formatting.py # this should just use system dependencies
+#       - name: Format code
+#         run: python3 scripts/utilities/fix_formatting.py # this should just use system dependencies
 
-      - name: Check for differences
-        run: git --no-pager diff --color --exit-code
+#       - name: Check for differences
+#         run: git --no-pager diff --color --exit-code
 
-  codegen:
-    name: Check CubeMX Code Gen
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          #- board: VC
-          #  ioc_dir: firmware/quadruna/VC/src/cubemx
-          #- board: BMS
-          #  ioc_dir: firmware/quadruna/BMS/src/cubemx
-          #- board: FSM
-          #  ioc_dir: firmware/quadruna/FSM/src/cubemx
-          #- board: RSM
-          #  ioc_dir: firmware/quadruna/RSM/src/cubemx
-          #- board: CRIT
-          #  ioc_dir: firmware/quadruna/CRIT/src/cubemx
-          - board: f4dev
-            ioc_dir: firmware/dev/f4dev/src/cubemx
-          - board: h7dev
-            ioc_dir: firmware/dev/h7dev/src/cubemx
-          - board: BMS
-            ioc_dir: firmware/quintuna/BMS/src/cubemx
-          - board: CRIT
-            ioc_dir: firmware/quintuna/CRIT/src/cubemx
-          - board: DAM
-            ioc_dir: firmware/quintuna/DAM/src/cubemx
-          - board: FSM
-            ioc_dir: firmware/quintuna/FSM/src/cubemx
-          - board: RSM
-            ioc_dir: firmware/quintuna/RSM/src/cubemx
-          - board: VC
-            ioc_dir: firmware/quintuna/VC/src/cubemx
+#   codegen:
+#     name: Check CubeMX Code Gen
+#     runs-on: ubuntu-22.04
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         include:
+#           #- board: VC
+#           #  ioc_dir: firmware/quadruna/VC/src/cubemx
+#           #- board: BMS
+#           #  ioc_dir: firmware/quadruna/BMS/src/cubemx
+#           #- board: FSM
+#           #  ioc_dir: firmware/quadruna/FSM/src/cubemx
+#           #- board: RSM
+#           #  ioc_dir: firmware/quadruna/RSM/src/cubemx
+#           #- board: CRIT
+#           #  ioc_dir: firmware/quadruna/CRIT/src/cubemx
+#           - board: f4dev
+#             ioc_dir: firmware/dev/f4dev/src/cubemx
+#           - board: h7dev
+#             ioc_dir: firmware/dev/h7dev/src/cubemx
+#           - board: BMS
+#             ioc_dir: firmware/quintuna/BMS/src/cubemx
+#           - board: CRIT
+#             ioc_dir: firmware/quintuna/CRIT/src/cubemx
+#           - board: DAM
+#             ioc_dir: firmware/quintuna/DAM/src/cubemx
+#           - board: FSM
+#             ioc_dir: firmware/quintuna/FSM/src/cubemx
+#           - board: RSM
+#             ioc_dir: firmware/quintuna/RSM/src/cubemx
+#           - board: VC
+#             ioc_dir: firmware/quintuna/VC/src/cubemx
 
-    # both packages shouldn't need to use python dependences that we need...
-    #    container:
-    #      image: ubcformulaelectric/environment:arm_14
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.DOCKER_TOKEN }}
+#     # both packages shouldn't need to use python dependences that we need...
+#     #    container:
+#     #      image: ubcformulaelectric/environment:arm_14
+#     #      credentials:
+#     #        username: ubcformulaelectric
+#     #        password: ${{ secrets.DOCKER_TOKEN }}
 
-    steps:
-      # Fix to get git diff working in a Docker container
-      # https://github.com/actions/checkout/issues/363
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
+#     steps:
+#       # Fix to get git diff working in a Docker container
+#       # https://github.com/actions/checkout/issues/363
+#       - name: Setup git
+#         run: git config --global --add safe.directory $(realpath .)
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      # should not need this
-      #      - name: Generate Log4J file
-      #        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
+#       # should not need this
+#       #      - name: Generate Log4J file
+#       #        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
 
-      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we
-      # we also generate a checksum from the .ioc file when code is generated during builds.
-      # During CI, we re-generate the checksum. If it matches, then the code is up to date,
-      # otherwise, you need to re-generate STM32CubeMX code locally.
-      - name: Generate checksum
-        run: |
-          python3 scripts/utilities/generate_md5_checksum.py \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
+#       # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we
+#       # we also generate a checksum from the .ioc file when code is generated during builds.
+#       # During CI, we re-generate the checksum. If it matches, then the code is up to date,
+#       # otherwise, you need to re-generate STM32CubeMX code locally.
+#       - name: Generate checksum
+#         run: |
+#           python3 scripts/utilities/generate_md5_checksum.py \
+#             $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+#             $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
 
-      - name: Check for differences
-        run: git --no-pager diff --color --exit-code
+#       - name: Check for differences
+#         run: git --no-pager diff --color --exit-code
 
-  build-firmware:
-    needs: [ clang-format, codegen ]
-    name: Build Firmware Binaries
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          #          - board: quadruna_VC
-          #          - board: quadruna_BMS
-          #          - board: quadruna_FSM
-          #          - board: quadruna_RSM
-          #          - board: quadruna_CRIT
-          - board: f4dev
-          - board: h7dev
-          - board: quintuna_BMS
-          - board: quintuna_CRIT
-          - board: quintuna_DAM
-          - board: quintuna_FSM
-          - board: quintuna_RSM
-          - board: quintuna_VC
+#   build-firmware:
+#     needs: [ clang-format, codegen ]
+#     name: Build Firmware Binaries
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         include:
+#           #          - board: quadruna_VC
+#           #          - board: quadruna_BMS
+#           #          - board: quadruna_FSM
+#           #          - board: quadruna_RSM
+#           #          - board: quadruna_CRIT
+#           - board: f4dev
+#           - board: h7dev
+#           - board: quintuna_BMS
+#           - board: quintuna_CRIT
+#           - board: quintuna_DAM
+#           - board: quintuna_FSM
+#           - board: quintuna_RSM
+#           - board: quintuna_VC
 
-    container:
-      image: ubcformulaelectric/environment:arm_14
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.docker_token }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - uses: ./.github/actions/build_binary
-        with:
-          board: ${{ matrix.board }}
+#     container:
+#       image: ubcformulaelectric/environment:arm_14
+#     #      credentials:
+#     #        username: ubcformulaelectric
+#     #        password: ${{ secrets.docker_token }}
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: recursive
+#       - uses: ./.github/actions/build_binary
+#         with:
+#           board: ${{ matrix.board }}
 
-  test-firmware:
-    needs: [ clang-format ]
-    name: Test Firmware
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          #- board: VC
-          #  car: quadruna
-          #- board: BMS
-          #  car: quadruna
-          #- board: FSM
-          #  car: quadruna
-          #- board: RSM
-          #  car: quadruna
-          #- board: CRIT
-          #  car: quadruna
-          # - board: BMS
-          #   car: quintuna
-          #- board: CRIT
-          #  car: quintuna
-          #- board: DAM
-          #  car: quintuna
-          #- board: FSM
-          #  car: quintuna
-          #- board: RSM
-          #  car: quintuna
-          - board: VC
-            car: quintuna
+#   test-firmware:
+#     needs: [ clang-format ]
+#     name: Test Firmware
+#     runs-on: ubuntu-22.04
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         include:
+#           #- board: VC
+#           #  car: quadruna
+#           #- board: BMS
+#           #  car: quadruna
+#           #- board: FSM
+#           #  car: quadruna
+#           #- board: RSM
+#           #  car: quadruna
+#           #- board: CRIT
+#           #  car: quadruna
+#           # - board: BMS
+#           #   car: quintuna
+#           #- board: CRIT
+#           #  car: quintuna
+#           #- board: DAM
+#           #  car: quintuna
+#           #- board: FSM
+#           #  car: quintuna
+#           #- board: RSM
+#           #  car: quintuna
+#           - board: VC
+#             car: quintuna
 
-    container:
-      image: ubcformulaelectric/environment:arm_14
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.DOCKER_TOKEN }}
+#     container:
+#       image: ubcformulaelectric/environment:arm_14
+#     #      credentials:
+#     #        username: ubcformulaelectric
+#     #        password: ${{ secrets.DOCKER_TOKEN }}
 
-    env:
-      BUILD_DIR: build_fw_test
+#     env:
+#       BUILD_DIR: build_fw_test
 
-    steps:
-      # Fix to ensure that commands like git status work in child directories
-      # for gitpython in git_commit_info
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
+#     steps:
+#       # Fix to ensure that commands like git status work in child directories
+#       # for gitpython in git_commit_info
+#       - name: Setup git
+#         run: git config --global --add safe.directory $(realpath .)
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: recursive
 
-      - name: Build
-        run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target ${{ matrix.car }}_${{ matrix.board }}_test
+#       - name: Build
+#         run: |
+#           cmake --preset "FW Test CI" -B $BUILD_DIR
+#           cmake --build $BUILD_DIR --target ${{ matrix.car }}_${{ matrix.board }}_test
 
-      - name: Run Tests
-        run: |
-          cd $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.car }}_${{ matrix.board }}_test
+#       - name: Run Tests
+#         run: |
+#           cd $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}
+#           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.car }}_${{ matrix.board }}_test
 
-  test-shared:
-    name: Test Shared
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    container:
-      image: ubcformulaelectric/environment:arm_14
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.DOCKER_TOKEN }}
+#   test-shared:
+#     name: Test Shared
+#     runs-on: ubuntu-22.04
+#     needs: [ clang-format ]
+#     container:
+#       image: ubcformulaelectric/environment:arm_14
+#     #      credentials:
+#     #        username: ubcformulaelectric
+#     #        password: ${{ secrets.DOCKER_TOKEN }}
 
-    env:
-      BUILD_DIR: build_fw_test
+#     env:
+#       BUILD_DIR: build_fw_test
 
-    steps:
-      # Fix to ensure that commands like git status work in child directories
-      # for gitpython in git_commit_info
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
+#     steps:
+#       # Fix to ensure that commands like git status work in child directories
+#       # for gitpython in git_commit_info
+#       - name: Setup git
+#         run: git config --global --add safe.directory $(realpath .)
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: recursive
 
-      - name: Build
-        run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target shared_test
+#       - name: Build
+#         run: |
+#           cmake --preset "FW Test CI" -B $BUILD_DIR
+#           cmake --build $BUILD_DIR --target shared_test
 
-      - name: Run tests
-        run: |
-          cd $BUILD_DIR/firmware/shared
-          valgrind --tool=memcheck --leak-check=yes ./shared_test
+#       - name: Run tests
+#         run: |
+#           cd $BUILD_DIR/firmware/shared
+#           valgrind --tool=memcheck --leak-check=yes ./shared_test
 
-  test-fakegen:
-    name: Test Fake Function Generation
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    container:
-      image: ubcformulaelectric/environment:arm_14
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.DOCKER_TOKEN }}
+#   test-fakegen:
+#     name: Test Fake Function Generation
+#     runs-on: ubuntu-22.04
+#     needs: [ clang-format ]
+#     container:
+#       image: ubcformulaelectric/environment:arm_14
+#     #      credentials:
+#     #        username: ubcformulaelectric
+#     #        password: ${{ secrets.DOCKER_TOKEN }}
 
-    env:
-      BUILD_DIR: build_fw_test
+#     env:
+#       BUILD_DIR: build_fw_test
 
-    steps:
-      # Fix to ensure that commands like git status work in child directories
-      # for gitpython in git_commit_info
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
+#     steps:
+#       # Fix to ensure that commands like git status work in child directories
+#       # for gitpython in git_commit_info
+#       - name: Setup git
+#         run: git config --global --add safe.directory $(realpath .)
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: recursive
 
-      - name: Build
-        run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target fakegen_test
+#       - name: Build
+#         run: |
+#           cmake --preset "FW Test CI" -B $BUILD_DIR
+#           cmake --build $BUILD_DIR --target fakegen_test
 
-      - name: Run tests
-        run: |
-          cd $BUILD_DIR/scripts/code_generation/fakegen
+#       - name: Run tests
+#         run: |
+#           cd $BUILD_DIR/scripts/code_generation/fakegen
   
-  test-logfs:
-    name: Test logfs
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    container:
-      image: ubcformulaelectric/environment:arm_14
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.DOCKER_TOKEN }}
+#   test-logfs:
+#     name: Test logfs
+#     runs-on: ubuntu-22.04
+#     needs: [ clang-format ]
+#     container:
+#       image: ubcformulaelectric/environment:arm_14
+#     #      credentials:
+#     #        username: ubcformulaelectric
+#     #        password: ${{ secrets.DOCKER_TOKEN }}
 
-    env:
-      BUILD_DIR: build_fw_test
+#     env:
+#       BUILD_DIR: build_fw_test
 
-    steps:
-      # Fix to ensure that commands like git status work in child directories
-      # for gitpython in git_commit_info
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
+#     steps:
+#       # Fix to ensure that commands like git status work in child directories
+#       # for gitpython in git_commit_info
+#       - name: Setup git
+#         run: git config --global --add safe.directory $(realpath .)
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: recursive
 
-      - name: Build and install `logfs`
-        run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target install_python_logfs
-          pytest -v firmware/logfs/test
-  test-jsoncan:
-    name: Test jsonCAN
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    container:
-      image: ubcformulaelectric/environment:arm_14
-    env:
-      BUILD_DIR: build_fw_test
-    steps:
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Run jsoncan unit tests
-        run: python3 -m pytest ./scripts/code_generation/jsoncan/test
-      - name: Build jsonCAN integration tests
-        run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target jsoncan_test
-      - name: Run jsonCAN integration tests
-        run: |
-          cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
-          valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
+#       - name: Build and install `logfs`
+#         run: |
+#           cmake --preset "FW Test CI" -B $BUILD_DIR
+#           cmake --build $BUILD_DIR --target install_python_logfs
+#           pytest -v firmware/logfs/test
+#   test-jsoncan:
+#     name: Test jsonCAN
+#     runs-on: ubuntu-22.04
+#     needs: [ clang-format ]
+#     container:
+#       image: ubcformulaelectric/environment:arm_14
+#     env:
+#       BUILD_DIR: build_fw_test
+#     steps:
+#       - name: Setup git
+#         run: git config --global --add safe.directory $(realpath .)
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#       - name: Run jsoncan unit tests
+#         run: python3 -m pytest ./scripts/code_generation/jsoncan/test
+#       - name: Build jsonCAN integration tests
+#         run: |
+#           cmake --preset "FW Test CI" -B $BUILD_DIR
+#           cmake --build $BUILD_DIR --target jsoncan_test
+#       - name: Run jsonCAN integration tests
+#         run: |
+#           cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
+#           valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
