@@ -1,7 +1,4 @@
-import copy
 import random
-
-from torch import rand
 
 from ...src.can_database import CanDatabase
 from ...src.codegen.c_generation.routing import (CanForward,
@@ -50,7 +47,7 @@ class RoutingTests(CDBTests):
         random.shuffle(cdb_copy.forwarding)
 
         tx_config, rx_config, reroute_config = resolve_tx_rx_reroute(cdb_copy)
-    
+
         self.assertEqual(reroute_config, self.reroute_config)
         self.assertEqual(tx_config, self.tx_config)
         self.assertEqual(rx_config, self.rx_config)
