@@ -200,7 +200,7 @@ def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
         node_name, warnings, CanAlertType.WARNING
     )
     faults_counts_signals = _parse_node_alert_count_signals(
-        node_name, faults, "Fault"
+        node_name, faults,  CanAlertType.FAULT
     )
     info_counts_signals = _parse_node_alert_count_signals(
         node_name, info, CanAlertType.INFO
