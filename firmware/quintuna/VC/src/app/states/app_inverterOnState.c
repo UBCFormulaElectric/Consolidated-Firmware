@@ -6,24 +6,24 @@
 #include <app_canUtils.h>
 #include <stdbool.h>
 
-static const PowerState power_manager_inverter_on = {
-    .efuses = { [EFUSE_CHANNEL_F_INV]   = true,
-                [EFUSE_CHANNEL_RSM]     = true,
-                [EFUSE_CHANNEL_BMS]     = true,
-                [EFUSE_CHANNEL_R_INV]   = true,
-                [EFUSE_CHANNEL_DAM]     = true,
-                [EFUSE_CHANNEL_FRONT]   = true,
-                [EFUSE_CHANNEL_RL_PUMP] = false,
-                [EFUSE_CHANNEL_RR_PUMP] = false,
-                [EFUSE_CHANNEL_F_PUMP]  = false,
-                [EFUSE_CHANNEL_L_RAD]   = false,
-                [EFUSE_CHANNEL_R_RAD]   = false },
+static PowerState power_manager_state = {
+    .efuses = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
+                [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
+                [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
+                [EFUSE_CHANNEL_RR_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
+                [EFUSE_CHANNEL_F_PUMP]  = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
+                [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
+                [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
 };
 
 static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
-    app_powerManager_updateConfig(power_manager_inverter_on);
+    app_powerManager_updateConfig(power_manager_state);
 }
 
 static void inverterOnStateRunOnTick1Hz(void) {}
