@@ -122,7 +122,8 @@ extern "C"
 #define nSUSP_FL_OCSC_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
-
+#define LED_Pin GPIO_PIN_6
+#define LED_GPIO_Port GPIOC
     /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -1,6 +1,7 @@
 #include "hw_error.h"
 #include "io_log.h"
 #include "hw_utils.h"
+#include "main.h"
 
 static char buffer[100];
 
@@ -16,5 +17,7 @@ void hw_error(const char *file, int line, const char *func)
     for (;;)
     {
         // Trap in a infinite loop.
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        HAL_Delay(1000);
     }
 }
