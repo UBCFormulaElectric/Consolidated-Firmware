@@ -174,6 +174,14 @@ class ConsistencyCheckTests(CDBTests):
                 if node.name == alert_message.tx_node_name:
                     continue
 
+                # skip if the node does not have alerts config
+                if node.name not in self.cdb_valid.alerts.keys():
+                    continue
+                
+                # skip if the rx is configured as all
+                if isinstance(node.rx_msgs_names, All):
+                    continue
+
                 self.assertTrue(alert_message.name in node.rx_msgs_names)
 
 
