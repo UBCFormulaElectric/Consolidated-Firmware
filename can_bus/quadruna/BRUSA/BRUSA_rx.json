@@ -1,5 +1,6 @@
-{
-    "messages": [
-        "BMS_BrusaControls"
-    ]
-}
+[
+  {
+    "bus": "Can",
+    "messages": ["BMS_BrusaControls"]
+  }
+]
