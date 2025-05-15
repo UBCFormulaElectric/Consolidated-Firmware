@@ -4,6 +4,7 @@
 #include "cmsis_os.h"
 
 #include "app_canTx.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -162,8 +163,8 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_fdcan_transmit(&can1, &tx_msg);
-        hw_fdcan_transmit(&can1, &tx_msg);
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // ToDo: check if this is needed and investigate why is_fd is not a bool
         //  if (tx_msg.is_fd)
         //  {

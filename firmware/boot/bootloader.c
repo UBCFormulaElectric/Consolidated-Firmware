@@ -26,6 +26,7 @@
 #error "Please define what MCU is used"
 #endif
 
+#include "app_utils.h"
 #include <assert.h>
 
 extern CRC_HandleTypeDef hcrc;
@@ -269,7 +270,7 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
     }
 }
 
