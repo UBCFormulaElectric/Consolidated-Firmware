@@ -320,6 +320,20 @@ class CanDatabase:
     # which requires global information
     forwarding: List[BusForwarder]
 
+    def __copy__(self):
+        """
+        Create a copy of this CanDatabase object.
+        """
+        return CanDatabase(
+            nodes=self.nodes.copy(),
+            buses=self.buses.copy(),
+            msgs=self.msgs.copy(),
+            alerts=self.alerts.copy(),
+            enums=self.enums.copy(),
+            collects_data=self.collects_data.copy(),
+            forwarding=self.forwarding.copy(),
+        )
+
     def make_pandas_dataframe(self):
         # Create a pandas dataframe from the messages
         data = []

@@ -211,6 +211,11 @@ class CanTxConfig:
         :return:
         """
         return list(self._map_by_msg_name.keys())
+    
+    def __eq__(self, other):
+        if not isinstance(other, CanTxConfig):
+            return False
+        return self._map_by_msg_name == other._map_by_msg_name
 
 
 class CanRxConfig:
@@ -247,6 +252,10 @@ class CanRxConfig:
     def empty_bus(self, bus_name: str) -> bool:
         return len(self._map_by_bus[bus_name]) == 0
 
+    def __eq__(self, other):
+        if not isinstance(other, CanRxConfig):
+            return False
+        return self._map_by_bus == other._map_by_bus and self._map_by_msg_name == other._map_by_msg_name
 
 @dataclass()
 class CanForward:
