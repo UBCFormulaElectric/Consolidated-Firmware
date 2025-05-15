@@ -5,7 +5,7 @@
   "faults_counts_id": 493,
   "info_id": 489,
   "info_counts_id": 488,
-  "bus": ["Can"],
+
   "warnings": {
     "WatchdogTimeout": {
       "id": 401,

@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 100,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Vitals message for the BMS.",
     "signals": {
@@ -15,7 +15,7 @@
   },
   "AlertsContext": {
     "msg_id": 104,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Context info for BMS alerts",
     "signals": {
@@ -38,7 +38,7 @@
   },
   "ImdStatus": {
     "msg_id": 105,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS IMD Messages",
     "signals": {
@@ -73,7 +73,7 @@
   },
   "ImdData": {
     "msg_id": 106,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS IMD Measurement Data Values",
     "signals": {
@@ -101,7 +101,7 @@
   },
   "Charger": {
     "msg_id": 107,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
@@ -112,7 +112,7 @@
   },
   "BrusaControls": {
     "msg_id": 1560,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Flags and parameters for controlling the BRUSA charger",
     "signals": {
@@ -146,7 +146,7 @@
   },
   "OkStatuses": {
     "msg_id": 111,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS OK status flags",
     "signals": {
@@ -172,7 +172,7 @@
   },
   "Contactors": {
     "msg_id": 112,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS AIR state statuses",
     "signals": {
@@ -189,7 +189,7 @@
   },
   "CellTemperatures": {
     "msg_id": 120,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS Cell Temperature readings",
     "signals": {
@@ -209,7 +209,7 @@
   },
   "VoltageAndChargeStats": {
     "msg_id": 121,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS Cell Voltage readings",
     "signals": {
@@ -244,7 +244,7 @@
   },
   "BalancingInfo": {
     "msg_id": 122,
-    "bus": ["Can"],
+
     "cycle_time": null,
     "description": "BMS Balancing Status",
     "signals": {
@@ -261,7 +261,7 @@
   },
   "CellStats": {
     "msg_id": 123,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS Cell Stats",
     "signals": {
@@ -309,7 +309,7 @@
   },
   "TractiveSystem": {
     "msg_id": 130,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS Tractive System Data",
     "signals": {
@@ -344,7 +344,7 @@
   },
   "CommitInfo": {
     "msg_id": 140,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS Current Running Git Commit Info",
     "signals": {
@@ -358,7 +358,7 @@
   },
   "OWC_Segment0to1_Status": {
     "msg_id": 141,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Open Wire Check Segment 0 to 1 Status",
     "signals": {
@@ -372,7 +372,7 @@
   },
   "OWC_Segment2to3_Status": {
     "msg_id": 142,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Open Wire Check Segment 2 to 3 Status",
     "signals": {
@@ -386,7 +386,7 @@
   },
   "BMSShdnNodeStatus": {
     "msg_id": 143,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "BMS Shutdown Node Status",
     "signals": {
@@ -400,7 +400,7 @@
   },
   "Segment0_VoltageStats_0": {
     "msg_id": 154,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 0",
     "allowed_modes": ["debug"],
@@ -451,7 +451,7 @@
   },
   "Segment0_VoltageStats_1": {
     "msg_id": 155,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 1",
     "allowed_modes": ["debug"],
@@ -502,7 +502,7 @@
   },
   "Segment1_VoltageStats_0": {
     "msg_id": 156,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS Segment 1 Voltage Stats Part 0",
     "allowed_modes": ["debug"],
@@ -559,7 +559,7 @@
   },
   "Segment1_VoltageStats_1": {
     "msg_id": 157,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS Segment 1 Voltage Stats Part 1",
     "allowed_modes": ["debug"],
@@ -616,7 +616,7 @@
   },
   "Segment2_VoltageStats_0": {
     "msg_id": 158,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS Segment 2 Voltage Stats Part 0",
     "allowed_modes": ["debug"],
@@ -673,7 +673,7 @@
   },
   "Segment2_VoltageStats_1": {
     "msg_id": 159,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS Segment 2 Voltage Stats Part 1",
     "allowed_modes": ["debug"],
@@ -730,7 +730,7 @@
   },
   "Segment3_VoltageStats_0": {
     "msg_id": 160,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS Segment 3 Voltage Stats Part 0",
     "allowed_modes": ["debug"],
@@ -787,7 +787,7 @@
   },
   "Segment3_VoltageStats_1": {
     "msg_id": 161,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "BMS Segment 3 Voltage Stats Part 1",
     "allowed_modes": ["debug"],
@@ -844,7 +844,7 @@
   },
   "AverageSegmentTemperatureStats": {
     "msg_id": 165,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Average temperatures for each segment in the accumulator",
     "allowed_modes": ["debug"],

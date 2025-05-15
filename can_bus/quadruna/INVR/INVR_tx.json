@@ -1,6 +1,5 @@
 {
   "Temperatures1": {
-    "bus": ["Can"],
     "msg_id": 50,
     "cycle_time": 100,
     "signals": {
@@ -51,7 +50,6 @@
     }
   },
   "Temperatures2": {
-    "bus": ["Can"],
     "msg_id": 51,
     "cycle_time": 100,
     "signals": {
@@ -102,7 +100,6 @@
     }
   },
   "Temperatures3": {
-    "bus": ["Can"],
     "msg_id": 52,
     "cycle_time": 100,
     "signals": {
@@ -153,7 +150,6 @@
     }
   },
   "AnalogInputVoltages": {
-    "bus": ["Can"],
     "msg_id": 53,
     "cycle_time": 10,
     "signals": {
@@ -224,7 +220,6 @@
     }
   },
   "DigitalInputStatus": {
-    "bus": ["Can"],
     "msg_id": 54,
     "cycle_time": 10,
     "signals": {
@@ -263,7 +258,6 @@
     }
   },
   "MotorPositionInfo": {
-    "bus": ["Can"],
     "msg_id": 55,
     "cycle_time": 10,
     "signals": {
@@ -310,7 +304,6 @@
     }
   },
   "CurrentInfo": {
-    "bus": ["Can"],
     "msg_id": 56,
     "cycle_time": 10,
     "signals": {
@@ -357,7 +350,6 @@
     }
   },
   "VoltageInfo": {
-    "bus": ["Can"],
     "msg_id": 57,
     "cycle_time": 10,
     "signals": {
@@ -404,7 +396,6 @@
     }
   },
   "FluxInformation": {
-    "bus": ["Can"],
     "msg_id": 58,
     "cycle_time": 10,
     "signals": {
@@ -451,7 +442,6 @@
     }
   },
   "InternalVoltages": {
-    "bus": ["Can"],
     "msg_id": 59,
     "cycle_time": 100,
     "signals": {
@@ -502,7 +492,6 @@
     }
   },
   "InternalStates": {
-    "bus": ["Can"],
     "msg_id": 60,
     "cycle_time": 10,
     "signals": {
@@ -602,7 +591,6 @@
     }
   },
   "FaultCodes": {
-    "bus": ["Can"],
     "msg_id": 61,
     "cycle_time": 10,
     "signals": {
@@ -841,7 +829,6 @@
     }
   },
   "TorqueAndTimerInfo": {
-    "bus": ["Can"],
     "msg_id": 62,
     "cycle_time": 10,
     "signals": {
@@ -878,7 +865,6 @@
     }
   },
   "ModulationIndexAndFluxWeakeningOutputInformation": {
-    "bus": ["Can"],
     "msg_id": 63,
     "cycle_time": 10,
     "signals": {
@@ -924,7 +910,6 @@
     }
   },
   "FirmwareInformation": {
-    "bus": ["Can"],
     "msg_id": 64,
     "cycle_time": 100,
     "signals": {
@@ -955,7 +940,6 @@
     }
   },
   "DebugReadWriteParamResponse": {
-    "bus": ["Can"],
     "msg_id": 84,
     "cycle_time": null,
     "signals": {

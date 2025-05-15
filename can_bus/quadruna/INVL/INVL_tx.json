@@ -1,7 +1,7 @@
 {
   "Temperatures1": {
     "msg_id": 0,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "signals": {
       "ModuleATemperature": {
@@ -52,7 +52,7 @@
   },
   "Temperatures2": {
     "msg_id": 1,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "signals": {
       "ControlBoardTemperature": {
@@ -103,7 +103,7 @@
   },
   "Temperatures3": {
     "msg_id": 2,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "signals": {
       "Rtd4Temperature": {
@@ -154,7 +154,7 @@
   },
   "AnalogInputVoltages": {
     "msg_id": 3,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "AnalogInput1": {
@@ -225,7 +225,7 @@
   },
   "DigitalInputStatus": {
     "msg_id": 4,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "ForwardSwitchStatus": {
@@ -268,7 +268,7 @@
   },
   "MotorPositionInfo": {
     "msg_id": 5,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "MotorAngle": {
@@ -315,7 +315,7 @@
   },
   "CurrentInfo": {
     "msg_id": 6,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "PhaseACurrent": {
@@ -362,7 +362,7 @@
   },
   "VoltageInfo": {
     "msg_id": 7,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "DcBusVoltage": {
@@ -409,7 +409,7 @@
   },
   "FluxInformation": {
     "msg_id": 8,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "FluxCommand": {
@@ -456,7 +456,7 @@
   },
   "InternalVoltages": {
     "msg_id": 9,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "signals": {
       "ReferenceVoltage_1V5": {
@@ -507,7 +507,7 @@
   },
   "InternalStates": {
     "msg_id": 10,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "VsmState": {
@@ -607,7 +607,7 @@
   },
   "FaultCodes": {
     "msg_id": 11,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "Post_HardwareGateDesaturationFault": {
@@ -846,7 +846,7 @@
   },
   "TorqueAndTimerInfo": {
     "msg_id": 12,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "CommandedTorque": {
@@ -883,7 +883,7 @@
   },
   "ModulationIndexAndFluxWeakeningOutputInformation": {
     "msg_id": 13,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "ModulationIndex": {
@@ -929,7 +929,7 @@
   },
   "FirmwareInformation": {
     "msg_id": 14,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "signals": {
       "EEPROMVersion": {
@@ -960,7 +960,7 @@
   },
   "DebugReadWriteParamResponse": {
     "msg_id": 34,
-    "bus": ["Can"],
+
     "cycle_time": null,
     "signals": {
       "ResponseParameterAddress": {

@@ -1,24 +1,27 @@
 {
-  "forwarders": [{}],
+  "forwarders": [],
   "buses": [
     {
       "name": "Can",
       "nodes": [
         "VC",
         "BMS",
-        "FSM",
-        "RSM",
+        "Debug",
+        "BRUSA",
         "CRIT",
         "Debug",
         "dimos",
+        "FSM",
         "INVL",
         "INVR",
-        "Boot",
-        "BRUSA"
+        "RSM",
+        "VC",
+        "Boot"
       ],
       "bus_speed": 500,
       "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     }
-  ]
+  ],
+  "loggers": ["VC"]
 }
