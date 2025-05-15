@@ -5,7 +5,8 @@ from ...src.can_database import CanDatabase
 from ...src.json_parsing.json_can_parsing import JsonCanParser
 
 # valid_json_folder = os.path.abspath("./test/valid_json")
-valid_json_folder = os.path.join(os.path.dirname(__file__), os.pardir, "valid_jsons", "valid_json1")
+valid_json_folder = os.path.join(os.path.dirname(
+    __file__), os.pardir, "json_configs", "valid_json1")
 
 # disable test sorting, so that the order of tests is consistent and per given
 unittest.TestLoader.sortTestMethodsUsing = None
@@ -29,5 +30,6 @@ class CDBTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.parser_valid: JsonCanParser = JsonCanParser(valid_json_folder)  # slight white box testing situation
+        cls.parser_valid: JsonCanParser = JsonCanParser(
+            valid_json_folder)  # slight white box testing situation
         cls.cdb_valid: CanDatabase = cls.parser_valid.make_database()

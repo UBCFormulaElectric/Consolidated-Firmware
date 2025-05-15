@@ -4,7 +4,7 @@ import unittest
 
 from ...generate_can_from_json import generate_can_from_json
 
-valid_json_folder = os.path.join(os.path.dirname(__file__), os.pardir, "valid_jsons", "valid_json1")
+valid_json_folder = os.path.join(os.path.dirname(__file__), os.pardir, "json_configs", "valid_json1")
 dbc_output = os.path.join(os.path.dirname(__file__), "test.dbc")
 ecu1_output = os.path.join(os.path.dirname(__file__), "ecu1")
 ecu2_output = os.path.join(os.path.dirname(__file__), "ecu2")
