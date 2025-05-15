@@ -1,5 +1,6 @@
 #include "io_telemRx.h"
 #include "hw_uart.h"
+#include "hw_uarts.h"
 
 static IoRtcTime received_time_data = { 0 };
 
@@ -7,7 +8,7 @@ void io_telemRx()
 {
     // Check if the data is valid
     uint8_t data[sizeof(IoRtcTime)];
-    hw_uart_receive(&telem_uart, data, sizeof(IoRtcTime));
+    hw_uart_receive(&_900k_uart, data, sizeof(IoRtcTime));
     if (data[0] == 0xAA && data[1] == 0x55)
     {
         // Extract the time data from the received data
