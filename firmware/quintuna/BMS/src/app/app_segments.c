@@ -108,23 +108,30 @@ void app_segments_broadcastTempsVRef()
 
 void app_segments_broadcastStatus()
 {
-    static void (*const muxTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_MUX_OK_set };
-    static void (*const vregSetters[NUM_SEGMENTS])(bool)    = { app_canTx_BMS_Seg0_VREG_OK_set };
-    static void (*const vregdSetters[NUM_SEGMENTS])(bool)   = { app_canTx_BMS_Seg0_VREGD_OK_set };
-
+    static void (*const muxTestSetters[NUM_SEGMENTS])(bool)     = { app_canTx_BMS_Seg0_MUX_OK_set };
+    static void (*const vregSetters[NUM_SEGMENTS])(bool)        = { app_canTx_BMS_Seg0_VREG_OK_set };
+    static void (*const vregdSetters[NUM_SEGMENTS])(bool)       = { app_canTx_BMS_Seg0_VREGD_OK_set };
     static void (*const revCodeSetters[NUM_SEGMENTS])(uint32_t) = { app_canTx_BMS_Seg0_REV_CODE_set };
-    // static void (*const tempSetters[NUM_SEGMENTS])(float)           = { app_canTx_BMS_Seg0_VREGD_OK_set };
-    static void (*const thermalOKsetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_THERMAL_OK_set };
+    static void (*const thermalOKsetters[NUM_SEGMENTS])(bool)   = { app_canTx_BMS_Seg0_THERMAL_OK_set };
+    // static void (*const tempSetters[NUM_SEGMENTS])(float)           = {  };
 
+    // ASSERT_EXIT_OK(io_ltc6813_diagnoseMUX());
+    // io_time_delay(15);
     ASSERT_EXIT_OK(io_ltc6813_startInternalADCConversions(s));
     io_time_delay(15);
-    // ASSERT_EXIT_OK(io_ltc6813_diagnoseMUX());
-    // io_time_delay(5);
     io_ltc6813_getStatus(statuses, status_success_buf);
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         if (IS_EXIT_ERR(status_success_buf[segment]))
+        {
+            revCodeSetters[segment](0);
+            vregSetters[segment](false);
+            vregdSetters[segment](false);
+            thermalOKsetters[segment](false);
+            muxTestSetters[segment](false);
             continue;
+        }
+
         revCodeSetters[segment](statuses[segment].REV);
 
         // tempSetters[segment]((float)statuses[segment].ITMP / 76.0f - 276.0f);
@@ -173,6 +180,7 @@ void app_segments_voltageSelftest()
     static void (*const segmentVoltageSelfTestSetters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_VOLT_REGISTER_OK_set };
 
+    // ASSERT_EXIT_OK(io_ltc6813_clearCellRegisters());
     ASSERT_EXIT_OK(io_ltc6813_sendSelfTestVoltages(s));
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
@@ -192,6 +200,7 @@ void app_segments_auxSelftest()
 {
     static void (*const segmentAuxRegSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_AUX_REGISTER_OK_set };
 
+    // ASSERT_EXIT_OK(io_ltc6813_clearAuxRegisters());
     ASSERT_EXIT_OK(io_ltc6813_sendSelfTestAux(s));
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);

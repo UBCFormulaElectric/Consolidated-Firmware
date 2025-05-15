@@ -61,21 +61,3 @@ ltc6813_tx io_ltc6813_build_tx_cmd(uint16_t command);
  * @return success of operation
  */
 ExitCode io_ltc6813_sendCommand(uint16_t command);
-
-/**
- * Clears the register groups which contain the cell voltage data
- * @return success of operation
- */
-ExitCode io_ltc6813_clearCellRegisters();
-
-/**
- * Clears the auxiliary registers groups which contain the thermistor voltage data
- * @return success of operation
- */
-ExitCode io_ltc6813_clearAuxRegisters();
-
-/**
- * Clears the status registers groups which contain the status data
- * @return success of operation
- */
-ExitCode io_ltc6813_clearStatRegisters();

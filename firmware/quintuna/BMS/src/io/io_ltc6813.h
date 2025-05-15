@@ -215,3 +215,21 @@ ExitCode io_ltc6813_startInternalADCConversions(ADCSpeed speed);
  * @param success success of operations
  */
 void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS]);
+
+/**
+ * Clears the register groups which contain the cell voltage data
+ * @return success of operation
+ */
+ExitCode io_ltc6813_clearCellRegisters();
+
+/**
+ * Clears the auxiliary registers groups which contain the thermistor voltage data
+ * @return success of operation
+ */
+ExitCode io_ltc6813_clearAuxRegisters();
+
+/**
+ * Clears the status registers groups which contain the status data
+ * @return success of operation
+ */
+ExitCode io_ltc6813_clearStatRegisters();

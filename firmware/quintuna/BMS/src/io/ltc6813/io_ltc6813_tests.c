@@ -6,7 +6,6 @@
 
 ExitCode io_ltc6813_sendSelfTestVoltages(const ADCSpeed speed)
 {
-    ASSERT_EXIT_OK(io_ltc6813_clearCellRegisters());
     const uint16_t MD_SHIFT_7 = (speed & 0x3) << 7;
 #define CVST (0x0207U | MD_SHIFT_7 | ST << 5)
     return io_ltc6813_sendCommand(CVST);
@@ -14,7 +13,6 @@ ExitCode io_ltc6813_sendSelfTestVoltages(const ADCSpeed speed)
 
 ExitCode io_ltc6813_sendSelfTestAux(const ADCSpeed speed)
 {
-    ASSERT_EXIT_OK(io_ltc6813_clearAuxRegisters());
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 #define AXST (0x407 | adc_speed_factor | (uint16_t)(ST << 5))
     return io_ltc6813_sendCommand(AXST);
@@ -22,7 +20,6 @@ ExitCode io_ltc6813_sendSelfTestAux(const ADCSpeed speed)
 
 ExitCode io_ltc6813_sendSelfTestStat(const ADCSpeed speed)
 {
-    ASSERT_EXIT_OK(io_ltc6813_clearStatRegisters());
     const uint16_t adc_speed_factor = (speed & 0x3) << 7;
 #define STATST (0x40F | adc_speed_factor | (uint16_t)(ST << 5))
     return io_ltc6813_sendCommand(STATST);

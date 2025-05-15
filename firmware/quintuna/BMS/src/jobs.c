@@ -20,12 +20,12 @@ void jobs_runLtc(void)
     app_segments_broadcastTempsVRef();
     if (app_canRx_Debug_EnableDebugMode_get())
     {
-        app_segments_statusSelftest();  // status test
-        app_segments_openWireCheck();   // cell test
-        app_segments_auxSelftest();     // aux test
-        app_segments_ADCAccuracyTest(); // cell test
         app_segments_broadcastStatus(); // status test
+        app_segments_openWireCheck();   // cell test
+        app_segments_ADCAccuracyTest(); // cell test
+        app_segments_auxSelftest();     // aux test
         app_segments_voltageSelftest(); // cell test
+        // app_segments_statusSelftest();  // status test
     }
 }
 

@@ -35,7 +35,6 @@ ExitCode io_ltc6813_clearStatRegisters()
 
 ExitCode io_ltc6813_startInternalADCConversions(const ADCSpeed speed)
 {
-    RETURN_IF_ERR(io_ltc6813_clearStatRegisters());
     const uint16_t MD_shift_7 = (speed & 0x3) << 7;
 #define CHST (0x0)
 #define ADSTAT (0x0468 | MD_shift_7 | CHST)
