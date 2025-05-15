@@ -26,21 +26,73 @@ static_assert(THERMISTORS_PER_SEGMENT == (AUX_REGS_PER_SEGMENT - 1) * 2);
  * @file ltc6813/io_ltc6813_configs.c
  */
 
-// TODO app layer read and write configs more frequently in case of power loss
+// as per table 38
+typedef struct __attribute__((__packed__))
+{
+    // byte 1
+    uint8_t adcopt : 1; // parameter in controlling ADC speed
+    uint8_t dten : 1;   // instead of sleeping it goes to extended balancing
+    uint8_t refon : 1;  // Keeps the references up so adcs read faster
+    uint8_t gpio_1_5 : 5;
+    // byte 2
+    uint8_t vuv_0_7;
+    // byte 3
+    uint8_t vuv_8_11 : 4;
+    uint8_t vov_0_3 : 4;
+    // byte 4
+    uint8_t vov_4_11;
+    // byte 5
+    uint8_t dcc_1_8;
+    // byte 6
+    uint8_t dcc_9_12 : 4;
+    uint8_t dcto : 4;
+} CFGAR;
+
+// as per table 39
+typedef struct __attribute__((__packed__))
+{
+    // byte 1
+    uint8_t gpio_6_9 : 4;
+    uint8_t dcc_13_16 : 4;
+    // byte 2
+    uint8_t dcc_17 : 1;
+    uint8_t dcc_18 : 1;
+    uint8_t dcc_0 : 1;
+    uint8_t dtmen : 1;
+    uint8_t ps : 2;
+    uint8_t fdrf : 1;
+    uint8_t mute : 1;
+    // byte 3-6
+    uint32_t reserved;
+} CFGBR;
+
+typedef struct
+{
+    CFGAR reg_a;
+    CFGBR reg_b;
+} SegmentConfig;
+
+/**
+ * Sets the balancing configuration of all segments
+ * @param balance_config the balancing configuration in question
+ */
+void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
+
 /**
  * Reads the configuration registers, and returns them into the pointer you give it
+ * @param configs configs on the ltcs
  * @param success success of the operation
  */
-void io_ltc6813_readConfigurationRegisters(ExitCode success[NUM_SEGMENTS]);
+void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS]);
 
 /**
  * Writes a configuration to all segments on the daisy chain.
  * We have a default configuration. All elements that are not in the default configuration must be
  * present in the config variable passed into the function.
- * @param balance_config The balance configuration to write to the LTCs
+ * @param config the configuration to write on the LTC
  * @return success of the operation
  */
-ExitCode io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
+ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS]);
 
 // TODO Everytime an ADCSpeed is used, ensure that the ADCOPT is sufficient
 typedef enum

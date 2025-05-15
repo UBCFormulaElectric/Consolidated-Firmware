@@ -1,6 +1,17 @@
 #pragma once
 
 /**
+ * Writes the default config to the internal config
+ */
+void app_segments_writeDefaultConfig();
+
+/**
+ * Syncs configs on LTC with the internal configs
+ * @note you can use this to wake up the chip
+ */
+void app_segments_configSync();
+
+/**
  * Reads the voltages, broadcasts them appropriately
  */
 void app_segments_broadcastVoltages();

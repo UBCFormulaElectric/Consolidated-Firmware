@@ -14,20 +14,17 @@
 #include "io_ltc6813.h"
 #include "io_time.h"
 
-void jobs_runLtc(void)
+void jobs_runLtc_tick(void)
 {
-    // app_segments_broadcastVoltages();
-    // app_segments_broadcastTempsVRef();
-    // if (app_canRx_Debug_EnableDebugMode_get())
-    // {
-    //     app_segments_openWireCheck();   // cell test
-    //     app_segments_ADCAccuracyTest(); // cell test
-    //     app_segments_auxSelftest();     // aux test
-    //     app_segments_voltageSelftest(); // cell test
-    // }
-    app_segments_statusSelftest();
-    io_time_delay(1000);
+    app_segments_configSync();
+    app_segments_broadcastVoltages();
+    app_segments_broadcastTempsVRef();
     app_segments_broadcastStatus();
+    if (app_canRx_Debug_EnableDebugMode_get())
+    {
+        app_segments_openWireCheck();   // cell test
+        app_segments_ADCAccuracyTest(); // cell test
+    }
 }
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
@@ -41,11 +38,6 @@ void jobs_init()
     io_canQueue_init();
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-
-    static bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
-    io_ltc6813_writeConfigurationRegisters(balance_config);
-    io_ltc6813_writeConfigurationRegisters(balance_config);
-    ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(balance_config)); // no balancing
 }
 
 void jobs_run1Hz_tick(void)

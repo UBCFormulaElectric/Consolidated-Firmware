@@ -83,7 +83,6 @@ void io_ltc6813_readAuxRegisters(
                 continue;
             }
 
-            // since we are ignoring REF variable, we need to offset all further readings by 1 backwards
             comm_success[seg_idx][reg_group]     = EXIT_CODE_OK;
             aux_regs[seg_idx][reg_group * 3 + 0] = seg_reg_group->a;
             aux_regs[seg_idx][reg_group * 3 + 1] = seg_reg_group->b;

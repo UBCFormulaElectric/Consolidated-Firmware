@@ -8,12 +8,13 @@
 #include <hw_utils.h>
 #include <string.h>
 
+// TODO extended balancing
+
 static const ADCSpeed s = ADCSpeed_7kHz;
 
 static uint16_t segment_vref[NUM_SEGMENTS];
 
-#define V_PER_100UV (1E-4f)
-#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
+#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * 1E-4f)
 #define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
 // This buffer is only used for storing valid cell voltage data
 // dump whatever you want in here fr
@@ -28,6 +29,84 @@ static ExitCode aux_reg_success_buf[NUM_SEGMENTS][AUX_REG_GROUPS];
 
 static StatusRegGroups statuses[NUM_SEGMENTS];
 static ExitCode        status_success_buf[NUM_SEGMENTS];
+
+static SegmentConfig segment_config[NUM_SEGMENTS];
+static SegmentConfig want_segment_config[NUM_SEGMENTS];
+static ExitCode      config_success_buf[NUM_SEGMENTS];
+// todo set this to true cell upper/lower bound
+#define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
+#define VOV (0x9C4U) // Over-voltage comparison voltage, VOV * 16 * 100uV
+
+void app_segments_writeDefaultConfig()
+{
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        SegmentConfig *const out       = &segment_config[seg];
+        CFGAR *const         seg_a_cfg = &out->reg_a;
+        CFGBR *const         seg_b_cfg = &out->reg_b;
+        // enables GPIOs for thermistors (reading values)
+        seg_a_cfg->gpio_1_5 = 0x1F;
+        seg_b_cfg->gpio_6_9 = 0xF;
+        seg_a_cfg->refon    = 1;
+        seg_a_cfg->dten     = 0;
+        seg_a_cfg->adcopt   = 0; // TODO configure based on desired ADC speed
+        // upper and lower bound
+        seg_a_cfg->vuv_0_7  = VUV & 0xFF;
+        seg_a_cfg->vuv_8_11 = VUV >> 8 & 0xF;
+        seg_a_cfg->vov_0_3  = VOV & 0xF;
+        seg_a_cfg->vov_4_11 = VOV >> 4 & 0xFF;
+    }
+}
+
+void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT])
+{
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        SegmentConfig *const out       = &segment_config[seg];
+        CFGAR *const         seg_a_cfg = &out->reg_a;
+        CFGBR *const         seg_b_cfg = &out->reg_b;
+        uint32_t             dcc_bits  = 0U;
+        // Get dcc bits to write for the current segment (which cells to balance)
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            dcc_bits |= (uint32_t)(balance_config[seg][cell] << cell);
+        }
+        // TODO double check this is correct
+        // note that we want balance_config to be auto scalable (for futureproofing)
+        seg_b_cfg->dcc_0     = 0;
+        seg_a_cfg->dcc_1_8   = dcc_bits & 0xFF;
+        seg_a_cfg->dcc_9_12  = dcc_bits >> 8 & 0xF;
+        seg_b_cfg->dcc_13_16 = dcc_bits >> 12 & 0xF;
+        seg_b_cfg->dcc_18    = 0;
+        seg_b_cfg->dcc_17    = 0;
+    }
+}
+
+void app_segments_configSync()
+{
+    bool read_config_ok = true;
+    for (uint8_t try = 0; try < 3; try++)
+    {
+        io_ltc6813_readConfigurationRegisters(segment_config, config_success_buf);
+        read_config_ok = true;
+        for (uint8_t seg = 0; read_config_ok && seg < NUM_SEGMENTS; seg++)
+            read_config_ok &= IS_EXIT_OK(config_success_buf[seg]);
+        if (read_config_ok)
+            break;
+    }
+    assert(read_config_ok);
+
+    // check that segment_config is
+    bool seg_config_same = true;
+    for (uint8_t seg = 0; seg_config_same && seg < NUM_SEGMENTS; seg++)
+    {
+        seg_config_same &= memcmp(&segment_config[seg], &want_segment_config[seg], sizeof(SegmentConfig)) == 0;
+    }
+    if (seg_config_same)
+        return;
+
+    ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(want_segment_config));
+}
 
 // test setters
 void app_segments_broadcastVoltages()
