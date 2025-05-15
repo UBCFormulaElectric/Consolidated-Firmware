@@ -138,8 +138,12 @@ void app_segments_ADCAccuracyTest()
                        adc_1_2_diff = (uint16_t)abs(voltage_regs[segment][6] - voltage_regs[segment][7]),
                        adc_3_4_diff = (uint16_t)abs(voltage_regs[segment][12] - voltage_regs[segment][13]);
         segmentVRefTrueSetters[segment](vref_diff < CONVERT_VOLTAGE_TO_100UV(0.014f));
-        segmentOverlapADC12TestSetters[segment](adc_1_2_diff < CONVERT_VOLTAGE_TO_100UV(0.001f));
-        segmentOverlapADC23TestSetters[segment](adc_3_4_diff < CONVERT_VOLTAGE_TO_100UV(0.001f));
+        const bool adc_1_2_fail =
+            IS_EXIT_ERR(volt_success_buf[segment][0]) || IS_EXIT_ERR(volt_success_buf[segment][1]);
+        segmentOverlapADC12TestSetters[segment](!adc_1_2_fail && adc_1_2_diff < CONVERT_VOLTAGE_TO_100UV(0.001f));
+        const bool adc_2_3_fail =
+            IS_EXIT_ERR(volt_success_buf[segment][1]) || IS_EXIT_ERR(volt_success_buf[segment][2]);
+        segmentOverlapADC23TestSetters[segment](!adc_2_3_fail && adc_3_4_diff < CONVERT_VOLTAGE_TO_100UV(0.001f));
     }
 }
 
