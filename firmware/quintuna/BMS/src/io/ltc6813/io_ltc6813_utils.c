@@ -22,21 +22,3 @@ ExitCode io_ltc6813_pollAdcConversions(void)
     }
     return EXIT_CODE_TIMEOUT;
 }
-
-ExitCode io_ltc6813_clearCellRegisters()
-{
-#define CLRCELL (0x0711)
-    return io_ltc6813_sendCommand(CLRCELL);
-}
-
-ExitCode io_ltc6813_clearAuxRegisters()
-{
-#define CLRAUX (0x0712)
-    return io_ltc6813_sendCommand(CLRAUX);
-}
-
-ExitCode io_ltc6813_clearStatRegisters()
-{
-#define CLRSTAT (0x0713)
-    return io_ltc6813_sendCommand(CLRSTAT);
-}

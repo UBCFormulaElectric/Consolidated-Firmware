@@ -6,7 +6,12 @@
 #include <assert.h>
 #include <string.h>
 
-// TODO assert that for each speed that the ADCOPT is correct
+ExitCode io_ltc6813_clearCellRegisters()
+{
+#define CLRCELL (0x0711)
+    return io_ltc6813_sendCommand(CLRCELL);
+}
+
 ExitCode io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 {
     RETURN_IF_ERR(io_ltc6813_clearCellRegisters());

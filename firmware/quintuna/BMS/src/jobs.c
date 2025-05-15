@@ -20,16 +20,13 @@ void jobs_runLtc(void)
     app_segments_broadcastTempsVRef();
     if (app_canRx_Debug_EnableDebugMode_get())
     {
-        app_segments_openWireCheck();
-        app_segments_ADCAccuracyTest();
-        app_segments_voltageSelftest();
-        app_segments_auxSelftest();
-        app_segments_statusSelftest();
+        app_segments_statusSelftest();  // status test
+        app_segments_openWireCheck();   // cell test
+        app_segments_auxSelftest();     // aux test
+        app_segments_ADCAccuracyTest(); // cell test
+        app_segments_broadcastStatus(); // status test
+        app_segments_voltageSelftest(); // cell test
     }
-    // io_ltc6813_diagnoseMUX();
-    // static LTCStatus statuses[NUM_SEGMENTS];
-    // static ExitCode  success[NUM_SEGMENTS];
-    // io_ltc6813_getStatus(statuses, success);
 }
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)

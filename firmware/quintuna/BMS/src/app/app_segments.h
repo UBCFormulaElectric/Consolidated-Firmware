@@ -11,6 +11,11 @@ void app_segments_broadcastVoltages();
 void app_segments_broadcastTempsVRef();
 
 /**
+ *
+ */
+void app_segments_broadcastStatus();
+
+/**
  * This performs two tests:
  * First, it checks that the reference voltage is correct.
  * Then, it measures cells 7/13 (index 6/12) on ADC1/2 and ADC2/3 respectively.

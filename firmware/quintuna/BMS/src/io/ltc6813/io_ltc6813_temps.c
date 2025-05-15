@@ -7,7 +7,11 @@
 #include <io_log.h>
 #include <string.h>
 
-#define V_PER_100UV (1E-4f)
+ExitCode io_ltc6813_clearAuxRegisters()
+{
+#define CLRAUX (0x0712)
+    return io_ltc6813_sendCommand(CLRAUX);
+}
 
 ExitCode io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
 {

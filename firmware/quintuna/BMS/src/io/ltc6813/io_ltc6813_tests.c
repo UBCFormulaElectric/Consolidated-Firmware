@@ -2,16 +2,6 @@
 
 #include "io_ltc6813_internal.h"
 
-/**
- * Clears the status registers
- * @return success of operation
- */
-// static bool clearStatusRegisters()
-// {
-// #define CLRSTAT (0x0713)
-//     return io_ltc6813_sendCommand(CLRSTAT);
-// }
-
 #define ST (0x2)
 
 ExitCode io_ltc6813_sendSelfTestVoltages(const ADCSpeed speed)

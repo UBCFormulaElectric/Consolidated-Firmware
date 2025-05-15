@@ -27,6 +27,21 @@ typedef struct __attribute__((__packed__))
 } StatB;
 static_assert(sizeof(StatB) == REGISTER_GROUP_SIZE);
 
+ExitCode io_ltc6813_clearStatRegisters()
+{
+#define CLRSTAT (0x0713)
+    return io_ltc6813_sendCommand(CLRSTAT);
+}
+
+ExitCode io_ltc6813_startInternalADCConversions(const ADCSpeed speed)
+{
+    RETURN_IF_ERR(io_ltc6813_clearStatRegisters());
+    const uint16_t MD_shift_7 = (speed & 0x3) << 7;
+#define CHST (0x0)
+#define ADSTAT (0x0468 | MD_shift_7 | CHST)
+    return io_ltc6813_sendCommand(ADSTAT);
+}
+
 void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
 {
     for (uint8_t i = 0; i < NUM_SEGMENTS; i++)

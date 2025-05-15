@@ -14,7 +14,7 @@ static uint16_t segment_vref[NUM_SEGMENTS];
 
 #define V_PER_100UV (1E-4f)
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-#define CONVERT_VOLTAGE_TO_100UV(v) ((int16_t)(v * 1E4f))
+#define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
 // This buffer is only used for storing valid cell voltage data
 // dump whatever you want in here fr
 static uint16_t voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
@@ -25,6 +25,9 @@ static uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 // TODO find a way to merge these two
 static ExitCode temp_success_buf[NUM_SEGMENTS][AUX_REG_GROUPS * 2];
 static ExitCode aux_reg_success_buf[NUM_SEGMENTS][AUX_REG_GROUPS];
+
+static StatusRegGroups statuses[NUM_SEGMENTS];
+static ExitCode        status_success_buf[NUM_SEGMENTS];
 
 // test setters
 void app_segments_broadcastVoltages()
@@ -105,26 +108,44 @@ void app_segments_broadcastTempsVRef()
 
 void app_segments_broadcastStatus()
 {
-    // typedef struct
-    // {
-    //     float    sum_cells;
-    //     float    internal_temp;
-    //     float    analog_power_supply;
-    //     float    digital_power_supply;
-    //     uint32_t cell_voltage_bound_faults;
-    //     bool     thermal_shutdown;
-    //     bool     mux_fail;
-    //     uint8_t  revision;
-    // } LTCStatus;
+    static void (*const muxTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_MUX_OK_set };
+    static void (*const vregSetters[NUM_SEGMENTS])(bool)    = { app_canTx_BMS_Seg0_VREG_OK_set };
+    static void (*const vregdSetters[NUM_SEGMENTS])(bool)   = { app_canTx_BMS_Seg0_VREGD_OK_set };
+
+    static void (*const revCodeSetters[NUM_SEGMENTS])(uint32_t) = { app_canTx_BMS_Seg0_REV_CODE_set };
+    // static void (*const tempSetters[NUM_SEGMENTS])(float)           = { app_canTx_BMS_Seg0_VREGD_OK_set };
+    static void (*const thermalOKsetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_THERMAL_OK_set };
+
+    ASSERT_EXIT_OK(io_ltc6813_startInternalADCConversions(s));
+    io_time_delay(15);
+    // ASSERT_EXIT_OK(io_ltc6813_diagnoseMUX());
+    // io_time_delay(5);
+    io_ltc6813_getStatus(statuses, status_success_buf);
+    for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
+    {
+        if (IS_EXIT_ERR(status_success_buf[segment]))
+            continue;
+        revCodeSetters[segment](statuses[segment].REV);
+
+        // tempSetters[segment]((float)statuses[segment].ITMP / 76.0f - 276.0f);
+
+        vregSetters[segment](
+            CONVERT_VOLTAGE_TO_100UV(4.5f) <= statuses[segment].VA &&
+            statuses[segment].VA <= CONVERT_VOLTAGE_TO_100UV(5.5f));
+        vregdSetters[segment](
+            CONVERT_VOLTAGE_TO_100UV(2.7f) <= statuses[segment].VD &&
+            statuses[segment].VD <= CONVERT_VOLTAGE_TO_100UV(3.6f));
+
+        thermalOKsetters[segment](!statuses[segment].THSD);
+        muxTestSetters[segment](!(bool)statuses[segment].MUXFAIL);
+    }
 }
 
 void app_segments_ADCAccuracyTest()
 {
-    static void (*const segmentVRefTrueSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_VREF_Test_set };
-    static void (*const segmentOverlapADC12TestSetters[NUM_SEGMENTS])(
-        bool) = { app_canTx_BMS_Overlap_ADC_1_2_Test_set };
-    static void (*const segmentOverlapADC23TestSetters[NUM_SEGMENTS])(
-        bool) = { app_canTx_BMS_Overlap_ADC_2_3_Test_set };
+    static void (*const segmentVRefTrueSetters[NUM_SEGMENTS])(bool)         = { app_canTx_BMS_Seg0_VREF_OK_set };
+    static void (*const segmentOverlapADC12TestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_ADC_1_2_Equal_set };
+    static void (*const segmentOverlapADC23TestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_ADC_2_3_Equal_set };
 
     ASSERT_EXIT_OK(io_ltc6813_overlapADCTest(s));
     io_time_delay(10);                                               // TODO tweak timings
@@ -149,7 +170,8 @@ void app_segments_ADCAccuracyTest()
 
 void app_segments_voltageSelftest()
 {
-    static void (*const segmentVoltageSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Self_Test_Voltages_set };
+    static void (*const segmentVoltageSelfTestSetters[NUM_SEGMENTS])(
+        bool) = { app_canTx_BMS_Seg0_VOLT_REGISTER_OK_set };
 
     ASSERT_EXIT_OK(io_ltc6813_sendSelfTestVoltages(s));
     io_time_delay(10); // TODO tweak timings
@@ -168,7 +190,7 @@ void app_segments_voltageSelftest()
 
 void app_segments_auxSelftest()
 {
-    static void (*const segmentAuxRegSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Self_Test_Aux_set };
+    static void (*const segmentAuxRegSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_AUX_REGISTER_OK_set };
 
     ASSERT_EXIT_OK(io_ltc6813_sendSelfTestAux(s));
     io_time_delay(10); // TODO tweak timings
@@ -187,13 +209,12 @@ void app_segments_auxSelftest()
 
 void app_segments_statusSelftest()
 {
-    static void (*const segmentStatTestSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Self_Test_Stat_set };
+    static void (*const segmentStatTestSelfTestSetters[NUM_SEGMENTS])(
+        bool) = { app_canTx_BMS_Seg0_STAT_REGISTER_OK_set };
 
     ASSERT_EXIT_OK(io_ltc6813_sendSelfTestStat(s));
     io_time_delay(10); // TODO tweak timings
-    static StatusRegGroups statuses[NUM_SEGMENTS];
-    static ExitCode        success[NUM_SEGMENTS];
-    io_ltc6813_getStatus(statuses, success);
+    io_ltc6813_getStatus(statuses, status_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
@@ -212,19 +233,12 @@ void app_segments_statusSelftest()
 void app_segments_openWireCheck()
 {
     static void (*const cellOWCSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(bool) = {
-        { app_canTx_BMS_Cell0_OWC_set, app_canTx_BMS_Cell1_OWC_set, app_canTx_BMS_Cell2_OWC_set,
-          app_canTx_BMS_Cell3_OWC_set, app_canTx_BMS_Cell4_OWC_set, app_canTx_BMS_Cell5_OWC_set,
-          app_canTx_BMS_Cell6_OWC_set, app_canTx_BMS_Cell7_OWC_set, app_canTx_BMS_Cell8_OWC_set,
-          app_canTx_BMS_Cell9_OWC_set, app_canTx_BMS_Cell10_OWC_set, app_canTx_BMS_Cell11_OWC_set,
-          app_canTx_BMS_Cell12_OWC_set, app_canTx_BMS_Cell13_OWC_set }
-        // { app_canTx_BMS_Seg1_Cell0_Voltage_set, app_canTx_BMS_Seg1_Cell1_Voltage_set,
-        // app_canTx_BMS_Seg1_Cell2_Voltage_set,
-        //   app_canTx_BMS_Seg1_Cell3_Voltage_set, app_canTx_BMS_Seg1_Cell4_Voltage_set,
-        //   app_canTx_BMS_Seg1_Cell5_Voltage_set, app_canTx_BMS_Seg1_Cell6_Voltage_set,
-        //   app_canTx_BMS_Seg1_Cell7_Voltage_set, app_canTx_BMS_Seg1_Cell8_Voltage_set,
-        //   app_canTx_BMS_Seg1_Cell9_Voltage_set, app_canTx_BMS_Seg1_Cell10_Voltage_set,
-        //   app_canTx_BMS_Seg1_Cell11_Voltage_set, app_canTx_BMS_Seg1_Cell12_Voltage_set,
-        //   app_canTx_BMS_Seg1_Cell13_Voltage_set }
+        { app_canTx_BMS_Seg0_Cell0_OWC_OK_set, app_canTx_BMS_Seg0_Cell1_OWC_OK_set, app_canTx_BMS_Seg0_Cell2_OWC_OK_set,
+          app_canTx_BMS_Seg0_Cell3_OWC_OK_set, app_canTx_BMS_Seg0_Cell4_OWC_OK_set, app_canTx_BMS_Seg0_Cell5_OWC_OK_set,
+          app_canTx_BMS_Seg0_Cell6_OWC_OK_set, app_canTx_BMS_Seg0_Cell7_OWC_OK_set, app_canTx_BMS_Seg0_Cell8_OWC_OK_set,
+          app_canTx_BMS_Seg0_Cell9_OWC_OK_set, app_canTx_BMS_Seg0_Cell10_OWC_OK_set,
+          app_canTx_BMS_Seg0_Cell11_OWC_OK_set, app_canTx_BMS_Seg0_Cell12_OWC_OK_set,
+          app_canTx_BMS_Seg0_Cell13_OWC_OK_set }
     };
 
     // data collection

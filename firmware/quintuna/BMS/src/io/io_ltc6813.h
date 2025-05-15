@@ -206,6 +206,9 @@ typedef struct __attribute__((__packed__))
     uint8_t RSVD : 2;    // reserved bits
     uint8_t REV : 4;     // revision code
 } StatusRegGroups;
+
+ExitCode io_ltc6813_startInternalADCConversions(ADCSpeed speed);
+
 /**
  * Gets the status registers from all the segments
  * @param status The status registers
