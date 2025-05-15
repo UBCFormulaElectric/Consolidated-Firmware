@@ -18,6 +18,8 @@
 		"hw_gpios.h": "c",
 		"cmsis_os.h": "c",
 		"app_statemachine.h": "c",
-		"hw_pwminput.h": "c"
+		"hw_pwminput.h": "c",
+		"io_charger.h": "c",
+		"app_allstates.h": "c"
 	}
 }
