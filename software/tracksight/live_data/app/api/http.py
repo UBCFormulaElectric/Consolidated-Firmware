@@ -1,3 +1,4 @@
+import datetime
 from calendar import week, weekday
 from dataclasses import dataclass
 
@@ -81,21 +82,46 @@ def set_rtc_time(time: RtcTime):
 
     ser = serial.Serial("/dev/tty.usbserial-FT76H2U7",
                         baudrate=57600, timeout=1)
+    # create a bytearray to hold from Rtctime
+    buffer = bytearray(9)
 
-    # set the time
-    ser.write(
-        f"set_time {time.year} {time.month} {time.weekday} {time.day} {time.hour} {time.minute} {time.second}\n".encode())
+    buffer[0] = 0xFF
+    buffer[1] = 0x01
+    # set the year
+    buffer[2] = time.second
+    # set the month
+    buffer[3] = time.minute
+    # set the weekday
+    buffer[4] = time.hour
+    # set the day
+    buffer[5] = time.day
+    # set the hour
+    buffer[6] = time.weekday
+    # set the minute
+    buffer[7] = time.month
+    # set the second
+    buffer[8] = time.year
+    # write the buffer to the serial port
+    ser.write(buffer)
 
 
-@api.route("/rtc", methods=["POST"])
-def api_set_rtc_time(time: RtcTime):
+@api.route("/rtc", methods=["GET"])
+def api_set_rtc_time():
     """
     Sets the RTC time
     """
-    # get the time from the request
-    time = request.get_json()
-    if time is None:
-        return {"error": "No time provided"}, 400
+    # get the system time
+    time = datetime.datetime.now()
+
+    rtcTime: RtcTime(
+        year=time.year % 100,  # RTC only accepts 2 digit year
+        month=time.month,
+        weekday=time.weekday(),
+        day=time.day(),
+        hour=time.hour,
+        minute=time.minute,
+        second=time.second
+    )  # type: ignore
 
     # set the time
     set_rtc_time(RtcTime(**time))
