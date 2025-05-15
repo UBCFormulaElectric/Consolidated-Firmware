@@ -2,11 +2,11 @@ name: Binary and DBC Generation
 on:
   push:
     branches:
-      - master
+      - ci_hotfix
 
 jobs:
   # ======= Build Binaries =======
-  build:
+  build-firmware:
     name: Build Firmware
     runs-on: ubuntu-latest
     strategy:
@@ -14,21 +14,13 @@ jobs:
       matrix:
         include:
           - board: f4dev
-            ioc_dir: firmware/dev/f4dev/src/cubemx
           - board: h7dev
-            ioc_dir: firmware/dev/h7dev/src/cubemx
-          - board: BMS
-            ioc_dir: firmware/quintuna/BMS/src/cubemx
-          - board: CRIT
-            ioc_dir: firmware/quintuna/CRIT/src/cubemx
-          - board: DAM
-            ioc_dir: firmware/quintuna/DAM/src/cubemx
-          - board: FSM
-            ioc_dir: firmware/quintuna/FSM/src/cubemx
-          - board: RSM
-            ioc_dir: firmware/quintuna/RSM/src/cubemx
-          - board: VC
-            ioc_dir: firmware/quintuna/VC/src/cubemx
+          - board: quintuna_BMS
+          - board: quintuna_CRIT
+          - board: quintuna_DAM
+          - board: quintuna_FSM
+          - board: quintuna_RSM
+          - board: quintuna_VC
     container:
       image: ubcformulaelectric/environment:arm_14
       credentials:
