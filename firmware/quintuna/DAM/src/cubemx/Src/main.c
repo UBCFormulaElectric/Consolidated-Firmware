@@ -144,6 +144,18 @@ const osThreadAttr_t TaskTelem_attributes = {
     .stack_size = sizeof(TaskTelemBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
+/* Definitions for TaskTelemRx */
+osThreadId_t         TaskTelemRxHandle;
+uint32_t             TaskTelemRxBuffer[512];
+osStaticThreadDef_t  TaskTelemRxControlBlock;
+const osThreadAttr_t TaskTelemRx_attributes = {
+    .name       = "TaskTelemRx",
+    .cb_mem     = &TaskTelemRxControlBlock,
+    .cb_size    = sizeof(TaskTelemRxControlBlock),
+    .stack_mem  = &TaskTelemRxBuffer[0],
+    .stack_size = sizeof(TaskTelemRxBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -166,6 +178,7 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskLogging(void *argument);
 void        RunTaskTelem(void *argument);
+void        RunTaskTelemRx(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -258,6 +271,9 @@ int main(void)
 
     /* creation of TaskTelem */
     TaskTelemHandle = osThreadNew(RunTaskTelem, NULL, &TaskTelem_attributes);
+
+    /* creation of TaskTelemRx */
+    TaskTelemRxHandle = osThreadNew(RunTaskTelemRx, NULL, &TaskTelemRx_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -804,6 +820,24 @@ void RunTaskTelem(void *argument)
     /* Infinite loop */
     tasks_runTelem();
     /* USER CODE END RunTaskTelem */
+}
+
+/* USER CODE BEGIN Header_RunTaskTelemRx */
+/**
+ * @brief Function implementing the TaskTelemRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskTelemRx */
+void RunTaskTelemRx(void *argument)
+{
+    /* USER CODE BEGIN RunTaskTelemRx */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskTelemRx */
 }
 
 /* MPU Configuration */

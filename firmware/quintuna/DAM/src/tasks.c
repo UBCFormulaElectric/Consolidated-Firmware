@@ -11,6 +11,7 @@
 #include "io_fileSystem.h"
 #include "io_buzzer.h"
 #include "io_telemMessage.h"
+#include "io_telemRx.h"
 #include "io_time.h"
 
 #include "hw_hardFaultHandler.h"
@@ -187,6 +188,16 @@ _Noreturn void tasks_runTelem(void)
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
+    }
+}
+
+_Noreturn void tasks_runTelemRx(void)
+{
+    // osDelay(osWaitForever);
+    for (;;)
+    {
+        // set rtc time from telem rx data
+        io_telemRx();
     }
 }
 
