@@ -706,7 +706,7 @@
   "ImuData": {
     "msg_id": 225,
     "cycle_time": 10,
-    "description": "Linear Acceleration x, y and z direction from the IMU",
+    "description": "Linear Acceleration  x, y and z direction from the IMU",
     "signals": {
       "ImuAccelerationX": {
         "resolution": 0.001,
@@ -726,8 +726,8 @@
         "max": 50,
         "unit": "m/s^2"
       }
-    }
-  },
+      }
+    },
   "ImuAngularData": {
     "msg_id": 227,
     "cycle_time": 10,

@@ -13,7 +13,7 @@ option(BUILD_ASM "Build the assembly files" OFF)
 
 # STM32CUBEMX Binary Path
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-    # check if you have the STM32CubeMX_PATH environment variable set 
+    # check if you have the STM32CubeMX_PATH environment variable set
     if (NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
         set(STM32CUBEMX_BIN_PATH "$ENV{STM32CubeMX_PATH}/STM32CubeMX.exe")
     else ()
