@@ -93,6 +93,7 @@ void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success
         if (!io_ltc6813_check_pec((uint8_t *)&reg_stat_a[i].stat, sizeof(reg_stat_a[i].stat), &reg_stat_a[i].pec) ||
             !io_ltc6813_check_pec((uint8_t *)&reg_stat_b[i].stat, sizeof(reg_stat_b[i].stat), &reg_stat_b[i].pec))
         {
+            success[i] = EXIT_CODE_CHECKSUM_FAIL;
             continue;
         }
         success[i]        = EXIT_CODE_OK;

@@ -16,17 +16,18 @@
 
 void jobs_runLtc(void)
 {
-    app_segments_broadcastVoltages();
-    app_segments_broadcastTempsVRef();
-    if (app_canRx_Debug_EnableDebugMode_get())
-    {
-        app_segments_broadcastStatus(); // status test
-        app_segments_openWireCheck();   // cell test
-        app_segments_ADCAccuracyTest(); // cell test
-        app_segments_auxSelftest();     // aux test
-        app_segments_voltageSelftest(); // cell test
-        // app_segments_statusSelftest();  // status test
-    }
+    // app_segments_broadcastVoltages();
+    // app_segments_broadcastTempsVRef();
+    // if (app_canRx_Debug_EnableDebugMode_get())
+    // {
+    //     app_segments_openWireCheck();   // cell test
+    //     app_segments_ADCAccuracyTest(); // cell test
+    //     app_segments_auxSelftest();     // aux test
+    //     app_segments_voltageSelftest(); // cell test
+    // }
+    app_segments_statusSelftest();
+    io_time_delay(1000);
+    app_segments_broadcastStatus();
 }
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)

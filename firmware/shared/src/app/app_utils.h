@@ -62,6 +62,7 @@ typedef enum
     EXIT_CODE_BUSY,
     EXIT_CODE_UNIMPLEMENTED,
     EXIT_CODE_RETRY_FAILED,
+    EXIT_CODE_CHECKSUM_FAIL,
     EXIT_INDETERMINATE, // use this for when you don't know what the exit code is YET
     NUM_EXIT_CODES,
 } ExitCode;

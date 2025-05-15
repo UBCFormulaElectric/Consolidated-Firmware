@@ -29,9 +29,9 @@ static_assert(THERMISTORS_PER_SEGMENT == (AUX_REGS_PER_SEGMENT - 1) * 2);
 // TODO app layer read and write configs more frequently in case of power loss
 /**
  * Reads the configuration registers, and returns them into the pointer you give it
- * @return success of the operation
+ * @param success success of the operation
  */
-ExitCode io_ltc6813_readConfigurationRegisters();
+void io_ltc6813_readConfigurationRegisters(ExitCode success[NUM_SEGMENTS]);
 
 /**
  * Writes a configuration to all segments on the daisy chain.

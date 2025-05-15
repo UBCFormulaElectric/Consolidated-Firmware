@@ -79,6 +79,7 @@ void io_ltc6813_readAuxRegisters(
             const AuxRegGroup *seg_reg_group = &rx_buffer[(NUM_SEGMENTS - 1) - seg_idx];
             if (!io_ltc6813_check_pec((uint8_t *)seg_reg_group, 6, &seg_reg_group->pec))
             {
+                comm_success[seg_idx][reg_group] = EXIT_CODE_CHECKSUM_FAIL;
                 continue;
             }
 

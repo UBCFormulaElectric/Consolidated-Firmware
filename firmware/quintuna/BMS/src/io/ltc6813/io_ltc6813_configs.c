@@ -174,30 +174,38 @@ ExitCode io_ltc6813_writeConfigurationRegisters(bool balance_config[NUM_SEGMENTS
     return EXIT_CODE_OK;
 }
 
-ExitCode io_ltc6813_readConfigurationRegisters()
+void io_ltc6813_readConfigurationRegisters(ExitCode success[NUM_SEGMENTS])
 {
 #define RDCFGA (0x0002)
 #define RDCFGB (0x0026)
     ltc6813_tx tx_msg_a = io_ltc6813_build_tx_cmd(RDCFGA);
     CFGAR_msg  rx_buf_a[NUM_SEGMENTS];
-    RETURN_IF_ERR(hw_spi_transmitThenReceive(
-        &ltc6813_spi_ls, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)rx_buf_a, sizeof(rx_buf_a)))
     ltc6813_tx tx_msg_b = io_ltc6813_build_tx_cmd(RDCFGA);
     CFGBR_msg  rx_buf_b[NUM_SEGMENTS];
-    RETURN_IF_ERR(hw_spi_transmitThenReceive(
-        &ltc6813_spi_ls, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)rx_buf_b, sizeof(rx_buf_b)));
 
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
+    const ExitCode com1 = hw_spi_transmitThenReceive(
+        &ltc6813_spi_ls, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)rx_buf_a, sizeof(rx_buf_a));
+    if (IS_EXIT_ERR(com1))
     {
-        assert(io_ltc6813_check_pec(
-            (uint8_t *)&rx_buf_a[curr_segment], sizeof(rx_buf_a[curr_segment].config), &rx_buf_a[curr_segment].pec));
+        for (uint8_t s = 0U; s < NUM_SEGMENTS; s++)
+            success[s] = com1;
+        return;
     }
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
+    const ExitCode com2 = hw_spi_transmitThenReceive(
+        &ltc6813_spi_ls, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)rx_buf_b, sizeof(rx_buf_b));
+    if (IS_EXIT_ERR(com2))
     {
-        assert(io_ltc6813_check_pec(
-            (uint8_t *)&rx_buf_b[curr_segment].config, sizeof(rx_buf_b[curr_segment].config),
-            &rx_buf_b[curr_segment].pec));
+        for (uint8_t s = 0U; s < NUM_SEGMENTS; s++)
+            success[s] = com2;
+        return;
     }
 
-    return EXIT_CODE_OK;
+    for (uint8_t s = 0U; s < NUM_SEGMENTS; s++)
+    {
+        const bool chk1 =
+            io_ltc6813_check_pec((uint8_t *)&rx_buf_a[s].config, sizeof(rx_buf_a[s].config), &rx_buf_a[s].pec);
+        const bool chk2 =
+            io_ltc6813_check_pec((uint8_t *)&rx_buf_b[s].config, sizeof(rx_buf_b[s].config), &rx_buf_b[s].pec);
+        success[s] = chk1 && chk2 ? EXIT_CODE_OK : EXIT_CODE_CHECKSUM_FAIL;
+    }
 }

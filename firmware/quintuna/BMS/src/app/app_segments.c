@@ -276,7 +276,8 @@ void app_segments_openWireCheck()
         cellOWCSetters[segment][0](owc_pucv[segment][0] != 0);
         for (uint8_t cell = 1; cell < CELLS_PER_SEGMENT; cell++)
         {
-            const bool owc_passing = owc_pdcv[segment][cell] - owc_pucv[segment][cell] > CONVERT_VOLTAGE_TO_100UV(0.4f);
+            const bool owc_passing =
+                owc_pdcv[segment][cell] - owc_pucv[segment][cell] <= CONVERT_VOLTAGE_TO_100UV(0.4f);
             cellOWCSetters[segment][cell](owc_passing);
         }
 #if CELLS_PER_SEGMENT >= 18

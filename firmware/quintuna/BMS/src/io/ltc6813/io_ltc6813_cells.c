@@ -82,7 +82,7 @@ void io_ltc6813_readVoltageRegisters(
             // Calculate PEC15 from the data received on rx_buffer
             if (!io_ltc6813_check_pec((uint8_t *)seg_reg_group, 6, &seg_reg_group->pec))
             {
-                comm_success[seg_idx][reg_group] = EXIT_CODE_ERROR;
+                comm_success[seg_idx][reg_group] = EXIT_CODE_CHECKSUM_FAIL;
                 continue;
             }
             // fuck it we already here
