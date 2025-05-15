@@ -31,7 +31,7 @@ static void hvInitStateRunOnEntry(void)
     app_powerManager_updateConfig(power_manager_state);
 }
 static void hvInitStateRunOnTick1Hz(void) {}
-static void hvInitStateRunOnTick100Hz(void){}
+static void hvInitStateRunOnTick100Hz(void) {}
 static void hvInitStateRunOnExit(void) {}
 
 State hvInit_state = { .name              = "HV INIT",
