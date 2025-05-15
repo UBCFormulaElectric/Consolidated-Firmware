@@ -21,7 +21,7 @@
 *****************************************************************************
 ** @attention
 **
-** Copyright (c) 2023 STMicroelectronics.
+** Copyright (c) 2024 STMicroelectronics.
 ** All rights reserved.
 **
 ** This software is licensed under terms that can be found in the LICENSE file
@@ -88,21 +88,21 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
-  .ARM : {
+  .ARM.extab (READONLY) : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
+  .ARM (READONLY) : {
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
   } >FLASH
 
-  .preinit_array     :
+  .preinit_array (READONLY) :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
   } >FLASH
 
-  .init_array :
+  .init_array (READONLY) :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
@@ -110,7 +110,7 @@ SECTIONS
     PROVIDE_HIDDEN (__init_array_end = .);
   } >FLASH
 
-  .fini_array :
+  .fini_array (READONLY) :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT(.fini_array.*)))
@@ -171,4 +171,10 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
+
+  /* DEDICATED SPOT FOR RTT */
+  .rtt (NOLOAD) :
+  {
+    KEEP(*(.rtt))
+  } >DTCMRAM
 }
