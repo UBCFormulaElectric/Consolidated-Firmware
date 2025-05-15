@@ -3,7 +3,7 @@ jsoncan_sources(
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "${CMAKE_CURRENT_BINARY_DIR}/jsoncan_test.dbc"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../valid_json"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../valid_jsons/valid_json1"
 )
 add_library("jsoncan_test_lib" INTERFACE)
 target_sources("jsoncan_test_lib" INTERFACE ${CAN_SRCS})
