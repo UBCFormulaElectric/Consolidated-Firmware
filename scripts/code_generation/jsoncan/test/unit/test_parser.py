@@ -1,7 +1,9 @@
 import unittest
 from typing import Set
 
-from ...src.can_database import CanMessage
+from pydantic import InstanceOf
+
+from ...src.can_database import All, CanMessage
 from .fixture import CDBTests
 
 
@@ -11,7 +13,8 @@ class NodeTests(CDBTests):
     """
 
     def get_messages_from_ecu(self, ecu_name: str) -> Set[str]:
-        raw = [msg.name for msg in self.cdb_valid.msgs.values() if msg.tx_node_name == ecu_name]
+        raw = [msg.name for msg in self.cdb_valid.msgs.values()
+               if msg.tx_node_name == ecu_name]
         setted = set(raw)
         self.assertEqual(len(raw), len(setted))
         return setted
@@ -20,12 +23,15 @@ class NodeTests(CDBTests):
         """
         Checks that ECU1-5 are the only nodes present in the database.
         """
-        self.assertSetEqual(set(self.cdb_valid.nodes.keys()), {"ECU1", "ECU2", "ECU3", "ECU4", "ECU5"})
+        self.assertSetEqual(set(self.cdb_valid.nodes.keys()), {
+                            "ECU1", "ECU2", "ECU3", "ECU4", "ECU5"})
 
     def test_node_on_busses(self):
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].bus_names), {"can1", "can2", "can3"})
+        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].bus_names), {
+                            "can1", "can2", "can3"})
         self.assertEqual(set(self.cdb_valid.nodes["ECU2"].bus_names), {"can3"})
-        self.assertEqual(set(self.cdb_valid.nodes["ECU3"].bus_names), {"can1", "can2"})
+        self.assertEqual(
+            set(self.cdb_valid.nodes["ECU3"].bus_names), {"can1", "can2"})
         self.assertEqual(set(self.cdb_valid.nodes["ECU4"].bus_names), {"can1"})
         self.assertEqual(set(self.cdb_valid.nodes["ECU5"].bus_names), {"can2"})
 
@@ -34,16 +40,21 @@ class NodeTests(CDBTests):
         Checks that all tx/rx messages are present
         :return:
         """
-        self.assertSetEqual(self.get_messages_from_ecu("ECU1"), self.ecu1_msgs | self.ec1_alerts)
+        self.assertSetEqual(self.get_messages_from_ecu(
+            "ECU1"), self.ecu1_msgs | self.ec1_alerts)
         self.assertSetEqual(self.get_messages_from_ecu("ECU2"), self.ecu2_msgs)
-        self.assertSetEqual(self.get_messages_from_ecu("ECU3"), self.ecu3_msgs | self.ecu3_alerts)
-        self.assertSetEqual(self.get_messages_from_ecu("ECU4"), self.ecu4_msgs | self.ecu4_alerts)
-        self.assertSetEqual(self.get_messages_from_ecu("ECU5"), self.ecu5_msgs | self.ecu5_alerts)
+        self.assertSetEqual(self.get_messages_from_ecu(
+            "ECU3"), self.ecu3_msgs | self.ecu3_alerts)
+        self.assertSetEqual(self.get_messages_from_ecu(
+            "ECU4"), self.ecu4_msgs | self.ecu4_alerts)
+        self.assertSetEqual(self.get_messages_from_ecu(
+            "ECU5"), self.ecu5_msgs | self.ecu5_alerts)
 
 
 class BusTests(CDBTests):
     def test_busses_present(self):
-        self.assertSetEqual(set(self.cdb_valid.buses.keys()), {"can1", "can2", "can3"})
+        self.assertSetEqual(set(self.cdb_valid.buses.keys()), {
+                            "can1", "can2", "can3"})
 
     def test_bus1_properties(self):
         can1 = self.cdb_valid.buses["can1"]
@@ -72,14 +83,49 @@ class BusTests(CDBTests):
 
 class ConsistencyCheckTests(CDBTests):
     def test_check_consistency(self):
-        pass
+        msg_id_set = set()
+        msg_name_set = set()
+        for msg_name, msg in self.cdb_valid.msgs.items():
+            self.assertEqual(msg.name, msg_name)
+            self.assertTrue(msg.tx_node_name in self.cdb_valid.nodes.keys())
+            msg_id_set.add(msg.id)
+            msg_name_set.add(msg.name)
+        self.assertEqual(len(msg_id_set), len(self.cdb_valid.msgs))
+        self.assertEqual(len(msg_name_set), len(self.cdb_valid.msgs))
+
+        bus_name_set = set()
+        for bus_name, bus in self.cdb_valid.buses.items():
+            self.assertEqual(bus.name, bus_name)
+            bus_name_set.add(bus.name)
+            for node_name in bus.node_names:
+                self.assertTrue(node_name in self.cdb_valid.nodes.keys())
+                self.assertTrue(
+                    bus.name in self.cdb_valid.nodes[node_name].bus_names)
+        self.assertEqual(len(bus_name_set), len(self.cdb_valid.buses))
+
+        node_name_set = set()
+        for node_name, node in self.cdb_valid.nodes.items():
+            node_name_set.add(node.name)
+            self.assertEqual(node.name, node_name)
+            for bus_name in node.bus_names:
+                self.assertTrue(bus_name in self.cdb_valid.buses.keys())
+                self.assertTrue(
+                    node.name in self.cdb_valid.buses[bus_name].node_names)
+
+            if not isinstance(node.rx_msgs_names, All):
+                for msg_name in node.rx_msgs_names:
+                    self.assertTrue(msg_name in self.cdb_valid.msgs.keys())
+        self.assertEqual(len(node_name_set), len(self.cdb_valid.nodes))
+
+        for forward in self.cdb_valid.forwarding:
+            self.assertTrue(forward.bus1 in self.cdb_valid.buses.keys())
+            self.assertTrue(forward.bus2 in self.cdb_valid.buses.keys())
+            self.assertTrue(forward.forwarder in self.cdb_valid.nodes.keys())
 
 
 # """
 # Checks that the consistency check works.
 # """
 # self.assertTrue(self.cdb_t1.check_consistency())
-
-
 if __name__ == "__main__":
     unittest.main()
