@@ -1,4 +1,3 @@
-#include "hw_gpios.h"
 #include "hw_pwms.h"
 #include "io_charger.h"
 #include "cmsis_os.h"
@@ -6,6 +5,7 @@
 
 ConnectionStatus io_charger_getConnectionStatus()
 {
+    hw_pwmInput_tick(&evse_pwm_input);
     if(990 <= evse_pwm_input.frequency_hz && evse_pwm_input.frequency_hz <= 1010)
     {
         return EVSE_CONNECTED;
