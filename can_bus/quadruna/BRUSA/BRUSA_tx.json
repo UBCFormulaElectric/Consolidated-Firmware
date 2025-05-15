@@ -2,7 +2,7 @@
   "Vitals": {
     "msg_id": 1552,
     "cycle_time": 100,
-    "bus": ["Can"],
+
     "description": "Flags relaying BMS Charger Faults",
     "signals": {
       "ControlPilotDetected": {
@@ -85,7 +85,7 @@
   "Faults": {
     "msg_id": 1556,
     "cycle_time": 100,
-    "bus": ["Can"],
+
     "signals": {
       "OutputOverVoltage": {
         "bits": 1

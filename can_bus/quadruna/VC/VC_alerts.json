@@ -5,7 +5,7 @@
   "faults_counts_id": 208,
   "info_id": 299,
   "info_counts_id": 290,
-  "bus": ["Can"],
+
   "warnings": {
     "StackWaterMarkHighTask1Hz": {
       "id": 501,

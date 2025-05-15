@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 200,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "VC vitals message.",
     "signals": {
@@ -28,7 +28,7 @@
   },
   "LeftInverterCommand": {
     "msg_id": 32,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "LeftInverterTorqueCommand": {
@@ -88,7 +88,7 @@
   },
   "INVL_ReadWriteParamCommand": {
     "msg_id": 33,
-    "bus": ["Can"],
+
     "cycle_time": null,
     "signals": {
       "INVL_CommandParameterAddress": {
@@ -110,7 +110,7 @@
   },
   "RightInverterCommand": {
     "msg_id": 82,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "RightInverterTorqueCommand": {
@@ -170,7 +170,7 @@
   },
   "INVR_ReadWriteParamCommand": {
     "msg_id": 83,
-    "bus": ["Can"],
+
     "cycle_time": null,
     "signals": {
       "INVR_CommandParameterAddress": {
@@ -192,7 +192,7 @@
   },
   "AlertsContext": {
     "msg_id": 202,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "signals": {
       "WatchdogTimeout": {
@@ -211,7 +211,7 @@
   },
   "EllipseStatus": {
     "msg_id": 223,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Status of the SBG Ellipse N sensor.",
     "signals": {
@@ -234,7 +234,7 @@
   },
   "EllipseTime": {
     "msg_id": 209,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Timestamp from the SBG Ellipse N sensor.",
     "signals": {
@@ -247,7 +247,7 @@
   "EllipseAcceleration": {
     "disabled": true,
     "msg_id": 201,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Acceleration from the SBG Ellipse N sensor.",
     "signals": {
@@ -274,7 +274,7 @@
   "EllipseAngularVelocity": {
     "disabled": true,
     "msg_id": 203,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Angular velocity from the SBG Ellipse N sensor.",
     "signals": {
@@ -300,7 +300,7 @@
   },
   "EllipseEulerAngles": {
     "msg_id": 222,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Euler angles from the SBG Ellipse N sensor.",
     "signals": {
@@ -326,7 +326,7 @@
   },
   "CommitInfo": {
     "msg_id": 204,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "VC Current Running Git Commit Info",
     "signals": {
@@ -340,7 +340,7 @@
   },
   "PowerEstimate": {
     "msg_id": 211,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Debug Power Messages",
     "signals": {
@@ -358,7 +358,7 @@
   },
   "PowerEstimatePID": {
     "msg_id": 212,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Debug messages for the PID power estimate controller",
     "signals": {
@@ -402,7 +402,7 @@
   },
   "PIDSlipRatio": {
     "msg_id": 213,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Debug messages for the PID slip ratio controller",
     "signals": {
@@ -446,7 +446,7 @@
   },
   "SlipRatios": {
     "msg_id": 214,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Debug Messages for the Traction Control component of Torque Vectoring",
     "signals": {
@@ -470,7 +470,7 @@
   },
   "ActiveDiffOutputs": {
     "msg_id": 215,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Debug Messages for the Active Differential component of Torque Vectoring",
     "signals": {
@@ -488,7 +488,7 @@
   },
   "PowerLimit": {
     "msg_id": 216,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "description": "Debug Power Messages for Power Limit ",
     "signals": {
@@ -506,7 +506,7 @@
   },
   "VehicleDynamics": {
     "msg_id": 226,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Vehicle dynamics info",
     "signals": {
@@ -533,7 +533,7 @@
   "EllipseEkfNavPosition": {
     "disabled": true,
     "msg_id": 217,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Car position info",
     "signals": {
@@ -577,7 +577,7 @@
   },
   "EllipseEkfNavVelocity": {
     "msg_id": 218,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Car Velocity info",
     "signals": {
@@ -621,7 +621,7 @@
   },
   "Voltages": {
     "msg_id": 219,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "VC voltages.",
     "signals": {
@@ -647,7 +647,7 @@
   },
   "CurrentSensing": {
     "msg_id": 220,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Battery and accumulator currents.",
     "signals": {
@@ -667,7 +667,7 @@
   },
   "Efuse": {
     "msg_id": 221,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
     "signals": {
@@ -729,7 +729,7 @@
   },
   "ImuData": {
     "msg_id": 225,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "description": "Linear Acceleration x, y and z direction from the IMU",
     "signals": {
@@ -755,7 +755,7 @@
   },
   "ImuAngularData": {
     "msg_id": 227,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "description": "Angular Velocity in x, y and z direction from the IMU",
     "signals": {
@@ -781,7 +781,7 @@
   },
   "CoolantPumpFlowRate": {
     "msg_id": 224,
-    "bus": ["Can"],
+
     "cycle_time": 1000,
     "description": "Broadcast flow rate of coolant pump.",
     "signals": {
@@ -795,7 +795,7 @@
   },
   "VCShdnNodeStatus": {
     "msg_id": 228,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "VC Shutdown Node Status",
     "signals": {
@@ -815,7 +815,7 @@
   },
   "GlobalShdnNodeStatus": {
     "msg_id": 229,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Global Shutdown Node Status",
     "signals": {
@@ -826,7 +826,7 @@
   },
   "PedalPercentage": {
     "msg_id": 230,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Pedal percentage info",
     "signals": {
@@ -840,7 +840,7 @@
   },
   "TireVerticalForces": {
     "msg_id": 231,
-    "bus": ["Can"],
+
     "cycle_time": 100,
     "description": "Vertical forces on car tires",
     "signals": {
@@ -872,7 +872,7 @@
   },
   "LoadBasedTorqueAllocation": {
     "msg_id": 232,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "description": "Torque allocation based on vertical forces on tires",
     "signals": {
@@ -909,7 +909,7 @@
   },
   "YawRateControllerInfo": {
     "msg_id": 233,
-    "bus": ["Can"],
+
     "cycle_time": 10,
     "description": "Debug messages for yaw rate controller for yaw rates and yaw moment",
     "signals": {

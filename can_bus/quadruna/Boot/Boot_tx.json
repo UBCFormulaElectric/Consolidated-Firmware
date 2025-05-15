@@ -1,6 +1,5 @@
 {
   "VC": {
-    "bus": ["Can"],
     "msg_id": 1219,
     "cycle_time": 100,
     "signals": {
@@ -16,7 +15,6 @@
     }
   },
   "BMS": {
-    "bus": ["Can"],
     "msg_id": 1209,
     "cycle_time": 100,
     "signals": {
@@ -32,7 +30,6 @@
     }
   },
   "RSM": {
-    "bus": ["Can"],
     "msg_id": 1239,
     "cycle_time": 100,
     "signals": {
@@ -48,7 +45,6 @@
     }
   },
   "FSM": {
-    "bus": ["Can"],
     "msg_id": 1229,
     "cycle_time": 100,
     "signals": {
@@ -64,7 +60,6 @@
     }
   },
   "CRIT": {
-    "bus": ["Can"],
     "msg_id": 1249,
     "cycle_time": 100,
     "signals": {
@@ -80,7 +75,6 @@
     }
   },
   "H7Dev": {
-    "bus": ["Can"],
     "msg_id": 1309,
     "cycle_time": 100,
     "signals": {
