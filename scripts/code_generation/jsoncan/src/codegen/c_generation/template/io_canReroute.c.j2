@@ -19,9 +19,9 @@
     Call 2. function in the canRx callback
  #}
 
-{% for bus in node_bus_names -%}
+{%- for bus in node_bus_names %}
 static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
-{% endfor -%}
+{%- endfor %}
 
 
 void io_canReroute_init( 
