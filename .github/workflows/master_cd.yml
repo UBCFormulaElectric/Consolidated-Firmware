@@ -6,21 +6,28 @@ on:
 
 jobs:
   # ======= Build Binaries =======
-  build-firmware:
+  build:
     name: Build Firmware
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - board: f4dev
-          - board: h7dev
-          - board: quintuna_BMS
-          - board: quintuna_CRIT
-          - board: quintuna_DAM
-          - board: quintuna_FSM
-          - board: quintuna_RSM
           - board: quintuna_VC
+            bin_name: quintuna_VC_app_metadata.hex
+            build_dir: firmware/quintuna/VC
+          - board: quintuna_BMS
+            bin_name: quintuna_BMS_app_metadata.hex
+            build_dir: firmware/quintuna/BMS
+          - board: quintuna_FSM
+            bin_name: quintuna_FSM_app_metadata.hex
+            build_dir: firmware/quintuna/FSM
+          - board: quintuna_RSM
+            bin_name: quintuna_RSM_app_metadata.hex
+            build_dir: firmware/quintuna/RSM
+          - board: quintuna_DAM
+            bin_name: quintuna_DAM_app_metadata.hex
+            build_dir: firmware/quintuna/DAM
     container:
       image: ubcformulaelectric/environment:arm_14
       credentials:
@@ -61,22 +68,23 @@ jobs:
             can_bus
       - name: Generate and Upload DBC
         uses: ./.github/actions/build_dbc
-      - name: Upload Quadruna DBC to Artifact
+      - name: Upload quintuna DBC to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quadruna.dbc
-          path: quadruna.dbc
+          name: quintuna.dbc
+          path: quintuna.dbc
       - name: Upload Quintuna DBC to Artifact
         uses: actions/upload-artifact@v4
         with:
           name: quintuna.dbc
           path: quintuna.dbc
 
+
   # ======= MAKE THE RELEASE =======
   make-release:
     name: Add Binaries and DBC to Release Tab
     runs-on: ubuntu-22.04
-    needs: [build, generate-dbc]
+    needs: [ build, generate-dbc ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -94,12 +102,12 @@ jobs:
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
           files: |
-            quadruna_VC_app_metadata.hex/quadruna_VC_app_metadata.hex
-            quadruna_BMS_app_metadata.hex/quadruna_BMS_app_metadata.hex
-            quadruna_FSM_app_metadata.hex/quadruna_FSM_app_metadata.hex
-            quadruna_RSM_app_metadata.hex/quadruna_RSM_app_metadata.hex
-            quadruna_CRIT_app_metadata.hex/quadruna_CRIT_app_metadata.hex
-            quadruna.dbc/quadruna.dbc
+            quintuna_VC_app_metadata.hex/quintuna_VC_app_metadata.hex
+            quintuna_BMS_app_metadata.hex/quintuna_BMS_app_metadata.hex
+            quintuna_FSM_app_metadata.hex/quintuna_FSM_app_metadata.hex
+            quintuna_RSM_app_metadata.hex/quintuna_RSM_app_metadata.hex
+            quintuna_DAM_app_metadata.hex/quintuna_DAM_app_metadata.hex
+            quintuna.dbc/quintuna.dbc
             quintuna.dbc/quintuna.dbc
           latest: true
           title: "Stable Binaries and DBCs"
