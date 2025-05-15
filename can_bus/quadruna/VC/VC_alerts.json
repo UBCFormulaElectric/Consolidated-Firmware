@@ -4,25 +4,9 @@
     "warnings_counts_id": 207,
     "faults_counts_id": 208,
     "warnings": {
-        "StackWaterMarkHighTask1Hz": {
-            "id": 501,
-            "description": "1Hz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTask100Hz": {
-            "id": 502,
-            "description": "100Hz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTask1kHz": {
-            "id": 503,
-            "description": "1kHz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTaskCanRx": {
-            "id": 504,
-            "description": "CAN RX task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTaskCanTx": {
+        "StackWatermarkHigh": {
             "id": 505,
-            "description": "CAN TX task stack watermark exceeded."
+            "description": "A task's stack watermark was too high."
         },
         "WatchdogTimeout": {
             "id": 506,

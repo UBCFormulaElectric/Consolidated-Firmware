@@ -49,6 +49,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_stackMonitor.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
@@ -190,7 +191,7 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_log.h"
             "${SHARED_IO_INCLUDE_DIR}/io_canLogging.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.h"
+            "${SHARED_IO_INCLUDE_DIR}/hw_stackMonitor.h"
             "${SHARED_IO_INCLUDE_DIR}/io_imu.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
