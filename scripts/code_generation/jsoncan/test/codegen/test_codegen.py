@@ -2,20 +2,23 @@ import os
 import shutil
 import unittest
 
+from reactivex import generate
+
 from ...generate_can_from_json import generate_can_from_json
 
-valid_json_folder = os.path.join(os.path.dirname(__file__), os.pardir, "json_configs", "valid_json1")
-dbc_output = os.path.join(os.path.dirname(__file__), "test.dbc")
-ecu1_output = os.path.join(os.path.dirname(__file__), "ecu1")
-ecu2_output = os.path.join(os.path.dirname(__file__), "ecu2")
+valid_json_folder = os.path.join(os.path.dirname(
+    __file__), os.pardir, "json_configs", "valid_json1")
+dbc_output = os.path.join(os.path.dirname(__file__), "generated", "test.dbc")
+node_list = [name for name in os.listdir(valid_json_folder)
+             if os.path.isdir(os.path.join(valid_json_folder, name))]
 
 
 class CodegenSmoke(unittest.TestCase):
-    def test_smoke_ECU1(self):
-        # delete ecu1_output folder and its contents
-        if os.path.exists(ecu1_output):
-            shutil.rmtree(ecu1_output)
-        if os.path.exists(ecu2_output):
-            shutil.rmtree(ecu2_output)
-        generate_can_from_json(valid_json_folder, dbc_output, False, "ECU1", ecu1_output)
-        generate_can_from_json(valid_json_folder, dbc_output, False, "ECU2", ecu2_output)
+    def test_codegen(self):
+        for node in node_list:
+            node_path = os.path.join(valid_json_folder, node)
+            self.assertTrue(os.path.isdir(node_path))
+            file_output = os.path.join(
+                os.path.dirname(__file__), "generated", node)
+            generate_can_from_json(
+                valid_json_folder, dbc_output, False, node, file_output)

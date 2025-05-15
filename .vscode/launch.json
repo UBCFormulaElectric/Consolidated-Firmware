@@ -698,6 +698,20 @@
       "osx": {
         "MIMode": "lldb"
       }
+    },
+    {
+      "name": "Debug Tests: JSON CAN intergation",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/scripts/code_generation/jsoncan/test/integration/jsoncan_test.exe",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: JSON CAN intergation",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
     }
   ]
 }
