@@ -6,7 +6,7 @@ static IoRtcTime received_time_data = { 0 };
 
 void io_telemRx()
 {
-    // Check if the data is valid
+    // for now we just simply recieve the data and set the time
     uint8_t data[sizeof(IoRtcTime)];
     hw_uart_receive(&_900k_uart, data, sizeof(IoRtcTime));
     if (data[0] == 0xAA && data[1] == 0x55)
