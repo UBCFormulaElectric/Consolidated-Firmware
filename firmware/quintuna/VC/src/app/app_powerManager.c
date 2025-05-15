@@ -7,10 +7,30 @@
 static PowerState    power_manager_state;
 static TimerChannel *sequencing_timer;
 
-static uint8_t efuses_retry_state[NUM_EFUSE_CHANNELS] = {
-    [EFUSE_CHANNEL_F_INV] = 0,  [EFUSE_CHANNEL_RSM] = 0,   [EFUSE_CHANNEL_BMS] = 0,     [EFUSE_CHANNEL_R_INV] = 0,
-    [EFUSE_CHANNEL_DAM] = 0,    [EFUSE_CHANNEL_FRONT] = 0, [EFUSE_CHANNEL_RL_PUMP] = 0, [EFUSE_CHANNEL_RR_PUMP] = 0,
-    [EFUSE_CHANNEL_F_PUMP] = 0, [EFUSE_CHANNEL_L_RAD] = 0, [EFUSE_CHANNEL_R_RAD] = 0
+typedef union
+{
+    const ST_LoadSwitch *st;
+    const TI_LoadSwitch *ti;
+} Loadswitch;
+
+typedef struct
+{
+    Loadswitch loadswitch;
+    uint8_t    retry_num
+} RetryProtocol;
+
+static RetryProtocol efuses_retry_state[NUM_EFUSE_CHANNELS] = {
+    [EFUSE_CHANNEL_F_INV]   = { .loadswitch.st = &inv_rsm_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_RSM]     = { .loadswitch.st = &inv_rsm_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_BMS]     = { .loadswitch.st = &inv_bms_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_R_INV]   = { .loadswitch.st = &inv_bms_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_DAM]     = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_FRONT]   = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_RL_PUMP] = { .loadswitch.ti = &rl_pump_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_RR_PUMP] = { .loadswitch.ti = &rr_pump_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_F_PUMP]  = { .loadswitch.ti = &f_pump_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_L_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_R_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 }
 };
 
 void app_powerManager_updateConfig(PowerState new_power_manager_config)
@@ -27,6 +47,15 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
         bool desired_efuse_state = power_manager_state.efuses[current_efuse_sequence].efuse_enable;
         bool efuse_valid_state =
             io_loadswitch_isChannelEnabled(&efuse_channels[current_efuse_sequence]) == desired_efuse_state;
+
+        bool efuse_blown;
+        if (current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP && current_efuse_sequence >= EFUSE_CHANNEL_RL_PUMP)
+        {
+            efuse_blown = io_TILoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
+        }
+        else{
+            efuse_blown = io_STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
+        }
 
         uint8_t efuse_retry_timeout = power_manager_state.efuses[current_efuse_sequence].timeout;
         uint8_t efuse_retry_limit   = power_manager_state.efuses[current_efuse_sequence].max_retry;
@@ -54,7 +83,9 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                     &efuse_channels[current_efuse_sequence],
                     power_manager_state.efuses[current_efuse_sequence].efuse_enable);
                 app_timer_stop(sequencing_timer);
-                efuses_retry_state[current_efuse_sequence]++;
+
+                if (efuse_blown)
+                    efuses_retry_state[current_efuse_sequence].retry_num++;
             }
         }
         break;
