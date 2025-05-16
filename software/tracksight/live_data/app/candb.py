@@ -62,9 +62,9 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     return save_dir
 
 
-fetch_jsoncan_configs("cde33d9", True)
+# fetch_jsoncan_configs("e12121d", True)
 # TODO
 # from jsoncan.src.can_database import CanDatabase
 # can_db = CanDatabase()
 from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
-live_can_db = JsonCanParser(os.path.join(bus_configs_path, "cde33d9")).make_database()
+live_can_db = JsonCanParser(os.path.join(bus_configs_path, "e12121d")).make_database()
