@@ -43,9 +43,8 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern CAN_HandleTypeDef hcan2;
-    extern TIM_HandleTypeDef htim4;
-    extern TIM_HandleTypeDef htim12;
+    extern CAN_HandleTypeDef  hcan2;
+    extern IWDG_HandleTypeDef hiwdg;
 
     extern osThreadId_t Task1HzHandle;
     extern osThreadId_t Task100HzHandle;

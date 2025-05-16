@@ -37,9 +37,10 @@ extern "C"
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
-
+    extern CRC_HandleTypeDef   hcrc;
     extern FDCAN_HandleTypeDef hfdcan2;
     extern I2C_HandleTypeDef   hi2c1;
+    extern IWDG_HandleTypeDef  hiwdg1;
     extern SD_HandleTypeDef    hsd1;
     extern TIM_HandleTypeDef   htim15;
     extern UART_HandleTypeDef  huart2;
