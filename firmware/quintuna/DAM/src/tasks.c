@@ -59,7 +59,6 @@ void tasks_init(void)
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
     io_telemMessage_init();
-    io_canQueue_init();
 
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
@@ -72,6 +71,7 @@ _Noreturn void tasks_runChimera(void)
 _Noreturn void tasks_run1Hz(void)
 {
     static const TickType_t period_ms = 1000U;
+    LOG_INFO("1hz task");
     // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
@@ -104,6 +104,7 @@ _Noreturn void tasks_run100Hz(void)
 
     static const TickType_t period_ms   = 10;
     uint32_t                start_ticks = osKernelGetTickCount();
+    LOG_INFO("100hz task");
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
