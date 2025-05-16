@@ -54,7 +54,8 @@ void                   hw_hardFaultHandler_logInfo(uint32_t *fault_stack)
     for (;;)
     {
         HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-        for(int i = 0; i < 3000000; i++) {
+        for (int i = 0; i < 3000000; i++)
+        {
             __ASM("nop");
         }
     };

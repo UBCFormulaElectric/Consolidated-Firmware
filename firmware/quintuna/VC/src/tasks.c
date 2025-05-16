@@ -19,7 +19,8 @@
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
 
-void tasks_preInit(void) {
+void tasks_preInit(void)
+{
     hw_hardFaultHandler_init();
 }
 

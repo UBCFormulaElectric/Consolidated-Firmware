@@ -19,7 +19,8 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_resetReason.h"
 
-void tasks_preInit() {
+void tasks_preInit()
+{
     hw_hardFaultHandler_init();
 }
 
