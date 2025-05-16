@@ -12,11 +12,16 @@
 // hw
 #include "hw_usb.h"
 #include "hw_resetReason.h"
+#include "hw_hardFaultHandler.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
+
+void tasks_preInit(void) {
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init(void)
 {
