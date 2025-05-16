@@ -16,12 +16,10 @@ static uint16_t segment_vref[NUM_SEGMENTS];
 
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * 1E-4f)
 #define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
-// This buffer is only used for storing valid cell voltage data
-// dump whatever you want in here fr
+
 static uint16_t voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static ExitCode volt_success_buf[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS];
 
-// dump whatever you want in here fr
 static uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 // TODO find a way to merge these two
 static ExitCode temp_success_buf[NUM_SEGMENTS][AUX_REG_GROUPS * 2];
@@ -33,8 +31,6 @@ static ExitCode        status_success_buf[NUM_SEGMENTS];
 static SegmentConfig segment_config[NUM_SEGMENTS];
 static SegmentConfig want_segment_config[NUM_SEGMENTS];
 static ExitCode      config_success_buf[NUM_SEGMENTS];
-#define VUV (0x619U) // 2.5V Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
-#define VOV (0xA41U) // 4.2V Over-voltage comparison voltage, VOV * 16 * 100uV
 
 void app_segments_adcSpeed(const ADCSpeed speed)
 {
@@ -44,6 +40,9 @@ void app_segments_adcSpeed(const ADCSpeed speed)
         segment_config[seg].reg_a.adcopt = s >> 2 & 0x1;
     }
 }
+
+#define VUV (0x619U) // 2.5V Under-voltage threshold = (VUV + 1) * 16 * 100uV
+#define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
 
 void app_segments_writeDefaultConfig()
 {

@@ -2,6 +2,7 @@
 #include "io_ltc6813.h"
 
 /**
+ * Sets the ADC
  * @param speed desired speed to set it to
  */
 void app_segments_adcSpeed(ADCSpeed speed);
