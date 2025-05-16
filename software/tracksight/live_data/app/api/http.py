@@ -88,33 +88,29 @@ def set_rtc_time(time: RtcTime):
     """
     Sets the RTC time
     """
-    try:
-        ser = get_serial()
-        # create a bytearray to hold from Rtctime
-        buffer = bytearray(9)
-        print("h")
-        buffer[0] = 0xFF
-        buffer[1] = 0x01
-        # set the year
-        buffer[2] = time.second
-        # set the month
-        buffer[3] = time.minute
-        # set the weekday
-        buffer[4] = time.hour
-        # set the day
-        buffer[5] = time.day
-        # set the hour
-        buffer[6] = time.weekday
-        # set the minute
-        buffer[7] = time.month
-        # set the second
-        buffer[8] = time.year
-        # write the buffer to the serial port
-        ser.write(buffer)
-    except Exception as e:
-        print(e)
 
-    print("hje")
+    ser = get_serial()
+    # create a bytearray to hold from Rtctime
+    buffer = bytearray(9)
+    buffer[0] = 0xFF
+    buffer[1] = 0x01
+    # set the year
+    buffer[2] = time.second
+    # set the month
+    buffer[3] = time.minute
+    # set the weekday
+    buffer[4] = time.hour
+    # set the day
+    buffer[5] = time.day
+    # set the hour
+    buffer[6] = time.weekday
+    # set the minute
+    buffer[7] = time.month
+    # set the second
+    buffer[8] = time.year
+    # write the buffer to the serial port
+
+    ser.write(buffer)
 
 
 @api.route("/rtc", methods=["GET"])
@@ -124,19 +120,19 @@ def api_set_rtc_time():
     """
     # get the system time
     time = datetime.datetime.now()
-    print(time)
 
-    rtcTime: RtcTime(
+    rtcTime = RtcTime(
         year=time.year % 100,  # RTC only accepts 2 digit year
         month=time.month,
         weekday=time.weekday(),
-        day=time.day(),
+        day=time.day,
         hour=time.hour,
         minute=time.minute,
         second=time.second,
     )  # type: ignore
+    print(time)
 
     # set the time
-    set_rtc_time(RtcTime(**time))
+    set_rtc_time(rtcTime)
 
     return {"success": True}, 200

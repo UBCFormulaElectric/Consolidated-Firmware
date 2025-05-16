@@ -183,17 +183,17 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     // Start timing for measuring transmission speeds
     bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
-    const ExitCode exit =
-        hw_uart_transmit(&_900k_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length
-    if (IS_EXIT_OK(exit))
-    {
-        LOG_INFO("900Mhz Telem Message Sent");
-        // print the buffer up to the 27th byte
-    }
-    else
-    {
-        LOG_ERROR("900Mhz Telem Message Failed");
-    }
+    // const ExitCode exit =
+    //     hw_uart_transmit(&_900k_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length
+    // if (IS_EXIT_OK(exit))
+    // {
+    //     LOG_INFO("900Mhz Telem Message Sent");
+    //     // print the buffer up to the 27th byte
+    // }
+    // else
+    // {
+    //     LOG_ERROR("900Mhz Telem Message Failed");
+    // }
 
     SEGGER_SYSVIEW_MarkStop(0);
 

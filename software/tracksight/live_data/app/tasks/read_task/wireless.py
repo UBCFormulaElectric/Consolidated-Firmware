@@ -46,48 +46,49 @@ def calculate_message_timestamp(message_timestamp, base_time):
     return timestamp
 
 def read_packet(ser: serial.Serial):
-	buffer = bytearray()
-	while True:
-		data = ser.read(1)
-		print(data)
-		if not data:
-			continue
-		buffer += data
-	
-		#wait for full header
-		if len(buffer) < HEADER_SIZE:
-			continue
+    buffer = bytearray()
+    while True:
+        # data = b'1'
+        data = ser.read(1)
+        print(data)
+        if not data:
+            continue
+        buffer += data
 
-		if buffer[0:2] != MAGIC:
-			magic_index = find_magic_in_buffer(buffer.hex(), MAGIC)
-			if magic_index == -1:
-				buffer.clear()
-			else:
-				buffer = buffer[magic_index:]
-			continue
+        # wait for full header
+        if len(buffer) < HEADER_SIZE:
+            continue
 
-		if len(buffer) < HEADER_SIZE:
-			continue
+        if buffer[0:2] != MAGIC:
+            magic_index = find_magic_in_buffer(buffer.hex(), MAGIC)
+            if magic_index == -1:
+                buffer.clear()
+            else:
+                buffer = buffer[magic_index:]
+            continue
 
-		#parse remainder of header
-		payload_length = buffer[2]
-		expected_crc = int.from_bytes(buffer[3:7], byteorder='big').to_bytes(4, byteorder='big').hex()  # Updated to read 32-bit CRC and cast to hex
+        if len(buffer) < HEADER_SIZE:
+            continue
 
-		if payload_length > MAX_PAYLOAD_SIZE:
-			logger.error(f"Payload length {payload_length} is too large")
-			buffer = buffer[1:]
-			continue
+        # parse remainder of header
+        payload_length = buffer[2]
+        expected_crc = int.from_bytes(buffer[3:7], byteorder='big').to_bytes(4, byteorder='big').hex()  # Updated to read 32-bit CRC and cast to hex
 
-		total_length = HEADER_SIZE + payload_length
-		if len(buffer) < total_length:
-			continue # wait for full packet
+        if payload_length > MAX_PAYLOAD_SIZE:
+            logger.error(f"Payload length {payload_length} is too large")
+            buffer = buffer[1:]
+            continue
 
-		packet = bytes(buffer[:total_length])
+        total_length = HEADER_SIZE + payload_length
+        if len(buffer) < total_length:
+            continue # wait for full packet
 
-		#reset buffer
-		buffer = buffer[total_length:]
+        packet = bytes(buffer[:total_length])
 
-		return packet, payload_length, expected_crc
+        # reset buffer
+        buffer = buffer[total_length:]
+
+        return packet, payload_length, expected_crc
 
 def _read_messages(port: str):
     """

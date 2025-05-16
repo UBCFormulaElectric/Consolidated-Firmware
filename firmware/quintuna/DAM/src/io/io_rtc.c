@@ -101,10 +101,9 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t HOURS : 5; // Hours (0d-23 or 1d-12)
-    uint8_t AMPM : 1;  // 0: AM, 1: PM (only in 12-hour mode)
+    uint8_t HOURS : 6; // Hours (0d-23 or 1d-12)
     uint8_t RESERVED : 2;
-} Hours_t;
+} Hours_t; // 24 hour mode
 
 /**
  * Days Register (REG_DAYS)
@@ -331,7 +330,7 @@ ExitCode io_rtc_setTime(IoRtcTime *time)
     regMinutes.minutes.MINUTES = (uint8_t)(minutes) & 0x7F;
 
     Register_t regHours  = { 0 };
-    regHours.hours.HOURS = (uint8_t)(hours) & 0x1F;
+    regHours.hours.HOURS = (uint8_t)(hours) & 0x3F;
 
     Register_t regDays = { 0 };
     regDays.days.DAYS  = (uint8_t)(date);
@@ -350,8 +349,8 @@ ExitCode io_rtc_setTime(IoRtcTime *time)
     };
 
     LOG_INFO(
-        "Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day,
-        time->month, time->year);
+        "Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->year,
+        time->month, time->day);
     LOG_INFO(
         "Writing to RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
         buffer[5], buffer[6]);
@@ -405,8 +404,8 @@ ExitCode io_rtc_readTime(IoRtcTime *time)
     time->year     = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
 
     LOG_INFO(
-        "Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day,
-        time->month, time->year);
+        "Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->year,
+        time->month, time->day);
     LOG_INFO(
         "Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
         buffer[5], buffer[6]);
