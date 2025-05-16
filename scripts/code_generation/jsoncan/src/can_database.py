@@ -2,16 +2,37 @@
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
 
-from dataclasses import dataclass
-from typing import List, Union, Dict
+from __future__ import annotations
+
 import logging
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Set, Union
+
+import pandas as pd
 from strenum import StrEnum
 
-from .json_parsing.schema_validation import AlertsEntry
-from .utils import bits_for_uint, bits_to_bytes, is_int
-
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class CanBus:
+    """
+    Dataclass for holding bus config.
+    """
+
+    name: str
+    bus_speed: int
+    modes: List[str]
+    default_mode: str
+    fd: bool  # Whether or not this bus is FD
+    # List of nodes on this bus, foreign key into CanDatabase.nodes, although provided in json
+    node_names: List[str]
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 @dataclass(frozen=True)
@@ -43,6 +64,18 @@ class CanEnum:
         """
         return bits_for_uint(self.max_val())
 
+    def snake_name(self):
+        return pascal_to_snake_case(self.name)
+
+    def scremming_snake_name(self):
+        return pascal_to_screaming_snake_case(self.name)
+
+    def __str__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
 
 class CanSignalDatatype(StrEnum):
     """
@@ -50,7 +83,7 @@ class CanSignalDatatype(StrEnum):
     """
 
     BOOL = "bool"
-    INT = "int"
+    INT = "int32_t"
     UINT = "uint32_t"
     FLOAT = "float"
 
@@ -68,11 +101,13 @@ class CanSignal:
     offset: float  # Offset for encoding/decoding
     min_val: float  # Min allowed value
     max_val: float  # Max allowed value
-    start_val: Union[int, float]  # Default starting value, None if doesn't specify one
-    enum: Union[CanEnum, None]  # Value table, None if doesn't specify one
+    # Default starting value, None if doesn't specify one
+    start_val: Union[int, float]
+    enum: Optional[CanEnum]  # Value table, None if doesn't specify one
     unit: str  # Signal's unit
     signed: bool  # Whether or not signal is represented as signed or unsigned
     description: str = "N/A"  # Description of signal
+    message: Optional[CanMessage] = None  # Message this signal belongs to
 
     def represent_as_integer(self):
         """
@@ -123,8 +158,32 @@ class CanSignal:
         else:
             return CanSignalDatatype.FLOAT
 
+    def snake_name(self):
+        return pascal_to_snake_case(self.name)
+
+    def scremming_snake_name(self):
+        return pascal_to_screaming_snake_case(self.name)
+
+    def start_val_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_START_VAL"
+
+    def max_val_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_MAX_VAL"
+
+    def min_val_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
+
+    def scale_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_SCALE"
+
+    def offset_macro(self):
+        return f"CANSIG_{self.snake_name().upper()}_OFFSET"
+
     def __str__(self):
         return self.name
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 @dataclass(frozen=True)
@@ -140,15 +199,20 @@ class CanMessage:
         int, None
     ]  # Interval that this message should be transmitted at, if periodic. None if aperiodic.
     signals: List[CanSignal]  # All signals that make up this message
-    tx_node: str  # The node that transmits this message
-    rx_nodes: List[str]  # All nodes which receive this message
-    modes: List[str]  # List of modes which this message should be transmitted in
     log_cycle_time: Union[
         int, None
     ]  # Interval that this message should be logged to disk at (None if don't capture this msg)
     telem_cycle_time: Union[
         int, None
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
+
+    # back references, hence are foreign keys
+    # note that these simply list sources and destinations of messages, and not how to get between them
+    # we store them to find how to travel between them, and they are used in dbcs
+    tx_node_name: str  # Node which transmits this message
+
+    # if this is None, then only use the bus default
+    modes: Optional[List[str]]
 
     def bytes(self):
         """
@@ -167,17 +231,30 @@ class CanMessage:
         """
         return self.cycle_time is not None
 
+    def snake_name(self):
+        return pascal_to_snake_case(self.name)
 
-@dataclass(frozen=True)
-class CanBusConfig:
-    """
-    Dataclass for holding bus config.
-    """
+    def scremming_snake_name(self):
+        return pascal_to_screaming_snake_case(self.name)
 
-    default_receiver: str
-    bus_speed: int
-    modes: List[str]
-    default_mode: str
+    # type of the message
+    def c_type(self):
+        return self.name + "_Signals"
+
+    def id_macro(self):
+        return f"CAN_MSG_{self.snake_name().upper()}_ID"
+
+    def cycle_time_macro(self):
+        return f"CAN_MSG_{self.snake_name().upper()}_CYCLE_TIME_MS"
+
+    def bytes_macro(self):
+        return f"CAN_MSG_{self.snake_name().upper()}_BYTES"
+
+    def __str__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 class CanAlertType(StrEnum):
@@ -187,6 +264,7 @@ class CanAlertType(StrEnum):
 
     WARNING = "Warning"  # Warnings sent periodically, for notifying driver
     FAULT = "Fault"  # Faults sent periodically, contactors open if a fault is set
+    INFO = "Info"  # Informational alerts, not critical
 
 
 @dataclass(frozen=True)
@@ -194,9 +272,32 @@ class CanAlert:
     """
     Dataclass for a CAN alert.
     """
-
     name: str
     alert_type: CanAlertType
+    id: int
+    description: str
+
+
+class All:
+    pass
+
+
+@dataclass(frozen=True)
+class CanNode:
+    """
+    Dataclass for fully describing a CAN node.
+    Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
+    """
+    name: str  # Name of this CAN node
+    # busses which the node is attached to, foreign key into CanDatabase.msgs
+    bus_names: List[str]
+    rx_msgs_names: Set[str] | All  # list of messages that it is listening
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __str__(self):
+        return self.name
 
 
 @dataclass(frozen=True)
@@ -205,116 +306,61 @@ class CanDatabase:
     Dataclass for fully describing a CAN bus, its nodes, and their messages.
     """
 
-    nodes: List[str]  # List of names of the nodes on the bus
-    bus_config: CanBusConfig  # Various bus params
-    msgs: Dict[
-        int, CanMessage
-    ]  # All messages being sent to the bus (dict of (ID to message)
-    shared_enums: List[CanEnum]  # Enums used by all nodes
-    alerts: Dict[
-        str, Dict[CanAlert, AlertsEntry]
-    ]  # Dictionary of node to list of alerts set by node
+    nodes: Dict[str, CanNode]  # nodes[node_name] gives metadata for node_name
+    # bus_config[bus_name] gives metadata for bus_name
+    buses: Dict[str, CanBus]
+    msgs: Dict[str, CanMessage]  # msgs[msg_name] gives metadata for msg_name
+    # alerts[node_name] gives a list of alerts on that node
+    alerts: Dict[str, list[CanAlert]]
+    enums: Dict[str, CanEnum]  # enums[enum_name] gives metadata for enum_name
+    # collects_data[node_name] is true if this node collects data
+    collects_data: Dict[str, bool]
 
-    def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages transmitted by a specific node.
-        """
-        return [msg for msg in self.msgs.values() if tx_node == msg.tx_node]
+    # this must be global state rather than local (node) state as the common usecase is navigation
+    # which requires global information
+    forwarding: List[BusForwarder]
 
-    def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages received by a specific node.
-        """
-        return [msg for msg in self.msgs.values() if rx_node in msg.rx_nodes]
+    def make_pandas_dataframe(self):
+        # Create a pandas dataframe from the messages
+        data = []
+        for msg in self.msgs.values():
+            for signal in msg.signals:
+                data.append(
+                    {
+                        "message": msg.name,
+                        "signal": signal.name,
+                        "start_bit": signal.start_bit,
+                        "bits": signal.bits,
+                        "scale": signal.scale,
+                        "offset": signal.offset,
+                        "min_val": signal.min_val,
+                        "max_val": signal.max_val,
+                        "start_val": signal.start_val,
+                        "unit": signal.unit,
+                        "signed": signal.signed,
+                        "description": signal.description,
+                        "tx_node": msg.tx_node_name,
+                        "signal_obj": signal,
+                        "message_obj": msg,
+                    }
+                )
+        pandas_data = pd.DataFrame(data)
+        return pandas_data
 
-    def msgs_for_node(self, node: str) -> List[CanMessage]:
-        """
-        Return list of all CAN messages either transmitted or received by a specific node.
-        """
-        return self.tx_msgs_for_node(tx_node=node) + self.rx_msgs_for_node(rx_node=node)
-
-    def node_has_tx_msgs(self, node: str) -> bool:
-        """
-        Return whether or not a node transmits any messages.
-        """
-        return len(self.tx_msgs_for_node(node)) > 0
-
-    def node_has_rx_msgs(self, node: str) -> bool:
-        """
-        Return whether or not a node receives any messages.
-        """
-        return len(self.rx_msgs_for_node(node)) > 0
-
-    def node_alerts(self, node: str, alert_type: CanAlertType) -> List[str]:
-        """
-        Return list of alerts transmitted by a node, of a specific type.
-        """
-        return (
-            [
-                alert.name
-                for alert in self.alerts[node]
-                if alert.alert_type == alert_type
-            ]
-            if node in self.alerts
-            else []
-        )
-
-    def node_name_description(
-        self, node: str, alert_type: CanAlert
-    ) -> Dict[str, tuple]:
-        """Returns a dictionary containing a the alert names as the key and a description and as the item"""
-
-        new_dict = {}
-        if node not in self.alerts:
-            return {}
-        for alert, info in self.alerts[node].items():
-            if alert.alert_type == alert_type and info != {}:
-                new_dict[alert.name] = (info["id"], info["description"])
-
-            elif info == {}:
-                new_dict[alert.name] = {}
-        return new_dict
-
-    def node_alerts_with_rx_check(
-        self, tx_node: str, rx_node, alert_type: CanAlertType
-    ) -> List[str]:
-        """
-        Return list of alerts transmitted by tx_node, and received by rx_node, of a specific type.
-        """
-        if tx_node == rx_node:
-            # A node "receives" its own alerts
-            return self.node_alerts(tx_node, alert_type)
-        else:
-            alert_msg = next(
-                msg
-                for msg in self.msgs.values()
-                if msg.name == f"{tx_node}_{alert_type}s"
-            )
-            return [
-                alert
-                for alert in self.node_alerts(tx_node, alert_type)
-                if rx_node in alert_msg.rx_nodes
-            ]
-
-    def node_has_alert(self, node: str, alert_type: CanAlertType) -> bool:
-        """
-        Return whether or not a node transmits any alerts.
-        """
-        return len(self.node_alerts(node, alert_type)) > 0
-
-    def unpack(self, id: int, data: bytes) -> Dict:
+    def unpack(self, msg_id: int, data: bytes) -> list[Dict]:
         """
         Unpack a CAN dataframe.
         Returns a dict with the signal name, value, and unit.
 
         TODO: Also add packing!
         """
-        if id not in self.msgs:
-            logger.warning(f"Message ID '{id}' is not defined in the JSON.")
+        if str(msg_id) not in self.msgs:
+            logger.warning(
+                f"Message ID '{msg_id}' is not defined in the JSON.")
             return []
 
         signals = []
-        for signal in self.msgs[id].signals:
+        for signal in self.msgs[str(msg_id)].signals:
             # Interpret raw bytes as an int.
             data_uint = int.from_bytes(data, byteorder="little", signed=False)
 
@@ -346,9 +392,36 @@ class CanDatabase:
                     )
                     continue
 
-                signal_data["label"] = signal.enum.items[signal_value]
+                signal_data["label"] = signal.enum.items[
+                    int(signal_value)
+                ]  # this is legal as enums must be ints
 
             # Append decoded signal's data.
             signals.append(signal_data)
 
         return signals
+
+
+@dataclass()
+class BusForwarder:
+    forwarder: str
+    bus1: str
+    bus2: str
+
+    def __eq__(self, value):
+        if isinstance(value, BusForwarder):
+            return (
+                self.forwarder == value.forwarder
+                and self.bus1 == value.bus1
+                and self.bus2 == value.bus2
+            )
+        return False
+
+    def __lt__(self, value):
+        if isinstance(value, BusForwarder):
+            return (
+                self.forwarder < value.forwarder
+                or (self.forwarder == value.forwarder and self.bus1 < value.bus1)
+                or (self.forwarder == value.forwarder and self.bus1 == value.bus1 and self.bus2 < value.bus2)
+            )
+        return False
