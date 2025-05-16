@@ -1,6 +1,5 @@
 #include "jobs.h"
 
-#include "app_canTx.h"
 #include "app_canRx.h"
 #include "io_canTx.h"
 #include "io_canRx.h"
@@ -11,7 +10,6 @@
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
-#include "io_ltc6813.h"
 #include "io_time.h"
 
 void jobs_runLtc_tick(void)

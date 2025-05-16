@@ -37,7 +37,7 @@ void app_segments_adcSpeed(const ADCSpeed speed)
     s = speed;
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        segment_config[seg].reg_a.adcopt = s >> 2 & 0x1;
+        segment_config[seg].reg_a.adcopt = 0x1u & (speed >> 2);
     }
 }
 
@@ -88,7 +88,7 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
     }
 }
 
-void app_segments_configSync()
+static bool check_equal()
 {
     bool read_config_ok = true;
     for (uint8_t try = 0; try < 3; try++)
@@ -108,10 +108,16 @@ void app_segments_configSync()
     {
         seg_config_same &= memcmp(&segment_config[seg], &want_segment_config[seg], sizeof(SegmentConfig)) == 0;
     }
-    if (seg_config_same)
-        return;
+    return seg_config_same;
+}
 
-    ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(want_segment_config));
+void app_segments_configSync()
+{
+    if (!check_equal())
+    {
+        ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(want_segment_config));
+        assert(check_equal());
+    }
 }
 
 // test setters
