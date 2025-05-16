@@ -1,4 +1,10 @@
 #pragma once
+#include "io_ltc6813.h"
+
+/**
+ * @param speed desired speed to set it to
+ */
+void app_segments_adcSpeed(ADCSpeed speed);
 
 /**
  * Writes the default config to the internal config
@@ -14,7 +20,7 @@ void app_segments_configSync();
 /**
  * Reads the voltages, broadcasts them appropriately
  */
-void app_segments_broadcastVoltages();
+void app_segments_broadcastCellVoltages();
 
 /**
  * Reads the temperatures, broadcasts them appropriately
@@ -22,7 +28,7 @@ void app_segments_broadcastVoltages();
 void app_segments_broadcastTempsVRef();
 
 /**
- *
+ * Reads the status registers, broadcasts them appropriately
  */
 void app_segments_broadcastStatus();
 

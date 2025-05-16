@@ -10,7 +10,7 @@
 
 // TODO extended balancing
 
-static const ADCSpeed s = ADCSpeed_7kHz;
+static ADCSpeed s = ADCSpeed_7kHz;
 
 static uint16_t segment_vref[NUM_SEGMENTS];
 
@@ -33,9 +33,17 @@ static ExitCode        status_success_buf[NUM_SEGMENTS];
 static SegmentConfig segment_config[NUM_SEGMENTS];
 static SegmentConfig want_segment_config[NUM_SEGMENTS];
 static ExitCode      config_success_buf[NUM_SEGMENTS];
-// todo set this to true cell upper/lower bound
-#define VUV (0x4E1U) // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
-#define VOV (0x9C4U) // Over-voltage comparison voltage, VOV * 16 * 100uV
+#define VUV (0x619U) // 2.5V Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
+#define VOV (0xA41U) // 4.2V Over-voltage comparison voltage, VOV * 16 * 100uV
+
+void app_segments_adcSpeed(const ADCSpeed speed)
+{
+    s = speed;
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        segment_config[seg].reg_a.adcopt = s >> 2 & 0x1;
+    }
+}
 
 void app_segments_writeDefaultConfig()
 {
@@ -49,7 +57,6 @@ void app_segments_writeDefaultConfig()
         seg_b_cfg->gpio_6_9 = 0xF;
         seg_a_cfg->refon    = 1;
         seg_a_cfg->dten     = 0;
-        seg_a_cfg->adcopt   = 0; // TODO configure based on desired ADC speed
         // upper and lower bound
         seg_a_cfg->vuv_0_7  = VUV & 0xFF;
         seg_a_cfg->vuv_8_11 = VUV >> 8 & 0xF;
@@ -109,7 +116,7 @@ void app_segments_configSync()
 }
 
 // test setters
-void app_segments_broadcastVoltages()
+void app_segments_broadcastCellVoltages()
 {
     static void (*const cellVoltageSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(
         float) = { { app_canTx_BMS_Seg0_Cell0_Voltage_set, app_canTx_BMS_Seg0_Cell1_Voltage_set,
@@ -194,8 +201,8 @@ void app_segments_broadcastStatus()
     static void (*const thermalOKsetters[NUM_SEGMENTS])(bool)   = { app_canTx_BMS_Seg0_THERMAL_OK_set };
     // static void (*const tempSetters[NUM_SEGMENTS])(float)           = {  };
 
-    // ASSERT_EXIT_OK(io_ltc6813_diagnoseMUX());
-    // io_time_delay(15);
+    ASSERT_EXIT_OK(io_ltc6813_diagnoseMUX());
+    io_time_delay(15);
     ASSERT_EXIT_OK(io_ltc6813_startInternalADCConversions(s));
     io_time_delay(15);
     io_ltc6813_getStatus(statuses, status_success_buf);

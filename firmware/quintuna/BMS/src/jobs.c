@@ -17,7 +17,7 @@
 void jobs_runLtc_tick(void)
 {
     app_segments_configSync();
-    app_segments_broadcastVoltages();
+    app_segments_broadcastCellVoltages();
     app_segments_broadcastTempsVRef();
     app_segments_broadcastStatus();
     if (app_canRx_Debug_EnableDebugMode_get())
