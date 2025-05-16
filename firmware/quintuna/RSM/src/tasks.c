@@ -115,11 +115,10 @@ _Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
-        const CanMsg rx_msg      = io_canQueue_popRx();
+        const CanMsg rx_msg   = io_canQueue_popRx();
         JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
-        
+
         io_canRx_updateRxTableWithMessage(&json_msg);
         io_bootHandler_processBootRequest(&rx_msg);
-
     }
 }

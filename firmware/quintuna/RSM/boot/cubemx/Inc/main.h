@@ -58,18 +58,38 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED_Pin GPIO_PIN_13
-#define LED_GPIO_Port GPIOC
-#define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_5
-#define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
-#define FR_STBY_Pin GPIO_PIN_6
-#define FR_STBY_GPIO_Port GPIOA
-#define RAD_FAN_EN_Pin GPIO_PIN_1
-#define RAD_FAN_EN_GPIO_Port GPIOB
-#define ACC_FAN_EN_Pin GPIO_PIN_10
-#define ACC_FAN_EN_GPIO_Port GPIOB
-#define nBOOT_EN_Pin GPIO_PIN_12
-#define nBOOT_EN_GPIO_Port GPIOB
+#define TIM4_PRESCALER 256
+#define ADC_FREQUENCY 1000
+#define TIM2_ARR TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY)
+#define TIM2_PRESCALER 4
+#define TIM4_ARR TIMx_FREQUENCY / (TIM4_PRESCALER * TIM4_FREQUENCY)
+#define TIM4_FREQUENCY 10
+#define TIM2_FREQUENCY 100
+#define TIMx_FREQUENCY 96000000
+#define RL_INT_3V3_SENS_Pin GPIO_PIN_4
+#define RL_INT_3V3_SENS_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RL_OCSC_Pin GPIO_PIN_7
+#define SUSP_TRAVEL_RL_OCSC_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RR_OCSC_Pin GPIO_PIN_4
+#define SUSP_TRAVEL_RR_OCSC_GPIO_Port GPIOC
+#define BOOT_Pin GPIO_PIN_0
+#define BOOT_GPIO_Port GPIOB
+#define LED_Pin GPIO_PIN_1
+#define LED_GPIO_Port GPIOB
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define IMU_INT1_Pin GPIO_PIN_11
+#define IMU_INT1_GPIO_Port GPIOC
+#define IMU_INT1_EXTI_IRQn EXTI15_10_IRQn
+#define IMU_INT2_Pin GPIO_PIN_12
+#define IMU_INT2_GPIO_Port GPIOC
+#define IMU_INT2_EXTI_IRQn EXTI15_10_IRQn
+#define SWO_Pin GPIO_PIN_3
+#define SWO_GPIO_Port GPIOB
+#define BRAKE_LIGHT_EN_Pin GPIO_PIN_5
+#define BRAKE_LIGHT_EN_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
