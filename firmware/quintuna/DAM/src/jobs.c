@@ -54,7 +54,7 @@ void jobs_run1kHz_tick(void) {}
 
 void jobs_runCanRx_tick(void)
 {
-    const CanMsg rx_msg = io_canQueue_popRx();
+    const CanMsg rx_msg       = io_canQueue_popRx();
     JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg); // Linker Error
     io_canRx_updateRxTableWithMessage(&json_can_msg);
 }
