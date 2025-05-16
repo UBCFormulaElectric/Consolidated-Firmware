@@ -48,7 +48,7 @@ def read_packet(ser: serial.Serial):
 	buffer = bytearray()
 	while True:
 		data = ser.read(1)
-		print(data)
+		# print(data)
 		if not data:
 			continue
 		buffer += data
@@ -89,57 +89,61 @@ def read_packet(ser: serial.Serial):
 		return packet, payload_length, expected_crc
 
 def _read_messages(port: str):
-	"""
+    """
 	Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
 	"""
-	ser = serial.Serial(port, baudrate=57600, timeout = 1)
-	ser.reset_input_buffer()
-	ser.reset_output_buffer()
+    ser = serial.Serial(port, baudrate=57600, timeout = 1)
+    ser.reset_input_buffer()
+    ser.reset_output_buffer()
 
-	base_time = None
+    base_time = None
 
-	while True:	
-		print("hi")
-		packet, payload_length, expected_crc = read_packet(ser)
-		print("hi2")
-		payload = packet[HEADER_SIZE:]
-		if len(payload) != payload_length:
-			logger.error(f"Payload length mismatch: expected {payload_length}, got {len(payload)}")
-			continue
-			
-		# CRC check
-		calculator = Calculator(Crc32.CRC32)
-		calculated_checksum = calculator.checksum(payload).to_bytes(4, byteorder='big').hex()
-		if expected_crc != calculated_checksum:
-			logger.error(f"CRC mismatch: computed ", calculated_checksum, "expected ", expected_crc)
-			continue
+    while True:	
+        print("hi")
+        packet, payload_length, expected_crc = read_packet(ser)
+        print("hi2")
+        payload = packet[HEADER_SIZE:]
+        if len(payload) != payload_length:
+            logger.error(f"Payload length mismatch: expected {payload_length}, got {len(payload)}")
+            continue
 
-		try:
-			message_received = telem_pb2.TelemMessage()
-			message_received.ParseFromString(payload)
-		except Exception as e:
-			logger.error(f"Error decoding protobuf message: {e}")
-			continue
+        # CRC check
+        calculator = Calculator(Crc32.CRC32)
+        calculated_checksum = calculator.checksum(payload).to_bytes(4, byteorder='big').hex()
+        if expected_crc != calculated_checksum:
+            logger.error(f"CRC mismatch: computed ", calculated_checksum, "expected ", expected_crc)
+            continue
 
-		# decode for start_time messages, don't push this to the queue
-		if message_received.can_id == 0x999:
-			#parse start_time from data if this pacakage is correct
-			base_time = datetime.datetime(
-				year=message_received.data[0],
-				month=message_received.data[1],
-				day=message_received.data[2],
-				hour=message_received.data[3],
-				minute=message_received.data[4],
-				second=message_received.data[5]
-			)
-			logger.info(f"Base time recieved: {base_time}")
-			continue 
-		# if not base_time: 
-		# 	#we do not know the base time so skip
-		# 	continue
-		print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
-		timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
-		can_msg_queue.put(CanMsg(message_received.can_id, _make_bytes(message_received), timestamp))
+        try:
+            message_received = telem_pb2.TelemMessage()
+            message_received.ParseFromString(payload)
+        except Exception as e:
+            logger.error(f"Error decoding protobuf message: {e}")
+            continue
+
+        # decode for start_time messages, don't push this to the queue
+        if message_received.can_id == 0x999:
+            # parse start_time from data if this pacakage is correct
+            print(message_received)
+            base_time = datetime.datetime(
+                year=message_received.message_0,
+                month=message_received.message_1,
+                day=message_received.message_1,
+                hour=message_received.message_2,
+                minute=message_received.message_3,
+                second=message_received.message_4,
+            )
+            logger.info(f"Base time recieved: {base_time}")
+            print(base_time)
+            continue
+        # if not base_time:
+        # 	#we do not know the base time so skip
+        # 	continue
+        print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
+        timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
+        can_msg_queue.put(
+            CanMsg(message_received.can_id, _make_bytes(message_received), timestamp)
+        )
 
 def get_wireless_task(serial_port: str | None) -> Thread:
 	if serial_port is None:

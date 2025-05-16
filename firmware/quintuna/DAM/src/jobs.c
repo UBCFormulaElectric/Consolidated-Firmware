@@ -6,16 +6,7 @@
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_telemMessage.h"
-
-IoRtcTime start_time;
-CanMsg    start_time_msg;
-
-IoRtcTime dummy_start_time = { .year    = 23, // 2023
-                               .month   = 5,  // May
-                               .day     = 10, // 10th
-                               .hours   = 12, // 12:00
-                               .minutes = 0,
-                               .seconds = 0 };
+#include "io_telemBaseTime.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -36,13 +27,13 @@ void jobs_init()
     // io_rtc_readTime(&start_time);
 
     // move into can msg
-    io_telemMessage_startTimeinit(&start_time_msg, dummy_start_time);
+    io_telemBaseTimeInit();
 }
 
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
-    io_telemMessage_pushMsgtoQueue(&start_time_msg);
+    io_telemBaseTimeSend();
 }
 
 void jobs_run100Hz_tick(void)
