@@ -1,5 +1,6 @@
 from threading import Thread
 import serial
+from middleware.serial_port import get_serial
 from generated import telem_pb2
 from logger import logger
 from tasks.broadcaster import can_msg_queue, CanMsg
@@ -48,7 +49,7 @@ def read_packet(ser: serial.Serial):
 	buffer = bytearray()
 	while True:
 		data = ser.read(1)
-		# print(data)
+		print(data)
 		if not data:
 			continue
 		buffer += data
@@ -92,7 +93,7 @@ def _read_messages(port: str):
     """
 	Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
 	"""
-    ser = serial.Serial(port, baudrate=57600, timeout = 1)
+    ser = get_serial()
     ser.reset_input_buffer()
     ser.reset_output_buffer()
 

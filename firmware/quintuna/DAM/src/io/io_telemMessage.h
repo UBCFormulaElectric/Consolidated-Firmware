@@ -9,11 +9,6 @@
 void io_telemMessage_init();
 
 /**
- * Initializes a CAN message with the start time
- */
-void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time);
-
-/**
  * Serializes the can msg and pushes it to the queue
  */
 bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg);

@@ -833,10 +833,9 @@ void RunTaskTelemRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskTelemRx */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+
+    tasks_runTelemRx();
+
     /* USER CODE END RunTaskTelemRx */
 }
 

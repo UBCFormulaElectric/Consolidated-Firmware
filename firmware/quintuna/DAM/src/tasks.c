@@ -84,13 +84,6 @@ _Noreturn void tasks_run1Hz(void)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
-        CanMsg fake_msg = {
-            .std_id    = 0x123,
-            .dlc       = 8,
-            .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
-            .timestamp = io_time_getCurrentMs(),
-        };
-        io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
