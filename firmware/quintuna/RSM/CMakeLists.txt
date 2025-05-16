@@ -58,7 +58,7 @@ set(HW_INCLUDE_DIRS
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm4")
     if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32f412rgtx_app.ld")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
     else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
     endif ()
