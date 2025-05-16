@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <array>
-
 using namespace std;
 
 extern "C"
