@@ -16,7 +16,7 @@ typedef union
 typedef struct
 {
     Loadswitch loadswitch;
-    uint8_t    retry_num
+    uint8_t    retry_num;
 } RetryProtocol;
 
 static RetryProtocol efuses_retry_state[NUM_EFUSE_CHANNELS] = {
@@ -64,7 +64,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
         {
             continue;
         }
-        else if (efuses_retry_state[current_efuse_sequence] <= efuse_retry_limit)
+        else if (efuses_retry_state[current_efuse_sequence].retry_num <= efuse_retry_limit)
         {
             // This to indicate that we want the efuse to be off when its on so just turn it off
             if (!desired_efuse_state)
