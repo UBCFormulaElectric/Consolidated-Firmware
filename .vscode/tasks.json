@@ -112,6 +112,13 @@
         "targets": ["quintuna_BMS.hex", "can_bus_load_quadruna"]
       },
       {
+        "label": "Build Embedded: VC (Quintuna)",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["quintuna_VC.hex", "can_bus_load_quintuna"]
+      },
+      {
         "label": "Build Embedded: CRIT (Quintuna)",
         "group": "build",
         "type": "cmake",
@@ -209,6 +216,13 @@
         "type": "cmake",
         "command": "build",
         "targets": ["shared_test"]
+      },
+      {
+        "label": "Build Tests: JSON CAN intergation",
+        "group": "build",
+        "type": "cmake",
+        "command": "build",
+        "targets": ["jsoncan_test"]
       }
     ]
 }

@@ -1,9 +1,10 @@
 {
-    "messages": [
-        "FSM_Brake",
-        "VC_Vitals",
-        "BMS_Vitals",
-        "FSM_Vitals",
-        "Debug_CanMode"
-    ]
+  "messages": [
+    "FSM_Brake",
+    "VC_Vitals",
+    "BMS_Vitals",
+    "FSM_Vitals",
+    "Debug_CanMode",
+    "Debug_BootloaderCAN"
+  ]
 }

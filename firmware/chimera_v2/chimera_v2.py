@@ -1,21 +1,12 @@
 """Debug UBC Formula Electric boards with Python.
 
-Provides tooling to debug devices over USB, CAN, etc.
+Provides tooling to debug devices over USB.
 
 """
 
 # Typing.
 from __future__ import annotations
-
-import signal
-
-# Threading.
-import threading
 import types
-from typing import Any, Dict, Optional
-
-import can
-import cantools
 
 # Peripherals.
 import libusb_package
@@ -43,7 +34,9 @@ import proto_autogen.crit_pb2
 import proto_autogen.bms_pb2
 import proto_autogen.rsm_pb2
 import proto_autogen.fsm_pb2
+import proto_autogen.vc_pb2
 
+# USB Manufacturer ID, specified per-board in STM32 CubeMX.
 _MANUFACTURER = "ubc_formula_electric"
 
 # Roughly 3 years.
@@ -60,78 +53,6 @@ def log_usb_devices():
             f"Product ID: {device.idProduct:#x},",
             f"Vendor ID: {device.idVendor:#x}",
         )
-
-
-class CanDevice:
-    def __init__(self, dbc_path: str, bus: can.BusABC):
-        """Create an abstraction around a CAN bus device.
-
-        Args:
-            dbc_path: Path to a dbc file.
-            bus: handle to a can bus.
-
-        """
-        self._db = cantools.database.load_file(dbc_path, database_format="dbc")
-        self._can_bus = bus
-
-        # Build CAN message tables.
-        self.rx_table: Dict[str, Dict[str, Any]] = {}
-        for msg in self._db.messages:  # type: ignore
-            self.rx_table[msg.name] = {}
-            for sig in msg.signals:
-                self.rx_table[msg.name][sig.name] = None
-
-        # Setup exit handler and signal.
-        exit_event = threading.Event()
-
-        def exit_handler(_signalnum: int, _stackframe: Any):
-            exit_event.set()
-
-        signal.signal(signal.SIGINT, exit_handler)
-
-        # Spin up a loop on a seperate thread to constantly receive messages.
-        def can_rx_loop():
-            while True:
-                raw_msg = self._can_bus.recv(0.1)
-                if raw_msg is not None:
-                    name = self._db.get_message_by_frame_id(raw_msg.arbitration_id).name
-                    msg = self._db.decode_message(raw_msg.arbitration_id, raw_msg.data)
-                    self.rx_table[name] = msg
-
-                if exit_event.is_set():
-                    break
-
-        self.can_rx_thread = threading.Thread(target=can_rx_loop)
-        self.can_rx_thread.start()
-
-    def get(self, msg_name: str, signal_name: str) -> Optional[Any]:
-        """Get a given signal from the last received can message.
-
-        Args:
-            msg_name: Name of the message.
-            signal_name: Name of the signal.
-
-        Returns:
-            The value of the signal, or None of the message name has not been received.
-
-        """
-
-        if self.rx_table[msg_name] == None:
-            return None
-        return self.rx_table[msg_name][signal_name]
-
-    def transmit(self, msg_name: str, data: Dict[str, Any]):
-        """Transmit a message given it's data.
-
-        Args:
-            msg_name: Name of the message.
-            data: Dictonary containing the signals to send.
-
-        """
-        msg_type = self._db.get_message_by_name(msg_name)  # type: ignore
-        raw_data = msg_type.encode(data)
-        raw_msg = can.Message(arbitration_id=msg_type.frame_id, data=raw_data)
-        self._can_bus.send(raw_msg)
 
 
 class _UsbDevice:
@@ -157,6 +78,7 @@ class _UsbDevice:
         self._endpoint_write = self._interface[0]
         self._endpoint_read = self._interface[1]
         self._read_chunk_size = self._endpoint_read.wMaxPacketSize
+        self._write_chunk_size = self._endpoint_write.wMaxPacketSize
 
         # Buffer for read bytes.
         # We have to read in chunks of _read_chunk_size, so if we read too much,
@@ -170,7 +92,11 @@ class _UsbDevice:
             buffer: Bytes to send over USB.
 
         """
-        self._device.write(self._endpoint_write.bEndpointAddress, buffer)
+
+        # Chunk to maximum size accepted by endpoint before writing.
+        for index in range(0, len(buffer), self._write_chunk_size):
+            chunk = buffer[index : index + self._write_chunk_size]
+            self._device.write(self._endpoint_write.bEndpointAddress, chunk)
 
     def read(self, length: int) -> bytes:
         """Read bytes over usb. Will block until all bytes are received.
@@ -548,7 +474,7 @@ class SpiDevice:
         assert response.WhichOneof("payload") == "spi_transmit"
         assert response.spi_transmit.success
 
-    def transact(self, request_data: bytes, response_length: int):
+    def transact(self, request_data: bytes, response_length: int) -> bytes:
         """Run a full transaction (tx/rx) to the SPI device.
 
         Args:
@@ -573,7 +499,7 @@ class SpiDevice:
         # Wait for response.
         response = self._owner._read()
         assert response.WhichOneof("payload") == "spi_transaction"
-        assert response.spi_transaction.rx_data
+        return response.spi_transaction.rx_data
 
 
 class F4Dev(_Board):
@@ -610,7 +536,7 @@ class CRIT(_Board):
 
 
 class BMS(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to a BMS board."""
 
         super().__init__(
@@ -650,4 +576,15 @@ class DAM(_Board):
             usb_device=_UsbDevice(product="dam"),
             net_name_tag="dam_net_name",
             board_module=proto_autogen.dam_pb2,
+        )
+
+
+class VC(_Board):
+    def __init__(self):
+        """Create an interface to a VC board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="vc"),
+            net_name_tag="vc_net_name",
+            board_module=proto_autogen.vc_pb2,
         )

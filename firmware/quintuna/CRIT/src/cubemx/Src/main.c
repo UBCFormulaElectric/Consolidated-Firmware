@@ -46,9 +46,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan2;
 
-SPI_HandleTypeDef hspi2;
-SPI_HandleTypeDef hspi3;
-
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
 uint32_t             Task1kHzBuffer[512];
@@ -109,6 +106,18 @@ const osThreadAttr_t TaskCanTx_attributes = {
     .stack_size = sizeof(TaskCanTxBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -117,13 +126,12 @@ const osThreadAttr_t TaskCanTx_attributes = {
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN2_Init(void);
-static void MX_SPI3_Init(void);
-static void MX_SPI2_Init(void);
 void        StartTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -163,8 +171,6 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN2_Init();
-    MX_SPI3_Init();
-    MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -202,6 +208,9 @@ int main(void)
 
     /* creation of TaskCanTx */
     TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -310,78 +319,6 @@ static void MX_CAN2_Init(void)
 }
 
 /**
- * @brief SPI2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_SPI2_Init(void)
-{
-    /* USER CODE BEGIN SPI2_Init 0 */
-
-    /* USER CODE END SPI2_Init 0 */
-
-    /* USER CODE BEGIN SPI2_Init 1 */
-
-    /* USER CODE END SPI2_Init 1 */
-    /* SPI2 parameter configuration*/
-    hspi2.Instance               = SPI2;
-    hspi2.Init.Mode              = SPI_MODE_MASTER;
-    hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi2.Init.DataSize          = SPI_DATASIZE_8BIT;
-    hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
-    hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
-    hspi2.Init.NSS               = SPI_NSS_SOFT;
-    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-    hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
-    hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-    hspi2.Init.CRCPolynomial     = 10;
-    if (HAL_SPI_Init(&hspi2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN SPI2_Init 2 */
-
-    /* USER CODE END SPI2_Init 2 */
-}
-
-/**
- * @brief SPI3 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_SPI3_Init(void)
-{
-    /* USER CODE BEGIN SPI3_Init 0 */
-
-    /* USER CODE END SPI3_Init 0 */
-
-    /* USER CODE BEGIN SPI3_Init 1 */
-
-    /* USER CODE END SPI3_Init 1 */
-    /* SPI3 parameter configuration*/
-    hspi3.Instance               = SPI3;
-    hspi3.Init.Mode              = SPI_MODE_MASTER;
-    hspi3.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi3.Init.DataSize          = SPI_DATASIZE_8BIT;
-    hspi3.Init.CLKPolarity       = SPI_POLARITY_LOW;
-    hspi3.Init.CLKPhase          = SPI_PHASE_1EDGE;
-    hspi3.Init.NSS               = SPI_NSS_SOFT;
-    hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-    hspi3.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    hspi3.Init.TIMode            = SPI_TIMODE_DISABLE;
-    hspi3.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-    hspi3.Init.CRCPolynomial     = 10;
-    if (HAL_SPI_Init(&hspi3) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN SPI3_Init 2 */
-
-    /* USER CODE END SPI3_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -402,10 +339,11 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOA, BOOT_Pin | LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, LED_DIMMING_Pin | SEVEN_SEG_RCK_Pin | SEVEN_SEG_DIMMING_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(
+        GPIOB, LED_DIMMING_Pin | LED_SERIN_Pin | SEVEN_SEG_RCK_Pin | SEVEN_SEG_DIMMING_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LED_RCK_GPIO_Port, LED_RCK_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_RCK_Pin | LED_SRCK_Pin | SEVEN_SEG_SRCK_Pin | SEVEN_SEG_SERIN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : BOOT_Pin LED_Pin */
     GPIO_InitStruct.Pin   = BOOT_Pin | LED_Pin;
@@ -432,19 +370,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LED_DIMMING_Pin SEVEN_SEG_RCK_Pin SEVEN_SEG_DIMMING_Pin */
-    GPIO_InitStruct.Pin   = LED_DIMMING_Pin | SEVEN_SEG_RCK_Pin | SEVEN_SEG_DIMMING_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    /*Configure GPIO pins : LED_DIMMING_Pin LED_SERIN_Pin SEVEN_SEG_RCK_Pin SEVEN_SEG_DIMMING_Pin */
+    GPIO_InitStruct.Pin   = LED_DIMMING_Pin | LED_SERIN_Pin | SEVEN_SEG_RCK_Pin | SEVEN_SEG_DIMMING_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : LED_RCK_Pin */
-    GPIO_InitStruct.Pin   = LED_RCK_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    /*Configure GPIO pins : LED_RCK_Pin LED_SRCK_Pin SEVEN_SEG_SRCK_Pin SEVEN_SEG_SERIN_Pin */
+    GPIO_InitStruct.Pin   = LED_RCK_Pin | LED_SRCK_Pin | SEVEN_SEG_SRCK_Pin | SEVEN_SEG_SERIN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LED_RCK_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pin : PC9 */
     GPIO_InitStruct.Pin       = GPIO_PIN_9;
@@ -540,6 +478,21 @@ void RunTaskCanTx(void *argument)
     /* USER CODE BEGIN RunTaskCanTx */
     tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
+}
+
+/* USER CODE BEGIN Header_RunTaskChimera */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
 }
 
 /**
