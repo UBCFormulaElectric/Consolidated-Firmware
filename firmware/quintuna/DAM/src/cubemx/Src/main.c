@@ -477,8 +477,7 @@ static void MX_I2C1_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-    // TODO remove
-    return;
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -487,13 +486,13 @@ static void MX_IWDG1_Init(void)
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = 4095;
+    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 
