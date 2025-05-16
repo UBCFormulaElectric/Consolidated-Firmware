@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#ifndef THREAD_SAFE_CAN_PACKING
+#ifdef THREAD_SAFE_CAN_PACKING
 void io_canTx_set_lockfunction(
     void (*lock)(void),
     void (*unlock)(void)
