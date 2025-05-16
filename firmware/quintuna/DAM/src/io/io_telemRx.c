@@ -10,7 +10,7 @@ static uint8_t data[BUFFER_SIZE];
 void    io_telemRx()
 {
     // for now we just simply recieve the data and set the time
-    ExitCode c = hw_uart_receive(&_900k_uart, data, BUFFER_SIZE);
+    ExitCode c = hw_uart_receive_pooling(&_900k_uart, data, BUFFER_SIZE);
     if (c != EXIT_CODE_OK)
         return;
     if (data[0] == 0xFF && data[1] == 0x01)
