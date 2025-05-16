@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <array>
-#define THREAD_SAFE_CAN_PACKING
 using namespace std;
 
 extern "C"
