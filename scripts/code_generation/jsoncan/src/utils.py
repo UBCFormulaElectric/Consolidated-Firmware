@@ -38,7 +38,7 @@ def max_uint_for_bits(num_bits: int) -> int:
     """
     Largest unsigned int that can be stored in num_bits number of bits.
     """
-    return int(2**num_bits - 1)
+    return int(2 ** num_bits - 1)
 
 
 def is_int(num: Union[int, float]) -> bool:
@@ -59,26 +59,6 @@ def float_to_str(f):
     # return format(d1, 'f')
     # return np.format_float_positional(f)
     return str(float(f))
-
-
-def write_text(text: str, output_path=str) -> None:
-    """
-    Write the text stored in text to output_path.
-    """
-    output_dir = (
-        os.getcwd()
-        if os.path.dirname(output_path) == ""
-        else os.path.dirname(output_path)
-    )
-    output_name = os.path.basename(output_path)
-
-    # Generate output folder if it doesn't exist yet
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # Write file to disk
-    with open(os.path.join(output_dir, output_name), "w") as fout:
-        fout.write(text)
 
 
 def pascal_to_snake_case(text: str) -> str:
