@@ -55,7 +55,6 @@ void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success
     }
 
 #define RDSTATA (0x0010)
-#define RDSTATB (0x0012)
     struct
     {
         StatA stat;
@@ -72,6 +71,7 @@ void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success
         return;
     }
 
+#define RDSTATB (0x0012)
     struct
     {
         StatB stat;
@@ -88,23 +88,25 @@ void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success
         return;
     }
 
-    for (int i = 0; i < NUM_SEGMENTS; i++)
+    for (int seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        if (!io_ltc6813_check_pec((uint8_t *)&reg_stat_a[i].stat, sizeof(reg_stat_a[i].stat), &reg_stat_a[i].pec) ||
-            !io_ltc6813_check_pec((uint8_t *)&reg_stat_b[i].stat, sizeof(reg_stat_b[i].stat), &reg_stat_b[i].pec))
+        const StatA *reg_a = &reg_stat_a[(NUM_SEGMENTS - 1) - seg].stat;
+        const StatB *reg_b = &reg_stat_b[(NUM_SEGMENTS - 1) - seg].stat;
+        if (!io_ltc6813_check_pec((uint8_t *)reg_a, sizeof(StatA), &reg_stat_a[(NUM_SEGMENTS - 1) - seg].pec) ||
+            !io_ltc6813_check_pec((uint8_t *)reg_b, sizeof(StatB), &reg_stat_b[(NUM_SEGMENTS - 1) - seg].pec))
         {
-            success[i] = EXIT_CODE_CHECKSUM_FAIL;
+            success[seg] = EXIT_CODE_CHECKSUM_FAIL;
             continue;
         }
-        success[i]        = EXIT_CODE_OK;
-        status[i].SC      = reg_stat_a[i].stat.SC;
-        status[i].ITMP    = reg_stat_a[i].stat.ITMP;
-        status[i].VA      = reg_stat_a[i].stat.VA;
-        status[i].VD      = reg_stat_b[i].stat.VD;
-        status[i].CVBF    = reg_stat_b[i].stat.CVBF;
-        status[i].THSD    = reg_stat_b[i].stat.THSD;
-        status[i].MUXFAIL = reg_stat_b[i].stat.MUXFAIL;
-        status[i].RSVD    = reg_stat_b[i].stat.RSVD;
-        status[i].REV     = reg_stat_b[i].stat.REV;
+        success[seg]        = EXIT_CODE_OK;
+        status[seg].SC      = reg_a->SC;
+        status[seg].ITMP    = reg_a->ITMP;
+        status[seg].VA      = reg_a->VA;
+        status[seg].VD      = reg_b->VD;
+        status[seg].CVBF    = reg_b->CVBF;
+        status[seg].THSD    = reg_b->THSD;
+        status[seg].MUXFAIL = reg_b->MUXFAIL;
+        status[seg].RSVD    = reg_b->RSVD;
+        status[seg].REV     = reg_b->REV;
     }
 }

@@ -8,6 +8,12 @@
 void app_segments_adcSpeed(ADCSpeed speed);
 
 /**
+ * Sets the balancing configuration of all segments
+ * @param balance_config the balancing configuration in question
+ */
+void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
+
+/**
  * Writes the default config to the internal config
  */
 void app_segments_writeDefaultConfig();

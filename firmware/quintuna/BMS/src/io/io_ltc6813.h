@@ -73,12 +73,6 @@ typedef struct
 } SegmentConfig;
 
 /**
- * Sets the balancing configuration of all segments
- * @param balance_config the balancing configuration in question
- */
-void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
-
-/**
  * Reads the configuration registers, and returns them into the pointer you give it
  * @param configs configs on the ltcs
  * @param success success of the operation
