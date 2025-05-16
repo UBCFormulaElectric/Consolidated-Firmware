@@ -25,7 +25,7 @@ def _download_file(commit_sha, file, folder_path, save_dir):
                 f.write(chunk)
     print(f"Downloaded: {file['path']}")
 
-_car = os.environ.get("CAR_NAME")
+_car = os.environ.get("CAR_NAME") or "quintuna"
 bus_configs_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../bus_configs", _car)
 )
@@ -38,7 +38,7 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     NOTE: this determines which car you are driving with an environment variable.
     """
     global _cached_commit_sha
-    save_dir = os.path.join(bus_configs_path, _car, commit_sha)
+    save_dir = os.path.join(bus_configs_path, commit_sha)
     # if save_dir is present, assume that it's contents are valid
     if _cached_commit_sha == commit_sha and os.path.exists(save_dir) and not force:
         # this is an important optimization as this is the hot branch
@@ -61,6 +61,8 @@ def fetch_jsoncan_configs(commit_sha: str, force = False) -> str:
     _cached_commit_sha = commit_sha
     return save_dir
 
+
+fetch_jsoncan_configs("cde33d9", True)
 # TODO
 # from jsoncan.src.can_database import CanDatabase
 # can_db = CanDatabase()
