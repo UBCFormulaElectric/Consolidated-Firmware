@@ -1,34 +1,44 @@
+import datetime
 from threading import Thread
+
 import serial
-from middleware.serial_port import get_serial
+from crc import Calculator, Crc32
 from generated import telem_pb2
 from logger import logger
-from tasks.broadcaster import can_msg_queue, CanMsg
-import datetime
-from crc import Calculator, Crc32
+from middleware.serial_port import get_serial
+from tasks.broadcaster import CanMsg, can_msg_queue
 
 HEADER_SIZE = 7
-MAGIC = b'\xAA\x55'
+MAGIC = b"\xaa\x55"
 
-MAX_PAYLOAD_SIZE = 52 # this is arbitrary lmao
+MAX_PAYLOAD_SIZE = 52  # this is arbitrary lmao
+
 
 def _make_bytes(message):
-	"""
-	Make the byte array out of the messages array.
-	"""
-	return bytearray([
-		message.message_0, message.message_1, message.message_2, 
-		message.message_3, message.message_4, message.message_5, 
-		message.message_6, message.message_7
-	]) 
-
-def find_magic_in_buffer(buffer, magic=MAGIC): # do i need to set magic here
     """
-	Return the index of the first occurrence of magic bytes in the buffer, or -1 if not found.
-	"""
+    Make the byte array out of the messages array.
+    """
+    return bytearray(
+        [
+            message.message_0,
+            message.message_1,
+            message.message_2,
+            message.message_3,
+            message.message_4,
+            message.message_5,
+            message.message_6,
+            message.message_7,
+        ]
+    )
+
+
+def find_magic_in_buffer(buffer, magic=MAGIC):  # do i need to set magic here
+    """
+    Return the index of the first occurrence of magic bytes in the buffer, or -1 if not found.
+    """
     magic_len = len(magic)
     for i in range(len(buffer) - magic_len + 1):
-        if buffer[i:i+magic_len] == magic:
+        if buffer[i : i + magic_len] == magic:
             return i
     return -1
 
@@ -38,12 +48,17 @@ def calculate_message_timestamp(message_timestamp, base_time):
         # Convert milliseconds to seconds and create a timedelta
         delta = datetime.timedelta(milliseconds=message_timestamp)
         timestamp = base_time + delta
-        logger.debug(f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}")
+        logger.debug(
+            f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}"
+        )
     else:
         timestamp = datetime.datetime.now()
-        logger.warning(f"Invalid timestamp received: {message_timestamp}, using current time")
-    
+        logger.warning(
+            f"Invalid timestamp received: {message_timestamp}, using current time"
+        )
+
     return timestamp
+
 
 def read_packet(ser: serial.Serial):
     buffer = bytearray()
@@ -72,7 +87,11 @@ def read_packet(ser: serial.Serial):
 
         # parse remainder of header
         payload_length = buffer[2]
-        expected_crc = int.from_bytes(buffer[3:7], byteorder='big').to_bytes(4, byteorder='big').hex()  # Updated to read 32-bit CRC and cast to hex
+        expected_crc = (
+            int.from_bytes(buffer[3:7], byteorder="big")
+            .to_bytes(4, byteorder="big")
+            .hex()
+        )  # Updated to read 32-bit CRC and cast to hex
 
         if payload_length > MAX_PAYLOAD_SIZE:
             logger.error(f"Payload length {payload_length} is too large")
@@ -81,7 +100,7 @@ def read_packet(ser: serial.Serial):
 
         total_length = HEADER_SIZE + payload_length
         if len(buffer) < total_length:
-            continue # wait for full packet
+            continue  # wait for full packet
 
         packet = bytes(buffer[:total_length])
 
@@ -90,28 +109,38 @@ def read_packet(ser: serial.Serial):
 
         return packet, payload_length, expected_crc
 
+
 def _read_messages(port: str):
     """
-	Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
-	"""
+    Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
+    """
     ser = get_serial()
     ser.reset_input_buffer()
     ser.reset_output_buffer()
 
     base_time = None
 
-    while True:	
+    while True:
         packet, payload_length, expected_crc = read_packet(ser)
         payload = packet[HEADER_SIZE:]
         if len(payload) != payload_length:
-            logger.error(f"Payload length mismatch: expected {payload_length}, got {len(payload)}")
+            logger.error(
+                f"Payload length mismatch: expected {payload_length}, got {len(payload)}"
+            )
             continue
 
         # CRC check
         calculator = Calculator(Crc32.CRC32)
-        calculated_checksum = calculator.checksum(payload).to_bytes(4, byteorder='big').hex()
+        calculated_checksum = (
+            calculator.checksum(payload).to_bytes(4, byteorder="big").hex()
+        )
         if expected_crc != calculated_checksum:
-            logger.error(f"CRC mismatch: computed ", calculated_checksum, "expected ", expected_crc)
+            logger.error(
+                f"CRC mismatch: computed ",
+                calculated_checksum,
+                "expected ",
+                expected_crc,
+            )
             continue
 
         try:
@@ -124,7 +153,7 @@ def _read_messages(port: str):
         # decode for start_time messages, don't push this to the queue
         if message_received.can_id == 0x999:
             # parse start_time from data if this pacakage is correct
-            #print(message_received)
+            # print(message_received)
             base_time = datetime.datetime(
                 year=message_received.message_0,
                 month=message_received.message_1,
@@ -134,24 +163,25 @@ def _read_messages(port: str):
                 second=message_received.message_4,
             )
             logger.info(f"Base time recieved: {base_time}")
-            #print(base_time)
+            # print(base_time)
             continue
         if not base_time:
-		#we do not know the base time so skip
-		continue
-        #print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
+            # we do not know the base time so skip
+            continue
+        # print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
         timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
         can_msg_queue.put(
             CanMsg(message_received.can_id, _make_bytes(message_received), timestamp)
         )
 
+
 def get_wireless_task(serial_port: str | None) -> Thread:
-	if serial_port is None:
-		raise RuntimeError(
+    if serial_port is None:
+        raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
-	return Thread(
+    return Thread(
         target=_read_messages,
-		args=(serial_port, ),
+        args=(serial_port,),
         daemon=True,
     )
