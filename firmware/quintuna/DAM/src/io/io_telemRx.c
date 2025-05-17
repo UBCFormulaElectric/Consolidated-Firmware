@@ -7,7 +7,7 @@
 static IoRtcTime received_time_data = { 0 };
 
 static uint8_t data[BUFFER_SIZE];
-void    io_telemRx()
+void           io_telemRx()
 {
     // for now we just simply recieve the data and set the time
     ExitCode c = hw_uart_receive_pooling(&_900k_uart, data, BUFFER_SIZE);

@@ -24,20 +24,17 @@ void jobs_init()
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
 
-
     // save start_time to be broadcasted SEE IF THIS SHOULD BE MOVED
     // io_rtc_readTime(&start_time);
 
     // move into can msg
     io_telemBaseTimeInit();
-
 }
 
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
     io_telemBaseTimeSend();
-
 }
 
 void jobs_run100Hz_tick(void)
