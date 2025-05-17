@@ -10,7 +10,7 @@ from api.historical_handler import historical_api
 from candb import live_can_db
 
 # ours
-from env import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
+from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
 from flask import Blueprint, Response, request
 from logger import logger
 from middleware.serial_port import get_serial

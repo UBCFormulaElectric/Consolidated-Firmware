@@ -1,4 +1,4 @@
-E[project]
-name = "jsoncan"
+[project]
+name = "live_data"
 version = "0.1"
 dependencies = []
