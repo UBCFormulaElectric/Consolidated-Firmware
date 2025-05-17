@@ -122,7 +122,7 @@
     }
   },
   "ImdStatus": {
-        "msg_id": 451,
+        "msg_id": 452,
         "cycle_time": 100,
         "description": "BMS IMD Messages",
         "signals": {
@@ -156,7 +156,7 @@
         }
     },
     "ImdData": {
-        "msg_id": 452,
+        "msg_id": 453,
         "cycle_time": 1000,
         "description": "BMS IMD Measurement Data Values",
         "signals": {
