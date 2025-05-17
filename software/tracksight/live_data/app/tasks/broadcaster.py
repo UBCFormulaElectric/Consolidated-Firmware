@@ -8,7 +8,7 @@ from threading import Thread
 from typing import NoReturn
 
 from api.socket import sio
-from candb import fetch_jsoncan_configs, live_can_db, update_can_db
+from software.tracksight.live_data.app.middleware.candb import fetch_jsoncan_configs, live_can_db, update_can_db
 
 # ours
 from logger import logger

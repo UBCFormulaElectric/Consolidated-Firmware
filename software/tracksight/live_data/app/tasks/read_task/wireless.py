@@ -5,6 +5,7 @@ import serial
 from crc import Calculator, Crc32
 from generated import telem_pb2
 from logger import logger
+from middleware.candb import board_start_time, update_base_time
 from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
 
@@ -163,13 +164,15 @@ def _read_messages(port: str):
                 second=message_received.message_4,
             )
             logger.info(f"Base time recieved: {base_time}")
-            # print(base_time)
+            update_base_time(base_time)
             continue
-        if not base_time:
+        if not board_start_time:
             # we do not know the base time so skip
             continue
         # print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
-        timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
+        timestamp = calculate_message_timestamp(
+            message_received.time_stamp, board_start_time
+        )
         can_msg_queue.put(
             CanMsg(message_received.can_id, _make_bytes(message_received), timestamp)
         )

@@ -1,3 +1,4 @@
+import datetime
 import os
 from concurrent.futures import ThreadPoolExecutor
 
@@ -75,14 +76,13 @@ def fetch_jsoncan_configs(commit_sha: str, force=False) -> str:
 
 
 # fetch_jsoncan_configs("e12121d", True)
-# TODO
-# from jsoncan.src.can_database import CanDatabase
-# can_db = CanDatabase()
 from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+# can_db = CanDatabase()
 from settings import CAR_NAME
 
 json_can_config_root = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
+    "..",
     "..",
     "..",
     "..",
@@ -95,8 +95,14 @@ if not os.path.lexists(json_can_config_root):
     raise Exception("json can path does not exist, did you pass correct CAN_NAME")
 
 live_can_db = JsonCanParser(json_can_config_root).make_database()
+board_start_time: datetime.datetime = None
 
 
 def update_can_db(path):
     global live_can_db
     live_can_db = JsonCanParser(path).make_database()
+
+
+def update_base_time(time: datetime.datetime):
+    global board_start_time
+    board_start_time = time
