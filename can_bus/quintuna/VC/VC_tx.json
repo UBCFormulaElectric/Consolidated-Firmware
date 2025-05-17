@@ -32,6 +32,9 @@
       },
       "TorqueVectoringEnabled": {
         "bits": 1
+      },
+      "VehicleVelocity": {
+        "bits": 8
       }
     }
   },

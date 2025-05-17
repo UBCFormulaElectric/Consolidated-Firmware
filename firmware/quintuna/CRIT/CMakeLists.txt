@@ -21,6 +21,8 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_switch.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -34,6 +36,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmOutput.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_pwmOutput.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
@@ -100,6 +103,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_ll_usb.c"
             "stm32f4xx_hal_i2c.c"
             "stm32f4xx_hal_i2c_ex.c"
+            "stm32f4xx_hal_exti.c"
     )
     stm32f412rx_cube_library(
             "quintuna_CRIT_stm32cube_hal"

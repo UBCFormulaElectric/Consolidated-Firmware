@@ -6,9 +6,6 @@
     "signals": {
       "Heartbeat": {
         "bits": 1
-      },
-      "State": {
-        "enum": "CritState"
       }
     }
   },
@@ -34,6 +31,12 @@
         "enum": "SwitchState"
       },
       "TorqueVecSwitch": {
+        "enum": "SwitchState"
+      },
+      "LaunchControlSwitch": {
+        "enum": "SwitchState"
+      },
+      "TelemSwitch": {
         "enum": "SwitchState"
       }
     }
@@ -119,6 +122,16 @@
         "resolution": 1,
         "min": 0,
         "max": 100
+      }
+    }
+  },
+  "WarningInfo": {
+    "msg_id": 916,
+    "cycle_time": 100,
+    "description": "",
+    "signals": {
+      "SuppressWarnings": {
+        "bits": 1
       }
     }
   }
