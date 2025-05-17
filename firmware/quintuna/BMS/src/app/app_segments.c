@@ -146,16 +146,23 @@ ExitCode app_segments_configSync()
         bool comms_ok = true;
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
-            const bool seg_comms_ok = IS_EXIT_ERR(config_success_buf[seg]);
+            const bool seg_comms_ok = IS_EXIT_OK(config_success_buf[seg]);
             commsOkSetter[seg](seg_comms_ok);
             comms_ok &= seg_comms_ok;
         }
         if (!comms_ok)
         {
             // TODO debounced AMS fault
-            BMS_Segment0_Tests_Signals *a = (BMS_Segment0_Tests_Signals *)app_canTx_BMS_Segment0_Tests_getData();
+            // TODO add a function to reset all values??
+            BMS_Segment0_Tests_Signals *const a = (BMS_Segment0_Tests_Signals *)app_canTx_BMS_Segment0_Tests_getData();
             memset(a, 0, sizeof(BMS_Segment0_Tests_Signals));
-            continue;
+            // memset all voltage setters to 0
+            BMS_Segment0_VoltageStats_0_Signals *const b =
+                (BMS_Segment0_VoltageStats_0_Signals *)app_canTx_BMS_Segment0_VoltageStats_0_getData();
+            BMS_Segment0_VoltageStats_1_Signals *const c =
+                (BMS_Segment0_VoltageStats_1_Signals *)app_canTx_BMS_Segment0_VoltageStats_1_getData();
+            memset(b, 0, sizeof(BMS_Segment0_VoltageStats_0_Signals));
+            memset(c, 0, sizeof(BMS_Segment0_VoltageStats_1_Signals));
         }
 
         // comms is fine, but configs are not matching
@@ -187,7 +194,10 @@ ExitCode app_segments_broadcastCellVoltages()
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
             if (IS_EXIT_ERR(volt_success_buf[segment][cell / 3]))
+            {
+                // we claim that this is insufficient to raise module comm errors
                 continue;
+            }
             // see page 68, 0xffff is invalid (either not populated or faulted)
             if (voltage_regs[segment][cell] == 0xffff)
             {
