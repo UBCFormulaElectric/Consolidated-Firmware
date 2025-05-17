@@ -76,7 +76,8 @@ def fetch_jsoncan_configs(commit_sha: str, force=False) -> str:
 
 
 # fetch_jsoncan_configs("e12121d", True)
-from jsoncan.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan import JsonCanParser
+
 # can_db = CanDatabase()
 from settings import CAR_NAME
 
