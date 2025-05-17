@@ -1,4 +1,5 @@
 #include "app_screens.h"
+#include "app_screen_defines.h"
 #include "io_shift_register.h"
 
 typedef struct

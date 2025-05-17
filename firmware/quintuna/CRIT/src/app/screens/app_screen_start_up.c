@@ -1,4 +1,5 @@
 #include "app_screens.h"
+#include "app_screen_defines.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "io_shift_register.h"
@@ -20,15 +21,15 @@ static void start_up_update(void)
     bool vc_hv            = (app_canRx_VC_State_get() >= VC_HV_STATE);
 
     // Update data buffer.
-    data_buffer[0] = air_minus;
-    data_buffer[1] = inverters_detect;
-    data_buffer[2] = bms_on;
-    data_buffer[3] = bms_precharge;
-    data_buffer[4] = bms_drive;
-    data_buffer[5] = vc_pcm_on;
-    data_buffer[6] = pcm_detected;
-    data_buffer[7] = vc_hv_init;
-    data_buffer[8] = vc_hv;
+    data_buffer[0] = air_minus ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[1] = inverters_detect ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[2] = bms_on ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[3] = bms_precharge ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[4] = bms_drive ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[5] = vc_pcm_on ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[6] = pcm_detected ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[7] = vc_hv_init ? SEG_PATTERN_1 : SEG_PATTERN_0;
+    data_buffer[8] = vc_hv ? SEG_PATTERN_1 : SEG_PATTERN_0;
 
     // Update seven seg.
     io_shift_register_updateSevenSegRegisters((uint8_t *)data_buffer);

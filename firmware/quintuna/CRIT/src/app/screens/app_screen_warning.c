@@ -1,4 +1,5 @@
 #include "app_screens.h"
+#include "app_screen_defines.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "io_shift_register.h"
@@ -27,19 +28,19 @@ static void warning_update(void)
 {
     for (uint8_t i = 0; i < 8; i++)
     {
-        instance.data_buffer[i] = SEGMENT_DICT[DISP_DP];
+        instance.data_buffer[i] = SEG_PATTERN_DP;
     }
 
     if (true == instance.warning_supressed)
     {
-        instance.data_buffer[0] = SEGMENT_DICT[DISP_Y];
-        instance.data_buffer[1] = SEGMENT_DICT[DISP_E];
-        instance.data_buffer[2] = SEGMENT_DICT[DISP_S];
+        instance.data_buffer[0] = SEG_PATTERN_Y;
+        instance.data_buffer[1] = SEG_PATTERN_E;
+        instance.data_buffer[2] = SEG_PATTERN_S;
     }
     else
     {
-        instance.data_buffer[0] = SEGMENT_DICT[DISP_N];
-        instance.data_buffer[1] = SEGMENT_DICT[DISP_O];
+        instance.data_buffer[0] = SEG_PATTERN_N;
+        instance.data_buffer[1] = SEG_PATTERN_O;
     }
 
     app_canTx_CRIT_SuppressWarnings_set(instance.warning_supressed);
