@@ -26,7 +26,6 @@ void io_bootHandler_processBootRequest(const CanMsg *msg)
     if (msg->std_id == BOOT_CAN_START)
     {
         boot_flag = 0x1;
-        tasks_deinit();
 
         __disable_irq(); // disable interrupts
         __DSB();         // Complete all outstanding memory accesses
