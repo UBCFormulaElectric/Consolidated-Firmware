@@ -113,6 +113,7 @@ void tasks_runLtc(void)
     app_segments_voltageSelftest();
     app_segments_auxSelftest();
     app_segments_statusSelftest();
+    ASSERT_EXIT_OK(io_ltc6813_clearStatRegisters());
     for (;;)
     {
         jobs_runLtc_tick();

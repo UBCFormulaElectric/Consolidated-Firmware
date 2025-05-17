@@ -277,11 +277,19 @@
     "cycle_time": 100,
     "description": "Segment 0 LTC tests and checks",
     "signals": {
+      "Seg0_COMM_OK": {
+        "bits": 1
+      },
       "Seg0_REV_CODE": {
         "bits": 4
       },
       "Seg0_VREF_OK": {
         "bits": 1
+      },
+      "Seg0_VREF": {
+        "resolution": 0.01,
+        "min": 2.93,
+        "max": 3.08
       },
       "Seg0_ADC_1_2_Equal": {
         "bits": 1
@@ -291,6 +299,11 @@
       },
       "Seg0_VREG_OK": {
         "bits": 1
+      },
+      "Seg0_VREG": {
+        "resolution": 0.1,
+        "min": 4.1,
+        "max": 5.6
       },
       "Seg0_VREGD_OK": {
         "bits": 1

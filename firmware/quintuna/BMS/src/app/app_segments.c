@@ -88,19 +88,19 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
     }
 }
 
-static bool check_equal()
+static bool is_config_equal()
 {
-    bool read_config_ok = true;
     for (uint8_t try = 0; try < 3; try++)
     {
         io_ltc6813_readConfigurationRegisters(segment_config, config_success_buf);
-        read_config_ok = true;
-        for (uint8_t seg = 0; read_config_ok && seg < NUM_SEGMENTS; seg++)
-            read_config_ok &= IS_EXIT_OK(config_success_buf[seg]);
-        if (read_config_ok)
-            break;
+        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        {
+            if (IS_EXIT_ERR(config_success_buf[seg]))
+            {
+                return false;
+            }
+        }
     }
-    assert(read_config_ok);
 
     // check that segment_config is
     bool seg_config_same = true;
@@ -113,10 +113,22 @@ static bool check_equal()
 
 void app_segments_configSync()
 {
-    if (!check_equal())
+    static void (*const commsOkSetter[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_COMM_OK_set };
+    while (true)
     {
+        if (is_config_equal())
+            break;
+        // check the comms was ok
+        bool comms_ok = true;
+        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        {
+            const bool seg_comms_ok = IS_EXIT_ERR(config_success_buf[seg]);
+            commsOkSetter[seg](seg_comms_ok);
+            comms_ok &= seg_comms_ok;
+        }
+        if (!comms_ok)
+            continue;
         ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(want_segment_config));
-        assert(check_equal());
     }
 }
 
@@ -159,6 +171,7 @@ void app_segments_broadcastCellVoltages()
 void app_segments_broadcastTempsVRef()
 {
     static void (*const thermistorSetters[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT])(float) = { { 0 } }; // TODO populate
+    static void (*const vrefSetters[NUM_SEGMENTS])(float) = { app_canTx_BMS_Seg0_VREF_set };
     // TODO convert at last moment, most always keep as uint16_t
     static float cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
     memset(segment_vref, 0, NUM_SEGMENTS * sizeof(uint16_t));
@@ -186,6 +199,7 @@ void app_segments_broadcastTempsVRef()
                 if (aux_gpio == 5)
                 {
                     segment_vref[segment] = aux_regs[segment][aux_gpio];
+                    vrefSetters[segment](CONVERT_100UV_TO_VOLTAGE(aux_regs[segment][aux_gpio]));
                     continue;
                 }
                 const uint8_t adj = aux_gpio >= 6 ? 1 : 0;
@@ -200,14 +214,13 @@ void app_segments_broadcastTempsVRef()
 void app_segments_broadcastStatus()
 {
     static void (*const muxTestSetters[NUM_SEGMENTS])(bool)     = { app_canTx_BMS_Seg0_MUX_OK_set };
-    static void (*const vregSetters[NUM_SEGMENTS])(bool)        = { app_canTx_BMS_Seg0_VREG_OK_set };
+    static void (*const vregOKSetters[NUM_SEGMENTS])(bool)      = { app_canTx_BMS_Seg0_VREG_OK_set };
+    static void (*const vregSetters[NUM_SEGMENTS])(float)       = { app_canTx_BMS_Seg0_VREG_set };
     static void (*const vregdSetters[NUM_SEGMENTS])(bool)       = { app_canTx_BMS_Seg0_VREGD_OK_set };
     static void (*const revCodeSetters[NUM_SEGMENTS])(uint32_t) = { app_canTx_BMS_Seg0_REV_CODE_set };
     static void (*const thermalOKsetters[NUM_SEGMENTS])(bool)   = { app_canTx_BMS_Seg0_THERMAL_OK_set };
     // static void (*const tempSetters[NUM_SEGMENTS])(float)           = {  };
 
-    ASSERT_EXIT_OK(io_ltc6813_diagnoseMUX());
-    io_time_delay(15);
     ASSERT_EXIT_OK(io_ltc6813_startInternalADCConversions(s));
     io_time_delay(15);
     io_ltc6813_getStatus(statuses, status_success_buf);
@@ -216,7 +229,7 @@ void app_segments_broadcastStatus()
         if (IS_EXIT_ERR(status_success_buf[segment]))
         {
             revCodeSetters[segment](0);
-            vregSetters[segment](false);
+            vregOKSetters[segment](false);
             vregdSetters[segment](false);
             thermalOKsetters[segment](false);
             muxTestSetters[segment](false);
@@ -227,9 +240,10 @@ void app_segments_broadcastStatus()
 
         // tempSetters[segment]((float)statuses[segment].ITMP / 76.0f - 276.0f);
 
-        vregSetters[segment](
+        vregOKSetters[segment](
             CONVERT_VOLTAGE_TO_100UV(4.5f) <= statuses[segment].VA &&
             statuses[segment].VA <= CONVERT_VOLTAGE_TO_100UV(5.5f));
+        vregSetters[segment](CONVERT_100UV_TO_VOLTAGE(statuses[segment].VA));
         vregdSetters[segment](
             CONVERT_VOLTAGE_TO_100UV(2.7f) <= statuses[segment].VD &&
             statuses[segment].VD <= CONVERT_VOLTAGE_TO_100UV(3.6f));
