@@ -101,9 +101,7 @@ def _read_messages(port: str):
     base_time = None
 
     while True:	
-        print("hi")
         packet, payload_length, expected_crc = read_packet(ser)
-        print("hi2")
         payload = packet[HEADER_SIZE:]
         if len(payload) != payload_length:
             logger.error(f"Payload length mismatch: expected {payload_length}, got {len(payload)}")
@@ -126,7 +124,7 @@ def _read_messages(port: str):
         # decode for start_time messages, don't push this to the queue
         if message_received.can_id == 0x999:
             # parse start_time from data if this pacakage is correct
-            print(message_received)
+            #print(message_received)
             base_time = datetime.datetime(
                 year=message_received.message_0,
                 month=message_received.message_1,
@@ -136,12 +134,12 @@ def _read_messages(port: str):
                 second=message_received.message_4,
             )
             logger.info(f"Base time recieved: {base_time}")
-            print(base_time)
+            #print(base_time)
             continue
-        # if not base_time:
-        # 	#we do not know the base time so skip
-        # 	continue
-        print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
+        if not base_time:
+		#we do not know the base time so skip
+		continue
+        #print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
         timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
         can_msg_queue.put(
             CanMsg(message_received.can_id, _make_bytes(message_received), timestamp)
