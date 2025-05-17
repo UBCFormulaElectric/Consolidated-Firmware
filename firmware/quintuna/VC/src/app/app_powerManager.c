@@ -2,6 +2,7 @@
 #include "app_timer.h"
 #include "io_loadswitch.h"
 #include "io_loadswitches.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 static PowerState    power_manager_state;
@@ -33,6 +34,20 @@ static RetryProtocol efuses_retry_state[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_R_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 }
 };
 
+static bool efuse_blown_status [NUM_EFUSE_CHANNELS] = {
+    [EFUSE_CHANNEL_F_INV]   = false,
+    [EFUSE_CHANNEL_RSM]     = false,
+    [EFUSE_CHANNEL_BMS]     = false,
+    [EFUSE_CHANNEL_R_INV]   = false,
+    [EFUSE_CHANNEL_DAM]     = false,
+    [EFUSE_CHANNEL_FRONT]   = false,
+    [EFUSE_CHANNEL_RL_PUMP] = false,
+    [EFUSE_CHANNEL_RR_PUMP] = false,
+    [EFUSE_CHANNEL_F_PUMP]  = false,
+    [EFUSE_CHANNEL_L_RAD]   = false,
+    [EFUSE_CHANNEL_R_RAD]   = false
+};
+
 void app_powerManager_updateConfig(PowerState new_power_manager_config)
 {
     power_manager_state = new_power_manager_config;
@@ -48,15 +63,6 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
         bool efuse_valid_state =
             io_loadswitch_isChannelEnabled(&efuse_channels[current_efuse_sequence]) == desired_efuse_state;
 
-        bool efuse_blown;
-        if (current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP && current_efuse_sequence >= EFUSE_CHANNEL_RL_PUMP)
-        {
-            efuse_blown = io_TILoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
-        }
-        else{
-            efuse_blown = io_STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
-        }
-
         uint8_t efuse_retry_timeout = power_manager_state.efuses[current_efuse_sequence].timeout;
         uint8_t efuse_retry_limit   = power_manager_state.efuses[current_efuse_sequence].max_retry;
 
@@ -70,9 +76,20 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             if (!desired_efuse_state)
             {
                 io_loadswitch_setChannel(&efuse_channels[current_efuse_sequence], desired_efuse_state);
+                break;
+            }
+            // If we dont know the if the efuse is blown check if it is however if we know its already blown dont check
+            if(!efuse_blown_status[current_efuse_sequence]){
+                if (current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP && current_efuse_sequence >= EFUSE_CHANNEL_RL_PUMP)
+                {
+                    efuse_blown_status[current_efuse_sequence] = io_TILoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
+                }
+                else{
+                    efuse_blown_status[current_efuse_sequence] = io_STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
+                }
             }
             // After this is we begin power sequencing logic as we want to turn on the loads
-            else if (sequencing_timer->state == TIMER_STATE_IDLE && efuse_retry_timeout != 0)
+            if (sequencing_timer->state == TIMER_STATE_IDLE && efuse_retry_timeout != 0)
             {
                 app_timer_init(sequencing_timer, power_manager_state.efuses[current_efuse_sequence].timeout);
                 app_timer_restart(sequencing_timer);
@@ -84,8 +101,11 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                     power_manager_state.efuses[current_efuse_sequence].efuse_enable);
                 app_timer_stop(sequencing_timer);
 
-                if (efuse_blown)
+                //If we sucessfully retried and the efuse was blown increment the retry
+                if (efuse_blown_status[current_efuse_sequence]){
                     efuses_retry_state[current_efuse_sequence].retry_num++;
+                    efuse_blown_status[current_efuse_sequence] = false;
+                }
             }
         }
         break;
