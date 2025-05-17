@@ -17,10 +17,6 @@ from subtable import SUB_TABLE
 from tasks.influx_logger import InfluxCanMsg  # for passing the message along
 from tasks.influx_logger import influx_queue
 
-from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
-    JsonCanParser,
-)
-
 
 @dataclass
 class CanMsg:
@@ -56,7 +52,7 @@ def _send_data() -> NoReturn:
             canmsg.can_id % 100 == 6
         ):  # i.e. the canid is of the form x06, which means it is a commit info message
             try:
-                # TODO concurrency issue since live_can_db also used in http 
+                # TODO concurrency issue since live_can_db also used in http
                 config_path = fetch_jsoncan_configs(canmsg.can_value.hex())
                 # live_can_db.update_path(config_path) # TODO not working yet
                 update_can_db(config_path)
