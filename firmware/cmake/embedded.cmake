@@ -236,7 +236,8 @@ function(embedded_binary
     set(HEX_FILE "${BIN_NAME}.hex")
     set(HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${HEX_FILE}")
     # objcopy is used to create a hex, and assembly file from the elf.
-    add_custom_target(${HEX_FILE} ALL
+    add_custom_command(
+            OUTPUT ${HEX_FILE}
             COMMENT "[Binary] Building ${HEX_FILE}"
             COMMAND ${CMAKE_OBJCOPY} -Oihex ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} ${HEX_PATH}
             DEPENDS ${ELF_NAME}
@@ -271,7 +272,7 @@ function(embedded_image
     set(IMAGE_HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${IMAGE_HEX}")
 
     set(GENERATE_IMAGE_SCRIPT "${SCRIPTS_DIR}/utilities/generate_image.py")
-    add_custom_target(${IMAGE_HEX} ALL
+    add_custom_target(${IMAGE_HEX}
             COMMENT "[Image] Building ${IMAGE_HEX} and ${APP_METADATA_HEX}"
             COMMAND ${PYTHON_COMMAND} ${GENERATE_IMAGE_SCRIPT}
             --app-hex ${APP_HEX_PATH}
@@ -281,8 +282,7 @@ function(embedded_image
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
-
-    add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
+    #    add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
 
 function(embedded_no_checks SRCS)

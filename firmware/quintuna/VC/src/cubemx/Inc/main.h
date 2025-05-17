@@ -51,6 +51,7 @@ extern "C"
     extern I2C_HandleTypeDef   hi2c3;
     extern I2C_HandleTypeDef   hi2c4;
     extern I2C_HandleTypeDef   hi2c5;
+    extern IWDG_HandleTypeDef  hiwdg1;
     extern TIM_HandleTypeDef   htim3;
     extern UART_HandleTypeDef  huart8;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
@@ -69,6 +70,9 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LSI_FREQUENCY 32000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 4
 #define SB_SHDN_3V3_OUT_Pin GPIO_PIN_0
 #define SB_SHDN_3V3_OUT_GPIO_Port GPIOC
 #define INTERIA_3V3_OUT_Pin GPIO_PIN_1

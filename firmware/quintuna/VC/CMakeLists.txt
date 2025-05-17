@@ -1,9 +1,6 @@
 message("")
 message("⚙️ Configuring VC (Quintuna)")
 
-set(ARM_CORE "cm7")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
-
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
@@ -57,25 +54,15 @@ list(APPEND HW_SRCS
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
 if ("${TARGET}" STREQUAL "binary")
+    set(ARM_CORE "cm7")
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+    else ()
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
+    endif ()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary("quintuna_VC_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
-
-    # Bootloader files.
-    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-
-    # Build bootloader.
-    stm32h7_boot_binary(
-            "quintuna_VC_boot"
-            "${BOOT_SRCS}"
-            "${BOOT_CUBEMX_SRCS}"
-            "${BOOT_INCLUDE_DIRS}"
-            "quintuna_VC"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
-    )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
     generate_stm32cube_code("quintuna_VC_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -132,14 +119,31 @@ if ("${TARGET}" STREQUAL "binary")
             "logfs_cm7"
             "sbg_ecom_cm7"
             "chimera_v2_proto_cm7")
-    target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
-    embedded_image(
-            "quintuna_VC"
-            "quintuna_VC_app.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_app.hex"
-            "quintuna_VC_boot.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_boot.hex"
-    )
+
+
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+        # Bootloader files.
+        file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+        file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        stm32h7_boot_binary(
+                "quintuna_VC_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "quintuna_VC"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
+        )
+        target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
+        embedded_image(
+                "quintuna_VC"
+                "quintuna_VC_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_app.hex"
+                "quintuna_VC_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_boot.hex"
+        )
+    endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 
