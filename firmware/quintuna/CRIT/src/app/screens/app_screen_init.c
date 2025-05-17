@@ -112,8 +112,4 @@ static void init_update(void)
     io_shift_register_updateSevenSegRegisters((uint8_t *)data_buffer);
 }
 
-Screen *get_init_screen(void)
-{
-    static Screen init = { .ccw_callback = NULL, .cw_callback = NULL, .update = init_update };
-    return &init;
-}
+Screen init_screen = { .ccw_callback = NULL, .cw_callback = NULL, .update = init_update };

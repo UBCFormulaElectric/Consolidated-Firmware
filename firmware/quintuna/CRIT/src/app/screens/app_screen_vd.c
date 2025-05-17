@@ -18,8 +18,4 @@ static void vd_update(void)
     // idk
 }
 
-Screen *get_vd_screen(void)
-{
-    static Screen vd = { .ccw_callback = NULL, .cw_callback = NULL, .update = vd_update };
-    return &vd;
-}
+Screen vd_screen = { .ccw_callback = NULL, .cw_callback = NULL, .update = vd_update };

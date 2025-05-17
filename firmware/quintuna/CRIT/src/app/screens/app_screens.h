@@ -70,10 +70,11 @@ typedef struct
     RotaryCallback update;       // Called every 100Hz cycle to update/broadcast data.
 } Screen;
 
-Screen *get_main_drive_screen(void);
-Screen *get_init_screen(void);
-Screen *get_start_up_screen(void);
-Screen *get_vd_screen(void);
+extern Screen main_drive_screen;
+extern Screen init_screen;
+extern Screen start_up_screen;
+extern Screen vd_screen;
+extern Screen warning_screen;
 
 void app_screens_init(void);
 void app_screens_update(void);

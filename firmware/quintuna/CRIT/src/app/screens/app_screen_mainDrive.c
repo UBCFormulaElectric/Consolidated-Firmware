@@ -82,10 +82,6 @@ static void main_drive_update(void)
     app_canTx_CRIT_DriveMode_set(instance.current_drive_mode);
 }
 
-Screen *get_main_drive_screen(void)
-{
-    static Screen main_drive = { .ccw_callback = main_drive_ccw,
-                                 .cw_callback  = main_drive_cw,
-                                 .update       = main_drive_update };
-    return &main_drive;
-}
+Screen main_drive_screen = { .ccw_callback = main_drive_ccw,
+                             .cw_callback  = main_drive_cw,
+                             .update       = main_drive_update };

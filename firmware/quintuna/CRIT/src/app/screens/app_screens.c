@@ -5,14 +5,11 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 
-#define NUM_OF_DRIVE_SCREENS 2u
+#define NUM_OF_DRIVE_SCREENS 3u
 
 /************************* Global Variables ***************************/
 static uint8_t current_screen = 0;
-static Screen *test_screen;
-static Screen *init_screen;
-static Screen *start_up_screen;
-static Screen *drive_screens[NUM_OF_DRIVE_SCREENS];
+static Screen  drive_screens[NUM_OF_DRIVE_SCREENS];
 
 /*********************** Static Function Declarations ***************************/
 static void app_screens_next(void);
@@ -31,11 +28,9 @@ void app_screens_init(void)
     io_rotary_setCounterClockwiseCallback(app_screens_rotaryCCW);
     io_rotary_setPushCallback(app_screens_next);
 
-    init_screen     = get_init_screen();
-    start_up_screen = get_start_up_screen();
-
-    drive_screens[0] = get_main_drive_screen();
-    drive_screens[1] = get_vd_screen();
+    drive_screens[0] = main_drive_screen;
+    drive_screens[1] = warning_screen;
+    drive_screens[2] = vd_screen;
 
     app_screens_update();
 }
@@ -45,9 +40,9 @@ void app_screens_init(void)
  */
 static void app_screens_rotaryCW(void)
 {
-    if (drive_screens[current_screen]->cw_callback != NULL)
+    if (drive_screens[current_screen].cw_callback != NULL)
     {
-        drive_screens[current_screen]->cw_callback();
+        drive_screens[current_screen].cw_callback();
     }
 }
 
@@ -56,9 +51,9 @@ static void app_screens_rotaryCW(void)
  */
 static void app_screens_rotaryCCW(void)
 {
-    if (drive_screens[current_screen]->ccw_callback != NULL)
+    if (drive_screens[current_screen].ccw_callback != NULL)
     {
-        drive_screens[current_screen]->ccw_callback();
+        drive_screens[current_screen].ccw_callback();
     }
 }
 
@@ -72,15 +67,15 @@ void app_screens_update(void)
     // Display screen, based on VC state.
     if (vc_state == VC_INIT_STATE)
     {
-        init_screen->update();
+        init_screen.update();
     }
     else if (vc_state == VC_DRIVE_STATE || vc_state == VC_DRIVE_WARNING_STATE)
     {
-        drive_screens[current_screen]->update();
+        drive_screens[current_screen].update();
     }
     else
     {
-        start_up_screen->update();
+        start_up_screen.update();
     }
 }
 

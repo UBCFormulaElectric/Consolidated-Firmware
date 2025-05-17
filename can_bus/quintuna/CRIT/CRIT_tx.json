@@ -124,5 +124,15 @@
         "max": 100
       }
     }
+  },
+  "WarningInfo": {
+    "msg_id": 916,
+    "cycle_time": 100,
+    "description": "",
+    "signals": {
+      "SuppressWarnings": {
+        "bits": 1
+      }
+    }
   }
 }
