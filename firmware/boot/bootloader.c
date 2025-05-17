@@ -171,7 +171,9 @@ void bootloader_init(void)
     {
         // Deinit peripherals.
         HAL_TIM_Base_Stop_IT(&htim6);
+        // HAL_TIM_Base_DeInit(&htim6);
         HAL_CRC_DeInit(&hcrc);
+        // HAL_RCC_DeInit();
 
         // Clear RCC register flag and RAM boot flag.
         boot_flag = 0x0;

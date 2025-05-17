@@ -28,6 +28,7 @@ void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
 }
+
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
