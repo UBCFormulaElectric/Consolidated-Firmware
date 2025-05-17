@@ -27,7 +27,7 @@
 #endif
 
 #include "app_utils.h"
-#include <assert.h>
+#include "hw_hal.h"
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
@@ -153,6 +153,17 @@ void bootloader_preInit(void)
     LOG_INFO("Bootloader reset!");
 }
 
+void HAL_MspDeInit(void)
+{
+#ifdef STM32H733xx
+    HAL_FDCAN_DeInit(can.hcan);
+#elif STM32F412Rx
+    HAL_CAN_DeInit(can.hcan);
+#else
+#error "Please define what MCU is used"
+#endif
+}
+
 void bootloader_init(void)
 {
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
@@ -172,8 +183,10 @@ void bootloader_init(void)
         // Deinit peripherals.
         HAL_TIM_Base_Stop_IT(&htim6);
         // HAL_TIM_Base_DeInit(&htim6);
+        // HAL_SuspendTick();
         HAL_CRC_DeInit(&hcrc);
         // HAL_RCC_DeInit();
+        // HAL_DeInit();
 
         // Clear RCC register flag and RAM boot flag.
         boot_flag = 0x0;
