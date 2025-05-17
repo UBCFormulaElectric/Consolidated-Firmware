@@ -91,7 +91,12 @@ json_can_config_root = os.path.join(
     CAR_NAME,
 )
 
-if(not os.path.lexists(json_can_config_root)):
+if not os.path.lexists(json_can_config_root):
     raise Exception("json can path does not exist, did you pass correct CAN_NAME")
 
 live_can_db = JsonCanParser(json_can_config_root).make_database()
+
+
+def update_can_db(path):
+    global live_can_db
+    live_can_db = JsonCanParser(path).make_database()
