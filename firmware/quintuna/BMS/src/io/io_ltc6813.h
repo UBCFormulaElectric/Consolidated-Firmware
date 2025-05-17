@@ -31,21 +31,21 @@ typedef struct __attribute__((__packed__))
 {
     // byte 1
     uint8_t adcopt : 1; // parameter in controlling ADC speed
-    uint8_t dten : 1;   // instead of sleeping it goes to extended balancing
+    uint8_t dten : 1;   // some shit for extended balancing
     uint8_t refon : 1;  // Keeps the references up so adcs read faster
     uint8_t gpio_1_5 : 5;
     // byte 2
-    uint8_t vuv_0_7;
+    uint8_t vuv_0_7; // undervoltage threshold low byte
     // byte 3
-    uint8_t vuv_8_11 : 4;
-    uint8_t vov_0_3 : 4;
+    uint8_t vuv_8_11 : 4; // undervoltage threshold high byte
+    uint8_t vov_0_3 : 4;  // overvoltage threshold low byte
     // byte 4
-    uint8_t vov_4_11;
+    uint8_t vov_4_11; // overvoltage threshold high byte
     // byte 5
     uint8_t dcc_1_8;
     // byte 6
     uint8_t dcc_9_12 : 4;
-    uint8_t dcto : 4;
+    uint8_t dcto : 4; // some shit for extended balancing
 } CFGAR;
 
 // as per table 39
@@ -58,10 +58,10 @@ typedef struct __attribute__((__packed__))
     uint8_t dcc_17 : 1;
     uint8_t dcc_18 : 1;
     uint8_t dcc_0 : 1;
-    uint8_t dtmen : 1;
-    uint8_t ps : 2;
-    uint8_t fdrf : 1;
-    uint8_t mute : 1;
+    uint8_t dtmen : 1; // some shit for extended balancing
+    uint8_t ps : 2;    // digital redundancy stuff
+    uint8_t fdrf : 1;  // digital redundancy stuff
+    uint8_t mute : 1;  // read only mute
     // byte 3-6
     uint32_t reserved;
 } CFGBR;

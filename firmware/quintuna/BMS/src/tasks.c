@@ -117,6 +117,5 @@ void tasks_runLtc(void)
     for (;;)
     {
         jobs_runLtc_tick();
-        osDelay(100);
     }
 }

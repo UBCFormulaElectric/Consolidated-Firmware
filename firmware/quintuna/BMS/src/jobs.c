@@ -12,17 +12,18 @@
 #include "io_canMsg.h"
 #include "io_time.h"
 
-void jobs_runLtc_tick(void)
+ExitCode jobs_runLtc_tick(void)
 {
-    app_segments_configSync();
-    app_segments_broadcastCellVoltages();
-    app_segments_broadcastTempsVRef();
-    app_segments_broadcastStatus();
+    RETURN_IF_ERR(app_segments_configSync());
+    RETURN_IF_ERR(app_segments_broadcastCellVoltages());
+    RETURN_IF_ERR(app_segments_broadcastTempsVRef());
+    RETURN_IF_ERR(app_segments_broadcastStatus());
     if (app_canRx_Debug_EnableDebugMode_get())
     {
-        app_segments_openWireCheck();   // cell test
-        app_segments_ADCAccuracyTest(); // cell test
+        RETURN_IF_ERR(app_segments_openWireCheck());   // cell test
+        RETURN_IF_ERR(app_segments_ADCAccuracyTest()); // cell test
     }
+    return EXIT_CODE_OK;
 }
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)

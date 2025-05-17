@@ -88,6 +88,10 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
     }
 }
 
+/**
+ * @returns whether there are no errors and config matches
+ * Hence if false there are either errors or the config does not match
+ */
 static bool is_config_equal()
 {
     for (uint8_t try = 0; try < 3; try++)
@@ -102,23 +106,43 @@ static bool is_config_equal()
         }
     }
 
-    // check that segment_config is
+    // check that segment_config is same
     bool seg_config_same = true;
     for (uint8_t seg = 0; seg_config_same && seg < NUM_SEGMENTS; seg++)
     {
-        seg_config_same &= memcmp(&segment_config[seg], &want_segment_config[seg], sizeof(SegmentConfig)) == 0;
+        // seg_config_same &= memcmp(&segment_config[seg], &want_segment_config[seg], sizeof(SegmentConfig)) == 0;
+        const SegmentConfig *const a = &segment_config[seg];
+        const SegmentConfig *const b = &want_segment_config[seg];
+        // NOTE: the reason we don't use memcmp is because we only really care about these configs
+        // base configs
+        seg_config_same &= a->reg_a.adcopt == b->reg_a.adcopt;
+        seg_config_same &= a->reg_a.refon == b->reg_a.refon;
+        // undervoltage
+        seg_config_same &= a->reg_a.vuv_0_7 == b->reg_a.vuv_0_7;
+        seg_config_same &= a->reg_a.vuv_8_11 == b->reg_a.vuv_8_11;
+        // overvoltage config
+        seg_config_same &= a->reg_a.vov_0_3 == b->reg_a.vov_0_3;
+        seg_config_same &= a->reg_a.vov_4_11 == b->reg_a.vov_4_11;
+        // balancing leds
+        seg_config_same &= a->reg_b.dcc_0 == b->reg_b.dcc_0;
+        seg_config_same &= a->reg_a.dcc_1_8 == b->reg_a.dcc_1_8;
+        seg_config_same &= a->reg_a.dcc_9_12 == b->reg_a.dcc_9_12;
+        seg_config_same &= a->reg_b.dcc_13_16 == b->reg_b.dcc_13_16;
+        seg_config_same &= a->reg_b.dcc_17 == b->reg_b.dcc_17;
+        seg_config_same &= a->reg_b.dcc_18 == b->reg_b.dcc_18;
+        // thermistor GPIOs
+        seg_config_same &= a->reg_a.gpio_1_5 == b->reg_a.gpio_1_5;
+        seg_config_same &= a->reg_b.gpio_6_9 == b->reg_b.gpio_6_9;
     }
     return seg_config_same;
 }
 
-void app_segments_configSync()
+ExitCode app_segments_configSync()
 {
     static void (*const commsOkSetter[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_COMM_OK_set };
-    while (true)
+    for (uint8_t tries = 0; !is_config_equal(); tries++)
     {
-        if (is_config_equal())
-            break;
-        // check the comms was ok
+        // first check if it's a comms thing
         bool comms_ok = true;
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
@@ -127,13 +151,21 @@ void app_segments_configSync()
             comms_ok &= seg_comms_ok;
         }
         if (!comms_ok)
+        {
+            // TODO debounced AMS fault
+            BMS_Segment0_Tests_Signals *a = (BMS_Segment0_Tests_Signals *)app_canTx_BMS_Segment0_Tests_getData();
+            memset(a, 0, sizeof(BMS_Segment0_Tests_Signals));
             continue;
-        ASSERT_EXIT_OK(io_ltc6813_writeConfigurationRegisters(want_segment_config));
+        }
+
+        // comms is fine, but configs are not matching
+        (void)io_ltc6813_writeConfigurationRegisters(want_segment_config);
     }
+    return EXIT_CODE_OK;
 }
 
 // test setters
-void app_segments_broadcastCellVoltages()
+ExitCode app_segments_broadcastCellVoltages()
 {
     static void (*const cellVoltageSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(
         float) = { { app_canTx_BMS_Seg0_Cell0_Voltage_set, app_canTx_BMS_Seg0_Cell1_Voltage_set,
@@ -145,7 +177,7 @@ void app_segments_broadcastCellVoltages()
                      app_canTx_BMS_Seg0_Cell12_Voltage_set, app_canTx_BMS_Seg0_Cell13_Voltage_set } };
 
     // information gathering
-    ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion(s));
+    RETURN_IF_ERR(io_ltc6813_startCellsAdcConversion(s));
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
@@ -166,9 +198,10 @@ void app_segments_broadcastCellVoltages()
             cellVoltageSetters[segment][cell](CONVERT_100UV_TO_VOLTAGE(voltage_regs[segment][cell]));
         }
     }
+    return EXIT_CODE_OK;
 }
 
-void app_segments_broadcastTempsVRef()
+ExitCode app_segments_broadcastTempsVRef()
 {
     static void (*const thermistorSetters[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT])(float) = { { 0 } }; // TODO populate
     static void (*const vrefSetters[NUM_SEGMENTS])(float) = { app_canTx_BMS_Seg0_VREF_set };
@@ -181,7 +214,7 @@ void app_segments_broadcastTempsVRef()
     {
         // information gathering
         // TODO flip a mux based on i == 0 and i == 1
-        ASSERT_EXIT_OK(io_ltc6813_startThermistorsAdcConversion(s));
+        RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion(s));
         io_time_delay(10); // TODO tweak timings
         io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
 
@@ -209,9 +242,10 @@ void app_segments_broadcastTempsVRef()
             }
         }
     }
+    return EXIT_CODE_OK;
 }
 
-void app_segments_broadcastStatus()
+ExitCode app_segments_broadcastStatus()
 {
     static void (*const muxTestSetters[NUM_SEGMENTS])(bool)     = { app_canTx_BMS_Seg0_MUX_OK_set };
     static void (*const vregOKSetters[NUM_SEGMENTS])(bool)      = { app_canTx_BMS_Seg0_VREG_OK_set };
@@ -221,7 +255,7 @@ void app_segments_broadcastStatus()
     static void (*const thermalOKsetters[NUM_SEGMENTS])(bool)   = { app_canTx_BMS_Seg0_THERMAL_OK_set };
     // static void (*const tempSetters[NUM_SEGMENTS])(float)           = {  };
 
-    ASSERT_EXIT_OK(io_ltc6813_startInternalADCConversions(s));
+    RETURN_IF_ERR(io_ltc6813_startInternalADCConversions(s));
     io_time_delay(15);
     io_ltc6813_getStatus(statuses, status_success_buf);
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -251,15 +285,16 @@ void app_segments_broadcastStatus()
         thermalOKsetters[segment](!statuses[segment].THSD);
         muxTestSetters[segment](!(bool)statuses[segment].MUXFAIL);
     }
+    return EXIT_CODE_OK;
 }
 
-void app_segments_ADCAccuracyTest()
+ExitCode app_segments_ADCAccuracyTest()
 {
     static void (*const segmentVRefTrueSetters[NUM_SEGMENTS])(bool)         = { app_canTx_BMS_Seg0_VREF_OK_set };
     static void (*const segmentOverlapADC12TestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_ADC_1_2_Equal_set };
     static void (*const segmentOverlapADC23TestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_ADC_2_3_Equal_set };
 
-    ASSERT_EXIT_OK(io_ltc6813_overlapADCTest(s));
+    RETURN_IF_ERR(io_ltc6813_overlapADCTest(s));
     io_time_delay(10);                                               // TODO tweak timings
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf); // TODO make this more efficient
 
@@ -278,6 +313,7 @@ void app_segments_ADCAccuracyTest()
             IS_EXIT_ERR(volt_success_buf[segment][1]) || IS_EXIT_ERR(volt_success_buf[segment][2]);
         segmentOverlapADC23TestSetters[segment](!adc_2_3_fail && adc_3_4_diff < CONVERT_VOLTAGE_TO_100UV(0.001f));
     }
+    return EXIT_CODE_OK;
 }
 
 void app_segments_voltageSelftest()
@@ -344,7 +380,7 @@ void app_segments_statusSelftest()
     }
 }
 
-void app_segments_openWireCheck()
+ExitCode app_segments_openWireCheck()
 {
     static void (*const cellOWCSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(bool) = {
         { app_canTx_BMS_Seg0_Cell0_OWC_OK_set, app_canTx_BMS_Seg0_Cell1_OWC_OK_set, app_canTx_BMS_Seg0_Cell2_OWC_OK_set,
@@ -389,4 +425,5 @@ void app_segments_openWireCheck()
         completeness cellOWCSetters[segment][17](owc_pdcv[segment][cell] == 0.0f);
 #endif
     }
+    return EXIT_CODE_OK;
 }
