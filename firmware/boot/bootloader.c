@@ -23,7 +23,11 @@
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
-#define WINDOW_SIZE 64
+#define NAK_ID 0x0
+#define BOARD_MEM_WRITE_CHUNK  32   // the H7 boards can only write 32 bytes at a time while the F4 boards can write multiplies of a byte 
+                                    // thus upon need for re-transission we reset our write address to a closest multiple of 32 to ensure both F4 and H7 boards can be completely and 
+                                    // correctly flashed
+
 
 // Need these to be created an initialized elsewhere
 extern CanHandle can;
@@ -179,9 +183,7 @@ void bootloader_init(void)
 _Noreturn void bootloader_runInterfaceTask(void)
 {
     // Program 64 bits at the current address.
-    uint8_t window_index = 0; 
-    uint16_t expected_can_id = BOOT_LOAD_MSG_START; // [0,63] reserved for binary upload 
-    uint64_t window_status = 0U; 
+    uint64_t expected_can_id = 0;
 
     LOG_INFO("TEST TEST TEST");
     for (;;)
@@ -218,38 +220,22 @@ _Noreturn void bootloader_runInterfaceTask(void)
             };
             io_canQueue_pushTx(&reply);
         }
-        else if (BOOT_LOAD_MSG_START <= command.std_id && command.std_id <  (BOOT_LOAD_MSG_START + WINDOW_SIZE) && update_in_progress)
+        else if (1 <= command.std_id && update_in_progress)
         {
            if (expected_can_id == command.std_id) // 8th byte of data as seq num
             {
                 // do program
                 bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
-                window_status |= (1ULL << window_index); // set respective bit in status
-                LOG_INFO("Window %u", (unsigned)window_index);
-                LOG_INFO("Window Status %llu", (unsigned long long) window_status);
+                expected_can_id += 8; 
+
             }
             else{
 
-                window_status &= ~(1ULL << window_index);
-                LOG_INFO("Window Status %llu", (unsigned long long)window_status);
-
-            }
-
-            if(window_index == (WINDOW_SIZE - 1))
-            {
-                LOG_INFO("WINDOW VALUE IS %llu", (unsigned long long)window_status);
-                CanMsg reply = { .std_id = (BOOT_LOAD_MSG_START + WINDOW_SIZE), .dlc = 8}; // MSG 0 in board range is for status 
-                memcpy(reply.data, &window_status, sizeof(window_status));
+                CanMsg reply = { .std_id = NAK_ID, .dlc = 8}; // MSG 0 in board range is for status 
+                expected_can_id = (expected_can_id / BOARD_MEM_WRITE_CHUNK) * BOARD_MEM_WRITE_CHUNK;
+                memcpy(reply.data, &expected_can_id, sizeof(expected_can_id));
                 io_canQueue_pushTx(&reply);
-                window_status = 0U;  
-    
             }
-            current_address += 8; // increment regardless of if packet dropped ... for re-transmitting we would have to 
-            window_index = (uint8_t)((window_index + 1) % WINDOW_SIZE); // wrap around when we hit window size
-            expected_can_id = BOOT_LOAD_MSG_START + window_index;
-
-
-
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
