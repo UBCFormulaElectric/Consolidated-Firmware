@@ -4,18 +4,18 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
-_dockerized = os.environ.get("DOCKERIZED") == "1"
-if not _dockerized:
-    import sys
+# _dockerized = os.environ.get("DOCKERIZED") == "1"
+# if not _dockerized:
+#     import sys
 
-    sys.path.insert(
-        0,
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__), "../../../../scripts/code_generation/"
-            )
-        ),
-    )
+#     sys.path.insert(
+#         0,
+#         os.path.abspath(
+#             os.path.join(
+#                 os.path.dirname(__file__), "../../../../../scripts/code_generation/"
+#             )
+#         ),
+#     )
 
 
 def _download_file(commit_sha, file, folder_path, save_dir):
@@ -76,7 +76,7 @@ def fetch_jsoncan_configs(commit_sha: str, force=False) -> str:
 
 
 # fetch_jsoncan_configs("e12121d", True)
-from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan.json_parsing.json_can_parsing import JsonCanParser
 # can_db = CanDatabase()
 from settings import CAR_NAME
 
