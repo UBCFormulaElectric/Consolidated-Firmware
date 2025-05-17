@@ -4,6 +4,7 @@
 #include "main.h"
 
 #include "app_canTx.h"
+#include "app_utils.h"
 
 // io
 #include "io_time.h"
@@ -104,7 +105,7 @@ void tasks_runCanTx()
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx();
-        hw_can_transmit(&can2, &msg);
+        LOG_IF_ERR(hw_can_transmit(&can2, &msg));
     }
 }
 

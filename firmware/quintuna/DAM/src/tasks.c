@@ -4,6 +4,7 @@
 #include "cmsis_os.h"
 
 #include "app_canTx.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -49,6 +50,10 @@ void tasks_init(void)
     hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
+    // hw_gpio_writePin(&tsim_red_en_pin, true);
+    // hw_gpio_writePin(&ntsim_green_en_pin, false);
+
+    jobs_init();
     // hw_gpio_writePin(&tsim_red_en_pin, true);
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
@@ -155,24 +160,25 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
-    osDelay(osWaitForever);
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        if (tx_msg.is_fd)
-        {
-            hw_fdcan_transmit(&can1, &tx_msg);
-        }
-        else
-        {
-            hw_can_transmit(&can1, &tx_msg);
-        }
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        // ToDo: check if this is needed and investigate why is_fd is not a bool
+        //  if (tx_msg.is_fd)
+        //  {
+        //      hw_fdcan_transmit(&can1, &tx_msg);
+        //  }
+        //  else
+        //  {
+        //      hw_can_transmit(&can1, &tx_msg);
+        //  }
     }
 }
 
 _Noreturn void tasks_runCanRx(void)
 {
-    osDelay(osWaitForever);
     for (;;)
     {
         jobs_runCanRx_tick();

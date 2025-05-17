@@ -1,7 +1,3 @@
 {
-    "messages": [
-        "CRIT_Vitals",
-        "CRIT_Switches",
-        "CRIT_DriveMode"
-    ]
+  "messages": []
 }

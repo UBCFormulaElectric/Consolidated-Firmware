@@ -1,6 +1,6 @@
 [project]
 name = "chimera_v2"
-version = "0.4"
+version = "0.5"
 
 dependencies = [
     # Protobuf dependencies.
@@ -8,9 +8,6 @@ dependencies = [
 
     # We use libusb-package to get a version of pyusb's usb.core with libusb packaged in.
     "libusb-package", "pyusb",
-
-    # CAN support dependencies.
-    "cantools", "python-can",
 
     # Visa peripherals.
     "pyvisa",
