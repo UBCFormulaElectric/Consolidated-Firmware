@@ -5,6 +5,7 @@
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
