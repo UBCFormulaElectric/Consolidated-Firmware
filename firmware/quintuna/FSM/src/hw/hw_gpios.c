@@ -9,7 +9,7 @@ const Gpio nsusp_fl_ocsc    = { .port = nSUSP_FL_OCSC_GPIO_Port, .pin = nSUSP_FL
 const Gpio nsusp_fr_ocsc    = { .port = nSUSP_FR_OCSC_GPIO_Port, .pin = nSUSP_FR_OCSC_Pin };
 const Gpio fr_int_3v3       = { .port = FR_INT_3V3_GPIO_Port, .pin = FR_INT_3V3_Pin };
 const Gpio fl_int_3v3       = { .port = FL_INT_3V3_GPIO_Port, .pin = FL_INT_3V3_Pin };
-const Gpio debug_led        = { .port = DEBUG_LED_GPIO_Port, .pin = DEBUG_LED_Pin };
+const Gpio debug_led        = { .port = LED_GPIO_Port, .pin = LED_Pin };
 const Gpio nstr_angle_ocsc  = { .port = nSTR_ANGLE_OCSC_GPIO_Port, .pin = nSTR_ANGLE_OCSC_Pin };
 const Gpio nbps_f_ocsc      = { .port = nBPS_F_OCSC_GPIO_Port, .pin = nBPS_F_OCSC_Pin };
 const Gpio boot_led         = { .port = BOOT_LED_GPIO_Port, .pin = BOOT_LED_Pin };

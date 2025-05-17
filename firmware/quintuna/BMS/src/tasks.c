@@ -12,6 +12,7 @@
 #include "hw_adcs.h"
 #include "hw_pwms.h"
 #include "hw_watchdogConfig.h"
+#include "hw_hardFaultHandler.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -28,6 +29,7 @@ void tasks_runChimera(void)
 void tasks_preInit(void)
 {
     LOG_INFO("BMS Reset");
+    hw_hardFaultHandler_init();
 }
 
 void tasks_init(void)

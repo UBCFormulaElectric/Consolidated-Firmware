@@ -19,7 +19,10 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_resetReason.h"
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {
@@ -30,7 +33,6 @@ void tasks_init()
 
     // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
 
     hw_can_init(&can1);
     hw_usb_init();

@@ -1,6 +1,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_hal.h"
 #include "hw_utils.h"
+#include "main.h"
 
 void hw_hardFaultHandler_init(void)
 {
@@ -52,6 +53,11 @@ void                   hw_hardFaultHandler_logInfo(uint32_t *fault_stack)
 
     for (;;)
     {
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        for (int i = 0; i < 3000000; i++)
+        {
+            __ASM("nop");
+        }
     };
 }
 #pragma GCC diagnostic pop
