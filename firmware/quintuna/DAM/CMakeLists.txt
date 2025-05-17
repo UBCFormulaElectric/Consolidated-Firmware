@@ -22,6 +22,7 @@ list(APPEND APP_SRCS
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+message(IO_SRCS)
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_canLoggingQueue.c"
