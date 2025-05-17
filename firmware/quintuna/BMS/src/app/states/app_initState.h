@@ -1,0 +1,7 @@
+#pragma once
+
+/**
+ * Get a pointer to the Init State.
+ * @return A pointer to the Init State. THIS SHOULD NOT BE MODIFIED.
+ */
+const State *app_initState_get(void);

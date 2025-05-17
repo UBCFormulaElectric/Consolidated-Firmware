@@ -1,6 +1,7 @@
 #include "app_stateMachine.h"
-#include "app_charger.h"
+#include "io_irs.h"
 #include "io_charger.h"
+#include "stdio.h"
 
 static void app_initStateRunOnEntry()
 {
@@ -9,22 +10,17 @@ static void app_initStateRunOnEntry()
 
 static void app_initStateRunOnTick1Hz()
 {
-    app_allStates_runOnTick1Hz();
+
 }
 
 static void app_initStateRunOnTick100Hz()
 {
-    if(app_allStates_runOnTick100Hz)
+    const bool is_irs_negative_closed = io_irs_isNegativeClosed();
+    const bool external_charging_request = app_canRx_Debug_StartCharging_get();
+    const bool is_charger_connected = (io_charger_getConnectionStatus() == EVSE_CONNECTED);
+    if(is_irs_negative_closed && external_charging_request && is_charger_connected)
     {
-       const ConnectionStatus EVSE_connection_status = io_charger_getConnectionStatus();
-       const bool Elcon_connection_status = 
-       const bool clear_Elcon_latch = 
-
-       const bool precharge_for_charging = EVSE_connection_status && Elcon_connection_status;
-       if(precharge_for_charging)
-       {
-            app_stateMachine_setNextState(app_prechargeChargingState_get())
-       }
+        app_stateMachine_setNextState(app_prechargeChargeState_get());
     }
 }
 
