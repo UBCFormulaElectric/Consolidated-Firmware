@@ -74,7 +74,7 @@ void app_screens_update(void)
     {
         init_screen->update();
     }
-    else if (vc_state == VC_DRIVE_STATE)
+    else if (vc_state == VC_DRIVE_STATE || vc_state == VC_DRIVE_WARNING_STATE)
     {
         drive_screens[current_screen]->update();
     }

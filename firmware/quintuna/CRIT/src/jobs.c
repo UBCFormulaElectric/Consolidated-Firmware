@@ -26,7 +26,7 @@ static void canTransmit(const JsonCanMsg *msg)
 void jobs_init(void)
 {
     // can
-    io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
+    io_canTx_init(canTransmit);
     io_canQueue_init();
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
     app_canTx_init();
@@ -38,7 +38,7 @@ void jobs_init(void)
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 
-    // io_shift_register_led_init();
+    io_shift_register_led_init();
     app_screens_init();
 }
 
@@ -55,7 +55,7 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    // app_leds_update();
+    app_leds_update();
     app_screens_update();
     app_switches_broadcast();
 
