@@ -16,7 +16,7 @@ ExitCode jobs_runLtc_tick(void)
 {
     RETURN_IF_ERR(app_segments_configSync());
     RETURN_IF_ERR(app_segments_broadcastCellVoltages());
-    RETURN_IF_ERR(app_segments_broadcastTempsVRef());
+    RETURN_IF_ERR(app_segments_broadcastTemps());
     RETURN_IF_ERR(app_segments_broadcastStatus());
     if (app_canRx_Debug_EnableDebugMode_get())
     {

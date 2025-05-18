@@ -166,6 +166,16 @@ ExitCode io_ltc6813_sendBalanceCommand(void);
 ExitCode io_ltc6813_sendStopBalanceCommand(void);
 
 /**
+ *  Set GPIO9 to a spevific state (for mux control)
+ */
+ExitCode io_ltc6813_setGpio9(bool level_high);
+
+/**
+ * Read the status of GPIOs (6, 7, 9)
+ */
+ExitCode io_ltc6813_getGpio679(uint8_t *state);
+
+/**
  * @file ltc6813/io_ltc6813_owc.c
  */
 
