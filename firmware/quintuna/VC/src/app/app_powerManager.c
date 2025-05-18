@@ -5,18 +5,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-static PowerState    power_manager_state;
-static TimerChannel *sequencing_timer;
+static PowerManagerConfig power_manager_state;
+static TimerChannel      *sequencing_timer;
 
 typedef union
 {
     const ST_LoadSwitch *st;
     const TI_LoadSwitch *ti;
-} Loadswitch;
+} LoadSwitch;
 
 typedef struct
 {
-    Loadswitch loadswitch;
+    LoadSwitch loadswitch;
     uint8_t    retry_num;
 } RetryProtocol;
 
@@ -34,90 +34,88 @@ static RetryProtocol efuses_retry_state[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_R_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 }
 };
 
-static bool efuse_blown_status [NUM_EFUSE_CHANNELS] = {
-    [EFUSE_CHANNEL_F_INV]   = false,
-    [EFUSE_CHANNEL_RSM]     = false,
-    [EFUSE_CHANNEL_BMS]     = false,
-    [EFUSE_CHANNEL_R_INV]   = false,
-    [EFUSE_CHANNEL_DAM]     = false,
-    [EFUSE_CHANNEL_FRONT]   = false,
-    [EFUSE_CHANNEL_RL_PUMP] = false,
-    [EFUSE_CHANNEL_RR_PUMP] = false,
-    [EFUSE_CHANNEL_F_PUMP]  = false,
-    [EFUSE_CHANNEL_L_RAD]   = false,
-    [EFUSE_CHANNEL_R_RAD]   = false
-};
-
-void app_powerManager_updateConfig(PowerState new_power_manager_config)
+void app_powerManager_updateConfig(const PowerManagerConfig new_power_manager_config)
 {
     power_manager_state = new_power_manager_config;
 }
 
+static bool is_efuse_ok(const uint8_t current_efuse_sequence)
+{
+    if (EFUSE_CHANNEL_RL_PUMP <= current_efuse_sequence && current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP)
+    {
+        return io_TILoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
+    }
+    return io_STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
+}
+
 void app_powerManager_EfuseProtocolTick_100Hz(void)
 {
-    for (LoadswitchChannel current_efuse_sequence = 0; current_efuse_sequence < NUM_EFUSE_CHANNELS;
-         current_efuse_sequence++)
+    switch (app_timer_updateAndGetState(sequencing_timer))
     {
-        // check if the efuse is supposed to be on or off
-        bool desired_efuse_state = power_manager_state.efuses[current_efuse_sequence].efuse_enable;
-        bool efuse_valid_state =
-            io_loadswitch_isChannelEnabled(&efuse_channels[current_efuse_sequence]) == desired_efuse_state;
-
-        uint8_t efuse_retry_timeout = power_manager_state.efuses[current_efuse_sequence].timeout;
-        uint8_t efuse_retry_limit   = power_manager_state.efuses[current_efuse_sequence].max_retry;
-
-        if (efuse_valid_state)
-        {
-            continue;
-        }
-        else if (efuses_retry_state[current_efuse_sequence].retry_num <= efuse_retry_limit)
-        {
-            // This to indicate that we want the efuse to be off when its on so just turn it off
-            if (!desired_efuse_state)
+        case TIMER_STATE_RUNNING:
+        default:
+            break;
+        case TIMER_STATE_EXPIRED:
+            // timeout expired or no timeout
+            app_timer_stop(sequencing_timer);
+        case TIMER_STATE_IDLE:
+            for (LoadswitchChannel current_efuse_sequence = 0; current_efuse_sequence < NUM_EFUSE_CHANNELS;
+                 current_efuse_sequence++)
             {
-                io_loadswitch_setChannel(&efuse_channels[current_efuse_sequence], desired_efuse_state);
-                break;
-            }
-            // If we dont know the if the efuse is blown check if it is however if we know its already blown dont check
-            if(!efuse_blown_status[current_efuse_sequence]){
-                if (current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP && current_efuse_sequence >= EFUSE_CHANNEL_RL_PUMP)
+                // check if the efuse is supposed to be on or off
+                const bool desired_efuse_state = power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable;
+                if (io_loadswitch_isChannelEnabled(&efuse_channels[current_efuse_sequence]) == desired_efuse_state)
                 {
-                    efuse_blown_status[current_efuse_sequence] = io_TILoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
+                    // efuse is fine
+                    continue;
                 }
-                else{
-                    efuse_blown_status[current_efuse_sequence] = io_STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
+
+                // todo check this when incrementing the efuse failure
+                if (efuses_retry_state[current_efuse_sequence].retry_num >
+                    power_manager_state.efuse_configs[current_efuse_sequence].max_retry)
+                {
+                    // todo over the retry limit activities
+                    // there is something with the system so put car into fault state
+                    break;
                 }
-            }
-            // After this is we begin power sequencing logic as we want to turn on the loads
-            if (sequencing_timer->state == TIMER_STATE_IDLE && efuse_retry_timeout != 0)
-            {
-                app_timer_init(sequencing_timer, power_manager_state.efuses[current_efuse_sequence].timeout);
-                app_timer_restart(sequencing_timer);
-            }
-            else if (sequencing_timer->state == TIMER_STATE_EXPIRED || efuse_retry_timeout == 0)
-            {
+
+                if (desired_efuse_state == false)
+                {
+                    // case 1: on and trying to turn off
+                    io_loadswitch_setChannel(&efuse_channels[current_efuse_sequence], desired_efuse_state);
+                    continue;
+                }
+                // case 2: off and trying to turn on
+                // we update the efuse blown status here because this only shows up when we want it on
+                if (!is_efuse_ok(current_efuse_sequence)) // todo remove this state?
+                {
+                    efuses_retry_state[current_efuse_sequence].retry_num++;
+                }
+
+                // If we dont know the if the efuse is blown check if it is however if we know its already blown
+                // dont check After this is we begin power sequencing logic as we want to turn on the loads
+                const uint8_t efuse_retry_timeout = power_manager_state.efuse_configs[current_efuse_sequence].timeout;
+                if (efuse_retry_timeout != 0)
+                {
+                    // start the timeout
+                    app_timer_init(sequencing_timer, efuse_retry_timeout);
+                    app_timer_restart(sequencing_timer);
+                }
                 io_loadswitch_setChannel(
                     &efuse_channels[current_efuse_sequence],
-                    power_manager_state.efuses[current_efuse_sequence].efuse_enable);
-                app_timer_stop(sequencing_timer);
-
-                //If we sucessfully retried and the efuse was blown increment the retry
-                if (efuse_blown_status[current_efuse_sequence]){
-                    efuses_retry_state[current_efuse_sequence].retry_num++;
-                    efuse_blown_status[current_efuse_sequence] = false;
-                }
+                    power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable);
+                break;
             }
-        }
-        break;
+            break;
     }
 }
 
-PowerState app_powerManager_getConfig(void)
+PowerManagerConfig app_powerManager_getConfig(void)
 {
     return power_manager_state;
 }
 
-bool app_powerManager_getEfuse(LoadswitchChannel channel)
+bool app_powerManager_getEfuse(const LoadswitchChannel channel)
 {
-    return power_manager_state.efuses[channel].efuse_enable;
+    return power_manager_state.efuse_configs[channel].efuse_enable;
 }

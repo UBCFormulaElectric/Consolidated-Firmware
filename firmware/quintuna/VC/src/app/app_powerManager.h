@@ -10,14 +10,14 @@ typedef struct
     bool    efuse_enable;
     uint8_t timeout;
     uint8_t max_retry;
-} EfuseRetry;
+} EfuseConfig;
 
 typedef struct
 {
-    EfuseRetry efuses[NUM_EFUSE_CHANNELS];
-} PowerState;
+    EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS];
+} PowerManagerConfig;
 
-void app_powerManager_updateConfig(PowerState power_manager_config);
+void app_powerManager_updateConfig(PowerManagerConfig new_power_manager_config);
 void app_powerManager_EfuseProtocolTick_100Hz(void);
 
 #ifdef TARGET_TEST
