@@ -13,13 +13,6 @@
 
 /* -------------------------------- Enums --------------------------------- */
 
-typedef enum
-{
-    {%- for node_name, _ in node_name_and_alerts %}
-    {{node_name.upper()}}_ALERT_BOARD = {{loop.index0}},
-    {%- endfor %}
-} CanAlertBoard;
-
 typedef struct
 {
     char* description;

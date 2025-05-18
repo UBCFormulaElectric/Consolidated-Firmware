@@ -72,6 +72,15 @@ typedef enum
 } {{ enum.name }};
 {% endfor %}
 
+// only board with alert generate firmware
+typedef enum
+{
+    {%- for node_name in alerts_board %}
+    {{node_name.upper()}}_ALERT_BOARD = {{loop.index0}},
+    {%- endfor %}
+} CanAlertBoard;
+
+
 /* ------------------------------- Structs -------------------------------- */
 
 {% for message in messages %}
