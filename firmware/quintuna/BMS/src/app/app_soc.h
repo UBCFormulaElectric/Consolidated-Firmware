@@ -1,7 +1,6 @@
 #pragma once
 
 #include "app_utils.h"
-#include "app_accumulator.h"
 #include "app_timer.h"
 
 #define STATE_OF_HEALTH (1.00f)
