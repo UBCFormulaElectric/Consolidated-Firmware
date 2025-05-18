@@ -38,7 +38,6 @@ void tasks_preInitWatchdog(void)
 {
     if (io_fileSystem_init() == FILE_OK)
         io_canLogging_init();
-    
 }
 
 void tasks_init(void)
