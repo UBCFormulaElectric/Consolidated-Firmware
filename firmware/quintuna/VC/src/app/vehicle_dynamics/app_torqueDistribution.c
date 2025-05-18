@@ -3,6 +3,8 @@
 #include <app_utils.h>
 #include <app_canTx.h>
 #include <io_log.h>
+#include <app_canRx.h>
+#include <app_units.h>
 
 /**
  * Reference used: https://www.zotero.org/groups/5809911/vehicle_controls_2024/items/N4TQBR67/reader
@@ -28,6 +30,8 @@
 // Our motors no longer take in a torque command, instead they take in a percentage value. The percentage for the DD5-14-10-POW motor 
 // is relative to their nominal torque (9.8 Nm) where 100% torque is 9.8. The motors are able to output up to 21 Nm, this however cannot be a sustained behaviour
 #define PEDAL_REMAPPING(torque) ((torque / NOMINAL_TORQUE_NM) * 100.0f )
+#define TORQUE_TO_POWER(torque, rpm) (((torque) * ((rpm) / GEAR_RATIO) / POWER_TO_TORQUE_CONVERSION_FACTOR))
+#define POWER_TO_TORQUE(power, rpm) ((power) * POWER_TO_TORQUE_CONVERSION_FACTOR / ((rpm) / GEAR_RATIO))
 
 void app_wheelVerticalForces_broadcast(const ImuData *imu)
 {
@@ -56,6 +60,13 @@ float app_loadTransferConstant(float long_accel)
     return load_transfer_scalar;
 }
 
+static float app_totalPower(TorqueAllocationOutputs *torques)
+{
+    return  (TORQUE_TO_POWER(torqueToMotors.front_left_torque, app_canRx_INVFL_AMK_ActualVelocity_get()) +
+            TORQUE_TO_POWER(torqueToMotors.front_right_torque, app_canRx_INVFR_ActualVelocity_get()) + 
+            TORQUE_TO_POWER(torqueToMotors.rear_left_torque, app_canRx_INVRL_ActualVelocity_get()) +
+            TORQUE_TO_POWER(torqueToMotors.rear_right_torque, app_canRx_INVRR_ActualVelocity_get())); 
+}
 TorqueAllocationOutputs* app_torqueAllocation(TorqueAllocationInputs *inputs)
 {
     /************************************** following torque distribution on page 57 *********************************/
@@ -73,15 +84,30 @@ TorqueAllocationOutputs* app_torqueAllocation(TorqueAllocationInputs *inputs)
                                       (inputs->total_torque_request * inputs->load_transfer_const) / (2 * (inputs->load_transfer_const + 1));
     torqueToMotors.rear_right_torque = (torqueToMotors.rear_left_torque + (inputs->rear_yaw_moment / F));
 
+    float total_requestedPower = app_totalPower(torqueToMotors); 
+    app_canTx_VC_TotalRequestedPower_set(total_requestedPower); 
+
+    if(total_requestedPower > inputs-> power_limit_kw)
+    {
+        // the idea is to reduce all torque requests by the same out of torque to get our power based on the torque request
+        // to be <= to the power_limit. The way to do this is to convert the differenc in the power to a torque using the lowest
+        // wheel speed, this is because it will provide the largest torque reduction and thus the largest decrease in power consumption
+
+        float torque_reduction = POWER_TO_TORQUE((total_requestedPower - inputs-> power_limit_kw), fminf(fminf(app_canRx_INVFL_AMK_ActualVelocity_get(), app_canRx_INVFR_ActualVelocity_get()), 
+                                                                                fminf(app_canRx_INVRL_ActualVelocity_get, app_canRx_INVRR_ActualVelocity_get)));
+
+        torqueToMotors.front_left_torque -= torque_reduction; 
+        torqueToMotors.front_right_torque -= torque_reduction; 
+        torqueToMotors.rear_left_torque -= torque_reduction;
+        torqueToMotors.rear_left_torque -= torque_reduction;
+    }
+    
     torqueToMotors.front_left_torque = CLAMP(torqueToMotors.front_left_torque, 0, MAX_TORQUE_REQUEST_NM);
     torqueToMotors.front_right_torque = CLAMP(torqueToMotors.front_right_torque, 0, MAX_TORQUE_REQUEST_NM);
     torqueToMotors.rear_left_torque = CLAMP(torqueToMotors.rear_left_torque, 0, MAX_TORQUE_REQUEST_NM);
     torqueToMotors.rear_right_torque = CLAMP(torqueToMotors.rear_right_torque, 0, MAX_TORQUE_REQUEST_NM);
 
-    float total_wheel_alllocated_torque = (torqueToMotors.front_left_torque + torqueToMotors.front_right_torque + 
-                                           torqueToMotors.rear_left_torque + torqueToMotors.rear_right_torque);
-    
-    
+    app_canTx_VC_TotalAllocatedPower_set(app_totalPower(inputs)); 
 
     // Commented out can messages, there solely for logging purposes
     app_canTx_VC_RearYawMoment_set(inputs->rear_yaw_moment);
@@ -90,9 +116,6 @@ TorqueAllocationOutputs* app_torqueAllocation(TorqueAllocationInputs *inputs)
     
     return &torqueToMotors;
 }
-
-
-
 
 void app_torqueBroadCast(TorqueAllocationOutputs *motor_torques)
 {

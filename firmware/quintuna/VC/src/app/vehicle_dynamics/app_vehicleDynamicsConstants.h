@@ -31,28 +31,6 @@
 #define MAX_BATTERY_TEMP 45
 #define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
 
-/**
- * Reference used: https://www.zotero.org/groups/5809911/vehicle_controls_2024/items/N4TQBR67/reader
- */
-
-#define DIST_FRONT_AXLE_CG (0.837f)                          // a in meters
-#define DIST_REAR_AXLE_CG (WHEELBASE_m - DIST_FRONT_AXLE_CG) // b in meters
-#define WEIGHT_ACROSS_BODY (CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m)
-
-/************** Macros for finding vertical forces on wheels based on diagram on page 21 ****************/
-#define REAR_WEIGHT_DISTRIBUTION (WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG)
-#define LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel) \
-    ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_m / WHEELBASE_m))
-#define LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel) \
-    ((CAR_MASS_AT_CG_KG * (lat_accel) * CG_HEIGHT_FROM_GROUND_m / (2.0f * (TRACK_WIDTH_m))))
-
-/************** Macros for finding Kmz based on diagram on page 57 ****************/
-#define ACCELERATION_TERM_KMZ(long_accel) (DIST_FRONT_AXLE_CG + (long_accel) * CG_HEIGHT_FROM_GROUND_m / GRAVITY)
-
-/************** Macros for moment scaling on page 58 ****************/
-#define F ((TRACK_WIDTH_m / (WHEEL_DIAMETER_IN / 2.0f * 2.54f)) * GEAR_RATIO)
-
-
 // Tunable parameters
 extern const PID_Config               PID_POWER_CORRECTION_CONFIG;
 extern const PID_Config               PID_TRACTION_CONTROL_CONFIG;
