@@ -36,8 +36,9 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
-    // if (io_fileSystem_init() == FILE_OK)
-    //     io_canLogging_init();
+    if (io_fileSystem_init() == FILE_OK)
+        io_canLogging_init();
+    
 }
 
 void tasks_init(void)
@@ -107,13 +108,14 @@ _Noreturn void tasks_run100Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
-        // CanMsg fake_msg = {
-        //     .std_id    = 0x124,
-        //     .dlc       = 8,
-        //     .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
-        //     .timestamp = io_time_getCurrentMs(),
-        // };
-        // io_telemMessage_pushMsgtoQueue(&fake_msg);
+        CanMsg fake_msg = {
+            .std_id    = 0x124,
+            .dlc       = 8,
+            .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
+            .timestamp = io_time_getCurrentMs(),
+        };
+        io_telemMessage_pushMsgtoQueue(&fake_msg);
+        io_canLogging_loggingQueuePush(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -203,24 +205,26 @@ _Noreturn void tasks_runTelemRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    osDelay(osWaitForever);
-    // if (!io_fileSystem_ready())
-    // {
-    //     // queue shouldn't populate, so this is just an extra precaution
-    //     osThreadSuspend(osThreadGetId());
-    // }
+    // io_chimera_sleepTaskIfEnabled();
 
-    // static uint32_t write_count         = 0;
-    // static uint32_t message_batch_count = 0;
+    static uint32_t write_count         = 0;
+    static uint32_t message_batch_count = 0;
+
     for (;;)
     {
-        // io_canLogging_recordMsgFromQueue();
-        // message_batch_count++;
-        // write_count++;
-        // if (message_batch_count > 256)
-        // {
-        //     io_canLogging_sync();
-        //     message_batch_count = 0;
-        // }
+        if (io_canLogging_errorsRemaining() == 0)
+        {
+            osThreadSuspend(osThreadGetId());
+        }
+
+        io_canLogging_recordMsgFromQueue();
+        message_batch_count++;
+        write_count++;
+
+        if (message_batch_count > 256)
+        {
+            io_canLogging_sync();
+            message_batch_count = 0;
+        }
     }
 }
