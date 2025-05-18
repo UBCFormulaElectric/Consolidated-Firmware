@@ -76,9 +76,9 @@ typedef enum
 typedef enum
 {
     {%- for node_name in alerts_board %}
-    {{node_name.upper()}}_ALERT_BOARD = {{loop.index0}},
+    {{node_name.upper()}}_BOARD = {{loop.index0}},
     {%- endfor %}
-} CanAlertBoard;
+} CanBoard;
 
 
 /* ------------------------------- Structs -------------------------------- */
