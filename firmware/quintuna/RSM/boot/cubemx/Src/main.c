@@ -51,77 +51,41 @@ CRC_HandleTypeDef hcrc;
 
 TIM_HandleTypeDef htim2;
 
-/* Definitions for Task1KHz */
-osThreadId_t         Task1KHzHandle;
-uint32_t             Task1KHzBuffer[512];
-osStaticThreadDef_t  Task1KHzControlBlock;
-const osThreadAttr_t Task1KHz_attributes = {
-    .name       = "Task1KHz",
-    .cb_mem     = &Task1KHzControlBlock,
-    .cb_size    = sizeof(Task1KHzControlBlock),
-    .stack_mem  = &Task1KHzBuffer[0],
-    .stack_size = sizeof(Task1KHzBuffer),
+/* Definitions for interfaceTask */
+osThreadId_t         interfaceTaskHandle;
+uint32_t             interfaceTaskBuffer[512];
+osStaticThreadDef_t  interfaceTaskControlBlock;
+const osThreadAttr_t interfaceTask_attributes = {
+    .name       = "interfaceTask",
+    .cb_mem     = &interfaceTaskControlBlock,
+    .cb_size    = sizeof(interfaceTaskControlBlock),
+    .stack_mem  = &interfaceTaskBuffer[0],
+    .stack_size = sizeof(interfaceTaskBuffer),
     .priority   = (osPriority_t)osPriorityRealtime,
 };
-/* Definitions for Task100Hz */
-osThreadId_t         Task100HzHandle;
-uint32_t             Task100HzBuffer[512];
-osStaticThreadDef_t  Task100HzControlBlock;
-const osThreadAttr_t Task100Hz_attributes = {
-    .name       = "Task100Hz",
-    .cb_mem     = &Task100HzControlBlock,
-    .cb_size    = sizeof(Task100HzControlBlock),
-    .stack_mem  = &Task100HzBuffer[0],
-    .stack_size = sizeof(Task100HzBuffer),
+/* Definitions for canTxTask */
+osThreadId_t         canTxTaskHandle;
+uint32_t             canTxTaskBuffer[512];
+osStaticThreadDef_t  canTxTaskControlBlock;
+const osThreadAttr_t canTxTask_attributes = {
+    .name       = "canTxTask",
+    .cb_mem     = &canTxTaskControlBlock,
+    .cb_size    = sizeof(canTxTaskControlBlock),
+    .stack_mem  = &canTxTaskBuffer[0],
+    .stack_size = sizeof(canTxTaskBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
-/* Definitions for Task1Hz */
-osThreadId_t         Task1HzHandle;
-uint32_t             Task1HzBuffer[512];
-osStaticThreadDef_t  Task1HzControlBlock;
-const osThreadAttr_t Task1Hz_attributes = {
-    .name       = "Task1Hz",
-    .cb_mem     = &Task1HzControlBlock,
-    .cb_size    = sizeof(Task1HzControlBlock),
-    .stack_mem  = &Task1HzBuffer[0],
-    .stack_size = sizeof(Task1HzBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
-};
-/* Definitions for TaskCanTx */
-osThreadId_t         TaskCanTxHandle;
-uint32_t             TaskCanTxBuffer[512];
-osStaticThreadDef_t  TaskCanTxControlBlock;
-const osThreadAttr_t TaskCanTx_attributes = {
-    .name       = "TaskCanTx",
-    .cb_mem     = &TaskCanTxControlBlock,
-    .cb_size    = sizeof(TaskCanTxControlBlock),
-    .stack_mem  = &TaskCanTxBuffer[0],
-    .stack_size = sizeof(TaskCanTxBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
-};
-/* Definitions for TaskCanRx */
-osThreadId_t         TaskCanRxHandle;
-uint32_t             TaskCanRxBuffer[128];
-osStaticThreadDef_t  TaskCanRxControlBlock;
-const osThreadAttr_t TaskCanRx_attributes = {
-    .name       = "TaskCanRx",
-    .cb_mem     = &TaskCanRxControlBlock,
-    .cb_size    = sizeof(TaskCanRxControlBlock),
-    .stack_mem  = &TaskCanRxBuffer[0],
-    .stack_size = sizeof(TaskCanRxBuffer),
+/* Definitions for tickTask */
+osThreadId_t         tickTaskHandle;
+uint32_t             tickTaskBuffer[512];
+osStaticThreadDef_t  tickTaskControlBlock;
+const osThreadAttr_t tickTask_attributes = {
+    .name       = "tickTask",
+    .cb_mem     = &tickTaskControlBlock,
+    .cb_size    = sizeof(tickTaskControlBlock),
+    .stack_mem  = &tickTaskBuffer[0],
+    .stack_size = sizeof(tickTaskBuffer),
     .priority   = (osPriority_t)osPriorityLow,
-};
-/* Definitions for TaskChimera */
-osThreadId_t         TaskChimeraHandle;
-uint32_t             TaskChimeraBuffer[512];
-osStaticThreadDef_t  TaskChimeraControlBlock;
-const osThreadAttr_t TaskChimera_attributes = {
-    .name       = "TaskChimera",
-    .cb_mem     = &TaskChimeraControlBlock,
-    .cb_size    = sizeof(TaskChimeraControlBlock),
-    .stack_mem  = &TaskChimeraBuffer[0],
-    .stack_size = sizeof(TaskChimeraBuffer),
-    .priority   = (osPriority_t)osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
 CanHandle can = { .hcan = &hcan2, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
@@ -133,12 +97,9 @@ static void MX_GPIO_Init(void);
 static void MX_CAN2_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_CRC_Init(void);
-void        RunTask1KHz(void *argument);
-void        RunTask100Hz(void *argument);
-void        RunTask1Hz(void *argument);
-void        RunTaskCanTx(void *argument);
-void        RunTaskCanRx(void *argument);
-void        RunTaskChimera(void *argument);
+void        runInterfaceTask(void *argument);
+void        runCanTxTask(void *argument);
+void        runTickTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -204,23 +165,14 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* creation of Task1KHz */
-    Task1KHzHandle = osThreadNew(RunTask1KHz, NULL, &Task1KHz_attributes);
+    /* creation of interfaceTask */
+    interfaceTaskHandle = osThreadNew(runInterfaceTask, NULL, &interfaceTask_attributes);
 
-    /* creation of Task100Hz */
-    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
 
-    /* creation of Task1Hz */
-    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
-
-    /* creation of TaskCanTx */
-    TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
-
-    /* creation of TaskCanRx */
-    TaskCanRxHandle = osThreadNew(RunTaskCanRx, NULL, &TaskCanRx_attributes);
-
-    /* creation of TaskChimera */
-    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+    /* creation of tickTask */
+    tickTaskHandle = osThreadNew(runTickTask, NULL, &tickTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -450,108 +402,48 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_RunTask1KHz */
+/* USER CODE BEGIN Header_runInterfaceTask */
 /**
- * @brief  Function implementing the Task1KHz thread.
+ * @brief  Function implementing the interfaceTask thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask1KHz */
-void RunTask1KHz(void *argument)
+/* USER CODE END Header_runInterfaceTask */
+void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
     bootloader_runInterfaceTask();
     /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_RunTask100Hz */
+/* USER CODE BEGIN Header_runCanTxTask */
 /**
- * @brief Function implementing the Task100Hz thread.
+ * @brief Function implementing the canTxTask thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void *argument)
+/* USER CODE END Header_runCanTxTask */
+void runCanTxTask(void *argument)
 {
-    /* USER CODE BEGIN RunTask100Hz */
+    /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTask100Hz */
+    bootloader_runCanTxTask();
+    /* USER CODE END runCanTxTask */
 }
 
-/* USER CODE BEGIN Header_RunTask1Hz */
+/* USER CODE BEGIN Header_runTickTask */
 /**
- * @brief Function implementing the Task1Hz thread.
+ * @brief Function implementing the tickTask thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void *argument)
+/* USER CODE END Header_runTickTask */
+void runTickTask(void *argument)
 {
-    /* USER CODE BEGIN RunTask1Hz */
+    /* USER CODE BEGIN runTickTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTask1Hz */
-}
-
-/* USER CODE BEGIN Header_RunTaskCanTx */
-/**
- * @brief Function implementing the TaskCanTx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void *argument)
-{
-    /* USER CODE BEGIN RunTaskCanTx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskCanTx */
-}
-
-/* USER CODE BEGIN Header_RunTaskCanRx */
-/**
- * @brief Function implementing the TaskCanRx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void *argument)
-{
-    /* USER CODE BEGIN RunTaskCanRx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskCanRx */
-}
-
-/* USER CODE BEGIN Header_RunTaskChimera */
-/**
- * @brief Function implementing the TaskChimera thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskChimera */
-void RunTaskChimera(void *argument)
-{
-    /* USER CODE BEGIN RunTaskChimera */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskChimera */
+    bootloader_runTickTask();
+    /* USER CODE END runTickTask */
 }
 
 /**
