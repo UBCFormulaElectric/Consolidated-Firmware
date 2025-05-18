@@ -3,7 +3,7 @@ Assortment of API endpoints used to manage SD cards attached to the computer,
 """
 
 from flask import Blueprint
-from logfs import LogFs, LogFsDiskFactory
+#from logfs import LogFs, LogFsDiskFactory
 import psutil
 from logger import logger
 import sqlite3
