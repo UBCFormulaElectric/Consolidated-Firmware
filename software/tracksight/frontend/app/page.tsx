@@ -1,0 +1,38 @@
+"use client"
+
+import { useState } from "react"
+import Sidebar from "@/components/shared/sidebar"
+import Dashboard from "@/components/dashboard/dashboard-container"
+import UserGuidePage from "@/components/user-guide/user-guide-page"
+import LiveDataPage from "@/components/live-data/live-data-page"
+import LoggingPage from "@/components/logging/logging-page"
+import SettingsPage from "@/components/settings/settings-page"
+
+export default function Home() {
+  const [activePage, setActivePage] = useState<string>("dashboard")
+
+  // Render the appropriate page based on activePage state
+  const renderActivePage = () => {
+    switch (activePage) {
+      case "dashboard":
+        return <Dashboard activePage={activePage} />
+      case "user-guide":
+        return <UserGuidePage />
+      case "live-data":
+        return <LiveDataPage />
+      case "logging":
+        return <LoggingPage />
+      case "settings":
+        return <SettingsPage />
+      default:
+        return <Dashboard activePage={activePage} />
+    }
+  }
+
+  return (
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      <main className="flex-1 overflow-auto">{renderActivePage()}</main>
+    </div>
+  )
+}
