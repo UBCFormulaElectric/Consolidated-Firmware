@@ -4,6 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import Sidebar from "@/components/sidebar"
 import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
+import EnumerationGraph from "./Enumeration"
 
 export default function LiveDataPage() {
   const [activePage, setActivePage] = useState<string>("live-data")
@@ -26,7 +27,7 @@ export default function LiveDataPage() {
         <main className="flex-1 overflow-auto">
           <div className="p-6 text-gray-800 dark:text-white">
             <h1 className="text-2xl font-bold mb-4">Live Data</h1>
-            <p>This page displays real-time data from the system.</p>
+            <EnumerationGraph currentTime={Date.now()} signalName="VC_State" />
           </div>
         </main>
       </div>

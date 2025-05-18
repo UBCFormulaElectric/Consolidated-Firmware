@@ -29,7 +29,7 @@ export default function TestingPage() {
 				{/* <Timer /> */}
 				{/* <LiveFault /> */}
 				<EnumerationGraph currentTime={currentTime} signalName="VC_State" />
-				{/* <NumericalGraph numericalSignals={numericalSignals} currentTime={currentTime} /> */}
+				<NumericalGraph numericalSignals={numericalSignals} currentTime={currentTime} />
 				<NumberOut numericalSignals={numericalSignals} currentTime={currentTime} />
 				
 			</div>

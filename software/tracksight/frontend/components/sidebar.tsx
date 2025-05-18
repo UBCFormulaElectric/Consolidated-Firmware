@@ -80,7 +80,7 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
   return (
     <>
       {/* Floating bubble for toggles - positioned outside sidebar */}
-      <div className="fixed bottom-6 left-[12px] z-50 flex flex-col items-center gap-3 bg-white dark:bg-gray-800 rounded-full py-3 px-3 shadow-lg border border-gray-200 dark:border-gray-700">
+      <div className={`fixed bottom-6 ${isCollapsed ? 'left-3.5' : 'left-3.5'} z-50 flex flex-col items-center gap-3 bg-white dark:bg-gray-800 rounded-full py-3 px-3 shadow-lg border border-gray-200 dark:border-gray-700`}>
         <ThemeToggle />
         <div className="h-px w-6 bg-gray-200 dark:bg-gray-700 my-1"></div>
         <button 
@@ -98,7 +98,7 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
       
       <SidebarComponent collapsible="icon">
         <SidebarHeader className="flex py-4">
-          <div className={`flex w-full ${isCollapsed ? 'justify-center' : 'justify-start pl-3'}`}>
+          <div className={`flex w-full justify-start`}>
             <Image 
               src="/logo.jpeg" 
               alt="Tracksight Logo"
@@ -112,14 +112,14 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            <SidebarMenuItem>
+            <SidebarMenuItem >
               <SidebarMenuButton
                 isActive={activePage === "dashboard"}
                 onClick={() => navigateTo("dashboard")}
                 tooltip="Dashboard"
               >
-                <Home className="size-5" />
-                {!isCollapsed && <span className="ml-3">Dashboard</span>}
+                <Home className={`size-5 ${isCollapsed ? '' : 'mr-3'}`} />
+                {!isCollapsed && <span>Dashboard</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -128,8 +128,8 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
                 onClick={() => navigateTo("user-guide")}
                 tooltip="User Guide"
               >
-                <FileText className="size-5" />
-                {!isCollapsed && <span className="ml-3">User Guide</span>}
+                <FileText className={`size-5 ${isCollapsed ? '' : 'mr-3'}`} />
+                {!isCollapsed && <span>User Guide</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -138,8 +138,8 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
                 onClick={() => navigateTo("live-data")}
                 tooltip="Live Data"
               >
-                <Database className="size-5" />
-                {!isCollapsed && <span className="ml-3">Live Data</span>}
+                <Database className={`size-5 ${isCollapsed ? '' : 'mr-3'}`} />
+                {!isCollapsed && <span>Live Data</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -148,8 +148,8 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
                 onClick={() => navigateTo("logging")}
                 tooltip="Logging"
               >
-                <SaveIcon className="size-5" />
-                {!isCollapsed && <span className="ml-3">Logging</span>}
+                <SaveIcon className={`size-5 ${isCollapsed ? '' : 'mr-3'}`} />
+                {!isCollapsed && <span>Logging</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -158,7 +158,7 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
                 onClick={() => navigateTo("settings")}
                 tooltip="Settings"
               >
-                <Settings className="size-5" />
+                <Settings className={`size-5 ${isCollapsed ? '' : 'mr-3'}`} />
                 {!isCollapsed && <span>Settings</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
