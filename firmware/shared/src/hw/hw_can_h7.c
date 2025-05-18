@@ -4,7 +4,6 @@
 #include <string.h>
 #include "io_log.h"
 #include "io_time.h"
-#include "io_canQueue.h"
 
 void hw_can_init(CanHandle *can_handle)
 {
@@ -117,7 +116,7 @@ static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
     if (IS_EXIT_ERR(hw_fdcan_receive(handle, FDCAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&rx_msg);
+    handle->receive_callback(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)

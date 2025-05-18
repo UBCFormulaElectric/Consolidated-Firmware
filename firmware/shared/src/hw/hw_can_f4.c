@@ -2,7 +2,6 @@
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
 #include "io_time.h"
-#include "io_canQueue.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -125,7 +124,7 @@ static void handle_callback(CAN_HandleTypeDef *hfdcan)
     if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&rx_msg);
+    handle->receive_callback(&rx_msg);
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
