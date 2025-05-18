@@ -1,6 +1,6 @@
 import jinja2 as j2
 
-from ...can_database import CanDatabase
+from ...can_database import All, CanDatabase
 from .cmodule import CModule
 from .routing import CanRxConfig
 from .utils import load_template
@@ -15,8 +15,16 @@ class AppCanRxModule(CModule):
         ]
         self._alert_boards_messages = {}
         alerts_boards = db.alerts.keys()
+
         for board in alerts_boards:
-            self._alert_boards_messages[board] = db.get_board_tx_messages(board=board)
+            rx_msgs = []
+            if isinstance(db.nodes[node].rx_msgs_names, All): # if all then talk all the tx message for that board
+                rx_msgs = db.get_board_tx_messages(board)
+            else:
+                for msg in db.get_board_tx_messages(board): # else need to filter the message that is rx by the board
+                    if msg.name in db.nodes[node].rx_msgs_names:
+                        rx_msgs.append(msg)
+            self._alert_boards_messages[board] = rx_msgs
 
     def header_template(self):
         j2_env = j2.Environment(

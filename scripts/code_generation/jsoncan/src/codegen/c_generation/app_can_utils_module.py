@@ -48,12 +48,8 @@ class AppCanUtilsModule(CModule):
             db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()
         ] + [db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()]
         self._all_enums = db.enums.values()
-
-        self._alert_boards_messages = {}
-        alerts_boards = db.alerts.keys()
-        for board in alerts_boards:
-            self._alert_boards_messages[board] = db.get_board_tx_messages(board=board)
-
+        
+        
     def source_template(self):
         j2_env = j2.Environment(
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
