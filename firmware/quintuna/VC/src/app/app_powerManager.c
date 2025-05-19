@@ -50,6 +50,9 @@ static bool is_efuse_ok(const uint8_t current_efuse_sequence)
 
 void app_powerManager_EfuseProtocolTick_100Hz(void)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+
     switch (app_timer_updateAndGetState(sequencing_timer))
     {
         case TIMER_STATE_RUNNING:
@@ -108,6 +111,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             }
             break;
     }
+#pragma GCC diagnostic pop
 }
 
 PowerManagerConfig app_powerManager_getConfig(void)
