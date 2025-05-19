@@ -10,21 +10,17 @@ class AppCanRxModule(CModule):
     def __init__(self, db: CanDatabase, node: str, rx_config: CanRxConfig):
         self._db = db
         self._node = node
-        self._rx_msgs = [
+        self._rx_msgs = set([
             self._db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()
-        ]
-        self._alert_boards_messages = {}
-        alerts_boards = db.alerts.keys()
+        ])
 
-        for board in alerts_boards:
-            rx_msgs = []
-            if isinstance(db.nodes[node].rx_msgs_names, All): # if all then talk all the tx message for that board
-                rx_msgs = db.get_board_tx_messages(board)
-            else:
-                for msg in db.get_board_tx_messages(board): # else need to filter the message that is rx by the board
-                    if msg.name in db.nodes[node].rx_msgs_names:
-                        rx_msgs.append(msg)
-            self._alert_boards_messages[board] = rx_msgs
+        self._received_boards_messages = {}
+        firmware_boards = db.alerts.keys()
+
+        for board in firmware_boards:
+            board_tx_msg = set(db.get_board_tx_messages(board))
+            received_board_msg = board_tx_msg.intersection(self._rx_msgs)
+            self._received_boards_messages[board] = received_board_msg
 
     def header_template(self):
         j2_env = j2.Environment(
@@ -41,5 +37,5 @@ class AppCanRxModule(CModule):
         return template.render(
             messages=self._rx_msgs,
             node=self._node,
-            alert_boards_messages=self._alert_boards_messages,
+            alert_boards_messages=self._received_boards_messages,
         )
