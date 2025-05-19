@@ -8,10 +8,10 @@ import logging
 import tasks.influx_logger as InfluxHandler
 from api.http import api
 from api.socket import sio
-
 # apis
 from flask_app import app
 from logger import log_path, logger
+from mDNS import register_mdns_service
 from settings import *
 from tasks.broadcaster import get_websocket_broadcast
 from tasks.read_task.mock import get_mock_task
@@ -48,8 +48,11 @@ if ENABLE_WIRELESS:
 if ENABLE_MORK:
     mock_thread.start()
 
+app.register_blueprint(api, url_prefix="/api")
 broadcast_thread.start()
 influx_logger_task.start()
+
+register_mdns_service()
 
 # please be adviced, that the 0.0.0.0 is strictly mandatory
 sio.run(
