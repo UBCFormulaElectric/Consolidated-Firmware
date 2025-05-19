@@ -4,29 +4,30 @@ from xml import dom
 
 from zeroconf import ServiceInfo, Zeroconf
 
-# Define the service type and name
-service_type = "_http._tcp.local."
-service_name = "_telemserver._http._tcp.local."
-domain_name = "telemserver.local."
-# Get the local IP address
-services = "192.168.1.126"
-ip_address = socket.inet_aton(services)
-# Define the service information
-info = ServiceInfo(
-    type_=service_type,
-    name=service_name,
-    addresses=[ip_address],
-    port=8080,
-    server=domain_name,
-)
-# Register the service
-zeroconf = Zeroconf()
 
+def register_mdns_service(ip: str, service_name: str):
 
-def register_mdns_service():
+    # Get the local IP address
+    ip_address = socket.inet_aton(ip)
+    domain_name = f'{service_name}.local.'
+
+    # Define the service information
+    info = ServiceInfo(
+        type_="_http._tcp.local.",
+        name=f'_{service_name}._http._tcp.local.',
+        addresses=[ip_address],
+        port=8080,  # actually doesn't matter, you get the ip via domain name anyways
+        server=f'{service_name}.local.',
+    )
+    # Register the service
+    zeroconf = Zeroconf()
 
     zeroconf.register_service(info)
     print(
-        f"Registering service {service_name} on {services} access by domain name {domain_name}")
+        f"Map domain name {domain_name} to {ip}")
 
 
+if __name__ == "__main__":
+    register_mdns_service(ip="192.168.1.126", service_name="testt_services")
+    while True:
+        time.sleep(1)

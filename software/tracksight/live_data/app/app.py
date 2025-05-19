@@ -52,7 +52,7 @@ app.register_blueprint(api, url_prefix="/api")
 broadcast_thread.start()
 influx_logger_task.start()
 
-register_mdns_service()
+register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
 
 # please be adviced, that the 0.0.0.0 is strictly mandatory
 sio.run(
