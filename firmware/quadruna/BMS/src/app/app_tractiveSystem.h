@@ -39,6 +39,12 @@ float app_tractiveSystem_getVoltage(void);
 float app_tractiveSystem_getCurrent(void);
 
 /**
+ * Get the Filtered TS current
+ * @return The filtered current in A
+ */
+float app_tractiveSystem_getFilteredCurrent(void);
+
+/**
  * Broadcast state of the tractive system over CAN.
  */
 void app_tractiveSystem_broadcast(void);
