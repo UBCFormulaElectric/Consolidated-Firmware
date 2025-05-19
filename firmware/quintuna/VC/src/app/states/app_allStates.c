@@ -4,6 +4,7 @@
 void app_allStates_runOnTick100Hz(void)
 {
     app_powerManager_EfuseProtocolTick_100Hz();
+    app_powerManger_MonitorPumps();
 }
 
 void app_allStates_runOnTick1Hz(void) {}

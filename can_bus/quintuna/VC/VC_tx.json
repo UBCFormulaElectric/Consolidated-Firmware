@@ -350,6 +350,16 @@
       }
     }
   },
+  "PumpStatus": {
+    "msg_id" : 229,
+    "cycle_time": 10,
+    "description" : "All pump descriptions",
+    "signals":{
+      "PumpFailure": {
+        "bits" : 1
+      }
+    }
+  },
   "ImuAngularData": {
     "msg_id": 227,
     "cycle_time": 10,
