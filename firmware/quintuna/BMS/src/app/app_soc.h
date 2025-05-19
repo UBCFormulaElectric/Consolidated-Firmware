@@ -72,3 +72,19 @@ void app_soc_resetSocFromVoltage(void);
  * @param soc_percent desired SOC in percent
  */
 void app_soc_resetSocCustomValue(float soc_percent);
+
+/**
+ * @brief Function to read SOC value from SD card
+ * @param saved_soc_c pointer to the received soc value if received correct checksum
+ * @return true if received soc with correct CRC
+ * @return false if received soc with incorrect CRC or read from SD fails
+ */
+bool app_soc_readSocFromSd(float *saved_soc_c);
+
+/**
+ * @brief Writes updated SOC and CRC value to SD
+ * @param soc value that should be written to the SD
+ * @return true if write to SD is succefull
+ * @return false if write to SD fails
+ */
+bool app_soc_writeSocToSd(float soc);

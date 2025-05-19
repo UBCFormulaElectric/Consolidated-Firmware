@@ -1,12 +1,12 @@
 #include "app_soc.h"
 #include "app_math.h"
 #include "app_tractiveSystem.h"
-// #include "io_sd.h"
+#include "io_sd.h"
 
-// #ifdef TARGET_EMBEDDED
-// #include "hw_sd.h"
-// #include "hw_crc.h"
-// #endif
+#ifdef TARGET_EMBEDDED
+#include "hw_sd.h"
+#include "hw_crc.h"
+#endif
 
 #include <stdint.h>
 #include <float.h>
@@ -138,6 +138,19 @@ void app_soc_init(void)
     // A negative SOC value will indicate to app_soc_Create that saved SOC value is corrupted
     float saved_soc_c = -1.0f;
 
+#ifdef TARGET_EMBEDDED
+
+    if (app_soc_readSocFromSd(&saved_soc_c))
+    {
+        if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
+        {
+            stats.charge_c   = (double)saved_soc_c;
+            stats.is_corrupt = false;
+        }
+    }
+
+#endif
+
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
     // TODO: uncommentt when can msg is added
     // app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
@@ -175,6 +188,24 @@ float app_soc_getMinSocPercent(void)
     return soc_percent;
 }
 
+static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
+{
+    memcpy(byte_array, (uint8_t *)(&float_to_convert), sizeof(float));
+}
+
+static float convert_bytes_to_float(uint8_t *byte_array)
+{
+    float converted_float;
+    memcpy(&converted_float, byte_array, sizeof(float));
+    return converted_float;
+}
+
+static bool sdCardReady()
+{
+    // return sd_inited && io_sdGpio_checkSdPresent();
+    return io_sdGpio_checkSdPresent();
+}
+
 float app_soc_getMinOcvFromSoc(void)
 {
     float soc_percent = app_soc_getMinSocPercent();
@@ -206,4 +237,85 @@ void app_soc_resetSocCustomValue(float soc_percent)
     stats.is_corrupt = true;
     // TODO: uncomment when can msg is added
     // app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
+}
+
+bool app_soc_readSocFromSd(float *saved_soc_c)
+{
+    uint32_t sd_read_crc    = 0;
+    float    soc            = 0.0f;
+    uint32_t calculated_crc = 0;
+    *saved_soc_c            = -1.0f;
+
+    if (!sdCardReady())
+    {
+        return false;
+    }
+
+#ifdef TARGET_EMBEDDED
+    uint8_t sd_read_crc_bytes[NUM_SOC_CRC_BYTES];
+    uint8_t sd_read_soc_bytes[NUM_SOC_BYTES];
+    uint8_t sd_read_data[SD_SECTOR_SIZE];
+
+    uint32_t sd_read_soc;
+
+    if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR, 1) == SD_CARD_OK)
+    {
+        memcpy(sd_read_soc_bytes, sd_read_data, sizeof(uint32_t));
+        sd_read_soc = ARRAY_TO_UINT32(sd_read_soc_bytes);
+        soc         = convert_bytes_to_float(sd_read_soc_bytes);
+    }
+    else
+    {
+        *saved_soc_c = -1.0f;
+        return false;
+    }
+
+    // CRC bytes are stored right after the SOC bytes
+    if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR + NUM_SOC_BYTES, 1) == SD_CARD_OK)
+    {
+        memcpy(sd_read_crc_bytes, sd_read_data, sizeof(uint32_t));
+        sd_read_crc = ARRAY_TO_UINT32(sd_read_crc_bytes);
+    }
+    else
+    {
+        *saved_soc_c = -1.0f;
+        return false;
+    }
+
+    calculated_crc = hw_crc_calculate(&sd_read_soc, 1);
+
+#endif
+
+    if (calculated_crc == sd_read_crc)
+    {
+        *saved_soc_c = soc;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool app_soc_writeSocToSd(float soc)
+{
+    if (!sdCardReady())
+    {
+        return false;
+    }
+
+#ifdef TARGET_EMBEDDED
+    uint8_t sd_write_data[SD_SECTOR_SIZE];
+    convert_float_to_bytes(sd_write_data, soc);
+    uint32_t soc_value = ARRAY_TO_UINT32(sd_write_data);
+
+    uint32_t crc_calculated = hw_crc_calculate(&soc_value, 1);
+    uint8_t  crc_bytes[4];
+    UINT32_TO_ARRAY(crc_calculated, crc_bytes);
+
+    hw_sd_write(sd_write_data, DEFAULT_SOC_ADDR, 1);
+    hw_sd_write(crc_bytes, DEFAULT_SOC_ADDR + 4, 1);
+
+#endif
+    return true;
 }
