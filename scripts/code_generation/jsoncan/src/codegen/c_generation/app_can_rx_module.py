@@ -15,9 +15,9 @@ class AppCanRxModule(CModule):
         )
 
         self._received_boards_messages = {}
-        firmware_boards = db.alerts.keys()
+        boards = db.nodes.keys()
 
-        for board in firmware_boards:
+        for board in boards:
             board_tx_msg = set(
                 msg for msg in db.msgs.values() if msg.tx_node_name == board)
             received_board_msg = board_tx_msg.intersection(self._rx_msgs)
