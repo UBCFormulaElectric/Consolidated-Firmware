@@ -2,7 +2,6 @@
 #include "bootloaderConfig.h"
 #include "main.h"
 
-#include <stdint.h>
 #include <string.h>
 
 #include "cmsis_gcc.h"
