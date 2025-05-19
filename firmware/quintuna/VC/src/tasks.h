@@ -10,3 +10,4 @@ _Noreturn void tasks_runChimera(void);
 _Noreturn void tasks_runCanTx(void);
 _Noreturn void tasks_runCanRx(void);
 _Noreturn void tasks_batteryMonitoring(void);
+_Noreturn void tasks_PowerMonitoring(void);
