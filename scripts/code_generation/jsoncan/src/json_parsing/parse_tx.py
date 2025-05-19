@@ -90,7 +90,6 @@ _tx_msg_schema = Schema(
         },
         "cycle_time": Or(int, Schema(None), lambda x: x >= 0),
         Optional("disabled"): bool,
-        Optional("num_bytes"): Or(int, lambda x: 0 <= x <= 8),
         Optional("description"): str,
         Optional("allowed_modes"): Schema([str]),
         Optional("data_capture"): {
@@ -236,6 +235,7 @@ def _get_parsed_can_message(
     description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
     fd = msg_json_data.get("fd", fd)
+    max_len_bits = (64 if fd else 8) * 8
 
     # will use mode from bus if none
     msg_modes = msg_json_data.get("allowed_modes", None)
@@ -252,8 +252,8 @@ def _get_parsed_can_message(
 
     signals = []
     next_available_bit = 0
-    occupied_bits: list[Optional_t[str]] = [None] * 64
     require_start_bit_specified = False
+    occupied_bits: list[Optional[str]] = [None] * max_len_bits
 
     # Parse message signals
     for signal_name, signal_data in msg_json_data["signals"].items():
@@ -275,7 +275,7 @@ def _get_parsed_can_message(
 
         # Mark a signal's bits as occupied, by inserting the signal's name
         for idx in range(signal.start_bit, signal.start_bit + signal.bits):
-            if idx < 0 or idx > 63:
+            if idx < 0 or idx >= max_len_bits:
                 raise InvalidCanJson(
                     f"Signal '{signal.name}' in '{msg_name}' is requesting to put a bit at invalid position {idx}. Messages have a maximum length of 64 bits."
                 )
