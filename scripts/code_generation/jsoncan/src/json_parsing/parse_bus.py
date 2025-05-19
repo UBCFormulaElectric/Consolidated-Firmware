@@ -18,7 +18,7 @@ class _BusConfigJson(TypedDict):
     modes: list[str]
     default_mode: str
     nodes: list[str]
-    FD: Optional_t[bool]
+    fd: Optional_t[bool]
 
 
 class _BusJson(TypedDict):
@@ -29,6 +29,16 @@ class _BusJson(TypedDict):
 
 _BusJson_schema = Schema(
     {
+        "nodes": Or(
+            Schema({}),
+            Schema(
+                {
+                    str: {
+                        "fd": bool,
+                    }
+                }
+            ),
+        ),
         "forwarders": Or(
             Schema([]),
             Schema(
@@ -51,7 +61,7 @@ _BusJson_schema = Schema(
                         "modes": [str],
                         "default_mode": str,
                         "nodes": [str],
-                        Optional("FD"): bool,
+                        Optional("fd"): bool,
                     }
                 ]
             ),
@@ -76,6 +86,12 @@ def parse_bus_data(
         bus_json_data = _validate_bus_json(load_json_file(f"{can_data_dir}/bus"))
     except SchemaError:
         raise InvalidCanJson("Bus JSON file is not valid")
+
+    # Check node configs.
+    node_properties = bus_json_data["nodes"]
+    for node in node_names:
+        if node not in node_properties:
+            raise InvalidCanJson(f"Node {node} isn't configured in the bus.json file")
 
     # dynamic validation of bus data
     busses = {}
@@ -124,4 +140,4 @@ def parse_bus_data(
                 )
             loggers.append(logger)
 
-    return busses, forwarders, loggers
+    return busses, forwarders, loggers, node_properties

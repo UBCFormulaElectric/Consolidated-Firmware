@@ -1,4 +1,21 @@
 {
+  "nodes": {
+    "ECU1": {
+      "fd": true
+    },
+    "ECU2": {
+      "fd": true
+    },
+    "ECU3": {
+      "fd": true
+    },
+    "ECU4": {
+      "fd": true
+    },
+    "ECU5": {
+      "fd": true
+    }
+  },
   "forwarders": [
     {
       "forwarder": "ECU1",
@@ -19,7 +36,7 @@
         "ECU3",
         "ECU4"
       ],
-      "FD": true,
+      "fd": true,
       "bus_speed": 4000,
       "modes": [
         "default",

@@ -219,6 +219,9 @@ class CanMessage:
     # if this is None, then only use the bus default
     modes: Optional[List[str]]
 
+    # If this message should be transmitted as CAN FD
+    fd: bool
+
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -288,7 +291,7 @@ class All:
     pass
 
 
-@dataclass(frozen=True)
+@dataclass
 class CanNode:
     """
     Dataclass for fully describing a CAN node.
@@ -299,6 +302,7 @@ class CanNode:
     # busses which the node is attached to, foreign key into CanDatabase.msgs
     bus_names: List[str]
     rx_msgs_names: Set[str] | All  # list of messages that it is listening
+    fd: bool
 
     def __hash__(self):
         return hash(self.name)

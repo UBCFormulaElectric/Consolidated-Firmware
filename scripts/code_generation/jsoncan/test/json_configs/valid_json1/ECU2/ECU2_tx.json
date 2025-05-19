@@ -26,6 +26,7 @@
     "data_capture": {
       "log_cycle_time": 1000,
       "telem_cycle_time": 1000
-    }
+    },
+    "fd": true
   }
 }

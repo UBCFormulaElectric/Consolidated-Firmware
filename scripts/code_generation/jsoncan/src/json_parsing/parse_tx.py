@@ -97,6 +97,7 @@ _tx_msg_schema = Schema(
             Optional("log_cycle_time"): Or(int, Schema(None)),
             Optional("telem_cycle_time"): Or(int, Schema(None)),
         },
+        Optional("fd"): bool,
     }
 )
 
@@ -226,6 +227,7 @@ def _get_parsed_can_message(
     msg_json_data: Dict,
     node_name: str,
     enums: dict[str, CanEnum],
+    fd: bool,
 ) -> CanMessage:
     """
     Parse JSON data dictionary representing a CAN message.
@@ -233,6 +235,7 @@ def _get_parsed_can_message(
     msg_id = msg_json_data["msg_id"]
     description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
+    fd = msg_json_data.get("fd", fd)
 
     # will use mode from bus if none
     msg_modes = msg_json_data.get("allowed_modes", None)
@@ -246,8 +249,6 @@ def _get_parsed_can_message(
         telem_cycle_time = msg_json_data["data_capture"].get(
             "telem_cycle_time", msg_cycle_time
         )
-
-    # Check if message ID is unique
 
     signals = []
     next_available_bit = 0
@@ -298,11 +299,15 @@ def _get_parsed_can_message(
         modes=msg_modes,
         log_cycle_time=log_cycle_time,
         telem_cycle_time=telem_cycle_time,
+        fd=fd,
     )
 
 
 def parse_tx_data(
-    can_data_dir: str, tx_node_name: str, enums_map: dict[str, CanEnum]
+    can_data_dir: str,
+    tx_node_name: str,
+    enums_map: dict[str, CanEnum],
+    fd: bool,
 ) -> list[CanMessage]:
     """
     Parses TX messages from file, adds them to message list
@@ -331,6 +336,7 @@ def parse_tx_data(
                 msg_json_data=tx_msg_json,
                 node_name=tx_node_name,
                 enums=enums_map,
+                fd=fd,
             )
         )
     return msgs

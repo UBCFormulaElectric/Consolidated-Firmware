@@ -165,9 +165,7 @@ def _parse_node_alert_count_signals(
     ]
 
 
-def _parse_node_alerts(
-    node: str, alerts_json: _AlertsJson
-) -> tuple[
+def _parse_node_alerts(node: str, alerts_json: _AlertsJson, fd: bool) -> tuple[
     tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage],
     tuple[
         dict[str, _AlertsEntryJson],
@@ -245,6 +243,7 @@ def _parse_node_alerts(
             signals=signals,
             tx_node_name=node,
             modes=None,
+            fd=fd,
         )
         for name, msg_id, description, signals, cycle_time in [
             (
@@ -299,7 +298,7 @@ def _parse_node_alerts(
 
 
 def parse_alert_data(
-    can_data_dir: str, node_name: str
+    can_data_dir: str, node_name: str, fd: bool
 ) -> Optional_t[tuple[List[CanMessage], list[CanAlert]]]:
     try:
         node_alerts_json_data = _validate_alerts_json(
@@ -326,7 +325,7 @@ def parse_alert_data(
         warnings_meta_data,
         info_meta_data,
     ) = _parse_node_alerts(
-        node_name, node_alerts_json_data
+        node_name, node_alerts_json_data, fd
     )
 
     can_alerts: list[CanAlert] = [
