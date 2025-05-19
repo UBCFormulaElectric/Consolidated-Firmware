@@ -1,8 +1,9 @@
 #pragma once
 
 typedef enum {
-    EVSE_DISCONNECTED,
-    EVSE_CONNECTED
+    WALL_CONNECTED,
+    EVSE_CONNECTED,
+    DISCONNECTED
 } ConnectionStatus;
 
 /**

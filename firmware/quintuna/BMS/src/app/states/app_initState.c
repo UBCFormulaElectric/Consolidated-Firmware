@@ -17,7 +17,8 @@ static void app_initStateRunOnTick100Hz()
 {
     const bool is_irs_negative_closed = io_irs_isNegativeClosed();
     const bool external_charging_request = app_canRx_Debug_StartCharging_get();
-    const bool is_charger_connected = (io_charger_getConnectionStatus() == EVSE_CONNECTED);
+    const bool is_charger_connected = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
+    
     if(is_irs_negative_closed && external_charging_request && is_charger_connected)
     {
         app_stateMachine_setNextState(app_prechargeChargeState_get());

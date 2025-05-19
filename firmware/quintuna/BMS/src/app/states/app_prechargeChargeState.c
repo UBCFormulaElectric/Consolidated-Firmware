@@ -3,6 +3,7 @@
 #include "io_charger.h"
 #include "io_irs.h"
 #include "io_time.h"
+#include "app_timer.h"
 
 #define PRECHARGE_ACC_VOLTAGE_THRESHOLD 0.9f
 #define NUM_OF_INVERTERS 4U
@@ -36,6 +37,10 @@ static void app_prechargeChargeStateRunOnTick100Hz()
 
     uint32_t precharge_time = io_time_getCurrentMs() - precharge_start_time;
 
+    const bool is_charger_connected = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
+    
+    if(!is_charger_connected)
+        app_stateMachine_setNextState(app_initState_get());
     if(ts_voltage >= thresh_voltage)
     {
         bool is_raising_slowly = precharge_time >= PRECHARGE_COMPLETION_UPPERBOUND_MS;
@@ -57,7 +62,6 @@ static void app_prechargeChargeStateRunOnTick100Hz()
             {
                 precharge_failures = 0;
                 app_stateMachine_setNextState(app_prechargeLatchState_get());
-
             }
             else
             {
@@ -76,7 +80,7 @@ static void app_prechargeChargeStateRunOnTick100Hz()
 
 static void app_prechargeChargeStateRunOnExit()
 {
-    io_airs_openPrecharge();
+    io_irs_openPrecharge();
 }
 
 const State *app_prechargeChargeState_get(void)

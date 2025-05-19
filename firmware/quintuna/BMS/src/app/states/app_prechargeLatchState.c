@@ -12,7 +12,8 @@ static void app_prechargeLatchStateRunOnTick1Hz()
 
 static void app_prechargeLatchStateRunOnTick100Hz()
 {
-
+    if(app_canRx_Debug_ClearChargerLatchedFault())
+        app_stateMachine_setNextState(app_initState_get());
 }
 
 static void app_prechargeLatchStateRunOnExit()

@@ -1,5 +1,7 @@
 #include "app_stateMachine.h"
+#include "app_chargeState.h"
 #include "io_charger.h"
+#include "stdlib.h"
 
 static void app_chargeInitStateRunOnEntry()
 {
@@ -8,28 +10,31 @@ static void app_chargeInitStateRunOnEntry()
 
 static void app_chargeInitStateRunOnTick1Hz()
 {
-    ConnectionStatus EVSE_connection_status = io_charger_getConnectionStatus();
-
-    bool Elcon_hardware_failure = app_canRx_Elcon_HardwareFailure_get();
-    bool Elcon_over_temp = app_canRx_Elcon_ChargerOverTemperature_get();
-    bool Elcon_input_voltage_error = app_canRx_Elcon_InputVoltageError_get();
-    bool Elcon_charging_state = app_canRx_Elcon_ChargingState_get();
-    bool Elcon_comm_timeout = app_canRx_Elcon_CommunicationTimeout_get();
-
-    if(EVSE_connection_status == EVSE_CONNECTED 
-        && !Elcon_hardware_failure 
-        && !Elcon_over_temp 
-        && !Elcon_input_voltage_error 
-        && !Elcon_charging_state 
-        && !Elcon_comm_timeout)
-    {
-        app_stateMachine_setNextState(charge_state);
-    }
+    
 }
 
 static void app_chargeInitStateRunOnTick100Hz()
 {
-    
+    const bool extShutdown   = !io_irs_isNegativeClosed();
+    const bool chargerConn   = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
+    const bool userEnable    = app_canRx_Debug_StartCharging_get();
+
+    ElconRx rx = readElconStatus();
+
+    const bool fault = extShutdown                  ||
+                       !chargerConn                 ||
+                       rx.hardwareFailure           ||
+                       rx.overTemperature           ||
+                       rx.inputVoltageFault         ||
+                       rx.chargingStateFault        ||
+                       rx.commTimeout;
+
+    if (fault)
+        app_stateMachine_setNextState(app_chargeFaultState_get());
+    else if (!userEnable)
+        app_stateMachine_setNextState(app_chargeInitState_get());
+    else
+        app_stateMachine_setNextState(app_chargeState_get());
 }
 
 static void app_chargeInitStateRunOnExit()
@@ -37,7 +42,7 @@ static void app_chargeInitStateRunOnExit()
 
 }
 
-const State *app_chargeState_get(void)
+const State *app_chargeInitState_get(void)
 {
     static State charge_init_state = {
         .name               = "CHARGE INIT",

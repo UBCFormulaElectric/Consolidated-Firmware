@@ -1,3 +1,7 @@
+#include "app_stateMachine.h"
+#include "app_chargeState.h"
+#include "io_charger.h"
+
 static void app_chargeFaultStateRunOnEntry()
 {
 
@@ -10,7 +14,26 @@ static void app_chargeFaultStateRunOnTick1Hz()
 
 static void app_chargeFaultStateRunOnTick100Hz()
 {
+    ElconRx s = readElconStatus();
 
+    const bool extShutdown   = !io_irs_isNegativeClosed();
+    const bool chargerConn   = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
+    const bool userEnable    = app_canRx_Debug_StartCharging_get();
+
+    ElconRx rx = readElconStatus();
+
+    const bool fault = extShutdown                  ||
+                       !chargerConn                 ||
+                       rx.hardwareFailure           ||
+                       rx.overTemperature           ||
+                       rx.inputVoltageFault         ||
+                       rx.chargingStateFault        ||
+                       rx.commTimeout;
+
+    if (!userEnable)
+        app_stateMachine_setNextState(app_chargeInit_get());
+    else if (!fault)
+        app_stateMachine_setNextState(app_chargeState_get());
 }
 
 static void app_chargeFaultStateRunOnExit()
@@ -18,7 +41,7 @@ static void app_chargeFaultStateRunOnExit()
 
 }
 
-const State chargeFaultState_get(void)
+const State *app_chargeFaultState_get(void)
 {
     static State charge_fault_state = {
         .name = "CHARGE FAULT",
