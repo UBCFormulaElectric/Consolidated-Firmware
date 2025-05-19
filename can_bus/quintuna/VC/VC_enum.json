@@ -24,9 +24,20 @@
         "SHDN_HVD_ILCK": 11,
         "SHDN_OK": 12
     },
-    "TsimColor" : {
+    "TsimColor": {
         "TSIM_RED": 0,
-        "TSIM_GREEN" : 1,
-        "TSIM_OFF" : 2
+        "TSIM_GREEN": 1,
+        "TSIM_OFF": 2
+    },
+    "PowerMonitoringAlerts": {
+        "PWRMON_ALERT_CH1_OVERCURRENT": 0,
+        "PWRMON_ALERT_CH2_OVERCURRENT": 1,
+        "PWRMON_ALERT_CH1_UNDERCURRENT": 2,
+        "PWRMON_ALERT_CH2_UNDERCURRENT": 3,
+        "PWRMON_ALERT_CH1_OVERVOLTAGE": 4,
+        "PWRMON_ALERT_CH2_OVERVOLTAGE": 5,
+        "PWRMON_ALERT_CH1_UNDERVOLTAGE": 6,
+        "PWRMON_ALERT_CH2_UNDERVOLTAGE": 7,
+        "PWRMON_ALERT_COUNT": 8
     }
 }
