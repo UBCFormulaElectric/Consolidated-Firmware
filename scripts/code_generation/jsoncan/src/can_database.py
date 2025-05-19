@@ -407,14 +407,6 @@ class CanDatabase:
 
         return signals
 
-    def get_board_tx_messages(self, board: str) -> list[CanMessage]:
-        messages = []
-        for msg in self.msgs.values():
-            if msg.tx_node_name == board:
-                messages.append(msg)
-        return messages
-
-
 @dataclass()
 class BusForwarder:
     forwarder: str

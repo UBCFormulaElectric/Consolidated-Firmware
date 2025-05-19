@@ -83,10 +83,10 @@ void app_canRx_clear_board_rx_table(CanBoard board)
 {
     switch(board)
     {
-        {%- for board in alert_boards_messages.keys() %}
+        {%- for board in boards_messages.keys() %}
             {%- if board.upper() != node.upper() %}
         case {{ board.upper() }}_BOARD:
-            {%- for msg in alert_boards_messages[board] %}
+            {%- for msg in boards_messages[board] %}
                 {%- for signal in msg.signals %}
             app_canRx_{{ signal.name }}_update({{ signal.start_val_macro() }});
                 {%- endfor %}

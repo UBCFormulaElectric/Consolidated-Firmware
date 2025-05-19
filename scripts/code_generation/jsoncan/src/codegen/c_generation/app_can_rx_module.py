@@ -10,15 +10,16 @@ class AppCanRxModule(CModule):
     def __init__(self, db: CanDatabase, node: str, rx_config: CanRxConfig):
         self._db = db
         self._node = node
-        self._rx_msgs = set([
+        self._rx_msgs = set(
             self._db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()
-        ])
+        )
 
         self._received_boards_messages = {}
         firmware_boards = db.alerts.keys()
 
         for board in firmware_boards:
-            board_tx_msg = set(db.get_board_tx_messages(board))
+            board_tx_msg = set(
+                msg for msg in db.msgs.values() if msg.tx_node_name == board)
             received_board_msg = board_tx_msg.intersection(self._rx_msgs)
             self._received_boards_messages[board] = received_board_msg
 
@@ -37,5 +38,5 @@ class AppCanRxModule(CModule):
         return template.render(
             messages=self._rx_msgs,
             node=self._node,
-            alert_boards_messages=self._received_boards_messages,
+            boards_messages=self._received_boards_messages,
         )
