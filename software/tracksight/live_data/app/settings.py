@@ -19,9 +19,9 @@ INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN")
 CAR_NAME: str | None = os.environ.get("CAR_NAME")
 
 # booting configure
-ENABLE_MORK = os.environ.get("ENABLE_MORK").lower() == "true"
-ENABLE_WIRELESS = os.environ.get("ENABLE_WIRELESS").lower() == "true"
+ENABLE_MORK = bool(os.environ.get("ENABLE_MORK"))
+ENABLE_WIRELESS = bool(os.environ.get("ENABLE_WIRELESS"))
 
 SERIAL_PORT = os.environ.get("SERIAL_PORT")
 DATA_FILE = os.environ.get("DATA_FILE")
-DEBUG = os.environ.get("DEBUG").lower() == "true"
+DEBUG = bool(os.environ.get("DEBUG"))
