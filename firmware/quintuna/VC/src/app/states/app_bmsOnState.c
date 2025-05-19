@@ -24,6 +24,7 @@ static PowerManagerConfig power_manager_state = {
 static void bmsOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_BMS_ON_STATE);
+    app_powerManager_updateConfig(power_manager_state);
 }
 static void bmsOnStateRunOnTick1Hz(void)
 {
@@ -32,7 +33,8 @@ static void bmsOnStateRunOnTick1Hz(void)
     // to PCM_ON state
 
     // Note: Still unsure what is happening with PCM state as there PCM is still in the air in terms of progress
-    //Update: Currently we are having a state in which we tell the PCM MCU to send the turn on command and wait for hv bus to go online
+    // Update: Currently we are having a state in which we tell the PCM MCU to send the turn on command and wait for hv
+    // bus to go online
     const bool bms_ready_for_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     const bool bms_in_faultstate   = app_canRx_BMS_State_get() == BMS_FAULT_STATE;
 

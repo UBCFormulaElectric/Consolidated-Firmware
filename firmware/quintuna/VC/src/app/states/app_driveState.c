@@ -15,8 +15,8 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
 };
 
-
-static void driveStateRunOnEntry(void) {
+static void driveStateRunOnEntry(void)
+{
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
 }

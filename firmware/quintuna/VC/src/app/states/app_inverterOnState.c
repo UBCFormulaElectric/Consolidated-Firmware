@@ -39,7 +39,6 @@ static void inverterOnStateRunOnTick100Hz(void)
     { // hwere we also need to check if the bus voltage is also above the dc cap voltage
         app_stateMachine_setNextState(&bmsOn_state);
     }
-
 }
 static void inverterOnStateRunOnExit(void) {}
 
