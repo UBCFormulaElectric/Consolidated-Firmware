@@ -5,6 +5,10 @@
         "BMS_ShdnNodeStatus",
         "FSM_ShdnNodeStatus",
         "DAM_ShdnNodeStatus",
-        "RSM_ShdnNodeStatus"
+        "RSM_ShdnNodeStatus",
+        "INVFL_FLInverterInfo1",
+        "INVFR_FRInverterInfo1",
+        "INVRL_RLInverterInfo1",
+        "INVRR_RRInverterInfo1"
     ]
 }

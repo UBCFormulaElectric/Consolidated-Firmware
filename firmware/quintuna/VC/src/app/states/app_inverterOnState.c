@@ -2,6 +2,7 @@
 #include "app_states.h"
 #include "app_loadswitches.h"
 #include "app_powerManager.h"
+#include <app_canRx.h>
 #include <app_canTx.h>
 #include <app_canUtils.h>
 #include <stdbool.h>
@@ -30,15 +31,15 @@ static void inverterOnStateRunOnTick1Hz(void) {}
 static void inverterOnStateRunOnTick100Hz(void)
 {
     // here we need to check if the inverters are alive and are sending us active can messages
-    // TODO: Configure inverter CAN messages
 
-    // Once inverters are online transition to next state which is BMS on state
+    const bool inverters_bsystemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
+                                        app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
 
-    // const bool inverters_on = inverter one and two are on
+    if (inverters_bsystemReady)
+    { // hwere we also need to check if the bus voltage is also above the dc cap voltage
+        app_stateMachine_setNextState(&bmsOn_state);
+    }
 
-    // if (inverters_on) {
-    //     app_stateMachine_setNextState(&bmsOn_state);
-    // }
 }
 static void inverterOnStateRunOnExit(void) {}
 

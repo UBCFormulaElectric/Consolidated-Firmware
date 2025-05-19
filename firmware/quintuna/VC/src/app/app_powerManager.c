@@ -49,20 +49,6 @@ static bool is_efuse_ok(const uint8_t current_efuse_sequence)
     return io_STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
 }
 
-void app_powerManger_MonitorPumps(void)
-{
-    const bool pump_failure =
-        (io_TILoadswitch_Status(&f_pump_loadswitch) && io_TILoadswitch_Status(&rl_pump_loadswitch) &&
-         io_TILoadswitch_Status(&rr_pump_loadswitch));
-    if (pump_failure)
-    {
-        io_loadswitch_setChannel(&efuse_channels[EFUSE_CHANNEL_F_PUMP], false);
-        io_loadswitch_setChannel(&efuse_channels[EFUSE_CHANNEL_RL_PUMP], false);
-        io_loadswitch_setChannel(&efuse_channels[EFUSE_CHANNEL_RR_PUMP], false);
-    }
-    app_canTx_VC_PumpFailure_set(pump_failure);
-}
-
 void app_powerManager_EfuseProtocolTick_100Hz(void)
 {
 #pragma GCC diagnostic push

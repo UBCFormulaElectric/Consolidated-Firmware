@@ -19,7 +19,6 @@ typedef struct
 
 void app_powerManager_updateConfig(PowerManagerConfig new_power_manager_config);
 void app_powerManager_EfuseProtocolTick_100Hz(void);
-void app_powerManger_MonitorPumps(void);
 
 #ifdef TARGET_TEST
 PowerStateConfig app_powerManager_getConfig(void);

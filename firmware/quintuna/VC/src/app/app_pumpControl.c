@@ -15,18 +15,18 @@ static void pumpControl_rampUp(void)
     {
         return;
     }
-
-    uint8_t percentage = (uint8_t)(SLOPE*time);
+    // calcualte percentage based on defined slope above
+    uint8_t percentage = (uint8_t)(SLOPE * time);
 
     io_pumpControl_setPercentage(percentage, RR_PUMP);
     io_pumpControl_setPercentage(percentage, F_PUMP);
-    app_canTx_VC_PumpRampUpSetPoint_set((uint32_t) percentage);
+    app_canTx_VC_PumpRampUpSetPoint_set((uint32_t)percentage);
 
-    if (percentage == 100){
-        time = 0;
+    if (percentage == 100)
+    {
+        time             = 0;
         finished_ramp_up = true;
     }
-
 }
 
 static void pumpControl_stopFlow(void)
@@ -38,7 +38,6 @@ static void pumpControl_stopFlow(void)
     finished_ramp_up = false;
     time             = 0;
 }
-
 
 void app_pumpControl_MonitorPumps(void)
 {
