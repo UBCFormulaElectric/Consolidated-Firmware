@@ -16,11 +16,17 @@ static void pumpControl_rampUp(void)
         return;
     }
 
-    uint8_t percentage = (uint8_t)(SLOPE*(float)io_time_getCurrentMs());
-    finished_ramp_up = percentage == 100 ? true : false;
+    uint8_t percentage = (uint8_t)(SLOPE*time);
+
     io_pumpControl_setPercentage(percentage, RR_PUMP);
     io_pumpControl_setPercentage(percentage, F_PUMP);
     app_canTx_VC_PumpRampUpSetPoint_set((uint32_t) percentage);
+
+    if (percentage == 100){
+        time = 0;
+        finished_ramp_up = true;
+    }
+
 }
 
 static void pumpControl_stopFlow(void)
