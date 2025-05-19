@@ -11,8 +11,13 @@ from typing import Dict, List, Optional, Set, Union
 import pandas as pd
 from strenum import StrEnum
 
-from .utils import (bits_for_uint, bits_to_bytes, is_int,
-                    pascal_to_screaming_snake_case, pascal_to_snake_case)
+from .utils import (
+    bits_for_uint,
+    bits_to_bytes,
+    is_int,
+    pascal_to_screaming_snake_case,
+    pascal_to_snake_case,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -272,6 +277,7 @@ class CanAlert:
     """
     Dataclass for a CAN alert.
     """
+
     name: str
     alert_type: CanAlertType
     id: int
@@ -288,6 +294,7 @@ class CanNode:
     Dataclass for fully describing a CAN node.
     Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
     """
+
     name: str  # Name of this CAN node
     # busses which the node is attached to, foreign key into CanDatabase.msgs
     bus_names: List[str]
@@ -355,8 +362,7 @@ class CanDatabase:
         TODO: Also add packing!
         """
         if str(msg_id) not in self.msgs:
-            logger.warning(
-                f"Message ID '{msg_id}' is not defined in the JSON.")
+            logger.warning(f"Message ID '{msg_id}' is not defined in the JSON.")
             return []
 
         signals = []
@@ -422,6 +428,10 @@ class BusForwarder:
             return (
                 self.forwarder < value.forwarder
                 or (self.forwarder == value.forwarder and self.bus1 < value.bus1)
-                or (self.forwarder == value.forwarder and self.bus1 == value.bus1 and self.bus2 < value.bus2)
+                or (
+                    self.forwarder == value.forwarder
+                    and self.bus1 == value.bus1
+                    and self.bus2 < value.bus2
+                )
             )
         return False

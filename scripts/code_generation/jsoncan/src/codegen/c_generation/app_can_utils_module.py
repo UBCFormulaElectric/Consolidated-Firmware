@@ -44,12 +44,15 @@ def calculate_packing_iterations(signal):
 class AppCanUtilsModule(CModule):
     def __init__(self, db: CanDatabase, tx_config: CanTxConfig, rx_config: CanRxConfig):
         self._db = db
-        self._messages = ([db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()] +
-                          [db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()])
+        self._messages = [
+            db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()
+        ] + [db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()]
         self._all_enums = db.enums.values()
 
     def source_template(self):
-        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        j2_env = j2.Environment(
+            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
+        )
         template = j2_env.from_string(load_template("app_canUtils.c.j2"))
         return template.render(
             messages=self._messages,
