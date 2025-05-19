@@ -2,8 +2,9 @@
 Module for generating a DBC file from a CanDatabase object.
 TODO: Adding descriptions of messages to DBC
 """
-from typing import List
+
 from ...can_database import *
+from ..c_generation.routing import CanRxConfig
 
 DBC_TEMPLATE = """\
 VERSION ""
@@ -33,6 +34,7 @@ DBC_ATTRIBUTE_TEMPLATE = (
 )
 DBC_VALUE_TABLE_TEMPLATE = "VAL_ {id} {signal_name} {entries};\n"
 
+
 # BA_DEF_ BO_  "GenMsgCycleTime" INT {cycle_time_min} {cycle_time_max};
 # BA_DEF_ SG_  "GenSigStartValue" INT {start_value_min} {start_value_max};
 # BA_DEF_DEF_  "GenMsgCycleTime" {cycle_time_default};
@@ -44,8 +46,9 @@ class DbcGenerator:
     Class for generating a DBC file from a CanDatabase object.
     """
 
-    def __init__(self, database: CanDatabase):
+    def __init__(self, database: CanDatabase, rx_configs: Dict[str, CanRxConfig]):
         self._db = database
+        self._rx_configs = rx_configs
 
     def source(self) -> str:
         """
@@ -60,7 +63,7 @@ class DbcGenerator:
         signal_start_values_text = ""
         for msg in self._db.msgs.values():
             # Generate text for CAN message
-            msgs_text += self._dbc_message(msg=msg, tx_node=msg.tx_node)
+            msgs_text += self._dbc_message(msg=msg)
 
             # If message has cycle time, generate text
             if msg.is_periodic():
@@ -69,9 +72,11 @@ class DbcGenerator:
                     msg_id=msg.id,
                 )
 
+            rx_nodes: List[str] = [node_name for node_name, node_rx_config in self._rx_configs.items() if
+                                   msg.name in node_rx_config.get_all_rx_msgs_names()]
             for signal in msg.signals:
                 # Generate text for current CAN signal
-                msgs_text += self._dbc_signal(signal=signal, rx_nodes=msg.rx_nodes)
+                msgs_text += self._dbc_signal(signal=signal, rx_nodes=rx_nodes)
 
                 # Generate text for signal value table, if it has one
                 if signal.enum:
@@ -99,22 +104,40 @@ class DbcGenerator:
         )
 
     def _dbc_board_list(self) -> str:
-        """
+        """default_receiver
         Return space-delimitted list of all boards on the bus.
         """
-        return DBC_BOARD_LIST.format(
-            node_names=" ".join(self._db.nodes + [self._db.bus_config.default_receiver])
-        )
+        boards = list(self._db.nodes.keys()) + ["DEBUG"]
 
-    def _dbc_message(self, msg: CanMessage, tx_node: str) -> str:
+        return DBC_BOARD_LIST.format(node_names=" ".join(boards))
+
+    def _attribute_definitions(self) -> str:
+        """
+        Format and attribute definitions and defaults.
+        """
+        # TODO??
+        # bus = self._db.busses
+        # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
+        #     cycle_time_min=bus.cycle_time_min,
+        #     cycle_time_max=bus.cycle_time_max,
+        #     cycle_time_default=bus.cycle_time_default,
+        #     start_value_min=bus.start_value_min,
+        #     start_value_max=bus.start_value_max,
+        #     start_value_default=bus.start_value_default,
+        # )
+        return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
+
+    @staticmethod
+    def _dbc_message(msg: CanMessage) -> str:
         """
         Format and return DBC message definition.
         """
         return DBC_MESSAGE_TEMPLATE.format(
-            id=msg.id, name=msg.name, num_bytes=msg.bytes(), tx_node=tx_node
+            id=msg.id, name=msg.name, num_bytes=msg.bytes(), tx_node=msg.tx_node_name
         )
 
-    def _dbc_signal(self, signal: CanSignal, rx_nodes: List[str]) -> str:
+    @staticmethod
+    def _dbc_signal(signal: CanSignal, rx_nodes: List[str]) -> str:
         """
         Format and return DBC signal definition.
         """
@@ -132,22 +155,8 @@ class DbcGenerator:
             signed="-" if signal.signed else "+",
         )
 
-    def _attribute_definitions(self) -> str:
-        """
-        Format and attribute definitions and defaults.
-        """
-        bus = self._db.bus_config
-        # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
-        #     cycle_time_min=bus.cycle_time_min,
-        #     cycle_time_max=bus.cycle_time_max,
-        #     cycle_time_default=bus.cycle_time_default,
-        #     start_value_min=bus.start_value_min,
-        #     start_value_max=bus.start_value_max,
-        #     start_value_default=bus.start_value_default,
-        # )
-        return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
-
-    def _dbc_msg_cycle_time_attribute(self, value: int, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_msg_cycle_time_attribute(value: int, msg_id: int) -> str:
         """
         Format and return DBC GenMsgCycleTime message attribute.
         """
@@ -159,7 +168,8 @@ class DbcGenerator:
             value=value,
         )
 
-    def _dbc_signal_start_val_attribute(self, signal: CanSignal, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_signal_start_val_attribute(signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC GenSigStartValue signal attribute.
         """
@@ -171,7 +181,8 @@ class DbcGenerator:
             value=signal.start_val,
         )
 
-    def _dbc_value_table(self, signal: CanSignal, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_value_table(signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC value table.
         """
