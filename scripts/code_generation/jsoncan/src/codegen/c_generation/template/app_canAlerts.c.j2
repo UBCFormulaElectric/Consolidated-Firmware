@@ -36,13 +36,13 @@ bool app_canAlerts_{{ alert.name }}_get(void)
 }
 {%- endfor %}
 
-bool app_canAlerts_BoardHasInfo(CanBoard board)
+bool app_canAlerts_BoardHasInfo(CanNode board)
 {
     switch (board)
     {
         {%- for board_name, board_alerts in node_name_and_alerts %}
         {% set board_infos = board_alerts | selectattr("alert_type", "equalto", CanAlertType.INFO) | list -%}
-        case {{board_name.upper()}}_BOARD :
+        case {{board_name.upper()}}_NODE :
         {
             {%- if board_infos | length > 0 %}
             return (
@@ -65,13 +65,13 @@ bool app_canAlerts_BoardHasInfo(CanBoard board)
     }
     return false;
 }
-bool app_canAlerts_BoardHasWarning(CanBoard board)
+bool app_canAlerts_BoardHasWarning(CanNode board)
 {
     switch (board)
     {
         {%- for board_name, board_alerts in node_name_and_alerts %}
         {% set board_warnings = board_alerts | selectattr("alert_type", "equalto", CanAlertType.WARNING) | list -%}
-        case {{board_name.upper()}}_BOARD :
+        case {{board_name.upper()}}_NODE :
         {
             {%- if board_warnings | length > 0 %}
             return (
@@ -94,13 +94,13 @@ bool app_canAlerts_BoardHasWarning(CanBoard board)
     }
     return false;
 }
-bool app_canAlerts_BoardHasFault(CanBoard board)
+bool app_canAlerts_BoardHasFault(CanNode board)
 {
     switch (board)
     {
         {%- for board_name, board_alerts in node_name_and_alerts %}
         {% set board_faults = board_alerts | selectattr("alert_type", "equalto", CanAlertType.FAULT) | list -%}
-        case {{board_name.upper()}}_BOARD :
+        case {{board_name.upper()}}_NODE :
         {
             {%- if board_faults | length > 0 %}
             return (
@@ -130,7 +130,7 @@ bool app_canAlerts_AnyBoardHasInfo(void)
     // Check if any board has an info
     return (
 {%- for board_name, _ in node_name_and_alerts %}
-        app_canAlerts_BoardHasInfo({{ board_name }}_BOARD){% if not loop.last %} ||{% endif %}
+        app_canAlerts_BoardHasInfo({{ board_name }}_NODE){% if not loop.last %} ||{% endif %}
 {%- endfor %}
     );
 }
@@ -140,7 +140,7 @@ bool app_canAlerts_AnyBoardHasWarning(void)
     //Check if any board has a warning
     return (
 {%- for board_name, _ in node_name_and_alerts %}
-        app_canAlerts_BoardHasWarning({{ board_name }}_BOARD){% if not loop.last %} ||{% endif %}
+        app_canAlerts_BoardHasWarning({{ board_name }}_NODE){% if not loop.last %} ||{% endif %}
 {%- endfor %}
     );
 }
@@ -150,7 +150,7 @@ bool app_canAlerts_AnyBoardHasFault(void)
     //Check if any board has a fault
     return (
 {%- for board_name, _ in node_name_and_alerts %}
-        app_canAlerts_BoardHasFault({{ board_name }}_BOARD){% if not loop.last %} ||{% endif %}
+        app_canAlerts_BoardHasFault({{ board_name }}_NODE){% if not loop.last %} ||{% endif %}
 {%- endfor %}
     );
 }

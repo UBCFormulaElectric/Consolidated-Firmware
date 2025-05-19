@@ -79,13 +79,13 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
 {%- endfor %}
 {%- endfor %}
 
-void app_canRx_clear_board_rx_table(CanBoard board)
+void app_canRx_clear_board_rx_table(CanNode board)
 {
     switch(board)
     {
         {%- for board in boards_messages.keys() %}
             {%- if board.upper() != node.upper() %}
-        case {{ board.upper() }}_BOARD:
+        case {{ board.upper() }}_NODE:
             {%- for msg in boards_messages[board] %}
                 {%- for signal in msg.signals %}
             app_canRx_{{ signal.name }}_update({{ signal.start_val_macro() }});
