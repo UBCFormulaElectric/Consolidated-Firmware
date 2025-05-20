@@ -6,6 +6,9 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"
+#include "io_bootHandler.h"
+#include "io_jsoncan.h"
+#include "io_canMsg.h"
 #include "screens/app_screens.h"
 #include "app_leds.h"
 #include "app_switches.h"
@@ -78,6 +81,9 @@ void jobs_run1kHz_tick(void)
 
 void jobs_runCanRx_tick(void)
 {
-    JsonCanMsg jsoncan_rx_msg;
-    io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    const CanMsg rx_msg = io_canQueue_popRx();
+    JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+
+    io_canRx_updateRxTableWithMessage(&json_msg);
+    io_bootHandler_processBootRequest(&rx_msg);
 }
