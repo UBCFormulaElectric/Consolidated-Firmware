@@ -110,7 +110,7 @@ def parse_bus_data(
             modes=bus["modes"],
             bus_speed=bus["bus_speed"],
             node_names=bus["nodes"],
-            fd=bus.get("FD", False),
+            fd=bus.get("fd", False),
         )
 
     forwarders = []
