@@ -74,6 +74,9 @@ void io_canLogging_init(char *file_name_prefix)
     // Get boot count
     CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
+    if (file_name_prefix == NULL)
+        file_name_prefix = "";
+
     snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", file_name_prefix, current_bootcount);
 
     // Open the log file
