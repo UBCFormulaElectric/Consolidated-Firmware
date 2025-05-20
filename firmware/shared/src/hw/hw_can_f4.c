@@ -72,13 +72,12 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
 
-    tx_header.DLC   = msg->dlc;
-    tx_header.StdId = msg->std_id <= 0x7FF ? msg->std_id : 0x0;
-    tx_header.ExtId = msg->std_id > 0x7FF ? msg->std_id : 0x0;
+    tx_header.DLC = msg->dlc;
 
-    // This field can be either Standard CAN or Extended CAN. See .ExtID to see
-    // why we don't want Extended CAN.
-    tx_header.IDE = msg->std_id <= 0x7FF ? CAN_ID_STD : CAN_ID_EXT;
+    const bool is_std = msg->std_id <= 0x7FF;
+    tx_header.StdId   = is_std ? msg->std_id : 0x0;
+    tx_header.ExtId   = !is_std ? msg->std_id : 0x0;
+    tx_header.IDE     = is_std ? CAN_ID_STD : CAN_ID_EXT;
 
     // This field can be either Data Frame or Remote Frame. For our
     // purpose, we only ever transmit Data Frames.
