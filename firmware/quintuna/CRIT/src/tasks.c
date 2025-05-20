@@ -10,6 +10,8 @@
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_canRx.h"
+#include "io_bootHandler.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
@@ -64,7 +66,10 @@ void tasks_runCanRx()
     // Setup tasks.
     for (;;)
     {
-        jobs_runCanRx_tick();
+        CanMsg     rx_msg = io_canQueue_popRx();
+        JsonCanMsg jsoncan_rx_msg;
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 

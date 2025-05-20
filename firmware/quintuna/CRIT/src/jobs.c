@@ -9,7 +9,6 @@
 
 // IO
 #include "io_canTx.h"
-#include "io_canRx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
 
@@ -64,10 +63,4 @@ void jobs_run1kHz_tick(void)
     if (io_time_getCurrentMs() - task_start_ms <= 1)
     {
     }
-}
-
-void jobs_runCanRx_tick(void)
-{
-    JsonCanMsg jsoncan_rx_msg;
-    io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
 }
