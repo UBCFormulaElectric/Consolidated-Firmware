@@ -18,12 +18,12 @@ ExitCode io_telemBaseTimeInit()
         return status;
     }
 
-    start_time_msg.data[0] = start_time.year;
-    start_time_msg.data[1] = start_time.month;
-    start_time_msg.data[2] = start_time.day;
-    start_time_msg.data[3] = start_time.hours;
-    start_time_msg.data[4] = start_time.minutes;
-    start_time_msg.data[5] = start_time.seconds;
+    start_time_msg.data.data8[0] = start_time.year;
+    start_time_msg.data.data8[1] = start_time.month;
+    start_time_msg.data.data8[2] = start_time.day;
+    start_time_msg.data.data8[3] = start_time.hours;
+    start_time_msg.data.data8[4] = start_time.minutes;
+    start_time_msg.data.data8[5] = start_time.seconds;
 
     return EXIT_CODE_OK;
 }
