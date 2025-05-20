@@ -249,6 +249,8 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             LOG_ERROR("got stdid %X", command.std_id);
         }
+
+        HAL_GPIO_WritePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin, update_in_progress);
     }
 }
 
