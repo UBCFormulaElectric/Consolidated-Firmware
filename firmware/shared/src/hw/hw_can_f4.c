@@ -26,8 +26,7 @@
 
 // Open CAN filter that accepts any CAN message as long as it uses Standard CAN
 // ID and is a data frame.
-#define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it.
-#define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
+#define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_EXT, CAN_RTR_DATA, 1)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
 void hw_can_init(CanHandle *can_handle)
@@ -35,13 +34,15 @@ void hw_can_init(CanHandle *can_handle)
     assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
-    filter.FilterMode           = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale          = CAN_FILTERSCALE_16BIT;
-    filter.FilterActivation     = CAN_FILTER_ENABLE;
-    filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
-    filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterMode       = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale      = CAN_FILTERSCALE_16BIT;
+    filter.FilterActivation = CAN_FILTER_ENABLE;
+    // low and high
+    filter.FilterIdLow      = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdLow  = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterIdHigh     = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdHigh = MASKMODE_16BIT_MASK_OPEN;
+    // FIFO assignment
     filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
     filter.FilterBank           = 0;
 
@@ -71,15 +72,12 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     CAN_TxHeaderTypeDef tx_header;
 
     tx_header.DLC   = msg->dlc;
-    tx_header.StdId = msg->std_id;
-
-    // The standard 11-bit CAN identifier is more than sufficient, so we disable
-    // Extended CAN IDs by setting this field to zero.
-    tx_header.ExtId = CAN_ExtID_NULL;
+    tx_header.StdId = msg->std_id <= 0x7FF ? msg->std_id : 0x0;
+    tx_header.ExtId = msg->std_id > 0x7FF ? msg->std_id : 0x0;
 
     // This field can be either Standard CAN or Extended CAN. See .ExtID to see
     // why we don't want Extended CAN.
-    tx_header.IDE = CAN_ID_STD;
+    tx_header.IDE = msg->std_id <= 0x7FF ? CAN_ID_STD : CAN_ID_EXT;
 
     // This field can be either Data Frame or Remote Frame. For our
     // purpose, we only ever transmit Data Frames.
