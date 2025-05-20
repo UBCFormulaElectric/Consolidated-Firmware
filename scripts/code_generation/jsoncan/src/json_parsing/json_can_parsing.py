@@ -83,8 +83,9 @@ class JsonCanParser:
             node_specific_enums = parse_node_enum_data(can_data_dir, node_name)
             self._enums.update(node_specific_enums)
             node_enums: dict[str, CanEnum] = {**shared_enums, **node_specific_enums}
-            fd = node_properties[node_name]["fd"]
-            for tx_msg in parse_tx_data(can_data_dir, node_name, node_enums, fd):
+            for tx_msg in parse_tx_data(
+                can_data_dir, node_name, node_enums, self._nodes[node_name].fd
+            ):
                 self._add_tx_msg(tx_msg, node_name)
 
         # PARSE RX JSON

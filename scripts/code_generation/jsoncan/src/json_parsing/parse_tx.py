@@ -250,8 +250,8 @@ def _get_parsed_can_message(
 
     signals = []
     next_available_bit = 0
-    require_start_bit_specified = False
     occupied_bits: list[Optional[str]] = [None] * max_len_bits
+    require_start_bit_specified = False
 
     # Parse message signals
     for signal_name, signal_data in msg_json_data["signals"].items():

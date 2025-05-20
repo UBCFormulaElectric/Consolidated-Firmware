@@ -43,7 +43,7 @@ TEST_F(io_rx_fixture, io_rx_filtering)
         EXPECT_EQ(io_canRx_filterMessageId_can2(i), can2_present.contains(i));
     }
 
-    const set can3_present = { CAN_MSG_ECU2_BASIC_SIGNAL_TYPES_ID, CAN_MSG_ECU2_LONG_MESSAGE_ID };
+    const set can3_present = { CAN_MSG_ECU2_BASIC_SIGNAL_TYPES_ID };
     for (int i = 0; i <= MAX_CANID; i++)
     {
         EXPECT_EQ(io_canRx_filterMessageId_can3(i), can3_present.contains(i));
