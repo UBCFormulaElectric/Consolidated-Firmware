@@ -22,6 +22,12 @@ typedef struct {
     bool  stopCharging;   // true = send 0x01 in control byte 
 } ElconTx;
 
+// Structure to hold min/max DC current based on AC supply extremes
+typedef struct {
+    float idc_min;   // A – DC current at VAC_MIN
+    float idc_max;   // A – DC current at VAC_MAX
+} DCRange_t;
+
 /**
  * @return Elcon status
  */

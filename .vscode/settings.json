@@ -24,6 +24,7 @@
     "io_canrx.h": "c",
     "io_telembasetime.h": "c",
     "io_canmsg.h": "c",
-    "app_units.h": "c"
+    "app_units.h": "c",
+    "app_charger.h": "c"
   }
 }
