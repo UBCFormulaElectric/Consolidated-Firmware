@@ -407,7 +407,6 @@ class CanDatabase:
 
         return signals
 
-
 @dataclass()
 class BusForwarder:
     forwarder: str

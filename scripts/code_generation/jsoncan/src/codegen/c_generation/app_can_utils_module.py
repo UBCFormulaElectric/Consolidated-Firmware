@@ -1,10 +1,10 @@
 import jinja2 as j2
 
-from .routing import CanTxConfig, CanRxConfig
 from ...can_database import CanDatabase, CanMessage
 from ...utils import *
-from .utils import load_template
 from .cmodule import CModule
+from .routing import CanRxConfig, CanTxConfig
+from .utils import load_template
 
 
 def calculate_packing_iterations(signal):
@@ -68,6 +68,7 @@ class AppCanUtilsModule(CModule):
             all_messages=self._db.msgs.values(),
             messages=self._messages,
             enums=self._all_enums,
+            nodes=self._db.nodes.keys(),
         )
 
 
