@@ -46,8 +46,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan2;
 
-CRC_HandleTypeDef hcrc;
-
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
 uint32_t             interfaceTaskBuffer[512];
@@ -271,30 +269,6 @@ static void MX_CAN2_Init(void)
     /* USER CODE BEGIN CAN2_Init 2 */
 
     /* USER CODE END CAN2_Init 2 */
-}
-
-/**
- * @brief CRC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CRC_Init(void)
-{
-    /* USER CODE BEGIN CRC_Init 0 */
-
-    /* USER CODE END CRC_Init 0 */
-
-    /* USER CODE BEGIN CRC_Init 1 */
-
-    /* USER CODE END CRC_Init 1 */
-    hcrc.Instance = CRC;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CRC_Init 2 */
-
-    /* USER CODE END CRC_Init 2 */
 }
 
 /**

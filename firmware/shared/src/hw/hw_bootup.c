@@ -1,10 +1,28 @@
 #include "hw_bootup.h"
-#include <stdlib.h>
+#include "app_utils.h"
 #include "hw_hal.h"
 #include "FreeRTOS.h"
 
+// SRAM state at power-on is unpredictable - checking for the presence of a "magic number" is a quick-and-dirty way to
+// check if the boot request has been intentionally written or not.
+#define BOOT_MAGIC (0xAB)
+
 // Defined in linker script.
 extern uint32_t __app_code_start__;
+
+typedef struct
+{
+    uint8_t     magic;
+    BootRequest request;
+    uint16_t    _unused;
+} BootRequestData;
+
+// The boot_request RAM section gets exactly 4 bytes at the end of the stack.
+static_assert(sizeof(BootRequestData) == 4, "");
+static_assert(_Alignof(BootRequestData) == 2, "");
+
+// Boot flag from RAM
+__attribute__((section(".boot_request"))) volatile BootRequestData boot_request;
 
 void hw_bootup_enableInterruptsForApp()
 {
@@ -28,4 +46,23 @@ void hw_bootup_enableInterruptsForApp()
     // are broken until the scheduler starts. So, re-enable interrupts here in case that happened, since the app we're
     // jumping too might rely on interrupts in initialization code (like for HAL_Delay, for example).
     portENABLE_INTERRUPTS();
+}
+
+void hw_bootup_setBootRequest(BootRequest request)
+{
+    boot_request.magic   = BOOT_MAGIC;
+    boot_request.request = request;
+}
+
+BootRequest hw_bootup_getBootRequest(void)
+{
+    if (boot_request.magic != BOOT_MAGIC)
+    {
+        return boot_request.request;
+    }
+    else
+    {
+        // Default to app if magic not present.
+        return BOOT_REQUEST_APP;
+    }
 }

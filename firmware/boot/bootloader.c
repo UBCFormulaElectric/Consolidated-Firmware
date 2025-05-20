@@ -1,7 +1,11 @@
 #include "bootloader.h"
+#include "app_crc.h"
 #include "bootloaderConfig.h"
+#include "hw_bootup.h"
 #include "main.h"
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "cmsis_gcc.h"
@@ -14,7 +18,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_flash.h"
 #include "hw_utils.h"
-#include "hw_crc.h"
 #include "hw_hal.h"
 
 #ifdef STM32H733xx
@@ -27,7 +30,6 @@
 
 #include "app_utils.h"
 
-extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
 // Need these to be created an initialized elsewhere
@@ -42,7 +44,7 @@ void canRxQueueOverflowCallBack(const uint32_t unused)
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    // BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.
@@ -52,7 +54,6 @@ typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
-    uint32_t bootloader_status;
 } Metadata;
 
 extern Metadata __app_metadata_start__; // NOLINT(*-reserved-identifier)
@@ -61,9 +62,6 @@ extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 // App metadata block. Start/size included from the linker script.
 extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
-
-// Boot flag from RAM
-__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
 
 typedef enum
 {
@@ -137,7 +135,7 @@ static BootStatus verifyAppCodeChecksum(void)
         return BOOT_STATUS_APP_INVALID;
     }
 
-    const uint32_t calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
+    const uint32_t calculated_checksum = app_crc_calculate(&__app_code_start__, metadata->size_bytes);
     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
 
@@ -149,13 +147,20 @@ void bootloader_preInit(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("Bootloader reset!");
+
     hw_hardFaultHandler_init();
+
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
+    {
+        // Jump to app.
+        modifyStackPointerAndStartApp(&__app_code_start__);
+    }
 }
 
 void bootloader_init(void)
 {
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
-    hw_crc_init(&hcrc);
+
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -164,19 +169,6 @@ void bootloader_init(void)
     // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
-
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
-    {
-        // Deinit peripherals.
-        HAL_TIM_Base_Stop_IT(&htim6);
-        HAL_CRC_DeInit(&hcrc);
-
-        // Clear RCC register flag and RAM boot flag.
-        boot_flag = 0x0;
-
-        // Jump to app.
-        modifyStackPointerAndStartApp(&__app_code_start__);
-    }
 
     hw_can_init(&can);
     io_canQueue_init();
@@ -239,20 +231,13 @@ _Noreturn void bootloader_runInterfaceTask(void)
         }
         else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
-            // todo check if app is valid before jumping
-            boot_flag = 0x0;
-            HAL_TIM_Base_Stop_IT(&htim6);
-            HAL_CRC_DeInit(&hcrc);
-            modifyStackPointerAndStartApp(&__app_code_start__);
+            hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+            NVIC_SystemReset();
         }
         else
         {
             LOG_ERROR("got stdid %X", command.std_id);
         }
-
-#if false
-        HAL_GPIO_WritePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin, update_in_progress);
-#endif
     }
 }
 
