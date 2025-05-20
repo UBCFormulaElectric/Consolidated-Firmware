@@ -29,7 +29,7 @@
 extern CRC_HandleTypeDef hcrc;
 
 IoRtcTime boot_time;
-char      boot_time_string[22]; // YYYY-MM-DDTHH:MM:SS
+char      boot_time_string[27]; // YYYY-MM-DDTHH:MM:SS
 
 void tasks_preInit(void)
 {
@@ -41,7 +41,7 @@ void tasks_preInitWatchdog(void)
 {
     ExitCode status = io_rtc_readTime(&boot_time);
     sprintf(
-        boot_time_string, "20%02d-%02d-%02dT%02d:%02d:%02d", boot_time.year + 2000, boot_time.month, boot_time.day,
+        boot_time_string, "20%02d-%02d-%02dT%02d:%02d:%02d", boot_time.year, boot_time.month, boot_time.day,
         boot_time.hours, boot_time.minutes, boot_time.seconds);
     if (io_fileSystem_init() == FILE_OK)
         io_canLogging_init(boot_time_string);
