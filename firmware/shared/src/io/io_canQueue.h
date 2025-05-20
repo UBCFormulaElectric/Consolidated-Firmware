@@ -48,7 +48,7 @@ typedef struct
 void io_canQueue_initRx(void);
 
 /**
- * Initialize the RX CAN queue.
+ * Initialize the TX CAN queue.
  */
 void io_canQueue_initTx(CanTxQueue *queue);
 
