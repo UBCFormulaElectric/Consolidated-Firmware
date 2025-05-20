@@ -63,7 +63,7 @@ static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
     memcpy(log->data, msg->data, 8);
 }
 
-void io_canLogging_init(void)
+void io_canLogging_init(char *file_name_prefix)
 {
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsgLog), &queue_attr);
     assert(message_queue_id != NULL);
@@ -71,13 +71,28 @@ void io_canLogging_init(void)
     // Initialize the filesystem.
     CHECK_ERR_CRITICAL(io_fileSystem_init() == FILE_OK);
 
-    // create new file for this boot
+    // Get boot count
     CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
-    sprintf(current_path, "/%lu.txt", current_bootcount);
+    // Make a copy of the timestamp and sanitize it (replace ':' with '-')
+    char sanitized_suffix[32];
+    strncpy(sanitized_suffix, file_name_prefix, sizeof(sanitized_suffix));
+    sanitized_suffix[sizeof(sanitized_suffix) - 1] = '\0'; // ensure null-termination
+
+    for (int i = 0; sanitized_suffix[i] != '\0'; ++i)
+    {
+        if (sanitized_suffix[i] == ':')
+        {
+            sanitized_suffix[i] = '-';
+        }
+    }
+
+    // Format the full file path
+    snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", sanitized_suffix, current_bootcount);
+
+    // Open the log file
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);
 }
-
 void io_canLogging_recordMsgFromQueue(void)
 {
     CHECK_ENABLED();
