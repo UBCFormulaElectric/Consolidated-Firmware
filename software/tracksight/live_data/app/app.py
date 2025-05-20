@@ -17,6 +17,9 @@ from tasks.broadcaster import get_websocket_broadcast
 from tasks.read_task.mock import get_mock_task
 from tasks.read_task.wireless import get_wireless_task
 
+# register blueprint for python
+app.register_blueprint(api, url_prefix='/api')
+
 # Note this must be done first as there are static level os.env gets
 
 logger.setLevel(level=logging.DEBUG if DEBUG else logging.INFO)

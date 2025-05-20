@@ -1,69 +1,71 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSignals, DataPoint } from "@/lib/contexts/SignalContext"
 
 type TelemetryData = {
-  id: number
-  timestamp: string
+  id: string
   parameter: string
-  value: string
+  value: string | number
   unit: string
   status: "normal" | "warning" | "critical"
+  timestamp: number
 }
 
 export default function LiveDataTable() {
-  const [data, setData] = useState<TelemetryData[]>([])
+  const { data, activeSignals, availableSignals } = useSignals()
+  const [lastUpdate, setLastUpdate] = useState(Date.now())
 
+  // Update timestamp periodically to refresh the table
   useEffect(() => {
-    // Generate sample data
-    const generateData = (): TelemetryData[] => {
-      const parameters = [
-        { name: "Motor Temperature", unit: "°C", baseValue: 65, variance: 5 },
-        { name: "Battery Voltage", unit: "V", baseValue: 380, variance: 10 },
-        { name: "Motor RPM", unit: "rpm", baseValue: 3200, variance: 300 },
-        { name: "Vehicle Speed", unit: "km/h", baseValue: 45, variance: 5 },
-        { name: "Battery Temperature", unit: "°C", baseValue: 32, variance: 3 },
-        { name: "Ambient Temperature", unit: "°C", baseValue: 22, variance: 1 },
-        { name: "Throttle Position", unit: "%", baseValue: 65, variance: 10 },
-        { name: "Brake Position", unit: "%", baseValue: 10, variance: 20 },
-        { name: "Steering Angle", unit: "°", baseValue: 5, variance: 10 },
-        { name: "Acceleration X", unit: "g", baseValue: 0.2, variance: 0.1 },
-        { name: "Acceleration Y", unit: "g", baseValue: 0.1, variance: 0.1 },
-        { name: "Acceleration Z", unit: "g", baseValue: 1.0, variance: 0.1 },
-      ]
-
-      return parameters.map((param, index) => {
-        const value = param.baseValue + (Math.random() * 2 - 1) * param.variance
-        let status: "normal" | "warning" | "critical" = "normal"
-
-        // Determine status based on parameter and value
-        if (param.name === "Motor Temperature" && value > 70) {
-          status = value > 75 ? "critical" : "warning"
-        } else if (param.name === "Battery Voltage" && (value < 360 || value > 400)) {
-          status = value < 350 || value > 410 ? "critical" : "warning"
-        }
-
-        return {
-          id: index,
-          timestamp: new Date().toISOString(),
-          parameter: param.name,
-          value: value.toFixed(1),
-          unit: param.unit,
-          status,
-        }
-      })
-    }
-
-    setData(generateData())
-
-    // Update data every second
     const interval = setInterval(() => {
-      setData(generateData())
+      setLastUpdate(Date.now())
     }, 1000)
-
     return () => clearInterval(interval)
   }, [])
+
+  // Process the data from SignalContext
+  const tableData = useMemo(() => {
+    if (!data || data.length === 0) {
+      return []
+    }
+
+    // Get the most recent data point
+    const latestDataPoint = data[data.length - 1]
+    const timestamp = Number(latestDataPoint.time)
+
+    // Create a row for each active signal
+    return activeSignals.map((signalName): TelemetryData => {
+      // Find metadata for this signal
+      const signalMeta = availableSignals.find(meta => meta.name === signalName)
+      const value = latestDataPoint[signalName]
+      const unit = signalMeta?.unit || ""
+
+      // Determine status based on parameter and value
+      // This is a placeholder - you would implement your own logic based on your requirements
+      let status: "normal" | "warning" | "critical" = "normal"
+      const numValue = typeof value === 'number' ? value : parseFloat(String(value))
+      
+      if (!isNaN(numValue)) {
+        // Example rules - customize based on your actual signal ranges
+        if (signalName.includes("TEMP") && numValue > 70) {
+          status = numValue > 80 ? "critical" : "warning"
+        } else if (signalName.includes("VOLTAGE") && (numValue < 10 || numValue > 14)) {
+          status = numValue < 9 || numValue > 15 ? "critical" : "warning"
+        }
+      }
+
+      return {
+        id: signalName,
+        parameter: signalName,
+        value: value !== undefined ? value : "N/A",
+        unit,
+        status,
+        timestamp
+      }
+    })
+  }, [data, activeSignals, availableSignals, lastUpdate])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -74,6 +76,21 @@ export default function LiveDataTable() {
       default:
         return "text-green-500"
     }
+  }
+
+  if (activeSignals.length === 0) {
+    return (
+      <Card className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+        <CardHeader>
+          <CardTitle>Live Telemetry Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="py-8 text-center text-gray-500">
+            No signals are active. Subscribe to signals to view telemetry data.
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -94,10 +111,10 @@ export default function LiveDataTable() {
               </tr>
             </thead>
             <tbody>
-              {data.map((row) => (
+              {tableData.map((row) => (
                 <tr key={row.id} className="border-b border-gray-200 dark:border-gray-700">
                   <td className="py-2 px-4">{row.parameter}</td>
-                  <td className="py-2 px-4">{row.value}</td>
+                  <td className="py-2 px-4">{String(row.value)}</td>
                   <td className="py-2 px-4">{row.unit}</td>
                   <td className={`py-2 px-4 ${getStatusColor(row.status)}`}>
                     {row.status.charAt(0).toUpperCase() + row.status.slice(1)}

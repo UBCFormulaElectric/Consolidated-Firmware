@@ -45,7 +45,7 @@ export default function Dashboard({ activePage }: DashboardProps) {
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <TimeSeriesChart />
+            {/* <TimeSeriesChart /> */}
             <SystemOverview />
           </div>
 
@@ -62,7 +62,7 @@ export default function Dashboard({ activePage }: DashboardProps) {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            <TimeSeriesChart height={300} />
+            {/* <TimeSeriesChart height={300} /> */}
           </div>
         </TabsContent>
       </Tabs>

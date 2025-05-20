@@ -83,7 +83,7 @@ def _log_influx() -> NoReturn:
                     record={
                         "measurement": f"{CAR_NAME}_live",
                         "fields": {signal.name: signal.value},
-                        "time": signal.timestamp,  #!!! CHANGE THIS to implement the base time
+                        "time": signal.timestamp, 
                     },
                     write_precision=influxdb_client.WritePrecision.MS,
                 )

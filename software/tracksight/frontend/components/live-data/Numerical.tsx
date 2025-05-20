@@ -1,60 +1,74 @@
-import React, { useState, useEffect } from "react";
+'use client'
+
+import React, { useState, useEffect, useCallback } from "react";
+import { useSignals } from '@/lib/contexts/SignalContext';
 import {
   AreaChart,
   Area,
   XAxis,
   YAxis,
   Tooltip,
-  // ResponsiveContainer, // !!! Removed ResponsiveContainer !!!
 } from "recharts";
 
-interface DataPoint {
-  time: number;
-  [signalName: string]: number;
-}
-
-interface NumericalGraphProps {
-  currentTime: number;
-  numericalSignals: string[];
-}
-
-const NumericalGraph: React.FC<NumericalGraphProps> = ({
-  currentTime,
-  numericalSignals,
-}) => {
-  const [data, setData] = useState<DataPoint[]>([]);
+const NumericalGraph: React.FC = () => {
+  const { currentTime, activeSignals, data, unsubscribeFromSignal } = useSignals();
   const updateInterval = 200; // Update every 200 milliseconds
-
-  useEffect(() => {
-    const newDataPoint: DataPoint = { time: currentTime };
-    // currently generating random values for each numerical signal
-    numericalSignals.forEach((signalName) => {
-      newDataPoint[signalName] = Math.floor(Math.random() * 100);
-    });
-    // ERIK: KEEP forever -> removing filter
-    setData((prevData) => [...prevData, newDataPoint]);
-  }, [currentTime, numericalSignals]);
 
   const colors = ["#ff4d4f", "#ffa940", "#36cfc9", "#597ef7", "#73d13d"];
 
-  const pixelPerDataPoint = 50;
-  const chartWidth = Math.max(data.length * pixelPerDataPoint, 100);
+  // Add debugging for data and track active signals
+  useEffect(() => {
+    console.log("NumericalGraph - activeSignals:", activeSignals);
+    console.log("NumericalGraph - data sample:", data.slice(-3));
+  }, [activeSignals, data]);
 
-  //Slider to adjust horizontal scaling factor
+  // Help function to check if a signal is enum type (for filtering)
+  const isEnumSignal = useCallback((signalName: string) => {
+    // Enum signals typically have "state" or "mode" in their name
+    // This is a simple heuristic - you might want to improve it based on your actual signal naming conventions
+    return signalName.toLowerCase().includes('state') || 
+           signalName.toLowerCase().includes('mode') ||
+           signalName.toLowerCase().includes('enum');
+  }, []);
+  
+  // Filter to only show numerical signals (non-enum signals)
+  const numericalSignals = activeSignals.filter(signal => !isEnumSignal(signal));
+
   const [scaleFactor, setScaleFactor] = useState("100");
-  //Combines the chartWidth with the slider value
-  const finalChartWidth = chartWidth * (parseInt(scaleFactor) / 100);
   const [chartHeight, setChartHeight] = useState("256");
+
+  // Default to a reasonable width even with no data
+  const pixelPerDataPoint = 50;
+  const chartWidth = Math.max((data?.length || 0) * pixelPerDataPoint, 500);
+  const finalChartWidth = chartWidth * (parseInt(scaleFactor) / 100);
+
+  // Render a message if no signals are active
+  if (!numericalSignals || numericalSignals.length === 0) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center text-gray-500">
+        No numerical signals are active. Add signals using the controls below.
+      </div>
+    );
+  }
+
+  // Render a message if there's no data yet
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center text-gray-500">
+        Waiting for data from active signals...
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-64">
       <div className="ml-24 mt-4 text-xs flex gap-4">
-        {numericalSignals.map((signalName) => (
-          <div key={signalName} className="flex items-center mb-1">
+        {numericalSignals.map((signalName, index) => (
+          <div key={`${signalName}-${index}`} className="flex items-center mb-1">
             <div
               className="w-3 h-3 inline-block mr-2"
               style={{
-                backgroundColor: colors[numericalSignals.indexOf(signalName)],
+                backgroundColor: colors[index % colors.length],
               }}
             ></div>
             <span className="text-gray-500">{signalName}</span>
@@ -82,7 +96,7 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
         <input
           id="heightSlider"
           type="range"
-          min="1"
+          min="100"
           max="1000"
           value={chartHeight}
           onChange={(e) => setChartHeight(e.target.value)}
@@ -93,7 +107,8 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
         style={{
           width: `${finalChartWidth}px`,
           height: `${chartHeight}px`,
-          transition: "width 0.3s ease-out" // !!! CSS transition to smooth width changes !!!
+          transition: "width 0.3s ease-out", // CSS transition to smooth width changes
+          overflow: "auto"
         }}
       >
         <AreaChart
@@ -104,7 +119,7 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
           <defs>
             {numericalSignals.map((signalName, index) => (
               <linearGradient
-                key={signalName}
+                key={`${signalName}-${index}`}
                 id={`color${signalName}`}
                 x1="0"
                 y1="0"
@@ -132,13 +147,14 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
           />
           <YAxis />
           <Tooltip
-            labelFormatter={(value) => new Date(value).toLocaleTimeString()}
+            labelFormatter={(value) => 
+              typeof value === 'number' ? new Date(value).toLocaleTimeString() : value.toString()
+            }
             formatter={(value, name) => [`${value}`, `${name}`]}
           />
-          {/* ERIK: removed animation */}
           {numericalSignals.map((signalName, index) => (
             <Area
-              key={signalName}
+              key={`${signalName}-${index}`}
               type="monotone"
               dataKey={signalName}
               stroke={colors[index % colors.length]}

@@ -43,7 +43,7 @@ def get_signal_metadata():
             "max_val": signal.max_val,
             "unit": signal.unit,
             "enum": signal.enum,
-            "tx_node": msg.tx_node,
+            "tx_node": msg.tx_node_name,
             "cycle_time_ms": msg.cycle_time,
         }
         for msg in live_can_db.msgs.values()
