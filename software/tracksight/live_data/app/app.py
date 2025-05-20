@@ -35,7 +35,6 @@ if ENABLE_WIRELESS:
 
 mock_thread = None
 if ENABLE_MORK == "mock":
-    InfluxHandler.setup()
     mock_thread = get_mock_task(DATA_FILE)
 
 # Reading Thread
