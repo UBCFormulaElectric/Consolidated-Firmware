@@ -45,7 +45,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.Identifier          = msg->std_id;
     tx_header.IdType              = FDCAN_STANDARD_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
-    tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.;
+    tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;

@@ -21,9 +21,6 @@
       },
       "UInt32": {
         "bits": 32
-      },
-      "UInt32_2": {
-        "bits": 32
       }
     },
     "data_capture": {
