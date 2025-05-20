@@ -11,12 +11,14 @@ void hw_can_init(CanHandle *can_handle)
     assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
-    filter.IdType       = FDCAN_STANDARD_ID; // 11 bit ID
-    filter.FilterIndex  = 0;
-    filter.FilterType   = FDCAN_FILTER_MASK;
-    filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-    filter.FilterID1    = 0;     // Standard CAN ID bits [10:0]
-    filter.FilterID2    = 0x7FF; // Mask bits for Standard CAN ID
+    filter.IdType           = FDCAN_STANDARD_ID; // 11 bit ID
+    filter.FilterIndex      = 0;
+    filter.FilterType       = FDCAN_FILTER_MASK;
+    filter.FilterConfig     = FDCAN_FILTER_TO_RXFIFO0;
+    filter.FilterID1        = 0;     // Standard CAN ID bits [10:0]
+    filter.FilterID2        = 0x7FF; // Mask bits for Standard CAN ID
+    filter.IsCalibrationMsg = 0;
+    filter.RxBufferIndex    = 0;
 
     // Configure and initialize hardware filter.
     assert(HAL_FDCAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
