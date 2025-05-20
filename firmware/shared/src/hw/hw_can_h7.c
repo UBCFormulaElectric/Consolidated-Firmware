@@ -56,7 +56,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
     ;
 }
 
@@ -77,7 +77,7 @@ ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
 
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
     ;
 }
 
@@ -86,7 +86,8 @@ ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, C
     assert(can_handle->ready);
     FDCAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data)));
+    RETURN_IF_ERR(
+        hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data.data8)));
 
     msg->std_id    = header.Identifier;
     msg->dlc       = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.

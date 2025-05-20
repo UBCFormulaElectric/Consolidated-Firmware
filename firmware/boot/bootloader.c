@@ -201,7 +201,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
         else if (command.std_id == (BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
         {
             // Erase a flash sector.
-            const uint8_t sector = command.data[0];
+            const uint8_t sector = command.data.data8[0];
             hw_flash_eraseSector(sector);
 
             // Erasing sectors takes a while, so reply when finished.
@@ -215,7 +215,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+            bootloader_boardSpecific_program(current_address, command.data.data64[0]);
             current_address += sizeof(uint64_t);
         }
         else if (command.std_id == (BOARD_HIGHBITS | VERIFY_ID_LOWBITS) && update_in_progress)
@@ -225,13 +225,13 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = (BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
                 .dlc    = 5,
             };
-            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+            reply.data.data8[0] = (uint8_t)verifyAppCodeChecksum();
 
             const uint32_t diff = current_address - (uint32_t)&__app_metadata_start__;
-            reply.data[1]       = (uint8_t)(diff >> 24) & 0xff;
-            reply.data[2]       = (uint8_t)(diff >> 16) & 0xff;
-            reply.data[3]       = (uint8_t)(diff >> 8) & 0xff;
-            reply.data[4]       = (uint8_t)diff & 0xff;
+            reply.data.data8[1] = (uint8_t)(diff >> 24) & 0xff;
+            reply.data.data8[2] = (uint8_t)(diff >> 16) & 0xff;
+            reply.data.data8[3] = (uint8_t)(diff >> 8) & 0xff;
+            reply.data.data8[4] = (uint8_t)diff & 0xff;
             io_canQueue_pushTx(&reply);
 
             // Verify command doubles as exit programming state command.
@@ -263,12 +263,12 @@ _Noreturn void bootloader_runTickTask(void)
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
-        status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
-        status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
-        status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
-        status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
-        status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
+        CanMsg status_msg        = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
+        status_msg.data.data8[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
+        status_msg.data.data8[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
+        status_msg.data.data8[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
+        status_msg.data.data8[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
+        status_msg.data.data8[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
         io_canQueue_pushTx(&status_msg);
 
         bootloader_boardSpecific_tick();
