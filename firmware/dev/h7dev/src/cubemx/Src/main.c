@@ -145,7 +145,8 @@ Gpio sd_present = {
     .pin  = GPIO_PIN_8,
     .port = GPIOA,
 };
-bool sd_inited;
+bool              sd_inited;
+static CanTxQueue can_tx_queue;
 
 /* USER CODE END 0 */
 
@@ -191,7 +192,8 @@ int main(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
 
     if (sd_inited)
     {
