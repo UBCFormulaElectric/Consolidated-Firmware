@@ -165,7 +165,9 @@ def _parse_node_alert_count_signals(
     ]
 
 
-def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
+def _parse_node_alerts(
+    node: str, alerts_json: _AlertsJson
+) -> tuple[
     tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage],
     tuple[
         dict[str, _AlertsEntryJson],
