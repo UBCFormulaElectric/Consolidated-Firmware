@@ -1,4 +1,7 @@
+#pragma once
 #include <stdint.h>
+#include <stdbool.h>
+#include "app_utils.h"
 
 // https://datasheet.ciiva.com/pdfs/VipMasterIC/IC/PHGL/PHGL-S-A0000776674/PHGL-S-A0000776674-1.pdf?src-supplier=IHS+Markit
 
@@ -21,15 +24,15 @@ typedef struct
 
 // any initialization setup for the RTC chip
 // if io error occurs, return false
-bool io_rtc_init(void);
+ExitCode io_rtc_init(void);
 
 // set the time on the RTC chip
 // if io error occurs, return false
-bool io_rtc_setTime(IoRtcTime *time);
+ExitCode io_rtc_setTime(IoRtcTime *time);
 
 // read the time from the RTC chip
 // if io error occurs, return false
-bool io_rtc_readTime(IoRtcTime *time);
+ExitCode io_rtc_readTime(IoRtcTime *time);
 
 // check the health of the RTC chip
 // struct IoRtcHealth io_rtc_healthCheck(void);

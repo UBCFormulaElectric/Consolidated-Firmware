@@ -6,9 +6,19 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 import argparse
 import os
 
-from . import (AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule,
-               AppCanTxModule, AppCanUtilsModule, CModule, DbcGenerator,
-               IoCanRerouteModule, IoCanRxModule, IoCanTxModule, JsonCanParser)
+from . import (
+    AppCanAlertsModule,
+    AppCanDataCaptureModule,
+    AppCanRxModule,
+    AppCanTxModule,
+    AppCanUtilsModule,
+    CModule,
+    DbcGenerator,
+    IoCanRerouteModule,
+    IoCanRxModule,
+    IoCanTxModule,
+    JsonCanParser,
+)
 from .src.codegen.c_generation.routing import resolve_tx_rx_reroute
 
 
@@ -32,14 +42,17 @@ def write_text(text: str, output_path: str) -> None:
         fout.write(text)
 
 
-def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, board: str, output_dir: str):
+def generate_can_from_json(
+    can_data_dir: str, dbc_output: str, only_dbc: bool, board: str, output_dir: str
+):
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=can_data_dir).make_database()
     tx_configs, rx_configs, reroute_config = resolve_tx_rx_reroute(can_db)
 
     # Generate DBC file
-    write_text(DbcGenerator(database=can_db,
-               rx_configs=rx_configs).source(), dbc_output)
+    write_text(
+        DbcGenerator(database=can_db, rx_configs=rx_configs).source(), dbc_output
+    )
     if only_dbc:
         return
 
@@ -48,20 +61,29 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
     # NOTE that not all files are required, but it's very hard to communicate to cmake at generate time
     # which files are required.
     modules: list[tuple[CModule, str]] = [
-        (AppCanUtilsModule(can_db, tx_configs[board], rx_configs[board]), os.path.join(
-            "app", "app_canUtils")),
-        (AppCanTxModule(can_db, tx_configs[board]), os.path.join(
-            "app", "app_canTx")),
+        (
+            AppCanUtilsModule(can_db, tx_configs[board], rx_configs[board]),
+            os.path.join("app", "app_canUtils"),
+        ),
+        (AppCanTxModule(can_db, tx_configs[board]), os.path.join("app", "app_canTx")),
         (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
         (AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")),
-        (AppCanRxModule(can_db, board, rx_configs[board]), os.path.join(
-            "app", "app_canRx")),
-        (IoCanTxModule(can_db, board, tx_configs[board]), os.path.join(
-            "io", "io_canTx")),
-        (IoCanRxModule(can_db, board, rx_configs[board]), os.path.join(
-            "io", "io_canRx")),
-        (IoCanRerouteModule(can_db, board, reroute_config.get(board)),
-         os.path.join("io", "io_canReroute")),
+        (
+            AppCanRxModule(can_db, board, rx_configs[board]),
+            os.path.join("app", "app_canRx"),
+        ),
+        (
+            IoCanTxModule(can_db, board, tx_configs[board]),
+            os.path.join("io", "io_canTx"),
+        ),
+        (
+            IoCanRxModule(can_db, board, rx_configs[board]),
+            os.path.join("io", "io_canRx"),
+        ),
+        (
+            IoCanRerouteModule(can_db, board, reroute_config.get(board)),
+            os.path.join("io", "io_canReroute"),
+        ),
     ]
 
     for module, module_path in modules:
@@ -72,12 +94,12 @@ def generate_can_from_json(can_data_dir: str, dbc_output: str, only_dbc: bool, b
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--board", help="Choose a board name") # can be none when onlyh dbc
     parser.add_argument(
-        "--can_data_dir", help="Path to JSON CAN data", required=True)
+        "--board", help="Choose a board name"
+    )  # can be none when onlyh dbc
+    parser.add_argument("--can_data_dir", help="Path to JSON CAN data", required=True)
     parser.add_argument("--output_dir", help="Path to the output source files")
-    parser.add_argument(
-        "--dbc_output", help="Path to the DBC file", required=True)
+    parser.add_argument("--dbc_output", help="Path to the DBC file", required=True)
     parser.add_argument(
         "--only_dbc", action="store_true", help="Only generate DBC file"
     )
@@ -85,6 +107,8 @@ if __name__ == "__main__":
     if not args.only_dbc:
         if not args.board or not args.output_dir:
             parser.error(
-                "--board and --output_dir are required unless --only_dbc is set.")
-    generate_can_from_json(args.can_data_dir, args.dbc_output,
-                           args.only_dbc, args.board, args.output_dir)
+                "--board and --output_dir are required unless --only_dbc is set."
+            )
+    generate_can_from_json(
+        args.can_data_dir, args.dbc_output, args.only_dbc, args.board, args.output_dir
+    )

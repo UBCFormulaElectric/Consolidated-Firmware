@@ -72,6 +72,15 @@ typedef enum
 } {{ enum.name }};
 {% endfor %}
 
+
+typedef enum
+{
+    {%- for node_name in nodes %}
+    {{node_name.upper()}}_NODE = {{loop.index}},
+    {%- endfor %}
+} CanNode;
+
+
 /* ------------------------------- Structs -------------------------------- */
 
 {% for message in messages %}
