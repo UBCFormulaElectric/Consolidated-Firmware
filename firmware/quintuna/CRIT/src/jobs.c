@@ -12,21 +12,27 @@
 #include "io_canRx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
+#include "io_jsoncan.h"
 
 // HW
 #include "hw_gpios.h"
 
-static void canTransmit(const JsonCanMsg *msg)
+static CanTxQueue can_tx_queue;
+
+static void canTransmit(const JsonCanMsg *tx_msg)
 {
-    UNUSED(msg);
+    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&can_tx_queue, &msg);
 }
 
 void jobs_init(void)
 {
     // can
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
-    io_canQueue_init();
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
+
     app_canTx_init();
     app_canRx_init();
 

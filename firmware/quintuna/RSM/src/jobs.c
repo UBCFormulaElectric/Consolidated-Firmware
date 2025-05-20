@@ -9,10 +9,12 @@
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 
+static CanTxQueue can_tx_queue;
+
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {
     const CanMsg m = io_jsoncan_copyToCanMsg(msg);
-    io_canQueue_pushTx(&m);
+    io_canQueue_pushTx(&can_tx_queue, &m);
 }
 
 void jobs_init(void)
@@ -26,7 +28,8 @@ void jobs_init(void)
 
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
 }
 
 void jobs_run1Hz_tick(void)

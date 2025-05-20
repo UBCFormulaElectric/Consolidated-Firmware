@@ -9,17 +9,20 @@
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 
+static CanTxQueue can_tx_queue;
+
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&msg);
+    io_canQueue_pushTx(&can_tx_queue, &msg);
 }
 
 void jobs_init()
 {
     io_rtc_init();
     io_canTx_init(jsoncan_transmit_func);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
 
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
