@@ -45,7 +45,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.Identifier          = msg->std_id;
     tx_header.IdType              = FDCAN_STANDARD_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
-    tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
+    tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.;
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
@@ -62,11 +62,46 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
+
+    uint32_t dlc;
+    if (msg->dlc <= 8)
+    {
+        dlc = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
+    }
+    else if (msg->dlc <= 12)
+    {
+        dlc = FDCAN_DLC_BYTES_12;
+    }
+    else if (msg->dlc <= 16)
+    {
+        dlc = FDCAN_DLC_BYTES_16;
+    }
+    else if (msg->dlc <= 20)
+    {
+        dlc = FDCAN_DLC_BYTES_20;
+    }
+    else if (msg->dlc <= 24)
+    {
+        dlc = FDCAN_DLC_BYTES_24;
+    }
+    else if (msg->dlc <= 32)
+    {
+        dlc = FDCAN_DLC_BYTES_32;
+    }
+    else if (msg->dlc <= 48)
+    {
+        dlc = FDCAN_DLC_BYTES_48;
+    }
+    else
+    {
+        dlc = FDCAN_DLC_BYTES_64;
+    }
+
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
     tx_header.IdType              = FDCAN_STANDARD_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
-    tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
+    tx_header.DataLength          = dlc;
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
     tx_header.FDFormat            = FDCAN_FD_CAN;
@@ -77,7 +112,6 @@ ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
         ;
 
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
-    ;
 }
 
 ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)

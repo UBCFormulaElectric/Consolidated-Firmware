@@ -1,5 +1,30 @@
 {
-  "nodes": [],
+  "nodes": {
+    "BMS": {
+      "fd": true
+    },
+    "CRIT": {
+      "fd": false
+    },
+    "DAM": {
+      "fd": true
+    },
+    "Debug": {
+      "fd": true
+    },
+    "Elcon": {
+      "fd": false
+    },
+    "FSM": {
+      "fd": false
+    },
+    "RSM": {
+      "fd": false
+    },
+    "VC": {
+      "fd": true
+    }
+  },
   "forwarders": [
     {
       "forwarder": "VC",
