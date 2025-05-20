@@ -188,17 +188,17 @@ _Noreturn void bootloader_runInterfaceTask(void)
     {
         const CanMsg command = io_canQueue_popRx();
 
-        if (command.std_id == START_UPDATE_ID)
+        if (command.std_id == (BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS))
         {
             // Reset current address to program and update state.
             current_address    = (uint32_t)&__app_metadata_start__;
             update_in_progress = true;
 
             // Send ACK message that programming has started.
-            const CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
+            const CanMsg reply = { .std_id = BOARD_HIGHBITS | UPDATE_ACK_ID_LOWBITS, .dlc = 0 };
             io_canQueue_pushTx(&reply);
         }
-        else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
         {
             // Erase a flash sector.
             const uint8_t sector = command.data[0];
@@ -206,23 +206,23 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
             // Erasing sectors takes a while, so reply when finished.
             CanMsg reply = {
-                .std_id = ERASE_SECTOR_COMPLETE_ID,
+                .std_id = (BOARD_HIGHBITS | ERASE_SECTOR_COMPLETE_ID_LOWBITS),
                 .dlc    = 0,
             };
             io_canQueue_pushTx(&reply);
         }
-        else if (command.std_id == PROGRAM_ID && update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | PROGRAM_ID_LOWBITS) && update_in_progress)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
             current_address += sizeof(uint64_t);
         }
-        else if (command.std_id == VERIFY_ID && update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | VERIFY_ID_LOWBITS) && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
             CanMsg reply = {
-                .std_id = APP_VALIDITY_ID,
+                .std_id = (BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
                 .dlc    = 1,
             };
             reply.data[0] = (uint8_t)verifyAppCodeChecksum();
@@ -231,7 +231,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
-        else if (command.std_id == GO_TO_APP && !update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
             boot_flag = 0x0;
             HAL_TIM_Base_Stop_IT(&htim6);
@@ -248,7 +248,7 @@ _Noreturn void bootloader_runTickTask(void)
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 5 };
+        CanMsg status_msg  = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
         status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
         status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
         status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
