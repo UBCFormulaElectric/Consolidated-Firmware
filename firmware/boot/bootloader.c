@@ -143,8 +143,9 @@ static BootStatus verifyAppCodeChecksum(void)
     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
 
-static uint32_t current_address;
-static bool     update_in_progress;
+static CanTxQueue can_tx_queue;
+static uint32_t   current_address;
+static bool       update_in_progress;
 
 void bootloader_preInit(void)
 {
@@ -181,7 +182,8 @@ void bootloader_init(void)
     }
 
     hw_can_init(&can);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -198,7 +200,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
             // Send ACK message that programming has started.
             const CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
-            io_canQueue_pushTx(&reply);
+            io_canQueue_pushTx(&can_tx_queue, &reply);
         }
         else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
         {
@@ -211,7 +213,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = ERASE_SECTOR_COMPLETE_ID,
                 .dlc    = 0,
             };
-            io_canQueue_pushTx(&reply);
+            io_canQueue_pushTx(&can_tx_queue, &reply);
         }
         else if (command.std_id == PROGRAM_ID && update_in_progress)
         {
@@ -228,7 +230,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .dlc    = 1,
             };
             reply.data[0] = (uint8_t)verifyAppCodeChecksum();
-            io_canQueue_pushTx(&reply);
+            io_canQueue_pushTx(&can_tx_queue, &reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
@@ -256,7 +258,7 @@ _Noreturn void bootloader_runTickTask(void)
         status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
         status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
         status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
-        io_canQueue_pushTx(&status_msg);
+        io_canQueue_pushTx(&can_tx_queue, &status_msg);
 
         bootloader_boardSpecific_tick();
 
@@ -269,7 +271,7 @@ _Noreturn void bootloader_runCanTxTask(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx();
+        CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
     }
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmsis_os.h>
 #include <stdint.h>
 
 #include "io_canMsg.h"
@@ -26,25 +27,37 @@
  * 3. Pop msgs off the RX queue via `io_can_dequeueRxMsg`, which blocks until a CAN RX msg is successfully dequeued.
  */
 
-// typedef struct
-// {
-//     void (*tx_overflow_callback)(uint32_t);   // Callback on TX queue overflow.
-//     void (*rx_overflow_callback)(uint32_t);   // Callback on RX queue overflow.
-//     void (*tx_overflow_clear_callback)(void); // Callback on TX queue overflow clear.
-//     void (*rx_overflow_clear_callback)(void); // Callback on RX queue overflow clear.
-// } CanQueue;
+#define TX_QUEUE_SIZE 128
+#define RX_QUEUE_SIZE 128
+
+#define CAN_MSG_SIZE sizeof(CanMsg)
+#define TX_QUEUE_BYTES CAN_MSG_SIZE *TX_QUEUE_SIZE
+#define RX_QUEUE_BYTES CAN_MSG_SIZE *RX_QUEUE_SIZE
+
+typedef struct
+{
+    StaticQueue_t        control_block;
+    uint8_t              buffer[TX_QUEUE_BYTES];
+    osMessageQueueAttr_t attr;
+    osMessageQueueId_t   id;
+} CanTxQueue;
 
 /**
- * Initialize and start the CAN peripheral.
+ * Initialize the RX CAN queue.
  */
-void io_canQueue_init();
+void io_canQueue_initRx(void);
+
+/**
+ * Initialize the RX CAN queue.
+ */
+void io_canQueue_initTx(CanTxQueue *queue);
 
 /**
  * Enqueue a CAN msg to be transmitted on the bus.
  * Does not block, calls `tx_overflow_callback` if queue is full.
  * @param tx_msg CAN msg to be TXed.
  */
-void io_canQueue_pushTx(const CanMsg *tx_msg);
+void io_canQueue_pushTx(CanTxQueue *queue, const CanMsg *tx_msg);
 
 /**
  * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
