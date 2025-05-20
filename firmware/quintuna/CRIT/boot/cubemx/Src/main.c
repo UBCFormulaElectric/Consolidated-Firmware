@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -29,6 +30,7 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -48,6 +50,42 @@ CAN_HandleTypeDef hcan2;
 
 CRC_HandleTypeDef hcrc;
 
+/* Definitions for canTxTask */
+osThreadId_t         canTxTaskHandle;
+uint32_t             canTxTaskBuffer[128];
+osStaticThreadDef_t  canTxTaskControlBlock;
+const osThreadAttr_t canTxTask_attributes = {
+    .name       = "canTxTask",
+    .cb_mem     = &canTxTaskControlBlock,
+    .cb_size    = sizeof(canTxTaskControlBlock),
+    .stack_mem  = &canTxTaskBuffer[0],
+    .stack_size = sizeof(canTxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for tickTask */
+osThreadId_t         tickTaskHandle;
+uint32_t             tickTaskBuffer[128];
+osStaticThreadDef_t  tickTaskControlBlock;
+const osThreadAttr_t tickTask_attributes = {
+    .name       = "tickTask",
+    .cb_mem     = &tickTaskControlBlock,
+    .cb_size    = sizeof(tickTaskControlBlock),
+    .stack_mem  = &tickTaskBuffer[0],
+    .stack_size = sizeof(tickTaskBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for interfaceTask */
+osThreadId_t         interfaceTaskHandle;
+uint32_t             interfaceTaskBuffer[128];
+osStaticThreadDef_t  interfaceTaskControlBlock;
+const osThreadAttr_t interfaceTask_attributes = {
+    .name       = "interfaceTask",
+    .cb_mem     = &interfaceTaskControlBlock,
+    .cb_size    = sizeof(interfaceTaskControlBlock),
+    .stack_mem  = &interfaceTaskBuffer[0],
+    .stack_size = sizeof(interfaceTaskBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
 /* USER CODE BEGIN PV */
 CanHandle can = { .hcan = &hcan2, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
@@ -57,6 +95,10 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN2_Init(void);
 static void MX_CRC_Init(void);
+void        runCanTxTask(void *argument);
+void        runTickTask(void *argument);
+void        runInterfaceTask(void *argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -99,6 +141,48 @@ int main(void)
     /* USER CODE BEGIN 2 */
     bootloader_init();
     /* USER CODE END 2 */
+
+    /* Init scheduler */
+    osKernelInitialize();
+
+    /* USER CODE BEGIN RTOS_MUTEX */
+    /* add mutexes, ... */
+    /* USER CODE END RTOS_MUTEX */
+
+    /* USER CODE BEGIN RTOS_SEMAPHORES */
+    /* add semaphores, ... */
+    /* USER CODE END RTOS_SEMAPHORES */
+
+    /* USER CODE BEGIN RTOS_TIMERS */
+    /* start timers, add new ones, ... */
+    /* USER CODE END RTOS_TIMERS */
+
+    /* USER CODE BEGIN RTOS_QUEUES */
+    /* add queues, ... */
+    /* USER CODE END RTOS_QUEUES */
+
+    /* Create the thread(s) */
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
+
+    /* creation of tickTask */
+    tickTaskHandle = osThreadNew(runTickTask, NULL, &tickTask_attributes);
+
+    /* creation of interfaceTask */
+    interfaceTaskHandle = osThreadNew(runInterfaceTask, NULL, &interfaceTask_attributes);
+
+    /* USER CODE BEGIN RTOS_THREADS */
+    /* add threads, ... */
+    /* USER CODE END RTOS_THREADS */
+
+    /* USER CODE BEGIN RTOS_EVENTS */
+    /* add events, ... */
+    /* USER CODE END RTOS_EVENTS */
+
+    /* Start scheduler */
+    osKernelStart();
+
+    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -261,6 +345,48 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_runCanTxTask */
+/**
+ * @brief  Function implementing the canTxTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runCanTxTask */
+void runCanTxTask(void *argument)
+{
+    /* USER CODE BEGIN 5 */
+    bootloader_runCanTxTask();
+    /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_runTickTask */
+/**
+ * @brief Function implementing the tickTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runTickTask */
+void runTickTask(void *argument)
+{
+    /* USER CODE BEGIN runTickTask */
+    bootloader_runTickTask();
+    /* USER CODE END runTickTask */
+}
+
+/* USER CODE BEGIN Header_runInterfaceTask */
+/**
+ * @brief Function implementing the interfaceTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runInterfaceTask */
+void runInterfaceTask(void *argument)
+{
+    /* USER CODE BEGIN runInterfaceTask */
+    bootloader_runInterfaceTask();
+    /* USER CODE END runInterfaceTask */
+}
 
 /**
  * @brief  Period elapsed callback in non blocking mode
