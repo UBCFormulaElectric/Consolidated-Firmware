@@ -74,21 +74,7 @@ void io_canLogging_init(char *file_name_prefix)
     // Get boot count
     CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
-    // Make a copy of the timestamp and sanitize it (replace ':' with '-')
-    char sanitized_suffix[32];
-    strncpy(sanitized_suffix, file_name_prefix, sizeof(sanitized_suffix));
-    sanitized_suffix[sizeof(sanitized_suffix) - 1] = '\0'; // ensure null-termination
-
-    for (int i = 0; sanitized_suffix[i] != '\0'; ++i)
-    {
-        if (sanitized_suffix[i] == ':')
-        {
-            sanitized_suffix[i] = '-';
-        }
-    }
-
-    // Format the full file path
-    snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", sanitized_suffix, current_bootcount);
+    snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", file_name_prefix, current_bootcount);
 
     // Open the log file
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);
