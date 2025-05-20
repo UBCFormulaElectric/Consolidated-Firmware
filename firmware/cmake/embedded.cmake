@@ -186,7 +186,7 @@ function(embedded_binary
 )
     message("  ➕ [embedded.cmake, embedded_binary()] Creating Embedded Target for ${BIN_NAME}")
     set(ELF_NAME "${BIN_NAME}.elf")
-    set_source_files_properties(${BIN_SRCS} PROPERTIES COMPILE_FLAGS "-fsanitize=undefined")
+    #    set_source_files_properties(${BIN_SRCS} PROPERTIES COMPILE_FLAGS "-fsanitize=undefined")
     add_executable(${ELF_NAME} ${BIN_SRCS})
 
     target_include_directories(${ELF_NAME}

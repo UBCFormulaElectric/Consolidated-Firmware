@@ -223,9 +223,15 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Verify received checksum matches the one saved in flash.
             CanMsg reply = {
                 .std_id = (BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
-                .dlc    = 1,
+                .dlc    = 5,
             };
             reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+
+            const uint32_t diff = current_address - (uint32_t)&__app_metadata_start__;
+            reply.data[1]       = (uint8_t)(diff >> 24) & 0xff;
+            reply.data[2]       = (uint8_t)(diff >> 16) & 0xff;
+            reply.data[3]       = (uint8_t)(diff >> 8) & 0xff;
+            reply.data[4]       = (uint8_t)diff & 0xff;
             io_canQueue_pushTx(&reply);
 
             // Verify command doubles as exit programming state command.
@@ -233,6 +239,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
         }
         else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
+            // todo check if app is valid before jumping
             boot_flag = 0x0;
             HAL_TIM_Base_Stop_IT(&htim6);
             HAL_CRC_DeInit(&hcrc);
