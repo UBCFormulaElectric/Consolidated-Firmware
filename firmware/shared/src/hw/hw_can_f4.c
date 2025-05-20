@@ -34,25 +34,17 @@ void hw_can_init(CanHandle *can_handle)
     assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
-    // filter.FilterMode       = CAN_FILTERMODE_IDMASK;
-    // filter.FilterScale      = CAN_FILTERSCALE_32BIT;
-    // filter.FilterActivation = CAN_FILTER_ENABLE;
-    // // low and high
-    // filter.FilterIdHigh     = 0x0000;
-    // filter.FilterIdLow      = 0x0000;
-    // filter.FilterMaskIdHigh = 0x0000;
-    // filter.FilterMaskIdLow  = 0x0000;
-    // // FIFO assignment
-    // filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    // filter.FilterBank           = 0;
-
     filter.FilterMode       = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale      = CAN_FILTERSCALE_16BIT;
+    filter.FilterScale      = CAN_FILTERSCALE_32BIT;
     filter.FilterActivation = CAN_FILTER_ENABLE;
-    filter.FilterIdLow      = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdLow  = MASKMODE_16BIT_MASK_OPEN;
-    filter.FilterIdHigh     = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdHigh = MASKMODE_16BIT_MASK_OPEN;
+    // low and high
+    filter.FilterIdHigh     = 0x0000;
+    filter.FilterIdLow      = 0x0000;
+    filter.FilterMaskIdHigh = 0x0000;
+    filter.FilterMaskIdLow  = 0x0000;
+    // FIFO assignment
+    filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    filter.FilterBank           = 0;
 
     // Configure and initialize hardware filter.
     assert(HAL_CAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
