@@ -1,5 +1,6 @@
 {
   "messages": [
-    "ECU2_BasicSignalTypes"
+    "ECU2_BasicSignalTypes",
+    "ECU2_LongMessage"
   ]
 }

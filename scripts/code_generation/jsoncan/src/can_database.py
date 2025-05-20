@@ -219,9 +219,6 @@ class CanMessage:
     # if this is None, then only use the bus default
     modes: Optional[List[str]]
 
-    # If this message should be transmitted as CAN FD
-    fd: bool
-
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -238,6 +235,9 @@ class CanMessage:
         If this signal is periodic, i.e. should be continuously transmitted at a certain cycle time.
         """
         return self.cycle_time is not None
+
+    def requires_fd(self) -> bool:
+        return self.bytes() > 8
 
     def snake_name(self):
         return pascal_to_snake_case(self.name)

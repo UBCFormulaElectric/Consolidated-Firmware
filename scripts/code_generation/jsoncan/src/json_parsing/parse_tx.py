@@ -96,7 +96,6 @@ _tx_msg_schema = Schema(
             Optional("log_cycle_time"): Or(int, Schema(None)),
             Optional("telem_cycle_time"): Or(int, Schema(None)),
         },
-        Optional("fd"): bool,
     }
 )
 
@@ -234,7 +233,6 @@ def _get_parsed_can_message(
     msg_id = msg_json_data["msg_id"]
     description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
-    fd = msg_json_data.get("fd", fd)
     max_len_bits = (64 if fd else 8) * 8
 
     # will use mode from bus if none
@@ -299,7 +297,6 @@ def _get_parsed_can_message(
         modes=msg_modes,
         log_cycle_time=log_cycle_time,
         telem_cycle_time=telem_cycle_time,
-        fd=fd,
     )
 
 

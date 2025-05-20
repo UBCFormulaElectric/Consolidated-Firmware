@@ -7,13 +7,13 @@
       "fd": true
     },
     "ECU3": {
-      "fd": true
+      "fd": false
     },
     "ECU4": {
-      "fd": true
+      "fd": false
     },
     "ECU5": {
-      "fd": true
+      "fd": false
     }
   },
   "forwarders": [

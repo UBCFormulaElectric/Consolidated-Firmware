@@ -104,8 +104,7 @@ class JsonCanParser:
         alert_msgs: List[CanMessage] = []
         for node_name in node_names:
             # Parse ALERTS
-            fd = node_properties[node_name]["fd"]
-            alerts_json = parse_alert_data(can_data_dir, node_name, fd)
+            alerts_json = parse_alert_data(can_data_dir, node_name)
             # since they are optional
             if alerts_json is None:
                 continue
@@ -159,7 +158,7 @@ class JsonCanParser:
                 f"Message '{msg.name}' transmitted by node '{tx_node_name}' is also transmitted by '{self._msgs[msg.name].tx_node_name}'"
             )
 
-        # Check if this message ID is a duplicate
+        # Check if this message ID is a duplcate
         find = [m for m in self._msgs.values() if m.id == msg.id]
         if len(find) > 0:
             assert len(find) == 1, "There should only be one message with the same ID"
@@ -167,7 +166,7 @@ class JsonCanParser:
                 f"Message ID '{msg.id}' transmitted by node '{tx_node_name}' is also transmitted by '{find[0].tx_node_name}'"
             )
 
-        if msg.fd and not self._nodes[tx_node_name].fd:
+        if msg.requires_fd() and not self._nodes[tx_node_name].fd:
             raise InvalidCanJson(
                 f"Message '{msg.name}' is an FD message, but its TX node '{tx_node_name}' isn't FD-capable and so can't transmit it!"
             )
@@ -209,7 +208,7 @@ class JsonCanParser:
                 f"Message {msg_name} is already registered to be received by node {rx_node_name}"
             )
 
-        if rx_msg.fd and not self._nodes[rx_node_name].fd:
+        if rx_msg.requires_fd() and not self._nodes[rx_node_name].fd:
             raise InvalidCanJson(
                 f"Message '{msg_name}' is an FD message, but an RX node '{rx_node_name}' isn't FD-capable and so can't receive it!"
             )

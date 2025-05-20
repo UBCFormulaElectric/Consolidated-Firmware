@@ -15,6 +15,7 @@ class IoCanTxModule(CModule):
         self._node_bus_names = db.nodes[node].bus_names
         self._bus_config = db.buses
         self._tx_config = tx_config
+        self.fd = db.nodes[node].fd
 
     def header_template(self):
         j2_env = j2.Environment(
@@ -37,4 +38,5 @@ class IoCanTxModule(CModule):
             node_bus_names=self._node_bus_names,
             busses_for_msg=self._tx_config.get_busses_for_msg,
             messages=self._messages,
+            fd=self.fd,
         )
