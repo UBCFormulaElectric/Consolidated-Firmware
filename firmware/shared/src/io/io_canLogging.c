@@ -76,7 +76,7 @@ void io_canLogging_init(char *file_name_prefix)
 
     if (file_name_prefix == NULL)
         snprintf(current_path, sizeof(current_path), "/%03lu.txt", current_bootcount);
-    else:
+    else
         snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", file_name_prefix, current_bootcount);
 
     // Open the log file
