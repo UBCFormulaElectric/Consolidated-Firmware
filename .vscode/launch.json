@@ -713,6 +713,14 @@
       "osx": {
         "MIMode": "lldb"
       }
+    },
+
+    {
+      "name": "Debug Telem Backend",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceRoot}/software/tracksight/live_data/app/app.py",
+      "console": "integratedTerminal"
     }
   ]
 }

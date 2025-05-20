@@ -45,6 +45,7 @@ void hw_can_init(CanHandle *can_handle)
     // FIFO assignment
     filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
     filter.FilterBank           = 0;
+    filter.SlaveStartFilterBank = 0;
 
     // Configure and initialize hardware filter.
     assert(HAL_CAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);

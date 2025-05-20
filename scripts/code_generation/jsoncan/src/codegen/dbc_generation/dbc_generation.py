@@ -72,8 +72,11 @@ class DbcGenerator:
                     msg_id=msg.id,
                 )
 
-            rx_nodes: List[str] = [node_name for node_name, node_rx_config in self._rx_configs.items() if
-                                   msg.name in node_rx_config.get_all_rx_msgs_names()]
+            rx_nodes: List[str] = [
+                node_name
+                for node_name, node_rx_config in self._rx_configs.items()
+                if msg.name in node_rx_config.get_all_rx_msgs_names()
+            ]
             for signal in msg.signals:
                 # Generate text for current CAN signal
                 msgs_text += self._dbc_signal(signal=signal, rx_nodes=rx_nodes)
