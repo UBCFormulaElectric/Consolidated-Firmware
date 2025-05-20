@@ -361,12 +361,13 @@ class CanDatabase:
 
         TODO: Also add packing!
         """
-        if str(msg_id) not in self.msgs:
+        msg = self.get_message_by_id(msg_id)
+        if msg == None:
             logger.warning(f"Message ID '{msg_id}' is not defined in the JSON.")
             return []
 
         signals = []
-        for signal in self.msgs[str(msg_id)].signals:
+        for signal in msg.signals:
             # Interpret raw bytes as an int.
             data_uint = int.from_bytes(data, byteorder="little", signed=False)
 
@@ -406,6 +407,14 @@ class CanDatabase:
             signals.append(signal_data)
 
         return signals
+
+    def get_message_by_id(self, id: int):
+
+        for msg in self.msgs.values():
+            if msg.id == id:
+                return msg
+        return None
+
 
 @dataclass()
 class BusForwarder:

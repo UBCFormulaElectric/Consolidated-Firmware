@@ -8,6 +8,7 @@ import logging
 import tasks.influx_logger as InfluxHandler
 from api.http import api
 from api.socket import sio
+
 # apis
 from flask_app import app
 from logger import log_path, logger
@@ -18,7 +19,7 @@ from tasks.read_task.mock import get_mock_task
 from tasks.read_task.wireless import get_wireless_task
 
 # register blueprint for python
-app.register_blueprint(api, url_prefix='/api')
+app.register_blueprint(api, url_prefix="/api")
 
 # Note this must be done first as there are static level os.env gets
 
@@ -37,7 +38,7 @@ if ENABLE_WIRELESS:
     wireless_thread = get_wireless_task(SERIAL_PORT)
 
 mock_thread = None
-if ENABLE_MORK == "mock":
+if ENABLE_MOCK:
     InfluxHandler.setup()
     mock_thread = get_mock_task(DATA_FILE)
 
@@ -48,10 +49,9 @@ influx_logger_task = InfluxHandler.get_influx_logger_task()
 # Initialize the Socket.IO app with the main app.
 if ENABLE_WIRELESS:
     wireless_thread.start()
-if ENABLE_MORK:
+if ENABLE_MOCK:
     mock_thread.start()
 
-app.register_blueprint(api, url_prefix="/api")
 broadcast_thread.start()
 influx_logger_task.start()
 
