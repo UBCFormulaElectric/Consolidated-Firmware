@@ -245,6 +245,10 @@ _Noreturn void bootloader_runInterfaceTask(void)
             HAL_CRC_DeInit(&hcrc);
             modifyStackPointerAndStartApp(&__app_code_start__);
         }
+        else
+        {
+            LOG_ERROR("got stdid %X", command.std_id);
+        }
     }
 }
 

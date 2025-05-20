@@ -108,7 +108,17 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
-    msg->std_id    = header.StdId <= 0x7FF ? header.StdId : header.ExtId;
+    switch (header.IDE)
+    {
+        case CAN_ID_STD:
+            msg->std_id = header.StdId;
+            break;
+        case CAN_ID_EXT:
+            msg->std_id = header.ExtId;
+            break;
+        default:
+            assert(false);
+    }
     msg->dlc       = header.DLC;
     msg->timestamp = io_time_getCurrentMs();
 
