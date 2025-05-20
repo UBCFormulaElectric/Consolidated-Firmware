@@ -26,7 +26,7 @@
 
 // Open CAN filter that accepts any CAN message as long as it uses Standard CAN
 // ID and is a data frame.
-#define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_EXT, CAN_RTR_DATA, 1)
+#define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, 1)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
 void hw_can_init(CanHandle *can_handle)
@@ -35,13 +35,13 @@ void hw_can_init(CanHandle *can_handle)
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
     filter.FilterMode       = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale      = CAN_FILTERSCALE_16BIT;
+    filter.FilterScale      = CAN_FILTERSCALE_32BIT;
     filter.FilterActivation = CAN_FILTER_ENABLE;
     // low and high
-    filter.FilterIdLow      = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdLow  = MASKMODE_16BIT_MASK_OPEN;
-    filter.FilterIdHigh     = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdHigh = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterIdHigh     = 0x0000;
+    filter.FilterIdLow      = 0x0000;
+    filter.FilterMaskIdHigh = 0x0000;
+    filter.FilterMaskIdLow  = 0x0000;
     // FIFO assignment
     filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
     filter.FilterBank           = 0;
@@ -107,7 +107,7 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
-    msg->std_id    = header.StdId;
+    msg->std_id    = header.StdId <= 0x7FF ? header.StdId : header.ExtId;
     msg->dlc       = header.DLC;
     msg->timestamp = io_time_getCurrentMs();
 
