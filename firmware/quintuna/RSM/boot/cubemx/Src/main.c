@@ -25,7 +25,6 @@
 #include "bootloader.h"
 #include "hw_can.h"
 #include "io_canQueue.h"
-#include <stm32f4xx_hal_gpio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,8 +47,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 CAN_HandleTypeDef hcan2;
 
 CRC_HandleTypeDef hcrc;
-
-TIM_HandleTypeDef htim2;
 
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
@@ -95,7 +92,6 @@ CanHandle can = { .hcan = &hcan2, .bus_num = 2, .receive_callback = io_canQueue_
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN2_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_CRC_Init(void);
 void        runInterfaceTask(void *argument);
 void        runCanTxTask(void *argument);
@@ -139,7 +135,6 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN2_Init();
-    MX_TIM2_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
@@ -303,49 +298,6 @@ static void MX_CRC_Init(void)
 }
 
 /**
- * @brief TIM2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_TIM2_Init(void)
-{
-    /* USER CODE BEGIN TIM2_Init 0 */
-
-    /* USER CODE END TIM2_Init 0 */
-
-    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
-    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
-
-    /* USER CODE BEGIN TIM2_Init 1 */
-
-    /* USER CODE END TIM2_Init 1 */
-    htim2.Instance               = TIM2;
-    htim2.Init.Prescaler         = TIM2_PRESCALER - 1;
-    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim2.Init.Period            = TIM2_ARR - 1;
-    htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-    if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
-    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN TIM2_Init 2 */
-
-    /* USER CODE END TIM2_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -358,41 +310,21 @@ static void MX_GPIO_Init(void)
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, BOOT_Pin | LED_Pin | BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
 
-    /*Configure GPIO pins : RL_INT_3V3_SENS_Pin SUSP_TRAVEL_RL_OCSC_Pin */
-    GPIO_InitStruct.Pin  = RL_INT_3V3_SENS_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOB, DEBUG_LED_Pin | BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin : SUSP_TRAVEL_RR_OCSC_Pin */
-    GPIO_InitStruct.Pin  = SUSP_TRAVEL_RR_OCSC_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(SUSP_TRAVEL_RR_OCSC_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : BOOT_Pin LED_Pin BRAKE_LIGHT_EN_Pin */
-    GPIO_InitStruct.Pin   = BOOT_Pin | LED_Pin | BRAKE_LIGHT_EN_Pin;
+    /*Configure GPIO pins : BOOT_LED_Pin DEBUG_LED_Pin BRAKE_LIGHT_EN_Pin */
+    GPIO_InitStruct.Pin   = BOOT_LED_Pin | DEBUG_LED_Pin | BRAKE_LIGHT_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin */
-    GPIO_InitStruct.Pin  = IMU_INT1_Pin | IMU_INT2_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /* EXTI interrupt init*/
-    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

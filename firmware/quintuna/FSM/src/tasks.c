@@ -11,10 +11,11 @@
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_jsoncan.h"
+#include "io_bootHandler.h"
+
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
-#include "shared.pb.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
@@ -23,8 +24,6 @@
 #include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
-
-#include <io_bootHandler.h>
 
 void tasks_preInit(void)
 {

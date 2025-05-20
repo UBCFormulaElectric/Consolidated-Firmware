@@ -53,8 +53,6 @@ extern "C"
     void BusFault_Handler(void);
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
-    void TIM2_IRQHandler(void);
-    void EXTI15_10_IRQHandler(void);
     void TIM6_IRQHandler(void);
     void CAN2_TX_IRQHandler(void);
     void CAN2_RX0_IRQHandler(void);
