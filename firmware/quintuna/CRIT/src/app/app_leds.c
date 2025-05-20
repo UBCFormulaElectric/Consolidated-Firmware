@@ -93,24 +93,24 @@ typedef union
  * @brief Choose the worst status: MISSING_HEARTBEAT > FAULT > WARNING > OK.
  * @param board (VC, BMS, RSM, FSM, DAM, CRIT)
  */
-static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
+static BoardLEDStatus worstBoardStatus(CanNode board)
 {
     bool missing = false;
     switch (board)
     {
-        case BMS_ALERT_BOARD:
+        case BMS_NODE:
             missing = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
             break;
-        case FSM_ALERT_BOARD:
+        case FSM_NODE:
             missing = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
             break;
-        case RSM_ALERT_BOARD:
+        case RSM_NODE:
             missing = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
             break;
-        case VC_ALERT_BOARD:
+        case VC_NODE:
             missing = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
             break;
-        case DAM_ALERT_BOARD:
+        case DAM_NODE:
             missing = app_canAlerts_CRIT_Fault_MissingDAMHeartbeat_get();
             break;
         default:
@@ -151,12 +151,12 @@ void app_leds_update(void)
     const bool shdn_ok    = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
 
     // Worst‑status of each RGB board
-    BoardLEDStatus rsm_st  = worstBoardStatus(RSM_ALERT_BOARD);
-    BoardLEDStatus crit_st = worstBoardStatus(CRIT_ALERT_BOARD);
-    BoardLEDStatus fsm_st  = worstBoardStatus(FSM_ALERT_BOARD);
-    BoardLEDStatus bms_st  = worstBoardStatus(BMS_ALERT_BOARD);
-    BoardLEDStatus vc_st   = worstBoardStatus(VC_ALERT_BOARD);
-    BoardLEDStatus dam_st  = worstBoardStatus(DAM_ALERT_BOARD);
+    BoardLEDStatus rsm_st  = worstBoardStatus(RSM_NODE);
+    BoardLEDStatus crit_st = worstBoardStatus(CRIT_NODE);
+    BoardLEDStatus fsm_st  = worstBoardStatus(FSM_NODE);
+    BoardLEDStatus bms_st  = worstBoardStatus(BMS_NODE);
+    BoardLEDStatus vc_st   = worstBoardStatus(VC_NODE);
+    BoardLEDStatus dam_st  = worstBoardStatus(DAM_NODE);
 
     // Build the 32‑bit LED word
     LedReg_t leds = { .value = 0 };
