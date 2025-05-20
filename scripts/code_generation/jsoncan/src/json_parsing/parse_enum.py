@@ -4,7 +4,9 @@ from .parse_error import InvalidCanJson
 from ..can_database import CanEnum
 from .parse_utils import load_json_file
 
-enum_schema = Schema(Or(Schema({str: {str: int}}), Schema({})))  # If the node doesn"t define any enums
+enum_schema = Schema(
+    Or(Schema({str: {str: int}}), Schema({}))
+)  # If the node doesn"t define any enums
 
 
 def validate_enum_json(json: Dict) -> Dict[str, Dict[str, int]]:
@@ -40,7 +42,9 @@ def parse_node_enum_data(can_data_dir: str, node_name: str) -> dict[str, CanEnum
     Adds node_name's enums to the given _enum dictionary
     """
     try:
-        node_enum_json_data = validate_enum_json(load_json_file(f"{can_data_dir}/{node_name}/{node_name}_enum"))
+        node_enum_json_data = validate_enum_json(
+            load_json_file(f"{can_data_dir}/{node_name}/{node_name}_enum")
+        )
     except SchemaError:
         raise InvalidCanJson(f"Enum JSON file is not valid for node {node_name}")
 
@@ -60,7 +64,9 @@ def parse_shared_enums(can_data_dir: str) -> dict[str, CanEnum]:
     Parse shared enum JSON data from specified directory.
     """
     try:
-        shared_enum_json_data = validate_enum_json(load_json_file(f"{can_data_dir}/shared_enum"))
+        shared_enum_json_data = validate_enum_json(
+            load_json_file(f"{can_data_dir}/shared_enum")
+        )
     except SchemaError:
         raise InvalidCanJson("Shared enum JSON file is not valid")
     enums = {}
