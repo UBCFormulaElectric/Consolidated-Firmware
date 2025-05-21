@@ -22,7 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bootloader.h"
+#include "hw_can.h"
+#include "io_canQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +85,7 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
+CanHandle can = { .hcan = &hcan1, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -111,7 +113,7 @@ void        runTickTask(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    bootloader_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -135,7 +137,7 @@ int main(void)
     MX_CAN1_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
-
+    bootloader_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -366,11 +368,7 @@ static void MX_GPIO_Init(void)
 void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runInterfaceTask();
     /* USER CODE END 5 */
 }
 
@@ -385,10 +383,7 @@ void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
 }
 
@@ -403,10 +398,7 @@ void runTickTask(void *argument)
 {
     /* USER CODE BEGIN runTickTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runTickTask();
     /* USER CODE END runTickTask */
 }
 

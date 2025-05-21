@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "hw_fdcan.h"
+#include "io_canQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,7 +85,7 @@ const osThreadAttr_t canTxTask_attributes = {
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* USER CODE BEGIN PV */
-
+CanHandle can = { .hcan = &hfdcan1, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

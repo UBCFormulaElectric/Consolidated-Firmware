@@ -8,7 +8,7 @@ pyclibrary
 jinja2
 gitpython
 intelhex
-protobuf==4.25.5
+protobuf==5.29.4
 grpcio-tools
 pyserial
 protoletariat
@@ -28,3 +28,18 @@ influxdb-client
 tzlocal
 python-dotenv
 asammdf
+
+# Utils
+lazydocs
+pydocstyle
+ruff
+types-protobuf
+mypy
+mypy-protobuf
+
+# Chimera
+pyusb
+libusb-package
+python-can
+matplotlib
+pyvisa

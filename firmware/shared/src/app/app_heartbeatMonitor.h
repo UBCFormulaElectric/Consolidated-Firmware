@@ -7,7 +7,6 @@ typedef struct
     HeartbeatBoard *boards;
     uint8_t         board_count;
     bool            block_faults;
-    void (*own_heartbeat)(bool);
 } HeartbeatMonitor;
 
 void app_heartbeatMonitor_init(const HeartbeatMonitor *hbm);

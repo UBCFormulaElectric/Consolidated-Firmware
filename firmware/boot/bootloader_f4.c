@@ -1,6 +1,14 @@
 #include "bootloader.h"
 #include "hw_flash.h"
-#include "hw_hal.h"
+#include "hw_can.h"
+#include <assert.h>
+
+extern CanHandle can;
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 
 void bootloader_boardSpecific_program(uint32_t address, uint64_t data)
 {

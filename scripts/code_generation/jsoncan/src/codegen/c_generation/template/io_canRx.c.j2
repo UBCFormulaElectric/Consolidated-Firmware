@@ -1,0 +1,64 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "io_canRx.h"
+#include "app_canRx.h"
+#include "app_canUtils.h"
+
+/* ------------------------- Function Definitions ------------------------- */
+// each bus has its own filter function
+{% for bus_name in node_bus_names %}
+bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id)
+{
+    bool is_found = false;
+    switch (std_id)
+    {
+        {%- if not rx_config.empty_bus(bus_name) %}
+        {%- for msg_name in rx_config.get_msgs_on_bus(bus_name) %}
+        case {{msg_map[msg_name].id_macro()}}:
+        {%- endfor %}
+        {
+            is_found = true;
+            break;
+        }
+        {%- endif %}
+        default:
+        {
+            // Do nothing
+            break;
+        }
+    }
+    
+    return is_found;
+}
+{% endfor %}
+
+
+void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg)
+{
+    switch (msg->std_id)
+    {
+        {%- for msg_name in rx_config.get_all_rx_msgs_names() %}
+        {% set msg = msg_map[msg_name] %}
+        case {{msg.id_macro()}}:
+        {
+            {{msg.name}}_Signals out_msg;
+            app_canUtils_{{msg.name}}_unpack(msg->data, &out_msg);
+            
+            {%- for signal in msg.signals %}
+            app_canRx_{{signal.name}}_update(out_msg.{{signal.name}}_value);
+            {%- endfor %}
+            break;
+        }
+        {%- endfor %}
+        default:
+        {
+            // Do nothing
+            break;
+        }
+    }
+}

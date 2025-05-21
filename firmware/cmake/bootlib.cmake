@@ -1,9 +1,9 @@
-IF(NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+IF (NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ embedded.cmake must be included before bootlib.cmake")
-ENDIF()
-IF(NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
+ENDIF ()
+IF (NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ stmlib.cmake must be included before bootlib.cmake")
-ENDIF()
+ENDIF ()
 message("")
 message("🥾 Configuring bootloader binary generation")
 
@@ -11,14 +11,16 @@ message("  🔃 Registered stm32f4_boot_binary() function")
 function(stm32f4_boot_binary
         BOOT_NAME
         SRCS
+        CUBEMX_SRCS
         INCLUDE_DIRS
         CONFIG_DEFINE
         SYSCALLS
         IOC_PATH
 )
     generate_stm32cube_code(
-            "${BOOT_NAME}_cubegen"
+            "${BOOT_NAME}_stm32cube"
             "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
     )
 
     set(STM32_HAL_SRCS
@@ -38,8 +40,7 @@ function(stm32f4_boot_binary
 
     # Pass syscalls to the cube library so we can build without warnings.
     stm32f412rx_cube_library(
-            "${BOOT_NAME}_stm32cube"
-            "${INCLUDE_DIRS}"
+            "${BOOT_NAME}_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -53,7 +54,6 @@ function(stm32f4_boot_binary
     # Add shared files.
     list(APPEND SRCS
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-            "${SHARED_IO_INCLUDE_DIR}/io_can.c"
             "${SHARED_IO_INCLUDE_DIR}/io_time.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
@@ -62,6 +62,9 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
+                "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
@@ -78,7 +81,7 @@ function(stm32f4_boot_binary
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
-    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
 
@@ -86,14 +89,16 @@ message("  🔃 Registered stm32h7_boot_binary() function")
 function(stm32h7_boot_binary
         BOOT_NAME
         SRCS
+        CUBEMX_SRCS
         INCLUDE_DIRS
         CONFIG_DEFINE
         SYSCALLS
         IOC_PATH
 )
     generate_stm32cube_code(
-            "${BOOT_NAME}_cubegen"
+            "${BOOT_NAME}_stm32cube"
             "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
     )
 
     set(STM32_HAL_SRCS
@@ -118,8 +123,7 @@ function(stm32h7_boot_binary
 
     # Pass syscalls to the cube library so we can build without warnings.
     stm32h733xx_cube_library(
-            "${BOOT_NAME}_stm32cube"
-            "${INCLUDE_DIRS}"
+            "${BOOT_NAME}_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -133,7 +137,6 @@ function(stm32h7_boot_binary
     # Add shared files.
     list(APPEND SRCS
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-            "${SHARED_IO_INCLUDE_DIR}/io_fdcan.c"
             "${SHARED_IO_INCLUDE_DIR}/io_time.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
@@ -142,6 +145,9 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
@@ -158,6 +164,6 @@ function(stm32h7_boot_binary
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
-    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()

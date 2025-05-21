@@ -1,8 +1,27 @@
-FROM --platform=amd64 ubuntu:22.04
+FROM debian:12.9-slim AS builder
 
-# Install dependencies:
 # wget: Downloading files from the internet
 # unzip: Tool to extract zipped archives
+RUN apt update -y && apt install -y xz-utils unzip
+
+ADD "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz" /usr/local/bin
+RUN ls /usr/local/bin && tar -xvf /usr/local/bin/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C /
+
+# Install STM32CubeMX for auto-generating code.
+#COPY scripts/install_stm32cubemx.py /root/environment/
+#COPY data/en.stm32cubemx-lin-v6-12-0.zip /root/environment
+#RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip en.stm32cubemx-lin-v6-12-0.zip
+
+ADD "https://github.com/protocolbuffers/protobuf/releases/download/v29.4/protoc-29.4-linux-x86_64.zip" /usr/local/bin
+RUN unzip /usr/local/bin/protoc-29.4-linux-x86_64.zip -d /protoc
+
+FROM debian:12.9-slim AS environment
+
+# COPY over builds from builder
+COPY --from=builder /arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi /usr/local
+COPY --from=builder /protoc/bin/protoc /usr/bin
+#COPY --from=builder /usr/local/STM32CubeMX /usr/local/STM32CubeMX
+
 # pip: For installing python packages
 # git: For pulling external repos, invoked via cmake
 # git-lfs: Large file storage, used for saving zipped STM32CubeMX installer
@@ -15,34 +34,19 @@ FROM --platform=amd64 ubuntu:22.04
 # libxtst6: Random library required for running STM32CubeMX V6 in container
 # libxrender1: Random library required for running STM32CubeMX V6 in container
 RUN apt update -y && apt install -y \
-    wget \
-    unzip \
     pip \
     git \
-    git-lfs \
-    xvfb \
+#    xvfb \
     libncurses5 \
-    valgrind \
-    libgtk-3-0 \
-    libxi6 \
-    libxtst6 \
-    libxrender1 \
-    protobuf-compiler
+    valgrind
+#    libgtk-3-0 \
+#    libxi6 \
+#    libxtst6 \
+#    libxrender1 \
+#    protobuf-compiler
 
 # Install python package dependencies.
-WORKDIR /root/environment
-COPY requirements.txt /root/environment/
+RUN echo "[global]\n break-system-packages = true" > /etc/pip.conf
+COPY requirements.txt .
 RUN pip3 install -r requirements.txt
-
-# Install GNU ARM Embedded Toolchain, for compiling/debugging on embedded.
-COPY scripts/install_gcc_arm_none_eabi.sh /root/environment/
-RUN /bin/sh ./install_gcc_arm_none_eabi.sh /usr/local
-
-# Install STM32CubeMX for auto-generating code.
-COPY scripts/install_stm32cubemx.py /root/environment/
-COPY data/en.stm32cubemx-lin-v6-12-0.zip /root/environment
-RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip en.stm32cubemx-lin-v6-12-0.zip
-
-# Cleanup copied directory.
-WORKDIR /root/
-RUN rm -rf environment
+RUN rm requirements.txt

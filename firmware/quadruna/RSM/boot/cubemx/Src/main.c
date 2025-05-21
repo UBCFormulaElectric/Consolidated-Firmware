@@ -23,12 +23,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "io_canQueue.h"
-#include "io_can.h"
+#include "hw_can.h"
 #include "hw_error.h"
 #include "hw_utils.h"
-
-#include <assert.h>
+#include "io_canQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,27 +87,7 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = { .hcan = &hcan1 };
-
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    assert(hcan == can.hcan);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
-
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    assert(hcan == can.hcan);
-    CanMsg rx_msg;
-    if (!io_can_receive(&can, CAN_RX_FIFO0, &rx_msg))
-        // Early return if RX msg is unavailable.
-        return;
-    io_canQueue_pushRx(&rx_msg);
-}
+CanHandle can = { .hcan = &hcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -161,7 +139,6 @@ int main(void)
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
-    io_can_init(&can);
     /* USER CODE END 2 */
 
     /* Init scheduler */

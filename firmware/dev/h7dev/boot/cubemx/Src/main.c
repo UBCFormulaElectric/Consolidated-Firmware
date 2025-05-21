@@ -23,8 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
+#include "hw_fdcan.h"
 #include "io_canQueue.h"
-#include "io_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,7 +104,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .hcan = &hfdcan2 };
+CanHandle can = { .hcan = &hfdcan2, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END 0 */
 
 /**
@@ -138,7 +138,6 @@ int main(void)
     MX_CRC_Init();
     MX_FDCAN2_Init();
     /* USER CODE BEGIN 2 */
-    io_can_init(&can);
     bootloader_init();
     /* USER CODE END 2 */
 

@@ -1,0 +1,16 @@
+{
+  "warnings_id": 801,
+  "faults_id": 802,
+  "warnings_counts_id": 803,
+  "faults_counts_id": 804,
+  "info_id": 805,
+  "info_counts_id": 806,
+  "warnings": {},
+  "faults": {
+    "DummyFault": {
+      "id": 800,
+      "description": "Dummy Fault"
+    }
+  },
+  "info": {}
+}
