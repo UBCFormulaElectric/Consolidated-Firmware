@@ -149,6 +149,8 @@ elseif ("${TARGET}" STREQUAL "test")
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR}/io_imu.cpp"
             "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
+            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io_bootHandler.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test"

@@ -9,6 +9,7 @@
 #include "app_suspension.h"
 #include "app_imu.h"
 #include "app_heartbeatMonitors.h"
+#include "app_jsoncan.h"
 
 // io
 #include "io_time.h"
@@ -19,11 +20,6 @@
 #include "io_rPump.h"
 #include "io_imu.h"
 #include "io_brakeLight.h"
-
-// testing
-#include "app_timer.h"
-
-#include <stdio.h>
 
 TimerChannel               timerGPIO;
 static const Potentiometer rsm_pot = {

@@ -79,4 +79,14 @@ extern "C"
     {
         return fake::io_vcShdn::splitterBoxInterlockFault;
     }
+
+#include "io_pumpControl.h"
+    ExitCode io_pumpControl_setPercentage(uint8_t percentage, PUMPS pump)
+    {
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_pumpControl_readPercentage(uint8_t *percentage, PUMPS pump)
+    {
+        return EXIT_CODE_OK;
+    }
 }
