@@ -25,6 +25,7 @@
 #include "hw_can.h"
 #include "io_canQueue.h"
 #include "bootloader.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
