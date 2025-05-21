@@ -4,6 +4,7 @@ Entrypoint to the telemetry backend
 
 import logging
 
+
 # tasks
 import tasks.influx_logger as InfluxHandler
 from api.http import api
