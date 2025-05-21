@@ -3,9 +3,6 @@
 
 extern const Gpio led_b_pin;
 extern const Gpio bspd_ok_current_status_pin;
-extern const Gpio accel_brake_ok_pin;
-extern const Gpio n_brake_press_3v3_pin;
-extern const Gpio n_high_current_bspd_pin;
 extern const Gpio msd_shdn_sns_pin;
 extern const Gpio hv_p_intlck_sns_pin;
 extern const Gpio hv_n_intlck_sns_pin;

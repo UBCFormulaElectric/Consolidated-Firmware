@@ -62,7 +62,6 @@ extern DMA_HandleTypeDef   hdma_adc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern FDCAN_HandleTypeDef hfdcan2;
 extern SD_HandleTypeDef    hsd1;
-extern SPI_HandleTypeDef   hspi4;
 extern TIM_HandleTypeDef   htim1;
 extern TIM_HandleTypeDef   htim3;
 extern TIM_HandleTypeDef   htim2;
@@ -319,20 +318,6 @@ void OTG_HS_IRQHandler(void)
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
     /* USER CODE BEGIN OTG_HS_IRQn 1 */
     /* USER CODE END OTG_HS_IRQn 1 */
-}
-
-/**
- * @brief This function handles SPI4 global interrupt.
- */
-void SPI4_IRQHandler(void)
-{
-    /* USER CODE BEGIN SPI4_IRQn 0 */
-
-    /* USER CODE END SPI4_IRQn 0 */
-    HAL_SPI_IRQHandler(&hspi4);
-    /* USER CODE BEGIN SPI4_IRQn 1 */
-
-    /* USER CODE END SPI4_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

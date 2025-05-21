@@ -14,16 +14,6 @@
 #include "hw_pwms.h"
 #include "hw_watchdogConfig.h"
 
-// chimera
-#include "hw_chimeraConfig_v2.h"
-#include "hw_chimera_v2.h"
-#include "hw_resetReason.h"
-
-void tasks_runChimera(void)
-{
-    hw_chimera_v2_task(&chimera_v2_config);
-}
-
 void tasks_preInit(void) {}
 
 void tasks_init(void)
@@ -40,7 +30,6 @@ void tasks_init(void)
 
     jobs_init();
 
-    app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 void tasks_run1Hz(void)
@@ -49,7 +38,7 @@ void tasks_run1Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        if (!hw_chimera_v2_enabled)
+        if (true)
         {
             jobs_run1Hz_tick();
         }
@@ -64,7 +53,7 @@ void tasks_run100Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        if (!hw_chimera_v2_enabled)
+        if (true)
         {
             jobs_run100Hz_tick();
         }

@@ -3,9 +3,6 @@
 
 const Gpio led_b_pin                  = { .port = LEDB_GPIO_Port, .pin = LEDB_Pin };
 const Gpio bspd_ok_current_status_pin = { .port = BSPD_OK_GPIO_Port, .pin = BSPD_OK_Pin };
-const Gpio accel_brake_ok_pin         = { .port = ACCEL_BRAKE_OK_GPIO_Port, .pin = ACCEL_BRAKE_OK_Pin };
-const Gpio n_brake_press_3v3_pin      = { .port = nBRAKE_PRESS_3V3_GPIO_Port, .pin = nBRAKE_PRESS_3V3_Pin };
-const Gpio n_high_current_bspd_pin    = { .port = nHIGH_CURRENT_BSPD_GPIO_Port, .pin = nHIGH_CURRENT_BSPD_Pin };
 const Gpio msd_shdn_sns_pin           = { .port = MSD_SHDN_SNS_GPIO_Port, .pin = MSD_SHDN_SNS_Pin };
 const Gpio hv_p_intlck_sns_pin        = { .port = HV_P_INTLCK_SNS_GPIO_Port, .pin = HV_P_INTLCK_SNS_Pin };
 const Gpio hv_n_intlck_sns_pin        = { .port = HV_N_INTLCK_SNS_GPIO_Port, .pin = HV_N_INTLCK_SNS_Pin };
