@@ -34,7 +34,7 @@ function(generate_stm32cube_code
 )
     add_library(${LIB_NAME} INTERFACE)
     target_sources(${LIB_NAME} INTERFACE "${GENERATED_SRCS}")
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    if ("${WATCHDOG}" STREQUAL "OFF")
         target_compile_definitions(${LIB_NAME} INTERFACE WATCHDOG_DISABLED)
     endif ()
     embedded_no_checks("${GENERATED_SRCS}")

@@ -69,8 +69,8 @@ IF (FIX_FORMATTING)
 ENDIF ()
 
 # ======== Code Time ========
-set(PLATFORM "firmware" CACHE STRING "The platform to build for, either \"firmware\" or \"dimos\"")
-set(TARGET "binary" CACHE STRING "The target to build for. Choose between \"binary\" and \"test\".")
+option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")
+option(TARGET "The target to build for. Choose between \"binary\" and \"test\"." "binary")
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")

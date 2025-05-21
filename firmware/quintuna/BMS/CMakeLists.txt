@@ -48,7 +48,7 @@ set(HW_INCLUDE_DIRS
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    if ("${BOOTLOAD}" STREQUAL "ON")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
     else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
@@ -112,7 +112,7 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
 
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
         file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
         file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")

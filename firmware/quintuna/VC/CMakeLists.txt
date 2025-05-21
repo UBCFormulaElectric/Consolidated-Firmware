@@ -55,7 +55,7 @@ set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    if ("${BOOTLOAD}" STREQUAL "ON")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
     else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
@@ -121,7 +121,7 @@ if ("${TARGET}" STREQUAL "binary")
             "chimera_v2_proto_cm7")
 
 
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
         file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
         file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
