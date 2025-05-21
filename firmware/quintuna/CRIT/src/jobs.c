@@ -9,16 +9,15 @@
 
 // IO
 #include "io_canTx.h"
-#include "io_canRx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
-
-// HW
-#include "hw_gpios.h"
+#include "io_jsoncan.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
+    CanMsg tx_msg = io_jsoncan_copyToCanMsg(msg);
+    io_canQueue_pushTx(&tx_msg);
 }
 
 void jobs_init(void)
@@ -64,10 +63,4 @@ void jobs_run1kHz_tick(void)
     if (io_time_getCurrentMs() - task_start_ms <= 1)
     {
     }
-}
-
-void jobs_runCanRx_tick(void)
-{
-    JsonCanMsg jsoncan_rx_msg;
-    io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
 }

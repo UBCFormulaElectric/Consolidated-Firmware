@@ -7,35 +7,39 @@ from ...can_database import All, BusForwarder, CanBus, CanDatabase, CanNode
 from ...json_parsing.parse_error import InvalidCanJson
 
 
-def _build_adj_list(forwarder_config: List[BusForwarder], nodes: Dict[str, CanNode],
-                    busses: Dict[str, CanBus]) -> Dict[str, List[Tuple[str, str]]]:
+def _build_adj_list(
+    forwarder_config: List[BusForwarder],
+    nodes: Dict[str, CanNode],
+    busses: Dict[str, CanBus],
+) -> Dict[str, List[Tuple[str, str]]]:
     adj_list: Dict[str, List[Tuple[str, str]]] = {
-        bus_name: []
-        for bus_name in busses.keys()
+        bus_name: [] for bus_name in busses.keys()
     }
     for forwarder_json in forwarder_config:
         forwarder_node_name = forwarder_json.forwarder
         if forwarder_node_name not in nodes:
             raise InvalidCanJson(
-                f"Forwarder node '{forwarder_node_name}' is not defined in the node JSON.")
+                f"Forwarder node '{forwarder_node_name}' is not defined in the node JSON."
+            )
         bus1 = forwarder_json.bus1
         bus2 = forwarder_json.bus2
         if bus1 not in busses:
             raise InvalidCanJson(
-                f"Forwarder bus '{bus1}' is not defined in the node JSON.")
+                f"Forwarder bus '{bus1}' is not defined in the node JSON."
+            )
         if bus2 not in busses:
             raise InvalidCanJson(
-                f"Forwarder bus '{bus2}' is not defined in the node JSON.")
+                f"Forwarder bus '{bus2}' is not defined in the node JSON."
+            )
         adj_list[bus1].append((bus2, forwarder_node_name))
         adj_list[bus2].append((bus1, forwarder_node_name))
     return adj_list
 
 
-def enforce_tree_fermat_little_rsa(adj_list: Dict[str, List[Tuple[str, str]]], busses: Dict[str, CanBus]):
-    visited_list: Dict[str, bool] = {
-        bus_name: False
-        for bus_name in busses.keys()
-    }
+def enforce_tree_fermat_little_rsa(
+    adj_list: Dict[str, List[Tuple[str, str]]], busses: Dict[str, CanBus]
+):
+    visited_list: Dict[str, bool] = {bus_name: False for bus_name in busses.keys()}
     previous_node: Dict[str, Optional[str]] = {}
     queue: deque[str] = deque()
 
@@ -49,16 +53,15 @@ def enforce_tree_fermat_little_rsa(adj_list: Dict[str, List[Tuple[str, str]]], b
         if visited_list[cur_node]:
             raise InvalidCanJson(f"Forwarder topology is not a tree!")
         visited_list[cur_node] = True
-        for (next_node, edge) in adj_list[cur_node]:
+        for next_node, edge in adj_list[cur_node]:
             if previous_node[cur_node] != next_node:
                 previous_node[next_node] = cur_node
                 queue.append(next_node)
 
 
-def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List[Tuple[str, str]]],
-                                                        tx_node: CanNode,
-                                                        rx_node: CanNode) -> \
-        Tuple[str, str, List[Tuple[str, str, str]]]:
+def _fast_fourier_transform_stochastic_gradient_descent(
+    adj_list: Dict[str, List[Tuple[str, str]]], tx_node: CanNode, rx_node: CanNode
+) -> Tuple[str, str, List[Tuple[str, str, str]]]:
     # make all forwarders
     # OVERVIEW
     # what we gotta do is make a graph representation of canBuses
@@ -106,7 +109,7 @@ def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List
         if cur_node in destination_nodes:
             target_node = cur_node
             break
-        for (next_node, edge) in adj_list[cur_node]:
+        for next_node, edge in adj_list[cur_node]:
             if next_node not in previous_node:
                 previous_node[next_node] = cur_node
                 previous_edge[next_node] = edge
@@ -115,7 +118,8 @@ def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List
     # graph is disconnected
     if target_node is None:
         raise InvalidCanJson(
-            f"Unable to navigate from {tx_node.name} to {rx_node.name} using the provided forwarder topology.")
+            f"Unable to navigate from {tx_node.name} to {rx_node.name} using the provided forwarder topology."
+        )
 
     # recover path
     best_path: List[Tuple[str, Optional[str]]] = []
@@ -124,7 +128,8 @@ def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List
         target_node = previous_node[target_node]
         if target_node in previous_node and target_node == previous_node[target_node]:
             raise InvalidCanJson(
-                f"Unreachable CAN message, likely error in forwarder topology")
+                f"Unreachable CAN message, likely error in forwarder topology"
+            )
     best_path.append((target_node, None))
     best_path.reverse()  # TODO not necessary, just interpret the list backwards
 
@@ -134,15 +139,15 @@ def _fast_fourier_transform_stochastic_gradient_descent(adj_list: Dict[str, List
     rerouter_nodes: List[Tuple[str, str, str]] = []
     for index in range(1, len(best_path)):
         rerouter_nodes.append(
-            (best_path[index][1], best_path[index - 1][0], best_path[index][0]))
+            (best_path[index][1], best_path[index - 1][0], best_path[index][0])
+        )
 
     return initial_node, final_node, rerouter_nodes
 
 
-def _simple_fast_fourier_transform_stochastic_gradient_descent(bus_forwarder: List[BusForwarder],
-                                                               tx_node: CanNode,
-                                                               rx_node: CanNode) -> \
-        Tuple[str, str, str | None]:
+def _simple_fast_fourier_transform_stochastic_gradient_descent(
+    bus_forwarder: List[BusForwarder], tx_node: CanNode, rx_node: CanNode
+) -> Tuple[str, str, str | None]:
     # difference from the algorithm above is that we don't do a BFS
     # the idea is to only allow the message to be forwarded once
     # so we just need to pick one edge from the adj_list
@@ -172,7 +177,8 @@ def _simple_fast_fourier_transform_stochastic_gradient_descent(bus_forwarder: Li
 
     # if no rerouter found, raise an error
     raise InvalidCanJson(
-        f"Unable to navigate from {tx_node.name} to {rx_node.name} using the provided forwarder topology.")
+        f"Unable to navigate from {tx_node.name} to {rx_node.name} using the provided forwarder topology."
+    )
 
 
 class CanTxConfig:
@@ -211,7 +217,7 @@ class CanTxConfig:
         :return:
         """
         return list(self._map_by_msg_name.keys())
-    
+
     def __eq__(self, other):
         if not isinstance(other, CanTxConfig):
             return False
@@ -255,7 +261,11 @@ class CanRxConfig:
     def __eq__(self, other):
         if not isinstance(other, CanRxConfig):
             return False
-        return self._map_by_bus == other._map_by_bus and self._map_by_msg_name == other._map_by_msg_name
+        return (
+            self._map_by_bus == other._map_by_bus
+            and self._map_by_msg_name == other._map_by_msg_name
+        )
+
 
 @dataclass()
 class CanForward:
@@ -273,21 +283,29 @@ class CanForward:
         )
 
     def __hash__(self):
-        return hash((self.message_name, self.forwarder_name, self.from_bus_name, self.to_bus_name))
+        return hash(
+            (
+                self.message_name,
+                self.forwarder_name,
+                self.from_bus_name,
+                self.to_bus_name,
+            )
+        )
 
     def __repr__(self):
         return f"CanForward({self.message_name} from {self.from_bus_name} to {self.to_bus_name} via {self.forwarder_name})"
 
 
-def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
-        Dict[str, CanTxConfig], Dict[str, CanRxConfig], Dict[str, Set[CanForward]]]:
-    reroute_configs: Dict[str, Set[CanForward]] = {  # TODO consider making the inside keyed by from_bus
+def resolve_tx_rx_reroute(
+    can_db: CanDatabase,
+) -> Tuple[Dict[str, CanTxConfig], Dict[str, CanRxConfig], Dict[str, Set[CanForward]]]:
+    reroute_configs: Dict[
+        str, Set[CanForward]
+    ] = {  # TODO consider making the inside keyed by from_bus
         forwarder_json.forwarder: set() for forwarder_json in can_db.forwarding
     }
-    tx_configs = {node_name: CanTxConfig()
-                  for node_name in can_db.nodes.keys()}
-    rx_configs = {node_name: CanRxConfig()
-                  for node_name in can_db.nodes.keys()}
+    tx_configs = {node_name: CanTxConfig() for node_name in can_db.nodes.keys()}
+    rx_configs = {node_name: CanRxConfig() for node_name in can_db.nodes.keys()}
 
     # we want to guarantee that our given topology is a tree
     # we can BFS on the final adjacency list and just make sure
@@ -307,7 +325,12 @@ def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
             # TODO generate a new function to do this? This is a nontrivial usage of state??
             #    but also it is very specific to this application
             rx_msgs_names = set(
-                [msg.name for msg in can_db.msgs.values() if msg.tx_node_name != rx_node.name])
+                [
+                    msg.name
+                    for msg in can_db.msgs.values()
+                    if msg.tx_node_name != rx_node.name
+                ]
+            )
         else:
             rx_msgs_names = rx_node.rx_msgs_names
         for msg_name in rx_msgs_names:
@@ -316,16 +339,27 @@ def resolve_tx_rx_reroute(can_db: CanDatabase) -> Tuple[
             # calculate the reroute
             # initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = _fast_fourier_transform_stochastic_gradient_descent(
             #     adj_list, tx_node, rx_node)
-            initial_node_tx_bus, final_node_rx_bus, reroute_node = _simple_fast_fourier_transform_stochastic_gradient_descent(
-                can_db.forwarding, tx_node, rx_node)
+            (
+                initial_node_tx_bus,
+                final_node_rx_bus,
+                reroute_node,
+            ) = _simple_fast_fourier_transform_stochastic_gradient_descent(
+                can_db.forwarding, tx_node, rx_node
+            )
             # process the calculation
-            tx_configs[tx_node.name].add_bus_to_tx_msg(
-                msg_name, initial_node_tx_bus)
+            tx_configs[tx_node.name].add_bus_to_tx_msg(msg_name, initial_node_tx_bus)
             rx_configs[rx_node.name].add_rx_msg(msg_name, final_node_rx_bus)
 
             if reroute_node is not None:
-                reroute_configs[reroute_node].add(CanForward(
-                    message_name=msg_name, forwarder_name=reroute_node, from_bus_name=initial_node_tx_bus, to_bus_name=final_node_rx_bus))
+                reroute_configs[reroute_node].add(
+                    CanForward(
+                        message_name=msg_name,
+                        forwarder_name=reroute_node,
+                        from_bus_name=initial_node_tx_bus,
+                        to_bus_name=final_node_rx_bus,
+                    )
+                )
     return tx_configs, rx_configs, reroute_configs
+
 
 # TODO have some check for tx_msgs without rx_msgs??

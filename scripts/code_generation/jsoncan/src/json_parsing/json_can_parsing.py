@@ -6,6 +6,7 @@ from __future__ import annotations
 
 # types
 from typing import Dict, List, Set
+
 # types to populate up
 from ..can_database import CanDatabase, CanEnum, CanMessage, CanNode, All, BusForwarder
 
@@ -32,14 +33,20 @@ class JsonCanParser:
     _nodes: Dict[str, CanNode]  # _nodes[node_name] gives metadata for node_name
     _busses: Dict[str, CanBus]  # _bus_config[bus_name] gives metadata for bus_name
     _msgs: Dict[str, CanMessage]  # _msgs[msg_name] gives metadata for msg_name
-    _alerts: Dict[str, List[CanAlert]]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
+    _alerts: Dict[
+        str, List[CanAlert]
+    ]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
     _forwarding: List[BusForwarder]  # _forwarding[bus_name] gives metadata for bus_name
     _enums: Dict[str, CanEnum]  # _enums[enum_name] gives metadata for enum_name
-    _collects_data: Dict[str, bool]  # _collects_data[node_name] = True if the node collects data
+    _collects_data: Dict[
+        str, bool
+    ]  # _collects_data[node_name] = True if the node collects data
 
     # internal state
     # _node_tx_msgs: Dict[str, Set[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
-    _node_rx_msgs: Dict[str, Set[str] | All]  # _rx_msgs[node_name] gives a list of all messages it rxs
+    _node_rx_msgs: Dict[
+        str, Set[str] | All
+    ]  # _rx_msgs[node_name] gives a list of all messages it rxs
 
     def __init__(self, can_data_dir: str):
         """
@@ -50,8 +57,12 @@ class JsonCanParser:
         # self._node_tx_msgs = {node_name: set() for node_name in node_names}
         self._node_rx_msgs = {node_name: set() for node_name in node_names}
         # parse the bus config
-        self._busses, self._forwarding, loggers = parse_bus_data(can_data_dir, node_names)
-        self._collects_data = {node_name: node_name in loggers for node_name in node_names}
+        self._busses, self._forwarding, loggers = parse_bus_data(
+            can_data_dir, node_names
+        )
+        self._collects_data = {
+            node_name: node_name in loggers for node_name in node_names
+        }
 
         # PARSE TX JSON DATA
         # collect shared enums outside of loop
@@ -100,16 +111,23 @@ class JsonCanParser:
         for alert_msg in alert_msgs:
             for other_rx_node_name in self._alerts.keys():  # rx handling
                 # skip the node that transmit the message
-                if alert_msg.tx_node_name == other_rx_node_name: continue
+                if alert_msg.tx_node_name == other_rx_node_name:
+                    continue
                 self._add_rx_msg(alert_msg.name, other_rx_node_name)
         # CONSISTENCY TODO work this in?
         # self._consistency_check()
 
         # create node objects for each node
         self._nodes = {
-            node_name: CanNode(node_name,
-                               [bus_name for bus_name, bus in self._busses.items() if node_name in bus.node_names],
-                               self._node_rx_msgs[node_name])
+            node_name: CanNode(
+                node_name,
+                [
+                    bus_name
+                    for bus_name, bus in self._busses.items()
+                    if node_name in bus.node_names
+                ],
+                self._node_rx_msgs[node_name],
+            )
             for node_name in node_names
         }
 
@@ -180,9 +198,13 @@ class JsonCanParser:
             )
         rx_msg = self._msgs[msg_name]
         if rx_msg.tx_node_name == rx_node_name:
-            raise InvalidCanJson(f"{rx_node_name} cannot both transmit and receive {msg_name}")
+            raise InvalidCanJson(
+                f"{rx_node_name} cannot both transmit and receive {msg_name}"
+            )
         if msg_name in self._node_rx_msgs[rx_node_name]:
-            raise InvalidCanJson(f"Message {msg_name} is already registered to be received by node {rx_node_name}")
+            raise InvalidCanJson(
+                f"Message {msg_name} is already registered to be received by node {rx_node_name}"
+            )
         self._node_rx_msgs[rx_node_name].add(msg_name)
 
     # def _consistency_check(self) -> None:
