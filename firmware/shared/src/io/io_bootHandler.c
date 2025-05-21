@@ -34,7 +34,6 @@ void io_bootHandler_processBootRequest(const CanMsg *msg)
         {
             NVIC->ICPR[i] = 0xFFFFFFFF;
         }
-        BREAK_IF_DEBUGGER_CONNECTED();
         boot_flag_1 = 0xa;
         boot_flag_2 = 0xb;
         boot_flag_3 = 0xc;

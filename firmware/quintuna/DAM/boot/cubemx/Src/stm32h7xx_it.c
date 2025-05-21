@@ -22,6 +22,7 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_hardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +56,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern FDCAN_HandleTypeDef hfdcan1;
+extern FDCAN_HandleTypeDef hfdcan2;
 extern TIM_HandleTypeDef   htim6;
 
 /* USER CODE BEGIN EV */
@@ -86,7 +87,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -161,31 +162,31 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles FDCAN1 interrupt 0.
+ * @brief This function handles FDCAN2 interrupt 0.
  */
-void FDCAN1_IT0_IRQHandler(void)
+void FDCAN2_IT0_IRQHandler(void)
 {
-    /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
+    /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
 
-    /* USER CODE END FDCAN1_IT0_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan1);
-    /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
+    /* USER CODE END FDCAN2_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan2);
+    /* USER CODE BEGIN FDCAN2_IT0_IRQn 1 */
 
-    /* USER CODE END FDCAN1_IT0_IRQn 1 */
+    /* USER CODE END FDCAN2_IT0_IRQn 1 */
 }
 
 /**
- * @brief This function handles FDCAN1 interrupt 1.
+ * @brief This function handles FDCAN2 interrupt 1.
  */
-void FDCAN1_IT1_IRQHandler(void)
+void FDCAN2_IT1_IRQHandler(void)
 {
-    /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
+    /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
 
-    /* USER CODE END FDCAN1_IT1_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan1);
-    /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
+    /* USER CODE END FDCAN2_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan2);
+    /* USER CODE BEGIN FDCAN2_IT1_IRQn 1 */
 
-    /* USER CODE END FDCAN1_IT1_IRQn 1 */
+    /* USER CODE END FDCAN2_IT1_IRQn 1 */
 }
 
 /**

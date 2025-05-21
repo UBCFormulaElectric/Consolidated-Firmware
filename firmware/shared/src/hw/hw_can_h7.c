@@ -44,7 +44,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
-    tx_header.IdType              = FDCAN_STANDARD_ID;
+    tx_header.IdType              = msg->std_id <= 0x7ff ? FDCAN_STANDARD_ID : FDCAN_EXTENDED_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
     tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
@@ -57,7 +57,6 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
         ;
 
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
-    ;
 }
 
 ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
@@ -65,7 +64,7 @@ ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
-    tx_header.IdType              = FDCAN_STANDARD_ID;
+    tx_header.IdType              = msg->std_id <= 0x7ff ? FDCAN_STANDARD_ID : FDCAN_EXTENDED_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
     tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
@@ -78,7 +77,6 @@ ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
         ;
 
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
-    ;
 }
 
 ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
@@ -88,7 +86,6 @@ ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, C
 
     RETURN_IF_ERR(
         hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data.data8)));
-
     msg->std_id    = header.Identifier;
     msg->dlc       = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
     msg->timestamp = io_time_getCurrentMs();
