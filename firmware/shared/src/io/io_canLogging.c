@@ -78,7 +78,7 @@ void io_canLogging_recordMsgFromQueue(void)
     CHECK_ENABLED();
 
     // Assert here since we pass "wait forever" for a message. So it'll only fail if we've configured something wrong.
-    CanMsg msg;
+    CanMsg msg = { 0 };
     assert(osMessageQueueGet(message_queue_id, &msg, NULL, osWaitForever) == osOK);
 
     // Message log payload:
