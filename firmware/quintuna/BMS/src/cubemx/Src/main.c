@@ -997,12 +997,6 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LEDR_GPIO_Port, LEDR_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -1034,26 +1028,18 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : LEDR_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LEDR_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
-                             DIAG_Pin SD_CD_Pin */
+    /*Configure GPIO pins : LEDR_Pin MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin
+                             IMD_LATCH_Pin DIAG_Pin SD_CD_Pin */
     GPIO_InitStruct.Pin =
-        MSD_SHDN_SNS_Pin | HV_P_INTLCK_SNS_Pin | HV_N_INTLCK_SNS_Pin | IMD_LATCH_Pin | DIAG_Pin | SD_CD_Pin;
+        LEDR_Pin | MSD_SHDN_SNS_Pin | HV_P_INTLCK_SNS_Pin | HV_N_INTLCK_SNS_Pin | IMD_LATCH_Pin | DIAG_Pin | SD_CD_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pin : LEDB_Pin */
-    GPIO_InitStruct.Pin   = LEDB_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Pin  = LEDB_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(LEDB_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : BSPD_OK_Pin */
