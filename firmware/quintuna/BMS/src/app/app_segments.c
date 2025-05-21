@@ -171,14 +171,6 @@ ExitCode app_segments_configSync()
     return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_selectThermMux(uint8_t mux)
-{
-    // board-level convention: 0 → GPIO9 low, 1 → GPIO9 high.
-    const bool level_high = (mux != 0);
-    return io_ltc6813_setGpio9(level_high);
-}
-
-
 // test setters
 ExitCode app_segments_broadcastCellVoltages()
 {
@@ -219,7 +211,7 @@ ExitCode app_segments_broadcastCellVoltages()
     return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_broadcastTemps()
+ExitCode app_segments_broadcastTempsVRef()
 {
     static void (*const thermistorSetters[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT])(float) = { { 0 } }; // TODO populate
     static void (*const vrefSetters[NUM_SEGMENTS])(float) = { app_canTx_BMS_Seg0_VREF_set };
@@ -232,8 +224,6 @@ ExitCode app_segments_broadcastTemps()
     {
         // information gathering
         // TODO flip a mux based on i == 0 and i == 1
-        RETURN_IF_ERR(app_segments_selectThermMux(mux));
-
         RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion(s));
         io_time_delay(10); // TODO tweak timings
         io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);

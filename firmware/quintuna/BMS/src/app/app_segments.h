@@ -26,12 +26,6 @@ void app_segments_writeDefaultConfig();
  */
 ExitCode app_segments_configSync();
 
-/**
- * Sets up the multiplexer pin (GPIO9)
- */
-ExitCode app_segments_selectThermMux(uint8_t mux); /* 0 or 1 */
-
-
 // =========== BROADCAST MESSAGES ===========
 /**
  * Reads the voltages, broadcasts them appropriately
@@ -41,7 +35,7 @@ ExitCode app_segments_broadcastCellVoltages();
 /**
  * Reads the temperatures, broadcasts them appropriately
  */
-ExitCode app_segments_broadcastTemps();
+ExitCode app_segments_broadcastTempsVRef();
 
 /**
  * Reads the status registers, broadcasts them appropriately
