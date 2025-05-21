@@ -11,8 +11,11 @@ class NodeTests(CDBTests):
     """
 
     def get_messages_from_ecu(self, ecu_name: str) -> Set[str]:
-        raw = [msg.name for msg in self.cdb_valid.msgs.values()
-               if msg.tx_node_name == ecu_name]
+        raw = [
+            msg.name
+            for msg in self.cdb_valid.msgs.values()
+            if msg.tx_node_name == ecu_name
+        ]
         setted = set(raw)
         self.assertEqual(len(raw), len(setted))
         return setted
@@ -21,15 +24,16 @@ class NodeTests(CDBTests):
         """
         Checks that ECU1-5 are the only nodes present in the database.
         """
-        self.assertSetEqual(set(self.cdb_valid.nodes.keys()), {
-                            "ECU1", "ECU2", "ECU3", "ECU4", "ECU5"})
+        self.assertSetEqual(
+            set(self.cdb_valid.nodes.keys()), {"ECU1", "ECU2", "ECU3", "ECU4", "ECU5"}
+        )
 
     def test_node_on_busses(self):
-        self.assertSetEqual(set(self.cdb_valid.nodes["ECU1"].bus_names), {
-                            "can1", "can2", "can3"})
+        self.assertSetEqual(
+            set(self.cdb_valid.nodes["ECU1"].bus_names), {"can1", "can2", "can3"}
+        )
         self.assertEqual(set(self.cdb_valid.nodes["ECU2"].bus_names), {"can3"})
-        self.assertEqual(
-            set(self.cdb_valid.nodes["ECU3"].bus_names), {"can1", "can2"})
+        self.assertEqual(set(self.cdb_valid.nodes["ECU3"].bus_names), {"can1", "can2"})
         self.assertEqual(set(self.cdb_valid.nodes["ECU4"].bus_names), {"can1"})
         self.assertEqual(set(self.cdb_valid.nodes["ECU5"].bus_names), {"can2"})
 
@@ -38,21 +42,24 @@ class NodeTests(CDBTests):
         Checks that all tx/rx messages are present
         :return:
         """
-        self.assertSetEqual(self.get_messages_from_ecu(
-            "ECU1"), self.ecu1_msgs | self.ec1_alerts)
+        self.assertSetEqual(
+            self.get_messages_from_ecu("ECU1"), self.ecu1_msgs | self.ec1_alerts
+        )
         self.assertSetEqual(self.get_messages_from_ecu("ECU2"), self.ecu2_msgs)
-        self.assertSetEqual(self.get_messages_from_ecu(
-            "ECU3"), self.ecu3_msgs | self.ecu3_alerts)
-        self.assertSetEqual(self.get_messages_from_ecu(
-            "ECU4"), self.ecu4_msgs | self.ecu4_alerts)
-        self.assertSetEqual(self.get_messages_from_ecu(
-            "ECU5"), self.ecu5_msgs | self.ecu5_alerts)
+        self.assertSetEqual(
+            self.get_messages_from_ecu("ECU3"), self.ecu3_msgs | self.ecu3_alerts
+        )
+        self.assertSetEqual(
+            self.get_messages_from_ecu("ECU4"), self.ecu4_msgs | self.ecu4_alerts
+        )
+        self.assertSetEqual(
+            self.get_messages_from_ecu("ECU5"), self.ecu5_msgs | self.ecu5_alerts
+        )
 
 
 class BusTests(CDBTests):
     def test_busses_present(self):
-        self.assertSetEqual(set(self.cdb_valid.buses.keys()), {
-                            "can1", "can2", "can3"})
+        self.assertSetEqual(set(self.cdb_valid.buses.keys()), {"can1", "can2", "can3"})
 
     def test_bus1_properties(self):
         can1 = self.cdb_valid.buses["can1"]
@@ -100,8 +107,7 @@ class ConsistencyCheckTests(CDBTests):
             bus_name_set.add(bus.name)
             for node_name in bus.node_names:
                 self.assertTrue(node_name in self.cdb_valid.nodes.keys())
-                self.assertTrue(
-                    bus.name in self.cdb_valid.nodes[node_name].bus_names)
+                self.assertTrue(bus.name in self.cdb_valid.nodes[node_name].bus_names)
         self.assertEqual(len(bus_name_set), len(self.cdb_valid.buses))
 
         node_name_set = set()
@@ -111,8 +117,7 @@ class ConsistencyCheckTests(CDBTests):
             # check if the node is in the bus
             for bus_name in node.bus_names:
                 self.assertTrue(bus_name in self.cdb_valid.buses.keys())
-                self.assertTrue(
-                    node.name in self.cdb_valid.buses[bus_name].node_names)
+                self.assertTrue(node.name in self.cdb_valid.buses[bus_name].node_names)
 
             # check if the rx message are in the msg database
             if not isinstance(node.rx_msgs_names, All):
@@ -169,7 +174,6 @@ class ConsistencyCheckTests(CDBTests):
         # check if the alerts messages are recieived by other nodes
         for node in self.cdb_valid.nodes.values():
             for alert_message in alert_messages:
-
                 # skip the message from the node itself
                 if node.name == alert_message.tx_node_name:
                     continue
@@ -177,7 +181,7 @@ class ConsistencyCheckTests(CDBTests):
                 # skip if the node does not have alerts config
                 if node.name not in self.cdb_valid.alerts.keys():
                     continue
-                
+
                 # skip if the rx is configured as all
                 if isinstance(node.rx_msgs_names, All):
                     continue

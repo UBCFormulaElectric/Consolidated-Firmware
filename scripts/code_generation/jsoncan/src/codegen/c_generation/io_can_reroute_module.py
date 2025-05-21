@@ -16,7 +16,9 @@ class IoCanRerouteModule(CModule):
         to_bus_name: str
         message: CanMessage
 
-    def __init__(self, db: CanDatabase, node: str, node_reroutes: Set[CanForward] | None):
+    def __init__(
+        self, db: CanDatabase, node: str, node_reroutes: Set[CanForward] | None
+    ):
         self._db = db
         self._node_reroutes = node_reroutes
         self._node_bus_names = db.nodes[node].bus_names
@@ -24,21 +26,25 @@ class IoCanRerouteModule(CModule):
     def header_template(self):
         if self._node_reroutes is None:
             return ""
-        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        j2_env = j2.Environment(
+            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
+        )
         template = j2_env.from_string(load_template("io_canReroute.h.j2"))
         return template.render(node_bus_names=self._node_bus_names)
 
     def source_template(self):
         if self._node_reroutes is None:
             return ""
-        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        j2_env = j2.Environment(
+            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
+        )
         template = j2_env.from_string(load_template("io_canReroute.c.j2"))
         from_bus_to_reroutes = {bus_name: [] for bus_name in self._node_bus_names}
         for reroute in self._node_reroutes:
             from_bus_to_reroutes[reroute.from_bus_name].append(
                 IoCanRerouteModule.ReRouteInstance(
                     to_bus_name=reroute.to_bus_name,
-                    message=self._db.msgs[reroute.message_name]
+                    message=self._db.msgs[reroute.message_name],
                 )
             )
         return template.render(

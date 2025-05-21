@@ -11,9 +11,13 @@ class _RxBusEntry(TypedDict):
 
 
 def _validate_rx_json(json: Dict) -> _RxBusEntry:
-    return Schema({
-        "messages": Or(Schema([str]), Schema("all")),  # Use schema.List to define a list of strings
-    }).validate(json)
+    return Schema(
+        {
+            "messages": Or(
+                Schema([str]), Schema("all")
+            ),  # Use schema.List to define a list of strings
+        }
+    ).validate(json)
 
 
 def parse_json_rx_data(can_data_dir: str, rx_node_name: str) -> List[str] | str:
@@ -24,7 +28,9 @@ def parse_json_rx_data(can_data_dir: str, rx_node_name: str) -> List[str] | str:
     :return:
     """
     try:
-        node_rx_json_data = _validate_rx_json(load_json_file(f"{can_data_dir}/{rx_node_name}/{rx_node_name}_rx"))
+        node_rx_json_data = _validate_rx_json(
+            load_json_file(f"{can_data_dir}/{rx_node_name}/{rx_node_name}_rx")
+        )
     except SchemaError:
         raise InvalidCanJson(f"RX JSON file is not valid for node {rx_node_name}")
     return node_rx_json_data["messages"]

@@ -13,13 +13,6 @@
 
 /* -------------------------------- Enums --------------------------------- */
 
-typedef enum
-{
-    {%- for node_name, _ in node_name_and_alerts %}
-    {{node_name.upper()}}_ALERT_BOARD = {{loop.index0}},
-    {%- endfor %}
-} CanAlertBoard;
-
 typedef struct
 {
     char* description;
@@ -70,15 +63,15 @@ bool app_canAlerts_{{fault.name}}_get(void);
 /**
  * Return whether or not a board has set a info.
  */
-bool app_canAlerts_BoardHasInfo(CanAlertBoard board);
+bool app_canAlerts_BoardHasInfo(CanNode board);
 /**
  * Return whether or not a board has set a warning.
  */
-bool app_canAlerts_BoardHasWarning(CanAlertBoard board);
+bool app_canAlerts_BoardHasWarning(CanNode board);
 /**
  * Return whether or not a board has set a fault.
  */
-bool app_canAlerts_BoardHasFault(CanAlertBoard board);
+bool app_canAlerts_BoardHasFault(CanNode board);
 
 
 /**

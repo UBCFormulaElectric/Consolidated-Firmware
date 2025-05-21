@@ -38,7 +38,7 @@ def max_uint_for_bits(num_bits: int) -> int:
     """
     Largest unsigned int that can be stored in num_bits number of bits.
     """
-    return int(2 ** num_bits - 1)
+    return int(2**num_bits - 1)
 
 
 def is_int(num: Union[int, float]) -> bool:
