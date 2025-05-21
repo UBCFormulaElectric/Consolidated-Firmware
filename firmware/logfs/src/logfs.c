@@ -333,53 +333,6 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
     {
         if (new_block)
         {
-            // TODO: Right now I force a sync of the new empty block. I think this means every block gets
-            // written to disk twice which is dumb! Gets written once when just created with no data,
-            // and again once it is synced with the actual data. Very very silly...
-            //
-            // Be careful about changing this!
-            //
-            // Current implementation failure mode where data could get jumbled up:
-            // 1. Write a CAN message where part is on one block, and part is on the next.
-            // 2. The first parts gets written to disk successfully.
-            // 3. LogFS tries to create a new empty block and sync it to disk, but this one
-            // fails. Thus the second half of the message doesn't get copied to the cache and is
-            // lost.
-            // 4. More messages get written, but one message is incomplete, leading to errors during
-            // decoding.
-            //
-            // Another one:
-            // 1. Write a CAN message where part is on one block, and part is on the next.
-            // 2. The first part doesn't get written to disk successfully. Thus the second half of the message doesn't
-            // get copied to the cache and is lost.
-            // 3. More messages get written, but one message is incomplete, leading to errors during
-            // decoding.
-            //
-            // These examples hopefully show that this is tricky, and you might want to think about this a bit
-            // more... Maybe write blocks in reverse order (i.e. update the earliest block last) such that if
-            // the earliest block (current file head) gets updated, then the rest of the  write has definitely
-            // completed... However, note with reverse order, there is a failure mode possible:
-            //
-            // 1. A block is succesfully written to disk containing part of a CAN message.
-            // 2. More data is added to that CAN message in another write, which fails and corrupts the disk.
-            // 3. Part of a CAN message is lost. If the user adds more data, there could be errors on decoding.
-            //
-            // Another possible solution: Only full blocks get written, and only written once! Also, a block
-            // cannot be exchanged in the cache unless it gets written to disk. Thus, if a certain block
-            // fails to be written, no more blocks will be allowed until it succeeds.
-            //
-            // This has a failure mode too! Same as before:
-            // 1. Write a CAN message where part is on one block, and part is on the next.
-            // 2. The first part doesn't get written to disk successfully. Thus the second half of the message doesn't
-            // get copied to the cache and is lost.
-            // 3. More messages get written, but one message is incomplete, leading to errors during
-            // decoding.
-            //
-            // If you can't figure this out, maybe add some special characters to the logging
-            // to delimit individual CAN messages. If some are incomplete, they can be ignored.
-            //
-            // Be careful, this is very very tricky!
-
             // Writes to new blocks are done at the head.
             cur_data = fs->head_addr;
             RET_ERR(disk_exchangeCache(fs, &file->cache, cur_data, DISK_CACHE_WRITE_BACK));
