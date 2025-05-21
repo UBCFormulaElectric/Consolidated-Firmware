@@ -214,7 +214,7 @@ FileSystemError io_fileSystem_read(uint32_t fd, void *buf, const size_t size)
     return FILE_OK;
 }
 
-FileSystemError io_fileSystem_write(uint32_t fd, void *buf, const size_t size)
+FileSystemError io_fileSystem_write(uint32_t fd, const void *buf, const size_t size)
 {
     CHECK_MOUNT();
     CHECK_FILE_DESCRIPTOR(fd);

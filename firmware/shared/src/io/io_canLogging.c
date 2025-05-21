@@ -1,18 +1,21 @@
 #include "io_canLogging.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
 
+#include "app_crc8.h"
 #include "cmsis_os.h"
+#include "io_canMsg.h"
 #include "io_fileSystem.h"
 #include "io_log.h"
 
 // Message Queue configuration
 #define QUEUE_SIZE 2000
 #define PATH_LENGTH 64
-#define QUEUE_BYTES (sizeof(CanMsgLog) * QUEUE_SIZE)
+#define QUEUE_BYTES (sizeof(CanMsg) * QUEUE_SIZE)
 
 #define CHECK_ENABLED()                                    \
     if (logging_error_remaining == 0)                      \
@@ -55,17 +58,9 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
-{
-    log->id        = msg->std_id & ID_MASK;
-    log->dlc       = msg->dlc & DLC_MASK;
-    log->timestamp = msg->timestamp & TIMESTAMP_MASK;
-    memcpy(log->data, msg->data.data8, 8);
-}
-
 void io_canLogging_init(void)
 {
-    message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsgLog), &queue_attr);
+    message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
     assert(message_queue_id != NULL);
 
     // Initialize the filesystem.
@@ -83,10 +78,36 @@ void io_canLogging_recordMsgFromQueue(void)
     CHECK_ENABLED();
 
     // Assert here since we pass "wait forever" for a message. So it'll only fail if we've configured something wrong.
-    CanMsgLog msg;
+    CanMsg msg;
     assert(osMessageQueueGet(message_queue_id, &msg, NULL, osWaitForever) == osOK);
 
-    CHECK_ERR(io_fileSystem_write(log_fd, &msg, sizeof(msg)) == FILE_OK);
+    // Message log payload:
+    // 1. Magic number 0xBA (1 byte)
+    // 2. CRC8 checksum (1 byte)
+    // 3. Timestamp (2 bytes)
+    // 4. ID (4 bytes)
+    // 5. DLC code (1 byte)
+    // 6. Data bytes (0-64 bytes)
+    // (9-73 bytes total)
+
+    const uint8_t  magic     = 0xBA;
+    const uint16_t timestamp = (uint16_t)msg.timestamp;
+    const uint32_t id        = msg.std_id;
+    const uint8_t  dlc       = (uint8_t)msg.dlc;
+
+    uint8_t crc = app_crc8_init();
+    crc         = app_crc8_update(crc, &timestamp, sizeof(timestamp));
+    crc         = app_crc8_update(crc, &id, sizeof(id));
+    crc         = app_crc8_update(crc, &dlc, sizeof(dlc));
+    crc         = app_crc8_update(crc, &msg.data.data8, dlc);
+    crc         = app_crc8_finalize(crc);
+
+    CHECK_ERR(io_fileSystem_write(log_fd, &magic, sizeof(magic)) == FILE_OK);
+    CHECK_ERR(io_fileSystem_write(log_fd, &crc, sizeof(crc)) == FILE_OK);
+    CHECK_ERR(io_fileSystem_write(log_fd, &timestamp, sizeof(timestamp)) == FILE_OK);
+    CHECK_ERR(io_fileSystem_write(log_fd, &id, sizeof(id)) == FILE_OK);
+    CHECK_ERR(io_fileSystem_write(log_fd, &dlc, sizeof(dlc)) == FILE_OK);
+    CHECK_ERR(io_fileSystem_write(log_fd, msg.data.data8, dlc) == FILE_OK);
 }
 
 void io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
@@ -94,12 +115,10 @@ void io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
     CHECK_ENABLED();
 
     static uint32_t overflow_count = 0;
-    CanMsgLog       msg_log;
-    convertCanMsgToLog(rx_msg, &msg_log);
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    CHECK_ERR(osMessageQueuePut(message_queue_id, &msg_log, 0, 0) == osOK);
+    CHECK_ERR(osMessageQueuePut(message_queue_id, &rx_msg, 0, 0) == osOK);
 }
 
 void io_canLogging_sync(void)

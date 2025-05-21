@@ -308,7 +308,7 @@ LogFsErr logfs_sync(LogFs *fs, LogFsFile *file)
     return disk_syncCache(fs, &file->cache);
 }
 
-LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
+LogFsErr logfs_write(LogFs *fs, LogFsFile *file, const void *buf, uint32_t size)
 {
     CHECK_ARG(fs);
     CHECK_ARG(file);
