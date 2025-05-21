@@ -1,0 +1,323 @@
+'use client'
+
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useSignals, DataPoint } from '@/lib/contexts/SignalContext';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+
+const NumericalGraph: React.FC = () => {
+  const { currentTime, acti            })}
+          </AreaChart>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NumericalGraph; numericalData, unsubscribeFromSignal, isNumericalSignal } = useSignals();
+  const updateInterval = 200; // Update every 200 milliseconds
+
+  const colors = ["#ff4d4f", "#ffa940", "#36cfc9", "#597ef7", "#73d13d"];
+
+  // Add debugging for data and track active signals
+  useEffect(() => {
+    console.log("NumericalGraph - activeSignals:", activeSignals);
+    console.log("NumericalGraph - numericalData sample:", numericalData.slice(-3));
+  }, [activeSignals, numericalData]);
+  
+  // Use only numerical signals from the active signals
+  const numericalSignals = activeSignals.filter(signal => isNumericalSignal(signal));
+
+  const [scaleFactor, setScaleFactor] = useState("100");
+  const [chartHeight, setChartHeight] = useState("256");
+
+  // Define interface for chart data
+  interface ChartDataPoint {
+    time: number | string;
+    [key: string]: number | string | undefined;
+  }
+  
+  // Process data for the chart
+  const processedData = useMemo(() => {
+    if (!numericalData || numericalData.length === 0) return [];
+    
+    // Log data structure to help debug
+    if (numericalData.length > 0) {
+      console.log("Sample numerical data point:", numericalData[0]);
+    }
+    
+    try {
+      // Step 1: Pre-filter to ensure we only have valid data points
+      const validDataPoints = numericalData.filter(point => 
+        point !== null && typeof point === 'object'
+      );
+      
+      // Step 2: Transform each data point into chart-compatible format
+      const transformedPoints = validDataPoints.map((dataPoint): ChartDataPoint | null => {
+        // Handle time values with extra safety
+        let timeValue: number;
+        try {
+          if ((dataPoint as any).time !== undefined) {
+            const rawTime = (dataPoint as any).time;
+            timeValue = typeof rawTime === 'string' ? Date.parse(rawTime) : Number(rawTime);
+          } else if ((dataPoint as any).timestamp !== undefined) {
+            const rawTime = (dataPoint as any).timestamp;
+            timeValue = typeof rawTime === 'string' ? Date.parse(rawTime) : Number(rawTime);
+          } else {
+            timeValue = Date.now();
+          }
+          
+          // Ensure time is a valid number
+          if (isNaN(timeValue)) {
+            console.warn("Invalid time value detected, using current time instead:", dataPoint);
+            timeValue = Date.now();
+          }
+        } catch (err) {
+          console.error("Error processing time value:", err, dataPoint);
+          timeValue = Date.now(); // Fallback to current time
+        }
+        
+        // Create the processed data point
+        const processed: ChartDataPoint = { time: timeValue };
+        let hasValidData = false; // Flag to check if any value was added
+        
+        // Process each signal
+        for (const signal of numericalSignals) {
+          try {
+            let value: number | undefined = undefined;
+            
+            // Case 1: Direct property access (dataPoint[signalName])
+            if ((dataPoint as any)[signal] !== undefined) {
+              const signalValue = (dataPoint as any)[signal];
+              // Convert string values to numbers if needed
+              if (typeof signalValue === 'string') {
+                const parsed = parseFloat(signalValue);
+                if (!isNaN(parsed)) value = parsed;
+              } 
+              // Use numerical values directly
+              else if (typeof signalValue === 'number' && !isNaN(signalValue) && isFinite(signalValue)) {
+                value = signalValue;
+              }
+            }
+            // Case 2: Using name/value structure (dataPoint.name === signalName && dataPoint.value)
+            else if ((dataPoint as any).name === signal && (dataPoint as any).value !== undefined) {
+              const rawValue = (dataPoint as any).value;
+              
+              if (typeof rawValue === 'string') {
+                const parsed = parseFloat(rawValue);
+                if (!isNaN(parsed)) value = parsed;
+              }
+              else if (typeof rawValue === 'number' && !isNaN(rawValue) && isFinite(rawValue)) {
+                value = rawValue;
+              }
+            }
+            
+            // Only add the value if it's a valid number
+            if (value !== undefined) {
+              processed[signal] = value;
+              hasValidData = true; // We found at least one valid value
+            }
+          } catch (err) {
+            console.error(`Error processing signal ${signal}:`, err);
+          }
+        }
+        
+        // Return the data point only if it has valid data
+        return hasValidData ? processed : null;
+      });
+      
+      // Step 3: Final filtering to remove any null entries and ensure all points have valid data
+      const finalData = transformedPoints
+        .filter((point): point is ChartDataPoint => point !== null)
+        .filter(point => {
+          // Ensure all values are valid numbers
+          for (const key in point) {
+            if (key !== 'time' && (typeof point[key] !== 'number' || isNaN(point[key] as number))) {
+              console.warn(`Filtering out point due to invalid value for ${key}:`, point);
+              return false;
+            }
+          }
+          return Object.keys(point).length > 1; // At least time and one signal
+        });
+        
+      return finalData;
+    } catch (err) {
+      console.error("Error processing chart data:", err);
+      return [];
+    }
+  }, [numericalData, numericalSignals]);
+
+  // Default to a reasonable width even with no data
+  const pixelPerDataPoint = 50;
+  const chartWidth = Math.max((processedData?.length || 0) * pixelPerDataPoint, 500);
+  // Ensure we have a valid number for the width by handling potential NaN values
+  const safeScaleFactor = parseInt(scaleFactor) || 100; // Default to 100% if parsing fails
+  const finalChartWidth = chartWidth * (safeScaleFactor / 100);
+
+  // Render a message if no signals are active
+  if (!numericalSignals || numericalSignals.length === 0) {
+    return (
+      <div className="w-full p-4 h-64 flex flex-col items-center justify-center text-gray-500 border border-gray-300 rounded">
+        <p className="mb-4">No numerical signals are active. Subscribe to signals using the Live Telemetry Data controls above.</p>
+        {activeSignals.length > 0 && (
+          <p className="text-sm text-yellow-500">
+            Note: You have {activeSignals.length} active signal(s) but they appear to be enum/state signals.
+            Try subscribing to numerical signals like speeds, voltages, or temperatures.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Render a message if there's no data yet
+  if (!numericalData || numericalData.length === 0) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center text-gray-500 border border-gray-300 rounded">
+        <p>
+          Waiting for data from active signals: {numericalSignals.join(", ")}...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-64">
+      <div className="ml-24 mt-4 text-xs flex gap-4">
+        {numericalSignals.map((signalName, index) => (
+          <div key={`${signalName}-${index}`} className="flex items-center mb-1">
+            <div
+              className="w-3 h-3 inline-block mr-2"
+              style={{
+                backgroundColor: colors[index % colors.length],
+              }}
+            ></div>
+            <span className="text-gray-500">{signalName}</span>
+          </div>
+        ))}
+      </div>
+      <div className="ml-24 mb-2">
+        <label htmlFor="scaleSlider" className="mr-2">
+          Horizontal Scale (%):
+        </label>
+        <input
+          id="scaleSlider"
+          type="range"
+          min="1"
+          max="1000"
+          value={scaleFactor}
+          onChange={(e) => setScaleFactor(e.target.value)}
+        />
+        <span className="ml-2">{scaleFactor}%</span>
+      </div>
+      <div className="ml-24 mb-2">
+        <label htmlFor="heightSlider" className="mr-2">
+          Vertical Scale (px):
+        </label>
+        <input
+          id="heightSlider"
+          type="range"
+          min="100"
+          max="1000"
+          value={chartHeight}
+          onChange={(e) => setChartHeight(e.target.value)}
+        />
+        <span className="ml-2">{chartHeight}px</span>
+      </div>
+      <div
+        style={{
+          width: `${finalChartWidth}px`,
+          height: `${chartHeight}px`,
+          transition: "width 0.3s ease-out", // CSS transition to smooth width changes
+          overflow: "auto"
+        }}
+      >
+        {processedData.length === 0 ? (
+          <div className="w-full h-full flex items-center justify-center text-gray-500">
+            <p>No valid data points available for the selected signals. Waiting for numerical data...</p>
+          </div>
+        ) : (
+          <AreaChart
+            width={Math.max(finalChartWidth || 500, 1)} // Ensure positive non-zero width
+            height={Math.max(parseInt(chartHeight) || 256, 1)} // Ensure positive non-zero height
+            data={processedData}
+          >
+            <defs>
+              {numericalSignals.map((signalName, index) => (
+                <linearGradient
+                  key={`${signalName}-${index}`}
+                  id={`color${signalName}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor={colors[index % colors.length]}
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={colors[index % colors.length]}
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              ))}
+            </defs>
+            <XAxis
+              dataKey="time"
+              type="number"
+              domain={["dataMin", "dataMax"]}
+              hide
+            />
+            <YAxis />
+            <Tooltip
+              labelFormatter={(value) => 
+                typeof value === 'number' ? new Date(value).toLocaleTimeString() : value.toString()
+              }
+              formatter={(value, name) => {
+                // Format with more safety
+                if (value === undefined || value === null || isNaN(value)) return ['N/A', name];
+                return [`${value}`, `${name}`];
+              }}
+              isAnimationActive={false}
+            />
+            {numericalSignals.map((signalName, index) => {
+              // Check if we have any data for this signal
+              const hasData = processedData.some(point => 
+                point[signalName] !== undefined && 
+                point[signalName] !== null &&
+                !isNaN(point[signalName] as number)
+              );
+              
+              // Only render the Area if we have data for this signal
+              return hasData ? (
+                <Area
+                  key={`${signalName}-${index}`}
+                  type="monotone"
+                  dataKey={signalName}
+                  stroke={colors[index % colors.length] as string}
+                  fillOpacity={1}
+                  fill={`url(#color${signalName})`}
+                  isAnimationActive={false}
+                  animationDuration={updateInterval}
+                  connectNulls={true} // Skip null/undefined values
+                />
+              ) : null;
+            })}
+          </AreaChart>
+        )}
+          </AreaChart>
+        )}
+        </AreaChart>
+      </div>
+    </div>
+  );
+};
+
+export default NumericalGraph;

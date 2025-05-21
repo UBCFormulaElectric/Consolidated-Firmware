@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSignals } from '@/lib/contexts/SignalContext';
 import {
   AreaChart,
@@ -11,51 +11,100 @@ import {
 } from "recharts";
 
 const NumericalGraph: React.FC = () => {
-  const { currentTime, activeSignals, data, unsubscribeFromSignal } = useSignals();
+  const { activeSignals, numericalData, isNumericalSignal } = useSignals();
   const updateInterval = 200; // Update every 200 milliseconds
 
   const colors = ["#ff4d4f", "#ffa940", "#36cfc9", "#597ef7", "#73d13d"];
 
-  // Add debugging for data and track active signals
-  useEffect(() => {
-    console.log("NumericalGraph - activeSignals:", activeSignals);
-    console.log("NumericalGraph - data sample:", data.slice(-3));
-  }, [activeSignals, data]);
-
-  // Help function to check if a signal is enum type (for filtering)
-  const isEnumSignal = useCallback((signalName: string) => {
-    // Enum signals typically have "state" or "mode" in their name
-    // This is a simple heuristic - you might want to improve it based on your actual signal naming conventions
-    return signalName.toLowerCase().includes('state') || 
-           signalName.toLowerCase().includes('mode') ||
-           signalName.toLowerCase().includes('enum');
-  }, []);
-  
-  // Filter to only show numerical signals (non-enum signals)
-  const numericalSignals = activeSignals.filter(signal => !isEnumSignal(signal));
+  // Only numerical signals from active signals
+  const numericalSignals = activeSignals.filter(isNumericalSignal);
 
   const [scaleFactor, setScaleFactor] = useState("100");
   const [chartHeight, setChartHeight] = useState("256");
 
-  // Default to a reasonable width even with no data
-  const pixelPerDataPoint = 50;
-  const chartWidth = Math.max((data?.length || 0) * pixelPerDataPoint, 500);
-  const finalChartWidth = chartWidth * (parseInt(scaleFactor) / 100);
+  interface ChartDataPoint {
+    time: number | string;
+    [key: string]: number | string | undefined;
+  }
 
-  // Render a message if no signals are active
-  if (!numericalSignals || numericalSignals.length === 0) {
+  const processedData = useMemo(() => {
+    if (!numericalData?.length) return [];
+
+    // Pre-filter valid objects
+    const validDataPoints = numericalData.filter(point => point && typeof point === 'object');
+
+    const transformed = validDataPoints.map((dataPoint): ChartDataPoint | null => {
+      let timeValue: number;
+      const rawTime = (dataPoint as any).time ?? (dataPoint as any).timestamp;
+      timeValue = rawTime != null
+        ? (typeof rawTime === 'string' ? Date.parse(rawTime) : Number(rawTime))
+        : Date.now();
+      if (isNaN(timeValue)) timeValue = Date.now();
+
+      const processed: ChartDataPoint = { time: timeValue };
+      let hasValue = false;
+
+      for (const signal of numericalSignals) {
+        let val: number | undefined;
+        const dp = dataPoint as any;
+
+        if (dp[signal] != null) {
+          const candidate = dp[signal];
+          if (typeof candidate === 'string') {
+            const parsed = parseFloat(candidate);
+            if (!isNaN(parsed)) val = parsed;
+          } else if (typeof candidate === 'number' && isFinite(candidate)) {
+            val = candidate;
+          }
+        } else if (dp.name === signal && dp.value != null) {
+          const raw = dp.value;
+          if (typeof raw === 'string') {
+            const parsed = parseFloat(raw);
+            if (!isNaN(parsed)) val = parsed;
+          } else if (typeof raw === 'number' && isFinite(raw)) {
+            val = raw;
+          }
+        }
+
+        if (val != null) {
+          processed[signal] = val;
+          hasValue = true;
+        }
+      }
+
+      return hasValue ? processed : null;
+    });
+
+    return transformed
+      .filter((pt): pt is ChartDataPoint => pt !== null)
+      .filter(pt => Object.keys(pt).length > 1);
+  }, [numericalData, numericalSignals]);
+
+  const pixelPerDataPoint = 50;
+  const chartWidth = Math.max((processedData.length || 0) * pixelPerDataPoint, 500);
+  const safeScale = parseInt(scaleFactor) || 100;
+  const finalChartWidth = chartWidth * (safeScale / 100);
+
+  if (!numericalSignals.length) {
     return (
-      <div className="w-full h-64 flex items-center justify-center text-gray-500">
-        No numerical signals are active. Add signals using the controls below.
+      <div className="w-full p-4 h-64 flex flex-col items-center justify-center text-gray-500 border border-gray-300 rounded">
+        <p className="mb-4">
+          No numerical signals are active. Subscribe to signals using the Live Telemetry Data controls above.
+        </p>
+        {activeSignals.length > 0 && (
+          <p className="text-sm text-yellow-500">
+            Note: You have {activeSignals.length} active signal(s) but they appear to be enum/state signals.
+            Try subscribing to numerical signals like speeds, voltages, or temperatures.
+          </p>
+        )}
       </div>
     );
   }
 
-  // Render a message if there's no data yet
-  if (!data || data.length === 0) {
+  if (!numericalData?.length) {
     return (
-      <div className="w-full h-64 flex items-center justify-center text-gray-500">
-        Waiting for data from active signals...
+      <div className="w-full h-64 flex items-center justify-center text-gray-500 border border-gray-300 rounded">
+        <p>Waiting for data from active signals: {numericalSignals.join(", ")}...</p>
       </div>
     );
   }
@@ -63,108 +112,97 @@ const NumericalGraph: React.FC = () => {
   return (
     <div className="w-full h-64">
       <div className="ml-24 mt-4 text-xs flex gap-4">
-        {numericalSignals.map((signalName, index) => (
-          <div key={`${signalName}-${index}`} className="flex items-center mb-1">
+        {numericalSignals.map((sig, i) => (
+          <div key={sig + i} className="flex items-center mb-1">
             <div
-              className="w-3 h-3 inline-block mr-2"
-              style={{
-                backgroundColor: colors[index % colors.length],
-              }}
-            ></div>
-            <span className="text-gray-500">{signalName}</span>
+              className="w-3 h-3 mr-2"
+              style={{ backgroundColor: colors[i % colors.length] }}
+            />
+            <span className="text-gray-500">{sig}</span>
           </div>
         ))}
       </div>
-      <div className="ml-24 mb-2">
-        <label htmlFor="scaleSlider" className="mr-2">
-          Horizontal Scale (%):
-        </label>
+
+      <div className="ml-24 mb-2 flex items-center gap-2 text-xs">
+        <label htmlFor="scaleSlider">Horizontal Scale (%):</label>
         <input
           id="scaleSlider"
           type="range"
           min="1"
           max="1000"
           value={scaleFactor}
-          onChange={(e) => setScaleFactor(e.target.value)}
+          onChange={e => setScaleFactor(e.target.value)}
         />
-        <span className="ml-2">{scaleFactor}%</span>
+        <span>{scaleFactor}%</span>
       </div>
-      <div className="ml-24 mb-2">
-        <label htmlFor="heightSlider" className="mr-2">
-          Vertical Scale (px):
-        </label>
+
+      <div className="ml-24 mb-2 flex items-center gap-2 text-xs">
+        <label htmlFor="heightSlider">Vertical Scale (px):</label>
         <input
           id="heightSlider"
           type="range"
           min="100"
           max="1000"
           value={chartHeight}
-          onChange={(e) => setChartHeight(e.target.value)}
+          onChange={e => setChartHeight(e.target.value)}
         />
-        <span className="ml-2">{chartHeight}px</span>
+        <span>{chartHeight}px</span>
       </div>
+
       <div
         style={{
           width: `${finalChartWidth}px`,
           height: `${chartHeight}px`,
-          transition: "width 0.3s ease-out", // CSS transition to smooth width changes
-          overflow: "auto"
+          transition: "width 0.3s ease-out",
+          overflow: "auto",
         }}
       >
-        <AreaChart
-          width={finalChartWidth}
-          height={parseInt(chartHeight)}
-          data={data}
-        >
-          <defs>
-            {numericalSignals.map((signalName, index) => (
-              <linearGradient
-                key={`${signalName}-${index}`}
-                id={`color${signalName}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor={colors[index % colors.length]}
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={colors[index % colors.length]}
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            ))}
-          </defs>
-          <XAxis
-            dataKey="time"
-            type="number"
-            domain={["dataMin", "dataMax"]}
-            hide
-          />
-          <YAxis />
-          <Tooltip
-            labelFormatter={(value) => 
-              typeof value === 'number' ? new Date(value).toLocaleTimeString() : value.toString()
-            }
-            formatter={(value, name) => [`${value}`, `${name}`]}
-          />
-          {numericalSignals.map((signalName, index) => (
-            <Area
-              key={`${signalName}-${index}`}
-              type="monotone"
-              dataKey={signalName}
-              stroke={colors[index % colors.length]}
-              fillOpacity={1}
-              fill={`url(#color${signalName})`}
+        {processedData.length === 0 ? (
+          <div className="w-full h-full flex items-center justify-center text-gray-500">
+            <p>No valid data points available for the selected signals. Waiting for numerical data...</p>
+          </div>
+        ) : (
+          <AreaChart
+            width={Math.max(finalChartWidth, 1)}
+            height={Math.max(parseInt(chartHeight), 1)}
+            data={processedData}
+          >
+            <defs>
+              {numericalSignals.map((sig, i) => (
+                <linearGradient key={sig + i} id={`color${sig}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colors[i % colors.length]} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={colors[i % colors.length]} stopOpacity={0} />
+                </linearGradient>
+              ))}
+            </defs>
+            <XAxis dataKey="time" type="number" domain={["dataMin", "dataMax"]} hide />
+            <YAxis />
+            <Tooltip
+              labelFormatter={val =>
+                typeof val === 'number' ? new Date(val).toLocaleTimeString() : val.toString()
+              }
+              formatter={(val, name) =>
+                typeof val === 'number' && !isNaN(val) ? [`${val}`, `${name}`] : ['N/A', name]
+              }
               isAnimationActive={false}
-              animationDuration={updateInterval}
             />
-          ))}
-        </AreaChart>
+            {numericalSignals.map((sig, i) =>
+              processedData.some(pt => pt[sig] != null) ? (
+                <Area
+                  key={sig + i}
+                  type="monotone"
+                  dataKey={sig}
+                  stroke={colors[i % colors.length]}
+                  fillOpacity={1}
+                  fill={`url(#color${sig})`}
+                  isAnimationActive={false}
+                  animationDuration={updateInterval}
+                  connectNulls
+                />
+              ) : null
+            )}
+          </AreaChart>
+        )}
       </div>
     </div>
   );
