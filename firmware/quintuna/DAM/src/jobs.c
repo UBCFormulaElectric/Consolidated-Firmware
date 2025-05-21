@@ -1,11 +1,13 @@
 #include "jobs.h"
 #include "io_buzzer.h"
-#include "io_rtc.h"
 #include "io_log.h"
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
+
+#include "io_telemMessage.h"
+#include "io_telemBaseTime.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -21,11 +23,18 @@ void jobs_init()
 
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+
+    // save start_time to be broadcasted SEE IF THIS SHOULD BE MOVED
+    // io_rtc_readTime(&start_time);
+
+    // move into can msg
+    io_telemBaseTimeInit();
 }
 
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
+    io_telemBaseTimeSend();
 }
 
 void jobs_run100Hz_tick(void)

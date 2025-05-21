@@ -32,54 +32,68 @@ class _AlertsJson(TypedDict):
 
 _AlertsJson_schema = Schema(
     Or(
-        Schema({
-            "warnings_id": And(int, lambda x: x >= 0),
-            "warnings_counts_id": And(int, lambda x: x >= 0),
-            "faults_id": And(int, lambda x: x >= 0),
-            "faults_counts_id": And(int, lambda x: x >= 0),
-            "info_id": And(int, lambda x: x >= 0),
-            "info_counts_id": And(int, lambda x: x >= 0),
-            # TODO why does this need to exist? - to specify which bus/buses to send the alerts same as tx messages
-            "warnings": Or(
-                Schema({}),
-                Schema({
-                    str: Or(
-                        Schema({}),
-                        Schema({
-                            "id": int,
-                            "description": str,
-                            Optional("disabled"): bool,
-                        }),
-                    )
-                }),
-            ),
-            "faults": Or(
-                Schema({}),
-                Schema({
-                    str: Or(
-                        Schema({}),
-                        Schema({
-                            "id": int,
-                            "description": str,
-                            Optional("disabled"): bool,
-                        }),
-                    )
-                }),
-            ),
-            "info": Or(
-                Schema({}),
-                Schema({
-                    str: Or(
-                        Schema({}),
-                        Schema({
-                            "id": int,
-                            "description": str,
-                            Optional("disabled"): bool,
-                        }),
-                    )
-                }),
-            ),
-        }),
+        Schema(
+            {
+                "warnings_id": And(int, lambda x: x >= 0),
+                "warnings_counts_id": And(int, lambda x: x >= 0),
+                "faults_id": And(int, lambda x: x >= 0),
+                "faults_counts_id": And(int, lambda x: x >= 0),
+                "info_id": And(int, lambda x: x >= 0),
+                "info_counts_id": And(int, lambda x: x >= 0),
+                # TODO why does this need to exist? - to specify which bus/buses to send the alerts same as tx messages
+                "warnings": Or(
+                    Schema({}),
+                    Schema(
+                        {
+                            str: Or(
+                                Schema({}),
+                                Schema(
+                                    {
+                                        "id": int,
+                                        "description": str,
+                                        Optional("disabled"): bool,
+                                    }
+                                ),
+                            )
+                        }
+                    ),
+                ),
+                "faults": Or(
+                    Schema({}),
+                    Schema(
+                        {
+                            str: Or(
+                                Schema({}),
+                                Schema(
+                                    {
+                                        "id": int,
+                                        "description": str,
+                                        Optional("disabled"): bool,
+                                    }
+                                ),
+                            )
+                        }
+                    ),
+                ),
+                "info": Or(
+                    Schema({}),
+                    Schema(
+                        {
+                            str: Or(
+                                Schema({}),
+                                Schema(
+                                    {
+                                        "id": int,
+                                        "description": str,
+                                        Optional("disabled"): bool,
+                                    }
+                                ),
+                            )
+                        }
+                    ),
+                ),
+            }
+        ),
         Schema({}),
     )
 )
@@ -90,7 +104,7 @@ def _validate_alerts_json(json: Dict) -> _AlertsJson:
 
 
 def _parse_node_alert_signals(
-        node: str, alerts: dict[str, _AlertsEntryJson], alert_type: CanAlertType
+    node: str, alerts: dict[str, _AlertsEntryJson], alert_type: CanAlertType
 ) -> tuple[dict[str, _AlertsEntryJson], list[CanSignal]]:
     """
     From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
@@ -122,13 +136,17 @@ def _parse_node_alert_signals(
     return meta_data, signals
 
 
-def _parse_node_alert_count_signals(node: str, alerts: dict[str, _AlertsEntryJson], alert_type: str) -> List[CanSignal]:
+def _parse_node_alert_count_signals(
+    node: str, alerts: dict[str, _AlertsEntryJson], alert_type: str
+) -> List[CanSignal]:
     """
     From a list of strings of alert names, return a list of CAN signals.
     Each signal will represent the number of times the corresponding alert has been set.
     :returns a list of signals representing the signals carrying alert counts
     """
-    ALERT_COUNT_BITS = 3  # TODO move this up, this is a very important configuration constant
+    ALERT_COUNT_BITS = (
+        3  # TODO move this up, this is a very important configuration constant
+    )
     return [
         CanSignal(
             name=f"{node}_{alert_type}_{alert}Count",
@@ -137,7 +155,7 @@ def _parse_node_alert_count_signals(node: str, alerts: dict[str, _AlertsEntryJso
             scale=1,
             offset=0,
             min_val=0,
-            max_val=2 ** ALERT_COUNT_BITS - 1,
+            max_val=2**ALERT_COUNT_BITS - 1,
             start_val=0,
             enum=None,
             unit="",
@@ -147,9 +165,16 @@ def _parse_node_alert_count_signals(node: str, alerts: dict[str, _AlertsEntryJso
     ]
 
 
-def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
-    tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage], tuple[
-        dict[str, _AlertsEntryJson], dict[str, _AlertsEntryJson], dict[str, _AlertsEntryJson]]]:
+def _parse_node_alerts(
+    node: str, alerts_json: _AlertsJson
+) -> tuple[
+    tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage],
+    tuple[
+        dict[str, _AlertsEntryJson],
+        dict[str, _AlertsEntryJson],
+        dict[str, _AlertsEntryJson],
+    ],
+]:
     node_name = node
     """
     Parse JSON data dictionary representing a node's alerts.
@@ -200,14 +225,16 @@ def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
         node_name, warnings, CanAlertType.WARNING
     )
     faults_counts_signals = _parse_node_alert_count_signals(
-        node_name, faults,  CanAlertType.FAULT
+        node_name, faults, CanAlertType.FAULT
     )
     info_counts_signals = _parse_node_alert_count_signals(
         node_name, info, CanAlertType.INFO
     )
 
     # noinspection PyTypeChecker
-    alerts_msgs: tuple[CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage] = tuple(
+    alerts_msgs: tuple[
+        CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage
+    ] = tuple(
         CanMessage(
             name=name,
             id=msg_id,
@@ -217,7 +244,7 @@ def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
             telem_cycle_time=cycle_time,
             signals=signals,
             tx_node_name=node,
-            modes=None
+            modes=None,
         )
         for name, msg_id, description, signals, cycle_time in [
             (
@@ -271,7 +298,9 @@ def _parse_node_alerts(node: str, alerts_json: _AlertsJson) -> tuple[
     return alerts_msgs, (faults_meta_data, warnings_meta_data, info_meta_data)
 
 
-def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[tuple[List[CanMessage], list[CanAlert]]]:
+def parse_alert_data(
+    can_data_dir: str, node_name: str
+) -> Optional_t[tuple[List[CanMessage], list[CanAlert]]]:
     try:
         node_alerts_json_data = _validate_alerts_json(
             load_json_file(f"{can_data_dir}/{node_name}/{node_name}_alerts")
@@ -291,28 +320,49 @@ def parse_alert_data(can_data_dir: str, node_name: str) -> Optional_t[tuple[List
         warnings_counts_msg,
         faults_counts_msg,
         info_msg,
-        info_counts_msg
+        info_counts_msg,
     ), (
         faults_meta_data,
         warnings_meta_data,
         info_meta_data,
-    ) = _parse_node_alerts(node_name, node_alerts_json_data)
+    ) = _parse_node_alerts(
+        node_name, node_alerts_json_data
+    )
 
     can_alerts: list[CanAlert] = [
         *[
-            CanAlert(alert.name, CanAlertType.WARNING, warnings_meta_data[alert.name]["id"],
-                     warnings_meta_data[alert.name]["description"])
+            CanAlert(
+                alert.name,
+                CanAlertType.WARNING,
+                warnings_meta_data[alert.name]["id"],
+                warnings_meta_data[alert.name]["description"],
+            )
             for alert in warnings_msg.signals
         ],
         *[
-            CanAlert(alert.name, CanAlertType.FAULT, faults_meta_data[alert.name]["id"],
-                     faults_meta_data[alert.name]["description"])
+            CanAlert(
+                alert.name,
+                CanAlertType.FAULT,
+                faults_meta_data[alert.name]["id"],
+                faults_meta_data[alert.name]["description"],
+            )
             for alert in faults_msg.signals
         ],
         *[
-            CanAlert(alert.name, CanAlertType.INFO, info_meta_data[alert.name]["id"],
-                     info_meta_data[alert.name]["description"])
+            CanAlert(
+                alert.name,
+                CanAlertType.INFO,
+                info_meta_data[alert.name]["id"],
+                info_meta_data[alert.name]["description"],
+            )
             for alert in info_msg.signals
         ],
     ]
-    return [warnings_msg, faults_msg, warnings_counts_msg, faults_counts_msg, info_msg, info_counts_msg], can_alerts
+    return [
+        warnings_msg,
+        faults_msg,
+        warnings_counts_msg,
+        faults_counts_msg,
+        info_msg,
+        info_counts_msg,
+    ], can_alerts

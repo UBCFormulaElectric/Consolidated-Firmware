@@ -11,19 +11,24 @@
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_jsoncan.h"
+#include "io_bootHandler.h"
+
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
-#include "shared.pb.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 
-void tasks_preInit() {}
+void tasks_preInit(void)
+{
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init(void)
 {
@@ -111,5 +116,6 @@ void tasks_runCanRx(void)
         const CanMsg rx_msg      = io_canQueue_popRx();
         JsonCanMsg   rx_json_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&rx_json_msg);
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
