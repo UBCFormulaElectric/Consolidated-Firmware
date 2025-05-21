@@ -19,7 +19,7 @@ def read_messages_from_file(data_file: str) -> NoReturn:
 		# Iterate over each row (simulate message reception over time)
 		for _i, row in df.iterrows():
 			# each message has multiple signals
-			can_timestamp, can_id, can_value = datetime.utcnow(), int(row['can_signal']), bytearray.fromhex(row["can_value"])
+			can_timestamp, can_id, can_value = datetime.now(), int(row['can_signal']), bytearray.fromhex(row["can_value"])
 			can_msg_queue.put(CanMsg(can_id, can_value, can_timestamp))
 			# sleep before emitting next message
 			time.sleep(1)
