@@ -114,7 +114,7 @@ CanHandle can = { .hcan = &hfdcan1, .bus_num = 2, .receive_callback = io_canQueu
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // bootloader_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/

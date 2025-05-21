@@ -1,11 +1,10 @@
 #include "jobs.h"
-#include "io_buzzer.h"
-#include "io_log.h"
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
-
+#include "io_time.h"
+#include "io_canTx.h"
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 
@@ -42,11 +41,8 @@ void jobs_run100Hz_tick(void)
     io_canTx_enqueue100HzMsgs();
 }
 
-void jobs_run1kHz_tick(void) {}
-
-void jobs_runCanRx_tick(void)
+void jobs_run1kHz_tick(void)
 {
-    const CanMsg rx_msg       = io_canQueue_popRx();
-    JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
-    io_canRx_updateRxTableWithMessage(&json_can_msg);
+    const uint32_t start_ticks = io_time_getCurrentMs();
+    io_canTx_enqueueOtherPeriodicMsgs(start_ticks);
 }

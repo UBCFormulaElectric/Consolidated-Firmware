@@ -10,15 +10,15 @@
 #include "io_canQueue.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
-#include "io_buzzer.h"
 #include "io_telemMessage.h"
 #include "io_telemRx.h"
-#include "io_time.h"
+#include "io_bootHandler.h"
+#include "io_canRx.h"
+#include "io_jsoncan.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
-#include "hw_gpios.h"
 #include "hw_crc.h"
 
 #include <hw_chimera_v2.h>
@@ -159,17 +159,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        // ToDo: check if this is needed and investigate why is_fd is not a bool
-        //  if (tx_msg.is_fd)
-        //  {
-        //      hw_fdcan_transmit(&can1, &tx_msg);
-        //  }
-        //  else
-        //  {
-        //      hw_can_transmit(&can1, &tx_msg);
-        //  }
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
     }
 }
 
@@ -177,7 +167,10 @@ _Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
-        jobs_runCanRx_tick();
+        const CanMsg rx_msg       = io_canQueue_popRx();
+        JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&json_can_msg);
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 
