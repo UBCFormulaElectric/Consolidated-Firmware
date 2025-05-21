@@ -26,10 +26,25 @@ typedef struct
     const Gpio  *pgood;
 } TI_LoadSwitch;
 #else
-#include "app_utils.h"
-EMPTY_STRUCT(TI_LoadSwitch)
-EMPTY_STRUCT(ST_LoadSwitch)
-EMPTY_STRUCT(Efuse)
+typedef struct
+{
+    bool  enabled;
+    float current;
+    bool  simulate_fault;
+} Efuse;
+typedef struct
+{
+    const Efuse *efuse;
+    bool         pgood;
+} TI_LoadSwitch;
+typedef struct
+{
+    const Efuse *efuse1;
+    const Efuse *efuse2;
+
+    bool pgood;
+    bool set_stby_reset_gpio;
+} ST_LoadSwitch;
 #endif
 
 /**
@@ -37,7 +52,7 @@ EMPTY_STRUCT(Efuse)
  * @param channel Channel to enable/disable
  * @param enabled Enable if enabled is true, disable if false
  */
-void io_loadswitch_setChannel(const Efuse *channel, const bool enabled);
+void io_loadswitch_setChannel(const Efuse *channel, bool enabled);
 /**
  * Check of provided loadswitch channel is enabled
  * @param channel Channel to enable/disable
@@ -63,15 +78,8 @@ void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch);
 void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch);
 
 /**
- * Check PGOOD  to see if we need to reset the Loadswitch
- * @param loadswitch The loadswitch you want to check is okay
- * @return The state of PGOOD
+ * TI Loadswitch pgood line status
+ * @param loadSwitch TI Loadswitch in question
+ * @return status of the pgood line
  */
-bool io_TILoadswitch_Status(const TI_LoadSwitch *loadswitch);
-
-/**
- * Check frstby  to see if we need to reset the Loadswitch
- * @param loadswitch The loadswitch you want to check is okay
- * @return The state of laodswitch
- */
-bool io_STLoadswitch_Status(const ST_LoadSwitch *loadSwitch);
+bool io_TILoadswitch_pgood(const TI_LoadSwitch *loadSwitch);

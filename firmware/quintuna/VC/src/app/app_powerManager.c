@@ -1,10 +1,12 @@
 #include "app_powerManager.h"
+
 #include "app_timer.h"
 #include "io_loadswitch.h"
 #include "io_loadswitches.h"
-#include <app_canTx.h>
+
 #include <stdbool.h>
 #include <stdint.h>
+#include <assert.h>
 
 static PowerManagerConfig power_manager_state;
 static TimerChannel      *sequencing_timer;
@@ -40,13 +42,32 @@ void app_powerManager_updateConfig(const PowerManagerConfig new_power_manager_co
     power_manager_state = new_power_manager_config;
 }
 
+#define CURRENT_THRESH 0.025f
+static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
+{
+    assert(loadswitch->efuse1 != NULL && loadswitch->efuse2 != NULL);
+    if (io_loadswitch_isChannelEnabled(loadswitch->efuse1) &&
+        io_loadswitch_getChannelCurrent(loadswitch->efuse1) <= CURRENT_THRESH)
+    {
+        return false;
+    }
+
+    if (io_loadswitch_isChannelEnabled(loadswitch->efuse2) &&
+        io_loadswitch_getChannelCurrent(loadswitch->efuse2) <= CURRENT_THRESH)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 static bool is_efuse_ok(const uint8_t current_efuse_sequence)
 {
     if (EFUSE_CHANNEL_RL_PUMP <= current_efuse_sequence && current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP)
     {
-        return io_TILoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
+        return io_TILoadswitch_pgood(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
     }
-    return io_STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
+    return STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
 }
 
 void app_powerManager_EfuseProtocolTick_100Hz(void)
@@ -68,7 +89,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             {
                 // check if the efuse is supposed to be on or off
                 const bool desired_efuse_state = power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable;
-                if (io_loadswitch_isChannelEnabled(&efuse_channels[current_efuse_sequence]) == desired_efuse_state)
+                if (io_loadswitch_isChannelEnabled(efuse_channels[current_efuse_sequence]) == desired_efuse_state)
                 {
                     // efuse is fine
                     continue;
@@ -86,7 +107,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                 if (desired_efuse_state == false)
                 {
                     // case 1: on and trying to turn off
-                    io_loadswitch_setChannel(&efuse_channels[current_efuse_sequence], desired_efuse_state);
+                    io_loadswitch_setChannel(efuse_channels[current_efuse_sequence], desired_efuse_state);
                     continue;
                 }
                 // case 2: off and trying to turn on
@@ -106,7 +127,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                     app_timer_restart(sequencing_timer);
                 }
                 io_loadswitch_setChannel(
-                    &efuse_channels[current_efuse_sequence],
+                    efuse_channels[current_efuse_sequence],
                     power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable);
                 break;
             }
@@ -115,6 +136,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
 #pragma GCC diagnostic pop
 }
 
+#ifdef TARGET_TEST
 PowerManagerConfig app_powerManager_getConfig(void)
 {
     return power_manager_state;
@@ -124,3 +146,4 @@ bool app_powerManager_getEfuse(const LoadswitchChannel channel)
 {
     return power_manager_state.efuse_configs[channel].efuse_enable;
 }
+#endif

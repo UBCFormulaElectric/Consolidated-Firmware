@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <assert.h>
 
 #include "io_loadswitch.h"
 #include "app_canTx.h"
@@ -40,17 +41,12 @@ void app_efuse_broadcast(void)
     // run through each efuse, and broadcast the channel status and current
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse += 1)
     {
-        bool  enabled = io_loadswitch_isChannelEnabled(&efuse_channels[efuse]);
-        float current = io_loadswitch_getChannelCurrent(&efuse_channels[efuse]);
+        const bool  enabled = io_loadswitch_isChannelEnabled(efuse_channels[efuse]);
+        const float current = io_loadswitch_getChannelCurrent(efuse_channels[efuse]);
 
-        if (efuse_enabled_can_setters[efuse] != NULL)
-        {
-            efuse_enabled_can_setters[efuse](enabled);
-        }
-
-        if (efuse_current_can_setters[efuse] != NULL)
-        {
-            efuse_current_can_setters[efuse](current);
-        }
+        assert(efuse_enabled_can_setters[efuse] != NULL);
+        efuse_enabled_can_setters[efuse](enabled);
+        assert(efuse_current_can_setters[efuse] != NULL);
+        efuse_current_can_setters[efuse](current);
     }
 }

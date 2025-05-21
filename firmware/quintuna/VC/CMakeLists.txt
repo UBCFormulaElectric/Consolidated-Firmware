@@ -146,9 +146,15 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
-    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(FAKE_SRCS
+            "${SHARED_FAKES_DIR}/io_imu.cpp"
+            "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS}
+            ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKE_DIRS}
+    )
     compile_gtest_executable(
             "quintuna_VC_test"
             "${SRCS}"
@@ -169,4 +175,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
     target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes")
+    target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
 endif ()

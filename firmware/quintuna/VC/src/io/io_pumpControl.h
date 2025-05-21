@@ -1,8 +1,6 @@
 #pragma once
 
 #include "app_utils.h"
-#include "hw_i2cs.h"
-#include "io_potentiometer.h"
 #include <stdint.h>
 
 typedef enum

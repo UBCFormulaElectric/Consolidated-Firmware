@@ -36,4 +36,4 @@ extern const TI_LoadSwitch rr_pump_loadswitch;
 extern const TI_LoadSwitch f_pump_loadswitch;
 extern const ST_LoadSwitch rad_fan_loadswitch;
 
-extern const Efuse efuse_channels[NUM_EFUSE_CHANNELS];
+extern const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];

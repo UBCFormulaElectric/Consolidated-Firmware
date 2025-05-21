@@ -41,16 +41,15 @@ static void pumpControl_stopFlow(void)
 
 void app_pumpControl_MonitorPumps(void)
 {
-    const bool pump_failure =
-        (io_TILoadswitch_Status(&f_pump_loadswitch) && io_TILoadswitch_Status(&rl_pump_loadswitch) &&
-         io_TILoadswitch_Status(&rr_pump_loadswitch));
+    const bool pumps_ok = io_TILoadswitch_pgood(&f_pump_loadswitch) && io_TILoadswitch_pgood(&rl_pump_loadswitch) &&
+                          io_TILoadswitch_pgood(&rr_pump_loadswitch);
 
     const bool pumps_enabled =
-        (io_loadswitch_isChannelEnabled(&efuse_channels[EFUSE_CHANNEL_RR_PUMP]) ||
-         io_loadswitch_isChannelEnabled(&efuse_channels[EFUSE_CHANNEL_RL_PUMP]) ||
-         io_loadswitch_isChannelEnabled(&efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
+        (io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]) ||
+         io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RL_PUMP]) ||
+         io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
 
-    if (!pump_failure && pumps_enabled)
+    if (pumps_ok && pumps_enabled)
     {
         pumpControl_rampUp();
         return;

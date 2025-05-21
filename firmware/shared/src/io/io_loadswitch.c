@@ -4,7 +4,6 @@
 #include <assert.h>
 
 #define ADC_VOLTAGE_TO_CURRENT_A 1.720f
-#define CURRENT_THRESH 0.025f
 
 void io_loadswitch_setChannel(const Efuse *channel, const bool enabled)
 {
@@ -43,28 +42,7 @@ void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch)
     hw_gpio_writePin(loadSwitch->efuse->enable_gpio, false);
 }
 
-bool io_TILoadswitch_Status(const TI_LoadSwitch *loadswitch)
-{
-    assert(loadswitch->pgood != NULL);
-    return hw_gpio_readPin(loadswitch->pgood);
-}
-
-bool io_STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
-{
-    assert(loadswitch->efuse1 != NULL && loadswitch->efuse2 != NULL);
-    assert(loadswitch->efuse1->sns_adc_channel != NULL && loadswitch->efuse2->sns_adc_channel);
-
-    if (io_loadswitch_isChannelEnabled(loadswitch->efuse1) &&
-        io_loadswitch_getChannelCurrent(loadswitch->efuse1) <= CURRENT_THRESH)
-    {
-        return false;
-    }
-
-    if (io_loadswitch_isChannelEnabled(loadswitch->efuse2) &&
-        io_loadswitch_getChannelCurrent(loadswitch->efuse2) <= CURRENT_THRESH)
-    {
-        return false;
-    }
-
-    return true;
+void io_TILoadswitch_pgood(const TI_LoadSwitch *loadSwitch) {
+    assert(loadSwitch->pgood != NULL);
+    return hw_gpio_readPin(loadSwitch->pgood);
 }
