@@ -50,9 +50,7 @@ void app_pumpControl_MonitorPumps(void)
          io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
 
     if (pumps_ok && pumps_enabled)
-    {
         pumpControl_rampUp();
-        return;
-    }
-    pumpControl_stopFlow();
+    else
+        pumpControl_stopFlow();
 }
