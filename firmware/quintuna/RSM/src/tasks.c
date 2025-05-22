@@ -27,6 +27,7 @@
 #include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
+#include "hw_usb.h"
 
 void tasks_preInit()
 {
@@ -45,6 +46,7 @@ void tasks_init()
 
     hw_adcs_chipsInit();
     hw_can_init(&can2);
+    ASSERT_EXIT_OK(hw_usb_init());
 
     jobs_init();
 
