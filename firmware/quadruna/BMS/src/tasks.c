@@ -26,6 +26,7 @@
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
+#include "app_utils.h"
 
 #include "shared.pb.h"
 
@@ -118,7 +119,7 @@ _Noreturn void tasks_run1Hz(void)
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -196,7 +197,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
     }
 }
 

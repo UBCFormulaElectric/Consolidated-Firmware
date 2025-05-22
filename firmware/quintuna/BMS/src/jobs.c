@@ -1,6 +1,7 @@
 #include "jobs.h"
 
 #include "app_canRx.h"
+
 #include "io_canTx.h"
 #include "io_canRx.h"
 // app
@@ -11,6 +12,7 @@
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_time.h"
+#include "io_log.h"
 
 ExitCode jobs_runLtc_tick(void)
 {
@@ -32,11 +34,17 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&msg);
 }
 
+static void charger_transmit_func(const JsonCanMsg *msg)
+{
+    LOG_INFO("Send charger message: %d", msg->std_id);
+}
+
 void jobs_init()
 {
+    io_canTx_init(jsoncan_transmit_func, charger_transmit_func);
+    io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+    io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_init();
-    io_canTx_init(jsoncan_transmit_func);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
 }
 
 void jobs_run1Hz_tick(void)
@@ -65,7 +73,7 @@ void jobs_runCanRx_tick(void)
 
 void jobs_canRxCallback(const CanMsg *rx_msg)
 {
-    if (io_canRx_filterMessageId(rx_msg->std_id))
+    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
     }

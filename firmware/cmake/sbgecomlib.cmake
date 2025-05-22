@@ -10,6 +10,7 @@ file(GLOB_RECURSE SBG_ECOM_SRCS
         "${SBG_ECOM_SOURCE_DIR}/common/crc/*.c"
         "${SBG_ECOM_SOURCE_DIR}/common/platform/*.c"
         "${SBG_ECOM_SOURCE_DIR}/common/interfaces/sbgInterface.c"
+        "${SBG_ECOM_SOURCE_DIR}/common/sbgErrorCodes.c"
 )
 embedded_library(
         "sbg_ecom_cm4"
