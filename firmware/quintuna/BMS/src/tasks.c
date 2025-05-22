@@ -12,6 +12,7 @@
 #include "hw_adcs.h"
 #include "hw_pwms.h"
 #include "hw_watchdogConfig.h"
+#include "hw_hardFaultHandler.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"

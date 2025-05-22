@@ -36,7 +36,6 @@ void tasks_init()
 
     // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
 
     hw_can_init(&can1);
     ASSERT_EXIT_OK(hw_usb_init());
