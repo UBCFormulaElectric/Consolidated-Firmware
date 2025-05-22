@@ -57,8 +57,6 @@
 
 /* External variables --------------------------------------------------------*/
 extern CAN_HandleTypeDef hcan2;
-extern TIM_HandleTypeDef htim4;
-extern TIM_HandleTypeDef htim12;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -164,47 +162,6 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles RCC global interrupt.
- */
-void RCC_IRQHandler(void)
-{
-    /* USER CODE BEGIN RCC_IRQn 0 */
-
-    /* USER CODE END RCC_IRQn 0 */
-    /* USER CODE BEGIN RCC_IRQn 1 */
-
-    /* USER CODE END RCC_IRQn 1 */
-}
-
-/**
- * @brief This function handles TIM4 global interrupt.
- */
-void TIM4_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM4_IRQn 0 */
-
-    /* USER CODE END TIM4_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim4);
-    /* USER CODE BEGIN TIM4_IRQn 1 */
-
-    /* USER CODE END TIM4_IRQn 1 */
-}
-
-/**
- * @brief This function handles TIM8 break interrupt and TIM12 global interrupt.
- */
-void TIM8_BRK_TIM12_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 0 */
-
-    /* USER CODE END TIM8_BRK_TIM12_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim12);
-    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 1 */
-
-    /* USER CODE END TIM8_BRK_TIM12_IRQn 1 */
-}
-
-/**
  * @brief This function handles TIM6 global interrupt.
  */
 void TIM6_IRQHandler(void)
@@ -216,6 +173,20 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN2 TX interrupts.
+ */
+void CAN2_TX_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN2_TX_IRQn 0 */
+
+    /* USER CODE END CAN2_TX_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan2);
+    /* USER CODE BEGIN CAN2_TX_IRQn 1 */
+
+    /* USER CODE END CAN2_TX_IRQn 1 */
 }
 
 /**
@@ -244,33 +215,6 @@ void CAN2_RX1_IRQHandler(void)
     /* USER CODE BEGIN CAN2_RX1_IRQn 1 */
 
     /* USER CODE END CAN2_RX1_IRQn 1 */
-}
-
-/**
- * @brief This function handles CAN2 SCE interrupt.
- */
-void CAN2_SCE_IRQHandler(void)
-{
-    /* USER CODE BEGIN CAN2_SCE_IRQn 0 */
-
-    /* USER CODE END CAN2_SCE_IRQn 0 */
-    HAL_CAN_IRQHandler(&hcan2);
-    /* USER CODE BEGIN CAN2_SCE_IRQn 1 */
-
-    /* USER CODE END CAN2_SCE_IRQn 1 */
-}
-
-/**
- * @brief This function handles FPU global interrupt.
- */
-void FPU_IRQHandler(void)
-{
-    /* USER CODE BEGIN FPU_IRQn 0 */
-
-    /* USER CODE END FPU_IRQn 0 */
-    /* USER CODE BEGIN FPU_IRQn 1 */
-
-    /* USER CODE END FPU_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

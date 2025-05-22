@@ -50,36 +50,9 @@ CAN_HandleTypeDef hcan2;
 
 CRC_HandleTypeDef hcrc;
 
-TIM_HandleTypeDef htim4;
-TIM_HandleTypeDef htim12;
-
-/* Definitions for InterfaceTask */
-osThreadId_t         InterfaceTaskHandle;
-uint32_t             InterfaceTaskBuffer[512];
-osStaticThreadDef_t  InterfaceTaskControlBlock;
-const osThreadAttr_t InterfaceTask_attributes = {
-    .name       = "InterfaceTask",
-    .cb_mem     = &InterfaceTaskControlBlock,
-    .cb_size    = sizeof(InterfaceTaskControlBlock),
-    .stack_mem  = &InterfaceTaskBuffer[0],
-    .stack_size = sizeof(InterfaceTaskBuffer),
-    .priority   = (osPriority_t)osPriorityRealtime,
-};
-/* Definitions for tickTask */
-osThreadId_t         tickTaskHandle;
-uint32_t             tickTaskkBuffer[512];
-osStaticThreadDef_t  tickTaskControlBlock;
-const osThreadAttr_t tickTask_attributes = {
-    .name       = "tickTask",
-    .cb_mem     = &tickTaskControlBlock,
-    .cb_size    = sizeof(tickTaskControlBlock),
-    .stack_mem  = &tickTaskkBuffer[0],
-    .stack_size = sizeof(tickTaskkBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
-};
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
-uint32_t             canTxTaskBuffer[512];
+uint32_t             canTxTaskBuffer[128];
 osStaticThreadDef_t  canTxTaskControlBlock;
 const osThreadAttr_t canTxTask_attributes = {
     .name       = "canTxTask",
@@ -87,6 +60,30 @@ const osThreadAttr_t canTxTask_attributes = {
     .cb_size    = sizeof(canTxTaskControlBlock),
     .stack_mem  = &canTxTaskBuffer[0],
     .stack_size = sizeof(canTxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for tickTask */
+osThreadId_t         tickTaskHandle;
+uint32_t             tickTaskBuffer[128];
+osStaticThreadDef_t  tickTaskControlBlock;
+const osThreadAttr_t tickTask_attributes = {
+    .name       = "tickTask",
+    .cb_mem     = &tickTaskControlBlock,
+    .cb_size    = sizeof(tickTaskControlBlock),
+    .stack_mem  = &tickTaskBuffer[0],
+    .stack_size = sizeof(tickTaskBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for interfaceTask */
+osThreadId_t         interfaceTaskHandle;
+uint32_t             interfaceTaskBuffer[128];
+osStaticThreadDef_t  interfaceTaskControlBlock;
+const osThreadAttr_t interfaceTask_attributes = {
+    .name       = "interfaceTask",
+    .cb_mem     = &interfaceTaskControlBlock,
+    .cb_size    = sizeof(interfaceTaskControlBlock),
+    .stack_mem  = &interfaceTaskBuffer[0],
+    .stack_size = sizeof(interfaceTaskBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
@@ -97,12 +94,10 @@ CanHandle can = { .hcan = &hcan2, .bus_num = 2, .receive_callback = io_canQueue_
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN2_Init(void);
-static void MX_TIM4_Init(void);
-static void MX_TIM12_Init(void);
 static void MX_CRC_Init(void);
-void        RunInterfaceTask(void *argument);
-void        RunTickTask(void *argument);
-void        RunTaskCanRx(void *argument);
+void        runCanTxTask(void *argument);
+void        runTickTask(void *argument);
+void        runInterfaceTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -142,8 +137,6 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN2_Init();
-    MX_TIM4_Init();
-    MX_TIM12_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
@@ -169,14 +162,14 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* creation of InterfaceTask */
-    InterfaceTaskHandle = osThreadNew(RunInterfaceTask, NULL, &InterfaceTask_attributes);
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
 
     /* creation of tickTask */
-    tickTaskHandle = osThreadNew(RunTickTask, NULL, &tickTask_attributes);
+    tickTaskHandle = osThreadNew(runTickTask, NULL, &tickTask_attributes);
 
-    /* creation of canTxTask */
-    canTxTaskHandle = osThreadNew(RunTaskCanRx, NULL, &canTxTask_attributes);
+    /* creation of interfaceTask */
+    interfaceTaskHandle = osThreadNew(runInterfaceTask, NULL, &interfaceTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -245,8 +238,6 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);
-    HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_HSE, RCC_MCODIV_1);
 }
 
 /**
@@ -309,93 +300,6 @@ static void MX_CRC_Init(void)
 }
 
 /**
- * @brief TIM4 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_TIM4_Init(void)
-{
-    /* USER CODE BEGIN TIM4_Init 0 */
-
-    /* USER CODE END TIM4_Init 0 */
-
-    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-    TIM_OC_InitTypeDef      sConfigOC     = { 0 };
-
-    /* USER CODE BEGIN TIM4_Init 1 */
-
-    /* USER CODE END TIM4_Init 1 */
-    htim4.Instance               = TIM4;
-    htim4.Init.Prescaler         = PWM_PRESCALER;
-    htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim4.Init.Period            = PWM_AUTO_RELOAD;
-    htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-    if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sConfigOC.OCMode     = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse      = 0;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
-    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN TIM4_Init 2 */
-
-    /* USER CODE END TIM4_Init 2 */
-    HAL_TIM_MspPostInit(&htim4);
-}
-
-/**
- * @brief TIM12 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_TIM12_Init(void)
-{
-    /* USER CODE BEGIN TIM12_Init 0 */
-
-    /* USER CODE END TIM12_Init 0 */
-
-    TIM_OC_InitTypeDef sConfigOC = { 0 };
-
-    /* USER CODE BEGIN TIM12_Init 1 */
-
-    /* USER CODE END TIM12_Init 1 */
-    htim12.Instance               = TIM12;
-    htim12.Init.Prescaler         = PWM_PRESCALER;
-    htim12.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim12.Init.Period            = PWM_AUTO_RELOAD;
-    htim12.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-    if (HAL_TIM_PWM_Init(&htim12) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sConfigOC.OCMode     = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse      = 0;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
-    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN TIM12_Init 2 */
-
-    /* USER CODE END TIM12_Init 2 */
-    HAL_TIM_MspPostInit(&htim12);
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -410,65 +314,29 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, BOOT_Pin | LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, LED_SERIN_Pin | SEVEN_SEG_RCK_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, LED_RCK_Pin | LED_SRCK_Pin | SEVEN_SEG_SRCK_Pin | SEVEN_SEG_SERIN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LED_DIMMING_Pin | _7SEG_DIMMING_Pin, GPIO_PIN_SET);
 
-    /*Configure GPIO pins : BOOT_Pin LED_Pin */
-    GPIO_InitStruct.Pin   = BOOT_Pin | LED_Pin;
+    /*Configure GPIO pins : BOOT_LED_Pin LED_Pin */
+    GPIO_InitStruct.Pin   = BOOT_LED_Pin | LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TELEM_SIG_Pin PUSH_DRIVE_SIG_Pin */
-    GPIO_InitStruct.Pin  = TELEM_SIG_Pin | PUSH_DRIVE_SIG_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : LAUNCH_CONTROL_SIG_Pin TORQUE_VECTORING_SIG_Pin REGEN_SIG_Pin */
-    GPIO_InitStruct.Pin  = LAUNCH_CONTROL_SIG_Pin | TORQUE_VECTORING_SIG_Pin | REGEN_SIG_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : LED_SERIN_Pin SEVEN_SEG_RCK_Pin */
-    GPIO_InitStruct.Pin   = LED_SERIN_Pin | SEVEN_SEG_RCK_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
+    /*Configure GPIO pins : LED_DIMMING_Pin _7SEG_DIMMING_Pin */
+    GPIO_InitStruct.Pin   = LED_DIMMING_Pin | _7SEG_DIMMING_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : LED_RCK_Pin LED_SRCK_Pin SEVEN_SEG_SRCK_Pin SEVEN_SEG_SERIN_Pin */
-    GPIO_InitStruct.Pin   = LED_RCK_Pin | LED_SRCK_Pin | SEVEN_SEG_SRCK_Pin | SEVEN_SEG_SERIN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PC9 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_9;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PA8 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_8;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -478,48 +346,46 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_RunInterfaceTask */
+/* USER CODE BEGIN Header_runCanTxTask */
 /**
- * @brief  Function implementing the InterfaceTask thread.
+ * @brief  Function implementing the canTxTask thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunInterfaceTask */
-void RunInterfaceTask(void *argument)
+/* USER CODE END Header_runCanTxTask */
+void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    bootloader_runInterfaceTask();
+    bootloader_runCanTxTask();
     /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_RunTickTask */
+/* USER CODE BEGIN Header_runTickTask */
 /**
  * @brief Function implementing the tickTask thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTickTask */
-void RunTickTask(void *argument)
+/* USER CODE END Header_runTickTask */
+void runTickTask(void *argument)
 {
-    /* USER CODE BEGIN RunTickTask */
-    /* Infinite loop */
+    /* USER CODE BEGIN runTickTask */
     bootloader_runTickTask();
-    /* USER CODE END RunTickTask */
+    /* USER CODE END runTickTask */
 }
 
-/* USER CODE BEGIN Header_RunTaskCanRx */
+/* USER CODE BEGIN Header_runInterfaceTask */
 /**
- * @brief Function implementing the TaskCanRx thread.
+ * @brief Function implementing the interfaceTask thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void *argument)
+/* USER CODE END Header_runInterfaceTask */
+void runInterfaceTask(void *argument)
 {
-    /* USER CODE BEGIN RunTaskCanRx */
-    /* Infinite loop */
-    bootloader_runCanTxTask();
-    /* USER CODE END RunTaskCanRx */
+    /* USER CODE BEGIN runInterfaceTask */
+    bootloader_runInterfaceTask();
+    /* USER CODE END runInterfaceTask */
 }
 
 /**

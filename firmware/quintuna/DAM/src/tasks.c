@@ -45,9 +45,8 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
 
-    hw_hardFaultHandler_init();
     hw_can_init(&can1);
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 

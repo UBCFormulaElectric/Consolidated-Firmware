@@ -16,14 +16,16 @@
 
 // IO
 #include "io_canTx.h"
-#include "io_canRx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
 #include "io_shift_register.h"
+#include "io_jsoncan.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
+    CanMsg tx_msg = io_jsoncan_copyToCanMsg(msg);
+    io_canQueue_pushTx(&tx_msg);
 }
 
 void jobs_init(void)
