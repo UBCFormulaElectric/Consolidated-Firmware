@@ -109,9 +109,10 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
         }
         assert(transmit_task == NULL);
         assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        transmit_task           = xTaskGetCurrentTaskHandle();
-        const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
-        assert(status == pdPASS);
+        transmit_task = xTaskGetCurrentTaskHandle();
+        // timeout just in case the tx complete interrupt does not fire properly?
+        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+        UNUSED(num_notifs);
         transmit_task = NULL;
     }
 
@@ -166,9 +167,8 @@ static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
     {
         return;
     }
-    BaseType_t       higherPriorityTaskWoken = pdFALSE;
-    const BaseType_t status                  = xTaskNotifyFromISR(transmit_task, 0, 0, &higherPriorityTaskWoken);
-    assert(status == pdPASS);
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(transmit_task, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)

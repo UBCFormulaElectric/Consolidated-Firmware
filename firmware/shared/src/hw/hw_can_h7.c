@@ -56,9 +56,9 @@ static ExitCode tx(const CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header,
         }
         assert(transmit_task == NULL);
         assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        transmit_task           = xTaskGetCurrentTaskHandle();
-        const BaseType_t status = xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
-        assert(status == pdPASS);
+        transmit_task             = xTaskGetCurrentTaskHandle();
+        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+        UNUSED(num_notifs);
         transmit_task = NULL;
     }
 
@@ -156,8 +156,7 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
     {
         return;
     }
-    BaseType_t       higherPriorityTaskWoken = pdFALSE;
-    const BaseType_t status                  = xTaskNotifyFromISR(transmit_task, 0, 0, &higherPriorityTaskWoken);
-    assert(status == pdPASS);
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(transmit_task, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
