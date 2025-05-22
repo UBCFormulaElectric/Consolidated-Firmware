@@ -1,11 +1,17 @@
 #include "jobs.h"
+
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
+#include "app_commitInfo.h"
+
 #include "io_buzzer.h"
 #include "io_log.h"
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
-
+#include "io_time.h"
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 
@@ -34,6 +40,10 @@ void jobs_init()
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
+
+    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+    //
     io_telemBaseTimeSend();
 }
 
@@ -42,7 +52,11 @@ void jobs_run100Hz_tick(void)
     io_canTx_enqueue100HzMsgs();
 }
 
-void jobs_run1kHz_tick(void) {}
+void jobs_run1kHz_tick(void)
+{
+    const uint32_t task_start_ms = io_time_getCurrentMs();
+    io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+}
 
 void jobs_runCanRx_tick(void)
 {
