@@ -24,9 +24,7 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 void jobs_init()
 {
     io_rtc_init();
-    io_canTx_init(jsoncan_transmit_func);
     io_canQueue_init();
-
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
 
