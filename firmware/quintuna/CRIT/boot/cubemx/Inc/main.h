@@ -60,8 +60,8 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define BOOT_LED_Pin GPIO_PIN_4
 #define BOOT_LED_GPIO_Port GPIOA
-#define DEBUG_LED_Pin GPIO_PIN_5
-#define DEBUG_LED_GPIO_Port GPIOA
+#define LED_Pin GPIO_PIN_5
+#define LED_GPIO_Port GPIOA
 #define LED_DIMMING_Pin GPIO_PIN_14
 #define LED_DIMMING_GPIO_Port GPIOB
 #define _7SEG_DIMMING_Pin GPIO_PIN_6
