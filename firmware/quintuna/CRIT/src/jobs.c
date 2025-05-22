@@ -6,25 +6,24 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"
-#include "io_bootHandler.h"
-#include "io_jsoncan.h"
-#include "io_canMsg.h"
 #include "screens/app_screens.h"
 #include "app_leds.h"
 #include "app_switches.h"
 #include "app_stackWaterMarks.h"
 
 // IO
+#include "io_bootHandler.h"
+#include "io_jsoncan.h"
+#include "io_canMsg.h"
 #include "io_canTx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
 #include "io_shift_register.h"
-#include "io_jsoncan.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
-    CanMsg tx_msg = io_jsoncan_copyToCanMsg(msg);
+    const CanMsg tx_msg = io_jsoncan_copyToCanMsg(msg);
     io_canQueue_pushTx(&tx_msg);
 }
 
