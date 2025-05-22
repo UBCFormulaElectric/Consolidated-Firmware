@@ -1,18 +1,21 @@
 {
-    "warnings_id": 401,
-    "faults_id": 402,
-    "warnings_counts_id": 403,
-    "faults_counts_id": 404,
-    "warnings": {
-        "TractiveSystemOvercurrent": {
-            "id": 400,
-            "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
-        }
-    },
-    "faults": {
-        "dummyFault": {
-            "id": 450,
-            "description": "Dummy Fault"
-        }
+  "warnings_id": 401,
+  "faults_id": 402,
+  "warnings_counts_id": 403,
+  "faults_counts_id": 404,
+  "warnings": {
+    "TractiveSystemOvercurrent": {
+      "id": 400,
+      "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
     }
+  },
+  "faults": {
+    "dummyFault": {
+      "id": 450,
+      "description": "Dummy Fault"
+    }
+  },
+  "info_id": 405,
+  "info_counts_id": 406,
+  "info": {}
 }

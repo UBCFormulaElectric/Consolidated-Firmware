@@ -163,3 +163,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     LOG_ERROR("UART error with code: 0x%X", huart->ErrorCode);
 }
+
+ExitCode hw_uart_receive_pooling(UartDevice *device, uint8_t *data, uint16_t size)
+{
+    return hw_utils_convertHalStatus(
+        HAL_UART_Receive(device->config.handle, data, size, device->config.polling_timeout_ms));
+}

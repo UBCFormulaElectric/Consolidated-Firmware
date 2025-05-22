@@ -60,3 +60,5 @@ ExitCode hw_uart_transmitCallback(UartDevice *device, uint8_t *data, uint16_t si
  * @param Size Amount of data elements to be received.
  */
 ExitCode hw_uart_receiveCallback(UartDevice *device, uint8_t *data, uint16_t size);
+
+ExitCode hw_uart_receive_pooling(UartDevice *device, uint8_t *data, uint16_t size);

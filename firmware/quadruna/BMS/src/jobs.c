@@ -26,7 +26,7 @@ void jobs_init(void)
 {
     io_canQueue_init();
     io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
 
     app_canTx_init();
     app_canRx_init();
@@ -60,7 +60,7 @@ void jobs_runCanRx_tick(void)
 
 void jobs_runCanRx_callBack(const CanMsg *rx_msg)
 {
-    if (io_canRx_filterMessageId(rx_msg->std_id))
+    if (io_canRx_filterMessageId_Can(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
     }

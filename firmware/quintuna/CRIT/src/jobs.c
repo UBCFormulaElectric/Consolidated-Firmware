@@ -9,16 +9,15 @@
 
 // IO
 #include "io_canTx.h"
-#include "io_canRx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
-
-// HW
-#include "hw_gpios.h"
+#include "io_jsoncan.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
+    CanMsg tx_msg = io_jsoncan_copyToCanMsg(msg);
+    io_canQueue_pushTx(&tx_msg);
 }
 
 void jobs_init(void)
@@ -26,7 +25,7 @@ void jobs_init(void)
     // can
     io_canTx_init(canTransmit); // TODO this needs to be more sophisticated for multiple busses
     io_canQueue_init();
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
 
@@ -40,7 +39,7 @@ void jobs_init(void)
 void jobs_run1Hz_tick(void)
 {
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+    io_canTx_enableMode_can2(CAN2_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -64,10 +63,4 @@ void jobs_run1kHz_tick(void)
     if (io_time_getCurrentMs() - task_start_ms <= 1)
     {
     }
-}
-
-void jobs_runCanRx_tick(void)
-{
-    JsonCanMsg jsoncan_rx_msg;
-    io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
 }

@@ -91,8 +91,8 @@ extern "C"
 #define COCKPIT_SHDN_3V3_GPIO_Port GPIOB
 #define nSUSP_FR_OCSC_Pin GPIO_PIN_10
 #define nSUSP_FR_OCSC_GPIO_Port GPIOB
-#define DEBUG_LED_Pin GPIO_PIN_6
-#define DEBUG_LED_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_6
+#define LED_GPIO_Port GPIOC
 #define nSTR_ANGLE_OCSC_Pin GPIO_PIN_7
 #define nSTR_ANGLE_OCSC_GPIO_Port GPIOC
 #define nBPS_F_OCSC_Pin GPIO_PIN_8

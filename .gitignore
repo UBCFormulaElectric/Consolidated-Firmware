@@ -153,3 +153,8 @@ CMakeUserPresets.json
 build
 
 /can_bus/**/*.plt
+historical.db
+historical.db*
+
+# playground
+temp/
