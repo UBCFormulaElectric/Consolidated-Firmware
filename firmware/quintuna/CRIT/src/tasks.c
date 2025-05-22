@@ -5,20 +5,27 @@
 #include "main.h"
 
 #include "app_canTx.h"
+#include "app_utils.h"
 
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_canRx.h"
+#include "io_bootHandler.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_bootup.h"
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
 #include "hw_resetReason.h"
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init()
 {
@@ -50,7 +57,7 @@ void tasks_runCanTx()
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &msg);
+        LOG_IF_ERR(hw_can_transmit(&can1, &msg));
     }
 }
 
@@ -59,7 +66,10 @@ void tasks_runCanRx()
     // Setup tasks.
     for (;;)
     {
-        jobs_runCanRx_tick();
+        CanMsg     rx_msg = io_canQueue_popRx();
+        JsonCanMsg jsoncan_rx_msg;
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 

@@ -10,6 +10,7 @@
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_stackWaterMarks.h"
+#include "app_utils.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -314,7 +315,7 @@ void tasks_init(void)
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
     io_critShdn_init(&crit_shdn_pin_config);
     io_canQueue_init();
 
@@ -383,7 +384,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
     }
 }
 
@@ -454,7 +455,7 @@ _Noreturn void tasks_run1Hz(void)
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the

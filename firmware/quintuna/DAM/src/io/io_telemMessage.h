@@ -1,6 +1,7 @@
 #pragma once
 #include "io_canMsg.h"
 #include <stdbool.h>
+#include "io_rtc.h"
 
 /**
  * Creates a new message queue for storing telem messages
