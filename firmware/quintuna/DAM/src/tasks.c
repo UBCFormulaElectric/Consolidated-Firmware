@@ -12,6 +12,7 @@
 #include "io_fileSystem.h"
 #include "io_buzzer.h"
 #include "io_telemMessage.h"
+#include "io_telemRx.h"
 #include "io_time.h"
 
 #include "hw_hardFaultHandler.h"
@@ -44,9 +45,8 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
 
-    hw_hardFaultHandler_init();
     hw_can_init(&can1);
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
@@ -70,6 +70,7 @@ _Noreturn void tasks_runChimera(void)
 _Noreturn void tasks_run1Hz(void)
 {
     static const TickType_t period_ms = 1000U;
+    LOG_INFO("1hz task");
     // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
@@ -82,13 +83,6 @@ _Noreturn void tasks_run1Hz(void)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
-        CanMsg fake_msg = {
-            .std_id    = 0x123,
-            .dlc       = 8,
-            .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
-            .timestamp = io_time_getCurrentMs(),
-        };
-        io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -102,6 +96,7 @@ _Noreturn void tasks_run100Hz(void)
 
     static const TickType_t period_ms   = 10;
     uint32_t                start_ticks = osKernelGetTickCount();
+    LOG_INFO("100hz task");
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
@@ -163,8 +158,8 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // ToDo: check if this is needed and investigate why is_fd is not a bool
         //  if (tx_msg.is_fd)
         //  {
@@ -190,7 +185,18 @@ _Noreturn void tasks_runTelem(void)
     // osDelay(osWaitForever);
     for (;;)
     {
+        LOG_INFO("telem task");
         io_telemMessage_broadcastMsgFromQueue();
+    }
+}
+
+_Noreturn void tasks_runTelemRx(void)
+{
+    // osDelay(osWaitForever);
+    for (;;)
+    {
+        // set rtc time from telem rx data
+        io_telemRx();
     }
 }
 

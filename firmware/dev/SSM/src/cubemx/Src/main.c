@@ -128,7 +128,7 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */

@@ -12,6 +12,7 @@
 #include "hw_adcs.h"
 #include "hw_pwms.h"
 #include "hw_watchdogConfig.h"
+#include "hw_hardFaultHandler.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -33,7 +34,7 @@ void tasks_preInit(void)
 void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_can_init(&can1);
