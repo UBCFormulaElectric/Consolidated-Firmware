@@ -132,7 +132,7 @@ void tasks_init(void)
 
     hw_adcs_chipsInit();
 
-    hw_hardFaultHandler_init();
+    ();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     hw_can_init(&can);

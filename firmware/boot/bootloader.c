@@ -155,7 +155,6 @@ void bootloader_preInit(void)
 void bootloader_init(void)
 {
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
-    hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each

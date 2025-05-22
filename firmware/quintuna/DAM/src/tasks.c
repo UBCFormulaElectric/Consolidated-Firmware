@@ -32,7 +32,7 @@ void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
     // hw_bootup_enableInterruptsForApp();
-    hw_hardFaultHandler_init();
+    ();
 }
 
 void tasks_preInitWatchdog(void)
@@ -46,7 +46,7 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
 
-    hw_hardFaultHandler_init();
+    ();
     hw_can_init(&can1);
     hw_usb_init();
     hw_crc_init(&hcrc);

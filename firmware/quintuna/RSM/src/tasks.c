@@ -30,7 +30,7 @@
 
 void tasks_preInit()
 {
-    hw_hardFaultHandler_init();
+    ();
     hw_bootup_enableInterruptsForApp();
 }
 
