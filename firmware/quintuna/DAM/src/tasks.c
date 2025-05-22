@@ -51,9 +51,6 @@ void tasks_init(void)
     hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    // hw_gpio_writePin(&tsim_red_en_pin, true);
-    // hw_gpio_writePin(&ntsim_green_en_pin, false);
-
     jobs_init();
     // hw_gpio_writePin(&tsim_red_en_pin, true);
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
@@ -106,7 +103,6 @@ _Noreturn void tasks_run100Hz(void)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
-
 
         // io_telemMessage_pushMsgtoQueue(&fake_msg);
 

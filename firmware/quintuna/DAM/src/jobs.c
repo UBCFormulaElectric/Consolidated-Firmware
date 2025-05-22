@@ -7,6 +7,7 @@
 
 #include "io_buzzer.h"
 #include "io_log.h"
+#include "io_tsim.h"
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
@@ -23,11 +24,16 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 
 void jobs_init()
 {
-    io_rtc_init();
+    app_canTx_DAM_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_DAM_Heartbeat_set(true);
+
     io_canQueue_init();
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
 
+    io_rtc_init();
+    io_tsim_set_off();
     // save start_time to be broadcasted SEE IF THIS SHOULD BE MOVED
     // io_rtc_readTime(&start_time);
 
@@ -48,6 +54,31 @@ void jobs_run1Hz_tick(void)
 void jobs_run100Hz_tick(void)
 {
     io_canTx_enqueue100HzMsgs();
+
+    const bool buzzer_control = app_canRx_VC_BuzzerControl_get();
+    if (buzzer_control)
+    {
+        io_enable_buzzer();
+    }
+    else
+    {
+        io_disable_buzzer();
+    }
+
+    const TsimColor tsimColor = app_canRx_VC_TsimControl_get();
+    if (tsimColor == TSIM_GREEN)
+    {
+        io_tsim_set_red(true);
+    }
+    else if (tsimColor == TSIM_RED)
+    {
+        io_tsim_set_red(true);
+    }
+    else if (tsimColor == TSIM_OFF)
+    {
+        io_tsim_set_off();
+    }
+    // const bool tsim_control = app_
 }
 
 void jobs_run1kHz_tick(void)

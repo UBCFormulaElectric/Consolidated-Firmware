@@ -44,5 +44,19 @@
         "enum": "ShutdownNode"
       }
     }
+  },
+
+  "DAMTsimBuzzerControl": {
+    "msg_id": 512,
+    "cycle_time": 100,
+    "description": "",
+    "signals": {
+      "TsimControl": {
+        "bits": 1
+      },
+      "BuzzerControl": {
+        "enum": "TsimColor"
+      }
+    }
   }
 }
