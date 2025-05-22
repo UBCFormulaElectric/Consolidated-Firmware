@@ -21,7 +21,7 @@
 
 void tasks_preInit(void)
 {
-    hw_hardFaultHandler_init();
+    
 }
 
 void tasks_init(void)

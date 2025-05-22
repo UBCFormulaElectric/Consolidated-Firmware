@@ -189,7 +189,7 @@ int main(void)
     /* USER CODE BEGIN 2 */
     // __HAL_DBGMCU_FREEZE_IWDG();
 
-    hw_hardFaultHandler_init();
+    
     hw_can_init(&can);
     io_canQueue_init();
 

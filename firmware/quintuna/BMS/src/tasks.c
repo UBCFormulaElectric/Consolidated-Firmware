@@ -29,7 +29,7 @@ void tasks_runChimera(void)
 void tasks_preInit(void)
 {
     LOG_INFO("BMS Reset");
-    hw_hardFaultHandler_init();
+    
 }
 
 void tasks_init(void)
