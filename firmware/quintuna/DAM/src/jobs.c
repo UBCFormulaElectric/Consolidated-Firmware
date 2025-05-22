@@ -79,7 +79,6 @@ void jobs_run100Hz_tick(void)
     {
         io_tsim_set_off();
     }
-    // const bool tsim_control = app_
 }
 
 void jobs_run1kHz_tick(void)

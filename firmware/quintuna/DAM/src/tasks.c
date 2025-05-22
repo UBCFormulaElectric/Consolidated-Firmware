@@ -129,17 +129,6 @@ _Noreturn void tasks_run1kHz(void)
         // // Watchdog check-in must be the last function called before putting the
         // // task to sleep. Prevent check in if the elapsed period is greater or
         // // equal to the period ms
-        // if (io_tBime_getCurrentMs() - task_start_ms <= period_ms)
-        //     hw_watchdog_checkIn(watchdog);
-
-        // CanMsg fake_msg = {
-        //     .std_id = 0x125,
-        //     .dlc    = 8,
-        //     .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
-        //     .timestamp = io_time_getCurrentMs(),
-        // };
-        // io_telemMessage_pushMsgtoQueue(&fake_msg);
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -153,14 +142,14 @@ _Noreturn void tasks_runCanTx(void)
         // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // ToDo: check if this is needed and investigate why is_fd is not a bool
-        //  if (tx_msg.is_fd)
-        //  {
-        //      hw_fdcan_transmit(&can1, &tx_msg);
-        //  }
-        //  else
-        //  {
-        //      hw_can_transmit(&can1, &tx_msg);
-        //  }
+        if (tx_msg.is_fd)
+        {
+            hw_fdcan_transmit(&can1, &tx_msg);
+        }
+        else
+        {
+            hw_can_transmit(&can1, &tx_msg);
+        }
     }
 }
 
