@@ -12,4 +12,3 @@ _Noreturn void tasks_runTelem(void);
 _Noreturn void tasks_runTelemRx(void);
 _Noreturn void tasks_runLogging(void);
 _Noreturn void tasks_runChimera(void);
-

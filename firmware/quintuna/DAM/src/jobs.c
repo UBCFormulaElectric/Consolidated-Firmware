@@ -19,6 +19,7 @@
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    io_telemMessage_pushMsgtoQueue(&msg);
     io_canQueue_pushTx(&msg);
 }
 
