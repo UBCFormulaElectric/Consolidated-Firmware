@@ -205,7 +205,7 @@ int main(void)
     osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     /* USER CODE END RTOS_MUTEX */
 
     /* USER CODE BEGIN RTOS_SEMAPHORES */
