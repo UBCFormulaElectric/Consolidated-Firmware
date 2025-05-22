@@ -310,7 +310,6 @@ void tasks_init(void)
     // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    
     hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 

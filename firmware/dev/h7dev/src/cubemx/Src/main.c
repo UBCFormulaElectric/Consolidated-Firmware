@@ -189,8 +189,11 @@ int main(void)
     /* USER CODE BEGIN 2 */
     // __HAL_DBGMCU_FREEZE_IWDG();
 
-    
-    hw_can_init(&can);
+<<<<<<< HEAD
+
+    == == == =
+>>>>>>> 469ac4e8da0566cf24ece9949cffff8a914513ba
+                 hw_can_init(&can);
     io_canQueue_init();
 
     if (sd_inited)

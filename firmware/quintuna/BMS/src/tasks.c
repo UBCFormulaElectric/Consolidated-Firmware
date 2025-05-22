@@ -29,7 +29,6 @@ void tasks_runChimera(void)
 void tasks_preInit(void)
 {
     LOG_INFO("BMS Reset");
-    
 }
 
 void tasks_init(void)

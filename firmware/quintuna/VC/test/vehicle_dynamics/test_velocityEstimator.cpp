@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 
-extern "C" {
-    #include "velocity_estimator.h"
+extern "C"
+{
+#include "velocity_estimator.h"
 }
 
 class VelocityEstimatorTest : public testing::Test

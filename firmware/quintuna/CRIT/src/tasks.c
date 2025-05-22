@@ -24,7 +24,6 @@
 
 void tasks_preInit()
 {
-    
     hw_bootup_enableInterruptsForApp();
 }
 
