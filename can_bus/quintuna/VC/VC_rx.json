@@ -1,14 +1,13 @@
 {
-    "messages": [
-        "BMS_TractiveSystem",
-        "BMS_Vitals",
-        "BMS_ShdnNodeStatus",
-        "FSM_ShdnNodeStatus",
-        "DAM_ShdnNodeStatus",
-        "RSM_ShdnNodeStatus",
-        "INVFL_FLInverterInfo1",
-        "INVFR_FRInverterInfo1",
-        "INVRL_RLInverterInfo1",
-        "INVRR_RRInverterInfo1"
-    ]
+  "messages": [
+    "BMS_TractiveSystem",
+    "BMS_Vitals",
+    "FSM_ShdnNodeStatus",
+    "DAM_ShdnNodeStatus",
+    "RSM_ShdnNodeStatus",
+    "INVFL_FLInverterInfo1",
+    "INVFR_FRInverterInfo1",
+    "INVRL_RLInverterInfo1",
+    "INVRR_RRInverterInfo1"
+  ]
 }
