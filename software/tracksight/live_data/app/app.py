@@ -41,7 +41,7 @@ if ENABLE_WIRELESS:
 mock_thread = None
 if ENABLE_MOCK:
     InfluxHandler.setup()
-    mock_thread = get_mock_task(DATA_FILE)
+    mock_thread = get_mock_task()
 
 # Reading Thread
 broadcast_thread = get_websocket_broadcast()
