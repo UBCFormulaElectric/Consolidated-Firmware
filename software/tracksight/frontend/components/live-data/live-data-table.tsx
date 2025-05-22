@@ -33,28 +33,32 @@ export default function LiveDataTable() {
   }, [])
 
   // Process the data from SignalContext
-  const tableData = useMemo(() => {
-    if (!data || data.length === 0) return []
+ const tableData = useMemo((): TelemetryData[] => {
+  // if we don't even know what signals exist yet, bail
+  if (!availableSignals) return []
 
-    return activeSignals.map((signalName): TelemetryData => {
-      const signalMeta = availableSignals.find(meta => meta.name === signalName)
-      const entries = data.filter(d => d.name === signalName)
-      const latest = entries.length ? entries[entries.length - 1] : null
-      const value = latest && latest.value !== undefined ? latest.value : "N/A"
-      const unit = signalMeta?.unit || "N/A"
-      const timestamp = latest && latest.timestamp !== undefined
-        ? new Date(latest.timestamp).getTime()
-        : Date.now()
+  return activeSignals.map((signalName) => {
+    const signalMeta = availableSignals.find(meta => meta.name === signalName)
+    // pick out all DataPoint objects whose `name` matches this signal
+    const entries = data.filter(d => (d as any).name === signalName)
+    // grab the very last one, if it exists
+    const latest = entries.length > 0
+      ? entries[entries.length - 1]
+      : null
 
-      return {
-        id: signalName,
-        parameter: signalName,
-        value,
-        unit,
-        timestamp
-      }
-    })
-  }, [data, activeSignals, availableSignals, lastUpdate])
+    return {
+      id:        signalName,
+      parameter: signalName,
+      // unwrap if it exists, otherwise "N/A"
+      value:     latest?.value    ?? "N/A",
+      unit:      signalMeta?.unit ?? "N/A",
+      // use the timestamp if present (ensuring it's a number), otherwise our lastUpdate fallback
+      timestamp: latest?.timestamp ? latest.timestamp : lastUpdate
+    }
+  })
+}, [data, activeSignals, availableSignals, lastUpdate])
+
+
 
   // Handle subscription to a new signal
   const handleSubscribe = useCallback(() => {

@@ -1,17 +1,12 @@
+// EnumerationGraph.tsx
 'use client'
 
 import React, { useState, useMemo, useCallback } from 'react'
-import { useSignals, DataPoint, SignalType } from '@/lib/contexts/SignalContext'
+import { SignalProvider, useSignals, SignalType } from '@/lib/contexts/SignalContext'
 
 interface StateHistoryItem {
   state: string
   startTime: number
-}
-
-interface StateBar {
-  state: string
-  startTime: number
-  width: number
 }
 
 const stateColors: string[] = [
@@ -20,12 +15,7 @@ const stateColors: string[] = [
 ]
 
 function getStateColor(state: string): string {
-  // Hash string to consistent index
-  let hash = 0
-  for (let i = 0; i < state.length; i++) {
-    hash = (hash * 31 + state.charCodeAt(i)) | 0
-  }
-  const index = Math.abs(hash) % stateColors.length
+  const index = Math.abs(Number(state)) % stateColors.length
   return stateColors[index]
 }
 
@@ -40,6 +30,7 @@ export default function EnumerationGraph() {
     isEnumSignal
   } = useSignals()
 
+  // Options for enumeration signals
   const enumerationOptions = useMemo(
     () => availableSignals.filter(s => isEnumSignal(s.name)),
     [availableSignals, isEnumSignal]
@@ -47,11 +38,13 @@ export default function EnumerationGraph() {
 
   const [selectedEnum, setSelectedEnum] = useState<string>('')
 
+  // Currently subscribed enumeration signals
   const activeEnums = useMemo(
     () => activeSignals.filter(name => isEnumSignal(name)),
     [activeSignals, isEnumSignal]
   )
 
+  // Subscribe to a signal
   const handleSubscribe = useCallback(() => {
     if (selectedEnum) {
       subscribeToSignal(selectedEnum, SignalType.Enumeration)
@@ -67,11 +60,8 @@ export default function EnumerationGraph() {
         .filter(dp => dp[signalName] !== undefined)
         .map(dp => ({
           state: String(dp[signalName]),
-          startTime: typeof dp.time === 'number'
-            ? dp.time
-            : new Date(dp.time).getTime()
+          startTime: typeof dp.time === 'number' ? dp.time : new Date(dp.time).getTime()
         }))
-
       const items: StateHistoryItem[] = []
       points.forEach(pt => {
         if (!items.length || items[items.length - 1].state !== pt.state) {
@@ -84,21 +74,19 @@ export default function EnumerationGraph() {
   }, [enumData, activeEnums])
 
   // Compute bars for a given history
-  function computeBars(history: StateHistoryItem[]): StateBar[] {
+  function computeBars(history: StateHistoryItem[]) {
     const windowMs = 10_000
-    const widthPx = typeof window !== 'undefined'
-      ? window.innerWidth - 100
-      : 1000
+    const widthPx = typeof window !== 'undefined' ? window.innerWidth - 100 : 1000
     const pxPerMs = widthPx / windowMs
     const now = Date.now()
-
     return history
       .map((item, i) => {
         const next = history[i + 1]
         const end = next ? next.startTime : now
         const dur = Math.max(0, end - item.startTime)
         return {
-          ...item,
+          state: item.state,
+          startTime: item.startTime,
           width: Math.min(dur * pxPerMs, widthPx)
         }
       })
@@ -107,7 +95,7 @@ export default function EnumerationGraph() {
 
   return (
     <div className="space-y-4">
-      {/* Dropdown for new enumeration subscriptions */}
+      {/* Subscription controls */}
       <div className="flex items-center gap-2">
         <select
           value={selectedEnum}
@@ -133,14 +121,12 @@ export default function EnumerationGraph() {
         </button>
       </div>
 
-      {/* Render each active enumeration graph */}
+      {/* Render timelines for each active enumeration */}
       {activeEnums.map(signalName => {
         const history = historyMap[signalName] || []
         const bars = computeBars(history)
-
         return (
           <div key={signalName} className="border p-4 rounded">
-            {/* Header with signal name and unsubscribe */}
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-semibold">{signalName}</h3>
               <button
@@ -150,26 +136,16 @@ export default function EnumerationGraph() {
                 Unsubscribe
               </button>
             </div>
-
-            {/* Bar container: show history or default color if none */}
             <div className="h-6 bg-gray-100 overflow-hidden">
-              <div className="flex flex-row">
-                {bars.length > 0 ? (
-                  bars.map((bar, idx) => (
-                    <div
-                      key={idx}
-                      className="h-6"
-                      style={{ width: `${bar.width}px`, backgroundColor: getStateColor(bar.state) }}
-                      title={`${bar.state} @ ${new Date(bar.startTime).toLocaleTimeString()}`}  
-                    />
-                  ))
-                ) : (
+              <div className="flex">
+                {bars.map((bar, idx) => (
                   <div
-                    className="h-6 w-full"
-                    style={{ backgroundColor: getStateColor(signalName) }}
-                    title={`${signalName} (no data yet)`}
+                    key={idx}
+                    className="h-6"
+                    style={{ width: bar.width, backgroundColor: getStateColor(bar.state) }}
+                    title={`${bar.state} @ ${new Date(bar.startTime).toLocaleTimeString()}`}  
                   />
-                )}
+                ))}
               </div>
             </div>
           </div>

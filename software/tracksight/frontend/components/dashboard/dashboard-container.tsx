@@ -32,33 +32,34 @@ export default function Dashboard({ activePage }: DashboardProps) {
   return (
     <div className="p-4 text-gray-800 dark:text-white">
       <div className="mb-4 max-w-md">
-        <FaultSelector />
+        {/* <FaultSelector /> */}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="border-b border-gray-300 dark:border-gray-700 mb-4">
-          <TabsList className="bg-white dark:bg-gray-800">
+          {/* <TabsList className="bg-white dark:bg-gray-800">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          </TabsList>
+          </TabsList> */}
+          <h1>Go to Live Data</h1>
         </div>
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* <TimeSeriesChart /> */}
-            <SystemOverview />
+            {/* <SystemOverview /> */}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ErrorsPanel />
-            <BmsPanel />
+            {/* <ErrorsPanel />
+            <BmsPanel /> */}
           </div>
         </TabsContent>
 
         <TabsContent value="dashboard" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <SensorPanel />
-            <FileViewer />
+            {/* <SensorPanel />
+            <FileViewer /> */}
           </div>
 
           <div className="grid grid-cols-1 gap-4">
