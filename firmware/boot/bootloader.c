@@ -149,6 +149,7 @@ void bootloader_preInit(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("Bootloader reset!");
+    hw_hardFaultHandler_init();
 }
 
 void bootloader_init(void)

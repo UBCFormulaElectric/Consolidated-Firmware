@@ -40,7 +40,6 @@ void tasks_init()
     LOG_INFO("RSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_gpio_writePin(&brake_light_en_pin, false);
 
