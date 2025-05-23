@@ -2,6 +2,7 @@
 #include "main.h"
 #include "io_bootHandler.h"
 #include "io_log.h"
+#include "bootloaderConfig.h"
 
 #define BOOT_CAN_START_LOWBITS 0x9
 

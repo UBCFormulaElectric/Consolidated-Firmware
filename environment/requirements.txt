@@ -16,7 +16,6 @@ pybind11
 pytest
 rich
 
-
 # Tracksight backend dependencies.
 flask
 flask_cors
