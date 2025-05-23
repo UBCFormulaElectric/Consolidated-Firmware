@@ -1,5 +1,7 @@
 #include "jobs.h"
 
+#include "app_shdnLoop.h"
+
 #include "io_bootHandler.h"
 #include "io_canTx.h"
 
@@ -36,6 +38,7 @@ void jobs_run1Hz_tick(void)
 void jobs_run100Hz_tick(void)
 {
     io_canTx_enqueue100HzMsgs();
+    app_shdnLoop_broadcast();
 }
 
 void jobs_run1kHz_tick(void) {}
