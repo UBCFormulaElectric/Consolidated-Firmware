@@ -48,19 +48,19 @@ def _send_data() -> NoReturn:
             continue
 
         # handle commit info updates
-        if (
-            canmsg.can_id % 100 == 6
-        ):  # i.e. the canid is of the form x06, which means it is a commit info message
-            try:
-                # TODO concurrency issue since live_can_db also used in http
-                config_path = fetch_jsoncan_configs(canmsg.can_value.hex())
-                # live_can_db.update_path(config_path) # TODO not working yet
-                update_can_db(config_path)
-            except HTTPError:
-                logger.critical(
-                    f"Could not fetch new commit information for quintuna at commit {canmsg.can_value.hex()}"
-                )
-                continue  # do not continue to parse this message
+        # if (
+        #     canmsg.can_id % 100 == 6
+        # ):  # i.e. the canid is of the form x06, which means it is a commit info message
+        #     try:
+        #         # TODO concurrency issue since live_can_db also used in http
+        #         config_path = fetch_jsoncan_configs(canmsg.can_value.hex())
+        #         # live_can_db.update_path(config_path) # TODO not working yet
+        #         update_can_db(config_path)
+        #     except HTTPError:
+        #         logger.critical(
+        #             f"Could not fetch new commit information for quintuna at commit {canmsg.can_value.hex()}"
+        #         )
+        #         continue  # do not continue to parse this message
 
         for signal in live_can_db.unpack(canmsg.can_id, canmsg.can_value):
             for sid, signal_names in SUB_TABLE.items():
