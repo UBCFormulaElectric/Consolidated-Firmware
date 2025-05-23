@@ -108,8 +108,8 @@ extern "C"
 #define IR_P_EN_GPIO_Port GPIOE
 #define SHDN_EN_Pin GPIO_PIN_4
 #define SHDN_EN_GPIO_Port GPIOE
-#define LEDR_Pin GPIO_PIN_13
-#define LEDR_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_13
+#define LED_GPIO_Port GPIOC
 #define SPI_CS_LS_Pin GPIO_PIN_14
 #define SPI_CS_LS_GPIO_Port GPIOC
 #define MSD_SHDN_SNS_Pin GPIO_PIN_0

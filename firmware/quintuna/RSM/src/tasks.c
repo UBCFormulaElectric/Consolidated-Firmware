@@ -27,6 +27,7 @@
 #include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
+#include "hw_usb.h"
 
 void tasks_preInit()
 {
@@ -39,12 +40,12 @@ void tasks_init()
     LOG_INFO("RSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_gpio_writePin(&brake_light_en_pin, false);
 
     hw_adcs_chipsInit();
     hw_can_init(&can2);
+    ASSERT_EXIT_OK(hw_usb_init());
 
     jobs_init();
 

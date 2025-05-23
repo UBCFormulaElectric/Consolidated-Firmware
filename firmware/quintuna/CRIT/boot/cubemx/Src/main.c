@@ -48,8 +48,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan2;
 
-CRC_HandleTypeDef hcrc;
-
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
 uint32_t             canTxTaskBuffer[128];
@@ -94,7 +92,6 @@ CanHandle can = { .hcan = &hcan2, .bus_num = 2, .receive_callback = io_canQueue_
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN2_Init(void);
-static void MX_CRC_Init(void);
 void        runCanTxTask(void *argument);
 void        runTickTask(void *argument);
 void        runInterfaceTask(void *argument);
@@ -137,7 +134,6 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN2_Init();
-    MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
     /* USER CODE END 2 */
@@ -276,30 +272,6 @@ static void MX_CAN2_Init(void)
 }
 
 /**
- * @brief CRC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CRC_Init(void)
-{
-    /* USER CODE BEGIN CRC_Init 0 */
-
-    /* USER CODE END CRC_Init 0 */
-
-    /* USER CODE BEGIN CRC_Init 1 */
-
-    /* USER CODE END CRC_Init 1 */
-    hcrc.Instance = CRC;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CRC_Init 2 */
-
-    /* USER CODE END CRC_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -319,13 +291,13 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, LED_DIMMING_Pin | _7SEG_DIMMING_Pin, GPIO_PIN_SET);
 
-    /*Configure GPIO pins : BOOT_LED_Pin DEBUG_LED_Pin */
-    GPIO_InitStruct.Pin   = BOOT_LED_Pin | DEBUG_LED_Pin;
+    /*Configure GPIO pins : BOOT_LED_Pin LED_Pin */
+    GPIO_InitStruct.Pin   = BOOT_LED_Pin | LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -384,7 +356,11 @@ void runTickTask(void *argument)
 void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN runInterfaceTask */
-    bootloader_runInterfaceTask();
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
     /* USER CODE END runInterfaceTask */
 }
 
