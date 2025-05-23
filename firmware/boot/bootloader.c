@@ -1,7 +1,10 @@
 #include "bootloader.h"
+#include "app_crc32.h"
 #include "bootloaderConfig.h"
+#include "hw_bootup.h"
 #include "main.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -15,7 +18,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_flash.h"
 #include "hw_utils.h"
-#include "hw_crc.h"
 #include "hw_hal.h"
 
 #ifdef STM32H733xx
@@ -26,9 +28,8 @@
 #error "Please define what MCU is used"
 #endif
 
-#include <assert.h>
+#include "app_utils.h"
 
-extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
 // Need these to be created an initialized elsewhere
@@ -43,7 +44,7 @@ void canRxQueueOverflowCallBack(const uint32_t unused)
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    // BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.
@@ -53,7 +54,6 @@ typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
-    uint32_t bootloader_status;
 } Metadata;
 
 extern Metadata __app_metadata_start__; // NOLINT(*-reserved-identifier)
@@ -63,15 +63,16 @@ extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
-// Boot flag from RAM
-__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
-
 typedef enum
 {
     BOOT_STATUS_APP_VALID,
     BOOT_STATUS_APP_INVALID,
     BOOT_STATUS_NO_APP
 } BootStatus;
+
+static uint32_t   current_address;
+static bool       update_in_progress;
+static BootStatus boot_status;
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -122,41 +123,51 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     }
 }
 
-static BootStatus verifyAppCodeChecksum(void)
+void verifyAppCodeChecksum(void)
 {
     // ReSharper disable once CppRedundantDereferencingAndTakingAddress
     if (*&__app_code_start__ == 0xFFFFFFFF)
     {
         // If app initial stack pointer is all 0xFF, assume app is not present.
-        return BOOT_STATUS_NO_APP;
+        boot_status = BOOT_STATUS_NO_APP;
+        return;
     }
 
     const Metadata *metadata = &__app_metadata_start__;
     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
     {
         // App binary size field is invalid.
-        return BOOT_STATUS_APP_INVALID;
+        boot_status = BOOT_STATUS_APP_INVALID;
+        return;
     }
 
-    const uint32_t calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
-    return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
+    const uint32_t calculated_checksum =
+        app_crc32_finalize(app_crc32_update(app_crc32_init(), &__app_code_start__, metadata->size_bytes));
+    boot_status = calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
-
-static uint32_t current_address;
-static bool     update_in_progress;
 
 void bootloader_preInit(void)
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("Bootloader reset!");
+
+    hw_hardFaultHandler_init();
+
+    verifyAppCodeChecksum();
+    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
+    {
+        // Jump to app.
+        modifyStackPointerAndStartApp(&__app_code_start__);
+    }
+
+    hw_bootup_setBootRequest(BOOT_REQUEST_APP);
 }
 
 void bootloader_init(void)
 {
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
-    hw_hardFaultHandler_init();
-    hw_crc_init(&hcrc);
+
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -165,19 +176,6 @@ void bootloader_init(void)
     // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
-
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
-    {
-        // Deinit peripherals.
-        HAL_TIM_Base_Stop_IT(&htim6);
-        HAL_CRC_DeInit(&hcrc);
-
-        // Clear RCC register flag and RAM boot flag.
-        boot_flag = 0x0;
-
-        // Jump to app.
-        modifyStackPointerAndStartApp(&__app_code_start__);
-    }
 
     hw_can_init(&can);
     io_canQueue_init();
@@ -189,55 +187,64 @@ _Noreturn void bootloader_runInterfaceTask(void)
     {
         const CanMsg command = io_canQueue_popRx();
 
-        if (command.std_id == START_UPDATE_ID)
+        if (command.std_id == (BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS))
         {
             // Reset current address to program and update state.
             current_address    = (uint32_t)&__app_metadata_start__;
             update_in_progress = true;
 
             // Send ACK message that programming has started.
-            const CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
+            const CanMsg reply = { .std_id = BOARD_HIGHBITS | UPDATE_ACK_ID_LOWBITS, .dlc = 0 };
             io_canQueue_pushTx(&reply);
         }
-        else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
         {
             // Erase a flash sector.
-            const uint8_t sector = command.data[0];
+            const uint8_t sector = command.data.data8[0];
             hw_flash_eraseSector(sector);
 
             // Erasing sectors takes a while, so reply when finished.
             CanMsg reply = {
-                .std_id = ERASE_SECTOR_COMPLETE_ID,
+                .std_id = (BOARD_HIGHBITS | ERASE_SECTOR_COMPLETE_ID_LOWBITS),
                 .dlc    = 0,
             };
             io_canQueue_pushTx(&reply);
         }
-        else if (command.std_id == PROGRAM_ID && update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | PROGRAM_ID_LOWBITS) && update_in_progress)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+            bootloader_boardSpecific_program(current_address, command.data.data64[0]);
             current_address += sizeof(uint64_t);
         }
-        else if (command.std_id == VERIFY_ID && update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | VERIFY_ID_LOWBITS) && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
             CanMsg reply = {
-                .std_id = APP_VALIDITY_ID,
-                .dlc    = 1,
+                .std_id = (BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
+                .dlc    = 5,
             };
-            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+            verifyAppCodeChecksum();
+            reply.data.data8[0] = (uint8_t)boot_status;
+
+            const uint32_t diff = current_address - (uint32_t)&__app_metadata_start__;
+            reply.data.data8[1] = (uint8_t)(diff >> 24) & 0xff;
+            reply.data.data8[2] = (uint8_t)(diff >> 16) & 0xff;
+            reply.data.data8[3] = (uint8_t)(diff >> 8) & 0xff;
+            reply.data.data8[4] = (uint8_t)diff & 0xff;
             io_canQueue_pushTx(&reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
-        else if (command.std_id == GO_TO_APP && !update_in_progress)
+        else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
-            boot_flag = 0x0;
-            HAL_TIM_Base_Stop_IT(&htim6);
-            HAL_CRC_DeInit(&hcrc);
-            modifyStackPointerAndStartApp(&__app_code_start__);
+            hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+            NVIC_SystemReset();
+        }
+        else
+        {
+            LOG_ERROR("got stdid %X", command.std_id);
         }
     }
 }
@@ -249,12 +256,9 @@ _Noreturn void bootloader_runTickTask(void)
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 5 };
-        status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
-        status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
-        status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
-        status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
-        status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
+        CanMsg status_msg         = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
+        status_msg.data.data32[0] = GIT_COMMIT_HASH;
+        status_msg.data.data8[4]  = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
         io_canQueue_pushTx(&status_msg);
 
         bootloader_boardSpecific_tick();
@@ -269,7 +273,7 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
     }
 }
 

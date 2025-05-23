@@ -212,6 +212,20 @@ int main(void)
     MX_RTC_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
+    // __HAL_DBGMCU_FREEZE_IWDG();
+
+    // hw_can_init(&can);
+    // io_canQueue_init();
+
+    //if (sd_inited)
+    //{
+    //  sd1.hsd     = &hsd1;
+    //  sd1.timeout = osWaitForever;
+    //  io_canLogging_init();
+    //}
+
+    //SEGGER_SYSVIEW_Conf();
+    //LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
 
     /* Init scheduler */

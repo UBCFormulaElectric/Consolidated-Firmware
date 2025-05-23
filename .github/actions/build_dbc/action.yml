@@ -6,10 +6,10 @@ runs:
     - name: Generate Quadruna DBC
       shell: bash
       run: |
-        python3 scripts/code_generation/jsoncan/generate_can_from_json.py \
+        python3 -m scripts.code_generation.jsoncan.generate_can_from_json \
           --only_dbc --can_data_dir "can_bus/quadruna" --dbc_output "quadruna.dbc"
     - name: Generate Quintuna DBC
       shell: bash
       run: |
-        python3 scripts/code_generation/jsoncan/generate_can_from_json.py \
+        python3 -m scripts.code_generation.jsoncan.generate_can_from_json \
           --only_dbc --can_data_dir "can_bus/quintuna" --dbc_output "quintuna.dbc"

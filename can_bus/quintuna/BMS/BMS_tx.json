@@ -1,34 +1,94 @@
 {
-    "Vitals": {
-        "msg_id": 400,
-        "cycle_time": 100,
-        "description": "Vitals message for the BMS.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "BmsState"
-            }
-        }
-    },
-    "LatchedFaults": {
-        "msg_id": 410,
-        "cycle_time": 100,
-        "description": "Latched faults for the BMS",
-        "signals": {
-            "BmsLatchedFault": {
-                "bits": 1
-            },
-            "ImdLatchedFault": {
-                "bits": 1
-            },
-            "BspdLatchedFault": {
-                "bits": 1
-            }
-        }
-    },
-   "ElconControls": {
+  "Vitals": {
+    "msg_id": 400,
+    "cycle_time": 100,
+    "description": "Vitals message for the BMS.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "State": {
+        "enum": "BmsState"
+      }
+    }
+  },
+  "Debug": {
+    "msg_id": 407,
+    "cycle_time": 1000,
+    "description": "BMS Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      }
+    }
+  },
+  "LatchedFaults": {
+    "msg_id": 410,
+    "cycle_time": 100,
+    "description": "Latched faults for the BMS",
+    "signals": {
+      "BmsLatchedFault": {
+        "bits": 1
+      },
+      "ImdLatchedFault": {
+        "bits": 1
+      },
+      "BspdLatchedFault": {
+        "bits": 1
+      }
+    }
+  },
+  "Contactors": {
+    "msg_id": 411,
+    "cycle_time": 100,
+    "description": "BMS IR state statuses",
+    "signals": {
+      "IrPositive": {
+        "enum": "ContactorState"
+      },
+      "IrNegative": {
+        "enum": "ContactorState"
+      },
+      "PrechargeRelay": {
+        "enum": "ContactorState"
+      }
+    }
+  },
+  "TractiveSystem": {
+    "msg_id": 412,
+    "cycle_time": 100,
+    "description": "BMS Tractive System Data",
+    "signals": {
+      "TractiveSystemVoltage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 600,
+        "unit": "V"
+      },
+      "TractiveSystemCurrent": {
+        "resolution": 0.1,
+        "min": -300,
+        "max": 300,
+        "unit": "A"
+      },
+      "TractiveSystemPower": {
+        "resolution": 0.1,
+        "min": -100,
+        "max": 100,
+        "unit": "kW"
+      },
+      "AvailablePower": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "BSPDCurrentThresholdExceeded": {
+        "bits": 1
+      }
+    }
+  },
+  "ElconControls": {
     "msg_id": 450,
     "cycle_time": 1000,
     "description": "Control parameters for Elcon charger communication",
@@ -60,5 +120,66 @@
         "bits": 31
       }
     }
-  }
+  },
+  "ImdStatus": {
+        "msg_id": 452,
+        "cycle_time": 100,
+        "description": "BMS IMD Messages",
+        "signals": {
+            "ImdOkHs": {
+                "bits": 1
+            },
+            "ImdTimeSincePowerOn": {
+                "min": 0,
+                "resolution": 1,
+                "max": 10000,
+                "unit": "ms"
+            },
+            "ImdValidDutyCycle": {
+                "bits": 1
+            },
+            "ImdCondition": {
+                "enum": "ImdConditionName"
+            },
+            "ImdDutyCycle": {
+                "bits": 8,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "ImdFrequency": {
+                "bits": 8,
+                "min": 0,
+                "max": 100,
+                "unit": "Hz"
+            }
+        }
+    },
+    "ImdData": {
+        "msg_id": 453,
+        "cycle_time": 1000,
+        "description": "BMS IMD Measurement Data Values",
+        "signals": {
+            "ImdActiveFrequency": {
+                "enum": "ImdActiveFrequency"
+            },
+            "ImdInsulationMeasurementDcp10Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535,
+                "unit": "kOhm"
+            },
+            "ImdInsulationMeasurementDcp20Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535,
+                "unit": "kOhm"
+            },
+            "ImdSpeedStartStatus30Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535
+            }
+        }
+    }
 }
