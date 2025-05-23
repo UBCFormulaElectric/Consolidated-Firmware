@@ -11,13 +11,8 @@ from typing import Dict, List, Optional, Set, Union
 import pandas as pd
 from strenum import StrEnum
 
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 
@@ -307,6 +302,14 @@ class CanNode:
         return self.name
 
 
+@dataclass
+class DecodedSignal:
+    name: str
+    value: float
+    unit: Optional[str] = None
+    label: Optional[str] = None
+
+
 @dataclass(frozen=True)
 class CanDatabase:
     """
@@ -354,59 +357,53 @@ class CanDatabase:
         pandas_data = pd.DataFrame(data)
         return pandas_data
 
-    def unpack(self, msg_id: int, data: bytes) -> list[Dict]:
+    def unpack(self, msg_id: int, data: bytes) -> List[DecodedSignal]:
         """
         Unpack a CAN dataframe.
-        Returns a dict with the signal name, value, and unit.
+        Returns a list of decoded signals as `DecodedSignal` objects.
 
         TODO: Also add packing!
         """
         msg = self.get_message_by_id(msg_id)
-        if msg == None:
-            logger.warning(f"Message ID '{msg_id}' is not defined in the JSON.")
+        if msg is None:
+            logger.warning(
+                f"Message ID '{msg_id}' is not defined in the JSON.")
             return []
 
-        signals = []
-        for signal in msg.signals:
-            # Interpret raw bytes as an int.
-            data_uint = int.from_bytes(data, byteorder="little", signed=False)
+        decoded_signals: List[DecodedSignal] = []
+        data_uint = int.from_bytes(data, byteorder="little", signed=False)
 
+        for signal in msg.signals:
             # Extract the bits representing the current signal.
             data_shifted = data_uint >> signal.start_bit
             bitmask = (1 << signal.bits) - 1
-            signal_bits = data_shifted & bitmask
+            raw_value = data_shifted & bitmask
 
-            # Interpret value as signed number via 2s complement.
-            if signal.signed:
-                if signal_bits & (1 << (signal.bits - 1)):
-                    signal_bits = ~signal_bits & ((1 << signal.bits) - 1)
-                    signal_bits += 1
-                    signal_bits *= -1
+            # Handle signed values via 2's complement
+            if signal.signed and (raw_value & (1 << (signal.bits - 1))):
+                raw_value = raw_value - (1 << signal.bits)
 
-            # Decode the signal value using the scale/offset.
-            signal_value = signal_bits * signal.scale + signal.offset
-            signal_data = {"name": signal.name, "value": signal_value}
+            # Apply scale and offset
+            scaled_value = raw_value * signal.scale + signal.offset
 
-            # Insert unit, if it exists.
-            if signal.unit is not None:
-                signal_data["unit"] = signal.unit
+            # Initialize decoded signal
+            decoded = DecodedSignal(name=signal.name, value=scaled_value)
 
-            # If the signal is an enum, insert its label.
-            if signal.enum is not None:
-                if signal_value not in signal.enum.items:
+            if signal.unit:
+                decoded.unit = signal.unit
+
+            if signal.enum:
+                enum_label = signal.enum.items.get(int(scaled_value))
+                if enum_label is None:
                     logger.warning(
-                        f"Signal value '{signal_value}' does not have a matching label in enum '{signal.enum.name}' for signal '{signal.name}'."
+                        f"Signal value '{scaled_value}' not found in enum '{signal.enum.name}' for signal '{signal.name}'."
                     )
                     continue
+                decoded.label = enum_label
 
-                signal_data["label"] = signal.enum.items[
-                    int(signal_value)
-                ]  # this is legal as enums must be ints
+            decoded_signals.append(decoded)
 
-            # Append decoded signal's data.
-            signals.append(signal_data)
-
-        return signals
+        return decoded_signals
 
     def get_message_by_id(self, id: int):
 

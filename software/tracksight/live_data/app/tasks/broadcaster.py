@@ -3,12 +3,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from queue import Empty, Queue
 from threading import Thread
-
 # types
 from typing import NoReturn
 
 from api.socket import sio
-
 # ours
 from logger import logger
 from middleware.candb import fetch_jsoncan_configs, live_can_db, update_can_db
@@ -64,13 +62,13 @@ def _send_data() -> NoReturn:
 
         for signal in live_can_db.unpack(canmsg.can_id, canmsg.can_value):
             for sid, signal_names in SUB_TABLE.items():
-                if signal["name"] in signal_names:
+                if signal.name in signal_names:
                     try:
                         sio.emit(
                             "data",
                             {
-                                "name": signal["name"],
-                                "value": signal["value"],
+                                "name": signal.name,
+                                "value": signal.value,
                                 "timestamp": canmsg.can_timestamp.isoformat(),
                             },
                             room=sid,
@@ -80,10 +78,10 @@ def _send_data() -> NoReturn:
                         logger.error(f"Emit failed for sid {sid}: {e}")
             # send to influx logger
             print(
-                f"Sending to influx logger: {signal['name']} = {signal['value']}"
+                f"Sending to influx logger: {signal.name} = {signal.value}"
             )
             influx_queue.put(
-                InfluxCanMsg(signal["name"], signal["value"], canmsg.can_timestamp)
+                InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
             )
 
 
