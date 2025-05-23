@@ -5,9 +5,9 @@
 /*
  * Extended Kalman Filter (EKF)
  *
- * Bayesian filter used for state and covariance estimation of 
+ * Bayesian filter used for state and covariance estimation of
  * non-linear systems
- * 
+ *
  * API allows for combining multiple sensors to produce a reliable
  * data output. This should only be used for NON-LINEAR systems,
  * linear systems should use the normal Kalman Filter (KF)
@@ -34,16 +34,16 @@
 #define DIM_U 2
 #define DIM_MEAS 4
 
-typedef struct 
+typedef struct
 {
-    float *mat;
+    float   *mat;
     uint32_t rows;
     uint32_t cols;
 } Matrix;
 
 typedef struct
 {
-    // measurements 
+    // measurements
     float rpm_rr;
     float rpm_rl;
     float rpm_fr;
@@ -72,25 +72,25 @@ typedef struct
  * Initial state and covariance
  * Process and Measurement noise covariance
  * Time step
-*/
+ */
 void app_velocityEstimator_init(VelocityEstimator_Config *config);
 
 /*
  * Runs the predict and update step of the velocity estimator
  *
- * Must provide measurement and control input in 
+ * Must provide measurement and control input in
  * VelocityEstimator struct before eachc call
-*/
+ */
 void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs);
 
 /*
  * Get the velocity estimate
-*/
+ */
 float *app_velocityEstimator_getVelocity();
 
 /*
  * Get the covariance estimate
-*/
+ */
 float *app_velocityEstimator_getCovariance();
 
 /*
@@ -107,7 +107,7 @@ void update(Matrix *measurement, Matrix *prev_state);
 
 /*
  * Predicts next state given the previous state and control variables
-*/
+ */
 void state_transition(Matrix *prev_state, Matrix *control_input);
 
 /*
@@ -117,7 +117,7 @@ void state_jacobian(Matrix *x, Matrix *control_input);
 
 /*
  * Predicts the next measurement given the previous state
-*/
+ */
 void measurement_func(Matrix *x);
 
 /*
