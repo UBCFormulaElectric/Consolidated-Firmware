@@ -4,7 +4,7 @@ from xml import dom
 
 from zeroconf import ServiceInfo, Zeroconf
 
-_started = False
+started = False
 
 
 def register_mdns_service(ip: str, service_name: str):
@@ -23,7 +23,7 @@ def register_mdns_service(ip: str, service_name: str):
     )
     # Register the service
     zeroconf = Zeroconf()
-    if not _started:
+    if not started:
         zeroconf.register_service(info)
         _started = True
     print(
