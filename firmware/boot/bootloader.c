@@ -70,6 +70,10 @@ typedef enum
     BOOT_STATUS_NO_APP
 } BootStatus;
 
+static uint32_t   current_address;
+static bool       update_in_progress;
+static BootStatus boot_status;
+
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
@@ -119,29 +123,28 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     }
 }
 
-static BootStatus verifyAppCodeChecksum(void)
+void verifyAppCodeChecksum(void)
 {
     // ReSharper disable once CppRedundantDereferencingAndTakingAddress
     if (*&__app_code_start__ == 0xFFFFFFFF)
     {
         // If app initial stack pointer is all 0xFF, assume app is not present.
-        return BOOT_STATUS_NO_APP;
+        boot_status = BOOT_STATUS_NO_APP;
+        return;
     }
 
     const Metadata *metadata = &__app_metadata_start__;
     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
     {
         // App binary size field is invalid.
-        return BOOT_STATUS_APP_INVALID;
+        boot_status = BOOT_STATUS_APP_INVALID;
+        return;
     }
 
     const uint32_t calculated_checksum =
         app_crc32_finalize(app_crc32_update(app_crc32_init(), &__app_code_start__, metadata->size_bytes));
-    return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
+    boot_status = calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
-
-static uint32_t current_address;
-static bool     update_in_progress;
 
 void bootloader_preInit(void)
 {
@@ -151,11 +154,14 @@ void bootloader_preInit(void)
 
     hw_hardFaultHandler_init();
 
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
+    verifyAppCodeChecksum();
+    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
     {
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
+
+    hw_bootup_setBootRequest(BOOT_REQUEST_APP);
 }
 
 void bootloader_init(void)
@@ -218,7 +224,8 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = (BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
                 .dlc    = 5,
             };
-            reply.data.data8[0] = (uint8_t)verifyAppCodeChecksum();
+            verifyAppCodeChecksum();
+            reply.data.data8[0] = (uint8_t)boot_status;
 
             const uint32_t diff = current_address - (uint32_t)&__app_metadata_start__;
             reply.data.data8[1] = (uint8_t)(diff >> 24) & 0xff;
@@ -249,12 +256,9 @@ _Noreturn void bootloader_runTickTask(void)
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg        = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
-        status_msg.data.data8[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
-        status_msg.data.data8[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
-        status_msg.data.data8[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
-        status_msg.data.data8[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
-        status_msg.data.data8[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
+        CanMsg status_msg         = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
+        status_msg.data.data32[0] = GIT_COMMIT_HASH;
+        status_msg.data.data8[4]  = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
         io_canQueue_pushTx(&status_msg);
 
         bootloader_boardSpecific_tick();

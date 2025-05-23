@@ -56,7 +56,7 @@ void hw_bootup_setBootRequest(BootRequest request)
 
 BootRequest hw_bootup_getBootRequest(void)
 {
-    if (boot_request.magic != BOOT_MAGIC)
+    if (boot_request.magic == BOOT_MAGIC)
     {
         return boot_request.request;
     }
