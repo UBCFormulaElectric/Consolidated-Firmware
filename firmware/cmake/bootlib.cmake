@@ -52,7 +52,7 @@ function(stm32f4_boot_binary
 
     # Add shared files.
     list(APPEND SRCS
-            "${SHARED_APP_INCLUDE_DIR}/app_crc.c"
+            "${SHARED_APP_INCLUDE_DIR}/app_crc32.c"
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
             "${SHARED_IO_INCLUDE_DIR}/io_time.c"
@@ -133,7 +133,7 @@ function(stm32h7_boot_binary
 
     # Add shared files.
     list(APPEND SRCS
-            "${SHARED_APP_INCLUDE_DIR}/app_crc.c"
+            "${SHARED_APP_INCLUDE_DIR}/app_crc32.c"
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
             "${SHARED_IO_INCLUDE_DIR}/io_time.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"

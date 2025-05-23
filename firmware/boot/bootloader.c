@@ -1,5 +1,5 @@
 #include "bootloader.h"
-#include "app_crc.h"
+#include "app_crc32.h"
 #include "bootloaderConfig.h"
 #include "hw_bootup.h"
 #include "main.h"
@@ -135,7 +135,8 @@ static BootStatus verifyAppCodeChecksum(void)
         return BOOT_STATUS_APP_INVALID;
     }
 
-    const uint32_t calculated_checksum = app_crc_calculate(&__app_code_start__, metadata->size_bytes);
+    const uint32_t calculated_checksum =
+        app_crc32_finalize(app_crc32_update(app_crc32_init(), &__app_code_start__, metadata->size_bytes));
     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
 
