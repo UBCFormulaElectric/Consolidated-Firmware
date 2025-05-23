@@ -12,7 +12,7 @@ const Gpio hv_n_intlck_sns_pin        = { .port = HV_N_INTLCK_SNS_GPIO_Port, .pi
 const Gpio imd_latch_pin              = { .port = IMD_LATCH_GPIO_Port, .pin = IMD_LATCH_Pin };
 const Gpio diag_ts_pin                = { .port = DIAG_GPIO_Port, .pin = DIAG_Pin };
 const Gpio sd_cd_pin                  = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
-const Gpio led_r_pin                  = { .port = LEDR_GPIO_Port, .pin = LEDR_Pin };
+const Gpio led_r_pin                  = { .port = LED_GPIO_Port, .pin = LED_Pin };
 const Gpio spi_cs_ls_pin              = { .port = SPI_CS_LS_GPIO_Port, .pin = SPI_CS_LS_Pin };
 const Gpio tsense_sel0_pin            = { .port = TSENSE_SEL0_GPIO_Port, .pin = TSENSE_SEL0_Pin };
 const Gpio tsense_sel1_pin            = { .port = TSENSE_SEL1_GPIO_Port, .pin = TSENSE_SEL1_Pin };

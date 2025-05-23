@@ -12,11 +12,14 @@
 // hw
 #include "hw_usb.h"
 #include "hw_resetReason.h"
+#include "hw_hardFaultHandler.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
+
+void tasks_preInit(void) {}
 
 void tasks_init(void)
 {
@@ -27,7 +30,7 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG1();
 
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
 
     jobs_init();
 

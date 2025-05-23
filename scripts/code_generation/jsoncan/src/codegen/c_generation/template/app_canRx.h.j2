@@ -35,3 +35,5 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value);
 {{ signal.datatype() }} app_canRx_{{ signal.name }}_get(void);
 {%- endfor %}
 {%- endfor %}
+
+void app_canRx_clear_board_rx_table(CanNode board);
