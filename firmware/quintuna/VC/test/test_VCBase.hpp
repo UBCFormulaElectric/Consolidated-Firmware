@@ -12,7 +12,7 @@ class VCBaseTest : public EcuTestBase
 {
     void board_setup() override
     {
-        jobs_init();
+        // micro startup simulation
         for (const TI_LoadSwitch &tils : { rl_pump_loadswitch, rr_pump_loadswitch, f_pump_loadswitch })
         {
             fake::io_loadswitch::reset_tiLoadswitch(const_cast<TI_LoadSwitch &>(tils));
@@ -22,6 +22,8 @@ class VCBaseTest : public EcuTestBase
         {
             fake::io_loadswitch::reset_stLoadswitch(const_cast<ST_LoadSwitch &>(stls));
         }
+
+        jobs_init();
     }
     void board_teardown() override {}
     void tick_100hz() override { jobs_run100Hz_tick(); }
