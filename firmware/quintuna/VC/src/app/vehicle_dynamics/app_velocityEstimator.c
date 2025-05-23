@@ -1,6 +1,10 @@
+#include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "app_velocityEstimator.h"
+#include "app_units.h"
+#include "app_vehicleDynamicsConstants.h"
 
 /* 
  * ================================
@@ -56,125 +60,15 @@ static float time_step;
 
 /* 
  * ================================
- * Velocity Estimator Functions
- * ================================
-*/
-
-void app_velocityEstimator_init(VelocityEstimator_Config *config) {
-    state_estimate.mat = config->state_estimate_init;
-    covariance_estimate.mat = config->covariance_estimate_init;
-    process_noise_cov.mat   = config->process_noise_cov;
-    measurement_noise_cov.mat   = config->measurement_noise_cov;
-    time_step                   = config->time_step;
-}
-
-void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs) {
-    Matrix control_input = { .mat = inputs->control_input, .rows = DIM_U, .cols = 1 };
-    Matrix measurement = { .mat = inputs->measurement, .rows = DIM, .cols = 1 };
-
-    predict(state_estimate, control_input, process_noise_cov);
-    update(measurement, state_estimate, measurement_noise_cov);
-}
-
-void convertMeasurementToState(float measurement[4]) {
-
-}
-
-float *app_velocityEstimator_getVelocity() {
-    return state_estimate.mat;
-}
-
-float *app_velocityEstimator_getCovariance() {
-    return covariance_estimate.mat;
-}
-
-/* 
- * ================================
- * Internal EKF Functions
- * (Should not be called, exposed for testing)
- * ================================
-*/
-
-void predict(Matrix prev_state, Matrix control_input, Matrix process_noise_cov) {
-    // state prediction
-    state_transition(prev_state, control_input);
-    state_jacobian(prev_state, control_input);
-
-    Matrix temp_cov = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-    Matrix F_transpose = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-
-    // prediction covariance prediction
-    mult(&temp_cov, &F_jacobian, &covariance_estimate);
-    transpose(&F_transpose, &F_jacobian);
-    mult(&covariance_estimate, &temp_cov, &F_transpose);
-    add(&covariance_estimate, &covariance_estimate, &process_noise_cov);
-}
-
-void update(Matrix measurement, Matrix prev_state, Matrix measurement_noise_cov) {
-    Matrix PH_transpose = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-    Matrix Ky = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = 1 };
-    Matrix H_transpose = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-    Matrix S = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-    Matrix S_inv = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-    Matrix K = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-    Matrix residual = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = 1 };
-
-    // measurement prediction
-    measurement_func(state_estimate);
-    measurement_jacobian(state_estimate);
-
-    // measurement covariance prediction
-    transpose(&H_transpose, &H_jacobian);
-    mult(&PH_transpose, &covariance_estimate, &H_transpose);
-    mult(&S, &H_jacobian, &PH_transpose);
-    add(&S, &S, &measurement_noise_cov);
-
-    // kalman gain calculation
-    inverse2x2(&S_inv, &S);
-    mult(&K, &PH_transpose, &S_inv);
-
-    // measurement residual calculation
-    sub(&residual, &measurement, &measurement_predicted);
-
-    // state estimation
-    mult(&Ky, &K, &residual);
-    add(&state_estimate, &state_estimate, &Ky);
-
-    Matrix KH = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-    Matrix KHP = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
-
-    // covariance estimation
-    mult(&KH, &K, &H_jacobian);
-    mult(&KHP, &KH, &covariance_estimate);
-    sub(&covariance_estimate, &covariance_estimate, &KHP);
-}
-
-void state_transition(Matrix prev_state, Matrix control_input) {
-    state_estimate.mat[0] += time_step * (control_input.mat[0] + state_estimate.mat[1] * control_input.mat[2]);
-    state_estimate.mat[1] += time_step * (control_input.mat[1] + state_estimate.mat[0] * control_input.mat[2]);
-}
-
-void state_jacobian(Matrix x, Matrix control_input) {
-    F_jacobian.mat[0 * DIM + 1] = time_step * control_input.mat[2];
-    F_jacobian.mat[1 * DIM + 0] = -time_step * control_input.mat[2];
-}
-
-void measurement_func(Matrix x) {
-    for (int i = 0; i < DIM; i++) {
-        measurement_predicted.mat[i] = x.mat[i];
-    }
-}
-
-void measurement_jacobian(Matrix x) {
-    H_jacobian.mat[0 * DIM + 0] = 1;
-    H_jacobian.mat[1 * DIM + 1] = 1;
-}
-
-/* 
- * ================================
  * Linear Algebra Functions
  * ================================
 */
+
+void print_arr(float *a, uint32_t len) {
+    for (uint32_t i = 0; i < len; i++) {
+        printf("%d: %f\n", i, a[i]);
+    }
+}
 
 /*
  * Matrix Addition: result = A + B
@@ -210,9 +104,9 @@ static bool sub(Matrix *result, const Matrix *A, const Matrix *B) {
  * Matrix Multiplication: result = A * B
  */
 static bool mult(Matrix *result, const Matrix *A, const Matrix *B) {
-    if (A->cols != B->rows ||
-        result->rows != A->rows || result->cols != B->cols)
+    if (A->cols != B->rows || result->rows != A->rows || result->cols != B->cols) {
         return false;
+    }
 
     for (uint32_t i = 0; i < result->rows * result->cols; i++) {
         result->mat[i] = 0.0f;
@@ -271,4 +165,165 @@ static bool inverse2x2(Matrix *result, const Matrix *X) {
     result->mat[3] =  a * inv_det;
 
     return true;
+}
+
+/* 
+ * ================================
+ * Internal EKF Functions
+ * (Should not be called, exposed for testing)
+ * ================================
+*/
+
+void state_transition(Matrix *prev_state, Matrix *control_input) {
+    float velx_pred = time_step * (control_input->mat[0] + prev_state->mat[1] * control_input->mat[2]);
+    float vely_pred = time_step * (control_input->mat[1] + prev_state->mat[0] * control_input->mat[2]);
+    
+    state_estimate.mat[0] += velx_pred;
+    state_estimate.mat[1] += vely_pred;
+}
+
+void state_jacobian(Matrix *x, Matrix *control_input) {
+    F_jacobian.mat[0 * DIM + 0] = 1;
+    F_jacobian.mat[0 * DIM + 1] = time_step * control_input->mat[2];
+    F_jacobian.mat[1 * DIM + 0] = -time_step * control_input->mat[2];
+    F_jacobian.mat[1 * DIM + 1] = 1;
+}
+
+void measurement_func(Matrix *x) {
+    for (int i = 0; i < DIM; i++) {
+        measurement_predicted.mat[i] = x->mat[i];
+    }
+}
+
+void measurement_jacobian(Matrix *x) {
+    H_jacobian.mat[0 * DIM + 0] = 1;
+    H_jacobian.mat[1 * DIM + 1] = 1;
+}
+
+void predict(Matrix *prev_state, Matrix *control_input) {
+    Matrix temp_cov = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+    Matrix F_transpose = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+
+    // state prediction
+    state_transition(prev_state, control_input);
+    state_jacobian(prev_state, control_input);
+
+    // prediction covariance prediction
+    mult(&temp_cov, &F_jacobian, &covariance_estimate);
+    transpose(&F_transpose, &F_jacobian);
+    mult(&covariance_estimate, &temp_cov, &F_transpose);
+    add(&covariance_estimate, &covariance_estimate, &process_noise_cov);
+}
+
+void update(Matrix *measurement, Matrix *prev_state) {
+    Matrix PH_transpose = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+    Matrix Ky = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = 1 };
+    Matrix H_transpose = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+    Matrix S = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+    Matrix S_inv = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+    Matrix K = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+    Matrix residual = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = 1 };
+
+    // measurement prediction
+    measurement_func(prev_state);
+    measurement_jacobian(prev_state);
+
+    // measurement covariance prediction
+    transpose(&H_transpose, &H_jacobian);
+    mult(&PH_transpose, &covariance_estimate, &H_transpose);
+    mult(&S, &H_jacobian, &PH_transpose);
+    add(&S, &S, &measurement_noise_cov);
+
+    // kalman gain calculation
+    inverse2x2(&S_inv, &S);
+    mult(&K, &PH_transpose, &S_inv);
+
+    // measurement residual calculation
+    sub(&residual, measurement, &measurement_predicted);
+
+    // state estimation
+    mult(&Ky, &K, &residual);
+    add(&state_estimate, prev_state, &Ky);
+
+    Matrix KH = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+    Matrix KHP = { .mat = (float[]){0.0f, 0.0f, 0.0f, 0.0f}, .rows = DIM, .cols = DIM };
+
+    // covariance estimation
+    mult(&KH, &K, &H_jacobian);
+    mult(&KHP, &KH, &covariance_estimate);
+    sub(&covariance_estimate, &covariance_estimate, &KHP);
+    // print_arr(covariance_estimate.mat, 4);
+}
+
+/* 
+ * ================================
+ * Velocity Estimator Functions
+ * ================================
+*/
+
+void app_velocityEstimator_init(VelocityEstimator_Config *config) {
+    state_estimate.mat = config->state_estimate_init;
+    covariance_estimate.mat = config->covariance_estimate_init;
+    process_noise_cov.mat   = config->process_noise_cov;
+    measurement_noise_cov.mat   = config->measurement_noise_cov;
+    time_step                   = config->time_step;
+}
+
+void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs) {
+    float v_rr = MOTOR_RPM_TO_MPS(inputs->rpm_rr);
+    float v_rl = MOTOR_RPM_TO_MPS(inputs->rpm_rl);
+    float v_fr = MOTOR_RPM_TO_MPS(inputs->rpm_fr);
+    float v_fl = MOTOR_RPM_TO_MPS(inputs->rpm_fl);
+
+    float yaw_rate = inputs->yaw_rate_rad;
+    float wheel_angle = inputs->wheel_angle;
+
+    float vx_rr = v_rr + yaw_rate * TRACK_WIDTH_m;
+    float vx_rl = v_rl - yaw_rate * TRACK_WIDTH_m;
+    float vx_fr = v_fr * cosf(wheel_angle) + yaw_rate * TRACK_WIDTH_m;
+    float vx_fl = v_fr * cosf(wheel_angle) - yaw_rate * TRACK_WIDTH_m;
+
+    float vy_rr = -yaw_rate * DIST_REAR_AXLE_CG - v_rr;
+    float vy_rl = -yaw_rate * DIST_REAR_AXLE_CG - v_rl;
+    float vy_fr = -yaw_rate * DIST_FRONT_AXLE_CG - v_fr * sinf(wheel_angle);
+    float vy_fl = -yaw_rate * DIST_FRONT_AXLE_CG - v_fl * sinf(wheel_angle);
+
+    float vx = (vx_fl + vx_fr + vx_rl + vx_rr) / 4.0f;
+    float vy = (vy_fl + vy_fr + vy_rl + vy_rr) / 4.0f;
+
+    measurement->mat[0] = vx;
+    measurement->mat[1] = vy;
+}
+
+void setUpControlInputs(Matrix *control_inputs, VelocityEstimator_Inputs *inputs) {
+    control_inputs->mat[0] = inputs->accel_x;
+    control_inputs->mat[1] = inputs->accel_y;
+    control_inputs->mat[2] = inputs->yaw_rate_rad;
+}
+
+void convertGpsToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs) {
+    measurement->mat[0] = inputs->gps_vx;
+    measurement->mat[1] = inputs->gps_vy;
+}
+
+void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs) {
+    Matrix control_input = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM_U, .cols = 1 };
+    Matrix measurement_ws = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = 1 };
+    Matrix measurement_gps = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = 1 };
+
+    setUpControlInputs(&control_input, inputs);
+    convertMeasurementToState(&measurement_ws, inputs);
+    convertGpsToMeasurement(&measurement_gps, inputs);
+
+    predict(&state_estimate, &control_input);
+    update(&measurement_ws, &state_estimate);
+    update(&measurement_gps, &state_estimate);
+}
+
+float *app_velocityEstimator_getVelocity() {
+    return state_estimate.mat;
+}
+
+float *app_velocityEstimator_getCovariance() {
+    return covariance_estimate.mat;
 }

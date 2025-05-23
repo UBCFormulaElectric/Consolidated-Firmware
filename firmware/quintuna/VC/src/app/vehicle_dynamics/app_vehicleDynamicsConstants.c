@@ -21,10 +21,10 @@
 // const YawRateController_Config YAW_RATE_CONTROLLER_CONFIG = { .pid_config = &PID_YAW_RATE_CONTROLLER_CONFIG,
 //                                                               .ku         = 0.0f };
 
-extern const VelocityEstimator_Config VELOCITY_ESTIMATOR_CONFIG = {
-    .state_estimate_init      = (float[]){ 0.0f, 0.0f },
-    .covariance_estimate_init = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f },
-    .process_noise_cov        = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f },
-    .measurement_noise_cov    = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f },
-    .time_step                = 0.01
+const VelocityEstimator_Config VELOCITY_ESTIMATOR_CONFIG = {
+    .state_estimate_init      = { 0.0f, 0.0f },
+    .covariance_estimate_init = { 0.0f, 0.0f, 0.0f, 0.0f },
+    .process_noise_cov        = { 0.0f, 0.0f, 0.0f, 0.0f },
+    .measurement_noise_cov    = { 0.0f, 0.0f, 0.0f, 0.0f },
+    .time_step                = 0.01f
 };
