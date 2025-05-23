@@ -21,6 +21,7 @@ ExitCode io_ltc6813_startCellsAdcConversion(const ADCSpeed speed)
 // Discharge permitted
 #define DCP (0U)
 #define ADCV (0x260 | CH | DCP << 4 | adc_speed_factor)
+    SEGGER_SYSVIEW_Mark(10);
     return io_ltc6813_sendCommand(ADCV);
 }
 
@@ -44,6 +45,7 @@ void io_ltc6813_readVoltageRegisters(
     memset(cell_voltage_regs, 0, NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(uint16_t));
     // Exit early if ADC conversion fails
     const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
+    SEGGER_SYSVIEW_Mark(12);
     if (IS_EXIT_ERR(poll_ok))
     {
         for (uint8_t i = 0; i < NUM_SEGMENTS; i++)

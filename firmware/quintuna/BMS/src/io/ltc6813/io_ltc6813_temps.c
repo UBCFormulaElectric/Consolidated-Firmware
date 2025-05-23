@@ -20,6 +20,7 @@ ExitCode io_ltc6813_startThermistorsAdcConversion(const ADCSpeed speed)
 // GPIO Selection for ADC conversion
 #define CHG (0x000U)
 #define ADAX (0x460 | adc_speed_factor | CHG)
+    SEGGER_SYSVIEW_Mark(11);
     return io_ltc6813_sendCommand(ADAX);
 }
 
@@ -43,6 +44,7 @@ void io_ltc6813_readAuxRegisters(
     memset(aux_regs, 0, NUM_SEGMENTS * AUX_REGS_PER_SEGMENT * sizeof(uint16_t));
 
     const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
+    SEGGER_SYSVIEW_Mark(13);
     if (IS_EXIT_ERR(poll_ok))
     {
         for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
