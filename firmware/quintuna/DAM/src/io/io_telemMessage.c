@@ -77,14 +77,14 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
     if (rx_msg->dlc > 8)
         return false;
     t_message.can_id     = (int32_t)(rx_msg->std_id);
-    t_message.message_0  = rx_msg->data[0];
-    t_message.message_1  = rx_msg->data[1];
-    t_message.message_2  = rx_msg->data[2];
-    t_message.message_3  = rx_msg->data[3];
-    t_message.message_4  = rx_msg->data[4];
-    t_message.message_5  = rx_msg->data[5];
-    t_message.message_6  = rx_msg->data[6];
-    t_message.message_7  = rx_msg->data[7];
+    t_message.message_0  = rx_msg->data.data8[0];
+    t_message.message_1  = rx_msg->data.data8[1];
+    t_message.message_2  = rx_msg->data.data8[2];
+    t_message.message_3  = rx_msg->data.data8[3];
+    t_message.message_4  = rx_msg->data.data8[4];
+    t_message.message_5  = rx_msg->data.data8[5];
+    t_message.message_6  = rx_msg->data.data8[6];
+    t_message.message_7  = rx_msg->data.data8[7];
     t_message.time_stamp = (int32_t)rx_msg->timestamp;
 
     // Encode message into proto_buffer
@@ -133,8 +133,8 @@ void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time)
     CanMsg start_time_msg = {
         .std_id = 0x999, // this id could change asking edwin!!!
         .dlc    = 6,
-        .data   = { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
-                    start_time.seconds },
+        .data   = { { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
+                      start_time.seconds } },
         .timestamp =
             io_time_getCurrentMs(), // note, this represents the timestamp of the current message NOT the basetime
     };

@@ -535,7 +535,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, DEBUG_LED_Pin | BOOT_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_Pin | BOOT_LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : FR_INT_3V3_Pin FL_INT_3V3_Pin nSTR_ANGLE_OCSC_Pin nBPS_F_OCSC_Pin */
     GPIO_InitStruct.Pin  = FR_INT_3V3_Pin | FL_INT_3V3_Pin | nSTR_ANGLE_OCSC_Pin | nBPS_F_OCSC_Pin;
@@ -555,8 +555,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : DEBUG_LED_Pin BOOT_LED_Pin */
-    GPIO_InitStruct.Pin   = DEBUG_LED_Pin | BOOT_LED_Pin;
+    /*Configure GPIO pins : LED_Pin BOOT_LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -669,7 +669,7 @@ void RunTaskChimera(void *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM3 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -680,7 +680,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM3)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

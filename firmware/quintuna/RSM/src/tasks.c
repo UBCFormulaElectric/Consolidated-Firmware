@@ -13,6 +13,7 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_jsoncan.h"
+#include "io_bootHandler.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
@@ -23,12 +24,14 @@
 #include "hw_watchdog.h"
 #include "hw_cans.h"
 #include "hw_gpios.h"
+#include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
+#include "hw_usb.h"
 
 void tasks_preInit()
 {
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init()
@@ -37,12 +40,12 @@ void tasks_init()
     LOG_INFO("RSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_gpio_writePin(&brake_light_en_pin, false);
 
     hw_adcs_chipsInit();
     hw_can_init(&can2);
+    ASSERT_EXIT_OK(hw_usb_init());
 
     jobs_init();
 
@@ -113,8 +116,10 @@ _Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
-        const CanMsg msg      = io_canQueue_popRx();
-        JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&msg);
+        const CanMsg rx_msg   = io_canQueue_popRx();
+        JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+
         io_canRx_updateRxTableWithMessage(&json_msg);
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
