@@ -11,7 +11,7 @@
 
 // Constants
 
-#define CAR_MASS_AT_CG_KG (300.0f) // checked with suspension -- weight with driver
+#define CAR_MASS_AT_CG_KG (300.0f)                           // checked with suspension -- weight with driver
 #define DIST_FRONT_AXLE_CG (0.837f)                          // a in meters
 #define DIST_REAR_AXLE_CG (WHEELBASE_m - DIST_FRONT_AXLE_CG) // b in meters
 #define GRAVITY (9.81f)
