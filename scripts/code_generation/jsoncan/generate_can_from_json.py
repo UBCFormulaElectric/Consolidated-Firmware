@@ -1,53 +1,114 @@
 """
 Entry point for generating CAN drivers and DBC from JSON data, as a command line utility.
-TODO: Generate callback functions for received messages? Could be cool
-TODO: Why do we need start values???
+
 """
 
 import argparse
 import os
 
-from calc_bus_load import report_bus_load
-from src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
-from src.codegen.c_generation.app_can_data_capture_module import \
-    AppCanDataCaptureModule
-from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
-from src.codegen.c_generation.app_can_tx_module import AppCanTxModule
-from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
-from src.codegen.c_generation.io_can_rx_module import IoCanRxModule
-from src.codegen.c_generation.io_can_tx_module import IoCanTxModule
-from src.codegen.dbc_generation.dbc_generation import DbcGenerator
-from src.json_parsing.json_can_parsing import JsonCanParser
-from src.utils import write_text
+from . import (
+    AppCanAlertsModule,
+    AppCanDataCaptureModule,
+    AppCanRxModule,
+    AppCanTxModule,
+    AppCanUtilsModule,
+    CModule,
+    DbcGenerator,
+    IoCanRerouteModule,
+    IoCanRxModule,
+    IoCanTxModule,
+    JsonCanParser,
+)
+from .src.codegen.c_generation.routing import resolve_tx_rx_reroute
+
+
+def write_text(text: str, output_path: str) -> None:
+    """
+    Write the text stored in text to output_path.
+    """
+    output_dir = (
+        os.getcwd()
+        if os.path.dirname(output_path) == ""
+        else os.path.dirname(output_path)
+    )
+    output_name = os.path.basename(output_path)
+
+    # Generate output folder if it doesn't exist yet
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Write file to disk
+    with open(os.path.join(output_dir, output_name), "w") as fout:
+        fout.write(text)
+
+
+def generate_can_from_json(
+    can_data_dir: str, dbc_output: str, only_dbc: bool, board: str, output_dir: str
+):
+    # Parse JSON
+    can_db = JsonCanParser(can_data_dir=can_data_dir).make_database()
+    tx_configs, rx_configs, reroute_config = resolve_tx_rx_reroute(can_db)
+
+    # Generate DBC file
+    write_text(
+        DbcGenerator(database=can_db, rx_configs=rx_configs).source(), dbc_output
+    )
+    if only_dbc:
+        return
+
+    if board not in can_db.nodes:
+        raise ValueError(f"Board {board} not found in CAN database.")
+    # NOTE that not all files are required, but it's very hard to communicate to cmake at generate time
+    # which files are required.
+    modules: list[tuple[CModule, str]] = [
+        (
+            AppCanUtilsModule(can_db, tx_configs[board], rx_configs[board]),
+            os.path.join("app", "app_canUtils"),
+        ),
+        (AppCanTxModule(can_db, tx_configs[board]), os.path.join("app", "app_canTx")),
+        (AppCanAlertsModule(can_db, board), os.path.join("app", "app_canAlerts")),
+        (AppCanDataCaptureModule(can_db), os.path.join("app", "app_canDataCapture")),
+        (
+            AppCanRxModule(can_db, board, rx_configs[board]),
+            os.path.join("app", "app_canRx"),
+        ),
+        (
+            IoCanTxModule(can_db, board, tx_configs[board]),
+            os.path.join("io", "io_canTx"),
+        ),
+        (
+            IoCanRxModule(can_db, board, rx_configs[board]),
+            os.path.join("io", "io_canRx"),
+        ),
+        (
+            IoCanRerouteModule(can_db, board, reroute_config.get(board)),
+            os.path.join("io", "io_canReroute"),
+        ),
+    ]
+
+    for module, module_path in modules:
+        module_full_path = os.path.join(output_dir, module_path)
+        write_text(module.header_template(), module_full_path + ".h")
+        write_text(module.source_template(), module_full_path + ".c")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--board", help="Choose a board name")
-    parser.add_argument("--can_data_dir", help="Path to JSON CAN data")
+    parser.add_argument(
+        "--board", help="Choose a board name"
+    )  # can be none when onlyh dbc
+    parser.add_argument("--can_data_dir", help="Path to JSON CAN data", required=True)
     parser.add_argument("--output_dir", help="Path to the output source files")
-    parser.add_argument("--dbc_output", help="Path to the DBC file")
+    parser.add_argument("--dbc_output", help="Path to the DBC file", required=True)
     parser.add_argument(
         "--only_dbc", action="store_true", help="Only generate DBC file"
     )
     args = parser.parse_args()
-
-    # Parse JSON
-    can_db = JsonCanParser(can_data_dir=args.can_data_dir).make_database()
-    # Generate DBC file
-    write_text(DbcGenerator(database=can_db).source(), args.dbc_output)
-    if args.only_dbc:
-        exit()
-
-    modules = {
-        AppCanUtilsModule(can_db, args.board): os.path.join("app", "app_canUtils"),
-        AppCanTxModule(can_db, args.board): os.path.join("app", "app_canTx"),
-        AppCanRxModule(can_db, args.board): os.path.join("app", "app_canRx"),
-        AppCanAlertsModule(can_db, args.board): os.path.join("app", "app_canAlerts"),
-        AppCanDataCaptureModule(can_db): os.path.join("app", "app_canDataCapture"),
-        IoCanTxModule(can_db, args.board): os.path.join("io", "io_canTx"),
-        IoCanRxModule(can_db, args.board): os.path.join("io", "io_canRx"),
-    }
-    for module, module_path in modules.items():
-        module_full_path = os.path.join(args.output_dir, module_path)
-        write_text(module.header(), module_full_path + ".h")
-        write_text(module.source(), module_full_path + ".c")
+    if not args.only_dbc:
+        if not args.board or not args.output_dir:
+            parser.error(
+                "--board and --output_dir are required unless --only_dbc is set."
+            )
+    generate_can_from_json(
+        args.can_data_dir, args.dbc_output, args.only_dbc, args.board, args.output_dir
+    )

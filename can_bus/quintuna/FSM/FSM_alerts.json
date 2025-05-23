@@ -50,5 +50,8 @@
             "id": 653,
             "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
         }
-    }
+    },
+    "info_id": 605,
+    "info_counts_id": 606,
+    "info": {}
 }
