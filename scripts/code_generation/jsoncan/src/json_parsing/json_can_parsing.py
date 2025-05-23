@@ -50,7 +50,7 @@ class JsonCanParser:
         node_names: List[str] = list_nodes_from_folders(can_data_dir)
 
         # parse the bus config
-        self._busses, self._forwarding, loggers, node_properties = parse_bus_data(
+        self._busses, self._forwarding, loggers = parse_bus_data(
             can_data_dir, node_names
         )
         self._collects_data = {
@@ -60,14 +60,17 @@ class JsonCanParser:
         # create node objects for each node
         self._nodes = {
             node_name: CanNode(
-                node_name,
-                [
+                name=node_name,
+                bus_names=[
                     bus_name
                     for bus_name, bus in self._busses.items()
                     if node_name in bus.node_names
                 ],
-                set(),
-                node_properties[node_name]["fd"],
+                rx_msgs_names=set(),
+                fd=any(
+                    node_name in bus.node_names and bus.fd
+                    for bus in self._busses.values()
+                ),
             )
             for node_name in node_names
         }
@@ -159,7 +162,7 @@ class JsonCanParser:
                 f"Message '{msg.name}' transmitted by node '{tx_node_name}' is also transmitted by '{self._msgs[msg.name].tx_node_name}'"
             )
 
-        # Check if this message ID is a duplcate
+        # Check if this message ID is a duplicate
         find = [m for m in self._msgs.values() if m.id == msg.id]
         if len(find) > 0:
             assert len(find) == 1, "There should only be one message with the same ID"

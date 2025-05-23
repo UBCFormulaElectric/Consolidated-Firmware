@@ -1,4 +1,3 @@
-#include <cassert>
 #include <gtest/gtest.h>
 
 extern "C"
@@ -190,7 +189,7 @@ TEST(PackUnpackTests, test_long_message)
     {
         uint32_t words[16];
         uint8_t  bytes[64];
-    } payload = { 0 };
+    } payload = { { 0 } };
 
     app_canUtils_ECU1_LongMessage_pack(&in_msg, payload.bytes);
 

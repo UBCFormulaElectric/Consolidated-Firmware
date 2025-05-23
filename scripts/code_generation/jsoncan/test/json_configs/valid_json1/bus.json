@@ -1,21 +1,4 @@
 {
-  "nodes": {
-    "ECU1": {
-      "fd": true
-    },
-    "ECU2": {
-      "fd": true
-    },
-    "ECU3": {
-      "fd": false
-    },
-    "ECU4": {
-      "fd": false
-    },
-    "ECU5": {
-      "fd": false
-    }
-  },
   "forwarders": [
     {
       "forwarder": "ECU1",

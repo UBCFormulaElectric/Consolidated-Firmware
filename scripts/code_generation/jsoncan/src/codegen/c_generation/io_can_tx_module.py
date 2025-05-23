@@ -26,6 +26,7 @@ class IoCanTxModule(CModule):
             bus_config=self._bus_config,
             node_bus_names=self._node_bus_names,
             messages=self._messages,
+            fd=self.fd,
         )
 
     def source_template(self):
@@ -38,5 +39,4 @@ class IoCanTxModule(CModule):
             node_bus_names=self._node_bus_names,
             busses_for_msg=self._tx_config.get_busses_for_msg,
             messages=self._messages,
-            fd=self.fd,
         )

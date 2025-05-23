@@ -1,5 +1,6 @@
 from math import ceil
-from typing import Dict, Tuple, Optional as Optional_t, List
+import typing
+from typing import Dict, Tuple
 
 from schema import Schema, And, Optional, Or, SchemaError
 
@@ -250,7 +251,7 @@ def _get_parsed_can_message(
 
     signals = []
     next_available_bit = 0
-    occupied_bits: list[Optional[str]] = [None] * max_len_bits
+    occupied_bits: list[typing.Optional[str]] = [None] * max_len_bits
     require_start_bit_specified = False
 
     # Parse message signals

@@ -29,16 +29,6 @@ class _BusJson(TypedDict):
 
 _BusJson_schema = Schema(
     {
-        "nodes": Or(
-            Schema({}),
-            Schema(
-                {
-                    str: {
-                        "fd": bool,
-                    }
-                }
-            ),
-        ),
         "forwarders": Or(
             Schema([]),
             Schema(
@@ -87,12 +77,6 @@ def parse_bus_data(
     except SchemaError:
         raise InvalidCanJson("Bus JSON file is not valid")
 
-    # Check node configs.
-    node_properties = bus_json_data["nodes"]
-    for node in node_names:
-        if node not in node_properties:
-            raise InvalidCanJson(f"Node {node} isn't configured in the bus.json file")
-
     # dynamic validation of bus data
     busses = {}
     for bus in bus_json_data["buses"]:
@@ -140,4 +124,4 @@ def parse_bus_data(
                 )
             loggers.append(logger)
 
-    return busses, forwarders, loggers, node_properties
+    return busses, forwarders, loggers
