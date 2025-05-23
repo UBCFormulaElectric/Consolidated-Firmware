@@ -7,9 +7,9 @@
 ConnectionStatus io_charger_getConnectionStatus()
 {
     hw_pwmInput_tick(&evse_pwm_input);
-    if(990 <= evse_pwm_input.frequency_hz && evse_pwm_input.frequency_hz <= 1010)
+    if (990 <= evse_pwm_input.frequency_hz && evse_pwm_input.frequency_hz <= 1010)
         return EVSE_CONNECTED;
-    else if(hw_gpio_readPin(&n_evse_i_lim_pin))
+    else if (hw_gpio_readPin(&n_evse_i_lim_pin))
         return WALL_CONNECTED;
     return DISCONNECTED;
 }

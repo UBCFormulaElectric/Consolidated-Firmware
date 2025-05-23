@@ -12,7 +12,7 @@ static bool checkPrechargeFaults(
     bool is_ts_rising_slowly,
     bool is_ts_rising_quickly,
     bool is_air_negative_open)
-{ 
+{
     bool has_precharge_fault =
         (is_charger_connected) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
     has_precharge_fault |= is_air_negative_open;

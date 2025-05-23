@@ -1,6 +1,7 @@
 #pragma once
 
-typedef enum {
+typedef enum
+{
     WALL_CONNECTED,
     EVSE_CONNECTED,
     DISCONNECTED
