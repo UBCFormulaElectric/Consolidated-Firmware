@@ -34,17 +34,17 @@ namespace io_vc
 extern "C"
 {
 #include "io_loadSwitches.h"
-    static const Efuse f_inv_efuse{};
-    static const Efuse rsm_efuse{};
-    static const Efuse bms_efuse{};
-    static const Efuse r_inv_efuse{};
-    static const Efuse dam_efuse{};
-    static const Efuse front_efuse{};
-    static const Efuse rl_pump_efuse{};
-    static const Efuse rr_pump_efuse{};
-    static const Efuse f_pump_efuse{};
-    static const Efuse l_rad_fan_efuse{};
-    static const Efuse r_rad_fan_efuse{};
+    static Efuse f_inv_efuse{};
+    static Efuse rsm_efuse{};
+    static Efuse bms_efuse{};
+    static Efuse r_inv_efuse{};
+    static Efuse dam_efuse{};
+    static Efuse front_efuse{};
+    static Efuse rl_pump_efuse{};
+    static Efuse rr_pump_efuse{};
+    static Efuse f_pump_efuse{};
+    static Efuse l_rad_fan_efuse{};
+    static Efuse r_rad_fan_efuse{};
 
     const ST_LoadSwitch inv_rsm_loadswitch                 = { .efuse1 = &f_inv_efuse, .efuse2 = &rsm_efuse };
     const ST_LoadSwitch inv_bms_loadswitch                 = { .efuse1 = &bms_efuse, .efuse2 = &r_inv_efuse };

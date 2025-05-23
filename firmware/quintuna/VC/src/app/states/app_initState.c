@@ -1,9 +1,7 @@
 #include "app_states.h"
-#include "app_loadswitches.h"
 #include "app_powerManager.h"
-#include <app_canTx.h>
-#include <app_canUtils.h>
-#include <stdbool.h>
+#include "app_canTx.h"
+#include "app_canRx.h"
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
@@ -25,7 +23,14 @@ static void initStateRunOnEntry(void)
     app_powerManager_updateConfig(power_manager_state);
 }
 static void initStateRunOnTick1Hz(void) {}
-static void initStateRunOnTick100Hz(void) {}
+static void initStateRunOnTick100Hz(void)
+{
+    const ContactorState air_minus_closed = app_canRx_BMS_IrNegative_get();
+    if (air_minus_closed == CONTACTOR_STATE_CLOSED)
+    {
+        app_stateMachine_setNextState(&inverterOn_state);
+    }
+}
 static void initStateRunOnExit(void) {}
 
 State init_state = { .name              = "INIT",

@@ -1,5 +1,6 @@
 #include "app_states.h"
 #include "app_canTx.h"
+#include "app_powerManager.h"
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },

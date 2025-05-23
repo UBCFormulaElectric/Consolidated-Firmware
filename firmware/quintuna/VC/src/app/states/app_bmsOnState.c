@@ -26,7 +26,8 @@ static void bmsOnStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_BMS_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
 }
-static void bmsOnStateRunOnTick1Hz(void)
+static void bmsOnStateRunOnTick1Hz(void) {}
+static void bmsOnStateRunOnTick100Hz(void)
 {
     // Once we have succesfully transitioned here, the BMS will read the state of the VC based on the associated CAN
     // message and then transition to the appropriate stage Note that if the BMS transitons to drive state we transition
@@ -48,7 +49,6 @@ static void bmsOnStateRunOnTick1Hz(void)
         app_stateMachine_setNextState(&fault_state);
     }
 }
-static void bmsOnStateRunOnTick100Hz(void) {}
 static void bmsOnStateRunOnExit(void) {}
 
 State bmsOn_state = { .name              = "BMS ON",

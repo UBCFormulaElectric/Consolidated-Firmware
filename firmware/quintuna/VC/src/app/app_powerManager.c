@@ -9,7 +9,7 @@
 #include <assert.h>
 
 static PowerManagerConfig power_manager_state;
-static TimerChannel      *sequencing_timer;
+static TimerChannel       sequencing_timer;
 
 typedef union
 {
@@ -72,17 +72,16 @@ static bool is_efuse_ok(const uint8_t current_efuse_sequence)
 
 void app_powerManager_EfuseProtocolTick_100Hz(void)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-
-    switch (app_timer_updateAndGetState(sequencing_timer))
+    switch (app_timer_updateAndGetState(&sequencing_timer))
     {
         case TIMER_STATE_RUNNING:
         default:
             break;
         case TIMER_STATE_EXPIRED:
             // timeout expired or no timeout
-            app_timer_stop(sequencing_timer);
+            app_timer_stop(&sequencing_timer);
+            // ReSharper disable once CppRedundantEmptyStatement
+            __attribute__((fallthrough));
         case TIMER_STATE_IDLE:
             for (LoadswitchChannel current_efuse_sequence = 0; current_efuse_sequence < NUM_EFUSE_CHANNELS;
                  current_efuse_sequence++)
@@ -123,8 +122,8 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                 if (efuse_retry_timeout != 0)
                 {
                     // start the timeout
-                    app_timer_init(sequencing_timer, efuse_retry_timeout);
-                    app_timer_restart(sequencing_timer);
+                    app_timer_init(&sequencing_timer, efuse_retry_timeout);
+                    app_timer_restart(&sequencing_timer);
                 }
                 io_loadswitch_setChannel(
                     efuse_channels[current_efuse_sequence],
@@ -133,7 +132,6 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             }
             break;
     }
-#pragma GCC diagnostic pop
 }
 
 #ifdef TARGET_TEST

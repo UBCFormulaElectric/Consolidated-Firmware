@@ -51,22 +51,23 @@ void app_shdnLast_broadcast(void)
     {
         node = SHDN_RR_ILCK;
     }
-    else if (!app_canRx_BMS_TSIlckOKStatus_get())
-    {
-        node = SHDN_TS_Ilck;
-    }
-    else if (!app_canRx_BMS_BmsOk_get())
-    {
-        node = SHDN_BMS_OK;
-    }
-    else if (!app_canRx_BMS_BspdOk_get())
-    {
-        node = SHDN_BSPD_OK;
-    }
-    else if (!app_canRx_BMS_ImdOk_get())
-    {
-        node = SHDN_IMD_OK;
-    }
+    // TODO
+    // else if (!app_canRx_BMS_TSIlckOKStatus_get())
+    // {
+    //     node = SHDN_TS_Ilck;
+    // }
+    // else if (!app_canRx_BMS_BmsOk_get())
+    // {
+    //     node = SHDN_BMS_OK;
+    // }
+    // else if (!app_canRx_BMS_BspdOk_get())
+    // {
+    //     node = SHDN_BSPD_OK;
+    // }
+    // else if (!app_canRx_BMS_ImdOk_get())
+    // {
+    //     node = SHDN_IMD_OK;
+    // }
     else
     {
         node = SHDN_OK;
