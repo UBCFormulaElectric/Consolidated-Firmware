@@ -43,8 +43,18 @@ typedef struct
 
 typedef struct
 {
-    float measurement[DIM_MEAS];
-    float control_input[DIM_U];
+    // measurements 
+    float rpm_rr;
+    float rpm_rl;
+    float rpm_fr;
+    float rpm_fl;
+    float wheel_angle;
+    float gps_vx;
+    float gps_vy;
+    // control inputs
+    float accel_x;
+    float accel_y;
+    float yaw_rate_rad;
 } VelocityEstimator_Inputs;
 
 typedef struct
@@ -71,7 +81,7 @@ void app_velocityEstimator_init(VelocityEstimator_Config *config);
  * Must provide measurement and control input in 
  * VelocityEstimator struct before eachc call
 */
-void app_velocityEstimator_run(VelocityEstimator_Inputs inputs);
+void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs);
 
 /*
  * Get the velocity estimate
@@ -87,30 +97,30 @@ float *app_velocityEstimator_getCovariance();
  * Predicts the next state and covariance
  * given the previous state, control variables, and noise covariance
  */
-void predict(Matrix prev_state, Matrix control_input, Matrix process_noise_cov);
+void predict(Matrix *prev_state, Matrix *control_input);
 
 /*
  * Updates the prediction, gives the final, corrected state and covariance estimate
  * with measured values given previous state and noise covariance
  */
-void update(Matrix measurement, Matrix prev_state, Matrix measurement_noise_cov);
+void update(Matrix *measurement, Matrix *prev_state);
 
 /*
  * Predicts next state given the previous state and control variables
 */
-void state_transition(Matrix prev_state, Matrix control_input);
+void state_transition(Matrix *prev_state, Matrix *control_input);
 
 /*
  * Calculates the jacobian given the previous state and control variables
  */
-void state_jacobian(Matrix x, Matrix control_input);
+void state_jacobian(Matrix *x, Matrix *control_input);
 
 /*
  * Predicts the next measurement given the previous state
 */
-void measurement_func(Matrix x);
+void measurement_func(Matrix *x);
 
 /*
  * Calculates the jacobian given the previous state and control variables
  */
-void measurement_jacobian(Matrix x);
+void measurement_jacobian(Matrix *x);
