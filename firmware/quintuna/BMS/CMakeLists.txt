@@ -1,8 +1,5 @@
 message("")
 message("⚙️ Configuring [BMS] (Quintuna)")
-set(ARM_CORE "cm7")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -51,25 +48,15 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
+    set(ARM_CORE "cm7")
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+    else ()
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
+    endif ()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary("quintuna_BMS_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
-
-    # Bootloader files.
-    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-
-    # Build bootloader.
-    stm32h7_boot_binary(
-            "quintuna_BMS_boot"
-            "${BOOT_SRCS}"
-            "${BOOT_CUBEMX_SRCS}"
-            "${BOOT_INCLUDE_DIRS}"
-            "quintuna_BMS"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/BMS_boot.ioc"
-    )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
     generate_stm32cube_code("quintuna_BMS_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -125,16 +112,31 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
-    target_link_libraries("quintuna_BMS_boot.elf" PRIVATE "quintuna_BMS_commit_info")
 
-    embedded_image(
-            "quintuna_BMS"
-            "quintuna_BMS_app.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_app.hex"
-            "quintuna_BMS_boot.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_boot.hex"
-    )
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        # Bootloader files.
+        file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+        file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        stm32h7_boot_binary(
+                "quintuna_BMS_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "quintuna_BMS"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/BMS_boot.ioc"
+        )
+        target_link_libraries("quintuna_BMS_boot.elf" PRIVATE "quintuna_BMS_commit_info")
 
+        embedded_image(
+                "quintuna_BMS"
+                "quintuna_BMS_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_app.hex"
+                "quintuna_BMS_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_boot.hex"
+        )
+    endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 
