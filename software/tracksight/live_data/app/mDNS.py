@@ -4,6 +4,8 @@ from xml import dom
 
 from zeroconf import ServiceInfo, Zeroconf
 
+_started = False
+
 
 def register_mdns_service(ip: str, service_name: str):
 
@@ -21,8 +23,9 @@ def register_mdns_service(ip: str, service_name: str):
     )
     # Register the service
     zeroconf = Zeroconf()
-
-    zeroconf.register_service(info)
+    if not _started:
+        zeroconf.register_service(info)
+        _started = True
     print(
         f"Map domain name {domain_name} to {ip}")
 
