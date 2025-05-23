@@ -14,7 +14,9 @@ set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-        ""
+        "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 

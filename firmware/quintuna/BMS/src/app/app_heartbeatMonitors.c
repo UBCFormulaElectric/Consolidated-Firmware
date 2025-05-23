@@ -1,7 +1,6 @@
 #include "app_heartbeatMonitors.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
-#include "app_canTx.h"
 
 static HeartbeatBoard heartbeat_boards[1] = {
     // vc
