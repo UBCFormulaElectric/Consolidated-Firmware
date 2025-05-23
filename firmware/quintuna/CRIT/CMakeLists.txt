@@ -1,7 +1,5 @@
 message("")
 message("⚙️ Configuring CRIT (Quintuna)")
-set(ARM_CORE "cm4")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -50,6 +48,12 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
+    set(ARM_CORE "cm4")
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
+    else ()
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
+    endif ()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary(
@@ -58,21 +62,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${INCLUDE_DIRS}"
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
-    )
-
-    # Bootloader files.
-    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-    # Build bootloader.
-    stm32f4_boot_binary(
-            "quintuna_CRIT_boot"
-            "${BOOT_SRCS}"
-            "${BOOT_CUBEMX_SRCS}"
-            "${BOOT_INCLUDE_DIRS}"
-            "quintuna_CRIT"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/CRIT_boot.ioc"
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
@@ -125,14 +114,29 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_CRIT_app.elf" PRIVATE "quintuna_CRIT_stm32cube" "quintuna_CRIT_stm32cube_hal" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "chimera_v2_proto_cm4")
-    target_link_libraries("quintuna_CRIT_boot.elf" PRIVATE "quintuna_CRIT_commit_info")
 
-    embedded_image(
-            "quintuna_CRIT"
-            "quintuna_CRIT_app.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_CRIT_app.hex"
-            "quintuna_CRIT_boot.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_CRIT_boot.hex"
-    )
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+        file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        stm32f4_boot_binary(
+                "quintuna_CRIT_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "quintuna_CRIT"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/CRIT_boot.ioc"
+        )
+        target_link_libraries("quintuna_CRIT_boot.elf" PRIVATE "quintuna_CRIT_commit_info")
+
+        embedded_image(
+                "quintuna_CRIT"
+                "quintuna_CRIT_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_CRIT_app.hex"
+                "quintuna_CRIT_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_CRIT_boot.hex"
+        )
+    endif ()
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
