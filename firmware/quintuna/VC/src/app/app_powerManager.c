@@ -83,7 +83,9 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             // ReSharper disable once CppRedundantEmptyStatement
             __attribute__((fallthrough));
         case TIMER_STATE_IDLE:
-            for (LoadswitchChannel current_efuse_sequence = 0; current_efuse_sequence < NUM_EFUSE_CHANNELS;
+            for (LoadswitchChannel current_efuse_sequence = 0;
+                 current_efuse_sequence < NUM_EFUSE_CHANNELS &&
+                 app_timer_updateAndGetState(&sequencing_timer) == TIMER_STATE_IDLE;
                  current_efuse_sequence++)
             {
                 // check if the efuse is supposed to be on or off
@@ -128,7 +130,6 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                 io_loadswitch_setChannel(
                     efuse_channels[current_efuse_sequence],
                     power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable);
-                break;
             }
             break;
     }
