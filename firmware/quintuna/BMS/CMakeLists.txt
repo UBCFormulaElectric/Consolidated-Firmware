@@ -30,15 +30,15 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
@@ -109,7 +109,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
-            TRUE
+            FALSE
     )
 
     # JSONCAN
@@ -123,7 +123,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" )
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info")
     target_link_libraries("quintuna_BMS_boot.elf" PRIVATE "quintuna_BMS_commit_info")
 
     embedded_image(

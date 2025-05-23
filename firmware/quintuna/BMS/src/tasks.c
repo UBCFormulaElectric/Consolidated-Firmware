@@ -1,4 +1,6 @@
 #include "tasks.h"
+#include "main.h"
+
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -8,11 +10,11 @@
 #include "io_canQueue.h"
 
 // hw
-#include "hw_usb.h"
+// #include "hw_usb.h"
 #include "hw_cans.h"
-#include "hw_adcs.h"
-#include "hw_pwms.h"
-#include "hw_watchdogConfig.h"
+// #include "hw_adcs.h"
+// #include "hw_pwms.h"
+// #include "hw_watchdogConfig.h"
 
 void tasks_preInit(void) {}
 
@@ -21,15 +23,14 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS Reset");
     __HAL_DBGMCU_FREEZE_IWDG1();
-    hw_usb_init();
-    hw_adcs_chipsInit();
-    hw_pwms_init();
+    // hw_usb_init();
+    // hw_adcs_chipsInit();
+    // hw_pwms_init();
     hw_can_init(&can1);
-    hw_can_init(&can2);
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    // hw_can_init(&can2);
+    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     jobs_init();
-
 }
 
 void tasks_run1Hz(void)
