@@ -226,7 +226,6 @@ def _get_parsed_can_message(
     msg_json_data: Dict,
     node_name: str,
     enums: dict[str, CanEnum],
-    fd: bool,
 ) -> CanMessage:
     """
     Parse JSON data dictionary representing a CAN message.
@@ -234,7 +233,7 @@ def _get_parsed_can_message(
     msg_id = msg_json_data["msg_id"]
     description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
-    max_len_bits = (64 if fd else 8) * 8
+    max_len_bits = 64
 
     # will use mode from bus if none
     msg_modes = msg_json_data.get("allowed_modes", None)
@@ -305,7 +304,6 @@ def parse_tx_data(
     can_data_dir: str,
     tx_node_name: str,
     enums_map: dict[str, CanEnum],
-    fd: bool,
 ) -> list[CanMessage]:
     """
     Parses TX messages from file, adds them to message list
@@ -334,7 +332,6 @@ def parse_tx_data(
                 msg_json_data=tx_msg_json,
                 node_name=tx_node_name,
                 enums=enums_map,
-                fd=fd,
             )
         )
     return msgs
