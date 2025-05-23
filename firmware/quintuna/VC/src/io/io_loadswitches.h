@@ -28,6 +28,7 @@ typedef enum
     NUM_EFUSE_CHANNELS
 } LoadswitchChannel;
 
+#ifdef TARGET_EMBEDDED
 extern const ST_LoadSwitch inv_rsm_loadswitch;
 extern const ST_LoadSwitch inv_bms_loadswitch;
 extern const ST_LoadSwitch front_loadswitch;
@@ -35,5 +36,14 @@ extern const TI_LoadSwitch rl_pump_loadswitch;
 extern const TI_LoadSwitch rr_pump_loadswitch;
 extern const TI_LoadSwitch f_pump_loadswitch;
 extern const ST_LoadSwitch rad_fan_loadswitch;
+#elif TARGET_TEST
+extern ST_LoadSwitch inv_rsm_loadswitch;
+extern ST_LoadSwitch inv_bms_loadswitch;
+extern ST_LoadSwitch front_loadswitch;
+extern TI_LoadSwitch rl_pump_loadswitch;
+extern TI_LoadSwitch rr_pump_loadswitch;
+extern TI_LoadSwitch f_pump_loadswitch;
+extern ST_LoadSwitch rad_fan_loadswitch;
+#endif
 
 extern const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];

@@ -2,8 +2,31 @@
 
 #include <cassert>
 
+extern "C"
+{
+#include "io_loadswitches.h"
+}
+
 namespace fake::io_loadswitch
 {
+void reset_tiLoadswitch(TI_LoadSwitch &tils)
+{
+    tils.pgood                                      = true;
+    const_cast<Efuse *>(tils.efuse)->enabled        = false;
+    const_cast<Efuse *>(tils.efuse)->simulate_fault = false;
+    const_cast<Efuse *>(tils.efuse)->current        = 0.0f;
+}
+void reset_stLoadswitch(ST_LoadSwitch &stls)
+{
+    stls.pgood                                       = true;
+    stls.set_stby_reset_gpio                         = false;
+    const_cast<Efuse *>(stls.efuse1)->current        = 0.0f;
+    const_cast<Efuse *>(stls.efuse2)->current        = 0.0f;
+    const_cast<Efuse *>(stls.efuse1)->enabled        = false;
+    const_cast<Efuse *>(stls.efuse2)->enabled        = false;
+    const_cast<Efuse *>(stls.efuse1)->simulate_fault = false;
+    const_cast<Efuse *>(stls.efuse2)->simulate_fault = false;
+}
 void simulate_st_loadswitch_fault(const ST_LoadSwitch *loadswitch, const Efuse *efuse)
 {
     // first, note that the switch must be on for a fault to be simulated

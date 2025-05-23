@@ -155,7 +155,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS}
-            ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKE_DIRS}
+            ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR}
     )
     compile_gtest_executable(
             "quintuna_VC_test"

@@ -15,6 +15,7 @@ typedef struct
     EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS];
 } PowerManagerConfig;
 
+void app_powerManager_init();
 void app_powerManager_updateConfig(PowerManagerConfig new_power_manager_config);
 void app_powerManager_EfuseProtocolTick_100Hz(void);
 
