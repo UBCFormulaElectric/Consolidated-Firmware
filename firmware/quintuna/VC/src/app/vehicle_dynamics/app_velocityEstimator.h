@@ -48,7 +48,7 @@ typedef struct
     float rpm_rl;
     float rpm_fr;
     float rpm_fl;
-    float wheel_angle;
+    float wheel_angle_rad;
     float gps_vx;
     float gps_vy;
     // control inputs
