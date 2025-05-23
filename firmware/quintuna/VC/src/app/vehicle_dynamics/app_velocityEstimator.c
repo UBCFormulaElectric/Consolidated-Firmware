@@ -276,7 +276,7 @@ void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Input
     float v_fl = MOTOR_RPM_TO_MPS(inputs->rpm_fl);
 
     float yaw_rate = inputs->yaw_rate_rad;
-    float wheel_angle = inputs->wheel_angle;
+    float wheel_angle = inputs->wheel_angle_rad;
 
     float vx_rr = v_rr + yaw_rate * TRACK_WIDTH_m;
     float vx_rl = v_rl - yaw_rate * TRACK_WIDTH_m;
@@ -312,7 +312,7 @@ void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs) {
     Matrix measurement_gps = { .mat = (float[]){0.0f, 0.0f}, .rows = DIM, .cols = 1 };
 
     setUpControlInputs(&control_input, inputs);
-    convertMeasurementToState(&measurement_ws, inputs);
+    convertWheelSpeedToMeasurement(&measurement_ws, inputs);
     convertGpsToMeasurement(&measurement_gps, inputs);
 
     predict(&state_estimate, &control_input);
