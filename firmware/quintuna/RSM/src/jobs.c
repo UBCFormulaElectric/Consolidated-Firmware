@@ -5,11 +5,12 @@
 #include "app_commitInfo.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
+#include "app_jsoncan.h"
+
 // io
 #include "io_time.h"
 #include "io_canTx.h"
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
 #include "io_coolants.h"
 #include "io_log.h"
 #include "io_rPump.h"
@@ -29,10 +30,9 @@ static const Potentiometer rsm_pot = {
     .i2c_handle = &r_pump_i2c,
 };
 
-
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {
-    const CanMsg m = io_jsoncan_copyToCanMsg(msg);
+    const CanMsg m = app_jsoncan_copyToCanMsg(msg);
     io_canQueue_pushTx(&m);
 }
 

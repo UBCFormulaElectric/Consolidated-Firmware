@@ -6,6 +6,7 @@
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 
 // io
 #include "io_time.h"
@@ -13,7 +14,6 @@
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
-#include "io_jsoncan.h"
 #include "io_coolants.h"
 #include "io_bootHandler.h"
 // chimera
@@ -117,7 +117,7 @@ _Noreturn void tasks_runCanRx(void)
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
-        JsonCanMsg   json_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
 
         io_canRx_updateRxTableWithMessage(&json_msg);
         io_bootHandler_processBootRequest(&rx_msg);

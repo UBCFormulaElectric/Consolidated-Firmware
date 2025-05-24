@@ -23,5 +23,6 @@ IF ("${TARGET}" STREQUAL "test")
     )
     create_fake_library("shared_test_fakes" "${HDRS_TO_FAKE}")
 
+    target_compile_definitions("shared_test" PRIVATE STM32H733xx)
     target_link_libraries("shared_test" PRIVATE "quintuna_Debug_jsoncan" "shared_test_fakes")
 ENDIF ()
