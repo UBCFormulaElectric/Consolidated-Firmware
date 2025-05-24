@@ -55,7 +55,11 @@ void app_powerMonitoring_update(void)
 
         for (PowerMonitoringAlerts alert = 0; alert < PWRMON_ALERT_COUNT; alert++)
         {
-            if (status & alert_mask_map[alert])
+            if (alert == PWRMON_ALERT_NO_ALERTS)
+            {
+                app_canTx_VC_ChipStatus_set((PowerMonitoringAlerts)alert);
+            }
+            else if (status & alert_mask_map[alert])
             {
                 app_canTx_VC_ChipStatus_set((PowerMonitoringAlerts)alert);
                 break;

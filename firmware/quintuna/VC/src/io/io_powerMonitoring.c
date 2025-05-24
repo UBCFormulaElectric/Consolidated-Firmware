@@ -45,7 +45,7 @@ static bool read_register(uint8_t reg, uint8_t *data, uint16_t len)
     if (hw_i2c_transmit(&pwr_mtr, &reg, 1) != EXIT_CODE_OK)
         return false;
 
-    return hw_i2c_receive(&pwr_mtr, data, len);
+    return (hw_i2c_receive(&pwr_mtr, data, len) == EXIT_CODE_OK);
 }
 
 static bool write_register(uint8_t reg, const uint8_t *data, uint16_t len)
@@ -79,7 +79,7 @@ bool io_powerMonitoring_init(void)
         return false;
     }
 
-    // 4) Enable VBUS & VSENSE accumulation
+    // 4) Enable VBUS & VSENSE
     uint8_t acc_cfg = 0x03;
     if (!write_register(REG_ACCUM_CONFIG, &acc_cfg, 1))
     {
@@ -124,15 +124,9 @@ bool io_powerMonitoring_init(void)
 
     // 9) Enable alerts for ch1/2
     uint8_t alert_en[3] = { 0 };
-    alert_en[0] |=
-        ((1 << 7) | (1 << 6)     // OC1, OC2
-         | (1 << 3) | (1 << 2)); // UC1, UC2
-
-    alert_en[1] |=
-        ((1 << 7) | (1 << 6)     // OV1, OV2
-         | (1 << 3) | (1 << 2)); // UV1, UV2
-
-    alert_en[2] = 0; // to disable ch3 & ch4 alerts.
+    alert_en[0] |= ((1 << 7) | (1 << 6) | (1 << 3) | (1 << 2)); // OC1 | OC2 | UC1 | UC2
+    alert_en[1] |= ((1 << 7) | (1 << 6) | (1 << 3) | (1 << 2)); // OV1 | OV2 | UV1 | UV2
+    alert_en[2] = 0;                                            // to disable ch3 & ch4 alerts.
 
     if (!write_register(REG_ALERT_ENABLE, alert_en, 3))
     {
@@ -145,7 +139,7 @@ bool io_powerMonitoring_init(void)
 bool io_powerMonitoring_read_voltage(uint8_t ch, float *voltage)
 {
     uint8_t buf[2];
-    uint8_t reg = (uint8_t)(0x07 + ch * 2);
+    uint8_t reg = (uint8_t)(REG_VBUS + ((ch - 1) * 2));
     if (!read_register(reg, buf, 2))
     {
         return false;
@@ -159,7 +153,7 @@ bool io_powerMonitoring_read_voltage(uint8_t ch, float *voltage)
 bool io_powerMonitoring_read_current(uint8_t ch, float *current)
 {
     uint8_t buf[2];
-    uint8_t reg = (uint8_t)(REG_VSENSE + ch * 2);
+    uint8_t reg = (uint8_t)(REG_VSENSE + ((ch - 1) * 2));
     if (!read_register(reg, buf, 2))
     {
         return false;
@@ -173,7 +167,8 @@ bool io_powerMonitoring_read_current(uint8_t ch, float *current)
 bool io_powerMonitoring_read_power(uint8_t ch, float *power)
 {
     uint8_t buf[2];
-    uint8_t reg = (uint8_t)(REG_POWER + ch * 2);
+    uint8_t reg = (uint8_t)(REG_POWER + ((ch - 1) * 2));
+
     if (!read_register(reg, buf, 2))
     {
         return false;
