@@ -233,7 +233,7 @@ def _get_parsed_can_message(
     msg_id = msg_json_data["msg_id"]
     description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
-    max_len_bits = 64
+    max_len_bits = 64 * 8
 
     # will use mode from bus if none
     msg_modes = msg_json_data.get("allowed_modes", None)
@@ -275,7 +275,7 @@ def _get_parsed_can_message(
         for idx in range(signal.start_bit, signal.start_bit + signal.bits):
             if idx < 0 or idx >= max_len_bits:
                 raise InvalidCanJson(
-                    f"Signal '{signal.name}' in '{msg_name}' is requesting to put a bit at invalid position {idx}. Messages have a maximum length of 64 bits."
+                    f"Signal '{signal.name}' in '{msg_name}' is requesting to put a bit at invalid position {idx}. Messages have a maximum length of 64 bytes."
                 )
             elif occupied_bits[idx] is not None:
                 raise InvalidCanJson(
