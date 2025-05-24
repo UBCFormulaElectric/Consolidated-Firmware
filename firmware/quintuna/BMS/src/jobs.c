@@ -1,5 +1,8 @@
 #include "jobs.h"
 
+#include "app_heartbeatMonitors.h"
+#include "app_canTx.h"
+
 #include "io_bootHandler.h"
 #include "io_canTx.h"
 
@@ -26,6 +29,9 @@ void jobs_init()
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
     io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_init();
+
+    app_heartbeatMonitor_init(&hb_monitor);
+    app_canTx_BMS_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick(void)
@@ -35,6 +41,9 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+
     io_canTx_enqueue100HzMsgs();
 }
 
