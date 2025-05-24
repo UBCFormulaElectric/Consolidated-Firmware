@@ -4,13 +4,17 @@ message("⚙️ Configuring FSM (Quintuna)")
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
-file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
+set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
+set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-        "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
@@ -19,6 +23,7 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
@@ -116,7 +121,8 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_FSM_jsoncan" INTERFACE "quintuna_FSM_stm32cube")
-    target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32cube" "quintuna_FSM_stm32cube_hal" "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32cube" "quintuna_FSM_stm32cube_hal"
+            "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "chimera_v2_proto_cm4" "m")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         #bootloader files
@@ -143,4 +149,37 @@ if ("${TARGET}" STREQUAL "binary")
         )
     endif ()
 elseif ("${TARGET}" STREQUAL "test")
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    compile_gtest_executable(
+            "quintuna_FSM_test"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+    )
+
+    add_compile_definitions("quintuna_FSM_test" PRIVATE STM32F412Rx)
+
+    # JSONCAN
+    jsoncan_library(FSM quintuna "${CMAKE_CURRENT_BINARY_DIR}")
+    # CommitInfo
+    commit_info_library(
+            "quintuna_FSM_test"
+            "quintuna_FSM_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+    )
+    # FakeIO
+    set(HEADERS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/io_imu.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_canQueue.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h" # this is used by the test fixture
+    )
+    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
+    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
+    create_fake_library(
+            "quintuna_FSM_fakes"
+            "${HEADERS_TO_FAKE}"
+    )
+
+    target_link_libraries("quintuna_FSM_test" PRIVATE "quintuna_FSM_fakes" "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info")
 endif ()
