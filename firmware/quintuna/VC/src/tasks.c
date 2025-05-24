@@ -154,6 +154,6 @@ _Noreturn void tasks_powerMonitoring(void)
     osDelay(osWaitForever);
     for (;;)
     {
-        jobs_runPowerMonitoring();
+        jobs_runPowerMonitoring_tick();
     }
 }
