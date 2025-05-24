@@ -39,11 +39,10 @@
 #define SAPPS_COS_LAW_COEFFICIENT ((SAPPS_LEN_A * SAPPS_LEN_A + LEN_B * LEN_B) / SAPPS_COS_LAW_DENOMINATOR)
 
 // Conversion Macros
-#define APPS_VOLTAGE_PER_MM \
-    ((MAX_POT_LENGTH - MIN_POT_LENGTH) / MAX_POT_V) // Conversion factor from voltage to change in length (mm per volt)
-#define RAW_VOLTAGE_TO_LEN_MM(voltage) \
-    (MAX_POT_LENGTH -                  \
-     ((voltage) * APPS_VOLTAGE_PER_MM)) // Convert a raw voltage reading to a potentiometer length (in mm)
+// Conversion factor from voltage to change in length (mm per volt)
+#define APPS_VOLTAGE_PER_MM ((MAX_POT_LENGTH - MIN_POT_LENGTH) / MAX_POT_V)
+// Convert a raw voltage reading to a potentiometer length (in mm)
+#define RAW_VOLTAGE_TO_LEN_MM(voltage) (MAX_POT_LENGTH - ((voltage) * APPS_VOLTAGE_PER_MM))
 
 // Derived calibration lengths for PAPPS and SAPPS
 #define PAPPS_LENGTH_UNPRESSED_MM RAW_VOLTAGE_TO_LEN_MM(PAPPS_UNPRESSED_POT_V)

@@ -9,12 +9,12 @@ void app_imu_broadcast(void)
     float x_lin_accel, y_lin_accel, z_lin_accel;
     float roll_ang_vel, pitch_ang_vel, yaw_ang_vel;
 
-    LOG_ERROR_IF(
-        io_imu_getLinearAccelerationX(&x_lin_accel) && io_imu_getLinearAccelerationY(&y_lin_accel) &&
-        io_imu_getLinearAccelerationZ(&z_lin_accel));
-    LOG_ERROR_IF(
-        io_imu_getAngularVelocityRoll(&roll_ang_vel) && io_imu_getAngularVelocityPitch(&pitch_ang_vel) &&
-        io_imu_getAngularVelocityYaw(&yaw_ang_vel));
+    LOG_IF_ERR(io_imu_getLinearAccelerationX(&x_lin_accel));
+    LOG_IF_ERR(io_imu_getLinearAccelerationY(&y_lin_accel));
+    LOG_IF_ERR(io_imu_getLinearAccelerationZ(&z_lin_accel));
+    LOG_IF_ERR(io_imu_getAngularVelocityRoll(&roll_ang_vel));
+    LOG_IF_ERR(io_imu_getAngularVelocityPitch(&pitch_ang_vel));
+    LOG_IF_ERR(io_imu_getAngularVelocityYaw(&yaw_ang_vel));
 
     app_canTx_FSM_LinearAccelerationX_set(x_lin_accel);
     app_canTx_FSM_LinearAccelerationY_set(y_lin_accel);

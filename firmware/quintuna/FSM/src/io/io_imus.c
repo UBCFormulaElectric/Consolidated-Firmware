@@ -2,7 +2,7 @@
 
 #include "hw_i2cs.h"
 
-const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c,
+const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c, // TODO configure this
                                .x_accel_offset = 0.0f,
                                .y_accel_offset = 0.0f,
                                .z_accel_offset = 0.0f,

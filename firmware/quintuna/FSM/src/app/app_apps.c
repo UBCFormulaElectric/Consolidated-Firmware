@@ -15,6 +15,7 @@ void app_apps_init(void)
     app_signal_init(&papps_ocsc_signal, OCSC_TIME_TO_FAULT, OCSC_TIME_TO_CLEAR);
     app_signal_init(&sapps_ocsc_signal, OCSC_TIME_TO_FAULT, OCSC_TIME_TO_CLEAR);
     app_signal_init(&papps_sapps_disagreement_signal, DISAGREEMENT_TIME_TO_FAULT, DISAGREEMENT_TIME_TO_CLEAR);
+    io_apps_init();
 }
 
 void app_apps_broadcast(void)

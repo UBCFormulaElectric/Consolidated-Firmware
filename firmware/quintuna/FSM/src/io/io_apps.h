@@ -3,6 +3,11 @@
 #include <stdbool.h>
 
 /**
+ * Initializes some apps-related values
+ */
+void io_apps_init(void);
+
+/**
  * Calculates pedal percentage by comparing the current angle to the max angle
  * @return pedal percentage based on primary accelerator pedal sensor
  */

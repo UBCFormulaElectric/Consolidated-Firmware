@@ -105,6 +105,12 @@ void tasks_runCanTx(void)
     }
 }
 
+void tasks_runCanRxCallback(const CanMsg *msg)
+{
+    io_bootHandler_processBootRequest(msg);
+    io_canQueue_pushRx(msg);
+}
+
 void tasks_runCanRx(void)
 {
     // Setup tasks.
@@ -113,6 +119,5 @@ void tasks_runCanRx(void)
         const CanMsg rx_msg      = io_canQueue_popRx();
         JsonCanMsg   rx_json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&rx_json_msg);
-        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
