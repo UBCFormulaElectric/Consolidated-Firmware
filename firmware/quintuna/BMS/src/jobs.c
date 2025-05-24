@@ -1,10 +1,13 @@
 #include "jobs.h"
 
+#include "app_heartbeatMonitors.h"
+#include "app_canTx.h"
+
 #include "io_bootHandler.h"
 #include "io_canTx.h"
 
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_canRx.h"
 #include "io_log.h"
@@ -13,7 +16,7 @@ static CanTxQueue can_tx_queue;
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
-    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&can_tx_queue, &msg);
 }
 
@@ -29,6 +32,9 @@ void jobs_init()
     io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
+
+    app_heartbeatMonitor_init(&hb_monitor);
+    app_canTx_BMS_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick(void)
@@ -38,6 +44,9 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+
     io_canTx_enqueue100HzMsgs();
 }
 
@@ -46,7 +55,7 @@ void jobs_run1kHz_tick(void) {}
 void jobs_runCanRx_tick(void)
 {
     const CanMsg rx_msg       = io_canQueue_popRx();
-    JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+    JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
     io_canRx_updateRxTableWithMessage(&json_can_msg);
 }
 

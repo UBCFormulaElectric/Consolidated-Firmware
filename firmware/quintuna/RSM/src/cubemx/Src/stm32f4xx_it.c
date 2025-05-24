@@ -22,7 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "io_log.h"
+#include "hw_hardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,7 +93,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -173,7 +173,20 @@ void DebugMon_Handler(void)
 void ADC_IRQHandler(void)
 {
     /* USER CODE BEGIN ADC_IRQn 0 */
+
+    /* USER CODE END ADC_IRQn 0 */
+    HAL_ADC_IRQHandler(&hadc1);
+    /* USER CODE BEGIN ADC_IRQn 1 */
     traceISR_ENTER();
+    traceISR_ENTER();
+
+    /* USER CODE END ADC_IRQn 0 */
+    HAL_ADC_IRQHandler(&hadc1);
+    /* USER CODE BEGIN ADC_IRQn 1 */
+
+    traceISR_ENTER();
+    traceISR_ENTER();
+
     /* USER CODE END ADC_IRQn 0 */
     HAL_ADC_IRQHandler(&hadc1);
     /* USER CODE BEGIN ADC_IRQn 1 */
