@@ -23,7 +23,7 @@
 #include "io_canQueue.h"
 #include "io_bootHandler.h"
 // can
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canRx.h"
 #include "io_driveMode.h"
 #include "app_canTx.h"

@@ -11,7 +11,7 @@
 #include "io_canTx.h"
 #include "io_time.h"
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {

@@ -3,7 +3,7 @@
 #include "io_log.h"
 
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canMsg.h"
 
 #include "io_telemMessage.h"
