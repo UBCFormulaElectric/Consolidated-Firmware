@@ -29,7 +29,7 @@ float io_brake_getFrontPressurePsi(void)
     return pressureFromVoltage(hw_adc_getVoltage(&bps_f));
 }
 
-bool io_brake_hwOCSC(void)
+bool io_brake_OCSC(void)
 {
     return !hw_gpio_readPin(&nbps_f_ocsc);
 }

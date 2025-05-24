@@ -17,4 +17,4 @@ float io_brake_getFrontPressurePsi(void);
 /**
  * @return the hardware overcurrent/short-circuit status for the brake system
  */
-bool io_brake_hwOCSC(void);
+bool io_brake_OCSC(void);

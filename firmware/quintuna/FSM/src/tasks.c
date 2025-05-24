@@ -1,17 +1,17 @@
 #include "tasks.h"
-#include "cmsis_os.h"
 #include "jobs.h"
+#include "cmsis_os.h"
 
 // app
 #include "app_canTx.h"
-#include "app_utils.h"
+#include "app_jsoncan.h"
 
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
-#include "app_jsoncan.h"
 #include "io_bootHandler.h"
+
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
@@ -24,11 +24,10 @@
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 
-#include <assert.h>
-
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
+    hw_hardFaultHandler_init();
 }
 
 void tasks_init(void)
@@ -36,10 +35,7 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("FSM reset!");
 
-    // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
-
-    hw_usb_init();
     ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_can_init(&can);

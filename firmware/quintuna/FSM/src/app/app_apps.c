@@ -1,9 +1,10 @@
 #include "app_apps.h"
+
+#include "io_apps.h"
 #include <math.h>
 #include "app_signal.h"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
-#include "io_apps.h"
 
 static Signal papps_ocsc_signal;
 static Signal sapps_ocsc_signal;
@@ -18,31 +19,28 @@ void app_apps_init(void)
 
 void app_apps_broadcast(void)
 {
-    float papps_pedal_percentage = io_apps_getPrimary();
-    float sapps_pedal_percentage = io_apps_getSecondary();
+    const float papps_pedal_percentage = io_apps_getPrimary();
+    const float sapps_pedal_percentage = io_apps_getSecondary();
 
     // OCSC test (primary)
-    const bool  primary_pedal_ocsc = io_apps_isPrimaryOCSC();
-    SignalState papps_ocsc_signal_state =
+    const bool        primary_pedal_ocsc = io_apps_isPrimaryOCSC();
+    const SignalState papps_ocsc_signal_state =
         app_signal_getState(&papps_ocsc_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
     const bool papps_ocsc_active = papps_ocsc_signal_state == SIGNAL_STATE_ACTIVE;
 
     // OCSC test (secondary)
-    const bool  secondary_pedal_ocsc = io_apps_isSecondaryOCSC();
-    SignalState sapps_ocsc_signal_state =
+    const bool        secondary_pedal_ocsc = io_apps_isSecondaryOCSC();
+    const SignalState sapps_ocsc_signal_state =
         app_signal_getState(&sapps_ocsc_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
     const bool sapps_ocsc_active = sapps_ocsc_signal_state == SIGNAL_STATE_ACTIVE;
 
-    // TODO: do all can messages below
-    app_canAlerts_FSM_Fault_PappsOCSC_set(papps_ocsc_active);
-    app_canAlerts_FSM_Fault_SappsOCSC_set(sapps_ocsc_active);
+    app_canAlerts_FSM_Warning_PappsOCSC_set(papps_ocsc_active);
+    app_canAlerts_FSM_Warning_SappsOCSC_set(sapps_ocsc_active);
 
     // Primary and Secondary pedal disagreement check-- everything below this line needs to fixed
-    const float papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
-
-    SignalState papps_sapps_disagreement_signal_state =
+    const float       papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
+    const SignalState papps_sapps_disagreement_signal_state =
         app_signal_getState(&papps_sapps_disagreement_signal, (papps_sapps_diff) > 10.f, (papps_sapps_diff) <= 10.f);
-
     const bool papps_sapps_disagreement_active = papps_sapps_disagreement_signal_state == SIGNAL_STATE_ACTIVE;
 
     app_canAlerts_FSM_Warning_AppsDisagreement_set(papps_sapps_disagreement_active);
