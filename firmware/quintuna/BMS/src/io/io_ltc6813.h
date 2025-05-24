@@ -11,16 +11,12 @@
 // physical constants
 #define NUM_SEGMENTS 1
 #define CELLS_PER_SEGMENT 14
-#define THERMISTORS_PER_SEGMENT 16
+#define THERMISTORS_PER_SEGMENT 14
 
 // LTC6813 realities
 #define VOLTAGE_REGISTER_GROUPS 5
 #define AUX_REG_GROUPS 3
 #define AUX_REGS_PER_SEGMENT 9
-
-// subtract one as there is a vref in that reg group
-// times 2 for the two muxes
-static_assert(THERMISTORS_PER_SEGMENT == (AUX_REGS_PER_SEGMENT - 1) * 2);
 
 /**
  * @file ltc6813/io_ltc6813_configs.c

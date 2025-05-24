@@ -172,9 +172,6 @@
     "msg_id": 460,
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 0",
-    "allowed_modes": [
-      "debug"
-    ],
     "signals": {
       "Seg0_Cell0_Voltage": {
         "resolution": 0.01,
@@ -224,9 +221,6 @@
     "msg_id": 461,
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 1",
-    "allowed_modes": [
-      "debug"
-    ],
     "signals": {
       "Seg0_Cell7_Voltage": {
         "resolution": 0.01,
@@ -269,6 +263,104 @@
         "min": -0.1,
         "max": 5,
         "unit": "V"
+      }
+    }
+  },
+  "Segment0_TempStats_0": {
+    "msg_id": 462,
+    "cycle_time": 10,
+    "description": "BMS Segment 0 Temperature Stats Part 0",
+    "signals": {
+      "Seg0_Cell0_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell1_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell2_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell3_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell4_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell5_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell6_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      }
+    }
+  },
+  "Segment0_TempStats_1": {
+    "msg_id": 463,
+    "cycle_time": 10,
+    "description": "BMS Segment 0 Temperature Stats Part 1",
+    "signals": {
+      "Seg0_Cell7_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell8_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell9_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell10_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell11_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell12_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell13_Temp": {
+        "resolution": 0.2,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
       }
     }
   },

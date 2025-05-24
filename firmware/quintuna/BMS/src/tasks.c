@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_fdcan.h"
 #include "main.h"
 
 #include "jobs.h"
@@ -81,7 +82,8 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_fdcan_transmit(&can1, &tx_msg);
+        // hw_fdcan_transmit(&can1, &tx_msg);
+        hw_can_transmit(&can1, &tx_msg);
     }
 }
 

@@ -77,7 +77,7 @@ void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], 
 #define RDCFGB (0x0026)
     ltc6813_tx tx_msg_a = io_ltc6813_build_tx_cmd(RDCFGA);
     CFGAR_msg  rx_buf_a[NUM_SEGMENTS];
-    ltc6813_tx tx_msg_b = io_ltc6813_build_tx_cmd(RDCFGA);
+    ltc6813_tx tx_msg_b = io_ltc6813_build_tx_cmd(RDCFGB);
     CFGBR_msg  rx_buf_b[NUM_SEGMENTS];
 
     const ExitCode com1 = hw_spi_transmitThenReceive(
