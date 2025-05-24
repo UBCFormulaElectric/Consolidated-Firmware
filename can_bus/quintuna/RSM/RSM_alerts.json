@@ -3,14 +3,34 @@
   "faults_id": 702,
   "warnings_counts_id": 703,
   "faults_counts_id": 704,
+  "info_id": 705,
+  "info_counts_id": 706,
   "warnings": {},
-  "faults": {
-    "DummyFault": {
-      "id": 700,
-      "description": "Dummy Fault"
+  "faults": {},
+  "info": {
+    "FlowRateOutOfRange": {
+      "id": 786,
+      "description": "Coolant flow out of range"
+    },
+    "FlowMeterUnderflow": {
+      "id": 785,
+      "description": "Flow meter underflow"
+    },
+    "RearLeftSuspension_OCSC": {
+      "id": 784,
+      "description": "Rear left suspension open or short circuit"
+    },
+    "RearRightSuspension_OCSC": {
+      "id": 783,
+      "description": "Rear right suspension open or short circuit"
+    },
+    "MissingVCHeartbeat": {
+      "id": 780,
+      "description": "Missing VC heartbeat"
+    },
+    "MissingFSMHeartbeat": {
+      "id": 781,
+      "description": "Missing FSM heartbeat"
     }
-  },
-  "info_id": 708,
-  "info_counts_id": 709,
-  "info": {}
+  }
 }

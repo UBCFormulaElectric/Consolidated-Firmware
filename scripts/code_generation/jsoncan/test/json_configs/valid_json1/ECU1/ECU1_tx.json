@@ -119,5 +119,64 @@
         "bits": 8
       }
     }
+  },
+  "LongMessage": {
+    "msg_id": 111,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "Int1": {
+        "bits": 32
+      },
+      "Int2": {
+        "bits": 32
+      },
+      "Int3": {
+        "bits": 32
+      },
+      "Int4": {
+        "bits": 32
+      },
+      "Int5": {
+        "bits": 32
+      },
+      "Int6": {
+        "bits": 32
+      },
+      "Int7": {
+        "bits": 32
+      },
+      "Int8": {
+        "bits": 32
+      },
+      "Int9": {
+        "bits": 32
+      },
+      "Int10": {
+        "bits": 32
+      },
+      "Int11": {
+        "bits": 32
+      },
+      "Int12": {
+        "bits": 32
+      },
+      "Int13": {
+        "bits": 32
+      },
+      "Int14": {
+        "bits": 32
+      },
+      "Int15": {
+        "bits": 32
+      },
+      "Int16": {
+        "bits": 32
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
   }
 }
