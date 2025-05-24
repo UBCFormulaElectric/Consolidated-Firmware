@@ -113,3 +113,5 @@ void tasks_run1kHz()
         osDelayUntil(start_ticks);
     }
 }
+
+void tasks_deinit() {}

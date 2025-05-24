@@ -10,7 +10,7 @@
 #include "io_tsim.h"
 
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_time.h"
 #include "io_telemMessage.h"
@@ -90,7 +90,7 @@ void jobs_run1kHz_tick(void)
 void jobs_runCanRx_tick(void)
 {
     const CanMsg rx_msg       = io_canQueue_popRx();
-    JsonCanMsg   json_can_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+    JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
     io_canRx_updateRxTableWithMessage(&json_can_msg);
 }
 

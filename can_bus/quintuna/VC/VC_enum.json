@@ -1,8 +1,13 @@
 {
     "VCState": {
-        "VC_INIT_STATE": 0,
-        "VC_INVERTER_ON_STATE": 1,
-        "VC_DRIVE_STATE": 2
+        "VC_DRIVE_WARNING_STATE": 0,
+        "VC_INIT_STATE": 1,
+        "VC_INVERTER_ON_STATE": 2,
+        "VC_BMS_ON_STATE": 3,
+        "VC_PCM_ON_STATE": 4,
+        "VC_HV_INIT_STATE": 5,
+        "VC_HV_STATE": 6,
+        "VC_DRIVE_STATE": 7
     },
     "ShutdownNode": {
         "SHDN_BSPD_OK": 0,
