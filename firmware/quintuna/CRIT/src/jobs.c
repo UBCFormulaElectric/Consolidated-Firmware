@@ -10,10 +10,10 @@
 #include "app_leds.h"
 #include "app_switches.h"
 #include "app_stackWaterMarks.h"
+#include "app_jsoncan.h"
 
 // IO
 #include "io_bootHandler.h"
-#include "io_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_canTx.h"
 #include "io_time.h"
@@ -23,7 +23,7 @@
 static void canTransmit(const JsonCanMsg *msg)
 {
     UNUSED(msg);
-    const CanMsg tx_msg = io_jsoncan_copyToCanMsg(msg);
+    const CanMsg tx_msg = app_jsoncan_copyToCanMsg(msg);
     io_canQueue_pushTx(&tx_msg);
 }
 

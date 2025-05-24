@@ -20,7 +20,7 @@
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"

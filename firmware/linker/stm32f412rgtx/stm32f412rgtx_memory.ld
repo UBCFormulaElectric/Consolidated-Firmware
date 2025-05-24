@@ -1,7 +1,7 @@
 MEMORY
 {
   ram           (xrw) : ORIGIN = 0x20000000, LENGTH = 0x3FFFC
-  boot_flag_ram (xrw) : ORIGIN = 0x2003FFFC, LENGTH = 0x4
+  boot_request_ram (xrw) : ORIGIN = 0x2003FFFC, LENGTH = 0x4
   boot_code     (rx)  : ORIGIN = 0x8000000,  LENGTH = 128K
   app_metadata  (rx)  : ORIGIN = 0x8020000,  LENGTH = 1K
   app_code      (rx)  : ORIGIN = 0x8020400,  LENGTH = 895K
@@ -9,10 +9,10 @@ MEMORY
 
 SECTIONS
 {
-  .boot_flag (NOLOAD) :
+  .boot_request (NOLOAD) :
   {
-    KEEP(*(.boot_flag))
-  } > boot_flag_ram
+    KEEP(*(.boot_request))
+  } > boot_request_ram
 }
 
 __boot_code_start__    = ORIGIN(boot_code);

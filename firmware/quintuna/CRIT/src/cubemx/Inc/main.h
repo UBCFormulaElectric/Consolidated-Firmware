@@ -43,9 +43,8 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern CAN_HandleTypeDef hcan2;
-    extern TIM_HandleTypeDef htim4;
-    extern TIM_HandleTypeDef htim12;
+    extern CAN_HandleTypeDef  hcan2;
+    extern IWDG_HandleTypeDef hiwdg;
 
     extern osThreadId_t Task1HzHandle;
     extern osThreadId_t Task100HzHandle;
@@ -78,6 +77,9 @@ extern "C"
 #define SYS_TIMER_CLOCK 96000000
 #define PWM_AUTO_RELOAD 4095
 #define PWM_PRESCALER 650
+#define LSI_FREQUENCY 32000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 4
 #define BOOT_Pin GPIO_PIN_4
 #define BOOT_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_5
