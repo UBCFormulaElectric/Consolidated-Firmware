@@ -145,6 +145,18 @@ const osThreadAttr_t TaskChimera_attributes = {
     .stack_size = sizeof(TaskChimeraBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
+/* Definitions for TaskPwrMonitor */
+osThreadId_t         TaskPwrMonitorHandle;
+uint32_t             TaskPwrMonitorBuffer[512];
+osStaticThreadDef_t  TaskPwrMonitorControlBlock;
+const osThreadAttr_t TaskPwrMonitor_attributes = {
+    .name       = "TaskPwrMonitor",
+    .cb_mem     = &TaskPwrMonitorControlBlock,
+    .cb_size    = sizeof(TaskPwrMonitorControlBlock),
+    .stack_mem  = &TaskPwrMonitorBuffer[0],
+    .stack_size = sizeof(TaskPwrMonitorBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal1,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -172,6 +184,7 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskBtrMonitor(void *argument);
 void        RunTaskChimera(void *argument);
+void        RunTaskPwrMonitor(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -269,6 +282,9 @@ int main(void)
 
     /* creation of TaskChimera */
     TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+
+    /* creation of TaskPwrMonitor */
+    TaskPwrMonitorHandle = osThreadNew(RunTaskPwrMonitor, NULL, &TaskPwrMonitor_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1282,6 +1298,21 @@ void RunTaskChimera(void *argument)
     /* Infinite loop */
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
+}
+
+/* USER CODE BEGIN Header_RunTaskPwrMonitor */
+/**
+ * @brief Function implementing the TaskPwrMonitor thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskPwrMonitor */
+void RunTaskPwrMonitor(void *argument)
+{
+    /* USER CODE BEGIN RunTaskPwrMonitor */
+    /* Infinite loop */
+    tasks_powerMonitoring();
+    /* USER CODE END RunTaskPwrMonitor */
 }
 
 /**
