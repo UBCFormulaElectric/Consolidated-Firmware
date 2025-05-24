@@ -197,5 +197,22 @@
                 "max": 65535
             }
         }
+    },
+    "BMSShdnNodeStatus": {
+    "msg_id": 454,
+
+    "cycle_time": 100,
+    "description": "BMS Shutdown Nodes Status",
+    "signals": {
+      "MSDShdnOKStatus": {
+        "bits": 1
+      },
+      "HVPShdnOKStatus": {
+        "bits": 1
+      },
+      "HVNShdnOKStatus": {
+        "bits": 1
+      }
     }
+  }
 }
