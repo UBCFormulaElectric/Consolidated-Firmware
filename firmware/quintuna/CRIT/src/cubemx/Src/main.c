@@ -46,9 +46,10 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan2;
 
+IWDG_HandleTypeDef hiwdg;
+
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim12;
-IWDG_HandleTypeDef hiwdg;
 
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
@@ -328,6 +329,32 @@ static void MX_CAN2_Init(void)
 }
 
 /**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = 4095;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+#endif
+    /* USER CODE END IWDG_Init 2 */
+}
+
+/**
  * @brief TIM4 Initialization Function
  * @param None
  * @retval None
@@ -412,31 +439,6 @@ static void MX_TIM12_Init(void)
 
     /* USER CODE END TIM12_Init 2 */
     HAL_TIM_MspPostInit(&htim12);
-}
-/**
- * @brief IWDG Initialization Function
- * @param None
- * @retval None
- */
-static void MX_IWDG_Init(void)
-{
-    /* USER CODE BEGIN IWDG_Init 0 */
-#ifndef WATCHDOG_DISABLED
-    /* USER CODE END IWDG_Init 0 */
-
-    /* USER CODE BEGIN IWDG_Init 1 */
-
-    /* USER CODE END IWDG_Init 1 */
-    hiwdg.Instance       = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
-    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN IWDG_Init 2 */
-#endif
-    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
