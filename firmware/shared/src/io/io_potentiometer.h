@@ -48,7 +48,7 @@ ExitCode
  * @param dest Pointer to store the read wiper value
  * @return If read was successful
  */
-ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t *dest);
+ExitCode io_potentiometer_readWiper(const Potentiometer *potentiometer, POTENTIOMETER_WIPER wiper, uint8_t dest[2]);
 
 /**
  * Writes the potentiometer wiper value.
