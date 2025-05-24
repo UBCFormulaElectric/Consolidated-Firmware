@@ -32,7 +32,6 @@ extern "C"
 
 /* USER CODE BEGIN INCLUDE */
 #include "hw_usb.h"
-#include "io_log.h"
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY

@@ -1,13 +1,16 @@
 #include "jobs.h"
 
+#include "app_heartbeatMonitors.h"
+#include "app_canTx.h"
+
 #include "io_bootHandler.h"
-#include "io_log.h"
 #include "io_canTx.h"
 
 #include "io_canQueue.h"
 #include "io_jsoncan.h"
 #include "io_canMsg.h"
-#include <io_canRx.h>
+#include "io_canRx.h"
+#include "io_log.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -15,13 +18,20 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&msg);
 }
 
+static void charger_transmit_func(const JsonCanMsg *msg)
+{
+    LOG_INFO("Send charger message: %d", msg->std_id);
+}
+
 void jobs_init()
 {
-    io_canTx_init(jsoncan_transmit_func);
+    io_canTx_init(jsoncan_transmit_func, charger_transmit_func);
+    io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+    io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_init();
 
-    io_canTx_init(jsoncan_transmit_func);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    app_heartbeatMonitor_init(&hb_monitor);
+    app_canTx_BMS_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick(void)
@@ -31,6 +41,9 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+
     io_canTx_enqueue100HzMsgs();
 }
 
@@ -45,7 +58,7 @@ void jobs_runCanRx_tick(void)
 
 void jobs_canRxCallback(const CanMsg *rx_msg)
 {
-    if (io_canRx_filterMessageId(rx_msg->std_id))
+    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
     }

@@ -17,9 +17,10 @@ typedef struct
 EMPTY_STRUCT(Potentiometer)
 #endif
 
-typedef enum{
-    WIPER0,
-    WIPER1,
+typedef enum
+{
+    WIPER0 = 0,
+    WIPER1 = 1,
 } POTENTIOMETER_WIPER;
 /**
  * Reads the potentiometer wiper value as a percentage (0 to 100) of its maximum range.

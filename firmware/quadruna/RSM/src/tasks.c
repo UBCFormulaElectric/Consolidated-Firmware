@@ -10,6 +10,7 @@
 #include "app_coolant.h"
 #include "app_heartbeatMonitors.h"
 #include "app_stackWaterMarks.h"
+#include "app_utils.h"
 
 #include "io_jsoncan.h"
 #include "io_canTx.h"
@@ -131,12 +132,11 @@ void tasks_init(void)
 
     hw_adcs_chipsInit();
 
-    hw_hardFaultHandler_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     hw_can_init(&can);
     io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
     io_canQueue_init();
     io_chimera_init(GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
 
@@ -188,7 +188,7 @@ _Noreturn void tasks_run1Hz(void)
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -263,7 +263,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
     }
 }
 

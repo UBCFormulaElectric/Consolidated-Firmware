@@ -42,13 +42,13 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern ADC_HandleTypeDef hadc1;
-    extern DMA_HandleTypeDef hdma_adc1;
-    extern CAN_HandleTypeDef hcan2;
-    extern TIM_HandleTypeDef htim2;
-    extern I2C_HandleTypeDef hi2c1;
-    extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
-
+    extern ADC_HandleTypeDef  hadc1;
+    extern DMA_HandleTypeDef  hdma_adc1;
+    extern CAN_HandleTypeDef  hcan2;
+    extern TIM_HandleTypeDef  htim2;
+    extern I2C_HandleTypeDef  hi2c1;
+    extern IWDG_HandleTypeDef hiwdg;
+    extern PCD_HandleTypeDef  hpcd_USB_OTG_FS;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -69,6 +69,8 @@ extern "C"
 #define LSI_FREQUENCY 32000
 #define TIM2_FREQUENCY 1000
 #define TIMx_FREQUENCY 96000000
+#define IWDG_RESET_FREQUENCY 4
+#define IWDG_PRESCALER 4
 #define STR_ANGLE_3V3_Pin GPIO_PIN_1
 #define STR_ANGLE_3V3_GPIO_Port GPIOC
 #define APPS1_3V3_Pin GPIO_PIN_2
@@ -91,8 +93,8 @@ extern "C"
 #define COCKPIT_SHDN_3V3_GPIO_Port GPIOB
 #define nSUSP_FR_OCSC_Pin GPIO_PIN_10
 #define nSUSP_FR_OCSC_GPIO_Port GPIOB
-#define DEBUG_LED_Pin GPIO_PIN_6
-#define DEBUG_LED_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_6
+#define LED_GPIO_Port GPIOC
 #define nSTR_ANGLE_OCSC_Pin GPIO_PIN_7
 #define nSTR_ANGLE_OCSC_GPIO_Port GPIOC
 #define nBPS_F_OCSC_Pin GPIO_PIN_8
