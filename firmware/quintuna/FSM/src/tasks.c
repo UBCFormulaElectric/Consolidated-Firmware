@@ -10,7 +10,7 @@
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_bootHandler.h"
 
 // chimera
@@ -116,7 +116,7 @@ void tasks_runCanRx(void)
     for (;;)
     {
         const CanMsg rx_msg      = io_canQueue_popRx();
-        JsonCanMsg   rx_json_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        JsonCanMsg   rx_json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&rx_json_msg);
         io_bootHandler_processBootRequest(&rx_msg);
     }
