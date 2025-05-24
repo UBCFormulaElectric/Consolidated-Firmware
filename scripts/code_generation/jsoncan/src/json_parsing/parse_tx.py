@@ -1,5 +1,6 @@
 from math import ceil
-from typing import Dict, Tuple, Optional as Optional_t, List
+import typing
+from typing import Dict, Tuple
 
 from schema import Schema, And, Optional, Or, SchemaError
 
@@ -90,7 +91,6 @@ _tx_msg_schema = Schema(
         },
         "cycle_time": Or(int, Schema(None), lambda x: x >= 0),
         Optional("disabled"): bool,
-        Optional("num_bytes"): Or(int, lambda x: 0 <= x <= 8),
         Optional("description"): str,
         Optional("allowed_modes"): Schema([str]),
         Optional("data_capture"): {
@@ -233,6 +233,7 @@ def _get_parsed_can_message(
     msg_id = msg_json_data["msg_id"]
     description = msg_json_data.get("description", "")
     msg_cycle_time = msg_json_data["cycle_time"]
+    max_len_bits = 64 * 8
 
     # will use mode from bus if none
     msg_modes = msg_json_data.get("allowed_modes", None)
@@ -247,11 +248,9 @@ def _get_parsed_can_message(
             "telem_cycle_time", msg_cycle_time
         )
 
-    # Check if message ID is unique
-
     signals = []
     next_available_bit = 0
-    occupied_bits: list[Optional_t[str]] = [None] * 64
+    occupied_bits: list[typing.Optional[str]] = [None] * max_len_bits
     require_start_bit_specified = False
 
     # Parse message signals
@@ -274,9 +273,9 @@ def _get_parsed_can_message(
 
         # Mark a signal's bits as occupied, by inserting the signal's name
         for idx in range(signal.start_bit, signal.start_bit + signal.bits):
-            if idx < 0 or idx > 63:
+            if idx < 0 or idx >= max_len_bits:
                 raise InvalidCanJson(
-                    f"Signal '{signal.name}' in '{msg_name}' is requesting to put a bit at invalid position {idx}. Messages have a maximum length of 64 bits."
+                    f"Signal '{signal.name}' in '{msg_name}' is requesting to put a bit at invalid position {idx}. Messages have a maximum length of 64 bytes."
                 )
             elif occupied_bits[idx] is not None:
                 raise InvalidCanJson(
@@ -302,7 +301,9 @@ def _get_parsed_can_message(
 
 
 def parse_tx_data(
-    can_data_dir: str, tx_node_name: str, enums_map: dict[str, CanEnum]
+    can_data_dir: str,
+    tx_node_name: str,
+    enums_map: dict[str, CanEnum],
 ) -> list[CanMessage]:
     """
     Parses TX messages from file, adds them to message list
