@@ -1,5 +1,6 @@
 #include "jobs.h"
 
+#include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
 
@@ -45,6 +46,7 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     io_canTx_enqueue100HzMsgs();
+    app_shdnLoop_broadcast();
 }
 
 void jobs_run1kHz_tick(void) {}
