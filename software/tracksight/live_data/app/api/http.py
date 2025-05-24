@@ -15,11 +15,11 @@ from middleware.serial_port import get_serial
 # ours
 from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
 
-# from api.files_handler import sd_api
+#from api.files_handler import sd_api
 
 api = Blueprint("api", __name__)
 api.register_blueprint(historical_api)
-# api.register_blueprint(sd_api)
+#api.register_blueprint(sd_api)
 
 
 @api.route("/health", methods=["GET"])
