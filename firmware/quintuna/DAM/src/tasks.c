@@ -141,14 +141,8 @@ _Noreturn void tasks_runCanTx(void)
         // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // ToDo: check if this is needed and investigate why is_fd is not a bool
-        if (tx_msg.is_fd)
-        {
-            hw_fdcan_transmit(&can1, &tx_msg);
-        }
-        else
-        {
-            hw_can_transmit(&can1, &tx_msg);
-        }
+
+        hw_fdcan_transmit(&can1, &tx_msg);
     }
 }
 

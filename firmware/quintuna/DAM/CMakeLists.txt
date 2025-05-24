@@ -146,7 +146,8 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1")
 
-    if ("${BOOTLOAD}" STREQUAL "ON")
+    message("Bootloader: ${BOOTLOAD}")
+#     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
         file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
         file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
@@ -170,6 +171,6 @@ if ("${TARGET}" STREQUAL "binary")
                 "quintuna_DAM_boot.hex"
                 "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
         )
-    endif ()
+#     endif ()
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
