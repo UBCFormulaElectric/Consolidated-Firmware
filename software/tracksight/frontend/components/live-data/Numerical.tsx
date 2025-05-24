@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { SignalProvider, useSignals } from '@/lib/contexts/SignalContext'
 import { AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts'
 
@@ -26,11 +26,8 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
   } = useSignals()
 
   const [selectedSignal, setSelectedSignal] = useState<string>('')
-  const [baseWidth, setBaseWidth] = useState<number>(600)
   const [chartHeight, setChartHeight] = useState<number>(256)
-  const [dynamicWidth, setDynamicWidth] = useState<number>(baseWidth)
-  const prevDataCount = useRef<number>(0)
-  const pointWidth = 20
+  const [scaleFactor, setScaleFactor] = useState<number>(100)
 
   // Aggregate numerical data by timestamp
   const chartData = useMemo(() => {
@@ -58,16 +55,10 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
     [availableSignals, activeSignals]
   )
 
-  // Manage dynamic width: grow on new data and clamp to base width
-  useEffect(() => {
-    const count = chartData.length
-    const diff = count - prevDataCount.current
-    prevDataCount.current = count
-    setDynamicWidth(prev => {
-      const minWidth = Math.max(prev, baseWidth)
-      return minWidth + diff * pointWidth
-    })
-  }, [chartData.length, baseWidth])
+  // Version 1 width logic
+  const pixelPerDataPoint = 50
+  const chartWidth = Math.max(chartData.length * pixelPerDataPoint, 100)
+  const finalChartWidth = chartWidth * (scaleFactor / 100)
 
   const handleSubscribe = useCallback(() => {
     if (!selectedSignal) return
@@ -92,18 +83,7 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
       {/* Controls for sizing */}
       <div className="flex flex-wrap gap-4 mb-4">
         <div className="flex flex-col">
-          <label className="text-sm">Base Width: {baseWidth}px</label>
-          <input
-            type="range"
-            min={600}
-            max={2000}
-            step={100}
-            value={baseWidth}
-            onChange={e => setBaseWidth(Number(e.target.value))}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-sm">Height: {chartHeight}px</label>
+          <label className="text-sm">Vertical Scale: {chartHeight}px</label>
           <input
             type="range"
             min={100}
@@ -111,6 +91,16 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
             step={50}
             value={chartHeight}
             onChange={e => setChartHeight(Number(e.target.value))}
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="text-sm">Horizontal Scale: {scaleFactor}%</label>
+          <input
+            type="range"
+            min={1}
+            max={1000}
+            value={scaleFactor}
+            onChange={e => setScaleFactor(Number(e.target.value))}
           />
         </div>
       </div>
@@ -152,7 +142,7 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
         ))}
       </div>
 
-      {/* Chart area */}
+      {/* Chart area with version1 width and CSS transition */}
       {chartData.length === 0 ? (
         <div
           className="w-full flex items-center justify-center text-gray-500"
@@ -161,15 +151,21 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
           No numerical data to display
         </div>
       ) : (
-        <div style={{ width: dynamicWidth, height: chartHeight }}>
-          <AreaChart width={dynamicWidth} height={chartHeight} data={chartData}>
+        <div
+          style={{
+            width: finalChartWidth,
+            height: chartHeight,
+            transition: 'width 100ms ease-out'
+          }}
+        >
+          <AreaChart width={finalChartWidth} height={chartHeight} data={chartData}>
             <XAxis
               dataKey="time"
               tickFormatter={t => new Date(t).toLocaleTimeString()}
               interval={Math.ceil(chartData.length / 10)}
             />
             <YAxis domain={[0, 'auto']} />
-            <Tooltip labelFormatter={t => new Date(t).toLocaleTimeString()} />
+            <Tooltip isAnimationActive={false} animationDuration={0} />
             {numericalSignals.map((sig, idx) => (
               <Area
                 key={sig}
@@ -177,8 +173,9 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
                 dataKey={sig}
                 stroke={signalColors[idx % signalColors.length]}
                 fill={signalColors[idx % signalColors.length]}
-                strokeWidth={2}
+                strokeWidth={1}
                 isAnimationActive={false}
+                animationDuration={0}
               />
             ))}
           </AreaChart>
