@@ -291,7 +291,7 @@ void tasks_preInit(void)
 
 static void jsoncan_transmit(const JsonCanMsg *tx_msg)
 {
-    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
 
@@ -395,7 +395,7 @@ _Noreturn void tasks_runCanRx(void)
     for (;;)
     {
         CanMsg     rx_msg         = io_canQueue_popRx(&rx_msg);
-        JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
 
         io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
