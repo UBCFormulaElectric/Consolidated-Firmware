@@ -10,13 +10,13 @@ static float travelFromVoltage(float voltage)
     return travel_m;
 }
 
-float io_suspension_getrlTravel(void)
+float io_suspension_getRLTravel(void)
 {
     float voltage = hw_adc_getVoltage(&susp_travel_rl_3v3);
     return travelFromVoltage(voltage);
 }
 
-float io_suspension_getrrTravel(void)
+float io_suspension_getRRTravel(void)
 {
     float voltage = hw_adc_getVoltage(&susp_travel_rr_3v3);
     return travelFromVoltage(voltage);

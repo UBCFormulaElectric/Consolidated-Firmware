@@ -1,60 +1,28 @@
 {
-    "warnings_id": 701,
-    "faults_id": 702,
-    "warnings_counts_id": 703,
-    "faults_counts_id": 704,
-    "warnings": {
-        "WatchdogTimeout": {
-            "id": 794,
-            "description": "Watchdog timeout"
-        },
-        "TxOverflow": {
-            "id": 793,
-            "description": "canTX overflow"
-        },
-        "RxOverflow": {
-            "id": 792,
-            "description": "canRX overflow"
-        },
-        "StackWaterMarkHighTask1Hz": {
-            "id": 791,
-            "description": "Stack Watermark mark failed for 1Hz"
-        },
-        "StackWaterMarkHighTask100Hz": {
-            "id": 790,
-            "description": "Stack Watermark mark failed for 100Hz"
-        },
-        "StackWaterMarkHighTask1kHz": {
-            "id": 789,
-            "description": "Stack Watermark mark failed for 1kHz"
-        },
-        "StackWaterMarkHighTaskCanRx": {
-            "id": 788,
-            "description": "Stack Watermark failed on CanRx"
-        },
-        "StackWaterMarkHighTaskCanTx": {
-            "id": 787,
-            "description": "Stack Watermark failed on CanTx"
-        },
-        "FlowRateOutOfRange": {
-            "id": 786,
-            "description": "Coolant flow out of range"
-        }, 
-        "FlowMeterUnderflow": {
-            "id": 785,
-            "description": "Flow meter underflow"
-        },
-        "rl_OCSC": {
-            "id": 784,
-            "description": "Rear left suspension open or short circuit"
-        },
-        "rr_OCSC": {
-            "id": 783,
-            "description": "Rear right suspension open or short circuit"
-        }
+  "warnings_id": 701,
+  "faults_id": 702,
+  "warnings_counts_id": 703,
+  "faults_counts_id": 704,
+  "info_id": 705,
+  "info_counts_id": 706,
+  "warnings": {},
+  "faults": {},
+  "info": {
+    "FlowRateOutOfRange": {
+      "id": 786,
+      "description": "Coolant flow out of range"
     },
-    "faults": {},
-    "info_id": 708,
-    "info_counts_id": 709,
-    "info": {}
+    "FlowMeterUnderflow": {
+      "id": 785,
+      "description": "Flow meter underflow"
+    },
+    "RearLeftSuspension_OCSC": {
+      "id": 784,
+      "description": "Rear left suspension open or short circuit"
+    },
+    "RearRightSuspension_OCSC": {
+      "id": 783,
+      "description": "Rear right suspension open or short circuit"
+    }
+  }
 }

@@ -525,7 +525,6 @@ static void MX_TIM2_Init(void)
     TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
     TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
     TIM_OC_InitTypeDef      sConfigOC          = { 0 };
-    TIM_IC_InitTypeDef      sConfigIC          = { 0 };
 
     /* USER CODE BEGIN TIM2_Init 1 */
 
@@ -549,10 +548,6 @@ static void MX_TIM2_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_TIM_IC_Init(&htim2) != HAL_OK)
-    {
-        Error_Handler();
-    }
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
@@ -564,14 +559,6 @@ static void MX_TIM2_Init(void)
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
     if (HAL_TIM_OC_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
-    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
-    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
-    sConfigIC.ICFilter    = 0;
-    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
     {
         Error_Handler();
     }
@@ -679,11 +666,11 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin */
-    GPIO_InitStruct.Pin  = IMU_INT1_Pin | IMU_INT2_Pin;
+    /*Configure GPIO pin : IMU_INT2_Pin */
+    GPIO_InitStruct.Pin  = IMU_INT2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(IMU_INT2_GPIO_Port, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
     HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
