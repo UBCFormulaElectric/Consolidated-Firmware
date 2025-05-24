@@ -7,11 +7,11 @@
 #include "io_time.h"
 #include "io_canTx.h"
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {
-    const CanMsg m = io_jsoncan_copyToCanMsg(msg);
+    const CanMsg m = app_jsoncan_copyToCanMsg(msg);
     io_canQueue_pushTx(&m);
 }
 
