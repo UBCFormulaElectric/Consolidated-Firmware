@@ -106,6 +106,18 @@ const osThreadAttr_t TaskCanTx_attributes = {
     .stack_size = sizeof(TaskCanTxBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -119,6 +131,7 @@ void        RunTask1Hz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -196,6 +209,9 @@ int main(void)
     /* creation of TaskCanTx */
     TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
 
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
@@ -263,8 +279,6 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);
-    HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_HSE, RCC_MCODIV_1);
 }
 
 /**
@@ -368,22 +382,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PC9 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_9;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PA8 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_8;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -462,6 +460,21 @@ void RunTaskCanTx(void *argument)
     /* USER CODE BEGIN RunTaskCanTx */
     tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
+}
+
+/* USER CODE BEGIN Header_RunTaskChimera */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
 }
 
 /**

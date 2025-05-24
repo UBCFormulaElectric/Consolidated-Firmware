@@ -1,30 +1,184 @@
 {
-    "Vitals": {
-        "msg_id": 400,
+  "Vitals": {
+    "msg_id": 400,
+    "cycle_time": 100,
+    "description": "Vitals message for the BMS.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "State": {
+        "enum": "BmsState"
+      }
+    }
+  },
+  "Debug": {
+    "msg_id": 407,
+    "cycle_time": 1000,
+    "description": "BMS Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      }
+    }
+  },
+  "LatchedFaults": {
+    "msg_id": 410,
+    "cycle_time": 100,
+    "description": "Latched faults for the BMS",
+    "signals": {
+      "BmsLatchedFault": {
+        "bits": 1
+      },
+      "ImdLatchedFault": {
+        "bits": 1
+      },
+      "BspdLatchedFault": {
+        "bits": 1
+      }
+    }
+  },
+  "Contactors": {
+    "msg_id": 411,
+    "cycle_time": 100,
+    "description": "BMS IR state statuses",
+    "signals": {
+      "IrPositive": {
+        "enum": "ContactorState"
+      },
+      "IrNegative": {
+        "enum": "ContactorState"
+      },
+      "PrechargeRelay": {
+        "enum": "ContactorState"
+      }
+    }
+  },
+  "TractiveSystem": {
+    "msg_id": 412,
+    "cycle_time": 100,
+    "description": "BMS Tractive System Data",
+    "signals": {
+      "TractiveSystemVoltage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 600,
+        "unit": "V"
+      },
+      "TractiveSystemCurrent": {
+        "resolution": 0.1,
+        "min": -300,
+        "max": 300,
+        "unit": "A"
+      },
+      "TractiveSystemPower": {
+        "resolution": 0.1,
+        "min": -100,
+        "max": 100,
+        "unit": "kW"
+      },
+      "AvailablePower": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "BSPDCurrentThresholdExceeded": {
+        "bits": 1
+      }
+    }
+  },
+  "ElconControls": {
+    "msg_id": 450,
+    "cycle_time": 1000,
+    "description": "Control parameters for Elcon charger communication",
+    "signals": {
+      "MaxChargingVoltage": {
+        "start_bit": 0,
+        "bits": 16,
+        "min": 0,
+        "max": 10000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "V"
+      },
+      "MaxChargingCurrent": {
+        "start_bit": 16,
+        "bits": 16,
+        "min": 0,
+        "max": 1000,
+        "scale": 0.1,
+        "offset": 0,
+        "unit": "A"
+      },
+      "StopCharging": {
+        "start_bit": 32,
+        "bits": 1
+      },
+      "Reserved": {
+        "start_bit": 33,
+        "bits": 31
+      }
+    }
+  },
+  "ImdStatus": {
+        "msg_id": 452,
         "cycle_time": 100,
-        "description": "Vitals message for the BMS.",
+        "description": "BMS IMD Messages",
         "signals": {
-            "Heartbeat": {
+            "ImdOkHs": {
                 "bits": 1
             },
-            "State": {
-                "enum": "BmsState"
+            "ImdTimeSincePowerOn": {
+                "min": 0,
+                "resolution": 1,
+                "max": 10000,
+                "unit": "ms"
+            },
+            "ImdValidDutyCycle": {
+                "bits": 1
+            },
+            "ImdCondition": {
+                "enum": "ImdConditionName"
+            },
+            "ImdDutyCycle": {
+                "bits": 8,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "ImdFrequency": {
+                "bits": 8,
+                "min": 0,
+                "max": 100,
+                "unit": "Hz"
             }
         }
     },
-    "LatchedFaults": {
-        "msg_id": 410,
-        "cycle_time": 100,
-        "description": "Latched faults for the BMS",
+    "ImdData": {
+        "msg_id": 453,
+        "cycle_time": 1000,
+        "description": "BMS IMD Measurement Data Values",
         "signals": {
-            "BmsLatchedFault": {
-                "bits": 1
+            "ImdActiveFrequency": {
+                "enum": "ImdActiveFrequency"
             },
-            "ImdLatchedFault": {
-                "bits": 1
+            "ImdInsulationMeasurementDcp10Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535,
+                "unit": "kOhm"
             },
-            "BspdLatchedFault": {
-                "bits": 1
+            "ImdInsulationMeasurementDcp20Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535,
+                "unit": "kOhm"
+            },
+            "ImdSpeedStartStatus30Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535
             }
         }
     }

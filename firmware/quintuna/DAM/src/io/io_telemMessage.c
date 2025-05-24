@@ -1,4 +1,5 @@
 #include "io_telemMessage.h"
+#include "app_utils.h"
 #include "telem.pb.h"
 #include "pb_encode.h"
 #include "cmsis_os.h"
@@ -7,6 +8,7 @@
 #include "hw_crc.h"
 #include "hw_gpios.h"
 #include <assert.h>
+#include "io_time.h"
 
 // create the truth table for now to decide which amount of things to use
 // create or grab the constants for the different modem and pins and such
@@ -22,11 +24,18 @@
 
 // UartDevice        *_2_4G_uart = NULL;
 
+// TX
 static bool               proto_status;
 static uint8_t            proto_msg_length;
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
 static osMessageQueueId_t message_queue_id;
+
+// RX
+
+static uint8_t  rx_buffer[MAX_FRAME_SIZE];
+static uint32_t rx_buffer_pos     = 0;
+static bool     message_available = false;
 
 TelemMessage t_message = TelemMessage_init_zero;
 
@@ -68,14 +77,14 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
     if (rx_msg->dlc > 8)
         return false;
     t_message.can_id     = (int32_t)(rx_msg->std_id);
-    t_message.message_0  = rx_msg->data[0];
-    t_message.message_1  = rx_msg->data[1];
-    t_message.message_2  = rx_msg->data[2];
-    t_message.message_3  = rx_msg->data[3];
-    t_message.message_4  = rx_msg->data[4];
-    t_message.message_5  = rx_msg->data[5];
-    t_message.message_6  = rx_msg->data[6];
-    t_message.message_7  = rx_msg->data[7];
+    t_message.message_0  = rx_msg->data.data8[0];
+    t_message.message_1  = rx_msg->data.data8[1];
+    t_message.message_2  = rx_msg->data.data8[2];
+    t_message.message_3  = rx_msg->data.data8[3];
+    t_message.message_4  = rx_msg->data.data8[4];
+    t_message.message_5  = rx_msg->data.data8[5];
+    t_message.message_6  = rx_msg->data.data8[6];
+    t_message.message_7  = rx_msg->data.data8[7];
     t_message.time_stamp = (int32_t)rx_msg->timestamp;
 
     // Encode message into proto_buffer
@@ -116,6 +125,20 @@ void io_telemMessage_init()
     assert(message_queue_id != NULL);
     init = true;
     hw_gpio_writePin(&telem_pwr_en_pin, true);
+}
+
+// lol should this be here? is this exposed the right amount also? this is start time TX code
+void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time)
+{
+    CanMsg start_time_msg = {
+        .std_id = 0x999, // this id could change asking edwin!!!
+        .dlc    = 6,
+        .data   = { { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
+                      start_time.seconds } },
+        .timestamp =
+            io_time_getCurrentMs(), // note, this represents the timestamp of the current message NOT the basetime
+    };
+    *msg = start_time_msg;
 }
 
 bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
@@ -160,9 +183,9 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     // Start timing for measuring transmission speeds
     bool success = true;
     SEGGER_SYSVIEW_MarkStart(0);
-    success &=
+    const ExitCode exit =
         hw_uart_transmit(&_900k_uart, full_frame, frame_length); // send full frame check line 143 for new frame_length
-    if (success)
+    if (IS_EXIT_OK(exit))
     {
         LOG_INFO("900Mhz Telem Message Sent");
         // print the buffer up to the 27th byte

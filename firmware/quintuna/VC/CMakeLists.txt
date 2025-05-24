@@ -10,7 +10,7 @@ set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
-set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
@@ -21,7 +21,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUINTUNA_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
@@ -31,12 +31,11 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_loadswitch.c"
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
 
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
-)
+file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
@@ -49,25 +48,29 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
 if ("${TARGET}" STREQUAL "binary")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${CUBEMX_SRCS})
-    embedded_no_checks("${CUBEMX_SRCS}")
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary("quintuna_VC_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
 
     # Bootloader files.
-    file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
     # Build bootloader.
     stm32h7_boot_binary(
             "quintuna_VC_boot"
             "${BOOT_SRCS}"
+            "${BOOT_CUBEMX_SRCS}"
             "${BOOT_INCLUDE_DIRS}"
             "quintuna_VC"
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
@@ -75,7 +78,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
-    generate_stm32cube_code("VC" "${IOC_PATH}")
+    generate_stm32cube_code("quintuna_VC_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     # STM HAL Library
     set(STM32_HAL_SRCS
@@ -104,7 +107,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     stm32h733xx_cube_library(
-            "quintuna_VC_stm32cube"
+            "quintuna_VC_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
@@ -123,6 +126,7 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("quintuna_VC_app.elf" PRIVATE
             "quintuna_VC_stm32cube"
+            "quintuna_VC_stm32cube_hal"
             "quintuna_VC_jsoncan"
             "quintuna_VC_commit_info"
             "logfs_cm7"

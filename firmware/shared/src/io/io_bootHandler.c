@@ -1,20 +1,13 @@
-#include <stdint.h>
-
-// cmis:
-#include "cmsis_gcc.h"
-#include "cmsis_os.h"
+#include "io_bootHandler.h"
+#include "bootloaderConfig.h"
 
 // hw:
 #include "hw_hal.h"
-#include "hw_hardFaultHandler.h"
-#include "hw_utils.h"
-#include "hw_flash.h"
 
 // io:
-#include "io_bootHandler.h"
 #include "io_log.h"
 
-#define BOOT_CAN_START 1012
+#define BOOT_CAN_START_LOWBITS 0x9
 
 __attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
 
@@ -23,10 +16,9 @@ extern void     tasks_deinit(void);
 
 void io_bootHandler_processBootRequest(const CanMsg *msg)
 {
-    if (msg->std_id == BOOT_CAN_START)
+    if (msg->std_id == (BOARD_RANGE_START | BOOT_CAN_START_LOWBITS))
     {
         boot_flag = 0x1;
-        tasks_deinit();
 
         __disable_irq(); // disable interrupts
         __DSB();         // Complete all outstanding memory accesses

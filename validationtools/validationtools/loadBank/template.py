@@ -1,10 +1,10 @@
-from loadBank import LoadBank
+from validationtools.loadBank import LoadBank
 import time
 
 # Add your code here
 l = LoadBank()
 
-l.set_current(0.500) # set it to draw 500mA
+l.set_current(0.250) # set it to draw 500mA
 l.enable_load()
 
 time.sleep(5) # sleep for 5 seconds before measurment

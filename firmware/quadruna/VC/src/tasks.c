@@ -10,6 +10,7 @@
 
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canLogging.h"
@@ -178,7 +179,14 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        if (tx_msg.is_fd)
+        {
+            hw_fdcan_transmit(&can1, &tx_msg);
+        }
+        else
+        {
+            LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
+        }
     }
 }
 

@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     #    container:
-    #      image: ubcformulaelectric/environment:no_cube
+    #      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -64,7 +64,7 @@ jobs:
 
     # both packages shouldn't need to use python dependences that we need...
     #    container:
-    #      image: ubcformulaelectric/environment:no_cube
+    #      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -118,7 +118,7 @@ jobs:
           - board: quintuna_VC
 
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.docker_token }}
@@ -149,8 +149,8 @@ jobs:
           #  car: quadruna
           #- board: CRIT
           #  car: quadruna
-          - board: BMS
-            car: quintuna
+          # - board: BMS
+          #   car: quintuna
           #- board: CRIT
           #  car: quintuna
           #- board: DAM
@@ -163,7 +163,7 @@ jobs:
             car: quintuna
 
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -197,7 +197,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -231,7 +231,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -264,7 +264,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -288,3 +288,26 @@ jobs:
           cmake --preset "FW Test CI" -B $BUILD_DIR
           cmake --build $BUILD_DIR --target install_python_logfs
           pytest -v firmware/logfs/test
+  test-jsoncan:
+    name: Test jsonCAN
+    runs-on: ubuntu-22.04
+    needs: [ clang-format ]
+    container:
+      image: ubcformulaelectric/environment:arm_14
+    env:
+      BUILD_DIR: build_fw_test
+    steps:
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run jsoncan unit tests
+        run: python3 -m pytest ./scripts/code_generation/jsoncan/test
+      - name: Build jsonCAN integration tests
+        run: |
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target jsoncan_test
+      - name: Run jsonCAN integration tests
+        run: |
+          cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
+          valgrind --tool=memcheck --leak-check=yes ./jsoncan_test

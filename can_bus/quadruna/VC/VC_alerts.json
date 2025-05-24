@@ -1,114 +1,118 @@
 {
-    "warnings_id": 205,
-    "faults_id": 206,
-    "warnings_counts_id": 207,
-    "faults_counts_id": 208,
-    "warnings": {
-        "StackWaterMarkHighTask1Hz": {
-            "id": 501,
-            "description": "1Hz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTask100Hz": {
-            "id": 502,
-            "description": "100Hz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTask1kHz": {
-            "id": 503,
-            "description": "1kHz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTaskCanRx": {
-            "id": 504,
-            "description": "CAN RX task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTaskCanTx": {
-            "id": 505,
-            "description": "CAN TX task stack watermark exceeded."
-        },
-        "WatchdogTimeout": {
-            "id": 506,
-            "description": "Watchdog timeout detected."
-        },
-        "TxOverflow": {
-            "id": 507,
-            "description": "CAN TX queue has overflowed."
-        },
-        "RxOverflow": {
-            "id": 508,
-            "description": "CAN RX queue has overflowed."
-        },
-        "RegenNotAvailable": {
-            "id": 509,
-            "description": "Regen is not currently available."
-        },
-        "ImuInitFailed": {
-            "id": 516,
-            "description": "Initializing the embedded IMU failed."
-        },
-        "FlowRateInputOutOfRange": {
-            "id": 517,
-            "description": "Input to app_pumpControl_setFlowRate out of range"
-        },
-        "BatteryRailOvercurrentFault": {
-            "id": 557,
-            "description": "LV rail from the 18650 batteries was overcurrent."
-        },
-        "AccumulatorRailOvercurrentFault": {
-            "id": 558,
-            "description": "LV rail from the HV DCDC was overcurrent."
-        },
-        "LvChargeFault": {
-            "id": 559,
-            "description": "LV battery charger has faulted."
-        },
-        "BoostControllerFault": {
-            "id": 560,
-            "description": "Boost controller has faulted."
-        },
-        "HighNumberOfCanDataLogs": {
-            "id": 561,
-            "description": "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem."
-        },
-        "CanLoggingSdCardNotPresent": {
-            "id": 562,
-            "description": "CAN logging SD card is not detected."
-        },
-        "CanLoggingErrored": {
-            "id": 563,
-            "description": "CAN logging received multiple errors and has been disabled."
-        },
-        "BrakeAppsDisagreement": {
-            "id": 564,
-            "description": "Brakes and apps are active at same time."
-        },
-        "SbgInitFailed": {
-            "id": 565,
-            "description": "Initializing the SBG Ellipse GPS failed"
-        }
+  "warnings_id": 205,
+  "faults_id": 206,
+  "warnings_counts_id": 207,
+  "faults_counts_id": 208,
+  "info_id": 299,
+  "info_counts_id": 290,
+
+  "warnings": {
+    "StackWaterMarkHighTask1Hz": {
+      "id": 501,
+      "description": "1Hz task stack watermark exceeded."
     },
-    "faults": {
-        "MissingBMSHeartbeat": {
-            "id": 551,
-            "description": "Missing heartbeat signal from the BMS."
-        },
-        "MissingFSMHeartbeat": {
-            "id": 552,
-            "description": "Missing heartbeat signal from the FSM."
-        },
-        "MissingRSMHeartbeat": {
-            "id": 553,
-            "description": "Missing heartbeat signal from the RSM."
-        },
-        "MissingCRITHeartbeat": {
-            "id": 554,
-            "description": "Missing heartbeat signal from the CRIT."
-        },
-        "LeftInverterFault": {
-            "id": 555,
-            "description": "Left inverter entered fault state."
-        },
-        "RightInverterFault": {
-            "id": 556,
-            "description": "Right inverter entered fault state."
-        }
+    "StackWaterMarkHighTask100Hz": {
+      "id": 502,
+      "description": "100Hz task stack watermark exceeded."
+    },
+    "StackWaterMarkHighTask1kHz": {
+      "id": 503,
+      "description": "1kHz task stack watermark exceeded."
+    },
+    "StackWaterMarkHighTaskCanRx": {
+      "id": 504,
+      "description": "CAN RX task stack watermark exceeded."
+    },
+    "StackWaterMarkHighTaskCanTx": {
+      "id": 505,
+      "description": "CAN TX task stack watermark exceeded."
+    },
+    "WatchdogTimeout": {
+      "id": 506,
+      "description": "Watchdog timeout detected."
+    },
+    "TxOverflow": {
+      "id": 507,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 508,
+      "description": "CAN RX queue has overflowed."
+    },
+    "RegenNotAvailable": {
+      "id": 509,
+      "description": "Regen is not currently available."
+    },
+    "ImuInitFailed": {
+      "id": 516,
+      "description": "Initializing the embedded IMU failed."
+    },
+    "FlowRateInputOutOfRange": {
+      "id": 517,
+      "description": "Input to app_pumpControl_setFlowRate out of range"
+    },
+    "BatteryRailOvercurrentFault": {
+      "id": 557,
+      "description": "LV rail from the 18650 batteries was overcurrent."
+    },
+    "AccumulatorRailOvercurrentFault": {
+      "id": 558,
+      "description": "LV rail from the HV DCDC was overcurrent."
+    },
+    "LvChargeFault": {
+      "id": 559,
+      "description": "LV battery charger has faulted."
+    },
+    "BoostControllerFault": {
+      "id": 560,
+      "description": "Boost controller has faulted."
+    },
+    "HighNumberOfCanDataLogs": {
+      "id": 561,
+      "description": "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem."
+    },
+    "CanLoggingSdCardNotPresent": {
+      "id": 562,
+      "description": "CAN logging SD card is not detected."
+    },
+    "CanLoggingErrored": {
+      "id": 563,
+      "description": "CAN logging received multiple errors and has been disabled."
+    },
+    "BrakeAppsDisagreement": {
+      "id": 564,
+      "description": "Brakes and apps are active at same time."
+    },
+    "SbgInitFailed": {
+      "id": 565,
+      "description": "Initializing the SBG Ellipse GPS failed"
     }
+  },
+  "faults": {
+    "MissingBMSHeartbeat": {
+      "id": 551,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 552,
+      "description": "Missing heartbeat signal from the FSM."
+    },
+    "MissingRSMHeartbeat": {
+      "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingCRITHeartbeat": {
+      "id": 554,
+      "description": "Missing heartbeat signal from the CRIT."
+    },
+    "LeftInverterFault": {
+      "id": 555,
+      "description": "Left inverter entered fault state."
+    },
+    "RightInverterFault": {
+      "id": 556,
+      "description": "Right inverter entered fault state."
+    }
+  },
+  "info": {}
 }

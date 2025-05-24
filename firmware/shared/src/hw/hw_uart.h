@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "app_utils.h"
 #include "main.h"
 #include "cmsis_os.h"
 
@@ -34,7 +35,7 @@ UartDevice *hw_uart_getDeviceFromHandle(const UART_HandleTypeDef *handle);
  * @param data Pointer to data buffer.
  * @param size Number of data bytes.
  */
-bool hw_uart_transmit(UartDevice *device, uint8_t *data, uint16_t size);
+ExitCode hw_uart_transmit(UartDevice *device, uint8_t *data, uint16_t size);
 
 /**
  * Receives an amount of data in blocking mode.
@@ -42,7 +43,7 @@ bool hw_uart_transmit(UartDevice *device, uint8_t *data, uint16_t size);
  * @param data Pointer to data buffer.
  * @param size Number of data bytes.
  */
-bool hw_uart_receive(UartDevice *device, uint8_t *data, uint16_t size);
+ExitCode hw_uart_receive(UartDevice *device, uint8_t *data, uint16_t size);
 
 /**
  * Receives an amount of data in inon-blocking mode. Will fire the configured TX callback when complete.
@@ -50,7 +51,7 @@ bool hw_uart_receive(UartDevice *device, uint8_t *data, uint16_t size);
  * @param pData Pointer to data buffer.
  * @param Size Amount of data elements to be received.
  */
-bool hw_uart_transmitCallback(UartDevice *device, uint8_t *data, uint16_t size);
+ExitCode hw_uart_transmitCallback(UartDevice *device, uint8_t *data, uint16_t size);
 
 /**
  * Receives an amount of data in non-blocking mode. Will fire the configured RX callback when complete.
@@ -58,4 +59,6 @@ bool hw_uart_transmitCallback(UartDevice *device, uint8_t *data, uint16_t size);
  * @param pData Pointer to data buffer.
  * @param Size Amount of data elements to be received.
  */
-bool hw_uart_receiveCallback(UartDevice *device, uint8_t *data, uint16_t size);
+ExitCode hw_uart_receiveCallback(UartDevice *device, uint8_t *data, uint16_t size);
+
+ExitCode hw_uart_receive_pooling(UartDevice *device, uint8_t *data, uint16_t size);

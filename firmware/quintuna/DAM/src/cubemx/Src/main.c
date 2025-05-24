@@ -144,6 +144,18 @@ const osThreadAttr_t TaskTelem_attributes = {
     .stack_size = sizeof(TaskTelemBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
+/* Definitions for TaskTelemRx */
+osThreadId_t         TaskTelemRxHandle;
+uint32_t             TaskTelemRxBuffer[512];
+osStaticThreadDef_t  TaskTelemRxControlBlock;
+const osThreadAttr_t TaskTelemRx_attributes = {
+    .name       = "TaskTelemRx",
+    .cb_mem     = &TaskTelemRxControlBlock,
+    .cb_size    = sizeof(TaskTelemRxControlBlock),
+    .stack_mem  = &TaskTelemRxBuffer[0],
+    .stack_size = sizeof(TaskTelemRxBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -166,6 +178,7 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskLogging(void *argument);
 void        RunTaskTelem(void *argument);
+void        RunTaskTelemRx(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -215,6 +228,7 @@ int main(void)
     MX_IWDG1_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
+
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -258,6 +272,9 @@ int main(void)
     /* creation of TaskTelem */
     TaskTelemHandle = osThreadNew(RunTaskTelem, NULL, &TaskTelem_attributes);
 
+    /* creation of TaskTelemRx */
+    TaskTelemRxHandle = osThreadNew(RunTaskTelemRx, NULL, &TaskTelemRx_attributes);
+
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
@@ -297,7 +314,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -312,13 +329,13 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 68;
+    RCC_OscInitStruct.PLL.PLLN       = 24;
     RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 4;
+    RCC_OscInitStruct.PLL.PLLQ       = 2;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 6144;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -330,13 +347,13 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
         Error_Handler();
     }
@@ -386,14 +403,14 @@ static void MX_FDCAN2_Init(void)
 
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan2.Init.AutoRetransmission   = DISABLE;
+    hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 16;
-    hfdcan2.Init.NominalSyncJumpWidth = 1;
-    hfdcan2.Init.NominalTimeSeg1      = 2;
+    hfdcan2.Init.NominalPrescaler     = 2;
+    hfdcan2.Init.NominalSyncJumpWidth = 2;
+    hfdcan2.Init.NominalTimeSeg1      = 45;
     hfdcan2.Init.NominalTimeSeg2      = 2;
     hfdcan2.Init.DataPrescaler        = 1;
     hfdcan2.Init.DataSyncJumpWidth    = 1;
@@ -402,17 +419,17 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.MessageRAMOffset     = 0;
     hfdcan2.Init.StdFiltersNbr        = 0;
     hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 0;
-    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxBuffersNbr         = 0;
-    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.TxEventsNbr          = 0;
     hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 0;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
     {
         Error_Handler();
@@ -437,7 +454,7 @@ static void MX_I2C1_Init(void)
 
     /* USER CODE END I2C1_Init 1 */
     hi2c1.Instance              = I2C1;
-    hi2c1.Init.Timing           = 0x60404E72;
+    hi2c1.Init.Timing           = 0x10B0DCFB;
     hi2c1.Init.OwnAddress1      = 0;
     hi2c1.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
     hi2c1.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
@@ -803,6 +820,23 @@ void RunTaskTelem(void *argument)
     /* Infinite loop */
     tasks_runTelem();
     /* USER CODE END RunTaskTelem */
+}
+
+/* USER CODE BEGIN Header_RunTaskTelemRx */
+/**
+ * @brief Function implementing the TaskTelemRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskTelemRx */
+void RunTaskTelemRx(void *argument)
+{
+    /* USER CODE BEGIN RunTaskTelemRx */
+    /* Infinite loop */
+
+    tasks_runTelemRx();
+
+    /* USER CODE END RunTaskTelemRx */
 }
 
 /* MPU Configuration */

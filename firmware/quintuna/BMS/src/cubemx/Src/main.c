@@ -54,6 +54,8 @@ CRC_HandleTypeDef hcrc;
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
+IWDG_HandleTypeDef hiwdg1;
+
 SD_HandleTypeDef hsd1;
 
 SPI_HandleTypeDef hspi4;
@@ -84,7 +86,7 @@ const osThreadAttr_t TaskCanRx_attributes = {
     .cb_size    = sizeof(TaskCanRxControlBlock),
     .stack_mem  = &TaskCanRxBuffer[0],
     .stack_size = sizeof(TaskCanRxBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for TaskCanTx */
 osThreadId_t         TaskCanTxHandle;
@@ -96,7 +98,7 @@ const osThreadAttr_t TaskCanTx_attributes = {
     .cb_size    = sizeof(TaskCanTxControlBlock),
     .stack_mem  = &TaskCanTxBuffer[0],
     .stack_size = sizeof(TaskCanTxBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
@@ -122,6 +124,18 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -141,11 +155,13 @@ static void MX_TIM3_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_CRC_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_IWDG1_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -198,6 +214,7 @@ int main(void)
     MX_FDCAN2_Init();
     MX_CRC_Init();
     MX_TIM5_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -235,6 +252,9 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -275,7 +295,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -284,14 +304,15 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 24;
+    RCC_OscInitStruct.PLL.PLLN       = 64;
     RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 1;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
@@ -307,13 +328,13 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
         Error_Handler();
     }
@@ -577,21 +598,21 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 3;
-    hfdcan1.Init.NominalSyncJumpWidth = 3;
-    hfdcan1.Init.NominalTimeSeg1      = 12;
-    hfdcan1.Init.NominalTimeSeg2      = 3;
+    hfdcan1.Init.ProtocolException    = ENABLE;
+    hfdcan1.Init.NominalPrescaler     = 2;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 45;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
     hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
+    hfdcan1.Init.DataSyncJumpWidth    = 6;
+    hfdcan1.Init.DataTimeSeg1         = 17;
+    hfdcan1.Init.DataTimeSeg2         = 6;
     hfdcan1.Init.MessageRAMOffset     = 0;
     hfdcan1.Init.StdFiltersNbr        = 0;
     hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan1.Init.RxFifo1ElmtsNbr      = 1;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.RxBuffersNbr         = 0;
     hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
@@ -661,6 +682,33 @@ static void MX_FDCAN2_Init(void)
 }
 
 /**
+ * @brief IWDG1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG1_Init(void)
+{
+    /* USER CODE BEGIN IWDG1_Init 0 */
+
+    /* USER CODE END IWDG1_Init 0 */
+
+    /* USER CODE BEGIN IWDG1_Init 1 */
+
+    /* USER CODE END IWDG1_Init 1 */
+    hiwdg1.Instance       = IWDG1;
+    hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg1.Init.Window    = 4095;
+    hiwdg1.Init.Reload    = 4095;
+    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG1_Init 2 */
+
+    /* USER CODE END IWDG1_Init 2 */
+}
+
+/**
  * @brief SDMMC1 Initialization Function
  * @param None
  * @retval None
@@ -707,11 +755,11 @@ static void MX_SPI4_Init(void)
     hspi4.Instance                        = SPI4;
     hspi4.Init.Mode                       = SPI_MODE_MASTER;
     hspi4.Init.Direction                  = SPI_DIRECTION_2LINES;
-    hspi4.Init.DataSize                   = SPI_DATASIZE_4BIT;
-    hspi4.Init.CLKPolarity                = SPI_POLARITY_HIGH;
-    hspi4.Init.CLKPhase                   = SPI_PHASE_2EDGE;
+    hspi4.Init.DataSize                   = SPI_DATASIZE_8BIT;
+    hspi4.Init.CLKPolarity                = SPI_POLARITY_LOW;
+    hspi4.Init.CLKPhase                   = SPI_PHASE_1EDGE;
     hspi4.Init.NSS                        = SPI_NSS_SOFT;
-    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_128;
+    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_64;
     hspi4.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi4.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi4.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;
@@ -970,19 +1018,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : LEDR_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin;
+    /*Configure GPIO pins : LEDR_Pin SPI_CS_LS_Pin */
+    GPIO_InitStruct.Pin   = LEDR_Pin | SPI_CS_LS_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LEDR_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : SPI_CS_LS_Pin */
-    GPIO_InitStruct.Pin   = SPI_CS_LS_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(SPI_CS_LS_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
                              DIAG_Pin SD_CD_Pin */
@@ -1012,15 +1053,23 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PRE_CHARGE_EN_Pin FAN_EN_Pin */
-    GPIO_InitStruct.Pin   = PRE_CHARGE_EN_Pin | FAN_EN_Pin;
+    /*Configure GPIO pin : PRE_CHARGE_EN_Pin */
+    GPIO_InitStruct.Pin   = PRE_CHARGE_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    HAL_GPIO_Init(PRE_CHARGE_EN_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BSPD_TEST_EN_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin TSENSE_SEL2_Pin */
-    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
+    /*Configure GPIO pin : FAN_EN_Pin */
+    GPIO_InitStruct.Pin   = FAN_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(FAN_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BSPD_TEST_EN_Pin SPI_CS_HS_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin
+                             TSENSE_SEL2_Pin */
+    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | SPI_CS_HS_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1031,13 +1080,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(TS_ISENSE_OCSC_OK_3V3_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : SPI_CS_HS_Pin */
-    GPIO_InitStruct.Pin   = SPI_CS_HS_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(SPI_CS_HS_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -1117,6 +1159,21 @@ void RunTask1Hz(void *argument)
     /* USER CODE BEGIN RunTask1Hz */
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTaskChimera */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
 }
 
 /**
