@@ -12,10 +12,12 @@
 #include "io_canRx.h"
 #include "io_log.h"
 
+static CanTxQueue can_tx_queue;
+
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&msg);
+    io_canQueue_pushTx(&can_tx_queue, &msg);
 }
 
 static void charger_transmit_func(const JsonCanMsg *msg)
@@ -28,7 +30,8 @@ void jobs_init()
     io_canTx_init(jsoncan_transmit_func, charger_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
     io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
 
     app_heartbeatMonitor_init(&hb_monitor);
     app_canTx_BMS_Heartbeat_set(true);

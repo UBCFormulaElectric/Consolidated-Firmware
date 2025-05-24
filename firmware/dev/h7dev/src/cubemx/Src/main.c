@@ -134,6 +134,13 @@ void        runCanRxTask(void *argument);
 
 SdCard sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
 
+Gpio sd_present = {
+    .pin  = GPIO_PIN_8,
+    .port = GPIOA,
+};
+bool              sd_inited;
+static CanTxQueue can_tx_queue;
+
 // gpio PA0 interrupt callback
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -214,8 +221,10 @@ int main(void)
     tasks_init();
     // __HAL_DBGMCU_FREEZE_IWDG();
 
-    // hw_can_init(&can);
-    // io_canQueue_init();
+    hw_hardFaultHandler_init();
+    hw_can_init(&can);
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
 
     // if (sd_inited)
     //{
