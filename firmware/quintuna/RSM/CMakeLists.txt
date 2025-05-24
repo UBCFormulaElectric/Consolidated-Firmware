@@ -9,7 +9,12 @@ set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURC
 # App.
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-        ""
+        "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -18,7 +23,9 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
@@ -44,6 +51,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
