@@ -689,7 +689,7 @@ static void MX_FDCAN2_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -704,7 +704,7 @@ static void MX_IWDG1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 

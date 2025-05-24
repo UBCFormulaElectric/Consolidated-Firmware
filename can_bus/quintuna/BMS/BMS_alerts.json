@@ -5,8 +5,12 @@
   "faults_counts_id": 404,
   "warnings": {
     "TractiveSystemOvercurrent": {
-      "id": 400,
+      "id": 101,
       "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
+    },
+    "MissingVCHeartbeat": {
+      "id": 115,
+      "description": "Missing heartbeat from the VC."
     }
   },
   "faults": {
