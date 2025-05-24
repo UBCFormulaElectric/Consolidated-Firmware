@@ -20,44 +20,39 @@ export interface SignalMeta {
 // Data point interface
 export interface DataPoint {
   time: number | string
+  name?: string
+  value?: number | string
   [signalName: string]: number | string | undefined
 }
 
 // Context interface
-interface SignalContextType {
-  // Signal metadata
+type SignalContextType = {
   availableSignals: SignalMeta[]
   isLoadingSignals: boolean
   signalError: string | null
-  
-  // WebSocket and data handling
   socket: Socket | null
   isConnected: boolean
   activeSignals: string[]
   data: DataPoint[]
-  numericalData: DataPoint[]  // Data for numerical signals only
-  enumData: DataPoint[]       // Data for enumeration signals only
+  numericalData: DataPoint[]
+  enumData: DataPoint[]
   currentTime: number
-  
-  // Methods for signal subscription management
   subscribeToSignal: (signalName: string, type?: SignalType) => void
   unsubscribeFromSignal: (signalName: string) => void
   clearData: () => void
   pruneData: (maxPoints?: number) => void
   reconnect: () => void
-  
-  // Helper to determine signal type
   isEnumSignal: (signalName: string) => boolean
   isNumericalSignal: (signalName: string) => boolean
 }
 
-// Default maximum number of data points to keep
+// Default maximum number of data points to keep (unused for auto-prune now)
 const DEFAULT_MAX_DATA_POINTS = 1000;
 const BACKEND_URL = "http://localhost:5000";
 const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_INTERVAL = 3000; // 3 seconds
 
-// Create the context with a default value
+// Create the context
 const SignalContext = createContext<SignalContextType | undefined>(undefined)
 
 // Provider component
@@ -65,7 +60,6 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const [availableSignals, setAvailableSignals] = useState<SignalMeta[]>([])
   const [isLoadingSignals, setIsLoadingSignals] = useState(true)
   const [signalError, setSignalError] = useState<string | null>(null)
-  
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [reconnectAttempts, setReconnectAttempts] = useState(0)
@@ -74,365 +68,129 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const [numericalData, setNumericalData] = useState<DataPoint[]>([])
   const [enumData, setEnumData] = useState<DataPoint[]>([])
   const [currentTime, setCurrentTime] = useState(Date.now())
-  
-  // Track subscribers for each signal to handle multiple components using the same signal
+
   const signalSubscribers = useRef<Record<string, number>>({});
-  
-  // Track signal types
   const signalTypes = useRef<Record<string, SignalType>>({});
-  
-  // Helper functions to identify signal types
+
   const isEnumSignal = useCallback((signalName: string): boolean => {
-    // First check if we have this signal categorized already
     if (signalTypes.current[signalName]) {
       return signalTypes.current[signalName] === SignalType.Enumeration;
     }
-    
-    // Otherwise use naming convention to guess
-    // Enum signals typically have "state" or "mode" in their name
-    const lowerName = signalName.toLowerCase();
-    return lowerName.includes('state') || 
-           lowerName.includes('mode') ||
-           lowerName.includes('enum') ||
-           lowerName.includes('status');
+    const lower = signalName.toLowerCase();
+    return lower.includes('state') || lower.includes('mode') || lower.includes('enum') || lower.includes('status');
   }, []);
-  
+
   const isNumericalSignal = useCallback((signalName: string): boolean => {
-    // First check if we have this signal categorized already
     if (signalTypes.current[signalName]) {
       return signalTypes.current[signalName] === SignalType.Numerical;
     }
-    
-    // Otherwise assume it's numerical if not an enum
     return !isEnumSignal(signalName);
   }, [isEnumSignal]);
-  
-  // Function to prune data to prevent memory issues
+
+  // Manual prune (unused for auto-prune)
   const pruneData = useCallback((maxPoints: number = DEFAULT_MAX_DATA_POINTS) => {
-    setData(prevData => {
-      if (prevData.length > maxPoints) {
-        console.log(`Pruning data from ${prevData.length} to ${maxPoints} points`);
-        return prevData.slice(-maxPoints);
-      }
-      return prevData;
-    });
-    
-    setNumericalData(prevData => {
-      if (prevData.length > maxPoints) {
-        console.log(`Pruning numerical data from ${prevData.length} to ${maxPoints} points`);
-        return prevData.slice(-maxPoints);
-      }
-      return prevData;
-    });
-    
-    setEnumData(prevData => {
-      if (prevData.length > maxPoints) {
-        console.log(`Pruning enum data from ${prevData.length} to ${maxPoints} points`);
-        return prevData.slice(-maxPoints);
-      }
-      return prevData;
-    });
+    setData(prev => prev.length > maxPoints ? prev.slice(-maxPoints) : prev);
+    setNumericalData(prev => prev.length > maxPoints ? prev.slice(-maxPoints) : prev);
+    setEnumData(prev => prev.length > maxPoints ? prev.slice(-maxPoints) : prev);
   }, []);
-  
-  // Fetch signal metadata
+
   const fetchSignalMetadata = useCallback(async () => {
     try {
       setIsLoadingSignals(true);
       setSignalError(null);
-      
       const response = await fetch(`${BACKEND_URL}/api/signal`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch signals: ${response.status}`);
-      }
-      
+      if (!response.ok) throw new Error(`Failed to fetch signals: ${response.status}`);
       const signals = await response.json();
-      console.log("API Response from /api/signal:", signals);
-      
-      const signalsMeta: SignalMeta[] = signals.map((signal: any) => ({
-        name: signal.name,
-        unit: signal.unit,
-        cycle_time_ms: signal.cycle_time_ms,
-      }));
-      
-      console.log("Processed signal metadata:", signalsMeta);
-      setAvailableSignals(signalsMeta);
+      const metas: SignalMeta[] = signals.map((s: any) => ({ name: s.name, unit: s.unit, cycle_time_ms: s.cycle_time_ms }));
+      setAvailableSignals(metas);
       setIsLoadingSignals(false);
-    } catch (error: any) {
-      console.error("Error fetching signals:", error);
-      setSignalError(error.message);
+    } catch (err: any) {
+      setSignalError(err.message);
       setIsLoadingSignals(false);
-      
-      // Try again after a delay if there was an error
       if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-        setTimeout(() => {
-          setReconnectAttempts(prev => prev + 1);
-          fetchSignalMetadata();
-        }, RECONNECT_INTERVAL);
+        setTimeout(() => { setReconnectAttempts(a => a + 1); fetchSignalMetadata(); }, RECONNECT_INTERVAL);
       }
     }
   }, [reconnectAttempts]);
-  
-  // Initialize or reconnect socket
+
   const initializeSocket = useCallback(() => {
-    if (socket) {
-      console.log("Closing existing socket connection before reconnecting");
-      socket.disconnect();
-    }
-    
-    console.log("Initializing socket connection...");
-    const newSocket = io(BACKEND_URL, {
-      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
-      timeout: 10000, // 10 seconds timeout
-    });
-    
-    newSocket.on("connect", () => {
-      console.log("Connected to WebSocket server");
+    if (socket) socket.disconnect();
+    const newSocket = io(BACKEND_URL, { reconnectionAttempts: MAX_RECONNECT_ATTEMPTS, timeout: 10000 });
+
+    newSocket.on('connect', () => {
       setIsConnected(true);
       setReconnectAttempts(0);
-      
-      // Resubscribe to any active signals
-      activeSignals.forEach(signal => {
-        console.log(`Resubscribing to signal: ${signal}`);
-        newSocket.emit("sub", signal);
-      });
+      activeSignals.forEach(sig => newSocket.emit('sub', sig));
     });
-    
-    newSocket.on("connect_error", (error) => {
-      console.error("WebSocket connection error:", error.message);
-      setIsConnected(false);
-    });
-    
-    newSocket.on("disconnect", (reason) => {
-      console.log(`Disconnected from WebSocket server: ${reason}`);
-      setIsConnected(false);
-    });
-    
-    // Handle incoming data
+    newSocket.on('connect_error', () => setIsConnected(false));
+    newSocket.on('disconnect', () => setIsConnected(false));
+
     const dataHandler = (incomingData: any) => {
-      console.log("Received data:", incomingData);
-      
-      // Update main data pool
-      setData(prevData => {
-        const newData = [...prevData, incomingData];
-        // Auto-prune if data exceeds the limit
-        if (newData.length > DEFAULT_MAX_DATA_POINTS) {
-          return newData.slice(-DEFAULT_MAX_DATA_POINTS);
-        }
-        return newData;
-      });
-      
-      // Determine signal type and update the appropriate data pool
-      let signalName = incomingData.name;
-      if (signalName) {
-        // Ensure all incoming data has a timestamp
-        if (!incomingData.time) {
-          incomingData.time = Date.now();
-        }
-        
-        // Validate data format before storing
-        // For numerical data, ensure the value is a valid number
-        if (incomingData.value !== undefined) {
-          if (typeof incomingData.value === 'string') {
-            incomingData.value = parseFloat(incomingData.value);
-          }
-        }
-        
-        // Check signal type based on our helper
-        if (isEnumSignal(signalName)) {
-          // Add to enum data pool
-          setEnumData(prevData => {
-            const newEnumData = [...prevData, incomingData];
-            if (newEnumData.length > DEFAULT_MAX_DATA_POINTS) {
-              return newEnumData.slice(-DEFAULT_MAX_DATA_POINTS);
-            }
-            return newEnumData;
-          });
-        } else {
-          // For numerical signals, ensure the value is a valid number before adding to the pool
-          if (incomingData.value !== undefined && !isNaN(incomingData.value)) {
-            // Add to numerical data pool
-            setNumericalData(prevData => {
-              const newNumData = [...prevData, incomingData];
-              if (newNumData.length > DEFAULT_MAX_DATA_POINTS) {
-                return newNumData.slice(-DEFAULT_MAX_DATA_POINTS);
-              }
-              return newNumData;
-            });
-          } else {
-            console.warn(`Skipped adding invalid numerical data for signal ${signalName}: value=${incomingData.value}`);
-          }
+      const name = incomingData.name;
+      if (!name) return;
+      if (!incomingData.time) incomingData.time = Date.now();
+      if (typeof incomingData.value === 'string') incomingData.value = parseFloat(incomingData.value);
+
+      // Always append data without auto-prune
+      setData(prev => [...prev, incomingData]);
+
+      if (isEnumSignal(name)) {
+        setEnumData(prev => [...prev, incomingData]);
+      } else {
+        if (!isNaN(incomingData.value as number)) {
+          setNumericalData(prev => [...prev, incomingData]);
         }
       }
-      
+
       setCurrentTime(Date.now());
     };
-    
-    newSocket.on("data", dataHandler);
-    
-    // Socket acknowledgment handlers
-    newSocket.on("sub_ack", (ack: { signal: string; status: string }) => {
-      console.log(`Subscription acknowledgment: Signal ${ack.signal} - Status: ${ack.status}`);
-    });
-    
+
+    newSocket.on('data', dataHandler);
+    newSocket.on('sub_ack', () => {});
     setSocket(newSocket);
-    
-    return () => {
-      newSocket.off("data", dataHandler);
-      newSocket.off("sub_ack");
-      newSocket.disconnect();
-    };
-  }, [activeSignals, isEnumSignal]);
-  
-  // Manual reconnect function
+    return () => { newSocket.off('data', dataHandler); newSocket.disconnect(); };
+  }, [activeSignals, isEnumSignal, socket]);
+
   const reconnect = useCallback(() => {
     setReconnectAttempts(0);
     fetchSignalMetadata();
     initializeSocket();
   }, [fetchSignalMetadata, initializeSocket]);
-  
-  // Initial setup
-  useEffect(() => {
-    fetchSignalMetadata();
-    const cleanup = initializeSocket();
-    
-    return cleanup;
-  }, []);
-  
-  // Update current time regularly
-  useEffect(() => {
-    const timeInterval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 100);
-    
-    return () => {
-      clearInterval(timeInterval);
-    };
-  }, []);
-  
-  // Subscribe to a signal with optional type specification
+
+  useEffect(() => { fetchSignalMetadata(); const cleanup = initializeSocket(); return cleanup; }, []);
+  useEffect(() => { const id = setInterval(() => setCurrentTime(Date.now()), 100); return () => clearInterval(id); }, []);
+
   const subscribeToSignal = useCallback((signalName: string, type: SignalType = SignalType.Any) => {
-    // Normalize signal name to handle case sensitivity issues
-    const normalizedName = signalName.trim();
-    
-    // Record the signal type if specified (not Any)
-    if (type !== SignalType.Any) {
-      signalTypes.current[normalizedName] = type;
-      console.log(`Signal ${normalizedName} categorized as ${type}`);
-    } else {
-      // Auto-categorize based on name
-      const autoType = isEnumSignal(normalizedName) ? SignalType.Enumeration : SignalType.Numerical;
-      signalTypes.current[normalizedName] = autoType;
-      console.log(`Signal ${normalizedName} auto-categorized as ${autoType}`);
+    const name = signalName.trim();
+    const assigned = type !== SignalType.Any ? type : (isEnumSignal(name) ? SignalType.Enumeration : SignalType.Numerical);
+    signalTypes.current[name] = assigned;
+    if (!activeSignals.some(sig => sig.toLowerCase() === name.toLowerCase())) {
+      setActiveSignals(prev => [...prev, name]);
+      if (socket && isConnected) socket.emit('sub', name);
     }
-    
-    // Check if already in active signals (case insensitive)
-    const isAlreadyActive = activeSignals.some(
-      signal => signal.toLowerCase() === normalizedName.toLowerCase()
-    );
-    
-    if (!isAlreadyActive) {
-      console.log(`Subscribing to signal: ${normalizedName}`);
-      setActiveSignals(prev => [...prev, normalizedName]);
-      
-      if (socket && isConnected) {
-        socket.emit("sub", normalizedName);
-      } else {
-        console.warn(`Cannot subscribe to ${normalizedName}: socket not connected`);
-      }
-    }
-    
-    // Increment subscriber count
-    signalSubscribers.current[normalizedName] = (signalSubscribers.current[normalizedName] || 0) + 1;
-    console.log(`Signal ${normalizedName} now has ${signalSubscribers.current[normalizedName]} subscribers`);
-  }, [socket, isConnected, activeSignals, isEnumSignal]);
-  
-  // Unsubscribe from a signal
+    signalSubscribers.current[name] = (signalSubscribers.current[name] || 0) + 1;
+  }, [activeSignals, isConnected, socket, isEnumSignal]);
+
   const unsubscribeFromSignal = useCallback((signalName: string) => {
-    // Normalize signal name
-    const normalizedName = signalName.trim();
-    
-    console.log(`Request to unsubscribe from signal: ${normalizedName}`);
-    
-    // Decrement subscriber count
-    if (signalSubscribers.current[normalizedName]) {
-      signalSubscribers.current[normalizedName] -= 1;
+    const name = signalName.trim();
+    signalSubscribers.current[name] = (signalSubscribers.current[name] || 1) - 1;
+    if (signalSubscribers.current[name] <= 0) {
+      setActiveSignals(prev => prev.filter(sig => sig !== name));
+      if (socket && isConnected) socket.emit('unsub', name);
     }
-    
-    console.log(`Signal ${normalizedName} now has ${signalSubscribers.current[normalizedName] || 0} subscribers`);
-    
-    // Only remove from active signals if no subscribers left
-    if (!signalSubscribers.current[normalizedName] || signalSubscribers.current[normalizedName] <= 0) {
-      console.log(`Removing ${normalizedName} from active signals as it has no subscribers left`);
-      
-      // Find the actual case-preserved signal name in the activeSignals array
-      const signalToRemove = activeSignals.find(
-        signal => signal.toLowerCase() === normalizedName.toLowerCase()
-      );
-      
-      if (signalToRemove) {
-        // Remove from active signals
-        setActiveSignals(prev => prev.filter(signal => signal !== signalToRemove));
-        
-        // Unsubscribe from the WebSocket
-        if (socket && isConnected) {
-          console.log(`Emitting 'unsub' for ${signalToRemove} to the WebSocket`);
-          socket.emit("unsub", signalToRemove);
-        }
-        
-        // Reset subscriber count to be safe
-        signalSubscribers.current[normalizedName] = 0;
-      } else {
-        console.warn(`Could not find signal ${normalizedName} in active signals to remove`);
-      }
-    } else {
-      console.log(`Not removing ${normalizedName} from active signals as it still has ${signalSubscribers.current[normalizedName]} subscribers`);
-      console.log(`Current subscribers list:`, signalSubscribers.current);
-    }
-  }, [socket, isConnected, activeSignals]);
-  
-  // Clear all data points
-  const clearData = () => {
-    setData([]);
-    setNumericalData([]);
-    setEnumData([]);
-  };
-  
-  // Context value
-  const contextValue: SignalContextType = {
-    availableSignals,
-    isLoadingSignals,
-    signalError,
-    socket,
-    isConnected,
-    activeSignals,
-    data,
-    numericalData,
-    enumData,
-    currentTime,
-    subscribeToSignal,
-    unsubscribeFromSignal,
-    clearData,
-    pruneData,
-    reconnect,
-    isEnumSignal,
-    isNumericalSignal
-  };
-  
+  }, [activeSignals, isConnected, socket]);
+
+  const clearData = () => { setData([]); setNumericalData([]); setEnumData([]); };
+
   return (
-    <SignalContext.Provider value={contextValue}>
+    <SignalContext.Provider value={{ availableSignals, isLoadingSignals, signalError, socket, isConnected, activeSignals, data, numericalData, enumData, currentTime, subscribeToSignal, unsubscribeFromSignal, clearData, pruneData, reconnect, isEnumSignal, isNumericalSignal }}>
       {children}
     </SignalContext.Provider>
   );
 }
 
-// Custom hook for using the context
 export function useSignals() {
   const context = useContext(SignalContext);
-  
-  if (context === undefined) {
-    throw new Error('useSignals must be used within a SignalProvider');
-  }
-  
-  return context
+  if (!context) throw new Error('useSignals must be used within a SignalProvider');
+  return context;
 }
