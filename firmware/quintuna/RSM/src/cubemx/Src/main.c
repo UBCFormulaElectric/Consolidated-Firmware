@@ -666,11 +666,11 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : IMU_INT2_Pin */
-    GPIO_InitStruct.Pin  = IMU_INT2_Pin;
+    /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin */
+    GPIO_InitStruct.Pin  = IMU_INT1_Pin | IMU_INT2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(IMU_INT2_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
     HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);

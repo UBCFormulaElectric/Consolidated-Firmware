@@ -13,12 +13,10 @@ I2cBus *hw_i2c_getBusFromHandle(const I2C_HandleTypeDef *handle)
     {
         return &i2c_bus_1;
     }
-    else if (handle == &hi2c3)
+    if (handle == &hi2c3)
     {
         return &i2c_bus_3;
     }
-    else
-    {
-        return NULL;
-    }
+    assert(false);
+    return NULL;
 }

@@ -1,16 +1,9 @@
 #pragma once
 
-#include <stdbool.h>
-
 /**
  * Initialize the flow meter by configuring PWM input
  */
 void io_coolant_init();
-
-/**
- * Update the flow meter frequency by reading the timer value.
- */
-void io_coolant_inputCaptureCallback();
 
 /**
  * Check if the flow meter is active. If it is not, set the frequency to 0.

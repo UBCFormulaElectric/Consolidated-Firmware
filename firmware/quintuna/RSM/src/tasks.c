@@ -1,5 +1,4 @@
 #include "tasks.h"
-#include "io_imus.h"
 #include "jobs.h"
 #include "cmsis_os.h"
 #include "main.h"
@@ -9,23 +8,20 @@
 #include "app_jsoncan.h"
 
 // io
-#include "io_time.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
-#include "io_coolants.h"
 #include "io_bootHandler.h"
+
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
-#include "shared.pb.h"
+
 // hw
-// #include "hw_bootup.h"
+#include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
-#include "hw_gpios.h"
-#include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 #include "hw_usb.h"
@@ -33,6 +29,7 @@
 void tasks_preInit()
 {
     hw_bootup_enableInterruptsForApp();
+    hw_hardFaultHandler_init();
 }
 
 void tasks_init()
@@ -112,19 +109,18 @@ void tasks_runCanTx()
     }
 }
 
+void tasks_runCanRxCallback(const CanMsg *msg)
+{
+    io_bootHandler_processBootRequest(msg);
+    io_canQueue_pushRx(msg);
+}
+
 _Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
         JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-
         io_canRx_updateRxTableWithMessage(&json_msg);
-        io_bootHandler_processBootRequest(&rx_msg);
     }
-}
-
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{
-    io_coolant_inputCaptureCallback();
 }

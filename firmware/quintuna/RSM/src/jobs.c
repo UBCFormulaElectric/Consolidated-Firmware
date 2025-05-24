@@ -18,6 +18,7 @@
 #include "io_potentiometer.h"
 #include "io_rPump.h"
 #include "io_imu.h"
+#include "io_brakeLight.h"
 
 // testing
 #include "app_timer.h"
@@ -70,8 +71,7 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    // io_brake_light_set(app_canRx_FSM_BrakeActuated_get());
-    // const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    io_brakeLight_set(app_canRx_FSM_BrakeActuated_get());
     io_canTx_enqueue100HzMsgs();
 
     io_potentiometer_writePercentage(&rsm_pot, (POTENTIOMETER_WIPER)WIPER0, 50);

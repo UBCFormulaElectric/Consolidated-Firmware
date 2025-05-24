@@ -30,7 +30,7 @@ ExitCode io_rPump_read(uint8_t *dest)
 ExitCode io_rPump_setPercentage(float percentage)
 {
     percentage = CLAMP(percentage, 0.0f, 100.0f);
-    return io_rPump_setPercentage((uint8_t)((1.0f - percentage / 100.0f) * MAX_WIPER_VALUE));
+    return io_rPump_write((uint8_t)((1.0f - percentage / 100.0f) * MAX_WIPER_VALUE));
 }
 
 ExitCode io_rPump_readPercentage(float *dest)
