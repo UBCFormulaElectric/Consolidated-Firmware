@@ -5,26 +5,23 @@
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 
 // io
-#include "io_time.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
-#include "app_jsoncan.h"
 #include "io_bootHandler.h"
+
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
-#include "shared.pb.h"
+
 // hw
-// #include "hw_bootup.h"
-#include "hw_hardFaultHandler.h"
-#include "hw_watchdog.h"
-#include "hw_cans.h"
-#include "hw_gpios.h"
 #include "hw_bootup.h"
+#include "hw_hardFaultHandler.h"
+#include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 #include "hw_usb.h"
@@ -32,6 +29,7 @@
 void tasks_preInit()
 {
     hw_bootup_enableInterruptsForApp();
+    hw_hardFaultHandler_init();
 }
 
 void tasks_init()
@@ -41,7 +39,6 @@ void tasks_init()
 
     __HAL_DBGMCU_FREEZE_IWDG();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-    hw_gpio_writePin(&brake_light_en_pin, false);
 
     hw_adcs_chipsInit();
     hw_can_init(&can2);
@@ -112,14 +109,18 @@ void tasks_runCanTx()
     }
 }
 
+void tasks_runCanRxCallback(const CanMsg *msg)
+{
+    io_bootHandler_processBootRequest(msg);
+    io_canQueue_pushRx(msg);
+}
+
 _Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
         JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-
         io_canRx_updateRxTableWithMessage(&json_msg);
-        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
