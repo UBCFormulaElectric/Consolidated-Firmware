@@ -20,6 +20,7 @@ class CDBTests(unittest.TestCase):
         "ECU1_DbcMatching",
         "ECU1_MinMaxClamping",
         "ECU1_Debug_Only",
+        "ECU1_LongMessage",
     }
     ec1_alerts = {
         "ECU1_Warnings",
