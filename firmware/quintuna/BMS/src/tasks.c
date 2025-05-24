@@ -1,4 +1,11 @@
 #include "tasks.h"
+<<<<<<< HEAD
+=======
+#include "app_utils.h"
+#include "hw_fdcan.h"
+#include "main.h"
+
+>>>>>>> af0ab8732 (gus approves)
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -93,7 +100,12 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
+<<<<<<< HEAD
         LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+=======
+        // hw_fdcan_transmit(&can1, &tx_msg);
+        hw_can_transmit(&can1, &tx_msg);
+>>>>>>> af0ab8732 (gus approves)
     }
 }
 
@@ -109,13 +121,15 @@ void tasks_runLtc(void)
 {
     // setup
     app_segments_writeDefaultConfig();
-    app_segments_adcSpeed(ADCSpeed_7kHz);
-    app_segments_configSync();
-    // make sure the muxes are working
-    app_segments_voltageSelftest();
-    app_segments_auxSelftest();
-    app_segments_statusSelftest();
-    ASSERT_EXIT_OK(io_ltc6813_clearStatRegisters());
+    LOG_IF_ERR(app_segments_configSync());
+
+    // self tests
+    LOG_IF_ERR(app_segments_voltageSelftest());
+    LOG_IF_ERR(app_segments_auxSelftest());
+    LOG_IF_ERR(app_segments_statusSelftest());
+    // RETURN_IF_ERR(app_segments_openWireCheck());
+    LOG_IF_ERR(app_segments_ADCAccuracyTest());
+
     for (;;)
     {
         jobs_runLtc_tick();

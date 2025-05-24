@@ -249,7 +249,10 @@
     "msg_id": 460,
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 0",
+<<<<<<< HEAD
     "allowed_modes": ["debug"],
+=======
+>>>>>>> af0ab8732 (gus approves)
     "signals": {
       "Seg0_Cell0_Voltage": {
         "resolution": 0.01,
@@ -299,7 +302,10 @@
     "msg_id": 461,
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 1",
+<<<<<<< HEAD
     "allowed_modes": ["debug"],
+=======
+>>>>>>> af0ab8732 (gus approves)
     "signals": {
       "Seg0_Cell7_Voltage": {
         "resolution": 0.01,
@@ -345,55 +351,163 @@
       }
     }
   },
+  "Segment0_TempStats_0": {
+    "msg_id": 462,
+    "cycle_time": 10,
+    "description": "BMS Segment 0 Temperature Stats Part 0",
+    "signals": {
+      "Seg0_Cell0_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell1_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell2_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell3_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell4_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell5_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell6_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      }
+    }
+  },
+  "Segment0_TempStats_1": {
+    "msg_id": 463,
+    "cycle_time": 10,
+    "description": "BMS Segment 0 Temperature Stats Part 1",
+    "signals": {
+      "Seg0_Cell7_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell8_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell9_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell10_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell11_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell12_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      },
+      "Seg0_Cell13_Temp": {
+        "resolution": 0.2,
+        "min": -1,
+        "max": 100,
+        "unit": "degC"
+      }
+    }
+  },
   "Segment0_Tests": {
     "msg_id": 480,
     "cycle_time": 100,
     "description": "Segment 0 LTC tests and checks",
     "signals": {
-      "Seg0_COMM_OK": {
+      "Seg0_CommOk": {
         "bits": 1
       },
-      "Seg0_REV_CODE": {
-        "bits": 4
-      },
-      "Seg0_VREF_OK": {
-        "bits": 1
-      },
-      "Seg0_VREF": {
+      "Seg0_Vref": {
         "resolution": 0.01,
         "min": 2.93,
         "max": 3.08
       },
-      "Seg0_ADC_1_2_Equal": {
+      "Seg0_VrefOk": {
         "bits": 1
       },
-      "Seg0_ADC_2_3_Equal": {
+      "Seg0_Adc12Equal": {
         "bits": 1
       },
-      "Seg0_VREG_OK": {
+      "Seg0_Adc23Equal": {
         "bits": 1
       },
-      "Seg0_VREG": {
+      "Seg0_RevisionCode": {
+        "bits": 4
+      },
+      "Seg0_AnalogSupplyOk": {
+        "bits": 1
+      },
+      "Seg0_AnalogSupply": {
         "resolution": 0.1,
         "min": 4.1,
         "max": 5.6
       },
-      "Seg0_VREGD_OK": {
+      "Seg0_DigitalSupplyOk": {
         "bits": 1
       },
-      "Seg0_THERMAL_OK": {
+      "Seg0_DigitalSupply": {
+        "resolution": 0.1,
+        "min": 2.7,
+        "max": 3.6
+      },
+      "Seg0_ThermalOk": {
         "bits": 1
       },
-      "Seg0_VOLT_REGISTER_OK": {
+      "Seg0_DieTemp": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100
+      },
+      "Seg0_CellSelfTestOk": {
         "bits": 1
       },
-      "Seg0_AUX_REGISTER_OK": {
+      "Seg0_AuxSelfTestOk": {
         "bits": 1
       },
-      "Seg0_STAT_REGISTER_OK": {
+      "Seg0_StatusSelfTestOk": {
         "bits": 1
       },
-      "Seg0_MUX_OK": {
+      "Seg0_MuxOk": {
         "bits": 1
       },
       "Seg0_Cell0_OWC_OK": {
