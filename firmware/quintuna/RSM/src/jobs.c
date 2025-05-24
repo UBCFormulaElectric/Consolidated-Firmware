@@ -51,7 +51,7 @@ void jobs_init(void)
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
-  
+
     io_coolant_init();
 
     ASSERT_EXIT_OK(io_rPump_isPumpReady());
