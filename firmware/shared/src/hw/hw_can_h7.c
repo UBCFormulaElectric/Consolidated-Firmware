@@ -50,6 +50,8 @@ static ExitCode tx(const CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header,
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
     {
+        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
+        // context switching
         if (poll <= 1000)
         {
             poll++;

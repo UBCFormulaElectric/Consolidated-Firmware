@@ -99,7 +99,9 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     // Spin until a TX mailbox becomes available.
     for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
     {
-        if (poll_count <= 1000) // poll a bit before waiting for an interrupt
+        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
+        // context switching
+        if (poll_count <= 1000)
         {
             poll_count++;
             continue;
