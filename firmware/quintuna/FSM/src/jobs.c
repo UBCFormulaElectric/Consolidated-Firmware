@@ -10,12 +10,11 @@
 #include "app_jsoncan.h"
 #include "io_imu.h"
 #include "io_log.h"
-
-#include <app_imu.h>
+#include "app_imu.h"
 
 static void canTransmit(const JsonCanMsg *msg)
 {
-    const CanMsg m = io_jsoncan_copyToCanMsg(msg);
+    const CanMsg m = app_jsoncan_copyToCanMsg(msg);
     io_canQueue_pushTx(&m);
 }
 

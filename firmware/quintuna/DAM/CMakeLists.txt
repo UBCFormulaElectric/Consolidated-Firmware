@@ -15,7 +15,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
-        # "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 

@@ -2,7 +2,7 @@
 #include "io_time.h"
 #include <string.h>
 
-JsonCanMsg io_jsoncan_copyFromCanMsg(const CanMsg *msg)
+JsonCanMsg app_jsoncan_copyFromCanMsg(const CanMsg *msg)
 {
     JsonCanMsg tx_msg;
     memcpy(tx_msg.data, msg->data.data8, sizeof(tx_msg.data));
@@ -11,7 +11,7 @@ JsonCanMsg io_jsoncan_copyFromCanMsg(const CanMsg *msg)
     return tx_msg;
 }
 
-CanMsg io_jsoncan_copyToCanMsg(const JsonCanMsg *msg)
+CanMsg app_jsoncan_copyToCanMsg(const JsonCanMsg *msg)
 {
     CanMsg tx_msg;
     memcpy(tx_msg.data.data8, msg->data, sizeof(msg->data));

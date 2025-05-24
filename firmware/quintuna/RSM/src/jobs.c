@@ -11,7 +11,7 @@
 
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {
-    const CanMsg m = io_jsoncan_copyToCanMsg(msg);
+    const CanMsg m = app_jsoncan_copyToCanMsg(msg);
     io_canQueue_pushTx(&m);
 }
 
