@@ -1,96 +1,6 @@
 {
-	"AMK_Actual_Values_1_INVFL": {
-		"msg_id": 643,
-		"cycle_time": 5,
-		"signals": {
-			"AMK_bReserve": {
-				"start_bit": 0,
-				"bits" : 8
-			},
-			"AMK_bSystemReady": {
-				"start_bit": 8,
-				"bits" : 1
-			},
-			"AMK_bError": {
-				"start_bit": 9,
-				"bits" : 1
-			},
-			"AMK_bWarn": {
-				"start_bit": 10,
-				"bits" : 1
-			},
-			"AMK_bQuitDcOn": {
-				"start_bit": 11,
-				"bits" : 1
-			},
-			"AMK_bDcOn": {
-				"start_bit": 12,
-				"bits" : 1
-			},
-			"AMK_bQuitInverterOn": {
-				"start_bit": 13,
-				"bits" : 1
-			},
-			"AMK_bInverterOn": {
-				"start_bit": 14,
-				"bits" : 1
-			},
-			"AMK_bDerating": {
-				"start_bit": 15,
-				"bits" : 1
-			},
-			"AMK_ActualVelocity": {
-				"start_bit" : 16,
-				"bits" : 16,
-				"signed" : true,
-				"start_value": 0
-			},
-			"AMK_TorqueCurrent": {
-				"start_bit" : 32,
-				"bits" : 16,
-				"signed" : true,
-				"unit" : "A",
-				"start_value": 0
-			},
-			"AMK_MagnetizingCurrent": {
-				"start_bit" : 48,
-				"bits" : 16,
-				"signed" : true,
-				"unit" : "A",
-				"start_value": 0
-			}
-		}
-	},
-	"AMK_Actual_Values_2_INVFL": {
-		"msg_id": 645,
-		"cycle_time": 5,
-		"signals": {
-			"AMK_TempMotor": {
-				"start_bit" : 0,
-				"resolution" : 0.1,
-				"min" : -1,
-				"max" : 1000
-			},
-			"AMK_TempInverter": {
-				"start_bit" : 16,
-				"resolution" : 0.1,
-				"min" : -1,
-				"max" : 1000
-			},
-			"AMK_ErrorInfo": {
-				"start_bit" : 32,
-				"bits" : 16
-			},
-			"AMK_TempIGBT": {
-				"start_bit" : 48,
-				"resolution" : 0.1,
-				"min" : -1,
-				"max" : 1000
-			}
-		}
-	},
 	"FLInverterInfo1": {
-		"msg_id": 647,
+		"msg_id": 650,
 		"cycle_time": 5,
 		"signals": {
 			"bReserve": {
@@ -142,17 +52,16 @@
 				"unit" : "A",
 				"start_value": 0
 			},
-			"RawCTorqueCurrent": {
+			"ActualTorqueValue":{
 				"start_bit" : 48,
-				"bits" : 16,
-				"signed" : true,
-				"unit" : "A",
-				"start_value": 0
+				"resolution" : 0.1,
+				"min":0,
+				"max":1000
 			}
 		}
 	},
 	"FLInverterInfo2": {
-		"msg_id": 655,
+		"msg_id": 658,
 		"cycle_time": 5,
 		"signals": {
 			"MotorTemperature": {
@@ -176,6 +85,20 @@
 				"resolution" : 0.1,
 				"min" : -1,
 				"max" : 1000
+			}
+		}
+	},
+	"FLInverterInfo3": {
+		"msg_id" : 660,
+		"cycle_time" : 5,
+		"signals" : {
+			"MotorPeakCurrent": {
+				"start_bit" : 0,
+				"bits":32
+			},
+			"ConverterPeakCurrent":{
+				"start_bit":32,
+				"bits":32
 			}
 		}
 	}

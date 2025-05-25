@@ -1,6 +1,6 @@
 {
 	"RLInverterInfo1": {
-		"msg_id": 649,
+		"msg_id": 650,
 		"cycle_time": 5,
 		"signals": {
 			"bReserve": {
@@ -52,17 +52,16 @@
 				"unit" : "A",
 				"start_value": 0
 			},
-			"RawCTorqueCurrent": {
+			"ActualTorqueValue":{
 				"start_bit" : 48,
-				"bits" : 16,
-				"signed" : true,
-				"unit" : "A",
-				"start_value": 0
+				"resolution" : 0.1,
+				"min":0,
+				"max":1000
 			}
 		}
 	},
 	"RLInverterInfo2": {
-		"msg_id": 657,
+		"msg_id": 658,
 		"cycle_time": 5,
 		"signals": {
 			"MotorTemperature": {
@@ -86,6 +85,20 @@
 				"resolution" : 0.1,
 				"min" : -1,
 				"max" : 1000
+			}
+		}
+	},
+	"RLInverterInfo3": {
+		"msg_id" : 660,
+		"cycle_time" : 5,
+		"signals" : {
+			"MotorPeakCurrent": {
+				"start_bit" : 0,
+				"bits":32
+			},
+			"ConverterPeakCurrent":{
+				"start_bit":32,
+				"bits":32
 			}
 		}
 	}
