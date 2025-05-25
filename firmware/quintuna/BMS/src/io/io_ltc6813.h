@@ -8,15 +8,7 @@
 #include <stdint.h>
 #include "app_utils.h"
 
-// physical constants
-#define NUM_SEGMENTS 1
-#define CELLS_PER_SEGMENT 14
-#define THERMISTORS_PER_SEGMENT 14
-
-// LTC6813 realities
-#define VOLTAGE_REGISTER_GROUPS 5
-#define AUX_REG_GROUPS 3
-#define AUX_REGS_PER_SEGMENT 9
+#include "ltc6813/io_ltc6813_cmds.h"
 
 /**
  * @file ltc6813/io_ltc6813_configs.c
@@ -84,19 +76,6 @@ void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], 
  */
 ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS]);
 
-// TODO Everytime an ADCSpeed is used, ensure that the ADCOPT is sufficient
-typedef enum
-{
-    ADCSpeed_422Hz = 0,
-    ADCSpeed_27kHz = 1,
-    ADCSpeed_7kHz  = 2,
-    ADCSpeed_26Hz  = 3,
-    ADCSpeed_1kHz  = 4,
-    ADCSpeed_14kHz = 5,
-    ADCSpeed_3kHz  = 6,
-    ADCSpeed_2kHz  = 7,
-} ADCSpeed;
-
 /**
  * @file ltc6813/io_ltc6813_cells.c
  */
@@ -114,7 +93,7 @@ void io_ltc6813_readVoltageRegisters(
  * sends a command to read all voltages from all segments
  * @return success of the operation
  */
-ExitCode io_ltc6813_startCellsAdcConversion(ADCSpeed speed);
+ExitCode io_ltc6813_startCellsAdcConversion(void);
 
 /**
  * @file ltc6813/io_ltc6813_temps.c
@@ -133,7 +112,7 @@ void io_ltc6813_readAuxRegisters(
  * sends a command to read all temperatures from all segments
  * @return success of the operation
  */
-ExitCode io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
+ExitCode io_ltc6813_startThermistorsAdcConversion(void);
 
 /**
  * @file ltc6813/io_ltc6813_utils.c
@@ -143,7 +122,7 @@ ExitCode io_ltc6813_startThermistorsAdcConversion(ADCSpeed speed);
  * polls the LTC6813 for the completion of the ADC conversions
  * @return success of the operation
  */
-ExitCode io_ltc6813_pollAdcConversions();
+ExitCode io_ltc6813_pollAdcConversions(void);
 
 /**
  * @file ltc6813/io_ltc6813_balance.c
@@ -170,6 +149,7 @@ typedef enum
     PULL_DOWN,
     PULL_UP,
 } PullDirection;
+
 /**
  * Sends command to initiate open wire check
  * @param pull_direction The pull up or pull down phase of the open wire check
@@ -177,7 +157,7 @@ typedef enum
  * @param dcp Discharge permitted bit
  * @return success of operation
  */
-ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction, ADCSpeed speed, bool dcp);
+ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
 
 /**
  * @file ltc6813/io_ltc6813_tests.c
@@ -189,13 +169,13 @@ ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction, ADCSpeed s
  * @note this does not mean that the test has passed.
  * you still need to assert the values in the reg groups
  */
-ExitCode io_ltc6813_sendSelfTestVoltages(ADCSpeed speed);
+ExitCode io_ltc6813_sendSelfTestVoltages(void);
 
 /**
  * @param speed speed to do test
  * @return expected value of the voltage register at test time
  */
-uint16_t io_ltc6813_selfTestExpectedValue(ADCSpeed speed);
+uint16_t io_ltc6813_selfTestExpectedValue(void);
 
 /**
  * dispatches a command to test the aux adcs
@@ -203,7 +183,7 @@ uint16_t io_ltc6813_selfTestExpectedValue(ADCSpeed speed);
  * @note this does not mean that the test has passed.
  * you still need to assert the values in the reg groups
  */
-ExitCode io_ltc6813_sendSelfTestAux(ADCSpeed speed);
+ExitCode io_ltc6813_sendSelfTestAux(void);
 
 /**
  * dispatches a command to test the stat registers
@@ -211,13 +191,13 @@ ExitCode io_ltc6813_sendSelfTestAux(ADCSpeed speed);
  * @note this does not mean that the test has passed.
  * you still need to assert the values in the reg groups
  */
-ExitCode io_ltc6813_sendSelfTestStat(ADCSpeed speed);
+ExitCode io_ltc6813_sendSelfTestStat(void);
 
 /**
  * Sends a command to diagnose the MUX. Populates the MUXFAIL bit in the status register
  * @return success of operation
  */
-ExitCode io_ltc6813_diagnoseMUX();
+ExitCode io_ltc6813_diagnoseMUX(void);
 
 /**
  * Sends a command to test the ADC overlap. In particular
@@ -227,7 +207,7 @@ ExitCode io_ltc6813_diagnoseMUX();
  * @param speed speed of adc
  * @return success of operation
  */
-ExitCode io_ltc6813_overlapADCTest(ADCSpeed speed);
+ExitCode io_ltc6813_overlapADCTest(void);
 
 /**
  * @file ltc6813/io_ltc6813_status.c
@@ -249,7 +229,7 @@ typedef struct __attribute__((__packed__))
     uint8_t REV : 4;     // revision code
 } StatusRegGroups;
 
-ExitCode io_ltc6813_startInternalADCConversions(ADCSpeed speed);
+ExitCode io_ltc6813_startInternalADCConversions(void);
 
 /**
  * Gets the status registers from all the segments
@@ -262,16 +242,16 @@ void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success
  * Clears the register groups which contain the cell voltage data
  * @return success of operation
  */
-ExitCode io_ltc6813_clearCellRegisters();
+ExitCode io_ltc6813_clearCellRegisters(void);
 
 /**
  * Clears the auxiliary registers groups which contain the thermistor voltage data
  * @return success of operation
  */
-ExitCode io_ltc6813_clearAuxRegisters();
+ExitCode io_ltc6813_clearAuxRegisters(void);
 
 /**
  * Clears the status registers groups which contain the status data
  * @return success of operation
  */
-ExitCode io_ltc6813_clearStatRegisters();
+ExitCode io_ltc6813_clearStatRegisters(void);

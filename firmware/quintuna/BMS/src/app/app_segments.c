@@ -25,8 +25,6 @@ typedef enum
     THERMISTOR_MUX_COUNT,
 } ThermistorMux;
 
-static ADCSpeed adc_speed = ADCSpeed_7kHz;
-
 static uint16_t segment_vref[NUM_SEGMENTS];
 
 static uint16_t voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
@@ -61,16 +59,7 @@ static void writeThermistorMux(ThermistorMux mux)
     }
 }
 
-void app_segments_adcSpeed(const ADCSpeed speed)
-{
-    adc_speed = speed;
-    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-    {
-        segment_config[seg].reg_a.adcopt = 0x1u & (speed >> 2);
-    }
-}
-
-void app_segments_writeDefaultConfig()
+void app_segments_writeDefaultConfig(void)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -208,7 +197,7 @@ ExitCode app_segments_broadcastCellVoltages()
                      app_canTx_BMS_Seg0_Cell12_Voltage_set, app_canTx_BMS_Seg0_Cell13_Voltage_set } };
 
     // information gathering
-    RETURN_IF_ERR(io_ltc6813_startCellsAdcConversion(adc_speed));
+    RETURN_IF_ERR(io_ltc6813_startCellsAdcConversion());
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
@@ -257,8 +246,7 @@ ExitCode app_segments_broadcastTempsVRef()
         io_ltc6813_writeConfigurationRegisters(segment_config);
 
         // information gathering
-        // TODO flip a mux based on i == 0 and i == 1
-        RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion(adc_speed));
+        RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion());
         io_time_delay(10); // TODO tweak timings
         io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
 
@@ -309,7 +297,7 @@ ExitCode app_segments_broadcastStatus()
     static void (*const thermalOKsetters[NUM_SEGMENTS])(bool)   = { app_canTx_BMS_Seg0_THERMAL_OK_set };
     // static void (*const tempSetters[NUM_SEGMENTS])(float)           = {  };
 
-    RETURN_IF_ERR(io_ltc6813_startInternalADCConversions(adc_speed));
+    RETURN_IF_ERR(io_ltc6813_startInternalADCConversions());
     io_time_delay(15);
     io_ltc6813_getStatus(statuses, status_success_buf);
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -348,7 +336,7 @@ ExitCode app_segments_ADCAccuracyTest()
     static void (*const segmentOverlapADC12TestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_ADC_1_2_Equal_set };
     static void (*const segmentOverlapADC23TestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_ADC_2_3_Equal_set };
 
-    RETURN_IF_ERR(io_ltc6813_overlapADCTest(adc_speed));
+    RETURN_IF_ERR(io_ltc6813_overlapADCTest());
     io_time_delay(10);                                               // TODO tweak timings
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf); // TODO make this more efficient
 
@@ -376,7 +364,7 @@ void app_segments_voltageSelftest()
         bool) = { app_canTx_BMS_Seg0_VOLT_REGISTER_OK_set };
 
     // ASSERT_EXIT_OK(io_ltc6813_clearCellRegisters());
-    ASSERT_EXIT_OK(io_ltc6813_sendSelfTestVoltages(adc_speed));
+    ASSERT_EXIT_OK(io_ltc6813_sendSelfTestVoltages());
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -384,7 +372,7 @@ void app_segments_voltageSelftest()
         bool self_test_ok = true;
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            const bool cell_ok = voltage_regs[segment][cell] == io_ltc6813_selfTestExpectedValue(adc_speed);
+            const bool cell_ok = voltage_regs[segment][cell] == io_ltc6813_selfTestExpectedValue();
             self_test_ok &= cell_ok;
         }
         segmentVoltageSelfTestSetters[segment](self_test_ok);
@@ -396,7 +384,7 @@ void app_segments_auxSelftest()
     static void (*const segmentAuxRegSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_AUX_REGISTER_OK_set };
 
     // ASSERT_EXIT_OK(io_ltc6813_clearAuxRegisters());
-    ASSERT_EXIT_OK(io_ltc6813_sendSelfTestAux(adc_speed));
+    ASSERT_EXIT_OK(io_ltc6813_sendSelfTestAux());
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -404,7 +392,7 @@ void app_segments_auxSelftest()
         bool self_test_ok = true;
         for (uint8_t aux_reg = 0; self_test_ok && aux_reg < AUX_REGS_PER_SEGMENT; aux_reg++)
         {
-            const bool aux_ok = aux_regs[segment][aux_reg] == io_ltc6813_selfTestExpectedValue(adc_speed);
+            const bool aux_ok = aux_regs[segment][aux_reg] == io_ltc6813_selfTestExpectedValue();
             self_test_ok &= aux_ok;
         }
         segmentAuxRegSelfTestSetters[segment](self_test_ok);
@@ -416,7 +404,7 @@ void app_segments_statusSelftest()
     static void (*const segmentStatTestSelfTestSetters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_STAT_REGISTER_OK_set };
 
-    ASSERT_EXIT_OK(io_ltc6813_sendSelfTestStat(adc_speed));
+    ASSERT_EXIT_OK(io_ltc6813_sendSelfTestStat());
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_getStatus(statuses, status_success_buf);
 
@@ -428,7 +416,7 @@ void app_segments_statusSelftest()
         static_assert(sizeof(StatusRegGroups) == sizeof(uint16_t) * 6);
         for (uint8_t word = 0; word < 4; word++) // NOTE: only the first four words we need to check
         {
-            self_test_pass &= statuses_buffer[word] == io_ltc6813_selfTestExpectedValue(adc_speed);
+            self_test_pass &= statuses_buffer[word] == io_ltc6813_selfTestExpectedValue();
         }
         segmentStatTestSelfTestSetters[segment](self_test_pass);
     }
@@ -447,21 +435,21 @@ ExitCode app_segments_openWireCheck()
 
     // data collection
     static uint16_t owc_pucv[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_UP, ADCSpeed_26Hz, false));
+    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_UP));
     // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_UP, ADCSpeed_26Hz, false));
+    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_UP));
     // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion(ADCSpeed_26Hz));
+    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
     io_time_delay(201);
     io_ltc6813_readVoltageRegisters(owc_pucv, volt_success_buf);
 
     // reset back to normal
     static uint16_t owc_pdcv[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_DOWN, ADCSpeed_26Hz, false));
+    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_DOWN));
     // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_DOWN, ADCSpeed_26Hz, false));
+    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_DOWN));
     // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion(ADCSpeed_26Hz));
+    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
     io_time_delay(201);
     io_ltc6813_readVoltageRegisters(owc_pdcv, volt_success_buf);
 

@@ -99,7 +99,6 @@ void tasks_runLtc(void)
 {
     // setup
     app_segments_writeDefaultConfig();
-    app_segments_adcSpeed(ADCSpeed_7kHz);
     app_segments_configSync();
     // make sure the muxes are working
     app_segments_voltageSelftest();

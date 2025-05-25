@@ -1,11 +1,10 @@
 #include "io_ltc6813_internal.h"
 
-#include "io_log.h"
-#include "hw_spis.h"
-
 #include <string.h>
 
-static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
+#include "hw_spis.h"
+
+static uint16_t calculatePec15(const uint8_t *data, const uint8_t len)
 {
     static const uint16_t pec15_lut[256] = {
         0x0,    0xC599, 0xCEAB, 0xB32,  0xD8CF, 0x1D56, 0x1664, 0xD3FD, 0xF407, 0x319E, 0x3AAC, 0xFF35, 0x2CC8, 0xE951,
@@ -45,27 +44,27 @@ static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
     return (uint16_t)(remainder << 1); // TODO make sure the shifting to load into the registers is correct
 }
 
-PEC io_ltc6813_build_data_pec(const uint8_t *data, const uint8_t len)
+PEC io_ltc6813_buildDataPec(const uint8_t *data, const uint8_t len)
 {
-    const uint16_t pec = calculate_pec15(data, len);
+    const uint16_t pec = calculatePec15(data, len);
     return (PEC){ .pec_0 = (uint8_t)(pec >> 8), .pec_1 = (uint8_t)pec & 0xff };
 }
 
-bool io_ltc6813_check_pec(const uint8_t *data, const uint8_t len, const PEC *pec)
+bool io_ltc6813_checkPec(const uint8_t *data, const uint8_t len, const PEC *pec)
 {
-    const PEC a = io_ltc6813_build_data_pec(data, len);
+    const PEC a = io_ltc6813_buildDataPec(data, len);
     return a.pec_0 == pec->pec_0 && a.pec_1 == pec->pec_1;
 }
 
-ltc6813_tx io_ltc6813_build_tx_cmd(const uint16_t command)
+ltc6813Cmd io_ltc6813_buildTxCmd(const uint16_t command)
 {
-    ltc6813_tx out = { .cmd_0 = (uint8_t)(command >> 8), .cmd_1 = (uint8_t)command & 0xff };
-    out.pec        = io_ltc6813_build_data_pec((uint8_t *)&out, sizeof(out.cmd_0) + sizeof(out.cmd_1));
+    ltc6813Cmd out = { .cmd_0 = (uint8_t)(command >> 8), .cmd_1 = (uint8_t)command & 0xff };
+    out.pec        = io_ltc6813_buildDataPec((uint8_t *)&out, sizeof(out.cmd_0) + sizeof(out.cmd_1));
     return out;
 }
 
 ExitCode io_ltc6813_sendCommand(const uint16_t command)
 {
-    const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(command);
+    const ltc6813Cmd tx_cmd = io_ltc6813_buildTxCmd(command);
     return hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
 }
