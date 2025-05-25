@@ -70,7 +70,7 @@
       },
 
     "DAMTsimBuzzerControl": {
-      "msg_id": 512,
+      "msg_id": 513,
       "cycle_time": 100,
       "description": "",
       "signals": {
@@ -348,8 +348,7 @@
           "bits": 1
         }
       }
-    }
-  },
+    },
   "PumpStatus": {
     "msg_id" : 229,
     "cycle_time": 10,

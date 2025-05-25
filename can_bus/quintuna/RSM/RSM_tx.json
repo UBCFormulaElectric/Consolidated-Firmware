@@ -123,7 +123,7 @@
     }
   },
     "ShdnNodeStatus" :{
-        "msg_id" : 710,
+        "msg_id" : 714,
         "cycle_time" : 10,
         "description" : "RSM shutdown nodes",
         "signals" :{
