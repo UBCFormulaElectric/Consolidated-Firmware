@@ -4,7 +4,6 @@ Entrypoint to the telemetry backend
 
 import logging
 
-
 # tasks
 import tasks.influx_logger as InfluxHandler
 from api.http import api
@@ -56,12 +55,13 @@ if ENABLE_MOCK:
 broadcast_thread.start()
 influx_logger_task.start()
 
-#register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
+# register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
 
 # please be adviced, that the 0.0.0.0 is strictly mandatory
 sio.run(
     app,
     debug=bool(DEBUG),
+    # debug=False,
     host="0.0.0.0",
     port=5000,
     allow_unsafe_werkzeug=True,

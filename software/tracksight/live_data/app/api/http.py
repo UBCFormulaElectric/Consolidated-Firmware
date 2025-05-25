@@ -10,7 +10,7 @@ from api.historical_handler import historical_api
 from flask import Blueprint, Response, request
 from logger import logger
 from middleware.candb import live_can_db
-from middleware.serial_port import get_serial
+
 
 # ours
 from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
@@ -50,6 +50,7 @@ def get_signal_metadata():
         for signal in msg.signals
     ]
 
+# new api get all emun
 
 @api.route("/signal/<signal_name>", methods=["GET"])
 def get_cached_signals(signal_name: str):
@@ -89,7 +90,7 @@ def set_rtc_time(time: RtcTime):
     Sets the RTC time
     """
 
-    ser = get_serial()
+    # ser = get_serial()
     # create a bytearray to hold from Rtctime
     buffer = bytearray(9)
     buffer[0] = 0xFF
@@ -110,7 +111,7 @@ def set_rtc_time(time: RtcTime):
     buffer[8] = time.year
     # write the buffer to the serial port
 
-    ser.write(buffer)
+    # ser.write(buffer)
 
 
 @api.route("/rtc", methods=["GET"])
