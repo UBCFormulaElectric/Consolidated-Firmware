@@ -12,11 +12,25 @@
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 
-static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
+static void jsoncan_transmit1_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
+
+static void jsoncan_transmit2_func(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&msg);
+}
+
+static void jsoncan_transmit3_func(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&msg);
+}
+
+
 
 void jobs_init()
 {

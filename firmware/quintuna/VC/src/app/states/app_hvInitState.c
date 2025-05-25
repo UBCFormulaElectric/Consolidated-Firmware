@@ -48,7 +48,7 @@ static void hvInitStateRunOnTick100Hz(void)
 {
     switch (current_inverter_state)
     {
-        case INV_SYSTEM_READY:
+        case INV_SYSTEM_READY:{
             const bool inv_systemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
                                          app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
 
@@ -58,7 +58,8 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_timer_init(start_up_timer, 1000);
             }
             break;
-        case INV_DC_ON:
+        }
+        case INV_DC_ON: {
             app_canTx_VC_INVFLbDcOn_set(true);
             app_canTx_VC_INVFRbDcOn_set(true);
             app_canTx_VC_INVRRbDcOn_set(true);
@@ -87,7 +88,8 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_stateMachine_setNextState(&init_state); // we should transition some where else but check this later
             }
             break;
-        case INV_ENABLE:
+        }
+        case INV_ENABLE:{
             app_canTx_VC_INVFLbEnable_set(true);
             app_canTx_VC_INVFRbEnable_set(true);
             app_canTx_VC_INVRLbEnable_set(true);
@@ -96,7 +98,8 @@ static void hvInitStateRunOnTick100Hz(void)
             current_inverter_state = INV_INVERTER_ON;
             app_timer_init(start_up_timer, 1000);
             break;
-        case INV_INVERTER_ON:
+        }
+        case INV_INVERTER_ON:{
             app_canTx_VC_INVFLbInverterOn_set(true);
             app_canTx_VC_INVFRbInverterOn_set(true);
             app_canTx_VC_INVRRbInverterOn_set(true);
@@ -127,6 +130,7 @@ static void hvInitStateRunOnTick100Hz(void)
             }
 
             break;
+        }
         case INV_READY_FOR_DRIVE:
             app_stateMachine_setNextState(&hv_state);
             app_timer_stop(start_up_timer);
