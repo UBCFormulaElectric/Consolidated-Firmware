@@ -25,7 +25,6 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
@@ -145,7 +144,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
 
     message("Bootloader: ${BOOTLOAD}")
 #     if ("${BOOTLOAD}" STREQUAL "ON")
