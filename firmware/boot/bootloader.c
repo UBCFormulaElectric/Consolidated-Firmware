@@ -191,7 +191,7 @@ void bootloader_init(void)
 _Noreturn void bootloader_runInterfaceTask(void)
 {
     // Program 64 bits at the current address.
-    uint64_t expected_can_id = (BOARD_RANGE_START | APP_PROGRAM_START_ID);
+    uint64_t expected_can_id = BOARD_RANGE_START | APP_PROGRAM_START_ID;
 
     LOG_INFO("TEST TEST TEST");
     for (;;)
@@ -234,16 +234,16 @@ _Noreturn void bootloader_runInterfaceTask(void)
            if (expected_can_id == command.std_id)
             {
                 // do program
-                bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
-                expected_can_id += 8; 
+                bootloader_boardSpecific_program(current_address, command.data.data64[0]);
+                expected_can_id += 1; 
 
             }
             else{
 
-                CanMsg reply = { .std_id = (BOARD_RANGE_START | NAK_ID) .dlc = 8}; // MSG 0 in board range is for status 
-                uint32_t reply_data = (current_address / BOARD_MEM_WRITE_CHUNK) * BOARD_MEM_WRITE_CHUNK;
-                expected_can_id =  (BOARD_RANGE_START | APP_PROGRAM_START_ID); 
-                memcpy(reply.data, &reply_data, sizeof(expected_can_id));
+                CanMsg reply = { .std_id = (BOARD_RANGE_START | NAK_ID), .dlc = 8}; // MSG 0 in board range is for status 
+                uint32_t reply_data = current_address;
+                memcpy(&reply.data, &reply_data, sizeof(reply_data));
+                expected_can_id = BOARD_RANGE_START | APP_PROGRAM_START_ID; 
                 io_canQueue_pushTx(&reply);
             }
         }
