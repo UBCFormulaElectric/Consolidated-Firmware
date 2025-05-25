@@ -1,5 +1,7 @@
 #include "jobs.h"
 
+#include "app_soc.h"
+
 #include "io_bootHandler.h"
 #include "io_log.h"
 #include "io_canTx.h"
@@ -19,9 +21,10 @@ void jobs_init()
 {
     io_canTx_init(jsoncan_transmit_func);
     io_canQueue_init();
-
+    
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    app_soc_init();
 }
 
 void jobs_run1Hz_tick(void)
