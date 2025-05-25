@@ -12,6 +12,7 @@
 #include "io_canRx.h"
 #include "io_bootHandler.h"
 
+#include "app_jsoncan.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"

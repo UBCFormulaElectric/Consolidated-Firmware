@@ -5,6 +5,7 @@
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -13,11 +14,11 @@
 #include "hw_usb.h"
 #include "hw_resetReason.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_cans.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
-#include "shared.pb.h"
 
 void tasks_preInit(void) {}
 
@@ -31,6 +32,9 @@ void tasks_init(void)
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     ASSERT_EXIT_OK(hw_usb_init());
+    hw_can_init(&can1);
+    hw_can_init(&can2);
+    hw_can_init(&can3);
 
     jobs_init();
 
@@ -120,23 +124,24 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
-    osDelay(osWaitForever);
-
     for (;;)
     {
-        // CanMsg tx_msg = io_canQueue_popTx();
-        // LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
+        CanMsg tx_msg = io_canQueue_popTx();
+
+        // TODO this canmsg will tell you which bus to transmit it on
+        // hw_fdcan_transmit(&can1, &tx_msg);
+        // hw_fdcan_transmit(&can2, &tx_msg);
+        // hw_can_transmit(&can3, &tx_msg);
     }
 }
 
 _Noreturn void tasks_runCanRx(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
-    osDelay(osWaitForever);
-
     for (;;)
     {
-        jobs_runCanRx_tick();
+        const CanMsg rx_msg       = io_canQueue_popRx();
+        JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&json_can_msg);
     }
 }
 

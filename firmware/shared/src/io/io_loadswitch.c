@@ -42,8 +42,7 @@ void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch)
     hw_gpio_writePin(loadSwitch->efuse->enable_gpio, false);
 }
 
-bool io_TILoadswitch_checkPgood(const TI_LoadSwitch *loadswitch)
-{
-    assert(loadswitch->pgood != NULL);
-    return hw_gpio_readPin(loadswitch->pgood);
+bool io_TILoadswitch_pgood(const TI_LoadSwitch *loadSwitch) {
+    assert(loadSwitch->pgood != NULL);
+    return hw_gpio_readPin(loadSwitch->pgood);
 }
