@@ -41,7 +41,7 @@ extern "C"
     /* #define HAL_CRYP_MODULE_ENABLED */
 /* #define HAL_ADC_MODULE_ENABLED */
 #define HAL_CAN_MODULE_ENABLED
-#define HAL_CRC_MODULE_ENABLED
+/* #define HAL_CRC_MODULE_ENABLED */
 /* #define HAL_CAN_LEGACY_MODULE_ENABLED */
 /* #define HAL_DAC_MODULE_ENABLED */
 /* #define HAL_DCMI_MODULE_ENABLED */
@@ -148,8 +148,8 @@ extern "C"
 /**
  * @brief This is the HAL system configuration section
  */
-#define VDD_VALUE 3300U       /*!< Value of VDD in mv */
-#define TICK_INT_PRIORITY 15U /*!< tick interrupt priority */
+#define VDD_VALUE 3300U      /*!< Value of VDD in mv */
+#define TICK_INT_PRIORITY 0U /*!< tick interrupt priority */
 #define USE_RTOS 0U
 #define PREFETCH_ENABLE 1U
 #define INSTRUCTION_CACHE_ENABLE 1U

@@ -1,8 +1,12 @@
 #include "hw_can.h"
+
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
+#include <FreeRTOS.h>
+#include <cmsis_os2.h>
+#include <task.h>
+
 #include "io_time.h"
-#include "io_canQueue.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -27,22 +31,23 @@
 
 // Open CAN filter that accepts any CAN message as long as it uses Standard CAN
 // ID and is a data frame.
-#define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it.
-#define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
-#define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
+// #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, 0)
+// #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
 void hw_can_init(CanHandle *can_handle)
 {
     assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
-    filter.FilterMode           = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale          = CAN_FILTERSCALE_16BIT;
-    filter.FilterActivation     = CAN_FILTER_ENABLE;
-    filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
-    filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterMode       = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale      = CAN_FILTERSCALE_32BIT;
+    filter.FilterActivation = CAN_FILTER_ENABLE;
+    // low and high
+    filter.FilterIdHigh     = 0x0000;
+    filter.FilterIdLow      = 0x0000;
+    filter.FilterMaskIdHigh = 0x0000;
+    filter.FilterMaskIdLow  = 0x0000;
+    // FIFO assignment
     filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
     filter.FilterBank           = 0;
     filter.SlaveStartFilterBank = 0;
@@ -67,21 +72,21 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
+// NOTE this design assumes that there is only one task calling this function
+static TaskHandle_t transmit_task = NULL;
+
+// ReSharper disable once CppParameterMayBeConstPtrOrRef -> this breaks compatibility with FDCAN
 ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
 
-    tx_header.DLC   = msg->dlc;
-    tx_header.StdId = msg->std_id;
+    tx_header.DLC = msg->dlc;
 
-    // The standard 11-bit CAN identifier is more than sufficient, so we disable
-    // Extended CAN IDs by setting this field to zero.
-    tx_header.ExtId = CAN_ExtID_NULL;
-
-    // This field can be either Standard CAN or Extended CAN. See .ExtID to see
-    // why we don't want Extended CAN.
-    tx_header.IDE = CAN_ID_STD;
+    const bool is_std = msg->std_id <= 0x7FF;
+    tx_header.StdId   = is_std ? msg->std_id : 0x0;
+    tx_header.ExtId   = !is_std ? msg->std_id : 0x0;
+    tx_header.IDE     = is_std ? CAN_ID_STD : CAN_ID_EXT;
 
     // This field can be either Data Frame or Remote Frame. For our
     // purpose, we only ever transmit Data Frames.
@@ -92,13 +97,28 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
-        ;
+    for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
+    {
+        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
+        // context switching
+        if (poll_count <= 1000)
+        {
+            poll_count++;
+            continue;
+        }
+        assert(transmit_task == NULL);
+        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+        transmit_task = xTaskGetCurrentTaskHandle();
+        // timeout just in case the tx complete interrupt does not fire properly?
+        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+        UNUSED(num_notifs);
+        transmit_task = NULL;
+    }
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
 
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data.data8, &mailbox));
     ;
 }
 
@@ -107,26 +127,38 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
     assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data)););
+    RETURN_IF_ERR(
+        hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data.data8)););
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
-    msg->std_id    = header.StdId;
+    switch (header.IDE)
+    {
+        case CAN_ID_STD:
+            msg->std_id = header.StdId;
+            break;
+        case CAN_ID_EXT:
+            msg->std_id = header.ExtId;
+            break;
+        default:
+            assert(false);
+    }
     msg->dlc       = header.DLC;
     msg->timestamp = io_time_getCurrentMs();
 
     return EXIT_CODE_OK;
 }
 
-static void handle_callback(CAN_HandleTypeDef *hfdcan)
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+static void handle_callback(CAN_HandleTypeDef *hcan)
 {
-    const CanHandle *handle = hw_can_getHandle(hfdcan);
+    const CanHandle *handle = hw_can_getHandle(hcan);
 
     CanMsg rx_msg;
     if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
-    io_canQueue_pushRx(&rx_msg);
+    handle->receive_callback(&rx_msg);
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
@@ -137,4 +169,27 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     handle_callback(hcan);
+}
+
+static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
+{
+    if (transmit_task == NULL)
+    {
+        return;
+    }
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(transmit_task, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+}
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
 }

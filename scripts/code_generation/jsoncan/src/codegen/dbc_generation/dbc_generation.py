@@ -34,11 +34,9 @@ DBC_ATTRIBUTE_TEMPLATE = (
 )
 DBC_VALUE_TABLE_TEMPLATE = "VAL_ {id} {signal_name} {entries};\n"
 
-
-# BA_DEF_ BO_  "GenMsgCycleTime" INT {cycle_time_min} {cycle_time_max};
-# BA_DEF_ SG_  "GenSigStartValue" INT {start_value_min} {start_value_max};
-# BA_DEF_DEF_  "GenMsgCycleTime" {cycle_time_default};
-# BA_DEF_DEF_  "GenSigStartValue" {start_value_default};
+# If a signal isn't recevied by any node then DBC parsing might fail.
+# Hacky solution: Every signal receives "DEBUG"
+DBC_DEFAULT_RECEIVER = "DEBUG"
 
 
 class DbcGenerator:
@@ -110,7 +108,7 @@ class DbcGenerator:
         """default_receiver
         Return space-delimitted list of all boards on the bus.
         """
-        boards = list(self._db.nodes.keys()) + ["DEBUG"]
+        boards = list(self._db.nodes.keys()) + [DBC_DEFAULT_RECEIVER]
 
         return DBC_BOARD_LIST.format(node_names=" ".join(boards))
 
@@ -118,16 +116,6 @@ class DbcGenerator:
         """
         Format and attribute definitions and defaults.
         """
-        # TODO??
-        # bus = self._db.busses
-        # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
-        #     cycle_time_min=bus.cycle_time_min,
-        #     cycle_time_max=bus.cycle_time_max,
-        #     cycle_time_default=bus.cycle_time_default,
-        #     start_value_min=bus.start_value_min,
-        #     start_value_max=bus.start_value_max,
-        #     start_value_default=bus.start_value_default,
-        # )
         return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
 
     @staticmethod
@@ -144,6 +132,11 @@ class DbcGenerator:
         """
         Format and return DBC signal definition.
         """
+        rx_nodes = (
+            (rx_nodes + [DBC_DEFAULT_RECEIVER])
+            if DBC_DEFAULT_RECEIVER not in rx_nodes
+            else rx_nodes
+        )
         return DBC_SIGNAL_TEMPLATE.format(
             name=signal.name,
             bit_start=signal.start_bit,

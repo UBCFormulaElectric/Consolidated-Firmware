@@ -20,7 +20,7 @@
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -77,7 +77,7 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
 
     __HAL_DBGMCU_FREEZE_IWDG1();
-    hw_hardFaultHandler_init();
+
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_adcs_chipsInit();
     hw_can_init(&can1); // cast const away in initialization; no mut :(
