@@ -11,7 +11,8 @@ static uint16_t time             = 0;
 
 #define CURRENT_THRESH 0.025f
 
-static bool TILoadswitch_pgood(const TI_LoadSwitch *loadSwitch) {
+static bool TILoadswitch_pgood(const TI_LoadSwitch *loadSwitch)
+{
     assert(loadSwitch->pgood != NULL);
     return hw_gpio_readPin(loadSwitch->pgood);
 }

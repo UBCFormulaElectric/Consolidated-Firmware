@@ -32,7 +32,7 @@ const ST_LoadSwitch rad_fan_loadswitch = { .efuse1          = &l_rad_fan_efuse,
                                            .efuse2          = &r_rad_fan_efuse,
                                            .stby_reset_gpio = &fr_stby_rad };
 
-const Efuse*const efuse_channels[NUM_EFUSE_CHANNELS] = {
+const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_F_INV] = &f_inv_efuse,     [EFUSE_CHANNEL_RSM] = &rsm_efuse,
     [EFUSE_CHANNEL_BMS] = &bms_efuse,         [EFUSE_CHANNEL_R_INV] = &r_inv_efuse,
     [EFUSE_CHANNEL_DAM] = &dam_efuse,         [EFUSE_CHANNEL_FRONT] = &front_efuse,
