@@ -10,21 +10,20 @@
 // Defined in linker script.
 extern uint32_t __app_code_start__;
 
-typedef struct
+typedef struct __attribute__((packed))
 {
     uint8_t     magic;
     BootRequest request;
-    uint16_t    _unused;
 } BootRequestData;
 
 // The boot_request RAM section gets exactly 4 bytes at the end of the stack.
-static_assert(sizeof(BootRequestData) == 4, "");
-static_assert(_Alignof(BootRequestData) == 2, "");
+static_assert(sizeof(BootRequestData) == 7, "");
+static_assert(_Alignof(BootRequestData) == 1, "");
 
 // Boot flag from RAM
 __attribute__((section(".boot_request"))) volatile BootRequestData boot_request;
 
-void hw_bootup_enableInterruptsForApp()
+void hw_bootup_enableInterruptsForApp(void)
 {
     // Set vector table offset register.
     // The startup handler sets the VTOR to the default value (0x8000000), so even though we update it
@@ -63,6 +62,11 @@ BootRequest hw_bootup_getBootRequest(void)
     else
     {
         // Default to app if magic not present.
-        return BOOT_REQUEST_APP;
+        const BootRequest request = {
+            .target        = BOOT_TARGET_APP,
+            .context       = BOOT_CONTEXT_NONE,
+            .context_value = 0,
+        };
+        return request;
     }
 }
