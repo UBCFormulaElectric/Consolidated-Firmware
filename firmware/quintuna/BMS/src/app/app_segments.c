@@ -89,11 +89,13 @@ void app_segments_writeDefaultConfig(void)
         SegmentConfig *const out       = &segment_config[seg];
         CFGAR *const         seg_a_cfg = &out->reg_a;
         CFGBR *const         seg_b_cfg = &out->reg_b;
+
         // enables GPIOs for thermistors (reading values)
         seg_a_cfg->gpio_1_5 = 0x1F;
         seg_b_cfg->gpio_6_9 = 0xF;
         seg_a_cfg->refon    = 1;
         seg_a_cfg->dten     = 0;
+
         // upper and lower bound
         seg_a_cfg->vuv_0_7  = VUV & 0xFF;
         seg_a_cfg->vuv_8_11 = VUV >> 8 & 0xF;
@@ -110,11 +112,13 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
         CFGAR *const         seg_a_cfg = &out->reg_a;
         CFGBR *const         seg_b_cfg = &out->reg_b;
         uint32_t             dcc_bits  = 0U;
+
         // Get dcc bits to write for the current segment (which cells to balance)
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
             dcc_bits |= (uint32_t)(balance_config[seg][cell] << cell);
         }
+
         // TODO double check this is correct
         // note that we want balance_config to be auto scalable (for futureproofing)
         seg_b_cfg->dcc_0     = 0;
@@ -393,7 +397,7 @@ ExitCode app_segments_voltageSelftest(void)
         bool) = { app_canTx_BMS_Seg0_VOLT_REGISTER_OK_set };
 
     RETURN_IF_ERR(io_ltc6813_sendSelfTestVoltages());
-    io_time_delay(10); // TODO tweak timings
+    io_time_delay(ADCV_CONVERSION_TIME_MS);
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -417,7 +421,7 @@ ExitCode app_segments_auxSelftest(void)
     static void (*const segmentAuxRegSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_AUX_REGISTER_OK_set };
 
     RETURN_IF_ERR(io_ltc6813_sendSelfTestAux());
-    io_time_delay(10); // TODO tweak timings
+    io_time_delay(ADAX_CONVERSION_TIME_MS);
     io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -442,7 +446,7 @@ ExitCode app_segments_statusSelftest(void)
         bool) = { app_canTx_BMS_Seg0_STAT_REGISTER_OK_set };
 
     RETURN_IF_ERR(io_ltc6813_sendSelfTestStat());
-    io_time_delay(10); // TODO tweak timings
+    io_time_delay(ADSTAT_CONVERSION_TIME_MS);
     io_ltc6813_getStatus(statuses, status_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -460,7 +464,6 @@ ExitCode app_segments_statusSelftest(void)
     return EXIT_CODE_OK;
 }
 
-// TODO: This is sus
 ExitCode app_segments_openWireCheck(void)
 {
     static void (*const cellOWCSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(bool) = {

@@ -61,7 +61,7 @@ static uint16_t calculatePec15(const uint8_t *data, const uint8_t len)
     }
 
     // Set the LSB of the PEC15 remainder to 0.
-    return (uint16_t)(remainder << 1); // TODO make sure the shifting to load into the registers is correct
+    return (uint16_t)(remainder << 1);
 }
 
 static uint16_t buildDataPec(const uint8_t *data, const uint8_t len)
