@@ -12,5 +12,10 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
-  "files.associations": {}
+  "files.associations": {
+    "app_heartbeatmonitor.h": "c",
+    "app_heartbeatmonitors.h": "c",
+    "app_accumulator.h": "c",
+    "io_faultlatch.h": "c"
+  }
 }
