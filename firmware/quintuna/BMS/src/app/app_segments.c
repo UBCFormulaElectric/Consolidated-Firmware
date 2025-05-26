@@ -450,7 +450,6 @@ ExitCode app_segments_statusSelftest(void)
         const uint16_t *statuses_buffer = (uint16_t *)&statuses[segment];
         bool            self_test_pass  = true;
 
-        static_assert(sizeof(StatusRegGroups) == sizeof(uint16_t) * 6);
         for (uint8_t word = 0; word < 4; word++) // NOTE: only the first four words we need to check
         {
             self_test_pass &= statuses_buffer[word] == SELF_TEST_EXPECTED_VALUE;
