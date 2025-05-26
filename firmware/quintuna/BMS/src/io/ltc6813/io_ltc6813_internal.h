@@ -74,18 +74,37 @@
 
 /**
  * sends the given command
- * @note I am debating on removing this? cause this file seems to be a no side effects type beat,
- * could even just be a header file (inline everything)
  * @param command command to send
  * @return success of operation
  */
 ExitCode io_ltc6813_sendCommand(uint16_t command);
 
+/**
+ * Send a polling-type command (see Table 32).
+ * @param cmd command to send
+ * @param poll_buf poll data buffer
+ * @param poll_buf_len number of poll data bytes to receive
+ * @return Success of operation
+ */
 ExitCode io_ltc6813_poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len);
 
+/**
+ * Send a read reg group command, and receive the values (see Table 34).
+ * A reg group consists of 3x 16-bit registers.
+ * @param cmd command to send
+ * @param regs Reg group buffer to read into
+ * @param comm_success comm_success[seg] gives the exit code for the particular segment
+ */
 void io_ltc6813_readRegGroup(
     uint16_t cmd,
     uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP],
     ExitCode comm_success[NUM_SEGMENTS]);
 
+/**
+ * Send a write reg group command, and write the values (see Table 33).
+ * A reg group consists of 3x 16-bit registers.
+ * @param cmd command to send
+ * @param regs Reg group data to write
+ * @param comm_success comm_success[seg] gives the exit code for the particular segment
+ */
 ExitCode io_ltc6813_writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP]);
