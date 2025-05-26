@@ -2,10 +2,9 @@
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"
-#include "io_ltc6813_cmds.h"
-#include "hw_spis.h"
 
 #include <assert.h>
+#include <string.h>
 
 ExitCode io_ltc6813_clearStatRegisters(void)
 {
@@ -19,74 +18,31 @@ ExitCode io_ltc6813_startInternalADCConversions(void)
 
 void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
 {
-    for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
-    {
-        success[i] = EXIT_INDETERMINATE;
-    }
+    memset(status, 0, sizeof(StatusRegGroups) * NUM_SEGMENTS);
 
-    const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
-    if (IS_EXIT_ERR(poll_ok))
+    uint16_t regs_a[NUM_SEGMENTS][REGS_PER_GROUP];
+    ExitCode success_a[NUM_SEGMENTS];
+    io_ltc6813_readRegGroup(RDSTATA, regs_a, success_a);
+
+    uint16_t regs_b[NUM_SEGMENTS][REGS_PER_GROUP];
+    ExitCode success_b[NUM_SEGMENTS];
+    io_ltc6813_readRegGroup(RDSTATB, regs_b, success_b);
+
+    for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
     {
-        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+        if (IS_EXIT_ERR(success_a[seg_idx]))
         {
-            success[i] = poll_ok;
+            success[seg_idx] = success_a[seg_idx];
+            continue;
         }
-
-        return;
-    }
-
-    struct
-    {
-        StatA stat;
-        PEC   pec;
-    } reg_stat_a[NUM_SEGMENTS];
-    static_assert(sizeof(reg_stat_a) == NUM_SEGMENTS * (sizeof(StatA) + sizeof(PEC)));
-
-    const ltc6813Cmd tx_cmd        = io_ltc6813_buildTxCmd(RDSTATA);
-    const ExitCode   stat_a_status = hw_spi_transmitThenReceive(
-        &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)reg_stat_a, sizeof(reg_stat_a));
-    if (IS_EXIT_ERR(stat_a_status))
-    {
-        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+        else if (IS_EXIT_ERR(success_b[seg_idx]))
         {
-            success[i] = stat_a_status;
-        }
-        return;
-    }
-
-    struct
-    {
-        StatB stat;
-        PEC   pec;
-    } reg_stat_b[NUM_SEGMENTS];
-    static_assert(sizeof(reg_stat_b) == NUM_SEGMENTS * (sizeof(StatB) + sizeof(PEC)));
-
-    const ltc6813Cmd tx_cmd_2      = io_ltc6813_buildTxCmd(RDSTATB);
-    const ExitCode   stat_b_status = hw_spi_transmitThenReceive(
-        &ltc6813_spi_ls, (uint8_t *)&tx_cmd_2, sizeof(tx_cmd_2), (uint8_t *)reg_stat_b, sizeof(reg_stat_b));
-    if (IS_EXIT_ERR(stat_b_status))
-    {
-        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
-        {
-            success[i] = stat_b_status;
-        }
-        return;
-    }
-
-    for (int seg = 0; seg < NUM_SEGMENTS; seg++)
-    {
-        const StatA *reg_a = &reg_stat_a[(NUM_SEGMENTS - 1) - seg].stat;
-        const StatB *reg_b = &reg_stat_b[(NUM_SEGMENTS - 1) - seg].stat;
-
-        if (!io_ltc6813_checkPec((uint8_t *)reg_a, sizeof(StatA), &reg_stat_a[(NUM_SEGMENTS - 1) - seg].pec) ||
-            !io_ltc6813_checkPec((uint8_t *)reg_b, sizeof(StatB), &reg_stat_b[(NUM_SEGMENTS - 1) - seg].pec))
-        {
-            success[seg] = EXIT_CODE_CHECKSUM_FAIL;
+            success[seg_idx] = success_b[seg_idx];
             continue;
         }
 
-        status[seg].stat_a = *reg_a;
-        status[seg].stat_b = *reg_b;
-        success[seg]       = EXIT_CODE_OK;
+        memcpy(&status[seg_idx].stat_a, regs_a[seg_idx], sizeof(STATA));
+        memcpy(&status[seg_idx].stat_b, regs_b[seg_idx], sizeof(STATB));
+        success[seg_idx] = EXIT_CODE_OK;
     }
 }

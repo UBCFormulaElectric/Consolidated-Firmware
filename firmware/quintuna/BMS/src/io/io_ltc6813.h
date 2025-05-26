@@ -8,7 +8,16 @@
 #include <stdint.h>
 #include "app_utils.h"
 
-#include "ltc6813/io_ltc6813_cmds.h"
+// Physical constants for our accumulator.
+#define NUM_SEGMENTS 1
+#define CELLS_PER_SEGMENT 14
+#define THERMISTORS_PER_SEGMENT 14
+
+// LTC6813 realities.
+#define REGS_PER_GROUP 3
+#define VOLTAGE_REGISTER_GROUPS 5
+#define AUX_REG_GROUPS 3
+#define AUX_REGS_PER_SEGMENT (AUX_REG_GROUPS * REGS_PER_GROUP)
 
 /**
  * @file ltc6813/io_ltc6813_configs.c
@@ -153,11 +162,10 @@ typedef enum
 /**
  * Sends command to initiate open wire check
  * @param pull_direction The pull up or pull down phase of the open wire check
- * @param speed ADC speed at which to test
  * @param dcp Discharge permitted bit
  * @return success of operation
  */
-ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
+ExitCode io_ltc6813_owcPull(PullDirection pull_direction);
 
 /**
  * @file ltc6813/io_ltc6813_tests.c
@@ -172,7 +180,6 @@ ExitCode io_ltc6813CellVoltages_owcPull(PullDirection pull_direction);
 ExitCode io_ltc6813_sendSelfTestVoltages(void);
 
 /**
- * @param speed speed to do test
  * @return expected value of the voltage register at test time
  */
 uint16_t io_ltc6813_selfTestExpectedValue(void);
@@ -204,7 +211,6 @@ ExitCode io_ltc6813_diagnoseMUX(void);
  * it measures cell 7 on ADC1/2 and cell 13 on ADC2/3.
  * @note that the values of the operations are placed in
  * positions 7/8 and 13/14 respectively (1 indexed)
- * @param speed speed of adc
  * @return success of operation
  */
 ExitCode io_ltc6813_overlapADCTest(void);
@@ -218,7 +224,7 @@ typedef struct __attribute__((__packed__))
     uint16_t SC;   // sum of cells
     uint16_t ITMP; // internal temperature
     uint16_t VA;   // analog power supply voltage
-} StatA;
+} STATA;
 
 typedef struct __attribute__((__packed__))
 {
@@ -230,12 +236,12 @@ typedef struct __attribute__((__packed__))
     uint8_t MUXFAIL : 1; // mux fail
     uint8_t RSVD : 2;    // reserved bits
     uint8_t REV : 4;     // revision code
-} StatB;
+} STATB;
 
 typedef struct __attribute__((__packed__))
 {
-    StatA stat_a;
-    StatB stat_b;
+    STATA stat_a;
+    STATB stat_b;
 } StatusRegGroups;
 
 ExitCode io_ltc6813_startInternalADCConversions(void);

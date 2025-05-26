@@ -19,6 +19,7 @@ ExitCode io_ltc6813_sendSelfTestStat(void)
 
 uint16_t io_ltc6813_selfTestExpectedValue(void)
 {
+    // See Table 13.
     return 0x6AAA;
 }
 

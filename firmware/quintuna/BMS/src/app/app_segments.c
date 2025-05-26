@@ -362,7 +362,6 @@ void app_segments_voltageSelftest(void)
     static void (*const segmentVoltageSelfTestSetters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_VOLT_REGISTER_OK_set };
 
-    // ASSERT_EXIT_OK(io_ltc6813_clearCellRegisters());
     ASSERT_EXIT_OK(io_ltc6813_sendSelfTestVoltages());
     io_time_delay(10); // TODO tweak timings
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
@@ -434,9 +433,9 @@ ExitCode app_segments_openWireCheck(void)
 
     // data collection
     static uint16_t owc_pucv[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_UP));
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
     // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_UP));
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
     // io_time_delay(201);
     // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
     io_time_delay(201);
@@ -444,9 +443,9 @@ ExitCode app_segments_openWireCheck(void)
 
     // reset back to normal
     static uint16_t owc_pdcv[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_DOWN));
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
     // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813CellVoltages_owcPull(PULL_DOWN));
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
     // io_time_delay(201);
     // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
     io_time_delay(201);

@@ -1,6 +1,5 @@
 #include "io_ltc6813.h"
 #include "io_ltc6813_internal.h"
-#include "io_ltc6813_cmds.h"
 
 ExitCode io_ltc6813_sendBalanceCommand(void)
 {
