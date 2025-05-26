@@ -10,17 +10,17 @@ typedef struct __attribute__((__packed__))
 {
     CFGAR config;
     PEC   pec;
-} CFGAR_msg;
+} CFGAR_Msg;
 static_assert(sizeof(CFGAR) == REGISTER_GROUP_SIZE);
-static_assert(sizeof(CFGAR_msg) == REGISTER_GROUP_SIZE + sizeof(PEC));
+static_assert(sizeof(CFGAR_Msg) == REGISTER_GROUP_SIZE + sizeof(PEC));
 
 typedef struct __attribute__((__packed__))
 {
     CFGBR config;
     PEC   pec;
-} CFGBR_msg;
+} CFGBR_Msg;
 static_assert(sizeof(CFGBR) == REGISTER_GROUP_SIZE);
-static_assert(sizeof(CFGBR_msg) == REGISTER_GROUP_SIZE + sizeof(PEC));
+static_assert(sizeof(CFGBR_Msg) == REGISTER_GROUP_SIZE + sizeof(PEC));
 
 /**
  * @param config Configuration for the LTC
@@ -33,9 +33,10 @@ ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_S
     struct __attribute__((__packed__))
     {
         ltc6813Cmd cmd;
-        CFGAR_msg  segment_configs[NUM_SEGMENTS]; // note these must be shifted in backwards (shift register style)
+        CFGAR_Msg  segment_configs[NUM_SEGMENTS]; // note these must be shifted in backwards (shift register style)
     } tx_msg_a = { 0 };
     static_assert(sizeof(tx_msg_a) == 4 + (sizeof(CFGAR) + sizeof(PEC)) * NUM_SEGMENTS);
+
     memset(&tx_msg_a, 0, sizeof(tx_msg_a));
     tx_msg_a.cmd = io_ltc6813_buildTxCmd(WRCFGA);
 
@@ -43,9 +44,10 @@ ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_S
     struct __attribute__((__packed__))
     {
         ltc6813Cmd cmd;
-        CFGBR_msg  segment_configs[NUM_SEGMENTS];
+        CFGBR_Msg  segment_configs[NUM_SEGMENTS];
     } tx_msg_b = { 0 };
     static_assert(sizeof(tx_msg_b) == 4 + (sizeof(CFGBR) + sizeof(PEC)) * NUM_SEGMENTS);
+
     memset(&tx_msg_b, 0, sizeof(tx_msg_b));
     tx_msg_b.cmd = io_ltc6813_buildTxCmd(WRCFGB);
 
@@ -53,8 +55,8 @@ ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_S
     {
         // Data used to configure the last segment on the daisy chain needs to be sent first
         const uint8_t    seg_idx = NUM_SEGMENTS - curr_segment - 1;
-        CFGAR_msg *const seg_a   = &tx_msg_a.segment_configs[seg_idx];
-        CFGBR_msg *const seg_b   = &tx_msg_b.segment_configs[seg_idx];
+        CFGAR_Msg *const seg_a   = &tx_msg_a.segment_configs[seg_idx];
+        CFGBR_Msg *const seg_b   = &tx_msg_b.segment_configs[seg_idx];
         seg_a->config            = config[seg_idx].reg_a;
         seg_b->config            = config[seg_idx].reg_b;
 
@@ -72,25 +74,29 @@ ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_S
 void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
 {
     ltc6813Cmd tx_msg_a = io_ltc6813_buildTxCmd(RDCFGA);
-    CFGAR_msg  rx_buf_a[NUM_SEGMENTS];
+    CFGAR_Msg  rx_buf_a[NUM_SEGMENTS];
     ltc6813Cmd tx_msg_b = io_ltc6813_buildTxCmd(RDCFGB);
-    CFGBR_msg  rx_buf_b[NUM_SEGMENTS];
+    CFGBR_Msg  rx_buf_b[NUM_SEGMENTS];
 
-    const ExitCode com1 = hw_spi_transmitThenReceive(
+    const ExitCode comm_a = hw_spi_transmitThenReceive(
         &ltc6813_spi_ls, (uint8_t *)&tx_msg_a, sizeof(tx_msg_a), (uint8_t *)rx_buf_a, sizeof(rx_buf_a));
-    if (IS_EXIT_ERR(com1))
+    if (IS_EXIT_ERR(comm_a))
     {
         for (uint8_t s = 0U; s < NUM_SEGMENTS; s++)
-            success[s] = com1;
+        {
+            success[s] = comm_a;
+        }
         return;
     }
 
-    const ExitCode com2 = hw_spi_transmitThenReceive(
+    const ExitCode comm_b = hw_spi_transmitThenReceive(
         &ltc6813_spi_ls, (uint8_t *)&tx_msg_b, sizeof(tx_msg_b), (uint8_t *)rx_buf_b, sizeof(rx_buf_b));
-    if (IS_EXIT_ERR(com2))
+    if (IS_EXIT_ERR(comm_b))
     {
         for (uint8_t s = 0U; s < NUM_SEGMENTS; s++)
-            success[s] = com2;
+        {
+            success[s] = comm_b;
+        }
         return;
     }
 

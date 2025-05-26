@@ -31,7 +31,6 @@ static uint16_t voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static ExitCode volt_success_buf[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS];
 
 static uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-// TODO find a way to merge these two
 static ExitCode aux_reg_success_buf[NUM_SEGMENTS][AUX_REG_GROUPS];
 
 static StatusRegGroups statuses[NUM_SEGMENTS];
@@ -107,7 +106,7 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
  * @returns whether there are no errors and config matches
  * Hence if false there are either errors or the config does not match
  */
-static bool is_config_equal()
+static bool isConfigEqual(void)
 {
     for (uint8_t try = 0; try < 3; try++)
     {
@@ -150,10 +149,10 @@ static bool is_config_equal()
     return seg_config_same;
 }
 
-ExitCode app_segments_configSync()
+ExitCode app_segments_configSync(void)
 {
     static void (*const commsOkSetter[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_COMM_OK_set };
-    for (uint8_t tries = 0; !is_config_equal(); tries++)
+    for (uint8_t tries = 0; !isConfigEqual(); tries++)
     {
         // first check if it's a comms thing
         bool comms_ok = true;
@@ -185,7 +184,7 @@ ExitCode app_segments_configSync()
 }
 
 // test setters
-ExitCode app_segments_broadcastCellVoltages()
+ExitCode app_segments_broadcastCellVoltages(void)
 {
     static void (*const cellVoltageSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(
         float) = { { app_canTx_BMS_Seg0_Cell0_Voltage_set, app_canTx_BMS_Seg0_Cell1_Voltage_set,
@@ -224,7 +223,7 @@ ExitCode app_segments_broadcastCellVoltages()
     return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_broadcastTempsVRef()
+ExitCode app_segments_broadcastTempsVRef(void)
 {
     static void (*const thermistor_setters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(float) = {
         { app_canTx_BMS_Seg0_Cell0_Temp_set, app_canTx_BMS_Seg0_Cell1_Temp_set, app_canTx_BMS_Seg0_Cell2_Temp_set,
@@ -287,7 +286,7 @@ ExitCode app_segments_broadcastTempsVRef()
     return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_broadcastStatus()
+ExitCode app_segments_broadcastStatus(void)
 {
     static void (*const muxTestSetters[NUM_SEGMENTS])(bool)     = { app_canTx_BMS_Seg0_MUX_OK_set };
     static void (*const vregOKSetters[NUM_SEGMENTS])(bool)      = { app_canTx_BMS_Seg0_VREG_OK_set };
@@ -312,20 +311,20 @@ ExitCode app_segments_broadcastStatus()
             continue;
         }
 
-        revCodeSetters[segment](statuses[segment].REV);
+        revCodeSetters[segment](statuses[segment].stat_b.REV);
 
         // tempSetters[segment]((float)statuses[segment].ITMP / 76.0f - 276.0f);
 
         vregOKSetters[segment](
-            CONVERT_VOLTAGE_TO_100UV(4.5f) <= statuses[segment].VA &&
-            statuses[segment].VA <= CONVERT_VOLTAGE_TO_100UV(5.5f));
-        vregSetters[segment](CONVERT_100UV_TO_VOLTAGE(statuses[segment].VA));
+            CONVERT_VOLTAGE_TO_100UV(4.5f) <= statuses[segment].stat_a.VA &&
+            statuses[segment].stat_a.VA <= CONVERT_VOLTAGE_TO_100UV(5.5f));
+        vregSetters[segment](CONVERT_100UV_TO_VOLTAGE(statuses[segment].stat_a.VA));
         vregdSetters[segment](
-            CONVERT_VOLTAGE_TO_100UV(2.7f) <= statuses[segment].VD &&
-            statuses[segment].VD <= CONVERT_VOLTAGE_TO_100UV(3.6f));
+            CONVERT_VOLTAGE_TO_100UV(2.7f) <= statuses[segment].stat_b.VD &&
+            statuses[segment].stat_b.VD <= CONVERT_VOLTAGE_TO_100UV(3.6f));
 
-        thermalOKsetters[segment](!statuses[segment].THSD);
-        muxTestSetters[segment](!(bool)statuses[segment].MUXFAIL);
+        thermalOKsetters[segment](!statuses[segment].stat_b.THSD);
+        muxTestSetters[segment](!(bool)statuses[segment].stat_b.MUXFAIL);
     }
     return EXIT_CODE_OK;
 }
@@ -358,7 +357,7 @@ ExitCode app_segments_ADCAccuracyTest()
     return EXIT_CODE_OK;
 }
 
-void app_segments_voltageSelftest()
+void app_segments_voltageSelftest(void)
 {
     static void (*const segmentVoltageSelfTestSetters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_VOLT_REGISTER_OK_set };
@@ -379,7 +378,7 @@ void app_segments_voltageSelftest()
     }
 }
 
-void app_segments_auxSelftest()
+void app_segments_auxSelftest(void)
 {
     static void (*const segmentAuxRegSelfTestSetters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_AUX_REGISTER_OK_set };
 
@@ -399,7 +398,7 @@ void app_segments_auxSelftest()
     }
 }
 
-void app_segments_statusSelftest()
+void app_segments_statusSelftest(void)
 {
     static void (*const segmentStatTestSelfTestSetters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_STAT_REGISTER_OK_set };
@@ -422,7 +421,7 @@ void app_segments_statusSelftest()
     }
 }
 
-ExitCode app_segments_openWireCheck()
+ExitCode app_segments_openWireCheck(void)
 {
     static void (*const cellOWCSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(bool) = {
         { app_canTx_BMS_Seg0_Cell0_OWC_OK_set, app_canTx_BMS_Seg0_Cell1_OWC_OK_set, app_canTx_BMS_Seg0_Cell2_OWC_OK_set,

@@ -30,7 +30,6 @@ typedef struct __attribute__((__packed__))
 #define REGISTER_GROUP_SIZE (6U) // 6 bytes
 #define PEC_SIZE (2U)            // 2 bytes
 
-
 /**
  * Given a buffer of data, builds a pec object for it, constructor of raw_pec
  * @param data data to encode

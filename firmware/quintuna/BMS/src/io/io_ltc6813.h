@@ -218,7 +218,10 @@ typedef struct __attribute__((__packed__))
     uint16_t SC;   // sum of cells
     uint16_t ITMP; // internal temperature
     uint16_t VA;   // analog power supply voltage
+} StatA;
 
+typedef struct __attribute__((__packed__))
+{
     uint16_t VD;        // digital power supply voltage
     uint32_t CVBF : 24; // cell voltage bound faults
 
@@ -227,6 +230,12 @@ typedef struct __attribute__((__packed__))
     uint8_t MUXFAIL : 1; // mux fail
     uint8_t RSVD : 2;    // reserved bits
     uint8_t REV : 4;     // revision code
+} StatB;
+
+typedef struct __attribute__((__packed__))
+{
+    StatA stat_a;
+    StatB stat_b;
 } StatusRegGroups;
 
 ExitCode io_ltc6813_startInternalADCConversions(void);

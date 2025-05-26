@@ -22,6 +22,7 @@ void app_segments_writeDefaultConfig(void);
 ExitCode app_segments_configSync(void);
 
 // =========== BROADCAST MESSAGES ===========
+
 /**
  * Reads the voltages, broadcasts them appropriately
  */
@@ -38,6 +39,7 @@ ExitCode app_segments_broadcastTempsVRef(void);
 ExitCode app_segments_broadcastStatus(void);
 
 // =========== TESTS ===========
+
 /**
  * This performs two tests:
  * First, it checks that the reference voltage is correct.

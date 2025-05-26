@@ -17,7 +17,7 @@
 
 // Misc. bit definitions.
 #define CHG (0x0 << 0)
-#define MD_NORMAL (0x2 << 7) // 7kHz, Needs ADCOPT=0
+#define MD_NORMAL (0x2 << 7)   // 7kHz, Needs ADCOPT=0
 #define MD_FILTERED (0x3 << 7) // 26Hz, Needs ADCOPT=1
 #define CH (0x0 << 0)
 #define DCP (0x0 << 4)
@@ -49,9 +49,9 @@
 #define RDSTATB (0x0012)
 
 // Start ADC conversions.
-#define ADCV (0x260 | MD_NORMAL | DCP | CH) // Cells
-#define ADAX (0x460 | MD_NORMAL | CHG) // Auxillary
-#define ADSTAT (0x0468 | MD_NORMAL | CHST) // Status
+#define ADCV (0x260 | MD_NORMAL | DCP | CH)        // Cells
+#define ADAX (0x460 | MD_NORMAL | CHG)             // Auxillary
+#define ADSTAT (0x0468 | MD_NORMAL | CHST)         // Status
 #define ADOW_PU (0x0228U | MD_FILTERED | DCP | CH) // Open wire pull up
 #define ADOW_PD (0x0268U | MD_FILTERED | DCP | CH) // Open wire pull down
 
@@ -63,10 +63,12 @@
 
 // Clear registers commands.
 #define CLRCELL (0x0711) // Cells
-#define CLRAUX (0x0712) // Auxillary
+#define CLRAUX (0x0712)  // Auxillary
 #define CLRSTAT (0x0713) // Status
 
+// Poll status commands.
 #define DIAGN (0x0715)
+#define PLADC (0x0714U)
 
 // Mute/unmute discharge.
 #define UNMUTE (0x0029U)
