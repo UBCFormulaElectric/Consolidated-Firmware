@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "app_utils.h"
 #include "hw_fdcan.h"
 #include "main.h"
 
@@ -99,12 +100,13 @@ void tasks_runLtc(void)
 {
     // setup
     app_segments_writeDefaultConfig();
-    app_segments_configSync();
-    // make sure the muxes are working
-    app_segments_voltageSelftest();
-    app_segments_auxSelftest();
-    app_segments_statusSelftest();
-    ASSERT_EXIT_OK(io_ltc6813_clearStatRegisters());
+    LOG_IF_ERR(app_segments_configSync());
+
+    // self tests
+    LOG_IF_ERR(app_segments_voltageSelftest());
+    LOG_IF_ERR(app_segments_auxSelftest());
+    LOG_IF_ERR(app_segments_statusSelftest());
+
     for (;;)
     {
         jobs_runLtc_tick();

@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <io_log.h>
+#include <stdint.h>
 
 static const uint16_t aux_reg_groups[AUX_REG_GROUPS] = { RDAUXA, RDAUXB, RDAUXC };
 
@@ -19,7 +20,7 @@ ExitCode io_ltc6813_startThermistorsAdcConversion(void)
 
 void io_ltc6813_readAuxRegisters(
     uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    ExitCode comm_success[NUM_SEGMENTS][AUX_REG_GROUPS])
+    ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
 {
     // Exit early if ADC conversion fails
     const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
@@ -45,12 +46,12 @@ void io_ltc6813_readAuxRegisters(
 
         for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
         {
-            for (int reg_in_group = 0U; reg_in_group < REGS_PER_GROUP; reg_in_group++)
+            for (uint8_t reg_in_group = 0U; reg_in_group < REGS_PER_GROUP; reg_in_group++)
             {
-                aux_regs[seg_idx][reg_group * REGS_PER_GROUP + reg_in_group] = curr_regs[seg_idx][reg_in_group];
+                const int aux_reg              = reg_group * REGS_PER_GROUP + reg_in_group;
+                aux_regs[seg_idx][aux_reg]     = curr_regs[seg_idx][reg_in_group];
+                comm_success[seg_idx][aux_reg] = curr_success[seg_idx];
             }
-
-            comm_success[seg_idx][reg_group] = curr_success[seg_idx];
         }
     }
 }

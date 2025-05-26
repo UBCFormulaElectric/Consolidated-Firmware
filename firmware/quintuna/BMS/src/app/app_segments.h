@@ -52,19 +52,19 @@ ExitCode app_segments_ADCAccuracyTest(void);
  * Performs a voltage self test: it sends a command, which forces a generator to put specific values into the registers
  * This gives us confidence that there are no internal digital ADC problems in the ltc
  */
-void app_segments_voltageSelftest(void);
+ExitCode app_segments_voltageSelftest(void);
 
 /**
  * Performs a aux self test: it sends a command, which forces a generator to put specific values into the registers
  * This gives us confidence that there are no internal digital ADC problems in the ltc
  */
-void app_segments_auxSelftest(void);
+ExitCode app_segments_auxSelftest(void);
 
 /**
  * Performs a status self test: it sends a command, which forces a generator to put specific values into the registers
  * This gives us confidence that there are no internal digital ADC problems in the ltc
  */
-void app_segments_statusSelftest(void);
+ExitCode app_segments_statusSelftest(void);
 
 /**
  * Checks for open wires

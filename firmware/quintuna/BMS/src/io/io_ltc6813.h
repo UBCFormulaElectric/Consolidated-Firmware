@@ -96,7 +96,7 @@ ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_S
  */
 void io_ltc6813_readVoltageRegisters(
     uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    ExitCode comm_success[NUM_SEGMENTS][VOLTAGE_REGISTER_GROUPS]);
+    ExitCode comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
 /**
  * sends a command to read all voltages from all segments
@@ -115,7 +115,7 @@ ExitCode io_ltc6813_startCellsAdcConversion(void);
  */
 void io_ltc6813_readAuxRegisters(
     uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    ExitCode comm_success[NUM_SEGMENTS][AUX_REG_GROUPS]);
+    ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT]);
 
 /**
  * sends a command to read all temperatures from all segments
@@ -153,6 +153,8 @@ ExitCode io_ltc6813_sendStopBalanceCommand(void);
  * @file ltc6813/io_ltc6813_owc.c
  */
 
+#define SELF_TEST_EXPECTED_VALUE 0x6AAA
+
 typedef enum
 {
     PULL_DOWN,
@@ -178,11 +180,6 @@ ExitCode io_ltc6813_owcPull(PullDirection pull_direction);
  * you still need to assert the values in the reg groups
  */
 ExitCode io_ltc6813_sendSelfTestVoltages(void);
-
-/**
- * @return expected value of the voltage register at test time
- */
-uint16_t io_ltc6813_selfTestExpectedValue(void);
 
 /**
  * dispatches a command to test the aux adcs
