@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
-#include <stdlib.h>
+#include <stddef.h>
 
 static PowerManagerConfig power_manager_state;
 static TimerChannel       sequencing_timer;
