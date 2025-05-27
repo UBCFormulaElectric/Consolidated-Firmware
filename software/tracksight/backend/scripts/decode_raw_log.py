@@ -63,7 +63,8 @@ if __name__ == "__main__":
         "-d",
         type=str,
         help="Path to disk",
-        required=True,
+        # required=True,
+        default="E"
     )
     parser.add_argument(
         "--file",
@@ -104,8 +105,8 @@ if __name__ == "__main__":
         "-n",
         type=str,
         help="Descriptive name of this session.",
-        required=True,
-        # default="test-drive"
+        # required=True,
+        default="test-drive"
     )
     parser.add_argument(
         "--file_range", 

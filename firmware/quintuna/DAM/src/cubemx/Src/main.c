@@ -493,6 +493,7 @@ static void MX_I2C1_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
+    tasks_preInitWatchdog();
 #ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 

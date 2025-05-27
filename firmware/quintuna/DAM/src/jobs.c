@@ -9,7 +9,9 @@
 #include "io_log.h"
 #include "io_tsim.h"
 
+
 #include "io_canQueue.h"
+#include "io_canLogging.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_time.h"
@@ -97,7 +99,8 @@ void jobs_runCanRx_tick(void)
 void jobs_runCanRx_callBack(const CanMsg *rx_msg)
 {
     io_telemMessage_pushMsgtoQueue(rx_msg);
-    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
+    io_canLogging_loggingQueuePush(rx_msg);
+     if (io_canRx_filterMessageId_can1(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
     }
