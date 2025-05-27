@@ -66,12 +66,6 @@ typedef struct __attribute__((packed))
     uint8_t SSBC : 1;  
 } AlertStatus;
 
-typedef union
-{
-    float    f;
-    uint32_t u;
-} ResponseValue;
-
 typedef enum
 {
     BQ76922_I2C_ADDR    = 0x10,
