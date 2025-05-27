@@ -11,17 +11,13 @@ void app_shdnLast_broadcast(void)
     {
         node = SHDN_TSMS;
     }
-    else if (!app_canTx_VC_InertiaSwitch_get())
-    {
-        node = SHDN_INERTIA;
-    }
     else if (!app_canRx_FSM_FrontRightILCKOKStatus_get())
     {
-        node = SHDN_FL_ILCK;
+        node = SHDN_FR_ILCK;
     }
     else if (!app_canRx_FSM_FrontLeftILCKOKStatus_get())
     {
-        node = SHDN_FL_ILCK;
+        node = SHDN_FL_INERTIA_ILCK;
     }
     else if (!app_canRx_FSM_BOTSOKStatus_get())
     {
@@ -45,29 +41,32 @@ void app_shdnLast_broadcast(void)
     }
     else if (!app_canTx_VC_RearRightMotorInterlock_get())
     {
-        node = SHDN_INERTIA;
+        node = SHDN_RL_ILCK;
     }
     else if (!app_canRx_RSM_RearLeftMotorInterlock_get())
     {
         node = SHDN_RR_ILCK;
     }
-    // TODO
-    // else if (!app_canRx_BMS_TSIlckOKStatus_get())
-    // {
-    //     node = SHDN_TS_Ilck;
-    // }
-    // else if (!app_canRx_BMS_BmsOk_get())
-    // {
-    //     node = SHDN_BMS_OK;
-    // }
-    // else if (!app_canRx_BMS_BspdOk_get())
-    // {
-    //     node = SHDN_BSPD_OK;
-    // }
-    // else if (!app_canRx_BMS_ImdOk_get())
-    // {
-    //     node = SHDN_IMD_OK;
-    // }
+    else if (!app_canRx_BMS_HVPShdnOKStatus_get())
+    {
+        node = SHDN_HV_P_Ilck;
+    }
+    else if (!app_canRx_BMS_HVNShdnOKStatus_get())
+    {
+        node = SHDN_HV_N_Ilck;
+    }
+    else if (!app_canRx_BMS_BmsOk_get())
+    {
+        node = SHDN_BMS_OK;
+    }
+    else if (!app_canRx_BMS_BspdOk_get())
+    {
+        node = SHDN_BSPD_OK;
+    }
+    else if (!app_canRx_BMS_ImdOk_get())
+    {
+        node = SHDN_IMD_OK;
+    }
     else
     {
         node = SHDN_OK;

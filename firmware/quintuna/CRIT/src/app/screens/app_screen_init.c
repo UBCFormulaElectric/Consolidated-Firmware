@@ -47,7 +47,7 @@ static void init_update(void)
             data_buffer[5] = SEG_PATTERN_O;
             data_buffer[6] = SEG_PATTERN_P;
             break;
-        case SHDN_Inertia:
+        case SHDN_INTERIA:
             data_buffer[0] = SEG_PATTERN_I;
             data_buffer[1] = SEG_PATTERN_N;
             data_buffer[2] = SEG_PATTERN_E;

@@ -10,24 +10,6 @@
         "VC_DRIVE_WARNING_STATE": 7,
         "VC_FAULT_STATE": 8
     },
-    "ShutdownNode": {
-        "SHDN_BSPD_OK": 0,
-        "SHDN_BMS_OK": 1,
-        "SHDN_IMD_OK": 2,
-        "SHDN_TS_Ilck": 3,
-        "SHDN_RL_ILCK" : 4,
-        "SHDN_RR_ILCK" : 5,
-        "SHDN_SB_ILCK" : 6,
-        "SHDN_R_EStop": 7,
-        "SHDN_L_EStop": 8,
-        "SHDN_Cockpit_EStop": 9,
-        "SHDN_BOTS": 10,
-        "SHDN_FR_ILCK": 11,
-        "SHDN_FL_ILCK": 12,
-        "SHDN_INERTIA" : 13,
-        "SHDN_TSMS" : 14,
-        "SHDN_OK": 15
-    },
     "TsimColor" : {
         "TSIM_RED": 0,
         "TSIM_GREEN" : 1,
