@@ -75,10 +75,16 @@ class AppCanUtilsModule(CModule):
 def signal_placement_comment(msg: CanMessage):
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     signals = ["_"] * (msg.bytes() * 8)
-    signals.extend(["x"] * ((8 - msg.bytes()) * 8))
     for signal_cnt, signal in enumerate(msg.signals):
         for i in range(signal.start_bit, signal.start_bit + signal.bits):
             signals[i] = chars[signal_cnt % len(chars)]
 
     signals = list(reversed(signals))
-    return f'|{"|".join("".join(signals[i * 8:(i + 1) * 8]) for i in range(0, 8))}|'
+
+    placement_part = f'|{"|".join("".join(signals[i * 8:(i + 1) * 8]) for i in range(0, msg.bytes()))}|'
+    if msg.bytes() == 0:
+        return "(0 data bytes)"
+    elif msg.bytes() == 1:
+        return placement_part + " (1 data byte)"
+    else:
+        return placement_part + f" ({msg.bytes()} data bytes)"

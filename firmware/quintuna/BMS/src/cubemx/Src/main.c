@@ -705,7 +705,7 @@ static void MX_FDCAN2_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -720,7 +720,7 @@ static void MX_IWDG1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 
@@ -1013,7 +1013,7 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LEDR_GPIO_Port, LEDR_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
@@ -1034,8 +1034,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : LEDR_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin;
+    /*Configure GPIO pins : LED_Pin SPI_CS_LS_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | SPI_CS_LS_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

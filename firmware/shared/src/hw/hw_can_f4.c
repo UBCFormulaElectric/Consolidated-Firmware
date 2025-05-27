@@ -1,6 +1,11 @@
 #include "hw_can.h"
+
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
+#include <FreeRTOS.h>
+#include <cmsis_os2.h>
+#include <task.h>
+
 #include "io_time.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
@@ -67,6 +72,10 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
+// NOTE this design assumes that there is only one task calling this function
+static TaskHandle_t transmit_task = NULL;
+
+// ReSharper disable once CppParameterMayBeConstPtrOrRef -> this breaks compatibility with FDCAN
 ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
@@ -88,8 +97,23 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
-        ;
+    for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
+    {
+        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
+        // context switching
+        if (poll_count <= 1000)
+        {
+            poll_count++;
+            continue;
+        }
+        assert(transmit_task == NULL);
+        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+        transmit_task = xTaskGetCurrentTaskHandle();
+        // timeout just in case the tx complete interrupt does not fire properly?
+        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+        UNUSED(num_notifs);
+        transmit_task = NULL;
+    }
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
@@ -125,9 +149,10 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
     return EXIT_CODE_OK;
 }
 
-static void handle_callback(CAN_HandleTypeDef *hfdcan)
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+static void handle_callback(CAN_HandleTypeDef *hcan)
 {
-    const CanHandle *handle = hw_can_getHandle(hfdcan);
+    const CanHandle *handle = hw_can_getHandle(hcan);
 
     CanMsg rx_msg;
     if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
@@ -144,4 +169,27 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     handle_callback(hcan);
+}
+
+static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
+{
+    if (transmit_task == NULL)
+    {
+        return;
+    }
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(transmit_task, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+}
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
 }

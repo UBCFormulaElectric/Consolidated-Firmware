@@ -122,6 +122,22 @@
       }
     }
   },
+  "HvBatteryProperties": {
+    "msg_id": 455,
+    "cycle_time": 1000,
+    "description": "HV Battery Properties",
+    "signals": {
+      "HvBatterySoc": {
+        "start_bit": 0,
+        "bits": 8,
+        "min": 0,
+        "max": 100,
+        "scale": 1,
+        "offset": 0,
+        "unit": "%"
+      }
+    }
+  },
   "ImdStatus": {
     "msg_id": 452,
     "cycle_time": 100,
@@ -425,6 +441,22 @@
         "bits": 1
       },
       "Seg0_Cell13_OWC_OK": {
+        "bits": 1
+      }
+    },
+    "BMSShdnNodeStatus": {
+    "msg_id": 454,
+
+    "cycle_time": 100,
+    "description": "BMS Shutdown Nodes Status",
+    "signals": {
+      "MSDShdnOKStatus": {
+        "bits": 1
+      },
+      "HVPShdnOKStatus": {
+        "bits": 1
+      },
+      "HVNShdnOKStatus": {
         "bits": 1
       }
     }
