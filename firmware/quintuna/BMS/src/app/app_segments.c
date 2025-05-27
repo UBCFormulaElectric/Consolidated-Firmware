@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <string.h>
 
+// TODO: Take a closer look at these
 #define ADCV_CONVERSION_TIME_MS (10)
 #define ADAX_CONVERSION_TIME_MS (10)
 #define ADOL_CONVERSION_TIME_MS (10)
