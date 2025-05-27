@@ -1,4 +1,5 @@
 #pragma once
+#include "stdbool.h"
 
 /**
  * On-tick 1Hz function for every state in the given state machine

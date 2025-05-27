@@ -1,15 +1,7 @@
 #include "app_allStates.h"
 #include "app_heartbeatMonitors.h"
-#include "quintuna/BMS/src/io/io_faultLatch.h"
+#include "io_faultLatch.h"
 #include "stdbool.h"
-
-/**
- * Num of cycles for voltage and cell temperature values to settle
- */
-#define NUM_CYCLES_TO_SETTLE 30U
-#define NUM_CYCLES_TO_BALANCE 1000U
-#define NUM_CYCLES_TO_MEASURE_BALANCING 100U
-#define NUM_CYCLES_TO_MEASURE_NOMINAL 1000U
 
 void app_allStates_runOnTick1Hz(void)
 {
@@ -51,9 +43,5 @@ bool app_allStates_runOnTick100Hz(void)
 
     /**
      * add soc stat update once app soc is finished
-     */
-
-    /**
-     * add waiting for cell voltage and temperature measurements to settle once accumulator app is finished
      */
 }
