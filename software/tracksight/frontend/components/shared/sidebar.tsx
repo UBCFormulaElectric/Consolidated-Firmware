@@ -1,8 +1,9 @@
 "use client"
-import { Home, FileText, Database, Settings, SaveIcon } from "lucide-react"
+import { Database, Settings, SaveIcon } from "lucide-react"
 import type React from "react"
 
 import { ThemeToggle } from "@/components/shared/theme-toggle"
+import { PausePlayButton } from "@/components/shared/pause-play-control"
 import Image from "next/image"
 
 interface SidebarProps {
@@ -12,33 +13,21 @@ interface SidebarProps {
 
 export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
   return (
-    <div className="w-56 h-screen bg-blue-900 dark:bg-blue-900 flex flex-col">
+    <div className="sticky top-0 h-16 w-full bg-blue-900 dark:bg-blue-900 relative flex items-center px-4">
       {/* Logo */}
-      <div className="flex justify-center py-4">
+      <div className="flex items-center">
         <Image
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-q2Gcff7viO5jsIWpX3GPfyV7M52bUX.jpeg"
           alt="UBC Formula Electric"
-          width={120}
-          height={120}
+          width={32}
+          height={32}
           className="rounded-md"
         />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2">
-        <ul className="space-y-1">
-          <NavItem
-            icon={<Home size={18} />}
-            label="Dashboard"
-            isActive={activePage === "dashboard"}
-            onClick={() => setActivePage("dashboard")}
-          />
-          <NavItem
-            icon={<FileText size={18} />}
-            label="User Guide"
-            isActive={activePage === "user-guide"}
-            onClick={() => setActivePage("user-guide")}
-          />
+      <nav className="ml-6">
+        <ul className="flex space-x-6">
           <NavItem
             icon={<Database size={18} />}
             label="Live Data"
@@ -60,8 +49,13 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Footer with theme toggle */}
-      <div className="p-3 border-t border-blue-800 flex justify-center">
+      {/* Absolutely centered Pause/Play Button */}
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <PausePlayButton />
+      </div>
+
+      {/* Theme toggle - pushed to right */}
+      <div className="flex items-center ml-auto">
         <ThemeToggle />
       </div>
     </div>
@@ -76,11 +70,16 @@ interface NavItemProps {
 }
 
 function NavItem({ icon, label, isActive, onClick }: NavItemProps) {
+  const handleClick = () => {
+    console.log(`Navigating to: ${label}`)
+    onClick()
+  }
+
   return (
     <li>
       <button
-        onClick={onClick}
-        className={`flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors ${
+        onClick={handleClick}
+        className={`flex items-center px-2 py-1 text-sm rounded-md transition-colors ${
           isActive ? "bg-blue-800 text-white" : "text-blue-100 hover:bg-blue-800/50"
         }`}
       >

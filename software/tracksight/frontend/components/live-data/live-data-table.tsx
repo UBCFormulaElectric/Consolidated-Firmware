@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useSignals, DataPoint } from "@/lib/contexts/SignalContext"
+import { useSignals, DataPoint, SignalType } from "@/lib/contexts/SignalContext"
+import { usePausePlay } from "@/components/shared/pause-play-control"
 
 type TelemetryData = {
   id: string
@@ -19,8 +20,10 @@ export default function LiveDataTable() {
     availableSignals,
     subscribeToSignal,
     unsubscribeFromSignal,
-    isLoadingSignals
+    isLoadingSignals,
+    isEnumSignal
   } = useSignals()
+  const { isPaused } = usePausePlay()
   const [lastUpdate, setLastUpdate] = useState(Date.now())
   const [selectedSignal, setSelectedSignal] = useState<string>("")
 
@@ -37,37 +40,47 @@ export default function LiveDataTable() {
   // if we don't even know what signals exist yet, bail
   if (!availableSignals) return []
 
-  return activeSignals.map((signalName) => {
-    const signalMeta = availableSignals.find(meta => meta.name === signalName)
-    // pick out all DataPoint objects whose `name` matches this signal
-    const entries = data.filter(d => (d as any).name === signalName)
-    // grab the very last one, if it exists
-    const latest = entries.length > 0
-      ? entries[entries.length - 1]
-      : null
+  return activeSignals
+    .filter(signalName => !isEnumSignal(signalName)) // Only show non-enum signals in the table
+    .map((signalName) => {
+      const signalMeta = availableSignals.find(meta => meta.name === signalName)
+      // pick out all DataPoint objects whose `name` matches this signal
+      const entries = data.filter(d => (d as any).name === signalName)
+      // grab the very last one, if it exists
+      const latest = entries.length > 0
+        ? entries[entries.length - 1]
+        : null
 
-    return {
-      id:        signalName,
-      parameter: signalName,
-      // unwrap if it exists, otherwise "N/A"
-      value:     latest?.value    ?? "N/A",
-      unit:      signalMeta?.unit ?? "N/A",
-      // use the timestamp if present (ensuring it's a number), otherwise our lastUpdate fallback
-      timestamp: latest?.timestamp ? latest.timestamp : lastUpdate
-    }
-  })
-}, [data, activeSignals, availableSignals, lastUpdate])
+      return {
+        id:        signalName,
+        parameter: signalName,
+        // unwrap if it exists, otherwise "N/A"
+        value:     latest?.value    ?? "N/A",
+        unit:      signalMeta?.unit ?? "N/A",
+        // use the timestamp if present (ensuring it's a number), otherwise our lastUpdate fallback
+        timestamp: latest?.time ? (typeof latest.time === 'number' ? latest.time : new Date(latest.time).getTime()) : lastUpdate
+      }
+    })
+}, [data, activeSignals, availableSignals, lastUpdate, isEnumSignal])
 
 
 
   // Handle subscription to a new signal
   const handleSubscribe = useCallback(() => {
     if (selectedSignal) {
+      // Check if the signal is an enumeration type
+      if (isEnumSignal(selectedSignal)) {
+        console.log(`LiveDataTable - Skipping subscription to ${selectedSignal} as it's an enumeration (should be handled by Enumeration component)`)
+        alert(`The signal "${selectedSignal}" is an enumeration type. Please use the Enumeration component to subscribe to it instead.`)
+        setSelectedSignal("")
+        return
+      }
+      
       console.log(`LiveDataTable - Subscribing to: ${selectedSignal}`)
-      subscribeToSignal(selectedSignal)
+      subscribeToSignal(selectedSignal, SignalType.Numerical) // Explicitly specify as numerical
       setSelectedSignal("")
     }
-  }, [selectedSignal, subscribeToSignal])
+  }, [selectedSignal, subscribeToSignal, isEnumSignal])
   
   // Handle unsubscribing from a signal
   const handleUnsubscribe = useCallback((signalName: string) => {
@@ -93,9 +106,10 @@ export default function LiveDataTable() {
                 onChange={(e) => setSelectedSignal(e.target.value)}
                 className="flex-grow p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
                 disabled={isLoadingSignals}
-              >
-                <option value="">Select a signal...</option>
-                {availableSignals.map((signal, index) => (
+              >              <option value="">Select a signal...</option>
+              {availableSignals
+                .filter(signal => !isEnumSignal(signal.name)) // Filter out enumeration signals
+                .map((signal, index) => (
                   <option key={`${signal.name}-${index}`} value={signal.name}>
                     {signal.name}
                   </option>
@@ -116,7 +130,13 @@ export default function LiveDataTable() {
   }
 
   return (
-    <Card className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+    <Card className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 relative">
+      {/* Pause indicator */}
+      {isPaused && (
+        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10">
+          PAUSED
+        </div>
+      )}
       <CardHeader>
         <CardTitle>Live Telemetry Data</CardTitle>
       </CardHeader>
@@ -156,6 +176,9 @@ export default function LiveDataTable() {
         </div>
 
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+            💡 Note: Enumeration signals (like state, mode, status) are handled by the Enumeration component above.
+          </div>
           <div className="flex flex-wrap gap-2">
             <select
               value={selectedSignal}
@@ -166,7 +189,8 @@ export default function LiveDataTable() {
               <option value="">Select a signal...</option>
               {availableSignals
                 .filter(signal => 
-                  !activeSignals.includes(signal.name)
+                  !activeSignals.includes(signal.name) && 
+                  !isEnumSignal(signal.name) // Filter out enumeration signals
                 )
                 .map((signal, index) => (
                   <option key={`${signal.name}-${index}`} value={signal.name}>

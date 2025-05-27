@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/shared/theme-provider"
 import { Toaster } from "sonner"
 import { SignalProvider } from "@/lib/contexts/SignalContext"
+import { PausePlayProvider } from "@/components/shared/pause-play-control"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -23,10 +24,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <SignalProvider>
-            {children}
-            <Toaster position="top-right" richColors />
-          </SignalProvider>
+          <PausePlayProvider>
+            <SignalProvider>
+              {children}
+              <Toaster position="top-right" richColors />
+            </SignalProvider>
+          </PausePlayProvider>
         </ThemeProvider>
       </body>
     </html>

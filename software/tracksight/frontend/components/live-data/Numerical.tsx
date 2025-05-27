@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react'
 import { SignalProvider, useSignals } from '@/lib/contexts/SignalContext'
+import { usePausePlay } from '@/components/shared/pause-play-control'
 import { AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts'
 
 // Define a palette for signal lines
@@ -15,6 +16,7 @@ interface GraphInstanceProps {
 }
 
 const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
+  const { isPaused } = usePausePlay()
   const {
     availableSignals,
     activeSignals,
@@ -36,12 +38,12 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
     if (!filtered.length) return []
     const map: Record<number, any> = {}
     filtered.forEach(d => {
-      const t = d.timestamp as number
+      const t = typeof d.time === 'number' ? d.time : new Date(d.time).getTime()
       if (!map[t]) map[t] = { time: t }
       map[t][d.name as string] = d.value
     })
     return Object.values(map).sort((a, b) => a.time - b.time)
-  }, [numericalData, activeSignals, isNumericalSignal])
+  }, [numericalData, activeSignals, isNumericalSignal, isPaused])
 
   // Compute which active signals are numerical
   const numericalSignals = useMemo(
@@ -73,6 +75,13 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
 
   return (
     <div className="mb-6 border p-4 rounded relative">
+      {/* Pause indicator */}
+      {isPaused && (
+        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10">
+          PAUSED
+        </div>
+      )}
+      
       <button
         onClick={onDelete}
         className="absolute top-2 right-2 text-red-600 hover:text-red-800"
@@ -165,7 +174,11 @@ const GraphInstance: React.FC<GraphInstanceProps> = ({ onDelete }) => {
               interval={Math.ceil(chartData.length / 10)}
             />
             <YAxis domain={[0, 'auto']} />
-            <Tooltip isAnimationActive={false} animationDuration={0} />
+            <Tooltip 
+              isAnimationActive={false} 
+              animationDuration={0}
+              labelFormatter={(time) => new Date(time).toLocaleString()}
+            />
             {numericalSignals.map((sig, idx) => (
               <Area
                 key={sig}

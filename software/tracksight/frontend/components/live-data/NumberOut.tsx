@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react'
-import { useSignals } from '@/lib/contexts/SignalContext'
+import { useSignals, SignalType } from '@/lib/contexts/SignalContext'
 
 const NumberOut: React.FC = () => {
   const {
@@ -9,7 +9,8 @@ const NumberOut: React.FC = () => {
     availableSignals,
     subscribeToSignal,
     unsubscribeFromSignal,
-    isLoadingSignals
+    isLoadingSignals,
+    isEnumSignal
   } = useSignals();
   
   const [selectedSignal, setSelectedSignal] = useState<string>("");
@@ -24,17 +25,25 @@ const NumberOut: React.FC = () => {
   // Handle subscription to a new signal
   const handleSubscribe = useCallback(() => {
     if (selectedSignal) {
-      console.log(`NumberOut - Subscribing to: ${selectedSignal}`);
+      // Check if the signal is an enumeration type
+      if (isEnumSignal(selectedSignal)) {
+        console.log(`NumberOut - Skipping subscription to ${selectedSignal} as it's an enumeration (should be handled by Enumeration component)`)
+        alert(`The signal "${selectedSignal}" is an enumeration type. Please use the Enumeration component to subscribe to it instead.`)
+        setSelectedSignal("")
+        return
+      }
+      
+      console.log(`NumberOut - Subscribing to: ${selectedSignal}`)
       // If signal was previously hidden, simply unhide it
       if (hiddenSignals.some(s => s.toLowerCase() === selectedSignal.toLowerCase())) {
         setHiddenSignals(prev => prev.filter(s => s.toLowerCase() !== selectedSignal.toLowerCase()));
       } else {
         // Otherwise subscribe to it
-        subscribeToSignal(selectedSignal);
+        subscribeToSignal(selectedSignal, SignalType.Numerical); // Explicitly specify as numerical
       }
       setSelectedSignal("");
     }
-  }, [selectedSignal, subscribeToSignal, hiddenSignals]);
+  }, [selectedSignal, subscribeToSignal, hiddenSignals, isEnumSignal]);
   
   // Handle unsubscribing from a signal
   const removeSignal = useCallback((signalName: string) => {
@@ -55,9 +64,10 @@ const NumberOut: React.FC = () => {
   // Get the latest value for all active signals efficiently
   const latestValues = data.length > 0 ? data[data.length - 1] : { time: Date.now() };
   
-  // Ensure the active signals array has no duplicates and filter out hidden signals
+  // Ensure the active signals array has no duplicates and filter out hidden signals and enumeration signals
   const uniqueActiveSignals = [...new Set(activeSignals)]
-    .filter(signal => !hiddenSignals.some(s => s.toLowerCase() === signal.toLowerCase()));
+    .filter(signal => !hiddenSignals.some(s => s.toLowerCase() === signal.toLowerCase()))
+    .filter(signal => !isEnumSignal(signal)); // Filter out enumeration signals
   
   return (
     <div className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
@@ -65,7 +75,7 @@ const NumberOut: React.FC = () => {
       
       <div className="space-y-3 mb-6">
         {uniqueActiveSignals.length === 0 ? (
-          <div className="text-gray-500">No active signals. Add signals below.</div>
+          <div className="text-gray-500">No active numerical signals. Add signals below.</div>
         ) : (
           // Using uniqueActiveSignals and adding index to ensure keys are unique
           uniqueActiveSignals.map((signalName, index) => (
@@ -90,6 +100,10 @@ const NumberOut: React.FC = () => {
         )}
       </div>
 
+      <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+        💡 Note: Enumeration signals (like state, mode, status) are handled by the Enumeration component above.
+      </div>
+
       <div className="flex flex-wrap gap-2">
         <select
           value={selectedSignal}
@@ -99,12 +113,14 @@ const NumberOut: React.FC = () => {
         >
           <option value="">Select a signal...</option>
           {/* Hidden signals first with a marker */}
-          {hiddenSignals.map((signalName, index) => (
-            <option key={`hidden-${signalName}-${index}`} value={signalName}>
-              {signalName} (hidden)
-            </option>
-          ))}
-          {/* Available signals that aren't already displayed */}
+          {hiddenSignals
+            .filter(signalName => !isEnumSignal(signalName)) // Only show non-enum hidden signals
+            .map((signalName, index) => (
+              <option key={`hidden-${signalName}-${index}`} value={signalName}>
+                {signalName} (hidden)
+              </option>
+            ))}
+          {/* Available signals that aren't already displayed and aren't enumeration signals */}
           {availableSignals
             .filter(signal => 
               !uniqueActiveSignals.some(active => 
@@ -112,7 +128,8 @@ const NumberOut: React.FC = () => {
               ) && 
               !hiddenSignals.some(hidden => 
                 hidden.toLowerCase() === signal.name.toLowerCase()
-              )
+              ) &&
+              !isEnumSignal(signal.name) // Filter out enumeration signals
             )
             .map((signal, index) => (
               <option key={`${signal.name}-${index}`} value={signal.name}>

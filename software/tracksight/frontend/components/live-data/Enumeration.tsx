@@ -1,25 +1,35 @@
-// EnumerationGraph.tsx
 'use client'
 
-import React, { useState, useMemo, useCallback } from 'react'
-import { SignalProvider, useSignals, SignalType } from '@/lib/contexts/SignalContext'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import { useSignals, SignalType } from '@/lib/contexts/SignalContext'
+import { usePausePlay } from '@/components/shared/pause-play-control'
 
 interface StateHistoryItem {
   state: string
   startTime: number
 }
 
-const stateColors: string[] = [
-  '#FF3B2F', '#FFCC02', '#FF9500', '#35C759',
-  '#007AFF', '#5856D6', '#AF52DE', '#FF2D55'
-]
-
-function getStateColor(state: string): string {
-  const index = Math.abs(Number(state)) % stateColors.length
-  return stateColors[index]
+interface StateBar {
+  state: string
+  startTime: number
+  width: number
+  xOffset: number
 }
 
+// Colors for the states, mapping to indices
+const stateColors = [
+  '#FF3B2F',
+  '#FFCC02',
+  '#FF9500',
+  '#35C759',
+  '#007AFF',
+  '#5856D6',
+  '#AF52DE',
+  '#FF2D55',
+]
+
 export default function EnumerationGraph() {
+  const { isPaused } = usePausePlay()
   const {
     availableSignals,
     activeSignals,
@@ -27,10 +37,24 @@ export default function EnumerationGraph() {
     subscribeToSignal,
     unsubscribeFromSignal,
     isLoadingSignals,
-    isEnumSignal
+    isEnumSignal,
+    getEnumValues,
+    mapEnumValue,
   } = useSignals()
 
-  // Options for enumeration signals
+  // Track the time when we were paused to freeze the timeline
+  const [pausedTime, setPausedTime] = useState<number | null>(null)
+  
+  // Update paused time when pause state changes
+  useEffect(() => {
+    if (isPaused && pausedTime === null) {
+      setPausedTime(Date.now())
+    } else if (!isPaused) {
+      setPausedTime(null)
+    }
+  }, [isPaused, pausedTime])
+
+  // all enum-type signals
   const enumerationOptions = useMemo(
     () => availableSignals.filter(s => isEnumSignal(s.name)),
     [availableSignals, isEnumSignal]
@@ -38,72 +62,89 @@ export default function EnumerationGraph() {
 
   const [selectedEnum, setSelectedEnum] = useState<string>('')
 
-  // Currently subscribed enumeration signals
+  // only the enum signals we're subscribed to
   const activeEnums = useMemo(
     () => activeSignals.filter(name => isEnumSignal(name)),
     [activeSignals, isEnumSignal]
   )
 
-  // Subscribe to a signal
+  // subscribe handler
   const handleSubscribe = useCallback(() => {
-    if (selectedEnum) {
-      subscribeToSignal(selectedEnum, SignalType.Enumeration)
-      setSelectedEnum('')
-    }
+    if (!selectedEnum) return
+    subscribeToSignal(selectedEnum, SignalType.Enumeration)
+    setSelectedEnum('')
   }, [selectedEnum, subscribeToSignal])
 
-  // Build history per active enumeration
-  const historyMap = useMemo(() => {
-    const map: Record<string, StateHistoryItem[]> = {}
-    activeEnums.forEach(signalName => {
-      const points = enumData
-        .filter(dp => dp[signalName] !== undefined)
-        .map(dp => ({
-          state: String(dp[signalName]),
-          startTime: typeof dp.time === 'number' ? dp.time : new Date(dp.time).getTime()
-        }))
-      const items: StateHistoryItem[] = []
-      points.forEach(pt => {
-        if (!items.length || items[items.length - 1].state !== pt.state) {
-          items.push(pt)
-        }
-      })
-      map[signalName] = items
-    })
-    return map
-  }, [enumData, activeEnums])
+  // build history per signal
+  const historyMap: Record<string, StateHistoryItem[]> = {}
+  activeEnums.forEach(signalName => {
+    const raw = enumData
+      .filter(dp => dp.name === signalName && dp.value != null)
+      .map(dp => ({
+        state: String(dp.value),
+        startTime:
+          typeof dp.time === 'number' ? dp.time : new Date(dp.time).getTime(),
+      }))
 
-  // Compute bars for a given history
-  function computeBars(history: StateHistoryItem[]) {
-    const windowMs = 10_000
-    const widthPx = typeof window !== 'undefined' ? window.innerWidth - 100 : 1000
-    const pxPerMs = widthPx / windowMs
-    const now = Date.now()
-    return history
+    const items: StateHistoryItem[] = []
+    raw.forEach(pt => {
+      const last = items[items.length - 1]
+      if (!last || last.state !== pt.state) {
+        items.push(pt)
+      }
+    })
+    historyMap[signalName] = items
+  })
+
+  // compute bars without scrolling window: blocks never move, container grows
+  const computeBars = (history: StateHistoryItem[]): StateBar[] => {
+    const timeWindowMs = 5_000
+    const containerWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+    const pxPerMs = containerWidth / timeWindowMs
+    // Use paused time if paused, otherwise use current time
+    const now = isPaused && pausedTime ? pausedTime : Date.now()
+
+    const rawBars = history
       .map((item, i) => {
         const next = history[i + 1]
         const end = next ? next.startTime : now
-        const dur = Math.max(0, end - item.startTime)
         return {
           state: item.state,
           startTime: item.startTime,
-          width: Math.min(dur * pxPerMs, widthPx)
+          width: (end - item.startTime) * pxPerMs,
         }
       })
-      .filter(bar => now - bar.startTime <= windowMs && bar.width > 0)
+      .filter(bar => bar.width > 0)
+
+    let offset = 0
+    return rawBars.map(bar => {
+      const barWithOffset: StateBar = {
+        ...bar,
+        xOffset: offset,
+      }
+      offset += bar.width
+      return barWithOffset
+    })
   }
 
   return (
-    <div className="space-y-4">
-      {/* Subscription controls */}
-      <div className="flex items-center gap-2">
+    <div className="space-y-6">
+      {/* Pause indicator */}
+      {isPaused && (
+        <div className="bg-red-500 text-white px-3 py-2 rounded text-sm font-medium">
+          ⏸️ Data updates are paused
+        </div>
+      )}
+      
+      {/* subscribe controls */}
+      <div className="flex gap-2 items-center">
         <select
+          className="flex-grow p-2 border rounded"
           value={selectedEnum}
-          onChange={e => setSelectedEnum(e.target.value)}
           disabled={isLoadingSignals}
-          className="p-2 border rounded flex-grow"
+          onChange={e => setSelectedEnum(e.target.value)}
         >
-          <option value="">Select enumeration...</option>
+          <option value="">Select enumeration…</option>
           {enumerationOptions
             .filter(opt => !activeEnums.includes(opt.name))
             .map(opt => (
@@ -113,39 +154,80 @@ export default function EnumerationGraph() {
             ))}
         </select>
         <button
-          onClick={handleSubscribe}
-          disabled={!selectedEnum}
           className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          disabled={!selectedEnum}
+          onClick={handleSubscribe}
         >
           Subscribe
         </button>
       </div>
 
-      {/* Render timelines for each active enumeration */}
+      {/* one timeline + legend per subscribed enum */}
       {activeEnums.map(signalName => {
+        const enumVals = getEnumValues(signalName)
         const history = historyMap[signalName] || []
         const bars = computeBars(history)
+
+        const lastCode = history.length > 0 ? history[history.length - 1].state : undefined
+        const lastLabel = lastCode != null ? mapEnumValue(signalName, lastCode) ?? lastCode : undefined
+
         return (
-          <div key={signalName} className="border p-4 rounded">
-            <div className="flex justify-between items-center mb-2">
+          <div key={signalName} className="border rounded p-4 space-y-3">
+            {/* header */}
+            <div className="flex justify-between items-center">
               <h3 className="font-semibold">{signalName}</h3>
-              <button
-                onClick={() => unsubscribeFromSignal(signalName)}
-                className="text-red-500 hover:text-red-700"
-              >
+              <button className="text-red-500 hover:text-red-700" onClick={() => unsubscribeFromSignal(signalName)}>
                 Unsubscribe
               </button>
             </div>
-            <div className="h-6 bg-gray-100 overflow-hidden">
-              <div className="flex">
-                {bars.map((bar, idx) => (
-                  <div
-                    key={idx}
-                    className="h-6"
-                    style={{ width: bar.width, backgroundColor: getStateColor(bar.state) }}
-                    title={`${bar.state} @ ${new Date(bar.startTime).toLocaleTimeString()}`}  
-                  />
-                ))}
+
+            {/* legend */}
+            <div className="flex flex-wrap gap-4 text-xs">
+              {enumVals.map((stateLabel, i) => {
+                const color = stateColors[i % stateColors.length]
+                const isActive = stateLabel === lastLabel
+                return (
+                  <div key={stateLabel} className="inline-flex items-center gap-1">
+                    <span className="w-3 h-3 block rounded" style={{ backgroundColor: color }} />
+                    <span className={`${isActive ? 'font-bold text-black' : 'text-gray-500'} transition`}>
+                      {stateLabel}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* timeline blocks + time axis */}
+            <div className="inline-block">
+              <div className="relative">
+                <div className="h-6 flex flex-row flex-nowrap">
+                  {bars.map((bar, idx) => {
+                    const label = mapEnumValue(signalName, bar.state) ?? bar.state
+                    const enumIndex = enumVals.indexOf(label)
+                    const historyIndex = history.findIndex(item => (mapEnumValue(signalName, item.state) ?? item.state) === label)
+                    const idxForColor = enumIndex >= 0 ? enumIndex : historyIndex
+                    const color = stateColors[idxForColor % stateColors.length]
+                    return (
+                      <div
+                        key={idx}
+                        className="h-6 shrink-0"
+                        style={{ width: `${bar.width}px`, backgroundColor: color }}
+                        title={`${label} @ ${new Date(bar.startTime).toLocaleTimeString()}`}
+                      />
+                    )
+                  })}
+                </div>
+                <div className="absolute top-full left-0 h-4">
+                  {bars.map((bar, idx) => (
+                    <div
+                      key={idx}
+                      className="absolute whitespace-nowrap text-xs"
+                      style={{ left: `${bar.xOffset}px` }}
+                    >
+                      {new Date(bar.startTime).toLocaleTimeString()}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
