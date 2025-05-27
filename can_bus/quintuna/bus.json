@@ -55,7 +55,7 @@
     },
     {
       "name": "can3",
-      "nodes": ["VC", "INVFR","INVFL","INVRR", "INVRL"],
+      "nodes": ["VC", "INVFR","INVFL","INVRR", "INVRL", "EMeter"],
       "bus_speed": 500,
       "modes": [
         "DEFAULT",
