@@ -10,15 +10,15 @@
 // Defined in linker script.
 extern uint32_t __app_code_start__;
 
-typedef struct __attribute__((packed))
+typedef struct
 {
-    uint8_t     magic;
+    uint32_t    magic;
     BootRequest request;
 } BootRequestData;
 
 // The boot_request RAM section gets exactly 4 bytes at the end of the stack.
-static_assert(sizeof(BootRequestData) == 7, "");
-static_assert(_Alignof(BootRequestData) == 1, "");
+static_assert(sizeof(BootRequestData) == 12, "");
+static_assert(_Alignof(BootRequestData) == 4, "");
 
 // Boot flag from RAM
 __attribute__((section(".boot_request"))) volatile BootRequestData boot_request;

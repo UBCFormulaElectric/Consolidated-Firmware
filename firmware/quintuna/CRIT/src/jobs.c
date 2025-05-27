@@ -9,7 +9,6 @@
 #include "screens/app_screens.h"
 #include "app_leds.h"
 #include "app_switches.h"
-#include "app_stackWaterMarks.h"
 #include "app_jsoncan.h"
 
 // IO
@@ -51,7 +50,6 @@ void jobs_run1Hz_tick(void)
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode_can2(CAN2_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
-    app_stackWaterMark_check();
 }
 
 void jobs_run100Hz_tick(void)

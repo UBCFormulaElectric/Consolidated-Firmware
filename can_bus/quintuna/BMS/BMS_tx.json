@@ -19,6 +19,9 @@
     "signals": {
       "ResetReason": {
         "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 16
       }
     }
   },
@@ -138,67 +141,67 @@
     }
   },
   "ImdStatus": {
-        "msg_id": 452,
-        "cycle_time": 100,
-        "description": "BMS IMD Messages",
-        "signals": {
-            "ImdOkHs": {
-                "bits": 1
-            },
-            "ImdTimeSincePowerOn": {
-                "min": 0,
-                "resolution": 1,
-                "max": 10000,
-                "unit": "ms"
-            },
-            "ImdValidDutyCycle": {
-                "bits": 1
-            },
-            "ImdCondition": {
-                "enum": "ImdConditionName"
-            },
-            "ImdDutyCycle": {
-                "bits": 8,
-                "min": 0,
-                "max": 100,
-                "unit": "%"
-            },
-            "ImdFrequency": {
-                "bits": 8,
-                "min": 0,
-                "max": 100,
-                "unit": "Hz"
-            }
-        }
-    },
-    "ImdData": {
-        "msg_id": 453,
-        "cycle_time": 1000,
-        "description": "BMS IMD Measurement Data Values",
-        "signals": {
-            "ImdActiveFrequency": {
-                "enum": "ImdActiveFrequency"
-            },
-            "ImdInsulationMeasurementDcp10Hz": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 65535,
-                "unit": "kOhm"
-            },
-            "ImdInsulationMeasurementDcp20Hz": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 65535,
-                "unit": "kOhm"
-            },
-            "ImdSpeedStartStatus30Hz": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 65535
-            }
-        }
-    },
-    "BMSShdnNodeStatus": {
+    "msg_id": 452,
+    "cycle_time": 100,
+    "description": "BMS IMD Messages",
+    "signals": {
+      "ImdOkHs": {
+        "bits": 1
+      },
+      "ImdTimeSincePowerOn": {
+        "min": 0,
+        "resolution": 1,
+        "max": 10000,
+        "unit": "ms"
+      },
+      "ImdValidDutyCycle": {
+        "bits": 1
+      },
+      "ImdCondition": {
+        "enum": "ImdConditionName"
+      },
+      "ImdDutyCycle": {
+        "bits": 8,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "ImdFrequency": {
+        "bits": 8,
+        "min": 0,
+        "max": 100,
+        "unit": "Hz"
+      }
+    }
+  },
+  "ImdData": {
+    "msg_id": 453,
+    "cycle_time": 1000,
+    "description": "BMS IMD Measurement Data Values",
+    "signals": {
+      "ImdActiveFrequency": {
+        "enum": "ImdActiveFrequency"
+      },
+      "ImdInsulationMeasurementDcp10Hz": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 65535,
+        "unit": "kOhm"
+      },
+      "ImdInsulationMeasurementDcp20Hz": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 65535,
+        "unit": "kOhm"
+      },
+      "ImdSpeedStartStatus30Hz": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 65535
+      }
+    }
+  },
+  "BMSShdnNodeStatus": {
     "msg_id": 454,
 
     "cycle_time": 100,

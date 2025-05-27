@@ -1,10 +1,12 @@
 #include "tasks.h"
+#include "hw_bootup.h"
 #include "jobs.h"
 #include "main.h"
 #include "cmsis_os.h"
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_canAlerts.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -57,6 +59,19 @@ void tasks_init(void)
     io_telemMessage_init();
 
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    // Check for stack overflow on a previous boot cycle and populate CAN alert.
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    {
+        app_canAlerts_DAM_Info_StackOverflow_set(true);
+        app_canTx_DAM_StackOverflowTask_set(boot_request.context_value);
+
+        // Clear stack overflow bootup.
+        boot_request.context       = BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw_bootup_setBootRequest(boot_request);
+    }
 }
 
 _Noreturn void tasks_runChimera(void)

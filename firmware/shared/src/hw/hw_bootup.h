@@ -18,10 +18,11 @@ typedef enum __attribute__((packed))
     BOOT_CONTEXT_STACK_OVERFLOW,
 } BootContext;
 
-typedef struct __attribute__((packed))
+typedef struct
 {
     BootTarget  target;
     BootContext context;
+    uint16_t    _unused;
     uint32_t    context_value; // Context-dependent value
 } BootRequest;
 

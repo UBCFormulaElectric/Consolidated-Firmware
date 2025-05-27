@@ -19,6 +19,9 @@
     "signals": {
       "ResetReason": {
         "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 16
       }
     }
   },
