@@ -34,9 +34,11 @@ static void init_update(void)
             data_buffer[1] = SEG_PATTERN_M;
             data_buffer[2] = SEG_PATTERN_D;
             break;
-        case SHDN_TS_Ilck:
+        case SHDN_TSMS:
             data_buffer[0] = SEG_PATTERN_T;
             data_buffer[1] = SEG_PATTERN_S;
+            data_buffer[2] = SEG_PATTERN_M;
+            data_buffer[3] = SEG_PATTERN_S;
             break;
         case SHDN_Cockpit_EStop:
             data_buffer[0] = SEG_PATTERN_C;
@@ -47,14 +49,14 @@ static void init_update(void)
             data_buffer[5] = SEG_PATTERN_O;
             data_buffer[6] = SEG_PATTERN_P;
             break;
-        case SHDN_INTERIA:
-            data_buffer[0] = SEG_PATTERN_I;
-            data_buffer[1] = SEG_PATTERN_N;
-            data_buffer[2] = SEG_PATTERN_E;
-            data_buffer[3] = SEG_PATTERN_R;
-            data_buffer[4] = SEG_PATTERN_T;
-            data_buffer[5] = SEG_PATTERN_I;
-            data_buffer[6] = SEG_PATTERN_A;
+        case SHDN_FL_INERTIA_ILCK:
+            data_buffer[0] = SEG_PATTERN_F;
+            data_buffer[1] = SEG_PATTERN_L;
+            data_buffer[2] = SEG_PATTERN_DP;
+            data_buffer[3] = SEG_PATTERN_I;
+            data_buffer[4] = SEG_PATTERN_N;
+            data_buffer[5] = SEG_PATTERN_E;
+            data_buffer[6] = SEG_PATTERN_R;
             break;
         case SHDN_BOTS:
             data_buffer[0] = SEG_PATTERN_B;
@@ -79,25 +81,50 @@ static void init_update(void)
             data_buffer[5] = SEG_PATTERN_O;
             data_buffer[6] = SEG_PATTERN_P;
             break;
-        case SHDN_TSMS:
+        case SHDN_SB_ILCK:
             data_buffer[0] = SEG_PATTERN_T;
             data_buffer[1] = SEG_PATTERN_S;
             data_buffer[2] = SEG_PATTERN_M;
             data_buffer[3] = SEG_PATTERN_S;
             break;
-        case SHDN_SB_ILCK:
-            data_buffer[0] = SEG_PATTERN_S;
-            data_buffer[1] = SEG_PATTERN_B;
+        case SHDN_FR_ILCK:
+            data_buffer[0] = SEG_PATTERN_F;
+            data_buffer[1] = SEG_PATTERN_R;
             data_buffer[2] = SEG_PATTERN_DP;
             data_buffer[3] = SEG_PATTERN_I;
             data_buffer[4] = SEG_PATTERN_L;
             data_buffer[5] = SEG_PATTERN_K;
             break;
-        case SHDN_HVD_ILCK:
+        case SHDN_RL_ILCK:
+            data_buffer[0] = SEG_PATTERN_R;
+            data_buffer[1] = SEG_PATTERN_L;
+            data_buffer[2] = SEG_PATTERN_DP;
+            data_buffer[3] = SEG_PATTERN_I;
+            data_buffer[4] = SEG_PATTERN_L;
+            data_buffer[5] = SEG_PATTERN_K;
+            break;
+        case SHDN_RR_ILCK:
+            data_buffer[0] = SEG_PATTERN_R;
+            data_buffer[1] = SEG_PATTERN_R;
+            data_buffer[2] = SEG_PATTERN_DP;
+            data_buffer[3] = SEG_PATTERN_I;
+            data_buffer[4] = SEG_PATTERN_L;
+            data_buffer[5] = SEG_PATTERN_K;
+            break;
+        case SHDN_HV_P_Ilck:
             data_buffer[0] = SEG_PATTERN_H;
             data_buffer[1] = SEG_PATTERN_V;
             data_buffer[2] = SEG_PATTERN_D;
-            data_buffer[3] = SEG_PATTERN_DP;
+            data_buffer[3] = SEG_PATTERN_P;
+            data_buffer[4] = SEG_PATTERN_I;
+            data_buffer[5] = SEG_PATTERN_L;
+            data_buffer[6] = SEG_PATTERN_K;
+            break;
+        case SHDN_HV_N_Ilck:
+            data_buffer[0] = SEG_PATTERN_H;
+            data_buffer[1] = SEG_PATTERN_V;
+            data_buffer[2] = SEG_PATTERN_D;
+            data_buffer[3] = SEG_PATTERN_N;
             data_buffer[4] = SEG_PATTERN_I;
             data_buffer[5] = SEG_PATTERN_L;
             data_buffer[6] = SEG_PATTERN_K;
