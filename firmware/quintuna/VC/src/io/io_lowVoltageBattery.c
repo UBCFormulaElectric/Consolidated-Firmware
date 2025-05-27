@@ -160,8 +160,6 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
 
 inline ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status){
     uint8_t buffer_bat[1] = { (uint8_t)BATTERY_STATUS };
-    RETURN_IF_ERR(hw_i2c_isTargetReady(&bat_mtr));
-
     // ask for battery status to check if the device is sleep or not
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_bat, 1));
     RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)bat_status, 2));
