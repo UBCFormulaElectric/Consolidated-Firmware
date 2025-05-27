@@ -96,38 +96,6 @@
       }
     }
   },
-  "WatermarkLevel": {
-    "msg_id": 915,
-    "cycle_time": 100,
-    "description": "",
-    "signals": {
-      "StackWaterMarkHighTask1HzLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTask100HzLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTask1kHzLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTaskCanRxLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTaskCanTxLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      }
-    }
-  },
   "WarningInfo": {
     "msg_id": 916,
     "cycle_time": 100,
