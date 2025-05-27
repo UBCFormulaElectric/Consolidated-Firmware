@@ -19,8 +19,8 @@ bool io_ltc6813CellVoltages_owcPull(const PullDirection pull_direction)
 #define MD (0x11U)
 
 // TODO make backwards
-#define ADOW_PU ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PU << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
-#define ADOW_PD ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PD << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
+#define ADOW_PU_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PU << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
+#define ADOW_PD_FIL ((uint16_t)(((0x028U + (MD << 7U) + (PUP_PD << 6U) + (DCP << 4U) + CH_OWC) << 8U) | 0x0003U))
 
-    return pull_direction == PULL_UP ? io_ltc6813_sendCommand(ADOW_PU) : io_ltc6813_sendCommand(ADOW_PD);
+    return pull_direction == PULL_UP ? io_ltc6813_sendCommand(ADOW_PU_FIL) : io_ltc6813_sendCommand(ADOW_PD_FIL);
 }
