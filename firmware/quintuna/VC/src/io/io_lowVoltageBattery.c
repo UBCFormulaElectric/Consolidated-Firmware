@@ -4,10 +4,15 @@
 #include "hw_utils.h"
 #include "io_log.h"
 #include "io_lowVoltageBatReg.h"
+#include <SEGGER.h>
+#include <pb.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define BYTE_MASK(x) ((x) & 0XFF)
 #define FRACTION 4294967296.0
+
 
 typedef struct
 {
@@ -32,6 +37,21 @@ static const HardwareConfig_t HardwareConfig = { .r_sense                = 3.0f,
  * @param cmd The 16-bit subcommand to send.
  * @return true if the subcommand was sent and the response is ready; false otherwise.
  */
+
+
+static inline uint8_t check_sum_calc(uint16_t cmd, uint8_t* data, size_t length){
+    
+    uint8_t calcChecksum =
+    (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8)))));
+
+    for (uint8_t i = 0; i<length; i++) {
+        calcChecksum+=data[length];
+    }
+
+    return ~((uint8_t)BYTE_MASK(calcChecksum));
+}
+
+
 static ExitCode send_subcommand(uint16_t cmd)
 {
     RETURN_IF_ERR(hw_i2c_isTargetReady(&bat_mtr));
@@ -41,7 +61,6 @@ static ExitCode send_subcommand(uint16_t cmd)
 
     return EXIT_CODE_OK;
 }
-//0x9286 address of scd threshod
 
 static ExitCode recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
 {
@@ -63,94 +82,41 @@ static ExitCode recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
     // there may be two ways of doing this. If the frame is not limited to two bytes only then but then in the specific
     // function call you process the data
     RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, REG_DATA_BUFFER, response->response_buffer, response->length));
-    // optional CRC check if we want. Gonn leave it uncommented for now
-        uint8_t calcChecksum =
-        (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8)))));
 
-    for (uint8_t i = 0; i<response->length; i++) {
-        calcChecksum+=response->response_buffer[i];
-    }
-
-    uint8_t calc_inversion = ~((uint8_t)BYTE_MASK(calcChecksum));
+    uint8_t calccheck_inversion = check_sum_calc(cmd, response->response_buffer, response->length);
     uint8_t checksum;
-
     RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, REG_CHECKSUM, &checksum, 1));
 
-    if (calc_inversion != checksum)
+    if (calccheck_inversion != checksum)
     {
         return EXIT_CODE_ERROR;
     }
     return EXIT_CODE_OK;
 }
 
-static ExitCode send_writeSubcommandToLowerSCDThresh(){
-    
-    uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(0x9286), (uint8_t) BYTE_MASK(0x9286 >> 8)};
+
+static ExitCode command_to_setThresholds(uint16_t cmd_id, uint8_t *data, size_t size_of_data)
+{
+    uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(cmd_id), (uint8_t) BYTE_MASK(cmd_id >> 8)};
     //first we are writing to address 0x3E to set the subcommand
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
-    //what we are trying to do with info is send a number with max 15 which can be done in a byte
-    uint8_t thresh[2] = {0x09,0x00}; //13 in hex cause we are setting it 400mV max threshold
-    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, thresh, 2));
+
+    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, data, 2));
     //need to add the CRC config here and we need to transmit both checksum and length in one
 
-    uint8_t calcChecksum =
-    (uint8_t)(((uint8_t)(BYTE_MASK(0x9286))) + ((uint8_t)((BYTE_MASK(0x9286 >> 8)))) + thresh[0]);
+    uint8_t calcChecksum = check_sum_calc(cmd_id, data, size_of_data);
+    uint8_t size_of_frame_mem = (uint8_t) size_of_data + 4;
 
-    uint8_t crc_length_thresh[2] = {~((uint8_t)BYTE_MASK(calcChecksum)), 6};
+    uint8_t crc_length_thresh[2] = {calcChecksum, size_of_frame_mem};
 
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_CHECKSUM, crc_length_thresh, 2));
 
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
     Subcommand_Response thresh_response;
-    RETURN_IF_ERR(recieve_subcommand(0x9286,&thresh_response));
+    RETURN_IF_ERR(recieve_subcommand(cmd_id,&thresh_response));
 
     return EXIT_CODE_OK;
 }
-
-static ExitCode send_writeSubcommandToLowerCUVThresh(){
-    
-    uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(0x9275), (uint8_t) BYTE_MASK(0x9275 >> 8)};
-    //first we are writing to address 0x3E to set the subcommand
-    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
-    //what we are trying to do with info is send a number with max 15 which can be done in a byte
-    uint8_t thresh[2] = {0x37,0x00}; //13 in hex cause we are setting it 400mV max threshold
-    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, thresh, 2));
-    //need to add the CRC config here and we need to transmit both checksum and length in one
-
-    uint8_t calcChecksum =
-    (uint8_t)(((uint8_t)(BYTE_MASK(0x9275))) + ((uint8_t)((BYTE_MASK(0x9275 >> 8)))) + thresh[0]);
-
-    uint8_t crc_length_thresh[2] = {~((uint8_t)BYTE_MASK(calcChecksum)), 6};
-
-    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_CHECKSUM, crc_length_thresh, 2));
-
-    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
-    Subcommand_Response thresh_response;
-    RETURN_IF_ERR(recieve_subcommand(0x9275,&thresh_response));
-
-    return EXIT_CODE_OK;
-}
-
-// static ExitCode send_writeSubcommandToLowerSCDDelay(){
-//     uint8_t delay_cmd_address[2] = {(uint8_t) BYTE_MASK(0x9287), (uint8_t)BYTE_MASK(0x9287<<8)};
-
-//     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, delay_cmd_address, 2));
-
-//     uint8_t delay[2] = {0x20,0x00};
-//     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, delay, 2));
-
-//     uint8_t calcChecksum1 =
-//     (uint8_t)(((uint8_t)(BYTE_MASK(0x9287))) + ((uint8_t)((BYTE_MASK(0x9287 >> 8)))) + delay[0]);
-
-//     uint8_t crc_length_delay[2] = {~((uint8_t)BYTE_MASK(calcChecksum1)), 0x06};
-
-//     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_CHECKSUM, crc_length_delay, 2));
-
-//     Subcommand_Response delay_response;
-//     RETURN_IF_ERR(recieve_subcommand(0x9287,&delay_response));
-
-//     return EXIT_CODE_OK;
-// }
 
 ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
 
@@ -192,26 +158,43 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
     return EXIT_CODE_OK;
 }
 
-ExitCode io_lowVoltageBattery_initial_setup(void)
-{
+inline ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status){
     uint8_t buffer_bat[1] = { (uint8_t)BATTERY_STATUS };
-
     RETURN_IF_ERR(hw_i2c_isTargetReady(&bat_mtr));
 
     // ask for battery status to check if the device is sleep or not
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_bat, 1));
+    RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)bat_status, 2));
+
+    return EXIT_CODE_OK;
+}
+
+inline ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status){
+    uint8_t buffer_control[1] = { (uint8_t)CONTROL_STATUS };
+    RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_control, 1));
+    RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&ctrl_status, 2));
+
+    return EXIT_CODE_OK;
+}
+
+ExitCode io_lowVoltageBattery_initial_setup(void)
+{
+    RETURN_IF_ERR(hw_i2c_isTargetReady(&bat_mtr));
+
+    // ask for battery status to check if the device is sleep or not
+    // For now I am gonna cast this as a void but later may change to do something else
     Battery_Status bat_status;
-    RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&bat_status, 2));
+    (void) io_lowvoltageBattery_batteryStatus(&bat_status);
+
     //Put the chip into config update mode
     RETURN_IF_ERR(send_subcommand((uint16_t) 0x0090))
 
     RETURN_IF_ERR(io_lowVoltageBattery_SafetyStatusCheck())
 
     // ask for control status
-    uint8_t buffer_control[1] = { (uint8_t)CONTROL_STATUS };
-    RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_control, 1));
+    // for now leave as void but I am going to change this later
     Control_Status ctrl_status;
-    RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&ctrl_status, 2));
+    (void) io_lowVoltageBattery_controlStatus(&ctrl_status);
 
     if (bat_status.SLEEP == 1)
     {
@@ -233,8 +216,13 @@ ExitCode io_lowVoltageBattery_initial_setup(void)
     Subcommand_Response response;
     RETURN_IF_ERR(recieve_subcommand(manu_status,&response));
 
-    RETURN_IF_ERR(send_writeSubcommandToLowerSCDThresh());
-    //RETURN_IF_ERR(send_writeSubcommandToLowerSCDDelay());
+    uint8_t thresh_scd[2] = {0x09,0x00}; //9 in hex cause we are setting it 400mV max threshold
+    RETURN_IF_ERR(command_to_setThresholds( (uint16_t) 0x9286, thresh_scd, 2));
+
+    uint8_t CUV_thresh[2] = {0x37,0x00};
+    RETURN_IF_ERR(command_to_setThresholds((uint16_t) 0x9275, CUV_thresh, 2));
+
+    
 
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_bat, 1));
 
@@ -248,15 +236,6 @@ ExitCode io_lowVoltageBattery_initial_setup(void)
 
     uint16_t turning_on_fets_cmd = 0x0096;
     RETURN_IF_ERR(send_subcommand(turning_on_fets_cmd));
-
-    while(1){
-        RETURN_IF_ERR(send_subcommand(manu_status));
-        Subcommand_Response response1;
-        RETURN_IF_ERR(recieve_subcommand(manu_status,&response1));
-        // turn on all the fets
-        RETURN_IF_ERR(io_lowVoltageBattery_SafetyStatusCheck());
-    }
-    //tell the chip to exit config udpate mode
     return EXIT_CODE_OK;
 }
 /**
