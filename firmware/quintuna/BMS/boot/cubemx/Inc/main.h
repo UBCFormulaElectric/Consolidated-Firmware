@@ -68,8 +68,8 @@ extern "C"
 #define BSPD_TEST_EN_GPIO_Port GPIOA
 #define nCHIMERA_Pin GPIO_PIN_5
 #define nCHIMERA_GPIO_Port GPIOA
-#define DEBUG_LED_Pin GPIO_PIN_7
-#define DEBUG_LED_GPIO_Port GPIOE
+#define LED_Pin GPIO_PIN_7
+#define LED_GPIO_Port GPIOE
 #define SPI_CS_Pin GPIO_PIN_12
 #define SPI_CS_GPIO_Port GPIOB
 #define BMS_OK_Pin GPIO_PIN_9

@@ -86,7 +86,7 @@ const osThreadAttr_t TaskCanRx_attributes = {
     .cb_size    = sizeof(TaskCanRxControlBlock),
     .stack_mem  = &TaskCanRxBuffer[0],
     .stack_size = sizeof(TaskCanRxBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for TaskCanTx */
 osThreadId_t         TaskCanTxHandle;
@@ -98,7 +98,7 @@ const osThreadAttr_t TaskCanTx_attributes = {
     .cb_size    = sizeof(TaskCanTxControlBlock),
     .stack_mem  = &TaskCanTxBuffer[0],
     .stack_size = sizeof(TaskCanTxBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
@@ -598,21 +598,21 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 3;
-    hfdcan1.Init.NominalSyncJumpWidth = 3;
-    hfdcan1.Init.NominalTimeSeg1      = 12;
-    hfdcan1.Init.NominalTimeSeg2      = 3;
+    hfdcan1.Init.ProtocolException    = ENABLE;
+    hfdcan1.Init.NominalPrescaler     = 2;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 45;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
     hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
+    hfdcan1.Init.DataSyncJumpWidth    = 6;
+    hfdcan1.Init.DataTimeSeg1         = 17;
+    hfdcan1.Init.DataTimeSeg2         = 6;
     hfdcan1.Init.MessageRAMOffset     = 0;
     hfdcan1.Init.StdFiltersNbr        = 0;
     hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan1.Init.RxFifo1ElmtsNbr      = 1;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.RxBuffersNbr         = 0;
     hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
@@ -689,7 +689,7 @@ static void MX_FDCAN2_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -704,7 +704,7 @@ static void MX_IWDG1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 
@@ -997,7 +997,7 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LEDR_GPIO_Port, LEDR_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
@@ -1018,8 +1018,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LEDR_Pin SPI_CS_LS_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin | SPI_CS_LS_Pin;
+    /*Configure GPIO pins : LED_Pin SPI_CS_LS_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | SPI_CS_LS_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

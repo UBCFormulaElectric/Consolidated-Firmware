@@ -101,10 +101,9 @@ typedef struct __attribute__((packed))
  */
 typedef struct __attribute__((packed))
 {
-    uint8_t HOURS : 5; // Hours (0d-23 or 1d-12)
-    uint8_t AMPM : 1;  // 0: AM, 1: PM (only in 12-hour mode)
+    uint8_t HOURS : 6; // Hours (0d-23 or 1d-12)
     uint8_t RESERVED : 2;
-} Hours_t;
+} Hours_t; // 24 hour mode
 
 /**
  * Days Register (REG_DAYS)
@@ -282,15 +281,15 @@ static uint8_t bcd_to_integer(uint8_t value)
     return (uint8_t)((value >> 4) * 10 + (value & 0x0F));
 }
 
-bool io_rtc_init(void)
+ExitCode io_rtc_init(void)
 {
     // 24-hour mode, no interrupts, oscillator running
     // select 7 pF capacitor instead of 12.5 pF
     Register_t control1;
     control1.raw = 0x00;
 
-    bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
-    if (!su)
+    ExitCode su = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1.raw));
+    if (su != EXIT_CODE_OK)
     {
         LOG_ERROR("Failed to write to RTC control register 1");
         return false;
@@ -298,7 +297,7 @@ bool io_rtc_init(void)
 
     Register_t control3 = { 0 };
     su                  = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_3, &control3.raw, sizeof(control3.raw));
-    if (!su)
+    if (su != EXIT_CODE_OK)
     {
         LOG_ERROR("Failed to write to RTC control register 3");
         return false;
@@ -314,7 +313,7 @@ bool io_rtc_init(void)
     return true;
 }
 
-bool io_rtc_setTime(IoRtcTime *time)
+ExitCode io_rtc_setTime(IoRtcTime *time)
 {
     uint8_t seconds  = integer_to_bcd(time->seconds);
     uint8_t minutes  = integer_to_bcd(time->minutes);
@@ -331,7 +330,7 @@ bool io_rtc_setTime(IoRtcTime *time)
     regMinutes.minutes.MINUTES = (uint8_t)(minutes) & 0x7F;
 
     Register_t regHours  = { 0 };
-    regHours.hours.HOURS = (uint8_t)(hours) & 0x1F;
+    regHours.hours.HOURS = (uint8_t)(hours) & 0x3F;
 
     Register_t regDays = { 0 };
     regDays.days.DAYS  = (uint8_t)(date);
@@ -350,29 +349,29 @@ bool io_rtc_setTime(IoRtcTime *time)
     };
 
     LOG_INFO(
-        "Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day,
-        time->month, time->year);
+        "Setting RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->year,
+        time->month, time->day);
     LOG_INFO(
         "Writing to RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
         buffer[5], buffer[6]);
 
-    bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
-    if (!su)
+    ExitCode su = hw_i2c_memoryWrite(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+    if (su != EXIT_CODE_OK)
     {
         LOG_ERROR("Failed to write to RTC time registers");
-        return false;
+        return su;
     }
-    return true;
+    return su;
 }
 
-bool io_rtc_readTime(IoRtcTime *time)
+ExitCode io_rtc_readTime(IoRtcTime *time)
 {
-    uint8_t buffer[7];
-    bool    su = hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
-    if (!su)
+    uint8_t  buffer[7];
+    ExitCode su = hw_i2c_memoryRead(&rtc_i2c, REG_SECONDS, buffer, sizeof(buffer));
+    if (su != EXIT_CODE_OK)
     {
         LOG_ERROR("Failed to read from RTC time registers");
-        return false;
+        return su;
     }
 
     Register_t regSecond;
@@ -405,12 +404,12 @@ bool io_rtc_readTime(IoRtcTime *time)
     time->year     = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
 
     LOG_INFO(
-        "Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->day,
-        time->month, time->year);
+        "Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->year,
+        time->month, time->day);
     LOG_INFO(
         "Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
         buffer[5], buffer[6]);
-    return true;
+    return su;
 }
 
 void io_rtc_reset(void)
@@ -419,8 +418,8 @@ void io_rtc_reset(void)
     control1.raw = 0x58; // For a software reset, 01011000 (58h) must be sent to register Control_1 (see Section 8.3).
                          // Bit SR always returns 0 when read.
 
-    bool su = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1));
-    if (!su)
+    ExitCode su = hw_i2c_memoryWrite(&rtc_i2c, REG_CONTROL_1, &control1.raw, sizeof(control1));
+    if (su != EXIT_CODE_OK)
     {
         LOG_ERROR("Failed to write to RTC control register 1");
     }

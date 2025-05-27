@@ -1,22 +1,35 @@
 {
     "Vitals": {
-        "msg_id": 800,
-        "cycle_time": 10,
-        "description": "DAM Vital signals",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            }
+      "msg_id": 800,
+      "cycle_time": 10,
+      "description": "DAM Vital signals",
+      "signals": {
+        "Heartbeat": {
+          "bits": 1
         }
+      }
     },
-    "Debug": {
-        "msg_id": 807,
-        "cycle_time": 1000,
-        "description": "DAM Debug Signals",
-        "signals": {
-            "ResetReason": {
-                "enum": "CanResetReason"
-            }
+    "CommitInfo": {
+      "msg_id": 809,
+      "cycle_time": 100,
+      "description": "DAM Current Running Git Commit Info",
+      "signals": {
+        "Hash": {
+          "bits": 32
+        },
+        "Clean": {
+          "bits": 1
         }
+      }
+  },
+    "Debug": {
+      "msg_id": 807,
+      "cycle_time": 1000,
+      "description": "DAM Debug Signals",
+      "signals": {
+        "ResetReason": {
+          "enum": "CanResetReason"
+        }
+      }
     }
 }

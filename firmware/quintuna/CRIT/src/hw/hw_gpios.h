@@ -21,8 +21,5 @@ extern const Gpio seven_seg_srck;
 extern const Gpio led_rck;
 extern const Gpio seven_seg_rck;
 
-extern const Gpio seven_seg_dimming;
-extern const Gpio led_dimming;
-
 extern const Gpio led_serin;
 extern const Gpio seven_seg_serin;

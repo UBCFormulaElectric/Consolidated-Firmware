@@ -1,8 +1,13 @@
 {
     "VCState": {
-        "VC_INIT_STATE": 0,
-        "VC_INVERTER_ON_STATE": 1,
-        "VC_DRIVE_STATE": 2
+        "VC_DRIVE_WARNING_STATE": 0,
+        "VC_INIT_STATE": 1,
+        "VC_INVERTER_ON_STATE": 2,
+        "VC_BMS_ON_STATE": 3,
+        "VC_PCM_ON_STATE": 4,
+        "VC_HV_INIT_STATE": 5,
+        "VC_HV_STATE": 6,
+        "VC_DRIVE_STATE": 7
     },
     "ShutdownNode": {
         "SHDN_BSPD_OK": 0,
@@ -18,5 +23,10 @@
         "SHDN_SB_ILCK": 10,
         "SHDN_HVD_ILCK": 11,
         "SHDN_OK": 12
+    },
+    "TsimColor" : {
+        "TSIM_RED": 0,
+        "TSIM_GREEN" : 1,
+        "TSIM_OFF" : 2
     }
 }

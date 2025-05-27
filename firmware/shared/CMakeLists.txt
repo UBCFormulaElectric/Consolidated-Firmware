@@ -1,7 +1,7 @@
 message("")
 message("⚙️ Configuring Shared")
 
-IF("${TARGET}" STREQUAL "test")
+IF ("${TARGET}" STREQUAL "test")
     # shared modules tests
     file(GLOB_RECURSE SHARED_TEST_SRCS
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
@@ -12,7 +12,7 @@ IF("${TARGET}" STREQUAL "test")
     compile_gtest_executable("shared_test" "${SRCS}" "${INCLUDE_DIRS}")
 
     # jsoncan lib
-    jsoncan_library("shared" "quadruna" "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library("Debug" "quintuna" "${CMAKE_CURRENT_BINARY_DIR}")
 
     # io time :)
     set(HDRS_TO_FAKE
@@ -23,5 +23,6 @@ IF("${TARGET}" STREQUAL "test")
     )
     create_fake_library("shared_test_fakes" "${HDRS_TO_FAKE}")
 
-    target_link_libraries("shared_test" PRIVATE "quadruna_shared_jsoncan" "shared_test_fakes")
-ENDIF()
+    target_compile_definitions("shared_test" PRIVATE STM32H733xx)
+    target_link_libraries("shared_test" PRIVATE "quintuna_Debug_jsoncan" "shared_test_fakes")
+ENDIF ()

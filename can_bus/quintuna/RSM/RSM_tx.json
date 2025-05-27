@@ -1,38 +1,125 @@
 {
-    "Vitals": {
-        "msg_id": 700,
-        "cycle_time": 100,
-        "description": "RSM vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "RsmStates"
-            }
-        }
-    },
-    "CommitInfo": {
-        "msg_id": 706,
-        "cycle_time": 100,
-        "description": "RSM Commit Info",
-        "signals": {
-            "Hash": {
-                "bits": 32
-            },
-            "Clean": {
-                "bits": 1
-            }
-        }
-    },
-    "Debug": {
-        "msg_id": 707,
-        "cycle_time": 1000,
-        "description": "RSM Debug Signals",
-        "signals": {
-            "ResetReason": {
-                "enum": "CanResetReason"
-            }
-        }
+  "Vitals": {
+    "msg_id": 700,
+    "cycle_time": 100,
+    "description": "RSM vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "State": {
+        "enum": "RsmStates"
+      }
     }
+  },
+  "Debug": {
+    "msg_id": 707,
+    "cycle_time": 1000,
+    "description": "RSM Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 709,
+    "cycle_time": 100,
+    "description": "RSM Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Coolant": {
+    "msg_id": 710,
+    "cycle_time": 1000,
+    "signals": {
+      "CoolantFlowRate": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "L/min"
+      }
+    }
+  },
+  "SuspensionTravel": {
+    "msg_id": 711,
+    "cycle_time": 1000,
+    "description": "Suspension travel",
+    "signals": {
+      "RearRightSuspensionTravel": {
+        "resolution": 0.1,
+        "min": -10,
+        "max": 10,
+        "unit": "cm"
+      },
+      "RearLeftSuspensionTravel": {
+        "resolution": 0.1,
+        "min": -10,
+        "max": 10,
+        "unit": "cm"
+      }
+    }
+  },
+  "IMU": {
+    "msg_id": 712,
+    "cycle_time": 1000,
+    "description": "IMU data",
+    "signals": {
+      "LinearAccelerationInX": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "LinearAccelerationInY": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "LinearAccelerationInZ": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "RollAngularAcceleration": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      },
+      "PitchAngularAcceleration": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      },
+      "YawAngularAcceleration": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      }
+    }
+  },
+  "Brakes": {
+    "msg_id": 713,
+    "cycle_time": 1000,
+    "description": "Brake data",
+    "signals": {
+      "BrakePressure": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "bar"
+      }
+    }
+  }
 }

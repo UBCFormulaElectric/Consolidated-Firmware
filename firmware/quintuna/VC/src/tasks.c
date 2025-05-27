@@ -4,6 +4,7 @@
 #include "cmsis_os.h"
 
 #include "app_canTx.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -13,12 +14,15 @@
 // hw
 #include "hw_usb.h"
 #include "hw_resetReason.h"
+#include "hw_hardFaultHandler.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "shared.pb.h"
 #include <stm32h7xx_hal_gpio.h>
+
+void tasks_preInit(void) {}
 
 void tasks_init(void)
 {
@@ -29,7 +33,7 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG1();
 
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
 
     jobs_init();
 
@@ -122,7 +126,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         // CanMsg tx_msg = io_canQueue_popTx();
-        // hw_can_transmit(&can1, &tx_msg);
+        // LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
     }
 }
 

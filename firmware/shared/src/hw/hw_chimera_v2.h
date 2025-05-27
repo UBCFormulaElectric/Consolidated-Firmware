@@ -65,4 +65,4 @@ extern bool hw_chimera_v2_enabled;
  * @brief The main Chimera task loop, should be ran in it's own thread.
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
  */
-_Noreturn void hw_chimera_v2_task(hw_chimera_v2_Config *config);
+_Noreturn void hw_chimera_v2_task(const hw_chimera_v2_Config *config);

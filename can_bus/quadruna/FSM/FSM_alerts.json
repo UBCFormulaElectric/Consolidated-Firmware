@@ -1,110 +1,114 @@
 {
-    "warnings_id": 396,
-    "faults_id": 397,
-    "warnings_counts_id": 398,
-    "faults_counts_id": 399,
-    "warnings": {
-        "WatchdogTimeout": {
-            "id": 301,
-            "description": "Watchdog timed out."
-        },
-        "TxOverflow": {
-            "id": 302,
-            "description": "CanTx queue overflowed."
-        },
-        "RxOverflow": {
-            "id": 303,
-            "description": "CanRx queue overflowed."
-        },
-        "StackWaterMarkHighTask1Hz": {
-            "id": 304,
-            "description": "Stack watermark failed on 1Hz task."
-        },
-        "StackWaterMarkHighTask100Hz": {
-            "id": 305,
-            "description": "Stack watermark failed on 100Hz task."
-        },
-        "StackWaterMarkHighTask1kHz": {
-            "id": 306,
-            "description": "Stack watermark failed on 1kHz task."
-        },
-        "StackWaterMarkHighTaskCanRx": {
-            "id": 307,
-            "description": "Stack watermark failed on canRx task."
-        },
-        "StackWaterMarkHighTaskCanTx": {
-            "id": 308,
-            "description": "Stack watermark failed on canTx task."
-        },
-        "SteeringAngleOCSC": {
-            "id": 309,
-            "description": "Steering sensor voltage out of acceptable range (OCSC)."
-        },
-        "SteeringAngleOutOfRange": {
-            "id": 310,
-            "description": "Steering angle out of range."
-        },
-        "LeftWheelSpeedOutOfRange": {
-            "id": 311,
-            "description": "Left wheel speed out of range."
-        },
-        "RightWheelSpeedOutOfRange": {
-            "id": 312,
-            "description": "Right wheel speed out of range."
-        },
-        "AppsDisagreement": {
-            "id": 313,
-            "description": "Conflict between primary and secondary accelerator pedals."
-        },
-        "FrontBrakePressureOutOfRange": {
-            "id": 314,
-            "description": "Front brake pressure out of range."
-        },
-        "RearBrakePressureOutOfRange": {
-            "id": 315,
-            "description": "Rear brake pressure out of range."
-        },
-        "FrontBrakePressureOcSc": {
-            "id": 316,
-            "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
-        },
-        "RearBrakePressureOcSc": {
-            "id": 322,
-            "description": "Rear brake pressure sensor voltage out of acceptable range (OCSC)."
-        },
-        "BrakeOcScNotOk": {
-            "id": 323,
-            "description": "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK."
-        },
-        "LeftSuspensionOCSC": {
-            "disabled": true,
-            "id": 317,
-            "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
-        },
-        "RightSuspensionOCSC": {
-            "disabled": true,
-            "id": 318,
-            "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
-        },
-        "LoadCell1OCSC": {
-            "disabled": true,
-            "id": 320,
-            "description": "Load cell 1 sensor voltage out of acceptable range (OCSC)."
-        },
-        "LoadCell2OCSC": {
-            "disabled": true,
-            "id": 321,
-            "description": "Load cell 2 sensor voltage out of acceptable range (OCSC)."
-        }
+  "warnings_id": 396,
+  "faults_id": 397,
+  "warnings_counts_id": 398,
+  "faults_counts_id": 399,
+  "info_id": 395,
+  "info_counts_id": 394,
+
+  "warnings": {
+    "WatchdogTimeout": {
+      "id": 301,
+      "description": "Watchdog timed out."
     },
-    "faults": {
-        "PappsOCSC": {
-            "id": 352,
-            "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
-        },
-        "SappsOCSC": {
-            "id": 353,
-            "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
-        }
+    "TxOverflow": {
+      "id": 302,
+      "description": "CanTx queue overflowed."
+    },
+    "RxOverflow": {
+      "id": 303,
+      "description": "CanRx queue overflowed."
+    },
+    "StackWaterMarkHighTask1Hz": {
+      "id": 304,
+      "description": "Stack watermark failed on 1Hz task."
+    },
+    "StackWaterMarkHighTask100Hz": {
+      "id": 305,
+      "description": "Stack watermark failed on 100Hz task."
+    },
+    "StackWaterMarkHighTask1kHz": {
+      "id": 306,
+      "description": "Stack watermark failed on 1kHz task."
+    },
+    "StackWaterMarkHighTaskCanRx": {
+      "id": 307,
+      "description": "Stack watermark failed on canRx task."
+    },
+    "StackWaterMarkHighTaskCanTx": {
+      "id": 308,
+      "description": "Stack watermark failed on canTx task."
+    },
+    "SteeringAngleOCSC": {
+      "id": 309,
+      "description": "Steering sensor voltage out of acceptable range (OCSC)."
+    },
+    "SteeringAngleOutOfRange": {
+      "id": 310,
+      "description": "Steering angle out of range."
+    },
+    "LeftWheelSpeedOutOfRange": {
+      "id": 311,
+      "description": "Left wheel speed out of range."
+    },
+    "RightWheelSpeedOutOfRange": {
+      "id": 312,
+      "description": "Right wheel speed out of range."
+    },
+    "AppsDisagreement": {
+      "id": 313,
+      "description": "Conflict between primary and secondary accelerator pedals."
+    },
+    "FrontBrakePressureOutOfRange": {
+      "id": 314,
+      "description": "Front brake pressure out of range."
+    },
+    "RearBrakePressureOutOfRange": {
+      "id": 315,
+      "description": "Rear brake pressure out of range."
+    },
+    "FrontBrakePressureOcSc": {
+      "id": 316,
+      "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
+    },
+    "RearBrakePressureOcSc": {
+      "id": 322,
+      "description": "Rear brake pressure sensor voltage out of acceptable range (OCSC)."
+    },
+    "BrakeOcScNotOk": {
+      "id": 323,
+      "description": "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK."
+    },
+    "LeftSuspensionOCSC": {
+      "disabled": true,
+      "id": 317,
+      "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
+    },
+    "RightSuspensionOCSC": {
+      "disabled": true,
+      "id": 318,
+      "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
+    },
+    "LoadCell1OCSC": {
+      "disabled": true,
+      "id": 320,
+      "description": "Load cell 1 sensor voltage out of acceptable range (OCSC)."
+    },
+    "LoadCell2OCSC": {
+      "disabled": true,
+      "id": 321,
+      "description": "Load cell 2 sensor voltage out of acceptable range (OCSC)."
     }
+  },
+  "faults": {
+    "PappsOCSC": {
+      "id": 352,
+      "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
+    },
+    "SappsOCSC": {
+      "id": 353,
+      "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
+    }
+  },
+  "info": {}
 }
