@@ -20,6 +20,21 @@ void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success
 {
     memset(status, 0, sizeof(StatusRegGroups) * NUM_SEGMENTS);
 
+    // Exit early if ADC conversion fails
+    const ExitCode poll_ok = io_ltc6813_pollAdcConversions();
+    if (IS_EXIT_ERR(poll_ok))
+    {
+        for (uint8_t i = 0; i < NUM_SEGMENTS; i++)
+        {
+            for (uint8_t j = 0; j < CELLS_PER_SEGMENT; j++)
+            {
+                success[i] = poll_ok;
+            }
+        }
+
+        return;
+    }
+
     uint16_t regs_a[NUM_SEGMENTS][REGS_PER_GROUP];
     ExitCode success_a[NUM_SEGMENTS];
     io_ltc6813_readRegGroup(RDSTATA, regs_a, success_a);

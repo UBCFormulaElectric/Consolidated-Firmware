@@ -45,12 +45,12 @@ void io_ltc6813_readVoltageRegisters(
             for (uint8_t reg_in_group = 0U; reg_in_group < REGS_PER_GROUP; reg_in_group++)
             {
                 // Only have 14 cells per segment so ignore the 15th reg reading.
-                if (reg_group * REGS_PER_GROUP + reg_in_group >= CELLS_PER_SEGMENT)
+                const int voltage_reg = reg_group * REGS_PER_GROUP + reg_in_group;
+                if (voltage_reg >= CELLS_PER_SEGMENT)
                 {
                     continue;
                 }
 
-                const int voltage_reg                   = reg_group * REGS_PER_GROUP + reg_in_group;
                 cell_voltage_regs[seg_idx][voltage_reg] = curr_regs[seg_idx][reg_in_group];
                 comm_success[seg_idx][voltage_reg]      = curr_success[seg_idx];
             }

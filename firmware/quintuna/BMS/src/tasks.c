@@ -106,6 +106,8 @@ void tasks_runLtc(void)
     LOG_IF_ERR(app_segments_voltageSelftest());
     LOG_IF_ERR(app_segments_auxSelftest());
     LOG_IF_ERR(app_segments_statusSelftest());
+    // RETURN_IF_ERR(app_segments_openWireCheck());
+    LOG_IF_ERR(app_segments_ADCAccuracyTest());
 
     for (;;)
     {

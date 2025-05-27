@@ -21,8 +21,11 @@ ExitCode jobs_runLtc_tick(void)
 
     if (app_canRx_Debug_EnableDebugMode_get())
     {
-        RETURN_IF_ERR(app_segments_openWireCheck());   // cell test
-        RETURN_IF_ERR(app_segments_ADCAccuracyTest()); // cell test
+        RETURN_IF_ERR(app_segments_voltageSelftest());
+        RETURN_IF_ERR(app_segments_auxSelftest());
+        RETURN_IF_ERR(app_segments_statusSelftest());
+        RETURN_IF_ERR(app_segments_openWireCheck());
+        RETURN_IF_ERR(app_segments_ADCAccuracyTest());
     }
 
     return EXIT_CODE_OK;

@@ -273,43 +273,43 @@
     "signals": {
       "Seg0_Cell0_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell1_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell2_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell3_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell4_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell5_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell6_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       }
@@ -322,43 +322,43 @@
     "signals": {
       "Seg0_Cell7_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell8_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell9_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell10_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell11_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell12_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       },
       "Seg0_Cell13_Temp": {
         "resolution": 0.2,
-        "min": 0,
+        "min": -1,
         "max": 100,
         "unit": "degC"
       }
@@ -400,6 +400,11 @@
       "Seg0_DigitalSupplyOk": {
         "bits": 1
       },
+      "Seg0_DigitalSupply": {
+        "resolution": 0.1,
+        "min": 2.7,
+        "max": 3.6
+      },
       "Seg0_ThermalOk": {
         "bits": 1
       },
@@ -408,13 +413,13 @@
         "min": 0,
         "max": 100
       },
-      "Seg0_VOLT_REGISTER_OK": {
+      "Seg0_CellSelfTestOk": {
         "bits": 1
       },
-      "Seg0_AUX_REGISTER_OK": {
+      "Seg0_AuxSelfTestOk": {
         "bits": 1
       },
-      "Seg0_STAT_REGISTER_OK": {
+      "Seg0_StatusSelfTestOk": {
         "bits": 1
       },
       "Seg0_MuxOk": {

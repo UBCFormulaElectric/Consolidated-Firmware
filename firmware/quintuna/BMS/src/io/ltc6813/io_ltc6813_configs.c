@@ -24,8 +24,6 @@ ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_S
 
 void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
 {
-    memset(configs, 0, sizeof(SegmentConfig) * NUM_SEGMENTS);
-
     uint16_t regs_a[NUM_SEGMENTS][REGS_PER_GROUP];
     ExitCode success_a[NUM_SEGMENTS];
     io_ltc6813_readRegGroup(RDCFGA, regs_a, success_a);
