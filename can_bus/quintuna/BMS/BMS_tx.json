@@ -249,10 +249,6 @@
     "msg_id": 460,
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 0",
-<<<<<<< HEAD
-    "allowed_modes": ["debug"],
-=======
->>>>>>> af0ab8732 (gus approves)
     "signals": {
       "Seg0_Cell0_Voltage": {
         "resolution": 0.01,
@@ -302,10 +298,6 @@
     "msg_id": 461,
     "cycle_time": 10,
     "description": "BMS Segment 0 Voltage Stats Part 1",
-<<<<<<< HEAD
-    "allowed_modes": ["debug"],
-=======
->>>>>>> af0ab8732 (gus approves)
     "signals": {
       "Seg0_Cell7_Voltage": {
         "resolution": 0.01,

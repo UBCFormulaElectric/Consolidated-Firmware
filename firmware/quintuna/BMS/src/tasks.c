@@ -1,11 +1,4 @@
 #include "tasks.h"
-<<<<<<< HEAD
-=======
-#include "app_utils.h"
-#include "hw_fdcan.h"
-#include "main.h"
-
->>>>>>> af0ab8732 (gus approves)
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -100,12 +93,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-<<<<<<< HEAD
         LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-=======
-        // hw_fdcan_transmit(&can1, &tx_msg);
-        hw_can_transmit(&can1, &tx_msg);
->>>>>>> af0ab8732 (gus approves)
     }
 }
 
@@ -127,7 +115,7 @@ void tasks_runLtc(void)
     LOG_IF_ERR(app_segments_voltageSelftest());
     LOG_IF_ERR(app_segments_auxSelftest());
     LOG_IF_ERR(app_segments_statusSelftest());
-    // RETURN_IF_ERR(app_segments_openWireCheck());
+    // RETURN_IF_ERR(app_segments_openWireCheck()); // TODO: Test this
     LOG_IF_ERR(app_segments_ADCAccuracyTest());
 
     for (;;)
