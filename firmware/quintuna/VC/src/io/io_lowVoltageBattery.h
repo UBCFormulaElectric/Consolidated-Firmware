@@ -1,6 +1,7 @@
 #pragma once
 
 #include "app_utils.h"
+#include "io_lowVoltageBatReg.h"
 #ifdef TARGET_EMBEDDED
 #include "hw_gpios.h"
 #include "hw_i2cs.h"
@@ -55,3 +56,21 @@ ExitCode io_lowVoltageBattery_initial_setup(void);
  * @param GPIO_pin from the interupt.
  */
 void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
+
+
+/**
+ * @brief Function to obtain the battery status from the chip
+ *
+ * @param bat_status The battery status returned from the chip
+ * @return Exitcode to say whether the transaction was succesful or not
+ */
+ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status);
+
+
+/**
+ * @brief Function to obtain the battery status from the chip
+ *
+ * @param ctrl_status The control status returned from the chip
+ * @return Exitcode to say whether the transaction was succesful or not
+ */
+ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status);
