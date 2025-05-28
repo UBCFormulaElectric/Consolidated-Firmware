@@ -3,7 +3,6 @@
 #include "io_time.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
-#include "hw_gpios.h"
 
 #define SLOPE (0.5f)
 
@@ -11,12 +10,6 @@ static bool     finished_ramp_up = false;
 static uint16_t time             = 0;
 
 #define CURRENT_THRESH 0.025f
-
-static bool TILoadswitch_pgood(const TI_LoadSwitch *loadSwitch)
-{
-    assert(loadSwitch->pgood != NULL);
-    return hw_gpio_readPin(loadSwitch->pgood);
-}
 
 static void pumpControl_rampUp(void)
 {
@@ -51,8 +44,8 @@ static void pumpControl_stopFlow(void)
 
 void app_pumpControl_MonitorPumps(void)
 {
-    const bool pumps_ok = TILoadswitch_pgood(&f_pump_loadswitch) && TILoadswitch_pgood(&rl_pump_loadswitch) &&
-                          TILoadswitch_pgood(&rr_pump_loadswitch);
+    const bool pumps_ok = io_TILoadswitch_pgood(&f_pump_loadswitch) && io_TILoadswitch_pgood(&rl_pump_loadswitch) &&
+                          io_TILoadswitch_pgood(&rr_pump_loadswitch);
 
     const bool pumps_enabled =
         (io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]) ||
