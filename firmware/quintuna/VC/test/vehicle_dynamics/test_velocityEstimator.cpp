@@ -9,11 +9,12 @@ extern "C"
 #include "app_units.h"
 }
 
-VelocityEstimator_Config VELOCITY_ESTIMATOR_TEST_CONFIG = { .state_estimate_init      = { 1.0f, 2.0f },
-                                                            .covariance_estimate_init = { 1.0f, 2.0f, 2.0f, 1.0f },
-                                                            .process_noise_cov        = { 0.0f, 0.0f, 0.0f, 0.0f },
-                                                            .measurement_noise_cov    = { 0.0f, 0.0f, 0.0f, 0.0f },
-                                                            .time_step                = 0.01f };
+VelocityEstimator_Config VELOCITY_ESTIMATOR_TEST_CONFIG = { .state_estimate_init       = { 1.0f, 2.0f },
+                                                            .covariance_estimate_init  = { 1.0f, 2.0f, 2.0f, 1.0f },
+                                                            .process_noise_cov         = { 0.0f, 0.0f, 0.0f, 0.0f },
+                                                            .measurement_ws_noise_cov  = { 0.0f, 0.0f, 0.0f, 0.0f },
+                                                            .measurement_gps_noise_cov = { 0.0f, 0.0f, 0.0f, 0.0f },
+                                                            .time_step                 = 0.01f };
 
 class VelocityEstimatorTest : public testing::Test
 {
@@ -90,10 +91,11 @@ TEST_F(VelocityEstimatorTest, update)
     float state[] = { 1.07f, 2.05f };
     float meas[]  = { 1.5f, 2.5f };
 
-    Matrix prev_state  = { state, DIM, 1 };
-    Matrix measurement = { meas, DIM, 1 };
+    Matrix prev_state             = { state, DIM, 1 };
+    Matrix measurement            = { meas, DIM, 1 };
+    Matrix measurement_covariance = { VELOCITY_ESTIMATOR_TEST_CONFIG.measurement_ws_noise_cov, DIM, DIM };
 
-    update(&measurement, &prev_state);
+    update(&measurement, &prev_state, &measurement_covariance);
 
     float expected_result_state[]      = { 1.5f, 2.5f };
     float expected_result_covariance[] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -106,7 +108,6 @@ TEST_F(VelocityEstimatorTest, update)
         ASSERT_FLOAT_EQ(expected_result_state[i], actual_result_state[i]);
     }
 
-    print_two_arrs(actual_result_covariance, expected_result_covariance, 4);
     for (int i = 0; i < DIM * DIM; i++)
     {
         ASSERT_NEAR(expected_result_covariance[i], actual_result_covariance[i], 1e-6f);
