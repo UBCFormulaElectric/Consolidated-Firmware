@@ -26,7 +26,9 @@ static Matrix measurement_predicted = { .mat = (float[]){ 0.0f, 0.0f }, .rows = 
 
 static Matrix process_noise_cov = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
-static Matrix measurement_noise_cov = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+static Matrix measurement_ws_noise_cov = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+
+static Matrix measurement_gps_noise_cov = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
 static float time_step;
 
@@ -209,7 +211,7 @@ void predict(Matrix *prev_state, Matrix *control_input)
     add(&covariance_estimate, &covariance_estimate, &process_noise_cov);
 }
 
-void update(Matrix *measurement, Matrix *prev_state)
+void update(Matrix *measurement, Matrix *prev_state, Matrix *measurement_noise_cov)
 {
     Matrix PH_transpose = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
     Matrix Ky           = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
@@ -227,7 +229,7 @@ void update(Matrix *measurement, Matrix *prev_state)
     transpose(&H_transpose, &H_jacobian);
     mult(&PH_transpose, &covariance_estimate, &H_transpose);
     mult(&S, &H_jacobian, &PH_transpose);
-    add(&S, &S, &measurement_noise_cov);
+    add(&S, &S, measurement_noise_cov);
 
     // kalman gain calculation
     inverse2x2(&S_inv, &S);
@@ -247,7 +249,6 @@ void update(Matrix *measurement, Matrix *prev_state)
     mult(&KH, &K, &H_jacobian);
     mult(&KHP, &KH, &covariance_estimate);
     sub(&covariance_estimate, &covariance_estimate, &KHP);
-    // print_arr(covariance_estimate.mat, 4);
 }
 
 /*
@@ -258,11 +259,12 @@ void update(Matrix *measurement, Matrix *prev_state)
 
 void app_velocityEstimator_init(VelocityEstimator_Config *config)
 {
-    state_estimate.mat        = config->state_estimate_init;
-    covariance_estimate.mat   = config->covariance_estimate_init;
-    process_noise_cov.mat     = config->process_noise_cov;
-    measurement_noise_cov.mat = config->measurement_noise_cov;
-    time_step                 = config->time_step;
+    state_estimate.mat            = config->state_estimate_init;
+    covariance_estimate.mat       = config->covariance_estimate_init;
+    process_noise_cov.mat         = config->process_noise_cov;
+    measurement_ws_noise_cov.mat  = config->measurement_ws_noise_cov;
+    measurement_gps_noise_cov.mat = config->measurement_gps_noise_cov;
+    time_step                     = config->time_step;
 }
 
 void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
@@ -305,6 +307,12 @@ void convertGpsToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inpu
     measurement->mat[1] = inputs->gps_vy;
 }
 
+/*
+ * Notes:
+ *
+ * add rpm derivative check
+ * add gps solution mode check
+ */
 void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
 {
     Matrix control_input   = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM_U, .cols = 1 };
@@ -316,8 +324,8 @@ void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
     convertGpsToMeasurement(&measurement_gps, inputs);
 
     predict(&state_estimate, &control_input);
-    update(&measurement_ws, &state_estimate);
-    update(&measurement_gps, &state_estimate);
+    update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
+    update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
 }
 
 float *app_velocityEstimator_getVelocity()

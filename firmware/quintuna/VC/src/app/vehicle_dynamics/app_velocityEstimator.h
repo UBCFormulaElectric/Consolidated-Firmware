@@ -62,7 +62,8 @@ typedef struct
     float state_estimate_init[DIM];
     float covariance_estimate_init[DIM * DIM];
     float process_noise_cov[DIM * DIM];
-    float measurement_noise_cov[DIM * DIM];
+    float measurement_ws_noise_cov[DIM * DIM];
+    float measurement_gps_noise_cov[DIM * DIM];
     float time_step; // sample time
 } VelocityEstimator_Config;
 
@@ -103,7 +104,7 @@ void predict(Matrix *prev_state, Matrix *control_input);
  * Updates the prediction, gives the final, corrected state and covariance estimate
  * with measured values given previous state and noise covariance
  */
-void update(Matrix *measurement, Matrix *prev_state);
+void update(Matrix *measurement, Matrix *prev_state, Matrix *measurement_noise_cov);
 
 /*
  * Predicts next state given the previous state and control variables
