@@ -3,6 +3,7 @@
 #include "io_time.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
+#include "hw_gpios.h"
 
 #define SLOPE (0.5f)
 

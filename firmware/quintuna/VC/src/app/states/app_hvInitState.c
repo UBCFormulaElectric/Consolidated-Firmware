@@ -35,8 +35,8 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-static bool power_sequencing_done = false;
-static bool ready_for_drive       = false;
+// static bool power_sequencing_done = false;
+// static bool ready_for_drive       = false;
 
 static void hvInitStateRunOnEntry(void)
 {
