@@ -3,29 +3,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react'
 import io, { Socket } from 'socket.io-client'
 import { PausePlayContext } from '@/components/shared/pause-play-control'
-
-
-// Signal type classification
-export enum SignalType {
-  Numerical = 'numerical',
-  Enumeration = 'enumeration',
-  Any = 'any'  // For signals that could be either
-}
-
-// Signal metadata interface
-export interface SignalMeta {
-  name: string
-  unit: string
-  cycle_time_ms?: number
-}
-
-// Data point interface
-export interface DataPoint {
-  time: number | string
-  name?: string
-  value?: number | string
-  [signalName: string]: number | string | undefined
-}
+import {
+  SignalType,
+  SignalMeta,
+  DataPoint,
+  DEFAULT_MAX_DATA_POINTS,
+  BACKEND_URL,
+  MAX_RECONNECT_ATTEMPTS,
+  RECONNECT_INTERVAL,
+  DEBUG
+} from './SignalConfig'
 
 // Context interface
 type SignalContextType = {
@@ -53,28 +40,15 @@ type SignalContextType = {
   mapEnumValue: (signalName: string, value: number | string) => string | undefined
 }
 
-// Default maximum number of data points to keep
-const DEFAULT_MAX_DATA_POINTS = 1000;
-const BACKEND_URL = "http://localhost:5000";
-const MAX_RECONNECT_ATTEMPTS = 5;
-const RECONNECT_INTERVAL = 3000; // 3 seconds
-const DEBUG = true; // Set to false to disable debug logs
-
 // Create the context
 const SignalContext = createContext<SignalContextType | undefined>(undefined)
 
 // Provider component
 export function SignalProvider({ children }: { children: ReactNode }) {
-  // Get pause state from context
-  const pausePlayContext = useContext(PausePlayContext)
-  const isPaused = pausePlayContext?.isPaused || false
-  
-  // Debug the pause state
-  useEffect(() => {
-    if (DEBUG) console.log('SignalProvider - isPaused:', isPaused)
-  }, [isPaused])
-  
-  const [availableSignals, setAvailableSignals] = useState<SignalMeta[]>([])  
+  const { isPaused = false } = useContext(PausePlayContext) || {}
+  useEffect(() => { if (DEBUG) console.log('SignalProvider - isPaused:', isPaused) }, [isPaused])
+
+  const [availableSignals, setAvailableSignals] = useState<SignalMeta[]>([])
   const [isLoadingSignals, setIsLoadingSignals] = useState(true)
   const [signalError, setSignalError] = useState<string | null>(null)
   const [socket, setSocket] = useState<Socket | null>(null)
@@ -85,64 +59,50 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const [numericalData, setNumericalData] = useState<DataPoint[]>([])
   const [enumData, setEnumData] = useState<DataPoint[]>([])
   const [currentTime, setCurrentTime] = useState(Date.now())
-  // Holds enum code-to-label maps per signal
   const [enumMetadata, setEnumMetadata] = useState<Record<string, Record<string, string>>>({})
 
   const signalSubscribers = useRef<Record<string, number>>({})
   const signalTypes = useRef<Record<string, SignalType>>({})
 
-  const isEnumSignal = useCallback((signalName: string): boolean => {
-    if (signalTypes.current[signalName]) {
-      return signalTypes.current[signalName] === SignalType.Enumeration
-    }
-    const lower = signalName.toLowerCase()
-    return lower.includes('state') || lower.includes('mode') || lower.includes('enum') || lower.includes('status')
+  const isEnumSignal = useCallback((name: string) => {
+    const type = signalTypes.current[name]
+    if (type) return type === SignalType.Enumeration
+    const l = name.toLowerCase()
+    return /state|mode|enum|status/.test(l)
   }, [])
 
-  const isNumericalSignal = useCallback((signalName: string): boolean => {
-    if (signalTypes.current[signalName]) {
-      return signalTypes.current[signalName] === SignalType.Numerical
-    }
-    return !isEnumSignal(signalName)
+  const isNumericalSignal = useCallback((name: string) => {
+    const type = signalTypes.current[name]
+    return type ? type === SignalType.Numerical : !isEnumSignal(name)
   }, [isEnumSignal])
 
-  // Get reference count for a signal
-  const getSignalRefCount = useCallback((signalName: string): number => {
-    return signalSubscribers.current[signalName] || 0
-  }, [])
+  const getSignalRefCount = useCallback((name: string) => signalSubscribers.current[name] || 0, [])
 
-  // Debug helper to log all current subscriptions
   const logSubscriptionState = useCallback(() => {
-    if (DEBUG) {
-      console.log('Current subscription state:')
-      console.log('Active signals:', activeSignals)
-      console.log('Signal ref counts:', Object.entries(signalSubscribers.current)
-        .filter(([_, count]) => count > 0)
-        .map(([signal, count]) => `${signal}: ${count}`)
-        .join(', ') || 'None')
-    }
+    if (!DEBUG) return
+    console.log('Current subscription state:')
+    console.log('Active signals:', activeSignals)
+    const refs = Object.entries(signalSubscribers.current)
+      .filter(([, c]) => c > 0)
+      .map(([s, c]) => `${s}: ${c}`)
+      .join(', ') || 'None'
+    console.log('Signal ref counts:', refs)
   }, [activeSignals])
 
-  // Prune data for a specific signal
-  const pruneSignalData = useCallback((signalName: string) => {
-    if (DEBUG) console.log(`Pruning all data for signal: ${signalName}`)
-    
-    // Remove from all data arrays
-    setData(prev => prev.filter(point => point.name !== signalName))
-    setNumericalData(prev => prev.filter(point => point.name !== signalName))
-    setEnumData(prev => prev.filter(point => point.name !== signalName))
-    
-    // Clean up signal metadata
-    delete signalTypes.current[signalName]
-    delete signalSubscribers.current[signalName]
+  const pruneSignalData = useCallback((name: string) => {
+    if (DEBUG) console.log(`Pruning all data for signal: ${name}`)
+    setData(d => d.filter(p => p.name !== name))
+    setNumericalData(d => d.filter(p => p.name !== name))
+    setEnumData(d => d.filter(p => p.name !== name))
+    delete signalTypes.current[name]
+    delete signalSubscribers.current[name]
   }, [])
 
-  // Manual prune helper
-  const pruneData = useCallback((maxPoints: number = DEFAULT_MAX_DATA_POINTS) => {
-    if (DEBUG) console.log(`Pruning data to last ${maxPoints} points`)
-    setData(prev => prev.length > maxPoints ? prev.slice(-maxPoints) : prev)
-    setNumericalData(prev => prev.length > maxPoints ? prev.slice(-maxPoints) : prev)
-    setEnumData(prev => prev.length > maxPoints ? prev.slice(-maxPoints) : prev)
+  const pruneData = useCallback((max = DEFAULT_MAX_DATA_POINTS) => {
+    if (DEBUG) console.log(`Pruning data to last ${max} points`)
+    setData(d => d.length > max ? d.slice(-max) : d)
+    setNumericalData(d => d.length > max ? d.slice(-max) : d)
+    setEnumData(d => d.length > max ? d.slice(-max) : d)
   }, [])
 
   const fetchSignalMetadata = useCallback(async () => {
@@ -150,39 +110,25 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoadingSignals(true)
       setSignalError(null)
-      const response = await fetch(`${BACKEND_URL}/api/signal`)
-      if (!response.ok) throw new Error(`Failed to fetch signals: ${response.status}`)
-      const signalsData = await response.json()
-
-      // Extract basic metas
-      const metas: SignalMeta[] = signalsData.map((s: any) => ({
-        name: s.name,
-        unit: s.unit,
-        cycle_time_ms: s.cycle_time_ms
-      }))
+      const res = await fetch(`${BACKEND_URL}/api/signal`)
+      if (!res.ok) throw new Error(`Failed to fetch signals: ${res.status}`)
+      const list = await res.json()
+      const metas: SignalMeta[] = list.map((s: any) => ({ name: s.name, unit: s.unit, cycle_time_ms: s.cycle_time_ms }))
       setAvailableSignals(metas)
 
-      // Build enumMetadata
       const enumMap: Record<string, Record<string, string>> = {}
-      signalsData.forEach((s: any) => {
-        if (s.enum && s.enum.items) {
-          enumMap[s.name] = s.enum.items
-        }
-      })
+      list.forEach((s: any) => s.enum?.items && (enumMap[s.name] = s.enum.items))
       setEnumMetadata(enumMap)
 
-      // Print enumerations and their states
       if (DEBUG) {
         console.log('Fetched enumerations and states:')
-        Object.entries(enumMap).forEach(([signal, map]) => {
-          console.log(`  ${signal}: [${Object.values(map).join(', ')}]`)
-        })
+        Object.entries(enumMap).forEach(([s, m]) => console.log(`  ${s}: [${Object.values(m).join(', ')}]`))
+        console.log('Fetched signals:', metas)
       }
 
-      if (DEBUG) console.log('Fetched signals:', metas)
       setIsLoadingSignals(false)
     } catch (err: any) {
-      if (DEBUG) console.log('Error fetching signals:', err)
+      DEBUG && console.log('Error fetching signals:', err)
       setSignalError(err.message)
       setIsLoadingSignals(false)
       if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
@@ -195,215 +141,114 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   }, [reconnectAttempts])
 
   const initializeSocket = useCallback(() => {
-    if (DEBUG) console.log('Initializing socket')
+    DEBUG && console.log('Initializing socket')
     socket?.disconnect()
-    const newSocket = io(BACKEND_URL, {
-      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
-      timeout: 10000
-    })
+    const s = io(BACKEND_URL, { reconnectionAttempts: MAX_RECONNECT_ATTEMPTS, timeout: 10000 })
 
-    newSocket.on('connect', () => {
-      if (DEBUG) console.log('Socket connected')
+    s.on('connect', () => {
+      DEBUG && console.log('Socket connected')
       setIsConnected(true)
       setReconnectAttempts(0)
-      // Only subscribe to signals if not paused and they have active subscriptions
-      if (!pausePlayContext?.isPaused) {
-        activeSignals.forEach(sig => {
-          const refCount = signalSubscribers.current[sig] || 0
-          if (refCount > 0) {
-            if (DEBUG) console.log(`Resubscribing to ${sig} on reconnect (ref count: ${refCount})`)
-            newSocket.emit('sub', sig)
+      if (!isPaused) activeSignals.forEach(sig => {
+        if ((signalSubscribers.current[sig] || 0) > 0) {
+          if (DEBUG) {
+            console.log(`Resubscribing to ${sig} on reconnect`)
           }
-        })
-      }
+          s.emit('sub', sig)
+        }
+      })
     })
-    newSocket.on('connect_error', err => {
-      if (DEBUG) console.log('Socket error:', err)
-      setIsConnected(false)
-    })
-    newSocket.on('disconnect', reason => {
-      if (DEBUG) console.log('Socket disconnected:', reason)
-      setIsConnected(false)
-    })
+    s.on('connect_error', e => { DEBUG && console.log('Socket error:', e); setIsConnected(false) })
+    s.on('disconnect', r => { DEBUG && console.log('Socket disconnected:', r); setIsConnected(false) })
 
-    const dataHandler = (incoming: any) => {
-      if (DEBUG) console.log('Received data:', incoming)
-      
-      const { name, value } = incoming
+    const handler = (inc: any) => {
+      DEBUG && console.log('Received data:', inc)
+      const { name, value } = inc
       if (!name) return
-      
-      // Check if we still have subscribers for this signal
-      const refCount = signalSubscribers.current[name] || 0
-      if (refCount === 0) {
-        if (DEBUG) console.log(`Ignoring data for ${name} - no active subscribers`)
-        return
-      }
-      
-      if (!incoming.time) incoming.time = Date.now()
-      if (typeof value === 'string') incoming.value = parseFloat(value)
-
-      setData(prev => [...prev, incoming])
-      if (isEnumSignal(name)) setEnumData(prev => [...prev, incoming])
-      else if (!isNaN(incoming.value as number)) setNumericalData(prev => [...prev, incoming])
-
+      if ((signalSubscribers.current[name] || 0) === 0) return DEBUG && console.log(`Ignoring data for ${name}`)
+      inc.time ||= Date.now()
+      if (typeof inc.value === 'string') inc.value = parseFloat(inc.value)
+      setData(d => [...d, inc])
+      isEnumSignal(name) ? setEnumData(d => [...d, inc]) : !isNaN(inc.value as number) && setNumericalData(d => [...d, inc])
       setCurrentTime(Date.now())
     }
 
-    newSocket.on('data', dataHandler)
-    newSocket.on('sub_ack', () => DEBUG && console.log('Subscription acknowledged'))
-    setSocket(newSocket)
-    return () => { newSocket.off('data', dataHandler); newSocket.disconnect() }
-  }, [activeSignals, isEnumSignal, pausePlayContext?.isPaused])
+    s.on('data', handler)
+    s.on('sub_ack', () => DEBUG && console.log('Subscription acknowledged'))
+    setSocket(s)
+    return () => { s.off('data', handler); s.disconnect() }
+  }, [activeSignals, isEnumSignal, isPaused, socket])
 
-  const reconnect = useCallback(() => {
-    if (DEBUG) console.log('Reconnecting...')
-    setReconnectAttempts(0)
-    fetchSignalMetadata()
-    initializeSocket()
-  }, [fetchSignalMetadata, initializeSocket])
+  const reconnect = useCallback(() => { DEBUG && console.log('Reconnecting...'); setReconnectAttempts(0); fetchSignalMetadata(); initializeSocket() }, [fetchSignalMetadata, initializeSocket])
 
-  // Initial fetch and socket setup
+  useEffect(() => { fetchSignalMetadata(); const clean = initializeSocket(); return clean }, [])
+
   useEffect(() => {
-    fetchSignalMetadata()
-    const cleanup = initializeSocket()
-    return cleanup
-  }, [])
-
-  // Tick currentTime every 100ms, but only when not paused
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (!isPaused) {
-        setCurrentTime(Date.now())
-      }
-    }, 100)
+    const id = setInterval(() => !isPaused && setCurrentTime(Date.now()), 100)
     return () => clearInterval(id)
   }, [isPaused])
 
-  // Manage subscriptions based on pause state
   useEffect(() => {
     if (!socket || !isConnected) return
-
-    if (isPaused) {
-      // Unsubscribe from all signals when paused (but keep ref counts)
-      if (DEBUG) console.log('Pausing - unsubscribing from all active signals:', activeSignals)
-      activeSignals.forEach(sig => {
-        const refCount = signalSubscribers.current[sig] || 0
-        if (refCount > 0) {
-          socket.emit('unsub', sig)
-        }
-      })
-    } else {
-      // Resubscribe to all signals with active subscribers when playing
-      if (DEBUG) console.log('Playing - subscribing to signals with active subscribers')
-      activeSignals.forEach(sig => {
-        const refCount = signalSubscribers.current[sig] || 0
-        if (refCount > 0) {
-          if (DEBUG) console.log(`Resubscribing to ${sig} (ref count: ${refCount})`)
-          socket.emit('sub', sig)
-        }
-      })
-    }
+    const action = isPaused ? 'unsub' : 'sub'
+    DEBUG && console.log(isPaused ? 'Pausing' : 'Playing')
+    activeSignals.forEach(sig => {
+      if ((signalSubscribers.current[sig] || 0) > 0) {
+        DEBUG && console.log(`${isPaused ? 'Emitting unsubscription' : 'Resubscribing'} for ${sig}`)
+        socket.emit(action, sig)
+      }
+    })
   }, [isPaused, socket, isConnected, activeSignals])
 
   const subscribeToSignal = useCallback((signalName: string, type: SignalType = SignalType.Any) => {
     const name = signalName.trim()
-    
-    // Determine signal type
-    const assigned = type === SignalType.Any
-      ? (isEnumSignal(name) ? SignalType.Enumeration : SignalType.Numerical)
-      : type
-    
+    const assigned = type === SignalType.Any ? (isEnumSignal(name) ? SignalType.Enumeration : SignalType.Numerical) : type
     signalTypes.current[name] = assigned
-    
-    // Increment reference count
-    const currentRefCount = signalSubscribers.current[name] || 0
-    signalSubscribers.current[name] = currentRefCount + 1
-    
+    signalSubscribers.current[name] = (signalSubscribers.current[name] || 0) + 1
     if (DEBUG) {
-      console.log(`Subscribing to ${name} as ${assigned} (ref count: ${signalSubscribers.current[name]})`)
+      console.log(`Subscribing to ${name}`)
       logSubscriptionState()
     }
-    
-    // Add to active signals if this is the first subscription
-    if (currentRefCount === 0 && !activeSignals.includes(name)) {
-      setActiveSignals(prev => [...prev, name])
-      
-      // Only emit subscription if not paused and socket is connected
-      if (socket && isConnected && !isPaused) {
-        if (DEBUG) console.log(`Emitting subscription for ${name}`)
-        socket.emit('sub', name)
-      }
+    if (!activeSignals.includes(name) && signalSubscribers.current[name] === 1) {
+      setActiveSignals(a => [...a, name])
+      if (socket && isConnected && !isPaused) socket.emit('sub', name)
     }
-  }, [activeSignals, isConnected, isEnumSignal, socket, isPaused, logSubscriptionState])
+  }, [activeSignals, isConnected, isEnumSignal, isPaused, logSubscriptionState, socket])
 
   const unsubscribeFromSignal = useCallback((signalName: string) => {
     const name = signalName.trim()
-    const currentRefCount = signalSubscribers.current[name] || 0
-    
-    if (currentRefCount <= 0) {
-      if (DEBUG) console.log(`Warning: Attempting to unsubscribe from ${name} but ref count is already 0`)
-      return
-    }
-    
-    // Decrement reference count
-    const newRefCount = currentRefCount - 1
-    signalSubscribers.current[name] = newRefCount
-    
+    const count = (signalSubscribers.current[name] || 0) - 1
+    if (count < 0) return DEBUG && console.log(`Warning: Unsubscribe ${name} ref count <= 0`)
+    signalSubscribers.current[name] = count
     if (DEBUG) {
-      console.log(`Unsubscribing from ${name} (ref count: ${newRefCount})`)
+      console.log(`Unsubscribing from ${name}`)
       logSubscriptionState()
     }
-    
-    // If no more subscribers, remove from active signals and prune data
-    if (newRefCount === 0) {
-      setActiveSignals(prev => prev.filter(sig => sig !== name))
-      
-      // Always emit unsubscribe regardless of pause state
-      if (socket && isConnected) {
-        if (DEBUG) console.log(`Emitting unsubscription for ${name}`)
-        socket.emit('unsub', name)
-      }
-      
-      // Prune all data for this signal
+    if (count === 0) {
+      setActiveSignals(a => a.filter(s => s !== name))
+      socket && isConnected && socket.emit('unsub', name)
       pruneSignalData(name)
     }
-  }, [socket, isConnected, pruneSignalData, logSubscriptionState])
+  }, [isConnected, pruneSignalData, logSubscriptionState, socket])
 
   const clearData = () => {
-    if (DEBUG) console.log('Clearing data')
-    setData([])
-    setNumericalData([])
-    setEnumData([])
+    if (DEBUG) console.log('Clearing data');
+    setData([]);
+    setNumericalData([]);
+    setEnumData([]);
   }
 
-  // Clear all subscriptions and data
   const clearAllSubscriptions = useCallback(() => {
-    if (DEBUG) console.log('Clearing all subscriptions and data')
-    
-    // Unsubscribe from all active signals
-    activeSignals.forEach(sig => {
-      if (socket && isConnected) {
-        socket.emit('unsub', sig)
-      }
-    })
-    
-    // Clear all state
+    DEBUG && console.log('Clearing all subscriptions and data')
+    activeSignals.forEach(sig => socket && isConnected && socket.emit('unsub', sig))
     setActiveSignals([])
     signalSubscribers.current = {}
     signalTypes.current = {}
     clearData()
-  }, [activeSignals, socket, isConnected])
+  }, [activeSignals, isConnected, socket])
 
-  const getEnumValues = useCallback((signalName: string): string[] => {
-    return enumMetadata[signalName]
-      ? Object.values(enumMetadata[signalName])
-      : []
-  }, [enumMetadata])
-
-  const mapEnumValue = useCallback((signalName: string, value: number | string): string | undefined => {
-    const items = enumMetadata[signalName]
-    return items ? items[String(value)] : undefined
-  }, [enumMetadata])
+  const getEnumValues = useCallback((name: string) => enumMetadata[name] ? Object.values(enumMetadata[name]) : [], [enumMetadata])
+  const mapEnumValue = useCallback((name: string, val: number | string) => enumMetadata[name]?.[String(val)], [enumMetadata])
 
   return (
     <SignalContext.Provider value={{
@@ -440,3 +285,6 @@ export function useSignals() {
   if (!context) throw new Error('useSignals must be used within a SignalProvider')
   return context
 }
+
+export { SignalType } from './SignalConfig';
+export type { DataPoint } from './SignalConfig';

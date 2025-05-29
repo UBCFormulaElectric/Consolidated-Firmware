@@ -1,5 +1,5 @@
 "use client"
-import { Database, Settings, SaveIcon } from "lucide-react"
+import { Database, SaveIcon } from "lucide-react"
 import type React from "react"
 
 import { ThemeToggle } from "@/components/shared/theme-toggle"
@@ -39,12 +39,6 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
             label="Logging"
             isActive={activePage === "logging"}
             onClick={() => setActivePage("logging")}
-          />
-          <NavItem
-            icon={<Settings size={18} />}
-            label="Settings"
-            isActive={activePage === "settings"}
-            onClick={() => setActivePage("settings")}
           />
         </ul>
       </nav>
