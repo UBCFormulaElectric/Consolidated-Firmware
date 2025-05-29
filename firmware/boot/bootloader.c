@@ -273,7 +273,11 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
+#ifdef STM32H733xx
+        LOG_IF_ERR(hw_fdcan_transmit(&can, &tx_msg));
+#elif STM32F412Rx
         LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
+#endif
     }
 }
 

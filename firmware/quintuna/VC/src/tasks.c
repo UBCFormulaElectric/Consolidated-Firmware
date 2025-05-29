@@ -130,8 +130,8 @@ _Noreturn void tasks_runCanTx(void)
 
         // TODO this canmsg will tell you which bus to transmit it on
         // hw_fdcan_transmit(&can1, &tx_msg);
-        // hw_fdcan_transmit(&can2, &tx_msg);
-        // hw_can_transmit(&can3, &tx_msg);
+        //hw_can_transmit(&can2, &tx_msg);
+        hw_fdcan_transmit(&can3, &tx_msg);
     }
 }
 
