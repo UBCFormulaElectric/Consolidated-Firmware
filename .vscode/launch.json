@@ -458,11 +458,11 @@
       "name": "Debug Embedded: BMS (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf",
-      // "symbolFiles": [
-      // This order matters, or RTT won't work! (app has to be last)
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf",
-      // ],
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
+        "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf"
+      ],
       "preLaunchTask": "Build Embedded: BMS (Quintuna)",
       // cortex configurations
       "request": "launch",
