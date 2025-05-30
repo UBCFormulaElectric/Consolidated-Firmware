@@ -8,6 +8,7 @@ import sys
 import pandas as pd
 from csv_to_mf4 import csv_to_mf4
 from logfs import LogFs, LogFsDiskFactory
+from logfs.logfs_src import LogFs, LogFsDiskFactory
 from tzlocal import get_localzone
 
 logging.basicConfig(level=logging.INFO)
@@ -20,8 +21,9 @@ root_dir = os.path.join(script_dir, "..", "..", "..", "..")
 if root_dir not in sys.path:
     sys.path.append(root_dir)
 
-from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import \
-    JsonCanParser
+from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
+    JsonCanParser,
+)
 
 # Size of an individual packet.
 CAN_PACKET_SIZE_BYTES = 16
@@ -64,7 +66,7 @@ if __name__ == "__main__":
         type=str,
         help="Path to disk",
         # required=True,
-        default="E"
+        default="E",
     )
     parser.add_argument(
         "--file",
@@ -85,7 +87,11 @@ if __name__ == "__main__":
         "--block_size", "-b", type=int, help="Block size in bytes", default=512
     )
     parser.add_argument(
-        "--block_count", "-N", type=int, help="Number of blocks", default=1024 * 1024 * 15
+        "--block_count",
+        "-N",
+        type=int,
+        help="Number of blocks",
+        default=1024 * 1024 * 15,
     )
     parser.add_argument(
         "--output",
@@ -106,20 +112,17 @@ if __name__ == "__main__":
         type=str,
         help="Descriptive name of this session.",
         # required=True,
-        default="test-drive"
+        default="test-drive",
     )
     parser.add_argument(
-        "--file_range", 
-        "-r", 
-        type=str, 
-        help="Range of file numbers to decode, e.g., '1-200'", 
-        default=None
+        "--file_range",
+        "-r",
+        type=str,
+        help="Range of file numbers to decode, e.g., '1-200'",
+        default=None,
     )
     parser.add_argument(
-        "--mf4",
-        action="store_true",
-        help="call csv_to_mf4 script",
-        default=True
+        "--mf4", action="store_true", help="call csv_to_mf4 script", default=True
     )
 
     args = parser.parse_args()
@@ -130,12 +133,12 @@ if __name__ == "__main__":
     elif args.file_range:
         start, end = map(int, args.file_range.split("-"))
         files_to_decode = [f"/{i}.txt" for i in range(start, end + 1)]
-    else: 
+    else:
         files_to_decode = None
 
     start_timestamp = pd.Timestamp(args.time, tz=get_localzone())
-    
-    # Fix: windows does not allow ':' in file names 
+
+    # Fix: windows does not allow ':' in file names
     start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H_%M")
 
     # Open filesystem.
@@ -187,7 +190,7 @@ if __name__ == "__main__":
 
             last_timestamp_ms = pd.Timedelta(milliseconds=0)
             overflow_fix_delta_ms = pd.Timedelta(milliseconds=0)
-            
+
             with open(file=out_path, mode="w+", newline="") as out_file:
                 logger.info(f"Decoding file '{file_path}' to '{out_path}'.")
                 csv_writer = csv.writer(out_file)
