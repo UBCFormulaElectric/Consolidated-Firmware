@@ -12,9 +12,10 @@
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
-#include "io_time.h"
+#include "io_canTx.h"
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
+#include "io_time.h"
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {

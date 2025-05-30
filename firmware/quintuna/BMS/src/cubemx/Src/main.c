@@ -49,8 +49,6 @@ ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc3;
 
-CRC_HandleTypeDef hcrc;
-
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
@@ -165,7 +163,6 @@ static void MX_ADC3_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_FDCAN2_Init(void);
-static void MX_CRC_Init(void);
 static void MX_TIM5_Init(void);
 static void MX_IWDG1_Init(void);
 void        RunTask100Hz(void *argument);
@@ -225,7 +222,6 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM3_Init();
     MX_FDCAN2_Init();
-    MX_CRC_Init();
     MX_TIM5_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
@@ -320,19 +316,20 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 64;
-    RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 4;
-    RCC_OscInitStruct.PLL.PLLR       = 2;
-    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI;
+    RCC_OscInitStruct.HSIState            = RCC_HSI_DIV8;
+    RCC_OscInitStruct.HSICalibrationValue = 64;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
+    RCC_OscInitStruct.PLL.PLLM            = 1;
+    RCC_OscInitStruct.PLL.PLLN            = 64;
+    RCC_OscInitStruct.PLL.PLLP            = 1;
+    RCC_OscInitStruct.PLL.PLLQ            = 4;
+    RCC_OscInitStruct.PLL.PLLR            = 2;
+    RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1VCOWIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN        = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -564,35 +561,6 @@ static void MX_ADC3_Init(void)
     /* USER CODE BEGIN ADC3_Init 2 */
 
     /* USER CODE END ADC3_Init 2 */
-}
-
-/**
- * @brief CRC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CRC_Init(void)
-{
-    /* USER CODE BEGIN CRC_Init 0 */
-
-    /* USER CODE END CRC_Init 0 */
-
-    /* USER CODE BEGIN CRC_Init 1 */
-
-    /* USER CODE END CRC_Init 1 */
-    hcrc.Instance                     = CRC;
-    hcrc.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
-    hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
-    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
-    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
-    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_BYTES;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CRC_Init 2 */
-
-    /* USER CODE END CRC_Init 2 */
 }
 
 /**

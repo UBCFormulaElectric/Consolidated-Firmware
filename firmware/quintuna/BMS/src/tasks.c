@@ -1,9 +1,12 @@
 #include "tasks.h"
+#include "io_bootHandler.h"
+#include "io_canMsg.h"
 #include "jobs.h"
 
 #include "app_canTx.h"
 #include "app_segments.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -20,6 +23,8 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
+#include <io_canRx.h>
+#include <io_canTx.h>
 
 void tasks_runChimera(void)
 {
@@ -101,7 +106,11 @@ void tasks_runCanRx(void)
 {
     for (;;)
     {
-        jobs_runCanRx_tick();
+        const CanMsg rx_msg = io_canQueue_popRx();
+        JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&json_can_msg);
+
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 

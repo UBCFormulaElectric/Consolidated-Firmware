@@ -48,7 +48,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     /*Configure the TIM6 IRQ priority */
     if (TickPriority < (1UL << __NVIC_PRIO_BITS))
     {
-        HAL_NVIC_SetPriority(TIM6_DAC_IRQn, TickPriority, 0U);
+        HAL_NVIC_SetPriority(TIM6_DAC_IRQn, TickPriority, 0);
 
         /* Enable the TIM6 global Interrupt */
         HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
@@ -61,10 +61,8 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
     /* Enable TIM6 clock */
     __HAL_RCC_TIM6_CLK_ENABLE();
-
     /* Get clock configuration */
     HAL_RCC_GetClockConfig(&clkconfig, &pFLatency);
-
     /* Get APB1 prescaler */
     uwAPB1Prescaler = clkconfig.APB1CLKDivider;
     /* Compute TIM6 clock */
