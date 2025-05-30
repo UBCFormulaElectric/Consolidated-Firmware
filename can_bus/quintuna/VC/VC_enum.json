@@ -23,5 +23,10 @@
         "SHDN_SB_ILCK": 10,
         "SHDN_HVD_ILCK": 11,
         "SHDN_OK": 12
+    },
+    "TsimColor" : {
+        "TSIM_RED": 0,
+        "TSIM_GREEN" : 1,
+        "TSIM_OFF" : 2
     }
 }
