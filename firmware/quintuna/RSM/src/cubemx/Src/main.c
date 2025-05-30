@@ -108,7 +108,7 @@ const osThreadAttr_t TaskCanTx_attributes = {
 };
 /* Definitions for TaskCanRx */
 osThreadId_t         TaskCanRxHandle;
-uint32_t             TaskCanRxBuffer[128];
+uint32_t             TaskCanRxBuffer[512];
 osStaticThreadDef_t  TaskCanRxControlBlock;
 const osThreadAttr_t TaskCanRx_attributes = {
     .name       = "TaskCanRx",

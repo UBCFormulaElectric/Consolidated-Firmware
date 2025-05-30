@@ -1,6 +1,8 @@
 #include "tasks.h"
+#include "jobs.h"
 
 #include "app_canTx.h"
+#include "app_segments.h"
 #include "app_utils.h"
 
 #include "io_log.h"
@@ -18,22 +20,19 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
-#include "jobs.h"
-#include "shared.pb.h"
 
 void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-void tasks_preInit(void)
-{
-    LOG_INFO("BMS Reset");
-}
+void tasks_preInit(void) {}
 
 void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS Reset");
+    __HAL_DBGMCU_FREEZE_IWDG1();
     ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
@@ -82,8 +81,8 @@ void tasks_run1kHz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        hw_watchdog_checkForTimeouts();
-
+        // hw_watchdog_checkForTimeouts();
+        jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -103,5 +102,22 @@ void tasks_runCanRx(void)
     for (;;)
     {
         jobs_runCanRx_tick();
+    }
+}
+
+void tasks_runLtc(void)
+{
+    // setup
+    app_segments_writeDefaultConfig();
+    app_segments_adcSpeed(ADCSpeed_7kHz);
+    app_segments_configSync();
+    // make sure the muxes are working
+    app_segments_voltageSelftest();
+    app_segments_auxSelftest();
+    app_segments_statusSelftest();
+    ASSERT_EXIT_OK(io_ltc6813_clearStatRegisters());
+    for (;;)
+    {
+        jobs_runLtc_tick();
     }
 }
