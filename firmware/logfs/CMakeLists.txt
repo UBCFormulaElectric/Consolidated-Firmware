@@ -1,16 +1,17 @@
+set(LOGFS_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    )
+file(GLOB_RECURSE LOGFS_SRCS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+)
+message("")
+message("⚙️ Configuring LogFS")
+
 if(SKBUILD)
     cmake_minimum_required(VERSION 3.20)
     project(logfs LANGUAGES C CXX ASM)
 
-    message("")
-    message("⚙️ Configuring LogFS")
 
-    set(LOGFS_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    )
-    file(GLOB_RECURSE LOGFS_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-    )
 
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
     find_package(pybind11 CONFIG REQUIRED)
@@ -71,9 +72,9 @@ else()
         endif()
 
         # Invoke setuptools to install the Python library.
-        add_custom_target(install_python_logfs
-            COMMAND ${PYTHON_COMMAND} -m pip install -e "${CMAKE_CURRENT_SOURCE_DIR}/python"
-            DEPENDS logfs_src)
+        # add_custom_target(install_python_logfs
+        #     COMMAND ${PYTHON_COMMAND} -m pip install -e "${CMAKE_CURRENT_SOURCE_DIR}/python"
+        #     DEPENDS logfs_src)
     endif()
 endif()
 
