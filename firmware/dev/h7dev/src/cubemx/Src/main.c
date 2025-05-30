@@ -214,6 +214,9 @@ int main(void)
     tasks_init();
     // __HAL_DBGMCU_FREEZE_IWDG();
 
+    // hw_can_init(&can);
+    // io_canQueue_init();
+
     // if (sd_inited)
     //{
     //   sd1.hsd     = &hsd1;
