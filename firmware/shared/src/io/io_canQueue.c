@@ -34,6 +34,7 @@ void io_canQueue_initTx(CanTxQueue *queue)
     queue->attr.cb_size   = sizeof(StaticQueue_t);
     queue->attr.mq_mem    = queue->buffer;
     queue->attr.mq_size   = TX_QUEUE_BYTES;
+    queue->init_complete  = false;
 
     queue->id = osMessageQueueNew(TX_QUEUE_SIZE, CAN_MSG_SIZE, &queue->attr);
     assert(queue->id != NULL);
@@ -58,6 +59,7 @@ void io_canQueue_pushTx(CanTxQueue *queue, const CanMsg *tx_msg)
 
 CanMsg io_canQueue_popTx(CanTxQueue *queue)
 {
+    assert(queue->init_complete);
     assert(queue->id != NULL);
     CanMsg           msg;
     const osStatus_t s = osMessageQueueGet(queue->id, &msg, NULL, osWaitForever);

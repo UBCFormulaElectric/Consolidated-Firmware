@@ -40,6 +40,7 @@ typedef struct
     uint8_t              buffer[TX_QUEUE_BYTES];
     osMessageQueueAttr_t attr;
     osMessageQueueId_t   id;
+    bool init_complete;
 } CanTxQueue;
 
 /**
