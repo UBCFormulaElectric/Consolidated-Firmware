@@ -8,7 +8,6 @@ import sys
 import pandas as pd
 from csv_to_mf4 import csv_to_mf4
 from logfs import LogFs, LogFsDiskFactory
-from logfs.logfs_src import LogFs, LogFsDiskFactory
 from tzlocal import get_localzone
 
 logging.basicConfig(level=logging.INFO)
@@ -66,7 +65,7 @@ if __name__ == "__main__":
         type=str,
         help="Path to disk",
         # required=True,
-        default="E",
+        default="E:",
     )
     parser.add_argument(
         "--file",
@@ -104,7 +103,7 @@ if __name__ == "__main__":
         "--can-json",
         type=str,
         help="Path to JSONCAN source files",
-        default=os.path.join(root_dir, "can_bus", "quadruna"),
+        default=os.path.join(root_dir, "can_bus", "quintuna"),
     )
     parser.add_argument(
         "--name",
