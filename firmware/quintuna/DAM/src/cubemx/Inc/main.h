@@ -37,9 +37,10 @@ extern "C"
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
-
+    extern CRC_HandleTypeDef   hcrc;
     extern FDCAN_HandleTypeDef hfdcan2;
     extern I2C_HandleTypeDef   hi2c1;
+    extern IWDG_HandleTypeDef  hiwdg1;
     extern SD_HandleTypeDef    hsd1;
     extern TIM_HandleTypeDef   htim15;
     extern UART_HandleTypeDef  huart2;
@@ -63,6 +64,9 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LSI_FREQUENCY 32000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 4
 #define nRTC_INT1_Pin GPIO_PIN_5
 #define nRTC_INT1_GPIO_Port GPIOE
 #define LED_Pin GPIO_PIN_0

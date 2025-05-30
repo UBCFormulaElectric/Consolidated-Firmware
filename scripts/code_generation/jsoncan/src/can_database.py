@@ -236,6 +236,9 @@ class CanMessage:
         """
         return self.cycle_time is not None
 
+    def requires_fd(self) -> bool:
+        return self.bytes() > 8
+
     def snake_name(self):
         return pascal_to_snake_case(self.name)
 
@@ -288,7 +291,7 @@ class All:
     pass
 
 
-@dataclass(frozen=True)
+@dataclass
 class CanNode:
     """
     Dataclass for fully describing a CAN node.
@@ -299,6 +302,7 @@ class CanNode:
     # busses which the node is attached to, foreign key into CanDatabase.msgs
     bus_names: List[str]
     rx_msgs_names: Set[str] | All  # list of messages that it is listening
+    fd: bool
 
     def __hash__(self):
         return hash(self.name)

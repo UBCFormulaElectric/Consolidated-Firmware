@@ -55,11 +55,10 @@ static void disableNss(const SpiDevice *device)
 
 ExitCode hw_spi_transmitThenReceive(
     const SpiDevice *device,
-    uint8_t         *tx_buffer,
-    uint16_t         tx_buffer_size,
+    const uint8_t   *tx_buffer,
+    const uint16_t   tx_buffer_size,
     uint8_t         *rx_buffer,
-    uint16_t         rx_buffer_size)
-
+    const uint16_t   rx_buffer_size)
 {
     // HAL_SPI_TransmitReceive_IT requires tx buffer and rx buffer to be of size equal to number of bytes to transmit
     // and receive
@@ -111,14 +110,14 @@ ExitCode hw_spi_transmitThenReceive(
     return exit;
 }
 
-ExitCode hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size)
+ExitCode hw_spi_transmit(const SpiDevice *device, const uint8_t *tx_buffer, const uint16_t tx_buffer_size)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
-        const bool status =
-            HAL_SPI_Transmit(device->bus->handle, tx_buffer, tx_buffer_size, device->timeout_ms) == HAL_OK;
+        const ExitCode status = hw_utils_convertHalStatus(
+            HAL_SPI_Transmit(device->bus->handle, tx_buffer, tx_buffer_size, device->timeout_ms));
         disableNss(device);
         return status;
     }
@@ -148,7 +147,7 @@ ExitCode hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t t
     return exit;
 }
 
-ExitCode hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size)
+ExitCode hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, const uint16_t rx_buffer_size)
 {
     if (device->bus->task_in_progress != NULL || xPortIsInsideInterrupt())
     {

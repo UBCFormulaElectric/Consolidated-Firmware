@@ -163,3 +163,59 @@ TEST(PackUnpackTests, test_signed_numbers)
         ASSERT_EQ(out_msg.ECU1_DbcMatchingRpm_value, in_msgs[i].ECU1_DbcMatchingRpm_value);
     }
 }
+
+TEST(PackUnpackTests, test_long_message)
+{
+    const ECU1_LongMessage_Signals in_msg = {
+        .ECU1_Int1_value  = 1,
+        .ECU1_Int2_value  = 2,
+        .ECU1_Int3_value  = 3,
+        .ECU1_Int4_value  = 4,
+        .ECU1_Int5_value  = 5,
+        .ECU1_Int6_value  = 6,
+        .ECU1_Int7_value  = 7,
+        .ECU1_Int8_value  = 8,
+        .ECU1_Int9_value  = 9,
+        .ECU1_Int10_value = 10,
+        .ECU1_Int11_value = 11,
+        .ECU1_Int12_value = 12,
+        .ECU1_Int13_value = 13,
+        .ECU1_Int14_value = 14,
+        .ECU1_Int15_value = 15,
+        .ECU1_Int16_value = 16,
+    };
+
+    union
+    {
+        uint32_t words[16];
+        uint8_t  bytes[64];
+    } payload = { { 0 } };
+
+    app_canUtils_ECU1_LongMessage_pack(&in_msg, payload.bytes);
+
+    // Confirm encoded payload matches the expected value.
+    for (int i = 0; i < 16; i++)
+    {
+        ASSERT_EQ(payload.words[i], i + 1);
+    }
+
+    // Confirm we can decode the payload, which should match the original message.
+    ECU1_LongMessage_Signals out_msg;
+    app_canUtils_ECU1_LongMessage_unpack(payload.bytes, &out_msg);
+    ASSERT_EQ(out_msg.ECU1_Int1_value, 1);
+    ASSERT_EQ(out_msg.ECU1_Int2_value, 2);
+    ASSERT_EQ(out_msg.ECU1_Int3_value, 3);
+    ASSERT_EQ(out_msg.ECU1_Int4_value, 4);
+    ASSERT_EQ(out_msg.ECU1_Int5_value, 5);
+    ASSERT_EQ(out_msg.ECU1_Int6_value, 6);
+    ASSERT_EQ(out_msg.ECU1_Int7_value, 7);
+    ASSERT_EQ(out_msg.ECU1_Int8_value, 8);
+    ASSERT_EQ(out_msg.ECU1_Int9_value, 9);
+    ASSERT_EQ(out_msg.ECU1_Int10_value, 10);
+    ASSERT_EQ(out_msg.ECU1_Int11_value, 11);
+    ASSERT_EQ(out_msg.ECU1_Int12_value, 12);
+    ASSERT_EQ(out_msg.ECU1_Int13_value, 13);
+    ASSERT_EQ(out_msg.ECU1_Int14_value, 14);
+    ASSERT_EQ(out_msg.ECU1_Int15_value, 15);
+    ASSERT_EQ(out_msg.ECU1_Int16_value, 16);
+}

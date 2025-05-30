@@ -9,6 +9,19 @@
         }
       }
     },
+    "CommitInfo": {
+      "msg_id": 809,
+      "cycle_time": 100,
+      "description": "DAM Current Running Git Commit Info",
+      "signals": {
+        "Hash": {
+          "bits": 32
+        },
+        "Clean": {
+          "bits": 1
+        }
+      }
+  },
     "Debug": {
       "msg_id": 807,
       "cycle_time": 1000,

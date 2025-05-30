@@ -20,10 +20,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_it.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <SEGGER_SYSVIEW_FreeRTOS.h>
+#include "hw_hardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,7 +88,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -196,11 +196,11 @@ void CAN2_TX_IRQHandler(void)
 void CAN2_RX0_IRQHandler(void)
 {
     /* USER CODE BEGIN CAN2_RX0_IRQn 0 */
-    traceISR_ENTER();
+
     /* USER CODE END CAN2_RX0_IRQn 0 */
     HAL_CAN_IRQHandler(&hcan2);
     /* USER CODE BEGIN CAN2_RX0_IRQn 1 */
-    traceISR_EXIT();
+
     /* USER CODE END CAN2_RX0_IRQn 1 */
 }
 

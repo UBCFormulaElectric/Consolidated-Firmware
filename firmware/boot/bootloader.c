@@ -1,7 +1,11 @@
 #include "bootloader.h"
+#include "app_crc32.h"
 #include "bootloaderConfig.h"
+#include "hw_bootup.h"
 #include "main.h"
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "cmsis_gcc.h"
@@ -14,7 +18,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_flash.h"
 #include "hw_utils.h"
-#include "hw_crc.h"
 #include "hw_hal.h"
 
 #ifdef STM32H733xx
@@ -27,7 +30,6 @@
 
 #include "app_utils.h"
 
-extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
 
 // Need these to be created an initialized elsewhere
@@ -42,7 +44,7 @@ void canRxQueueOverflowCallBack(const uint32_t unused)
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    // BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.
@@ -52,7 +54,6 @@ typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
-    uint32_t bootloader_status;
 } Metadata;
 
 extern Metadata __app_metadata_start__; // NOLINT(*-reserved-identifier)
@@ -62,15 +63,16 @@ extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
-// Boot flag from RAM
-__attribute__((section(".boot_flag"))) volatile uint8_t boot_flag;
-
 typedef enum
 {
     BOOT_STATUS_APP_VALID,
     BOOT_STATUS_APP_INVALID,
     BOOT_STATUS_NO_APP
 } BootStatus;
+
+static uint32_t   current_address;
+static bool       update_in_progress;
+static BootStatus boot_status;
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -121,41 +123,51 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     }
 }
 
-static BootStatus verifyAppCodeChecksum(void)
+void verifyAppCodeChecksum(void)
 {
     // ReSharper disable once CppRedundantDereferencingAndTakingAddress
     if (*&__app_code_start__ == 0xFFFFFFFF)
     {
         // If app initial stack pointer is all 0xFF, assume app is not present.
-        return BOOT_STATUS_NO_APP;
+        boot_status = BOOT_STATUS_NO_APP;
+        return;
     }
 
     const Metadata *metadata = &__app_metadata_start__;
     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
     {
         // App binary size field is invalid.
-        return BOOT_STATUS_APP_INVALID;
+        boot_status = BOOT_STATUS_APP_INVALID;
+        return;
     }
 
-    const uint32_t calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
-    return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
+    const uint32_t calculated_checksum =
+        app_crc32_finalize(app_crc32_update(app_crc32_init(), &__app_code_start__, metadata->size_bytes));
+    boot_status = calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
-
-static uint32_t current_address;
-static bool     update_in_progress;
 
 void bootloader_preInit(void)
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("Bootloader reset!");
+
+    hw_hardFaultHandler_init();
+
+    verifyAppCodeChecksum();
+    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
+    {
+        // Jump to app.
+        modifyStackPointerAndStartApp(&__app_code_start__);
+    }
+
+    hw_bootup_setBootRequest(BOOT_REQUEST_APP);
 }
 
 void bootloader_init(void)
 {
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
-    hw_hardFaultHandler_init();
-    hw_crc_init(&hcrc);
+
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -164,19 +176,6 @@ void bootloader_init(void)
     // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
-
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && boot_flag != 0x1)
-    {
-        // Deinit peripherals.
-        HAL_TIM_Base_Stop_IT(&htim6);
-        HAL_CRC_DeInit(&hcrc);
-
-        // Clear RCC register flag and RAM boot flag.
-        boot_flag = 0x0;
-
-        // Jump to app.
-        modifyStackPointerAndStartApp(&__app_code_start__);
-    }
 
     hw_can_init(&can);
     io_canQueue_init();
@@ -225,7 +224,8 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = (BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
                 .dlc    = 5,
             };
-            reply.data.data8[0] = (uint8_t)verifyAppCodeChecksum();
+            verifyAppCodeChecksum();
+            reply.data.data8[0] = (uint8_t)boot_status;
 
             const uint32_t diff = current_address - (uint32_t)&__app_metadata_start__;
             reply.data.data8[1] = (uint8_t)(diff >> 24) & 0xff;
@@ -239,20 +239,13 @@ _Noreturn void bootloader_runInterfaceTask(void)
         }
         else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
-            // todo check if app is valid before jumping
-            boot_flag = 0x0;
-            HAL_TIM_Base_Stop_IT(&htim6);
-            HAL_CRC_DeInit(&hcrc);
-            modifyStackPointerAndStartApp(&__app_code_start__);
+            hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+            NVIC_SystemReset();
         }
         else
         {
             LOG_ERROR("got stdid %X", command.std_id);
         }
-
-#if false
-        HAL_GPIO_WritePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin, update_in_progress);
-#endif
     }
 }
 
@@ -266,11 +259,8 @@ _Noreturn void bootloader_runTickTask(void)
         {
             // Broadcast a message at 1Hz so we can check status over CAN.
             CanMsg status_msg        = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
-            status_msg.data.data8[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
-            status_msg.data.data8[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
-            status_msg.data.data8[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
-            status_msg.data.data8[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
-            status_msg.data.data8[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
+            status_msg.data.data32[0] = GIT_COMMIT_HASH;
+            status_msg.data.data8[4] = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
             io_canQueue_pushTx(&status_msg);
         }
 

@@ -45,14 +45,10 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
 
-    hw_hardFaultHandler_init();
     hw_can_init(&can1);
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-
-    // hw_gpio_writePin(&tsim_red_en_pin, true);
-    // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
     jobs_init();
     // hw_gpio_writePin(&tsim_red_en_pin, true);
@@ -107,12 +103,6 @@ _Noreturn void tasks_run100Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
-        // CanMsg fake_msg = {
-        //     .std_id    = 0x124,
-        //     .dlc       = 8,
-        //     .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
-        //     .timestamp = io_time_getCurrentMs(),
-        // };
         // io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
@@ -138,17 +128,6 @@ _Noreturn void tasks_run1kHz(void)
         // // Watchdog check-in must be the last function called before putting the
         // // task to sleep. Prevent check in if the elapsed period is greater or
         // // equal to the period ms
-        // if (io_tBime_getCurrentMs() - task_start_ms <= period_ms)
-        //     hw_watchdog_checkIn(watchdog);
-
-        // CanMsg fake_msg = {
-        //     .std_id = 0x125,
-        //     .dlc    = 8,
-        //     .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
-        //     .timestamp = io_time_getCurrentMs(),
-        // };
-        // io_telemMessage_pushMsgtoQueue(&fake_msg);
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

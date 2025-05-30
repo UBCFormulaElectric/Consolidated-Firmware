@@ -46,8 +46,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private variables ---------------------------------------------------------*/
 
-CRC_HandleTypeDef hcrc;
-
 FDCAN_HandleTypeDef hfdcan2;
 
 /* Definitions for interfaceTask */
@@ -93,11 +91,10 @@ const osThreadAttr_t tickTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_FDCAN2_Init(void);
-static void MX_CRC_Init(void);
-void        RunInterfaceTask(void *argument);
-void        RunCanTx(void *argument);
-void        RunTickTask(void *argument);
+static void MX_FDCAN1_Init(void);
+void        runInterfaceTask(void *argument);
+void        runTickTask(void *argument);
+void        runCanTxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -136,8 +133,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_FDCAN2_Init();
-    MX_CRC_Init();
+    MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
     /* USER CODE END 2 */
@@ -252,35 +248,6 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-}
-
-/**
- * @brief CRC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CRC_Init(void)
-{
-    /* USER CODE BEGIN CRC_Init 0 */
-
-    /* USER CODE END CRC_Init 0 */
-
-    /* USER CODE BEGIN CRC_Init 1 */
-
-    /* USER CODE END CRC_Init 1 */
-    hcrc.Instance                     = CRC;
-    hcrc.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
-    hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
-    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
-    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
-    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CRC_Init 2 */
-
-    /* USER CODE END CRC_Init 2 */
 }
 
 /**
