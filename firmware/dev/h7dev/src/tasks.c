@@ -65,7 +65,7 @@ void tasks_canTx()
 {
     for (;;)
     {
-        CanMsg msg = io_canQueue_popTx();
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         hw_can_transmit(&can, &msg);
     }
 }

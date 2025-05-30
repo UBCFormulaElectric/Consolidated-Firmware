@@ -40,7 +40,7 @@ typedef struct
     uint8_t              buffer[TX_QUEUE_BYTES];
     osMessageQueueAttr_t attr;
     osMessageQueueId_t   id;
-    bool init_complete;
+    bool                 init_complete;
 } CanTxQueue;
 
 /**
@@ -63,7 +63,7 @@ void io_canQueue_pushTx(CanTxQueue *queue, const CanMsg *tx_msg);
 /**
  * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
  */
-CanMsg io_canQueue_popTx(CanTxQueue* queue);
+CanMsg io_canQueue_popTx(CanTxQueue *queue);
 
 /**
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.
