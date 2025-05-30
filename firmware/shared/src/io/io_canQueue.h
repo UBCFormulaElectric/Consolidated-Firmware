@@ -27,12 +27,12 @@
  * 3. Pop msgs off the RX queue via `io_can_dequeueRxMsg`, which blocks until a CAN RX msg is successfully dequeued.
  */
 
-#define TX_QUEUE_SIZE 128
-#define RX_QUEUE_SIZE 128
+#define CAN_TX_QUEUE_SIZE 128
+#define CAN_RX_QUEUE_SIZE 128
 
 #define CAN_MSG_SIZE sizeof(CanMsg)
-#define TX_QUEUE_BYTES CAN_MSG_SIZE *TX_QUEUE_SIZE
-#define RX_QUEUE_BYTES CAN_MSG_SIZE *RX_QUEUE_SIZE
+#define TX_QUEUE_BYTES (CAN_MSG_SIZE * CAN_TX_QUEUE_SIZE)
+#define RX_QUEUE_BYTES (CAN_MSG_SIZE * CAN_RX_QUEUE_SIZE)
 
 typedef struct
 {

@@ -36,7 +36,7 @@ void io_canQueue_initTx(CanTxQueue *queue)
     queue->attr.mq_size   = TX_QUEUE_BYTES;
     queue->init_complete  = false;
 
-    queue->id = osMessageQueueNew(TX_QUEUE_SIZE, CAN_MSG_SIZE, &queue->attr);
+    queue->id = osMessageQueueNew(CAN_TX_QUEUE_SIZE, CAN_MSG_SIZE, &queue->attr);
     assert(queue->id != NULL);
 }
 
