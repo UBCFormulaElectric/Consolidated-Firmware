@@ -33,7 +33,7 @@ namespace io_vc
 
 extern "C"
 {
-#include "io_loadSwitches.h"
+#include "io_loadswitches.h"
     static Efuse f_inv_efuse{};
     static Efuse rsm_efuse{};
     static Efuse bms_efuse{};
