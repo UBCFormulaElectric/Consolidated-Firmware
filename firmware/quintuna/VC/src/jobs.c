@@ -7,8 +7,10 @@
 #include <app_canTx.h>
 #include <io_canRx.h>
 #include <io_canTx.h>
+#include <stdbool.h>
 #include "states/app_states.h"
 #include "io_time.h"
+#include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 
@@ -21,10 +23,11 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 void jobs_init()
 {
     app_canTx_init();
-    app_canTx_init();
+    app_canRx_init();
 
     io_canTx_init(jsoncan_transmit_func, jsoncan_transmit_func, jsoncan_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+    io_canTx_enableMode_can3(CAN3_MODE_DEFAULT, true);
     io_canQueue_init();
 
     app_stateMachine_init(&init_state);

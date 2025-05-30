@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "io_bootHandler.h"
 #include "jobs.h"
 #include "main.h"
 #include "cmsis_os.h"
@@ -130,8 +131,8 @@ _Noreturn void tasks_runCanTx(void)
 
         // TODO this canmsg will tell you which bus to transmit it on
         // hw_fdcan_transmit(&can1, &tx_msg);
-        //hw_can_transmit(&can2, &tx_msg);
-        hw_fdcan_transmit(&can3, &tx_msg);
+        hw_fdcan_transmit(&can2, &tx_msg);
+        // hw_fdcan_transmit(&can3, &tx_msg);
     }
 }
 
@@ -142,6 +143,8 @@ _Noreturn void tasks_runCanRx(void)
         const CanMsg rx_msg       = io_canQueue_popRx();
         JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_can_msg);
+
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 

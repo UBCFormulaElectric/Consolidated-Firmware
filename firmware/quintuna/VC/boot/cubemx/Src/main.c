@@ -87,7 +87,7 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityLow,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = { .hcan = &hfdcan1, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
+CanHandle can = { .hcan = &hfdcan3, .bus_num = 3, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -358,7 +358,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
-    hfdcan2.Init.ProtocolException    = ENABLE;
+    hfdcan2.Init.ProtocolException    = DISABLE;
     hfdcan2.Init.NominalPrescaler     = 12;
     hfdcan2.Init.NominalSyncJumpWidth = 3;
     hfdcan2.Init.NominalTimeSeg1      = 12;
@@ -405,33 +405,33 @@ static void MX_FDCAN3_Init(void)
 
     /* USER CODE END FDCAN3_Init 1 */
     hfdcan3.Instance                  = FDCAN3;
-    hfdcan3.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan3.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan3.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan3.Init.AutoRetransmission   = DISABLE;
     hfdcan3.Init.TransmitPause        = DISABLE;
     hfdcan3.Init.ProtocolException    = DISABLE;
-    hfdcan3.Init.NominalPrescaler     = 6;
-    hfdcan3.Init.NominalSyncJumpWidth = 3;
-    hfdcan3.Init.NominalTimeSeg1      = 12;
-    hfdcan3.Init.NominalTimeSeg2      = 3;
+    hfdcan3.Init.NominalPrescaler     = 2;
+    hfdcan3.Init.NominalSyncJumpWidth = 2;
+    hfdcan3.Init.NominalTimeSeg1      = 45;
+    hfdcan3.Init.NominalTimeSeg2      = 2;
     hfdcan3.Init.DataPrescaler        = 1;
-    hfdcan3.Init.DataSyncJumpWidth    = 1;
-    hfdcan3.Init.DataTimeSeg1         = 1;
-    hfdcan3.Init.DataTimeSeg2         = 1;
+    hfdcan3.Init.DataSyncJumpWidth    = 6;
+    hfdcan3.Init.DataTimeSeg1         = 17;
+    hfdcan3.Init.DataTimeSeg2         = 6;
     hfdcan3.Init.MessageRAMOffset     = 0;
     hfdcan3.Init.StdFiltersNbr        = 0;
     hfdcan3.Init.ExtFiltersNbr        = 0;
     hfdcan3.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
+    hfdcan3.Init.RxFifo1ElmtsNbr      = 1;
+    hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan3.Init.RxBuffersNbr         = 0;
-    hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan3.Init.TxEventsNbr          = 0;
     hfdcan3.Init.TxBuffersNbr         = 0;
     hfdcan3.Init.TxFifoQueueElmtsNbr  = 1;
     hfdcan3.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan3) != HAL_OK)
     {
         Error_Handler();
@@ -464,10 +464,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOA, FR_STBY_INV_Pin | F_INV_EN_Pin | DAM_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOE, R_INV_EN_Pin | LED_Pin | BOOT_LED_Pin | BMS_EN_Pin | FR_STBY_FRONT_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOE, R_INV_EN_Pin | LED_Pin | BMS_EN_Pin | FR_STBY_FRONT_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(BAT_CHRG_nSHDN_GPIO_Port, BAT_CHRG_nSHDN_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOE, BOOT_LED_Pin | BAT_CHRG_nSHDN_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, FR_STBY_REAR_Pin | FRONT_EN_Pin | RSM_EN_Pin | L_RAD_FAN_EN_Pin, GPIO_PIN_RESET);
@@ -569,10 +569,7 @@ void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runInterfaceTask();
     /* USER CODE END 5 */
 }
 
@@ -587,10 +584,7 @@ void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
 }
 
@@ -605,10 +599,7 @@ void runTickTask(void *argument)
 {
     /* USER CODE BEGIN runTickTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runTickTask();
     /* USER CODE END runTickTask */
 }
 
