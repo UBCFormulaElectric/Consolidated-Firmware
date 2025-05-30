@@ -3,15 +3,41 @@
 #include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
+#include "app_canRx.h"
 
 #include "io_bootHandler.h"
 #include "io_canTx.h"
 
+#include "io_canTx.h"
+#include "io_canRx.h"
+// app
+#include "app_segments.h"
+// io
+#include "io_bootHandler.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
-#include "io_canRx.h"
+#include "io_time.h"
 #include "io_log.h"
+
+ExitCode jobs_runLtc_tick(void)
+{
+    RETURN_IF_ERR(app_segments_configSync());
+    RETURN_IF_ERR(app_segments_broadcastCellVoltages());
+    RETURN_IF_ERR(app_segments_broadcastTempsVRef());
+    RETURN_IF_ERR(app_segments_broadcastStatus());
+
+    if (app_canRx_Debug_EnableDebugMode_get())
+    {
+        RETURN_IF_ERR(app_segments_voltageSelftest());
+        RETURN_IF_ERR(app_segments_auxSelftest());
+        RETURN_IF_ERR(app_segments_statusSelftest());
+        RETURN_IF_ERR(app_segments_openWireCheck());
+        RETURN_IF_ERR(app_segments_ADCAccuracyTest());
+    }
+
+    return EXIT_CODE_OK;
+}
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -42,6 +68,9 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
+    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
@@ -49,7 +78,10 @@ void jobs_run100Hz_tick(void)
     app_shdnLoop_broadcast();
 }
 
-void jobs_run1kHz_tick(void) {}
+void jobs_run1kHz_tick(void)
+{
+    io_canTx_enqueueOtherPeriodicMsgs(io_time_getCurrentMs());
+}
 
 void jobs_runCanRx_tick(void)
 {

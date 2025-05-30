@@ -11,6 +11,7 @@ set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURC
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
+        "${SHARED_APP_INCLUDE_DIR}/app_thermistor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
@@ -43,6 +44,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
