@@ -70,6 +70,7 @@ typedef enum
     BOOT_STATUS_NO_APP
 } BootStatus;
 
+static CanTxQueue can_tx_queue;
 static uint32_t   current_address;
 static bool       update_in_progress;
 static BootStatus boot_status;
@@ -145,10 +146,6 @@ void verifyAppCodeChecksum(void)
         app_crc32_finalize(app_crc32_update(app_crc32_init(), &__app_code_start__, metadata->size_bytes));
     boot_status = calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 }
-
-static CanTxQueue can_tx_queue;
-static uint32_t   current_address;
-static bool       update_in_progress;
 
 void bootloader_preInit(void)
 {
