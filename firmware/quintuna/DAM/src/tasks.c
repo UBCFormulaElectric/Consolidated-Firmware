@@ -152,7 +152,7 @@ _Noreturn void tasks_runCanTx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx();
+        CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
         // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // ToDo: check if this is needed and investigate why is_fd is not a bool
