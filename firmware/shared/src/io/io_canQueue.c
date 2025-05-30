@@ -42,7 +42,9 @@ void io_canQueue_initTx(CanTxQueue *queue)
 
 void io_canQueue_pushTx(CanTxQueue *queue, const CanMsg *tx_msg)
 {
+    assert(queue->init_complete);
     assert(queue->id != NULL && tx_msg != NULL);
+
     const osStatus_t s = osMessageQueuePut(queue->id, tx_msg, 0, 0);
 
     static uint32_t tx_overflow_count = 0;
@@ -61,6 +63,7 @@ CanMsg io_canQueue_popTx(CanTxQueue *queue)
 {
     assert(queue->init_complete);
     assert(queue->id != NULL);
+
     CanMsg           msg;
     const osStatus_t s = osMessageQueueGet(queue->id, &msg, NULL, osWaitForever);
     assert(s == osOK);
