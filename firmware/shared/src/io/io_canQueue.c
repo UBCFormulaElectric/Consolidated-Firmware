@@ -13,17 +13,21 @@ MessageBufferHandle_t        rx_queue_id;
 StaticQueue_t                rx_queue_control_block;
 uint8_t                      rx_queue_buf[RX_QUEUE_BYTES];
 static StaticMessageBuffer_t rx_buffer_control_block;
+static uint32_t              rx_overflow_count;
+static bool                  rx_init_complete;
 
 __weak void canTxQueueOverflowCallBack(const uint32_t overflow_count) {}
-__weak void canTxQueueOverflowClearCallback() {}
+__weak void canTxQueueOverflowClearCallback(void) {}
 __weak void canRxQueueOverflowCallBack(const uint32_t overflow_count) {}
-__weak void canRxQueueOverflowClearCallback() {}
+__weak void canRxQueueOverflowClearCallback(void) {}
 
 void io_canQueue_initRx(void)
 {
     // Initialize CAN queues.
     rx_queue_id = xMessageBufferCreateStatic(RX_QUEUE_BYTES, rx_queue_buf, &rx_buffer_control_block);
     assert(rx_queue_id != NULL);
+
+    rx_init_complete = true;
 }
 
 void io_canQueue_initTx(CanTxQueue *queue)
@@ -34,10 +38,11 @@ void io_canQueue_initTx(CanTxQueue *queue)
     queue->attr.cb_size   = sizeof(StaticQueue_t);
     queue->attr.mq_mem    = queue->buffer;
     queue->attr.mq_size   = TX_QUEUE_BYTES;
-    queue->init_complete  = false;
 
     queue->id = osMessageQueueNew(CAN_TX_QUEUE_SIZE, CAN_MSG_SIZE, &queue->attr);
     assert(queue->id != NULL);
+
+    queue->init_complete = true;
 }
 
 void io_canQueue_pushTx(CanTxQueue *queue, const CanMsg *tx_msg)
@@ -73,7 +78,7 @@ CanMsg io_canQueue_popTx(CanTxQueue *queue)
 
 void io_canQueue_pushRx(const CanMsg *rx_msg)
 {
-    static uint32_t rx_overflow_count = 0;
+    assert(rx_init_complete);
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     // use canQueue rx in isr
@@ -88,8 +93,10 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
     }
 }
 
-CanMsg io_canQueue_popRx()
+CanMsg io_canQueue_popRx(void)
 {
+    assert(rx_init_complete);
+
     CanMsg msg;
     // Pop a message off the RX queue.
     size_t bytes_received = xMessageBufferReceive(rx_queue_id, &msg, CAN_MSG_SIZE, portMAX_DELAY);

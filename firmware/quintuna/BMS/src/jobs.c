@@ -20,7 +20,7 @@
 #include "io_time.h"
 #include "io_log.h"
 
-static CanTxQueue can_tx_queue;
+CanTxQueue can_tx_queue;
 
 ExitCode jobs_runLtc_tick(void)
 {

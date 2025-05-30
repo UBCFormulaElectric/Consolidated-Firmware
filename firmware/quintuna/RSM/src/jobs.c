@@ -30,7 +30,7 @@ static const Potentiometer rsm_pot = {
     .i2c_handle = &r_pump_i2c,
 };
 
-static CanTxQueue can_tx_queue;
+CanTxQueue can_tx_queue;
 
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {

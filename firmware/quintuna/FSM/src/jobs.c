@@ -17,7 +17,7 @@
 #include "io_imu.h"
 #include "io_log.h"
 
-static CanTxQueue can_tx_queue;
+CanTxQueue can_tx_queue;
 
 static void canTransmit(const JsonCanMsg *msg)
 {
