@@ -154,7 +154,7 @@
       }
     }
   },
-  "FSMShdnNodeStatus": {
+  "ShdnNodeStatus": {
     "msg_id": 615,
     "cycle_time": 10,
     "description": "FSM Shutdown Node Status",
@@ -165,10 +165,10 @@
       "COCKPITOKStatus": {
         "bits": 1
       },
-      "FLOKStatus": {
+      "FrontLeftILCKOKStatus": {
         "bits": 1
       },
-      "FROKStatus": {
+      "FrontRightILCKOKStatus": {
         "bits": 1
       }
     }
