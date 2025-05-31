@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_gpios.h"
 #include "hw_error.h"
 #include "io_log.h"
 /* USER CODE END Includes */
@@ -521,7 +522,10 @@ static void MX_IWDG1_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-
+    if (hw_gpio_readPin(&sd_present))
+    {
+        return;
+    }
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
