@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_bootup.h"
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -26,13 +27,21 @@ void tasks_runChimera(void)
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_hardFaultHandler_init();
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS Reset");
+
     __HAL_DBGMCU_FREEZE_IWDG1();
+
     ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
