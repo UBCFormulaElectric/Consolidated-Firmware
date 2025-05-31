@@ -168,6 +168,14 @@ elseif ("${TARGET}" STREQUAL "test")
     # JSONCAN
     jsoncan_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
+
+    # CommitInfo
+    commit_info_library(
+            "quintuna_VC_test"
+            "quintuna_VC_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+    )
+
     # FakeIO
     set(HEADERS_TO_FAKE
             #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
