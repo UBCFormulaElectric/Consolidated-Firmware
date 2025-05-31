@@ -15,7 +15,6 @@ build-backend = "scikit_build_core.build"
 
 
 [tool.scikit-build]
-install.strip = false
 wheel.packages    = ["logfs"]
 wheel.install-dir = "logfs"
 
