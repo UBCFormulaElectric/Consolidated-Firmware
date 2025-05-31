@@ -59,6 +59,7 @@
 extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 extern FDCAN_HandleTypeDef hfdcan2;
 extern I2C_HandleTypeDef   hi2c1;
+extern SD_HandleTypeDef    hsd1;
 extern UART_HandleTypeDef  huart2;
 extern TIM_HandleTypeDef   htim2;
 
@@ -246,6 +247,20 @@ void USART2_IRQHandler(void)
     /* USER CODE BEGIN USART2_IRQn 1 */
 
     /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SDMMC1 global interrupt.
+ */
+void SDMMC1_IRQHandler(void)
+{
+    /* USER CODE BEGIN SDMMC1_IRQn 0 */
+
+    /* USER CODE END SDMMC1_IRQn 0 */
+    HAL_SD_IRQHandler(&hsd1);
+    /* USER CODE BEGIN SDMMC1_IRQn 1 */
+
+    /* USER CODE END SDMMC1_IRQn 1 */
 }
 
 /**
