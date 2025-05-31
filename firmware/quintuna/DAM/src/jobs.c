@@ -5,6 +5,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_stackWaterMarks.h"
+#include "app_canDataCapture.h"
 
 #include "io_buzzer.h"
 #include "io_log.h"
@@ -21,14 +22,23 @@
 
 #include "hw_resetReason.h"
 
-    CanTxQueue can_tx_queue;
+CanTxQueue can_tx_queue;
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&can_tx_queue, &msg);
-    io_telemMessage_pushMsgtoQueue(&msg);
-    io_canLogging_loggingQueuePush(&msg);
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+    {
+        io_canLogging_loggingQueuePush(&msg);
+    }
+
+    if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
+    {
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(&msg);
+    }
 }
 
 void jobs_init()
@@ -105,11 +115,20 @@ void jobs_runCanRx_tick(void)
 
 void jobs_runCanRx_callBack(const CanMsg *rx_msg)
 {
-    io_telemMessage_pushMsgtoQueue(rx_msg);
-    io_canLogging_loggingQueuePush(rx_msg);
     if (io_canRx_filterMessageId_can1(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
+    }
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    {
+        io_canLogging_loggingQueuePush(rx_msg);
+    }
+
+    if (app_dataCapture_needsTelem((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    {
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(rx_msg);
     }
     // check and process CAN msg for bootloader start msg
 }
