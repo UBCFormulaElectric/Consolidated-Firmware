@@ -9,13 +9,13 @@ add_subdirectory(BMS)
 if ("${TARGET}" STREQUAL "binary")
     add_custom_target(quintuna_hexes)
     add_dependencies(quintuna_hexes
-        quintuna_BMS.hex
-        quintuna_CRIT.hex
-        quintuna_DAM.hex
-        quintuna_FSM.hex
-        quintuna_RSM.hex
-        quintuna_VC.hex
-        f4dev.elf
-        h7dev.hex
+            quintuna_BMS.hex
+            quintuna_CRIT.hex
+            quintuna_DAM.hex
+            quintuna_FSM.hex
+            quintuna_RSM.hex
+            quintuna_VC.hex
+            f4dev.elf
+            h7dev.hex
     )
-endif()
+endif ()

@@ -89,4 +89,9 @@ extern "C"
     {
         return EXIT_CODE_OK;
     }
+
+#include "io_canQueues.h"
+    CanTxQueue can1_tx_queue;
+    CanTxQueue can2_tx_queue;
+    CanTxQueue can3_tx_queue;
 }
