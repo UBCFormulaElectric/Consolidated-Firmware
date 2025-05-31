@@ -18,7 +18,7 @@
         }
     },
     "CommitInfo": {
-        "msg_id": 508,
+        "msg_id": 509,
         "cycle_time": 100,
         "description": "VC Commit Info",
         "signals": {
