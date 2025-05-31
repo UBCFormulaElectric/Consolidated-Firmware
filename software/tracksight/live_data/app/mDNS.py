@@ -21,6 +21,10 @@ def register_mdns_service(ip: str, service_name: str):
     )
     # Register the service
     zeroconf = Zeroconf()
+    # if registered, it will update the service
+    zeroconf.unregister_all_services()
+
+    # Register the service with the Zeroconf instance
 
     zeroconf.register_service(info)
     print(

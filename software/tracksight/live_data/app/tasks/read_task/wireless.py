@@ -5,7 +5,7 @@ import serial
 from crc import Calculator, Crc32
 from generated import telem_pb2
 from logger import logger
-from middleware.candb import board_start_time, update_base_time
+from middleware.candb import update_base_time
 from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
 
@@ -39,7 +39,7 @@ def find_magic_in_buffer(buffer, magic=MAGIC):  # do i need to set magic here
     """
     magic_len = len(magic)
     for i in range(len(buffer) - magic_len + 1):
-        if buffer[i : i + magic_len] == magic:
+        if buffer[i: i + magic_len] == magic:
             return i
     return -1
 
@@ -49,9 +49,9 @@ def calculate_message_timestamp(message_timestamp, base_time):
         # Convert milliseconds to seconds and create a timedelta
         delta = datetime.timedelta(milliseconds=message_timestamp)
         timestamp = base_time + delta
-        logger.debug(
-            f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}"
-        )
+        # logger.debug(
+        #     f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}"
+        # )
     else:
         timestamp = datetime.datetime.now()
         logger.warning(
@@ -66,7 +66,7 @@ def read_packet(ser: serial.Serial):
     while True:
         # data = b'1'
         data = ser.read(1)
-        print(data)
+        # print(data)
         if not data:
             continue
         buffer += data
@@ -116,8 +116,6 @@ def _read_messages(port: str):
     Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
     """
     ser = get_serial()
-    ser.reset_input_buffer()
-    ser.reset_output_buffer()
 
     base_time = None
 
@@ -156,25 +154,27 @@ def _read_messages(port: str):
             # parse start_time from data if this pacakage is correct
             # print(message_received)
             base_time = datetime.datetime(
-                year=message_received.message_0,
+                year=message_received.message_0
+                + 2000,  # need to offset this as on firmware side it is 0-99
                 month=message_received.message_1,
-                day=message_received.message_1,
-                hour=message_received.message_2,
-                minute=message_received.message_3,
-                second=message_received.message_4,
-            )
+                day=message_received.message_2,
+                hour=message_received.message_3,
+                minute=message_received.message_4,
+                second=message_received.message_5,
+            ).astimezone(datetime.timezone.utc)
             logger.info(f"Base time recieved: {base_time}")
-            update_base_time(base_time)
             continue
-        if not board_start_time:
+
+        if not base_time:
             # we do not know the base time so skip
+            print(f"get message {message_received.can_id} but no base time")
             continue
         # print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
         timestamp = calculate_message_timestamp(
-            message_received.time_stamp, board_start_time
-        )
+            message_received.time_stamp, base_time)
         can_msg_queue.put(
-            CanMsg(message_received.can_id, _make_bytes(message_received), timestamp)
+            CanMsg(message_received.can_id, _make_bytes(
+                message_received), timestamp)
         )
 
 
