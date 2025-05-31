@@ -7,14 +7,14 @@
 
 void app_stackWaterMark_check(void)
 {
-    app_canAlerts_VC_Warning_StackWaterMarkHighTask1Hz_set(
-        io_taskMonitor_getStackUsage(&task_1Hz_task_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
-    app_canAlerts_VC_Warning_StackWaterMarkHighTask100Hz_set(
-        io_taskMonitor_getStackUsage(&task_100Hz_task_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
-    app_canAlerts_VC_Warning_StackWaterMarkHighTask1kHz_set(
-        io_taskMonitor_getStackUsage(&task_1kHz_task_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
-    app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanRx_set(
-        io_taskMonitor_getStackUsage(&task_can_rx_task_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
-    app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanTx_set(
-        io_taskMonitor_getStackUsage(&task_can_tx_task_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
+    app_canAlerts_DAM_Warning_StackWaterMarkHighTask1Hz_set(
+        io_taskMonitor_getStackUsage(&task_1_hz_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
+    app_canAlerts_DAM_Warning_StackWaterMarkHighTask100Hz_set(
+        io_taskMonitor_getStackUsage(&task_100_hz_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
+    app_canAlerts_DAM_Warning_StackWaterMarkHighTask1kHz_set(
+        io_taskMonitor_getStackUsage(&task_1_khz_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
+    app_canAlerts_DAM_Warning_StackWaterMarkHighTaskCanRx_set(
+        io_taskMonitor_getStackUsage(&task_can_rx_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
+    app_canAlerts_DAM_Warning_StackWaterMarkHighTaskCanTx_set(
+        io_taskMonitor_getStackUsage(&task_can_tx_monitor) > STACK_HIGH_WATERMARK_THRESHOLD);
 }
