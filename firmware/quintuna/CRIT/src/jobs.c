@@ -44,9 +44,9 @@ void jobs_init(void)
 
     app_heartbeatMonitor_init(&hb_monitor);
 
-    // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_CRIT_Heartbeat_set(true);
 
     io_shift_register_led_init();
     app_screens_init();
