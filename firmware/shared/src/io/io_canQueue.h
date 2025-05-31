@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmsis_os.h>
 #include <stdint.h>
 
 #include "io_canMsg.h"
@@ -34,6 +33,8 @@
 #define TX_QUEUE_BYTES (CAN_MSG_SIZE * CAN_TX_QUEUE_SIZE)
 #define RX_QUEUE_BYTES (CAN_MSG_SIZE * CAN_RX_QUEUE_SIZE)
 
+#ifdef TARGET_EMBEDDED
+#include <cmsis_os.h>
 typedef struct
 {
     StaticQueue_t        control_block;
@@ -42,6 +43,10 @@ typedef struct
     osMessageQueueId_t   id;
     bool                 init_complete;
 } CanTxQueue;
+#elif TARGET_TEST
+#include "app_utils.h"
+EMPTY_STRUCT(CanTxQueue)
+#endif
 
 /**
  * Initialize the RX CAN queue.
@@ -56,12 +61,14 @@ void io_canQueue_initTx(CanTxQueue *queue);
 /**
  * Enqueue a CAN msg to be transmitted on the bus.
  * Does not block, calls `tx_overflow_callback` if queue is full.
+ * @param queue in question
  * @param tx_msg CAN msg to be TXed.
  */
 void io_canQueue_pushTx(CanTxQueue *queue, const CanMsg *tx_msg);
 
 /**
  * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
+ * @param queue in question
  */
 CanMsg io_canQueue_popTx(CanTxQueue *queue);
 

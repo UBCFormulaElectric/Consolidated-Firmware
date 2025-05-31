@@ -7,6 +7,19 @@
       "Heartbeat": {
         "bits": 1
       }
+    },
+    "ShdnNodeStatus" : {
+      "msg_id": 810,
+      "cycle_time" : 10,
+      "description" : "DAM Shudown Messages",
+      "signals": {
+          "REStopOKStatus":{
+              "bits":1
+          },
+          "LEStopOKStatus":{
+              "bits":1
+          }
+      }
     }
   },
   "CommitInfo": {

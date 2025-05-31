@@ -71,6 +71,11 @@
       "binaryDir": "build_fw_test"
     },
     {
+      "name": "FW Test Ninja",
+      "inherits": "FW Test",
+      "generator": "Ninja"
+    },
+    {
       "name": "FW Test CI",
       "inherits": "FW Test",
       "cacheVariables": {

@@ -1,4 +1,5 @@
 #include "hw_fdcan.h"
+#include <stm32h7xx_hal_fdcan.h>
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
 #include <cmsis_os2.h>
@@ -124,7 +125,7 @@ ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
 
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
-    tx_header.IdType              = FDCAN_STANDARD_ID;
+    tx_header.IdType              = msg->std_id >= 0x7FF ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
     tx_header.DataLength          = dlc;
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;

@@ -124,5 +124,15 @@
         "unit": "bar"
       }
     }
-  }
+  },
+    "ShdnNodeStatus" :{
+        "msg_id" : 714,
+        "cycle_time" : 10,
+        "description" : "RSM shutdown nodes",
+        "signals" :{
+            "RearLeftMotorInterlock":{
+                "bits" : 1
+            }
+        }
+    }
 }
