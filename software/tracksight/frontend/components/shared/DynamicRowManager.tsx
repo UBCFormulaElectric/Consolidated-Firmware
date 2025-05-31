@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { RowEditor, RowItem } from './DropdownSearch';
-import { InsertionBar } from './InsertionBar';
-import DynamicSignalGraph from './DynamicSignalGraph';
+import React, { useState } from "react";
+import { RowEditor, RowItem } from "./DropdownSearch";
+import DynamicSignalGraph from "./DynamicSignalGraph";
+import { InsertionBar } from "./InsertionBar";
 
 interface CreatedComponent {
   id: string;
@@ -13,53 +13,64 @@ interface CreatedComponent {
 
 const DynamicRowManager: React.FC = () => {
   const [rows, setRows] = useState<RowItem[]>([]);
-  const [createdComponents, setCreatedComponents] = useState<CreatedComponent[]>([]);
+  const [createdComponents, setCreatedComponents] = useState<
+    CreatedComponent[]
+  >([]);
 
   const addRow = (index: number) => {
-    setRows(prev => {
+    setRows((prev) => {
       const next = [...prev];
-      next.splice(index, 0, { isOpen: false, searchTerm: '', selectedSignal: undefined, hasCreatedComponent: false });
+      next.splice(index, 0, {
+        isOpen: false,
+        searchTerm: "",
+        selectedSignal: undefined,
+        hasCreatedComponent: false,
+      });
       return next;
     });
   };
 
   const toggleRow = (idx: number) =>
-    setRows(prev =>
+    setRows((prev) =>
       prev.map((r, i) =>
-        i === idx ? { ...r, isOpen: !r.isOpen, searchTerm: '' } : r
+        i === idx ? { ...r, isOpen: !r.isOpen, searchTerm: "" } : r
       )
     );
 
   const updateTerm = (idx: number, term: string) =>
-    setRows(prev =>
+    setRows((prev) =>
       prev.map((r, i) => (i === idx ? { ...r, searchTerm: term } : r))
     );
 
   const selectOpt = (idx: number, signalName: string) =>
-    setRows(prev =>
-      prev.map((r, i) => (i === idx ? { ...r, isOpen: false, selectedSignal: signalName } : r))
+    setRows((prev) =>
+      prev.map((r, i) =>
+        i === idx ? { ...r, isOpen: false, selectedSignal: signalName } : r
+      )
     );
 
   const deleteRow = (idx: number) => {
     // Remove any associated components first
-    const componentsToDelete = createdComponents.filter(comp => comp.rowIndex === idx);
-    componentsToDelete.forEach(comp => deleteComponent(comp.id));
-    
+    const componentsToDelete = createdComponents.filter(
+      (comp) => comp.rowIndex === idx
+    );
+    componentsToDelete.forEach((comp) => deleteComponent(comp.id));
+
     // Remove the row
-    setRows(prev => prev.filter((_, i) => i !== idx));
-    
+    setRows((prev) => prev.filter((_, i) => i !== idx));
+
     // Update row indices for remaining components
-    setCreatedComponents(prev => 
-      prev.map(comp => ({
+    setCreatedComponents((prev) =>
+      prev.map((comp) => ({
         ...comp,
-        rowIndex: comp.rowIndex > idx ? comp.rowIndex - 1 : comp.rowIndex
+        rowIndex: comp.rowIndex > idx ? comp.rowIndex - 1 : comp.rowIndex,
       }))
     );
   };
 
   const createComponent = (idx: number, signalName: string) => {
     // Mark the row as having created a component
-    setRows(prev =>
+    setRows((prev) =>
       prev.map((r, i) => (i === idx ? { ...r, hasCreatedComponent: true } : r))
     );
 
@@ -70,51 +81,57 @@ const DynamicRowManager: React.FC = () => {
       rowIndex: idx,
     };
 
-    setCreatedComponents(prev => [...prev, newComponent]);
+    setCreatedComponents((prev) => [...prev, newComponent]);
   };
 
   const deleteComponent = (componentId: string) => {
     // Remove the component from the list
-    setCreatedComponents(prev => prev.filter(comp => comp.id !== componentId));
-    
+    setCreatedComponents((prev) =>
+      prev.filter((comp) => comp.id !== componentId)
+    );
+
     // Find the associated row and mark it as not having a component
-    const component = createdComponents.find(comp => comp.id === componentId);
+    const component = createdComponents.find((comp) => comp.id === componentId);
     if (component) {
-      setRows(prev =>
-        prev.map((r, i) => (i === component.rowIndex ? { ...r, hasCreatedComponent: false } : r))
+      setRows((prev) =>
+        prev.map((r, i) =>
+          i === component.rowIndex ? { ...r, hasCreatedComponent: false } : r
+        )
       );
     }
   };
 
   return (
-    <div className="w-full">
-      {/* Render all created components first */}
-      {createdComponents.map(component => (
-        <DynamicSignalGraph
-          key={component.id}
-          signalName={component.signalName}
-          onDelete={() => deleteComponent(component.id)}
-        />
-      ))}
-      
-      {/* Render insertion rows */}
-      {rows.map((row, idx) => (
-        <RowEditor
-          key={idx}
-          index={idx}
-          row={row}
-          onToggle={toggleRow}
-          onSearch={updateTerm}
-          onSelect={selectOpt}
-          onCreateComponent={createComponent}
-          onDeleteRow={deleteRow}
-        />
-      ))}
+    <div className="w-auto">
+      <div className="overflow-x-scroll w-auto">
+        {/* Render all created components first */}
+        {createdComponents.map((component) => (
+          <DynamicSignalGraph
+            key={component.id}
+            signalName={component.signalName}
+            onDelete={() => deleteComponent(component.id)}
+          />
+        ))}
 
-      {/* Only show the insertion bar if there are no rows or the last row has created a component */}
-      {(rows.length === 0 || rows[rows.length - 1]?.hasCreatedComponent) && (
-        <InsertionBar onInsert={() => addRow(rows.length)} />
-      )}
+        {/* Render insertion rows */}
+        {rows.map((row, idx) => (
+          <RowEditor
+            key={idx}
+            index={idx}
+            row={row}
+            onToggle={toggleRow}
+            onSearch={updateTerm}
+            onSelect={selectOpt}
+            onCreateComponent={createComponent}
+            onDeleteRow={deleteRow}
+          />
+        ))}
+
+        {/* Only show the insertion bar if there are no rows or the last row has created a component */}
+        {(rows.length === 0 || rows[rows.length - 1]?.hasCreatedComponent) && (
+          <InsertionBar onInsert={() => addRow(rows.length)} />
+        )}
+      </div>
     </div>
   );
 };

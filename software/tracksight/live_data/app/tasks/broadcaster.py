@@ -80,9 +80,9 @@ def _send_data() -> NoReturn:
             print(
                 f"Sending to influx logger: {signal.name} = {signal.value}"
             )
-            influx_queue.put(
-                InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
-            )
+            # influx_queue.put(
+            #     InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
+            # )
 
 
 def get_websocket_broadcast() -> Thread:
