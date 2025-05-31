@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "hw_fdcan.h"
 #include "hw_error.h"
+#include "io_canQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,8 +47,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
-
-IWDG_HandleTypeDef hiwdg1;
 
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
@@ -86,7 +85,7 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = { .bus_num = 0, .hcan = &hfdcan1, .ready = false };
+CanHandle can = { .bus_num = 0, .hcan = &hfdcan1, .receive_callback = io_canQueue_pushRx, .ready = false };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,7 +94,6 @@ void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_FDCAN2_Init(void);
-static void MX_IWDG1_Init(void);
 void        runInterfaceTask(void *argument);
 void        runCanTxTask(void *argument);
 void        runTickTask(void *argument);
@@ -116,7 +114,7 @@ void        runTickTask(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    bootloader_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -142,9 +140,8 @@ int main(void)
     MX_GPIO_Init();
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
-    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-
+    bootloader_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -224,9 +221,8 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -318,16 +314,16 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.StdFiltersNbr        = 0;
     hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 1;
-    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxBuffersNbr         = 0;
-    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.TxEventsNbr          = 0;
     hfdcan1.Init.TxBuffersNbr         = 0;
     hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
         Error_Handler();
@@ -389,33 +385,6 @@ static void MX_FDCAN2_Init(void)
 }
 
 /**
- * @brief IWDG1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_IWDG1_Init(void)
-{
-    /* USER CODE BEGIN IWDG1_Init 0 */
-
-    /* USER CODE END IWDG1_Init 0 */
-
-    /* USER CODE BEGIN IWDG1_Init 1 */
-
-    /* USER CODE END IWDG1_Init 1 */
-    hiwdg1.Instance       = IWDG1;
-    hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = 4095;
-    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN IWDG1_Init 2 */
-
-    /* USER CODE END IWDG1_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -446,7 +415,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOD, BSPD_TEST_EN_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin, GPIO_PIN_RESET);

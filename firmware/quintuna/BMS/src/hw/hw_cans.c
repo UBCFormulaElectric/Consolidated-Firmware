@@ -1,10 +1,11 @@
 #include "hw_cans.h"
 #include "main.h"
+#include "io_canQueue.h"
 
 #include <assert.h>
 
-CanHandle can1 = { .hcan = &hfdcan1 };
-CanHandle can2 = { .hcan = &hfdcan2 };
+CanHandle can1 = { .hcan = &hfdcan1, .receive_callback = io_canQueue_pushRx };
+CanHandle can2 = { .hcan = &hfdcan2, .receive_callback = io_canQueue_pushRx };
 
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
