@@ -14,10 +14,26 @@
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 
-static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
+CanTxQueue can1_tx_queue;
+CanTxQueue can2_tx_queue;
+CanTxQueue can3_tx_queue;
+
+static void can1_tx(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&msg);
+    io_canQueue_pushTx(&can1_tx_queue, &msg);
+}
+
+static void can2_tx(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&can2_tx_queue, &msg);
+}
+
+static void can3_tx(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&can3_tx_queue, &msg);
 }
 
 void jobs_init()
@@ -25,10 +41,14 @@ void jobs_init()
     app_canTx_init();
     app_canRx_init();
 
-    io_canTx_init(jsoncan_transmit_func, jsoncan_transmit_func, jsoncan_transmit_func);
+    io_canTx_init(can1_tx, can2_tx, can3_tx);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
     io_canTx_enableMode_can3(CAN3_MODE_DEFAULT, true);
-    io_canQueue_init();
+
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can1_tx_queue);
+    io_canQueue_initTx(&can2_tx_queue);
+    io_canQueue_initTx(&can3_tx_queue);
 
     app_stateMachine_init(&init_state);
 }
@@ -60,7 +80,7 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
 {
     if (io_canRx_filterMessageId_can1(rx_msg->std_id))
     {
-        io_canQueue_pushTx(rx_msg);
+        io_canQueue_pushRx(rx_msg);
     }
 
     // check and process CAN msg for bootloader start msg
