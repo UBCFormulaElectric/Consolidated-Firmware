@@ -43,8 +43,12 @@ void tasks_preInitWatchdog(void)
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
+
+    __HAL_DBGMCU_FREEZE_IWDG1();
 
     hw_can_init(&can1);
     ASSERT_EXIT_OK(hw_usb_init());
