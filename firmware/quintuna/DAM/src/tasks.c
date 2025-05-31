@@ -24,7 +24,6 @@
 #include <hw_chimera_v2.h>
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
-#include "hw_resetReason.h"
 
 extern CRC_HandleTypeDef hcrc;
 
@@ -57,12 +56,6 @@ void tasks_init(void)
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     jobs_init();
-    // hw_gpio_writePin(&tsim_red_en_pin, true);
-    // hw_gpio_writePin(&ntsim_green_en_pin, false);
-
-    io_telemMessage_init();
-
-    app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)
