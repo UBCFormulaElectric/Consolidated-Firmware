@@ -551,13 +551,19 @@
     "cycle_time": 100,
     "description": "BMS Shutdown Nodes Status",
     "signals": {
-      "MSDShdnOKStatus": {
-        "bits": 1
-      },
       "HVPShdnOKStatus": {
         "bits": 1
       },
       "HVNShdnOKStatus": {
+        "bits": 1
+      }, 
+      "BmsOk": {
+        "bits": 1
+      },
+      "ImdOk": {
+        "bits": 1
+      },
+      "BspdOk": {
         "bits": 1
       }
     }
