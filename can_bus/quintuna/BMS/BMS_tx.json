@@ -43,10 +43,10 @@
     "cycle_time": 100,
     "description": "BMS IR state statuses",
     "signals": {
-      "IrPositive": {
+      "AirPositive": {
         "enum": "ContactorState"
       },
-      "IrNegative": {
+      "AirNegative": {
         "enum": "ContactorState"
       },
       "PrechargeRelay": {

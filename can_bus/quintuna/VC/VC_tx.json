@@ -48,7 +48,6 @@
       }
     }
   },
-
   "DAMTsimBuzzerControl": {
     "msg_id": 512,
     "cycle_time": 100,
@@ -59,6 +58,16 @@
       },
       "BuzzerControl": {
         "enum": "TsimColor"
+      }
+    }
+  },
+  "StateMachine": {
+    "msg_id": 513,
+    "cycle_time": 100,
+    "description": "VC state machine signals",
+    "signals": {
+      "EnablePrecharge": {
+        "bits": 1
       }
     }
   }
