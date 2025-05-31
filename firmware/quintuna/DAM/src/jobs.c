@@ -4,6 +4,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_stackWaterMarks.h"
 
 #include "io_buzzer.h"
 #include "io_log.h"
@@ -11,6 +12,7 @@
 
 #include "io_canQueue.h"
 #include "io_canLogging.h"
+#include "io_fileSystem.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_time.h"
@@ -19,7 +21,7 @@
 
 #include "hw_resetReason.h"
 
-CanTxQueue can_tx_queue;
+    CanTxQueue can_tx_queue;
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -44,6 +46,8 @@ void jobs_init()
     app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_DAM_Heartbeat_set(true);
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    app_canAlerts_DAM_Warning_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 }
 
 void jobs_run1Hz_tick(void)
@@ -54,6 +58,7 @@ void jobs_run1Hz_tick(void)
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
     //
     io_telemBaseTimeSend();
+    app_stackWaterMark_check();
 }
 
 void jobs_run100Hz_tick(void)
