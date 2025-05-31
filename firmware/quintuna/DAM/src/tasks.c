@@ -43,7 +43,6 @@ void tasks_preInitWatchdog(void)
     sprintf(
         boot_time_string, "20%02d-%02d-%02dT%02d-%02d-%02d", boot_time.year, boot_time.month, boot_time.day,
         boot_time.hours, boot_time.minutes, boot_time.seconds);
-    // if (io_fileSystem_init() == FILE_OK)
     io_canLogging_init(boot_time_string);
 }
 

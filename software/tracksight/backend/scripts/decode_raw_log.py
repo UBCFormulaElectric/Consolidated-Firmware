@@ -162,6 +162,22 @@ if __name__ == "__main__":
             # This isn't a log file, ignore.
             continue
 
+        logger.info(f"Opening log file '{file_path}'.")
+        # New: adjust start_timestamp if file_path matches the pattern '/YYYY-MM-DDTXX-XX-XX_BOOTCOUNT.txt'
+        import re
+
+        # match the file path that like this '/2025-05-30T16-55-06_002.txt'
+        m = re.match(
+            r"/(?P<ts>\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})_(?P<bootcount>\d+)\.txt",
+            file_path,
+        )
+        if m:
+            ts_str = m.group("ts")
+            # Convert the time part from format 'HH-MM-SS' to 'HH:MM:SS'
+            ts_str = ts_str[:11] + ts_str[11:].replace("-", ":")
+            start_timestamp = pd.Timestamp(ts_str, tz=get_localzone())
+            start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H_%M")
+
         if (
             files_to_decode is not None
             and file_path not in files_to_decode
@@ -227,14 +243,14 @@ if __name__ == "__main__":
                     timestamp = start_timestamp + delta_timestamp
 
                     # Decode CAN packet with JSONCAN.
-                    parsed_signals = can_db.unpack(id=msg_id, data=data_bytes)
+                    parsed_signals = can_db.unpack(msg_id=msg_id, data=data_bytes)
 
                     # Write signals to parsed CSV file.
                     for signal in parsed_signals:
-                        signal_name = signal["name"]
-                        signal_value = signal["value"]
-                        signal_unit = signal.get("unit", "")
-                        signal_label = signal.get("label", "")
+                        signal_name = signal.name
+                        signal_value = signal.value
+                        signal_unit = signal.unit or ""
+                        signal_label = signal.label or ""
                         csv_writer.writerow(
                             [
                                 timestamp,
@@ -244,7 +260,7 @@ if __name__ == "__main__":
                                 signal_unit,
                             ]
                         )
-    if args.mf4:
-        csv_dir = args.output
-        logger.info("Converting CSV files to MDF format.")
-        csv_to_mf4(input=args.output)
+    # if args.mf4:
+    #     csv_dir = args.output
+    #     logger.info("Converting CSV files to MDF format.")
+    #     csv_to_mf4(input=args.output)
