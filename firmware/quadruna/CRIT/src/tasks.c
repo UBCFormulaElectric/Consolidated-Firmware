@@ -10,6 +10,7 @@
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_stackWaterMarks.h"
+#include "app_utils.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -22,7 +23,7 @@
 #include "io_canQueue.h"
 #include "io_bootHandler.h"
 // can
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canRx.h"
 #include "io_driveMode.h"
 #include "app_canTx.h"
@@ -290,7 +291,7 @@ void tasks_preInit(void)
 
 static void jsoncan_transmit(const JsonCanMsg *tx_msg)
 {
-    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
 
@@ -309,12 +310,11 @@ void tasks_init(void)
     // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    hw_hardFaultHandler_init();
     hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
     io_critShdn_init(&crit_shdn_pin_config);
     io_canQueue_init();
 
@@ -383,7 +383,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can, &tx_msg);
+        LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
     }
 }
 
@@ -395,7 +395,7 @@ _Noreturn void tasks_runCanRx(void)
     for (;;)
     {
         CanMsg     rx_msg         = io_canQueue_popRx(&rx_msg);
-        JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
 
         io_bootHandler_processBootRequest(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
@@ -454,7 +454,7 @@ _Noreturn void tasks_run1Hz(void)
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the

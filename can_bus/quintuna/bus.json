@@ -1,9 +1,86 @@
 {
-    "default_receiver": "DEBUG",
-    "bus_speed": 500,
-    "modes": [
-        "default",
-        "debug"
-    ],
-    "default_mode": "default"
+  "forwarders": [
+    {
+      "forwarder": "VC",
+      "bus1": "can1",
+      "bus2": "can2"
+    },
+    {
+      "forwarder": "VC",
+      "bus1": "can2",
+      "bus2": "can3"
+    },
+    {
+      "forwarder": "VC",
+      "bus1": "can1",
+      "bus2": "can3"
+    },
+    {
+      "forwarder": "BMS",
+      "bus1": "can1",
+      "bus2": "charger"
+    }
+  ],
+  "buses": [
+    {
+      "name": "can1",
+      "nodes": [
+        "VC",
+        "BMS",
+        "DAM",
+        "Debug"
+      ],
+      "bus_speed": 500,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT"
+    },
+    {
+      "name": "can2",
+      "nodes": [
+        "VC",
+        "FSM",
+        "RSM",
+        "CRIT",
+        "Debug"
+      ],
+      "bus_speed": 500,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT"
+    },
+    {
+      "name": "can3",
+      "nodes": [
+        "VC",
+        "EMeter"
+      ],
+      "bus_speed": 500,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT"
+    },
+    {
+      "name": "charger",
+      "nodes": [
+        "BMS",
+        "Elcon"
+      ],
+      "bus_speed": 500,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT"
+    }
+  ],
+  "loggers": [
+    "DAM"
+  ]
 }

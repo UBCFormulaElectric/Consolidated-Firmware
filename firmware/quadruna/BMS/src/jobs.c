@@ -13,12 +13,12 @@
 
 #include "io_canMsg.h"
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_bootHandler.h"
 
 static void jsoncan_transmit(const JsonCanMsg *tx_msg)
 {
-    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
 
@@ -26,7 +26,7 @@ void jobs_init(void)
 {
     io_canQueue_init();
     io_canTx_init(jsoncan_transmit);
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
 
     app_canTx_init();
     app_canRx_init();
@@ -54,13 +54,13 @@ void jobs_run1kHz_tick(void) {}
 void jobs_runCanRx_tick(void)
 {
     const CanMsg rx_msg         = io_canQueue_popRx();
-    JsonCanMsg   jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+    JsonCanMsg   jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
     io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
 }
 
 void jobs_runCanRx_callBack(const CanMsg *rx_msg)
 {
-    if (io_canRx_filterMessageId(rx_msg->std_id))
+    if (io_canRx_filterMessageId_Can(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
     }

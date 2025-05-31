@@ -1,6 +1,7 @@
 #include "tasks.h"
 
 #include "app_canTx.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -11,6 +12,7 @@
 #include "hw_adcs.h"
 #include "hw_pwms.h"
 #include "hw_watchdogConfig.h"
+#include "hw_hardFaultHandler.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -32,7 +34,7 @@ void tasks_preInit(void)
 void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_can_init(&can1);
@@ -92,7 +94,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_fdcan_transmit(&can1, &tx_msg);
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
     }
 }
 
