@@ -20,19 +20,25 @@
 #include "io_canQueue.h"
 #include "io_shift_register.h"
 
+// HW
+#include "hw_gpios.h"
+
+CanTxQueue can_tx_queue;
+
 static void canTransmit(const JsonCanMsg *msg)
 {
-    UNUSED(msg);
     const CanMsg tx_msg = app_jsoncan_copyToCanMsg(msg);
-    io_canQueue_pushTx(&tx_msg);
+    io_canQueue_pushTx(&can_tx_queue, &tx_msg);
 }
 
 void jobs_init(void)
 {
     // can
     io_canTx_init(canTransmit);
-    io_canQueue_init();
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
+
     app_canTx_init();
     app_canRx_init();
 

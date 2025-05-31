@@ -101,7 +101,7 @@ void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        CanMsg msg = io_canQueue_popTx();
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can, &msg));
     }
 }
