@@ -152,13 +152,15 @@ void bootloader_preInit(void)
     hw_hardFaultHandler_init();
 
     verifyAppCodeChecksum();
-    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
+    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest().target == BOOT_TARGET_APP)
     {
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
 
-    hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+    // Boot request targetting bootloader. Overwrite it to target app next so we don't get stuck here.
+    const BootRequest app_request = { .target = BOOT_TARGET_APP, .context = BOOT_CONTEXT_NONE, .context_value = 0 };
+    hw_bootup_setBootRequest(app_request);
 }
 
 void bootloader_init(void)
@@ -226,7 +228,10 @@ _Noreturn void bootloader_runInterfaceTask(void)
         }
         else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
-            hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+            const BootRequest app_request = { .target        = BOOT_TARGET_APP,
+                                              .context       = BOOT_CONTEXT_NONE,
+                                              .context_value = 0 };
+            hw_bootup_setBootRequest(app_request);
             NVIC_SystemReset();
         }
         else

@@ -4,10 +4,26 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum
+// What you want to boot into next.
+typedef enum __attribute__((packed))
 {
-    BOOT_REQUEST_APP,
-    BOOT_REQUEST_BOOTLOADER,
+    BOOT_TARGET_APP,
+    BOOT_TARGET_BOOTLOADER,
+} BootTarget;
+
+// Any extra information associated with a boot.
+typedef enum __attribute__((packed))
+{
+    BOOT_CONTEXT_NONE,
+    BOOT_CONTEXT_STACK_OVERFLOW,
+} BootContext;
+
+typedef struct
+{
+    BootTarget  target;
+    BootContext context;
+    uint16_t    _unused;
+    uint32_t    context_value; // Context-dependent value
 } BootRequest;
 
 /**
