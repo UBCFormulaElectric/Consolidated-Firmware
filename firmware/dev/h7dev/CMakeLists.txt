@@ -7,6 +7,7 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB EMBEDDED_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 list(APPEND EMBEDDED_SRCS

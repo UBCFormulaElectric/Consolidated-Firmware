@@ -26,13 +26,14 @@
 void tasks_preInit(void)
 {
     hw_hardFaultHandler_init();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
-    SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
+    SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();

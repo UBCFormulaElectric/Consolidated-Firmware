@@ -17,6 +17,19 @@
             }
         }
     },
+    "CommitInfo": {
+        "msg_id": 508,
+        "cycle_time": 100,
+        "description": "VC Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
+    },
     "Debug": {
         "msg_id": 507,
         "cycle_time": 1000,

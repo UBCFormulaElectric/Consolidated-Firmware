@@ -149,10 +149,6 @@ void verifyAppCodeChecksum(void)
 
 void bootloader_preInit(void)
 {
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("Bootloader reset!");
-
     hw_hardFaultHandler_init();
 
     verifyAppCodeChecksum();
@@ -169,20 +165,15 @@ void bootloader_preInit(void)
 
 void bootloader_init(void)
 {
-    // HW-level CAN should be initialized in main.c, since it is MCU-specific.
-
-    // This order is important! The bootloader starts the app when the bootloader
-    // enable pin is high, which is caused by pullup resistors internal to each
-    // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
-    // resistor alone isn't strong enough to pull up the enable line, and so the
-    // PDM will fail to boot. A bad fix for this is to turn on the rest of the
-    // boards here first, so the PDM will get help pulling up the line from the
-    // other MCUs.
-    bootloader_boardSpecific_init();
+    // Configure and initialize SEGGER SystemView. Must be done after clocks are configured.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("Bootloader reset!");
 
     hw_can_init(&can);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
+
+    bootloader_boardSpecific_init();
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)

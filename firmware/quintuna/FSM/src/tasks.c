@@ -28,16 +28,19 @@
 
 void tasks_preInit(void)
 {
-    hw_bootup_enableInterruptsForApp();
     hw_hardFaultHandler_init();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("FSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
+
     ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_can_init(&can);

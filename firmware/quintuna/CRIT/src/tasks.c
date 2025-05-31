@@ -26,6 +26,7 @@
 
 void tasks_preInit()
 {
+    hw_hardFaultHandler_init();
     hw_bootup_enableInterruptsForApp();
 }
 
@@ -36,7 +37,6 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT reset!");
 
-    // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_can_init(&can1);
