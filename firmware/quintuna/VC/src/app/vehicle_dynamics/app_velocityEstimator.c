@@ -38,13 +38,13 @@ static float time_step;
  * ================================
  */
 
-void print_arr(float *a, uint32_t len)
-{
-    for (uint32_t i = 0; i < len; i++)
-    {
-        printf("%d: %f\n", i, a[i]);
-    }
-}
+// void print_arr(float *a, uint32_t len)
+// {
+//     for (uint32_t i = 0; i < len; i++)
+//     {
+//         printf("%d: %f\n", i, a[i]);
+//     }
+// }
 
 /*
  * Matrix Addition: result = A + B
@@ -284,8 +284,8 @@ void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Input
 
     float vy_rr = -yaw_rate * DIST_REAR_AXLE_CG - v_rr;
     float vy_rl = -yaw_rate * DIST_REAR_AXLE_CG - v_rl;
-    float vy_fr = -yaw_rate * DIST_FRONT_AXLE_CG - v_fr * sinf(wheel_angle);
-    float vy_fl = -yaw_rate * DIST_FRONT_AXLE_CG - v_fl * sinf(wheel_angle);
+    float vy_fr = yaw_rate * DIST_FRONT_AXLE_CG - v_fr * sinf(wheel_angle);
+    float vy_fl = yaw_rate * DIST_FRONT_AXLE_CG - v_fl * sinf(wheel_angle);
 
     float vx = (vx_fl + vx_fr + vx_rl + vx_rr) / 4.0f;
     float vy = (vy_fl + vy_fr + vy_rl + vy_rr) / 4.0f;
