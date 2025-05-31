@@ -53,10 +53,10 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     {%- for msg_bus_name in busses_for_msg(msg.name) %}
     if (
     {%- if msg.modes == None %}
-        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{bus_config[msg_bus_name].default_mode.upper()}})
+        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{bus_config[msg_bus_name].default_mode}})
     {%- else %}
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{mode.upper()}})
+        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{mode}})
     {%- endfor %}
     {% endif %}
     )

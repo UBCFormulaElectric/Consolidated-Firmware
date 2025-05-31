@@ -1,11 +1,30 @@
 #include "io_ltc6813_internal.h"
 
-#include "io_log.h"
-#include "hw_spis.h"
-
+#include <stdint.h>
 #include <string.h>
 
-static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
+#include "hw_spis.h"
+
+typedef struct
+{
+    uint16_t cmd;
+    uint16_t pec;
+} CmdPayload;
+
+typedef struct
+{
+    uint16_t regs[REGS_PER_GROUP];
+    uint16_t pec;
+} RegGroupPayload;
+
+static_assert(sizeof(RegGroupPayload) == REGISTER_GROUP_SIZE + PEC_SIZE);
+
+static uint16_t swapEndianness(uint16_t value)
+{
+    return (uint16_t)((value >> 8) | (value << 8));
+}
+
+static uint16_t calculatePec15(const uint8_t *data, const uint8_t len)
 {
     static const uint16_t pec15_lut[256] = {
         0x0,    0xC599, 0xCEAB, 0xB32,  0xD8CF, 0x1D56, 0x1664, 0xD3FD, 0xF407, 0x319E, 0x3AAC, 0xFF35, 0x2CC8, 0xE951,
@@ -42,30 +61,98 @@ static uint16_t calculate_pec15(const uint8_t *data, const uint8_t len)
     }
 
     // Set the LSB of the PEC15 remainder to 0.
-    return (uint16_t)(remainder << 1); // TODO make sure the shifting to load into the registers is correct
+    return (uint16_t)(remainder << 1);
 }
 
-PEC io_ltc6813_build_data_pec(const uint8_t *data, const uint8_t len)
+static uint16_t buildDataPec(const uint8_t *data, const uint8_t len)
 {
-    const uint16_t pec = calculate_pec15(data, len);
-    return (PEC){ .pec_0 = (uint8_t)(pec >> 8), .pec_1 = (uint8_t)pec & 0xff };
+    // PEC15 needs to be sent as big-endian.
+    return swapEndianness(calculatePec15(data, len));
 }
 
-bool io_ltc6813_check_pec(const uint8_t *data, const uint8_t len, const PEC *pec)
+static bool checkPec(const uint8_t *data, const uint8_t len, const uint16_t pec)
 {
-    const PEC a = io_ltc6813_build_data_pec(data, len);
-    return a.pec_0 == pec->pec_0 && a.pec_1 == pec->pec_1;
+    const uint16_t expected = buildDataPec(data, len);
+    return expected == pec;
 }
 
-ltc6813_tx io_ltc6813_build_tx_cmd(const uint16_t command)
+CmdPayload buildTxCmd(const uint16_t command)
 {
-    ltc6813_tx out = { .cmd_0 = (uint8_t)(command >> 8), .cmd_1 = (uint8_t)command & 0xff };
-    out.pec        = io_ltc6813_build_data_pec((uint8_t *)&out, sizeof(out.cmd_0) + sizeof(out.cmd_1));
+    // Command needs to be sent as big-endian.
+    CmdPayload out = { .cmd = swapEndianness(command) };
+    out.pec        = buildDataPec((uint8_t *)&out, sizeof(uint16_t));
     return out;
 }
 
 ExitCode io_ltc6813_sendCommand(const uint16_t command)
 {
-    const ltc6813_tx tx_cmd = io_ltc6813_build_tx_cmd(command);
+    const CmdPayload tx_cmd = buildTxCmd(command);
     return hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
+}
+
+ExitCode io_ltc6813_poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
+{
+    const CmdPayload tx_cmd = buildTxCmd(cmd);
+    return hw_spi_transmitThenReceive(&ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), poll_buf, poll_buf_len);
+}
+
+void io_ltc6813_readRegGroup(
+    uint16_t cmd,
+    uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP],
+    ExitCode comm_success[NUM_SEGMENTS])
+{
+    memset(regs, 0, NUM_SEGMENTS * REGS_PER_GROUP * sizeof(uint16_t));
+
+    const CmdPayload tx_cmd = buildTxCmd(cmd);
+    RegGroupPayload  rx_buffer[NUM_SEGMENTS];
+    const ExitCode   tx_status = hw_spi_transmitThenReceive(
+        &ltc6813_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
+
+    if (IS_EXIT_ERR(tx_status))
+    {
+        for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
+        {
+            comm_success[segment] = tx_status;
+        }
+
+        return;
+    }
+
+    for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
+    {
+        // look for data for the current segment from the back
+        const RegGroupPayload *seg_reg_group = &rx_buffer[(NUM_SEGMENTS - 1) - seg_idx];
+
+        if (!checkPec((uint8_t *)seg_reg_group, REGISTER_GROUP_SIZE, seg_reg_group->pec))
+        {
+            comm_success[seg_idx] = EXIT_CODE_CHECKSUM_FAIL;
+            continue;
+        }
+
+        memcpy(regs, seg_reg_group->regs, REGS_PER_GROUP * sizeof(uint16_t));
+        comm_success[seg_idx] = EXIT_CODE_OK;
+    }
+}
+
+ExitCode io_ltc6813_writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
+{
+    struct
+    {
+        CmdPayload      tx_cmd;
+        RegGroupPayload payload[NUM_SEGMENTS];
+    } tx_buffer;
+    static_assert(sizeof(tx_buffer) == (CMD_SIZE + PEC_SIZE) + ((REGISTER_GROUP_SIZE + PEC_SIZE) * NUM_SEGMENTS));
+
+    tx_buffer.tx_cmd = buildTxCmd(cmd);
+
+    for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
+    {
+        // Data used to configure the last segment on the daisy chain needs to be sent first
+        RegGroupPayload *seg_reg_group = &tx_buffer.payload[(NUM_SEGMENTS - 1) - seg_idx];
+
+        memcpy(seg_reg_group->regs, regs[seg_idx], REGS_PER_GROUP * sizeof(uint16_t));
+        seg_reg_group->pec = buildDataPec((uint8_t *)regs[seg_idx], REGS_PER_GROUP * sizeof(uint16_t));
+    }
+
+    return hw_spi_transmit(&ltc6813_spi_ls, (uint8_t *)&tx_buffer, sizeof(tx_buffer));
 }

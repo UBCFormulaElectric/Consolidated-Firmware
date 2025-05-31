@@ -17,6 +17,8 @@
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 
+CanTxQueue can_tx_queue;
+
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
@@ -27,13 +29,10 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 
 void jobs_init()
 {
-    app_canTx_DAM_Hash_set(GIT_COMMIT_HASH);
-    app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
-    app_canTx_DAM_Heartbeat_set(true);
-
-    io_canQueue_init();
     io_canTx_init(jsoncan_transmit_func);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
 
     io_rtc_init();
     io_tsim_set_off();
@@ -42,6 +41,10 @@ void jobs_init()
 
     // move into can msg
     io_telemBaseTimeInit();
+
+    app_canTx_DAM_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_DAM_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick(void)
