@@ -9,7 +9,7 @@
 #include "app_jsoncan.h"
 
 #include "io_log.h"
-#include "io_canQueue.h"
+#include "io_canQueues.h"
 #include "io_time.h"
 // hw
 #include "hw_usb.h"
@@ -21,7 +21,10 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init(void)
 {
@@ -123,16 +126,30 @@ _Noreturn void tasks_run1kHz(void)
     }
 }
 
-_Noreturn void tasks_runCanTx(void)
+_Noreturn void tasks_runCan1Tx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx();
+        CanMsg tx_msg = io_canQueue_popTx(&can1_tx_queue);
+        hw_fdcan_transmit(&can1, &tx_msg);
+    }
+}
 
-        // TODO this canmsg will tell you which bus to transmit it on
-        // hw_fdcan_transmit(&can1, &tx_msg);
-        hw_fdcan_transmit(&can2, &tx_msg);
-        // hw_fdcan_transmit(&can3, &tx_msg);
+_Noreturn void tasks_runCan2Tx(void)
+{
+    for (;;)
+    {
+        CanMsg tx_msg = io_canQueue_popTx(&can2_tx_queue);
+        hw_fdcan_transmit(&can3, &tx_msg);
+    }
+}
+
+_Noreturn void tasks_runCan3Tx(void)
+{
+    for (;;)
+    {
+        CanMsg tx_msg = io_canQueue_popTx(&can3_tx_queue);
+        hw_fdcan_transmit(&can3, &tx_msg);
     }
 }
 

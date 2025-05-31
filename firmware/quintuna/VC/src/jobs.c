@@ -1,11 +1,9 @@
 #include "jobs.h"
 #include "app_stateMachine.h"
-#include "io_bootHandler.h"
 #include "io_canMsg.h"
-#include "io_canQueue.h"
+#include "io_canQueues.h"
 #include "app_jsoncan.h"
 #include <app_canTx.h>
-#include <io_canRx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
 #include "states/app_states.h"
@@ -13,10 +11,6 @@
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
-
-CanTxQueue can1_tx_queue;
-CanTxQueue can2_tx_queue;
-CanTxQueue can3_tx_queue;
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -74,15 +68,4 @@ void jobs_run1kHz_tick(void)
 {
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
-}
-
-void jobs_canRxCallback(const CanMsg *rx_msg)
-{
-    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
-    {
-        io_canQueue_pushRx(rx_msg);
-    }
-
-    // check and process CAN msg for bootloader start msg
-    io_bootHandler_processBootRequest(rx_msg);
 }
