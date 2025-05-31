@@ -15,7 +15,8 @@ void io_bootHandler_processBootRequest(const CanMsg *msg)
         LOG_INFO("Received CAN message, entering bootloader");
         hw_bootup_setBootRequest(BOOT_REQUEST_BOOTLOADER);
 
-        for (uint8_t i = 0; i<100;i++){
+        for (uint8_t i = 0; i < 100; i++)
+        {
             __ASM("NOP");
         }
         NVIC_SystemReset();

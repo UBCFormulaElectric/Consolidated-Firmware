@@ -106,8 +106,8 @@ void tasks_runCanRx(void)
 {
     for (;;)
     {
-        const CanMsg rx_msg = io_canQueue_popRx();
-        JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        const CanMsg rx_msg       = io_canQueue_popRx();
+        JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_can_msg);
 
         io_bootHandler_processBootRequest(&rx_msg);
