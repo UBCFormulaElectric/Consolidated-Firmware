@@ -61,11 +61,11 @@ set(HW_INCLUDE_DIRS
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
-    if ("${BOOTLOAD}" STREQUAL "ON")
-        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
-    else ()
+#     if ("${BOOTLOAD}" STREQUAL "ON") TODO: bootloader does not work on dam yet.
+#         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+#     else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
-    endif ()
+#     endif ()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
