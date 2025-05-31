@@ -39,7 +39,7 @@ def find_magic_in_buffer(buffer, magic=MAGIC):  # do i need to set magic here
     """
     magic_len = len(magic)
     for i in range(len(buffer) - magic_len + 1):
-        if buffer[i : i + magic_len] == magic:
+        if buffer[i: i + magic_len] == magic:
             return i
     return -1
 
@@ -170,9 +170,11 @@ def _read_messages(port: str):
             print(f"get message {message_received.can_id} but no base time")
             continue
         # print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
-        timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
+        timestamp = calculate_message_timestamp(
+            message_received.time_stamp, base_time)
         can_msg_queue.put(
-            CanMsg(message_received.can_id, _make_bytes(message_received), timestamp)
+            CanMsg(message_received.can_id, _make_bytes(
+                message_received), timestamp)
         )
 
 

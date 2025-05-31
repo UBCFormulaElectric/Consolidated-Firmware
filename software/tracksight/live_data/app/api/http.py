@@ -3,16 +3,15 @@ from calendar import week, weekday
 from dataclasses import dataclass
 
 import influxdb_client
-
 # api blueprints
 from api.historical_handler import historical_api
 from flask import Blueprint, Response, request
 from logger import logger
 from middleware.candb import live_can_db
 from middleware.serial_port import get_serial
-
 # ours
-from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
+from settings import (CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN,
+                      INFLUX_URL)
 
 # from api.files_handler import sd_api
 
@@ -141,4 +140,3 @@ def api_set_rtc_time():
 
     # set the time
     return set_rtc_time(rtcTime)
-

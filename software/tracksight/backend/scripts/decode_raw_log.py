@@ -1,5 +1,3 @@
-from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import \
-    JsonCanParser
 import argparse
 import csv
 import logging
@@ -11,6 +9,9 @@ import pandas as pd
 from csv_to_mf4 import csv_to_mf4
 from logfs import LogFs, LogFsDiskFactory
 from tzlocal import get_localzone
+
+from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import \
+    JsonCanParser
 
 logging.basicConfig(level=logging.INFO)
 

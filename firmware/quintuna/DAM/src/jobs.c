@@ -22,7 +22,7 @@ CanTxQueue can_tx_queue;
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&msg);
+    io_canQueue_pushTx(&can_tx_queue, &msg);
     io_telemMessage_pushMsgtoQueue(&msg);
     io_canLogging_loggingQueuePush(&msg);
 }
