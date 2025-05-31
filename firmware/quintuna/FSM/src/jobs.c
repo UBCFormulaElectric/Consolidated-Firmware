@@ -16,11 +16,14 @@
 #include "io_canQueue.h"
 #include "io_imu.h"
 #include "io_log.h"
+#include "app_jsoncan.h"
+
+CanTxQueue can_tx_queue;
 
 static void canTransmit(const JsonCanMsg *msg)
 {
     const CanMsg m = app_jsoncan_copyToCanMsg(msg);
-    io_canQueue_pushTx(&m);
+    io_canQueue_pushTx(&can_tx_queue, &m);
 }
 
 void jobs_init(void)
@@ -28,7 +31,8 @@ void jobs_init(void)
     // can
     io_canTx_init(canTransmit);
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
     app_canTx_init();
     app_canRx_init();
 
@@ -36,9 +40,9 @@ void jobs_init(void)
 
     app_apps_init();
 
-    // broadcast commit info
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_FSM_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick(void)

@@ -18,7 +18,7 @@ static void start_up_update(void)
     bool vc_pcm_on        = (app_canRx_VC_State_get() >= VC_PCM_ON_STATE);
     bool pcm_detected     = (app_canRx_VC_State_get() > VC_PCM_ON_STATE);
     bool vc_hv_init       = (app_canRx_VC_State_get() >= VC_HV_INIT_STATE);
-    bool vc_hv            = (app_canRx_VC_State_get() >= VC_HV_STATE);
+    bool vc_hv            = (app_canRx_VC_State_get() >= VC_HV_ON_STATE);
 
     // Update data buffer.
     data_buffer[0] = air_minus ? SEG_PATTERN_1 : SEG_PATTERN_0;

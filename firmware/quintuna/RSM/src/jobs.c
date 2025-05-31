@@ -9,6 +9,7 @@
 #include "app_suspension.h"
 #include "app_imu.h"
 #include "app_heartbeatMonitors.h"
+#include "app_jsoncan.h"
 
 // io
 #include "io_time.h"
@@ -20,20 +21,17 @@
 #include "io_imu.h"
 #include "io_brakeLight.h"
 
-// testing
-#include "app_timer.h"
-
-#include <stdio.h>
-
 TimerChannel               timerGPIO;
 static const Potentiometer rsm_pot = {
     .i2c_handle = &r_pump_i2c,
 };
 
+CanTxQueue can_tx_queue;
+
 static void jsoncan_transmit(const JsonCanMsg *msg)
 {
     const CanMsg m = app_jsoncan_copyToCanMsg(msg);
-    io_canQueue_pushTx(&m);
+    io_canQueue_pushTx(&can_tx_queue, &m);
 }
 
 void jobs_init(void)
@@ -47,7 +45,9 @@ void jobs_init(void)
 
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
+
     io_coolant_init();
 
     ASSERT_EXIT_OK(io_rPump_isPumpReady());

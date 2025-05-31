@@ -132,8 +132,6 @@ void        runCanRxTask(void *argument);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-SdCard sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
-
 // gpio PA0 interrupt callback
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {

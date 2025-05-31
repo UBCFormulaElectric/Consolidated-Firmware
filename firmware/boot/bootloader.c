@@ -70,6 +70,7 @@ typedef enum
     BOOT_STATUS_NO_APP
 } BootStatus;
 
+static CanTxQueue can_tx_queue;
 static uint32_t   current_address;
 static bool       update_in_progress;
 static BootStatus boot_status;
@@ -148,37 +149,31 @@ void verifyAppCodeChecksum(void)
 
 void bootloader_preInit(void)
 {
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("Bootloader reset!");
-
     hw_hardFaultHandler_init();
 
     verifyAppCodeChecksum();
-    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
+    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest().target == BOOT_TARGET_APP)
     {
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
 
-    hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+    // Boot request targetting bootloader. Overwrite it to target app next so we don't get stuck here.
+    const BootRequest app_request = { .target = BOOT_TARGET_APP, .context = BOOT_CONTEXT_NONE, .context_value = 0 };
+    hw_bootup_setBootRequest(app_request);
 }
 
 void bootloader_init(void)
 {
-    // HW-level CAN should be initialized in main.c, since it is MCU-specific.
-
-    // This order is important! The bootloader starts the app when the bootloader
-    // enable pin is high, which is caused by pullup resistors internal to each
-    // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
-    // resistor alone isn't strong enough to pull up the enable line, and so the
-    // PDM will fail to boot. A bad fix for this is to turn on the rest of the
-    // boards here first, so the PDM will get help pulling up the line from the
-    // other MCUs.
-    bootloader_boardSpecific_init();
+    // Configure and initialize SEGGER SystemView. Must be done after clocks are configured.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("Bootloader reset!");
 
     hw_can_init(&can);
-    io_canQueue_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
+
+    bootloader_boardSpecific_init();
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -195,7 +190,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
             // Send ACK message that programming has started.
             const CanMsg reply = { .std_id = BOARD_HIGHBITS | UPDATE_ACK_ID_LOWBITS, .dlc = 0 };
-            io_canQueue_pushTx(&reply);
+            io_canQueue_pushTx(&can_tx_queue, &reply);
         }
         else if (command.std_id == (BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
         {
@@ -208,7 +203,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = (BOARD_HIGHBITS | ERASE_SECTOR_COMPLETE_ID_LOWBITS),
                 .dlc    = 0,
             };
-            io_canQueue_pushTx(&reply);
+            io_canQueue_pushTx(&can_tx_queue, &reply);
         }
         else if (command.std_id == (BOARD_HIGHBITS | PROGRAM_ID_LOWBITS) && update_in_progress)
         {
@@ -222,24 +217,21 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Verify received checksum matches the one saved in flash.
             CanMsg reply = {
                 .std_id = (BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
-                .dlc    = 5,
+                .dlc    = 1,
             };
             verifyAppCodeChecksum();
             reply.data.data8[0] = (uint8_t)boot_status;
-
-            const uint32_t diff = current_address - (uint32_t)&__app_metadata_start__;
-            reply.data.data8[1] = (uint8_t)(diff >> 24) & 0xff;
-            reply.data.data8[2] = (uint8_t)(diff >> 16) & 0xff;
-            reply.data.data8[3] = (uint8_t)(diff >> 8) & 0xff;
-            reply.data.data8[4] = (uint8_t)diff & 0xff;
-            io_canQueue_pushTx(&reply);
+            io_canQueue_pushTx(&can_tx_queue, &reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
         else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
-            hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+            const BootRequest app_request = { .target        = BOOT_TARGET_APP,
+                                              .context       = BOOT_CONTEXT_NONE,
+                                              .context_value = 0 };
+            hw_bootup_setBootRequest(app_request);
             NVIC_SystemReset();
         }
         else
@@ -259,7 +251,7 @@ _Noreturn void bootloader_runTickTask(void)
         CanMsg status_msg         = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
         status_msg.data.data32[0] = GIT_COMMIT_HASH;
         status_msg.data.data8[4]  = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
-        io_canQueue_pushTx(&status_msg);
+        io_canQueue_pushTx(&can_tx_queue, &status_msg);
 
         bootloader_boardSpecific_tick();
 
@@ -272,8 +264,12 @@ _Noreturn void bootloader_runCanTxTask(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx();
+        CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
+#ifdef STM32H733xx
+        LOG_IF_ERR(hw_fdcan_transmit(&can, &tx_msg));
+#elif STM32F412Rx
         LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
+#endif
     }
 }
 

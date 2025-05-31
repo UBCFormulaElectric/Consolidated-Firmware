@@ -29,6 +29,8 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
 )
 
 set(EMBEDDED_INCLUDE_DIRS

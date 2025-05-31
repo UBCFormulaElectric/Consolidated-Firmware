@@ -27,9 +27,10 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
         "${SHARED_IO_INCLUDE_DIR}/io_loadswitch.c"
         "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
 
@@ -51,6 +52,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -147,9 +149,17 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
-    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(FAKE_SRCS
+            "${SHARED_FAKES_DIR}/io_imu.cpp"
+            "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
+            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io_bootHandler.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS}
+            ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR}
+    )
     compile_gtest_executable(
             "quintuna_VC_test"
             "${SRCS}"
@@ -158,6 +168,14 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # JSONCAN
     jsoncan_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")
+
+
+    # CommitInfo
+    commit_info_library(
+            "quintuna_VC_test"
+            "quintuna_VC_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+    )
 
     # FakeIO
     set(HEADERS_TO_FAKE
@@ -170,4 +188,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
     target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes")
+    target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
 endif ()
