@@ -17,7 +17,7 @@ void io_bootHandler_processBootRequest(const CanMsg *msg)
                                       .context       = BOOT_CONTEXT_NONE,
                                       .context_value = 0 };
         hw_bootup_setBootRequest(request);
-      
+
         // Empirically need to spin for a few cycles or the boot request doesn't get written properly before reset.
         // TODO: Why?
         for (uint8_t i = 0; i < 100; i++)
