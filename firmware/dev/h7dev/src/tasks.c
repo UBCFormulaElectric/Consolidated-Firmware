@@ -39,8 +39,7 @@ void tasks_init()
     hw_can_init(&can);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
-    if (io_fileSystem_init() == FILE_OK)
-        io_canLogging_init();
+    io_canLogging_init(NULL);
     // __HAL_DBGMCU_FREEZE_IWDG();
 }
 
