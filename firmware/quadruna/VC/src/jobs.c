@@ -57,7 +57,6 @@ void jobs_init()
     // This is not correlated to the size of each file.
     app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
     app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
-    
 
     app_stateMachine_init(app_initState_get());
     app_heartbeatMonitor_init(&hb_monitor);
