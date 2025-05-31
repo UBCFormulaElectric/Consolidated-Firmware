@@ -38,7 +38,7 @@ FileSystemError io_fileSystem_open(const char *path, uint32_t *fd);
  * @param size size in questino
  * @return
  */
-FileSystemError io_fileSystem_write(uint32_t fd, void *buf, size_t size);
+FileSystemError io_fileSystem_write(uint32_t fd, const void *buf, size_t size);
 
 /**
  * reads from file descriptor for some size into the buffer
