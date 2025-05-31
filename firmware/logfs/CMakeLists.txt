@@ -72,9 +72,9 @@ else()
         endif()
 
         # Invoke setuptools to install the Python library.
-        # add_custom_target(install_python_logfs
-        #     COMMAND ${PYTHON_COMMAND} -m pip install -e "${CMAKE_CURRENT_SOURCE_DIR}/python"
-        #     DEPENDS logfs_src)
+        add_custom_target(install_python_logfs
+            COMMAND ${PYTHON_COMMAND} -m pip install -e "${CMAKE_CURRENT_SOURCE_DIR}/python"
+            DEPENDS logfs_src)
     endif()
 endif()
 
