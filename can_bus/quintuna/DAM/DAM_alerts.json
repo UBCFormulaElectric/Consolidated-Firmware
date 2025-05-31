@@ -5,10 +5,55 @@
   "faults_counts_id": 804,
   "info_id": 805,
   "info_counts_id": 806,
-  "warnings": {},
+  "warnings": {
+    "StackWaterMarkHighTask1Hz": {
+      "id": 801,
+      "description": "1Hz task stack watermark exceeded."
+    },
+    "StackWaterMarkHighTask100Hz": {
+      "id": 802,
+      "description": "100Hz task stack watermark exceeded."
+    },
+    "StackWaterMarkHighTask1kHz": {
+      "id": 803,
+      "description": "1kHz task stack watermark exceeded."
+    },
+    "StackWaterMarkHighTaskCanRx": {
+      "id": 804,
+      "description": "CAN RX task stack watermark exceeded."
+    },
+    "StackWaterMarkHighTaskCanTx": {
+      "id": 805,
+      "description": "CAN TX task stack watermark exceeded."
+    },
+    "WatchdogTimeout": {
+      "id": 806,
+      "description": "Watchdog timeout detected."
+    },
+    "TxOverflow": {
+      "id": 807,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 808,
+      "description": "CAN RX queue has overflowed."
+    },
+    "CanLoggingSdCardNotPresent": {
+      "id": 809,
+      "description": "CAN logging SD card is not detected."
+    },
+    "CanLoggingErrored": {
+      "id": 810,
+      "description": "CAN logging received multiple errors and has been disabled."
+    },
+    "RegenNotAvailable": {
+      "id": 811,
+      "description": "Regen is not currently available."
+    }
+  },
   "faults": {
     "DummyFault": {
-      "id": 800,
+      "id": 880,
       "description": "Dummy Fault"
     }
   },
