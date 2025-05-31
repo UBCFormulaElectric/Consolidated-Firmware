@@ -13,7 +13,7 @@
     }
   },
   "CommitInfo": {
-      "msg_id": 408,
+      "msg_id": 409,
       "cycle_time": 100,
       "description": "BMS Commit Info",
       "signals": {
@@ -26,7 +26,7 @@
       }
   },
   "Debug": {
-    "msg_id": 409,
+    "msg_id": 407,
     "cycle_time": 1000,
     "description": "BMS Debug Signals",
     "signals": {
