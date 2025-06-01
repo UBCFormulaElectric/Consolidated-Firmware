@@ -115,10 +115,12 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
     app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
     app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
-    /**
-     * app_canTx_BMS_Soc_set(app_soc_getMinSocPercent()); add once soc app is finished
-     */
-
+    
+    app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());  
+    if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
+    {
+        app_soc_updateSocStats();
+    }
     /**
      * add cell balancing check once cell balancing is enabled
      */
