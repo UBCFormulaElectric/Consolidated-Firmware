@@ -14,6 +14,7 @@
 #include "io_canTx.h"
 #include "io_bootHandler.h"
 
+#include "app_jsoncan.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
@@ -104,7 +105,7 @@ void tasks_runCanTx()
     // Setup tasks.
     for (;;)
     {
-        CanMsg msg = io_canQueue_popTx();
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can2, &msg));
     }
 }
