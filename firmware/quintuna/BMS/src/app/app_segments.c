@@ -9,14 +9,11 @@
 #include <hw_utils.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
-// TODO: Take a closer look at these
-#define ADCV_CONVERSION_TIME_MS (10)
-#define ADAX_CONVERSION_TIME_MS (10)
-#define ADOL_CONVERSION_TIME_MS (10)
-#define ADSTAT_CONVERSION_TIME_MS (10)
-#define DIAGN_CONVERSION_TIME_MS (10)
+// TODO: Take a closer look at this
+#define CONVERSION_TIME_MS (10)
 
 #define VUV (0x619U) // 2.5V Under-voltage threshold = (VUV + 1) * 16 * 100uV
 #define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
@@ -49,21 +46,38 @@ static void (*const thermistor_setters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(float) 
       app_canTx_BMS_Seg0_Cell12_Temp_set, app_canTx_BMS_Seg0_Cell13_Temp_set }
 };
 
-static uint16_t voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static ExitCode volt_success_buf[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-
-static uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-static ExitCode aux_reg_success_buf[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-static float    segment_vref[NUM_SEGMENTS];
-static float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
-
-static StatusRegGroups statuses[NUM_SEGMENTS];
-static ExitCode        status_success_buf[NUM_SEGMENTS];
-
 static SegmentConfig segment_config[NUM_SEGMENTS];
 static SegmentConfig read_segment_config[NUM_SEGMENTS];
 static ExitCode      config_success_buf[NUM_SEGMENTS];
+
+static uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static ExitCode cell_voltage_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+
+static uint16_t aux_regs[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+static ExitCode aux_regs_success[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+static float    segment_vref[NUM_SEGMENTS];
+static float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+
+static StatusRegGroups status_regs[NUM_SEGMENTS];
+static ExitCode        status_regs_success[NUM_SEGMENTS];
+
+static uint16_t adc_accuracy_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static ExitCode adc_accuracy_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+
+static uint16_t voltage_self_test_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static ExitCode voltage_self_test_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+
+static uint16_t aux_self_test_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+static ExitCode aux_self_test_reg_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+
+static StatusRegGroups status_self_test_regs[NUM_SEGMENTS];
+static ExitCode        status_self_test_success[NUM_SEGMENTS];
+
+static uint16_t owc_pucv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static ExitCode owc_pucv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static uint16_t owc_pdcv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static ExitCode owc_pdcv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
 static void writeThermistorMux(ThermistorMux mux)
 {
@@ -229,41 +243,122 @@ ExitCode app_segments_configSync(void)
     return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_broadcastCellVoltages(void)
+ExitCode app_segments_runVoltageConversion(void)
 {
     RETURN_IF_ERR(io_ltc6813_startCellsAdcConversion());
-    io_time_delay(6);
-    io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
+    io_time_delay(CONVERSION_TIME_MS);
+    io_ltc6813_readVoltageRegisters(cell_voltage_regs, cell_voltage_success);
+    return EXIT_CODE_OK;
+}
 
+ExitCode app_segments_runAuxConversion(void)
+{
+    for (ThermistorMux mux = 0U; mux < THERMISTOR_MUX_COUNT; mux++)
+    {
+        writeThermistorMux(mux);
+        io_ltc6813_writeConfigurationRegisters(segment_config);
+
+        RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion());
+        io_time_delay(CONVERSION_TIME_MS);
+        io_ltc6813_readAuxRegisters(aux_regs[mux], aux_regs_success[mux]);
+    }
+
+    return EXIT_CODE_OK;
+}
+
+ExitCode app_segments_runStatusConversion(void)
+{
+    RETURN_IF_ERR(io_ltc6813_diagnoseMUX());
+    io_time_delay(1); // Empirically you need this small delay after sending DIAGN
+    RETURN_IF_ERR(io_ltc6813_startInternalADCConversions());
+    io_time_delay(CONVERSION_TIME_MS);
+    io_ltc6813_getStatus(status_regs, status_regs_success);
+    return EXIT_CODE_OK;
+}
+
+ExitCode app_segments_runAdcAccuracyTest(void)
+{
+    RETURN_IF_ERR(io_ltc6813_overlapADCTest());
+    io_time_delay(CONVERSION_TIME_MS);
+    io_ltc6813_readVoltageRegisters(adc_accuracy_regs, adc_accuracy_success);
+    return EXIT_CODE_OK;
+}
+
+ExitCode app_segments_runVoltageSelfTest(void)
+{
+    RETURN_IF_ERR(io_ltc6813_sendSelfTestVoltages());
+    io_time_delay(CONVERSION_TIME_MS);
+    io_ltc6813_readVoltageRegisters(voltage_self_test_regs, voltage_self_test_success);
+    return EXIT_CODE_OK;
+}
+
+ExitCode app_segments_runAuxSelfTest(void)
+{
+    RETURN_IF_ERR(io_ltc6813_sendSelfTestAux());
+    io_time_delay(CONVERSION_TIME_MS);
+    io_ltc6813_readAuxRegisters(aux_self_test_regs, aux_self_test_reg_success);
+    return EXIT_CODE_OK;
+}
+
+ExitCode app_segments_runStatusSelfTest(void)
+{
+    RETURN_IF_ERR(io_ltc6813_sendSelfTestStat());
+    io_time_delay(CONVERSION_TIME_MS);
+    io_ltc6813_getStatus(status_self_test_regs, status_self_test_success);
+    return EXIT_CODE_OK;
+}
+
+ExitCode app_segments_runOpenWireCheck(void)
+{
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
+    // io_time_delay(201);
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
+    // io_time_delay(201);
+    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
+    io_time_delay(201);
+    io_ltc6813_readVoltageRegisters(owc_pucv_regs, owc_pucv_success);
+
+    // reset back to normal
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
+    // io_time_delay(201);
+    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
+    // io_time_delay(201);
+    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
+    io_time_delay(201);
+    io_ltc6813_readVoltageRegisters(owc_pdcv_regs, owc_pdcv_success);
+
+    return EXIT_CODE_OK;
+}
+
+void app_segments_broadcastCellVoltages(void)
+{
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            if (IS_EXIT_ERR(volt_success_buf[segment][cell]))
+            if (IS_EXIT_ERR(cell_voltage_success[segment][cell]))
             {
                 // we claim that this is insufficient to raise module comm errors
                 continue;
             }
 
             // see page 68, 0xffff is invalid (either not populated or faulted)
-            if (voltage_regs[segment][cell] == 0xffff)
+            if (cell_voltage_regs[segment][cell] == 0xffff)
             {
                 // -0.1V over CAN means invalid
                 cell_voltage_setters[segment][cell](-0.1f);
-                volt_success_buf[segment][cell] = EXIT_CODE_ERROR;
+                cell_voltage_success[segment][cell] = EXIT_CODE_ERROR;
                 continue;
             }
 
-            const float voltage          = CONVERT_100UV_TO_VOLTAGE(voltage_regs[segment][cell]);
+            const float voltage          = CONVERT_100UV_TO_VOLTAGE(cell_voltage_regs[segment][cell]);
             cell_voltages[segment][cell] = voltage;
             cell_voltage_setters[segment][cell](voltage);
         }
     }
-
-    return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_broadcastTempsVRef(void)
+void app_segments_broadcastTempsVRef(void)
 {
     static void (*const vref_setters[NUM_SEGMENTS])(float)           = { app_canTx_BMS_Seg0_Vref_set };
     static void (*const segment_vref_ok_setters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_VrefOk_set };
@@ -273,13 +368,6 @@ ExitCode app_segments_broadcastTempsVRef(void)
 
     for (ThermistorMux mux = 0U; mux < THERMISTOR_MUX_COUNT; mux++)
     {
-        writeThermistorMux(mux);
-        io_ltc6813_writeConfigurationRegisters(segment_config);
-
-        RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion());
-        io_time_delay(7);
-        io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
-
         for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
         {
             for (uint8_t aux_gpio = 0U; aux_gpio < AUX_REGS_PER_SEGMENT; aux_gpio++)
@@ -295,12 +383,12 @@ ExitCode app_segments_broadcastTempsVRef(void)
                     continue;
                 }
 
-                if (IS_EXIT_ERR(aux_reg_success_buf[segment][aux_gpio]))
+                if (IS_EXIT_ERR(aux_regs_success[segment][aux_gpio]))
                 {
                     continue;
                 }
 
-                const float voltage = CONVERT_100UV_TO_VOLTAGE(aux_regs[segment][aux_gpio]);
+                const float voltage = CONVERT_100UV_TO_VOLTAGE(aux_regs[mux][segment][aux_gpio]);
                 if (aux_gpio == VREF_AUX_REG)
                 {
                     segment_vref[segment] = voltage;
@@ -319,11 +407,9 @@ ExitCode app_segments_broadcastTempsVRef(void)
             }
         }
     }
-
-    return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_broadcastStatus(void)
+void app_segments_broadcastStatus(void)
 {
     static void (*const mux_test_setters[NUM_SEGMENTS])(bool)          = { app_canTx_BMS_Seg0_MuxOk_set };
     static void (*const analog_supply_ok_setters[NUM_SEGMENTS])(bool)  = { app_canTx_BMS_Seg0_AnalogSupplyOk_set };
@@ -334,15 +420,9 @@ ExitCode app_segments_broadcastStatus(void)
     static void (*const thermal_ok_setters[NUM_SEGMENTS])(bool)        = { app_canTx_BMS_Seg0_ThermalOk_set };
     static void (*const temp_setters[NUM_SEGMENTS])(uint32_t)          = { app_canTx_BMS_Seg0_DieTemp_set };
 
-    RETURN_IF_ERR(io_ltc6813_diagnoseMUX());
-    io_time_delay(1); // Empirically you need this small delay after sending DIAGN
-    RETURN_IF_ERR(io_ltc6813_startInternalADCConversions());
-    io_time_delay(DIAGN_CONVERSION_TIME_MS);
-    io_ltc6813_getStatus(statuses, status_success_buf);
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
-        if (IS_EXIT_ERR(status_success_buf[segment]))
+        if (IS_EXIT_ERR(status_regs_success[segment]))
         {
             mux_test_setters[segment](false);
             rev_code_setters[segment](0);
@@ -356,132 +436,106 @@ ExitCode app_segments_broadcastStatus(void)
             continue;
         }
 
-        rev_code_setters[segment](statuses[segment].stat_b.REV);
+        rev_code_setters[segment](status_regs[segment].stat_b.REV);
 
-        const float temperature = CONVERT_100UV_TO_VOLTAGE(statuses[segment].stat_a.ITMP) / 7.6e-3f - 276.0f;
+        const float temperature = CONVERT_100UV_TO_VOLTAGE(status_regs[segment].stat_a.ITMP) / 7.6e-3f - 276.0f;
         temp_setters[segment]((uint32_t)temperature);
 
-        const float analog_power_supply = CONVERT_100UV_TO_VOLTAGE(statuses[segment].stat_a.VA);
+        const float analog_power_supply = CONVERT_100UV_TO_VOLTAGE(status_regs[segment].stat_a.VA);
         analog_supply_ok_setters[segment](4.5f <= analog_power_supply && analog_power_supply <= 5.5f);
         analog_supply_setters[segment](analog_power_supply);
 
-        const float digital_power_supply = CONVERT_100UV_TO_VOLTAGE(statuses[segment].stat_b.VD);
+        const float digital_power_supply = CONVERT_100UV_TO_VOLTAGE(status_regs[segment].stat_b.VD);
         digital_supply_ok_setters[segment](2.7f <= digital_power_supply && digital_power_supply <= 3.6f);
         digital_supply_setters[segment](digital_power_supply);
 
-        thermal_ok_setters[segment](!statuses[segment].stat_b.THSD);
-        mux_test_setters[segment](!(bool)statuses[segment].stat_b.MUXFAIL);
+        thermal_ok_setters[segment](!status_regs[segment].stat_b.THSD);
+        mux_test_setters[segment](!(bool)status_regs[segment].stat_b.MUXFAIL);
     }
-
-    return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_ADCAccuracyTest(void)
+void app_segments_broadcastAdcAccuracyTest(void)
 {
     static void (*const segment_overlap_adc1_2_test_setters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_Adc12Equal_set };
     static void (*const segment_overalap_adc2_3_test_setters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_Adc23Equal_set };
 
-    RETURN_IF_ERR(io_ltc6813_overlapADCTest());
-    io_time_delay(ADOL_CONVERSION_TIME_MS);
-    io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         // See section "Overlap Cell Measurement (ADOL Command)".
-        const float adc_1_2_diff = fabsf(cell_voltages[segment][6] - cell_voltages[segment][7]);
-        const float adc_3_4_diff = fabsf(cell_voltages[segment][12] - cell_voltages[segment][13]);
+        const uint16_t adc_1_2_diff = (uint16_t)abs(adc_accuracy_regs[segment][6] - adc_accuracy_regs[segment][7]);
+        const uint16_t adc_3_4_diff = (uint16_t)abs(adc_accuracy_regs[segment][12] - adc_accuracy_regs[segment][13]);
 
         const bool adc_1_2_fail =
-            IS_EXIT_ERR(volt_success_buf[segment][6]) || IS_EXIT_ERR(volt_success_buf[segment][7]);
-        segment_overlap_adc1_2_test_setters[segment](!adc_1_2_fail && adc_1_2_diff < 0.001f);
+            IS_EXIT_ERR(adc_accuracy_success[segment][6]) || IS_EXIT_ERR(adc_accuracy_success[segment][7]);
+        segment_overlap_adc1_2_test_setters[segment](!adc_1_2_fail && adc_1_2_diff < CONVERT_VOLTAGE_TO_100UV(0.001f));
 
         const bool adc_2_3_fail =
-            IS_EXIT_ERR(volt_success_buf[segment][12]) || IS_EXIT_ERR(volt_success_buf[segment][13]);
-        segment_overalap_adc2_3_test_setters[segment](!adc_2_3_fail && adc_3_4_diff < 0.001f);
+            IS_EXIT_ERR(adc_accuracy_success[segment][12]) || IS_EXIT_ERR(adc_accuracy_success[segment][13]);
+        segment_overalap_adc2_3_test_setters[segment](!adc_2_3_fail && adc_3_4_diff < CONVERT_VOLTAGE_TO_100UV(0.001f));
     }
-
-    return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_voltageSelftest(void)
+void app_segments_broadcastVoltageSelfTest(void)
 {
     static void (*const segment_cell_self_test_ok_setters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_CellSelfTestOk_set };
-
-    RETURN_IF_ERR(io_ltc6813_sendSelfTestVoltages());
-    io_time_delay(ADCV_CONVERSION_TIME_MS);
-    io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         bool self_test_ok = true;
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            const bool cell_ok =
-                IS_EXIT_OK(volt_success_buf[segment][cell]) && voltage_regs[segment][cell] == SELF_TEST_EXPECTED_VALUE;
+            const bool cell_ok = IS_EXIT_OK(voltage_self_test_success[segment][cell]) &&
+                                 voltage_self_test_regs[segment][cell] == SELF_TEST_EXPECTED_VALUE;
             self_test_ok &= cell_ok;
         }
 
         segment_cell_self_test_ok_setters[segment](self_test_ok);
     }
-
-    return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_auxSelftest(void)
+void app_segments_broadcastAuxSelfTest(void)
 {
     static void (*const segment_aux_self_test_ok_setters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_AuxSelfTestOk_set };
-
-    RETURN_IF_ERR(io_ltc6813_sendSelfTestAux());
-    io_time_delay(ADAX_CONVERSION_TIME_MS);
-    io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         bool self_test_ok = true;
         for (uint8_t aux_reg = 0; self_test_ok && aux_reg < AUX_REGS_PER_SEGMENT; aux_reg++)
         {
-            const bool aux_ok = IS_EXIT_OK(aux_reg_success_buf[segment][aux_reg]) &&
-                                aux_regs[segment][aux_reg] == SELF_TEST_EXPECTED_VALUE;
+            const bool aux_ok = IS_EXIT_OK(aux_self_test_reg_success[segment][aux_reg]) &&
+                                aux_self_test_regs[segment][aux_reg] == SELF_TEST_EXPECTED_VALUE;
             self_test_ok &= aux_ok;
         }
 
         segment_aux_self_test_ok_setters[segment](self_test_ok);
     }
-
-    return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_statusSelftest(void)
+void app_segments_broadcastStatusSelfTest(void)
 {
     static void (*const segment_status_self_test_ok_setters[NUM_SEGMENTS])(
         bool) = { app_canTx_BMS_Seg0_StatusSelfTestOk_set };
 
-    RETURN_IF_ERR(io_ltc6813_sendSelfTestStat());
-    io_time_delay(ADSTAT_CONVERSION_TIME_MS);
-    io_ltc6813_getStatus(statuses, status_success_buf);
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
-        const uint16_t *statuses_buffer = (uint16_t *)&statuses[segment];
+        const uint16_t *statuses_buffer = (uint16_t *)&status_self_test_regs[segment];
         bool            self_test_pass  = true;
 
         // NOTE: only the first four words we need to check
         for (uint8_t word = 0; word < 4; word++)
         {
-            self_test_pass &= statuses_buffer[word] == SELF_TEST_EXPECTED_VALUE;
+            self_test_pass &= status_self_test_success[segment] && statuses_buffer[word] == SELF_TEST_EXPECTED_VALUE;
         }
 
         segment_status_self_test_ok_setters[segment](self_test_pass);
     }
-
-    return EXIT_CODE_OK;
 }
 
-ExitCode app_segments_openWireCheck(void)
+void app_segments_broadcastOpenWireCheck(void)
 {
     static void (*const cellOWCSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(bool) = {
         { app_canTx_BMS_Seg0_Cell0_OWC_OK_set, app_canTx_BMS_Seg0_Cell1_OWC_OK_set, app_canTx_BMS_Seg0_Cell2_OWC_OK_set,
@@ -492,39 +546,16 @@ ExitCode app_segments_openWireCheck(void)
           app_canTx_BMS_Seg0_Cell13_OWC_OK_set }
     };
 
-    // data collection
-    static uint16_t owc_pucv[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
-    // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
-    // io_time_delay(201);
-    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
-    io_time_delay(201);
-    io_ltc6813_readVoltageRegisters(owc_pucv, volt_success_buf);
-
-    // reset back to normal
-    static uint16_t owc_pdcv[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
-    // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
-    // io_time_delay(201);
-    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
-    io_time_delay(201);
-    io_ltc6813_readVoltageRegisters(owc_pdcv, volt_success_buf);
-
-    // perform the check
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
-        cellOWCSetters[segment][0](owc_pucv[segment][0] != 0);
+        cellOWCSetters[segment][0](owc_pucv_success[segment][0] && owc_pucv_regs[segment][0] != 0);
+
         for (uint8_t cell = 1; cell < CELLS_PER_SEGMENT; cell++)
         {
             const bool owc_passing =
-                owc_pdcv[segment][cell] - owc_pucv[segment][cell] <= CONVERT_VOLTAGE_TO_100UV(0.4f);
+                owc_pucv_success[segment][cell] && owc_pdcv_success[segment][cell] &&
+                owc_pdcv_regs[segment][cell] - owc_pucv_regs[segment][cell] <= CONVERT_VOLTAGE_TO_100UV(0.4f);
             cellOWCSetters[segment][cell](owc_passing);
         }
-#if CELLS_PER_SEGMENT >= 18
-        completeness cellOWCSetters[segment][17](owc_pdcv[segment][cell] == 0.0f);
-#endif
     }
-    return EXIT_CODE_OK;
 }

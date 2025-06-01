@@ -135,17 +135,41 @@ const osThreadAttr_t TaskChimera_attributes = {
     .stack_size = sizeof(TaskChimeraBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
-/* Definitions for TaskLTC */
-osThreadId_t         TaskLTCHandle;
-uint32_t             TaskLTCBuffer[512];
-osStaticThreadDef_t  TaskLTCControlBlock;
-const osThreadAttr_t TaskLTC_attributes = {
-    .name       = "TaskLTC",
-    .cb_mem     = &TaskLTCControlBlock,
-    .cb_size    = sizeof(TaskLTCControlBlock),
-    .stack_mem  = &TaskLTCBuffer[0],
-    .stack_size = sizeof(TaskLTCBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal1,
+/* Definitions for TaskLtcVoltages */
+osThreadId_t         TaskLtcVoltagesHandle;
+uint32_t             TaskLtcVoltagesBuffer[512];
+osStaticThreadDef_t  TaskLtcVoltagesControlBlock;
+const osThreadAttr_t TaskLtcVoltages_attributes = {
+    .name       = "TaskLtcVoltages",
+    .cb_mem     = &TaskLtcVoltagesControlBlock,
+    .cb_size    = sizeof(TaskLtcVoltagesControlBlock),
+    .stack_mem  = &TaskLtcVoltagesBuffer[0],
+    .stack_size = sizeof(TaskLtcVoltagesBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskLtcTemps */
+osThreadId_t         TaskLtcTempsHandle;
+uint32_t             TaskLtcTempsBuffer[512];
+osStaticThreadDef_t  TaskLtcTempsControlBlock;
+const osThreadAttr_t TaskLtcTemps_attributes = {
+    .name       = "TaskLtcTemps",
+    .cb_mem     = &TaskLtcTempsControlBlock,
+    .cb_size    = sizeof(TaskLtcTempsControlBlock),
+    .stack_mem  = &TaskLtcTempsBuffer[0],
+    .stack_size = sizeof(TaskLtcTempsBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskLtcDiag */
+osThreadId_t         TaskLtcDiagHandle;
+uint32_t             TaskLtcDiagBuffer[512];
+osStaticThreadDef_t  TaskLtcDiagControlBlock;
+const osThreadAttr_t TaskLtcDiag_attributes = {
+    .name       = "TaskLtcDiag",
+    .cb_mem     = &TaskLtcDiagControlBlock,
+    .cb_size    = sizeof(TaskLtcDiagControlBlock),
+    .stack_mem  = &TaskLtcDiagBuffer[0],
+    .stack_size = sizeof(TaskLtcDiagBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
 
@@ -173,7 +197,9 @@ void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskChimera(void *argument);
-void        RunTaskLTC(void *argument);
+void        RunTaskLtcVoltages(void *argument);
+void        RunTaskLtcTemps(void *argument);
+void        RunTaskLtcDiag(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -268,8 +294,14 @@ int main(void)
     /* creation of TaskChimera */
     TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
-    /* creation of TaskLTC */
-    TaskLTCHandle = osThreadNew(RunTaskLTC, NULL, &TaskLTC_attributes);
+    /* creation of TaskLtcVoltages */
+    TaskLtcVoltagesHandle = osThreadNew(RunTaskLtcVoltages, NULL, &TaskLtcVoltages_attributes);
+
+    /* creation of TaskLtcTemps */
+    TaskLtcTempsHandle = osThreadNew(RunTaskLtcTemps, NULL, &TaskLtcTemps_attributes);
+
+    /* creation of TaskLtcDiag */
+    TaskLtcDiagHandle = osThreadNew(RunTaskLtcDiag, NULL, &TaskLtcDiag_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1199,23 +1231,51 @@ void RunTask1Hz(void *argument)
 void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunTaskChimera */
-    /* Infinite loop */
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
 
-/* USER CODE BEGIN Header_RunTaskLTC */
+/* USER CODE BEGIN Header_RunTaskLtcVoltages */
 /**
- * @brief Function implementing the TaskLTC thread.
+ * @brief Function implementing the TaskLtcVoltages thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTaskLTC */
-void RunTaskLTC(void *argument)
+/* USER CODE END Header_RunTaskLtcVoltages */
+void RunTaskLtcVoltages(void *argument)
 {
-    /* USER CODE BEGIN RunTaskLTC */
-    tasks_runLtc();
-    /* USER CODE END RunTaskLTC */
+    /* USER CODE BEGIN RunTaskLtcVoltages */
+    tasks_runLtcVoltages();
+    /* USER CODE END RunTaskLtcVoltages */
+}
+
+/* USER CODE BEGIN Header_RunTaskLtcTemps */
+/**
+ * @brief Function implementing the TaskLtcTemps thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLtcTemps */
+void RunTaskLtcTemps(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLtcTemps */
+    tasks_runLtcTemps();
+    /* USER CODE END RunTaskLtcTemps */
+}
+
+/* USER CODE BEGIN Header_RunTaskLtcDiag */
+/**
+ * @brief Function implementing the TaskLtcDiag thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLtcDiag */
+void RunTaskLtcDiag(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLtcDiag */
+    /* Infinite loop */
+    tasks_runLtcDiagnostics();
+    /* USER CODE END RunTaskLtcDiag */
 }
 
 /**

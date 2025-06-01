@@ -11,7 +11,6 @@
 #include "io_canTx.h"
 #include "io_canRx.h"
 // app
-#include "app_segments.h"
 #include "app_commitInfo.h"
 // io
 #include "io_bootHandler.h"
@@ -22,25 +21,6 @@
 #include "io_log.h"
 
 CanTxQueue can_tx_queue;
-
-ExitCode jobs_runLtc_tick(void)
-{
-    RETURN_IF_ERR(app_segments_configSync());
-    RETURN_IF_ERR(app_segments_broadcastCellVoltages());
-    RETURN_IF_ERR(app_segments_broadcastTempsVRef());
-    RETURN_IF_ERR(app_segments_broadcastStatus());
-
-    if (app_canRx_Debug_EnableDebugMode_get())
-    {
-        RETURN_IF_ERR(app_segments_voltageSelftest());
-        RETURN_IF_ERR(app_segments_auxSelftest());
-        RETURN_IF_ERR(app_segments_statusSelftest());
-        RETURN_IF_ERR(app_segments_openWireCheck());
-        RETURN_IF_ERR(app_segments_ADCAccuracyTest());
-    }
-
-    return EXIT_CODE_OK;
-}
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {

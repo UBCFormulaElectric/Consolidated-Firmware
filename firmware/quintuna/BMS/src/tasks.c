@@ -24,6 +24,17 @@
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
 
+#include "semphr.h"
+#include <FreeRTOS.h>
+#include <app_canRx.h>
+#include <cmsis_os.h>
+#include <portmacro.h>
+
+StaticSemaphore_t isospi_bus_access_lock_buf;
+SemaphoreHandle_t isospi_bus_access_lock;
+StaticSemaphore_t ltc_app_data_lock_buf;
+SemaphoreHandle_t ltc_app_data_lock;
+
 void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
@@ -67,6 +78,29 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+
+    // TODO: Think about this a bit harder
+    isospi_bus_access_lock = xSemaphoreCreateBinaryStatic(&isospi_bus_access_lock_buf);
+    ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
+    assert(isospi_bus_access_lock != NULL);
+    assert(ltc_app_data_lock != NULL);
+
+    // setup
+    app_segments_writeDefaultConfig();
+    LOG_IF_ERR(app_segments_configSync());
+
+    // self tests
+    LOG_IF_ERR(app_segments_runAdcAccuracyTest());
+    LOG_IF_ERR(app_segments_runVoltageSelfTest());
+    LOG_IF_ERR(app_segments_runAuxSelfTest());
+    LOG_IF_ERR(app_segments_runStatusSelfTest());
+    LOG_IF_ERR(app_segments_runOpenWireCheck());
+
+    app_segments_broadcastAdcAccuracyTest();
+    app_segments_broadcastVoltageSelfTest();
+    app_segments_broadcastAuxSelfTest();
+    app_segments_broadcastStatusSelfTest();
+    app_segments_broadcastOpenWireCheck();
 }
 
 void tasks_run1Hz(void)
@@ -129,21 +163,100 @@ void tasks_runCanRx(void)
     }
 }
 
-void tasks_runLtc(void)
-{
-    // setup
-    app_segments_writeDefaultConfig();
-    LOG_IF_ERR(app_segments_configSync());
+// TODO: Add watchdogs to the LTC commands
 
-    // self tests
-    LOG_IF_ERR(app_segments_voltageSelftest());
-    LOG_IF_ERR(app_segments_auxSelftest());
-    LOG_IF_ERR(app_segments_statusSelftest());
-    // RETURN_IF_ERR(app_segments_openWireCheck()); // TODO: Test this
-    LOG_IF_ERR(app_segments_ADCAccuracyTest());
+void tasks_runLtcVoltages(void)
+{
+    static const TickType_t period_ms   = 100U; // 10Hz
+    uint32_t                start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
-        jobs_runLtc_tick();
+        xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+        {
+            io_ltc6813_wakeup();
+            LOG_IF_ERR(app_segments_runVoltageConversion());
+        }
+        xSemaphoreGive(isospi_bus_access_lock);
+
+        xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+        {
+            app_segments_broadcastCellVoltages();
+        }
+        xSemaphoreGive(ltc_app_data_lock);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_runLtcTemps(void)
+{
+    static const TickType_t period_ms   = 1000U; // 1Hz
+    uint32_t                start_ticks = osKernelGetTickCount();
+
+    for (;;)
+    {
+        xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+        {
+            io_ltc6813_wakeup();
+            LOG_IF_ERR(app_segments_runAuxConversion());
+        }
+        xSemaphoreGive(isospi_bus_access_lock);
+
+        xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+        {
+            app_segments_broadcastTempsVRef();
+        }
+        xSemaphoreGive(ltc_app_data_lock);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_runLtcDiagnostics(void)
+{
+    static const TickType_t period_ms   = 10000U; // Every 10s
+    uint32_t                start_ticks = osKernelGetTickCount();
+
+    for (;;)
+    {
+        // Open wire check is the only one we need to perform as per rules.
+
+        xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+        {
+            io_ltc6813_wakeup();
+
+            LOG_IF_ERR(app_segments_runStatusConversion());
+            LOG_IF_ERR(app_segments_runOpenWireCheck());
+
+            if (app_canRx_Debug_EnableDebugMode_get())
+            {
+                LOG_IF_ERR(app_segments_runAdcAccuracyTest());
+                LOG_IF_ERR(app_segments_runVoltageSelfTest());
+                LOG_IF_ERR(app_segments_runAuxSelfTest());
+                LOG_IF_ERR(app_segments_runStatusSelfTest());
+            }
+        }
+        xSemaphoreGive(isospi_bus_access_lock);
+
+        xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+        {
+            app_segments_broadcastStatus();
+            app_segments_broadcastOpenWireCheck();
+
+            if (app_canRx_Debug_EnableDebugMode_get())
+            {
+                app_segments_broadcastAdcAccuracyTest();
+                app_segments_broadcastVoltageSelfTest();
+                app_segments_broadcastAuxSelfTest();
+                app_segments_broadcastStatusSelfTest();
+            }
+        }
+        xSemaphoreGive(ltc_app_data_lock);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }

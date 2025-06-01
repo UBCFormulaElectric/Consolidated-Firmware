@@ -19,3 +19,8 @@ ExitCode io_ltc6813_pollAdcConversions(void)
 
     return EXIT_CODE_TIMEOUT;
 }
+
+void io_ltc6813_wakeup(void)
+{
+    io_ltc6813_sendCommand(RDCFGA);
+}
