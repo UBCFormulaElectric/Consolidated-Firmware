@@ -46,6 +46,8 @@ static void (*const thermistor_setters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(float) 
       app_canTx_BMS_Seg0_Cell12_Temp_set, app_canTx_BMS_Seg0_Cell13_Temp_set }
 };
 
+// Keeping separate buffers for every command is pretty wasteful but we have lots of RAM so oh well
+
 static SegmentConfig segment_config[NUM_SEGMENTS];
 static SegmentConfig read_segment_config[NUM_SEGMENTS];
 static ExitCode      config_success_buf[NUM_SEGMENTS];
