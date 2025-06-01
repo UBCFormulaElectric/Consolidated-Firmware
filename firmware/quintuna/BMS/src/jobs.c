@@ -46,8 +46,10 @@ void jobs_init(void)
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    app_tractiveSystem_init();
     app_thermistors_init();
     app_heartbeatMonitor_init(&hb_monitor);
+    app_stateMachine_init(app_initState_get());
 
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);

@@ -14,9 +14,9 @@
         }
     },
     "faults": {
-        "dummyFault": {
+        "CriticalPrechargeFailure": {
             "id": 450,
-            "description": "Dummy Fault"
+            "description": "BMS precharge failed 3 times, giving up."
         }
     },
     "info_id": 405,

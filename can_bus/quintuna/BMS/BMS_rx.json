@@ -1,7 +1,3 @@
 {
-  "messages": [
-    "Elcon_Vitals",
-    "VC_Vitals",
-    "Debug_CanMode"
-  ]
+    "messages": ["Elcon_Vitals", "VC_Vitals", "Debug_CanMode", "Debug_Charging"]
 }
