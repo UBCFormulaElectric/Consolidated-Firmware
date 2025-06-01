@@ -109,6 +109,14 @@
     "RightInverterFault": {
       "id": 556,
       "description": "Right inverter entered fault state."
+    },
+    "PcmUnderVoltageFault": {
+      "id": 557,
+      "description": "PCM voltage under 18 volts"
+    },
+    "PcmOveVoltageFault": {
+      "id": 558,
+      "description": "PCM voltage over 30 volts "
     }
   },
   "info_id": 505,
