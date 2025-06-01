@@ -1,5 +1,4 @@
 #include "tasks.h"
-#include "jobs.h"
 
 #include "io_log.h"
 #include "hw_hardFaultHandler.h"
@@ -12,6 +11,5 @@ void tasks_preInit()
 void tasks_init()
 {
     SEGGER_RTT_Init();
-    LOG_INFO("RSM reset!");
-    jobs_init();
+    LOG_INFO("PCM reset!");
 }
