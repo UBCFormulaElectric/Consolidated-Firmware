@@ -24,7 +24,6 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
-#include "hw_error.h"
 #include "hw_utils.h"
 #include "io_canQueue.h"
 /* USER CODE END Includes */

@@ -1,9 +1,23 @@
 #include "tasks.h"
+#include "hw_hardFaultHandler.h"
+#include "io_log.h"
 #include "main.h"
+#include "SEGGER_SYSVIEW.h"
 #include <cmsis_os2.h>
 
-void tasks_preInit() {}
-void tasks_init() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
+void tasks_init()
+{
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
+    __HAL_DBGMCU_FREEZE_IWDG1();
+}
 
 _Noreturn void tasks_canTx()
 {

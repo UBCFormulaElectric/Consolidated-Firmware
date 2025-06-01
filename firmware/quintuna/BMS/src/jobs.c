@@ -15,6 +15,7 @@
 #include "io_canRx.h"
 // app
 #include "app_segments.h"
+#include "app_commitInfo.h"
 // io
 #include "io_bootHandler.h"
 #include "io_canQueue.h"
@@ -65,6 +66,9 @@ void jobs_init()
 
     app_soc_init();
     app_heartbeatMonitor_init(&hb_monitor);
+
+    app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 }
 
