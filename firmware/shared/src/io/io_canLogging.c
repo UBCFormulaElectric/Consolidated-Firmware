@@ -71,7 +71,7 @@ void io_canLogging_init(char *file_name_prefix)
     // Initialize the filesystem.
     CHECK_ERR_CRITICAL(io_fileSystem_init() == FILE_OK);
 
-    // Get boot count
+    // create new file for this boot
     CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
     if (file_name_prefix == NULL)
