@@ -102,6 +102,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
+    stm32h733xx_freertos_library("quintuna_VC_freertos")
 
     # JSONCAN
     jsoncan_embedded_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")

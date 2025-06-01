@@ -106,6 +106,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
+    stm32h733xx_freertos_library("quintuna_BMS_freertos")
 
     # JSONCAN
     jsoncan_embedded_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})

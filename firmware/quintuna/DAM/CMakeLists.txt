@@ -123,6 +123,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
+    stm32h733xx_freertos_library("quintuna_DAM_freertos")
 
     # Generate the protobuf files.
     nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
@@ -156,24 +157,24 @@ if ("${TARGET}" STREQUAL "binary")
     file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     stm32h7_boot_binary(
-                "quintuna_DAM_boot"
-                "${BOOT_SRCS}"
-                "${BOOT_CUBEMX_SRCS}"
-                "${BOOT_INCLUDE_DIRS}"
-                "quintuna_DAM"
-                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/DAM_boot.ioc"
-        )
+            "quintuna_DAM_boot"
+            "${BOOT_SRCS}"
+            "${BOOT_CUBEMX_SRCS}"
+            "${BOOT_INCLUDE_DIRS}"
+            "quintuna_DAM"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/DAM_boot.ioc"
+    )
     target_link_libraries("quintuna_DAM_boot.elf" PRIVATE "quintuna_DAM_commit_info")
 
     #create image
     embedded_image(
-                "quintuna_DAM"
-                "quintuna_DAM_app.hex"
-                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_app.hex"
-                "quintuna_DAM_boot.hex"
-                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
-        )
+            "quintuna_DAM"
+            "quintuna_DAM_app.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_app.hex"
+            "quintuna_DAM_boot.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
+    )
     #     endif ()
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
