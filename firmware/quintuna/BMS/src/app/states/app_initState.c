@@ -2,12 +2,12 @@
 #include "io_faultLatch.h"
 #include "app_heartbeatMonitors.h"
 #include "app_tractiveSystem.h"
+#include "app_canRx.h"
+#include "states/app_balancingState.h"
 #include "states/app_prechargeForDriveState.h"
 #include "states/app_prechargeForChargeState.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
-
-extern uint32_t iso_spi_state_counter;
 
 static void runOnEntry(void)
 {
@@ -18,8 +18,6 @@ static void runOnEntry(void)
     // Should always be opened at this point from other states, this is only for redundancy since we really don't want
     // AIR+ closed in init
     io_irs_openPositive();
-
-    iso_spi_state_counter = 0;
 }
 
 static void runOnTick100Hz(void)
@@ -30,9 +28,9 @@ static void runOnTick100Hz(void)
 
     if (air_negative_closed && ts_discharged)
     {
-        // TODO: Setup charger and cell balancing!
+        // TODO: Setup charger!
         // const bool charger_connected         = app_canRx_BRUSA_IsConnected_get();
-        // const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
+        const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
         // const bool external_charging_request = app_canRx_Debug_StartCharging_get();
         // const bool clear_brusa_latch         = app_canRx_Debug_ClearChargerLatchedFault_get();
 
@@ -51,10 +49,10 @@ static void runOnTick100Hz(void)
         {
             app_stateMachine_setNextState(app_prechargeForDriveState_get());
         }
-        // else if (cell_balancing_enabled)
-        // {
-        //     app_stateMachine_setNextState(app_balancingState_get());
-        // }
+        else if (cell_balancing_enabled)
+        {
+            app_stateMachine_setNextState(app_balancingState_get());
+        }
     }
 }
 

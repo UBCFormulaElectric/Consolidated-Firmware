@@ -1,3 +1,10 @@
 {
-    "messages": ["Elcon_Vitals", "VC_Vitals", "Debug_CanMode", "Debug_Charging"]
+    "messages": [
+        "Elcon_Vitals",
+        "VC_Vitals",
+        "Debug_CanMode",
+        "Debug_Charging",
+        "Debug_CellBalancing",
+        "Debug_SetBSPDTestCurrent"
+    ]
 }

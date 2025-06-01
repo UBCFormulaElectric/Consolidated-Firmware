@@ -19,11 +19,10 @@ static void runOnTick1Hz(void) {}
 static void runOnTick100Hz(void)
 {
     const bool acc_fault_cleared = false; // TODO: Accumulator app module !app_accumulator_checkFaults();
-    const bool ts_fault_cleared  = !app_tractiveSystem_checkFaults();
     const bool precharge_ok      = !app_precharge_limitExceeded();
     const bool air_negative_open = !io_irs_isNegativeClosed();
 
-    if (acc_fault_cleared && ts_fault_cleared && precharge_ok && air_negative_open)
+    if (acc_fault_cleared && precharge_ok && air_negative_open)
     {
         app_stateMachine_setNextState(app_initState_get());
     }

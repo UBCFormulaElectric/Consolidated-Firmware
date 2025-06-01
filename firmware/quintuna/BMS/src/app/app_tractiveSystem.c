@@ -42,10 +42,7 @@ void app_tractiveSystem_broadcast(void)
     app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
     app_canTx_BMS_TractiveSystemCurrent_set(ts_current);
     app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
-}
 
-bool app_tractiveSystem_checkFaults(void)
-{
     //    Charge current is positive, discharge current is negative
     //    TS current should be in the range: (-175, 30)
     const float current_A = app_tractiveSystem_getCurrent();
@@ -56,6 +53,4 @@ bool app_tractiveSystem_checkFaults(void)
         app_timer_runIfCondition(&overcurrent_fault_timer, ts_current_out_of_bounds) == TIMER_STATE_EXPIRED;
 
     app_canAlerts_BMS_Warning_TractiveSystemOvercurrent_set(ts_overcurrent_fault);
-
-    return ts_overcurrent_fault;
 }

@@ -23,7 +23,7 @@
 /**
  * Init the app tractive system module.
  */
-void app_tractiveSystem_init();
+void app_tractiveSystem_init(void);
 
 /**
  * Get the TS voltage
@@ -41,9 +41,3 @@ float app_tractiveSystem_getCurrent(void);
  * Broadcast state of the tractive system over CAN.
  */
 void app_tractiveSystem_broadcast(void);
-
-/**
- * Check the status of Tractive System faults and Warnings, sends warning over CAN bus
- * @return True if faults present, false otherwise
- */
-bool app_tractiveSystem_checkFaults(void);

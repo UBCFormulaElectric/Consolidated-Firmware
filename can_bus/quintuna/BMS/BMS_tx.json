@@ -44,6 +44,16 @@
             }
         }
     },
+    "Charger": {
+        "msg_id": 413,
+        "cycle_time": 100,
+        "description": "Charger infomation for the BMS to broadcast to other boards",
+        "signals": {
+            "ChargerConnected": {
+                "bits": 1
+            }
+        }
+    },
     "LatchedFaults": {
         "msg_id": 410,
         "cycle_time": 100,
