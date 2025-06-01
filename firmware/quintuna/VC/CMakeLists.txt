@@ -115,13 +115,8 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_VC_app.elf" PRIVATE
-            "quintuna_VC_stm32cube"
-            "quintuna_VC_stm32cube_hal"
-            "quintuna_VC_jsoncan"
-            "quintuna_VC_commit_info"
-            "logfs_cm7"
-            "sbg_ecom_cm7"
-            "chimera_v2_proto_cm7")
+            "quintuna_VC_stm32cube" "quintuna_VC_stm32cube_hal" "quintuna_VC_freertos"
+            "quintuna_VC_jsoncan" "quintuna_VC_commit_info" "logfs_cm7" "sbg_ecom_cm7" "chimera_v2_proto_cm7")
 
 
     if ("${BOOTLOAD}" STREQUAL "ON")
