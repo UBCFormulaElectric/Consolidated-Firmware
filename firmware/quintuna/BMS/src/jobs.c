@@ -1,6 +1,7 @@
 #include "jobs.h"
 
 // app
+#include "app_accumulator.h"
 #include "app_stateMachine.h"
 #include "app_thermistors.h"
 #include "app_tractiveSystem.h"
@@ -83,6 +84,7 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
+    app_accumulator_broadcast();
     app_thermistors_updateAuxThermistorTemps();
     app_thermistors_broadcast();
     app_tractiveSystem_broadcast();
@@ -110,7 +112,7 @@ void jobs_run100Hz_tick(void)
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
-    const bool acc_fault           = false; // TODO: Accumulator app_accumulator_checkFaults();
+    const bool acc_fault           = app_accumulator_checkFaults();
     const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
 
     if (acc_fault && settle_time_expired)
@@ -146,8 +148,13 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
 ExitCode jobs_runLtc_tick(void)
 {
     RETURN_IF_ERR(app_segments_configSync());
+
     RETURN_IF_ERR(app_segments_broadcastCellVoltages());
+    app_accumulator_calculateVoltageStats();
+
     RETURN_IF_ERR(app_segments_broadcastTempsVRef());
+    app_accumulator_calculateTemperatureStats();
+
     RETURN_IF_ERR(app_segments_broadcastStatus());
 
     if (app_canRx_Debug_EnableDebugMode_get())

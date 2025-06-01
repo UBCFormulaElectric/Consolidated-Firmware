@@ -79,13 +79,13 @@ static void (*const thermistor_setters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(float) 
 };
 
 static uint16_t voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static ExitCode volt_success_buf[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+ExitCode        volt_success_buf[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+float           cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
 static uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-static ExitCode aux_reg_success_buf[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-static float    segment_vref[NUM_SEGMENTS];
-static float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+ExitCode        aux_reg_success_buf[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+float           segment_vref[NUM_SEGMENTS];
+float           cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
 static StatusRegGroups statuses[NUM_SEGMENTS];
 static ExitCode        status_success_buf[NUM_SEGMENTS];

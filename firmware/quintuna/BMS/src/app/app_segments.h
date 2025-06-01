@@ -1,6 +1,13 @@
 #pragma once
 #include "io_ltc6813.h"
 
+extern ExitCode        volt_success_buf[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern float           cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+
+extern ExitCode        aux_reg_success_buf[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+extern float           segment_vref[NUM_SEGMENTS];
+extern float           cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+
 // =========== CONFIGS ===========
 
 /**

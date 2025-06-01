@@ -1,15 +1,31 @@
 {
+    "info_id": 405,
+    "info_counts_id": 406,
     "warnings_id": 401,
     "faults_id": 402,
     "warnings_counts_id": 403,
     "faults_counts_id": 404,
+    "info": {
+        "TxOverflow": {
+            "id": 400,
+            "description": "CAN TX queue has overflowed."
+        },
+        "RxOverflow": {
+            "id": 401,
+            "description": "CAN RX queue has overflowed."
+        },
+        "StackOverflow": {
+            "id": 402,
+            "description": "An RTOS task stack overflowed on the previous boot cycle."
+        }
+    },
     "warnings": {
         "TractiveSystemOvercurrent": {
-            "id": 101,
+            "id": 420,
             "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
         },
         "MissingVCHeartbeat": {
-            "id": 115,
+            "id": 421,
             "description": "Missing heartbeat from the VC."
         }
     },
@@ -17,22 +33,26 @@
         "CriticalPrechargeFailure": {
             "id": 450,
             "description": "BMS precharge failed 3 times, giving up."
-        }
-    },
-    "info_id": 405,
-    "info_counts_id": 406,
-    "info": {
-        "TxOverflow": {
-            "id": 107,
-            "description": "CAN TX queue has overflowed."
         },
-        "RxOverflow": {
-            "id": 108,
-            "description": "CAN RX queue has overflowed."
+        "CellUndervoltage": {
+            "id": 451,
+            "description": "Cell is critically undervoltage (<3.0V)"
         },
-        "StackOverflow": {
-            "id": 109,
-            "description": "An RTOS task stack overflowed on the previous boot cycle."
+        "CellUndertemp": {
+            "id": 452,
+            "description": "Cell is critically undertemp (<-20degC)"
+        },
+        "CellOvertemp": {
+            "id": 453,
+            "description": "Cell is critically overtemp (>45degC if charging, >60degC if not)."
+        },
+        "CellOvervoltage": {
+            "id": 454,
+            "description": "Cell is critically overvoltage (>4.2V)"
+        },
+        "ModuleCommunicationError": {
+            "id": 455,
+            "description": "Failed to communicate with LTC6813 modules (>3x bad PEC15 error checks)."
         }
     }
 }

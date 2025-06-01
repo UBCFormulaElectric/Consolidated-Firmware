@@ -6,6 +6,7 @@
 #include "states/app_balancingState.h"
 #include "states/app_prechargeForDriveState.h"
 #include "states/app_prechargeForChargeState.h"
+#include "app_canTx.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 

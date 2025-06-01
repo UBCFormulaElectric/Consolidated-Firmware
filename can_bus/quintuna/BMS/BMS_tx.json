@@ -230,6 +230,50 @@
             }
         }
     },
+    "CellTemperatures": {
+        "msg_id": 457,
+        "cycle_time": 1000,
+        "description": "BMS Cell Temperature readings",
+        "signals": {
+            "MinCellTemperature": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "MaxCellTemperature": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            }
+        }
+    },
+    "VoltageAndChargeStats": {
+        "msg_id": 458,
+        "cycle_time": 100,
+        "description": "BMS Cell Voltage readings",
+        "signals": {
+            "PackVoltage": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 600,
+                "unit": "V"
+            },
+            "MinCellVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "MaxCellVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            }
+        }
+    },
     "CellStats": {
         "msg_id": 459,
         "cycle_time": 100,
@@ -274,6 +318,22 @@
                 "resolution": 1,
                 "min": 0,
                 "max": 13
+            }
+        }
+    },
+    "BalancingInfo": {
+        "msg_id": 456,
+        "cycle_time": null,
+        "description": "BMS Balancing Status",
+        "signals": {
+            "BalancingOn": {
+                "bits": 1
+            },
+            "ExcessVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 50,
+                "unit": "V"
             }
         }
     },
