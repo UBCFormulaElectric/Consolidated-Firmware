@@ -1,23 +1,6 @@
 #include "io_irs.h"
 
 #include "hw_gpios.h"
-#include "hw_adcs.h"
-
-#include <math.h>
-
-// Shunt resistor used to measure IR loop current
-#define IR_TOTAL_ISENSE_SHUNT_R_OHMS (0.075f)
-// Amplifier used to amplify voltage drop across the shunt resistor
-#define IR_TOTAL_ISENSE_AMPLIFIER (20.0f)
-// Converts voltage measured across shunt resistor to current in A
-#define IR_TOTAL_ISENSE_V_TO_A (1.0f / (IR_TOTAL_ISENSE_SHUNT_R_OHMS * IR_TOTAL_ISENSE_AMPLIFIER))
-// IR positive closed threshold
-#define IR_POSITIVE_CLOSED_THRESH_A (0.5f)
-
-// Gain of the current sense amplifier
-#define IR_LOOP_GAIN (1.0f / 20.0f)
-// Value of shunt resistor
-#define IR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
 bool io_irs_isNegativeClosed(void)
 {

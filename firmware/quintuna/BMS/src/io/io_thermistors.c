@@ -1,4 +1,5 @@
 #include "io_thermistors.h"
+#include "app_utils.h"
 #include "hw_gpios.h"
 #include "hw_adcs.h"
 #include "app_thermistor.h"
@@ -21,18 +22,12 @@ const ThermistorLUT b57861s_lut = {
     .resistances   = lut_resistances,
 };
 
-bool io_thermistors_muxSelect(const uint8_t channel)
+void io_thermistors_muxSelect(const uint8_t channel)
 {
-    if (channel > 7)
-    {
-        return false;
-    }
-
+    assert(channel < NUM_AUX_THERMISTORS);
     hw_gpio_writePin(&tsense_sel0_pin, (channel >> 0) & 0x1);
     hw_gpio_writePin(&tsense_sel1_pin, (channel >> 1) & 0x1);
     hw_gpio_writePin(&tsense_sel2_pin, (channel >> 2) & 0x1);
-
-    return true;
 }
 
 float io_thermistors_readSelectedTemp(void)

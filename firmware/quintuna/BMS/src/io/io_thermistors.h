@@ -1,13 +1,16 @@
 #pragma once
 
+#include "app_utils.h"
 #include <stdint.h>
 #include <stdbool.h>
+
+#define NUM_AUX_THERMISTORS 8
+
 /**
  * Change the selected Mux Channel
  * @param channel to change to
- * @return true if valid channel value
  */
-bool io_thermistors_muxSelect(uint8_t channel);
+void io_thermistors_muxSelect(uint8_t channel);
 
 /**
  * Read the temperature of the current channel

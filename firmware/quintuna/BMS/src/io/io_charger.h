@@ -6,8 +6,8 @@ typedef enum
     EVSE_CONNECTED,
     EVSE_CHARGING,
     EVSE_ERROR
-} EVSE_STATUS;
+} EvseStatus;
 
-EVSE_STATUS io_charger_getStatus(void);
+EvseStatus io_charger_getStatus(void);
 
 void io_charger_pwm_callback(TIM_HandleTypeDef *htim);

@@ -4,9 +4,9 @@
 
 #define PWM_TIMEOUT_MS 1000.0f
 
-EVSE_STATUS io_charger_getStatus(void)
+EvseStatus io_charger_getStatus(void)
 {
-    EVSE_STATUS current_status = EVSE_DISCONNECTED;
+    EvseStatus current_status = EVSE_DISCONNECTED;
 
     if (hw_gpio_readPin(&n_evse_i_lim_pin))
     {

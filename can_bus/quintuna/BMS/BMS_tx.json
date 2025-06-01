@@ -1,587 +1,593 @@
 {
-  "Vitals": {
-    "msg_id": 400,
-    "cycle_time": 100,
-    "description": "Vitals message for the BMS.",
-    "signals": {
-      "Heartbeat": {
-        "bits": 1
-      },
-      "State": {
-        "enum": "BmsState"
-      }
+    "Vitals": {
+        "msg_id": 400,
+        "cycle_time": 100,
+        "description": "Vitals message for the BMS.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "BmsState"
+            }
+        }
+    },
+    "CommitInfo": {
+        "msg_id": 409,
+        "cycle_time": 100,
+        "description": "BMS Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
+    },
+    "Debug": {
+        "msg_id": 407,
+        "cycle_time": 1000,
+        "description": "BMS Debug Signals",
+        "signals": {
+            "ResetReason": {
+                "enum": "CanResetReason"
+            },
+            "StackOverflowTask": {
+                "bits": 16
+            },
+            "TxOverflowCount": {
+                "bits": 16
+            },
+            "RxOverflowCount": {
+                "bits": 16
+            }
+        }
+    },
+    "LatchedFaults": {
+        "msg_id": 410,
+        "cycle_time": 100,
+        "description": "Latched faults for the BMS",
+        "signals": {
+            "BmsLatchedFault": {
+                "bits": 1
+            },
+            "ImdLatchedFault": {
+                "bits": 1
+            },
+            "BspdLatchedFault": {
+                "bits": 1
+            }
+        }
+    },
+    "Contactors": {
+        "msg_id": 411,
+        "cycle_time": 100,
+        "description": "BMS IR state statuses",
+        "signals": {
+            "IrPositive": {
+                "enum": "ContactorState"
+            },
+            "IrNegative": {
+                "enum": "ContactorState"
+            },
+            "PrechargeRelay": {
+                "enum": "ContactorState"
+            }
+        }
+    },
+    "TractiveSystem": {
+        "msg_id": 412,
+        "cycle_time": 100,
+        "description": "BMS Tractive System Data",
+        "signals": {
+            "TractiveSystemVoltage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 600,
+                "unit": "V"
+            },
+            "TractiveSystemCurrent": {
+                "resolution": 0.1,
+                "min": -300,
+                "max": 300,
+                "unit": "A"
+            },
+            "TractiveSystemPower": {
+                "resolution": 0.1,
+                "min": -100,
+                "max": 100,
+                "unit": "kW"
+            },
+            "AvailablePower": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100000,
+                "unit": "W"
+            },
+            "BSPDCurrentThresholdExceeded": {
+                "bits": 1
+            }
+        }
+    },
+    "ElconControls": {
+        "msg_id": 450,
+        "cycle_time": 1000,
+        "description": "Control parameters for Elcon charger communication",
+        "signals": {
+            "MaxChargingVoltage": {
+                "start_bit": 0,
+                "bits": 16,
+                "min": 0,
+                "max": 10000,
+                "scale": 0.1,
+                "offset": 0,
+                "unit": "V"
+            },
+            "MaxChargingCurrent": {
+                "start_bit": 16,
+                "bits": 16,
+                "min": 0,
+                "max": 1000,
+                "scale": 0.1,
+                "offset": 0,
+                "unit": "A"
+            },
+            "StopCharging": {
+                "start_bit": 32,
+                "bits": 1
+            },
+            "Reserved": {
+                "start_bit": 33,
+                "bits": 31
+            }
+        }
+    },
+    "HvBatteryProperties": {
+        "msg_id": 455,
+        "cycle_time": 1000,
+        "description": "HV Battery Properties",
+        "signals": {
+            "HvBatterySoc": {
+                "start_bit": 0,
+                "bits": 8,
+                "min": 0,
+                "max": 100,
+                "scale": 1,
+                "offset": 0,
+                "unit": "%"
+            }
+        }
+    },
+    "ImdStatus": {
+        "msg_id": 452,
+        "cycle_time": 100,
+        "description": "BMS IMD Messages",
+        "signals": {
+            "ImdOkHs": {
+                "bits": 1
+            },
+            "ImdTimeSincePowerOn": {
+                "min": 0,
+                "resolution": 1,
+                "max": 10000,
+                "unit": "ms"
+            },
+            "ImdValidDutyCycle": {
+                "bits": 1
+            },
+            "ImdCondition": {
+                "enum": "ImdConditionName"
+            },
+            "ImdDutyCycle": {
+                "bits": 8,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "ImdFrequency": {
+                "bits": 8,
+                "min": 0,
+                "max": 100,
+                "unit": "Hz"
+            }
+        }
+    },
+    "ImdData": {
+        "msg_id": 453,
+        "cycle_time": 1000,
+        "description": "BMS IMD Measurement Data Values",
+        "signals": {
+            "ImdActiveFrequency": {
+                "enum": "ImdActiveFrequency"
+            },
+            "ImdInsulationMeasurementDcp10Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535,
+                "unit": "kOhm"
+            },
+            "ImdInsulationMeasurementDcp20Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535,
+                "unit": "kOhm"
+            },
+            "ImdSpeedStartStatus30Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 65535
+            }
+        }
+    },
+    "CellStats": {
+        "msg_id": 459,
+        "cycle_time": 100,
+        "description": "Avg BMS Cell Stats",
+        "signals": {
+            "MinCellVoltageSegment": {
+                "resolution": 1,
+                "min": 0,
+                "max": 9
+            },
+            "MinCellVoltageIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            },
+            "MaxCellVoltageSegment": {
+                "bits": 3,
+                "min": 0,
+                "max": 9
+            },
+            "MaxCellVoltageIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            },
+            "MinTempSegment": {
+                "resolution": 1,
+                "min": 0,
+                "max": 9
+            },
+            "MinTempIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            },
+            "MaxTempSegment": {
+                "resolution": 1,
+                "min": 0,
+                "max": 9
+            },
+            "MaxTempIdx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 13
+            }
+        }
+    },
+    "Segment0_VoltageStats_0": {
+        "msg_id": 460,
+        "cycle_time": 10,
+        "description": "BMS Segment 0 Voltage Stats Part 0",
+        "signals": {
+            "Seg0_Cell0_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell1_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell2_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell3_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell4_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell5_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell6_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            }
+        }
+    },
+    "Segment0_VoltageStats_1": {
+        "msg_id": 461,
+        "cycle_time": 10,
+        "description": "BMS Segment 0 Voltage Stats Part 1",
+        "signals": {
+            "Seg0_Cell7_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell8_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell9_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell10_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell11_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell12_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Cell13_Voltage": {
+                "resolution": 0.01,
+                "min": -0.1,
+                "max": 5,
+                "unit": "V"
+            }
+        }
+    },
+    "Segment0_TempStats_0": {
+        "msg_id": 462,
+        "cycle_time": 10,
+        "description": "BMS Segment 0 Temperature Stats Part 0",
+        "signals": {
+            "Seg0_Cell0_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell1_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell2_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell3_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell4_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell5_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell6_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            }
+        }
+    },
+    "Segment0_TempStats_1": {
+        "msg_id": 463,
+        "cycle_time": 10,
+        "description": "BMS Segment 0 Temperature Stats Part 1",
+        "signals": {
+            "Seg0_Cell7_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell8_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell9_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell10_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell11_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell12_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg0_Cell13_Temp": {
+                "resolution": 0.2,
+                "min": -1,
+                "max": 100,
+                "unit": "degC"
+            }
+        }
+    },
+    "Segment0_Tests": {
+        "msg_id": 480,
+        "cycle_time": 100,
+        "description": "Segment 0 LTC tests and checks",
+        "signals": {
+            "Seg0_CommOk": {
+                "bits": 1
+            },
+            "Seg0_Vref": {
+                "resolution": 0.01,
+                "min": 2.93,
+                "max": 3.08
+            },
+            "Seg0_VrefOk": {
+                "bits": 1
+            },
+            "Seg0_Adc12Equal": {
+                "bits": 1
+            },
+            "Seg0_Adc23Equal": {
+                "bits": 1
+            },
+            "Seg0_RevisionCode": {
+                "bits": 4
+            },
+            "Seg0_AnalogSupplyOk": {
+                "bits": 1
+            },
+            "Seg0_AnalogSupply": {
+                "resolution": 0.1,
+                "min": 4.1,
+                "max": 5.6
+            },
+            "Seg0_DigitalSupplyOk": {
+                "bits": 1
+            },
+            "Seg0_DigitalSupply": {
+                "resolution": 0.1,
+                "min": 2.7,
+                "max": 3.6
+            },
+            "Seg0_ThermalOk": {
+                "bits": 1
+            },
+            "Seg0_DieTemp": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100
+            },
+            "Seg0_CellSelfTestOk": {
+                "bits": 1
+            },
+            "Seg0_AuxSelfTestOk": {
+                "bits": 1
+            },
+            "Seg0_StatusSelfTestOk": {
+                "bits": 1
+            },
+            "Seg0_MuxOk": {
+                "bits": 1
+            },
+            "Seg0_Cell0_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell1_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell2_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell3_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell4_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell5_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell6_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell7_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell8_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell9_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell10_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell11_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell12_OWC_OK": {
+                "bits": 1
+            },
+            "Seg0_Cell13_OWC_OK": {
+                "bits": 1
+            }
+        }
+    },
+    "BMSShdnNodeStatus": {
+        "msg_id": 454,
+        "cycle_time": 100,
+        "description": "BMS Shutdown Nodes Status",
+        "signals": {
+            "HVPShdnOKStatus": {
+                "bits": 1
+            },
+            "HVNShdnOKStatus": {
+                "bits": 1
+            },
+            "BmsOk": {
+                "bits": 1
+            },
+            "ImdOk": {
+                "bits": 1
+            },
+            "BspdOk": {
+                "bits": 1
+            }
+        }
     }
-  },
-  "CommitInfo": {
-      "msg_id": 409,
-      "cycle_time": 100,
-      "description": "BMS Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
-      }
-  },
-  "Debug": {
-    "msg_id": 407,
-    "cycle_time": 1000,
-    "description": "BMS Debug Signals",
-    "signals": {
-      "ResetReason": {
-        "enum": "CanResetReason"
-      },
-      "StackOverflowTask": {
-        "bits": 16
-      }
-    }
-  },
-  "LatchedFaults": {
-    "msg_id": 410,
-    "cycle_time": 100,
-    "description": "Latched faults for the BMS",
-    "signals": {
-      "BmsLatchedFault": {
-        "bits": 1
-      },
-      "ImdLatchedFault": {
-        "bits": 1
-      },
-      "BspdLatchedFault": {
-        "bits": 1
-      }
-    }
-  },
-  "Contactors": {
-    "msg_id": 411,
-    "cycle_time": 100,
-    "description": "BMS IR state statuses",
-    "signals": {
-      "IrPositive": {
-        "enum": "ContactorState"
-      },
-      "IrNegative": {
-        "enum": "ContactorState"
-      },
-      "PrechargeRelay": {
-        "enum": "ContactorState"
-      }
-    }
-  },
-  "TractiveSystem": {
-    "msg_id": 412,
-    "cycle_time": 100,
-    "description": "BMS Tractive System Data",
-    "signals": {
-      "TractiveSystemVoltage": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 600,
-        "unit": "V"
-      },
-      "TractiveSystemCurrent": {
-        "resolution": 0.1,
-        "min": -300,
-        "max": 300,
-        "unit": "A"
-      },
-      "TractiveSystemPower": {
-        "resolution": 0.1,
-        "min": -100,
-        "max": 100,
-        "unit": "kW"
-      },
-      "AvailablePower": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100000,
-        "unit": "W"
-      },
-      "BSPDCurrentThresholdExceeded": {
-        "bits": 1
-      }
-    }
-  },
-  "ElconControls": {
-    "msg_id": 450,
-    "cycle_time": 1000,
-    "description": "Control parameters for Elcon charger communication",
-    "signals": {
-      "MaxChargingVoltage": {
-        "start_bit": 0,
-        "bits": 16,
-        "min": 0,
-        "max": 10000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "V"
-      },
-      "MaxChargingCurrent": {
-        "start_bit": 16,
-        "bits": 16,
-        "min": 0,
-        "max": 1000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "A"
-      },
-      "StopCharging": {
-        "start_bit": 32,
-        "bits": 1
-      },
-      "Reserved": {
-        "start_bit": 33,
-        "bits": 31
-      }
-    }
-  },
-  "HvBatteryProperties": {
-    "msg_id": 455,
-    "cycle_time": 1000,
-    "description": "HV Battery Properties",
-    "signals": {
-      "HvBatterySoc": {
-        "start_bit": 0,
-        "bits": 8,
-        "min": 0,
-        "max": 100,
-        "scale": 1,
-        "offset": 0,
-        "unit": "%"
-      }
-    }
-  },
-  "ImdStatus": {
-    "msg_id": 452,
-    "cycle_time": 100,
-    "description": "BMS IMD Messages",
-    "signals": {
-      "ImdOkHs": {
-        "bits": 1
-      },
-      "ImdTimeSincePowerOn": {
-        "min": 0,
-        "resolution": 1,
-        "max": 10000,
-        "unit": "ms"
-      },
-      "ImdValidDutyCycle": {
-        "bits": 1
-      },
-      "ImdCondition": {
-        "enum": "ImdConditionName"
-      },
-      "ImdDutyCycle": {
-        "bits": 8,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "ImdFrequency": {
-        "bits": 8,
-        "min": 0,
-        "max": 100,
-        "unit": "Hz"
-      }
-    }
-  },
-  "ImdData": {
-    "msg_id": 453,
-    "cycle_time": 1000,
-    "description": "BMS IMD Measurement Data Values",
-    "signals": {
-      "ImdActiveFrequency": {
-        "enum": "ImdActiveFrequency"
-      },
-      "ImdInsulationMeasurementDcp10Hz": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 65535,
-        "unit": "kOhm"
-      },
-      "ImdInsulationMeasurementDcp20Hz": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 65535,
-        "unit": "kOhm"
-      },
-      "ImdSpeedStartStatus30Hz": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 65535
-      }
-    }
-  },
-  "CellStats": {
-    "msg_id": 459,
-    "cycle_time": 100,
-    "description": "Avg BMS Cell Stats",
-    "signals": {
-      "MinCellVoltageSegment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MinCellVoltageIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      },
-      "MaxCellVoltageSegment": {
-        "bits": 3,
-        "min": 0,
-        "max": 9
-      },
-      "MaxCellVoltageIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      },
-      "MinTempSegment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MinTempIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      },
-      "MaxTempSegment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MaxTempIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      }
-    }
-  },
-  "Segment0_VoltageStats_0": {
-    "msg_id": 460,
-    "cycle_time": 10,
-    "description": "BMS Segment 0 Voltage Stats Part 0",
-    "signals": {
-      "Seg0_Cell0_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell1_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell2_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell3_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell4_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell5_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell6_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      }
-    }
-  },
-  "Segment0_VoltageStats_1": {
-    "msg_id": 461,
-    "cycle_time": 10,
-    "description": "BMS Segment 0 Voltage Stats Part 1",
-    "signals": {
-      "Seg0_Cell7_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell8_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell9_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell10_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell11_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell12_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell13_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      }
-    }
-  },
-  "Segment0_TempStats_0": {
-    "msg_id": 462,
-    "cycle_time": 10,
-    "description": "BMS Segment 0 Temperature Stats Part 0",
-    "signals": {
-      "Seg0_Cell0_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell1_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell2_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell3_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell4_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell5_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell6_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      }
-    }
-  },
-  "Segment0_TempStats_1": {
-    "msg_id": 463,
-    "cycle_time": 10,
-    "description": "BMS Segment 0 Temperature Stats Part 1",
-    "signals": {
-      "Seg0_Cell7_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell8_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell9_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell10_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell11_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell12_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      },
-      "Seg0_Cell13_Temp": {
-        "resolution": 0.2,
-        "min": -1,
-        "max": 100,
-        "unit": "degC"
-      }
-    }
-  },
-  "Segment0_Tests": {
-    "msg_id": 480,
-    "cycle_time": 100,
-    "description": "Segment 0 LTC tests and checks",
-    "signals": {
-      "Seg0_CommOk": {
-        "bits": 1
-      },
-      "Seg0_Vref": {
-        "resolution": 0.01,
-        "min": 2.93,
-        "max": 3.08
-      },
-      "Seg0_VrefOk": {
-        "bits": 1
-      },
-      "Seg0_Adc12Equal": {
-        "bits": 1
-      },
-      "Seg0_Adc23Equal": {
-        "bits": 1
-      },
-      "Seg0_RevisionCode": {
-        "bits": 4
-      },
-      "Seg0_AnalogSupplyOk": {
-        "bits": 1
-      },
-      "Seg0_AnalogSupply": {
-        "resolution": 0.1,
-        "min": 4.1,
-        "max": 5.6
-      },
-      "Seg0_DigitalSupplyOk": {
-        "bits": 1
-      },
-      "Seg0_DigitalSupply": {
-        "resolution": 0.1,
-        "min": 2.7,
-        "max": 3.6
-      },
-      "Seg0_ThermalOk": {
-        "bits": 1
-      },
-      "Seg0_DieTemp": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "Seg0_CellSelfTestOk": {
-        "bits": 1
-      },
-      "Seg0_AuxSelfTestOk": {
-        "bits": 1
-      },
-      "Seg0_StatusSelfTestOk": {
-        "bits": 1
-      },
-      "Seg0_MuxOk": {
-        "bits": 1
-      },
-      "Seg0_Cell0_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell1_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell2_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell3_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell4_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell5_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell6_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell7_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell8_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell9_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell10_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell11_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell12_OWC_OK": {
-        "bits": 1
-      },
-      "Seg0_Cell13_OWC_OK": {
-        "bits": 1
-      }
-    }
-  },
-  "BMSShdnNodeStatus": {
-    "msg_id": 454,
-    "cycle_time": 100,
-    "description": "BMS Shutdown Nodes Status",
-    "signals": {
-      "HVPShdnOKStatus": {
-        "bits": 1
-      },
-      "HVNShdnOKStatus": {
-        "bits": 1
-      }, 
-      "BmsOk": {
-        "bits": 1
-      },
-      "ImdOk": {
-        "bits": 1
-      },
-      "BspdOk": {
-        "bits": 1
-      }
-    }
-  }
 }

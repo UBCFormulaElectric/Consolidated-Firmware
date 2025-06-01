@@ -18,6 +18,4 @@ void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)
 
     const uint8_t watchdog_id = hw_watchdog_getTaskId(watchdog);
     LOG_ERROR("Watchdog timed out on task ID %d", watchdog_id);
-    // app_canAlerts_BMS_Warning_WatchdogTimeout_set(true);
-    // app_canTx_BMS_WatchdogTimeoutTaskName_set((RtosTaskName)watchdog_id);
 }
