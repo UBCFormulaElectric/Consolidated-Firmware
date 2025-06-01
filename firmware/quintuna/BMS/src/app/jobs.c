@@ -1,7 +1,7 @@
 #include "jobs.h"
 
-#include "app_globals.h"
 #include "app_soc.h"
+#include "app_globals.h"
 #include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
@@ -58,10 +58,6 @@ void jobs_run1Hz_tick(void)
     /**
      * add charger connection status CAN tx once charging implementation branch is merged
      */
-
-    /**
-     * add reset SOC from min cell voltage if soc corrupt and voltage readings settled after soc app is finished
-     */
 }
 
 void jobs_run100Hz_tick(void)
@@ -77,15 +73,19 @@ void jobs_run100Hz_tick(void)
     /**
      * Update CAN signals for BMS latch statuses
      */
+
+    if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
+    {
+        app_soc_updateSocStats();
+    }
+
+    app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
     app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
     app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
     app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
     app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
     app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
     app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
-    /**
-     * app_canTx_BMS_Soc_set(app_soc_getMinSocPercent()); add once soc app is finished
-     */
 
     /**
      * add cell balancing check once cell balancing is enabled
@@ -94,7 +94,10 @@ void jobs_run100Hz_tick(void)
     /**
      * add accumulator tasks once accumulator app is finished
      */
-
+    if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
+    {
+        globals->cell_monitor_settle_count++;
+    }
     /**
      * add soc stat update once app soc is finished
      */
