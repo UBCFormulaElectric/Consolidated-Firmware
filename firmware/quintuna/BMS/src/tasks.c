@@ -30,6 +30,12 @@
 #include <cmsis_os.h>
 #include <portmacro.h>
 
+// isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an LTC transaction doesn't get interrupted by
+// another task. It's just a regular semaphore (no priority inheritance) since it depends on hardware.
+
+// ltc_app_data_lock guards access to any LTC app data that may be written to by the LTC tasks and read from other tick
+// functions. It's a mutex (yes priority inheritance) since it's guarding shared data and doesn't depend on hardware.
+
 StaticSemaphore_t isospi_bus_access_lock_buf;
 SemaphoreHandle_t isospi_bus_access_lock;
 StaticSemaphore_t ltc_app_data_lock_buf;
@@ -79,17 +85,16 @@ void tasks_init(void)
         hw_bootup_setBootRequest(boot_request);
     }
 
-    // TODO: Think about this a bit harder
     isospi_bus_access_lock = xSemaphoreCreateBinaryStatic(&isospi_bus_access_lock_buf);
     ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
     assert(isospi_bus_access_lock != NULL);
     assert(ltc_app_data_lock != NULL);
 
-    // setup
+    // Write LTC configs.
     app_segments_writeDefaultConfig();
     LOG_IF_ERR(app_segments_configSync());
 
-    // self tests
+    // Run all self tests at init.
     LOG_IF_ERR(app_segments_runAdcAccuracyTest());
     LOG_IF_ERR(app_segments_runVoltageSelfTest());
     LOG_IF_ERR(app_segments_runAuxSelfTest());
