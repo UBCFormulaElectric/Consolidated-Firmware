@@ -1,10 +1,10 @@
 import jinja2 as j2
 
-from .routing import CanTxConfig, CanRxConfig
 from ...can_database import CanDatabase, CanMessage
 from ...utils import *
-from .utils import load_template
 from .cmodule import CModule
+from .routing import CanRxConfig, CanTxConfig
+from .utils import load_template
 
 
 def calculate_packing_iterations(signal):
@@ -44,12 +44,15 @@ def calculate_packing_iterations(signal):
 class AppCanUtilsModule(CModule):
     def __init__(self, db: CanDatabase, tx_config: CanTxConfig, rx_config: CanRxConfig):
         self._db = db
-        self._messages = ([db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()] +
-                          [db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()])
+        self._messages = [
+            db.msgs[msg_name] for msg_name in tx_config.get_all_msg_names()
+        ] + [db.msgs[msg_name] for msg_name in rx_config.get_all_rx_msgs_names()]
         self._all_enums = db.enums.values()
 
     def source_template(self):
-        j2_env = j2.Environment(loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"])
+        j2_env = j2.Environment(
+            loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
+        )
         template = j2_env.from_string(load_template("app_canUtils.c.j2"))
         return template.render(
             messages=self._messages,
@@ -65,16 +68,23 @@ class AppCanUtilsModule(CModule):
             all_messages=self._db.msgs.values(),
             messages=self._messages,
             enums=self._all_enums,
+            nodes=self._db.nodes.keys(),
         )
 
 
 def signal_placement_comment(msg: CanMessage):
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     signals = ["_"] * (msg.bytes() * 8)
-    signals.extend(["x"] * ((8 - msg.bytes()) * 8))
     for signal_cnt, signal in enumerate(msg.signals):
         for i in range(signal.start_bit, signal.start_bit + signal.bits):
             signals[i] = chars[signal_cnt % len(chars)]
 
     signals = list(reversed(signals))
-    return f'|{"|".join("".join(signals[i * 8:(i + 1) * 8]) for i in range(0, 8))}|'
+
+    placement_part = f'|{"|".join("".join(signals[i * 8:(i + 1) * 8]) for i in range(0, msg.bytes()))}|'
+    if msg.bytes() == 0:
+        return "(0 data bytes)"
+    elif msg.bytes() == 1:
+        return placement_part + " (1 data byte)"
+    else:
+        return placement_part + f" ({msg.bytes()} data bytes)"

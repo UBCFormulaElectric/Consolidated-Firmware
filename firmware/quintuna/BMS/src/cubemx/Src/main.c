@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -136,6 +135,18 @@ const osThreadAttr_t TaskChimera_attributes = {
     .stack_size = sizeof(TaskChimeraBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
+/* Definitions for TaskLTC */
+osThreadId_t         TaskLTCHandle;
+uint32_t             TaskLTCBuffer[512];
+osStaticThreadDef_t  TaskLTCControlBlock;
+const osThreadAttr_t TaskLTC_attributes = {
+    .name       = "TaskLTC",
+    .cb_mem     = &TaskLTCControlBlock,
+    .cb_size    = sizeof(TaskLTCControlBlock),
+    .stack_mem  = &TaskLTCBuffer[0],
+    .stack_size = sizeof(TaskLTCBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal1,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -162,6 +173,7 @@ void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskChimera(void *argument);
+void        RunTaskLTC(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -216,6 +228,7 @@ int main(void)
     MX_TIM5_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -234,7 +247,6 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -255,6 +267,9 @@ int main(void)
 
     /* creation of TaskChimera */
     TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+
+    /* creation of TaskLTC */
+    TaskLTCHandle = osThreadNew(RunTaskLTC, NULL, &TaskLTC_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -689,7 +704,7 @@ static void MX_FDCAN2_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -704,7 +719,7 @@ static void MX_IWDG1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 
@@ -756,10 +771,10 @@ static void MX_SPI4_Init(void)
     hspi4.Init.Mode                       = SPI_MODE_MASTER;
     hspi4.Init.Direction                  = SPI_DIRECTION_2LINES;
     hspi4.Init.DataSize                   = SPI_DATASIZE_8BIT;
-    hspi4.Init.CLKPolarity                = SPI_POLARITY_LOW;
-    hspi4.Init.CLKPhase                   = SPI_PHASE_1EDGE;
+    hspi4.Init.CLKPolarity                = SPI_POLARITY_HIGH;
+    hspi4.Init.CLKPhase                   = SPI_PHASE_2EDGE;
     hspi4.Init.NSS                        = SPI_NSS_SOFT;
-    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_64;
+    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_256;
     hspi4.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi4.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi4.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;
@@ -772,7 +787,7 @@ static void MX_SPI4_Init(void)
     hspi4.Init.MasterSSIdleness           = SPI_MASTER_SS_IDLENESS_00CYCLE;
     hspi4.Init.MasterInterDataIdleness    = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
     hspi4.Init.MasterReceiverAutoSusp     = SPI_MASTER_RX_AUTOSUSP_DISABLE;
-    hspi4.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_DISABLE;
+    hspi4.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_ENABLE;
     hspi4.Init.IOSwap                     = SPI_IO_SWAP_DISABLE;
     if (HAL_SPI_Init(&hspi4) != HAL_OK)
     {
@@ -997,7 +1012,7 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LEDR_GPIO_Port, LEDR_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
@@ -1018,12 +1033,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LEDR_Pin SPI_CS_LS_Pin */
-    GPIO_InitStruct.Pin   = LEDR_Pin | SPI_CS_LS_Pin;
+    /*Configure GPIO pin : LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : SPI_CS_LS_Pin */
+    GPIO_InitStruct.Pin   = SPI_CS_LS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(SPI_CS_LS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
                              DIAG_Pin SD_CD_Pin */
@@ -1067,9 +1089,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(FAN_EN_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BSPD_TEST_EN_Pin SPI_CS_HS_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin
-                             TSENSE_SEL2_Pin */
-    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | SPI_CS_HS_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
+    /*Configure GPIO pins : BSPD_TEST_EN_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin TSENSE_SEL2_Pin */
+    GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1080,6 +1101,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(TS_ISENSE_OCSC_OK_3V3_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : SPI_CS_HS_Pin */
+    GPIO_InitStruct.Pin   = SPI_CS_HS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(SPI_CS_HS_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -1174,6 +1202,20 @@ void RunTaskChimera(void *argument)
     /* Infinite loop */
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
+}
+
+/* USER CODE BEGIN Header_RunTaskLTC */
+/**
+ * @brief Function implementing the TaskLTC thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLTC */
+void RunTaskLTC(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLTC */
+    tasks_runLtc();
+    /* USER CODE END RunTaskLTC */
 }
 
 /**

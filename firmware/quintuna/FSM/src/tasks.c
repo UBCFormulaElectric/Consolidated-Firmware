@@ -1,29 +1,36 @@
 #include "tasks.h"
-#include "cmsis_os.h"
 #include "jobs.h"
+#include "cmsis_os.h"
 
 // app
 #include "app_canTx.h"
-#include "app_utils.h"
+#include "app_canAlerts.h"
+#include "app_jsoncan.h"
 
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
-#include "io_jsoncan.h"
+#include "io_bootHandler.h"
+
+#include "app_jsoncan.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
-#include "shared.pb.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 
-void tasks_preInit() {}
+void tasks_preInit(void)
+{
+    hw_hardFaultHandler_init();
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init(void)
 {
@@ -32,16 +39,28 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("FSM reset!");
 
-    // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
-    hw_usb_init();
+
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_can_init(&can);
 
     jobs_init();
 
     app_canTx_FSM_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    // Check for stack overflow on a previous boot cycle and populate CAN alert.
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    {
+        app_canAlerts_FSM_Info_StackOverflow_set(true);
+        app_canTx_FSM_StackOverflowTask_set(boot_request.context_value);
+
+        // Clear stack overflow bootup.
+        boot_request.context       = BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw_bootup_setBootRequest(boot_request);
+    }
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -56,7 +75,8 @@ void tasks_run1Hz(void)
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -98,9 +118,15 @@ void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        CanMsg msg = io_canQueue_popTx();
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can, &msg));
     }
+}
+
+void tasks_runCanRxCallback(const CanMsg *msg)
+{
+    io_bootHandler_processBootRequest(msg);
+    io_canQueue_pushRx(msg);
 }
 
 void tasks_runCanRx(void)
@@ -109,7 +135,7 @@ void tasks_runCanRx(void)
     for (;;)
     {
         const CanMsg rx_msg      = io_canQueue_popRx();
-        JsonCanMsg   rx_json_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        JsonCanMsg   rx_json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&rx_json_msg);
     }
 }

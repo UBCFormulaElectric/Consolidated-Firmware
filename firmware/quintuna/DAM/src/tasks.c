@@ -1,10 +1,12 @@
 #include "tasks.h"
+#include "hw_bootup.h"
 #include "jobs.h"
 #include "main.h"
 #include "cmsis_os.h"
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_canAlerts.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -12,6 +14,7 @@
 #include "io_fileSystem.h"
 #include "io_buzzer.h"
 #include "io_telemMessage.h"
+#include "io_telemRx.h"
 #include "io_time.h"
 
 #include "hw_hardFaultHandler.h"
@@ -29,8 +32,8 @@ extern CRC_HandleTypeDef hcrc;
 
 void tasks_preInit(void)
 {
-    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    // hw_bootup_enableInterruptsForApp();
+    hw_hardFaultHandler_init();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_preInitWatchdog(void)
@@ -41,17 +44,17 @@ void tasks_preInitWatchdog(void)
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
 
-    hw_hardFaultHandler_init();
+    __HAL_DBGMCU_FREEZE_IWDG1();
+
     hw_can_init(&can1);
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     hw_crc_init(&hcrc);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-
-    // hw_gpio_writePin(&tsim_red_en_pin, true);
-    // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
     jobs_init();
     // hw_gpio_writePin(&tsim_red_en_pin, true);
@@ -60,6 +63,19 @@ void tasks_init(void)
     io_telemMessage_init();
 
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    // Check for stack overflow on a previous boot cycle and populate CAN alert.
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    {
+        app_canAlerts_DAM_Info_StackOverflow_set(true);
+        app_canTx_DAM_StackOverflowTask_set(boot_request.context_value);
+
+        // Clear stack overflow bootup.
+        boot_request.context       = BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw_bootup_setBootRequest(boot_request);
+    }
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -70,6 +86,7 @@ _Noreturn void tasks_runChimera(void)
 _Noreturn void tasks_run1Hz(void)
 {
     static const TickType_t period_ms = 1000U;
+    LOG_INFO("1hz task");
     // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
@@ -82,13 +99,6 @@ _Noreturn void tasks_run1Hz(void)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
-        CanMsg fake_msg = {
-            .std_id    = 0x123,
-            .dlc       = 8,
-            .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
-            .timestamp = io_time_getCurrentMs(),
-        };
-        io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -102,6 +112,7 @@ _Noreturn void tasks_run100Hz(void)
 
     static const TickType_t period_ms   = 10;
     uint32_t                start_ticks = osKernelGetTickCount();
+    LOG_INFO("100hz task");
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
@@ -111,12 +122,6 @@ _Noreturn void tasks_run100Hz(void)
         // task to sleep.
         // hw_watchdog_checkIn(watchdog);
 
-        // CanMsg fake_msg = {
-        //     .std_id    = 0x124,
-        //     .dlc       = 8,
-        //     .data      = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 },
-        //     .timestamp = io_time_getCurrentMs(),
-        // };
         // io_telemMessage_pushMsgtoQueue(&fake_msg);
 
         start_ticks += period_ms;
@@ -142,17 +147,6 @@ _Noreturn void tasks_run1kHz(void)
         // // Watchdog check-in must be the last function called before putting the
         // // task to sleep. Prevent check in if the elapsed period is greater or
         // // equal to the period ms
-        // if (io_tBime_getCurrentMs() - task_start_ms <= period_ms)
-        //     hw_watchdog_checkIn(watchdog);
-
-        // CanMsg fake_msg = {
-        //     .std_id = 0x125,
-        //     .dlc    = 8,
-        //     .data   = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07},
-        //     .timestamp = io_time_getCurrentMs(),
-        // };
-        // io_telemMessage_pushMsgtoQueue(&fake_msg);
-
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -162,18 +156,12 @@ _Noreturn void tasks_runCanTx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx();
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
+        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // ToDo: check if this is needed and investigate why is_fd is not a bool
-        //  if (tx_msg.is_fd)
-        //  {
-        //      hw_fdcan_transmit(&can1, &tx_msg);
-        //  }
-        //  else
-        //  {
-        //      hw_can_transmit(&can1, &tx_msg);
-        //  }
+
+        hw_fdcan_transmit(&can1, &tx_msg);
     }
 }
 
@@ -190,7 +178,18 @@ _Noreturn void tasks_runTelem(void)
     // osDelay(osWaitForever);
     for (;;)
     {
+        LOG_INFO("telem task");
         io_telemMessage_broadcastMsgFromQueue();
+    }
+}
+
+_Noreturn void tasks_runTelemRx(void)
+{
+    // osDelay(osWaitForever);
+    for (;;)
+    {
+        // set rtc time from telem rx data
+        io_telemRx();
     }
 }
 

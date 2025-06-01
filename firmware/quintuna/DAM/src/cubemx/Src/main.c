@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_error.h"
 #include "io_log.h"
 /* USER CODE END Includes */
 
@@ -144,6 +143,18 @@ const osThreadAttr_t TaskTelem_attributes = {
     .stack_size = sizeof(TaskTelemBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
+/* Definitions for TaskTelemRx */
+osThreadId_t         TaskTelemRxHandle;
+uint32_t             TaskTelemRxBuffer[512];
+osStaticThreadDef_t  TaskTelemRxControlBlock;
+const osThreadAttr_t TaskTelemRx_attributes = {
+    .name       = "TaskTelemRx",
+    .cb_mem     = &TaskTelemRxControlBlock,
+    .cb_size    = sizeof(TaskTelemRxControlBlock),
+    .stack_mem  = &TaskTelemRxBuffer[0],
+    .stack_size = sizeof(TaskTelemRxBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -166,6 +177,7 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskLogging(void *argument);
 void        RunTaskTelem(void *argument);
+void        RunTaskTelemRx(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -258,6 +270,9 @@ int main(void)
 
     /* creation of TaskTelem */
     TaskTelemHandle = osThreadNew(RunTaskTelem, NULL, &TaskTelem_attributes);
+
+    /* creation of TaskTelemRx */
+    TaskTelemRxHandle = osThreadNew(RunTaskTelemRx, NULL, &TaskTelemRx_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -360,8 +375,8 @@ static void MX_CRC_Init(void)
     hcrc.Instance                     = CRC;
     hcrc.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
     hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
-    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
-    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_BYTE;
+    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_ENABLE;
     hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_BYTES;
     if (HAL_CRC_Init(&hcrc) != HAL_OK)
     {
@@ -477,8 +492,7 @@ static void MX_I2C1_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-    // TODO remove
-    return;
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -487,13 +501,13 @@ static void MX_IWDG1_Init(void)
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = 4095;
+    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 
@@ -589,7 +603,7 @@ static void MX_USART2_UART_Init(void)
 
     /* USER CODE END USART2_Init 1 */
     huart2.Instance                    = USART2;
-    huart2.Init.BaudRate               = 115200;
+    huart2.Init.BaudRate               = 57600;
     huart2.Init.WordLength             = UART_WORDLENGTH_8B;
     huart2.Init.StopBits               = UART_STOPBITS_1;
     huart2.Init.Parity                 = UART_PARITY_NONE;
@@ -804,6 +818,23 @@ void RunTaskTelem(void *argument)
     /* Infinite loop */
     tasks_runTelem();
     /* USER CODE END RunTaskTelem */
+}
+
+/* USER CODE BEGIN Header_RunTaskTelemRx */
+/**
+ * @brief Function implementing the TaskTelemRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskTelemRx */
+void RunTaskTelemRx(void *argument)
+{
+    /* USER CODE BEGIN RunTaskTelemRx */
+    /* Infinite loop */
+
+    tasks_runTelemRx();
+
+    /* USER CODE END RunTaskTelemRx */
 }
 
 /* MPU Configuration */

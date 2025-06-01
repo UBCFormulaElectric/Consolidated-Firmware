@@ -18,7 +18,7 @@ class _BusConfigJson(TypedDict):
     modes: list[str]
     default_mode: str
     nodes: list[str]
-    FD: Optional_t[bool]
+    fd: Optional_t[bool]
 
 
 class _BusJson(TypedDict):
@@ -27,29 +27,47 @@ class _BusJson(TypedDict):
     logger: Optional_t[list[str]]
 
 
-_BusJson_schema = Schema({
-    "forwarders": Or(Schema([]), Schema([{
-        "forwarder": str,
-        "bus1": str,
-        "bus2": str,
-    }])),
-    "buses": Or(Schema([]), Schema([{
-        "name": str,
-        "bus_speed": int,
-        "modes": [str],
-        "default_mode": str,
-        "nodes": [str],
-        Optional("FD"): bool,
-    }])),
-    Optional("loggers"): Schema([str]),
-})
+_BusJson_schema = Schema(
+    {
+        "forwarders": Or(
+            Schema([]),
+            Schema(
+                [
+                    {
+                        "forwarder": str,
+                        "bus1": str,
+                        "bus2": str,
+                    }
+                ]
+            ),
+        ),
+        "buses": Or(
+            Schema([]),
+            Schema(
+                [
+                    {
+                        "name": str,
+                        "bus_speed": int,
+                        "modes": [str],
+                        "default_mode": str,
+                        "nodes": [str],
+                        Optional("fd"): bool,
+                    }
+                ]
+            ),
+        ),
+        Optional("loggers"): Schema([str]),
+    }
+)
 
 
 def _validate_bus_json(json: Dict) -> _BusJson:
     return _BusJson_schema.validate(json)
 
 
-def parse_bus_data(can_data_dir: str, node_names: List[str]) -> Tuple[Dict[str, CanBus], List[BusForwarder], List[str]]:
+def parse_bus_data(
+    can_data_dir: str, node_names: List[str]
+) -> Tuple[Dict[str, CanBus], List[BusForwarder], List[str]]:
     """
     Parses data about buses from global configuration
     CONSISTENCY: bus.default_mode not in bus.modes
@@ -63,20 +81,20 @@ def parse_bus_data(can_data_dir: str, node_names: List[str]) -> Tuple[Dict[str, 
     busses = {}
     for bus in bus_json_data["buses"]:
         if bus["default_mode"] not in bus["modes"]:
-            raise InvalidCanJson(f"Error on bus {bus['name']}: Default CAN mode is not in the list of modes.")
+            raise InvalidCanJson(
+                f"Error on bus {bus['name']}: Default CAN mode is not in the list of modes."
+            )
         # check that the nodes in the busses are all valid
         for node in bus["nodes"]:
             if node not in node_names:
-                raise InvalidCanJson(
-                    f"Node '{node}' is not defined in the node JSON."
-                )
+                raise InvalidCanJson(f"Node '{node}' is not defined in the node JSON.")
         busses[bus["name"]] = CanBus(
             name=bus["name"],
             default_mode=bus["default_mode"],
             modes=bus["modes"],
             bus_speed=bus["bus_speed"],
             node_names=bus["nodes"],
-            fd=bus.get("FD", False),
+            fd=bus.get("fd", False),
         )
 
     forwarders = []
@@ -93,7 +111,9 @@ def parse_bus_data(can_data_dir: str, node_names: List[str]) -> Tuple[Dict[str, 
             raise InvalidCanJson(
                 f"Forwarder '{forwarder['forwarder']}' is not defined in the node JSON."
             )
-        forwarders.append(BusForwarder(forwarder["forwarder"], forwarder["bus1"], forwarder["bus2"]))
+        forwarders.append(
+            BusForwarder(forwarder["forwarder"], forwarder["bus1"], forwarder["bus2"])
+        )
 
     loggers = []
     if "logger" in bus_json_data:

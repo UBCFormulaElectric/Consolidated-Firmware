@@ -25,7 +25,6 @@ function(stm32f4_boot_binary
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_can.c"
-            "stm32f4xx_hal_crc.c"
             "stm32f4xx_hal_cortex.c"
             "stm32f4xx_hal_exti.c"
             "stm32f4xx_hal_flash.c"
@@ -53,18 +52,19 @@ function(stm32f4_boot_binary
 
     # Add shared files.
     list(APPEND SRCS
+            "${SHARED_APP_INCLUDE_DIR}/app_crc32.c"
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-            "${SHARED_IO_INCLUDE_DIR}/io_time.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
-                "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
@@ -102,8 +102,6 @@ function(stm32h7_boot_binary
     )
 
     set(STM32_HAL_SRCS
-            "stm32h7xx_hal_crc.c"
-            "stm32h7xx_hal_crc_ex.c"
             "stm32h7xx_hal_cortex.c"
             "stm32h7xx_hal_dma_ex.c"
             "stm32h7xx_hal_dma.c"
@@ -136,13 +134,13 @@ function(stm32h7_boot_binary
 
     # Add shared files.
     list(APPEND SRCS
+            "${SHARED_APP_INCLUDE_DIR}/app_crc32.c"
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
             "${SHARED_IO_INCLUDE_DIR}/io_time.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"

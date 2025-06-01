@@ -32,6 +32,7 @@ extern "C"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_error.h"
 #include "cmsis_os.h"
     /* USER CODE END Includes */
 
@@ -51,6 +52,7 @@ extern "C"
     extern I2C_HandleTypeDef   hi2c3;
     extern I2C_HandleTypeDef   hi2c4;
     extern I2C_HandleTypeDef   hi2c5;
+    extern IWDG_HandleTypeDef  hiwdg1;
     extern TIM_HandleTypeDef   htim3;
     extern UART_HandleTypeDef  huart8;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
@@ -69,6 +71,9 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LSI_FREQUENCY 32000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 4
 #define SB_SHDN_3V3_OUT_Pin GPIO_PIN_0
 #define SB_SHDN_3V3_OUT_GPIO_Port GPIOC
 #define INTERIA_3V3_OUT_Pin GPIO_PIN_1
@@ -136,10 +141,6 @@ extern "C"
 #define IMU_INT2_Pin GPIO_PIN_10
 #define IMU_INT2_GPIO_Port GPIOD
 #define IMU_INT2_EXTI_IRQn EXTI15_10_IRQn
-#define CAN2_RX_Pin GPIO_PIN_12
-#define CAN2_RX_GPIO_Port GPIOD
-#define CAN2_TX_Pin GPIO_PIN_13
-#define CAN2_TX_GPIO_Port GPIOD
 #define RAD_FAN_FR_STBY_Pin GPIO_PIN_6
 #define RAD_FAN_FR_STBY_GPIO_Port GPIOC
 #define PWR_MTR_nALERT_Pin GPIO_PIN_7

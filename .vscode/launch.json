@@ -68,9 +68,10 @@
     {
       "name": "Debug Embedded: VC (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/VC/quintuna_VC_boot.elf",
         "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VC (Quintuna)",
@@ -223,7 +224,7 @@
     {
       "name": "Debug Embedded: FSM (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf"
@@ -338,9 +339,10 @@
     {
       "name": "Debug Embedded: RSM (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_boot.elf",
         "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: RSM (Quintuna)",
@@ -457,11 +459,11 @@
       "name": "Debug Embedded: BMS (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf",
-      // "symbolFiles": [
-      // This order matters, or RTT won't work! (app has to be last)
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf",
-      // ],
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
+        "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf"
+      ],
       "preLaunchTask": "Build Embedded: BMS (Quintuna)",
       // cortex configurations
       "request": "launch",
@@ -712,6 +714,14 @@
       "osx": {
         "MIMode": "lldb"
       }
+    },
+
+    {
+      "name": "Debug Telem Backend",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceRoot}/software/tracksight/live_data/app/app.py",
+      "console": "integratedTerminal"
     }
   ]
 }

@@ -1,7 +1,7 @@
 #include "io_thermistors.h"
 #include "hw_gpios.h"
 #include "hw_adcs.h"
-#include "io_thermistor.h"
+#include "app_thermistor.h"
 
 #define BIAS_RESISTOR_OHM (10000.0f)
 #define REFERENCE_VOLTAGE (3.3f)
@@ -40,5 +40,5 @@ float io_thermistors_readSelectedTemp(void)
     const float raw_voltage           = hw_adc_getVoltage(&aux_tsns);
     const float thermistor_resistance = (raw_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - raw_voltage);
 
-    return io_thermistor_resistanceToTemp(thermistor_resistance, &b57861s_lut);
+    return app_thermistor_resistanceToTemp(thermistor_resistance, &b57861s_lut);
 }
