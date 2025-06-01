@@ -54,7 +54,6 @@ static inline uint8_t check_sum_calc(uint16_t cmd, uint8_t* data, size_t length)
 
 static ExitCode send_subcommand(uint16_t cmd)
 {
-    RETURN_IF_ERR(hw_i2c_isTargetReady(&bat_mtr));
     uint8_t lower_cmd[2] = { (uint8_t)(BYTE_MASK(cmd)), (uint8_t)BYTE_MASK(cmd >> 8) };
 
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, lower_cmd, 2));
@@ -270,13 +269,13 @@ typedef enum
  */
 double io_lowVoltageBattery_get_SOC(void)
 {
-    if (!send_subcommand(ACCUMULATED_CHARGE_COMMAND))
+    if (IS_EXIT_ERR(end_subcommand(ACCUMULATED_CHARGE_COMMAND)))
     {
         return -1.0;
     }
 
     Subcommand_Response subcmd_response;
-    if (!recieve_subcommand(ACCUMULATED_CHARGE_COMMAND, &subcmd_response))
+    if (IS_EXIT_ERR(recieve_subcommand(ACCUMULATED_CHARGE_COMMAND, &subcmd_response)))
     {
         return -1.0;
     }
