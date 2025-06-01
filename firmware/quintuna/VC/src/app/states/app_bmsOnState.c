@@ -41,14 +41,14 @@ static void bmsOnStateRunOnTick100Hz(void)
     // TODO if any board is in fault state it will transition in all states. You DO NOT need to check it here
     const bool bms_in_faultstate = app_canRx_BMS_State_get() == BMS_FAULT_STATE;
 
-    if (bms_ready_for_drive)
-    {
-        app_stateMachine_setNextState(&pcmOn_state);
-    }
-
-    else if (bms_in_faultstate)
+    if (bms_in_faultstate)
     {
         app_stateMachine_setNextState(&fault_state);
+    }
+    
+    else if (bms_ready_for_drive)
+    {
+        app_stateMachine_setNextState(&pcmOn_state);
     }
 }
 static void bmsOnStateRunOnExit(void) {}
