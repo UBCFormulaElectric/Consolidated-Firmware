@@ -1,6 +1,8 @@
 #include "tasks.h"
 #include "hw_bootup.h"
 #include "io_bootHandler.h"
+#include "hw_gpio.h"
+#include "hw_gpios.h"
 #include "jobs.h"
 #include "main.h"
 #include "cmsis_os.h"
@@ -42,6 +44,9 @@ void tasks_init(void)
     hw_can_init(&can1);
     hw_can_init(&can2);
     hw_can_init(&can3);
+
+    // For testing.
+    hw_gpio_writePin(&bat_chrg_nshdn, false);
 
     jobs_init();
 
@@ -192,7 +197,6 @@ _Noreturn void tasks_batteryMonitoring(void)
 
 _Noreturn void tasks_powerMonitoring(void)
 {
-    osDelay(osWaitForever);
     for (;;)
     {
         jobs_runPowerMonitoring_tick();

@@ -1370,7 +1370,7 @@ void RunPwrMontr(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        tasks_powerMonitoring();
     }
     /* USER CODE END RunPwrMontr */
 }

@@ -1,6 +1,12 @@
 #include "app_powerMonitoring.h"
 #include "io_powerMonitoring.h"
 #include "app_canTx.h"
+#include <cmsis_os2.h>
+#include "hw_i2c.h"
+#include "hw_i2cs.h"
+
+#define CH1 1u
+#define CH2 2u
 
 #define ALERT_CH1_OVERCURRENT (1UL << 23)
 #define ALERT_CH2_OVERCURRENT (1UL << 22)
@@ -27,6 +33,11 @@ void app_powerMonitoring_update(void)
     if (false == init_done)
     {
         init_done = io_powerMonitoring_init();
+
+        if (init_done)
+        {
+            osDelay(1);
+        }
     }
     else
     {
@@ -38,13 +49,17 @@ void app_powerMonitoring_update(void)
         float    ch2_power   = 0.0f;
         uint32_t status      = 0u;
 
+        uint8_t cmd = 0x00;
+        hw_i2c_transmit(&pwr_mtr, &cmd, 1);
+        osDelay(1);
+
         io_powerMonitoring_read_alerts(&status);
-        io_powerMonitoring_read_voltage(1, &ch1_voltage);
-        io_powerMonitoring_read_voltage(2, &ch2_voltage);
-        io_powerMonitoring_read_current(1, &ch1_current);
-        io_powerMonitoring_read_current(2, &ch2_current);
-        io_powerMonitoring_read_power(1, &ch1_power);
-        io_powerMonitoring_read_power(2, &ch2_power);
+        io_powerMonitoring_read_voltage(CH1, &ch1_voltage);
+        io_powerMonitoring_read_voltage(CH2, &ch2_voltage);
+        io_powerMonitoring_read_current(CH1, &ch1_current);
+        io_powerMonitoring_read_current(CH2, &ch2_current);
+        io_powerMonitoring_read_power(CH1, &ch1_power);
+        io_powerMonitoring_read_power(CH2, &ch2_power);
 
         app_canTx_VC_ChannelOneVoltage_set(ch1_voltage);
         app_canTx_VC_ChannelTwoVoltage_set(ch2_voltage);
