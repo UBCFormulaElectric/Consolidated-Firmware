@@ -12,6 +12,19 @@
       }
     }
   },
+  "CommitInfo": {
+      "msg_id": 409,
+      "cycle_time": 100,
+      "description": "BMS Commit Info",
+      "signals": {
+          "Hash": {
+              "bits": 32
+          },
+          "Clean": {
+              "bits": 1
+          }
+      }
+  },
   "Debug": {
     "msg_id": 407,
     "cycle_time": 1000,
@@ -19,6 +32,9 @@
     "signals": {
       "ResetReason": {
         "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 16
       }
     }
   },

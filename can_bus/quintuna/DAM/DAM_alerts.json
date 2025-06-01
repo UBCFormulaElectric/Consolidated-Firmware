@@ -12,5 +12,10 @@
       "description": "Dummy Fault"
     }
   },
-  "info": {}
+  "info": {
+    "StackOverflow": {
+      "id": 850,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    }
+  }
 }

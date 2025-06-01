@@ -1,10 +1,13 @@
 #include "tasks.h"
+#include "hw_bootup.h"
 #include "jobs.h"
 
 #include "app_canTx.h"
 #include "app_segments.h"
 #include "app_utils.h"
+#include "app_canAlerts.h"
 
+#include "hw_bootup.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 
@@ -26,13 +29,21 @@ void tasks_runChimera(void)
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_hardFaultHandler_init();
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS Reset");
+
     __HAL_DBGMCU_FREEZE_IWDG1();
+
     ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
@@ -43,6 +54,19 @@ void tasks_init(void)
     jobs_init();
 
     app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    // Check for stack overflow on a previous boot cycle and populate CAN alert.
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    {
+        app_canAlerts_BMS_Info_StackOverflow_set(true);
+        app_canTx_BMS_StackOverflowTask_set(boot_request.context_value);
+
+        // Clear stack overflow bootup.
+        boot_request.context       = BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw_bootup_setBootRequest(boot_request);
+    }
 }
 
 void tasks_run1Hz(void)

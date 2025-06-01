@@ -12,6 +12,7 @@
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 #include "app_powerMonitoring.h"
+#include "app_commitInfo.h"
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -46,6 +47,10 @@ void jobs_init()
     io_canQueue_initTx(&can3_tx_queue);
 
     app_stateMachine_init(&init_state);
+
+    app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_VC_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick(void)

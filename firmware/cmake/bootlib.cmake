@@ -64,6 +64,7 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
