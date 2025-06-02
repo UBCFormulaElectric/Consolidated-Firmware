@@ -76,8 +76,8 @@ class JsonCanParser:
         }
 
         # ngl im not the biggest fan of executing things inside declarations
-        for node_name, Node in self._nodes.items():
-            if len(Node.bus_names) == 0:
+        for node_name, node in self._nodes.items():
+            if len(node.bus_names) == 0:
                 raise InvalidCanJson("Node %s has no bus", node_name)
 
         # PARSE TX JSON DATA
