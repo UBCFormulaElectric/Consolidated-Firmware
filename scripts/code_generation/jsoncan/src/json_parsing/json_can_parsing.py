@@ -75,6 +75,11 @@ class JsonCanParser:
             for node_name in node_names
         }
 
+        # ngl im not the biggest fan of executing things inside declarations
+        for node_name, Node in self._nodes.items():
+            if len(Node.bus_names) == 0:
+                raise InvalidCanJson("Node %s has no bus", node_name)
+
         # PARSE TX JSON DATA
         # collect shared enums outside of loop
         self._enums = {}
