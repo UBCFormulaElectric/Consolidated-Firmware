@@ -147,6 +147,18 @@ const osThreadAttr_t TaskLTC_attributes = {
     .stack_size = sizeof(TaskLTCBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal1,
 };
+/* Definitions for TaskCanTxCharge */
+osThreadId_t         TaskCanTxChargeHandle;
+uint32_t             TaskCanTxChargeBuffer[512];
+osStaticThreadDef_t  TaskCanTxChargeControlBlock;
+const osThreadAttr_t TaskCanTxCharge_attributes = {
+    .name       = "TaskCanTxCharge",
+    .cb_mem     = &TaskCanTxChargeControlBlock,
+    .cb_size    = sizeof(TaskCanTxChargeControlBlock),
+    .stack_mem  = &TaskCanTxChargeBuffer[0],
+    .stack_size = sizeof(TaskCanTxChargeBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -174,6 +186,7 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskChimera(void *argument);
 void        RunTaskLTC(void *argument);
+void        RunTaskCanTxCharge(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -270,6 +283,9 @@ int main(void)
 
     /* creation of TaskLTC */
     TaskLTCHandle = osThreadNew(RunTaskLTC, NULL, &TaskLTC_attributes);
+
+    /* creation of TaskCanTxCharge */
+    TaskCanTxChargeHandle = osThreadNew(RunTaskCanTxCharge, NULL, &TaskCanTxCharge_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1216,6 +1232,20 @@ void RunTaskLTC(void *argument)
     /* USER CODE BEGIN RunTaskLTC */
     tasks_runLtc();
     /* USER CODE END RunTaskLTC */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTxCharge */
+/**
+ * @brief Function implementing the TaskCanTxCharge thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTxCharge */
+void RunTaskCanTxCharge(void *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTxCharge */
+    tasks_runCanTxCharger();
+    /* USER CODE END RunTaskCanTxCharge */
 }
 
 /**

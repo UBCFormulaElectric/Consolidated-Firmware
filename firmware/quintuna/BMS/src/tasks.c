@@ -155,8 +155,17 @@ void tasks_runCanTx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
+        CanMsg tx_msg = io_canQueue_popTx(&fdcan_tx_queue);
         LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+    }
+}
+
+void tasks_runCanTxCharger(void)
+{
+    for (;;)
+    {
+        CanMsg tx_msg = io_canQueue_popTx(&charger_tx_queue);
+        LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
     }
 }
 

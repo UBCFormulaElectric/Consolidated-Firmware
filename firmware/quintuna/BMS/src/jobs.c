@@ -21,7 +21,6 @@
 #include "io_canMsg.h"
 #include "io_faultLatch.h"
 #include "io_time.h"
-#include "io_log.h"
 #include "states/app_faultState.h"
 #include "states/app_initState.h"
 #include "io_bootHandler.h"
@@ -33,18 +32,21 @@
 // Time for voltage and cell temperature values to settle
 #define CELL_MONITOR_TIME_TO_SETTLE_MS (300U)
 
-CanTxQueue          can_tx_queue;
+CanTxQueue          fdcan_tx_queue;
+CanTxQueue          charger_tx_queue;
 static TimerChannel cell_monitor_settle_timer;
 
 static void jsoncanTransmitFunc(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&can_tx_queue, &msg);
+    io_canQueue_pushTx(&fdcan_tx_queue, &msg);
 }
 
 static void chargerTransmitFunc(const JsonCanMsg *msg)
 {
-    LOG_INFO("Send charger message: %d", msg->std_id);
+    const CanMsg tx_msg = app_jsoncan_copyToCanMsg(msg);
+    assert(!tx_msg.is_fd);
+    io_canQueue_pushTx(&charger_tx_queue, &tx_msg);
 }
 
 void jobs_init(void)
@@ -53,7 +55,8 @@ void jobs_init(void)
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
     io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_initRx();
-    io_canQueue_initTx(&can_tx_queue);
+    io_canQueue_initTx(&fdcan_tx_queue);
+    io_canQueue_initTx(&charger_tx_queue);
 
     app_tractiveSystem_init();
     app_thermistors_init();

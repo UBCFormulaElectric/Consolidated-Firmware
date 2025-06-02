@@ -8,7 +8,8 @@
 #include "app_utils.h"
 #include "io_canQueue.h"
 
-extern CanTxQueue can_tx_queue;
+extern CanTxQueue fdcan_tx_queue;
+extern CanTxQueue charger_tx_queue;
 
 /**
  * Anything that needs to be initialized for unit testing must be put here
