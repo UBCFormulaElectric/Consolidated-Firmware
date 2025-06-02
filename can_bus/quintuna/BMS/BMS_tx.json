@@ -49,6 +49,9 @@
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
+      "Charging": {
+        "bits": 1
+      },
       "ChargerConnected": {
         "bits": 1
       }

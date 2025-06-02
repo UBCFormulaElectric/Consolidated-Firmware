@@ -4,7 +4,7 @@
     "cycle_time": 1000,
     "description": "Elcon charger status flags and parameters",
     "signals": {
-      "OutputVoltageBE": {
+      "OutputVoltage": {
         "start_bit": 0,
         "bits": 16,
         "scale": 0.1,
@@ -14,7 +14,7 @@
         "big_endian": true,
         "unit": "V"
       },
-      "OutputCurrentBE": {
+      "OutputCurrent": {
         "start_bit": 16,
         "bits": 16,
         "scale": 0.1,
@@ -36,7 +36,7 @@
         "start_bit": 34,
         "bits": 1
       },
-      "ChargingState": {
+      "ChargingDisabled": {
         "start_bit": 35,
         "bits": 1
       },

@@ -13,7 +13,6 @@
 #include "app_timer.h"
 #include "app_utils.h"
 #include "io_ltc6813.h"
-#include "io_canTx.h"
 
 #define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
@@ -143,11 +142,17 @@ void app_accumulator_calculateVoltageStats(void)
         .max_voltage_cell = { .voltage = -FLT_MAX },
         .pack_voltage     = 0.0f,
     };
+
     // Find the min and max voltages
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
+            if (volt_success_buf[segment][cell])
+            {
+                continue;
+            }
+
             // Collect each cell voltage to find the min/max
             const float cell_voltage = cell_voltages[segment][cell];
 
@@ -180,10 +185,16 @@ void app_accumulator_calculateTemperatureStats(void)
     temp_stats =
         (TempStats){ .min_temp_cell = { .temp = FLT_MAX }, .max_temp_cell = { .temp = -FLT_MAX }, .avg = 0.0f };
     float sum_temp = 0U;
+
     for (uint8_t curr_segment = 0U; curr_segment < NUM_SEGMENTS; curr_segment++)
     {
         for (uint8_t curr_cell_index = 0U; curr_cell_index < THERMISTORS_PER_SEGMENT; curr_cell_index++)
         {
+            if (volt_success_buf[curr_segment][curr_cell_index])
+            {
+                continue;
+            }
+
             const float curr_cell_temp = cell_temps[curr_segment][curr_cell_index];
 
             // Get the minimum cell voltage
@@ -210,31 +221,31 @@ void app_accumulator_calculateTemperatureStats(void)
     temp_stats.avg = sum_temp / TOTAL_NUM_OF_THERMISTORS;
 }
 
-void app_accumulator_calculateCellsToBalance(void)
-{
-    const float target_voltage = app_canRx_Debug_CellBalancingOverrideTarget_get()
-                                     ? app_canRx_Debug_CellBalancingOverrideTargetValue_get()
-                                     : voltage_stats.min_voltage_cell.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
+// void app_accumulator_calculateCellsToBalance(void)
+// {
+//     const float target_voltage = app_canRx_Debug_CellBalancingOverrideTarget_get()
+//                                      ? app_canRx_Debug_CellBalancingOverrideTargetValue_get()
+//                                      : voltage_stats.min_voltage_cell.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
-    float balancing_excess_voltage = 0;
-    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
-    {
-        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
-        {
-            // this is equivalent to abs(cell_voltages[segment][cell] - target_voltage) > BALANCE_TOLERANCE
-            // as cell_voltages[segment][cell] > target_voltage
-            cells_to_balance[segment][cell] = cell_voltages[segment][cell] - target_voltage > BALANCE_TOLERANCE;
-            balancing_excess_voltage += MAX(0, cell_voltages[segment][cell] - (target_voltage + BALANCE_TOLERANCE));
-        }
-    }
+//     float balancing_excess_voltage = 0;
+//     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+//     {
+//         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+//         {
+//             // this is equivalent to abs(cell_voltages[segment][cell] - target_voltage) > BALANCE_TOLERANCE
+//             // as cell_voltages[segment][cell] > target_voltage
+//             cells_to_balance[segment][cell] = cell_voltages[segment][cell] - target_voltage > BALANCE_TOLERANCE;
+//             balancing_excess_voltage += MAX(0, cell_voltages[segment][cell] - (target_voltage + BALANCE_TOLERANCE));
+//         }
+//     }
 
-    app_canTx_BMS_ExcessVoltage_set(balancing_excess_voltage);
-}
+//     app_canTx_BMS_ExcessVoltage_set(balancing_excess_voltage);
+// }
 
 bool app_accumulator_checkFaults(void)
 {
     // if we are charging, max cell temp is 45C not 60C
-    const bool  charger_connected       = false; // TODO Charger
+    const bool  charger_connected       = true; // TODO charger
     const float max_allowable_cell_temp = charger_connected ? MAX_CELL_CHARGE_TEMP_DEGC : MAX_CELL_DISCHARGE_TEMP_DEGC;
     const float min_allowable_cell_temp = charger_connected ? MIN_CELL_CHARGE_TEMP_DEGC : MIN_CELL_DISCHARGE_TEMP_DEGC;
 
@@ -273,59 +284,59 @@ bool app_accumulator_checkFaults(void)
     return over_temp_fault || under_temp_fault || over_voltage_fault || under_voltage_fault || communication_fault;
 }
 
-void app_accumulator_balanceCells(void)
-{
-    // Exit early if ADC conversion fails
-    if (IS_EXIT_ERR(io_ltc6813_pollAdcConversions()))
-    {
-        return;
-    }
+// void app_accumulator_balanceCells(void)
+// {
+//     // Exit early if ADC conversion fails
+//     if (IS_EXIT_ERR(io_ltc6813_pollAdcConversions()))
+//     {
+//         return;
+//     }
 
-    // Write to configuration register to configure cell discharging
-    bool cells_to_balance[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-    calculateCellsToBalance(cells_to_balance);
-    io_ltc6813_writeConfigurationRegisters(cells_to_balance);
+//     // Write to configuration register to configure cell discharging
+//     bool cells_to_balance[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+//     calculateCellsToBalance(cells_to_balance);
+//     io_ltc6813_writeConfigurationRegisters(cells_to_balance);
 
-    // Balance PWM settings
-    const float    balance_pwm_freq = app_canRx_Debug_CellBalancingOverridePWM_get()
-                                          ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get()
-                                          : BALANCE_DEFAULT_FREQ;
-    const uint32_t balance_pwm_duty = app_canRx_Debug_CellBalancingOverridePWM_get()
-                                          ? app_canRx_Debug_CellBalancingOverridePWMDuty_get()
-                                          : BALANCE_DEFAULT_DUTY;
+//     // Balance PWM settings
+//     const float    balance_pwm_freq = app_canRx_Debug_CellBalancingOverridePWM_get()
+//                                           ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get()
+//                                           : BALANCE_DEFAULT_FREQ;
+//     const uint32_t balance_pwm_duty = app_canRx_Debug_CellBalancingOverridePWM_get()
+//                                           ? app_canRx_Debug_CellBalancingOverridePWMDuty_get()
+//                                           : BALANCE_DEFAULT_DUTY;
 
-    static uint32_t balance_pwm_ticks;
-    static bool     balance_pwm_high;
-    // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
-    // TODO: verify frequency calculation. Period seems to be about double what it should be.
-    if (balance_pwm_high)
-    {
-        const uint32_t balance_ticks_on = (uint32_t)(1.0f / balance_pwm_freq * (float)balance_pwm_duty);
-        // Enable cell discharging
-        io_ltc6813_sendBalanceCommand();
-        balance_pwm_ticks += 1;
+//     static uint32_t balance_pwm_ticks;
+//     static bool     balance_pwm_high;
+//     // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
+//     // TODO: verify frequency calculation. Period seems to be about double what it should be.
+//     if (balance_pwm_high)
+//     {
+//         const uint32_t balance_ticks_on = (uint32_t)(1.0f / balance_pwm_freq * (float)balance_pwm_duty);
+//         // Enable cell discharging
+//         io_ltc6813_sendBalanceCommand();
+//         balance_pwm_ticks += 1;
 
-        if (balance_pwm_ticks >= balance_ticks_on)
-        {
-            // Cell discharging enabled duty cycle portion is finished
-            balance_pwm_high  = false;
-            balance_pwm_ticks = 0;
-        }
-    }
-    else
-    {
-        const uint32_t balance_ticks_off = (uint32_t)(1.0f / balance_pwm_freq * (float)(100 - balance_pwm_duty));
-        // Disable cell discharging
-        io_ltc6813_sendStopBalanceCommand();
-        balance_pwm_ticks += 1;
+//         if (balance_pwm_ticks >= balance_ticks_on)
+//         {
+//             // Cell discharging enabled duty cycle portion is finished
+//             balance_pwm_high  = false;
+//             balance_pwm_ticks = 0;
+//         }
+//     }
+//     else
+//     {
+//         const uint32_t balance_ticks_off = (uint32_t)(1.0f / balance_pwm_freq * (float)(100 - balance_pwm_duty));
+//         // Disable cell discharging
+//         io_ltc6813_sendStopBalanceCommand();
+//         balance_pwm_ticks += 1;
 
-        if (balance_pwm_ticks >= balance_ticks_off)
-        {
-            // Cell discharging disabled duty cycle portion is finished
-            balance_pwm_high  = true;
-            balance_pwm_ticks = 0;
-        }
-    }
-    app_canTx_BMS_BalancingOn_set(balance_pwm_high);
-    io_canTx_BMS_BalancingInfo_sendAperiodic();
-}
+//         if (balance_pwm_ticks >= balance_ticks_off)
+//         {
+//             // Cell discharging disabled duty cycle portion is finished
+//             balance_pwm_high  = true;
+//             balance_pwm_ticks = 0;
+//         }
+//     }
+//     app_canTx_BMS_BalancingOn_set(balance_pwm_high);
+//     io_canTx_BMS_BalancingInfo_sendAperiodic();
+// }

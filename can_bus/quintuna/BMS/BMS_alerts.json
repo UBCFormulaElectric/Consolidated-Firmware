@@ -54,6 +54,14 @@
     "ModuleCommunicationError": {
       "id": 455,
       "description": "Failed to communicate with LTC6813 modules (>3x bad PEC15 error checks)."
+    },
+    "ElconError": {
+      "id": 456,
+      "description": "Elcon charger reported an error."
+    },
+    "ChargerShutdownLoopOpen": {
+      "id": 457,
+      "description": "IR- opened during charging."
     }
   }
 }

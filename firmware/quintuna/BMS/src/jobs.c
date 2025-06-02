@@ -149,6 +149,8 @@ ExitCode jobs_runLtc_tick(void)
 {
     RETURN_IF_ERR(app_segments_configSync());
 
+    // I *think* this is thread-safe?
+
     RETURN_IF_ERR(app_segments_broadcastCellVoltages());
     app_accumulator_calculateVoltageStats();
 

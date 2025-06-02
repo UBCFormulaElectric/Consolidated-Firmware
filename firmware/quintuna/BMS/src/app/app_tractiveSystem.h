@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <stdbool.h>
 
-
 /**
  * Init the app tractive system module.
  */

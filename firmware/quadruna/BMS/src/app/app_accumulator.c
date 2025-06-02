@@ -27,6 +27,8 @@
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
 #define CELL_FULLY_DERATED_TEMP (60.0f)
 
+#define TOTAL_NUM_OF_THERMISTORS (NUM_SEGMENTS * THERMISTORS_PER_SEGMENT)
+
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, conceq_fails) \
     if ((is_pec_ok))                                      \
@@ -239,7 +241,6 @@ static void calculateTemperatureStats(void)
         }
     }
     // Calculate the average temperature
-#define TOTAL_NUM_OF_THERMISTORS (NUM_SEGMENTS * THERMISTORS_PER_SEGMENT)
     temp_stats.avg = sum_temp / TOTAL_NUM_OF_THERMISTORS;
 }
 
@@ -566,12 +567,6 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_MaxCellTemperature_set(temp_stats.max_temp_cell.temp);
     app_canTx_BMS_MaxTempSegment_set(temp_stats.max_temp_cell.segment);
     app_canTx_BMS_MaxTempIdx_set(temp_stats.max_temp_cell.cell);
-
-    // Broadcast OWC information
-    // app_canTx_BMS_Segment0_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[0]);
-    // app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[1]);
-    // app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[2]);
-    // app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.cell_owc_status[3]);
 
     // Calculate and broadcast pack power.
     const float available_power =

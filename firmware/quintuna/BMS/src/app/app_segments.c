@@ -12,11 +12,7 @@
 #include <string.h>
 
 // TODO: Take a closer look at these
-#define ADCV_CONVERSION_TIME_MS (10)
-#define ADAX_CONVERSION_TIME_MS (10)
-#define ADOL_CONVERSION_TIME_MS (10)
-#define ADSTAT_CONVERSION_TIME_MS (10)
-#define DIAGN_CONVERSION_TIME_MS (10)
+#define CONVERSION_TIME_MS (10)
 
 #define VUV (0x619U) // 2.5V Under-voltage threshold = (VUV + 1) * 16 * 100uV
 #define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
@@ -83,9 +79,10 @@ ExitCode        volt_success_buf[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 float           cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
 static uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-ExitCode        aux_reg_success_buf[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-float           segment_vref[NUM_SEGMENTS];
+static ExitCode aux_reg_success_buf[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+static float    segment_vref[NUM_SEGMENTS];
 float           cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+bool            temp_success_buf[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
 static StatusRegGroups statuses[NUM_SEGMENTS];
 static ExitCode        status_success_buf[NUM_SEGMENTS];
@@ -261,7 +258,7 @@ ExitCode app_segments_configSync(void)
 ExitCode app_segments_broadcastCellVoltages(void)
 {
     RETURN_IF_ERR(io_ltc6813_startCellsAdcConversion());
-    io_time_delay(6);
+    io_time_delay(CONVERSION_TIME_MS);
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -271,6 +268,7 @@ ExitCode app_segments_broadcastCellVoltages(void)
             if (IS_EXIT_ERR(volt_success_buf[segment][cell]))
             {
                 // we claim that this is insufficient to raise module comm errors
+                cell_voltage_setters[segment][cell](-0.1f);
                 continue;
             }
 
@@ -306,35 +304,36 @@ ExitCode app_segments_broadcastTempsVRef(void)
         io_ltc6813_writeConfigurationRegisters(segment_config);
 
         RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion());
-        io_time_delay(7);
+        io_time_delay(CONVERSION_TIME_MS);
         io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
 
         for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
         {
             for (uint8_t aux_gpio = 0U; aux_gpio < AUX_REGS_PER_SEGMENT; aux_gpio++)
             {
-                const uint8_t vref_reg_adjustment =
-                    aux_gpio > VREF_AUX_REG ? 1
-                                            : 0; // Annoyingly the VREF reg is right in the middle of GPIO voltage regs
-                const uint8_t mux_offset = mux > 0 ? 8 : 0; // 8 GPIOs used for least significant MUX setting
-                const int     thermistor = aux_gpio - vref_reg_adjustment + mux_offset;
-
-                if (thermistor >= THERMISTORS_PER_SEGMENT)
-                {
-                    continue;
-                }
-
-                if (IS_EXIT_ERR(aux_reg_success_buf[segment][aux_gpio]))
-                {
-                    continue;
-                }
-
                 const float voltage = CONVERT_100UV_TO_VOLTAGE(aux_regs[segment][aux_gpio]);
                 if (aux_gpio == VREF_AUX_REG)
                 {
                     segment_vref[segment] = voltage;
                     vref_setters[segment](voltage);
                     segment_vref_ok_setters[segment](fabsf(voltage - 3.0f) < 0.014f);
+                    continue;
+                }
+
+                // Annoyingly the VREF reg is right in the middle of GPIO voltage regs
+                const uint8_t vref_reg_adjustment = aux_gpio > VREF_AUX_REG ? 1 : 0;
+                const uint8_t mux_offset          = mux > 0 ? 8 : 0; // 8 GPIOs used for least significant MUX setting
+                const int     thermistor          = aux_gpio - vref_reg_adjustment + mux_offset;
+
+                if (thermistor >= THERMISTORS_PER_SEGMENT)
+                {
+                    continue;
+                }
+
+                temp_success_buf[segment][thermistor] = IS_EXIT_OK(aux_reg_success_buf[segment][aux_gpio]);
+                if (IS_EXIT_ERR(aux_reg_success_buf[segment][aux_gpio]))
+                {
+                    thermistor_setters[segment][thermistor](-1);
                     continue;
                 }
 
@@ -366,7 +365,7 @@ ExitCode app_segments_broadcastStatus(void)
     RETURN_IF_ERR(io_ltc6813_diagnoseMUX());
     io_time_delay(1); // Empirically you need this small delay after sending DIAGN
     RETURN_IF_ERR(io_ltc6813_startInternalADCConversions());
-    io_time_delay(DIAGN_CONVERSION_TIME_MS);
+    io_time_delay(CONVERSION_TIME_MS);
     io_ltc6813_getStatus(statuses, status_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -413,7 +412,7 @@ ExitCode app_segments_ADCAccuracyTest(void)
         bool) = { app_canTx_BMS_Seg0_Adc23Equal_set };
 
     RETURN_IF_ERR(io_ltc6813_overlapADCTest());
-    io_time_delay(ADOL_CONVERSION_TIME_MS);
+    io_time_delay(CONVERSION_TIME_MS);
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -440,7 +439,7 @@ ExitCode app_segments_voltageSelftest(void)
         bool) = { app_canTx_BMS_Seg0_CellSelfTestOk_set };
 
     RETURN_IF_ERR(io_ltc6813_sendSelfTestVoltages());
-    io_time_delay(ADCV_CONVERSION_TIME_MS);
+    io_time_delay(CONVERSION_TIME_MS);
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -465,7 +464,7 @@ ExitCode app_segments_auxSelftest(void)
         bool) = { app_canTx_BMS_Seg0_AuxSelfTestOk_set };
 
     RETURN_IF_ERR(io_ltc6813_sendSelfTestAux());
-    io_time_delay(ADAX_CONVERSION_TIME_MS);
+    io_time_delay(CONVERSION_TIME_MS);
     io_ltc6813_readAuxRegisters(aux_regs, aux_reg_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -490,7 +489,7 @@ ExitCode app_segments_statusSelftest(void)
         bool) = { app_canTx_BMS_Seg0_StatusSelfTestOk_set };
 
     RETURN_IF_ERR(io_ltc6813_sendSelfTestStat());
-    io_time_delay(ADSTAT_CONVERSION_TIME_MS);
+    io_time_delay(CONVERSION_TIME_MS);
     io_ltc6813_getStatus(statuses, status_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)

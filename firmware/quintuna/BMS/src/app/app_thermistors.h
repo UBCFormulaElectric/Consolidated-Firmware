@@ -1,6 +1,5 @@
 #pragma once
 
-
 /**
  * Initialize the thermistors module.
  */
