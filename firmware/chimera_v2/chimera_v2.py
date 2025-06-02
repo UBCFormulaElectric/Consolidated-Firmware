@@ -280,6 +280,40 @@ class _Board:
 
         """
         return SpiDevice(self, net_name)
+    
+    #maybe combine the inputs
+    def pwm_input(self, net_name: str) -> SpiDevice:
+        """Read incoming PWM signal's frequency and duty cycle.
+
+        Args:
+            net_name: Identifier of the PWM sender.
+
+        Returns:
+            Frequency and duty cycle values.
+
+        """
+        return TBD
+    
+    def pwm_input_freq_only(self, net_name: str) -> SpiDevice:
+        """Read incoming PWM signal's frequency only.
+
+        Args:
+            net_name: Identifier of the PWM sender.
+
+        Returns:
+            Only the frequency value of the PWM signal.
+
+        """
+        return TBD
+    
+    def pwm_output(self, net_name: str, duty_cycle: float, frequency_hz: float) -> SpiDevice:
+        """Send a PWM signal to a designated board with specific timer channel frequency and desired duty cycle.
+
+        Args:
+            net_name: Identifier of the PWM receiver.
+        """
+        return TBD
+
 
 
 class I2cDevice:

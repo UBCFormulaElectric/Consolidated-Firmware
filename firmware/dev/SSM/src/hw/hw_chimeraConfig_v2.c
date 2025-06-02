@@ -2,6 +2,7 @@
 #include "shared.pb.h"
 #include "hw_gpios.h"
 #include "hw_spis.h"
+#include "hw_pwms.h"
 #include "hw_chimeraConfig_v2.h"
 
 // Chimera V2 enums to GPIO peripherals.
@@ -27,7 +28,25 @@ const SpiDevice *id_to_spi[] = {
     [ssm_SpiNetName_SPI_DAC]       = &dac,
 };
 
-hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_ssm_net_name_tag,
-                                           .id_to_gpio        = id_to_gpio,
-                                           .spi_net_name_tag  = SpiNetName_ssm_net_name_tag,
-                                           .id_to_spi         = id_to_spi };
+//Chimera V2 enums to PWM signaling peripherals.
+const PwmInput *id_to_pwm_input[] = {
+    [] = &
+};
+
+const PwmInputFreqOnly *id_to_pwm_input_freq_only[] = {
+
+};
+
+const PwmOutput *id_to_pwm_output[] = {
+
+};
+
+
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag         = GpioNetName_ssm_net_name_tag,
+                                           .id_to_gpio                = id_to_gpio,
+                                           .spi_net_name_tag          = SpiNetName_ssm_net_name_tag,
+                                           .id_to_spi                 = id_to_spi, 
+                                           .id_to_pwm_input           = id_to_pwm_input,
+                                           .id_to_pwm_input_freq_only = id_to_pwm_input_freq_only,
+                                           .id_to_pwm_input           = id_to_pwm_output,
+                                        };

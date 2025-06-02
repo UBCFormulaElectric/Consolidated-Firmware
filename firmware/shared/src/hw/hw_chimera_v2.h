@@ -18,6 +18,18 @@
 #include "hw_spi.h"
 #endif
 
+#ifdef HAL_TIM_MODULE_ENABLED
+#include "hw_pwmInput.h"
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+#include "hw_pwmInputFreqOnly.h"
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+#include "hw_pwmOutput.h"
+#endif
+
 // Configuration needed ro run chimera.
 // Exposes mappings from net names to peripherals,
 // and board-specific tags for each peripheral type.
@@ -54,6 +66,31 @@ typedef struct
     // A table of Protobuf-generated net names to SPI peripherals.
     const SpiDevice **id_to_spi;
 #endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+    // The Protobuf-generated tag for the board's PWM complete input pins, defined in shared.pb.h.
+    pb_size_t pwm_input_net_name_tag;
+
+    // A table of Protobuf-generated net names to PWM peripherals.
+    const PwmInput **id_to_pwm_input;
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+    // The Protobuf-generated tag for the board's frequency only input PWM pins, defined in shared.pb.h.
+    pb_size_t pwm_input_freq_only_net_name_tag;
+
+    // A table of Protobuf-generated net names to PWM peripherals.
+    const PwmInput **id_to_pwm_input_freq_only;
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+    // The Protobuf-generated tag for the board's output PWM pins, defined in shared.pb.h.
+    pb_size_t pwm_output_net_name_tag;
+
+    // A table of Protobuf-generated net names to PWM peripherals.
+    const PwmInput **id_to_pwm_output;
+#endif
+
 } hw_chimera_v2_Config;
 
 /**
