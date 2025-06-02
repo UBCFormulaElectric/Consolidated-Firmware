@@ -83,7 +83,6 @@ void jobs_run100Hz_tick(void)
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
 
     app_stateMachine_tick100Hz();
-
     io_canTx_enqueue100HzMsgs();
 }
 

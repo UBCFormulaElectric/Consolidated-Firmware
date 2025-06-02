@@ -156,7 +156,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&fdcan_tx_queue);
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
     }
 }
 
