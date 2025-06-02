@@ -137,24 +137,17 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
  */
 static bool isConfigEqual(void)
 {
-    for (uint32_t try = 0; try < 0xFFFFFFFF; try++)
+    for (uint32_t try = 0; try < 3; try++)
     {
         io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
-        // for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        // {
-        //     if (IS_EXIT_ERR(config_success_buf[seg]))
-        //     {
-        //         return false;
-        //     }
-        // }
-
-        // if (config_success_buf[0] == EXIT_CODE_OK)
-        // {
-        //     BREAK_IF_DEBUGGER_CONNECTED();
-        // }
+        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        {
+            if (IS_EXIT_ERR(config_success_buf[seg]))
+            {
+                return false;
+            }
+        }
     }
-
-    return false;
 
     bool seg_config_same = true;
     for (uint8_t seg = 0; seg_config_same && seg < NUM_SEGMENTS; seg++)
@@ -242,7 +235,7 @@ ExitCode app_segments_configSync(void)
 ExitCode app_segments_broadcastCellVoltages(void)
 {
     RETURN_IF_ERR(io_ltc6813_startCellsAdcConversion());
-    io_time_delay(6);
+    io_time_delay(10);
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)

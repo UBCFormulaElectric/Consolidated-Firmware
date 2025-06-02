@@ -365,7 +365,7 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI4 | RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
     PeriphClkInitStruct.PLL2.PLL2N           = 24;
     PeriphClkInitStruct.PLL2.PLL2P           = 2;
@@ -374,7 +374,6 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.Spi45ClockSelection  = RCC_SPI45CLKSOURCE_PLL2;
     PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
     PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -774,7 +773,7 @@ static void MX_SPI4_Init(void)
     hspi4.Init.CLKPolarity                = SPI_POLARITY_HIGH;
     hspi4.Init.CLKPhase                   = SPI_PHASE_2EDGE;
     hspi4.Init.NSS                        = SPI_NSS_SOFT;
-    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_128;
+    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_256;
     hspi4.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi4.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi4.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;

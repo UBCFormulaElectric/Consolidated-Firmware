@@ -65,6 +65,8 @@ ExitCode hw_spi_transmitThenReceive(
     const uint16_t combined_size = tx_buffer_size + rx_buffer_size;
     uint8_t        padded_tx_buffer[combined_size];
     uint8_t        padded_rx_buffer[combined_size];
+    memset(padded_tx_buffer, 0, sizeof(padded_tx_buffer));
+    memset(padded_rx_buffer, 0, sizeof(padded_rx_buffer));
 
     // Copy tx_buffer into beginning of larger padded_tx_buffer
     memcpy(padded_tx_buffer, tx_buffer, tx_buffer_size);
