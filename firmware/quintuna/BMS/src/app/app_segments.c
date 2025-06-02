@@ -156,12 +156,19 @@ static bool isConfigEqual(void)
     for (uint8_t try = 0; try < 3; try++)
     {
         io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
+
+        bool all_ok = true;
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
             if (IS_EXIT_ERR(config_success_buf[seg]))
             {
-                return false;
+                all_ok = false;
             }
+        }
+
+        if (all_ok)
+        {
+            break;
         }
     }
 

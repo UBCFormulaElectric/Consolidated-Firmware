@@ -49,7 +49,7 @@ void tasks_runChimera(void)
 void tasks_preInit(void)
 {
     hw_hardFaultHandler_init();
-    hw_bootup_enableInterruptsForApp();
+    // hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
@@ -92,6 +92,8 @@ void tasks_init(void)
 
     // Write LTC configs.
     app_segments_writeDefaultConfig();
+
+    io_ltc6813_wakeup();
     LOG_IF_ERR(app_segments_configSync());
 
     // Run all self tests at init.

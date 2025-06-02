@@ -58,7 +58,7 @@ set(HW_INCLUDE_DIRS
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
     if ("${BOOTLOAD}" STREQUAL "ON")
-        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
     else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
     endif ()
