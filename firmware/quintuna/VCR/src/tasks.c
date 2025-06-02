@@ -1,13 +1,13 @@
 #include "tasks.h"
 #include "hw_hardFaultHandler.h"
-#include "io_canQueue.h"
 #include "io_log.h"
 #include "jobs.h"
 #include "hw_cans.h"
+#include "app_jsoncan.h"
 #include "main.h"
 #include "io_canQueues.h"
-#include "SEGGER_SYSVIEW.h"
-#include <cmsis_os2.h>
+#include <io_canTx.h>
+#include <io_canReroute.h>
 
 void tasks_preInit()
 {
@@ -54,5 +54,10 @@ _Noreturn void tasks_runcanRx()
     for (;;)
     {
         const CanMsg rx_msg = io_canQueue_popRx();
+        JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+
+        io_canReroute_can1(&json_can_msg);
+        io_canReroute_can2(&json_can_msg);
+        io_canReroute_can3(&json_can_msg);
     }
 }

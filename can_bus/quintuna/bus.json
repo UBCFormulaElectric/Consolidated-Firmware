@@ -7,6 +7,11 @@
     },
     {
       "forwarder": "VCR",
+      "bus1": "can2",
+      "bus2": "can3"
+    },
+    {
+      "forwarder": "VCR",
       "bus1": "can1",
       "bus2": "can3"
     },
@@ -20,11 +25,11 @@
     {
       "name": "can1",
       "nodes": [
+        "VCR",
         "VC",
         "BMS",
         "DAM",
-        "Debug",
-        "VCR"
+        "Debug"
       ],
       "bus_speed": 1000,
       "modes": [
@@ -37,12 +42,12 @@
     {
       "name": "can2",
       "nodes": [
+        "VCR",
         "VC",
         "FSM",
         "RSM",
         "CRIT",
-        "Debug",
-        "VCR"
+        "Debug"
       ],
       "bus_speed": 1000,
       "modes": [
@@ -53,7 +58,7 @@
     },
     {
       "name": "can3",
-      "nodes": ["VC", "INVFR","INVFL","INVRR", "INVRL", "EMeter", "VCR"],
+      "nodes": ["VCR","VC", "INVFR","INVFL","INVRR", "INVRL", "EMeter"],
       "bus_speed": 500,
       "modes": [
         "DEFAULT",
