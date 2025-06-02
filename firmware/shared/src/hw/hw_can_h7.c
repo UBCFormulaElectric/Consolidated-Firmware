@@ -169,27 +169,33 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
     }
 }
 
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
-static void handle_callback(FDCAN_HandleTypeDef *hfdcan)
+static void handleCallback(FDCAN_HandleTypeDef *hfdcan)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
     CanMsg           rx_msg;
     if (IS_EXIT_ERR(hw_fdcan_receive(handle, FDCAN_RX_FIFO0, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
+
+    if (handle->receive_callback == NULL)
+    {
+        LOG_ERROR("CAN has no callback configured!");
+        return;
+    }
+
     handle->receive_callback(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs); // TODO check if this is used / consistent
-    handle_callback(hfdcan);
+    handleCallback(hfdcan);
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    handle_callback(hfdcan);
+    handleCallback(hfdcan);
 }
 
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
