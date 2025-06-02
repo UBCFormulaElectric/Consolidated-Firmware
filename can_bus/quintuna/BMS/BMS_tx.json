@@ -150,7 +150,8 @@
       },
       "StopCharging": {
         "start_bit": 32,
-        "bits": 1
+        "bits": 1,
+        "start_value": 1
       }
     }
   },

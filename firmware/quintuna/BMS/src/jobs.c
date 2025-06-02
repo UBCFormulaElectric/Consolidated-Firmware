@@ -60,6 +60,9 @@ void jobs_init(void)
     app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(app_initState_get());
 
+    app_canTx_init();
+    app_canRx_init();
+
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);

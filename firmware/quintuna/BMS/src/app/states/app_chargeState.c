@@ -39,6 +39,7 @@ static void runOnEntry(void)
     // Setting these for run on entry right now, change later maybe.
     app_canTx_BMS_MaxChargingVoltage_set(INITIAL_CHARGING_VOLTAGE);
     app_canTx_BMS_MaxChargingCurrent_set(INITIAL_CHARGING_CURRENT);
+    app_canTx_BMS_StopCharging_set(false);
 }
 
 static void runOnTick1Hz(void) {}
@@ -95,6 +96,7 @@ static void runOnExit(void)
     app_canTx_BMS_MaxChargingVoltage_set(0);
     app_canRx_Debug_StartCharging_update(false);
     app_canTx_BMS_Charging_set(false);
+    app_canTx_BMS_StopCharging_set(true);
 }
 
 const State *app_chargeState_get(void)
