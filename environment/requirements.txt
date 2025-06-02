@@ -42,4 +42,4 @@ python-can
 matplotlib
 pyvisa
 
--e ../scripts/code_generation/
+-e ../scripts/code_generation
