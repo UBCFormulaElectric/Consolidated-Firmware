@@ -30,6 +30,7 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
+#include "stm32_config_stack.h"
     /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
 
@@ -42,7 +43,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern SMBUS_HandleTypeDef hsmbus1;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -70,6 +71,7 @@ extern "C"
 #define SWO_GPIO_Port GPIOB
 #define PCM_EN_Pin GPIO_PIN_5
 #define PCM_EN_GPIO_Port GPIOB
+#define PCM_EN_EXTI_IRQn EXTI9_5_IRQn
 #define VICOR_SMBUS_SCL_Pin GPIO_PIN_6
 #define VICOR_SMBUS_SCL_GPIO_Port GPIOB
 #define VICOR_SMBUS_SDA_Pin GPIO_PIN_7
