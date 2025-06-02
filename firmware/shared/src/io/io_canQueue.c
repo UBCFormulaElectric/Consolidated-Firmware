@@ -24,6 +24,7 @@ __weak void canRxQueueOverflowClearCallback(void) {}
 void io_canQueue_initRx(void)
 {
     // Initialize CAN queues.
+    // TODO : this may need to message Queue because we have multiple writer mutliple reader configuration
     rx_queue_id = xMessageBufferCreateStatic(RX_QUEUE_BYTES, rx_queue_buf, &rx_buffer_control_block);
     assert(rx_queue_id != NULL);
 
