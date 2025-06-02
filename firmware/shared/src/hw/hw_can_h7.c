@@ -1,3 +1,4 @@
+#include "app_utils.h"
 #include "hw_fdcan.h"
 #include <stm32h7xx_hal_fdcan.h>
 #undef NDEBUG // TODO remove this in favour of always_assert
@@ -15,12 +16,12 @@ void hw_can_init(CanHandle *can_handle)
     assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
-    filter.IdType           = FDCAN_STANDARD_ID; // 11 bit ID
+    filter.IdType           = FDCAN_EXTENDED_ID; // 11 bit ID
     filter.FilterIndex      = 0;
     filter.FilterType       = FDCAN_FILTER_MASK;
     filter.FilterConfig     = FDCAN_FILTER_TO_RXFIFO0;
-    filter.FilterID1        = 0;     // Standard CAN ID bits [10:0]
-    filter.FilterID2        = 0x7FF; // Mask bits for Standard CAN ID
+    filter.FilterID1        = 0x00000000; // Standard CAN ID bits [28:0]
+    filter.FilterID2        = 0x1FFFFFFF; // Mask bits for Extended CAN ID
     filter.IsCalibrationMsg = 0;
     filter.RxBufferIndex    = 0;
 
@@ -74,7 +75,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
-    tx_header.IdType              = FDCAN_STANDARD_ID;
+    tx_header.IdType              = (msg->std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
     tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
@@ -125,7 +126,7 @@ ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
 
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
-    tx_header.IdType              = msg->std_id >= 0x7FF ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
+    tx_header.IdType              = (msg->std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
     tx_header.DataLength          = dlc;
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;

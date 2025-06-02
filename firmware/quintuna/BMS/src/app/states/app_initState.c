@@ -1,8 +1,8 @@
 #include "io_irs.h"
 #include "io_faultLatch.h"
-#include "app_heartbeatMonitors.h"
 #include "app_tractiveSystem.h"
 #include "app_canRx.h"
+#include "states/app_allStates.h"
 #include "states/app_balancingState.h"
 #include "states/app_prechargeForDriveState.h"
 #include "states/app_prechargeForChargeState.h"
@@ -21,11 +21,15 @@ static void runOnEntry(void)
     io_irs_openPositive();
 }
 
+static void runOnTick1Hz(void)
+{
+    app_allStates_runOnTick1Hz();
+}
+
 static void runOnTick100Hz(void)
 {
     const bool air_negative_closed = io_irs_isNegativeClosed();
     const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
-    const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
 
     if (air_negative_closed && ts_discharged)
     {
@@ -55,6 +59,9 @@ static void runOnTick100Hz(void)
             app_stateMachine_setNextState(app_balancingState_get());
         }
     }
+
+    // Run last since this checks for faults which overrides any other state transitions.
+    app_allStates_runOnTick100Hz();
 }
 
 const State *app_initState_get(void)
@@ -62,7 +69,7 @@ const State *app_initState_get(void)
     static State init_state = {
         .name              = "INIT",
         .run_on_entry      = runOnEntry,
-        .run_on_tick_1Hz   = runOnEntry,
+        .run_on_tick_1Hz   = runOnTick1Hz,
         .run_on_tick_100Hz = runOnTick100Hz,
         .run_on_exit       = NULL,
     };

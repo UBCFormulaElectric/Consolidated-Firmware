@@ -85,8 +85,7 @@ _tx_signal_schema = Schema(
 
 _tx_msg_schema = Schema(
     {
-        "msg_id": And(int, lambda x: 0 <= x < 2**11),
-        # Standard CAN uses 11-bit identifiers TODO add support for extended CAN (i think all busses are extended, you can also add a discriminated union for that) - next pr perhaps because extended CAN is not just ID but also the data length
+        "msg_id": And(int, lambda x: 0 <= x < 2**29),
         "signals": {
             str: _tx_signal_schema,
         },

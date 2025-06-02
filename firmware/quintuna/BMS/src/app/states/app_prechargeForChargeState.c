@@ -1,6 +1,7 @@
 #include "states/app_prechargeForChargeState.h"
 #include <stddef.h>
 #include "io_irs.h"
+#include "states/app_allStates.h"
 #include "states/app_chargeState.h"
 #include "app_precharge.h"
 #include "app_canTx.h"
@@ -18,7 +19,10 @@ static void runOnEntry(void)
     app_precharge_restart();
 }
 
-static void runOnTick1Hz(void) {}
+static void runOnTick1Hz(void)
+{
+    app_allStates_runOnTick1Hz();
+}
 
 static void runOnTick100Hz(void)
 {
@@ -37,6 +41,9 @@ static void runOnTick100Hz(void)
     {
         app_stateMachine_setNextState(app_chargeState_get());
     }
+
+    // Run last since this checks for faults which overrides any other state transitions.
+    app_allStates_runOnTick100Hz();
 }
 
 static void runOnExit(void)

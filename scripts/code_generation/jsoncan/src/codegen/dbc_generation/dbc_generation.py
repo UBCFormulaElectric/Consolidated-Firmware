@@ -123,8 +123,15 @@ class DbcGenerator:
         """
         Format and return DBC message definition.
         """
+        # The 31st bit needs to be set to indicate this message has an extended
+        # ID, otherwise CANoe doesn't decode it properly.
+
+        id = msg.id
+        if msg.id >= 2**11:
+            id |= 2**31
+
         return DBC_MESSAGE_TEMPLATE.format(
-            id=msg.id, name=msg.name, num_bytes=msg.bytes(), tx_node=msg.tx_node_name
+            id=id, name=msg.name, num_bytes=msg.bytes(), tx_node=msg.tx_node_name
         )
 
     @staticmethod

@@ -3,6 +3,7 @@
 #include "app_timer.h"
 #include "io_irs.h"
 #include "app_canTx.h"
+#include "states/app_allStates.h"
 #include "states/app_initState.h"
 
 #define AIR_N_DEBOUNCE_PERIOD_MS (200)
@@ -15,7 +16,10 @@ static void driveStateRunOnEntry(void)
     app_canTx_BMS_State_set(BMS_DRIVE_STATE);
 }
 
-static void driveStateRunOnTick1Hz(void) {}
+static void driveStateRunOnTick1Hz(void)
+{
+    app_allStates_runOnTick1Hz();
+}
 
 static void driveStateRunOnTick100Hz(void)
 {
@@ -34,6 +38,9 @@ static void driveStateRunOnTick100Hz(void)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
+
+    // Run last since this checks for faults which overrides any other state transitions.
+    app_allStates_runOnTick100Hz();
 }
 
 static void driveStateRunOnExit(void)

@@ -124,7 +124,7 @@
     }
   },
   "ElconControls": {
-    "msg_id": 450,
+    "msg_id": 403105268,
     "cycle_time": 1000,
     "description": "Control parameters for Elcon charger communication",
     "signals": {
