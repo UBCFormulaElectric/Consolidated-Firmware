@@ -33,7 +33,7 @@ static float translateChargingParams(float charging_value)
     return charging_value_translated;
 }
 
-static void runOnEntry(void)
+static void chargeStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
     app_canTx_BMS_ChargerEnable_set(true);
@@ -50,12 +50,12 @@ static void runOnEntry(void)
     app_canTx_BMS_ChargingCurrent_set(batt_current);
 }
 
-static void runOnTick1Hz(void)
+static void chargeStateRunOnTick1Hz(void)
 {
     app_allStates_runOnTick1Hz();
 }
 
-static void runOnTick100Hz(void)
+static void chargeStateRunOnTick100Hz(void)
 {
     if (app_allStates_runOnTick100Hz())
     {
@@ -148,7 +148,7 @@ static void runOnTick100Hz(void)
     }
 }
 
-static void runOnExit(void)
+static void chargeStateRunOnExit(void)
 {
     globals->broadcast_charger_connected  = true;
     globals->charger_connected_counter    = 0;
@@ -164,10 +164,10 @@ const State *app_chargeState_get(void)
 {
     static State charge_state = {
         .name              = "CHARGE",
-        .run_on_entry      = runOnEntry,
-        .run_on_tick_1Hz   = runOnTick1Hz,
-        .run_on_tick_100Hz = runOnTick100Hz,
-        .run_on_exit       = runOnExit,
+        .run_on_entry      = chargeStateRunOnEntry,
+        .run_on_tick_1Hz   = chargeStateRunOnTick1Hz,
+        .run_on_tick_100Hz = chargeStateRunOnTick100Hz,
+        .run_on_exit       = chargeStateRunOnExit,
     };
 
     return &charge_state;

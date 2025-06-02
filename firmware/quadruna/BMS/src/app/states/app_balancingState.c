@@ -3,17 +3,17 @@
 #include "io_airs.h"
 #include "io_ltc6813.h"
 
-static void runOnEntry(void)
+static void balancingStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_BALANCING_STATE);
 }
 
-static void runOnTick1Hz(void)
+static void balancingStateRunOnTick1Hz(void)
 {
     app_allStates_runOnTick1Hz();
 }
 
-static void runOnTick100Hz(void)
+static void balancingStateRunOnTick100Hz(void)
 {
     if (app_allStates_runOnTick100Hz())
     {
@@ -26,7 +26,7 @@ static void runOnTick100Hz(void)
     }
 }
 
-static void runOnExit(void)
+static void balancingStateRunOnExit(void)
 {
     io_ltc6813_sendStopBalanceCommand(); // extra precaution
 }
@@ -35,10 +35,10 @@ const State *app_balancingState_get(void)
 {
     static State balancing_state = {
         .name              = "BALANCING",
-        .run_on_entry      = runOnEntry,
-        .run_on_tick_1Hz   = runOnTick1Hz,
-        .run_on_tick_100Hz = runOnTick100Hz,
-        .run_on_exit       = runOnExit,
+        .run_on_entry      = balancingStateRunOnEntry,
+        .run_on_tick_1Hz   = balancingStateRunOnTick1Hz,
+        .run_on_tick_100Hz = balancingStateRunOnTick100Hz,
+        .run_on_exit       = balancingStateRunOnExit,
     };
 
     return &balancing_state;
