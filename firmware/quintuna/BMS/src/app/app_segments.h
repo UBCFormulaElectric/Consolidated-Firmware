@@ -79,3 +79,5 @@ ExitCode app_segments_statusSelftest(void);
  * @note This takes about 1 second to run. Make sure to not do this unless you absolutely need to.
  */
 ExitCode app_segments_openWireCheck(void);
+
+bool app_segments_commError(void);

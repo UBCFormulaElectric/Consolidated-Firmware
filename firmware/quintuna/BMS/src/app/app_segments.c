@@ -22,6 +22,8 @@
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * 1E-4f)
 #define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
 
+static bool comm_error;
+
 typedef enum
 {
     THERMISTOR_MUX_0_7,
@@ -163,15 +165,25 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
  */
 static bool isConfigEqual(void)
 {
-    for (uint8_t try = 0; try < 3; try++)
+    for (uint8_t try = 0; try < 10; try++)
     {
         io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
+
+        bool all_segments_ok = true;
         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
         {
-            if (IS_EXIT_ERR(config_success_buf[seg]))
-            {
-                return false;
-            }
+            all_segments_ok &= IS_EXIT_OK(config_success_buf[seg]);
+        }
+
+        if (all_segments_ok)
+        {
+            break;
+        }
+        else if (try == 9)
+        {
+            // TODO this is bad
+            comm_error = true;
+            return false;
         }
     }
 
@@ -555,4 +567,9 @@ ExitCode app_segments_openWireCheck(void)
 #endif
     }
     return EXIT_CODE_OK;
+}
+
+bool app_segments_commError(void)
+{
+    return comm_error;
 }

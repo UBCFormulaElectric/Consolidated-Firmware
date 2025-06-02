@@ -90,8 +90,6 @@ static TimerChannel over_voltage_fault_timer;
 static TimerChannel under_temp_fault_timer;
 static TimerChannel over_temp_fault_timer;
 
-static uint32_t conceq_fails = 0;
-
 void app_accumulator_init(void)
 {
     // Voltage information
@@ -278,7 +276,7 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Fault_CellUndertemp_set(under_temp_fault);
     app_canAlerts_BMS_Fault_CellOvertemp_set(over_temp_fault);
 
-    const bool communication_fault = conceq_fails >= MAX_NUM_COMM_TRIES;
+    const bool communication_fault = app_segments_commError();
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
     return over_temp_fault || under_temp_fault || over_voltage_fault || under_voltage_fault || communication_fault;
