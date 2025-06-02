@@ -8,6 +8,7 @@
 #include "io_time.h"
 #include "app_canRx.h"
 #include <app_commitInfo.h>
+#include <io_canReroute.h>
 
 static void fd_can_tx(const JsonCanMsg *tx_msg)
 {
@@ -27,6 +28,25 @@ static void inv_can_tx(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&inv_can_tx_queue, &msg);
 }
 
+static void fd_can_tx_router(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&fd_can_tx_queue, &msg);
+}
+
+static void sx_can_tx_router(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&sx_can_tx_queue, &msg);
+}
+
+static void inv_can_tx_router(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&inv_can_tx_queue, &msg);
+}
+
+
 void jobs_init()
 {
     app_canTx_init();
@@ -40,6 +60,7 @@ void jobs_init()
     io_canQueue_initTx(&fd_can_tx_queue);
     io_canQueue_initTx(&sx_can_tx_queue);
     io_canQueue_initTx(&inv_can_tx_queue);
+    io_canReroute_init(fd_can_tx_router, sx_can_tx_router, inv_can_tx_router);
 
     app_canTx_VCR_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VCR_Clean_set(GIT_COMMIT_CLEAN);
