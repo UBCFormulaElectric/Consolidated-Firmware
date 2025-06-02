@@ -30,17 +30,17 @@ static void runOnTick100Hz(void)
     if (air_negative_closed && ts_discharged)
     {
         // TODO: Setup charger!
-        // const bool charger_connected         = app_canRx_BRUSA_IsConnected_get();
-        const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
-        // const bool external_charging_request = app_canRx_Debug_StartCharging_get();
-        // const bool clear_brusa_latch         = app_canRx_Debug_ClearChargerLatchedFault_get();
+        const bool charger_connected         = true; // app_canRx_BRUSA_IsConnected_get();
+        const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
+        const bool external_charging_request = app_canRx_Debug_StartCharging_get();
 
+        // const bool clear_brusa_latch         = app_canRx_Debug_ClearChargerLatchedFault_get();
         // app_canTx_BMS_ClearLatch_set(clear_brusa_latch);
 
-        const bool precharge_for_charging = false; // charger_connected && external_charging_request;
+        const bool precharge_for_charging = charger_connected && external_charging_request;
 
         // TODO: This should also read from the VC if this is allowed!
-        const bool precharge_for_driving = true; //! charger_connected && !cell_balancing_enabled && !missing_hb;
+        const bool precharge_for_driving = false; //! charger_connected && !cell_balancing_enabled && !missing_hb;
 
         if (precharge_for_charging)
         {

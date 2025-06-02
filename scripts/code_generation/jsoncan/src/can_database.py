@@ -113,6 +113,7 @@ class CanSignal:
     signed: bool  # Whether or not signal is represented as signed or unsigned
     description: str = "N/A"  # Description of signal
     message: Optional[CanMessage] = None  # Message this signal belongs to
+    big_endian: bool = False
 
     def represent_as_integer(self):
         """
@@ -410,6 +411,7 @@ class CanDatabase:
             signals.append(signal_data)
 
         return signals
+
 
 @dataclass()
 class BusForwarder:

@@ -132,6 +132,7 @@
         "max": 10000,
         "scale": 0.1,
         "offset": 0,
+        "big_endian": true,
         "unit": "V"
       },
       "MaxChargingCurrent": {
@@ -141,15 +142,12 @@
         "max": 1000,
         "scale": 0.1,
         "offset": 0,
+        "big_endian": true,
         "unit": "A"
       },
       "StopCharging": {
         "start_bit": 32,
         "bits": 1
-      },
-      "Reserved": {
-        "start_bit": 33,
-        "bits": 31
       }
     }
   },

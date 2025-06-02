@@ -147,7 +147,7 @@ class DbcGenerator:
             max_val=signal.max_val,
             unit=signal.unit,
             rx_node_names=",".join(rx_nodes),
-            endianness=f"@1",  # TODO: Big endianness
+            endianness="@0" if signal.big_endian else "@1",
             signed="-" if signal.signed else "+",
         )
 
