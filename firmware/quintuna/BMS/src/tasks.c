@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "hw_bootup.h"
+#include "io_ltc6813.h"
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -32,7 +33,7 @@ void tasks_runChimera(void)
 void tasks_preInit(void)
 {
     hw_hardFaultHandler_init();
-    hw_bootup_enableInterruptsForApp();
+    // hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)

@@ -137,17 +137,24 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
  */
 static bool isConfigEqual(void)
 {
-    for (uint8_t try = 0; try < 3; try++)
+    for (uint32_t try = 0; try < 0xFFFFFFFF; try++)
     {
         io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
-        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        {
-            if (IS_EXIT_ERR(config_success_buf[seg]))
-            {
-                return false;
-            }
-        }
+        // for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        // {
+        //     if (IS_EXIT_ERR(config_success_buf[seg]))
+        //     {
+        //         return false;
+        //     }
+        // }
+
+        // if (config_success_buf[0] == EXIT_CODE_OK)
+        // {
+        //     BREAK_IF_DEBUGGER_CONNECTED();
+        // }
     }
+
+    return false;
 
     bool seg_config_same = true;
     for (uint8_t seg = 0; seg_config_same && seg < NUM_SEGMENTS; seg++)
@@ -201,6 +208,9 @@ ExitCode app_segments_configSync(void)
         {
             return EXIT_CODE_OK;
         }
+
+        LOG_IF_ERR(io_ltc6813_writeConfigurationRegisters(segment_config));
+        return EXIT_CODE_OK;
 
         if (comms_ok)
         {
