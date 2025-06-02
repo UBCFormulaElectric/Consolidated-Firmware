@@ -1,7 +1,7 @@
 {
   "forwarders": [
     {
-      "forwarder": "VC",
+      "forwarder": "VCR",
       "bus1": "can1",
       "bus2": "can2"
     },
