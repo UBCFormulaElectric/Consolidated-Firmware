@@ -1,6 +1,8 @@
 #pragma once
 #include "io_ltc6813.h"
 
+#define NUM_CYCLES_TO_SETTLE (30U)
+
 // =========== CONFIGS ===========
 
 /**
