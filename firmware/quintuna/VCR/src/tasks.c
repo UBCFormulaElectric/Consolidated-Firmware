@@ -53,7 +53,7 @@ _Noreturn void tasks_runcanRx()
 {
     for (;;)
     {
-        const CanMsg rx_msg = io_canQueue_popRx();
+        const CanMsg rx_msg       = io_canQueue_popRx();
         JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
 
         io_canReroute_can1(&json_can_msg);
