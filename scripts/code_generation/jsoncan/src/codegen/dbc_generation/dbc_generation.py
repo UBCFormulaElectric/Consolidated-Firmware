@@ -144,9 +144,19 @@ class DbcGenerator:
             if DBC_DEFAULT_RECEIVER not in rx_nodes
             else rx_nodes
         )
+
+        start_bit = signal.start_bit
+        if signal.big_endian:
+            # If big endian then the start bit is the most significant bit,
+            # which is the most significant bit taken up in the least
+            # significant byte (because big endian). Wow this is dumb!
+            start_bit = min(
+                (signal.start_bit // 8 * 8) + 7, signal.start_bit + signal.bits
+            )
+
         return DBC_SIGNAL_TEMPLATE.format(
             name=signal.name,
-            bit_start=signal.start_bit,
+            bit_start=start_bit,
             num_bits=signal.bits,
             scale=signal.scale,
             offset=signal.offset,
