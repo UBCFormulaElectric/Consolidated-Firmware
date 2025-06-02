@@ -238,7 +238,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
             <XAxis
               dataKey="time"
               tickFormatter={(t) => new Date(t).toLocaleTimeString()}
-              interval={Math.ceil(chartData.length / 10)}
+              interval={10}
             />
             <YAxis domain={[0, "auto"]} />
             <Tooltip
