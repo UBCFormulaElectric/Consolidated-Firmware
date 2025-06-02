@@ -126,11 +126,11 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   return (
     <div className="mb-6 p-4 inline-block">
       {isPaused && (
-        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10">
+        <div className="top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10 block">
           PAUSED
         </div>
       )}
-      <div className=" sticky left-0 block w-svw">
+      <div className=" sticky left-0 block w-svw animate-none">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="font-semibold">Enumeration: {signalName}</h3>
           <button
@@ -163,7 +163,7 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
         </div>
       </div>
 
-      <div className="relative inline-block">
+      <div className="relative inline-block w-full">
         <div className="h-6 flex flex-row flex-nowrap">
           {bars.map((bar, idx) => {
             const label = mapEnumValue(signalName, bar.state) ?? bar.state;
