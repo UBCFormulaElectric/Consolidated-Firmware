@@ -46,7 +46,6 @@ static void inv_can_tx_router(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&inv_can_tx_queue, &msg);
 }
 
-
 void jobs_init()
 {
     app_canTx_init();
