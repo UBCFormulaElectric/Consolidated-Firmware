@@ -129,7 +129,7 @@ void io_ltc6813_readRegGroup(
             continue;
         }
 
-        memcpy(regs, seg_reg_group->regs, REGS_PER_GROUP * sizeof(uint16_t));
+        memcpy(regs[seg_idx], seg_reg_group->regs, REGS_PER_GROUP * sizeof(uint16_t));
         comm_success[seg_idx] = EXIT_CODE_OK;
     }
 }

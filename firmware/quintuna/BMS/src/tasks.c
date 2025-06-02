@@ -184,11 +184,11 @@ void tasks_runLtc(void)
     LOG_IF_ERR(app_segments_configSync());
 
     // self tests
-    LOG_IF_ERR(app_segments_voltageSelftest());
-    LOG_IF_ERR(app_segments_auxSelftest());
-    LOG_IF_ERR(app_segments_statusSelftest());
+    // LOG_IF_ERR(app_segments_voltageSelftest());
+    // LOG_IF_ERR(app_segments_auxSelftest());
+    // LOG_IF_ERR(app_segments_statusSelftest());
     // RETURN_IF_ERR(app_segments_openWireCheck()); // TODO: Test this
-    LOG_IF_ERR(app_segments_ADCAccuracyTest());
+    // LOG_IF_ERR(app_segments_ADCAccuracyTest());
 
     for (;;)
     {

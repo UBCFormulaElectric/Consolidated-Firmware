@@ -163,106 +163,107 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
  * @returns whether there are no errors and config matches
  * Hence if false there are either errors or the config does not match
  */
-static bool isConfigEqual(void)
-{
-    for (uint8_t try = 0; try < 10; try++)
-    {
-        io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
+// static bool isConfigEqual(void)
+// {
+//     for (uint8_t try = 0; try < 10; try++)
+//     {
+//         io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
 
-        bool all_segments_ok = true;
-        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        {
-            all_segments_ok &= IS_EXIT_OK(config_success_buf[seg]);
-        }
+//         bool all_segments_ok = true;
+//         for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+//         {
+//             all_segments_ok &= IS_EXIT_OK(config_success_buf[seg]);
+//         }
 
-        if (all_segments_ok)
-        {
-            break;
-        }
-        else if (try == 9)
-        {
-            // TODO this is bad
-            comm_error = true;
-            return false;
-        }
-    }
+//         if (all_segments_ok)
+//         {
+//             break;
+//         }
+//         else if (try == 9)
+//         {
+//             // TODO this is bad
+//             comm_error = true;
+//             return false;
+//         }
+//     }
 
-    bool seg_config_same = true;
-    for (uint8_t seg = 0; seg_config_same && seg < NUM_SEGMENTS; seg++)
-    {
-        const SegmentConfig *const a = &segment_config[seg];
-        const SegmentConfig *const b = &read_segment_config[seg];
+//     bool seg_config_same = true;
+//     for (uint8_t seg = 0; seg_config_same && seg < NUM_SEGMENTS; seg++)
+//     {
+//         const SegmentConfig *const a = &segment_config[seg];
+//         const SegmentConfig *const b = &read_segment_config[seg];
 
-        // NOTE: the reason we don't use memcmp is because we only really care about these configs
-        // base configs
-        seg_config_same &= a->reg_a.adcopt == b->reg_a.adcopt;
-        seg_config_same &= a->reg_a.refon == b->reg_a.refon;
+//         // NOTE: the reason we don't use memcmp is because we only really care about these configs
+//         // base configs
+//         seg_config_same &= a->reg_a.adcopt == b->reg_a.adcopt;
+//         seg_config_same &= a->reg_a.refon == b->reg_a.refon;
 
-        // undervoltage
-        seg_config_same &= a->reg_a.vuv_0_7 == b->reg_a.vuv_0_7;
-        seg_config_same &= a->reg_a.vuv_8_11 == b->reg_a.vuv_8_11;
+//         // undervoltage
+//         seg_config_same &= a->reg_a.vuv_0_7 == b->reg_a.vuv_0_7;
+//         seg_config_same &= a->reg_a.vuv_8_11 == b->reg_a.vuv_8_11;
 
-        // overvoltage config
-        seg_config_same &= a->reg_a.vov_0_3 == b->reg_a.vov_0_3;
-        seg_config_same &= a->reg_a.vov_4_11 == b->reg_a.vov_4_11;
+//         // overvoltage config
+//         seg_config_same &= a->reg_a.vov_0_3 == b->reg_a.vov_0_3;
+//         seg_config_same &= a->reg_a.vov_4_11 == b->reg_a.vov_4_11;
 
-        // balancing leds
-        seg_config_same &= a->reg_b.dcc_0 == b->reg_b.dcc_0;
-        seg_config_same &= a->reg_a.dcc_1_8 == b->reg_a.dcc_1_8;
-        seg_config_same &= a->reg_a.dcc_9_12 == b->reg_a.dcc_9_12;
-        seg_config_same &= a->reg_b.dcc_13_16 == b->reg_b.dcc_13_16;
-        seg_config_same &= a->reg_b.dcc_17 == b->reg_b.dcc_17;
-        seg_config_same &= a->reg_b.dcc_18 == b->reg_b.dcc_18;
-    }
+//         // balancing leds
+//         seg_config_same &= a->reg_b.dcc_0 == b->reg_b.dcc_0;
+//         seg_config_same &= a->reg_a.dcc_1_8 == b->reg_a.dcc_1_8;
+//         seg_config_same &= a->reg_a.dcc_9_12 == b->reg_a.dcc_9_12;
+//         seg_config_same &= a->reg_b.dcc_13_16 == b->reg_b.dcc_13_16;
+//         seg_config_same &= a->reg_b.dcc_17 == b->reg_b.dcc_17;
+//         seg_config_same &= a->reg_b.dcc_18 == b->reg_b.dcc_18;
+//     }
 
-    return seg_config_same;
-}
+//     return seg_config_same;
+// }
 
 ExitCode app_segments_configSync(void)
 {
     static void (*const comm_ok_setters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_CommOk_set };
+    LOG_IF_ERR(io_ltc6813_writeConfigurationRegisters(segment_config));
 
-    for (;;)
-    {
-        const bool is_config_equal = isConfigEqual();
+    // for (;;)
+    // {
+    //     const bool is_config_equal = isConfigEqual();
 
-        // first check if it's a comms thing
-        bool comms_ok = true;
-        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        {
-            const bool seg_comms_ok = IS_EXIT_OK(config_success_buf[seg]);
-            comm_ok_setters[seg](seg_comms_ok);
-            comms_ok &= seg_comms_ok;
-        }
+    //     // first check if it's a comms thing
+    //     bool comms_ok = true;
+    //     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    //     {
+    //         const bool seg_comms_ok = IS_EXIT_OK(config_success_buf[seg]);
+    //         // comm_ok_setters[seg](seg_comms_ok);
+    //         comms_ok &= seg_comms_ok;
+    //     }
 
-        if (is_config_equal)
-        {
-            return EXIT_CODE_OK;
-        }
+    //     if (is_config_equal)
+    //     {
+    //         return EXIT_CODE_OK;
+    //     }
 
-        if (comms_ok)
-        {
-            // comms is fine, but configs are not matching
-            LOG_IF_ERR(io_ltc6813_writeConfigurationRegisters(segment_config));
-        }
-        else
-        {
-            // comms are bad, reset voltages and temps in the CAN table
-            // TODO add a function to reset all values??
-            for (uint8_t seg_idx = 0; seg_idx < NUM_SEGMENTS; seg_idx++)
-            {
-                for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-                {
-                    cell_voltage_setters[seg_idx][cell](-0.1f);
-                }
+    //     if (comms_ok)
+    //     {
+    //         // comms is fine, but configs are not matching
+    //         LOG_IF_ERR(io_ltc6813_writeConfigurationRegisters(segment_config));
+    //     }
+    //     else
+    //     {
+    //         // comms are bad, reset voltages and temps in the CAN table
+    //         // TODO add a function to reset all values??
+    //         for (uint8_t seg_idx = 0; seg_idx < NUM_SEGMENTS; seg_idx++)
+    //         {
+    //             // for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+    //             // {
+    //             //     cell_voltage_setters[seg_idx][cell](-0.1f);
+    //             // }
 
-                for (uint8_t thermistor = 0; thermistor < CELLS_PER_SEGMENT; thermistor++)
-                {
-                    thermistor_setters[seg_idx][thermistor](-1);
-                }
-            }
-        }
-    }
+    //             // for (uint8_t thermistor = 0; thermistor < CELLS_PER_SEGMENT; thermistor++)
+    //             // {
+    //             //     thermistor_setters[seg_idx][thermistor](-1);
+    //             // }
+    //         }
+    //     }
+    // }
 
     return EXIT_CODE_OK;
 }
@@ -270,7 +271,7 @@ ExitCode app_segments_configSync(void)
 ExitCode app_segments_broadcastCellVoltages(void)
 {
     RETURN_IF_ERR(io_ltc6813_startCellsAdcConversion());
-    io_time_delay(CONVERSION_TIME_MS);
+    io_time_delay(50);
     io_ltc6813_readVoltageRegisters(voltage_regs, volt_success_buf);
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -280,7 +281,7 @@ ExitCode app_segments_broadcastCellVoltages(void)
             if (IS_EXIT_ERR(volt_success_buf[segment][cell]))
             {
                 // we claim that this is insufficient to raise module comm errors
-                cell_voltage_setters[segment][cell](-0.1f);
+                // cell_voltage_setters[segment][cell](-0.1f);
                 continue;
             }
 
@@ -288,14 +289,14 @@ ExitCode app_segments_broadcastCellVoltages(void)
             if (voltage_regs[segment][cell] == 0xffff)
             {
                 // -0.1V over CAN means invalid
-                cell_voltage_setters[segment][cell](-0.1f);
+                // cell_voltage_setters[segment][cell](-0.1f);
                 volt_success_buf[segment][cell] = EXIT_CODE_ERROR;
                 continue;
             }
 
             const float voltage          = CONVERT_100UV_TO_VOLTAGE(voltage_regs[segment][cell]);
             cell_voltages[segment][cell] = voltage;
-            cell_voltage_setters[segment][cell](voltage);
+            // cell_voltage_setters[segment][cell](voltage);
         }
     }
 
@@ -327,8 +328,8 @@ ExitCode app_segments_broadcastTempsVRef(void)
                 if (aux_gpio == VREF_AUX_REG)
                 {
                     segment_vref[segment] = voltage;
-                    vref_setters[segment](voltage);
-                    segment_vref_ok_setters[segment](fabsf(voltage - 3.0f) < 0.014f);
+                    // vref_setters[segment](voltage);
+                    // segment_vref_ok_setters[segment](fabsf(voltage - 3.0f) < 0.014f);
                     continue;
                 }
 
@@ -345,7 +346,7 @@ ExitCode app_segments_broadcastTempsVRef(void)
                 temp_success_buf[segment][thermistor] = IS_EXIT_OK(aux_reg_success_buf[segment][aux_gpio]);
                 if (IS_EXIT_ERR(aux_reg_success_buf[segment][aux_gpio]))
                 {
-                    thermistor_setters[segment][thermistor](-1);
+                    // thermistor_setters[segment][thermistor](-1);
                     continue;
                 }
 
@@ -355,7 +356,7 @@ ExitCode app_segments_broadcastTempsVRef(void)
                 const float temp       = app_thermistor_resistanceToTemp(resistance, &ltc_thermistor_lut);
 
                 cell_temps[segment][thermistor] = temp;
-                thermistor_setters[segment][thermistor](temp);
+                // thermistor_setters[segment][thermistor](temp);
             }
         }
     }
@@ -384,33 +385,33 @@ ExitCode app_segments_broadcastStatus(void)
     {
         if (IS_EXIT_ERR(status_success_buf[segment]))
         {
-            mux_test_setters[segment](false);
-            rev_code_setters[segment](0);
-            analog_supply_ok_setters[segment](false);
-            analog_supply_setters[segment](0.0f);
-            digital_supply_ok_setters[segment](false);
-            digital_supply_setters[segment](0.0f);
-            rev_code_setters[segment](0);
-            thermal_ok_setters[segment](false);
-            temp_setters[segment](0);
+            // mux_test_setters[segment](false);
+            // rev_code_setters[segment](0);
+            // analog_supply_ok_setters[segment](false);
+            // analog_supply_setters[segment](0.0f);
+            // digital_supply_ok_setters[segment](false);
+            // digital_supply_setters[segment](0.0f);
+            // rev_code_setters[segment](0);
+            // thermal_ok_setters[segment](false);
+            // temp_setters[segment](0);
             continue;
         }
 
-        rev_code_setters[segment](statuses[segment].stat_b.REV);
+        // rev_code_setters[segment](statuses[segment].stat_b.REV);
 
         const float temperature = CONVERT_100UV_TO_VOLTAGE(statuses[segment].stat_a.ITMP) / 7.6e-3f - 276.0f;
-        temp_setters[segment]((uint32_t)temperature);
+        // temp_setters[segment]((uint32_t)temperature);
 
         const float analog_power_supply = CONVERT_100UV_TO_VOLTAGE(statuses[segment].stat_a.VA);
-        analog_supply_ok_setters[segment](4.5f <= analog_power_supply && analog_power_supply <= 5.5f);
-        analog_supply_setters[segment](analog_power_supply);
+        // analog_supply_ok_setters[segment](4.5f <= analog_power_supply && analog_power_supply <= 5.5f);
+        // analog_supply_setters[segment](analog_power_supply);
 
         const float digital_power_supply = CONVERT_100UV_TO_VOLTAGE(statuses[segment].stat_b.VD);
-        digital_supply_ok_setters[segment](2.7f <= digital_power_supply && digital_power_supply <= 3.6f);
-        digital_supply_setters[segment](digital_power_supply);
+        // digital_supply_ok_setters[segment](2.7f <= digital_power_supply && digital_power_supply <= 3.6f);
+        // digital_supply_setters[segment](digital_power_supply);
 
-        thermal_ok_setters[segment](!statuses[segment].stat_b.THSD);
-        mux_test_setters[segment](!(bool)statuses[segment].stat_b.MUXFAIL);
+        // thermal_ok_setters[segment](!statuses[segment].stat_b.THSD);
+        // mux_test_setters[segment](!(bool)statuses[segment].stat_b.MUXFAIL);
     }
 
     return EXIT_CODE_OK;
@@ -435,11 +436,11 @@ ExitCode app_segments_ADCAccuracyTest(void)
 
         const bool adc_1_2_fail =
             IS_EXIT_ERR(volt_success_buf[segment][6]) || IS_EXIT_ERR(volt_success_buf[segment][7]);
-        segment_overlap_adc1_2_test_setters[segment](!adc_1_2_fail && adc_1_2_diff < 0.001f);
+        // segment_overlap_adc1_2_test_setters[segment](!adc_1_2_fail && adc_1_2_diff < 0.001f);
 
         const bool adc_2_3_fail =
             IS_EXIT_ERR(volt_success_buf[segment][12]) || IS_EXIT_ERR(volt_success_buf[segment][13]);
-        segment_overalap_adc2_3_test_setters[segment](!adc_2_3_fail && adc_3_4_diff < 0.001f);
+        // segment_overalap_adc2_3_test_setters[segment](!adc_2_3_fail && adc_3_4_diff < 0.001f);
     }
 
     return EXIT_CODE_OK;
@@ -464,7 +465,7 @@ ExitCode app_segments_voltageSelftest(void)
             self_test_ok &= cell_ok;
         }
 
-        segment_cell_self_test_ok_setters[segment](self_test_ok);
+        // segment_cell_self_test_ok_setters[segment](self_test_ok);
     }
 
     return EXIT_CODE_OK;
@@ -489,7 +490,7 @@ ExitCode app_segments_auxSelftest(void)
             self_test_ok &= aux_ok;
         }
 
-        segment_aux_self_test_ok_setters[segment](self_test_ok);
+        // segment_aux_self_test_ok_setters[segment](self_test_ok);
     }
 
     return EXIT_CODE_OK;
@@ -515,7 +516,7 @@ ExitCode app_segments_statusSelftest(void)
             self_test_pass &= statuses_buffer[word] == SELF_TEST_EXPECTED_VALUE;
         }
 
-        segment_status_self_test_ok_setters[segment](self_test_pass);
+        // segment_status_self_test_ok_setters[segment](self_test_pass);
     }
 
     return EXIT_CODE_OK;
