@@ -102,8 +102,9 @@ CanMsg io_canQueue_popRx(void)
 {
     assert(rx_init_complete);
 
-    CanMsg msg;
-    // Pop a message off the RX queue.
-    assert(osMessageQueueGet(rx_queue_id, &msg, 0, portMAX_DELAY) == osOK);
+    CanMsg           msg;
+    const osStatus_t s = osMessageQueueGet(rx_queue_id, &msg, NULL, osWaitForever);
+    assert(s == osOK);
+
     return msg;
 }

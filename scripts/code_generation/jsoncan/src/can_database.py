@@ -113,7 +113,7 @@ class CanSignal:
     signed: bool  # Whether or not signal is represented as signed or unsigned
     description: str = "N/A"  # Description of signal
     message: Optional[CanMessage] = None  # Message this signal belongs to
-    big_endian: bool = False
+    big_endian: bool = False  # TODO: Add tests for big endianness
 
     def represent_as_integer(self):
         """
