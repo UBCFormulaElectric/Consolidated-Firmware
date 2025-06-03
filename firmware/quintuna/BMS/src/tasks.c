@@ -198,7 +198,6 @@ void tasks_runLtcVoltages(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
-        LOG_INFO("LTC voltage ms remaining: %d", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 }
@@ -224,7 +223,6 @@ void tasks_runLtcTemps(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
-        LOG_INFO("LTC temp ms remaining: %d", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 }
