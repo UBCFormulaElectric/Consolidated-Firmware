@@ -22,6 +22,19 @@
       }
     }
   },
+  "CommitInfo": {
+    "msg_id": 909,
+    "cycle_time": 100,
+    "description": "CRIT Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
   "Switches": {
     "msg_id": 910,
     "cycle_time": 100,
@@ -67,19 +80,6 @@
       },
       "WatchdogTimeoutTaskName": {
         "enum": "RtosTaskName"
-      }
-    }
-  },
-  "CommitInfo": {
-    "msg_id": 913,
-    "cycle_time": 100,
-    "description": "CRIT Current Running Git Commit Info",
-    "signals": {
-      "Hash": {
-        "bits": 32
-      },
-      "Clean": {
-        "bits": 1
       }
     }
   },

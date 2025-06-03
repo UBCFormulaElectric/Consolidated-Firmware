@@ -9,19 +9,6 @@
       }
     }
   },
-  "CommitInfo": {
-    "msg_id": 607,
-    "cycle_time": 1000,
-    "description": "FSM Current Running Git Commit Info",
-    "signals": {
-      "Hash": {
-        "bits": 32
-      },
-      "Clean": {
-        "bits": 1
-      }
-    }
-  },
   "Debug": {
     "msg_id": 608,
     "cycle_time": 1000,
@@ -32,6 +19,19 @@
       },
       "StackOverflowTask": {
         "bits": 16
+      }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 609,
+    "cycle_time": 1000,
+    "description": "FSM Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
       }
     }
   },
