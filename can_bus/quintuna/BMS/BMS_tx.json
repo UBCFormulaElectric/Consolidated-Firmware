@@ -105,7 +105,7 @@
     }
   },
   "ElconControls": {
-    "msg_id": 450,
+    "msg_id": 403105268,
     "cycle_time": 1000,
     "description": "Control parameters for Elcon charger communication",
     "signals": {
@@ -116,7 +116,8 @@
         "max": 10000,
         "scale": 0.1,
         "offset": 0,
-        "unit": "V"
+        "unit": "V",
+        "big_endian": true
       },
       "MaxChargingCurrent": {
         "start_bit": 16,
@@ -125,15 +126,13 @@
         "max": 1000,
         "scale": 0.1,
         "offset": 0,
-        "unit": "A"
+        "unit": "A",
+        "big_endian": true
       },
       "StopCharging": {
         "start_bit": 32,
-        "bits": 1
-      },
-      "Reserved": {
-        "start_bit": 33,
-        "bits": 31
+        "bits": 1,
+        "start_value": 1
       }
     }
   },
