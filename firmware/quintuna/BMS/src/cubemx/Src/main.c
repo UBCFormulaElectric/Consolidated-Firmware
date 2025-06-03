@@ -1273,7 +1273,6 @@ void RunTaskLtcTemps(void *argument)
 void RunTaskLtcDiag(void *argument)
 {
     /* USER CODE BEGIN RunTaskLtcDiag */
-    /* Infinite loop */
     tasks_runLtcDiagnostics();
     /* USER CODE END RunTaskLtcDiag */
 }
