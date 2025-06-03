@@ -3,6 +3,7 @@
 #include "app_thermistors.h"
 
 #include "app_utils.h"
+#include "io_log.h"
 #include "io_ltc6813.h"
 #include "io_time.h"
 
@@ -12,8 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: Take a closer look at this
+// TODO: Take a closer look at these guys
 #define CONVERSION_TIME_MS (10)
+#define OWC_CONVERSION_TIME_MS (201)
 
 #define VUV (0x619U) // 2.5V Under-voltage threshold = (VUV + 1) * 16 * 100uV
 #define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
@@ -22,6 +24,8 @@
 
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * 1E-4f)
 #define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
+
+#define CELL_TAPS_PER_SEGMENT (CELLS_PER_SEGMENT + 1)
 
 typedef enum
 {
@@ -80,6 +84,8 @@ static uint16_t owc_pucv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static ExitCode owc_pucv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static uint16_t owc_pdcv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static ExitCode owc_pdcv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+static bool     owc_results[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
+static bool     owc_results_success[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
 
 static void writeThermistorMux(ThermistorMux mux)
 {
@@ -319,23 +325,18 @@ ExitCode app_segments_runStatusSelfTest(void)
 
 ExitCode app_segments_runOpenWireCheck(void)
 {
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
-    // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_UP));
-    // io_time_delay(201);
-    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
-    io_time_delay(201);
+    RETURN_IF_ERR(io_ltc6813_owcPull(PULL_UP));
+    io_time_delay(OWC_CONVERSION_TIME_MS);
+    RETURN_IF_ERR(io_ltc6813_owcPull(PULL_UP));
+    io_time_delay(OWC_CONVERSION_TIME_MS);
     io_ltc6813_readVoltageRegisters(owc_pucv_regs, owc_pucv_success);
 
-    // reset back to normal
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
-    // io_time_delay(201);
-    ASSERT_EXIT_OK(io_ltc6813_owcPull(PULL_DOWN));
-    // io_time_delay(201);
-    // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
-    io_time_delay(201);
-    io_ltc6813_readVoltageRegisters(owc_pdcv_regs, owc_pdcv_success);
+    RETURN_IF_ERR(io_ltc6813_owcPull(PULL_DOWN));
+    io_time_delay(OWC_CONVERSION_TIME_MS);
+    RETURN_IF_ERR(io_ltc6813_owcPull(PULL_DOWN));
+    io_time_delay(OWC_CONVERSION_TIME_MS);
 
+    io_ltc6813_readVoltageRegisters(owc_pdcv_regs, owc_pdcv_success);
     return EXIT_CODE_OK;
 }
 
@@ -392,7 +393,7 @@ void app_segments_broadcastTempsVRef(void)
                     continue;
                 }
 
-                if (IS_EXIT_ERR(aux_regs_success[segment][aux_gpio]))
+                if (IS_EXIT_ERR(aux_regs_success[mux][segment][aux_gpio]))
                 {
                     continue;
                 }
@@ -546,25 +547,44 @@ void app_segments_broadcastStatusSelfTest(void)
 
 void app_segments_broadcastOpenWireCheck(void)
 {
-    static void (*const cellOWCSetters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(bool) = {
-        { app_canTx_BMS_Seg0_Cell0_OWC_OK_set, app_canTx_BMS_Seg0_Cell1_OWC_OK_set, app_canTx_BMS_Seg0_Cell2_OWC_OK_set,
-          app_canTx_BMS_Seg0_Cell3_OWC_OK_set, app_canTx_BMS_Seg0_Cell4_OWC_OK_set, app_canTx_BMS_Seg0_Cell5_OWC_OK_set,
-          app_canTx_BMS_Seg0_Cell6_OWC_OK_set, app_canTx_BMS_Seg0_Cell7_OWC_OK_set, app_canTx_BMS_Seg0_Cell8_OWC_OK_set,
-          app_canTx_BMS_Seg0_Cell9_OWC_OK_set, app_canTx_BMS_Seg0_Cell10_OWC_OK_set,
-          app_canTx_BMS_Seg0_Cell11_OWC_OK_set, app_canTx_BMS_Seg0_Cell12_OWC_OK_set,
-          app_canTx_BMS_Seg0_Cell13_OWC_OK_set }
+    static void (*const cell_owc_setters[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT])(bool) = {
+        { app_canTx_BMS_Seg0_C0_OwcOk_set, app_canTx_BMS_Seg0_C1_OwcOk_set, app_canTx_BMS_Seg0_C2_OwcOk_set,
+          app_canTx_BMS_Seg0_C3_OwcOk_set, app_canTx_BMS_Seg0_C4_OwcOk_set, app_canTx_BMS_Seg0_C5_OwcOk_set,
+          app_canTx_BMS_Seg0_C6_OwcOk_set, app_canTx_BMS_Seg0_C7_OwcOk_set, app_canTx_BMS_Seg0_C8_OwcOk_set,
+          app_canTx_BMS_Seg0_C9_OwcOk_set, app_canTx_BMS_Seg0_C10_OwcOk_set, app_canTx_BMS_Seg0_C11_OwcOk_set,
+          app_canTx_BMS_Seg0_C12_OwcOk_set, app_canTx_BMS_Seg0_C13_OwcOk_set, app_canTx_BMS_Seg0_C14_OwcOk_set }
     };
+
+    // See "Open Wire Check (ADOW Command)" in datasheet for this works.
+    // Known limitation: If >=2x adjacent cells are open wire, it only reports the lowest one.
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
-        cellOWCSetters[segment][0](owc_pucv_success[segment][0] && owc_pucv_regs[segment][0] != 0);
+        const bool owc_valid_first      = IS_EXIT_OK(owc_pucv_success[segment][0]);
+        const bool owc_passing_first    = owc_valid_first && owc_pucv_regs[segment][0] != 0;
+        owc_results_success[segment][0] = owc_valid_first;
+        owc_results[segment][0]         = owc_passing_first;
+        cell_owc_setters[segment][0](owc_passing_first);
 
-        for (uint8_t cell = 1; cell < CELLS_PER_SEGMENT; cell++)
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT - 1; cell++)
         {
-            const bool owc_passing =
-                owc_pucv_success[segment][cell] && owc_pdcv_success[segment][cell] &&
-                owc_pdcv_regs[segment][cell] - owc_pucv_regs[segment][cell] <= CONVERT_VOLTAGE_TO_100UV(0.4f);
-            cellOWCSetters[segment][cell](owc_passing);
+            const bool owc_valid =
+                IS_EXIT_OK(owc_pucv_success[segment][cell]) && IS_EXIT_OK(owc_pdcv_success[segment][cell]);
+            const bool owc_passing = owc_valid && owc_pdcv_regs[segment][cell] - owc_pucv_regs[segment][cell] <=
+                                                      CONVERT_VOLTAGE_TO_100UV(0.4f);
+
+            owc_results_success[segment][cell + 1] = owc_valid;
+            owc_results[segment][cell + 1]         = owc_passing;
+            cell_owc_setters[segment][cell + 1](owc_passing);
         }
+
+        // Treat our last cell as described for Cell 18 in the datasheet. Datasheet doesn't really make it clear that
+        // this what you should do when using <18 cells, but this is the only way I could get it to work (and I think
+        // makes sense since there's no higher cell to pull it up to?).
+        const bool owc_valid_last   = IS_EXIT_OK(owc_pdcv_success[segment][CELLS_PER_SEGMENT - 1]);
+        const bool owc_passing_last = owc_valid_last && owc_pdcv_regs[segment][CELLS_PER_SEGMENT - 1] != 0;
+        owc_results_success[segment][CELL_TAPS_PER_SEGMENT - 1] = owc_valid_last;
+        owc_results[segment][CELL_TAPS_PER_SEGMENT - 1]         = owc_passing_last;
+        cell_owc_setters[segment][CELL_TAPS_PER_SEGMENT - 1](owc_passing_last);
     }
 }

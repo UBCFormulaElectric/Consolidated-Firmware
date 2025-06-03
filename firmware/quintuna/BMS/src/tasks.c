@@ -28,7 +28,11 @@
 #include <FreeRTOS.h>
 #include <app_canRx.h>
 #include <cmsis_os.h>
+#include <cmsis_os2.h>
 #include <portmacro.h>
+
+StaticSemaphore_t init_complete_locks_buf;
+SemaphoreHandle_t init_complete_locks;
 
 // isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an LTC transaction doesn't get interrupted by
 // another task. It's just a regular semaphore (no priority inheritance) since it depends on hardware.
@@ -89,10 +93,11 @@ void tasks_init(void)
     ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
     assert(isospi_bus_access_lock != NULL);
     assert(ltc_app_data_lock != NULL);
+    xSemaphoreGive(isospi_bus_access_lock);
+    xSemaphoreGive(ltc_app_data_lock);
 
     // Write LTC configs.
     app_segments_writeDefaultConfig();
-
     io_ltc6813_wakeup();
     LOG_IF_ERR(app_segments_configSync());
 
@@ -174,11 +179,12 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms   = 100U; // 10Hz
-    uint32_t                start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms = 100U; // 10Hz
 
     for (;;)
     {
+        const uint32_t start_ticks = osKernelGetTickCount();
+
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
@@ -192,18 +198,19 @@ void tasks_runLtcVoltages(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        LOG_INFO("LTC voltage ms remaining: %d", start_ticks + period_ms - osKernelGetTickCount());
+        osDelayUntil(start_ticks + period_ms);
     }
 }
 
 void tasks_runLtcTemps(void)
 {
-    static const TickType_t period_ms   = 1000U; // 1Hz
-    uint32_t                start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms = 1000U; // 1Hz
 
     for (;;)
     {
+        const uint32_t start_ticks = osKernelGetTickCount();
+
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
@@ -217,24 +224,24 @@ void tasks_runLtcTemps(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        LOG_INFO("LTC temp ms remaining: %d", start_ticks + period_ms - osKernelGetTickCount());
+        osDelayUntil(start_ticks + period_ms);
     }
 }
 
 void tasks_runLtcDiagnostics(void)
 {
-    static const TickType_t period_ms   = 10000U; // Every 10s
-    uint32_t                start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms = 10000U; // Every 10s
 
     for (;;)
     {
-        // Open wire check is the only one we need to perform as per rules.
+        const uint32_t start_ticks = osKernelGetTickCount();
 
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
 
+            // Open wire check is the only one we need to perform as per rules.
             LOG_IF_ERR(app_segments_runStatusConversion());
             LOG_IF_ERR(app_segments_runOpenWireCheck());
 
@@ -263,7 +270,6 @@ void tasks_runLtcDiagnostics(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        osDelayUntil(start_ticks + period_ms);
     }
 }

@@ -171,6 +171,18 @@ const osThreadAttr_t TaskLtcDiag_attributes = {
     .stack_size = sizeof(TaskLtcDiagBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for TaskInit */
+osThreadId_t         TaskInitHandle;
+uint32_t             TaskInitBuffer[512];
+osStaticThreadDef_t  TaskInitControlBlock;
+const osThreadAttr_t TaskInit_attributes = {
+    .name       = "TaskInit",
+    .cb_mem     = &TaskInitControlBlock,
+    .cb_size    = sizeof(TaskInitControlBlock),
+    .stack_mem  = &TaskInitBuffer[0],
+    .stack_size = sizeof(TaskInitBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -200,6 +212,7 @@ void        RunTaskChimera(void *argument);
 void        RunTaskLtcVoltages(void *argument);
 void        RunTaskLtcTemps(void *argument);
 void        RunTaskLtcDiag(void *argument);
+void        RunTaskInit(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -254,7 +267,6 @@ int main(void)
     MX_TIM5_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -302,6 +314,9 @@ int main(void)
 
     /* creation of TaskLtcDiag */
     TaskLtcDiagHandle = osThreadNew(RunTaskLtcDiag, NULL, &TaskLtcDiag_attributes);
+
+    /* creation of TaskInit */
+    TaskInitHandle = osThreadNew(RunTaskInit, NULL, &TaskInit_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -397,7 +412,7 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI4 | RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
     PeriphClkInitStruct.PLL2.PLL2N           = 24;
     PeriphClkInitStruct.PLL2.PLL2P           = 2;
@@ -406,7 +421,6 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.Spi45ClockSelection  = RCC_SPI45CLKSOURCE_PLL2;
     PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
     PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -806,7 +820,7 @@ static void MX_SPI4_Init(void)
     hspi4.Init.CLKPolarity                = SPI_POLARITY_HIGH;
     hspi4.Init.CLKPhase                   = SPI_PHASE_2EDGE;
     hspi4.Init.NSS                        = SPI_NSS_SOFT;
-    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_128;
+    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_256;
     hspi4.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi4.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi4.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;
@@ -1161,6 +1175,7 @@ void RunTask100Hz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_run100Hz();
     /* USER CODE END 5 */
 }
@@ -1175,6 +1190,7 @@ void RunTask100Hz(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
@@ -1189,6 +1205,7 @@ void RunTaskCanRx(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
@@ -1203,6 +1220,7 @@ void RunTaskCanTx(void *argument)
 void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
@@ -1217,6 +1235,7 @@ void RunTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
@@ -1231,6 +1250,7 @@ void RunTask1Hz(void *argument)
 void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunTaskChimera */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
@@ -1245,6 +1265,7 @@ void RunTaskChimera(void *argument)
 void RunTaskLtcVoltages(void *argument)
 {
     /* USER CODE BEGIN RunTaskLtcVoltages */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runLtcVoltages();
     /* USER CODE END RunTaskLtcVoltages */
 }
@@ -1259,6 +1280,7 @@ void RunTaskLtcVoltages(void *argument)
 void RunTaskLtcTemps(void *argument)
 {
     /* USER CODE BEGIN RunTaskLtcTemps */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runLtcTemps();
     /* USER CODE END RunTaskLtcTemps */
 }
@@ -1273,8 +1295,34 @@ void RunTaskLtcTemps(void *argument)
 void RunTaskLtcDiag(void *argument)
 {
     /* USER CODE BEGIN RunTaskLtcDiag */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runLtcDiagnostics();
     /* USER CODE END RunTaskLtcDiag */
+}
+
+/* USER CODE BEGIN Header_RunTaskInit */
+/**
+ * @brief Function implementing the TaskInit thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskInit */
+void RunTaskInit(void *argument)
+{
+    /* USER CODE BEGIN RunTaskInit */
+    tasks_init();
+
+    xTaskNotifyGive(Task1kHzHandle);
+    xTaskNotifyGive(Task100HzHandle);
+    xTaskNotifyGive(TaskChimeraHandle);
+    xTaskNotifyGive(Task1HzHandle);
+    xTaskNotifyGive(TaskLtcVoltagesHandle);
+    xTaskNotifyGive(TaskLtcTempsHandle);
+    xTaskNotifyGive(TaskLtcDiagHandle);
+    xTaskNotifyGive(TaskCanTxHandle);
+    xTaskNotifyGive(TaskCanRxHandle);
+    vTaskDelete(NULL);
+    /* USER CODE END RunTaskInit */
 }
 
 /**

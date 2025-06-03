@@ -517,46 +517,49 @@
       "Seg0_MuxOk": {
         "bits": 1
       },
-      "Seg0_Cell0_OWC_OK": {
+      "Seg0_C0_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell1_OWC_OK": {
+      "Seg0_C1_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell2_OWC_OK": {
+      "Seg0_C2_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell3_OWC_OK": {
+      "Seg0_C3_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell4_OWC_OK": {
+      "Seg0_C4_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell5_OWC_OK": {
+      "Seg0_C5_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell6_OWC_OK": {
+      "Seg0_C6_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell7_OWC_OK": {
+      "Seg0_C7_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell8_OWC_OK": {
+      "Seg0_C8_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell9_OWC_OK": {
+      "Seg0_C9_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell10_OWC_OK": {
+      "Seg0_C10_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell11_OWC_OK": {
+      "Seg0_C11_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell12_OWC_OK": {
+      "Seg0_C12_OwcOk": {
         "bits": 1
       },
-      "Seg0_Cell13_OWC_OK": {
+      "Seg0_C13_OwcOk": {
+        "bits": 1
+      },
+      "Seg0_C14_OwcOk": {
         "bits": 1
       }
     }
