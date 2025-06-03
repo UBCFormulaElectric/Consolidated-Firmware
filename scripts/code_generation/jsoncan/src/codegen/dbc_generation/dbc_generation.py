@@ -125,7 +125,6 @@ class DbcGenerator:
         """
         # The 31st bit needs to be set to indicate this message has an extended
         # ID, otherwise CANoe doesn't decode it properly.
-
         id = msg.id
         if msg.id >= 2**11:
             id |= 2**31
