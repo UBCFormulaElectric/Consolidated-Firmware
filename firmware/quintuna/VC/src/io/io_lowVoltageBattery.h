@@ -47,9 +47,6 @@ double io_lowVoltageBattery_get_SOC();
  */
 uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
 
-// intial setup for battery monitoring chip
-ExitCode io_lowVoltageBattery_initial_setup(void);
-
 /**
  * @brief Handles releasing the semaphore after an interupt.
  *

@@ -128,7 +128,6 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
     RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&saftey_status, 2));
 
     //if there is bit set in status A check what is going on
-    //TODO: Make sure we transmit a CAN message saying there is something wrong and specifically what is wrong
     if (saftey_status.SSA){
         LOG_ERROR("Registered a status fault A");
         uint8_t buffer_safetA[1] = { (uint8_t)0x03 };
@@ -138,7 +137,6 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
         RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&safetyFaultA, 1));
     }
     //if there is bit a bit set in status B check what is going on
-    //TODO: Make sure we transmit a CAN message saying there is something wrong and specifically 
     else if (saftey_status.SSBC) {
         LOG_ERROR("Registered a status fault B");
         uint8_t buffer_safetB =  (uint8_t)0x05;
@@ -157,7 +155,7 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
     return EXIT_CODE_OK;
 }
 
-inline ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status){
+ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status){
     uint8_t buffer_bat[1] = { (uint8_t)BATTERY_STATUS };
     // ask for battery status to check if the device is sleep or not
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_bat, 1));
@@ -166,7 +164,7 @@ inline ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status){
     return EXIT_CODE_OK;
 }
 
-inline ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status){
+ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status){
     uint8_t buffer_control[1] = { (uint8_t)CONTROL_STATUS };
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_control, 1));
     RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&ctrl_status, 2));
@@ -174,14 +172,14 @@ inline ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status){
     return EXIT_CODE_OK;
 }
 
-ExitCode io_lowVoltageBattery_initial_setup(void)
+ExitCode io_lowVoltageBattery_init(void)
 {
     RETURN_IF_ERR(hw_i2c_isTargetReady(&bat_mtr));
 
     // ask for battery status to check if the device is sleep or not
     // For now I am gonna cast this as a void but later may change to do something else
     Battery_Status bat_status;
-    (void) io_lowvoltageBattery_batteryStatus(&bat_status);
+    RETURN_IF_ERR(io_lowvoltageBattery_batteryStatus(&bat_status));
 
     //Put the chip into config update mode
     RETURN_IF_ERR(send_subcommand((uint16_t) 0x0090))
@@ -191,7 +189,7 @@ ExitCode io_lowVoltageBattery_initial_setup(void)
     // ask for control status
     // for now leave as void but I am going to change this later
     Control_Status ctrl_status;
-    (void) io_lowVoltageBattery_controlStatus(&ctrl_status);
+    RETURN_IF_ERR(io_lowVoltageBattery_controlStatus(&ctrl_status));
 
     if (bat_status.SLEEP == 1)
     {
@@ -208,25 +206,18 @@ ExitCode io_lowVoltageBattery_initial_setup(void)
         RETURN_IF_ERR(send_subcommand(exit_deep_sleep));
     }
 
-    uint16_t manu_status = 0x0057;
-    RETURN_IF_ERR(send_subcommand(manu_status));
-    Subcommand_Response response;
-    RETURN_IF_ERR(recieve_subcommand(manu_status,&response));
+    // uint16_t manu_status = 0x0057;
+    // RETURN_IF_ERR(send_subcommand(manu_status));
+    // Subcommand_Response response;
+    // RETURN_IF_ERR(recieve_subcommand(manu_status,&response));
 
-    uint8_t thresh_scd[2] = {0x09,0x00}; //9 in hex cause we are setting it 400mV max threshold
+    uint8_t thresh_scd[2] = {0x09,0x00};
     RETURN_IF_ERR(command_to_setThresholds( (uint16_t) 0x9286, thresh_scd, 2));
 
     uint8_t CUV_thresh[2] = {0x37,0x00};
     RETURN_IF_ERR(command_to_setThresholds((uint16_t) 0x9275, CUV_thresh, 2));
 
-    
-
-    RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_bat, 1));
-
-    RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&bat_status, 2));
-
     RETURN_IF_ERR(send_subcommand((uint16_t) 0x0092));
-
 
     uint16_t fet_enable = 0x0022;
     RETURN_IF_ERR(send_subcommand(fet_enable));
