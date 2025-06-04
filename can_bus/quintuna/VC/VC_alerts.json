@@ -102,12 +102,20 @@
       "id": 554,
       "description": "Missing heartbeat signal from the CRIT."
     },
-    "LeftInverterFault": {
+    "FrontLeftInverterFault": {
       "id": 555,
       "description": "Left inverter entered fault state."
     },
-    "RightInverterFault": {
+    "FrontRightInverterFault": {
       "id": 556,
+      "description": "Right inverter entered fault state."
+    },
+    "RearLeftInverterFault": {
+      "id": 557,
+      "description": "Left inverter entered fault state."
+    },
+    "RearRightInverterFault": {
+      "id": 558,
       "description": "Right inverter entered fault state."
     }
   },
