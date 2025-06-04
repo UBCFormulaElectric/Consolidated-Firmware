@@ -1,4 +1,5 @@
 #include "hw_can.h"
+#include "hw_fdcan.h"
 
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
@@ -73,10 +74,9 @@ void hw_can_deinit(const CanHandle *can_handle)
 }
 
 // NOTE this design assumes that there is only one task calling this function
-static TaskHandle_t transmit_task = NULL;
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef -> this breaks compatibility with FDCAN
-ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -106,13 +106,13 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
             poll_count++;
             continue;
         }
-        assert(transmit_task == NULL);
+        assert(can_handle->transmit_task == NULL);
         assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        transmit_task = xTaskGetCurrentTaskHandle();
+        can_handle->transmit_task = xTaskGetCurrentTaskHandle();
         // timeout just in case the tx complete interrupt does not fire properly?
         const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
         UNUSED(num_notifs);
-        transmit_task = NULL;
+        can_handle->transmit_task = NULL;
     }
 
     // Indicates the mailbox used for transmission, not currently used.
@@ -173,12 +173,13 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
 {
-    if (transmit_task == NULL)
+    const CanHandle *can = hw_can_getHandle(hcan);
+    if (can->transmit_task == NULL)
     {
         return;
     }
     BaseType_t higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(transmit_task, &higherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(can->transmit_task, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)

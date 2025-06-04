@@ -46,9 +46,8 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-static TaskHandle_t transmit_task = NULL;
 
-static ExitCode tx(const CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMsg *msg)
+static ExitCode tx(CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMsg *msg)
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
     {
@@ -59,18 +58,18 @@ static ExitCode tx(const CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header,
             poll++;
             continue;
         }
-        assert(transmit_task == NULL);
+        assert(can_handle->transmit_task == NULL);
         assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        transmit_task             = xTaskGetCurrentTaskHandle();
+        can_handle->transmit_task             = xTaskGetCurrentTaskHandle();
         const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
         UNUSED(num_notifs);
-        transmit_task = NULL;
+        can_handle->transmit_task = NULL;
     }
 
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
 }
 
-ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -86,7 +85,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     return tx(can_handle, tx_header, msg);
 }
 
-ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_fdcan_transmit(CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
 
@@ -200,11 +199,12 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
 
 void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
-    if (transmit_task == NULL)
+    const CanHandle *can = hw_can_getHandle(hfdcan);
+    if (can->transmit_task == NULL)
     {
         return;
     }
     BaseType_t higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(transmit_task, &higherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(can->transmit_task, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
