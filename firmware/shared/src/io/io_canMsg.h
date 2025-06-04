@@ -2,13 +2,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// #ifdef STM32F412Rx
-// #define CAN_PAYLOAD_BYTES 8
-// #elif STM32H733xx
+#ifdef STM32F412Rx
+#define CAN_PAYLOAD_BYTES 8
+#elif STM32H733xx
 #define CAN_PAYLOAD_BYTES 64
-// #else
-// #error "Please define what MCU is used."
-// #endif
+#else
+#error "Please define what MCU is used."
+#endif
 
 typedef struct
 {
