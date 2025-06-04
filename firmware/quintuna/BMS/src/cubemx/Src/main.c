@@ -1310,6 +1310,7 @@ void RunTaskLtcDiag(void *argument)
 void RunTaskInit(void *argument)
 {
     /* USER CODE BEGIN RunTaskInit */
+    // TODO: Will need to think about this a bit harder when we re-enable the watchdog...
     tasks_init();
 
     xTaskNotifyGive(Task1kHzHandle);

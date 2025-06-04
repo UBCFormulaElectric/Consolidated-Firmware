@@ -99,7 +99,10 @@ void tasks_init(void)
     // Write LTC configs.
     app_segments_writeDefaultConfig();
     io_ltc6813_wakeup();
-    LOG_IF_ERR(app_segments_configSync()); // This blocks forever if modules not talking back!
+
+    // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end
+    // of the world but there's probably a way to make this more clear...
+    LOG_IF_ERR(app_segments_configSync());
 
     // Run all self tests at init.
     LOG_IF_ERR(app_segments_runAdcAccuracyTest());
@@ -198,6 +201,7 @@ void tasks_runLtcVoltages(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
+        LOG_INFO("LTC voltage period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 }
@@ -223,6 +227,7 @@ void tasks_runLtcTemps(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
+        LOG_INFO("LTC temp period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 }
