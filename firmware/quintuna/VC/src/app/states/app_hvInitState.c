@@ -9,6 +9,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define 
+
 typedef enum
 {
     INV_SYSTEM_READY    = 0,
@@ -42,6 +44,7 @@ static void hvInitStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
+    current_inverter_state = INV_SYSTEM_READY;
 }
 static void hvInitStateRunOnTick1Hz(void) {}
 static void hvInitStateRunOnTick100Hz(void)
@@ -67,29 +70,26 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVRRbDcOn_set(true);
             app_canTx_VC_INVRLbDcOn_set(true);
 
-            if (start_up_timer->state == TIMER_STATE_IDLE)
-                app_timer_restart(start_up_timer);
-
-            const bool dc_timed_out = app_timer_updateAndGetState(start_up_timer) == TIMER_STATE_EXPIRED;
-
+            
             const bool inverter_dc_quit = app_canRx_INVRR_bQuitDcOn_get() && app_canRx_INVRL_bQuitDcOn_get() &&
                                           app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
 
-            if (inverter_dc_quit)
+            const TimerState timeout_state = app_timer_runIfCondition(start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED;
+            
+            switch (timeout_state)
             {
-                app_timer_stop(start_up_timer);
-                current_inverter_state = INV_ENABLE;
+                case TIMER_STATE_IDLE:
+                    current_inverter_state = INV_INVERTER_ON;
+                    break;
+                case TIMER_STATE_EXPIRED:
+                    current_inverter_state = INV_SYSTEM_READY;
+                    app_stateMachine_setNextState(&init_state);
+                    break;
+                    __attribute__((fallthrough));
+                case TIMER_STATE_RUNNING:
+                default:
+                break;
             }
-            else if (dc_timed_out)
-            {
-                current_inverter_state = INV_SYSTEM_READY;
-                app_timer_stop(start_up_timer);
-                // send a message saying that the inverters were not able to start correctly because the dcquit is not
-                // working
-
-                app_stateMachine_setNextState(&init_state); // we should transition some where else but check this later
-            }
-            break;
         }
         case INV_ENABLE:
         {
@@ -118,31 +118,34 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get() &&
                 app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
 
-            if (inverter_invOn_quit)
-            {
-                app_timer_stop(start_up_timer);
-                current_inverter_state = INV_READY_FOR_DRIVE;
-            }
-            else if (inv_timed_out)
-            {
-                current_inverter_state = INV_SYSTEM_READY;
-                app_timer_stop(start_up_timer);
-                // send a message saying that the inverters were not able to start correctly because the dcquit is not
-                // working
+            const TimerState timeout_state = app_timer_runIfCondition(start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED;
 
-                app_stateMachine_setNextState(&init_state); // we should transition some where else but check this later
+            switch (timeout_state)
+            {
+                case TIMER_STATE_IDLE:
+                    current_inverter_state = INV_INVERTER_ON;
+                    break;
+                case TIMER_STATE_EXPIRED:
+                    current_inverter_state = INV_SYSTEM_READY;
+                    app_stateMachine_setNextState(&init_state);
+                    break;
+                    __attribute__((fallthrough));
+                case TIMER_STATE_RUNNING:
+                default:
+                break;
             }
 
             break;
         }
         case INV_READY_FOR_DRIVE:
             app_stateMachine_setNextState(&hv_state);
-            app_timer_stop(start_up_timer);
-            current_inverter_state = INV_SYSTEM_READY;
             break;
     }
 }
-static void hvInitStateRunOnExit(void) {}
+static void hvInitStateRunOnExit(void) {
+    current_inverter_state = INV_SYSTEM_READY;
+    app_timer_stop(start_up_timer);
+}
 
 State hvInit_state = { .name              = "HV INIT",
                        .run_on_entry      = hvInitStateRunOnEntry,
