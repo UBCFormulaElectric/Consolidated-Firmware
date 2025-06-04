@@ -220,16 +220,23 @@ class CanMessage:
     # if this is None, then only use the bus default
     modes: Optional[List[str]]
 
-    def bytes(self):
+    def dlc(self):
         """
         Length of payload, in bytes.
         """
         if len(self.signals) == 0:
             return 0
 
-        return bits_to_bytes(
+        useful_length = bits_to_bytes(
             max([signal.start_bit + signal.bits for signal in self.signals])
         )
+
+        allowable_lengths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64]
+        for length in allowable_lengths:
+            if length >= useful_length:
+                return length
+
+        raise RuntimeError("This message was created with an invalid DLC!")
 
     def is_periodic(self):
         """
@@ -238,7 +245,7 @@ class CanMessage:
         return self.cycle_time is not None
 
     def requires_fd(self) -> bool:
-        return self.bytes() > 8
+        return self.dlc() > 8
 
     def snake_name(self):
         return pascal_to_snake_case(self.name)
@@ -256,8 +263,8 @@ class CanMessage:
     def cycle_time_macro(self):
         return f"CAN_MSG_{self.snake_name().upper()}_CYCLE_TIME_MS"
 
-    def bytes_macro(self):
-        return f"CAN_MSG_{self.snake_name().upper()}_BYTES"
+    def dlc_macro(self):
+        return f"CAN_MSG_{self.snake_name().upper()}_DLC"
 
     def __str__(self):
         return self.name
