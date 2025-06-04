@@ -9,8 +9,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define 
-
 typedef enum
 {
     INV_SYSTEM_READY    = 0,
@@ -85,11 +83,12 @@ static void hvInitStateRunOnTick100Hz(void)
                     current_inverter_state = INV_SYSTEM_READY;
                     app_stateMachine_setNextState(&init_state);
                     break;
-                    __attribute__((fallthrough));
                 case TIMER_STATE_RUNNING:
+                    __attribute__((fallthrough));
                 default:
-                break;
+                    break;
             }
+            break;
         }
         case INV_ENABLE:
         {
@@ -129,10 +128,10 @@ static void hvInitStateRunOnTick100Hz(void)
                     current_inverter_state = INV_SYSTEM_READY;
                     app_stateMachine_setNextState(&init_state);
                     break;
-                    __attribute__((fallthrough));
                 case TIMER_STATE_RUNNING:
+                    __attribute__((fallthrough));
                 default:
-                break;
+                    break;
             }
 
             break;
