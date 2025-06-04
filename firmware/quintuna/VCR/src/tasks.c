@@ -27,7 +27,7 @@ _Noreturn void tasks_runCanFDTx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx(&fd_can_tx_queue);
+        CanMsg tx_msg = io_canQueue_popTx(&sx_can_tx_queue);
         hw_fdcan_transmit(&fd_can, &tx_msg);
     }
 }
@@ -36,7 +36,7 @@ _Noreturn void tasks_runCanSxTx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx(&sx_can_tx_queue);
+        CanMsg tx_msg = io_canQueue_popTx(&fd_can_tx_queue);
         hw_fdcan_transmit(&sx_can, &tx_msg);
     }
 }

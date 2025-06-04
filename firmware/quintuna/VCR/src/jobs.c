@@ -35,6 +35,7 @@ void jobs_init()
 
     io_canTx_init(fd_can_tx, sx_can_tx, inv_can_tx);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+    io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
     io_canTx_enableMode_can3(CAN3_MODE_DEFAULT, true);
 
     io_canQueue_initRx();
