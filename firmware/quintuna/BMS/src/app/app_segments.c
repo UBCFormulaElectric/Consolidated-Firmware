@@ -385,8 +385,9 @@ void app_segments_broadcastTempsVRef(void)
                 const uint8_t vref_reg_adjustment =
                     aux_gpio > VREF_AUX_REG ? 1
                                             : 0; // Annoyingly the VREF reg is right in the middle of GPIO voltage regs
-                const uint8_t mux_offset = mux > 0 ? 8 : 0; // 8 GPIOs used for least significant MUX setting
-                const int     thermistor = aux_gpio - vref_reg_adjustment + mux_offset;
+                const uint8_t mux_offset =
+                    mux == THERMISTOR_MUX_8_13 ? 8 : 0; // 8 GPIOs used for least significant MUX setting
+                const int thermistor = aux_gpio - vref_reg_adjustment + mux_offset;
 
                 if (thermistor >= THERMISTORS_PER_SEGMENT)
                 {
