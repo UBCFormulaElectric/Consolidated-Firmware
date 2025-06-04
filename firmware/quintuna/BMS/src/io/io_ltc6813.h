@@ -9,7 +9,7 @@
 #include "app_utils.h"
 
 // Physical constants for our accumulator.
-#define NUM_SEGMENTS 1
+#define NUM_SEGMENTS 2
 #define CELLS_PER_SEGMENT 14
 #define THERMISTORS_PER_SEGMENT 14
 

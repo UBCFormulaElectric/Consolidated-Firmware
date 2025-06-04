@@ -1,6 +1,7 @@
 #include "app_segments.h"
 #include "app_canTx.h"
 #include "app_thermistors.h"
+#include "app_segments_setters.h"
 
 #include "app_utils.h"
 #include "io_log.h"
@@ -25,30 +26,12 @@
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * 1E-4f)
 #define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
 
-#define CELL_TAPS_PER_SEGMENT (CELLS_PER_SEGMENT + 1)
-
 typedef enum
 {
     THERMISTOR_MUX_0_7,
     THERMISTOR_MUX_8_13,
     THERMISTOR_MUX_COUNT,
 } ThermistorMux;
-
-static void (*const cell_voltage_setters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(float) = {
-    { app_canTx_BMS_Seg0_Cell0_Voltage_set, app_canTx_BMS_Seg0_Cell1_Voltage_set, app_canTx_BMS_Seg0_Cell2_Voltage_set,
-      app_canTx_BMS_Seg0_Cell3_Voltage_set, app_canTx_BMS_Seg0_Cell4_Voltage_set, app_canTx_BMS_Seg0_Cell5_Voltage_set,
-      app_canTx_BMS_Seg0_Cell6_Voltage_set, app_canTx_BMS_Seg0_Cell7_Voltage_set, app_canTx_BMS_Seg0_Cell8_Voltage_set,
-      app_canTx_BMS_Seg0_Cell9_Voltage_set, app_canTx_BMS_Seg0_Cell10_Voltage_set,
-      app_canTx_BMS_Seg0_Cell11_Voltage_set, app_canTx_BMS_Seg0_Cell12_Voltage_set,
-      app_canTx_BMS_Seg0_Cell13_Voltage_set }
-};
-static void (*const thermistor_setters[NUM_SEGMENTS][CELLS_PER_SEGMENT])(float) = {
-    { app_canTx_BMS_Seg0_Cell0_Temp_set, app_canTx_BMS_Seg0_Cell1_Temp_set, app_canTx_BMS_Seg0_Cell2_Temp_set,
-      app_canTx_BMS_Seg0_Cell3_Temp_set, app_canTx_BMS_Seg0_Cell4_Temp_set, app_canTx_BMS_Seg0_Cell5_Temp_set,
-      app_canTx_BMS_Seg0_Cell6_Temp_set, app_canTx_BMS_Seg0_Cell7_Temp_set, app_canTx_BMS_Seg0_Cell8_Temp_set,
-      app_canTx_BMS_Seg0_Cell9_Temp_set, app_canTx_BMS_Seg0_Cell10_Temp_set, app_canTx_BMS_Seg0_Cell11_Temp_set,
-      app_canTx_BMS_Seg0_Cell12_Temp_set, app_canTx_BMS_Seg0_Cell13_Temp_set }
-};
 
 // Keeping separate buffers for every command is pretty wasteful but we have lots of RAM so oh well
 
@@ -211,8 +194,6 @@ static bool isConfigEqual(void)
 
 ExitCode app_segments_configSync(void)
 {
-    static void (*const comm_ok_setters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_CommOk_set };
-
     for (;;)
     {
         const bool is_config_equal = isConfigEqual();
@@ -335,8 +316,8 @@ ExitCode app_segments_runOpenWireCheck(void)
     io_time_delay(OWC_CONVERSION_TIME_MS);
     RETURN_IF_ERR(io_ltc6813_owcPull(PULL_DOWN));
     io_time_delay(OWC_CONVERSION_TIME_MS);
-
     io_ltc6813_readVoltageRegisters(owc_pdcv_regs, owc_pdcv_success);
+
     return EXIT_CODE_OK;
 }
 
@@ -370,9 +351,6 @@ void app_segments_broadcastCellVoltages(void)
 
 void app_segments_broadcastTempsVRef(void)
 {
-    static void (*const vref_setters[NUM_SEGMENTS])(float)           = { app_canTx_BMS_Seg0_Vref_set };
-    static void (*const segment_vref_ok_setters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_VrefOk_set };
-
     memset(segment_vref, 0, NUM_SEGMENTS * sizeof(uint16_t));
     memset(cell_temps, 0, NUM_SEGMENTS * THERMISTORS_PER_SEGMENT * sizeof(float));
 
@@ -422,15 +400,6 @@ void app_segments_broadcastTempsVRef(void)
 
 void app_segments_broadcastStatus(void)
 {
-    static void (*const mux_test_setters[NUM_SEGMENTS])(bool)          = { app_canTx_BMS_Seg0_MuxOk_set };
-    static void (*const analog_supply_ok_setters[NUM_SEGMENTS])(bool)  = { app_canTx_BMS_Seg0_AnalogSupplyOk_set };
-    static void (*const analog_supply_setters[NUM_SEGMENTS])(float)    = { app_canTx_BMS_Seg0_AnalogSupply_set };
-    static void (*const digital_supply_ok_setters[NUM_SEGMENTS])(bool) = { app_canTx_BMS_Seg0_DigitalSupplyOk_set };
-    static void (*const digital_supply_setters[NUM_SEGMENTS])(float)   = { app_canTx_BMS_Seg0_DigitalSupply_set };
-    static void (*const rev_code_setters[NUM_SEGMENTS])(uint32_t)      = { app_canTx_BMS_Seg0_RevisionCode_set };
-    static void (*const thermal_ok_setters[NUM_SEGMENTS])(bool)        = { app_canTx_BMS_Seg0_ThermalOk_set };
-    static void (*const temp_setters[NUM_SEGMENTS])(uint32_t)          = { app_canTx_BMS_Seg0_DieTemp_set };
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         if (IS_EXIT_ERR(status_regs_success[segment]))
@@ -467,11 +436,6 @@ void app_segments_broadcastStatus(void)
 
 void app_segments_broadcastAdcAccuracyTest(void)
 {
-    static void (*const segment_overlap_adc1_2_test_setters[NUM_SEGMENTS])(
-        bool) = { app_canTx_BMS_Seg0_Adc12Equal_set };
-    static void (*const segment_overalap_adc2_3_test_setters[NUM_SEGMENTS])(
-        bool) = { app_canTx_BMS_Seg0_Adc23Equal_set };
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         // See section "Overlap Cell Measurement (ADOL Command)".
@@ -490,9 +454,6 @@ void app_segments_broadcastAdcAccuracyTest(void)
 
 void app_segments_broadcastVoltageSelfTest(void)
 {
-    static void (*const segment_cell_self_test_ok_setters[NUM_SEGMENTS])(
-        bool) = { app_canTx_BMS_Seg0_CellSelfTestOk_set };
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         bool self_test_ok = true;
@@ -509,9 +470,6 @@ void app_segments_broadcastVoltageSelfTest(void)
 
 void app_segments_broadcastAuxSelfTest(void)
 {
-    static void (*const segment_aux_self_test_ok_setters[NUM_SEGMENTS])(
-        bool) = { app_canTx_BMS_Seg0_AuxSelfTestOk_set };
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         bool self_test_ok = true;
@@ -528,9 +486,6 @@ void app_segments_broadcastAuxSelfTest(void)
 
 void app_segments_broadcastStatusSelfTest(void)
 {
-    static void (*const segment_status_self_test_ok_setters[NUM_SEGMENTS])(
-        bool) = { app_canTx_BMS_Seg0_StatusSelfTestOk_set };
-
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         const uint16_t *statuses_buffer = (uint16_t *)&status_self_test_regs[segment];
@@ -548,14 +503,6 @@ void app_segments_broadcastStatusSelfTest(void)
 
 void app_segments_broadcastOpenWireCheck(void)
 {
-    static void (*const cell_owc_setters[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT])(bool) = {
-        { app_canTx_BMS_Seg0_C0_OwcOk_set, app_canTx_BMS_Seg0_C1_OwcOk_set, app_canTx_BMS_Seg0_C2_OwcOk_set,
-          app_canTx_BMS_Seg0_C3_OwcOk_set, app_canTx_BMS_Seg0_C4_OwcOk_set, app_canTx_BMS_Seg0_C5_OwcOk_set,
-          app_canTx_BMS_Seg0_C6_OwcOk_set, app_canTx_BMS_Seg0_C7_OwcOk_set, app_canTx_BMS_Seg0_C8_OwcOk_set,
-          app_canTx_BMS_Seg0_C9_OwcOk_set, app_canTx_BMS_Seg0_C10_OwcOk_set, app_canTx_BMS_Seg0_C11_OwcOk_set,
-          app_canTx_BMS_Seg0_C12_OwcOk_set, app_canTx_BMS_Seg0_C13_OwcOk_set, app_canTx_BMS_Seg0_C14_OwcOk_set }
-    };
-
     // See "Open Wire Check (ADOW Command)" in datasheet for this works.
     // Known limitation: If >=2x adjacent cells are open wire, it only reports the lowest one.
 

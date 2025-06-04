@@ -65,7 +65,7 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG1();
 
-    ASSERT_EXIT_OK(hw_usb_init());
+    LOG_IF_ERR(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_can_init(&can1);
@@ -99,7 +99,7 @@ void tasks_init(void)
     // Write LTC configs.
     app_segments_writeDefaultConfig();
     io_ltc6813_wakeup();
-    LOG_IF_ERR(app_segments_configSync());
+    LOG_IF_ERR(app_segments_configSync()); // This blocks forever if modules not talking back!
 
     // Run all self tests at init.
     LOG_IF_ERR(app_segments_runAdcAccuracyTest());
