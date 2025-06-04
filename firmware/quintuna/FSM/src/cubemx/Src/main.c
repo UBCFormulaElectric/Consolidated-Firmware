@@ -211,7 +211,6 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
-    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */

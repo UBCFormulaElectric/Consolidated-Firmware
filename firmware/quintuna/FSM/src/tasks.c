@@ -86,6 +86,7 @@ void tasks_run1kHz(void)
     // Setup tasks.
     static const TickType_t period_ms   = 1;
     uint32_t                start_ticks = osKernelGetTickCount();
+    tasks_init();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)

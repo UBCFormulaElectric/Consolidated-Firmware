@@ -36,6 +36,9 @@ static void jsoncan_transmit(const JsonCanMsg *msg)
 
 void jobs_init(void)
 {
+    ASSERT_EXIT_OK(io_imu_init());
+
+
     app_canTx_init();
     app_canRx_init();
 
@@ -50,8 +53,7 @@ void jobs_init(void)
 
     io_coolant_init();
 
-    ASSERT_EXIT_OK(io_rPump_isPumpReady());
-    ASSERT_EXIT_OK(io_imu_init());
+    // ASSERT_EXIT_OK(io_rPump_isPumpReady());
 }
 
 void jobs_run1Hz_tick(void)
