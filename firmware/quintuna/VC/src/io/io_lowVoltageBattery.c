@@ -117,7 +117,7 @@ static ExitCode command_to_setThresholds(uint16_t cmd_id, uint8_t *data, size_t 
     return EXIT_CODE_OK;
 }
 
-ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
+ExitCode io_lowVoltageBattery_SafetyStatusCheck(SafteyStatusA *safteyA, SafteyStatusB *safteyB, SafteyStatusC *safteyC){
 
     //check the raw battery alarm status to see what is going on
     uint8_t buffer_safety[1] = { (uint8_t)0x64 };
@@ -133,8 +133,7 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
         uint8_t buffer_safetA[1] = { (uint8_t)0x03 };
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_safetA, 1));
         
-        SafteyStatusA safetyFaultA;
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&safetyFaultA, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)safteyA, 1));
     }
     //if there is bit a bit set in status B check what is going on
     else if (saftey_status.SSBC) {
@@ -142,14 +141,12 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(){
         uint8_t buffer_safetB =  (uint8_t)0x05;
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, &buffer_safetB, 1));
 
-        uint8_t safteyB[1];
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, safteyB, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safteyB, 1));
 
         uint8_t buffer_safetC =(uint8_t)0x07 ;
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, &buffer_safetC, 1));
 
-        uint8_t safteyC[1];
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, safteyC, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safteyC, 1));
     }
 
     return EXIT_CODE_OK;
@@ -212,10 +209,10 @@ ExitCode io_lowVoltageBattery_init(void)
     // RETURN_IF_ERR(recieve_subcommand(manu_status,&response));
 
     uint8_t thresh_scd[2] = {0x09,0x00};
-    RETURN_IF_ERR(command_to_setThresholds( (uint16_t) 0x9286, thresh_scd, 2));
+    RETURN_IF_ERR(command_to_setThresholds( (uint16_t) SCD_THRESHOLD, thresh_scd, 2));
 
     uint8_t CUV_thresh[2] = {0x37,0x00};
-    RETURN_IF_ERR(command_to_setThresholds((uint16_t) 0x9275, CUV_thresh, 2));
+    RETURN_IF_ERR(command_to_setThresholds((uint16_t) UV_THRESHOLD, CUV_thresh, 2));
 
     RETURN_IF_ERR(send_subcommand((uint16_t) 0x0092));
 
@@ -226,32 +223,6 @@ ExitCode io_lowVoltageBattery_init(void)
     RETURN_IF_ERR(send_subcommand(turning_on_fets_cmd));
     return EXIT_CODE_OK;
 }
-/**
- * @brief Reads the response from the BQ76922 and validates the checksum.
- *
- * @param cmd         The subcommand that was sent.
- * @param expectedLen The expected number of data bytes.
- * @param buffer      Pointer to a buffer (of at least expectedLen bytes) where the data will be stored.
- *
- * @return true if the response was successfully read and the checksum is valid; false otherwise.
- */
-
-typedef enum
-{
-    ENABLED_PROTECTIONS_A  = 0x9256,
-    ENABLED_PROTECTIONS_B  = 0x9262,
-    OV_THRESHOLD           = 0x9278,
-    UV_THRESHOLD           = 0x9275,
-    OV_DELAY               = 0x9279,
-    UV_DELAY               = 0x9276,
-    OV_RECOVERY_HYSTERESIS = 0x927C,
-    UV_RECOVERY_HYSTERESIS = 0x927B,
-    SCD_THRESHOLD          = 0x92C0,
-    OTC_THRESHOLD          = 0x929A,
-    OCD1_DELAY             = 0x9283,
-    OCD1_THRESHOLD         = 0x9282,
-    OCD_RECOVERY_THRESHOLD = 0x928D
-} protection_t;
 
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
@@ -260,7 +231,7 @@ typedef enum
  */
 double io_lowVoltageBattery_get_SOC(void)
 {
-    if (IS_EXIT_ERR(end_subcommand(ACCUMULATED_CHARGE_COMMAND)))
+    if (IS_EXIT_ERR(send_subcommand(ACCUMULATED_CHARGE_COMMAND)))
     {
         return -1.0;
     }

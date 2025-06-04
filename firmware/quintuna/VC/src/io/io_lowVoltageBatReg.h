@@ -44,6 +44,31 @@ typedef struct __attribute__((packed))
     uint8_t SCD : 1;   // Short Circuit in Discharge
 } SafteyStatusA;        // alerts associated with the battery chip
 
+
+typedef struct __attribute__((packed))
+{
+    uint8_t UTC : 1;
+    uint8_t UTD : 1;
+    uint8_t UTINT : 1;
+    uint8_t RSVD :1;
+    uint8_t OTC : 1;
+    uint8_t OTD : 1;
+    uint8_t OTINT : 1;
+    uint8_t OTF : 1;  
+} SafteyStatusB;
+
+typedef struct __attribute__((packed))
+{
+    uint8_t RSVD1 : 1;
+    uint8_t RSVD2 : 1;
+    uint8_t RSVD3 : 1;
+    uint8_t PTOS :1;
+    uint8_t COVL : 1;
+    uint8_t OCDL : 1;
+    uint8_t SCDL : 1;
+    uint8_t OCD3 : 1;
+} SafteyStatusC;
+
 typedef struct __attribute__((packed))
 {
 
@@ -77,6 +102,24 @@ typedef enum
     ALARM_ENABLE_REG    = 0x66,
     ALARM_STATUS_REG    = 0x62
 } register_address_t;
+
+
+typedef enum
+{
+    ENABLED_PROTECTIONS_A  = 0x9256,
+    ENABLED_PROTECTIONS_B  = 0x9262,
+    OV_THRESHOLD           = 0x9278,
+    UV_THRESHOLD           = 0x9275,
+    OV_DELAY               = 0x9279,
+    UV_DELAY               = 0x9276,
+    OV_RECOVERY_HYSTERESIS = 0x927C,
+    UV_RECOVERY_HYSTERESIS = 0x927B,
+    SCD_THRESHOLD          = 0x9286,
+    OTC_THRESHOLD          = 0x929A,
+    OCD1_DELAY             = 0x9283,
+    OCD1_THRESHOLD         = 0x9282,
+    OCD_RECOVERY_THRESHOLD = 0x928D
+} protection_t;
 
 typedef struct
 {
