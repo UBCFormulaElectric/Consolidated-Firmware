@@ -12,10 +12,14 @@ class VCStateMachineTest : public VCBaseTest
 {
 };
 
+#define ASSERT_STATE_EQ(expected)                            \
+    ASSERT_EQ(app_stateMachine_getCurrentState(), &expected) \
+        << "Expected state: " << expected.name << ", but got: " << app_stateMachine_getCurrentState()->name
+
 TEST_F(VCStateMachineTest, starts_in_init_state_contactors_open)
 {
     ASSERT_EQ(app_canRx_BMS_IrNegative_get(), CONTACTOR_STATE_OPEN);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &init_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
 TEST_F(VCStateMachineTest, air_minus_close_to_inv_on_state)
@@ -23,7 +27,7 @@ TEST_F(VCStateMachineTest, air_minus_close_to_inv_on_state)
     app_stateMachine_setNextState(&init_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &inverterOn_state);
+    ASSERT_STATE_EQ(inverterOn_state);
 }
 
 TEST_F(VCStateMachineTest, inverter_on_leave_condition_test)
@@ -33,30 +37,32 @@ TEST_F(VCStateMachineTest, inverter_on_leave_condition_test)
 
     app_canRx_INVFL_bSystemReady_update(true);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &inverterOn_state);
+    ASSERT_STATE_EQ(inverterOn_state);
 
     app_canRx_INVFR_bSystemReady_update(true);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &inverterOn_state);
+    ASSERT_STATE_EQ(inverterOn_state);
 
     app_canRx_INVRL_bSystemReady_update(true);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &inverterOn_state);
+    ASSERT_STATE_EQ(inverterOn_state);
 
     app_canRx_INVRR_bSystemReady_update(true);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &bmsOn_state);
+    ASSERT_STATE_EQ(bmsOn_state);
 }
 
 TEST_F(VCStateMachineTest, bms_drive_state_transition)
 {
     app_stateMachine_setNextState(&bmsOn_state);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(bmsOn_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     LetTimePass(100);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &bmsOn_state);
+    ASSERT_STATE_EQ(bmsOn_state);
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &pcmOn_state);
+    ASSERT_STATE_EQ(pcmOn_state);
 }
 
 TEST_F(VCStateMachineTest, air_minus_open_in_all_states_to_init)
@@ -64,12 +70,12 @@ TEST_F(VCStateMachineTest, air_minus_open_in_all_states_to_init)
     app_stateMachine_setNextState(&inverterOn_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &init_state);
+    ASSERT_STATE_EQ(init_state);
 
     app_stateMachine_setNextState(&bmsOn_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
     LetTimePass(10);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &init_state);
+    ASSERT_STATE_EQ(init_state);
 
     // etc.
 }
@@ -89,7 +95,7 @@ TEST_F(VCStateMachineTest, values_reset_when_no_heartbeat)
 
     // tests
     ASSERT_EQ(app_canRx_BMS_IrNegative_get(), CONTACTOR_STATE_OPEN);
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &fault_state);
+    ASSERT_STATE_EQ(fault_state);
     ASSERT_TRUE(app_canAlerts_VC_Fault_MissingBMSHeartbeat_get());
     ASSERT_TRUE(app_canAlerts_VC_Fault_MissingFSMHeartbeat_get());
     ASSERT_TRUE(app_canAlerts_VC_Fault_MissingRSMHeartbeat_get());
