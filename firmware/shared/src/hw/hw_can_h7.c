@@ -46,7 +46,6 @@ void hw_can_deinit(const CanHandle *can_handle)
     assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
 }
 
-
 static ExitCode tx(CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMsg *msg)
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
@@ -60,7 +59,7 @@ static ExitCode tx(CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMs
         }
         assert(can_handle->transmit_task == NULL);
         assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        can_handle->transmit_task             = xTaskGetCurrentTaskHandle();
+        can_handle->transmit_task = xTaskGetCurrentTaskHandle();
         const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
         UNUSED(num_notifs);
         can_handle->transmit_task = NULL;
