@@ -14,7 +14,6 @@ function(stm32f4_boot_binary
         CUBEMX_SRCS
         INCLUDE_DIRS
         CONFIG_DEFINE
-        SYSCALLS
         IOC_PATH
 )
     generate_stm32cube_code(
@@ -37,11 +36,9 @@ function(stm32f4_boot_binary
             "stm32f4xx_hal.c"
     )
 
-    # Pass syscalls to the cube library so we can build without warnings.
     stm32f412rx_cube_library(
             "${BOOT_NAME}_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${SYSCALLS}"
             "${MD5_LOCATION}"
             FALSE
     )
@@ -92,7 +89,6 @@ function(stm32h7_boot_binary
         CUBEMX_SRCS
         INCLUDE_DIRS
         CONFIG_DEFINE
-        SYSCALLS
         IOC_PATH
 )
     generate_stm32cube_code(
@@ -119,11 +115,9 @@ function(stm32h7_boot_binary
             "stm32h7xx_hal.c"
     )
 
-    # Pass syscalls to the cube library so we can build without warnings.
     stm32h733xx_cube_library(
             "${BOOT_NAME}_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${SYSCALLS}"
             "${MD5_LOCATION}"
             FALSE
     )
