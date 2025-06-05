@@ -100,7 +100,6 @@ TEST_F(VCStateMachineTest, values_reset_when_no_heartbeat)
     ASSERT_TRUE(app_canAlerts_VC_Fault_MissingFSMHeartbeat_get());
     ASSERT_TRUE(app_canAlerts_VC_Fault_MissingRSMHeartbeat_get());
     // TODO more concequences of heartbeat failure
-    app_canRx_
 }
 
 TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
@@ -111,7 +110,7 @@ TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
     ASSERT_STATE_EQ(drive_state);
 
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
-    app_canAlerts_VC_Fault_LeftInverterFault_set(true);
+    app_canAlerts_VC_Fault_FrontLeftInverterFault_set(true);
     LetTimePass(10);
     ASSERT_STATE_EQ(fault_state);
 }
@@ -127,55 +126,25 @@ TEST_F(VCStateMachineTest, buzzer_on_two_seconds_drive_state)
     LetTimePass(10); // 100ms after last iteration
     ASSERT_FALSE(app_canTx_VC_BuzzerControl_get());
 }
-TEST_F(VCStateMachineTest, states_broadcasted_over_can)
+
+TEST_F(VCStateMachineTest, start_button_operation)
 {
-    app_stateMachine_setCurrentState(&init_state);
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_INIT_STATE);
-
-    app_stateMachine_setCurrentState(&inverterOn_state);
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_INVERTER_ON_STATE);
-
-    app_stateMachine_setCurrentState(&bmsOn_state);
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_BMS_ON_STATE);
-
-    app_stateMachine_setCurrentState(&pcmOn_state);
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_PCM_ON_STATE);
-
-    app_stateMachine_setCurrentState(&hvInit_state);
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_HV_INIT_STATE);
-
     app_stateMachine_setCurrentState(&hv_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_HV_ON_STATE);
 
-    app_stateMachine_setCurrentState(&drive_state);
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_DRIVE_STATE);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    for (int i = 0; i < 100; ++i)
+    {
+        LetTimePass(10);
+        ASSERT_STATE_EQ(drive_state) << " failed after " << (i + 1) * 10 << "ms";
+    }
 
-    app_stateMachine_setCurrentState(&driveWarning_state);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_DRIVE_WARNING_STATE);
+    ASSERT_STATE_EQ(drive_state);
 
-    app_stateMachine_setCurrentState(&fault_state);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_State_get(), VC_FAULT_STATE);
+    ASSERT_STATE_EQ(hv_state);
 }
-
-// TEST_F(VCStateMachineTest, test_SetStateToDrive) {}
-// TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up) {}
-
-// TEST_F(VCStateMachineTest, check_init_state_is_broadcasted_over_can) {}
-// TEST_F(VCStateMachineTest, check_state_transition_from_init_to_inverter_on) {}
-// TEST_F(VCStateMachineTest, check_drive_state_is_broadcasted_over_can) {}
-// TEST_F(VCStateMachineTest, check_inverter_on_state_is_broadcasted_over_can) {}
-
-// TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverter_on_state) {}
-// TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state) {}
-// TEST_F(VCStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed) {}
-// TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on) {}
-// TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on_to_init) {}

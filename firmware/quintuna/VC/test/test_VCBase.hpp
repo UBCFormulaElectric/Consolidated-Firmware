@@ -1,12 +1,14 @@
 #pragma once
 #include "ecuTestBase.hpp"
 #include "io_loadswitchFake.h"
+#include <array>
 
 extern "C"
 {
 #include "jobs.h"
 #include "io_loadswitches.h"
 #include "app_canRx.h"
+#include "states/app_states.h"
 }
 
 class VCBaseTest : public EcuTestBase
@@ -42,4 +44,20 @@ class VCBaseTest : public EcuTestBase
 
   public:
     bool suppress_heartbeat = false;
+
+    struct StateMetadata
+    {
+        const State *state;
+        VCState      can_state;
+        StateMetadata(const State *s, const VCState cs) : state(s), can_state(cs) {}
+    };
+    const std::array<StateMetadata, 9> state_metadatas = { { { &init_state, VC_INIT_STATE },
+                                                             { &inverterOn_state, VC_INVERTER_ON_STATE },
+                                                             { &bmsOn_state, VC_BMS_ON_STATE },
+                                                             { &pcmOn_state, VC_PCM_ON_STATE },
+                                                             { &hvInit_state, VC_HV_INIT_STATE },
+                                                             { &hv_state, VC_HV_ON_STATE },
+                                                             { &drive_state, VC_DRIVE_STATE },
+                                                             { &driveWarning_state, VC_DRIVE_WARNING_STATE },
+                                                             { &fault_state, VC_FAULT_STATE } } };
 };
