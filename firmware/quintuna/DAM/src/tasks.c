@@ -22,13 +22,16 @@
 #include "hw_usb.h"
 #include "hw_gpios.h"
 #include "hw_crc.h"
+#include "hw_resetReason.h"
 
 #include <hw_chimera_v2.h>
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
-#include "hw_resetReason.h"
 
 extern CRC_HandleTypeDef hcrc;
+
+IoRtcTime boot_time;
+char      boot_time_string[27]; // YYYY-MM-DDTHH:MM:SS
 
 void tasks_preInit(void)
 {
@@ -38,8 +41,11 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
-    // if (io_fileSystem_init() == FILE_OK)
-    //     io_canLogging_init();
+    ExitCode status = io_rtc_readTime(&boot_time);
+    sprintf(
+        boot_time_string, "20%02d-%02d-%02dT%02d-%02d-%02d", boot_time.year, boot_time.month, boot_time.day,
+        boot_time.hours, boot_time.minutes, boot_time.seconds);
+    io_canLogging_init(boot_time_string);
 }
 
 void tasks_init(void)
@@ -175,7 +181,6 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
-    // osDelay(osWaitForever);
     for (;;)
     {
         LOG_INFO("telem task");
@@ -185,7 +190,6 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runTelemRx(void)
 {
-    // osDelay(osWaitForever);
     for (;;)
     {
         // set rtc time from telem rx data
@@ -195,24 +199,24 @@ _Noreturn void tasks_runTelemRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    osDelay(osWaitForever);
-    // if (!io_fileSystem_ready())
-    // {
-    //     // queue shouldn't populate, so this is just an extra precaution
-    //     osThreadSuspend(osThreadGetId());
-    // }
+    static uint32_t write_count         = 0;
+    static uint32_t message_batch_count = 0;
 
-    // static uint32_t write_count         = 0;
-    // static uint32_t message_batch_count = 0;
     for (;;)
     {
-        // io_canLogging_recordMsgFromQueue();
-        // message_batch_count++;
-        // write_count++;
-        // if (message_batch_count > 256)
-        // {
-        //     io_canLogging_sync();
-        //     message_batch_count = 0;
-        // }
+        if (io_canLogging_errorsRemaining() == 0)
+        {
+            osThreadSuspend(osThreadGetId());
+        }
+
+        io_canLogging_recordMsgFromQueue();
+        message_batch_count++;
+        write_count++;
+
+        if (message_batch_count > 256)
+        {
+            io_canLogging_sync();
+            message_batch_count = 0;
+        }
     }
 }
