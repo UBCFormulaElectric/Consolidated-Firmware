@@ -72,7 +72,7 @@ _Noreturn void tasks_runCanInvTx(void)
         hw_fdcan_transmit(&inv_can, &tx_msg);
     }
 }
-_Noreturn void tasks_runcanRx()
+_Noreturn void tasks_runcanRx(void)
 {
     for (;;)
     {
