@@ -149,38 +149,31 @@ void verifyAppCodeChecksum(void)
 
 void bootloader_preInit(void)
 {
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("Bootloader reset!");
-
     hw_hardFaultHandler_init();
 
     verifyAppCodeChecksum();
-    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest() == BOOT_REQUEST_APP)
+    if (boot_status == BOOT_STATUS_APP_VALID && hw_bootup_getBootRequest().target == BOOT_TARGET_APP)
     {
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
 
-    hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+    // Boot request targetting bootloader. Overwrite it to target app next so we don't get stuck here.
+    const BootRequest app_request = { .target = BOOT_TARGET_APP, .context = BOOT_CONTEXT_NONE, .context_value = 0 };
+    hw_bootup_setBootRequest(app_request);
 }
 
 void bootloader_init(void)
 {
-    // HW-level CAN should be initialized in main.c, since it is MCU-specific.
-
-    // This order is important! The bootloader starts the app when the bootloader
-    // enable pin is high, which is caused by pullup resistors internal to each
-    // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
-    // resistor alone isn't strong enough to pull up the enable line, and so the
-    // PDM will fail to boot. A bad fix for this is to turn on the rest of the
-    // boards here first, so the PDM will get help pulling up the line from the
-    // other MCUs.
-    bootloader_boardSpecific_init();
+    // Configure and initialize SEGGER SystemView. Must be done after clocks are configured.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("Bootloader reset!");
 
     hw_can_init(&can);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
+
+    bootloader_boardSpecific_init();
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -235,7 +228,10 @@ _Noreturn void bootloader_runInterfaceTask(void)
         }
         else if (command.std_id == (BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
-            hw_bootup_setBootRequest(BOOT_REQUEST_APP);
+            const BootRequest app_request = { .target        = BOOT_TARGET_APP,
+                                              .context       = BOOT_CONTEXT_NONE,
+                                              .context_value = 0 };
+            hw_bootup_setBootRequest(app_request);
             NVIC_SystemReset();
         }
         else

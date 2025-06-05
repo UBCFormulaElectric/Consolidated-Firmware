@@ -57,6 +57,9 @@
     "RegenNotAvailable": {
       "id": 811,
       "description": "Regen is not currently available."
+    "StackOverflow": {
+      "id": 850,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
     }
   }
 }

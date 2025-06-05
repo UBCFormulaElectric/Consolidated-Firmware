@@ -31,6 +31,10 @@
     "MissingFSMHeartbeat": {
       "id": 781,
       "description": "Missing FSM heartbeat"
+    },
+    "StackOverflow": {
+      "id": 750,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
     }
   }
 }

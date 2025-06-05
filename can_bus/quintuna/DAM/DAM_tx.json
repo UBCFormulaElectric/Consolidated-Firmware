@@ -1,48 +1,51 @@
 {
-    "Vitals": {
-      "msg_id": 800,
-      "cycle_time": 10,
-      "description": "DAM Vital signals",
-      "signals": {
-        "Heartbeat": {
-          "bits": 1
-        }
-      }
-    },
-    "CommitInfo": {
-      "msg_id": 809,
-      "cycle_time": 100,
-      "description": "DAM Current Running Git Commit Info",
-      "signals": {
-        "Hash": {
-          "bits": 32
-        },
-        "Clean": {
-          "bits": 1
-        }
-      }
-  },
-    "Debug": {
-      "msg_id": 807,
-      "cycle_time": 1000,
-      "description": "DAM Debug Signals",
-      "signals": {
-        "ResetReason": {
-          "enum": "CanResetReason"
-        }
-      }
-    },
-    "ShdnNodeStatus" : {
-      "msg_id": 810,
-      "cycle_time" : 10,
-      "description" : "DAM Shudown Messages",
-      "signals": {
-          "REStopOKStatus":{
-              "bits":1
-          },
-          "LEStopOKStatus":{
-              "bits":1
-          }
+  "Vitals": {
+    "msg_id": 800,
+    "cycle_time": 10,
+    "description": "DAM Vital signals",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
       }
     }
+  },
+  "CommitInfo": {
+    "msg_id": 809,
+    "cycle_time": 100,
+    "description": "DAM Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Debug": {
+    "msg_id": 807,
+    "cycle_time": 1000,
+    "description": "DAM Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 16
+      }
+    }
+  },
+  "ShdnNodeStatus": {
+    "msg_id": 810,
+    "cycle_time": 10,
+    "description": "DAM Shudown Messages",
+    "signals": {
+      "REStopOKStatus": {
+        "bits": 1
+      },
+      "LEStopOKStatus": {
+        "bits": 1
+      }
+    }
+  }
 }
