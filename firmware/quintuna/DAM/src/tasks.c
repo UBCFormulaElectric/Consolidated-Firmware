@@ -28,7 +28,7 @@
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
 
-    extern CRC_HandleTypeDef hcrc;
+extern CRC_HandleTypeDef hcrc;
 
 IoRtcTime boot_time;
 char      boot_time_string[27]; // YYYY-MM-DDTHH:MM:SS
@@ -199,7 +199,6 @@ _Noreturn void tasks_runTelemRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
 
