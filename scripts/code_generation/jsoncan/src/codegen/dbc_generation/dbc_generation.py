@@ -27,7 +27,7 @@ DBC_SIGNAL_TEMPLATE = 'SG_ {name} : {bit_start}|{num_bits}{endianness}{signed} (
 DBC_ATTRIBUTE_DEFINITONS_TEMPLATE = """\
 BA_DEF_  "BusType" STRING ;
 BA_DEF_DEF_  "BusType" "CAN";
-BA_ "BusType" "CAN";
+BA_ "BusType" "CAN FD";
 """
 DBC_ATTRIBUTE_TEMPLATE = (
     'BA_ "{attr_name}" {attr_operand} {id} {signal_name} {value};\n'
@@ -130,7 +130,7 @@ class DbcGenerator:
             id |= 2**31
 
         return DBC_MESSAGE_TEMPLATE.format(
-            id=id, name=msg.name, num_bytes=msg.bytes(), tx_node=msg.tx_node_name
+            id=id, name=msg.name, num_bytes=msg.dlc(), tx_node=msg.tx_node_name
         )
 
     @staticmethod
