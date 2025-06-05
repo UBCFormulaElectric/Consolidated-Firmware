@@ -22,12 +22,13 @@
 #include "hw_usb.h"
 #include "hw_gpios.h"
 #include "hw_crc.h"
+#include "hw_resetReason.h"
 
 #include <hw_chimera_v2.h>
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
 
-extern CRC_HandleTypeDef hcrc;
+    extern CRC_HandleTypeDef hcrc;
 
 IoRtcTime boot_time;
 char      boot_time_string[27]; // YYYY-MM-DDTHH:MM:SS

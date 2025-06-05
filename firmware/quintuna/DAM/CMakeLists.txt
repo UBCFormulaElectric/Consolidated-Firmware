@@ -17,7 +17,6 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
-        "${SHARED_APP_INCLUDE_DIR}/app_stackWaterMarks.h"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -30,7 +29,6 @@ list(APPEND IO_SRCS
         # "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         # "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_taskMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -64,11 +62,11 @@ set(HW_INCLUDE_DIRS
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
-#     if ("${BOOTLOAD}" STREQUAL "ON") TODO: bootloader does not work on dam yet.
-#         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
-#     else ()
+    if ("${BOOTLOAD}" STREQUAL "ON") # TODO: bootloader does not work on dam yet.
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+    else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
-#     endif ()
+    endif ()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
@@ -151,7 +149,7 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
 
     message("Bootloader: ${BOOTLOAD}")
-    #     if ("${BOOTLOAD}" STREQUAL "ON")
+        # if ("${BOOTLOAD}" STREQUAL "ON")
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
     file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
@@ -175,6 +173,6 @@ if ("${TARGET}" STREQUAL "binary")
                 "quintuna_DAM_boot.hex"
                 "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
         )
-    #     endif ()
+        # endif ()
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

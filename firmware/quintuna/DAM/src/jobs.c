@@ -4,7 +4,6 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-#include "app_stackWaterMarks.h"
 #include "app_canDataCapture.h"
 
 #include "io_buzzer.h"
@@ -68,7 +67,6 @@ void jobs_run1Hz_tick(void)
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
     //
     io_telemBaseTimeSend();
-    app_stackWaterMark_check();
 }
 
 void jobs_run100Hz_tick(void)
