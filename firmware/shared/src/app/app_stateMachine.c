@@ -125,7 +125,7 @@ void app_stateMachine_tickTransitionState(void)
 #ifdef TARGET_TEST
 void app_stateMachine_setCurrentState(const State *const state)
 {
-    current_state = state;
-    next_state    = state;
+    next_state = state;
+    runTickStateTransition();
 }
 #endif

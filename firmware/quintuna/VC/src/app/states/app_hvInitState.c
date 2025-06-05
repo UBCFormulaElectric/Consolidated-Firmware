@@ -19,7 +19,7 @@ typedef enum
 } INVERTER_STATES;
 
 static INVERTER_STATES current_inverter_state;
-static TimerChannel   *start_up_timer;
+static TimerChannel    start_up_timer;
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -57,7 +57,7 @@ static void hvInitStateRunOnTick100Hz(void)
             if (inv_systemReady)
             {
                 current_inverter_state = INV_DC_ON;
-                app_timer_init(start_up_timer, 1000);
+                app_timer_init(&start_up_timer, 1000);
             }
             break;
         }
@@ -68,12 +68,12 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVRRbDcOn_set(true);
             app_canTx_VC_INVRLbDcOn_set(true);
 
-            
             const bool inverter_dc_quit = app_canRx_INVRR_bQuitDcOn_get() && app_canRx_INVRL_bQuitDcOn_get() &&
                                           app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
 
-            const TimerState timeout_state = app_timer_runIfCondition(start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED;
-            
+            const TimerState timeout_state =
+                app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED;
+
             switch (timeout_state)
             {
                 case TIMER_STATE_IDLE:
@@ -98,7 +98,7 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVRRbEnable_set(true);
 
             current_inverter_state = INV_INVERTER_ON;
-            app_timer_init(start_up_timer, 1000);
+            app_timer_init(&start_up_timer, 1000);
             break;
         }
         case INV_INVERTER_ON:
@@ -108,16 +108,17 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVRRbInverterOn_set(true);
             app_canTx_VC_INVRLbInverterOn_set(true);
 
-            if (start_up_timer->state == TIMER_STATE_IDLE)
-                app_timer_restart(start_up_timer);
+            if (start_up_timer.state == TIMER_STATE_IDLE)
+                app_timer_restart(&start_up_timer);
 
-            const bool inv_timed_out = app_timer_updateAndGetState(start_up_timer) == TIMER_STATE_EXPIRED;
+            const bool inv_timed_out = app_timer_updateAndGetState(&start_up_timer) == TIMER_STATE_EXPIRED;
 
             const bool inverter_invOn_quit =
                 app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get() &&
                 app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
 
-            const TimerState timeout_state = app_timer_runIfCondition(start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED;
+            const TimerState timeout_state =
+                app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED;
 
             switch (timeout_state)
             {
@@ -141,9 +142,10 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
     }
 }
-static void hvInitStateRunOnExit(void) {
+static void hvInitStateRunOnExit(void)
+{
     current_inverter_state = INV_SYSTEM_READY;
-    app_timer_stop(start_up_timer);
+    app_timer_stop(&start_up_timer);
 }
 
 State hvInit_state = { .name              = "HV INIT",
