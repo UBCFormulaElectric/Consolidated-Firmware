@@ -198,13 +198,13 @@ int main(void)
     MX_TIM2_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
     osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
+    tasks_init();
     ASSERT_EXIT_OK(hw_usb_init());
     /* USER CODE END RTOS_MUTEX */
 

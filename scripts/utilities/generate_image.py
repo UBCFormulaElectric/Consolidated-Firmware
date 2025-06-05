@@ -30,16 +30,8 @@ if __name__ == "__main__":
     app_hex = intelhex.IntelHex(args.app_hex)
     boot_hex = intelhex.IntelHex(args.boot_hex)
 
-    # Add checksum to app file metadata, so the bootloader can verify the chip has a valid
-    # binary before booting. Our bootloader programs 8 bytes at a time (2 4-byte words), so
-    # round the size up to the nearest 8 bytes.
-    app_size_bytes = int(math.ceil((app_hex.maxaddr() - app_hex.minaddr()) / 8) * 8)
-    app_code = bytes(
-        [
-            app_hex[i]
-            for i in range(app_hex.minaddr(), app_hex.minaddr() + app_size_bytes)
-        ]
-    )
+    app_size_bytes = app_hex.maxaddr() - app_hex.minaddr()
+    app_code = bytes([app_hex[i] for i in range(app_hex.minaddr(), app_hex.maxaddr())])
     checksum = binascii.crc32(app_code)
 
     # Add checksum and app size (in bytes) to the app's metadata region.
