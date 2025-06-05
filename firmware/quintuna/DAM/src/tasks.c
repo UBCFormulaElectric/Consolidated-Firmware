@@ -155,6 +155,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    for (;;)
     {
         LOG_INFO("telem task");
         io_telemMessage_broadcastMsgFromQueue();

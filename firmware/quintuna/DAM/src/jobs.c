@@ -57,7 +57,7 @@ void jobs_init()
     app_canTx_DAM_Heartbeat_set(true);
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 
-    app_canAlerts_DAM_Warning_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
+    app_canAlerts_DAM_Info_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 }
 
 void jobs_run1Hz_tick(void)
