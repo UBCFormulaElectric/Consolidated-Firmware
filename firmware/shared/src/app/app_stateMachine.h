@@ -53,3 +53,7 @@ void app_stateMachine_tick100Hz(void);
 * @param next_state The next state
 */
 void app_stateMachine_tickTransitionState(void);
+
+#ifdef TARGET_TEST
+void app_stateMachine_setCurrentState(const State *state);
+#endif
