@@ -155,8 +155,6 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
-    // osDelay(osWaitForever);
-    for (;;)
     {
         LOG_INFO("telem task");
         io_telemMessage_broadcastMsgFromQueue();
@@ -165,7 +163,6 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runTelemRx(void)
 {
-    // osDelay(osWaitForever);
     for (;;)
     {
         // set rtc time from telem rx data
@@ -175,7 +172,6 @@ _Noreturn void tasks_runTelemRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
 
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;

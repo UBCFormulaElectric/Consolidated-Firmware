@@ -264,7 +264,7 @@ if __name__ == "__main__":
                 csv_writer.writerow(CSV_HEADER)
                 for signal in signals:
                     csv_writer.writerow(signal)
-    # if args.mf4:
-    #     csv_dir = args.output
-    #     logger.info("Converting CSV files to MDF format.")
-    #     csv_to_mf4(input=args.output)
+    if args.mf4:
+        csv_dir = args.output
+        logger.info("Converting CSV files to MDF format.")
+        csv_to_mf4(input=args.output)

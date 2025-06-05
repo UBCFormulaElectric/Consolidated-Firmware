@@ -6,6 +6,18 @@
   "info_id": 805,
   "info_counts_id": 806,
   "warnings": {
+    "WatchdogTimeout": {
+      "id": 806,
+      "description": "Watchdog timeout detected."
+    }
+  },
+  "faults": {
+    "DummyFault": {
+      "id": 880,
+      "description": "Dummy Fault"
+    }
+  },
+  "info": {
     "StackWaterMarkHighTask1Hz": {
       "id": 801,
       "description": "1Hz task stack watermark exceeded."
@@ -25,10 +37,6 @@
     "StackWaterMarkHighTaskCanTx": {
       "id": 805,
       "description": "CAN TX task stack watermark exceeded."
-    },
-    "WatchdogTimeout": {
-      "id": 806,
-      "description": "Watchdog timeout detected."
     },
     "TxOverflow": {
       "id": 807,
@@ -50,12 +58,5 @@
       "id": 811,
       "description": "Regen is not currently available."
     }
-  },
-  "faults": {
-    "DummyFault": {
-      "id": 880,
-      "description": "Dummy Fault"
-    }
-  },
-  "info": {}
+  }
 }
