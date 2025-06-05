@@ -94,10 +94,10 @@
     "description": "",
     "signals": {
       "TsimControl": {
-        "bits": 1
+        "enum": "TsimColor"
       },
       "BuzzerControl": {
-        "enum": "TsimColor"
+        "bits": 1
       }
     }
   },
