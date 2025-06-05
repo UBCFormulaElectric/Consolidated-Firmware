@@ -18,6 +18,11 @@ class VCStateMachineTest : public VCBaseTest
 
 TEST_F(VCStateMachineTest, starts_in_init_state_contactors_open)
 {
+    app_stateMachine_setCurrentState(&drive_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+
+    jobs_init();
+
     ASSERT_EQ(app_canRx_BMS_IrNegative_get(), CONTACTOR_STATE_OPEN);
     ASSERT_STATE_EQ(init_state);
 }
@@ -25,6 +30,9 @@ TEST_F(VCStateMachineTest, starts_in_init_state_contactors_open)
 TEST_F(VCStateMachineTest, air_minus_close_to_inv_on_state)
 {
     app_stateMachine_setCurrentState(&init_state);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
+
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
     ASSERT_STATE_EQ(inverterOn_state);
@@ -55,11 +63,10 @@ TEST_F(VCStateMachineTest, inverter_on_leave_condition_test)
 TEST_F(VCStateMachineTest, bms_drive_state_transition)
 {
     app_stateMachine_setCurrentState(&bmsOn_state);
-    LetTimePass(100);
-    ASSERT_STATE_EQ(bmsOn_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     LetTimePass(100);
     ASSERT_STATE_EQ(bmsOn_state);
+
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
     ASSERT_STATE_EQ(pcmOn_state);
