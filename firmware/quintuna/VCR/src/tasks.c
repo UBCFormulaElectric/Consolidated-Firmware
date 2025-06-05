@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_cans.h"
 #include "hw_hardFaultHandler.h"
 #include "io_log.h"
 #include "jobs.h"
@@ -20,14 +21,36 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
     jobs_init();
+    hw_can_init(&fd_can);
+    hw_can_init(&sx_can);
+    hw_can_init(&inv_can);
     __HAL_DBGMCU_FREEZE_IWDG1();
+}
+_Noreturn void tasks_run10Hz(void)
+{
+    static const TickType_t period_ms = 100;
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        io_canTx_enqueue100HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        // hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 
 _Noreturn void tasks_runCanFDTx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx(&sx_can_tx_queue);
+        CanMsg tx_msg = io_canQueue_popTx(&fd_can_tx_queue);
         hw_fdcan_transmit(&fd_can, &tx_msg);
     }
 }
@@ -36,7 +59,7 @@ _Noreturn void tasks_runCanSxTx(void)
 {
     for (;;)
     {
-        CanMsg tx_msg = io_canQueue_popTx(&fd_can_tx_queue);
+        CanMsg tx_msg = io_canQueue_popTx(&sx_can_tx_queue);
         hw_fdcan_transmit(&sx_can, &tx_msg);
     }
 }

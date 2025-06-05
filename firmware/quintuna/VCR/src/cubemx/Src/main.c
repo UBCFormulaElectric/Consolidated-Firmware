@@ -96,6 +96,18 @@ const osThreadAttr_t InvCanTxTask_attributes = {
     .stack_size = sizeof(InvCanTxBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
+/* Definitions for task10Hz */
+osThreadId_t         task10HzHandle;
+uint32_t             task10HzBuffer[128];
+osStaticThreadDef_t  task10HzControlBlock;
+const osThreadAttr_t task10Hz_attributes = {
+    .name       = "task10Hz",
+    .cb_mem     = &task10HzControlBlock,
+    .cb_size    = sizeof(task10HzControlBlock),
+    .stack_mem  = &task10HzBuffer[0],
+    .stack_size = sizeof(task10HzBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -112,6 +124,7 @@ void        StartFDCanTxTask(void *argument);
 void        StartCanRxTask(void *argument);
 void        StartSxCanTx(void *argument);
 void        StartInvCanTx(void *argument);
+void        startTask10Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -194,6 +207,9 @@ int main(void)
 
     /* creation of InvCanTxTask */
     InvCanTxTaskHandle = osThreadNew(StartInvCanTx, NULL, &InvCanTxTask_attributes);
+
+    /* creation of task10Hz */
+    task10HzHandle = osThreadNew(startTask10Hz, NULL, &task10Hz_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -559,6 +575,21 @@ void StartInvCanTx(void *argument)
     /* Infinite loop */
     tasks_runCanInvTx();
     /* USER CODE END StartInvCanTx */
+}
+
+/* USER CODE BEGIN Header_startTask10Hz */
+/**
+ * @brief Function implementing the task10Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_startTask10Hz */
+void startTask10Hz(void *argument)
+{
+    /* USER CODE BEGIN startTask10Hz */
+    /* Infinite loop */
+    tasks_run10Hz();
+    /* USER CODE END startTask10Hz */
 }
 
 /* MPU Configuration */

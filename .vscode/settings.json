@@ -13,5 +13,5 @@
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
   "files.associations": {},
-  "cortex-debug.variableUseNaturalFormat": false
+  "cortex-debug.variableUseNaturalFormat": true
 }

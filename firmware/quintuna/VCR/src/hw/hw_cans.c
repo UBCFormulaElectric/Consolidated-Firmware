@@ -2,6 +2,7 @@
 #include "io_canQueue.h"
 #include "main.h"
 #include <assert.h>
+#include <stdbool.h>
 #include <stm32h733xx.h>
 
 // NOTE: can2 refers to the CAN2_TX/RX on the altium
