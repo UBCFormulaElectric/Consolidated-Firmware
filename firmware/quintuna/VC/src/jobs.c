@@ -1,13 +1,16 @@
 #include "jobs.h"
 #include "app_stateMachine.h"
+#include "app_imu.h"
 #include "io_canMsg.h"
 #include "io_canQueues.h"
+#include "io_pumpControl.h"
 #include "app_jsoncan.h"
 #include <app_canTx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
 #include "states/app_states.h"
 #include "io_time.h"
+#include "io_imu.h"
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
@@ -46,6 +49,7 @@ void jobs_init()
     io_canQueue_initTx(&can3_tx_queue);
 
     app_stateMachine_init(&init_state);
+    ASSERT_EXIT_OK(io_imu_init());
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
@@ -67,6 +71,10 @@ void jobs_run100Hz_tick(void)
     app_pumpControl_MonitorPumps();
 
     io_canTx_enqueue100HzMsgs();
+
+    app_collect_imu_data();
+
+    app_pumpControl_MonitorPumps();
 }
 
 void jobs_run1kHz_tick(void)
