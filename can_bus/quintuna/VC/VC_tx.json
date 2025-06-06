@@ -410,7 +410,7 @@
     }
   },
   "INVFLSetPoints": {
-    "msg_id": 393,
+    "msg_id": 388,
     "cycle_time": 5,
     "signals": {
       "INVFLReserve1": {
@@ -455,7 +455,7 @@
     }
   },
   "INVFRSetPoints": {
-    "msg_id": 394,
+    "msg_id": 389,
     "cycle_time": 5,
     "signals": {
       "INVFRReserve1": {
@@ -500,7 +500,7 @@
     }
   },
   "INVRLSetPoints": {
-    "msg_id": 396,
+    "msg_id": 392,
     "cycle_time": 5,
     "signals": {
       "INVRLbReserve1": {
@@ -545,7 +545,7 @@
     }
   },
   "INVRRSetPoints": {
-    "msg_id": 397,
+    "msg_id": 393,
     "cycle_time": 5,
     "signals": {
       "INVRRbReserve1": {
