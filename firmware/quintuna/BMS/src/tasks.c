@@ -71,19 +71,21 @@ void balanceOne(uint8_t cell)
     LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
 }
 
-// void balanceN(uint8_t *cell, uint8_t N)
-// {
-//     app_segments_writeDefaultConfig();
-//     bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { 0 };
+void balanceN(uint8_t *cell, uint8_t N)
+{
+    app_segments_writeDefaultConfig();
+    bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { 0 };
 
-//     balance_config[0][0] = true;
-//     balance_config[0][7] = true;
+    for (uint8_t i = 0; i < N; i++)
+    {
+        balance_config[0][cell[i]] = true;
+    }
 
-//     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
-//     io_ltc6813_wakeup();
-//     LOG_IF_ERR(app_segments_configSync());
-//     LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
-// }
+    app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
+    io_ltc6813_wakeup();
+    LOG_IF_ERR(app_segments_configSync());
+    LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
+}
 
 void balanceAll(void)
 {
@@ -175,17 +177,23 @@ void tasks_init(void)
     // of the world but there's probably a way to make this more clear...
     LOG_IF_ERR(app_segments_configSync());
 
-    for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-    {
-        balanceOne(cell);
-        LOG_INFO("Balancing cell: %d", cell);
+    uint8_t cells_to_balance[2] = {
+        10,
+        11,
+    };
+    balanceN(cells_to_balance, 2);
 
-        // for (int cnt = 0; cnt < 3000; cnt++)
-        // {
-        //     io_ltc6813_wakeup();
-        //     io_time_delay(1);
-        // }
-    }
+    // for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+    // {
+    //     balanceOne(cell);
+    //     LOG_INFO("Balancing cell: %d", cell);
+
+    //     for (int cnt = 0; cnt < 3000; cnt++)
+    //     {
+    //         io_ltc6813_wakeup();
+    //         io_time_delay(1);
+    //     }
+    // }
 
     // balanceAll();
 
