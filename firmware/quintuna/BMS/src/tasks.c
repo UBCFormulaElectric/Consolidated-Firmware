@@ -1,5 +1,7 @@
 #include "tasks.h"
 #include "hw_bootup.h"
+#include "io_ltc6813.h"
+#include "io_time.h"
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -27,9 +29,11 @@
 #include "semphr.h"
 #include <FreeRTOS.h>
 #include <app_canRx.h>
+#include <float.h>
 #include <cmsis_os.h>
 #include <cmsis_os2.h>
 #include <portmacro.h>
+#include <string.h>
 
 StaticSemaphore_t init_complete_locks_buf;
 SemaphoreHandle_t init_complete_locks;
@@ -54,6 +58,43 @@ void tasks_preInit(void)
 {
     hw_hardFaultHandler_init();
     hw_bootup_enableInterruptsForApp();
+}
+
+void balanceOne(uint8_t cell)
+{
+    app_segments_writeDefaultConfig();
+    bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { 0 };
+    balance_config[0][cell]                              = true;
+    app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
+    io_ltc6813_wakeup();
+    LOG_IF_ERR(app_segments_configSync());
+    LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
+}
+
+// void balanceN(uint8_t *cell, uint8_t N)
+// {
+//     app_segments_writeDefaultConfig();
+//     bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { 0 };
+
+//     balance_config[0][0] = true;
+//     balance_config[0][7] = true;
+
+//     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
+//     io_ltc6813_wakeup();
+//     LOG_IF_ERR(app_segments_configSync());
+//     LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
+// }
+
+void balanceAll(void)
+{
+    app_segments_writeDefaultConfig();
+    bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { 0 };
+    memset(balance_config, true, sizeof(balance_config));
+
+    app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
+    io_ltc6813_wakeup();
+    LOG_IF_ERR(app_segments_configSync());
+    LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
 }
 
 void tasks_init(void)
@@ -98,11 +139,55 @@ void tasks_init(void)
 
     // Write LTC configs.
     app_segments_writeDefaultConfig();
+
+    // uint8_t balance_cells[2] = { 0, 7 };
+    // balanceN(balance_cells, 2);
+
+    // // QUICK BALANCING CODE
+    // bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+
+    // for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    // {
+    //     float   min_cv      = FLT_MAX;
+    //     uint8_t min_cv_cell = 0;
+
+    //     for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+    //     {
+    //         balance_config[seg][cell] = true;
+
+    //         if (IS_EXIT_OK(cell_voltage_success[seg][cell]) && cell_voltages[seg][cell] < min_cv)
+    //         {
+    //             min_cv_cell = seg;
+    //             min_cv      = cell_voltages[seg][cell];
+    //         }
+    //     }
+
+    //     // Set min cell to not be discharged.
+    //     balance_config[seg][min_cv_cell] = false;
+    // }
+
+    // // C is dumb
+    // app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
+
     io_ltc6813_wakeup();
 
     // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end
     // of the world but there's probably a way to make this more clear...
     LOG_IF_ERR(app_segments_configSync());
+
+    for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+    {
+        balanceOne(cell);
+        LOG_INFO("Balancing cell: %d", cell);
+
+        // for (int cnt = 0; cnt < 3000; cnt++)
+        // {
+        //     io_ltc6813_wakeup();
+        //     io_time_delay(1);
+        // }
+    }
+
+    // balanceAll();
 
     // Run all self tests at init.
     LOG_IF_ERR(app_segments_runAdcAccuracyTest());

@@ -1,6 +1,9 @@
 #pragma once
 #include "io_ltc6813.h"
 
+extern ExitCode cell_voltage_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+
 // =========== CONFIGS ===========
 
 /**

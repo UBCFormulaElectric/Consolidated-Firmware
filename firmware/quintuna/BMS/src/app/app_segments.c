@@ -40,8 +40,8 @@ static SegmentConfig read_segment_config[NUM_SEGMENTS];
 static ExitCode      config_success_buf[NUM_SEGMENTS];
 
 static uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static ExitCode cell_voltage_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+ExitCode        cell_voltage_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+float           cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
 static uint16_t aux_regs[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 static ExitCode aux_regs_success[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
@@ -125,7 +125,6 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
             dcc_bits |= (uint32_t)(balance_config[seg][cell] << cell);
         }
 
-        // TODO double check this is correct
         // note that we want balance_config to be auto scalable (for futureproofing)
         seg_b_cfg->dcc_0     = 0;
         seg_a_cfg->dcc_1_8   = dcc_bits & 0xFF;
