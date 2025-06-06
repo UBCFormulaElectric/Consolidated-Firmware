@@ -214,6 +214,41 @@
       }
     }
   },
+  "VoltageAndChargeStats": {
+    "msg_id": 458,
+
+    "cycle_time": 100,
+    "description": "BMS Cell Voltage readings",
+    "signals": {
+      "PackVoltage": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 600,
+        "unit": "V"
+      },
+      "Soc": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "SocCorrupt": {
+        "bits": 1
+      },
+      "MinCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      },
+      "MaxCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
   "CellStats": {
     "msg_id": 459,
     "cycle_time": 100,

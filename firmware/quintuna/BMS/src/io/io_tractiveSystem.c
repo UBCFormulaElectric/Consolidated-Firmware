@@ -89,7 +89,7 @@ float io_tractiveSystem_getVoltage(void)
 
 float io_tractiveSystem_getCurrentHighResolution(void)
 {
-    float adc_voltage = hw_adc_getVoltage(&ts_isns_75a);
+    float adc_voltage = hw_adc_getVoltage(&ts_isns_50a);
 
     if (adc_voltage < 0.0f)
     {

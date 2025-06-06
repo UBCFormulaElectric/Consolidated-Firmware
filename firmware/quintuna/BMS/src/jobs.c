@@ -23,6 +23,7 @@
 #include "io_canMsg.h"
 #include "io_time.h"
 #include "io_log.h"
+#include "io_irs.h"
 
 CanTxQueue can_tx_queue;
 
@@ -122,7 +123,7 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
     app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
-    if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
+    if (io_irs_isNegativeClosed() && io_irs_isPositiveClosed())
     {
         app_soc_updateSocStats();
     }
