@@ -11,17 +11,11 @@ interface DynamicSignalGraphProps {
   onDelete: () => void;
 }
 
-const DynamicSignalGraphInner: React.FC<DynamicSignalGraphProps> = ({ signalName, onDelete }) => {
+const DynamicSignalGraph: React.FC<DynamicSignalGraphProps> = ({ signalName, onDelete }) => {
   const { isEnumSignal } = useSignals();
   return isEnumSignal(signalName)
     ? <EnumerationGraphComponent signalName={signalName} onDelete={onDelete} />
     : <NumericalGraphComponent signalName={signalName} onDelete={onDelete} />;
 };
-
-const DynamicSignalGraph: React.FC<DynamicSignalGraphProps> = props => (
-  <SignalProvider>
-    <DynamicSignalGraphInner {...props} />
-  </SignalProvider>
-);
 
 export default DynamicSignalGraph;

@@ -3,7 +3,7 @@
 
 import { usePausePlay } from "@/components/shared/pause-play-control";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 interface DynamicSignalGraphProps {
   signalName: string;
@@ -35,12 +35,23 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     mapEnumValue,
   } = useSignals();
   const [pausedTime, setPausedTime] = useState<number | null>(null);
+  
+  // Track if this component subscribed to the signal for proper cleanup
+  const hasSubscribed = useRef<boolean>(false);
 
   useEffect(() => {
-    if (signalName) {
+    if (signalName && !hasSubscribed.current) {
       subscribeToSignal(signalName, SignalType.Enumeration);
+      hasSubscribed.current = true;
     }
-  }, [signalName, subscribeToSignal]);
+    
+    return () => {
+      if (hasSubscribed.current) {
+        unsubscribeFromSignal(signalName);
+        hasSubscribed.current = false;
+      }
+    };
+  }, [signalName]); // Removed function dependencies to prevent infinite loops
 
   useEffect(() => {
     if (isPaused && pausedTime === null) {
@@ -119,9 +130,12 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   }, [bars]);
 
   const handleUnsubscribe = useCallback(() => {
-    unsubscribeFromSignal(signalName);
+    if (hasSubscribed.current) {
+      unsubscribeFromSignal(signalName);
+      hasSubscribed.current = false;
+    }
     onDelete();
-  }, [signalName, unsubscribeFromSignal, onDelete]);
+  }, [signalName, onDelete]); // Removed unsubscribeFromSignal dependency
 
   return (
     <div className="mb-6 p-4 inline-block">

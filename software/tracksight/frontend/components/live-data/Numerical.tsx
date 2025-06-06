@@ -4,7 +4,7 @@
 import { usePausePlay } from "@/components/shared/pause-play-control";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DynamicSignalGraphProps {
@@ -45,12 +45,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   const [scaleFactor, setScaleFactor] = useState(100);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  useEffect(() => {
-    if (signalName && !activeSignals.includes(signalName)) {
-      subscribeToSignal(signalName, SignalType.Numerical);
-    }
-  }, [signalName, activeSignals, subscribeToSignal]);
+  
+  // Track signals this component instance subscribed to for proper cleanup
+  const componentSubscriptions = useRef<Set<string>>(new Set());
 
   const chartData = React.useMemo(() => {
     const windowMs = 100;
@@ -100,6 +97,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   const handleSelect = useCallback(
     (name: string) => {
       subscribeToSignal(name, SignalType.Numerical);
+      componentSubscriptions.current.add(name);
       setSearchTerm("");
       setIsSearchOpen(false);
     },
@@ -107,14 +105,37 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   );
 
   const handleUnsub = useCallback(
-    (name: string) => unsubscribeFromSignal(name),
+    (name: string) => {
+      unsubscribeFromSignal(name);
+      componentSubscriptions.current.delete(name);
+    },
     [unsubscribeFromSignal]
   );
 
   const handleDelete = useCallback(() => {
-    numericalSignals.forEach((n) => unsubscribeFromSignal(n));
+    numericalSignals.forEach((n) => {
+      unsubscribeFromSignal(n);
+      componentSubscriptions.current.delete(n);
+    });
     onDelete();
   }, [numericalSignals, unsubscribeFromSignal, onDelete]);
+
+  // Cleanup effect to prevent memory leaks and race conditions on unmount
+  useEffect(() => {
+    // Subscribe to the initial signal if provided
+    if (signalName && !activeSignals.includes(signalName)) {
+      subscribeToSignal(signalName, SignalType.Numerical);
+      componentSubscriptions.current.add(signalName);
+    }
+    
+    return () => {
+      // Only cleanup signals that this specific component instance subscribed to
+      componentSubscriptions.current.forEach((signal) => {
+        unsubscribeFromSignal(signal);
+      });
+      componentSubscriptions.current.clear();
+    };
+  }, []);  // Empty deps - only on mount/unmount
 
   return (
     <div className="mb-6 p-4 inline-block w-min-[100vm]">

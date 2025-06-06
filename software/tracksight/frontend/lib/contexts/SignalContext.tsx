@@ -46,7 +46,6 @@ const SignalContext = createContext<SignalContextType | undefined>(undefined)
 // Provider component
 export function SignalProvider({ children }: { children: ReactNode }) {
   const { isPaused = false } = useContext(PausePlayContext) || {}
-  useEffect(() => { if (DEBUG) console.log('SignalProvider - isPaused:', isPaused) }, [isPaused])
 
   const [availableSignals, setAvailableSignals] = useState<SignalMeta[]>([])
   const [isLoadingSignals, setIsLoadingSignals] = useState(true)
@@ -63,6 +62,18 @@ export function SignalProvider({ children }: { children: ReactNode }) {
 
   const signalSubscribers = useRef<Record<string, number>>({})
   const signalTypes = useRef<Record<string, SignalType>>({})
+  
+  // Race condition prevention
+  const pendingUnsubscriptions = useRef<Set<string>>(new Set())
+  const isMounted = useRef(true)
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
+      pendingUnsubscriptions.current.clear()
+    }
+  }, [])
 
   const isEnumSignal = useCallback((name: string) => {
     const type = signalTypes.current[name]
@@ -188,48 +199,139 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(id)
   }, [isPaused])
 
+  // Pause/play effect with race condition prevention
+  const pausedRef = useRef(isPaused)
+  
   useEffect(() => {
-    if (!socket || !isConnected) return
+    if (!socket || !isConnected || !isMounted.current) return
+    
+    // Only act on actual pause state changes, not activeSignals changes
+    const pauseStateChanged = pausedRef.current !== isPaused
+    if (!pauseStateChanged) return
+    
+    pausedRef.current = isPaused
+    
     const action = isPaused ? 'unsub' : 'sub'
-    DEBUG && console.log(isPaused ? 'Pausing' : 'Playing')
-    activeSignals.forEach(sig => {
-      if ((signalSubscribers.current[sig] || 0) > 0) {
-        DEBUG && console.log(`${isPaused ? 'Emitting unsubscription' : 'Resubscribing'} for ${sig}`)
-        socket.emit(action, sig)
-      }
+    if (DEBUG) {
+      console.log(`SignalProvider - ${isPaused ? 'Pausing' : 'Playing'} - isPaused: ${isPaused}`)
+    }
+    
+    // Use current activeSignals value from state, not dependency
+    const currentActiveSignals = activeSignals
+    
+    // Only process signals that have ref count > 0 and are not pending unsubscription
+    const signalsToProcess = currentActiveSignals.filter(sig => {
+      const refCount = signalSubscribers.current[sig] || 0
+      const notPending = !pendingUnsubscriptions.current.has(sig)
+      return refCount > 0 && notPending
     })
-  }, [isPaused, socket, isConnected, activeSignals])
+    
+    if (DEBUG && signalsToProcess.length > 0) {
+      console.log(`Processing ${signalsToProcess.length} signals: [${signalsToProcess.join(', ')}]`)
+    }
+    
+    signalsToProcess.forEach(sig => {
+      if (DEBUG) {
+        console.log(`${isPaused ? 'Emitting unsubscription' : 'Resubscribing'} for ${sig}`)
+      }
+      socket.emit(action, sig)
+    })
+  }, [isPaused, socket, isConnected]) // Removed activeSignals dependency
 
   const subscribeToSignal = useCallback((signalName: string, type: SignalType = SignalType.Any) => {
     const name = signalName.trim()
+    
+    // Skip if unmounted or already pending unsubscription
+    if (!isMounted.current || pendingUnsubscriptions.current.has(name)) {
+      if (DEBUG) console.log(`Skipping subscribe for ${name} - unmounted or pending unsubscription`)
+      return
+    }
+    
     const assigned = type === SignalType.Any ? (isEnumSignal(name) ? SignalType.Enumeration : SignalType.Numerical) : type
     signalTypes.current[name] = assigned
     signalSubscribers.current[name] = (signalSubscribers.current[name] || 0) + 1
+    
     if (DEBUG) {
-      console.log(`Subscribing to ${name}`)
-      logSubscriptionState()
+      console.log(`Subscribing to ${name} (${assigned === SignalType.Enumeration ? 'enum' : 'numerical'}) - ref count: ${signalSubscribers.current[name]}`)
+      // Inline logging to avoid dependency on logSubscriptionState
+      console.log('Current subscription state:')
+      const refs = Object.entries(signalSubscribers.current)
+        .filter(([, c]) => c > 0)
+        .map(([s, c]) => `${s}: ${c}`)
+        .join(', ') || 'None'
+      console.log('Signal ref counts:', refs)
     }
-    if (!activeSignals.includes(name) && signalSubscribers.current[name] === 1) {
-      setActiveSignals(a => [...a, name])
-      if (socket && isConnected && !isPaused) socket.emit('sub', name)
+    
+    // Only add to activeSignals and emit subscription if this is the first subscriber
+    const isFirstSubscriber = signalSubscribers.current[name] === 1
+    
+    if (isFirstSubscriber) {
+      setActiveSignals(current => {
+        // Double-check it's not already in the array to prevent duplicates
+        if (current.includes(name)) return current
+        return [...current, name]
+      })
+      
+      // Only emit subscription if connected and not paused
+      if (socket && isConnected && !isPaused) {
+        socket.emit('sub', name)
+      }
     }
-  }, [activeSignals, isConnected, isEnumSignal, isPaused, logSubscriptionState, socket])
+  }, [isConnected, isEnumSignal, isPaused, socket])
 
   const unsubscribeFromSignal = useCallback((signalName: string) => {
     const name = signalName.trim()
+    
+    // Prevent race conditions during deletion
+    if (pendingUnsubscriptions.current.has(name) || !isMounted.current) {
+      if (DEBUG) console.log(`Skipping unsubscribe for ${name} - already pending or unmounted`)
+      return
+    }
+    
+    pendingUnsubscriptions.current.add(name)
+    
     const count = (signalSubscribers.current[name] || 0) - 1
-    if (count < 0) return DEBUG && console.log(`Warning: Unsubscribe ${name} ref count <= 0`)
+    if (count < 0) {
+      pendingUnsubscriptions.current.delete(name)
+      return DEBUG && console.log(`Warning: Unsubscribe ${name} ref count <= 0`)
+    }
+    
     signalSubscribers.current[name] = count
     if (DEBUG) {
-      console.log(`Unsubscribing from ${name}`)
-      logSubscriptionState()
+      console.log(`Unsubscribing from ${name} - new ref count: ${count}`)
+      // Inline logging to avoid dependency on logSubscriptionState
+      console.log('Current subscription state:')
+      const refs = Object.entries(signalSubscribers.current)
+        .filter(([, c]) => c > 0)
+        .map(([s, c]) => `${s}: ${c}`)
+        .join(', ') || 'None'
+      console.log('Signal ref counts:', refs)
     }
+    
     if (count === 0) {
+      // Remove from active signals first
       setActiveSignals(a => a.filter(s => s !== name))
-      socket && isConnected && socket.emit('unsub', name)
+      
+      // Always emit unsubscription if connected, regardless of pause state
+      // This ensures clean disconnection from the signal
+      if (socket && isConnected) {
+        socket.emit('unsub', name)
+      }
+      
+      // Clean up data and refs immediately
       pruneSignalData(name)
+      
+      // Clear pending flag immediately for final unsubscription
+      pendingUnsubscriptions.current.delete(name)
+    } else {
+      // Clear pending flag after a brief delay for partial unsubscription
+      setTimeout(() => {
+        if (isMounted.current) {
+          pendingUnsubscriptions.current.delete(name)
+        }
+      }, 50)
     }
-  }, [isConnected, pruneSignalData, logSubscriptionState, socket])
+  }, [isConnected, pruneSignalData, socket])
 
   const clearData = () => {
     if (DEBUG) console.log('Clearing data');
@@ -239,8 +341,19 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   }
 
   const clearAllSubscriptions = useCallback(() => {
+    if (!isMounted.current) return
+    
     DEBUG && console.log('Clearing all subscriptions and data')
-    activeSignals.forEach(sig => socket && isConnected && socket.emit('unsub', sig))
+    
+    // Clear pending operations first
+    pendingUnsubscriptions.current.clear()
+    
+    // Batch unsubscribe all active signals
+    if (socket && isConnected) {
+      activeSignals.forEach(sig => socket.emit('unsub', sig))
+    }
+    
+    // Clear all state
     setActiveSignals([])
     signalSubscribers.current = {}
     signalTypes.current = {}
