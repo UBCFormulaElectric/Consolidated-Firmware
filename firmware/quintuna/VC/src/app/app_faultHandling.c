@@ -11,15 +11,13 @@
 bool app_faultHandling_checkBoardStatus(void){
     const bool bms_fault  = app_canAlerts_BoardHasFault(BMS_NODE);
     const bool vc_fault   = app_canAlerts_BoardHasFault(VC_NODE);
-    const bool fsm_fault  = app_canAlerts_BoardHasFault(RSM_NODE);
     const bool crit_fault = app_canAlerts_BoardHasFault(CRIT_NODE);
-
-    return bms_fault || vc_fault || fsm_fault || crit_fault;
+    return bms_fault || vc_fault || crit_fault;
 }
 
 bool app_faultHandling_inverterStatus(void){
     const bool invrr_error = app_canRx_INVRR_bError_get() == true;
-    const bool invrl_error = app_canRx_INVRL_bError_get() == true;
+    const bool invrl_error = app_canRx_INVxRL_bError_get() == true;
     const bool invfl_error = app_canRx_INVFL_bError_get() == true;
     const bool invfr_error = app_canRx_INVFR_bError_get() == true;
 
