@@ -77,10 +77,10 @@ _Noreturn void tasks_runcanRx(void)
 {
     for (;;)
     {
-        const CanMsg rx_msg       = io_canQueue_popRx();
+        const CanMsg rx_msg = io_canQueue_popRx();
 
         io_bootloaderReroute_reRoute(&rx_msg);
-        JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
 
         io_canReroute_can1(&json_can_msg);
         io_canReroute_can2(&json_can_msg);
