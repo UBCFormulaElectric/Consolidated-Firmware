@@ -10,6 +10,13 @@
 #define PCM_UNDER_VOLTAGE_TIMEOUT (100) //if voltage doesnt rise above 18V in this amout of time after entering pcmOnState then go into fault state
 #define PCM_TOGGLE_TIMEOUT (10) // to retry PCM wait toggle PCM where it stays off for 10ms
 
+
+typedef enum {
+    NO_RETRY, 
+    RETRY_TRIGGERED,
+    RETRY_DONE
+} pcmRetryStates; 
+
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -26,12 +33,16 @@ static PowerManagerConfig power_manager_state = {
 
 static TimerChannel *pcm_under_voltage_timer;
 static bool toggle_pcm;
+static pcmRetryStates pcm_retry_state; 
+static float pcm_prev_voltage = 0.0f; 
+static float pcm_curr_voltage = 0.0f;
 
 static void pcmOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_PCM_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
     toggle_pcm = false; 
+    pcm_retry_state = NO_RETRY; 
     io_pcm_set(true);
     app_timer_init(pcm_under_voltage_timer, PCM_UNDER_VOLTAGE_TIMEOUT);
     app_timer_restart(pcm_under_voltage_timer);
@@ -41,8 +52,12 @@ static void pcmOnStateRunOnTick1Hz(void) {};
 static void pcmOnStateRunOnTick100Hz(void) 
 {
 
-    static float pcm_prev_voltage = 0.0f; 
-    static float pcm_curr_voltage = 0.0f;
+    if (RETRY_TRIGGERED == pcm_retry_state)
+    {
+        io_pcm_set(true); 
+        app_timer_restart(pcm_under_voltage_timer);
+
+    }
 
     switch (app_timer_updateAndGetState(pcm_under_voltage_timer))
     {
@@ -52,18 +67,19 @@ static void pcmOnStateRunOnTick100Hz(void)
             break;
         
         case TIMER_STATE_EXPIRED:
-            if(toggle_pcm)
+            if (NO_RETRY == pcm_retry_state)
+            {
+                pcm_retry_state = RETRY_TRIGGERED;
+                io_pcm_set(false); // for retry we turn the pcm off and then turn it on, on the next tick 
+            }
+            else if(RETRY_TRIGGERED == pcm_retry_state)
             {
                 // already retried, now go to fault state
                 app_timer_stop(pcm_under_voltage_timer);
                 app_canAlerts_VC_Fault_PcmUnderVoltageFault_set(true);
                 app_stateMachine_setNextState(&fault_state);
             }
-            else
-            {
-                toggle_pcm = true; 
-                io_pcm_toggle();
-            }
+            
             break;
         
         case TIMER_STATE_IDLE:
@@ -71,7 +87,7 @@ static void pcmOnStateRunOnTick100Hz(void)
             break;
     }
     
-    if (pcm_curr_voltage > PCM_MAX_VOLTAGE && pcm_prev_voltage)
+    if (pcm_curr_voltage > PCM_MAX_VOLTAGE && pcm_prev_voltage > PCM_MAX_VOLTAGE)
     {
        
         app_canAlerts_VC_Fault_PcmOveVoltageFault_set(true);
