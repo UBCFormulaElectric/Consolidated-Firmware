@@ -520,12 +520,23 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
  */
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
     if (hspi->Instance == SPI4)
     {
         /* USER CODE BEGIN SPI4_MspInit 0 */
 
         /* USER CODE END SPI4_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI4;
+        PeriphClkInitStruct.Spi45ClockSelection  = RCC_SPI45CLKSOURCE_HSE;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* Peripheral clock enable */
         __HAL_RCC_SPI4_CLK_ENABLE();
 

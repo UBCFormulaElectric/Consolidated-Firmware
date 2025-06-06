@@ -19,7 +19,8 @@ class AppCanRxModule(CModule):
 
         for board in boards:
             board_tx_msg = set(
-                msg for msg in db.msgs.values() if msg.tx_node_name == board)
+                msg for msg in db.msgs.values() if msg.tx_node_name == board
+            )
             received_board_msg = board_tx_msg.intersection(self._rx_msgs)
             self._received_boards_messages[board] = received_board_msg
 

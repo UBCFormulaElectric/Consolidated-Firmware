@@ -1,24 +1,28 @@
 import jinja2 as j2
 
-from ...can_database import CanDatabase, CanMessage
+from ...can_database import CanDatabase, CanMessage, CanSignal
 from ...utils import *
 from .cmodule import CModule
 from .routing import CanRxConfig, CanTxConfig
 from .utils import load_template
 
 
-def calculate_packing_iterations(signal):
+def calculate_packing_iterations(signal: CanSignal):
     packed_bits = 0
     iterations = []
-    bit_start = signal.start_bit
-    starting_byte = signal.start_bit // BYTE_SIZE
 
     while packed_bits < signal.bits:
-        bits_to_pack = min(
-            BYTE_SIZE - (bit_start % BYTE_SIZE), signal.bits - packed_bits
-        )
-        shift = packed_bits - (bit_start % BYTE_SIZE)
-        mask = (1 << bits_to_pack) - 1 << (bit_start % BYTE_SIZE)
+        bit_start = signal.start_bit + packed_bits
+        starting_byte = bit_start // BYTE_SIZE
+        bit_in_byte = bit_start % BYTE_SIZE
+        bits_to_pack = min(BYTE_SIZE - bit_in_byte, signal.bits - packed_bits)
+
+        if signal.big_endian:
+            shift = signal.bits - packed_bits - bits_to_pack - bit_in_byte
+        else:
+            shift = packed_bits - bit_in_byte
+
+        mask = (1 << bits_to_pack) - 1 << bit_in_byte
         mask_text = f"0x{mask:X}"
         comment_data = ["_"] * BYTE_SIZE
         for i in range(bit_start % BYTE_SIZE, (bit_start % BYTE_SIZE) + bits_to_pack):
@@ -35,8 +39,6 @@ def calculate_packing_iterations(signal):
         )
 
         packed_bits += bits_to_pack
-        bit_start += bits_to_pack
-        starting_byte += 1
 
     return iterations
 
@@ -74,17 +76,17 @@ class AppCanUtilsModule(CModule):
 
 def signal_placement_comment(msg: CanMessage):
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    signals = ["_"] * (msg.bytes() * 8)
+    signals = ["_"] * (msg.dlc() * 8)
     for signal_cnt, signal in enumerate(msg.signals):
         for i in range(signal.start_bit, signal.start_bit + signal.bits):
             signals[i] = chars[signal_cnt % len(chars)]
 
     signals = list(reversed(signals))
 
-    placement_part = f'|{"|".join("".join(signals[i * 8:(i + 1) * 8]) for i in range(0, msg.bytes()))}|'
-    if msg.bytes() == 0:
+    placement_part = f"|{'|'.join(''.join(signals[i * 8 : (i + 1) * 8]) for i in range(0, msg.dlc()))}|"
+    if msg.dlc() == 0:
         return "(0 data bytes)"
-    elif msg.bytes() == 1:
+    elif msg.dlc() == 1:
         return placement_part + " (1 data byte)"
     else:
-        return placement_part + f" ({msg.bytes()} data bytes)"
+        return placement_part + f" ({msg.dlc()} data bytes)"

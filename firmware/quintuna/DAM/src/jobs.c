@@ -4,25 +4,40 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_canDataCapture.h"
 
 #include "io_buzzer.h"
 #include "io_log.h"
 #include "io_tsim.h"
 
 #include "io_canQueue.h"
+#include "io_canLogging.h"
+#include "io_fileSystem.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
 #include "io_time.h"
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 
+#include "hw_resetReason.h"
+
 CanTxQueue can_tx_queue;
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
-    io_telemMessage_pushMsgtoQueue(&msg);
     io_canQueue_pushTx(&can_tx_queue, &msg);
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
+    {
+        io_canLogging_loggingQueuePush(&msg);
+    }
+
+    if (app_dataCapture_needsTelem((uint16_t)msg.std_id, msg.timestamp))
+    {
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(&msg);
+    }
 }
 
 void jobs_init()
@@ -31,18 +46,17 @@ void jobs_init()
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
-
+    io_telemMessage_init();
     io_rtc_init();
     io_tsim_set_off();
-    // save start_time to be broadcasted SEE IF THIS SHOULD BE MOVED
-    // io_rtc_readTime(&start_time);
-
-    // move into can msg
     io_telemBaseTimeInit();
 
     app_canTx_DAM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_DAM_Heartbeat_set(true);
+    app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    app_canAlerts_DAM_Info_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 }
 
 void jobs_run1Hz_tick(void)
@@ -99,10 +113,20 @@ void jobs_runCanRx_tick(void)
 
 void jobs_runCanRx_callBack(const CanMsg *rx_msg)
 {
-    io_telemMessage_pushMsgtoQueue(rx_msg);
     if (io_canRx_filterMessageId_can1(rx_msg->std_id))
     {
         io_canQueue_pushRx(rx_msg);
+    }
+    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    {
+        io_canLogging_loggingQueuePush(rx_msg);
+    }
+
+    if (app_dataCapture_needsTelem((uint16_t)rx_msg->std_id, rx_msg->timestamp))
+    {
+        // Should make this log an error but it spams currently...
+        // Consider doing a "num errors remaining" strategy like CAN logging.
+        io_telemMessage_pushMsgtoQueue(rx_msg);
     }
     // check and process CAN msg for bootloader start msg
 }

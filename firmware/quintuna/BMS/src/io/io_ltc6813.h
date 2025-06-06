@@ -128,6 +128,11 @@ ExitCode io_ltc6813_startThermistorsAdcConversion(void);
  */
 
 /**
+ * Wake up LTCs. Sends a dummy command (RDCFGA). See "Waking Up the Serial Interface" in the datasheet.
+ */
+void io_ltc6813_wakeup(void);
+
+/**
  * polls the LTC6813 for the completion of the ADC conversions
  * @return success of the operation
  */

@@ -65,6 +65,8 @@ ExitCode hw_spi_transmitThenReceive(
     const uint16_t combined_size = tx_buffer_size + rx_buffer_size;
     uint8_t        padded_tx_buffer[combined_size];
     uint8_t        padded_rx_buffer[combined_size];
+    memset(padded_tx_buffer, 0, sizeof(padded_tx_buffer));
+    memset(padded_rx_buffer, 0, sizeof(padded_rx_buffer));
 
     // Copy tx_buffer into beginning of larger padded_tx_buffer
     memcpy(padded_tx_buffer, tx_buffer, tx_buffer_size);
@@ -76,6 +78,11 @@ ExitCode hw_spi_transmitThenReceive(
         const bool exit = hw_utils_convertHalStatus(HAL_SPI_TransmitReceive(
             device->bus->handle, padded_tx_buffer, padded_rx_buffer, combined_size, device->timeout_ms));
         disableNss(device);
+
+        // Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not
+        // relevant Copy entries at the end of padded_rx_buffer back into rx_buffer
+        memcpy(rx_buffer, &padded_rx_buffer[tx_buffer_size], rx_buffer_size);
+
         return exit;
     }
 
