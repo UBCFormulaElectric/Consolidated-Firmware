@@ -5,6 +5,8 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_canDataCapture.h"
+#include "app_timer.h"
+#include "app_canUtils.h"
 
 #include "io_buzzer.h"
 #include "io_log.h"
@@ -18,10 +20,15 @@
 #include "io_time.h"
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
+#include "io_log.h"
 
 #include "hw_resetReason.h"
 
+#define RED_TOGGLE_TIME 150
+
 CanTxQueue can_tx_queue;
+static TimerChannel tsim_toggle_timer;
+static TsimColor curr_tsim_color; 
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -55,7 +62,8 @@ void jobs_init()
     app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_DAM_Heartbeat_set(true);
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
-
+    app_timer_init(&tsim_toggle_timer, (uint32_t)RED_TOGGLE_TIME);
+    curr_tsim_color = TSIM_OFF;
     app_canAlerts_DAM_Info_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 }
 
@@ -82,19 +90,50 @@ void jobs_run100Hz_tick(void)
     {
         io_disable_buzzer();
     }
+    // following TSIM outline stated in https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
+    const bool fault_detected = app_canRx_BMS_BmsLatchedFault_get() || app_canRx_BMS_ImdLatchedFault_get();
+    if (!fault_detected)
+    {
+        io_tsim_set_green();
+        app_timer_stop(&tsim_toggle_timer);
+    }
+    else if (fault_detected)
+    {
+        static TsimColor next_tsim_color = TSIM_RED;
 
-    const TsimColor tsimColor = app_canRx_VC_TsimControl_get();
-    if (tsimColor == TSIM_GREEN)
-    {
-        io_tsim_set_red(true);
-    }
-    else if (tsimColor == TSIM_RED)
-    {
-        io_tsim_set_red(true);
-    }
-    else if (tsimColor == TSIM_OFF)
-    {
-        io_tsim_set_off();
+        switch(  app_timer_updateAndGetState(&tsim_toggle_timer))
+        {
+            case TIMER_STATE_IDLE: // should only ever be IDLE at the very beginning when the first red command sent 
+                io_tsim_set_red();
+                app_timer_restart(&tsim_toggle_timer);
+            break; 
+            case TIMER_STATE_EXPIRED:
+                if ((TSIM_OFF == curr_tsim_color) && (TSIM_RED == next_tsim_color))
+                {
+                    io_tsim_set_red();
+                    app_timer_restart(&tsim_toggle_timer);
+                    curr_tsim_color = TSIM_RED;
+                    next_tsim_color = TSIM_OFF;
+                }
+                else if ((TSIM_RED == curr_tsim_color) && (TSIM_OFF == next_tsim_color))
+                {
+                    io_tsim_set_off();
+                    app_timer_restart(&tsim_toggle_timer);
+                    curr_tsim_color = TSIM_OFF;
+                    next_tsim_color = TSIM_RED;
+                }
+
+            break; 
+            case TIMER_STATE_RUNNING:
+                // do nothing, hold state until timer expires
+                LOG_PRINTF("time passed %d\n", app_timer_getElapsedTime(&tsim_toggle_timer));
+                break; 
+            default: 
+                    io_tsim_set_red();
+                    app_timer_restart(&tsim_toggle_timer);
+                    break; 
+            
+        }
     }
 }
 

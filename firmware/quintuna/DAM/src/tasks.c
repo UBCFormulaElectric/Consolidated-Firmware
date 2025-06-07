@@ -66,7 +66,7 @@ void tasks_init(void)
     // hw_gpio_writePin(&tsim_red_en_pin, true);
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
-    io_telemMessage_init();
+    // io_telemMessage_init();
 
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 
@@ -142,6 +142,7 @@ _Noreturn void tasks_run1kHz(void)
 
     static const TickType_t period_ms   = 1U;
     uint32_t                start_ticks = osKernelGetTickCount();
+    tasks_init();
     for (;;)
     {
         // const uint32_t task_start_ms = io_time_getCurrentMs();

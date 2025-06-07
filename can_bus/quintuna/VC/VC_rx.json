@@ -10,6 +10,9 @@
     "INVFL_FLInverterInfo1",
     "INVFR_FRInverterInfo1",
     "INVRL_RLInverterInfo1",
-    "INVRR_RRInverterInfo1"
+    "INVRR_RRInverterInfo1",
+    "VCR_Vitals",
+    "VCR_CommitInfo",
+    "VCR_Debug"
   ]
 }
