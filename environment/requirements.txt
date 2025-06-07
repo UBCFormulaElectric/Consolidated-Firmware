@@ -41,3 +41,5 @@ libusb-package
 python-can
 matplotlib
 pyvisa
+
+-e ../scripts/code_generation
