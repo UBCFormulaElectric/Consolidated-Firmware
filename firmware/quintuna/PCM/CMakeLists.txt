@@ -47,12 +47,13 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_cortex.c"
+            "stm32f4xx_hal_dma.c"
             "stm32f4xx_hal_exti.c"
             "stm32f4xx_hal_gpio.c"
             "stm32f4xx_hal_pwr_ex.c"
             "stm32f4xx_hal_rcc_ex.c"
             "stm32f4xx_hal_rcc.c"
-            "stm32f4xx_hal_smbus.c"
+            "stm32f4xx_hal_i2c.c"
             "stm32f4xx_hal.c"
     )
 
@@ -63,6 +64,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             FALSE
     )
+    stm32f412rx_freertos_library("quintuna_PCM_freertos")
 
-    target_link_libraries("quintuna_PCM_app.elf" PRIVATE "quintuna_PCM_stm32cube" "quintuna_PCM_stm32cube_hal")
+    target_link_libraries("quintuna_PCM_app.elf" PRIVATE "quintuna_PCM_stm32cube" "quintuna_PCM_stm32cube_hal" "quintuna_PCM_freertos")
 endif ()

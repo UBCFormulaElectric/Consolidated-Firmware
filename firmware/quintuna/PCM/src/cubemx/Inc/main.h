@@ -30,7 +30,6 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-#include "stm32_config_stack.h"
     /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
 
@@ -43,7 +42,6 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern SMBUS_HandleTypeDef hsmbus1;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

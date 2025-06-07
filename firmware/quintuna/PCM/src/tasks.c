@@ -26,14 +26,14 @@ void tasks_init()
 
 void tasks_tick()
 {
-    HAL_SMBUS_IsDeviceReady(&hsmbus1, VICOR_ADDRESS, 5, 10);
+    // HAL_SMBUS_IsDeviceReady(&hsmbus1, VICOR_ADDRESS, 5, 10);
 
     // note that transfer options are
     // SMBUS_FIRST_FRAME,SMBUS_NEXT_FRAME,SMBUS_FIRST_AND_LAST_FRAME_NO_PEC,SMBUS_LAST_FRAME_NO_PEC
     // SMBUS_FIRST_AND_LAST_FRAME_WITH_PEC,SMBUS_LAST_FRAME_WITH_PEC
 
     uint8_t tx[2] = { OPERATION, pcm_en ? 0x80 : 0x00 };
-    HAL_SMBUS_Master_Transmit_IT(&hsmbus1, VICOR_ADDRESS, tx, 2, SMBUS_FIRST_FRAME);
+    // HAL_SMBUS_Master_Transmit_IT(&hsmbus1, VICOR_ADDRESS, tx, 2, SMBUS_FIRST_FRAME);
 }
 
 void HAL_GPIO_EXTI_Callback(const uint16_t GPIO_Pin)
