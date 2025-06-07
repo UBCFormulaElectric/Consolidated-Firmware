@@ -1,6 +1,7 @@
 #include "app_segments.h"
 #include "app_canTx.h"
 #include "app_thermistors.h"
+#include "app_globals.h"
 
 #include "app_utils.h"
 #include "io_ltc6813.h"
@@ -511,6 +512,9 @@ ExitCode app_segments_openWireCheck(void)
     // ASSERT_EXIT_OK(io_ltc6813_startCellsAdcConversion()); // TODO: I don't think you do this here?
     io_time_delay(201);
     io_ltc6813_readVoltageRegisters(owc_pdcv, volt_success_buf);
+
+    // reset settle count for soc
+    globals->cell_monitor_settle_count = 0;
 
     // perform the check
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)

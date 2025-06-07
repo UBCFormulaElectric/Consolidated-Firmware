@@ -127,6 +127,10 @@ void jobs_run100Hz_tick(void)
     {
         app_soc_updateSocStats();
     }
+    if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
+    {
+        globals->cell_monitor_settle_count++;
+    }
     /**
      * add cell balancing check once cell balancing is enabled
      */
