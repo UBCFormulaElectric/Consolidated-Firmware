@@ -12,6 +12,8 @@
 #include "io_canRx.h"
 // app
 #include "app_commitInfo.h"
+#include "states/app_initState.h"
+#include "app_stateMachine.h"
 // io
 #include "io_bootHandler.h"
 #include "io_canQueue.h"
@@ -46,10 +48,13 @@ void jobs_init()
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
+
+    app_stateMachine_init(app_initState_get());
 }
 
 void jobs_run1Hz_tick(void)
 {
+    app_stateMachine_tick1Hz();
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -61,8 +66,11 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    io_canTx_enqueue100HzMsgs();
+    app_stateMachine_tick100Hz();
+
     app_shdnLoop_broadcast();
+
+    io_canTx_enqueue100HzMsgs();
 }
 
 void jobs_run1kHz_tick(void)

@@ -6,6 +6,7 @@
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
+#include "app_stateMachine.h"
 
 #include "hw_bootup.h"
 #include "io_log.h"
@@ -69,7 +70,7 @@ void tasks_init(void)
     hw_adcs_chipsInit();
     hw_pwms_init();
     hw_can_init(&can1);
-    hw_can_init(&can2);
+    // hw_can_init(&can2);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     jobs_init();
@@ -128,6 +129,7 @@ void tasks_run1Hz(void)
         {
             jobs_run1Hz_tick();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -143,6 +145,7 @@ void tasks_run100Hz(void)
         {
             jobs_run100Hz_tick();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -156,6 +159,7 @@ void tasks_run1kHz(void)
     {
         // hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -182,6 +186,8 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
+    osDelayUntil(0xFFFFFFFF);
+
     static const TickType_t period_ms = 100U; // 10Hz
 
     for (;;)
@@ -208,6 +214,8 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
+    osDelayUntil(0xFFFFFFFF);
+
     static const TickType_t period_ms = 1000U; // 1Hz
 
     for (;;)
@@ -234,6 +242,8 @@ void tasks_runLtcTemps(void)
 
 void tasks_runLtcDiagnostics(void)
 {
+    osDelayUntil(0xFFFFFFFF);
+
     static const TickType_t period_ms = 10000U; // Every 10s
 
     for (;;)
