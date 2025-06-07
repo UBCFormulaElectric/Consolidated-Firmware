@@ -8,7 +8,8 @@
 
 #define NUM_FAULT_NODES 14
 
-bool app_faultHandling_checkBoardStatus(void){
+bool app_faultHandling_checkBoardStatus(void)
+{
     const bool bms_fault  = app_canAlerts_BoardHasFault(BMS_NODE);
     const bool vc_fault   = app_canAlerts_BoardHasFault(VC_NODE);
     const bool fsm_fault  = app_canAlerts_BoardHasFault(RSM_NODE);
@@ -17,7 +18,8 @@ bool app_faultHandling_checkBoardStatus(void){
     return bms_fault || vc_fault || fsm_fault || crit_fault;
 }
 
-bool app_faultHandling_inverterStatus(void){
+bool app_faultHandling_inverterStatus(void)
+{
     const bool invrr_error = app_canRx_INVRR_bError_get() == true;
     const bool invrl_error = app_canRx_INVRL_bError_get() == true;
     const bool invfl_error = app_canRx_INVFL_bError_get() == true;
@@ -28,15 +30,17 @@ bool app_faultHandling_inverterStatus(void){
     app_canAlerts_VC_Fault_FrontLeftInverterFault_set(invfl_error);
     app_canAlerts_VC_Fault_FrontRightInverterFault_set(invfr_error);
 
-    return invfl_error||invrl_error||invfl_error||invfr_error;
+    return invfl_error || invrl_error || invfl_error || invfr_error;
 }
 
-void app_faultHandling_globalFaultCheck(void){
-
-    if (app_faultHandling_checkBoardStatus()){
+void app_faultHandling_globalFaultCheck(void)
+{
+    if (app_faultHandling_checkBoardStatus())
+    {
         app_stateMachine_setNextState(&fault_state);
     }
-    else if (app_faultHandling_inverterStatus()){
+    else if (app_faultHandling_inverterStatus())
+    {
         app_stateMachine_setNextState(&hvInit_state);
     }
 }

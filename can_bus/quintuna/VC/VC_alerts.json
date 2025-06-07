@@ -4,6 +4,72 @@
   "warnings_counts_id": 503,
   "faults_counts_id": 504,
   "warnings": {
+    "ImuInitFailed": {
+      "id": 516,
+      "description": "Initializing the embedded IMU failed."
+    },
+    "FlowRateInputOutOfRange": {
+      "id": 517,
+      "description": "Input to app_pumpControl_setFlowRate out of range"
+    },
+    "BatteryRailOvercurrentFault": {
+      "id": 557,
+      "description": "LV rail from the 18650 batteries was overcurrent."
+    },
+    "AccumulatorRailOvercurrentFault": {
+      "id": 558,
+      "description": "LV rail from the HV DCDC was overcurrent."
+    },
+    "LvChargeFault": {
+      "id": 559,
+      "description": "LV battery charger has faulted."
+    },
+    "BoostControllerFault": {
+      "id": 560,
+      "description": "Boost controller has faulted."
+    },
+    "BrakeAppsDisagreement": {
+      "id": 564,
+      "description": "Brakes and apps are active at same time."
+    },
+    "MissingCRITHeartbeat": {
+      "id": 554,
+      "description": "Missing heartbeat signal from the CRIT."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 552,
+      "description": "Missing heartbeat signal from the FSM."
+    },
+    "MissingRSMHeartbeat": {
+      "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    }
+  },
+  "faults": {
+    "MissingBMSHeartbeat": {
+      "id": 551,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "FrontLeftInverterFault": {
+      "id": 555,
+      "description": "Left inverter entered fault state."
+    },
+    "FrontRightInverterFault": {
+      "id": 556,
+      "description": "Right inverter entered fault state."
+    },
+    "RearLeftInverterFault": {
+      "id": 557,
+      "description": "Left inverter entered fault state."
+    },
+    "RearRightInverterFault": {
+      "id": 558,
+      "description": "Right inverter entered fault state."
+    }
+  },
+  "info_id": 505,
+  "info_counts_id": 506,
+  "info": {
     "StackWaterMarkHighTask1Hz": {
       "id": 501,
       "description": "1Hz task stack watermark exceeded."
@@ -40,29 +106,9 @@
       "id": 509,
       "description": "Regen is not currently available."
     },
-    "ImuInitFailed": {
-      "id": 516,
-      "description": "Initializing the embedded IMU failed."
-    },
-    "FlowRateInputOutOfRange": {
-      "id": 517,
-      "description": "Input to app_pumpControl_setFlowRate out of range"
-    },
-    "BatteryRailOvercurrentFault": {
-      "id": 557,
-      "description": "LV rail from the 18650 batteries was overcurrent."
-    },
-    "AccumulatorRailOvercurrentFault": {
-      "id": 558,
-      "description": "LV rail from the HV DCDC was overcurrent."
-    },
-    "LvChargeFault": {
-      "id": 559,
-      "description": "LV battery charger has faulted."
-    },
-    "BoostControllerFault": {
-      "id": 560,
-      "description": "Boost controller has faulted."
+    "SbgInitFailed": {
+      "id": 565,
+      "description": "Initializing the SBG Ellipse GPS failed"
     },
     "HighNumberOfCanDataLogs": {
       "id": 561,
