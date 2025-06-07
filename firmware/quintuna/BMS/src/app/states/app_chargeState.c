@@ -40,8 +40,8 @@ static uint16_t encodeElconParam(float value)
 static float decodeElconParam(uint8_t high, uint8_t low)
 {
     uint16_t raw_be = (uint16_t)((high << 8) | low); // MSB first in frame
-    uint16_t raw_le = canMsgEndianSwap(raw_be);    // swap to host order
-    return (float)raw_le / 10.0f;                  // back to physical
+    uint16_t raw_le = canMsgEndianSwap(raw_be);      // swap to host order
+    return (float)raw_le / 10.0f;                    // back to physical
 }
 
 ElconRx readElconStatus(void)
@@ -134,13 +134,13 @@ static void app_chargeStateRunOnTick100Hz()
     DCRange_t idc_range;
     if (charger_connection_status == EVSE_CONNECTED)
     {
-        const float evse_iac  = app_charger_getAvaliableCurrent();
-        idc_range = calc_dc_current_range(evse_iac);
+        const float evse_iac = app_charger_getAvaliableCurrent();
+        idc_range            = calc_dc_current_range(evse_iac);
     }
     else // else wall charger is connected
     {
-        const float wall_iac  = 32.0f;
-        idc_range = calc_dc_current_range(wall_iac);
+        const float wall_iac = 32.0f;
+        idc_range            = calc_dc_current_range(wall_iac);
     }
 
     const ElconTx tx = { .maxVoltage_V = PACK_VOLTAGE_DC,   // always cap at 581V
