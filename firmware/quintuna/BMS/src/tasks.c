@@ -68,9 +68,11 @@ void tasks_init(void)
     LOG_IF_ERR(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
-    hw_can_init(&can1);
-    hw_can_init(&can2);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
+    // TODO: Start CAN1/CAN2 based on if we're charging
+    hw_can_init(&can1);
+    // hw_can_init(&can2);
 
     jobs_init();
 
