@@ -6,6 +6,7 @@ extern "C"
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
+#include "io_pcm.h"
 }
 
 class VCStateMachineTest : public VCBaseTest
@@ -16,7 +17,7 @@ class VCStateMachineTest : public VCBaseTest
     ASSERT_EQ(app_stateMachine_getCurrentState(), &expected) \
         << "Expected state: " << expected.name << ", but got: " << app_stateMachine_getCurrentState()->name
 
-TEST_F(VCStateMachineTest, starts_in_init_state_contactors_open)
+TEST_F(VCStateMachineTest, init_state_management)
 {
     app_stateMachine_setCurrentState(&drive_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
@@ -60,7 +61,7 @@ TEST_F(VCStateMachineTest, inverter_on_leave_condition_test)
     ASSERT_STATE_EQ(bmsOn_state);
 }
 
-TEST_F(VCStateMachineTest, bms_drive_state_transition)
+TEST_F(VCStateMachineTest, bms_drive_state_transition_out_of_bms_on)
 {
     app_stateMachine_setCurrentState(&bmsOn_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
@@ -70,6 +71,32 @@ TEST_F(VCStateMachineTest, bms_drive_state_transition)
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
     ASSERT_STATE_EQ(pcmOn_state);
+}
+
+TEST_F(VCStateMachineTest, pcm_on_tests)
+{
+    // TODO when io power monitor is implemented
+
+    app_stateMachine_setCurrentState(&pcmOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    // TODO set power monitor to 0v
+
+    // testing retries
+    for (int retry = 0; retry < 10; ++retry)
+    {
+        // TODO determine the true timings
+        for (int i = 0; i < 30; i++) // 300ms
+        {
+            ASSERT_TRUE(io_pcm_enabled());
+            LetTimePass(10);
+        }
+        for (int i = 0; i < 10; i++) // 100ms
+        {
+            ASSERT_FALSE(io_pcm_enabled());
+            LetTimePass(10);
+        }
+        ASSERT_STATE_EQ(pcmOn_state) << "Failed after " << (retry + 1) * 100 << "ms";
+    }
 }
 
 TEST_F(VCStateMachineTest, air_minus_open_in_all_states_to_init)
