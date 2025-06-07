@@ -248,7 +248,6 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
