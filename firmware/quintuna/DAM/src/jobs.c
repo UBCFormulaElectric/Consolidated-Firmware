@@ -5,6 +5,8 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_canDataCapture.h"
+#include "app_timer.h"
+#include "app_canUtils.h"
 
 #include "io_buzzer.h"
 #include "io_log.h"
@@ -21,7 +23,11 @@
 
 #include "hw_resetReason.h"
 
+#define RED_TOGGLE_TIME 150.0f
+
 CanTxQueue can_tx_queue;
+static TimerChannel *tsim_toggle_timer;
+static TsimColor prev_tsim_color; 
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -55,7 +61,8 @@ void jobs_init()
     app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_DAM_Heartbeat_set(true);
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
-
+    app_timer_init(tsim_toggle_timer, RED_TOGGLE_TIME);
+    prev_tsim_color = TSIM_OFF;
     app_canAlerts_DAM_Info_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 }
 
@@ -82,17 +89,44 @@ void jobs_run100Hz_tick(void)
     {
         io_disable_buzzer();
     }
-
-    const TsimColor tsimColor = app_canRx_VC_TsimControl_get();
-    if (tsimColor == TSIM_GREEN)
+    // following TSIM outline stated in https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
+    const TsimColor curr_tsimColor = app_canRx_VC_TsimControl_get();
+    if (TSIM_GREEN == curr_tsimColor)
     {
-        io_tsim_set_red(true);
+        io_tsim_set_green();
     }
-    else if (tsimColor == TSIM_RED)
+    else if (TSIM_RED == curr_tsimColor)
     {
-        io_tsim_set_red(true);
+        switch(tsim_toggle_timer->state)
+        {
+            case TIMER_STATE_IDLE:
+                io_tsim_set_red();
+                app_timer_restart(tsim_toggle_timer);
+            break; 
+            case TIMER_STATE_EXPIRED:
+                if(TSIM_OFF == prev_tsim_color)
+                {
+                    io_tsim_set_red();
+                    app_timer_restart(tsim_toggle_timer);
+                }
+                else if (TSIM_RED == prev_tsim_color)
+                {
+                    io_tsim_set_off();
+                    app_timer_restart(tsim_toggle_timer);
+                }
+            break; 
+            case TIMER_STATE_RUNNING:
+                // do nothing, hold state until timer expires
+                break; 
+            default:
+                    io_tsim_set_red();
+                    app_timer_restart(tsim_toggle_timer);
+                    break; 
+            
+        }
+        prev_tsim_color = curr_tsimColor; 
     }
-    else if (tsimColor == TSIM_OFF)
+    else if (TSIM_OFF == curr_tsimColor)
     {
         io_tsim_set_off();
     }
