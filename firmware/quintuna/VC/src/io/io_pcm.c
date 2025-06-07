@@ -4,15 +4,15 @@
 
 void io_pcm_set(const bool enable)
 {
-    hw_gpio_writePin(pcm_en, enable);
+    hw_gpio_writePin(&pcm_en, enable);
 }
 
-void io_pcm_get()
+bool io_pcm_enabled()
 {
-    hw_gpio_readPin(pcm_en);
+    return hw_gpio_readPin(&pcm_en);
 }
 
 void io_pcm_toggle()
 {
-    hw_gpio_togglePin(pcm_en);
+    hw_gpio_togglePin(&pcm_en);
 }

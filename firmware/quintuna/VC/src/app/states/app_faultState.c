@@ -2,6 +2,8 @@
 #include <app_canUtils.h>
 #include "app_stateMachine.h"
 #include "app_powerManager.h"
+#include "app_canTx.h"
+#include "app_canAlerts.h"
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -16,15 +18,15 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
 };
-static void faultStateRunOnEntry(void) 
+static void faultStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_FAULT_STATE);
     app_powerManager_updateConfig(power_manager_state);
 }
 static void faultRunOnTick1Hz(void) {}
-static void faultRunOnTick100Hz(void) {
-
-    if(!app_canAlerts_BoardHasFault(VC_NODE) && !app_canAlerts_BoardHasFault(BMS_NODE))
+static void faultRunOnTick100Hz(void)
+{
+    if (!app_canAlerts_BoardHasFault(VC_NODE) && !app_canAlerts_BoardHasFault(BMS_NODE))
     {
         app_stateMachine_setNextState(&init_state);
     }

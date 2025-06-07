@@ -44,14 +44,14 @@ static void hvStateRunOnTick100Hz(void)
 
     if ((BMS_INIT_STATE == bms_state) || (BMS_FAULT_STATE == bms_state))
     {
-        app_stateMachine_setNextState(app_initState_get());
+        app_stateMachine_setNextState(&init_state);
     }
 
     else if (is_brake_actuated && was_start_switch_enabled)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
-        app_stateMachine_setNextState(app_driveState_get());
+        app_stateMachine_setNextState(&drive_state);
     }
 
     prev_start_switch_pos = curr_start_switch_on;
