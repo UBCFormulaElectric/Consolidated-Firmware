@@ -54,6 +54,7 @@ void jobs_init()
 
 void jobs_run1Hz_tick(void)
 {
+    app_stateMachine_tick1Hz();
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -65,8 +66,11 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    io_canTx_enqueue100HzMsgs();
+    app_stateMachine_tick100Hz();
+
     app_shdnLoop_broadcast();
+
+    io_canTx_enqueue100HzMsgs();
 }
 
 void jobs_run1kHz_tick(void)
