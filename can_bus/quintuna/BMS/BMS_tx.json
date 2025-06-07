@@ -109,41 +109,25 @@
     "cycle_time": 1000,
     "description": "Control parameters for Elcon charger communication",
     "signals": {
-      "MaxChargingVoltageHighByte": {
+      "MaxChargingVoltage": {
         "start_bit": 0,
-        "bits": 8,
+        "bits": 16,
         "min": 0,
         "max": 10000,
         "scale": 0.1,
         "offset": 0,
-        "unit": "V"
+        "unit": "V",
+        "big_endian": true
       },
-      "MaxChargingVoltageLowByte": {
-        "start_bit": 8,
-        "bits": 8,
-        "min": 0,
-        "max": 10000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "V"
-      },
-      "MaxChargingCurrentHighByte": {
+      "MaxChargingCurrent": {
         "start_bit": 16,
-        "bits": 8,
+        "bits": 16,
         "min": 0,
         "max": 1000,
         "scale": 0.1,
         "offset": 0,
-        "unit": "A"
-      },
-      "MaxChargingCurrentLowByte": {
-        "start_bit": 24,
-        "bits": 8,
-        "min": 0,
-        "max": 1000,
-        "scale": 0.1,
-        "offset": 0,
-        "unit": "A"
+        "unit": "A",
+        "big_endian": true
       },
       "StopCharging": {
         "start_bit": 32,

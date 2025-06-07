@@ -187,8 +187,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-        osDelayUntil(0xFFFFFFFF);
-
+    osDelayUntil(0xFFFFFFFF);
 
     static const TickType_t period_ms = 100U; // 10Hz
 
@@ -216,8 +215,7 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-        osDelayUntil(0xFFFFFFFF);
-
+    osDelayUntil(0xFFFFFFFF);
 
     static const TickType_t period_ms = 1000U; // 1Hz
 
@@ -245,8 +243,7 @@ void tasks_runLtcTemps(void)
 
 void tasks_runLtcDiagnostics(void)
 {
-        osDelayUntil(0xFFFFFFFF);
-
+    osDelayUntil(0xFFFFFFFF);
 
     static const TickType_t period_ms = 10000U; // Every 10s
 

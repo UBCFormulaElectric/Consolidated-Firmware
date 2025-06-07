@@ -5,9 +5,6 @@
 #include "io_irs.h"
 #include "io_charger.h"
 #include "app_charger.h"
-#include "stdlib.h"
-#include "stdint.h"
-#include "math.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
 
@@ -30,11 +27,11 @@
 /**
  * Swap for CAN BE
  */
-static uint16_t canMsgEndianSwap(uint16_t can_signal)
-{
-    // byte-swap 0x1234 -> 0x3412
-    return (uint16_t)((can_signal >> 8) | (can_signal << 8));
-}
+// static uint16_t canMsgEndianSwap(uint16_t can_signal)
+// {
+//     // byte-swap 0x1234 -> 0x3412
+//     return (uint16_t)((can_signal >> 8) | (can_signal << 8));
+// }
 
 /**
  * Swap for CAN BE
@@ -48,42 +45,38 @@ static uint16_t canMsgEndianSwap(uint16_t can_signal)
 /**
  * Swap for CAN BE
  */
-void encodeMaxVoltageBE(float voltage, uint8_t *high, uint8_t *low)
-{
-    // scale by 10 → 0.1 V resolution, round to nearest integer
-    uint16_t raw = (uint16_t)lrintf(voltage * 10.0f);
-    // swap to big-endian
-    uint16_t be = canMsgEndianSwap(raw);
+// void encodeMaxVoltageBE(float voltage, uint8_t *high, uint8_t *low)
+// {
+//     // scale by 10 → 0.1 V resolution, round to nearest integer
+//     uint16_t raw = (uint16_t)lrintf(voltage * 10.0f);
+//     // swap to big-endian
+//     uint16_t be = canMsgEndianSwap(raw);
 
-    *high = (uint8_t)(be >> 8);
-    *low  = (uint8_t)(be & 0xFF);
-}
+//     *high = (uint8_t)(be >> 8);
+//     *low  = (uint8_t)(be & 0xFF);
+// }
 
 /**
  * Swap for CAN BE
  */
-static float decodeElconParam(uint8_t high, uint8_t low)
-{
-    uint16_t raw_be = (uint16_t)((high << 8) | low); // MSB first in frame
-    uint16_t raw_le = canMsgEndianSwap(raw_be);      // swap to host order
-    return (float)raw_le / 10.0f;                    // back to physical
-}
+// static float decodeElconParam(uint8_t high, uint8_t low)
+// {
+//     uint16_t raw_be = (uint16_t)((high << 8) | low); // MSB first in frame
+//     uint16_t raw_le = canMsgEndianSwap(raw_be);      // swap to host order
+//     return (float)raw_le / 10.0f;                    // back to physical
+// }
 
-ElconRx readElconStatus(void)
-{
-    ElconRx s = {
-        .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
-        .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
-        .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
-        .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
-        .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
-        .outputVoltage_V    = decodeElconParam(
-            (uint8_t)app_canRx_Elcon_OutputVoltageHighByte_get(), (uint8_t)app_canRx_Elcon_OutputVoltageLowByte_get()),
-        .outputCurrent_A = decodeElconParam(
-            (uint8_t)app_canRx_Elcon_OutputCurrentHighByte_get(), (uint8_t)app_canRx_Elcon_OutputCurrentLowByte_get())
-    };
-    return s;
-}
+// ElconRx readElconStatus(void)
+// {
+//     ElconRx s = { .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
+//                   .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
+//                   .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
+//                   .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
+//                   .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
+//                   .outputVoltage_V    = app_canRx_Elcon_OutputVoltage_get(),
+//                   .outputCurrent_A    = app_canRx_Elcon_OutputCurrent_get() };
+//     return s;
+// }
 
 /**
  * @brief  Calculate max DC currents for given AC current limit.
@@ -132,22 +125,16 @@ static DCRange_t calc_dc_current_range(float iac_max)
 
 static void buildTxFrame(const ElconTx *cmd)
 {
-    uint8_t v_hi, v_lo;
-    uint8_t c_hi, c_lo;
-    encodeMaxVoltageBE(cmd->maxVoltage_V, &v_hi, &v_lo);
-    encodeMaxVoltageBE(cmd->maxCurrent_A, &c_hi, &c_lo);
-    app_canTx_BMS_MaxChargingVoltageHighByte_set(v_hi);
-    app_canTx_BMS_MaxChargingVoltageLowByte_set(v_lo);
-    app_canTx_BMS_MaxChargingCurrentHighByte_set(c_hi);
-    app_canTx_BMS_MaxChargingCurrentLowByte_set(c_lo);
+    app_canTx_BMS_MaxChargingVoltage_set(cmd->maxVoltage_V);
+    app_canTx_BMS_MaxChargingCurrent_set(cmd->maxCurrent_A);
     app_canTx_BMS_StopCharging_set(cmd->stopCharging);
 }
 
-static void app_chargeStateRunOnEntry() {}
+static void app_chargeStateRunOnEntry(void) {}
 
-static void app_chargeStateRunOnTick1Hz() {}
+static void app_chargeStateRunOnTick1Hz(void) {}
 
-static void app_chargeStateRunOnTick100Hz()
+static void app_chargeStateRunOnTick100Hz(void)
 {
     const ConnectionStatus charger_connection_status = io_charger_getConnectionStatus();
     const bool             extShutdown               = !io_irs_isNegativeClosed();
@@ -191,7 +178,7 @@ static void app_chargeStateRunOnTick100Hz()
     // }
 }
 
-static void app_chargeStateRunOnExit()
+static void app_chargeStateRunOnExit(void)
 {
     io_irs_openPositive();
 }
