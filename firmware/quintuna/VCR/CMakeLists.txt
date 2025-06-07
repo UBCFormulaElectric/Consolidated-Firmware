@@ -72,6 +72,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             FALSE
     )
+    stm32h733xx_freertos_library("quintuna_VCR_freertos")
 
     # CommitInfo
     #    commit_info_library(
