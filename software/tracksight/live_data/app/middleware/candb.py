@@ -1,3 +1,5 @@
+from settings import CAR_NAME
+from jsoncan import JsonCanParser
 import datetime
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -20,7 +22,8 @@ import requests
 
 def _download_file(commit_sha, file, folder_path, save_dir):
     file_url = f"https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/{commit_sha}/{file['path']}"
-    file_path = os.path.join(save_dir, os.path.relpath(file["path"], folder_path))
+    file_path = os.path.join(
+        save_dir, os.path.relpath(file["path"], folder_path))
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with requests.get(file_url, stream=True) as file_response:
         file_response.raise_for_status()
@@ -69,17 +72,15 @@ def fetch_jsoncan_configs(commit_sha: str, force=False) -> str:
         os.makedirs(save_dir)
     with ThreadPoolExecutor(max_workers=46) as executor:
         executor.map(
-            lambda file: _download_file(commit_sha, file, folder_path, save_dir), files
+            lambda file: _download_file(
+                commit_sha, file, folder_path, save_dir), files
         )
     _cached_commit_sha = commit_sha
     return save_dir
 
 
 # fetch_jsoncan_configs("e12121d", True)
-from jsoncan import JsonCanParser
-
 # can_db = CanDatabase()
-from settings import CAR_NAME
 
 json_can_config_root = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -93,7 +94,8 @@ json_can_config_root = os.path.join(
 )
 
 if not os.path.lexists(json_can_config_root):
-    raise Exception("json can path does not exist, did you pass correct CAN_NAME")
+    raise Exception(
+        "json can path does not exist, did you pass correct CAN_NAME")
 
 live_can_db = JsonCanParser(json_can_config_root).make_database()
 board_start_time: datetime.datetime = None

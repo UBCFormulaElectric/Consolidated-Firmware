@@ -20,7 +20,7 @@
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
 #include "io_canQueue.h"
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -36,7 +36,7 @@ void tasks_preInit(void)
 void tasks_preInitWatchdog(void)
 {
     LOG_INFO("VC reset!");
-    io_canLogging_init();
+    io_canLogging_init(NULL);
 }
 
 void tasks_deinit(void)

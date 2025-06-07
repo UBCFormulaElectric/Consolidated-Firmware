@@ -53,7 +53,7 @@ void encodeMaxVoltageBE(float voltage, uint8_t *high, uint8_t *low)
     // scale by 10 → 0.1 V resolution, round to nearest integer
     uint16_t raw = (uint16_t)lrintf(voltage * 10.0f);
     // swap to big-endian
-    uint16_t be  = canMsgEndianSwap(raw);
+    uint16_t be = canMsgEndianSwap(raw);
 
     *high = (uint8_t)(be >> 8);
     *low  = (uint8_t)(be & 0xFF);
@@ -71,15 +71,17 @@ static float decodeElconParam(uint8_t high, uint8_t low)
 
 ElconRx readElconStatus(void)
 {
-    ElconRx s = { .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
-                  .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
-                  .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
-                  .chargingStateFault = app_canRx_Elcon_ChargingState_get(),
-                  .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
-                  .outputVoltage_V    = decodeElconParam(
-                      (uint8_t)app_canRx_Elcon_OutputVoltageHighByte_get(), (uint8_t)app_canRx_Elcon_OutputVoltageLowByte_get()),
-                  .outputCurrent_A = decodeElconParam(
-                      (uint8_t)app_canRx_Elcon_OutputCurrentHighByte_get(), (uint8_t)app_canRx_Elcon_OutputCurrentLowByte_get()) };
+    ElconRx s = {
+        .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
+        .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
+        .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
+        .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
+        .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
+        .outputVoltage_V    = decodeElconParam(
+            (uint8_t)app_canRx_Elcon_OutputVoltageHighByte_get(), (uint8_t)app_canRx_Elcon_OutputVoltageLowByte_get()),
+        .outputCurrent_A = decodeElconParam(
+            (uint8_t)app_canRx_Elcon_OutputCurrentHighByte_get(), (uint8_t)app_canRx_Elcon_OutputCurrentLowByte_get())
+    };
     return s;
 }
 

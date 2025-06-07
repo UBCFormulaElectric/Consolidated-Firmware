@@ -12,6 +12,7 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
+<<<<<<< HEAD
   "files.associations": {
     "*.c": "c",
     "*.html": "html",
@@ -28,4 +29,8 @@
     "app_charger.h": "c",
     "hw_gpios.h": "c"
   }
+=======
+  "files.associations": {},
+  "cortex-debug.variableUseNaturalFormat": false
+>>>>>>> origin
 }

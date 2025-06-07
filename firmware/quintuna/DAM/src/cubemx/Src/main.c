@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_gpios.h"
 #include "hw_error.h"
 #include "io_log.h"
 /* USER CODE END Includes */
@@ -493,8 +494,8 @@ static void MX_I2C1_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-    // TODO remove
-    return;
+    tasks_preInitWatchdog();
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
@@ -503,13 +504,13 @@ static void MX_IWDG1_Init(void)
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = 4095;
+    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 
@@ -521,8 +522,10 @@ static void MX_IWDG1_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-    // TODO remove
-    return;
+    if (hw_gpio_readPin(&sd_present))
+    {
+        return;
+    }
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
@@ -533,7 +536,7 @@ static void MX_SDMMC1_SD_Init(void)
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 0;
+    hsd1.Init.ClockDiv            = 9;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();

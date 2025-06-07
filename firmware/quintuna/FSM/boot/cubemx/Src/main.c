@@ -48,7 +48,7 @@ CAN_HandleTypeDef hcan2;
 
 /* Definitions for InterfaceTask */
 osThreadId_t         InterfaceTaskHandle;
-uint32_t             InterfaceTaskBuffer[128];
+uint32_t             InterfaceTaskBuffer[512];
 osStaticThreadDef_t  InterfaceTaskControlBlock;
 const osThreadAttr_t InterfaceTask_attributes = {
     .name       = "InterfaceTask",
@@ -60,7 +60,7 @@ const osThreadAttr_t InterfaceTask_attributes = {
 };
 /* Definitions for TickTask */
 osThreadId_t         TickTaskHandle;
-uint32_t             tickTaskBuffer[128];
+uint32_t             tickTaskBuffer[512];
 osStaticThreadDef_t  tickTaskControlBlock;
 const osThreadAttr_t TickTask_attributes = {
     .name       = "TickTask",
@@ -72,7 +72,7 @@ const osThreadAttr_t TickTask_attributes = {
 };
 /* Definitions for CanTxTask */
 osThreadId_t         CanTxTaskHandle;
-uint32_t             CanTxTaskBuffer[128];
+uint32_t             CanTxTaskBuffer[512];
 osStaticThreadDef_t  CanTxTaskControlBlock;
 const osThreadAttr_t CanTxTask_attributes = {
     .name       = "CanTxTask",

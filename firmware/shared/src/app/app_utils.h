@@ -25,6 +25,7 @@
 #define MAX_6_BITS_VALUE (uint32_t)(63)
 #define MAX_8_BITS_VALUE (uint32_t)(255)
 #define MAX_10_BITS_VALUE (uint32_t)(1023)
+#define MAX_11_BITS_VALUE (uint32_t)(2047)
 #define MAX_12_BITS_VALUE (uint32_t)(4095)
 #define MAX_16_BITS_VALUE (uint32_t)(65535)
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
@@ -62,6 +63,8 @@ typedef enum
     EXIT_CODE_BUSY,
     EXIT_CODE_UNIMPLEMENTED,
     EXIT_CODE_RETRY_FAILED,
+    EXIT_CODE_CHECKSUM_FAIL,
+    EXIT_INDETERMINATE, // use this for when you don't know what the exit code is YET
     NUM_EXIT_CODES,
 } ExitCode;
 

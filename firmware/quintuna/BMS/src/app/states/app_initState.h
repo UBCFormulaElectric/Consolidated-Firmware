@@ -1,4 +1,5 @@
 #pragma once
+#include "app_stateMachine.h"
 
 /**
  * Get a pointer to the Init State.

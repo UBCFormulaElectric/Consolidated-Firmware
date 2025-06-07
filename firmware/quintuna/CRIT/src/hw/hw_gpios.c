@@ -1,5 +1,22 @@
 #include "hw_gpios.h"
+#include "io_log.h"
 #include "main.h"
+#include "io_rotary.h"
+
+// Rotary GPIO interrupt handler.
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    LOG_INFO("interrupt...");
+
+    if (GPIO_Pin == rot_a.pin || GPIO_Pin == rot_b.pin)
+    {
+        io_rotary_rotA_rotB_IRQHandler();
+    }
+    else if (GPIO_Pin == rot_s.pin)
+    {
+        io_rotary_push_IRQHandler();
+    }
+}
 
 const Gpio boot                 = { .port = BOOT_GPIO_Port, .pin = BOOT_Pin };
 const Gpio led                  = { .port = LED_GPIO_Port, .pin = LED_Pin };
@@ -15,7 +32,5 @@ const Gpio led_rck              = { .port = LED_RCK_GPIO_Port, .pin = LED_RCK_Pi
 const Gpio seven_seg_rck        = { .port = SEVEN_SEG_RCK_GPIO_Port, .pin = SEVEN_SEG_RCK_Pin };
 const Gpio led_srck             = { .port = LED_SRCK_GPIO_Port, .pin = LED_SRCK_Pin };
 const Gpio seven_seg_srck       = { .port = SEVEN_SEG_SRCK_GPIO_Port, .pin = SEVEN_SEG_SRCK_Pin };
-const Gpio seven_seg_dimming    = { .port = SEVEN_SEG_DIMMING_GPIO_Port, .pin = SEVEN_SEG_DIMMING_Pin };
-const Gpio led_dimming          = { .port = LED_DIMMING_GPIO_Port, .pin = LED_DIMMING_Pin };
 const Gpio led_serin            = { .port = LED_SERIN_GPIO_Port, .pin = LED_SERIN_Pin };
 const Gpio seven_seg_serin      = { .port = SEVEN_SEG_SERIN_GPIO_Port, .pin = SEVEN_SEG_SERIN_Pin };

@@ -42,20 +42,13 @@ class JsonCanParser:
         str, bool
     ]  # _collects_data[node_name] = True if the node collects data
 
-    # internal state
-    # _node_tx_msgs: Dict[str, Set[str]]  # _tx_msgs[node_name] gives a list of all the messages it txs
-    _node_rx_msgs: Dict[
-        str, Set[str] | All
-    ]  # _rx_msgs[node_name] gives a list of all messages it rxs
-
     def __init__(self, can_data_dir: str):
         """
         Parses JSON data
         :param can_data_dir: Location of all the json files
         """
         node_names: List[str] = list_nodes_from_folders(can_data_dir)
-        # self._node_tx_msgs = {node_name: set() for node_name in node_names}
-        self._node_rx_msgs = {node_name: set() for node_name in node_names}
+
         # parse the bus config
         self._busses, self._forwarding, loggers = parse_bus_data(
             can_data_dir, node_names
@@ -63,6 +56,29 @@ class JsonCanParser:
         self._collects_data = {
             node_name: node_name in loggers for node_name in node_names
         }
+
+        # create node objects for each node
+        self._nodes = {
+            node_name: CanNode(
+                name=node_name,
+                bus_names=[
+                    bus_name
+                    for bus_name, bus in self._busses.items()
+                    if node_name in bus.node_names
+                ],
+                rx_msgs_names=set(),
+                fd=any(
+                    node_name in bus.node_names and bus.fd
+                    for bus in self._busses.values()
+                ),
+            )
+            for node_name in node_names
+        }
+
+        # ngl im not the biggest fan of executing things inside declarations
+        for node_name, node in self._nodes.items():
+            if len(node.bus_names) == 0:
+                raise InvalidCanJson("Node %s has no bus", node_name)
 
         # PARSE TX JSON DATA
         # collect shared enums outside of loop
@@ -84,7 +100,7 @@ class JsonCanParser:
             if type(bus_rx_msgs_json) == str:
                 assert bus_rx_msgs_json == "all", "Schema check has failed"
                 # if "all" in messages then add all messages on all busses
-                self._node_rx_msgs[rx_node_name] = All()
+                self._nodes[rx_node_name].rx_msgs_names = All()
             else:
                 assert type(bus_rx_msgs_json) == list, "Schema check has failed"
                 for msg_name in bus_rx_msgs_json:
@@ -114,22 +130,9 @@ class JsonCanParser:
                 if alert_msg.tx_node_name == other_rx_node_name:
                     continue
                 self._add_rx_msg(alert_msg.name, other_rx_node_name)
+
         # CONSISTENCY TODO work this in?
         # self._consistency_check()
-
-        # create node objects for each node
-        self._nodes = {
-            node_name: CanNode(
-                node_name,
-                [
-                    bus_name
-                    for bus_name, bus in self._busses.items()
-                    if node_name in bus.node_names
-                ],
-                self._node_rx_msgs[node_name],
-            )
-            for node_name in node_names
-        }
 
     def make_database(self) -> CanDatabase:
         """
@@ -169,11 +172,14 @@ class JsonCanParser:
             raise InvalidCanJson(
                 f"Message ID '{msg.id}' transmitted by node '{tx_node_name}' is also transmitted by '{find[0].tx_node_name}'"
             )
+
+        if msg.requires_fd() and not self._nodes[tx_node_name].fd:
+            raise InvalidCanJson(
+                f"Message '{msg.name}' is an FD message, but its TX node '{tx_node_name}' isn't FD-capable and so can't transmit it!"
+            )
+
         # register the message with the database of all messages
         self._msgs[msg.name] = msg
-        # register the message with the list of messages that the current node broadcasts
-        # TODO might not be important
-        # self._node_tx_msgs[tx_node_name].add(msg.name)
 
     def _add_rx_msg(self, msg_name: str, rx_node_name: str) -> None:
         """
@@ -189,23 +195,32 @@ class JsonCanParser:
         """
         # if we are already listening to all, we don't need to register this specific message
         # in particular, this is useful for alerts which will blindly make everyone accept them
-        if type(self._node_rx_msgs[rx_node_name]) == All:
+        if type(self._nodes[rx_node_name].rx_msgs_names) == All:
             return
+
         # Check if this message is defined
         if msg_name not in self._msgs:
             raise InvalidCanJson(
                 f"Message '{msg_name}' received by '{rx_node_name}' is not defined. Make sure it is correctly defined in the TX JSON."
             )
+
         rx_msg = self._msgs[msg_name]
         if rx_msg.tx_node_name == rx_node_name:
             raise InvalidCanJson(
                 f"{rx_node_name} cannot both transmit and receive {msg_name}"
             )
-        if msg_name in self._node_rx_msgs[rx_node_name]:
+
+        if msg_name in self._nodes[rx_node_name].rx_msgs_names:
             raise InvalidCanJson(
                 f"Message {msg_name} is already registered to be received by node {rx_node_name}"
             )
-        self._node_rx_msgs[rx_node_name].add(msg_name)
+
+        if rx_msg.requires_fd() and not self._nodes[rx_node_name].fd:
+            raise InvalidCanJson(
+                f"Message '{msg_name}' is an FD message, but an RX node '{rx_node_name}' isn't FD-capable and so can't receive it!"
+            )
+
+        self._nodes[rx_node_name].rx_msgs_names.add(msg_name)
 
     # def _consistency_check(self) -> None:
     #     # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other

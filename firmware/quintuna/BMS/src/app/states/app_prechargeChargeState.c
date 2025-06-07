@@ -35,7 +35,7 @@ static void app_prechargeChargeStateRunOnTick1Hz() {}
 
 static void app_prechargeChargeStateRunOnTick100Hz()
 {
-    float ts_voltage     = app_tractiveSystem_getVoltage();
+    float ts_voltage = app_tractiveSystem_getVoltage();
     // float thresh_voltage = ((float)app_accumulator_getPackVoltage() * PRECHARGE_ACC_VOLTAGE_THRESHOLD);
 
     uint32_t precharge_time = io_time_getCurrentMs() - precharge_start_time;

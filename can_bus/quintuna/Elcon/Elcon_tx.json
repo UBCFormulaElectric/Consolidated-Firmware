@@ -1,6 +1,6 @@
 {
   "Vitals": {
-    "msg_id": 987,
+    "msg_id": 419385573,
     "cycle_time": 1000,
     "description": "Elcon charger status flags and parameters",
     "signals": {
@@ -52,17 +52,13 @@
         "start_bit": 34,
         "bits": 1
       },
-      "ChargingState": {
+      "ChargingDisabled": {
         "start_bit": 35,
         "bits": 1
       },
       "CommunicationTimeout": {
         "start_bit": 36,
         "bits": 1
-      },
-      "Reserved": {
-        "start_bit": 37,
-        "bits": 27
       }
     }
   }
