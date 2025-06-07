@@ -1,6 +1,7 @@
 #include "io_fileSystem.h"
 #include "logfs.h"
 #include "hw_sd.h"
+#include "io_time.h"
 #include <string.h>
 
 // Note: this code assumes that sd card is either in at the start (removable later)
@@ -9,6 +10,8 @@
 // config
 #define MAX_FILE_NUMBER 3
 #define NUM_MOUNT_ATTEMPTS 3
+#define RETRY_COUNT 3
+#define RETRY_DELAY_MS 50
 
 static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
 static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
@@ -41,7 +44,16 @@ static LogFsErr logfsCfgRead(const LogFsCfg *cfg, const uint32_t block, void *bu
 {
     UNUSED(cfg);
 
-    if (hw_sd_read(buf, block, 1) != SD_CARD_OK)
+    int retry_count = RETRY_COUNT;
+
+    while (hw_sd_read(buf, block, 1) != SD_CARD_OK && retry_count > 0)
+    {
+        retry_count--;
+        io_time_delay(RETRY_DELAY_MS);
+        hw_sd_abort();
+    }
+
+    if (retry_count == 0)
     {
         return LOGFS_ERR_IO;
     }
@@ -53,11 +65,17 @@ static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, const uint32_t block, void *b
 {
     UNUSED(cfg);
 
-    if (hw_sd_write(buf, block, 1) != SD_CARD_OK)
+    int retry_count = RETRY_COUNT;
+    while (hw_sd_write(buf, block, 1) != SD_CARD_OK && retry_count > 0)
+    {
+        retry_count--;
+        io_time_delay(RETRY_DELAY_MS);
+        hw_sd_abort(); // Abort the current operation to retry
+    }
+    if (retry_count == 0)
     {
         return LOGFS_ERR_IO;
     }
-
     return LOGFS_ERR_OK;
 }
 
