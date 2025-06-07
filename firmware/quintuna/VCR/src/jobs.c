@@ -1,5 +1,6 @@
 #include "jobs.h"
 #include "io_canMsg.h"
+#include "io_canQueue.h"
 #include "io_canQueues.h"
 #include "app_jsoncan.h"
 #include <app_canTx.h>
@@ -9,6 +10,8 @@
 #include "app_canRx.h"
 #include <app_commitInfo.h>
 #include <io_canReroute.h>
+#include "io_bootloaderReroute.h"
+#include <string.h>
 
 static void fd_can_tx(const JsonCanMsg *tx_msg)
 {
@@ -28,6 +31,21 @@ static void inv_can_tx(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&inv_can_tx_queue, &msg);
 }
 
+static void bootloader_reroute(const CanMsg *msg){
+
+    CanMsg new_msg;
+
+    memset(&msg, 0, sizeof(CanMsg));
+
+    new_msg.std_id = msg->std_id;
+    new_msg.dlc    = 8;
+
+    //We can do this as for bootloader the packets are never going to be larger than 8 bytes
+    memcpy(&(new_msg.data), &(msg->data), sizeof(uint64_t));
+
+    io_canQueue_pushTx(&sx_can_tx_queue, &new_msg);
+}
+
 void jobs_init()
 {
     app_canTx_init();
@@ -43,6 +61,7 @@ void jobs_init()
     io_canQueue_initTx(&sx_can_tx_queue);
     io_canQueue_initTx(&inv_can_tx_queue);
     io_canReroute_init(fd_can_tx, sx_can_tx, inv_can_tx);
+    io_bootloadeReroute_init(bootloader_reroute);
 
     app_canTx_VCR_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VCR_Clean_set(GIT_COMMIT_CLEAN);
