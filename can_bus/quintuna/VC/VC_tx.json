@@ -87,14 +87,11 @@
       }
     }
   },
-  "DAMTsimBuzzerControl": {
+  "DAMBuzzerControl": {
     "msg_id": 513,
     "cycle_time": 100,
     "description": "",
     "signals": {
-      "TsimControl": {
-        "enum": "TsimColor"
-      },
       "BuzzerControl": {
         "bits": 1
       }
