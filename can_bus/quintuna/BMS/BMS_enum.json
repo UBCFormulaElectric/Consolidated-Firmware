@@ -1,7 +1,7 @@
 {
   "BmsState": {
     "BMS_INIT_STATE": 0,
-    "BMS_PRECHARGE_STATE": 1,
+    "BMS_PRECHARGE_CHARGE_STATE": 1,
     "BMS_CHARGE_STATE": 2,
     "BMS_DRIVE_STATE": 3,
     "BMS_BALANCING_STATE": 4,

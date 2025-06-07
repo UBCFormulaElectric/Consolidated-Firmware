@@ -70,6 +70,22 @@
       }
     }
   },
+  "Charger": {
+    "msg_id": 413,
+    "cycle_time": 100,
+    "description": "Charger infomation for the BMS to broadcast to other boards",
+    "signals": {
+      "ChargerConnected": {
+        "bits": 1
+      },
+      "ChargingDone": {
+        "bits": 1
+      },
+      "ChargingFaulted": {
+        "bits": 1
+      }
+    }
+  },
   "TractiveSystem": {
     "msg_id": 412,
     "cycle_time": 100,
