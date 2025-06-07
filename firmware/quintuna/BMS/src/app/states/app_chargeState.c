@@ -8,6 +8,8 @@
 #include "stdlib.h"
 #include "stdint.h"
 #include "math.h"
+#include "app_canRx.h"
+#include "app_canTx.h"
 
 #define NUM_SEG 10.0f
 #define NUM_CELLS_PER_SEG 14.0f
@@ -25,18 +27,41 @@
 #define VAC_MAX 240.0f // V – upper end of typical North American grid
 #define CAC_MAX 32.0f  // A - max current avaliable of typical North American grid
 
+/**
+ * Swap for CAN BE
+ */
 static uint16_t canMsgEndianSwap(uint16_t can_signal)
 {
     // byte-swap 0x1234 -> 0x3412
     return (uint16_t)((can_signal >> 8) | (can_signal << 8));
 }
 
-static uint16_t encodeElconParam(float value)
+/**
+ * Swap for CAN BE
+ */
+// static uint16_t encodeElconParam(float value)
+// {
+//     uint16_t raw = (uint16_t)lrintf(value * 10.0f); // e.g. 540 V -> 5400
+//     return canMsgEndianSwap(raw);                   // big-endian
+// }
+
+/**
+ * Swap for CAN BE
+ */
+void encodeMaxVoltageBE(float voltage, uint8_t *high, uint8_t *low)
 {
-    uint16_t raw = (uint16_t)lrintf(value * 10.0f); // e.g. 540 V -> 5400
-    return canMsgEndianSwap(raw);                   // big-endian
+    // scale by 10 → 0.1 V resolution, round to nearest integer
+    uint16_t raw = (uint16_t)lrintf(voltage * 10.0f);
+    // swap to big-endian
+    uint16_t be  = canMsgEndianSwap(raw);
+
+    *high = (uint8_t)(be >> 8);
+    *low  = (uint8_t)(be & 0xFF);
 }
 
+/**
+ * Swap for CAN BE
+ */
 static float decodeElconParam(uint8_t high, uint8_t low)
 {
     uint16_t raw_be = (uint16_t)((high << 8) | low); // MSB first in frame
@@ -52,9 +77,9 @@ ElconRx readElconStatus(void)
                   .chargingStateFault = app_canRx_Elcon_ChargingState_get(),
                   .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
                   .outputVoltage_V    = decodeElconParam(
-                      app_canRx_Elcon_OutputVoltageHighByte_get(), app_canRx_Elcon_OutputVoltageLowByte_get()),
+                      (uint8_t)app_canRx_Elcon_OutputVoltageHighByte_get(), (uint8_t)app_canRx_Elcon_OutputVoltageLowByte_get()),
                   .outputCurrent_A = decodeElconParam(
-                      app_canRx_Elcon_OutputCurrentHighByte_get(), app_canRx_Elcon_OutputCurrentLowByte_get()) };
+                      (uint8_t)app_canRx_Elcon_OutputCurrentHighByte_get(), (uint8_t)app_canRx_Elcon_OutputCurrentLowByte_get()) };
     return s;
 }
 
@@ -105,9 +130,15 @@ static DCRange_t calc_dc_current_range(float iac_max)
 
 static void buildTxFrame(const ElconTx *cmd)
 {
-    app_canTx_BMS_MaxChargingVoltage_set(encodeElconParam(cmd->maxVoltage_V));
-    app_canTx_BMS_MaxChargingCurrent_set(encodeElconParam(cmd->maxCurrent_A));
-    app_canTx_BMS_StopCharging(cmd->stopCharging);
+    uint8_t v_hi, v_lo;
+    uint8_t c_hi, c_lo;
+    encodeMaxVoltageBE(cmd->maxVoltage_V, &v_hi, &v_lo);
+    encodeMaxVoltageBE(cmd->maxCurrent_A, &c_hi, &c_lo);
+    app_canTx_BMS_MaxChargingVoltageHighByte_set(v_hi);
+    app_canTx_BMS_MaxChargingVoltageLowByte_set(v_lo);
+    app_canTx_BMS_MaxChargingCurrentHighByte_set(c_hi);
+    app_canTx_BMS_MaxChargingCurrentLowByte_set(c_lo);
+    app_canTx_BMS_StopCharging_set(cmd->stopCharging);
 }
 
 static void app_chargeStateRunOnEntry() {}
@@ -151,11 +182,11 @@ static void app_chargeStateRunOnTick100Hz()
     /**
      * if any cell has reached the cutoff voltge charging has completed
      */
-    const float max_cell_voltage; // TODO: make max cell voltage function
-    if (max_cell_voltage >= CHARGING_CUTOFF_MAX_CELL_VOLTAGE)
-    {
-        app_stateMachine_setNextState(app_chargeInitState_get());
-    }
+    // const float max_cell_voltage; // TODO: make max cell voltage function
+    // if (max_cell_voltage >= CHARGING_CUTOFF_MAX_CELL_VOLTAGE)
+    // {
+    //     app_stateMachine_setNextState(app_chargeInitState_get());
+    // }
 }
 
 static void app_chargeStateRunOnExit()

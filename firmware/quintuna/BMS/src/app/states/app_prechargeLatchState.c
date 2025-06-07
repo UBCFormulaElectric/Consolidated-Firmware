@@ -1,5 +1,6 @@
 #include "app_stateMachine.h"
 #include "app_initState.h"
+#include "app_canRx.h"
 
 static void app_prechargeLatchStateRunOnEntry() {}
 
@@ -7,7 +8,7 @@ static void app_prechargeLatchStateRunOnTick1Hz() {}
 
 static void app_prechargeLatchStateRunOnTick100Hz()
 {
-    if (app_canRx_Debug_ClearChargerLatchedFault())
+    if (app_canRx_Debug_ClearChargerLatchedFault_get())
         app_stateMachine_setNextState(app_initState_get());
 }
 

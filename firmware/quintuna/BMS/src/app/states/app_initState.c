@@ -3,6 +3,7 @@
 #include "io_irs.h"
 #include "io_charger.h"
 #include "stdio.h"
+#include "app_canRx.h"
 
 static void app_initStateRunOnEntry() {}
 

@@ -6,6 +6,7 @@
 #include "io_charger.h"
 #include "io_irs.h"
 #include "stdlib.h"
+#include "app_canRx.h"
 
 static void app_chargeInitStateRunOnEntry() {}
 

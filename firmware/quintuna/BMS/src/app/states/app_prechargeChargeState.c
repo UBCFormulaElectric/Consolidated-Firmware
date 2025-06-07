@@ -7,6 +7,7 @@
 #include "io_irs.h"
 #include "io_time.h"
 #include "app_timer.h"
+#include "app_canRx.h"
 
 #define PRECHARGE_ACC_VOLTAGE_THRESHOLD 0.9f
 #define NUM_OF_INVERTERS 4U
@@ -35,7 +36,7 @@ static void app_prechargeChargeStateRunOnTick1Hz() {}
 static void app_prechargeChargeStateRunOnTick100Hz()
 {
     float ts_voltage     = app_tractiveSystem_getVoltage();
-    float thresh_voltage = app_accumulator_getPackVoltage() * PRECHARGE_ACC_VOLTAGE_THRESHOLD;
+    // float thresh_voltage = ((float)app_accumulator_getPackVoltage() * PRECHARGE_ACC_VOLTAGE_THRESHOLD);
 
     uint32_t precharge_time = io_time_getCurrentMs() - precharge_start_time;
 
@@ -43,40 +44,40 @@ static void app_prechargeChargeStateRunOnTick100Hz()
 
     if (!is_charger_connected)
         app_stateMachine_setNextState(app_initState_get());
-    if (ts_voltage >= thresh_voltage)
-    {
-        bool is_raising_slowly    = precharge_time >= PRECHARGE_COMPLETION_UPPERBOUND_MS;
-        bool is_raising_quickly   = precharge_time >= PRECHARGE_COMPLETION_LOWERBOUND_MS;
-        bool is_irs_negative_open = !io_irs_isNegativeClosed();
+    // if (ts_voltage >= thresh_voltage)
+    // {
+    //     bool is_raising_slowly    = precharge_time >= PRECHARGE_COMPLETION_UPPERBOUND_MS;
+    //     bool is_raising_quickly   = precharge_time >= PRECHARGE_COMPLETION_LOWERBOUND_MS;
+    //     bool is_irs_negative_open = !io_irs_isNegativeClosed();
 
-        bool has_precharge_fault = is_raising_slowly        // always a fault
-                                   || is_irs_negative_open; // fault if AIR- is open
+    //     bool has_precharge_fault = is_raising_slowly        // always a fault
+    //                                || is_irs_negative_open; // fault if AIR- is open
 
-        /**
-         * If there is a pre-charge fault and there were no more than three previous pre-charge faults
-         * Go back to Init State, add one to the pre-charge failed counter
-         * Else go to Precharge Latch State, reset the pre-charge failed counter
-         */
-        if (has_precharge_fault)
-        {
-            if (precharge_failures > MAX_PRECHARGE_ATTEMPTS)
-            {
-                precharge_failures = 0;
-                app_stateMachine_setNextState(app_prechargeLatchState_get());
-            }
-            else
-            {
-                precharge_failures++;
-                app_stateMachine_setNextState(app_initState_get());
-            }
-        }
-        else
-        {
-            precharge_failures = 0;
-            io_irs_closePositive();
-            app_stateMachine_setNextState(app_chargeInitState_get());
-        }
-    }
+    //     /**
+    //      * If there is a pre-charge fault and there were no more than three previous pre-charge faults
+    //      * Go back to Init State, add one to the pre-charge failed counter
+    //      * Else go to Precharge Latch State, reset the pre-charge failed counter
+    //      */
+    //     if (has_precharge_fault)
+    //     {
+    //         if (precharge_failures > MAX_PRECHARGE_ATTEMPTS)
+    //         {
+    //             precharge_failures = 0;
+    //             app_stateMachine_setNextState(app_prechargeLatchState_get());
+    //         }
+    //         else
+    //         {
+    //             precharge_failures++;
+    //             app_stateMachine_setNextState(app_initState_get());
+    //         }
+    //     }
+    //     else
+    //     {
+    //         precharge_failures = 0;
+    //         io_irs_closePositive();
+    //         app_stateMachine_setNextState(app_chargeInitState_get());
+    //     }
+    // }
 }
 
 static void app_prechargeChargeStateRunOnExit()
