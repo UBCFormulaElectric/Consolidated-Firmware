@@ -12,6 +12,15 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
-  "files.associations": {},
-  "cortex-debug.variableUseNaturalFormat": false
+  "files.associations": {
+    "*.c": "c",
+    "*.html": "html",
+    "algorithm": "c",
+    "iterator": "c",
+    "xhash": "c",
+    "xmemory": "c",
+    "xtree": "c",
+    "xutility": "c"
+  },
+  "cortex-debug.variableUseNaturalFormat": true
 }
