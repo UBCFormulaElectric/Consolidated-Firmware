@@ -77,7 +77,6 @@ extern "C"
         uint32_t        size_align = rx_msg->dlc + (4 - rx_msg->dlc % 4);
         static uint32_t body_copy[64];
         memcpy(body_copy, rx_msg->data.data32, size_align);
-        // memmove()
 
         struct MessageBody encode_ctx = { .values = body_copy, .count = size_align / 4 };
 

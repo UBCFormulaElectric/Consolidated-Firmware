@@ -16,13 +16,11 @@
 
 #define QUEUE_SIZE 100
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
-
+#define MAX_CAN_SIZE CAN_PAYLOAD_BYTES
 #define HEADER_SIZE 7
 #define MAX_FRAME_SIZE (HEADER_SIZE + 100)
 #define MAGIC_HIGH 0xAA
 #define MAGIC_LOW 0x55
-
-// UartDevice        *_2_4G_uart = NULL;
 
 // TX
 static bool               proto_status;
@@ -30,12 +28,6 @@ static uint8_t            proto_msg_length;
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
 static osMessageQueueId_t message_queue_id;
-
-// RX
-
-static uint8_t  rx_buffer[MAX_FRAME_SIZE];
-static uint32_t rx_buffer_pos     = 0;
-static bool     message_available = false;
 
 TelemMessage t_message = TelemMessage_init_zero;
 
@@ -51,7 +43,7 @@ static const osMessageQueueAttr_t queue_attr = {
 struct MessageBody
 {
     uint32_t *values;
-    size_t   count;
+    size_t    count;
 };
 
 static bool init = false;
@@ -95,17 +87,18 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
     uint8_t      proto_buffer[QUEUE_SIZE] = { 0 };
     pb_ostream_t stream                   = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
-    if (rx_msg->dlc > 64)
+    if (rx_msg->dlc > MAX_CAN_SIZE)
         return false;
     // Fill in fields
 
     t_message.can_id     = rx_msg->std_id;
     t_message.time_stamp = rx_msg->timestamp;
 
-    uint32_t size_in_32 = rx_msg->dlc / 4 + (rx_msg->dlc % 4 ? 1 : 0);
-    uint32_t body_copy[size_in_32];
+    uint32_t        size_align = rx_msg->dlc + (4 - rx_msg->dlc % 4);
+    static uint32_t body_copy[MAX_CAN_SIZE];
+    memcpy(body_copy, rx_msg->data.data32, size_align);
 
-    struct MessageBody encode_ctx = { .values = body_copy, .count = size_in_32 };
+    struct MessageBody encode_ctx = { .values = body_copy, .count = size_align / 4 };
 
     // Fill in the message data
     t_message.message.funcs.encode = encode_message_callback;
