@@ -84,6 +84,8 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+
+    app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)

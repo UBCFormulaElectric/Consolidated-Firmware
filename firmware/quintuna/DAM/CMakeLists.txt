@@ -4,7 +4,9 @@ message("⚙️ Configuring DAM (Quintuna)")
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
-file(GLOB SYSTEM_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
+set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
+set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
@@ -132,7 +134,7 @@ if ("${TARGET}" STREQUAL "binary")
     set(P_SRCS ${PROTO_SRCS})
     set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
     embedded_library(
-            "telem_proto1"
+            "quintuna_DAM_proto"
             "${P_SRCS}"
             "${P_HDRS}"
             "cm7"
@@ -150,7 +152,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "quintuna_DAM_proto" "logfs_cm7")
 
     message("Bootloader: ${BOOTLOAD}")
         # if ("${BOOTLOAD}" STREQUAL "ON")
@@ -179,4 +181,45 @@ if ("${TARGET}" STREQUAL "binary")
         )
         # endif ()
 elseif ("${TARGET}" STREQUAL "test")
+        file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+        set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+        set(FAKE_SRCS
+            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io_bootHandler.cpp"
+        )
+        set(SRCS ${APP_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
+        set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
+        compile_gtest_executable(
+                "quintuna_DAM_test"
+                "${SRCS}"
+                "${INCLUDE_DIRS}"
+        )
+
+        # JSONCAN
+        jsoncan_library(DAM quintuna "${CMAKE_CURRENT_BINARY_DIR}")
+        
+        commit_info_library(
+            "quintuna_DAM_test"
+            "quintuna_DAM_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+        )
+
+        #proto 
+        nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
+        set(P_SRCS ${PROTO_SRCS})
+        set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
+        add_library(quintuna_DAM_proto_test STATIC ${P_SRCS})
+        target_include_directories(quintuna_DAM_proto_test PUBLIC ${P_HDRS})
+        # FAKE IO
+        set(HEADERS_TO_FAKE
+        "${SHARED_IO_INCLUDE_DIR}/io_log.h"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+        )
+        create_fake_library(
+                "quintuna_DAM_fakes"
+                "${HEADERS_TO_FAKE}"
+        )
+        target_compile_definitions("quintuna_DAM_test" PRIVATE STM32H733xx)
+        target_link_libraries("quintuna_DAM_test" PRIVATE "quintuna_DAM_jsoncan" "quintuna_DAM_fakes" "quintuna_DAM_proto_test")
+        target_compile_definitions("quintuna_DAM_test" PRIVATE STM32H733xx)
 endif ()

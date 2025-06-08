@@ -19,7 +19,6 @@
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 
-#include "hw_resetReason.h"
 
 CanTxQueue can_tx_queue;
 
@@ -54,7 +53,6 @@ void jobs_init()
     app_canTx_DAM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_DAM_Heartbeat_set(true);
-    app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 
     app_canAlerts_DAM_Info_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 }

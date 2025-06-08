@@ -50,7 +50,7 @@ static const osMessageQueueAttr_t queue_attr = {
 
 struct MessageBody
 {
-    int32_t *values;
+    uint32_t *values;
     size_t   count;
 };
 
@@ -102,7 +102,10 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
     t_message.can_id     = rx_msg->std_id;
     t_message.time_stamp = rx_msg->timestamp;
 
-    struct MessageBody encode_ctx = { rx_msg->data.data32, rx_msg->dlc / 4 + (rx_msg->dlc % 4 ? 1 : 0) };
+    uint32_t size_in_32 = rx_msg->dlc / 4 + (rx_msg->dlc % 4 ? 1 : 0);
+    uint32_t body_copy[size_in_32];
+
+    struct MessageBody encode_ctx = { .values = body_copy, .count = size_in_32 };
 
     // Fill in the message data
     t_message.message.funcs.encode = encode_message_callback;
@@ -139,20 +142,6 @@ void io_telemMessage_init()
     assert(message_queue_id != NULL);
     init = true;
     hw_gpio_writePin(&telem_pwr_en_pin, true);
-}
-
-// lol should this be here? is this exposed the right amount also? this is start time TX code
-void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time)
-{
-    CanMsg start_time_msg = {
-        .std_id = 0x999, // this id could change asking edwin!!!
-        .dlc    = 6,
-        .data   = { { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
-                      start_time.seconds } },
-        .timestamp =
-            io_time_getCurrentMs(), // note, this represents the timestamp of the current message NOT the basetime
-    };
-    *msg = start_time_msg;
 }
 
 bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
