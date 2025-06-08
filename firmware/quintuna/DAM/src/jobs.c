@@ -19,7 +19,6 @@
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 
-
 CanTxQueue can_tx_queue;
 
 static void can1_tx(const JsonCanMsg *tx_msg)
