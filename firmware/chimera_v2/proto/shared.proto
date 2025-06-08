@@ -177,6 +177,46 @@ message SpiTransactionResponse {
   bytes rx_data = 1 [(nanopb).max_size = 128];
 }
 
+/* PWMs */
+message PwmNetName {
+  oneof name {
+    bms.PwmNetName bms_net_name = 1;
+    rsm.PwmNetName rsm_net_name = 2;
+    crit.PwmNetName crit_net_name = 3;
+  }
+}
+
+message PwmInput {
+  PwmNetName net_name = 1;
+  float frequency_hz = 2;
+  float duty_cycle = 3;
+}
+
+message FullPwmInputResponse {
+  float measured_frequency_hz = 1;
+  float measured_duty_cycle = 2;
+}
+
+message PwmInputFreqOnly {
+  PwmNetName net_name = 1;
+  float frequency_hz = 2;
+}
+
+message FreqOnlyPwmInputResponse {
+  float measured_frequency_hz = 1;
+}
+
+message PwmOutput {
+  PwmNetName net_name = 1;
+  float frequency_hz = 2;
+  float duty_cycle = 3;
+}
+
+message PwmOutputResponse {
+  float assigned_frequency_hz = 2;
+  float assigned_duty_cycle = 3;
+}
+
 /* 
   Wrapper around all messages 
 
@@ -205,6 +245,11 @@ message ChimeraV2Request {
     SpiReceiveRequest spi_receive = 9;
     SpiTransmitRequest spi_transmit = 10;
     SpiTransactionRequest spi_transaction = 11;
+
+    // PWM.
+    PwmInput pwm_full_input = 12;
+    PwmInputFreqOnly pwm_freq_only_input = 13;
+    PwmOutput pwm_full_output = 14;
   }
 }
 
@@ -228,5 +273,10 @@ message ChimeraV2Response {
     SpiReceiveResponse spi_receive = 9;
     SpiTransmitResponse spi_transmit = 10;
     SpiTransactionResponse spi_transaction = 11;
+
+    // PWM.
+    FullPwmInputResponse pwm_full_recieved = 12;
+    FreqOnlyPwmInputResponse pwm_freq_only_recieved = 13;
+    PwmOutputResponse pwm_full_output_sent = 14;
   }
 }
