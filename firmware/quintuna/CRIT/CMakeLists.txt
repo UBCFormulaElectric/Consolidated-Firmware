@@ -68,6 +68,12 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
+    list(APPEND NO_CHECKS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+    )
+    embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_CRIT_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     # STM HAL Library
@@ -102,7 +108,6 @@ if ("${TARGET}" STREQUAL "binary")
     stm32f412rx_cube_library(
             "quintuna_CRIT_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
             TRUE
     )
@@ -126,13 +131,13 @@ if ("${TARGET}" STREQUAL "binary")
         file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
         file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
         stm32f4_boot_binary(
                 "quintuna_CRIT_boot"
                 "${BOOT_SRCS}"
                 "${BOOT_CUBEMX_SRCS}"
                 "${BOOT_INCLUDE_DIRS}"
                 "quintuna_CRIT"
-                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/CRIT_boot.ioc"
         )
         target_link_libraries("quintuna_CRIT_boot.elf" PRIVATE "quintuna_CRIT_commit_info")

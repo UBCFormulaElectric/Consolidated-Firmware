@@ -67,6 +67,12 @@ if ("${TARGET}" STREQUAL "binary")
     embedded_binary("quintuna_VC_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
+    list(APPEND NO_CHECKS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+    )
+    embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_VC_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     # STM HAL Library
@@ -98,7 +104,6 @@ if ("${TARGET}" STREQUAL "binary")
     stm32h733xx_cube_library(
             "quintuna_VC_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
             TRUE
     )
@@ -124,16 +129,17 @@ if ("${TARGET}" STREQUAL "binary")
         file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
         file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
         stm32h7_boot_binary(
                 "quintuna_VC_boot"
                 "${BOOT_SRCS}"
                 "${BOOT_CUBEMX_SRCS}"
                 "${BOOT_INCLUDE_DIRS}"
                 "quintuna_VC"
-                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
         )
         target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
+
         embedded_image(
                 "quintuna_VC"
                 "quintuna_VC_app.hex"
