@@ -3,6 +3,7 @@
 #include "app_powerManager.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
+#include <app_canRx.h>
 #include <app_canUtils.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -27,7 +28,12 @@ static void hvStateRunOnEntry(void)
     app_powerManager_updateConfig(power_manager_state);
 }
 static void hvStateRunOnTick1Hz(void) {}
-static void hvStateRunOnTick100Hz(void) {}
+static void hvStateRunOnTick100Hz(void) {
+    if(app_canRx_FSM_BrakeActuated_get() && app_canRx_CRIT_StartSwitch_get())
+    {
+        app_stateMachine_setNextState(&drive_state);
+    }
+}
 static void hvStateRunOnExit(void) {}
 
 State hv_state = { .name              = "HV",
