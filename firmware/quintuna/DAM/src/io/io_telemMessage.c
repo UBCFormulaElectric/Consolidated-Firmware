@@ -14,7 +14,7 @@
 // create or grab the constants for the different modem and pins and such
 // Private Globals
 
-#define QUEUE_SIZE 52
+#define QUEUE_SIZE 100
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 
 #define HEADER_SIZE 7
@@ -48,6 +48,12 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
+struct MessageBody
+{
+    int32_t *values;
+    size_t   count;
+};
+
 static bool init = false;
 
 static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buffer, uint8_t payload_length)
@@ -69,23 +75,38 @@ static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buff
     return true;
 }
 
+bool encode_message_callback(pb_ostream_t *stream, const pb_field_t *field, void *const *arg)
+{
+    struct MessageBody *ctx = *arg;
+
+    for (size_t i = 0; i < ctx->count; ++i)
+    {
+        if (!pb_encode_tag_for_field(stream, field))
+            return false;
+        if (!pb_encode_varint(stream, ctx->values[i]))
+            return false;
+    }
+
+    return true;
+}
+
 static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffer, uint8_t *frame_length)
 {
     uint8_t      proto_buffer[QUEUE_SIZE] = { 0 };
     pb_ostream_t stream                   = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
-    if (rx_msg->dlc > 8)
+    if (rx_msg->dlc > 64)
         return false;
-    t_message.can_id     = (int32_t)(rx_msg->std_id);
-    t_message.message_0  = rx_msg->data.data8[0];
-    t_message.message_1  = rx_msg->data.data8[1];
-    t_message.message_2  = rx_msg->data.data8[2];
-    t_message.message_3  = rx_msg->data.data8[3];
-    t_message.message_4  = rx_msg->data.data8[4];
-    t_message.message_5  = rx_msg->data.data8[5];
-    t_message.message_6  = rx_msg->data.data8[6];
-    t_message.message_7  = rx_msg->data.data8[7];
-    t_message.time_stamp = (int32_t)rx_msg->timestamp;
+    // Fill in fields
+
+    t_message.can_id     = rx_msg->std_id;
+    t_message.time_stamp = rx_msg->timestamp;
+
+    struct MessageBody encode_ctx = { rx_msg->data.data32, rx_msg->dlc / 4 + (rx_msg->dlc % 4 ? 1 : 0) };
+
+    // Fill in the message data
+    t_message.message.funcs.encode = encode_message_callback;
+    t_message.message.arg          = &encode_ctx;
 
     // Encode message into proto_buffer
     proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
@@ -101,13 +122,6 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
         LOG_ERROR("Payload size exceeded maximum allowed size");
         return false;
     }
-
-    // padding required for crc function to not have concat issues
-    // uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
-    // if (padded_length > proto_msg_length)
-    // {
-    //     memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
-    // }
 
     // Build frame
     if (!telemMessage_appendHeader(frame_buffer, proto_buffer, proto_msg_length))
