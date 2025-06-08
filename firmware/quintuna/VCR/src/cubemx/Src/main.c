@@ -340,7 +340,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 12;
+    hfdcan1.Init.NominalPrescaler     = 6;
     hfdcan1.Init.NominalSyncJumpWidth = 3;
     hfdcan1.Init.NominalTimeSeg1      = 12;
     hfdcan1.Init.NominalTimeSeg2      = 3;
@@ -386,19 +386,19 @@ static void MX_FDCAN2_Init(void)
 
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_BRS;
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 2;
+    hfdcan2.Init.NominalPrescaler     = 6;
     hfdcan2.Init.NominalSyncJumpWidth = 2;
-    hfdcan2.Init.NominalTimeSeg1      = 45;
+    hfdcan2.Init.NominalTimeSeg1      = 13;
     hfdcan2.Init.NominalTimeSeg2      = 2;
-    hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 6;
-    hfdcan2.Init.DataTimeSeg1         = 17;
-    hfdcan2.Init.DataTimeSeg2         = 6;
+    hfdcan2.Init.DataPrescaler        = 3;
+    hfdcan2.Init.DataSyncJumpWidth    = 2;
+    hfdcan2.Init.DataTimeSeg1         = 5;
+    hfdcan2.Init.DataTimeSeg2         = 2;
     hfdcan2.Init.MessageRAMOffset     = 0;
     hfdcan2.Init.StdFiltersNbr        = 0;
     hfdcan2.Init.ExtFiltersNbr        = 0;
@@ -442,7 +442,7 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.AutoRetransmission   = ENABLE;
     hfdcan3.Init.TransmitPause        = DISABLE;
     hfdcan3.Init.ProtocolException    = DISABLE;
-    hfdcan3.Init.NominalPrescaler     = 6;
+    hfdcan3.Init.NominalPrescaler     = 12;
     hfdcan3.Init.NominalSyncJumpWidth = 3;
     hfdcan3.Init.NominalTimeSeg1      = 12;
     hfdcan3.Init.NominalTimeSeg2      = 3;

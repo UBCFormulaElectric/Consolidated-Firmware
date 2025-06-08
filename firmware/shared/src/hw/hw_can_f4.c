@@ -1,5 +1,4 @@
 #include "hw_can.h"
-#include "hw_fdcan.h"
 
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>

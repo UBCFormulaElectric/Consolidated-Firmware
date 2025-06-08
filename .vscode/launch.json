@@ -115,7 +115,7 @@
     {
       "name": "Debug Embedded: DAM (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf"
@@ -450,11 +450,11 @@
       "name": "Debug Embedded: CRIT (Quintuna)",
       "cwd": "${workspaceRoot}",
       // binary config
-      "executable": "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_boot.elf",
-        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf"
+        //"build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf"
       ],
       "preLaunchTask": "Build Embedded: CRIT (Quintuna)",
       // cortex configurations

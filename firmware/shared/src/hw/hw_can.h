@@ -5,6 +5,7 @@
 #include "io_canMsg.h"
 #include "main.h"
 #include "hw_utils.h"
+#include <cmsis_os.h>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
