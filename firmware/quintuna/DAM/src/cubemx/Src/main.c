@@ -249,23 +249,6 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    // SdCardStatus status;
-    // uint8_t      data[512];
-    // for (size_t i = 0; i < 1024 * 2; i++)
-    // {
-
-    //     status = hw_sd_write(data, i, 1);
-    //     if (status != SD_CARD_OK)
-    //     {
-    //         LOG_INFO("SD card write failed at block %d: %d", i, status);
-    //     }
-
-    //     status = hw_sd_read(data, i, 1);
-    //     if (status != SD_CARD_OK)
-    //     {
-    //         LOG_INFO("SD card read failed at block %d: %d", i, status);
-    //     }
-    // }
 
     tasks_init();
     /* USER CODE END RTOS_QUEUES */
