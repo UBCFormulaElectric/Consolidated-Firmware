@@ -70,6 +70,21 @@ static ExitCode owc_pdcv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static bool     owc_results[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
 static bool     owc_results_success[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
 
+float app_segments_getPackVoltage()
+{
+    float pack_voltage = 0.0;
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            // Sum the voltages
+            const float cell_voltage = cell_voltages[segment][cell];
+            pack_voltage += cell_voltage;
+        }
+    }
+    return pack_voltage;
+}
+
 static void writeThermistorMux(ThermistorMux mux)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)

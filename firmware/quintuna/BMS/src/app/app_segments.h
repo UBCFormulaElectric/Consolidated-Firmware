@@ -121,3 +121,5 @@ void app_segments_broadcastStatusSelfTest(void);
  * Performs no IO operations.
  */
 void app_segments_broadcastOpenWireCheck(void);
+
+float app_segments_getPackVoltage();

@@ -4,10 +4,12 @@
 #include "app_prechargeLatchState.h"
 #include "app_chargeInitState.h"
 #include "io_charger.h"
+#include "app_segments.h"
 #include "io_irs.h"
 #include "io_time.h"
 #include "app_timer.h"
 #include "app_canRx.h"
+#include "app_segments.h"
 
 #define PRECHARGE_ACC_VOLTAGE_THRESHOLD 0.9f
 #define NUM_OF_INVERTERS 4U
@@ -36,7 +38,7 @@ static void app_prechargeChargeStateRunOnTick1Hz() {}
 static void app_prechargeChargeStateRunOnTick100Hz()
 {
     float ts_voltage = app_tractiveSystem_getVoltage();
-    // float thresh_voltage = ((float)app_accumulator_getPackVoltage() * PRECHARGE_ACC_VOLTAGE_THRESHOLD);
+    float thresh_voltage = ((float)app_segments_getPackVoltage() * PRECHARGE_ACC_VOLTAGE_THRESHOLD);
 
     uint32_t precharge_time = io_time_getCurrentMs() - precharge_start_time;
 
