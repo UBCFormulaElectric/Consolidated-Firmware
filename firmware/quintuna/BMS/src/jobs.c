@@ -10,6 +10,7 @@
 #include "io_bootHandler.h"
 #include "io_canTx.h"
 #include "io_faultLatch.h"
+#include "io_sds.h"
 
 #include "io_canTx.h"
 #include "io_canRx.h"
@@ -65,7 +66,6 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
-    app_soc_init();
     app_heartbeatMonitor_init(&hb_monitor);
 
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
@@ -88,7 +88,15 @@ void jobs_run1Hz_tick(void)
     }
     else
     {
-        app_soc_writeSocToSd(min_soc);
+        // Send SD card write request via queue
+        SdRequest req = {
+            .type        = SD_REQ_WRITE_SOC,
+            .soc_value   = min_soc,
+            .done_sem    = NULL,
+            .success_ptr = NULL,
+            .result_ptr  = NULL,
+        };
+        io_sds_enqueue(&req);
     }
     /**
      * add charger connection status CAN tx once charging implementation branch is merged
@@ -164,4 +172,30 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
     }
 
     io_bootHandler_processBootRequest(rx_msg);
+}
+
+void jobs_runSdCard_tick(void)
+{
+    SdRequest          req;
+    osMessageQueueId_t queue = io_sds_queue_handle();
+    if (queue && osMessageQueueGet(queue, &req, NULL, 0) == osOK)
+    {
+        bool success = false;
+        switch (req.type)
+        {
+            case SD_REQ_WRITE_SOC:
+                success = app_soc_writeSocToSd(req.soc_value);
+                break;
+            case SD_REQ_READ_SOC:
+                if (req.result_ptr)
+                    success = app_soc_readSocFromSd(req.result_ptr);
+                break;
+            default:
+                break;
+        }
+        if (req.success_ptr)
+            *(req.success_ptr) = success;
+        if (req.done_sem)
+            osSemaphoreRelease(req.done_sem);
+    }
 }

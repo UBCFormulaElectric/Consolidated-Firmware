@@ -80,7 +80,6 @@ typedef struct
 } SocStats;
 
 static SocStats stats;
-extern bool     sd_inited;
 
 #ifndef TARGET_EMBEDDED
 
@@ -315,7 +314,6 @@ bool app_soc_writeSocToSd(float soc)
 
     hw_sd_write(sd_write_data, DEFAULT_SOC_ADDR, 1);
     hw_sd_write(crc_bytes, DEFAULT_SOC_ADDR + 4, 1);
-
 #endif
     return true;
 }

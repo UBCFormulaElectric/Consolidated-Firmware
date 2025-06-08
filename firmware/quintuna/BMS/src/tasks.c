@@ -10,6 +10,7 @@
 #include "hw_bootup.h"
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_sds.h"
 
 // hw
 #include "hw_usb.h"
@@ -67,6 +68,7 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+    io_sds_queue_init();
 }
 
 void tasks_run1Hz(void)
@@ -145,5 +147,13 @@ void tasks_runLtc(void)
     for (;;)
     {
         jobs_runLtc_tick();
+    }
+}
+
+void tasks_runSdCard(void)
+{
+    for (;;)
+    {
+        jobs_runSdCard_tick();
     }
 }

@@ -9,3 +9,4 @@ _Noreturn void tasks_runCanTx(void);
 _Noreturn void tasks_runCanRx(void);
 _Noreturn void tasks_runChimera(void);
 _Noreturn void tasks_runLtc(void);
+_Noreturn void tasks_runSdCard(void);
