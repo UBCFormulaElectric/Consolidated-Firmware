@@ -69,8 +69,8 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_spi.c"
     )
 
-    # Don't check cubemx srcs.
-    embedded_no_checks("${MAIN_SRCS}")
+    # Don't check syscalls.
+    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
 
     stm32f412rx_cube_library(
             "ssm_stm32cube_hal"
