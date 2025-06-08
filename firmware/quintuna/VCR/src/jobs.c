@@ -1,4 +1,5 @@
 #include "jobs.h"
+#include "app_utils.h"
 #include "io_canMsg.h"
 #include "io_canQueue.h"
 #include "io_canQueues.h"
@@ -38,7 +39,7 @@ static void bootloader_reroute_can2(const CanMsg *msg)
     memset(&new_msg, 0, sizeof(CanMsg));
 
     new_msg.std_id = msg->std_id;
-    new_msg.dlc    = 8;
+    new_msg.dlc    = MAX(msg->dlc, 8);
 
     // We can do this as for bootloader the packets are never going to be larger than 8 bytes
     memcpy(&(new_msg.data), &(msg->data), sizeof(uint64_t));
@@ -53,7 +54,7 @@ static void bootloader_reroute_can1(const CanMsg *msg)
     memset(&new_msg, 0, sizeof(CanMsg));
 
     new_msg.std_id = msg->std_id;
-    new_msg.dlc    = 8;
+    new_msg.dlc    = MAX(msg->dlc, 8);
 
     // We can do this as for bootloader the packets are never going to be larger than 8 bytes
     memcpy(&(new_msg.data), &(msg->data), sizeof(uint64_t));
