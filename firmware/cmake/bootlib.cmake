@@ -42,7 +42,6 @@ function(stm32f4_boot_binary
             "${MD5_LOCATION}"
             FALSE
     )
-    stm32f412rx_freertos_library("${BOOT_NAME}_freertos")
 
     # Add bootloader-specific files.
     list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_f4.c")
@@ -79,7 +78,7 @@ function(stm32f4_boot_binary
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
-    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal" "${BOOT_NAME}_freertos")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
 
@@ -122,7 +121,6 @@ function(stm32h7_boot_binary
             "${MD5_LOCATION}"
             FALSE
     )
-    stm32h733xx_freertos_library("${BOOT_NAME}_freertos")
 
     # Add bootloader-specific files.
     list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_h7.c")
@@ -158,6 +156,6 @@ function(stm32h7_boot_binary
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
-    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal" "${BOOT_NAME}_freertos")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()

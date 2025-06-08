@@ -81,6 +81,10 @@ if ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code("quintuna_FSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
+            "stm32f4xx_hal.c" #add more hal library here if needed
+    )
+
+    set(STM32_HAL_SRCS
             "stm32f4xx_hal_adc_ex.c"
             "stm32f4xx_hal_adc.c"
             "stm32f4xx_hal_cortex.c"
@@ -110,7 +114,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
-    stm32f412rx_freertos_library("quintuna_FSM_freertos")
 
     # JSONCAN
     jsoncan_embedded_library(FSM quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
@@ -124,8 +127,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_FSM_jsoncan" INTERFACE "quintuna_FSM_stm32cube")
-    target_link_libraries("quintuna_FSM_app.elf" PRIVATE
-            "quintuna_FSM_stm32cube" "quintuna_FSM_stm32cube_hal" "quintuna_FSM_freertos"
+    target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32cube" "quintuna_FSM_stm32cube_hal"
             "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "chimera_v2_proto_cm4" "m")
 
     if ("${BOOTLOAD}" STREQUAL "ON")

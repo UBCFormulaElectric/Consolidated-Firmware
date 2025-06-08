@@ -126,7 +126,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
-    stm32h733xx_freertos_library("quintuna_DAM_freertos")
 
     # Generate the protobuf files.
     nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
@@ -151,9 +150,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE
-            "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_freertos"
-            "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
 
     message("Bootloader: ${BOOTLOAD}")
         # if ("${BOOTLOAD}" STREQUAL "ON")
@@ -174,11 +171,12 @@ if ("${TARGET}" STREQUAL "binary")
 
     #create image
     embedded_image(
-            "quintuna_DAM"
-            "quintuna_DAM_app.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_app.hex"
-            "quintuna_DAM_boot.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
-    )
+                "quintuna_DAM"
+                "quintuna_DAM_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_app.hex"
+                "quintuna_DAM_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_DAM_boot.hex"
+        )
+        # endif ()
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

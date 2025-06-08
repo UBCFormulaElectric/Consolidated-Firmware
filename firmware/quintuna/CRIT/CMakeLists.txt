@@ -111,7 +111,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
-    stm32f412rx_freertos_library("quintuna_CRIT_freertos")
 
     # JSONCAN
     jsoncan_embedded_library(CRIT quintuna "${CMAKE_CURRENT_BINARY_DIR}")
@@ -123,9 +122,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_CRIT_app.elf" PRIVATE
-            "quintuna_CRIT_stm32cube" "quintuna_CRIT_stm32cube_hal" "quintuna_CRIT_freertos"
-            "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("quintuna_CRIT_app.elf" PRIVATE "quintuna_CRIT_stm32cube" "quintuna_CRIT_stm32cube_hal" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "chimera_v2_proto_cm4")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")

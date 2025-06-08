@@ -89,7 +89,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
-    stm32h733xx_freertos_library("h7dev_freertos")
 
     embedded_binary(
             "h7dev_app"
@@ -114,7 +113,7 @@ IF ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "h7dev_stm32cube_hal" "h7dev_freertos" "protobuf_library" "logfs_cm7")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "h7dev_stm32cube_hal" "protobuf_library" "logfs_cm7")
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")

@@ -63,11 +63,9 @@ if ("${TARGET}" STREQUAL "binary")
     stm32f412rx_cube_library(
             "quintuna_PCM_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
             "${MD5_LOCATION}"
             FALSE
     )
-    stm32f412rx_freertos_library("quintuna_PCM_freertos")
 
     target_link_libraries("quintuna_PCM_app.elf" PRIVATE "quintuna_PCM_stm32cube" "quintuna_PCM_stm32cube_hal" "quintuna_PCM_freertos")
 endif ()

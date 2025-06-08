@@ -76,11 +76,9 @@ IF ("${TARGET}" STREQUAL "binary")
     stm32f412rx_cube_library(
             "f4dev_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${SYSCALLS}"
             "${MD5_LOCATION}"
             TRUE
     )
-    stm32f412rx_freertos_library("f4dev_freertos")
 
     embedded_binary(
             "f4dev"
@@ -98,6 +96,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_stm32cube_hal" "f4dev_freertos" "f4dev_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_stm32cube_hal" "f4dev_commit_info" "chimera_v2_proto_cm4")
     target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 ENDIF ()

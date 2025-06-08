@@ -72,17 +72,23 @@ function(stm32f412rx_cube_library
         USB_ENABLED
 )
     set(DRIVERS_DIR "${STM32CUBEF4_SOURCE_DIR}/Drivers")
+    set(FREERTOS_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
+
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
             "${HAL_CONF_DIR}"
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc"
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
+            "${FREERTOS_DIR}/include"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
 
     # HAL sources.
@@ -91,20 +97,31 @@ function(stm32f412rx_cube_library
         list(APPEND STM32_HAL_SRCS "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Src/${HAL_SRC}")
     endforeach ()
 
+    # FreeRTOS sources.
+    file(GLOB RTOS_SRCS
+            "${FREERTOS_DIR}/*.c"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
+            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+    )
+
     # SEGGER SystemView sources.
     file(GLOB SYSTEMVIEW_SRCS
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.c"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.S"
-            "${THIRD_PARTY_DIR}/sysview/sysviewConfig.c"
-            # NOTE: the configs for the systemview should be provided in the hardware layer of the respective boards
     )
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
-    # list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    #    list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/SEGGER_SYSVIEW_FreeRTOS.c")
+    list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
+    # NOTE: the configs for the systemview should be provided in the hardware layer of the respective boards
+    list(APPEND SYSTEMVIEW_SRCS "${THIRD_PARTY_DIR}/sysview/sysviewConfig.c")
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
     if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
@@ -134,40 +151,6 @@ function(stm32f412rx_cube_library
     )
 endfunction()
 
-message("  🔃 Registered stm32f412rx_freertos_library() function")
-function(stm32f412rx_freertos_library
-        LIB_NAME
-)
-    set(FREERTOS_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-
-
-    set(FREERTOS_INCLUDE_DIRS
-            "${FREERTOS_DIR}/include"
-            "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
-            # assumes you are using systemview
-            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
-    )
-
-    # FreeRTOS sources.
-    file(GLOB FREERTOS_SRCS
-            "${FREERTOS_DIR}/*.c"
-            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
-            # assumes you are using systemview
-            # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
-            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/SEGGER_SYSVIEW_FreeRTOS.c"
-    )
-    embedded_interface_library(
-            "${LIB_NAME}"
-            "${FREERTOS_SRCS}"
-            "${FREERTOS_INCLUDE_DIRS}"
-            TRUE
-    )
-    target_compile_definitions("${LIB_NAME}" INTERFACE USE_FREERTOS)
-endfunction()
-
 message("  🔃 Registered stm32h733xx_cube_library() function")
 function(stm32h733xx_cube_library
         HAL_LIB_NAME
@@ -182,6 +165,9 @@ function(stm32h733xx_cube_library
     set(STM32CUBE_INCLUDE_DIRS
             "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
             "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
+            "${FREERTOS_DIR}/include"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
 
@@ -189,6 +175,7 @@ function(stm32h733xx_cube_library
             "${THIRD_PARTY_DIR}/sysview"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
 
     # HAL sources.
@@ -197,15 +184,26 @@ function(stm32h733xx_cube_library
         list(APPEND STM32_HAL_SRCS "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Src/${HAL_SRC}")
     endforeach ()
 
+    # FreeRTOS sources.
+    file(GLOB RTOS_SRCS
+            "${FREERTOS_DIR}/*.c"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1/port.c"
+            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+    )
+
     # SEGGER SystemView sources.
     file(GLOB SYSTEMVIEW_SRCS
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.c"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.S"
-            # NOTE: the configs for the systemview should be provided in the hardware layer of the respective boards
-            "${THIRD_PARTY_DIR}/sysview/sysviewConfig.c"
     )
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
     #    list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/SEGGER_SYSVIEW_FreeRTOS.c")
+    list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
+    # NOTE: the configs for the systemview should be provided in the hardware layer of the respective boards
+    list(APPEND SYSTEMVIEW_SRCS "${THIRD_PARTY_DIR}/sysview/sysviewConfig.c")
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
@@ -243,37 +241,4 @@ function(stm32h733xx_cube_library
             USE_HAL_DRIVER
             STM32H733xx
     )
-endfunction()
-
-message("  🔃 Registered stm32h733xx_freertos_library() function")
-function(stm32h733xx_freertos_library
-        LIB_NAME
-)
-    set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-
-    set(FREERTOS_INCLUDE_DIRS
-            "${FREERTOS_DIR}/include"
-            "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1"
-            # assumes you are using systemview
-            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
-    )
-
-    # FreeRTOS sources.
-    file(GLOB FREERTOS_SRCS
-            "${FREERTOS_DIR}/*.c"
-            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1/port.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
-            # assumes you are using systemview
-            # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
-            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/SEGGER_SYSVIEW_FreeRTOS.c"
-    )
-    embedded_interface_library(
-            "${LIB_NAME}"
-            "${FREERTOS_SRCS}"
-            "${FREERTOS_INCLUDE_DIRS}"
-            TRUE
-    )
-    target_compile_definitions("${LIB_NAME}" INTERFACE USE_FREERTOS)
 endfunction()

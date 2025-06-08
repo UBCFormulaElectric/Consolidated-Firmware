@@ -113,7 +113,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${MD5_LOCATION}"
             TRUE
     )
-    stm32h733xx_freertos_library("quintuna_BMS_freertos")
 
     # JSONCAN
     jsoncan_embedded_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
@@ -126,9 +125,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_BMS_app.elf" PRIVATE
-            "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_freertos"
-            "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
