@@ -29,6 +29,21 @@ void io_bootloadeReroute_init(
     transmit_func_can1 = transmit_can1_msg_func;
 }
 
+static void routing_logic(const CanMsg *msg, uint8_t message_id){
+    if (message_id == START_UPDATE_ID_LOWBITS || message_id == ERASE_SECTOR_ID_LOWBITS ||
+        message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS ||
+        message_id == GO_TO_APP_LOWBITS || message_id == GO_TO_BOOT)
+    {
+        transmit_func_can2(msg);
+    }
+    else if (
+        message_id == UPDATE_ACK_ID_LOWBITS || message_id == ERASE_SECTOR_COMPLETE_ID_LOWBITS ||
+        message_id == APP_VALIDITY_ID_LOWBITS || message_id == STATUS_10HZ_ID_LOWBITS)
+    {
+        transmit_func_can1(msg);
+    }
+}
+
 void io_bootloaderReroute_reRoute(const CanMsg *msg)
 {
     uint64_t board_id   = msg->std_id & 0x1FFFFFC0;
@@ -36,46 +51,9 @@ void io_bootloaderReroute_reRoute(const CanMsg *msg)
     switch (board_id)
     {
         case (FSM_BOOTCONFIG):
-            if (message_id == START_UPDATE_ID_LOWBITS || message_id == ERASE_SECTOR_ID_LOWBITS ||
-                message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS ||
-                message_id == GO_TO_APP_LOWBITS || message_id == GO_TO_BOOT)
-            {
-                transmit_func_can2(msg);
-            }
-            else if (
-                message_id == UPDATE_ACK_ID_LOWBITS || message_id == ERASE_SECTOR_COMPLETE_ID_LOWBITS ||
-                message_id == APP_VALIDITY_ID_LOWBITS || message_id == STATUS_10HZ_ID_LOWBITS)
-            {
-                transmit_func_can1(msg);
-            }
-            break;
         case (RSM_BOOTCONFIG):
-            if (message_id == START_UPDATE_ID_LOWBITS || message_id == ERASE_SECTOR_ID_LOWBITS ||
-                message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS ||
-                message_id == GO_TO_APP_LOWBITS || message_id == GO_TO_BOOT)
-            {
-                transmit_func_can2(msg);
-            }
-            else if (
-                message_id == UPDATE_ACK_ID_LOWBITS || message_id == ERASE_SECTOR_COMPLETE_ID_LOWBITS ||
-                message_id == APP_VALIDITY_ID_LOWBITS || message_id == STATUS_10HZ_ID_LOWBITS)
-            {
-                transmit_func_can1(msg);
-            }
-            break;
         case (CRIT_BOOTCONFIG):
-            if (message_id == START_UPDATE_ID_LOWBITS || message_id == ERASE_SECTOR_ID_LOWBITS ||
-                message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS ||
-                message_id == GO_TO_APP_LOWBITS || message_id == GO_TO_BOOT)
-            {
-                transmit_func_can2(msg);
-            }
-            else if (
-                message_id == UPDATE_ACK_ID_LOWBITS || message_id == ERASE_SECTOR_COMPLETE_ID_LOWBITS ||
-                message_id == APP_VALIDITY_ID_LOWBITS || message_id == STATUS_10HZ_ID_LOWBITS)
-            {
-                transmit_func_can1(msg);
-            }
+            routing_logic(msg, message_id);
             break;
         default:
             break;
