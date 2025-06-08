@@ -47,7 +47,7 @@ I2C_HandleTypeDef hi2c1;
 
 /* Definitions for vicorTask */
 osThreadId_t         vicorTaskHandle;
-uint32_t             vicorTaskBuffer[128];
+uint32_t             vicorTaskBuffer[512];
 osStaticThreadDef_t  vicorTaskControlBlock;
 const osThreadAttr_t vicorTask_attributes = {
     .name       = "vicorTask",
