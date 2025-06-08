@@ -1,7 +1,7 @@
 #include "app_soc.h"
 #include "app_math.h"
 #include "app_tractiveSystem.h"
-#include "io_sd.h"
+#include "io_sds.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_sd.h"
@@ -201,8 +201,7 @@ static float convert_bytes_to_float(uint8_t *byte_array)
 
 static bool sdCardReady()
 {
-    // return sd_inited && io_sdGpio_checkSdPresent();
-    return io_sdGpio_checkSdPresent();
+    return io_sds_checkSdPresent();
 }
 
 float app_soc_getMinOcvFromSoc(void)

@@ -76,7 +76,7 @@ void tasks_init(void)
     // hw_can_init(&can2);
 
     jobs_init();
-    
+
     io_sds_queue_init();
 
     app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());

@@ -1,4 +1,6 @@
 #include "io_sds.h"
+#include "hw_sds.h"
+#include "hw_gpio.h"
 #include "cmsis_os.h"
 #include <stdbool.h>
 
@@ -24,4 +26,9 @@ bool io_sds_enqueue(SdRequest *req)
 osMessageQueueId_t io_sds_queue_handle(void)
 {
     return sdcardQueueHandle;
+}
+
+bool io_sds_checkSdPresent(void)
+{
+    return !hw_gpio_readPin(sd1.present_gpio);
 }

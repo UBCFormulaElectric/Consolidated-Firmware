@@ -6,6 +6,7 @@
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include "app_segments.h"
 
 #include "io_bootHandler.h"
 #include "io_canTx.h"
