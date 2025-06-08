@@ -10,3 +10,4 @@ State fault_state = { .name              = "FAULT",
                       .run_on_tick_1Hz   = faultRunOnTick1Hz,
                       .run_on_tick_100Hz = faultRunOnTick100Hz,
                       .run_on_exit       = faultRunOnExit };
+

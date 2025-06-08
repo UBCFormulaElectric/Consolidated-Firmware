@@ -12,9 +12,12 @@
 #include "app_regen.h"
 #include "app_states.h"
 #include "app_powerManager.h"
+#include "app_faultHandling.h"
+#include "app_canAlerts.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define BUZZER_ON_DURATION_MS 2000
+#define INV_OFF 0
 
 static bool         torque_vectoring_switch_is_on;
 static bool         regen_switch_is_on;
@@ -34,8 +37,13 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
 };
 
-static void driveStateRunOnEntry(void)
-{
+static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage);
+static bool driveStatePassPreCheck();
+static void app_regularDrive_run(float apps_pedal_percentage);
+
+
+
+static void driveStateRunOnEntry(){
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
@@ -67,7 +75,7 @@ static void driveStateRunOnEntry(void)
 
 static void driveStateRunOnTick1Hz(void)
 {
-    app_allStates_runOnTick1Hz();
+    app_allStates_runOnTick1Hz(); // NOT SURE IF QUINTUNA WILL STILL HAVE THIS 
 }
 
 static void driveStateRunOnTick100Hz(void)
@@ -98,27 +106,12 @@ static void driveStateRunOnTick100Hz(void)
     runDrivingAlgorithm(apps_pedal_percentage, sapps_pedal_percentage);
 }
 
-static void driveStateRunOnExit(void) {}
+static void driveStateRunOnExit(void) {};
 
-State drive_state = {
-    .name              = "DRIVE",
-    .run_on_entry      = driveStateRunOnEntry,
-    .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
-    .run_on_tick_100Hz = driveStateRunOnTick100Hz,
-    .run_on_exit       = driveStateRunOnExit,
-};
-
-bool driveStatePassPreCheck()
+static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const bool any_board_has_fault = app_faultCheck_checkBoards();
-    const bool inverter_has_fault  = app_faultCheck_checkInverters();
-    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
-
-    const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init        = bms_not_in_drive;
-    bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
+    const faultType fault_check = app_faultHandling_globalFaultCheck(); 
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     bool prev_regen_switch_val = regen_switch_is_on;
@@ -129,12 +122,31 @@ bool driveStatePassPreCheck()
 
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
         or not before using closed loop features */
-
     // Update Regen + TV LEDs
+
+    if(SWITCH_OFF == app_canRx_CRIT_StartSwitch_get())
+    {
+        app_stateMachine_setNextState(&hv_state);
+    }
+    else
+    {
+        if ((app_canRx_BMS_State_get() != BMS_DRIVE_STATE) || (BOARD_FAULT == fault_check))
+        {
+            app_canTx_VC_INVFLTargetSpeed_set(INV_OFF);
+        }
+    }
+
+    if(INVERTER_FAULT == fault_check)
+    {
+        app_canTx_VC_INVFLTargetSpeed_set(INV_OFF);
+        app_canAlerts_VC_Warning_InverterRetry_set(true);
+        app_stateMachine_setNextState(&hvInit_state);
+    }
+
     if (!regen_switch_is_on)
     {
         app_canTx_VC_RegenEnabled_set(false);
-        app_canTx_VC_Warning_RegenNotAvailable_set(true);
+        app_canTx_VC_Info_RegenNotAvailable_set(true);
     }
 
     if (!torque_vectoring_switch_is_on)
@@ -142,21 +154,10 @@ bool driveStatePassPreCheck()
         app_canTx_VC_TorqueVectoringEnabled_set(true);
     }
 
-    if (exit_drive_to_init)
-    {
-        app_stateMachine_setNextState(app_initState_get());
-        return false;
-    }
-    else if (exit_drive_to_inverter_on)
-    {
-        app_stateMachine_setNextState(app_inverterOnState_get());
-        return false;
-    }
-
     return true;
 }
 
-void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
+static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
 {
     if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
     {
@@ -178,9 +179,10 @@ void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percenta
     }
 }
 
-void app_regularDrive_run(float apps_pedal_percentage)
+static void app_regularDrive_run(float apps_pedal_percentage)
 {
     // TODO: Use power limiting in regular drive
+    //TODO: Implement active diff  in regular drive at min 
     const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
     const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
     const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
@@ -203,11 +205,20 @@ void app_regularDrive_run(float apps_pedal_percentage)
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
     // Calculate the actual torque request to transmit
-    const float torque_request = MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM);
+    // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
+    int16_t torque_request =(int16_t)(MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM) * 1000);
 
     // Transmit torque command to both inverters
-    app_canTx_VC_RightFrontInverterTorqueCommand_set(torque_request);
-    app_canTx_VC_RightBackInverterTorqueCommand_set(torque_request);
-    app_canTx_VC_LeftFrontInverterTorqueCommand_set(torque_request);
-    app_canTx_VC_LeftBackInverterTorqueCommand_set(torque_request);
+    app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
+    app_canTx_VC_INVRRTorqueSetpoint_set(torque_request);
+    app_canTx_VC_INVFLTorqueSetpoint_set(torque_request);
+    app_canTx_VC_INVRLTorqueSetpoint_set(torque_request);
 }
+
+State drive_state = {
+    .name              = "DRIVE",
+    .run_on_entry      = driveStateRunOnEntry,
+    .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
+    .run_on_tick_100Hz = driveStateRunOnTick100Hz,
+    .run_on_exit       = driveStateRunOnExit,
+};

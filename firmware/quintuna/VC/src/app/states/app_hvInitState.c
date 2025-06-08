@@ -2,6 +2,7 @@
 #include "app_states.h"
 #include "app_powerManager.h"
 #include "app_timer.h"
+#include "app_canAlerts.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
 #include <app_canRx.h>
@@ -138,7 +139,15 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         }
         case INV_READY_FOR_DRIVE:
-            app_stateMachine_setNextState(&hv_state);
+            if(app_canAlerts_VC_Warning_InverterRetry_get())
+            {
+                app_canAlerts_VC_Warning_InverterRetry_set(false);
+                app_stateMachine_setNextState(&drive_state);
+            }
+            else
+            {
+                app_stateMachine_setNextState(&hv_state);    
+            }
             break;
     }
 }

@@ -8,17 +8,17 @@
 
 #define NUM_FAULT_NODES 14
 
-bool app_faultHandling_checkBoardStatus(void)
-{
-    const bool bms_fault  = app_canAlerts_BoardHasFault(BMS_NODE);
-    const bool vc_fault   = app_canAlerts_BoardHasFault(VC_NODE);
-    const bool fsm_fault  = app_canAlerts_BoardHasFault(RSM_NODE);
-    const bool crit_fault = app_canAlerts_BoardHasFault(CRIT_NODE);
+/**
+ * New fault handling will not kick drive out of drive state, instead it will clamp torque to 0, this done to reduce exiting drive state 
+ * on recoverable faults 
+ */
 
-    return bms_fault || vc_fault || fsm_fault || crit_fault;
+static bool app_faultHandling_checkBoardStatus(void)
+{
+    return app_canAlerts_BoardHasFault(BMS_NODE)|| app_canAlerts_BoardHasFault(VC_NODE);
 }
 
-bool app_faultHandling_inverterStatus(void)
+static bool app_faultHandling_inverterStatus(void)
 {
     const bool invrr_error = app_canRx_INVRR_bError_get() == true;
     const bool invrl_error = app_canRx_INVRL_bError_get() == true;
@@ -33,14 +33,15 @@ bool app_faultHandling_inverterStatus(void)
     return invfl_error || invrl_error || invfl_error || invfr_error;
 }
 
-void app_faultHandling_globalFaultCheck(void)
+faultType app_faultHandling_globalFaultCheck(void)
 {
     if (app_faultHandling_checkBoardStatus())
     {
-        app_stateMachine_setNextState(&fault_state);
+        return BOARD_FAULT;
     }
     else if (app_faultHandling_inverterStatus())
     {
-        app_stateMachine_setNextState(&hvInit_state);
+        return INVERTER_FAULT;
     }
+    return NO_FAULT; 
 }

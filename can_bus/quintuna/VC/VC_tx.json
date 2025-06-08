@@ -437,7 +437,7 @@
         "start_bit": 12,
         "bits": 4
       },
-      "INVFLTargetSpeed": {
+      "INVFLTorqueSetpoint": {
         "start_bit": 16,
         "bits": 16,
         "signed": true
@@ -482,7 +482,7 @@
         "start_bit": 12,
         "bits": 4
       },
-      "INVFRTargetSpeed": {
+      "INVFRTorqueSetpoint": {
         "start_bit": 16,
         "bits": 16,
         "signed": true
