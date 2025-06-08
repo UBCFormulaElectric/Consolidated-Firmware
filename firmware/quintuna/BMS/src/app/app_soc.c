@@ -152,7 +152,7 @@ void app_soc_init(void)
 
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
     // TODO: uncommentt when can msg is added
-    // app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
 bool app_soc_getCorrupt(void)
@@ -224,7 +224,7 @@ void app_soc_resetSocFromVoltage(void)
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
     // TODO: uncomment when can msg is added
-    // app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
 void app_soc_resetSocCustomValue(float soc_percent)
@@ -234,7 +234,7 @@ void app_soc_resetSocCustomValue(float soc_percent)
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
     // TODO: uncomment when can msg is added
-    // app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
 bool app_soc_readSocFromSd(float *saved_soc_c)
