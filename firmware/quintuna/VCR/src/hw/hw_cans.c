@@ -1,15 +1,36 @@
 #include "hw_cans.h"
-#include "io_canQueue.h"
+#include "io_canMsg.h"
+#include "io_canQueues.h"
 #include "main.h"
 #include <assert.h>
+#include "app_jsoncan.h"
+#include <io_canReroute.h>
+#include "io_bootloaderReroute.h"
 #include <stdbool.h>
-#include <stm32h733xx.h>
 
 // NOTE: can2 refers to the CAN2_TX/RX on the altium
 // I believe CAN2 on the altium refers to can3
-CanHandle fd_can  = { .hcan = &hfdcan2, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
-CanHandle sx_can  = { .hcan = &hfdcan1, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
-CanHandle inv_can = { .hcan = &hfdcan3, .bus_num = 3, .receive_callback = io_canQueue_pushRx };
+bool rx_filter_buffer(const CanMsg *msg)
+{
+    return (io_canRx_filterMessageId_can1(msg->std_id) || io_canRx_filterMessageId_can2(msg->std_id) ||
+           io_canRx_filterMessageId_can3(msg->std_id));
+}
+
+void handleCallback(const CanMsg *rx_msg){ 
+    if (!rx_filter_buffer(rx_msg)) return;
+    
+    io_bootloaderReroute_reRoute(rx_msg);
+
+    JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(rx_msg);
+
+    io_canReroute_can1(&json_can_msg);
+    io_canReroute_can2(&json_can_msg);
+    io_canReroute_can3(&json_can_msg);  
+}
+
+CanHandle fd_can  = { .hcan = &hfdcan2, .bus_num = 1, .receive_callback = handleCallback };
+CanHandle sx_can  = { .hcan = &hfdcan1, .bus_num = 2, .receive_callback = handleCallback };
+CanHandle inv_can = { .hcan = &hfdcan3, .bus_num = 3, .receive_callback = handleCallback };
 
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {

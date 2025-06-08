@@ -5,10 +5,10 @@
 #include "io_canMsg.h"
 #include "io_log.h"
 #include "jobs.h"
-#include "hw_cans.h"
 #include "app_jsoncan.h"
 #include "main.h"
 #include "io_canQueues.h"
+#include <cmsis_os2.h>
 #include <io_canTx.h>
 #include <io_canReroute.h>
 #include <io_canRx.h>
@@ -18,11 +18,6 @@ void tasks_preInit()
     hw_hardFaultHandler_init();
 }
 
-bool rx_filter(const CanMsg *msg)
-{
-    return (io_canRx_filterMessageId_can1(msg->std_id) || io_canRx_filterMessageId_can1(msg->std_id) ||
-           io_canRx_filterMessageId_can1(msg->std_id));
-}
 void tasks_init()
 {
     // Configure and initialize SEGGER SystemView.
@@ -85,13 +80,7 @@ _Noreturn void tasks_runcanRx(void)
 {
     for (;;)
     {
-        const CanMsg rx_msg = io_canQueue_popRx();
+        osDelay(osWaitForever);
 
-        io_bootloaderReroute_reRoute(&rx_msg);
-        JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-
-        io_canReroute_can1(&json_can_msg);
-        io_canReroute_can2(&json_can_msg);
-        io_canReroute_can3(&json_can_msg);
     }
 }

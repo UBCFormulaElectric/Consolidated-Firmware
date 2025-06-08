@@ -1,5 +1,7 @@
 #include "io_bootloaderReroute.h"
 #include "io_canMsg.h"
+#include "app_utils.h"
+#include "io_canQueues.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -21,12 +23,34 @@ static void (*transmit_func_can1)(const CanMsg *tx_msg);
 #define RSM_BOOTCONFIG 0x14000000
 #define CRIT_BOOTCONFIG 0x18000000
 
-void io_bootloadeReroute_init(
-    void (*transmit_can2_msg_func)(const CanMsg *),
-    void (*transmit_can1_msg_func)(const CanMsg *))
+static void bootloader_reroute_can2(const CanMsg *msg)
 {
-    transmit_func_can2 = transmit_can2_msg_func;
-    transmit_func_can1 = transmit_can1_msg_func;
+    CanMsg new_msg;
+
+    memset(&new_msg, 0, sizeof(CanMsg));
+
+    new_msg.std_id = msg->std_id;
+    new_msg.dlc    = MAX(msg->dlc, 8);
+
+    // We can do this as for bootloader the packets are never going to be larger than 8 bytes
+    memcpy(&(new_msg.data), &(msg->data), sizeof(uint64_t));
+
+    io_canQueue_pushTx(&sx_can_tx_queue, &new_msg);
+}
+
+static void bootloader_reroute_can1(const CanMsg *msg)
+{
+    CanMsg new_msg;
+
+    memset(&new_msg, 0, sizeof(CanMsg));
+
+    new_msg.std_id = msg->std_id;
+    new_msg.dlc    = MAX(msg->dlc, 8);
+
+    // We can do this as for bootloader the packets are never going to be larger than 8 bytes
+    memcpy(&(new_msg.data), &(msg->data), sizeof(uint64_t));
+
+    io_canQueue_pushTx(&fd_can_tx_queue, &new_msg);
 }
 
 static void routing_logic(const CanMsg *msg, uint8_t message_id)
@@ -35,13 +59,13 @@ static void routing_logic(const CanMsg *msg, uint8_t message_id)
         message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS || message_id == GO_TO_APP_LOWBITS ||
         message_id == GO_TO_BOOT)
     {
-        transmit_func_can2(msg);
+        bootloader_reroute_can2(msg);
     }
     else if (
         message_id == UPDATE_ACK_ID_LOWBITS || message_id == ERASE_SECTOR_COMPLETE_ID_LOWBITS ||
         message_id == APP_VALIDITY_ID_LOWBITS || message_id == STATUS_10HZ_ID_LOWBITS)
     {
-        transmit_func_can1(msg);
+        bootloader_reroute_can1(msg);
     }
 }
 
