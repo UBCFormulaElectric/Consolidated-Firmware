@@ -1,3 +1,4 @@
+#pragma once
 
 #include <stdint.h>
 
@@ -42,7 +43,7 @@ typedef struct __attribute__((packed))
     uint8_t OCD1 : 1;  // Overcurrent in discharge 1
     uint8_t OCD2 : 1;  // Overcurrent in discharge 2
     uint8_t SCD : 1;   // Short Circuit in Discharge
-} SafteyStatusA;        // alerts associated with the battery chip
+} SafetyStatusA;        // alerts associated with the battery chip
 
 
 typedef struct __attribute__((packed))
@@ -55,19 +56,19 @@ typedef struct __attribute__((packed))
     uint8_t OTD : 1;
     uint8_t OTINT : 1;
     uint8_t OTF : 1;  
-} SafteyStatusB;
+} SafetyStatusB;
 
 typedef struct __attribute__((packed))
 {
     uint8_t RSVD1 : 1;
-    uint8_t RSVD2 : 1;
-    uint8_t RSVD3 : 1;
+    uint8_t RSVD2 : 1;  
     uint8_t PTOS :1;
+    uint8_t RSVD3 : 1;
     uint8_t COVL : 1;
     uint8_t OCDL : 1;
     uint8_t SCDL : 1;
     uint8_t OCD3 : 1;
-} SafteyStatusC;
+} SafetyStatusC;
 
 typedef struct __attribute__((packed))
 {
@@ -100,7 +101,9 @@ typedef enum
     REG_RESPONSE_LENGTH = 0x61,
     ALERT_PIN_CONFIG    = 0x56,
     ALARM_ENABLE_REG    = 0x66,
-    ALARM_STATUS_REG    = 0x62
+    ALARM_STATUS_REG    = 0x62,
+    CELL_BALANCING = 0x83,
+    CELL_BALANCING_SET_LVL = 0x84
 } register_address_t;
 
 
@@ -151,3 +154,13 @@ typedef enum
     RESPONSE_LENGTH_SIZE = 4,   // One byte for response length and checksum
     SOC_RESPONSE_LENGTH  = 6,   // Expected response size for SOC command
 } comm_settings_t;
+
+typedef struct __attribute__((packed))
+{
+    uint8_t BALANCE_CELL0 : 1;
+    uint8_t BALANCE_CELL1 : 1;
+    uint8_t BALANCE_CELL2 : 1;
+    uint8_t BALANCE_CELL3 : 1;
+    uint8_t BALANCE_CELL4 : 1;
+    uint16_t RSVD : 11;
+} BalanceStatus;

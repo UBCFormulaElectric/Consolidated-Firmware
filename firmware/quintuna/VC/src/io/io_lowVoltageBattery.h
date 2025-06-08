@@ -21,7 +21,7 @@ typedef enum
     CELL0_VOLTAGE_COMMAND = 0x14,
     CELL1_VOLTAGE_COMMAND = 0x16,
     CELL2_VOLTAGE_COMMAND = 0x1A,
-    CELL4_VOLTAGE_COMMAND = 0x1C,
+    CELL3_VOLTAGE_COMMAND = 0x1C,
     STACK_VOLTAGE_COMMAND = 0x34
 } voltage_cmd_t;
 /**
@@ -45,7 +45,7 @@ double io_lowVoltageBattery_get_SOC();
  *
  * @return The battery voltage on success, or -1 on error.
  */
-uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
+float io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
 
 /**
  * @brief Handles releasing the semaphore after an interupt.
@@ -65,9 +65,46 @@ ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status);
 
 
 /**
+ * @brief Function to obtain the safety status from the chip
+ *
+ * @param safetyA The safety status returned from the chip
+ * @param safetyB The safety status returned from the chip
+ * @param safetyC The safety status returned from the chip
+ * @return Exitcode to say whether the transaction was succesful or not
+ */
+ExitCode io_lowVoltageBattery_SafetyStatusCheck(SafetyStatusA *safetyA, SafetyStatusB *safetyB, SafetyStatusC *safetyC);
+
+/**
  * @brief Function to obtain the battery status from the chip
  *
  * @param ctrl_status The control status returned from the chip
  * @return Exitcode to say whether the transaction was succesful or not
  */
 ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status);
+
+/**
+ * @brief Control the balancing of the batteries
+ *
+ * @param cell0 if high, enables balancing for this cell
+ * @param cell1 if high, enables balancing for this cell
+ * @param cell2 if high, enables balancing for this cell
+ * @param cell3 if high, enables balancing for this cell
+ * @return Exitcode to say whether transmission was successful
+ */
+ExitCode io_lowVoltageBattery_controlBalancing(bool cell0, bool cell1, bool cell2, bool cell3);
+
+/**
+ * @brief Configure the threshold (mV) for balancing, if a cell is 
+ * above this threshold it will begin balancing
+ *
+ * @param voltage voltage threshold to balance at (mV)
+ * @return Exitcode to say whether the transaction was succesful or not
+ */
+ExitCode io_lowVoltageBattery_configureBalancingThreshold(uint16_t voltage);
+
+ExitCode io_lowVoltageBattery_showCellsBalancing(BalanceStatus *status);
+
+// ExitCode io_lowVoltageBattery_additionalMeasurements(void);
+
+// Cell Balancing Operation p77
+// additionaBl measurements p22

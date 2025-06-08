@@ -3,7 +3,6 @@
 #include "hw_i2cs.h"
 #include "hw_utils.h"
 #include "io_log.h"
-#include "io_lowVoltageBatReg.h"
 #include <SEGGER.h>
 #include <pb.h>
 #include <stdbool.h>
@@ -93,6 +92,9 @@ static ExitCode recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
     return EXIT_CODE_OK;
 }
 
+static float translateVoltageData(int16_t voltage) {
+    return voltage * 0.001f;
+}
 
 static ExitCode command_to_setThresholds(uint16_t cmd_id, uint8_t *data, size_t size_of_data)
 {
@@ -117,36 +119,36 @@ static ExitCode command_to_setThresholds(uint16_t cmd_id, uint8_t *data, size_t 
     return EXIT_CODE_OK;
 }
 
-ExitCode io_lowVoltageBattery_SafetyStatusCheck(SafteyStatusA *safteyA, SafteyStatusB *safteyB, SafteyStatusC *safteyC){
+ExitCode io_lowVoltageBattery_SafetyStatusCheck(SafetyStatusA *safetyA, SafetyStatusB *safetyB, SafetyStatusC *safetyC){
 
     //check the raw battery alarm status to see what is going on
     uint8_t buffer_safety[1] = { (uint8_t)0x64 };
 
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_safety, 1));
 
-    AlertStatus saftey_status;
-    RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&saftey_status, 2));
+    AlertStatus safety_status;
+    RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&safety_status, 2));
 
     //if there is bit set in status A check what is going on
-    if (saftey_status.SSA){
+    if (safety_status.SSA){
         LOG_ERROR("Registered a status fault A");
         uint8_t buffer_safetA[1] = { (uint8_t)0x03 };
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_safetA, 1));
         
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)safteyA, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)safetyA, 1));
     }
     //if there is bit a bit set in status B check what is going on
-    else if (saftey_status.SSBC) {
+    else if (safety_status.SSBC) {
         LOG_ERROR("Registered a status fault B");
         uint8_t buffer_safetB =  (uint8_t)0x05;
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, &buffer_safetB, 1));
 
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safteyB, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safetyB, 1));
 
         uint8_t buffer_safetC =(uint8_t)0x07 ;
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, &buffer_safetC, 1));
 
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safteyC, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safetyC, 1));
     }
 
     return EXIT_CODE_OK;
@@ -171,6 +173,10 @@ ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status){
 
 ExitCode io_lowVoltageBattery_init(void)
 {
+    SafetyStatusA safetyA;
+    SafetyStatusB safetyB;
+    SafetyStatusC safetyC;
+
     RETURN_IF_ERR(hw_i2c_isTargetReady(&bat_mtr));
 
     // ask for battery status to check if the device is sleep or not
@@ -179,9 +185,9 @@ ExitCode io_lowVoltageBattery_init(void)
     RETURN_IF_ERR(io_lowvoltageBattery_batteryStatus(&bat_status));
 
     //Put the chip into config update mode
-    RETURN_IF_ERR(send_subcommand((uint16_t) 0x0090))
+    RETURN_IF_ERR(send_subcommand((uint16_t)0x0090));
 
-    RETURN_IF_ERR(io_lowVoltageBattery_SafetyStatusCheck())
+    RETURN_IF_ERR(io_lowVoltageBattery_SafetyStatusCheck(&safetyA, &safetyB, &safetyC));
 
     // ask for control status
     // for now leave as void but I am going to change this later
@@ -275,22 +281,83 @@ double io_lowVoltageBattery_get_SOC(void)
  *
  * @return The battery voltage on success, or -1 on error.
  */
-uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
+float io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
 {
     uint8_t voltage_cmd = (uint8_t)voltage_cell;
 
     if (!hw_i2c_transmit(&bat_mtr, &voltage_cmd, 1))
     {
-        return (uint16_t)-1;
+        return -1;
     }
     uint8_t voltage_buffer[2];
     if (!hw_i2c_receive(&bat_mtr, voltage_buffer, 2))
     {
-        return (uint16_t)-1;
+        return -1;
     }
-    uint16_t voltage = (uint16_t)(voltage_buffer[0] | (voltage_buffer[1] << 8));
-    return voltage;
+    int16_t voltage = (int16_t)(voltage_buffer[0] | (voltage_buffer[1] << 8));
+    return translateVoltageData(voltage);
 }
+
+// 62, 77
+ExitCode io_lowVoltageBattery_controlBalancing(bool cell0, bool cell1, bool cell2, bool cell3)
+{
+    return EXIT_CODE_UNIMPLEMENTED;
+
+    /*
+    uint8_t cells_to_balance = (uint8_t)(0x00 | (cell0 | (cell1 << 1) | (cell2 << 2) | (cell3 << 3)));
+
+    uint8_t balance_cmd_buf[2] = { 0x00, cells_to_balance };
+    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, CELL_BALANCING, balance_cmd_buf, 2));
+
+    uint8_t balance_info[2];
+    RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, CELL_BALANCING, balance_info, 2));
+
+    uint8_t cells_balancing = balance_info[0];
+
+    if (cells_to_balance ^ cells_balancing)
+    {
+        return EXIT_CODE_ERROR;
+    }
+
+    return EXIT_CODE_OK;
+    */
+}
+
+ExitCode io_lowVoltageBattery_configureBalancingThreshold(uint16_t voltage)
+{
+    return EXIT_CODE_UNIMPLEMENTED;
+    
+    /*
+    uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(voltage), (uint8_t) BYTE_MASK(voltage)};
+
+    uint8_t balance_cmd_buf[2] = { 0x00, cells_to_balance };
+    RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, CELL_BALANCING, balance_cmd_buf, 2));
+
+    uint8_t balance_info[2];
+    RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, CELL_BALANCING, balance_info, 2));
+
+    uint8_t cells_balancing = balance_info[0];
+
+    if (cells_to_balance ^ cells_balancing)
+    {
+        return EXIT_CODE_ERROR;
+    }
+
+    return EXIT_CODE_OK;
+    */
+}
+
+ExitCode io_lowVoltageBattery_showCellsBalancing(BalanceStatus *status)
+{
+    RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, CELL_BALANCING, &status, 2));
+    return EXIT_CODE_OK;
+}
+
+ExitCode io_lowVoltageBattery_additionalMeasurements(void)
+{
+    return EXIT_CODE_UNIMPLEMENTED;
+}
+
 
 /**
  * @brief Handles releasing the semaphore after an interupt.
