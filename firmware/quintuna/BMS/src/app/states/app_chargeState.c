@@ -155,7 +155,7 @@ static DCRange_t calc_dc_current_range(float iac_max)
 static void buildTxFrame(const ElconTx *cmd)
 {
     app_canTx_BMS_MaxChargingVoltage_set(cmd->maxVoltage_V);
-    app_canTx_BMS_MaxChargingCurrent_set(cmd->maxCurrent_A);
+    app_canTx_BMS_MaxChargingCurrent_set(5);
     app_canTx_BMS_StopCharging_set(cmd->stopCharging);
 }
 
@@ -172,15 +172,15 @@ static void app_chargeStateRunOnTick1Hz(void) {}
 
 static void app_chargeStateRunOnTick100Hz(void)
 {
-    const ConnectionStatus charger_connection_status = io_charger_getConnectionStatus();
-    const bool             extShutdown               = !io_irs_isNegativeClosed();
-    const bool             chargerConn               = (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
+    const ConnectionStatus charger_connection_status = EVSE_CONNECTED;// io_charger_getConnectionStatus();
+    const bool             extShutdown               = false; // !io_irs_isNegativeClosed();
+    const bool             chargerConn               = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
     const bool             userEnable                = app_canRx_Debug_StartCharging_get();
 
     ElconRx rx = readElconStatus();
 
     const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.overTemperature ||
-                       rx.inputVoltageFault || rx.chargingStateFault || rx.commTimeout;
+                       rx.inputVoltageFault || rx.commTimeout;
 
     if (fault || !userEnable)
     {

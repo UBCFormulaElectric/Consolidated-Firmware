@@ -53,11 +53,11 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
         app_stateMachine_setNextState(app_chargeState_get());
     }
 
-    const bool is_charger_connected = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
-    if (!is_charger_connected)
-    {
-        app_stateMachine_setNextState(app_initState_get());
-    }
+    // const bool is_charger_connected = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
+    // if (!is_charger_connected)
+    // {
+    //     app_stateMachine_setNextState(app_initState_get());
+    // }
 
     // Run last since this checks for faults which overrides any other state transitions.
     app_allStates_runOnTick100Hz();
@@ -65,6 +65,7 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
 
 static void app_prechargeChargeStateRunOnExit(void)
 {
+
     io_irs_openPrecharge();
 }
 

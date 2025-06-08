@@ -20,26 +20,29 @@ static void app_initStateRunOnEntry(void)
     // Should always be opened at this point from other states, this is only for redundancy since we really don't want
     // AIR+ closed in init
     io_irs_openPositive();
+    
+    app_canRx_Debug_StartCharging_update(false);
 }
 
 static void app_initStateRunOnTick100Hz(void)
 {
-    const bool is_irs_negative_closed = io_irs_isNegativeClosed();
+    // const bool is_irs_negative_closed = io_irs_isNegativeClosed();
     const bool ts_discharged          = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
 
-    if (is_irs_negative_closed && ts_discharged)
+    // const bool is_charger_connected      = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
+
+    if (ts_discharged)
     {
         const bool external_charging_request = app_canRx_Debug_StartCharging_get();
-        const bool is_charger_connected      = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
 
-        if (external_charging_request && is_charger_connected)
+        if (external_charging_request)
         {
             app_stateMachine_setNextState(app_prechargeChargeState_get());
         }
-        else if (!is_charger_connected)
-        {
-            // TODO: Precharge for driving!
-        }
+        // else if (!is_charger_connected)
+        // {
+        //     // TODO: Precharge for driving!
+        // }
     }
 
     // Run last since this checks for faults which overrides any other state transitions.

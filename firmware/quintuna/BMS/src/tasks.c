@@ -9,6 +9,7 @@
 #include "app_stateMachine.h"
 
 #include "hw_bootup.h"
+#include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 
@@ -69,8 +70,8 @@ void tasks_init(void)
     LOG_IF_ERR(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
-    hw_can_init(&can1);
-    // hw_can_init(&can2);
+    // hw_can_init(&can1);
+    hw_can_init(&can2);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     jobs_init();
@@ -117,6 +118,8 @@ void tasks_init(void)
     app_segments_broadcastAuxSelfTest();
     app_segments_broadcastStatusSelfTest();
     app_segments_broadcastOpenWireCheck();
+
+    hw_gpio_writePin(&shdn_en_pin, true);
 }
 
 void tasks_run1Hz(void)
@@ -170,7 +173,8 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
     }
 }
 
@@ -186,8 +190,6 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    osDelayUntil(0xFFFFFFFF);
-
     static const TickType_t period_ms = 100U; // 10Hz
 
     for (;;)
@@ -214,8 +216,6 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-    osDelayUntil(0xFFFFFFFF);
-
     static const TickType_t period_ms = 1000U; // 1Hz
 
     for (;;)
@@ -242,8 +242,6 @@ void tasks_runLtcTemps(void)
 
 void tasks_runLtcDiagnostics(void)
 {
-    osDelayUntil(0xFFFFFFFF);
-
     static const TickType_t period_ms = 10000U; // Every 10s
 
     for (;;)

@@ -12,6 +12,10 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
-  "files.associations": {},
-  "cortex-debug.variableUseNaturalFormat": false
+  "files.associations": {
+    "hw_bootup.h": "c",
+    "hw_gpios.h": "c",
+    "hw_freertosconfigs.h": "c"
+  },
+  "cortex-debug.variableUseNaturalFormat": true
 }
