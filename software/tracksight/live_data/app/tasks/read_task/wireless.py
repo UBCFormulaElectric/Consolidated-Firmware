@@ -145,6 +145,7 @@ def _read_messages(port: str):
         try:
             message_received = telem_pb2.TelemMessage()
             message_received.ParseFromString(payload)
+            messge_body = list(message_received.message)
         except Exception as e:
             logger.error(f"Error decoding protobuf message: {e}")
             continue
@@ -154,13 +155,13 @@ def _read_messages(port: str):
             # parse start_time from data if this pacakage is correct
             # print(message_received)
             base_time = datetime.datetime(
-                year=message_received.message_0
+                year=messge_body[0]
                 + 2000,  # need to offset this as on firmware side it is 0-99
-                month=message_received.message_1,
-                day=message_received.message_2,
-                hour=message_received.message_3,
-                minute=message_received.message_4,
-                second=message_received.message_5,
+                month=messge_body[1],
+                day=messge_body[2],
+                hour=messge_body[3],
+                minute=messge_body[4],
+                second=messge_body[5],
             ).astimezone(datetime.timezone.utc)
             logger.info(f"Base time recieved: {base_time}")
             continue
@@ -173,8 +174,7 @@ def _read_messages(port: str):
         timestamp = calculate_message_timestamp(
             message_received.time_stamp, base_time)
         can_msg_queue.put(
-            CanMsg(message_received.can_id, _make_bytes(
-                message_received), timestamp)
+            CanMsg(message_received.can_id, messge_body, timestamp)
         )
 
 
