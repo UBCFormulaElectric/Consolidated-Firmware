@@ -357,7 +357,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -372,9 +372,9 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 24;
+    RCC_OscInitStruct.PLL.PLLN       = 64;
     RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 1;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
@@ -390,13 +390,13 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
         Error_Handler();
     }
@@ -931,7 +931,7 @@ static void MX_TIM3_Init(void)
     htim3.Instance               = TIM3;
     htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = (TIM3_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -1054,9 +1054,7 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOE,
-        IR_P_EN_Pin | SHDN_EN_Pin | PRE_CHARGE_EN_Pin | FB_STBY_SHDN_Pin | FAN_EN_Pin | BMS_OK_Pin |
-            nEVSE_I_LIM_GPIO_Pin,
+        GPIOE, IR_P_EN_Pin | SHDN_EN_Pin | PRE_CHARGE_EN_Pin | FB_STBY_SHDN_Pin | FAN_EN_Pin | BMS_OK_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -1116,18 +1114,26 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BMS_LATCH_Pin IMD_OK_Pin BSPD_LATCH_Pin FAN_PGOOD_Pin */
-    GPIO_InitStruct.Pin  = BMS_LATCH_Pin | IMD_OK_Pin | BSPD_LATCH_Pin | FAN_PGOOD_Pin;
+    /*Configure GPIO pins : BMS_LATCH_Pin IMD_OK_Pin BSPD_LATCH_Pin FAN_PGOOD_Pin
+                             nEVSE_I_LIM_GPIO_Pin */
+    GPIO_InitStruct.Pin  = BMS_LATCH_Pin | IMD_OK_Pin | BSPD_LATCH_Pin | FAN_PGOOD_Pin | nEVSE_I_LIM_GPIO_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PRE_CHARGE_EN_Pin FAN_EN_Pin */
-    GPIO_InitStruct.Pin   = PRE_CHARGE_EN_Pin | FAN_EN_Pin;
+    /*Configure GPIO pin : PRE_CHARGE_EN_Pin */
+    GPIO_InitStruct.Pin   = PRE_CHARGE_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    HAL_GPIO_Init(PRE_CHARGE_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : FAN_EN_Pin */
+    GPIO_InitStruct.Pin   = FAN_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(FAN_EN_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : BSPD_TEST_EN_Pin TSENSE_SEL0_Pin TSENSE_SEL1_Pin TSENSE_SEL2_Pin */
     GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin;
@@ -1148,13 +1154,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(SPI_CS_HS_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : nEVSE_I_LIM_GPIO_Pin */
-    GPIO_InitStruct.Pin   = nEVSE_I_LIM_GPIO_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(nEVSE_I_LIM_GPIO_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

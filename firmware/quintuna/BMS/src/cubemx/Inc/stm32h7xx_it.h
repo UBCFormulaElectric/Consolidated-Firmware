@@ -65,6 +65,7 @@ extern "C"
     void SDMMC1_IRQHandler(void);
     void TIM5_IRQHandler(void);
     void OTG_HS_IRQHandler(void);
+    void SPI4_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

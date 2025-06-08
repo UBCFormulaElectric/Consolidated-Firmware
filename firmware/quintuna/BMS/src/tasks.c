@@ -103,20 +103,20 @@ void tasks_init(void)
 
     // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end
     // of the world but there's probably a way to make this more clear...
-    // LOG_IF_ERR(app_segments_configSync());
+    LOG_IF_ERR(app_segments_configSync());
 
     // Run all self tests at init.
-    // LOG_IF_ERR(app_segments_runAdcAccuracyTest());
-    // LOG_IF_ERR(app_segments_runVoltageSelfTest());
-    // LOG_IF_ERR(app_segments_runAuxSelfTest());
-    // LOG_IF_ERR(app_segments_runStatusSelfTest());
-    // LOG_IF_ERR(app_segments_runOpenWireCheck());
+    LOG_IF_ERR(app_segments_runAdcAccuracyTest());
+    LOG_IF_ERR(app_segments_runVoltageSelfTest());
+    LOG_IF_ERR(app_segments_runAuxSelfTest());
+    LOG_IF_ERR(app_segments_runStatusSelfTest());
+    LOG_IF_ERR(app_segments_runOpenWireCheck());
 
-    // app_segments_broadcastAdcAccuracyTest();
-    // app_segments_broadcastVoltageSelfTest();
-    // app_segments_broadcastAuxSelfTest();
-    // app_segments_broadcastStatusSelfTest();
-    // app_segments_broadcastOpenWireCheck();
+    app_segments_broadcastAdcAccuracyTest();
+    app_segments_broadcastVoltageSelfTest();
+    app_segments_broadcastAuxSelfTest();
+    app_segments_broadcastStatusSelfTest();
+    app_segments_broadcastOpenWireCheck();
 }
 
 void tasks_run1Hz(void)
@@ -129,10 +129,9 @@ void tasks_run1Hz(void)
         {
             jobs_run1Hz_tick();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
-
-        app_stateMachine_tick1Hz();
     }
 }
 
@@ -146,10 +145,9 @@ void tasks_run100Hz(void)
         {
             jobs_run100Hz_tick();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
-
-        app_stateMachine_tick100Hz();
     }
 }
 
@@ -161,6 +159,7 @@ void tasks_run1kHz(void)
     {
         // hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -187,8 +186,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-        osDelayUntil(0xFFFFFFFF);
-
+    osDelayUntil(0xFFFFFFFF);
 
     static const TickType_t period_ms = 100U; // 10Hz
 
@@ -216,8 +214,7 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-        osDelayUntil(0xFFFFFFFF);
-
+    osDelayUntil(0xFFFFFFFF);
 
     static const TickType_t period_ms = 1000U; // 1Hz
 
@@ -245,8 +242,7 @@ void tasks_runLtcTemps(void)
 
 void tasks_runLtcDiagnostics(void)
 {
-        osDelayUntil(0xFFFFFFFF);
-
+    osDelayUntil(0xFFFFFFFF);
 
     static const TickType_t period_ms = 10000U; // Every 10s
 

@@ -22,6 +22,7 @@
 #define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
 
 #define VREF_AUX_REG 5
+#define NUM_CONFIG_SYNC_TRIES 20
 
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * 1E-4f)
 #define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))
@@ -69,21 +70,6 @@ static uint16_t owc_pdcv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static ExitCode owc_pdcv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static bool     owc_results[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
 static bool     owc_results_success[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
-
-float app_segments_getPackVoltage()
-{
-    float pack_voltage = 0.0;
-    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
-    {
-        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
-        {
-            // Sum the voltages
-            const float cell_voltage = cell_voltages[segment][cell];
-            pack_voltage += cell_voltage;
-        }
-    }
-    return pack_voltage;
-}
 
 static void writeThermistorMux(ThermistorMux mux)
 {
@@ -209,7 +195,7 @@ static bool isConfigEqual(void)
 
 ExitCode app_segments_configSync(void)
 {
-    for (;;)
+    for (int tries = 0; tries < NUM_CONFIG_SYNC_TRIES; tries++)
     {
         const bool is_config_equal = isConfigEqual();
 
@@ -251,7 +237,7 @@ ExitCode app_segments_configSync(void)
         }
     }
 
-    return EXIT_CODE_OK;
+    return EXIT_CODE_TIMEOUT;
 }
 
 ExitCode app_segments_runVoltageConversion(void)
@@ -550,4 +536,41 @@ void app_segments_broadcastOpenWireCheck(void)
         owc_results[segment][CELL_TAPS_PER_SEGMENT - 1]         = owc_passing_last;
         cell_owc_setters[segment][CELL_TAPS_PER_SEGMENT - 1](owc_passing_last);
     }
+}
+
+// TODO: Combine this and getMaxCellVoltage into one "update voltage stats" function or something
+float app_segments_getPackVoltage()
+{
+    float pack_voltage = 0.0;
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            // Sum the voltages
+            const float cell_voltage = cell_voltages[segment][cell];
+            pack_voltage += cell_voltage;
+        }
+    }
+    return pack_voltage;
+}
+
+// TODO: Combine getPackVoltage and this into one "update voltage stats" function or something
+float app_segments_getMaxCellVoltage()
+{
+    // Find the min and max voltages
+    float max_cell_voltage = 0.0f;
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            // Collect each cell voltage to find the max
+            const float cell_voltage = cell_voltages[segment][cell];
+            // Get the maximum cell voltage
+            if (cell_voltage > max_cell_voltage)
+            {
+                max_cell_voltage = cell_voltage;
+            }
+        }
+    }
+    return max_cell_voltage;
 }

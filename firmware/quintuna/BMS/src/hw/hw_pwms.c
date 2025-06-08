@@ -10,7 +10,7 @@ PwmInput imd_pwm_input = {
     .duty_cycle               = 0,
     .frequency_hz             = 0,
     .htim                     = &htim1,
-    .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
+    .timer_frequency_hz       = TIMx_FREQUENCY / TIM1_PRESCALER,
     .rising_edge_tim_channel  = TIM_CHANNEL_1,
     .falling_edge_tim_channel = TIM_CHANNEL_2,
 };
@@ -18,7 +18,7 @@ PwmInput imd_pwm_input = {
 PwmInput evse_pwm_input = { .duty_cycle               = 0,
                             .frequency_hz             = 0,
                             .htim                     = &htim5,
-                            .timer_frequency_hz       = TIM5_FREQUENCY / TIM5_PRESCALER,
+                            .timer_frequency_hz       = TIMx_FREQUENCY / TIM5_PRESCALER,
                             .rising_edge_tim_channel  = TIM_CHANNEL_4,
                             .falling_edge_tim_channel = TIM_CHANNEL_3 };
 
