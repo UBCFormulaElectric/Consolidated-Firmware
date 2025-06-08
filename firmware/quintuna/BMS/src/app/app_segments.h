@@ -23,24 +23,22 @@ void app_segments_writeDefaultConfig(void);
  */
 ExitCode app_segments_configSync(void);
 
-// =========== BROADCAST MESSAGES ===========
+// =========== CONVERSION AND TEST RUNNERS ===========
 
 /**
- * Reads the voltages, broadcasts them appropriately
+ * Perform IO operations to convert cell voltages.
  */
-ExitCode app_segments_broadcastCellVoltages(void);
+ExitCode app_segments_runVoltageConversion(void);
 
 /**
- * Reads the temperatures, broadcasts them appropriately
+ * Perform IO operations to convert AUX voltages.
  */
-ExitCode app_segments_broadcastTempsVRef(void);
+ExitCode app_segments_runAuxConversion(void);
 
 /**
- * Reads the status registers, broadcasts them appropriately
+ * Perform IO operations to convert status registers.
  */
-ExitCode app_segments_broadcastStatus(void);
-
-// =========== TESTS ===========
+ExitCode app_segments_runStatusConversion(void);
 
 /**
  * This performs two tests:
@@ -48,25 +46,25 @@ ExitCode app_segments_broadcastStatus(void);
  * Then, it measures cells 7/13 (index 6/12) on ADC1/2 and ADC2/3 respectively.
  * If all tests pass, by transitivity, all ADCs must be working correctly.
  */
-ExitCode app_segments_ADCAccuracyTest(void);
+ExitCode app_segments_runAdcAccuracyTest(void);
 
 /**
  * Performs a voltage self test: it sends a command, which forces a generator to put specific values into the registers
  * This gives us confidence that there are no internal digital ADC problems in the ltc
  */
-ExitCode app_segments_voltageSelftest(void);
+ExitCode app_segments_runVoltageSelfTest(void);
 
 /**
  * Performs a aux self test: it sends a command, which forces a generator to put specific values into the registers
  * This gives us confidence that there are no internal digital ADC problems in the ltc
  */
-ExitCode app_segments_auxSelftest(void);
+ExitCode app_segments_runAuxSelfTest(void);
 
 /**
  * Performs a status self test: it sends a command, which forces a generator to put specific values into the registers
  * This gives us confidence that there are no internal digital ADC problems in the ltc
  */
-ExitCode app_segments_statusSelftest(void);
+ExitCode app_segments_runStatusSelfTest(void);
 
 /**
  * Checks for open wires
@@ -74,4 +72,54 @@ ExitCode app_segments_statusSelftest(void);
  * @note That this function cleans up after itself, it will pull it back down once it is done
  * @note This takes about 1 second to run. Make sure to not do this unless you absolutely need to.
  */
-ExitCode app_segments_openWireCheck(void);
+ExitCode app_segments_runOpenWireCheck(void);
+
+// =========== BROADCAST MESSAGES ===========
+
+/**
+ * Unpack and broadcast values previously read from cell voltage registers.
+ * Performs no IO operations.
+ */
+void app_segments_broadcastCellVoltages(void);
+
+/**
+ * Unpack and broadcast values previously read from aux registers (containing temp and Vref).
+ * Performs no IO operations.
+ */
+void app_segments_broadcastTempsVRef(void);
+
+/**
+ * Unpack and broadcast values previously read from status registers.
+ * Performs no IO operations.
+ */
+void app_segments_broadcastStatus(void);
+
+/**
+ * Unpack and broadcast values previously read for an ADC accuracy test.
+ * Performs no IO operations.
+ */
+void app_segments_broadcastAdcAccuracyTest(void);
+
+/**
+ * Unpack and broadcast values previously read for a voltage self test.
+ * Performs no IO operations.
+ */
+void app_segments_broadcastVoltageSelfTest(void);
+
+/**
+ * Unpack and broadcast values previously read for an aux self test.
+ * Performs no IO operations.
+ */
+void app_segments_broadcastAuxSelfTest(void);
+
+/**
+ * Unpack and broadcast values previously read for a status self test.
+ * Performs no IO operations.
+ */
+void app_segments_broadcastStatusSelfTest(void);
+
+/**
+ * Unpack and broadcast values previously read for an open wire check.
+ * Performs no IO operations.
+ */
+void app_segments_broadcastOpenWireCheck(void);

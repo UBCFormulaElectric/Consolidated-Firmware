@@ -1,6 +1,6 @@
 {
 	"FLInverterInfo1": {
-		"msg_id": 650,
+		"msg_id": 643,
 		"cycle_time": 5,
 		"signals": {
 			"bReserve": {
@@ -61,7 +61,7 @@
 		}
 	},
 	"FLInverterInfo2": {
-		"msg_id": 658,
+		"msg_id": 645,
 		"cycle_time": 5,
 		"signals": {
 			"MotorTemperature": {
