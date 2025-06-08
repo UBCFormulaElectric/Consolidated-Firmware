@@ -49,7 +49,6 @@ static LogFsErr logfsCfgRead(const LogFsCfg *cfg, const uint32_t block, void *bu
     while (hw_sd_read(buf, block, 1) != SD_CARD_OK && retry_count > 0)
     {
         retry_count--;
-        io_time_delay(RETRY_DELAY_MS);
         hw_sd_abort();
     }
 
@@ -69,7 +68,6 @@ static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, const uint32_t block, void *b
     while (hw_sd_write(buf, block, 1) != SD_CARD_OK && retry_count > 0)
     {
         retry_count--;
-        io_time_delay(RETRY_DELAY_MS);
         hw_sd_abort(); // Abort the current operation to retry
     }
     if (retry_count == 0)
