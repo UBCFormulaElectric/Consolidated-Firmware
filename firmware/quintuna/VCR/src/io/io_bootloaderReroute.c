@@ -29,10 +29,11 @@ void io_bootloadeReroute_init(
     transmit_func_can1 = transmit_can1_msg_func;
 }
 
-static void routing_logic(const CanMsg *msg, uint8_t message_id){
+static void routing_logic(const CanMsg *msg, uint8_t message_id)
+{
     if (message_id == START_UPDATE_ID_LOWBITS || message_id == ERASE_SECTOR_ID_LOWBITS ||
-        message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS ||
-        message_id == GO_TO_APP_LOWBITS || message_id == GO_TO_BOOT)
+        message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS || message_id == GO_TO_APP_LOWBITS ||
+        message_id == GO_TO_BOOT)
     {
         transmit_func_can2(msg);
     }

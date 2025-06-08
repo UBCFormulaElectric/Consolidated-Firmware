@@ -2,6 +2,7 @@
 #include "hw_cans.h"
 #include "hw_hardFaultHandler.h"
 #include "io_bootloaderReroute.h"
+#include "io_canMsg.h"
 #include "io_log.h"
 #include "jobs.h"
 #include "hw_cans.h"
@@ -10,10 +11,17 @@
 #include "io_canQueues.h"
 #include <io_canTx.h>
 #include <io_canReroute.h>
+#include <io_canRx.h>
 
 void tasks_preInit()
 {
     hw_hardFaultHandler_init();
+}
+
+bool rx_filter(const CanMsg *msg)
+{
+    return (io_canRx_filterMessageId_can1(msg->std_id) || io_canRx_filterMessageId_can1(msg->std_id) ||
+           io_canRx_filterMessageId_can1(msg->std_id));
 }
 void tasks_init()
 {

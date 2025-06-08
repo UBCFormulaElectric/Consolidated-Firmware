@@ -26,9 +26,9 @@
 
 #define RED_TOGGLE_TIME 150
 
-CanTxQueue can_tx_queue;
+CanTxQueue          can_tx_queue;
 static TimerChannel tsim_toggle_timer;
-static TsimColor curr_tsim_color; 
+static TsimColor    curr_tsim_color;
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -90,7 +90,8 @@ void jobs_run100Hz_tick(void)
     {
         io_disable_buzzer();
     }
-    // following TSIM outline stated in https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
+    // following TSIM outline stated in
+    // https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
     const bool fault_detected = app_canRx_BMS_BmsLatchedFault_get() || app_canRx_BMS_ImdLatchedFault_get();
     if (!fault_detected)
     {
@@ -101,12 +102,12 @@ void jobs_run100Hz_tick(void)
     {
         static TsimColor next_tsim_color = TSIM_RED;
 
-        switch(  app_timer_updateAndGetState(&tsim_toggle_timer))
+        switch (app_timer_updateAndGetState(&tsim_toggle_timer))
         {
-            case TIMER_STATE_IDLE: // should only ever be IDLE at the very beginning when the first red command sent 
+            case TIMER_STATE_IDLE: // should only ever be IDLE at the very beginning when the first red command sent
                 io_tsim_set_red();
                 app_timer_restart(&tsim_toggle_timer);
-            break; 
+                break;
             case TIMER_STATE_EXPIRED:
                 if ((TSIM_OFF == curr_tsim_color) && (TSIM_RED == next_tsim_color))
                 {
@@ -123,16 +124,15 @@ void jobs_run100Hz_tick(void)
                     next_tsim_color = TSIM_RED;
                 }
 
-            break; 
+                break;
             case TIMER_STATE_RUNNING:
                 // do nothing, hold state until timer expires
                 LOG_PRINTF("time passed %d\n", app_timer_getElapsedTime(&tsim_toggle_timer));
-                break; 
-            default: 
-                    io_tsim_set_red();
-                    app_timer_restart(&tsim_toggle_timer);
-                    break; 
-            
+                break;
+            default:
+                io_tsim_set_red();
+                app_timer_restart(&tsim_toggle_timer);
+                break;
         }
     }
 }

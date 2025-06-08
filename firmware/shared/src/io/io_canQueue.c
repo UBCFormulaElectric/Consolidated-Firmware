@@ -8,6 +8,7 @@
 
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
+#include "io_canMsg.h"
 
 static osMessageQueueId_t         rx_queue_id;
 static StaticQueue_t              rx_queue_control_block;
@@ -25,6 +26,10 @@ __weak void canTxQueueOverflowCallBack(const uint32_t overflow_count) {}
 __weak void canTxQueueOverflowClearCallback(void) {}
 __weak void canRxQueueOverflowCallBack(const uint32_t overflow_count) {}
 __weak void canRxQueueOverflowClearCallback(void) {}
+__weak bool rx_filter(const CanMsg *msg)
+{
+    return true;
+}
 
 void io_canQueue_initRx(void)
 {
@@ -87,6 +92,10 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     // use canQueue rx in isr
+
+    if (!rx_filter(rx_msg))
+        return;
+
     osStatus_t status = osMessageQueuePut(rx_queue_id, rx_msg, 0, 0);
     if (status != osOK)
     {
