@@ -1,5 +1,6 @@
 #include "jobs.h"
 
+#include "app_segments.h"
 #include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
@@ -50,6 +51,7 @@ void jobs_init()
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
+    app_segments_initFaults();
     app_stateMachine_init(app_initState_get());
 }
 
@@ -63,14 +65,8 @@ void jobs_run100Hz_tick(void)
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
 
-    app_heartbeatMonitor_checkIn(&hb_monitor);
-    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-    app_shdnLoop_broadcast();
-
     app_stateMachine_tick100Hz();
     app_stateMachine_tickTransitionState();
-
-    app_shdnLoop_broadcast();
 
     io_canTx_enqueue100HzMsgs();
 }

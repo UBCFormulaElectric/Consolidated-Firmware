@@ -6,7 +6,6 @@
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
-#include "app_stateMachine.h"
 
 #include "hw_bootup.h"
 #include "hw_gpios.h"
@@ -103,10 +102,6 @@ void tasks_init(void)
     // Write LTC configs.
     app_segments_setDefaultConfig();
     io_ltc6813_wakeup();
-
-    // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end
-    // of the world but there's probably a way to make this more clear...
-    // TODO: Actually fix this so there's a timeout!
     LOG_IF_ERR(app_segments_configSync());
 
     // Run all self tests at init.
@@ -134,7 +129,9 @@ void tasks_run1Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
+            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
             jobs_run1Hz_tick();
+            xSemaphoreGive(ltc_app_data_lock);
         }
 
         start_ticks += period_ms;
@@ -193,7 +190,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms = 100U; // 10Hz
+    static const TickType_t period_ms = 1000U; // 1Hz
 
     for (;;)
     {
@@ -202,6 +199,7 @@ void tasks_runLtcVoltages(void)
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
+            LOG_IF_ERR(app_segments_configSync());
             LOG_IF_ERR(app_segments_runVoltageConversion());
         }
         xSemaphoreGive(isospi_bus_access_lock);

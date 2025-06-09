@@ -1,7 +1,10 @@
 #pragma once
 
 #include "app_segments.h"
+<<<<<<< HEAD
 #include "app_utils.h"
+=======
+>>>>>>> a925745f3 (wip)
 #include "io_ltc6813.h"
 
 #define MAX_NUM_SEGMENTS (10U)
@@ -52,6 +55,10 @@ extern CellParam max_cell_voltage;
 extern CellParam min_cell_voltage;
 extern CellParam max_cell_temp;
 extern CellParam min_cell_temp;
+
+/**
+ * @file segments/app_segments_faults.c
+ */
 
 #define ALL_COMM_OK(segment) (voltage_comm_ok[segment] && temp_comm_ok[segment] && owc_comm_ok[segment])
 
