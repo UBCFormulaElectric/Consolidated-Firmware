@@ -5,42 +5,41 @@
 #define MAX_NUM_SEGMENTS (10U)
 #define CELL_TAPS_PER_SEGMENT (CELLS_PER_SEGMENT + 1)
 
-
 /**
  * @file segments/app_segments_conversions.c
  */
 
-extern uint16_t        cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern ExitCode        cell_voltage_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern float           cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern ExitCode cell_voltage_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern float    cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
-extern uint16_t        aux_regs[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-extern ExitCode        aux_regs_success[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-extern float           segment_vref[NUM_SEGMENTS];
-extern float           cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
-extern bool            cell_temps_success[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+extern uint16_t aux_regs[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+extern ExitCode aux_regs_success[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+extern float    segment_vref[NUM_SEGMENTS];
+extern float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+extern bool     cell_temps_success[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
 extern StatusRegGroups status_regs[NUM_SEGMENTS];
 extern ExitCode        status_regs_success[NUM_SEGMENTS];
 
-extern uint16_t        adc_accuracy_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern ExitCode        adc_accuracy_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern uint16_t adc_accuracy_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern ExitCode adc_accuracy_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
-extern uint16_t        voltage_self_test_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern ExitCode        voltage_self_test_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern uint16_t voltage_self_test_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern ExitCode voltage_self_test_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 
-extern uint16_t        aux_self_test_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
-extern ExitCode        aux_self_test_reg_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+extern uint16_t aux_self_test_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
+extern ExitCode aux_self_test_reg_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 
 extern StatusRegGroups status_self_test_regs[NUM_SEGMENTS];
 extern ExitCode        status_self_test_success[NUM_SEGMENTS];
 
-extern uint16_t        owc_pucv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern ExitCode        owc_pucv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern uint16_t        owc_pdcv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern ExitCode        owc_pdcv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-extern bool            owc_results[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
-extern bool            owc_results_success[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
+extern uint16_t owc_pucv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern ExitCode owc_pucv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern uint16_t owc_pdcv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern ExitCode owc_pdcv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+extern bool     owc_results[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
+extern bool     owc_results_success[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
 
 /**
  * @file segments/app_segments_broadcast.c
