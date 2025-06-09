@@ -18,17 +18,12 @@ static void driveStateRunOnEntry(void)
     app_canTx_BMS_State_set(BMS_DRIVE_STATE);
 }
 
-static void driveStateRunOnTick1Hz(void)
-{
-    jobs_run1Hz_tick();
-}
+static void driveStateRunOnTick1Hz(void) {}
 
 static void driveStateRunOnTick100Hz(void)
 {
-    jobs_run100Hz_tick();
-
-    const bool ir_negative_opened = !io_irs_isNegativeClosed();
-    const EVSE_STATUS charger_status = io_charger_getStatus();
+    const bool        ir_negative_opened = !io_irs_isNegativeClosed();
+    const EVSE_STATUS charger_status     = io_charger_getStatus();
 
     bool ir_negative_opened_debounced = false;
 

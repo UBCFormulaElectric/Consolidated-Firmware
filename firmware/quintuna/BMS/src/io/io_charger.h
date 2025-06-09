@@ -1,5 +1,4 @@
 #pragma once
-#include "stm32h7xx_hal.h"
 
 typedef enum
 {
@@ -14,6 +13,6 @@ typedef enum
 ConnectionStatus io_charger_getConnectionStatus();
 
 /**
- * hw interrupt to update PWM values
+ * @return The duty cycle of the EVSE CP PWM signal, in the range [0.0, 1.0].
  */
-void io_charger_inputCaptureCallback(TIM_HandleTypeDef *htim);
+float io_charger_getDutyCycle();
