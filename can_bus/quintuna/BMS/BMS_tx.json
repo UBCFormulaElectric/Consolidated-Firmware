@@ -38,18 +38,27 @@
       }
     }
   },
-  "LatchedFaults": {
+  "LatchStatus": {
     "msg_id": 410,
     "cycle_time": 100,
     "description": "Latched faults for the BMS",
     "signals": {
-      "BmsLatchedFault": {
+      "BmsCurrentlyOk": {
         "bits": 1
       },
-      "ImdLatchedFault": {
+      "ImdCurrentlyOk": {
         "bits": 1
       },
-      "BspdLatchedFault": {
+      "BspdCurrentlyOk": {
+        "bits": 1
+      },
+      "BmsLatchOk": {
+        "bits": 1
+      },
+      "ImdLatchOk": {
+        "bits": 1
+      },
+      "BspdLatchOk": {
         "bits": 1
       }
     }
@@ -67,6 +76,22 @@
       },
       "PrechargeRelay": {
         "enum": "ContactorState"
+      }
+    }
+  },
+  "Charger": {
+    "msg_id": 413,
+    "cycle_time": 100,
+    "description": "Charger infomation for the BMS to broadcast to other boards",
+    "signals": {
+      "ChargerConnected": {
+        "bits": 1
+      },
+      "ChargingDone": {
+        "bits": 1
+      },
+      "ChargingFaulted": {
+        "bits": 1
       }
     }
   },
@@ -3015,15 +3040,6 @@
         "bits": 1
       },
       "HVNShdnOKStatus": {
-        "bits": 1
-      },
-      "BmsOk": {
-        "bits": 1
-      },
-      "ImdOk": {
-        "bits": 1
-      },
-      "BspdOk": {
         "bits": 1
       }
     }

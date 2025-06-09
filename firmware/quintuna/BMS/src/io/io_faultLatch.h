@@ -11,6 +11,7 @@ typedef struct
     const Gpio *current_status_gpio;
     const Gpio *latch_status_gpio;
     const bool  read_only; // Certain fault latches can only be read from.
+    const bool  invert;
 } FaultLatch;
 
 #else
@@ -39,7 +40,7 @@ void io_faultLatch_setCurrentStatus(const FaultLatch *latch, bool status);
 bool io_faultLatch_getCurrentStatus(const FaultLatch *latch);
 
 /**
- * Return whether or not a fault has been latched.
+ * Return whether or not the fault latch is OK.
  * @param latch Fault latch instance.
  * @returns True = fault has NOT been latched.
  */

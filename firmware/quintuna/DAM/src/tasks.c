@@ -28,6 +28,8 @@
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
 
+// Note: Need to declare this here (not at the top of main.h) since the name hcrc shadows other local variables that
+// include main.h (and the compiler doesn't like that for some reason).
 extern CRC_HandleTypeDef hcrc;
 
 IoRtcTime boot_time;

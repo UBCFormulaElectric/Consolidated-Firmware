@@ -51,6 +51,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
+    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_adc_ex.c"
@@ -82,12 +83,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_pwr_ex.c"
     )
 
-    # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
             "h7dev_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${SYSCALLS}"
             "${MD5_LOCATION}"
             TRUE
     )
@@ -127,9 +125,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "${BOOT_CUBEMX_SRCS}"
             "${BOOT_INCLUDE_DIRS}"
             "h7dev"
-            ""
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h7dev_boot.ioc"
     )
+    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
     target_link_libraries("h7dev_boot.elf" PRIVATE "h7dev_commit_info")
 
     embedded_image(

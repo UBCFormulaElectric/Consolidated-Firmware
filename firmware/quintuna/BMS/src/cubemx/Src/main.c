@@ -659,7 +659,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = ENABLE;
+    hfdcan1.Init.ProtocolException    = DISABLE;
     hfdcan1.Init.NominalPrescaler     = 6;
     hfdcan1.Init.NominalSyncJumpWidth = 2;
     hfdcan1.Init.NominalTimeSeg1      = 13;
@@ -931,7 +931,7 @@ static void MX_TIM3_Init(void)
     htim3.Instance               = TIM3;
     htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = (TIM3_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
