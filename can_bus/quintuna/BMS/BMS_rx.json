@@ -1,5 +1,9 @@
 {
-    "messages": [
-        "Elcon_Vitals"
-    ]
+  "messages": [
+    "Elcon_Vitals",
+    "VC_Vitals",
+    "Debug_CanMode",
+    "Debug_Charging",
+    "Debug_SetBSPDTestCurrent"
+  ]
 }

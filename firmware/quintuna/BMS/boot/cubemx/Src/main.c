@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "bootloader.h"
 #include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -42,8 +43,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
-CRC_HandleTypeDef hcrc;
 
 FDCAN_HandleTypeDef hfdcan1;
 
@@ -90,7 +89,6 @@ CanHandle can = { .bus_num = 0, .hcan = &hfdcan1, .ready = false };
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CRC_Init(void);
 static void MX_FDCAN1_Init(void);
 void        runInterfaceTask(void *argument);
 void        runTickTask(void *argument);
@@ -112,7 +110,7 @@ void        runCanTxTask(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    bootloader_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -133,10 +131,9 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_CRC_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
-
+    bootloader_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -251,35 +248,6 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief CRC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CRC_Init(void)
-{
-    /* USER CODE BEGIN CRC_Init 0 */
-
-    /* USER CODE END CRC_Init 0 */
-
-    /* USER CODE BEGIN CRC_Init 1 */
-
-    /* USER CODE END CRC_Init 1 */
-    hcrc.Instance                     = CRC;
-    hcrc.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
-    hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
-    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
-    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
-    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CRC_Init 2 */
-
-    /* USER CODE END CRC_Init 2 */
-}
-
-/**
  * @brief FDCAN1 Initialization Function
  * @param None
  * @retval None
@@ -356,7 +324,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(BSPD_TEST_EN_GPIO_Port, BSPD_TEST_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(SPI_CS_GPIO_Port, SPI_CS_Pin, GPIO_PIN_RESET);
@@ -390,12 +358,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(nCHIMERA_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : DEBUG_LED_Pin */
-    GPIO_InitStruct.Pin   = DEBUG_LED_Pin;
+    /*Configure GPIO pin : LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(DEBUG_LED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : SPI_CS_Pin */
     GPIO_InitStruct.Pin   = SPI_CS_Pin;
@@ -429,11 +397,7 @@ static void MX_GPIO_Init(void)
 void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runInterfaceTask();
     /* USER CODE END 5 */
 }
 
@@ -447,11 +411,7 @@ void runInterfaceTask(void *argument)
 void runTickTask(void *argument)
 {
     /* USER CODE BEGIN runTickTask */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runTickTask();
     /* USER CODE END runTickTask */
 }
 
@@ -465,11 +425,7 @@ void runTickTask(void *argument)
 void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
 }
 

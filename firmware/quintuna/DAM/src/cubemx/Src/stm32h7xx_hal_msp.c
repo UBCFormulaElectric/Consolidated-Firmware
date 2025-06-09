@@ -337,6 +337,9 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
         GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
         HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+        /* SDMMC1 interrupt Init */
+        HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspInit 1 */
 
         /* USER CODE END SDMMC1_MspInit 1 */
@@ -371,6 +374,8 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
 
         HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
 
+        /* SDMMC1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspDeInit 1 */
 
         /* USER CODE END SDMMC1_MspDeInit 1 */
@@ -480,6 +485,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* USART2 interrupt Init */
+        HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(USART2_IRQn);
         /* USER CODE BEGIN USART2_MspInit 1 */
 
         /* USER CODE END USART2_MspInit 1 */
@@ -510,6 +518,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         */
         HAL_GPIO_DeInit(GPIOA, FROM_900M_CTS_Pin | TO_900M_RTS_Pin | TO_900M_TX_Pin | FROM_900M_RX_Pin);
 
+        /* USART2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(USART2_IRQn);
         /* USER CODE BEGIN USART2_MspDeInit 1 */
 
         /* USER CODE END USART2_MspDeInit 1 */

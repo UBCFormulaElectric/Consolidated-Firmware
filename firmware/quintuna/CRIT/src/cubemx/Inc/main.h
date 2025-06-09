@@ -32,8 +32,8 @@ extern "C"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "cmsis_os.h"
 #include "hw_error.h"
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
@@ -43,9 +43,10 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern CAN_HandleTypeDef hcan2;
-    extern TIM_HandleTypeDef htim4;
-    extern TIM_HandleTypeDef htim12;
+    extern CAN_HandleTypeDef  hcan2;
+    extern IWDG_HandleTypeDef hiwdg;
+    extern TIM_HandleTypeDef  htim4;
+    extern TIM_HandleTypeDef  htim12;
 
     extern osThreadId_t Task1HzHandle;
     extern osThreadId_t Task100HzHandle;
@@ -65,6 +66,8 @@ extern "C"
 
     /* USER CODE END EM */
 
+    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
@@ -74,8 +77,11 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define SYS_TIMER_CLOCK 96000000
-#define PWM_PRESCALER 1
-#define PWM_AUTO_RELOAD 47999
+#define PWM_AUTO_RELOAD 4095
+#define PWM_PRESCALER 650
+#define LSI_FREQUENCY 32000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 4
 #define BOOT_Pin GPIO_PIN_4
 #define BOOT_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_5
@@ -86,10 +92,13 @@ extern "C"
 #define PUSH_DRIVE_SIG_GPIO_Port GPIOA
 #define ROT_S_Pin GPIO_PIN_4
 #define ROT_S_GPIO_Port GPIOC
+#define ROT_S_EXTI_IRQn EXTI4_IRQn
 #define ROT_B_Pin GPIO_PIN_5
 #define ROT_B_GPIO_Port GPIOC
+#define ROT_B_EXTI_IRQn EXTI9_5_IRQn
 #define ROT_A_Pin GPIO_PIN_0
 #define ROT_A_GPIO_Port GPIOB
+#define ROT_A_EXTI_IRQn EXTI0_IRQn
 #define LAUNCH_CONTROL_SIG_Pin GPIO_PIN_1
 #define LAUNCH_CONTROL_SIG_GPIO_Port GPIOB
 #define TORQUE_VECTORING_SIG_Pin GPIO_PIN_2

@@ -58,6 +58,8 @@ extern "C"
     void TIM2_IRQHandler(void);
     void I2C1_EV_IRQHandler(void);
     void I2C1_ER_IRQHandler(void);
+    void USART2_IRQHandler(void);
+    void SDMMC1_IRQHandler(void);
     void OTG_HS_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 

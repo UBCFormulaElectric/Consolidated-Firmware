@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +44,11 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan2;
+
+IWDG_HandleTypeDef hiwdg;
+
+TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim12;
 
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
@@ -126,6 +130,9 @@ const osThreadAttr_t TaskChimera_attributes = {
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN2_Init(void);
+static void MX_TIM4_Init(void);
+static void MX_TIM12_Init(void);
+static void MX_IWDG_Init(void);
 void        StartTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTask100Hz(void *argument);
@@ -171,6 +178,9 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN2_Init();
+    MX_TIM4_Init();
+    MX_TIM12_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -253,8 +263,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 4;
@@ -279,8 +290,6 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);
-    HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_HSE, RCC_MCODIV_1);
 }
 
 /**
@@ -319,6 +328,119 @@ static void MX_CAN2_Init(void)
 }
 
 /**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = 4095;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+#endif
+    /* USER CODE END IWDG_Init 2 */
+}
+
+/**
+ * @brief TIM4 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM4_Init(void)
+{
+    /* USER CODE BEGIN TIM4_Init 0 */
+
+    /* USER CODE END TIM4_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_OC_InitTypeDef      sConfigOC     = { 0 };
+
+    /* USER CODE BEGIN TIM4_Init 1 */
+
+    /* USER CODE END TIM4_Init 1 */
+    htim4.Instance               = TIM4;
+    htim4.Init.Prescaler         = PWM_PRESCALER;
+    htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim4.Init.Period            = PWM_AUTO_RELOAD;
+    htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode     = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse      = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM4_Init 2 */
+
+    /* USER CODE END TIM4_Init 2 */
+    HAL_TIM_MspPostInit(&htim4);
+}
+
+/**
+ * @brief TIM12 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM12_Init(void)
+{
+    /* USER CODE BEGIN TIM12_Init 0 */
+
+    /* USER CODE END TIM12_Init 0 */
+
+    TIM_OC_InitTypeDef sConfigOC = { 0 };
+
+    /* USER CODE BEGIN TIM12_Init 1 */
+
+    /* USER CODE END TIM12_Init 1 */
+    htim12.Instance               = TIM12;
+    htim12.Init.Prescaler         = PWM_PRESCALER;
+    htim12.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim12.Init.Period            = PWM_AUTO_RELOAD;
+    htim12.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    if (HAL_TIM_PWM_Init(&htim12) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode     = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse      = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM12_Init 2 */
+
+    /* USER CODE END TIM12_Init 2 */
+    HAL_TIM_MspPostInit(&htim12);
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -339,8 +461,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOA, BOOT_Pin | LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOB, LED_DIMMING_Pin | LED_SERIN_Pin | SEVEN_SEG_RCK_Pin | SEVEN_SEG_DIMMING_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LED_SERIN_Pin | SEVEN_SEG_RCK_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOC, LED_RCK_Pin | LED_SRCK_Pin | SEVEN_SEG_SRCK_Pin | SEVEN_SEG_SERIN_Pin, GPIO_PIN_RESET);
@@ -358,20 +479,32 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : ROT_S_Pin ROT_B_Pin */
-    GPIO_InitStruct.Pin  = ROT_S_Pin | ROT_B_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    /*Configure GPIO pin : ROT_S_Pin */
+    GPIO_InitStruct.Pin  = ROT_S_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(ROT_S_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : ROT_A_Pin LAUNCH_CONTROL_SIG_Pin TORQUE_VECTORING_SIG_Pin REGEN_SIG_Pin */
-    GPIO_InitStruct.Pin  = ROT_A_Pin | LAUNCH_CONTROL_SIG_Pin | TORQUE_VECTORING_SIG_Pin | REGEN_SIG_Pin;
+    /*Configure GPIO pin : ROT_B_Pin */
+    GPIO_InitStruct.Pin  = ROT_B_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(ROT_B_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : ROT_A_Pin */
+    GPIO_InitStruct.Pin  = ROT_A_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(ROT_A_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : LAUNCH_CONTROL_SIG_Pin TORQUE_VECTORING_SIG_Pin REGEN_SIG_Pin */
+    GPIO_InitStruct.Pin  = LAUNCH_CONTROL_SIG_Pin | TORQUE_VECTORING_SIG_Pin | REGEN_SIG_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LED_DIMMING_Pin LED_SERIN_Pin SEVEN_SEG_RCK_Pin SEVEN_SEG_DIMMING_Pin */
-    GPIO_InitStruct.Pin   = LED_DIMMING_Pin | LED_SERIN_Pin | SEVEN_SEG_RCK_Pin | SEVEN_SEG_DIMMING_Pin;
+    /*Configure GPIO pins : LED_SERIN_Pin SEVEN_SEG_RCK_Pin */
+    GPIO_InitStruct.Pin   = LED_SERIN_Pin | SEVEN_SEG_RCK_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -384,21 +517,15 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PC9 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_9;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
-    /*Configure GPIO pin : PA8 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_8;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

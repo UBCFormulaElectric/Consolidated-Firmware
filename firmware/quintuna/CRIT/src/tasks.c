@@ -5,20 +5,30 @@
 #include "main.h"
 
 #include "app_canTx.h"
+#include "app_canAlerts.h"
+#include "app_utils.h"
 
 // io
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_canRx.h"
+#include "io_bootHandler.h"
 
 // hw
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
+#include "hw_bootup.h"
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
 #include "hw_resetReason.h"
+#include <cmsis_os2.h>
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init()
 {
@@ -27,16 +37,27 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT reset!");
 
-    // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
-    hw_hardFaultHandler_init();
 
     hw_can_init(&can1);
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
 
     jobs_init();
 
     app_canTx_CRIT_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    // Check for stack overflow on a previous boot cycle and populate CAN alert.
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    {
+        app_canAlerts_CRIT_Info_StackOverflow_set(true);
+        app_canTx_CRIT_StackOverflowTask_set(boot_request.context_value);
+
+        // Clear stack overflow bootup.
+        boot_request.context       = BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw_bootup_setBootRequest(boot_request);
+    }
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -49,8 +70,8 @@ void tasks_runCanTx()
     // Setup tasks.
     for (;;)
     {
-        CanMsg msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &msg);
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
+        LOG_IF_ERR(hw_can_transmit(&can1, &msg));
     }
 }
 
@@ -59,7 +80,10 @@ void tasks_runCanRx()
     // Setup tasks.
     for (;;)
     {
-        jobs_runCanRx_tick();
+        CanMsg     rx_msg = io_canQueue_popRx();
+        JsonCanMsg jsoncan_rx_msg;
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 
@@ -104,3 +128,5 @@ void tasks_run1kHz()
         osDelayUntil(start_ticks);
     }
 }
+
+void tasks_deinit() {}
