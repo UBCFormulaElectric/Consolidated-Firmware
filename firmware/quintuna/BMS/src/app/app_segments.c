@@ -6,7 +6,6 @@
 #include "io_ltc6813.h"
 #include "io_time.h"
 
-#include <hw_utils.h>
 #include <math.h>
 #include <stdint.h>
 #include <string.h>

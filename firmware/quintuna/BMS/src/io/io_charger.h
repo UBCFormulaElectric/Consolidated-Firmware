@@ -10,4 +10,4 @@ typedef enum
 
 EVSE_STATUS io_charger_getStatus(void);
 
-void io_charger_pwm_callback(TIM_HandleTypeDef *htim);
+// void io_charger_pwm_callback(TIM_HandleTypeDef *htim);

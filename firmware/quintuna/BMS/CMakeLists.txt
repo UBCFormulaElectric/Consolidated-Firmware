@@ -159,6 +159,13 @@ elseif ("${TARGET}" STREQUAL "test")
     # JSONCAN
     jsoncan_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
+    #commit info
+    commit_info_library(
+            "quintuna_BMS_test"
+            "quintuna_BMS_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+    )
+
     # FakeIO
     set(HEADERS_TO_FAKE
             #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
@@ -169,5 +176,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes")
+    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes" "quintuna_BMS_commit_info")
+    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()
