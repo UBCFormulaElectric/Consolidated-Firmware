@@ -264,7 +264,7 @@ void app_segments_broadcastVoltageStats(void)
     float   tmp_pack_voltage     = 0.0f;
     float   tmp_max_cell_voltage = 0.0f;
     float   tmp_min_cell_voltage = FLT_MAX;
-    CellPos min_voltage_pos, max_voltage_pos;
+    CellPos min_voltage_pos, max_voltage_pos = { 0 };
 
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
@@ -316,7 +316,7 @@ void app_segments_broadcastTempStats(void)
     float   temp_sum          = 0.0f;
     float   tmp_max_cell_temp = 0.0f;
     float   tmp_min_cell_temp = FLT_MAX;
-    CellPos min_temp_pos, max_temp_pos;
+    CellPos min_temp_pos, max_temp_pos = { 0 };
 
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
