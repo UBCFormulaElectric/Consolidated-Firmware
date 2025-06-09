@@ -80,7 +80,6 @@ const State *app_prechargeChargeState_get(void)
     static State precharge_charge_state = {
         .name              = "PRECHARGE CHARGE",
         .run_on_entry      = app_prechargeChargeStateRunOnEntry,
-        .run_on_tick_1Hz   = NULL,
         .run_on_tick_100Hz = app_prechargeChargeStateRunOnTick100Hz,
         .run_on_exit       = app_prechargeChargeStateRunOnExit,
     };

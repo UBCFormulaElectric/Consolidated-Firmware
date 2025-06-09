@@ -15,11 +15,6 @@ static void app_faultStateRunOnEntry(void)
     io_faultLatch_setCurrentStatus(&bms_ok_latch, false);
 }
 
-static void app_faultStateRunOnTick1Hz(void)
-{
-    app_allStates_runOnTick1Hz();
-}
-
 static void app_faultStateRunOnTick100Hz(void)
 {
     const bool acc_fault_cleared = false; // !app_accumulator_checkFaults();
@@ -40,7 +35,6 @@ const State *app_faultState_get(void)
     static State fault_state = {
         .name              = "FAULT",
         .run_on_entry      = app_faultStateRunOnEntry,
-        .run_on_tick_1Hz   = app_faultStateRunOnTick1Hz,
         .run_on_tick_100Hz = app_faultStateRunOnTick100Hz,
         .run_on_exit       = NULL,
     };
