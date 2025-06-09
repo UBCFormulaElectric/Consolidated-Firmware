@@ -55,15 +55,15 @@ void app_shdnLast_broadcast(void)
     {
         node = SHDN_HV_N_Ilck;
     }
-    else if (!app_canRx_BMS_BmsOk_get())
+    else if (!app_canRx_BMS_BmsLatchOk_get())
     {
         node = SHDN_BMS_OK;
     }
-    else if (!app_canRx_BMS_BspdOk_get())
+    else if (!app_canRx_BMS_BspdLatchOk_get())
     {
         node = SHDN_BSPD_OK;
     }
-    else if (!app_canRx_BMS_ImdOk_get())
+    else if (!app_canRx_BMS_ImdLatchOk_get())
     {
         node = SHDN_IMD_OK;
     }

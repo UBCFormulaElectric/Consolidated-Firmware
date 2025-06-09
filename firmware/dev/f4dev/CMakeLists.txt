@@ -44,6 +44,8 @@ IF ("${TARGET}" STREQUAL "binary")
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
+    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_adc_ex.c"
@@ -71,12 +73,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_spi.c"
     )
 
-    # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
             "f4dev_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${SYSCALLS}"
             "${MD5_LOCATION}"
             TRUE
     )
