@@ -1,6 +1,8 @@
 #include "tasks.h"
+#include "app_utils.h"
 #include "hw_cans.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_utils.h"
 #include "io_bootloaderReroute.h"
 #include "io_canMsg.h"
 #include "io_log.h"
@@ -12,10 +14,28 @@
 #include <io_canTx.h>
 #include <io_canReroute.h>
 #include <io_canRx.h>
+#include <stdint.h>
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
+{
+    LOG_ERROR("Stack overflow detected in task %s, resetting...", pcTaskName);
+
+    TaskStatus_t status;
+    vTaskGetInfo(xTask, &status, pdFALSE, eRunning);
+
+    BREAK_IF_DEBUGGER_CONNECTED();
+    NVIC_SystemReset();
+}
 
 void tasks_preInit()
 {
     hw_hardFaultHandler_init();
+}
+
+void canTxQueueOverflowCallBack(uint32_t overflow_count)
+{
+    UNUSED(overflow_count);
+    LOG_INFO("VCR tx overflow %d", overflow_count);
 }
 
 void tasks_init()
@@ -81,6 +101,5 @@ _Noreturn void tasks_runcanRx(void)
     for (;;)
     {
         osDelay(osWaitForever);
-
     }
 }

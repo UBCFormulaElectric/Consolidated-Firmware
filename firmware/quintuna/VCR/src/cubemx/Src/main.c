@@ -50,7 +50,7 @@ FDCAN_HandleTypeDef hfdcan3;
 
 /* Definitions for FDCanTx */
 osThreadId_t         FDCanTxHandle;
-uint32_t             FDCanTXBuffer[256];
+uint32_t             FDCanTXBuffer[512];
 osStaticThreadDef_t  FDCanTXControlBlock;
 const osThreadAttr_t FDCanTx_attributes = {
     .name       = "FDCanTx",
@@ -74,7 +74,7 @@ const osThreadAttr_t CanRx_attributes = {
 };
 /* Definitions for SxCanTxTask */
 osThreadId_t         SxCanTxTaskHandle;
-uint32_t             SxCanTxBuffer[256];
+uint32_t             SxCanTxBuffer[512];
 osStaticThreadDef_t  SxCanTxControlBlock;
 const osThreadAttr_t SxCanTxTask_attributes = {
     .name       = "SxCanTxTask",
@@ -86,7 +86,7 @@ const osThreadAttr_t SxCanTxTask_attributes = {
 };
 /* Definitions for InvCanTxTask */
 osThreadId_t         InvCanTxTaskHandle;
-uint32_t             InvCanTxBuffer[256];
+uint32_t             InvCanTxBuffer[512];
 osStaticThreadDef_t  InvCanTxControlBlock;
 const osThreadAttr_t InvCanTxTask_attributes = {
     .name       = "InvCanTxTask",
@@ -98,7 +98,7 @@ const osThreadAttr_t InvCanTxTask_attributes = {
 };
 /* Definitions for task10Hz */
 osThreadId_t         task10HzHandle;
-uint32_t             task10HzBuffer[128];
+uint32_t             task10HzBuffer[512];
 osStaticThreadDef_t  task10HzControlBlock;
 const osThreadAttr_t task10Hz_attributes = {
     .name       = "task10Hz",
