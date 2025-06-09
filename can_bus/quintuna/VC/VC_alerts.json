@@ -1,32 +1,18 @@
 {
-  "warnings_id": 501,
   "faults_id": 502,
-  "warnings_counts_id": 503,
   "faults_counts_id": 504,
+  "faults": {
+    "MissingBMSHeartbeat": {
+      "id": 551,
+      "description": "Missing heartbeat signal from the BMS."
+    }
+  },
+  "warnings_id": 501,
+  "warnings_counts_id": 503,
   "warnings": {
-    "ImuInitFailed": {
-      "id": 516,
-      "description": "Initializing the embedded IMU failed."
-    },
-    "FlowRateInputOutOfRange": {
-      "id": 517,
-      "description": "Input to app_pumpControl_setFlowRate out of range"
-    },
-    "BatteryRailOvercurrentFault": {
-      "id": 557,
-      "description": "LV rail from the 18650 batteries was overcurrent."
-    },
-    "AccumulatorRailOvercurrentFault": {
+    "PcmLvOvercurrentFault": {
       "id": 558,
       "description": "LV rail from the HV DCDC was overcurrent."
-    },
-    "LvChargeFault": {
-      "id": 559,
-      "description": "LV battery charger has faulted."
-    },
-    "BoostControllerFault": {
-      "id": 560,
-      "description": "Boost controller has faulted."
     },
     "BrakeAppsDisagreement": {
       "id": 564,
@@ -50,6 +36,7 @@
     },
     "FrontLeftInverterFault": {
       "id": 555,
+
       "description": "Left inverter entered fault state."
     },
     "FrontRightInverterFault": {
@@ -63,17 +50,39 @@
     "RearRightInverterFault": {
       "id": 558,
       "description": "Right inverter entered fault state."
-    }
-  },
-  "faults": {
-    "MissingBMSHeartbeat": {
-      "id": 551,
-      "description": "Missing heartbeat signal from the BMS."
+    },
+    "PcmUnderVoltageFault": {
+      "id": 557,
+      "description": "PCM voltage under 18 volts"
+    },
+    "PcmOveVoltageFault": {
+      "id": 558,
+      "description": "PCM voltage over 30 volts "
     }
   },
   "info_id": 505,
   "info_counts_id": 506,
   "info": {
+    "LvChargeFault": {
+      "id": 559,
+      "description": "LV battery charger has faulted."
+    },
+    "BoostControllerFault": {
+      "id": 560,
+      "description": "Boost controller has faulted."
+    },
+    "ImuInitFailed": {
+      "id": 516,
+      "description": "Initializing the embedded IMU failed."
+    },
+    "FlowRateInputOutOfRange": {
+      "id": 517,
+      "description": "Input to app_pumpControl_setFlowRate out of range"
+    },
+    "BatteryRailOvercurrentFault": {
+      "id": 557,
+      "description": "LV rail from the 18650 batteries was overcurrent."
+    },
     "StackWaterMarkHighTask1Hz": {
       "id": 501,
       "description": "1Hz task stack watermark exceeded."
@@ -110,10 +119,6 @@
       "id": 509,
       "description": "Regen is not currently available."
     },
-    "SbgInitFailed": {
-      "id": 565,
-      "description": "Initializing the SBG Ellipse GPS failed"
-    },
     "HighNumberOfCanDataLogs": {
       "id": 561,
       "description": "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem."
@@ -126,55 +131,10 @@
       "id": 563,
       "description": "CAN logging received multiple errors and has been disabled."
     },
-    "BrakeAppsDisagreement": {
-      "id": 564,
-      "description": "Brakes and apps are active at same time."
-    },
     "SbgInitFailed": {
       "id": 565,
       "description": "Initializing the SBG Ellipse GPS failed"
     }
-  },
-  "faults": {
-    "MissingBMSHeartbeat": {
-      "id": 551,
-      "description": "Missing heartbeat signal from the BMS."
-    },
-    "MissingFSMHeartbeat": {
-      "id": 552,
-      "description": "Missing heartbeat signal from the FSM."
-    },
-    "MissingRSMHeartbeat": {
-      "id": 553,
-      "description": "Missing heartbeat signal from the RSM."
-    },
-    "MissingCRITHeartbeat": {
-      "id": 554,
-      "description": "Missing heartbeat signal from the CRIT."
-    },
-    "FrontLeftInverterFault": {
-      "id": 555,
-      "description": "Left inverter entered fault state."
-    },
-    "FrontRightInverterFault": {
-      "id": 556,
-      "description": "Right inverter entered fault state."
-    },
-    "PcmUnderVoltageFault": {
-      "id": 557,
-      "description": "PCM voltage under 18 volts"
-    },
-    "PcmOveVoltageFault": {
-      "id": 558,
-      "description": "PCM voltage over 30 volts "
-    }
-  },
-  "info_id": 505,
-  "info_counts_id": 506,
-  "info": {
-    "StackOverflow": {
-      "id": 550,
-      "description": "An RTOS task stack overflowed on the previous boot cycle."
-    }
-  }
+  }  
 }
+

@@ -1,6 +1,9 @@
 #include "app_stateMachine.h"
 #include "app_states.h"
 #include "app_powerManager.h"
+#include "app_faultHandling.h"
+#include "app_canTx.h"
+#include "app_canUtils.h"
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
@@ -20,11 +23,15 @@ static PowerManagerConfig power_manager_state = {
 static void faultStateRunOnEntry(void) 
 {
     app_powerManager_updateConfig(power_manager_state);
+    app_canTx_VC_State_set(VC_FAULT_STATE);
 }
 static void faultStateRunOnTick1Hz(void) {}
 static void faultStateRunOnTick100Hz(void) 
 {
-    
+    if(!app_faultHandling_bmsLatchedFaults())
+    {
+        app_stateMachine_setNextState(&init_state);
+    }
 }
 static void faultStateRunOnExit(void) {}
 

@@ -65,7 +65,16 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    app_stateMachine_tick100Hz();
+    static bool bms_latch_state = app_faultHandling_bmsLatchedFaults();
+
+    if (bms_latch_state)
+    {
+        app_stateMachine_setNextState(&fault_state);
+    }
+    else
+    {
+        app_stateMachine_tick100Hz();
+    }
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
     app_faultHandling_globalFaultCheck();

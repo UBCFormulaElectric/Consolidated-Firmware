@@ -12,7 +12,7 @@
 #include "app_regen.h"
 #include "app_states.h"
 #include "app_powerManager.h"
-#include "app_faultHandling.h"
+#include "app_warningHanding.h"
 #include "app_canAlerts.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
@@ -24,17 +24,17 @@ static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
+                       [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_RR_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_F_PUMP]  = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
+                       [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
+                       [EFUSE_CHANNEL_RR_PUMP] = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
+                       [EFUSE_CHANNEL_F_PUMP]  = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
+                       [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
+                       [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage);
@@ -111,7 +111,7 @@ static void driveStateRunOnExit(void) {};
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const faultType fault_check = app_faultHandling_globalFaultCheck(); 
+    warningType warning_check = app_warningHandling_globalWarningCheck(); 
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     bool prev_regen_switch_val = regen_switch_is_on;
@@ -124,28 +124,29 @@ static bool driveStatePassPreCheck()
         or not before using closed loop features */
     // Update Regen + TV LEDs
 
+    if(INVERTER_FAULT == warning_check)
+    {
+
+        app_canAlerts_VC_Warning_InverterRetry_set(true);
+        app_stateMachine_setNextState(&hvInit_state);
+        app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
+        app_canTx_VC_INVRRTorqueSetpoint_set(torque_request);
+        app_canTx_VC_INVFLTorqueSetpoint_set(torque_request);
+        app_canTx_VC_INVRLTorqueSetpoint_set(torque_request);
+}
+        return false; 
+    }
+
+    else if (BOARD_WARNING_DETECTED == warning_check)
+    {
+
+    }
+ 
+
     if(SWITCH_OFF == app_canRx_CRIT_StartSwitch_get())
     {
         app_stateMachine_setNextState(&hv_state);
-    }
-    else
-    {
-        if ((app_canRx_BMS_State_get() != BMS_DRIVE_STATE) || (BOARD_FAULT == fault_check))
-        {
-            app_canTx_VC_INVFLTargetSpeed_set(INV_OFF);
-            app_canTx_VC_INVFRTargetSpeed_set(INV_OFF);
-            app_canTx_VC_INVRLTargetSpeed_set(INV_OFF);
-            app_canTx_VC_INVRRTargetSpeed_set(INV_OFF);
-            
-
-        }
-    }
-
-    if(INVERTER_FAULT == fault_check)
-    {
-        app_canTx_VC_INVFLTargetSpeed_set(INV_OFF);
-        app_canAlerts_VC_Warning_InverterRetry_set(true);
-        app_stateMachine_setNextState(&hvInit_state);
+        return false; 
     }
 
     if (!regen_switch_is_on)
@@ -158,7 +159,7 @@ static bool driveStatePassPreCheck()
     {
         app_canTx_VC_TorqueVectoringEnabled_set(true);
     }
-
+    
     return true;
 }
 
