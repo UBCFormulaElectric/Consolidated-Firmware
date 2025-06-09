@@ -18,6 +18,7 @@
 #include "io_bootHandler.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
+#include "app_stateMachine.h"
 #include "io_canMsg.h"
 #include "io_time.h"
 #include "io_log.h"
@@ -54,7 +55,6 @@ void jobs_init()
 
 void jobs_run1Hz_tick(void)
 {
-    app_stateMachine_tick1Hz();
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -65,8 +65,10 @@ void jobs_run100Hz_tick(void)
 
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+    app_shdnLoop_broadcast();
 
     app_stateMachine_tick100Hz();
+    app_stateMachine_tickTransitionState();
 
     app_shdnLoop_broadcast();
 
