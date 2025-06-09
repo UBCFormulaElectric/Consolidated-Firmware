@@ -60,9 +60,50 @@ extern "C"
     {
         return negativeClosed;
     }
+
+#include "io_tractiveSystem.h"
+    void io_tractiveSystem_init(void) {}
+
+    static float tractiveSystemVoltage = 0.0f;
+    float        io_tractiveSystem_getVoltage(void)
+    {
+        return tractiveSystemVoltage;
+    }
+
+    static float currentHighResolution = 0.0f, currentLowResolution = 0.0f;
+    float        io_tractiveSystem_getCurrentHighResolution(void)
+    {
+        return currentHighResolution;
+    }
+    float io_tractiveSystem_getCurrentLowResolution(void)
+    {
+        return currentLowResolution;
+    }
 }
 
-void fakes::irs::setNegativeClosed(const bool closed)
+namespace fakes
 {
-    negativeClosed = closed;
-}
+namespace irs
+{
+    void setNegativeClosed(const bool closed)
+    {
+        negativeClosed = closed;
+    }
+} // namespace irs
+
+namespace tractiveSystem
+{
+    void setVoltage(const float voltage)
+    {
+        tractiveSystemVoltage = voltage;
+    }
+    void setCurrentHighResolution(const float current)
+    {
+        currentHighResolution = current;
+    }
+    void setCurrentLowResolution(const float current)
+    {
+        currentLowResolution = current;
+    }
+} // namespace tractiveSystem
+} // namespace fakes
