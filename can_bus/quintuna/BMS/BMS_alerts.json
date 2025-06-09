@@ -17,7 +17,20 @@
       "description": "Precharge failed >3x"
     }
   },
-  "faults": {},
+  "faults": {
+    "IMDFault": {
+      "id": 201,
+      "description": "Insulation monitoring device fault detected."
+    },
+    "AMSFault": {
+      "id": 202,
+      "description": "AMS fault detected."
+    },
+    "BMSFault": {
+      "id": 203,
+      "description": "BMS fault detected."
+    }
+  },
   "info_id": 405,
   "info_counts_id": 406,
   "info": {

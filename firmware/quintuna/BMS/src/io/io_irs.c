@@ -24,14 +24,9 @@ bool io_irs_isNegativeClosed(void)
     return hw_gpio_readPin(&msd_shdn_sns_pin);
 }
 
-void io_irs_closePositive(void)
+void io_irs_setPositive(bool closed)
 {
-    hw_gpio_writePin(&ir_p_en_pin, true);
-}
-
-void io_irs_openPositive(void)
-{
-    hw_gpio_writePin(&ir_p_en_pin, false);
+    hw_gpio_writePin(&ir_p_en_pin, closed);
 }
 
 bool io_irs_isPositiveClosed(void)
@@ -39,14 +34,9 @@ bool io_irs_isPositiveClosed(void)
     return hw_gpio_readPin(&ir_p_en_pin);
 }
 
-void io_irs_closePrecharge(void)
+void io_irs_setPrecharge(bool closed)
 {
-    hw_gpio_writePin(&precharge_en_pin, true);
-}
-
-void io_irs_openPrecharge(void)
-{
-    hw_gpio_writePin(&precharge_en_pin, false);
+    hw_gpio_writePin(&precharge_en_pin, closed);
 }
 
 bool io_irs_isPrechargeClosed(void)

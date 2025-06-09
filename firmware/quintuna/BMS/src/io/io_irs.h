@@ -9,14 +9,9 @@
 bool io_irs_isNegativeClosed(void);
 
 /**
- * Close IR+
+ * Sets the IR- relay to the desired state
  */
-void io_irs_closePositive(void);
-
-/**
- * Open IR+
- */
-void io_irs_openPositive(void);
+void io_irs_setPositive(bool closed);
 
 /**
  * Check if the IR+ is closed
@@ -25,14 +20,10 @@ void io_irs_openPositive(void);
 bool io_irs_isPositiveClosed(void);
 
 /**
- * Close precharge relay
+ * Set the precharge relay to the desired state
+ * @param closed true to close the precharge relay, false to open it.
  */
-void io_irs_closePrecharge(void);
-
-/**
- * Open precharge relay
- */
-void io_irs_openPrecharge(void);
+void io_irs_setPrecharge(bool closed);
 
 /**
  * Check if the precharge relay is closed
