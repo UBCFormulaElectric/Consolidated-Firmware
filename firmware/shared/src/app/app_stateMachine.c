@@ -26,20 +26,6 @@ static pthread_mutex_t state_tick_mutex;
 static HANDLE state_tick_mutex;
 #endif
 
-/**
- * Run the given tick function over the given state machine if the tick function
- * is not null
- *
- * @param tick_function The tick function to run over the state machine
- */
-static void runTickFunction(void (*tick_function)())
-{
-    if (tick_function != NULL)
-    {
-        tick_function();
-    }
-}
-
 static void runTickStateTransition(void)
 {
 #ifdef __arm__
@@ -109,12 +95,18 @@ void app_stateMachine_setNextState(const State *const state)
 
 void app_stateMachine_tick1Hz(void)
 {
-    runTickFunction(current_state->run_on_tick_1Hz);
+    if (current_state->run_on_tick_1Hz != NULL)
+    {
+        current_state->run_on_tick_1Hz();
+    }
 }
 
 void app_stateMachine_tick100Hz(void)
 {
-    runTickFunction(current_state->run_on_tick_100Hz);
+    if (current_state->run_on_tick_100Hz != NULL)
+    {
+        current_state->run_on_tick_100Hz();
+    }
 }
 
 void app_stateMachine_tickTransitionState(void)

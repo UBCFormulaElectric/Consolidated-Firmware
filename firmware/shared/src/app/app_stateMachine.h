@@ -31,9 +31,9 @@ const State *app_stateMachine_getCurrentState(void);
 /**
  * Set the next state the state machine should go to
  * @param state_machine The state machine to set the next state on
- * @param next_state The next state
+ * @param state The next state
  */
-void app_stateMachine_setNextState(const State *next_state);
+void app_stateMachine_setNextState(const State *state);
 
 /**
  * Tick the 1hz function of the given state machine
