@@ -204,7 +204,6 @@ int main(void)
     osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
-    tasks_init();
     ASSERT_EXIT_OK(hw_usb_init());
     /* USER CODE END RTOS_MUTEX */
 
