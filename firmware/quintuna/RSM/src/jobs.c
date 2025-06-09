@@ -36,7 +36,6 @@ static void jsoncan_transmit(const JsonCanMsg *msg)
 
 void jobs_init(void)
 {
-
     io_canTx_init(jsoncan_transmit);
     io_canTx_enableMode_can2(CAN2_MODE_DEFAULT, true);
     io_canQueue_initRx();
@@ -52,7 +51,6 @@ void jobs_init(void)
     LOG_IF_ERR(io_imu_init());
     LOG_IF_ERR(io_rPump_isPumpReady());
     io_coolant_init();
-
 }
 
 void jobs_run1Hz_tick(void)
