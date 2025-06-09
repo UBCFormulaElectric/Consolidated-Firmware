@@ -1,4 +1,5 @@
 import datetime
+import struct
 from threading import Thread
 
 import serial
@@ -12,25 +13,12 @@ from tasks.broadcaster import CanMsg, can_msg_queue
 HEADER_SIZE = 7
 MAGIC = b"\xaa\x55"
 
-MAX_PAYLOAD_SIZE = 52  # this is arbitrary lmao
+MAX_PAYLOAD_SIZE = 100  # this is arbitrary lmao
 
 
-def _make_bytes(message):
-    """
-    Make the byte array out of the messages array.
-    """
-    return bytearray(
-        [
-            message.message_0,
-            message.message_1,
-            message.message_2,
-            message.message_3,
-            message.message_4,
-            message.message_5,
-            message.message_6,
-            message.message_7,
-        ]
-    )
+def _make_bytes(uint32_list):
+    # Converts a list of uint32s into a bytearray (each uint32 becomes 4 bytes)
+    return bytearray().join(struct.pack("<I", val) for val in uint32_list)
 
 
 def find_magic_in_buffer(buffer, magic=MAGIC):  # do i need to set magic here
@@ -145,7 +133,7 @@ def _read_messages(port: str):
         try:
             message_received = telem_pb2.TelemMessage()
             message_received.ParseFromString(payload)
-            messge_body = list(message_received.message)
+            messge_body = _make_bytes(list(message_received.message))
         except Exception as e:
             logger.error(f"Error decoding protobuf message: {e}")
             continue
