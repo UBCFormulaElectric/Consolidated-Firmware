@@ -281,3 +281,19 @@ void (*const cell_owc_setters[MAX_NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT])(bool) = 
       app_canTx_BMS_Seg9_C9_OwcOk_set, app_canTx_BMS_Seg9_C10_OwcOk_set, app_canTx_BMS_Seg9_C11_OwcOk_set,
       app_canTx_BMS_Seg9_C12_OwcOk_set, app_canTx_BMS_Seg9_C13_OwcOk_set, app_canTx_BMS_Seg9_C14_OwcOk_set }
 };
+
+// app_segments_broadcastVoltageStats
+void (*const avg_segment_voltage_setters[MAX_NUM_SEGMENTS])(float) = {
+    app_canTx_BMS_Seg0_AvgVoltage_set, app_canTx_BMS_Seg1_AvgVoltage_set, app_canTx_BMS_Seg2_AvgVoltage_set,
+    app_canTx_BMS_Seg3_AvgVoltage_set, app_canTx_BMS_Seg4_AvgVoltage_set, app_canTx_BMS_Seg5_AvgVoltage_set,
+    app_canTx_BMS_Seg6_AvgVoltage_set, app_canTx_BMS_Seg7_AvgVoltage_set, app_canTx_BMS_Seg8_AvgVoltage_set,
+    app_canTx_BMS_Seg9_AvgVoltage_set
+};
+
+// app_segments_broadcastTempStats
+void (*const avg_segment_temp_setters[MAX_NUM_SEGMENTS])(float) = {
+    app_canTx_BMS_Seg0_AvgTemp_set, app_canTx_BMS_Seg1_AvgTemp_set, app_canTx_BMS_Seg2_AvgTemp_set,
+    app_canTx_BMS_Seg3_AvgTemp_set, app_canTx_BMS_Seg4_AvgTemp_set, app_canTx_BMS_Seg5_AvgTemp_set,
+    app_canTx_BMS_Seg6_AvgTemp_set, app_canTx_BMS_Seg7_AvgTemp_set, app_canTx_BMS_Seg8_AvgTemp_set,
+    app_canTx_BMS_Seg9_AvgTemp_set
+};

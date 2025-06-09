@@ -123,11 +123,38 @@ void app_segments_broadcastStatusSelfTest(void);
 void app_segments_broadcastOpenWireCheck(void);
 
 /**
+ * Broadcast stats (min, max, avg) for voltages.
+ */
+void app_segments_broadcastVoltageStats(void);
+
+/**
+ * Broadcast stats (min, max, avg) for temps.
+ */
+void app_segments_broadcastTempStats(void);
+
+// ================= GETTERS =================
+
+/**
  * Get the accumulator's total voltage
  */
-float app_segments_getPackVoltage();
+float app_segments_getPackVoltage(void);
 
 /**
  * Get the highest voltage of any cell in the accumulator
  */
-float app_segments_getMaxCellVoltage();
+float app_segments_getMaxCellVoltage(void);
+
+/**
+ * Get the lowest voltage of any cell in the accumulator
+ */
+float app_segments_getMinCellVoltage(void);
+
+/**
+ * Get the highest temp of any cell in the accumulator
+ */
+float app_segments_getMaxCellTemp(void);
+
+/**
+ * Get the lowest temp of any cell in the accumulator
+ */
+float app_segments_getMinCellTemp(void);

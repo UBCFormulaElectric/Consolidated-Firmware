@@ -41,3 +41,9 @@ extern void (*const segment_status_self_test_ok_setters[MAX_NUM_SEGMENTS])(bool)
 
 // app_segments_broadcastOpenWireCheck
 extern void (*const cell_owc_setters[MAX_NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT])(bool);
+
+// app_segments_broadcastVoltageStats
+extern void (*const avg_segment_voltage_setters[MAX_NUM_SEGMENTS])(float);
+
+// app_segments_broadcastTempStats
+extern void (*const avg_segment_temp_setters[MAX_NUM_SEGMENTS])(float);

@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 
 // TODO: Take a closer look at these guys
 #define CONVERSION_TIME_MS (10)
@@ -34,6 +35,12 @@ typedef enum
     THERMISTOR_MUX_COUNT,
 } ThermistorMux;
 
+typedef struct
+{
+    uint8_t segment;
+    uint8_t cell;
+} CellPos;
+
 // Keeping separate buffers for every command is pretty wasteful but we have lots of RAM so oh well
 
 static SegmentConfig segment_config[NUM_SEGMENTS];
@@ -48,6 +55,7 @@ static uint16_t aux_regs[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMEN
 static ExitCode aux_regs_success[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 static float    segment_vref[NUM_SEGMENTS];
 static float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+static bool     cell_temps_success[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
 static StatusRegGroups status_regs[NUM_SEGMENTS];
 static ExitCode        status_regs_success[NUM_SEGMENTS];
@@ -70,6 +78,12 @@ static uint16_t owc_pdcv_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static ExitCode owc_pdcv_success[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static bool     owc_results[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
 static bool     owc_results_success[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
+
+static float pack_voltage;
+static float max_cell_voltage;
+static float min_cell_voltage;
+static float max_cell_temp;
+static float min_cell_temp;
 
 static void writeThermistorMux(ThermistorMux mux)
 {
@@ -375,15 +389,33 @@ void app_segments_broadcastTempsVRef(void)
 
                 if (IS_EXIT_ERR(aux_regs_success[mux][segment][aux_gpio]))
                 {
+                    cell_temps_success[segment][thermistor] = false;
                     continue;
                 }
 
                 const float voltage = CONVERT_100UV_TO_VOLTAGE(aux_regs[mux][segment][aux_gpio]);
+                const bool  success = IS_EXIT_ERR(aux_regs_success[mux][segment][aux_gpio]);
                 if (aux_gpio == VREF_AUX_REG)
                 {
-                    segment_vref[segment] = voltage;
-                    vref_setters[segment](voltage);
-                    segment_vref_ok_setters[segment](fabsf(voltage - 3.0f) < 0.014f);
+                    if (success)
+                    {
+                        segment_vref[segment] = voltage;
+                        vref_setters[segment](voltage);
+                        segment_vref_ok_setters[segment](fabsf(voltage - 3.0f) < 0.014f);
+                    }
+                    else
+                    {
+                        segment_vref[segment] = -1.0f;
+                        vref_setters[segment](-1.0f);
+                        segment_vref_ok_setters[segment](false);
+                    }
+                    continue;
+                }
+
+                if (!success)
+                {
+                    cell_temps_success[segment][thermistor] = false;
+                    thermistor_setters[segment][thermistor](-1.0f);
                     continue;
                 }
 
@@ -392,7 +424,8 @@ void app_segments_broadcastTempsVRef(void)
                 const float resistance = voltage / current;
                 const float temp       = app_thermistor_resistanceToTemp(resistance, &ltc_thermistor_lut);
 
-                cell_temps[segment][thermistor] = temp;
+                cell_temps[segment][thermistor]         = temp;
+                cell_temps_success[segment][thermistor] = true;
                 thermistor_setters[segment][thermistor](temp);
             }
         }
@@ -539,39 +572,129 @@ void app_segments_broadcastOpenWireCheck(void)
     }
 }
 
-// TODO: Combine this and getMaxCellVoltage into one "update voltage stats" function or something
-float app_segments_getPackVoltage()
+void app_segments_broadcastVoltageStats(void)
 {
-    float pack_voltage = 0.0;
+    float   tmp_pack_voltage     = 0.0f;
+    float   tmp_max_cell_voltage = 0.0f;
+    float   tmp_min_cell_voltage = FLT_MAX;
+    CellPos min_voltage_pos, max_voltage_pos;
+
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
+        float segment_voltage = 0.0f;
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
+            const float   cell_voltage = cell_voltages[segment][cell];
+            const CellPos cell_pos     = { .segment = segment, .cell = cell };
+
             // Sum the voltages
-            const float cell_voltage = cell_voltages[segment][cell];
             pack_voltage += cell_voltage;
+            segment_voltage += cell_voltage;
+
+            // Get the maximum cell voltage
+            if (cell_voltage_success[segment][cell] && cell_voltage > tmp_max_cell_voltage)
+            {
+                tmp_max_cell_voltage = cell_voltage;
+                max_voltage_pos      = cell_pos;
+            }
+
+            // Get the minimum cell voltage
+            if (cell_voltage_success[segment][cell] && cell_voltage < tmp_min_cell_voltage)
+            {
+                tmp_min_cell_voltage = cell_voltage;
+                min_voltage_pos      = cell_pos;
+            }
         }
+
+        avg_segment_voltage_setters[segment](segment_voltage / CELLS_PER_SEGMENT);
     }
+
+    // Write these only after stats are complete so updates are atomic.
+    pack_voltage     = tmp_pack_voltage;
+    min_cell_voltage = tmp_min_cell_voltage;
+    max_cell_voltage = tmp_max_cell_voltage;
+
+    app_canTx_BMS_MaxCellVoltageSegment_set(max_voltage_pos.segment);
+    app_canTx_BMS_MaxCellVoltageIdx_set(max_voltage_pos.cell);
+    app_canTx_BMS_MaxCellVoltage_set(max_cell_voltage);
+    app_canTx_BMS_MinCellVoltageSegment_set(min_voltage_pos.segment);
+    app_canTx_BMS_MinCellVoltageIdx_set(min_voltage_pos.cell);
+    app_canTx_BMS_MinCellVoltage_set(min_cell_voltage);
+    app_canTx_BMS_PackVoltage_set(pack_voltage);
+    app_canTx_BMS_AvgCellVoltage_set(pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT));
+}
+
+void app_segments_broadcastTempStats(void)
+{
+    float   temp_sum          = 0.0f;
+    float   tmp_max_cell_temp = 0.0f;
+    float   tmp_min_cell_temp = FLT_MAX;
+    CellPos min_temp_pos, max_temp_pos;
+
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    {
+        float segment_temp = 0.0f;
+        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            const float   cell_temp = cell_temps[segment][cell];
+            const CellPos cell_pos  = { .segment = segment, .cell = cell };
+
+            // Sum the temps
+            temp_sum += cell_temp;
+            segment_temp += cell_temp;
+
+            // Get the maximum cell temp
+            if (cell_temps_success[segment][cell] && cell_temp > tmp_max_cell_temp)
+            {
+                tmp_max_cell_temp = cell_temp;
+                max_temp_pos      = cell_pos;
+            }
+
+            // Get the minimum cell temp
+            if (cell_temps_success[segment][cell] && cell_temp < tmp_min_cell_temp)
+            {
+                tmp_min_cell_temp = cell_temp;
+                min_temp_pos      = cell_pos;
+            }
+        }
+
+        avg_segment_temp_setters[segment](segment_temp / CELLS_PER_SEGMENT);
+    }
+
+    // Write these only after stats are complete so updates are atomic.
+    min_cell_temp = tmp_min_cell_temp;
+    max_cell_temp = tmp_max_cell_temp;
+
+    app_canTx_BMS_MaxCellTempSegment_set(max_temp_pos.segment);
+    app_canTx_BMS_MaxCellTempIdx_set(max_temp_pos.cell);
+    app_canTx_BMS_MaxCellTemp_set(tmp_max_cell_temp);
+    app_canTx_BMS_MinCellTempSegment_set(min_temp_pos.segment);
+    app_canTx_BMS_MinCellTempIdx_set(min_temp_pos.cell);
+    app_canTx_BMS_MinCellTemp_set(tmp_min_cell_temp);
+    app_canTx_BMS_AvgCellTemp_set(temp_sum / (NUM_SEGMENTS * CELLS_PER_SEGMENT));
+}
+
+float app_segments_getPackVoltage()
+{
     return pack_voltage;
 }
 
-// TODO: Combine getPackVoltage and this into one "update voltage stats" function or something
 float app_segments_getMaxCellVoltage()
 {
-    // Find the min and max voltages
-    float max_cell_voltage = 0.0f;
-    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
-    {
-        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
-        {
-            // Collect each cell voltage to find the max
-            const float cell_voltage = cell_voltages[segment][cell];
-            // Get the maximum cell voltage
-            if (cell_voltage > max_cell_voltage)
-            {
-                max_cell_voltage = cell_voltage;
-            }
-        }
-    }
     return max_cell_voltage;
+}
+
+float app_segments_getMinCellVoltage()
+{
+    return min_cell_voltage;
+}
+
+float app_segments_getMaxCellTemp()
+{
+    return max_cell_temp;
+}
+
+float app_segments_getMinCellTemp()
+{
+    return min_cell_temp;
 }

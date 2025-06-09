@@ -208,6 +208,7 @@ void tasks_runLtcVoltages(void)
         xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastCellVoltages();
+            app_segments_broadcastVoltageStats();
         }
         xSemaphoreGive(ltc_app_data_lock);
 
