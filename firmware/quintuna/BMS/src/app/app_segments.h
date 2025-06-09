@@ -121,3 +121,13 @@ void app_segments_broadcastStatusSelfTest(void);
  * Performs no IO operations.
  */
 void app_segments_broadcastOpenWireCheck(void);
+
+/**
+ * Get the accumulator's total voltage
+ */
+float app_segments_getPackVoltage();
+
+/**
+ * Get the highest voltage of any cell in the accumulator
+ */
+float app_segments_getMaxCellVoltage();

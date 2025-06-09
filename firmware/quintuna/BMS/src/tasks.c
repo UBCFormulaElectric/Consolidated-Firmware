@@ -6,8 +6,10 @@
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
+#include "app_stateMachine.h"
 
 #include "hw_bootup.h"
+#include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 
@@ -118,6 +120,9 @@ void tasks_init(void)
     app_segments_broadcastAuxSelfTest();
     app_segments_broadcastStatusSelfTest();
     app_segments_broadcastOpenWireCheck();
+
+    // Shutdown loop power comes from a load switch on the BMS.
+    hw_gpio_writePin(&shdn_en_pin, true);
 }
 
 void tasks_run1Hz(void)
@@ -130,6 +135,7 @@ void tasks_run1Hz(void)
         {
             jobs_run1Hz_tick();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -145,6 +151,7 @@ void tasks_run100Hz(void)
         {
             jobs_run100Hz_tick();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -158,6 +165,7 @@ void tasks_run1kHz(void)
     {
         // hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
