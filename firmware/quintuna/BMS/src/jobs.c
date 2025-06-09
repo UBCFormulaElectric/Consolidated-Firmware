@@ -58,7 +58,7 @@ void jobs_run1Hz_tick(void)
     app_stateMachine_tick1Hz();
     app_stateMachine_tickTransitionState();
 
-  io_canTx_enqueue1HzMsgs();
+    io_canTx_enqueue1HzMsgs();
 }
 
 void jobs_run100Hz_tick(void)
@@ -74,7 +74,7 @@ void jobs_run100Hz_tick(void)
     app_stateMachine_tickTransitionState();
 
     app_shdnLoop_broadcast();
-    
+
     io_canTx_enqueue100HzMsgs();
 }
 
