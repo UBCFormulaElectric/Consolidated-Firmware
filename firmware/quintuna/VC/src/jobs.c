@@ -55,6 +55,7 @@ void jobs_init()
 void jobs_run1Hz_tick(void)
 {
     app_stateMachine_tick1Hz();
+    app_stateMachine_tickTransitionState();
     // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
     io_canTx_enqueue1HzMsgs();
@@ -63,6 +64,8 @@ void jobs_run1Hz_tick(void)
 void jobs_run100Hz_tick(void)
 {
     app_stateMachine_tick100Hz();
+    // TODO fault transitions
+    app_stateMachine_tickTransitionState();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
 
