@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <math.h>
+
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -8,7 +10,17 @@
 #include "io_log.h"
 #include "io_sbgEllipse.h"
 
+/**
+ * SBG is able to interface with uart however
+ * i encountered 1 random uart error, none before or after
+ * 
+ * it is stuck in solution mode unintialized, either it is 
+ * literally uninitialized or it needs movement for ekf to 
+ * begin working and converge 
+ */
+
 static float vehicle_velocity;
+static VcEkfStatus ekf_solution_mode;
 
 void app_sbgEllipse_broadcast()
 {
@@ -49,14 +61,14 @@ void app_sbgEllipse_broadcast()
     vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
     // const float vehicle_velocity_calculated = MPS_TO_KMH(velocity_calculated.north);
 
-    uint32_t ekf_sol_mode = io_sbgEllipse_getEkfSolutionMode();
+    ekf_solution_mode = (VcEkfStatus)io_sbgEllipse_getEkfSolutionMode();
 
-    if (ekf_sol_mode < NUM_VC_EKF_STATUS_CHOICES)
+    if (ekf_solution_mode < NUM_VC_EKF_STATUS_CHOICES)
     {
-        app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)ekf_sol_mode);
+        // app_canTx_VC_EkfSolutionMode_set(ekf_solution_mode);
     }
 
-    app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
+    // app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
     // app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
 
     // Position EKF
@@ -89,9 +101,9 @@ void app_sbgEllipse_broadcast()
     const float euler_pitch = io_sbgEllipse_getEkfEulerAngles()->pitch;
     const float euler_yaw   = io_sbgEllipse_getEkfEulerAngles()->yaw;
 
-    app_canTx_VC_EulerAnglesRoll_set(euler_roll);
-    app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
-    app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
+    // app_canTx_VC_EulerAnglesRoll_set(euler_roll);
+    // app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
+    // app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
 }
 
 // void app_sbgEllipse_calculateVelocity(VelocityData *velocity)
@@ -119,4 +131,9 @@ void app_sbgEllipse_broadcast()
 float app_sbgEllipse_getVehicleVelocity(void)
 {
     return vehicle_velocity;
+}
+
+VcEkfStatus app_sbgEllipse_getEkfSolutionMode(void)
+{
+    return ekf_solution_mode;
 }

@@ -125,7 +125,8 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_VC_commit_info"
             "logfs_cm7"
             "sbg_ecom_cm7"
-            "chimera_v2_proto_cm7")
+            "chimera_v2_proto_cm7"
+            m)
 
 
     if ("${BOOTLOAD}" STREQUAL "ON")

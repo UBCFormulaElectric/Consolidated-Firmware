@@ -199,7 +199,7 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgEComLogUnion *log_
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool io_sbgEllipse_init(void)
+ExitCode io_sbgEllipse_init(void)
 {
     memset(&sensor_data, 0, sizeof(SensorData));
 
@@ -212,7 +212,7 @@ bool io_sbgEllipse_init(void)
     if (sbgEComInitCode != SBG_NO_ERROR)
     {
         LOG_INFO("%d", sbgEComInitCode);
-        return false;
+        return EXIT_CODE_ERROR;
     }
 
     // Set the callback function (callback is called when a new log is successfully received and parsed)
@@ -223,10 +223,7 @@ bool io_sbgEllipse_init(void)
     assert(uart_sbuf_handle != NULL);
 
     // Start waiting for UART packets
-    // TODO: Handle error codes on Quintuna!
-    hw_uart_receiveCallback(&sbg_ellipse_uart, uart_dma_buf, UART_RX_PACKET_SIZE);
-
-    return true;
+    return hw_uart_receiveCallback(&sbg_ellipse_uart, uart_dma_buf, UART_RX_PACKET_SIZE);
 }
 
 void io_sbgEllipse_handleLogs(void)

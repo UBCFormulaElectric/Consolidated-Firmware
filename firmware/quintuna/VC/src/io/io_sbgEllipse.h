@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "app_utils.h"
+
 /* ------------------------------------ Typedefs ------------------------------------- */
 
 typedef struct
@@ -74,7 +76,7 @@ typedef struct
     uint32_t           ekf_solution_status;
 } SensorData;
 
-bool io_sbgEllipse_init();
+ExitCode io_sbgEllipse_init();
 
 /*
  * Parse all logs which are currently residing in the UART RX buffer.
