@@ -2,6 +2,7 @@
 #include "app_states.h"
 #include "app_loadswitches.h"
 #include "app_powerManager.h"
+#include "app_faultHandling.h"
 #include <app_canTx.h>
 #include <app_canRx.h>
 #include <app_canUtils.h>

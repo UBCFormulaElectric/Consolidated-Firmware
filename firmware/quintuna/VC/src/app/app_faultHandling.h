@@ -19,5 +19,7 @@ bool app_faultHandling_fsm_bms_HeartbeartChecks(void);
 // handle inverter faulting
 bool app_faultHandeling_inverterStatus(void);
 
+void app_fault_Handling_clear_inverterFaults(void);
+
 faultType app_faultHandling_globalFaultCheck(void);
 

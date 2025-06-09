@@ -3,6 +3,7 @@
 #include "app_powerManager.h"
 #include "app_timer.h"
 #include "app_canAlerts.h"
+#include "app_faultHandling.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
 #include <app_canRx.h>
@@ -142,6 +143,7 @@ static void hvInitStateRunOnTick100Hz(void)
             if(app_canAlerts_VC_Warning_InverterRetry_get())
             {
                 app_canAlerts_VC_Warning_InverterRetry_set(false);
+                app_fault_Handling_clear_inverterFaults(void);
                 app_stateMachine_setNextState(&drive_state);
             }
             else

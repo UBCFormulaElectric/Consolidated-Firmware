@@ -13,17 +13,7 @@
  * on recoverable faults 
  */
 
-bool app_faultHandling_bmsLatchedFaults(void)
-{
-    return app_canAlerts_BoardHasFault(BMS_NODE);
-}
-
-bool app_faultHandling_fsm_bms_HeartbeartChecks(void)
-{
-    return app_canAlerts_BoardHasFault(VC_NODE); 
-}
-
-static bool app_faultHandling_inverterStatus(void)
+bool app_faultHandling_inverterStatus(void)
 {
     const bool invrr_error = app_canRx_INVRR_bError_get() == true;
     const bool invrl_error = app_canRx_INVRL_bError_get() == true;
@@ -37,6 +27,25 @@ static bool app_faultHandling_inverterStatus(void)
 
     return invfl_error || invrl_error || invfl_error || invfr_error;
 }
+
+void app_fault_Handling_clear_inverterFaults(void)
+{
+        app_canAlerts_VC_Warning_RearLeftInverterFault_set(false);
+        app_canAlerts_VC_Warning_RearRightInverterFault_set(false);
+        app_canAlerts_VC_Warning_FrontLeftInverterFault_set(false);
+        app_canAlerts_VC_Warning_FrontRightInverterFault_set(false);
+}
+
+bool app_faultHandling_bmsLatchedFaults(void)
+{
+    return app_canAlerts_BoardHasFault(BMS_NODE);
+}
+
+bool app_faultHandling_fsm_bms_HeartbeartChecks(void)
+{
+    return app_canAlerts_BoardHasFault(VC_NODE); 
+}
+
 
 faultType app_faultHandling_driveStateFaultChecks(void)
 {
