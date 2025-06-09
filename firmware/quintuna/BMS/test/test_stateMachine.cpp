@@ -9,11 +9,17 @@ class BmsStateMachineTest : public BMSBaseTest
 {
 };
 
+#define ASSERT_STATE_EQ(x)                            \
+    ASSERT_EQ(app_stateMachine_getCurrentState(), &x) \
+        << "Expected state: " << x.name << ", but got: " << app_stateMachine_getCurrentState()->name
+
 TEST_F(BmsStateMachineTest, init_proper_reset)
 {
+    app_stateMachine_setCurrentState(&drive_state);
     jobs_init();
-    // app_
+    ASSERT_STATE_EQ(init_state);
 }
+
 TEST_F(BmsStateMachineTest, start_precharge_once_vc_bms_on) {}
 TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {}
 TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state) {}
