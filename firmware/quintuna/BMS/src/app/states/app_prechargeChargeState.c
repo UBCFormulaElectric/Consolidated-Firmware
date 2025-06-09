@@ -12,6 +12,7 @@
 #include "states/app_chargeState.h"
 #include <app_canTx.h>
 #include "app_segments.h"
+#include "states/app_faultState.h"
 
 #define PRECHARGE_ACC_VOLTAGE_THRESHOLD 0.9f
 #define NUM_OF_INVERTERS 4U
@@ -36,12 +37,15 @@ static void app_prechargeChargeStateRunOnEntry(void)
 
 static void app_prechargeChargeStateRunOnTick100Hz(void)
 {
-    const bool           precharge_for_charging = true;
-    const PrechargeState state                  = app_precharge_poll(precharge_for_charging);
+    const PrechargeState state = app_precharge_poll(true);
 
     if (state == PRECHARGE_STATE_FAILED_CRITICAL)
     {
-        // app_stateMachine_setNextState(app_faultState_get());
+        // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
+        // unintentionally re-enter charge state.
+        app_canRx_Debug_StartCharging_update(false);
+
+        app_stateMachine_setNextState(app_faultState_get());
     }
     else if (state == PRECHARGE_STATE_FAILED)
     {
@@ -49,10 +53,13 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
     }
     else if (state == PRECHARGE_STATE_SUCCESS)
     {
+        // Precharge successful, close positive contactor.
         io_irs_closePositive();
+
         app_stateMachine_setNextState(app_chargeState_get());
     }
 
+    // TODO: Detect charger via PWM.
     // const bool is_charger_connected = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
     // if (!is_charger_connected)
     // {

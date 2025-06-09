@@ -121,6 +121,7 @@ void tasks_init(void)
     app_segments_broadcastStatusSelfTest();
     app_segments_broadcastOpenWireCheck();
 
+    // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
 }
 
@@ -175,8 +176,7 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
     }
 }
 

@@ -24,9 +24,9 @@ static void app_faultStateRunOnTick100Hz(void)
 {
     const bool acc_fault_cleared = false; // !app_accumulator_checkFaults();
     const bool precharge_ok      = !app_precharge_limitExceeded();
-    // const bool air_negative_open = !io_irs_isNegativeClosed();
+    const bool bms_fault_cleared = io_faultLatch_getLatchedStatus(&bms_ok_latch);
 
-    if (acc_fault_cleared && precharge_ok)
+    if (acc_fault_cleared && precharge_ok && bms_fault_cleared)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
