@@ -11,36 +11,19 @@
 #include "io_canTx.h"
 #include "io_canRx.h"
 // app
-#include "app_segments.h"
 #include "app_commitInfo.h"
+#include "states/app_initState.h"
+#include "app_stateMachine.h"
 // io
 #include "io_bootHandler.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
+#include "app_stateMachine.h"
 #include "io_canMsg.h"
 #include "io_time.h"
 #include "io_log.h"
 
 CanTxQueue can_tx_queue;
-
-ExitCode jobs_runLtc_tick(void)
-{
-    RETURN_IF_ERR(app_segments_configSync());
-    RETURN_IF_ERR(app_segments_broadcastCellVoltages());
-    RETURN_IF_ERR(app_segments_broadcastTempsVRef());
-    RETURN_IF_ERR(app_segments_broadcastStatus());
-
-    if (app_canRx_Debug_EnableDebugMode_get())
-    {
-        RETURN_IF_ERR(app_segments_voltageSelftest());
-        RETURN_IF_ERR(app_segments_auxSelftest());
-        RETURN_IF_ERR(app_segments_statusSelftest());
-        RETURN_IF_ERR(app_segments_openWireCheck());
-        RETURN_IF_ERR(app_segments_ADCAccuracyTest());
-    }
-
-    return EXIT_CODE_OK;
-}
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -50,7 +33,7 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 
 static void charger_transmit_func(const JsonCanMsg *msg)
 {
-    LOG_INFO("Send charger message: %d", msg->std_id);
+    // LOG_INFO("Send charger message: %d", msg->std_id);
 }
 
 void jobs_init()
@@ -66,6 +49,8 @@ void jobs_init()
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
+
+    app_stateMachine_init(app_initState_get());
 }
 
 void jobs_run1Hz_tick(void)
@@ -80,9 +65,14 @@ void jobs_run100Hz_tick(void)
 
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+    app_shdnLoop_broadcast();
+
+    app_stateMachine_tick100Hz();
+    app_stateMachine_tickTransitionState();
+
+    app_shdnLoop_broadcast();
 
     io_canTx_enqueue100HzMsgs();
-    app_shdnLoop_broadcast();
 }
 
 void jobs_run1kHz_tick(void)

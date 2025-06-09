@@ -9,7 +9,7 @@
 #include "app_utils.h"
 
 // Physical constants for our accumulator.
-#define NUM_SEGMENTS 1
+#define NUM_SEGMENTS 10
 #define CELLS_PER_SEGMENT 14
 #define THERMISTORS_PER_SEGMENT 14
 
@@ -126,6 +126,11 @@ ExitCode io_ltc6813_startThermistorsAdcConversion(void);
 /**
  * @file ltc6813/io_ltc6813_utils.c
  */
+
+/**
+ * Wake up LTCs. Sends a dummy command (RDCFGA). See "Waking Up the Serial Interface" in the datasheet.
+ */
+void io_ltc6813_wakeup(void);
 
 /**
  * polls the LTC6813 for the completion of the ADC conversions

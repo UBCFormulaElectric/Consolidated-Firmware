@@ -60,6 +60,8 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define BOOT_Pin GPIO_PIN_6
 #define BOOT_GPIO_Port GPIOE
+#define LED_Pin GPIO_PIN_0
+#define LED_GPIO_Port GPIOA
 #define SWDIO2_Pin GPIO_PIN_13
 #define SWDIO2_GPIO_Port GPIOA
 #define SWCLK2_Pin GPIO_PIN_14

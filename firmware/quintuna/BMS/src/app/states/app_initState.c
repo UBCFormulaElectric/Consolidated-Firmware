@@ -1,19 +1,20 @@
 #include "states/app_states.h"
 
+#include "app_canRx.h"
+#include "app_canTx.h"
+#include "app_tractiveSystem.h"
 #include "app_imd.h"
 // #include "app_soc.h"
+// #include "app_inverterOnState.h"
+#include "app_heartbeatMonitors.h"
+
 #include "io_faultLatch.h"
 #include "io_irs.h"
 #include "io_charger.h"
-// #include "app_inverterOnState.h"
-#include "app_heartbeatMonitors.h"
-#include "app_tractiveSystem.h"
 
-#include "app_canRx.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
-
-static void initStateRunOnEntry(void)
+static void app_initStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INIT_STATE);
     io_faultLatch_setCurrentStatus(&bms_ok_latch, true);
@@ -24,19 +25,6 @@ static void initStateRunOnEntry(void)
     io_irs_openPositive();
 }
 
-static void initStateRunOnTick1Hz(void)
-{
-    // // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-    // if (app_canRx_Debug_ResetSoc_MinCellV_get())
-    // {
-    //     app_soc_resetSocFromVoltage();
-    // }
-    // else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
-    // {
-    //     app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
-    // }
-}
-
 static void initStateRunOnTick100Hz(void)
 {
     const bool air_negative_closed = io_irs_isNegativeClosed();
@@ -45,6 +33,18 @@ static void initStateRunOnTick100Hz(void)
 
     if (air_negative_closed && ts_discharged)
     {
+        const bool external_charging_request = app_canRx_Debug_StartCharging_get();
+
+        if (external_charging_request)
+        {
+            app_stateMachine_setNextState(app_prechargeChargeState_get());
+        }
+        // else if (!is_charger_connected)
+        // {
+        //     // TODO: Precharge for driving!
+        // }
+      
+        // TODO OLD
         // const bool charger_connected = io_charger_getStatus() == EVSE_CONNECTED;
         // const bool charger_disconnected      = io_charger_getStatus() == EVSE_DISCONNECTED;
         const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
@@ -73,6 +73,7 @@ static void initStateRunOnTick100Hz(void)
         }
     }
 }
+
 
 const State init_state = {
     .name              = "INIT",

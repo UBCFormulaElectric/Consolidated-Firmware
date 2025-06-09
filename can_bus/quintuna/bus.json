@@ -35,7 +35,8 @@
         "DEFAULT",
         "DEBUG"
       ],
-      "default_mode": "DEFAULT"
+      "default_mode": "DEFAULT",
+      "fd": true
     },
     {
       "name": "can2",
@@ -55,7 +56,14 @@
     },
     {
       "name": "can3",
-      "nodes": ["VC", "INVFR","INVFL","INVRR", "INVRL", "EMeter"],
+      "nodes": [
+        "VC",
+        "INVFR",
+        "INVFL",
+        "INVRR",
+        "INVRL",
+        "EMeter"
+      ],
       "bus_speed": 500,
       "modes": [
         "DEFAULT",
