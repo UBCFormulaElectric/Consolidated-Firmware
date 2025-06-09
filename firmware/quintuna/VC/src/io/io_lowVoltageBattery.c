@@ -349,8 +349,10 @@ ExitCode io_lowVoltageBattery_configureBalancingThreshold(uint16_t voltage)
 
 ExitCode io_lowVoltageBattery_showCellsBalancing(BalanceStatus *status)
 {
-    RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, CELL_BALANCING, &status, 2));
-    return EXIT_CODE_OK;
+    return EXIT_CODE_UNIMPLEMENTED;
+    
+    // RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, CELL_BALANCING, &status, 2));
+    // return EXIT_CODE_OK;
 }
 
 ExitCode io_lowVoltageBattery_additionalMeasurements(void)
