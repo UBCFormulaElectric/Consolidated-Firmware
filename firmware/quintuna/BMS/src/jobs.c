@@ -55,9 +55,6 @@ void jobs_init()
 
 void jobs_run1Hz_tick(void)
 {
-    app_stateMachine_tick1Hz();
-    app_stateMachine_tickTransitionState();
-
     io_canTx_enqueue1HzMsgs();
 }
 

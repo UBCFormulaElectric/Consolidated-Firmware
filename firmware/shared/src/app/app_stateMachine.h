@@ -29,11 +29,6 @@ const State *app_stateMachine_getCurrentState(void);
 void app_stateMachine_setNextState(const State *state);
 
 /**
- * Tick the 1hz function of the given state machine
- */
-void app_stateMachine_tick1Hz(void);
-
-/**
  * Tick the 100Hz function of the given state machine
  */
 void app_stateMachine_tick100Hz(void);
