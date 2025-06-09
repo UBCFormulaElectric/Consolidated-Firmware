@@ -46,3 +46,14 @@ void app_stateMachine_tick1Hz(void);
  * @param state_machine The state machine to tick
  */
 void app_stateMachine_tick100Hz(void);
+
+/**
+* Tick to transition states to the next states
+* @param state_machine The state machine to set the next state on
+* @param next_state The next state
+*/
+void app_stateMachine_tickTransitionState(void);
+
+#ifdef TARGET_TEST
+void app_stateMachine_setCurrentState(const State *state);
+#endif
