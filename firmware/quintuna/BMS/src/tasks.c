@@ -101,7 +101,7 @@ void tasks_init(void)
     xSemaphoreGive(ltc_app_data_lock);
 
     // Write LTC configs.
-    app_segments_writeDefaultConfig();
+    app_segments_setDefaultConfig();
     io_ltc6813_wakeup();
 
     // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end

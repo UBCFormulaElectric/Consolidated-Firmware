@@ -1,5 +1,4 @@
-#include "app_segments_setters.h"
-
+#include "app_segments_internal.h"
 #include "app_canTx.h"
 
 // app_segments_configSync

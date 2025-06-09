@@ -1,7 +1,21 @@
 #pragma once
 #include "io_ltc6813.h"
 
-// =========== CONFIGS ===========
+/**
+ * @file segments/app_segments_configs.c
+ */
+
+typedef enum
+{
+    THERMISTOR_MUX_0_7,
+    THERMISTOR_MUX_8_13,
+    THERMISTOR_MUX_COUNT,
+} ThermistorMux;
+
+/**
+ * Writes the default config to the internal config
+ */
+void app_segments_setDefaultConfig(void);
 
 /**
  * Sets the balancing configuration of all segments
@@ -10,9 +24,10 @@
 void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
 
 /**
- * Writes the default config to the internal config
+ * Sets the thermistor MUX config of all segments by writing to GPIO9.
+ * @param mux MUX config.
  */
-void app_segments_writeDefaultConfig(void);
+void app_segments_setThermistorMuxConfig(ThermistorMux mux);
 
 /**
  * Syncs configs on LTC with the internal configs
@@ -21,7 +36,9 @@ void app_segments_writeDefaultConfig(void);
  */
 ExitCode app_segments_configSync(void);
 
-// =========== CONVERSION AND TEST RUNNERS ===========
+/**
+ * @file segments/app_segments_conversions.c
+ */
 
 /**
  * Perform IO operations to convert cell voltages.
@@ -72,7 +89,9 @@ ExitCode app_segments_runStatusSelfTest(void);
  */
 ExitCode app_segments_runOpenWireCheck(void);
 
-// =========== BROADCAST MESSAGES ===========
+/**
+ * @file segments/app_segments_broadcast.c
+ */
 
 /**
  * Unpack and broadcast values previously read from cell voltage registers.
@@ -132,7 +151,9 @@ void app_segments_broadcastVoltageStats(void);
  */
 void app_segments_broadcastTempStats(void);
 
-// ================= GETTERS =================
+/**
+ * @file segments/app_segments_getters.c
+ */
 
 /**
  * Get the accumulator's total voltage
