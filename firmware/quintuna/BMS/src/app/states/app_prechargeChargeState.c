@@ -65,7 +65,6 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
 
 static void app_prechargeChargeStateRunOnExit(void)
 {
-
     io_irs_openPrecharge();
 }
 

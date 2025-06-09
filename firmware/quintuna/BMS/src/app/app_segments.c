@@ -495,7 +495,8 @@ void app_segments_broadcastStatusSelfTest(void)
         // NOTE: only the first four words we need to check
         for (uint8_t word = 0; word < 4; word++)
         {
-            self_test_pass &= status_self_test_success[segment] && statuses_buffer[word] == SELF_TEST_EXPECTED_VALUE;
+            self_test_pass &=
+                IS_EXIT_OK(status_self_test_success[segment]) && statuses_buffer[word] == SELF_TEST_EXPECTED_VALUE;
         }
 
         segment_status_self_test_ok_setters[segment](self_test_pass);

@@ -38,18 +38,27 @@
       }
     }
   },
-  "LatchedFaults": {
+  "LatchStatus": {
     "msg_id": 410,
     "cycle_time": 100,
     "description": "Latched faults for the BMS",
     "signals": {
-      "BmsLatchedFault": {
+      "BmsCurrentlyOk": {
         "bits": 1
       },
-      "ImdLatchedFault": {
+      "ImdCurrentlyOk": {
         "bits": 1
       },
-      "BspdLatchedFault": {
+      "BspdCurrentlyOk": {
+        "bits": 1
+      },
+      "BmsLatchOk": {
+        "bits": 1
+      },
+      "ImdLatchOk": {
+        "bits": 1
+      },
+      "BspdLatchOk": {
         "bits": 1
       }
     }
@@ -3031,15 +3040,6 @@
         "bits": 1
       },
       "HVNShdnOKStatus": {
-        "bits": 1
-      },
-      "BmsOk": {
-        "bits": 1
-      },
-      "ImdOk": {
-        "bits": 1
-      },
-      "BspdOk": {
         "bits": 1
       }
     }

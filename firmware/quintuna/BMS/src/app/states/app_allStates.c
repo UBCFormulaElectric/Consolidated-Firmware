@@ -50,12 +50,12 @@ void app_allStates_runOnTick100Hz(void)
     app_canTx_BMS_ChargerConnected_set(charger_is_connected);
 
     // Update CAN signals for BMS latch statuses.
-    app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
-    app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
-    app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
-    app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
-    app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
-    app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
+    app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
+    app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
+    app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
+    app_canTx_BMS_BmsLatchOk_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
+    app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
+    app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
