@@ -14,10 +14,17 @@
     }
   },
   "faults": {
-    "dummyFault": {
-      "id": 450,
-      "description": "Dummy Fault"
-    }
+    "BmsLatchedFault": {
+        "id": 403,
+        "description": "BMS latch opened"
+      },
+      "ImdLatchedFault": {
+        "id":404,
+        "description": "Insulation lost"
+      },
+      "BspdLatchedFault": {
+        "bits": 1
+      }
   },
   "info_id": 405,
   "info_counts_id": 406,

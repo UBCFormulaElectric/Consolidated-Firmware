@@ -133,6 +133,11 @@ static bool driveStatePassPreCheck()
         if ((app_canRx_BMS_State_get() != BMS_DRIVE_STATE) || (BOARD_FAULT == fault_check))
         {
             app_canTx_VC_INVFLTargetSpeed_set(INV_OFF);
+            app_canTx_VC_INVFRTargetSpeed_set(INV_OFF);
+            app_canTx_VC_INVRLTargetSpeed_set(INV_OFF);
+            app_canTx_VC_INVRRTargetSpeed_set(INV_OFF);
+            
+
         }
     }
 

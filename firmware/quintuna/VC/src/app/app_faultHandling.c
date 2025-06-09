@@ -13,9 +13,14 @@
  * on recoverable faults 
  */
 
-static bool app_faultHandling_checkBoardStatus(void)
+bool app_faultHandling_bmsLatchedFaults(void)
 {
-    return app_canAlerts_BoardHasFault(BMS_NODE)|| app_canAlerts_BoardHasFault(VC_NODE);
+    return app_canAlerts_BoardHasFault(BMS_NODE);
+}
+
+bool app_faultHandling_fsm_bms_HeartbeartChecks(void)
+{
+    return app_canAlerts_BoardHasFault(VC_NODE); 
 }
 
 static bool app_faultHandling_inverterStatus(void)
@@ -33,15 +38,19 @@ static bool app_faultHandling_inverterStatus(void)
     return invfl_error || invrl_error || invfl_error || invfr_error;
 }
 
-faultType app_faultHandling_globalFaultCheck(void)
+faultType app_faultHandling_driveStateFaultChecks(void)
 {
-    if (app_faultHandling_checkBoardStatus())
+    if (app_faultHandling_bmsLatchedFaults())
     {
-        return BOARD_FAULT;
+        return BMS_LATCH_FAULT;
     }
     else if (app_faultHandling_inverterStatus())
     {
         return INVERTER_FAULT;
+    }
+    else if (app_faultHandling_fsm_bms_HeartbeartChecks)
+    {
+        return FSM_BSM_HEARTBEAT_FAULT;
     }
     return NO_FAULT; 
 }

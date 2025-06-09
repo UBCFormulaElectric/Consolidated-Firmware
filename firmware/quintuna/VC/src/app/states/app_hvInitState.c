@@ -73,7 +73,7 @@ static void hvInitStateRunOnTick100Hz(void)
                                           app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
 
             const TimerState timeout_state =
-                app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED;
+                app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit);
 
             switch (timeout_state)
             {
@@ -119,7 +119,7 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
 
             const TimerState timeout_state =
-                app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED;
+                app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit);
 
             switch (timeout_state)
             {

@@ -7,11 +7,14 @@
 typedef enum
 {
     NO_FAULT,
-    BOARD_FAULT, 
+    BMS_LATCH_FAULT,
+    FSM_BSM_HEARTBEAT_FAULT, 
     INVERTER_FAULT
-} faultType; 
+} faultType;
 
-bool app_faultHandeling_checkBoardStatus(void);
+bool app_faultHandling_bmsLatchedFaults(void); 
+
+bool app_faultHandling_fsm_bms_HeartbeartChecks(void);
 
 // handle inverter faulting
 bool app_faultHandeling_inverterStatus(void);
