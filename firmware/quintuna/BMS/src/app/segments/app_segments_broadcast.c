@@ -326,6 +326,7 @@ void app_segments_broadcastVoltageStats(void)
         app_canTx_BMS_MinCellVoltage_set(min_cell_voltage.value);
         app_canTx_BMS_PackVoltage_set(pack_voltage);
         app_canTx_BMS_AvgCellVoltage_set(pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT));
+        app_canTx_BMS_ImbalanceMagnitude_set(fabsf(max_cell_voltage.value - min_cell_voltage.value));
     }
 }
 
