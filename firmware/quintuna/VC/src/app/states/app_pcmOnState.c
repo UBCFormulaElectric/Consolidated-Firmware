@@ -8,9 +8,8 @@
 #define HV_READY_VOLTAGE (18.0f)
 #define PCM_MAX_VOLTAGE (30.0f)
 #define PCM_MAX_CURRENT (40.0f)
-#define PCM_UNDER_VOLTAGE_TIMEOUT \
+#define PCM_TIMEOUT \
     (100) // if voltage doesnt rise above 18V in this amout of time after entering pcmOnState then go into fault state
-#define PCM_TOGGLE_TIMEOUT (10) // to retry PCM wait toggle PCM where it stays off for 10ms
 
 typedef enum
 {
@@ -18,14 +17,6 @@ typedef enum
     RETRY_TRIGGERED,
     RETRY_DONE
 } pcmRetryStates;
-
-typedef struct
-{
-    float          pcm_prev_voltage;
-    float          pcm_curr_voltage;
-    float          pcm_prev_current; 
-    float          pcm_curr_current; 
-} debounce 
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -42,10 +33,11 @@ static PowerManagerConfig power_manager_state = {
 };
 
 static TimerChannel  *pcm_voltage_in_range_timer;
+static TimerChannel  *pcm_toggle_timer; 
 static bool           toggle_pcm;
 static pcmRetryStates pcm_retry_state;
-static debounce pcm_debounce_var = {.pcm_curr_current = 0.0f, .pcm_prev_current = 0.0f,.pcm_curr_voltage = 0.0f, .pcm_prev_voltage = 0.0f};
-
+static float          pcm_curr_voltage; 
+static float          pcm_prev_voltage; 
 
 static void pcmOnStateRunOnEntry(void)
 {
@@ -53,9 +45,12 @@ static void pcmOnStateRunOnEntry(void)
     app_powerManager_updateConfig(power_manager_state);
     toggle_pcm      = false;
     pcm_retry_state = NO_RETRY;
+    pcm_prev_voltage = 0.0f;
+    pcm_curr_voltage = 0.0f; 
 
     io_pcm_set(true);
-    app_timer_init(pcm_voltage_in_range_timer, PCM_UNDER_VOLTAGE_TIMEOUT);
+    app_timer_init(pcm_voltage_in_range_timer, PCM_TIMEOUT);
+    app_timer_init(pcm_toggle_timer, PCM_TIMEOUT);
     app_timer_restart(pcm_voltage_in_range_timer);
 
 }
@@ -64,19 +59,26 @@ static void pcmOnStateRunOnTick100Hz(void)
 {
     if (RETRY_TRIGGERED == pcm_retry_state)
     {
-        io_pcm_set(true);
-        app_timer_restart(pcm_voltage_in_range_timer);
+        if (toggleTimer())
+        {
+            app_timer_restart(pcm_voltage_in_range_timer);
+        }
+        else
+        {
+            return; 
+        }
     }
 
     switch (app_timer_updateAndGetState(pcm_voltage_in_range_timer))
     {
         case TIMER_STATE_RUNNING:
-            pcm_debounce_var.pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
+            pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
             break;
 
         case TIMER_STATE_EXPIRED:
             if (NO_RETRY == pcm_retry_state)
             {
+                
                 pcm_retry_state = RETRY_TRIGGERED;
                 io_pcm_set(false); // for retry we turn the pcm off and then turn it on, on the next tick
             }
@@ -84,8 +86,7 @@ static void pcmOnStateRunOnTick100Hz(void)
             {
                 // already retried, now go to fault state
                 app_timer_stop(pcm_voltage_in_range_timer);
-                app_canAlerts_VC_Fault_PcmUnderVoltageFault_set(true);
-                app_stateMachine_setNextState(&fault_state);
+                app_canAlerts_VC_Info_PcmUnderVoltage(true);
             }
 
             break;
@@ -95,45 +96,37 @@ static void pcmOnStateRunOnTick100Hz(void)
             break;
     }
 
-    if (pcmSafetyCheck())
-    {
-         app_stateMachine_setNextState(&fault_state);
-    }
-    else
-    {
-        app_stateMachine_setNextState(&hvInit_state);
-    }
-            
 
+    app_stateMachine_setNextState(&hvInit_state);
 
-    pcm_debounce_var.pcm_prev_voltage = pcm_debounce_var.pcm_curr_voltage;
-    pcm_debounce_var.pcm_prev_current = pcm_debounce_var.pcm_curr_current;
 
 
 }
 static void pcmOnStateRunOnExit(void) 
 {
     app_timer_stop(&pcm_voltage_in_range_timer);
+    app_timer_stop(&pcm_toggle_timer);
 }
 
-static bool pcmSafetyCheck(void)
+static bool toggleTimer(void)
 {
-    if (pcm_debounce_var.pcm_curr_voltage >= PCM_MAX_VOLTAGE && pcm_debounce_var.pcm_prev_voltage >= PCM_MAX_VOLTAGE)
+    bool timer_done = false; 
+     switch (app_timer_updateAndGetState(pcm_toggle_timer))
     {
-        app_canAlerts_VC_Fault_PcmOveVoltageFault_set(true);
-        return false; 
-    }
+        case TIMER_STATE_RUNNING:
+            // do nothing 
+            break;
 
-    else if ((pcm_debounce_var.pcm_curr_current >= PCM_MAX_CURRENT) && (pcm_debounce_var.pcm_prev_current >= PCM_MAX_CURRENT))
-    {
-        app_canAlerts_VC_Fault_PcmOverCurrent_set(true); 
-        return false;
-    }
+        case TIMER_STATE_EXPIRED:
+                io_pcm_set(true);
+                timer_done = true; 
+            break;
 
-    else if (HV_READY_VOLTAGE < pcm_debounce_var.pcm_curr_voltage && pcm_debounce_var.pcm_curr_voltage < PCM_MAX_VOLTAGE)
-    {
-        return true;
+        case TIMER_STATE_IDLE:
+            app_timer_restart(pcm_toggle_timer);
+            break;
     }
+    return timer_done; 
 }
 
 State pcmOn_state = { .name              = "PCM ON",

@@ -5,14 +5,6 @@
     "MissingBMSHeartbeat": {
       "id": 551,
       "description": "Missing heartbeat signal from the BMS."
-    },
-    "PcmUnderVoltageFault": {  
-      "id": 557,
-      "description": "PCM voltage under 18 volts"
-    },
-    "PcmOveVoltageFault": {
-      "id": 558,
-      "description": "PCM voltage over 30 volts"
     }
   },
   "warnings_id": 501,
@@ -58,14 +50,6 @@
     "RearRightInverterFault": {
       "id": 558,
       "description": "Right inverter entered fault state."
-    },
-    "PcmUnderVoltageFaultInDrive": {  
-      "id": 557,
-      "description": "PCM voltage under 18 volts in drive "
-    },
-    "PcmOveVoltageFaultInDrive": {
-      "id": 558,
-      "description": "PCM voltage over 30 volts in drive"
     }
   },
   "info_id": 505,
@@ -142,6 +126,10 @@
     "SbgInitFailed": {
       "id": 565,
       "description": "Initializing the SBG Ellipse GPS failed"
+    },
+    "PcmUnderVoltage": {  
+      "id": 566,
+      "description": "PCM voltage under 18 volts"
     }
   }  
 }
