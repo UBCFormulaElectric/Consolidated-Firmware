@@ -37,7 +37,8 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
         // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
         // unintentionally re-enter charge state.
         app_canRx_Debug_StartCharging_update(false);
-        app_stateMachine_setNextState(&fault_state);
+
+        app_stateMachine_setNextState(&precharge_latch_state);
     }
     else if (state == PRECHARGE_STATE_FAILED)
     {
