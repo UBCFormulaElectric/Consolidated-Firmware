@@ -580,14 +580,14 @@ float app_segments_getMaxCellVoltage()
 float app_segments_getMaxCellTemp()
 {
     float max_cell_temp = 0.0f;
-    for(uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
             // Collect each cell temp to find the max
             const float cell_temp = cell_temps[segment][cell];
             // Get the maximum cell temp
-            if(cell_temp > max_cell_temp)
+            if (cell_temp > max_cell_temp)
             {
                 max_cell_temp = cell_temp;
             }
