@@ -226,16 +226,25 @@ float app_powerCurrentLimit_calcTempCurrentLimit(float max_cell_temp)
     return app_math_linearDerating(max_cell_temp, MAX_CONTINUOUS_CURRENT, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
 }
 
-float app_powerCurrentLimit_calcLowVoltageCurrentLimit()
+// TODO: implement this once app SOC is merged with master - see quadrina current limit pr
+float app_powerCurrentLimit_calcLowVoltageClampCurrentLimit()
 {
     
 }
 
+ // TODO: implement this once app SOC is merged with master - see quadrina current limit pr
+float app_powerCurrentLimit_calcHighVoltageClampCurrentLimit()
+{
+
+}
+
+// TODO: implement this - see quadrina current limit pr
 float app_powerCurrentLimit_calcLowSOCCurrentLimit()
 {
 
 }
 
+// TODO: implement this - see quadrina current limit pr
 float app_powerCurrentLimit_calcHighSOCCurrentLimit()
 {
 

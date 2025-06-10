@@ -44,22 +44,22 @@ float app_powerCurrentLimit_calcTempCurrentLimit(float max_cell_temp);
  * @brief Gets the Low Voltage Clamp based discharge current limtit
  * @return Low Voltage Clamp based discharge current Limit value
  */
-float app_powerCurrentLimit_calcLowVoltageCurrentLimit();
+float app_powerCurrentLimit_calcLowVoltageCurrentLimit(); // TODO: implement this once app SOC is merged with master - see quadrina current limit pr
 
 /**
  * @brief Gets the High Voltage Clamp based charge current limit
  * @return High Voltage Clamp based Charge current Limit value
  */
-float app_powerCurrentLimit_calcHighVoltageClampCurrentLimit();
+float app_powerCurrentLimit_calcHighVoltageClampCurrentLimit(); // TODO: implement this once app SOC is merged with master - see quadrina current limit pr
 
 /**
  * @brief Gets the Low SOC based discharge current limit
  * @return Low SOC based discharge current Limit value
  */
-float app_powerCurrentLimit_calcLowSOCCurrentLimit(); // TODO: implement this
+float app_powerCurrentLimit_calcLowSOCCurrentLimit(); // TODO: implement this - see quadrina current limit pr
 
 /**
  * @brief Gets the High SOC based charge current limit
  * @return High SOC based charge current Limit value
  */
-float app_powerCurrentLimit_calcHighSOCCurrentLimit(); // TODO: implement this
+float app_powerCurrentLimit_calcHighSOCCurrentLimit(); // TODO: implement this - see quadrina current limit pr

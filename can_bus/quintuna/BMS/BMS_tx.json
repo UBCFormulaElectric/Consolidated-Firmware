@@ -279,12 +279,6 @@
       "min": 0,
       "max": 100000,
       "unit": "W"
-    },
-    "ChargePowerLimitCondition": {
-      "enum": "ChargePowerLimitConditionName"
-    },
-    "DischargePowerLimitCondition": {
-      "enum": "DischargePowerLimitConditionName"
     }
   }
 },
