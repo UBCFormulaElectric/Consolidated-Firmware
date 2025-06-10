@@ -41,10 +41,11 @@ typedef struct
     TimerChannel         comm_err_fault_timer;
 } Profile;
 
+// TODO: Get final values for these guys (check with Joe).
 static const ProfileConfig warning_profile_config = {
     // voltages
-    .min_voltage = 2.5f,
-    .max_voltage = 4.2f,
+    .min_voltage = 2.6f,
+    .max_voltage = 4.1f,
     // temps
     .max_temp = 55.0f,
     // debounce
@@ -58,7 +59,6 @@ static const ProfileConfig warning_profile_config = {
     .over_temp_setter     = app_canAlerts_BMS_Warning_CellOvertemp_set,
     .comm_err_setter      = app_canAlerts_BMS_Warning_ModuleCommunicationError_set,
 };
-
 static const ProfileConfig fault_profile_config = {
     // voltages
     .min_voltage = 2.5f,
