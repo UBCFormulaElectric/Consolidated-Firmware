@@ -4,11 +4,10 @@
 
 void app_irs_broadcast()
 {
-    const bool negative_closed  = io_irs_negativeState();
-    const bool positive_closed  = io_irs_positiveState();
-    const bool precharge_closed = io_irs_isPrechargeClosed();
-
-    app_canTx_BMS_IrNegative_set(negative_closed ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
-    app_canTx_BMS_IrPositive_set(positive_closed ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
-    app_canTx_BMS_PrechargeRelay_set(precharge_closed ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+    const ContactorsState negative_closed  = io_irs_negativeState();
+    const ContactorsState positive_closed  = io_irs_positiveState();
+    const ContactorsState precharge_closed = io_irs_prechargeState();
+    app_canTx_BMS_IrNegative_set((ContactorState)negative_closed);
+    app_canTx_BMS_IrPositive_set((ContactorState)positive_closed);
+    app_canTx_BMS_PrechargeRelay_set((ContactorState)precharge_closed);
 }

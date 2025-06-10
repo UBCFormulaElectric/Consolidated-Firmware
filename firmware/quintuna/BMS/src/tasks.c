@@ -2,16 +2,18 @@
 #include "hw_bootup.h"
 #include "jobs.h"
 
+#include "states/app_states.h"
 #include "app_canTx.h"
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
-#include "app_stateMachine.h"
+#include "app_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
+#incldue "io_canRx.h"
 
 // hw
 #include "hw_usb.h"
@@ -184,7 +186,9 @@ void tasks_runCanRx(void)
 {
     for (;;)
     {
-        jobs_runCanRx_tick();
+        const CanMsg rx_msg       = io_canQueue_popRx();
+        JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&json_can_msg);
     }
 }
 
