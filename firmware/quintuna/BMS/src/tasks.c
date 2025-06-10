@@ -1,5 +1,8 @@
 #include "tasks.h"
+#include "app_stateMachine.h"
+#include "states/app_balancingState.h"
 #include "hw_bootup.h"
+#include "io_ltc6813.h"
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -73,8 +76,8 @@ void tasks_init(void)
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     // TODO: Start CAN1/CAN2 based on if we're charging
-    hw_can_init(&can1);
-    // hw_can_init(&can2);
+    // hw_can_init(&can1);
+    hw_can_init(&can2);
 
     jobs_init();
 
@@ -177,7 +180,8 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+        // LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
+        LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
     }
 }
 
@@ -199,9 +203,38 @@ void tasks_runLtcVoltages(void)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
 
+        const bool balancing_enabled = app_stateMachine_getCurrentState() == app_balancingState_get();
+        if (balancing_enabled)
+        {
+            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+            {
+                bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT];
+                memset(balance_config, true, sizeof(balance_config));
+
+                // Balance all except the lowest cell voltage.
+                const CellParam min_cell                        = app_segments_getMinCellVoltage();
+                balance_config[min_cell.segment][min_cell.cell] = false;
+
+                app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
+            }
+            xSemaphoreGive(ltc_app_data_lock);
+        }
+
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
+            LOG_IF_ERR(app_segments_configSync());
+
+            // Mute/unmute balancing.
+            if (balancing_enabled)
+            {
+                LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
+            }
+            else
+            {
+                io_ltc6813_sendStopBalanceCommand();
+            }
+
             LOG_IF_ERR(app_segments_runVoltageConversion());
         }
         xSemaphoreGive(isospi_bus_access_lock);

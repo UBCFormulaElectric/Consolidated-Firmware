@@ -45,6 +45,10 @@
 #define RDSTATA (0x0010)
 #define RDSTATB (0x0012)
 
+// PWM commands.
+#define WRPWM (0x20)
+#define WRPSB (0x1C)
+
 // Start ADC conversions.
 #define ADCV (0x260 | MD_NORMAL | DCP | CH)        // Cells
 #define ADAX (0x460 | MD_NORMAL | CHG)             // Auxillary
