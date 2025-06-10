@@ -368,17 +368,17 @@ void app_segments_updateTemperatureStats(float cell_temp, uint8_t segment, int c
 {
     if (cell_temp > temperature_stats.max_thermistor_temp.temp)
     {
-        temperature_stats.max_thermistor_temp.temp = cell_temp;
+        temperature_stats.max_thermistor_temp.temp    = cell_temp;
         temperature_stats.max_thermistor_temp.segment = segment;
-        temperature_stats.max_thermistor_temp.cell = cell_number;
+        temperature_stats.max_thermistor_temp.cell    = cell_number;
         app_canTx_BMS_MaxTempSegment_set(segment);
         app_canTx_BMS_MaxTempIdx_set((uint8_t)cell_number);
     }
     if (cell_temp < temperature_stats.min_thermistor_temp.temp)
     {
-        temperature_stats.min_thermistor_temp.temp = cell_temp;
+        temperature_stats.min_thermistor_temp.temp    = cell_temp;
         temperature_stats.min_thermistor_temp.segment = segment;
-        temperature_stats.min_thermistor_temp.cell = cell_number;
+        temperature_stats.min_thermistor_temp.cell    = cell_number;
         app_canTx_BMS_MinTempSegment_set(segment);
         app_canTx_BMS_MinTempIdx_set((uint8_t)cell_number);
     }
