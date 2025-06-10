@@ -27,11 +27,11 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
-    const bool air_negative_closed = io_irs_negativeState();
+    const bool irs_negative_closed = io_irs_negativeState();
     const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
     // const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
 
-    if (air_negative_closed && ts_discharged)
+    if (irs_negative_closed && ts_discharged)
     {
         const bool external_charging_request = app_canRx_Debug_StartCharging_get();
 
