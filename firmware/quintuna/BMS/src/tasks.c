@@ -81,7 +81,7 @@ void tasks_init(void)
 // TODO: Start CAN1/CAN2 based on if we're charging at runtime.
 #ifdef CHARGER_CAN
     hw_can_init(&can2);
-#elif
+#else
     hw_can_init(&can1);
 #endif
 
@@ -200,7 +200,7 @@ void tasks_runCanTx(void)
         {
             LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
         }
-#elif
+#else
         LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
 #endif
     }
