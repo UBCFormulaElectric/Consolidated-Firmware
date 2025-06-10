@@ -6,12 +6,10 @@
 #include "app_segments.h"
 #include "app_shdnLoop.h"
 #include "app_stateMachine.h"
-#include "app_thermistors.h"
 #include "app_tractiveSystem.h"
 #include "io_bspdTest.h"
 #include "io_faultLatch.h"
 #include "states/app_faultState.h"
-// #include "states/app_faultState.h"
 #include <app_canRx.h>
 #include <app_canTx.h>
 

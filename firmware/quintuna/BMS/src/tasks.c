@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "app_stateMachine.h"
 #include "hw_bootup.h"
 #include "jobs.h"
 
@@ -30,6 +31,7 @@
 #include <app_canRx.h>
 #include <cmsis_os.h>
 #include <cmsis_os2.h>
+#include <io_canTx.h>
 #include <portmacro.h>
 
 StaticSemaphore_t init_complete_locks_buf;
@@ -129,9 +131,7 @@ void tasks_run1Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
             jobs_run1Hz_tick();
-            xSemaphoreGive(ltc_app_data_lock);
         }
 
         start_ticks += period_ms;
@@ -147,7 +147,16 @@ void tasks_run100Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            jobs_run100Hz_tick();
+            const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+            io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+
+            // Need to wrap the state machine tick in the LTC app mutex so don't use jobs.c for 100Hz.
+            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+            app_stateMachine_tick100Hz();
+            xSemaphoreGive(ltc_app_data_lock);
+
+            app_stateMachine_tickTransitionState();
+            io_canTx_enqueue100HzMsgs();
         }
 
         start_ticks += period_ms;
