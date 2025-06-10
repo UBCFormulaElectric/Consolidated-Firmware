@@ -1,25 +1,22 @@
 #include "states/app_states.h"
-#include "app_prechargeLatchState.h"
-#include "app_precharge.h"
+
+#include "io_time.h"
+#include "app_canTx.h"
 
 static void prechargeLatchStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_LATCH_STATE);
-
-
 }
 
 static void prechargeLatchStateRunOnTick100Hz(void)
 {
-    osDelay(3000U); // Wait for 3 seconds to allow precharge circuit resistors to 
-    app_stateMachine_setNextState(app_initState_get());
-    
+    io_time_delay(3000U); // Wait for 3 seconds to allow precharge circuit resistors to
+    app_stateMachine_setNextState(&init_state);
 }
 
 static void prechargeLatchStateRunOnExit(void)
 {
     // TODO: Reset precharge limit exceeded
-    
 }
 
 const State precharge_latch_state = {

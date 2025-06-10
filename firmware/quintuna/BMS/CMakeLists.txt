@@ -185,6 +185,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes" "quintuna_BMS_commit_info")
+    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_jsoncan_fakes" "quintuna_BMS_fakes" "quintuna_BMS_commit_info")
     target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()

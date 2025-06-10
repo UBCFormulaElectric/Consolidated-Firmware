@@ -206,18 +206,27 @@ extern "C"
     const FaultLatch imd_ok_latch{};
     const FaultLatch bspd_ok_latch{};
 
-    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, bool status) {}
+    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const bool status)
+    {
+        UNUSED(latch);
+        UNUSED(status);
+    }
     bool io_faultLatch_getCurrentStatus(const FaultLatch *latch)
     {
+        UNUSED(latch);
         return false;
     }
     bool io_faultLatch_getLatchedStatus(const FaultLatch *latch)
     {
+        UNUSED(latch);
         return false;
     }
 
 #include "io_bspdTest.h"
-    void io_bspdTest_enable(bool enable) {}
+    void io_bspdTest_enable(const bool enable)
+    {
+        UNUSED(enable);
+    }
     bool io_bspdTest_isCurrentThresholdExceeded(void)
     {
         return false;
@@ -225,6 +234,15 @@ extern "C"
     bool io_bspdTest_isBrakePressureThresholdExceeded(void)
     {
         return false;
+    }
+
+#include "io_canTx.h"
+    void io_canTx_init(
+        void (*transmit_can1_msg_func)(const JsonCanMsg *),
+        void (*transmit_charger_msg_func)(const JsonCanMsg *))
+    {
+        UNUSED(transmit_can1_msg_func);
+        UNUSED(transmit_charger_msg_func);
     }
 }
 
