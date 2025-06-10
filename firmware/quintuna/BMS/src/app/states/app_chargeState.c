@@ -168,8 +168,6 @@ static void app_chargeStateRunOnEntry(void)
     app_canTx_BMS_ChargingDone_set(false);
 }
 
-static void app_chargeStateRunOnTick1Hz(void) {}
-
 static void app_chargeStateRunOnTick100Hz(void)
 {
     const ConnectionStatus charger_connection_status = EVSE_CONNECTED; // io_charger_getConnectionStatus();
@@ -239,7 +237,6 @@ const State *app_chargeState_get(void)
     static State charge_state = {
         .name              = "CHARGE",
         .run_on_entry      = app_chargeStateRunOnEntry,
-        .run_on_tick_1Hz   = app_chargeStateRunOnTick1Hz,
         .run_on_tick_100Hz = app_chargeStateRunOnTick100Hz,
         .run_on_exit       = app_chargeStateRunOnExit,
     };

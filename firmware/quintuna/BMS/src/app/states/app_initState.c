@@ -53,7 +53,6 @@ const State *app_initState_get(void)
     static State init_state = {
         .name              = "INIT",
         .run_on_entry      = app_initStateRunOnEntry,
-        .run_on_tick_1Hz   = NULL,
         .run_on_tick_100Hz = app_initStateRunOnTick100Hz,
         .run_on_exit       = NULL,
     };
