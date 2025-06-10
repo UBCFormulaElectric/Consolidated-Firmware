@@ -1,6 +1,4 @@
-#include "jobs.h"
 #include "app_canUtils.h"
-#include "app_irs.h"
 #include "app_canTx.h"
 #include "app_initState.h"
 #include "app_timer.h"
@@ -22,8 +20,8 @@ static void driveStateRunOnTick1Hz(void) {}
 
 static void driveStateRunOnTick100Hz(void)
 {
-    const bool        ir_negative_opened = !io_irs_isNegativeClosed();
-    const EVSE_STATUS charger_status     = io_charger_getStatus();
+    const bool             ir_negative_opened = !io_irs_isNegativeClosed();
+    const ConnectionStatus charger_status     = io_charger_getConnectionStatus();
 
     bool ir_negative_opened_debounced = false;
 
@@ -32,7 +30,7 @@ static void driveStateRunOnTick100Hz(void)
         ir_negative_opened_debounced = true;
     }
 
-    if (ir_negative_opened_debounced || charger_status != EVSE_DISCONNECTED)
+    if (ir_negative_opened_debounced || charger_status != DISCONNECTED)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
@@ -41,7 +39,7 @@ static void driveStateRunOnTick100Hz(void)
 static void driveStateRunOnExit(void)
 {
     // IR+ opens upon exiting drive state
-    io_irs_openPositive();
+    io_irs_setPositive(false);
 }
 
 const State *app_driveState_get(void)

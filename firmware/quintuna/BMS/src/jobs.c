@@ -8,20 +8,16 @@
 #include "io_bootHandler.h"
 #include "io_canTx.h"
 
-#include "io_canTx.h"
 #include "io_canRx.h"
 // app
 #include "app_commitInfo.h"
 #include "states/app_initState.h"
 #include "app_stateMachine.h"
 // io
-#include "io_bootHandler.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
-#include "app_stateMachine.h"
 #include "io_canMsg.h"
 #include "io_time.h"
-#include "io_log.h"
 
 CanTxQueue can_tx_queue;
 
