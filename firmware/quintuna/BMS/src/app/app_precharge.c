@@ -57,12 +57,13 @@ PrechargeState app_precharge_poll(bool precharge_for_charging)
         (precharge_for_charging) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
     has_precharge_fault |= is_air_negative_open;
 
-    if (has_precharge_fault && num_precharge_failures < MAX_PRECHARGE_ATTEMPTS)
+    precharge_limit_exceeded = num_precharge_failures % MAX_PRECHARGE_ATTEMPTS == MAX_PRECHARGE_ATTEMPTS - 1U;
+
+    if (has_precharge_fault)
     {
         num_precharge_failures++;
     }
 
-    precharge_limit_exceeded = num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS;
     app_canAlerts_BMS_Warning_CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // If there is a pre-charge fault and there were no more than three previous pre-charge faults
