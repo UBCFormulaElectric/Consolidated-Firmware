@@ -154,6 +154,25 @@ void app_segments_broadcastVoltageStats(void);
 void app_segments_broadcastTempStats(void);
 
 /**
+ * @file segments/app_segments_faults.c
+ */
+
+/**
+ * Init faults module (init debounce timers).
+ */
+void app_segments_initFaults(void);
+
+/**
+ * Returns true if a warning is present.
+ */
+bool app_segments_checkWarnings(void);
+
+/**
+ * Returns true if there is a rules-required BMS fault present that we need to latch BMS_OK false.
+ */
+bool app_segments_checkFaults(void);
+
+/**
  * @file segments/app_segments_getters.c
  */
 

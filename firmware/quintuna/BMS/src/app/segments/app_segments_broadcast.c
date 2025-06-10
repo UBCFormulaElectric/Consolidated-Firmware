@@ -19,10 +19,6 @@ CellParam min_cell_voltage;
 CellParam max_cell_temp;
 CellParam min_cell_temp;
 
-bool voltage_comm_ok[NUM_SEGMENTS];
-bool temp_comm_ok[NUM_SEGMENTS];
-bool owc_comm_ok[NUM_SEGMENTS];
-
 void app_segments_broadcastCellVoltages(void)
 {
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)

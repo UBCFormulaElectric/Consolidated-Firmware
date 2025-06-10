@@ -470,7 +470,7 @@
   },
   "CellVoltages_Seg0_Seg3": {
     "msg_id": 460,
-    "cycle_time": 100,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segment 0-3",
     "signals": {
       "Seg0_Cell0_Voltage": {
@@ -813,7 +813,7 @@
   },
   "CellVoltages_Seg4_Seg7": {
     "msg_id": 461,
-    "cycle_time": 100,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segment 4-7",
     "signals": {
       "Seg4_Cell0_Voltage": {
@@ -1156,7 +1156,7 @@
   },
   "CellVoltages_Seg8_Seg9": {
     "msg_id": 462,
-    "cycle_time": 100,
+    "cycle_time": 1000,
     "description": "Cell voltages: Segment 8-9",
     "signals": {
       "Seg8_Cell0_Voltage": {

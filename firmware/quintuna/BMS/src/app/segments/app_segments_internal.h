@@ -53,6 +53,10 @@ extern CellParam min_cell_voltage;
 extern CellParam max_cell_temp;
 extern CellParam min_cell_temp;
 
+/**
+ * @file segments/app_segments_faults.c
+ */
+
 #define ALL_COMM_OK(segment) (voltage_comm_ok[segment] && temp_comm_ok[segment] && owc_comm_ok[segment])
 
 extern bool voltage_comm_ok[NUM_SEGMENTS];
