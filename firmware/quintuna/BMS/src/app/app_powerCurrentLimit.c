@@ -69,8 +69,20 @@ float app_powerCurrentLimit_getDischargePowerLimit()
         REDUCE_X
     );
 
-    // Ensure limit does not exceed the max allowed power
+    // Final power limit (capped at max)
     const float power_limit = MIN(temp_based_power_limit, MAX_POWER_LIMIT_W);
+
+    // Determine limiting condition enum
+    uint8_t p_lim_condition = NO_DISCHARGE_POWER_LIMIT;
+
+    if (max_cell_temp >= CELL_ROLL_OFF_TEMP_DEGC)
+    {
+        p_lim_condition = HIGH_TEMP_BASED_DISCHARGE_POWER_LIMIT;
+    }
+
+    // Broadcast limit and condition over CAN
+    app_canTx_BMS_DischargePowerLimit_set((uint32_t)power_limit);
+    app_canTx_BMS_DischargePowerLimitCondition_set(p_lim_condition);
 
     return power_limit;
 }
@@ -79,14 +91,15 @@ float app_powerCurrentLimit_getChargePowerLimit()
 {
     const float max_cell_temp = app_segments_getMaxCellTemp();
     float power_limit = MAX_POWER_LIMIT_W;
+    uint8_t p_lim_condition = NO_CHARGE_POWER_LIMIT;
 
     if (max_cell_temp <= 0.0f || max_cell_temp >= 60.0f)
     {
-        power_limit = 0.0f; // No charging outside safe range
+        power_limit = 0.0f;
+        p_lim_condition = HIGH_TEMP_BASED_CHARGE_POWER_LIMIT;
     }
     else if (max_cell_temp > 0.0f && max_cell_temp < 15.0f)
     {
-        // Ramp up from 0 to full power between 0°C–15°C
         power_limit = app_math_linearDerating(
             max_cell_temp,
             MAX_POWER_LIMIT_W,
@@ -94,10 +107,10 @@ float app_powerCurrentLimit_getChargePowerLimit()
             15.0f,
             INCREASE_X
         );
+        p_lim_condition = LOW_TEMP_BASED_CHARGE_POWER_LIMIT;
     }
     else if (max_cell_temp > 45.0f && max_cell_temp < 60.0f)
     {
-        // Ramp down from full power to 0 between 45°C–60°C
         power_limit = app_math_linearDerating(
             max_cell_temp,
             MAX_POWER_LIMIT_W,
@@ -105,10 +118,20 @@ float app_powerCurrentLimit_getChargePowerLimit()
             60.0f,
             REDUCE_X
         );
+        p_lim_condition = HIGH_TEMP_BASED_CHARGE_POWER_LIMIT;
     }
+    else
+    {
+        p_lim_condition = NO_CHARGE_POWER_LIMIT;
+    }
+
+    // Broadcast the power limit and the limiting condition over CAN
+    app_canTx_BMS_ChargePowerLimit_set((uint32_t)MIN(power_limit, MAX_POWER_LIMIT_W));
+    app_canTx_BMS_ChargePowerLimitCondition_set(p_lim_condition);
 
     return MIN(power_limit, MAX_POWER_LIMIT_W);
 }
+
 
 float app_powerCurrentLimit_getDischargeCurrentLimit()
 {
@@ -118,9 +141,7 @@ float app_powerCurrentLimit_getDischargeCurrentLimit()
     // Calculate individual current limits
     float t_lim        = app_powerCurrentLimit_calcTempCurrentLimit(max_cell_temp);
     // float low_v_lim    = app_powerCurrentLimit_calcLowVoltageClampCurrentLimit();
-    // float high_v_lim   = app_powerCurrentLimit_calchighVoltageClampCurrentLimit();
     // float low_soc_lim  = app_powerCurrentLimit_calcLowSOCCurrentLimit();
-    // float high_soc_lim = app_powerCurrentLimit_calcHighSOCCurrentLimit();
 
     // Aggregate current limits
     float c_lims[2] = {
@@ -145,10 +166,10 @@ float app_powerCurrentLimit_getDischargeCurrentLimit()
     switch (c_lim_condition)
     {
         case 0:
-            app_canTx_BMS_DischargeCurrentLimitCondition_set(NO_DISCHARGING_CURRENT_LIMIT);
+            app_canTx_BMS_DischargeCurrentLimitCondition_set(NO_DISCHARGE_CURRENT_LIMIT);
             break;
         case 1:
-            app_canTx_BMS_DischargeCurrentLimitCondition_set(HIGH_TEMP_BASED_DISCHARGING_CURRENT_LIMIT);
+            app_canTx_BMS_DischargeCurrentLimitCondition_set(HIGH_TEMP_BASED_DISCHARGE_CURRENT_LIMIT);
             break;
     }
 
@@ -171,6 +192,8 @@ float app_powerCurrentLimit_getChargeCurrentLimit()
 
     // Calculate temperature-based charging limit
     float t_lim = app_powerCurrentLimit_calcTempCurrentLimit(max_cell_temp);
+    // float high_v_lim   = app_powerCurrentLimit_calchighVoltageClampCurrentLimit();
+    // float high_soc_lim = app_powerCurrentLimit_calcHighSOCCurrentLimit();
 
     // Aggregate current limits
     float c_lims[2] = {
@@ -195,10 +218,10 @@ float app_powerCurrentLimit_getChargeCurrentLimit()
     switch (c_lim_condition)
     {
         case 0:
-            app_canTx_BMS_ChargeCurrentLimitCondition_set(NO_CHARGING_CURRENT_LIMIT);
+            app_canTx_BMS_ChargeCurrentLimitCondition_set(NO_CHARGE_CURRENT_LIMIT);
             break;
         case 1:
-            app_canTx_BMS_ChargeCurrentLimitCondition_set(HIGH_TEMP_BASED_CHARGING_CURRENT_LIMIT);
+            app_canTx_BMS_ChargeCurrentLimitCondition_set(HIGH_TEMP_BASED_CHARGE_CURRENT_LIMIT);
             break;
     }
 

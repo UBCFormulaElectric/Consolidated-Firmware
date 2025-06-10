@@ -16,7 +16,8 @@
     "hw_bootup.h": "c",
     "hw_gpios.h": "c",
     "hw_freertosconfigs.h": "c",
-    "app_canutils.h": "c"
+    "app_canutils.h": "c",
+    "app_math.h": "c"
   },
   "cortex-debug.variableUseNaturalFormat": true
 }
