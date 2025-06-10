@@ -2,6 +2,7 @@
 
 #include "hw_pwmInputFreqOnly.h"
 #include "hw_pwms.h"
+#include "io_log.h"
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
 // note that the frquency input given the pumps is 7.5 * Q where Q is the flow rate L/min

@@ -66,11 +66,12 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define IWDG_RESET_FREQUENCY 4
-#define TIM4_PRESCALER 444
+#define TIM4_PRESCALER 256
 #define ADC_FREQUENCY 1000
 #define TIM2_ARR TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY)
 #define TIM2_PRESCALER 4
-#define TIM4_ARR 1920
+#define TIM4_ARR TIMx_FREQUENCY / (TIM4_PRESCALER * TIM4_FREQUENCY)
+#define TIM4_FREQUENCY 10
 #define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
 #define TIM2_FREQUENCY 100
