@@ -23,7 +23,7 @@ uint16_t aux_regs[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 ExitCode aux_regs_success[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 float    segment_vref[NUM_SEGMENTS];
 float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
-bool     cell_temps_success[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+ExitCode cell_temps_success[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
 StatusRegGroups status_regs[NUM_SEGMENTS];
 ExitCode        status_regs_success[NUM_SEGMENTS];
@@ -59,7 +59,7 @@ ExitCode app_segments_runAuxConversion(void)
     for (ThermistorMux mux = 0U; mux < THERMISTOR_MUX_COUNT; mux++)
     {
         app_segments_setThermistorMuxConfig(mux);
-        app_segments_configSync();
+        app_segments_writeConfig();
 
         RETURN_IF_ERR(io_ltc6813_startThermistorsAdcConversion());
         io_time_delay(CONVERSION_TIME_MS);

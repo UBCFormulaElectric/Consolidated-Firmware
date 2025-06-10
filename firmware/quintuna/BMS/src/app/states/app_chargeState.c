@@ -14,7 +14,7 @@
 #define CHARGING_CUTOFF_MAX_CELL_VOLTAGE 4.15f
 
 // Charger / pack constants
-#define PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
+#define PACK_VOLTAGE_DC 581.0f   // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
 #define CHARGER_EFFICIENCY 0.93f // 93% – average DC-side efficiency of the Elcon
 
 // Charger’s own output limit (never command above this)
@@ -212,7 +212,7 @@ static void app_chargeStateRunOnTick100Hz(void)
     /**
      * if any cell has reached the cutoff voltge charging has completed
      */
-    const float max_cell_voltage = app_segments_getMaxCellVoltage();
+    const float max_cell_voltage = app_segments_getMaxCellVoltage().value;
     if (max_cell_voltage >= CHARGING_CUTOFF_MAX_CELL_VOLTAGE)
     {
         app_canTx_BMS_ChargingDone_set(true);

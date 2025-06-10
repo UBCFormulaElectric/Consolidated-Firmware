@@ -2,6 +2,8 @@
 #include "app_segments_internal.h"
 #include "app_thermistor.h"
 #include "app_thermistors.h"
+#include "app_utils.h"
+#include "io_ltc6813.h"
 #include <app_canTx.h>
 #include <string.h>
 #include <float.h>
@@ -11,17 +13,15 @@
 
 #define VREF_AUX_REG 5
 
-typedef struct
-{
-    uint8_t segment;
-    uint8_t cell;
-} CellPos;
+float     pack_voltage;
+CellParam max_cell_voltage;
+CellParam min_cell_voltage;
+CellParam max_cell_temp;
+CellParam min_cell_temp;
 
-float pack_voltage;
-float max_cell_voltage;
-float min_cell_voltage;
-float max_cell_temp;
-float min_cell_temp;
+bool voltage_comm_ok[NUM_SEGMENTS];
+bool temp_comm_ok[NUM_SEGMENTS];
+bool owc_comm_ok[NUM_SEGMENTS];
 
 void app_segments_broadcastCellVoltages(void)
 {
@@ -74,14 +74,15 @@ void app_segments_broadcastTempsVRef(void)
                     continue;
                 }
 
-                if (IS_EXIT_ERR(aux_regs_success[mux][segment][aux_gpio]))
+                const ExitCode exit = aux_regs_success[mux][segment][aux_gpio];
+                if (IS_EXIT_ERR(exit))
                 {
-                    cell_temps_success[segment][thermistor] = false;
+                    cell_temps_success[segment][thermistor] = exit;
                     continue;
                 }
 
                 const float voltage = CONVERT_100UV_TO_VOLTAGE(aux_regs[mux][segment][aux_gpio]);
-                const bool  success = IS_EXIT_ERR(aux_regs_success[mux][segment][aux_gpio]);
+                const bool  success = IS_EXIT_OK(aux_regs_success[mux][segment][aux_gpio]);
                 if (aux_gpio == VREF_AUX_REG)
                 {
                     if (success)
@@ -112,7 +113,7 @@ void app_segments_broadcastTempsVRef(void)
                 const float temp       = app_thermistor_resistanceToTemp(resistance, &ltc_thermistor_lut);
 
                 cell_temps[segment][thermistor]         = temp;
-                cell_temps_success[segment][thermistor] = true;
+                cell_temps_success[segment][thermistor] = EXIT_CODE_OK;
                 thermistor_setters[segment][thermistor](temp);
             }
         }
@@ -228,12 +229,17 @@ void app_segments_broadcastOpenWireCheck(void)
     // See "Open Wire Check (ADOW Command)" in datasheet for this works.
     // Known limitation: If >=2x adjacent cells are open wire, it only reports the lowest one.
 
+    memset(owc_comm_ok, true, sizeof(owc_comm_ok));
+
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
-        const bool owc_valid_first      = IS_EXIT_OK(owc_pucv_success[segment][0]);
-        const bool owc_passing_first    = owc_valid_first && owc_pucv_regs[segment][0] != 0;
+        const bool owc_valid_first   = IS_EXIT_OK(owc_pucv_success[segment][0]);
+        const bool owc_passing_first = owc_valid_first && owc_pucv_regs[segment][0] != 0;
+
+        owc_comm_ok[segment] &= owc_valid_first;
         owc_results_success[segment][0] = owc_valid_first;
         owc_results[segment][0]         = owc_passing_first;
+
         cell_owc_setters[segment][0](owc_passing_first);
 
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT - 1; cell++)
@@ -243,8 +249,10 @@ void app_segments_broadcastOpenWireCheck(void)
             const bool owc_passing = owc_valid && owc_pdcv_regs[segment][cell] - owc_pucv_regs[segment][cell] <=
                                                       CONVERT_VOLTAGE_TO_100UV(0.4f);
 
+            owc_comm_ok[segment] &= owc_valid_first;
             owc_results_success[segment][cell + 1] = owc_valid;
             owc_results[segment][cell + 1]         = owc_passing;
+
             cell_owc_setters[segment][cell + 1](owc_passing);
         }
 
@@ -253,110 +261,134 @@ void app_segments_broadcastOpenWireCheck(void)
         // makes sense since there's no higher cell to pull it up to?).
         const bool owc_valid_last   = IS_EXIT_OK(owc_pdcv_success[segment][CELLS_PER_SEGMENT - 1]);
         const bool owc_passing_last = owc_valid_last && owc_pdcv_regs[segment][CELLS_PER_SEGMENT - 1] != 0;
+
+        owc_comm_ok[segment] &= owc_valid_last;
         owc_results_success[segment][CELL_TAPS_PER_SEGMENT - 1] = owc_valid_last;
         owc_results[segment][CELL_TAPS_PER_SEGMENT - 1]         = owc_passing_last;
+
         cell_owc_setters[segment][CELL_TAPS_PER_SEGMENT - 1](owc_passing_last);
+        comm_ok_setters[segment](ALL_COMM_OK(segment));
     }
 }
 
 void app_segments_broadcastVoltageStats(void)
 {
-    float   tmp_pack_voltage     = 0.0f;
-    float   tmp_max_cell_voltage = 0.0f;
-    float   tmp_min_cell_voltage = FLT_MAX;
-    CellPos min_voltage_pos, max_voltage_pos = { 0 };
+    float     tmp_pack_voltage     = 0.0f;
+    CellParam tmp_min_cell_voltage = { .value = FLT_MAX };
+    CellParam tmp_max_cell_voltage = { .value = 0.0f };
 
+    memset(voltage_comm_ok, true, sizeof(voltage_comm_ok));
+
+    bool any_valid = false;
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         float segment_voltage = 0.0f;
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            const float   cell_voltage = cell_voltages[segment][cell];
-            const CellPos cell_pos     = { .segment = segment, .cell = cell };
+            const bool success = IS_EXIT_OK(cell_voltage_success[segment][cell]);
+            voltage_comm_ok[segment] &= success;
+
+            const CellParam cell_voltage = { .value = cell_voltages[segment][cell], .segment = segment, .cell = cell };
+
+            if (success)
+            {
+                any_valid = true;
+            }
 
             // Sum the voltages
-            pack_voltage += cell_voltage;
-            segment_voltage += cell_voltage;
+            tmp_pack_voltage += cell_voltage.value;
+            segment_voltage += cell_voltage.value;
 
             // Get the maximum cell voltage
-            if (cell_voltage_success[segment][cell] && cell_voltage > tmp_max_cell_voltage)
+            if (success && cell_voltage.value > tmp_max_cell_voltage.value)
             {
                 tmp_max_cell_voltage = cell_voltage;
-                max_voltage_pos      = cell_pos;
             }
 
             // Get the minimum cell voltage
-            if (cell_voltage_success[segment][cell] && cell_voltage < tmp_min_cell_voltage)
+            if (success && cell_voltage.value < tmp_min_cell_voltage.value)
             {
                 tmp_min_cell_voltage = cell_voltage;
-                min_voltage_pos      = cell_pos;
             }
         }
 
+        comm_ok_setters[segment](ALL_COMM_OK(segment));
         avg_segment_voltage_setters[segment](segment_voltage / CELLS_PER_SEGMENT);
     }
 
-    // Write these only after stats are complete so updates are atomic.
-    pack_voltage     = tmp_pack_voltage;
-    min_cell_voltage = tmp_min_cell_voltage;
-    max_cell_voltage = tmp_max_cell_voltage;
+    if (any_valid)
+    {
+        pack_voltage     = tmp_pack_voltage;
+        min_cell_voltage = tmp_min_cell_voltage;
+        max_cell_voltage = tmp_max_cell_voltage;
 
-    app_canTx_BMS_MaxCellVoltageSegment_set(max_voltage_pos.segment);
-    app_canTx_BMS_MaxCellVoltageIdx_set(max_voltage_pos.cell);
-    app_canTx_BMS_MaxCellVoltage_set(max_cell_voltage);
-    app_canTx_BMS_MinCellVoltageSegment_set(min_voltage_pos.segment);
-    app_canTx_BMS_MinCellVoltageIdx_set(min_voltage_pos.cell);
-    app_canTx_BMS_MinCellVoltage_set(min_cell_voltage);
-    app_canTx_BMS_PackVoltage_set(pack_voltage);
-    app_canTx_BMS_AvgCellVoltage_set(pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT));
+        app_canTx_BMS_MaxCellVoltageSegment_set(max_cell_voltage.segment);
+        app_canTx_BMS_MaxCellVoltageIdx_set(max_cell_voltage.cell);
+        app_canTx_BMS_MaxCellVoltage_set(max_cell_voltage.value);
+        app_canTx_BMS_MinCellVoltageSegment_set(min_cell_voltage.segment);
+        app_canTx_BMS_MinCellVoltageIdx_set(min_cell_voltage.cell);
+        app_canTx_BMS_MinCellVoltage_set(min_cell_voltage.value);
+        app_canTx_BMS_PackVoltage_set(pack_voltage);
+        app_canTx_BMS_AvgCellVoltage_set(pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT));
+    }
 }
 
 void app_segments_broadcastTempStats(void)
 {
-    float   temp_sum          = 0.0f;
-    float   tmp_max_cell_temp = 0.0f;
-    float   tmp_min_cell_temp = FLT_MAX;
-    CellPos min_temp_pos, max_temp_pos = { 0 };
+    float     temp_sum          = 0.0f;
+    CellParam tmp_min_cell_temp = { .value = FLT_MAX };
+    CellParam tmp_max_cell_temp = { .value = 0.0f };
 
+    memset(temp_comm_ok, true, sizeof(temp_comm_ok));
+
+    bool any_valid = false;
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         float segment_temp = 0.0f;
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            const float   cell_temp = cell_temps[segment][cell];
-            const CellPos cell_pos  = { .segment = segment, .cell = cell };
+            const bool success = IS_EXIT_OK(cell_temps_success[segment][cell]);
+            temp_comm_ok[segment] &= success;
+
+            const CellParam cell_temp = { .value = cell_temps[segment][cell], .segment = segment, .cell = cell };
+
+            if (success)
+            {
+                any_valid = true;
+            }
 
             // Sum the temps
-            temp_sum += cell_temp;
-            segment_temp += cell_temp;
+            temp_sum += cell_temp.value;
+            segment_temp += cell_temp.value;
 
             // Get the maximum cell temp
-            if (cell_temps_success[segment][cell] && cell_temp > tmp_max_cell_temp)
+            if (success && cell_temp.value > tmp_max_cell_temp.value)
             {
                 tmp_max_cell_temp = cell_temp;
-                max_temp_pos      = cell_pos;
             }
 
             // Get the minimum cell temp
-            if (cell_temps_success[segment][cell] && cell_temp < tmp_min_cell_temp)
+            if (success && cell_temp.value < tmp_min_cell_temp.value)
             {
                 tmp_min_cell_temp = cell_temp;
-                min_temp_pos      = cell_pos;
             }
         }
 
+        comm_ok_setters[segment](ALL_COMM_OK(segment));
         avg_segment_temp_setters[segment](segment_temp / CELLS_PER_SEGMENT);
     }
 
-    // Write these only after stats are complete so updates are atomic.
-    min_cell_temp = tmp_min_cell_temp;
-    max_cell_temp = tmp_max_cell_temp;
+    if (any_valid)
+    {
+        min_cell_temp = tmp_min_cell_temp;
+        max_cell_temp = tmp_max_cell_temp;
 
-    app_canTx_BMS_MaxCellTempSegment_set(max_temp_pos.segment);
-    app_canTx_BMS_MaxCellTempIdx_set(max_temp_pos.cell);
-    app_canTx_BMS_MaxCellTemp_set(tmp_max_cell_temp);
-    app_canTx_BMS_MinCellTempSegment_set(min_temp_pos.segment);
-    app_canTx_BMS_MinCellTempIdx_set(min_temp_pos.cell);
-    app_canTx_BMS_MinCellTemp_set(tmp_min_cell_temp);
-    app_canTx_BMS_AvgCellTemp_set(temp_sum / (NUM_SEGMENTS * CELLS_PER_SEGMENT));
+        app_canTx_BMS_MaxCellTempSegment_set(max_cell_temp.segment);
+        app_canTx_BMS_MaxCellTempIdx_set(max_cell_temp.cell);
+        app_canTx_BMS_MaxCellTemp_set(max_cell_temp.value);
+        app_canTx_BMS_MinCellTempSegment_set(min_cell_temp.segment);
+        app_canTx_BMS_MinCellTempIdx_set(min_cell_temp.cell);
+        app_canTx_BMS_MinCellTemp_set(min_cell_temp.value);
+        app_canTx_BMS_AvgCellTemp_set(temp_sum / (NUM_SEGMENTS * CELLS_PER_SEGMENT));
+    }
 }

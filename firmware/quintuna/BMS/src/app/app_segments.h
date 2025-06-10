@@ -36,6 +36,8 @@ void app_segments_setThermistorMuxConfig(ThermistorMux mux);
  */
 ExitCode app_segments_configSync(void);
 
+ExitCode app_segments_writeConfig(void);
+
 /**
  * @file segments/app_segments_conversions.c
  */
@@ -155,6 +157,13 @@ void app_segments_broadcastTempStats(void);
  * @file segments/app_segments_getters.c
  */
 
+typedef struct
+{
+    uint8_t segment;
+    uint8_t cell;
+    float   value;
+} CellParam;
+
 /**
  * Get the accumulator's total voltage
  */
@@ -163,19 +172,19 @@ float app_segments_getPackVoltage(void);
 /**
  * Get the highest voltage of any cell in the accumulator
  */
-float app_segments_getMaxCellVoltage(void);
+CellParam app_segments_getMaxCellVoltage(void);
 
 /**
  * Get the lowest voltage of any cell in the accumulator
  */
-float app_segments_getMinCellVoltage(void);
+CellParam app_segments_getMinCellVoltage(void);
 
 /**
  * Get the highest temp of any cell in the accumulator
  */
-float app_segments_getMaxCellTemp(void);
+CellParam app_segments_getMaxCellTemp(void);
 
 /**
  * Get the lowest temp of any cell in the accumulator
  */
-float app_segments_getMinCellTemp(void);
+CellParam app_segments_getMinCellTemp(void);

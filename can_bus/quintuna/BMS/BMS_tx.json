@@ -295,10 +295,10 @@
     "description": "BMS cell temperature stats",
     "signals": {
       "AvgCellTemp": {
-        "resolution": 0.001,
+        "resolution": 0.1,
         "min": 0,
-        "max": 5,
-        "unit": "V"
+        "max": 100,
+        "unit": "degC"
       },
       "MinCellTemp": {
         "resolution": 0.1,

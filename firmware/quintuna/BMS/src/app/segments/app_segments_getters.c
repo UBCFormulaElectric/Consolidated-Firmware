@@ -6,22 +6,22 @@ float app_segments_getPackVoltage(void)
     return pack_voltage;
 }
 
-float app_segments_getMaxCellVoltage(void)
+CellParam app_segments_getMaxCellVoltage(void)
 {
     return max_cell_voltage;
 }
 
-float app_segments_getMinCellVoltage(void)
+CellParam app_segments_getMinCellVoltage(void)
 {
     return min_cell_voltage;
 }
 
-float app_segments_getMaxCellTemp(void)
+CellParam app_segments_getMaxCellTemp(void)
 {
     return max_cell_temp;
 }
 
-float app_segments_getMinCellTemp(void)
+CellParam app_segments_getMinCellTemp(void)
 {
     return min_cell_temp;
 }

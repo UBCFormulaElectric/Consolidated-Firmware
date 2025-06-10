@@ -1,6 +1,8 @@
 #pragma once
 
 #include "app_segments.h"
+#include "app_utils.h"
+#include "io_ltc6813.h"
 
 #define MAX_NUM_SEGMENTS (10U)
 #define CELL_TAPS_PER_SEGMENT (CELLS_PER_SEGMENT + 1)
@@ -17,7 +19,7 @@ extern uint16_t aux_regs[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMEN
 extern ExitCode aux_regs_success[THERMISTOR_MUX_COUNT][NUM_SEGMENTS][AUX_REGS_PER_SEGMENT];
 extern float    segment_vref[NUM_SEGMENTS];
 extern float    cell_temps[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
-extern bool     cell_temps_success[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
+extern ExitCode cell_temps_success[NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
 
 extern StatusRegGroups status_regs[NUM_SEGMENTS];
 extern ExitCode        status_regs_success[NUM_SEGMENTS];
@@ -45,11 +47,17 @@ extern bool     owc_results_success[NUM_SEGMENTS][CELL_TAPS_PER_SEGMENT];
  * @file segments/app_segments_broadcast.c
  */
 
-extern float pack_voltage;
-extern float max_cell_voltage;
-extern float min_cell_voltage;
-extern float max_cell_temp;
-extern float min_cell_temp;
+extern float     pack_voltage;
+extern CellParam max_cell_voltage;
+extern CellParam min_cell_voltage;
+extern CellParam max_cell_temp;
+extern CellParam min_cell_temp;
+
+#define ALL_COMM_OK(segment) (voltage_comm_ok[segment] && temp_comm_ok[segment] && owc_comm_ok[segment])
+
+extern bool voltage_comm_ok[NUM_SEGMENTS];
+extern bool temp_comm_ok[NUM_SEGMENTS];
+extern bool owc_comm_ok[NUM_SEGMENTS];
 
 /**
  * @file segments/app_segments_setters.c

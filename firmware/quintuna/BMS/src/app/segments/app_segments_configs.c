@@ -1,13 +1,12 @@
 #include "app_segments.h"
 #include "app_segments_internal.h"
+#include "app_utils.h"
 
 #define NUM_CONFIG_SYNC_TRIES 20
 #define VUV (0x619U) // 2.5V Under-voltage threshold = (VUV + 1) * 16 * 100uV
 #define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
 
-static SegmentConfig segment_config[NUM_SEGMENTS];
-static SegmentConfig read_segment_config[NUM_SEGMENTS];
-static ExitCode      config_success_buf[NUM_SEGMENTS];
+SegmentConfig segment_config[NUM_SEGMENTS];
 
 void app_segments_setDefaultConfig(void)
 {
@@ -79,25 +78,15 @@ void app_segments_setThermistorMuxConfig(ThermistorMux mux)
  * @returns whether there are no errors and config matches
  * Hence if false there are either errors or the config does not match
  */
-static bool isConfigEqual(void)
+static ExitCode isConfigEqual(void)
 {
-    for (uint8_t try = 0; try < 3; try++)
+    SegmentConfig read_segment_config[NUM_SEGMENTS];
+    ExitCode      config_success_buf[NUM_SEGMENTS];
+    io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
+
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        io_ltc6813_readConfigurationRegisters(read_segment_config, config_success_buf);
-
-        bool all_ok = true;
-        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        {
-            if (IS_EXIT_ERR(config_success_buf[seg]))
-            {
-                all_ok = false;
-            }
-        }
-
-        if (all_ok)
-        {
-            break;
-        }
+        RETURN_IF_ERR(config_success_buf[seg]);
     }
 
     bool seg_config_same = true;
@@ -128,52 +117,27 @@ static bool isConfigEqual(void)
         seg_config_same &= a->reg_b.dcc_18 == b->reg_b.dcc_18;
     }
 
-    return seg_config_same;
+    return seg_config_same ? EXIT_CODE_OK : EXIT_CODE_ERROR;
 }
 
 ExitCode app_segments_configSync(void)
 {
     for (int tries = 0; tries < NUM_CONFIG_SYNC_TRIES; tries++)
     {
-        const bool is_config_equal = isConfigEqual();
-
-        // first check if it's a comms thing
-        bool comms_ok = true;
-        for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        {
-            const bool seg_comms_ok = IS_EXIT_OK(config_success_buf[seg]);
-            comm_ok_setters[seg](seg_comms_ok);
-            comms_ok &= seg_comms_ok;
-        }
-
-        if (is_config_equal)
+        const ExitCode is_config_equal = isConfigEqual();
+        if (IS_EXIT_OK(is_config_equal))
         {
             return EXIT_CODE_OK;
         }
 
-        if (comms_ok)
-        {
-            // comms is fine, but configs are not matching
-            LOG_IF_ERR(io_ltc6813_writeConfigurationRegisters(segment_config));
-        }
-        else
-        {
-            // comms are bad, reset voltages and temps in the CAN table
-            // TODO add a function to reset all values??
-            for (uint8_t seg_idx = 0; seg_idx < NUM_SEGMENTS; seg_idx++)
-            {
-                for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-                {
-                    cell_voltage_setters[seg_idx][cell](-0.1f);
-                }
-
-                for (uint8_t thermistor = 0; thermistor < CELLS_PER_SEGMENT; thermistor++)
-                {
-                    thermistor_setters[seg_idx][thermistor](-1);
-                }
-            }
-        }
+        LOG_IF_ERR(is_config_equal);
+        LOG_IF_ERR(io_ltc6813_writeConfigurationRegisters(segment_config));
     }
 
     return EXIT_CODE_TIMEOUT;
+}
+
+ExitCode app_segments_writeConfig(void)
+{
+    return io_ltc6813_writeConfigurationRegisters(segment_config);
 }
