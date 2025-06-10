@@ -9,7 +9,7 @@ namespace fakes
 {
 namespace irs
 {
-    void setNegativeState(ContactorsState closed);
+    void setNegativeState(ContactorsState state);
 }
 namespace tractiveSystem
 {

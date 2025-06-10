@@ -2,6 +2,7 @@
 #include "io_bootHandler.h"
 #include "io_canMsg.h"
 #include "io_canQueue.h"
+#include "io_canRx.h"
 #include "main.h"
 
 #include <assert.h>
@@ -9,7 +10,11 @@
 static void canRxCallback(const CanMsg *msg)
 {
     io_bootHandler_processBootRequest(msg);
-    io_canQueue_pushRx(msg);
+
+    if (io_canRx_filterMessageId_can1(msg->std_id))
+    {
+        io_canQueue_pushRx(msg);
+    }
 }
 
 CanHandle can1 = { .hcan = &hfdcan1, .bus_num = 1, .receive_callback = canRxCallback };

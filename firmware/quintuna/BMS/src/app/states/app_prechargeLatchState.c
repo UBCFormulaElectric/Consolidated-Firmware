@@ -1,7 +1,7 @@
 #include "states/app_states.h"
-#include "app_prechargeLatchState.h"
-#include "app_precharge.h"
+
 #include "io_time.h"
+#include "app_canTx.h"
 
 static void prechargeLatchStateRunOnEntry(void)
 {
@@ -18,7 +18,6 @@ static void prechargeLatchStateRunOnTick100Hz(void)
 static void prechargeLatchStateRunOnExit(void)
 {
     // TODO: Reset precharge limit exceeded
-    
 }
 
 const State precharge_latch_state = {

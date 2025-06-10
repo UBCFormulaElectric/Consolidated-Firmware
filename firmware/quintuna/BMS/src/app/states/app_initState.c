@@ -31,15 +31,15 @@ static void initStateRunOnTick100Hz(void)
     const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
     // const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
 
-        // // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-    if (app_canRx_Debug_ResetSoc_MinCellV_get())
-    {
-        app_soc_resetSocFromVoltage();
-    }
-    else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
-    {
-        app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
-    }
+    // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
+    // if (app_canRx_Debug_ResetSoc_MinCellV_get())
+    // {
+    //     app_soc_resetSocFromVoltage();
+    // }
+    // else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
+    // {
+    //     app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
+    // }
 
     if (irs_negative_closed && ts_discharged)
     {

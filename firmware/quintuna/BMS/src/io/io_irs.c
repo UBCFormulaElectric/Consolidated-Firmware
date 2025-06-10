@@ -19,27 +19,27 @@
 // Value of shunt resistor
 #define IR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
-bool io_irs_isNegativeClosed(void)
+ContactorsState io_irs_isNegativeClosed(void)
 {
-    return hw_gpio_readPin(&msd_shdn_sns_pin);
+    return hw_gpio_readPin(&msd_shdn_sns_pin) ? CONTACTORS_CLOSED : CONTACTORS_OPEN;
 }
 
-void io_irs_setPositive(bool closed)
+void io_irs_setPositive(const ContactorsState state)
 {
-    hw_gpio_writePin(&ir_p_en_pin, closed);
+    hw_gpio_writePin(&ir_p_en_pin, state == CONTACTORS_CLOSED);
 }
 
-bool io_irs_isPositiveClosed(void)
+ContactorsState io_irs_isPositiveClosed(void)
 {
-    return hw_gpio_readPin(&ir_p_en_pin);
+    return hw_gpio_readPin(&ir_p_en_pin) ? CONTACTORS_CLOSED : CONTACTORS_OPEN;
 }
 
-void io_irs_setPrecharge(bool closed)
+void io_irs_setPrecharge(const ContactorsState state)
 {
-    hw_gpio_writePin(&precharge_en_pin, closed);
+    hw_gpio_writePin(&precharge_en_pin, state == CONTACTORS_CLOSED);
 }
 
-bool io_irs_isPrechargeClosed(void)
+ContactorsState io_irs_isPrechargeClosed(void)
 {
-    return hw_gpio_readPin(&precharge_en_pin);
+    return hw_gpio_readPin(&precharge_en_pin) ? CONTACTORS_CLOSED : CONTACTORS_OPEN;
 }

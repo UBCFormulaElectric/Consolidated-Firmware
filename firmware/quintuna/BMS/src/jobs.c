@@ -75,20 +75,3 @@ void jobs_run1kHz_tick(void)
 {
     io_canTx_enqueueOtherPeriodicMsgs(io_time_getCurrentMs());
 }
-
-void jobs_runCanRx_tick(void)
-{
-    const CanMsg rx_msg       = io_canQueue_popRx();
-    JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-    io_canRx_updateRxTableWithMessage(&json_can_msg);
-}
-
-void jobs_canRxCallback(const CanMsg *rx_msg)
-{
-    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
-    {
-        io_canQueue_pushRx(rx_msg);
-    }
-
-    io_bootHandler_processBootRequest(rx_msg);
-}
