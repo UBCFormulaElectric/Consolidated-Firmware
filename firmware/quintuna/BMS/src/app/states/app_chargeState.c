@@ -1,12 +1,9 @@
-#include "app_stateMachine.h"
-#include "app_chargeState.h"
-#include "app_initState.h"
+#include "states/app_states.h"
+
 #include "io_irs.h"
 #include "io_charger.h"
-#include "app_charger.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
-#include "states/app_allStates.h"
 #include "app_segments.h"
 
 #define NUM_SEG 10.0f
@@ -97,14 +94,13 @@ typedef struct
  */
 static ElconRx readElconStatus(void)
 {
-    ElconRx s = { .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
-                  .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
-                  .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
-                  .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
-                  .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
-                  .outputVoltage_V    = app_canRx_Elcon_OutputVoltage_get(),
-                  .outputCurrent_A    = app_canRx_Elcon_OutputCurrent_get() };
-    return s;
+    return (ElconRx){ .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
+                      .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
+                      .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
+                      .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
+                      .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
+                      .outputVoltage_V    = app_canRx_Elcon_OutputVoltage_get(),
+                      .outputCurrent_A    = app_canRx_Elcon_OutputCurrent_get() };
 }
 
 /**
@@ -171,7 +167,7 @@ static void app_chargeStateRunOnEntry(void)
 static void app_chargeStateRunOnTick100Hz(void)
 {
     const ConnectionStatus charger_connection_status = EVSE_CONNECTED; // io_charger_getConnectionStatus();
-    const bool             extShutdown               = !io_irs_isNegativeClosed();
+    const bool             extShutdown               = !io_irs_negativeState();
     const bool             chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
     const bool             userEnable  = app_canRx_Debug_StartCharging_get();
 
@@ -183,7 +179,7 @@ static void app_chargeStateRunOnTick100Hz(void)
     if (fault || !userEnable)
     {
         app_canTx_BMS_ChargingFaulted_set(fault);
-        app_stateMachine_setNextState(app_initState_get());
+        app_stateMachine_setNextState(&init_state);
     }
 
     // TODO: Fix calc_dc_current_range
@@ -216,30 +212,22 @@ static void app_chargeStateRunOnTick100Hz(void)
     if (max_cell_voltage >= CHARGING_CUTOFF_MAX_CELL_VOLTAGE)
     {
         app_canTx_BMS_ChargingDone_set(true);
-        app_stateMachine_setNextState(app_initState_get());
+        app_stateMachine_setNextState(&init_state);
     }
-
-    // Run last since this checks for faults which overrides any other state transitions.
-    app_allStates_runOnTick100Hz();
 }
 
 static void app_chargeStateRunOnExit(void)
 {
-    io_irs_openPositive();
+    io_irs_setPositive(false);
 
     // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
     // unintentionally re-enter charge state.
     app_canRx_Debug_StartCharging_update(false);
 }
 
-const State *app_chargeState_get(void)
-{
-    static State charge_state = {
-        .name              = "CHARGE",
-        .run_on_entry      = app_chargeStateRunOnEntry,
-        .run_on_tick_100Hz = app_chargeStateRunOnTick100Hz,
-        .run_on_exit       = app_chargeStateRunOnExit,
-    };
-
-    return &charge_state;
-}
+const State charge_state = {
+    .name              = "CHARGE",
+    .run_on_entry      = app_chargeStateRunOnEntry,
+    .run_on_tick_100Hz = app_chargeStateRunOnTick100Hz,
+    .run_on_exit       = app_chargeStateRunOnExit,
+};

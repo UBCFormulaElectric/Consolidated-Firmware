@@ -4,8 +4,8 @@
 
 void app_irs_broadcast()
 {
-    const bool negative_closed  = io_irs_isNegativeClosed();
-    const bool positive_closed  = io_irs_isPositiveClosed();
+    const bool negative_closed  = io_irs_negativeState();
+    const bool positive_closed  = io_irs_positiveState();
     const bool precharge_closed = io_irs_isPrechargeClosed();
 
     app_canTx_BMS_IrNegative_set(negative_closed ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);

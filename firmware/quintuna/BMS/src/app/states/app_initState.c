@@ -12,9 +12,9 @@
 #include "io_irs.h"
 #include "io_charger.h"
 
-
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
-static void app_initStateRunOnEntry(void)
+
+static void initStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INIT_STATE);
     io_faultLatch_setCurrentStatus(&bms_ok_latch, true);
@@ -22,12 +22,12 @@ static void app_initStateRunOnEntry(void)
     // AIR+ opens upon entering init state
     // Should always be opened at this point from other states, this is only for redundancy since we really don't want
     // AIR+ closed in init
-    io_irs_openPositive();
+    io_irs_setPositive(false);
 }
 
 static void initStateRunOnTick100Hz(void)
 {
-    const bool air_negative_closed = io_irs_isNegativeClosed();
+    const bool air_negative_closed = io_irs_negativeState();
     const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
     // const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
 
@@ -37,13 +37,13 @@ static void initStateRunOnTick100Hz(void)
 
         if (external_charging_request)
         {
-            app_stateMachine_setNextState(app_prechargeChargeState_get());
+            app_stateMachine_setNextState(&precharge_charge_state);
         }
         // else if (!is_charger_connected)
         // {
         //     // TODO: Precharge for driving!
         // }
-      
+
         // TODO OLD
         // const bool charger_connected = io_charger_getStatus() == EVSE_CONNECTED;
         // const bool charger_disconnected      = io_charger_getStatus() == EVSE_DISCONNECTED;
@@ -74,11 +74,9 @@ static void initStateRunOnTick100Hz(void)
     }
 }
 
-
 const State init_state = {
     .name              = "INIT",
     .run_on_entry      = initStateRunOnEntry,
-    .run_on_tick_1Hz   = initStateRunOnTick1Hz,
     .run_on_tick_100Hz = initStateRunOnTick100Hz,
     .run_on_exit       = NULL,
 };

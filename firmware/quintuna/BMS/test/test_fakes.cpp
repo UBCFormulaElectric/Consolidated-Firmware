@@ -35,30 +35,30 @@ extern "C"
     }
 
 #include "io_irs.h"
-    static bool positiveClosed = false;
-    void        io_irs_setPositive(const bool closed)
+    static ContactorsState positive_state = CONTACTORS_OPEN;
+    void                   io_irs_setPositive(const ContactorsState state)
     {
-        positiveClosed = closed;
+        positive_state = state;
     }
-    bool io_irs_isPositiveClosed(void)
+    ContactorsState io_irs_positiveState(void)
     {
-        return positiveClosed;
-    }
-
-    static bool prechargeClosed = false;
-    void        io_irs_setPrecharge(const bool closed)
-    {
-        prechargeClosed = closed;
-    }
-    bool io_irs_isPrechargeClosed(void)
-    {
-        return prechargeClosed;
+        return positive_state;
     }
 
-    static bool negativeClosed = false;
-    bool        io_irs_isNegativeClosed(void)
+    static ContactorsState precharge_state = CONTACTORS_OPEN;
+    void                   io_irs_setPrecharge(const ContactorsState state)
     {
-        return negativeClosed;
+        precharge_state = state;
+    }
+    ContactorsState io_irs_prechargeState(void)
+    {
+        return precharge_state;
+    }
+
+    static ContactorsState negative_state = CONTACTORS_OPEN;
+    ContactorsState        io_irs_negativeState(void)
+    {
+        return negative_state;
     }
 
 #include "io_tractiveSystem.h"
@@ -85,9 +85,9 @@ namespace fakes
 {
 namespace irs
 {
-    void setNegativeClosed(const bool closed)
+    void setNegativeClosed(const ContactorsState state)
     {
-        negativeClosed = closed;
+        negative_state = state;
     }
 } // namespace irs
 

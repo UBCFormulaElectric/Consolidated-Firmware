@@ -11,8 +11,8 @@
 #include "io_canRx.h"
 // app
 #include "app_commitInfo.h"
-#include "states/app_initState.h"
 #include "app_stateMachine.h"
+#include "states/app_states.h"
 // io
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
@@ -46,7 +46,7 @@ void jobs_init()
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
-    app_stateMachine_init(app_initState_get());
+    app_stateMachine_init(&init_state);
 }
 
 void jobs_run1Hz_tick(void)

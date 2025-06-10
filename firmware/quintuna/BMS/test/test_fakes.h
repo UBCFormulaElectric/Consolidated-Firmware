@@ -1,10 +1,15 @@
 #pragma once
 
+extern "C"
+{
+#include "io_irs.h"
+}
+
 namespace fakes
 {
 namespace irs
 {
-    void setNegativeClosed(bool closed);
+    void setNegativeState(ContactorsState closed);
 }
 namespace tractiveSystem
 {

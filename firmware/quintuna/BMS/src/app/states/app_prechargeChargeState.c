@@ -1,18 +1,11 @@
+#include "states/app_states.h"
+
 #include "app_precharge.h"
 #include "app_stateMachine.h"
 #include "app_tractiveSystem.h"
-#include "app_initState.h"
-#include "io_charger.h"
-#include "app_segments.h"
-#include "io_irs.h"
-#include "io_time.h"
-#include "app_timer.h"
 #include "app_canRx.h"
-#include "states/app_allStates.h"
-#include "states/app_chargeState.h"
-#include <app_canTx.h>
-#include "app_segments.h"
-#include "states/app_faultState.h"
+#include "app_canTx.h"
+#include "io_irs.h"
 
 #define PRECHARGE_ACC_VOLTAGE_THRESHOLD 0.9f
 #define NUM_OF_INVERTERS 4U
@@ -31,7 +24,7 @@ static void app_prechargeChargeStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);
 
-    io_irs_closePrecharge();
+    io_irs_setPrecharge(true);
     app_precharge_restart();
 }
 
@@ -44,19 +37,17 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
         // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
         // unintentionally re-enter charge state.
         app_canRx_Debug_StartCharging_update(false);
-
-        app_stateMachine_setNextState(app_faultState_get());
+        app_stateMachine_setNextState(&fault_state);
     }
     else if (state == PRECHARGE_STATE_FAILED)
     {
-        app_stateMachine_setNextState(app_initState_get());
+        app_stateMachine_setNextState(&precharge_latch_state);
     }
     else if (state == PRECHARGE_STATE_SUCCESS)
     {
         // Precharge successful, close positive contactor.
-        io_irs_closePositive();
-
-        app_stateMachine_setNextState(app_chargeState_get());
+        io_irs_setPositive(CONTACTORS_CLOSED);
+        app_stateMachine_setNextState(&charge_state);
     }
 
     // TODO: Detect charger via PWM.
@@ -65,24 +56,16 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
     // {
     //     app_stateMachine_setNextState(app_initState_get());
     // }
-
-    // Run last since this checks for faults which overrides any other state transitions.
-    app_allStates_runOnTick100Hz();
 }
 
 static void app_prechargeChargeStateRunOnExit(void)
 {
-    io_irs_openPrecharge();
+    io_irs_setPrecharge(CONTACTORS_OPEN);
 }
 
-const State *app_prechargeChargeState_get(void)
-{
-    static State precharge_charge_state = {
-        .name              = "PRECHARGE CHARGE",
-        .run_on_entry      = app_prechargeChargeStateRunOnEntry,
-        .run_on_tick_100Hz = app_prechargeChargeStateRunOnTick100Hz,
-        .run_on_exit       = app_prechargeChargeStateRunOnExit,
-    };
-
-    return &precharge_charge_state;
-}
+const State precharge_charge_state = {
+    .name              = "PRECHARGE CHARGE",
+    .run_on_entry      = app_prechargeChargeStateRunOnEntry,
+    .run_on_tick_100Hz = app_prechargeChargeStateRunOnTick100Hz,
+    .run_on_exit       = app_prechargeChargeStateRunOnExit,
+};

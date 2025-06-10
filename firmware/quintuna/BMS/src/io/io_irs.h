@@ -1,32 +1,35 @@
 #pragma once
 
-#include <stdbool.h>
+typedef enum
+{
+    CONTACTORS_OPEN,
+    CONTACTORS_CLOSED
+} ContactorsState;
 
 /**
  * Check if the IR- is closed
- * @return true if IR- is closed. Else, false.
+ * @returns the state of the IR- relay.
  */
-bool io_irs_isNegativeClosed(void);
+ContactorsState io_irs_negativeState(void);
 
 /**
  * Sets the IR- relay to the desired state
  */
-void io_irs_setPositive(bool closed);
+void io_irs_setPositive(ContactorsState state);
 
 /**
  * Check if the IR+ is closed
- * @return true if IR+ is closed. Else, false.
+ * @returns the state of the IR+ relay.
  */
-bool io_irs_isPositiveClosed(void);
+ContactorsState io_irs_positiveState(void);
 
 /**
  * Set the precharge relay to the desired state
- * @param closed true to close the precharge relay, false to open it.
  */
-void io_irs_setPrecharge(bool closed);
+void io_irs_setPrecharge(ContactorsState state);
 
 /**
  * Check if the precharge relay is closed
- * @return true if precharge relay is closed. Else, false.
+ * @returns the state of the precharge relay.
  */
-bool io_irs_isPrechargeClosed(void);
+ContactorsState io_irs_prechargeState(void);

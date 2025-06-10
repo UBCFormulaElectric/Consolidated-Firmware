@@ -1,15 +1,11 @@
-#include "app_allStates.h"
-// #include "app_accumulator.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
 #include "app_imd.h"
 #include "app_irs.h"
 #include "app_shdnLoop.h"
-#include "app_thermistors.h"
 #include "app_tractiveSystem.h"
 #include "io_bspdTest.h"
 #include "io_faultLatch.h"
-// #include "states/app_faultState.h"
 #include <app_canRx.h>
 #include <app_canTx.h>
 
@@ -23,8 +19,6 @@ void app_allStates_init(void)
     app_timer_init(&cell_monitor_settle_timer, CELL_MONITOR_TIME_TO_SETTLE_MS);
     app_timer_restart(&cell_monitor_settle_timer);
 }
-
-void app_allStates_runOnTick1Hz(void) {}
 
 void app_allStates_runOnTick100Hz(void)
 {

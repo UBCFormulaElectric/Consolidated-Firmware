@@ -1,8 +1,8 @@
+#include "states/app_states.h"
+
 #include "app_canUtils.h"
 #include "app_canTx.h"
-#include "app_initState.h"
 #include "app_timer.h"
-
 #include "io_irs.h"
 #include "io_charger.h"
 
@@ -16,11 +16,9 @@ static void driveStateRunOnEntry(void)
     app_canTx_BMS_State_set(BMS_DRIVE_STATE);
 }
 
-static void driveStateRunOnTick1Hz(void) {}
-
 static void driveStateRunOnTick100Hz(void)
 {
-    const bool             ir_negative_opened = !io_irs_isNegativeClosed();
+    const bool             ir_negative_opened = !io_irs_negativeState();
     const ConnectionStatus charger_status     = io_charger_getConnectionStatus();
 
     bool ir_negative_opened_debounced = false;
@@ -32,7 +30,7 @@ static void driveStateRunOnTick100Hz(void)
 
     if (ir_negative_opened_debounced || charger_status != DISCONNECTED)
     {
-        app_stateMachine_setNextState(app_initState_get());
+        app_stateMachine_setNextState(&init_state);
     }
 }
 
@@ -42,15 +40,9 @@ static void driveStateRunOnExit(void)
     io_irs_setPositive(false);
 }
 
-const State *app_driveState_get(void)
-{
-    static State drive_state = {
-        .name              = "DRIVE",
-        .run_on_entry      = driveStateRunOnEntry,
-        .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
-        .run_on_tick_100Hz = driveStateRunOnTick100Hz,
-        .run_on_exit       = driveStateRunOnExit,
-    };
-
-    return &drive_state;
-}
+const State drive_state = {
+    .name              = "DRIVE",
+    .run_on_entry      = driveStateRunOnEntry,
+    .run_on_tick_100Hz = driveStateRunOnTick100Hz,
+    .run_on_exit       = driveStateRunOnExit,
+};
