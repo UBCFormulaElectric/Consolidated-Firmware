@@ -2,18 +2,6 @@
 
 #include <stdint.h>
 
-#ifdef TARGET_EMBEDDED
-#include "hw_hal.h"
-
-/**
- * Updates the frequency and duty cycle for the IMD's PWM output. This should
- * be called in the input capture callback function.
- * @param htim The handle of the timer that triggered the input capture callback
- *             function
- */
-void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
-#endif
-
 /**
  * Get the frequency of the IMD's PWM output
  * @return The frequency of the IMD's PWM output
