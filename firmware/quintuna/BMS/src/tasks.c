@@ -101,11 +101,12 @@ void tasks_init(void)
     xSemaphoreGive(ltc_app_data_lock);
 
     // Write LTC configs.
-    app_segments_writeDefaultConfig();
+    app_segments_setDefaultConfig();
     io_ltc6813_wakeup();
 
     // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end
     // of the world but there's probably a way to make this more clear...
+    // TODO: Actually fix this so there's a timeout!
     LOG_IF_ERR(app_segments_configSync());
 
     // Run all self tests at init.
@@ -208,6 +209,7 @@ void tasks_runLtcVoltages(void)
         xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastCellVoltages();
+            app_segments_broadcastVoltageStats();
         }
         xSemaphoreGive(ltc_app_data_lock);
 
@@ -234,6 +236,7 @@ void tasks_runLtcTemps(void)
         xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastTempsVRef();
+            app_segments_broadcastTempStats();
         }
         xSemaphoreGive(ltc_app_data_lock);
 

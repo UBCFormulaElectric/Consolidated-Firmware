@@ -212,7 +212,7 @@ static void app_chargeStateRunOnTick100Hz(void)
     /**
      * if any cell has reached the cutoff voltge charging has completed
      */
-    const float max_cell_voltage = app_segments_getMaxCellVoltage();
+    const float max_cell_voltage = app_segments_getMaxCellVoltage().value;
     if (max_cell_voltage >= CHARGING_CUTOFF_MAX_CELL_VOLTAGE)
     {
         app_canTx_BMS_ChargingDone_set(true);
