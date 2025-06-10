@@ -40,14 +40,7 @@ static void hvStateRunOnTick100Hz(void)
     const bool was_start_switch_enabled = !prev_start_switch_pos && curr_start_switch_on;
     const bool is_brake_actuated        = app_canRx_FSM_BrakeActuated_get();
 
-    const BmsState bms_state = app_canRx_BMS_State_get();
-
-    if ((BMS_INIT_STATE == bms_state) || (BMS_FAULT_STATE == bms_state))
-    {
-        app_stateMachine_setNextState(&init_state);
-    }
-
-    else if (is_brake_actuated && was_start_switch_enabled)
+    if (is_brake_actuated && was_start_switch_enabled)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):

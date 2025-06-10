@@ -4,7 +4,7 @@
 typedef enum
 {
     NO_WARNINGS,
-    MISSING_HEARTBEAT, 
+    BOARD_WARNING_DETECTED, 
     INVERTER_FAULT
 } warningType;
 

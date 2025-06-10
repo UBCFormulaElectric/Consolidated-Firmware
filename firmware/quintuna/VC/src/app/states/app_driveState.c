@@ -123,28 +123,42 @@ static bool driveStatePassPreCheck()
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
         or not before using closed loop features */
     // Update Regen + TV LEDs
+    if (app_canRx_BMS_State_get() != BMS_DRIVE_STATE)
+    {
+        app_stateMachine_setNextState(&fault_state);
+    }
+
+    if (NO_WARNINGS != warning_check)
+    {
+        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
+    }
 
     if(INVERTER_FAULT == warning_check)
     {
 
         app_canAlerts_VC_Warning_InverterRetry_set(true);
         app_stateMachine_setNextState(&hvInit_state);
-        app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
-        app_canTx_VC_INVRRTorqueSetpoint_set(torque_request);
-        app_canTx_VC_INVFLTorqueSetpoint_set(torque_request);
-        app_canTx_VC_INVRLTorqueSetpoint_set(torque_request);
-}
+        // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged 
+       
         return false; 
     }
 
+
     else if (BOARD_WARNING_DETECTED == warning_check)
     {
-
+        return false; 
     }
  
 
     if(SWITCH_OFF == app_canRx_CRIT_StartSwitch_get())
     {
+        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
         app_stateMachine_setNextState(&hv_state);
         return false; 
     }
@@ -168,8 +182,10 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
     {
         // If bspd warning is true, set torque to 0.0
-        app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
-        app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
     }
     else if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {

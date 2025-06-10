@@ -45,6 +45,8 @@ static void hvInitStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
     current_inverter_state = INV_SYSTEM_READY;
+    app_timer_init(&start_up_timer, 1000);
+
 }
 static void hvInitStateRunOnTick1Hz(void) {}
 static void hvInitStateRunOnTick100Hz(void)
@@ -59,7 +61,6 @@ static void hvInitStateRunOnTick100Hz(void)
             if (inv_systemReady)
             {
                 current_inverter_state = INV_DC_ON;
-                app_timer_init(&start_up_timer, 1000);
             }
             break;
         }
@@ -79,7 +80,7 @@ static void hvInitStateRunOnTick100Hz(void)
             switch (timeout_state)
             {
                 case TIMER_STATE_IDLE:
-                    current_inverter_state = INV_INVERTER_ON;
+                    current_inverter_state = INV_ENABLE;
                     break;
                 case TIMER_STATE_EXPIRED:
                     current_inverter_state = INV_SYSTEM_READY;
@@ -100,7 +101,7 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVRRbEnable_set(true);
 
             current_inverter_state = INV_INVERTER_ON;
-            app_timer_init(&start_up_timer, 1000);
+            app_timer_stop(&start_up_timer);
             break;
         }
         case INV_INVERTER_ON:
@@ -125,7 +126,7 @@ static void hvInitStateRunOnTick100Hz(void)
             switch (timeout_state)
             {
                 case TIMER_STATE_IDLE:
-                    current_inverter_state = INV_INVERTER_ON;
+                    current_inverter_state = INV_READY_FOR_DRIVE;
                     break;
                 case TIMER_STATE_EXPIRED:
                     current_inverter_state = INV_SYSTEM_READY;

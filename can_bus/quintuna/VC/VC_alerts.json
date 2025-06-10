@@ -5,6 +5,14 @@
     "MissingBMSHeartbeat": {
       "id": 551,
       "description": "Missing heartbeat signal from the BMS."
+    },
+    "PcmUnderVoltageFault": {  
+      "id": 557,
+      "description": "PCM voltage under 18 volts"
+    },
+    "PcmOveVoltageFault": {
+      "id": 558,
+      "description": "PCM voltage over 30 volts"
     }
   },
   "warnings_id": 501,
@@ -14,7 +22,7 @@
       "id": 558,
       "description": "LV rail from the HV DCDC was overcurrent."
     },
-    "BrakeAppsDisagreement": {
+    "SoftwareBspd": {
       "id": 564,
       "description": "Brakes and apps are active at same time."
     },
@@ -51,13 +59,13 @@
       "id": 558,
       "description": "Right inverter entered fault state."
     },
-    "PcmUnderVoltageFault": {
+    "PcmUnderVoltageFaultInDrive": {  
       "id": 557,
-      "description": "PCM voltage under 18 volts"
+      "description": "PCM voltage under 18 volts in drive "
     },
-    "PcmOveVoltageFault": {
+    "PcmOveVoltageFaultInDrive": {
       "id": 558,
-      "description": "PCM voltage over 30 volts "
+      "description": "PCM voltage over 30 volts in drive"
     }
   },
   "info_id": 505,
