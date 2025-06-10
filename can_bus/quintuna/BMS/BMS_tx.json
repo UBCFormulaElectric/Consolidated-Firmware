@@ -238,6 +238,56 @@
       }
     }
   },
+  "CurrentLimit": {
+    "msg_id": 122,
+    "cycle_time": 100,
+    "description": "BMS Current Limit",
+    "signals": {
+      "ChargeCurrentLimit": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 265.5,
+        "unit": "A"
+      },
+      "DischargeCurrentLimit": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 265.5,
+        "unit": "A"
+      },
+      "ChargeCurrentLimitCondition": {
+        "enum": "ChargeCurrentLimitConditionName"
+      },
+      "DischargeCurrentLimitCondition": {
+        "enum": "DischargeCurrentLimitConditionName"
+      }
+    }    
+  },
+  "PowerLimit": {
+  "msg_id": 123,
+  "cycle_time": 100,
+  "description": "BMS Power Limit",
+  "signals": {
+    "ChargePowerLimit": {
+      "resolution": 1,
+      "min": 0,
+      "max": 100000,
+      "unit": "W"
+    },
+    "DischargePowerLimit": {
+      "resolution": 1,
+      "min": 0,
+      "max": 100000,
+      "unit": "W"
+    },
+    "ChargePowerLimitCondition": {
+      "enum": "ChargePowerLimitConditionName"
+    },
+    "DischargePowerLimitCondition": {
+      "enum": "DischargePowerLimitConditionName"
+    }
+  }
+},
   "CellStats": {
     "msg_id": 459,
     "cycle_time": 100,

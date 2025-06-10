@@ -14,6 +14,7 @@
 #include "app_commitInfo.h"
 #include "states/app_initState.h"
 #include "app_stateMachine.h"
+#include "app_powerCurrentLimit.h"
 // io
 #include "io_bootHandler.h"
 #include "io_canQueue.h"
@@ -73,6 +74,8 @@ void jobs_run100Hz_tick(void)
     app_shdnLoop_broadcast();
 
     io_canTx_enqueue100HzMsgs();
+
+    app_powerCurrentLimit_broadcast();
 }
 
 void jobs_run1kHz_tick(void)

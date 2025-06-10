@@ -12,6 +12,14 @@
       "id": 115,
       "description": "Missing heartbeat from the VC."
     },
+    "CurrentLimitActive": {
+      "id": 116,
+      "description": "Current Limit Active Alert"
+    },
+    "PowerLimitActive": {
+      "id": 117,
+      "description": "Power Limit Active Alert"
+    },
     "CriticalPrechargeFailure": {
       "id": 451,
       "description": "Precharge failed >3x"
