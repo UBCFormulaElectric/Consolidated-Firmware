@@ -1,5 +1,9 @@
 #include "app_math.h"
 #include "app_segments.h"
+#include "app_powerCurrentLimit.h"
+#include "app_canAlerts.h"
+#include "app_canTx.h"
+#include "app_canUtils.h"
 
 // TODO: use global var
 #define MAX_CONTINUOUS_CURRENT 14U
@@ -31,26 +35,26 @@
 void app_powerCurrentLimit_broadcast()
 {
     // Get current limits
-    const float discharge_c_lim = app_currentLimit_getDischargeCurrentLimit();
-    const float charge_c_lim    = app_currentLimit_getChargeCurrentLimit();
+    const float discharge_c_lim = app_powerCurrentLimit_getDischargeCurrentLimit();
+    const float charge_c_lim    = app_powerCurrentLimit_getChargeCurrentLimit();
 
     // Determine if current limit is active
     const bool c_lim_active = 
         (discharge_c_lim < MAX_CONTINUOUS_CURRENT) || 
         (charge_c_lim < MAX_CONTINUOUS_CURRENT);
 
-    app_canTx_BMS_Warning_CurrentLimitActive_set(c_lim_active);
+    app_canAlerts_BMS_Warning_CurrentLimitActive_set(c_lim_active);
 
     // Get power limits
-    const float discharge_p_lim = app_currentLimit_getDischargePowerLimit();
-    const float charge_p_lim    = app_currentLimit_getChargePowerLimit();
+    const float discharge_p_lim = app_powerCurrentLimit_getDischargePowerLimit();
+    const float charge_p_lim    = app_powerCurrentLimit_getChargePowerLimit();
 
     // Determine if power limit is active
     const bool p_lim_active = 
         (discharge_p_lim < MAX_POWER_LIMIT_W) || 
         (charge_p_lim < MAX_POWER_LIMIT_W);
 
-    app_canTx_BMS_Warning_PowerLimitActive_set(p_lim_active);
+    app_canAlerts_BMS_Warning_PowerLimitActive_set(p_lim_active);
 }
 
 float app_powerCurrentLimit_getDischargePowerLimit()
@@ -66,7 +70,7 @@ float app_powerCurrentLimit_getDischargePowerLimit()
     );
 
     // Ensure limit does not exceed the max allowed power
-    const float power_limit = min(temp_based_power_limit, MAX_POWER_LIMIT_W);
+    const float power_limit = MIN(temp_based_power_limit, MAX_POWER_LIMIT_W);
 
     return power_limit;
 }
@@ -103,7 +107,7 @@ float app_powerCurrentLimit_getChargePowerLimit()
         );
     }
 
-    return min(power_limit, MAX_POWER_LIMIT_W);
+    return MIN(power_limit, MAX_POWER_LIMIT_W);
 }
 
 float app_powerCurrentLimit_getDischargeCurrentLimit()
@@ -112,18 +116,16 @@ float app_powerCurrentLimit_getDischargeCurrentLimit()
     float max_cell_temp = app_segments_getMaxCellTemp();
 
     // Calculate individual current limits
-    float t_lim        = app_currentLimit_calcTempCurrentLimit(max_cell_temp);
-    float v_lim        = app_powerCurrentLimit_calcLowVoltageCurrentLimit();
-    float low_soc_lim  = app_currentLimit_calcLowSocCurrentLimit();
-    float high_soc_lim = app_currentLimit_calcHighSocCurrentLimit();
+    float t_lim        = app_powerCurrentLimit_calcTempCurrentLimit(max_cell_temp);
+    // float low_v_lim    = app_powerCurrentLimit_calcLowVoltageClampCurrentLimit();
+    // float high_v_lim   = app_powerCurrentLimit_calchighVoltageClampCurrentLimit();
+    // float low_soc_lim  = app_powerCurrentLimit_calcLowSOCCurrentLimit();
+    // float high_soc_lim = app_powerCurrentLimit_calcHighSOCCurrentLimit();
 
     // Aggregate current limits
-    float c_lims[5] = {
+    float c_lims[2] = {
         MAX_CONTINUOUS_CURRENT, // Default upper limit
-        t_lim,                  // Temperature-based limit
-        v_lim,                  // Voltage-based limit
-        low_soc_lim,            // Low SoC-based limit
-        high_soc_lim            // High SoC-based limit (for regen cases, if applicable)
+        t_lim                   // Temperature-based limit
     };
 
     // Find most limiting current condition
@@ -148,15 +150,6 @@ float app_powerCurrentLimit_getDischargeCurrentLimit()
         case 1:
             app_canTx_BMS_DischargeCurrentLimitCondition_set(HIGH_TEMP_BASED_DISCHARGING_CURRENT_LIMIT);
             break;
-        case 2:
-            app_canTx_BMS_DischargeCurrentLimitCondition_set(LOW_VOLT_BASED_DISCHARGING_CURRENT_LIMIT);
-            break;
-        case 3:
-            app_canTx_BMS_DischargeCurrentLimitCondition_set(LOW_SOC_BASED_DISCHARGING_CURRENT_LIMIT);
-            break;
-        case 4:
-            app_canTx_BMS_DischargeCurrentLimitCondition_set(HIGH_SOC_BASED_DISCHARGING_CURRENT_LIMIT);
-            break;
     }
 
     // Enforce a minimum cutoff for safety
@@ -166,7 +159,7 @@ float app_powerCurrentLimit_getDischargeCurrentLimit()
     }
 
     // Broadcast the final current limit over CAN
-    app_canTx_BMS_AvailableDischargingCurrentLimit_set(c_lim);
+    app_canTx_BMS_DischargeCurrentLimit_set(c_lim);
 
     return c_lim;
 }
@@ -177,7 +170,7 @@ float app_powerCurrentLimit_getChargeCurrentLimit()
     float max_cell_temp = app_segments_getMaxCellTemp();
 
     // Calculate temperature-based charging limit
-    float t_lim = app_currentLimit_calcTempCurrentLimit(max_cell_temp);
+    float t_lim = app_powerCurrentLimit_calcTempCurrentLimit(max_cell_temp);
 
     // Aggregate current limits
     float c_lims[2] = {
@@ -216,7 +209,7 @@ float app_powerCurrentLimit_getChargeCurrentLimit()
     }
 
     // Broadcast the final charging current limit over CAN
-    app_canTx_BMS_AvailableChargingCurrentLimit_set(c_lim);
+    app_canTx_BMS_ChargeCurrentLimit_set(c_lim);
 
     return c_lim;
 }
@@ -229,23 +222,23 @@ float app_powerCurrentLimit_calcTempCurrentLimit(float max_cell_temp)
 // TODO: implement this once app SOC is merged with master - see quadrina current limit pr
 float app_powerCurrentLimit_calcLowVoltageClampCurrentLimit()
 {
-    
+    return -1;
 }
 
  // TODO: implement this once app SOC is merged with master - see quadrina current limit pr
 float app_powerCurrentLimit_calcHighVoltageClampCurrentLimit()
 {
-
+    return -1;
 }
 
 // TODO: implement this - see quadrina current limit pr
 float app_powerCurrentLimit_calcLowSOCCurrentLimit()
 {
-
+    return -1;
 }
 
 // TODO: implement this - see quadrina current limit pr
 float app_powerCurrentLimit_calcHighSOCCurrentLimit()
 {
-
+    return -1;
 }
