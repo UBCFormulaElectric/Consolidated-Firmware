@@ -274,8 +274,8 @@ void app_segments_broadcastOpenWireCheck(void)
 void app_segments_broadcastVoltageStats(void)
 {
     float     tmp_pack_voltage     = 0.0f;
-    CellParam tmp_min_cell_voltage = { .value = FLT_MAX };
-    CellParam tmp_max_cell_voltage = { .value = 0.0f };
+    CellParam tmp_min_cell_voltage = { .value = FLT_MAX, .segment = 0, .cell = 0 };
+    CellParam tmp_max_cell_voltage = { .value = 0.0f, .segment = 0, .cell = 0 };
 
     memset(voltage_comm_ok, true, sizeof(voltage_comm_ok));
 
@@ -336,8 +336,8 @@ void app_segments_broadcastVoltageStats(void)
 void app_segments_broadcastTempStats(void)
 {
     float     temp_sum          = 0.0f;
-    CellParam tmp_min_cell_temp = { .value = FLT_MAX };
-    CellParam tmp_max_cell_temp = { .value = 0.0f };
+    CellParam tmp_min_cell_temp = { .value = FLT_MAX, .segment = 0, .cell = 0 };
+    CellParam tmp_max_cell_temp = { .value = 0.0f, .segment = 0, .cell = 0 };
 
     memset(temp_comm_ok, true, sizeof(temp_comm_ok));
 
