@@ -34,6 +34,20 @@ typedef enum
     THERMISTOR_MUX_COUNT,
 } ThermistorMux;
 
+typedef struct
+{
+    uint8_t segment;
+    int cell;
+    float   temp;
+} CellTemperature;
+typedef struct
+{
+    CellTemperature min_thermistor_temp;
+    CellTemperature max_thermistor_temp;
+} TemperatureStats;
+
+static TemperatureStats temperature_stats;
+
 // Keeping separate buffers for every command is pretty wasteful but we have lots of RAM so oh well
 
 static SegmentConfig segment_config[NUM_SEGMENTS];
@@ -350,6 +364,26 @@ void app_segments_broadcastCellVoltages(void)
     }
 }
 
+void app_segments_updateTemperatureStats(float cell_temp, uint8_t segment, int cell_number)
+{
+    if (cell_temp > temperature_stats.max_thermistor_temp.temp)
+    {
+        temperature_stats.max_thermistor_temp.temp = cell_temp;
+        temperature_stats.max_thermistor_temp.segment = segment;
+        temperature_stats.max_thermistor_temp.cell = cell_number;
+        app_canTx_BMS_MaxTempSegment_set(segment);
+        app_canTx_BMS_MaxTempIdx_set((uint8_t)cell_number);
+    }
+    if (cell_temp < temperature_stats.min_thermistor_temp.temp)
+    {
+        temperature_stats.min_thermistor_temp.temp = cell_temp;
+        temperature_stats.min_thermistor_temp.segment = segment;
+        temperature_stats.min_thermistor_temp.cell = cell_number;
+        app_canTx_BMS_MinTempSegment_set(segment);
+        app_canTx_BMS_MinTempIdx_set((uint8_t)cell_number);
+    }
+}
+
 void app_segments_broadcastTempsVRef(void)
 {
     memset(segment_vref, 0, NUM_SEGMENTS * sizeof(uint16_t));
@@ -393,6 +427,7 @@ void app_segments_broadcastTempsVRef(void)
                 const float temp       = app_thermistor_resistanceToTemp(resistance, &ltc_thermistor_lut);
 
                 cell_temps[segment][thermistor] = temp;
+                app_segments_updateTemperatureStats(temp, segment, thermistor);
                 thermistor_setters[segment][thermistor](temp);
             }
         }
