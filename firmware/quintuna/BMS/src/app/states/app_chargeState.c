@@ -168,6 +168,8 @@ static void app_chargeStateRunOnEntry(void)
     app_canTx_BMS_ChargingFaulted_set(false);
     app_canTx_BMS_ChargingDone_set(false);
 
+    io_irs_setPositive(IRS_CLOSED);
+
     app_timer_init(&elcon_err_debounce, ELCON_ERR_DEBOUNCE_MS);
 }
 

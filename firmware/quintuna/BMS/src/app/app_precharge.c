@@ -42,10 +42,10 @@ void app_precharge_restart(void)
     app_timer_restart(&upper_bound_timer);
 }
 
-PrechargeState app_precharge_poll(bool precharge_for_charging)
+PrechargeState app_precharge_poll(const bool precharge_for_charging)
 {
-    float ts_voltage        = app_tractiveSystem_getVoltage();
-    float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    const float ts_voltage        = app_tractiveSystem_getVoltage();
+    const float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 
     const bool is_air_negative_open = !io_irs_negativeState();
     const bool is_ts_rising_slowly =
@@ -54,7 +54,7 @@ PrechargeState app_precharge_poll(bool precharge_for_charging)
         (ts_voltage > threshold_voltage) && (app_timer_updateAndGetState(&lower_bound_timer) == TIMER_STATE_RUNNING);
 
     bool has_precharge_fault =
-        (precharge_for_charging) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
+        precharge_for_charging ? is_ts_rising_slowly : is_ts_rising_slowly | is_ts_rising_quickly;
     has_precharge_fault |= is_air_negative_open;
 
     precharge_limit_exceeded = num_precharge_failures % MAX_PRECHARGE_ATTEMPTS == MAX_PRECHARGE_ATTEMPTS - 1U;

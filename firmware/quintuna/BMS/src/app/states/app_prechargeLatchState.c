@@ -1,23 +1,29 @@
+// TODO: Reset precharge limit exceeded
 #include "states/app_states.h"
 
-#include "io_time.h"
 #include "app_canTx.h"
+#include "app_timer.h"
+
+static TimerChannel precharge_latch_timer;
+#define PRECHARGE_LATCH_TIMEOUT 3000U // 3 seconds
 
 static void prechargeLatchStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_LATCH_STATE);
+
+    app_timer_init(&precharge_latch_timer, PRECHARGE_LATCH_TIMEOUT);
+    app_timer_restart(&precharge_latch_timer);
 }
 
 static void prechargeLatchStateRunOnTick100Hz(void)
 {
-    io_time_delay(3000U); // Wait for 3 seconds to allow precharge circuit resistors to
-    app_stateMachine_setNextState(&init_state);
+    if (app_timer_updateAndGetState(&precharge_latch_timer) == TIMER_STATE_EXPIRED)
+    {
+        app_stateMachine_setNextState(&init_state);
+    }
 }
 
-static void prechargeLatchStateRunOnExit(void)
-{
-    // TODO: Reset precharge limit exceeded
-}
+static void prechargeLatchStateRunOnExit(void) {}
 
 const State precharge_latch_state = {
     .name              = "PRECHARGE_LATCH",
