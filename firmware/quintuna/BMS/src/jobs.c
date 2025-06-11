@@ -96,6 +96,8 @@ void jobs_run100Hz_tick(void)
     (void)app_segments_checkWarnings();
     (void)app_segments_checkFaults();
 
+    app_stateMachine_tick100Hz();
+
     if (io_irs_negativeState() == IRS_OPEN)
     {
         app_stateMachine_setNextState(&init_state);
