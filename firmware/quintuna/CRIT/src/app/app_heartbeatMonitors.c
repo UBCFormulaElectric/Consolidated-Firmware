@@ -7,32 +7,32 @@ static HeartbeatBoard heartbeat_boards[5] = {
     // bms
     { .getter       = app_canRx_BMS_Heartbeat_get,
       .resetter     = app_canRx_BMS_Heartbeat_update,
-      .fault_setter = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
-      .fault_getter = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
+      .fault_setter = app_canAlerts_CRIT_Info_MissingBMSHeartbeat_set,
+      .fault_getter = app_canAlerts_CRIT_Info_MissingBMSHeartbeat_get,
       .timeout_ms   = 200 },
     // vc
     { .getter       = app_canRx_VC_Heartbeat_get,
       .resetter     = app_canRx_VC_Heartbeat_update,
-      .fault_setter = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
-      .fault_getter = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
+      .fault_setter = app_canAlerts_CRIT_Info_MissingVCHeartbeat_set,
+      .fault_getter = app_canAlerts_CRIT_Info_MissingVCHeartbeat_get,
       .timeout_ms   = 200 },
     // rsm
     { .getter       = app_canRx_RSM_Heartbeat_get,
       .resetter     = app_canRx_RSM_Heartbeat_update,
-      .fault_setter = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
-      .fault_getter = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
+      .fault_setter = app_canAlerts_CRIT_Info_MissingRSMHeartbeat_set,
+      .fault_getter = app_canAlerts_CRIT_Info_MissingRSMHeartbeat_get,
       .timeout_ms   = 200 },
     // fsm
     { .getter       = app_canRx_FSM_Heartbeat_get,
       .resetter     = app_canRx_FSM_Heartbeat_update,
-      .fault_setter = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
-      .fault_getter = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
+      .fault_setter = app_canAlerts_CRIT_Info_MissingFSMHeartbeat_set,
+      .fault_getter = app_canAlerts_CRIT_Info_MissingFSMHeartbeat_get,
       .timeout_ms   = 200 },
     // dam
     { .getter       = app_canRx_DAM_Heartbeat_get,
       .resetter     = app_canRx_DAM_Heartbeat_update,
-      .fault_setter = app_canAlerts_CRIT_Fault_MissingDAMHeartbeat_set,
-      .fault_getter = app_canAlerts_CRIT_Fault_MissingDAMHeartbeat_get,
+      .fault_setter = app_canAlerts_CRIT_Info_MissingDAMHeartbeat_set,
+      .fault_getter = app_canAlerts_CRIT_Info_MissingDAMHeartbeat_get,
       .timeout_ms   = 200 }
 };
 

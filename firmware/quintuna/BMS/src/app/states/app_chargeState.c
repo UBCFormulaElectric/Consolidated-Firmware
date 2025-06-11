@@ -15,7 +15,7 @@
 #define CHARGING_CUTOFF_MAX_CELL_VOLTAGE 4.15f
 
 // Charger / pack constants
-#define PACK_VOLTAGE_DC 581.0f   // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
+#define PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
 #define CHARGER_EFFICIENCY 0.93f // 93% – average DC-side efficiency of the Elcon
 
 // Charger’s own output limit (never command above this)
