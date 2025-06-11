@@ -3,13 +3,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 
-static HeartbeatBoard heartbeat_boards[2] = {
-    // vc
-    { .getter       = app_canRx_VC_Heartbeat_get,
-      .resetter     = app_canRx_VC_Heartbeat_update,
-      .fault_setter = app_canAlerts_RSM_Info_MissingVCHeartbeat_set,
-      .fault_getter = app_canAlerts_RSM_Info_MissingVCHeartbeat_get,
-      .timeout_ms   = 200 },
+static HeartbeatBoard heartbeat_boards[1] = {
     // fsm
     { .getter       = app_canRx_FSM_Heartbeat_get,
       .resetter     = app_canRx_FSM_Heartbeat_update,

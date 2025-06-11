@@ -120,7 +120,7 @@ static bool driveStatePassPreCheck()
 
     if (INVERTER_FAULT == warning_check)
     {
-        app_canAlerts_VC_Warning_InverterRetry_set(true);
+        app_canAlerts_VC_Info_InverterRetry_set(true);
         app_stateMachine_setNextState(&hvInit_state);
         // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
         return false;
