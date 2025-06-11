@@ -26,7 +26,7 @@
  * 3. Pop msgs off the RX queue via `io_can_dequeueRxMsg`, which blocks until a CAN RX msg is successfully dequeued.
  */
 
-#define CAN_TX_QUEUE_SIZE 512
+#define CAN_TX_QUEUE_SIZE 128
 #define CAN_RX_QUEUE_SIZE 128
 
 #define CAN_MSG_SIZE sizeof(CanMsg)
