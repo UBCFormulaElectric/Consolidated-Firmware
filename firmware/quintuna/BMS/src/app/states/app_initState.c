@@ -6,6 +6,7 @@
 // #include "app_soc.h"
 // #include "app_inverterOnState.h"
 
+#include "io_charger.h"
 #include "io_faultLatch.h"
 #include "io_irs.h"
 
@@ -24,10 +25,8 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
-    const bool irs_negative_closed    = io_irs_negativeState();
-    const bool ts_discharged          = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
-    const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
-    // const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
+    const bool irs_negative_closed = io_irs_negativeState();
+    const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
     // if (app_canRx_Debug_ResetSoc_MinCellV_get())
@@ -42,37 +41,23 @@ static void initStateRunOnTick100Hz(void)
     if (irs_negative_closed && ts_discharged)
     {
         const bool external_charging_request = app_canRx_Debug_StartCharging_get();
+        const bool charger_connected =
+            io_charger_getConnectionStatus() == WALL_CONNECTED || io_charger_getConnectionStatus() == EVSE_CONNECTED;
+        const bool precharge_for_driving  = app_canRx_VC_State_get() == VC_BMS_ON_STATE;
+        const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 
-        if (external_charging_request)
+        if (external_charging_request && charger_connected)
         {
             app_stateMachine_setNextState(&precharge_charge_state);
         }
-        // else if (!is_charger_connected)
-        // {
-        //     // TODO: Precharge for driving!
-        // }
+        else if (precharge_for_driving)
+        {
+            app_stateMachine_setNextState(&precharge_state);
+        }
         else if (cell_balancing_enabled)
         {
             app_stateMachine_setNextState(&balancing_state);
         }
-    }
-
-    // const bool precharge_for_charging = charger_connected && external_charging_request;
-    // TODO: Update state change condition
-    // const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled && !missing_hb;
-    const bool precharge_for_driving = app_canRx_VC_State_get() == VC_BMS_ON_STATE;
-
-    // if (precharge_for_charging)
-    // {
-    //     app_stateMachine_setNextState(app_prechargeState_get());
-    // }
-    if (precharge_for_driving)
-    {
-        app_stateMachine_setNextState(&precharge_state);
-    }
-    else if (cell_balancing_enabled)
-    {
-        app_stateMachine_setNextState(&balancing_state);
     }
 }
 
