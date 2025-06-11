@@ -8,6 +8,12 @@
 #include <string.h>
 #include <app_canUtils.h>
 
+// Super-simple balancing algo:
+// 1. Let cell voltages settle for 30 seconds
+// 2. Find min cell voltage
+// 3. Discharge all cells >10mV above the min cell for 5mins
+// 4. Repeat!
+
 #define DISCHARGE_THRESHOLD_V (10 * 1e-3f) // 10mV
 #define SETTLE_PERIOD_MS (30 * 1000)       // 1min
 #define BALANCE_PERIOD_MS (5 * 60 * 1000)  // 5min
