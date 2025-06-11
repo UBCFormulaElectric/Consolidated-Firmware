@@ -1,4 +1,3 @@
-#include "app_stateMachine.h"
 #include "app_states.h"
 #include "app_powerManager.h"
 #include "io_loadswitches.h"
@@ -6,7 +5,6 @@
 #include <app_canRx.h>
 #include <app_canUtils.h>
 #include <stdbool.h>
-#include <stdint.h>
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -53,6 +51,5 @@ static void hvStateRunOnExit(void) {}
 
 State hv_state = { .name              = "HV",
                    .run_on_entry      = hvStateRunOnEntry,
-                   .run_on_tick_1Hz   = hvStateRunOnTick1Hz,
                    .run_on_tick_100Hz = hvStateRunOnTick100Hz,
                    .run_on_exit       = hvStateRunOnExit };

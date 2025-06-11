@@ -115,7 +115,7 @@
     {
       "name": "Debug Embedded: DAM (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf"

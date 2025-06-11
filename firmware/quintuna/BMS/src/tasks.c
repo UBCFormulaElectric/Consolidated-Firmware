@@ -1,5 +1,8 @@
 #include "tasks.h"
+#include "app_stateMachine.h"
+#include "states/app_balancingState.h"
 #include "hw_bootup.h"
+#include "io_ltc6813.h"
 #include "jobs.h"
 
 #include "app_canTx.h"
@@ -8,6 +11,7 @@
 #include "app_canAlerts.h"
 
 #include "hw_bootup.h"
+#include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 
@@ -29,7 +33,11 @@
 #include <app_canRx.h>
 #include <cmsis_os.h>
 #include <cmsis_os2.h>
+#include <io_canTx.h>
 #include <portmacro.h>
+
+// Define this guy to use CAN2 for talking to the Elcon.
+// #define CHARGER_CAN
 
 StaticSemaphore_t init_complete_locks_buf;
 SemaphoreHandle_t init_complete_locks;
@@ -70,9 +78,12 @@ void tasks_init(void)
     hw_pwms_init();
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    // TODO: Start CAN1/CAN2 based on if we're charging
+// TODO: Start CAN1/CAN2 based on if we're charging at runtime.
+#ifdef CHARGER_CAN
+    hw_can_init(&can2);
+#else
     hw_can_init(&can1);
-    // hw_can_init(&can2);
+#endif
 
     jobs_init();
 
@@ -99,11 +110,9 @@ void tasks_init(void)
     xSemaphoreGive(ltc_app_data_lock);
 
     // Write LTC configs.
-    app_segments_writeDefaultConfig();
+    app_segments_setDefaultConfig();
+    app_segments_balancingInit();
     io_ltc6813_wakeup();
-
-    // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end
-    // of the world but there's probably a way to make this more clear...
     LOG_IF_ERR(app_segments_configSync());
 
     // Run all self tests at init.
@@ -118,6 +127,9 @@ void tasks_init(void)
     app_segments_broadcastAuxSelfTest();
     app_segments_broadcastStatusSelfTest();
     app_segments_broadcastOpenWireCheck();
+
+    // Shutdown loop power comes from a load switch on the BMS.
+    hw_gpio_writePin(&shdn_en_pin, true);
 }
 
 void tasks_run1Hz(void)
@@ -130,6 +142,7 @@ void tasks_run1Hz(void)
         {
             jobs_run1Hz_tick();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -143,8 +156,18 @@ void tasks_run100Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            jobs_run100Hz_tick();
+            const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+            io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+
+            // Need to wrap the state machine tick in the LTC app mutex so don't use jobs.c for 100Hz.
+            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+            app_stateMachine_tick100Hz();
+            xSemaphoreGive(ltc_app_data_lock);
+
+            app_stateMachine_tickTransitionState();
+            io_canTx_enqueue100HzMsgs();
         }
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -158,6 +181,7 @@ void tasks_run1kHz(void)
     {
         // hw_watchdog_checkForTimeouts();
         jobs_run1kHz_tick();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -168,7 +192,23 @@ void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
+
+#ifdef CHARGER_CAN
+        // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN for those
+        // (they won't get seen by the charger, but they'll show up on CANoe).
+        // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the FD
+        // peripheral is configured without BRS. Figure out why it wasn't working?
+        if (tx_msg.dlc > 8)
+        {
+            LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
+        }
+        else
+        {
+            LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
+        }
+#else
         LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+#endif
     }
 }
 
@@ -184,15 +224,29 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms = 100U; // 10Hz
+    static const TickType_t period_ms = 1000U; // 1Hz
 
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
 
+        const bool balancing_enabled = app_stateMachine_getCurrentState() == app_balancingState_get();
+
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
+            LOG_IF_ERR(app_segments_configSync());
+
+            // Mute/unmute balancing.
+            if (balancing_enabled)
+            {
+                LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
+            }
+            else
+            {
+                io_ltc6813_sendStopBalanceCommand();
+            }
+
             LOG_IF_ERR(app_segments_runVoltageConversion());
         }
         xSemaphoreGive(isospi_bus_access_lock);
@@ -200,6 +254,8 @@ void tasks_runLtcVoltages(void)
         xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastCellVoltages();
+            app_segments_broadcastVoltageStats();
+            app_segments_balancingTick(balancing_enabled);
         }
         xSemaphoreGive(ltc_app_data_lock);
 
@@ -226,6 +282,7 @@ void tasks_runLtcTemps(void)
         xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastTempsVRef();
+            app_segments_broadcastTempStats();
         }
         xSemaphoreGive(ltc_app_data_lock);
 

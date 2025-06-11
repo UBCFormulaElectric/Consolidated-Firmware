@@ -4,13 +4,33 @@
   "warnings_counts_id": 403,
   "faults_counts_id": 404,
   "warnings": {
+    "MissingVCHeartbeat": {
+      "id": 115,
+      "description": "Missing heartbeat from the VC."
+    },
     "TractiveSystemOvercurrent": {
       "id": 101,
       "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
     },
-    "MissingVCHeartbeat": {
-      "id": 115,
-      "description": "Missing heartbeat from the VC."
+    "CriticalPrechargeFailure": {
+      "id": 451,
+      "description": "Precharge failed >3x"
+    },
+    "CellUndervoltage": {
+      "id": 155,
+      "description": "Cell is critically undervoltage"
+    },
+    "CellOvervoltage": {
+      "id": 156,
+      "description": "Cell is critically overvoltage"
+    },
+    "CellOvertemp": {
+      "id": 159,
+      "description": "Cell is critically overtemp"
+    },
+    "ModuleCommunicationError": {
+      "id": 157,
+      "description": "Failed to communicate with LTC6813 modules."
     }
   },
   "faults": {

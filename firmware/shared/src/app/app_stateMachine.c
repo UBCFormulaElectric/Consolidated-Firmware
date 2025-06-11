@@ -3,17 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __arm__
-#include <FreeRTOS.h>
-#include <semphr.h>
-#elif __unix__ || __APPLE__
-#include <pthread.h>
-#elif _WIN32
-#include <windows.h>
-#else
-#error "Could not determine what CPU this is being compiled for."
-#endif
-
 static const State *next_state;
 static const State *current_state;
 
@@ -68,48 +57,13 @@ static void runTickStateTransition(void)
     // We assume the next time we tick we will continue in the current state,
     // unless told otherwise.
     next_state = current_state;
-
-#ifdef __arm__
-    xSemaphoreGive(state_tick_mutex);
-#elif __unix__ || __APPLE__
-    pthread_mutex_unlock(&(state_tick_mutex));
-#elif _WIN32
-    ReleaseMutex(state_tick_mutex);
-#endif
 }
 
-void app_stateMachine_init(const State *initial_state)
-{
-    current_state = initial_state;
-    next_state    = initial_state;
-
-    if (current_state->run_on_entry != NULL)
-    {
-        current_state->run_on_entry();
-    }
-
-#ifdef __arm__
-    state_tick_mutex = xSemaphoreCreateMutexStatic(&(state_tick_mutex_storage));
-#elif __unix__ || __APPLE__
-    pthread_mutex_init(&(state_tick_mutex), NULL);
-#elif _WIN32
-    state_tick_mutex = CreateMutex(NULL, FALSE, NULL);
-#endif
-}
-
-const State *app_stateMachine_getCurrentState(void)
-{
-    return current_state;
-}
-
-void app_stateMachine_setNextState(const State *const state)
+#ifdef TARGET_TEST
+void app_stateMachine_setCurrentState(const State *const state)
 {
     next_state = state;
-}
-
-void app_stateMachine_tick1Hz(void)
-{
-    runTickFunction(current_state->run_on_tick_1Hz);
+    app_stateMachine_tickTransitionState();
 }
 
 void app_stateMachine_tick100Hz(void)

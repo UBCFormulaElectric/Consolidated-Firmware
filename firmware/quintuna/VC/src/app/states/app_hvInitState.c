@@ -48,7 +48,7 @@ static void hvInitStateRunOnEntry(void)
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_init(&start_up_timer, 1000);
 }
-static void hvInitStateRunOnTick1Hz(void) {}
+
 static void hvInitStateRunOnTick100Hz(void)
 {
     switch (current_inverter_state)
@@ -159,6 +159,5 @@ static void hvInitStateRunOnExit(void)
 
 State hvInit_state = { .name              = "HV INIT",
                        .run_on_entry      = hvInitStateRunOnEntry,
-                       .run_on_tick_1Hz   = hvInitStateRunOnTick1Hz,
                        .run_on_tick_100Hz = hvInitStateRunOnTick100Hz,
                        .run_on_exit       = hvInitStateRunOnExit };
