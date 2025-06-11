@@ -202,24 +202,23 @@ extern "C"
 
 #include "io_faultLatch.h"
     // latches to operate on
-    const FaultLatch bms_ok_latch{};
-    const FaultLatch imd_ok_latch{};
-    const FaultLatch bspd_ok_latch{};
+    FaultLatch bms_ok_latch{};
+    FaultLatch imd_ok_latch{};
+    FaultLatch bspd_ok_latch{};
 
-    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const bool status)
+    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
     {
-        UNUSED(latch);
-        UNUSED(status);
+        const_cast<FaultLatch *>(latch)->status = status;
+        const_cast<FaultLatch *>(latch)->latched_state =
+            latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
     }
-    bool io_faultLatch_getCurrentStatus(const FaultLatch *latch)
+    FaultLatchState io_faultLatch_getCurrentStatus(const FaultLatch *latch)
     {
-        UNUSED(latch);
-        return false;
+        return latch->status;
     }
-    bool io_faultLatch_getLatchedStatus(const FaultLatch *latch)
+    FaultLatchState io_faultLatch_getLatchedStatus(const FaultLatch *latch)
     {
-        UNUSED(latch);
-        return false;
+        return latch->latched_state;
     }
 
 #include "io_bspdTest.h"
@@ -271,4 +270,13 @@ namespace tractiveSystem
         currentLowResolution = current;
     }
 } // namespace tractiveSystem
+
+namespace faultLatches
+{
+    void resetFaultLatch(const FaultLatch *latch)
+    {
+        const_cast<FaultLatch *>(latch)->status        = FAULT_LATCH_OK;
+        const_cast<FaultLatch *>(latch)->latched_state = FAULT_LATCH_OK;
+    }
+} // namespace faultLatches
 } // namespace fakes

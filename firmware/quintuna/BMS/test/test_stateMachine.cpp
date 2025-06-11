@@ -76,11 +76,11 @@ TEST_F(BmsStateMachineTest, check_contactors_open_in_inert_states)
 
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set)
 {
-    app_canAlerts_BMS_Fault_BMSFault_set(true);
+    app_canAlerts_BMS_Fault_AMSFault_set(true);
     LetTimePass(10);
     ASSERT_STATE_EQ(fault_state);
 
-    app_canAlerts_BMS_Fault_BMSFault_set(false);
+    app_canAlerts_BMS_Fault_AMSFault_set(false);
     ASSERT_FALSE(app_canAlerts_AnyBoardHasFault());
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state);

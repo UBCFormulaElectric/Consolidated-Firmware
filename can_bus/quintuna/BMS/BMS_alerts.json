@@ -26,9 +26,9 @@
       "id": 202,
       "description": "AMS fault detected."
     },
-    "BMSFault": {
+    "BSPDFault": {
       "id": 203,
-      "description": "BMS fault detected."
+      "description": "BSPD fault detected."
     }
   },
   "info_id": 405,
