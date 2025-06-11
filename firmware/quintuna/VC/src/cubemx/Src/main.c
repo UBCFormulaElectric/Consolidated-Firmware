@@ -660,7 +660,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.ExtFiltersNbr        = 0;
     hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 1;
+    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxBuffersNbr         = 0;
     hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
@@ -711,7 +711,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.ExtFiltersNbr        = 0;
     hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.RxFifo1ElmtsNbr      = 1;
+    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan2.Init.RxBuffersNbr         = 0;
     hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
@@ -762,7 +762,7 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.ExtFiltersNbr        = 0;
     hfdcan3.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan3.Init.RxFifo1ElmtsNbr      = 1;
+    hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.RxBuffersNbr         = 0;
     hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;

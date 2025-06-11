@@ -48,23 +48,27 @@ void hw_can_deinit(const CanHandle *can_handle)
 
 static ExitCode tx(CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMsg *msg)
 {
-    for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
-    {
-        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
-        // context switching
-        if (poll <= 1000)
-        {
-            poll++;
-            continue;
-        }
-        assert(can_handle->transmit_task == NULL);
-        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        can_handle->transmit_task = xTaskGetCurrentTaskHandle();
-        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
-        UNUSED(num_notifs);
-        can_handle->transmit_task = NULL;
-    }
+    // for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
+    // {
+    //     // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead
+    //     of
+    //     // context switching
+    //     if (poll <= 1000)
+    //     {
+    //         poll++;
+    //         continue;
+    // }
+    // assert(can_handle->transmit_task == NULL);
+    // assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+    // can_handle->transmit_task = xTaskGetCurrentTaskHandle();
+    // const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+    // UNUSED(num_notifs);
+    // can_handle->transmit_task = NULL;
+    // }
 
+    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
+    {
+    }
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
 }
 
@@ -167,11 +171,11 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
     }
 }
 
-static void handleCallback(FDCAN_HandleTypeDef *hfdcan)
+static void handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
     CanMsg           rx_msg;
-    if (IS_EXIT_ERR(hw_fdcan_receive(handle, FDCAN_RX_FIFO0, &rx_msg)))
+    if (IS_EXIT_ERR(hw_fdcan_receive(handle, fifo, &rx_msg)))
         // Early return if RX msg is unavailable.
         return;
 
@@ -187,23 +191,23 @@ static void handleCallback(FDCAN_HandleTypeDef *hfdcan)
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs); // TODO check if this is used / consistent
-    handleCallback(hfdcan);
+    handleCallback(hfdcan, FDCAN_RX_FIFO0);
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    handleCallback(hfdcan);
+    handleCallback(hfdcan, FDCAN_RX_FIFO1);
 }
 
-void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
-{
-    const CanHandle *can = hw_can_getHandle(hfdcan);
-    if (can->transmit_task == NULL)
-    {
-        return;
-    }
-    BaseType_t higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(can->transmit_task, &higherPriorityTaskWoken);
-    portYIELD_FROM_ISR(higherPriorityTaskWoken);
-}
+// void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
+// {
+//     const CanHandle *can = hw_can_getHandle(hfdcan);
+//     if (can->transmit_task == NULL)
+//     {
+//         return;
+//     }
+//     BaseType_t higherPriorityTaskWoken = pdFALSE;
+//     vTaskNotifyGiveFromISR(can->transmit_task, &higherPriorityTaskWoken);
+//     portYIELD_FROM_ISR(higherPriorityTaskWoken);
+// }
