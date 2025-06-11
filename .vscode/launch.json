@@ -6,7 +6,9 @@
       "type": "python",
       "request": "launch",
       "module": "pytest",
-      "args": ["${fileDirname}"],
+      "args": [
+        "${fileDirname}"
+      ],
       "console": "integratedTerminal"
     },
     {
@@ -49,7 +51,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -68,9 +73,10 @@
     {
       "name": "Debug Embedded: VC (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/VC/quintuna_VC_boot.elf",
         "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VC (Quintuna)",
@@ -87,7 +93,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -103,7 +112,6 @@
         ]
       }
     },
-
     {
       "name": "Debug Embedded: DAM (Quintuna)",
       "cwd": "${workspaceRoot}",
@@ -126,7 +134,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -165,7 +176,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -204,7 +218,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -242,7 +259,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -280,7 +300,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -319,7 +342,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -358,7 +384,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -398,7 +427,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -438,7 +470,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -457,12 +492,12 @@
     {
       "name": "Debug Embedded: BMS (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf",
-      // "symbolFiles": [
-      // This order matters, or RTT won't work! (app has to be last)
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
-      // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf",
-      // ],
+      "executable": "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS.hex",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_boot.elf",
+        "build_fw_dev/firmware/quintuna/BMS/quintuna_BMS_app.elf"
+      ],
       "preLaunchTask": "Build Embedded: BMS (Quintuna)",
       // cortex configurations
       "request": "launch",
@@ -477,7 +512,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -498,7 +536,9 @@
       "cwd": "${workspaceRoot}",
       // binary config
       "executable": "build_fw_dev/firmware/dev/SSM/ssm.elf",
-      "symbolFiles": ["build_fw_dev/firmware/dev/SSM/ssm.elf"],
+      "symbolFiles": [
+        "build_fw_dev/firmware/dev/SSM/ssm.elf"
+      ],
       "preLaunchTask": "Build Embedded: SSM",
       // cortex configurations
       "request": "launch",
@@ -513,7 +553,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -547,7 +590,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -585,7 +631,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
@@ -714,7 +763,6 @@
         "MIMode": "lldb"
       }
     },
-
     {
       "name": "Debug Telem Backend",
       "type": "debugpy",

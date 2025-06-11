@@ -7,8 +7,8 @@
 
 typedef struct
 {
-    const Gpio gpio;
-    const bool closed_state; // GPIO state that indicates closed.
+    const Gpio *gpio;
+    const bool  closed_state; // GPIO state that indicates closed.
 } Switch;
 #else
 #include "app_utils.h"

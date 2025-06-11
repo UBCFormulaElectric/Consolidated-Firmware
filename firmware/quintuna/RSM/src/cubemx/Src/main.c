@@ -25,7 +25,6 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_usb.h"
-#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,6 +51,8 @@ CAN_HandleTypeDef hcan2;
 
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
+
+IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
@@ -106,7 +107,7 @@ const osThreadAttr_t TaskCanTx_attributes = {
 };
 /* Definitions for TaskCanRx */
 osThreadId_t         TaskCanRxHandle;
-uint32_t             TaskCanRxBuffer[128];
+uint32_t             TaskCanRxBuffer[512];
 osStaticThreadDef_t  TaskCanRxControlBlock;
 const osThreadAttr_t TaskCanRx_attributes = {
     .name       = "TaskCanRx",
@@ -142,6 +143,7 @@ static void MX_I2C1_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_IWDG_Init(void);
 void        RunTask1KHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTask1Hz(void *argument);
@@ -193,6 +195,7 @@ int main(void)
     MX_I2C3_Init();
     MX_TIM4_Init();
     MX_TIM2_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -201,7 +204,7 @@ int main(void)
     osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     /* USER CODE END RTOS_MUTEX */
 
     /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -276,8 +279,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 4;
@@ -463,7 +467,7 @@ static void MX_I2C3_Init(void)
 
     /* USER CODE END I2C3_Init 1 */
     hi2c3.Instance             = I2C3;
-    hi2c3.Init.ClockSpeed      = 400000;
+    hi2c3.Init.ClockSpeed      = 100000;
     hi2c3.Init.DutyCycle       = I2C_DUTYCYCLE_2;
     hi2c3.Init.OwnAddress1     = 0;
     hi2c3.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -478,6 +482,32 @@ static void MX_I2C3_Init(void)
     /* USER CODE BEGIN I2C3_Init 2 */
 
     /* USER CODE END I2C3_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+#endif
+    /* USER CODE END IWDG_Init 2 */
 }
 
 /**

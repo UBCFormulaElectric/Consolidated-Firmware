@@ -3,7 +3,7 @@ import logging
 from tabulate import tabulate
 import humanize
 from .disk import LogFsDisk
-from logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
+from .logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
 
 
 logger = logging.getLogger(__name__)

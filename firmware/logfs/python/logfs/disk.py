@@ -1,8 +1,8 @@
 import logging
+import os
 from typing import Tuple
 
-from logfs_src import LogFsErr
-import os
+from logfs.logfs_src import LogFsErr
 
 logger = logging.getLogger(__name__)
 

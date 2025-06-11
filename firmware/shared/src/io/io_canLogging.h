@@ -18,7 +18,7 @@
  * Create a new message queue for can logging message
  * Create a new file for this boot for record message
  */
-void io_canLogging_init(void);
+void io_canLogging_init(char *file_name_prefix);
 
 /**
  * Populate queue with another item

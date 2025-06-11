@@ -1,12 +1,29 @@
 #include "hw_bootup.h"
-#include <stdlib.h>
+#include "app_utils.h"
 #include "hw_hal.h"
 #include "FreeRTOS.h"
+
+// SRAM state at power-on is unpredictable - checking for the presence of a "magic number" is a quick-and-dirty way to
+// check if the boot request has been intentionally written or not.
+#define BOOT_MAGIC (0xAB)
 
 // Defined in linker script.
 extern uint32_t __app_code_start__;
 
-void hw_bootup_enableInterruptsForApp()
+typedef struct
+{
+    uint32_t    magic;
+    BootRequest request;
+} BootRequestData;
+
+// The boot_request RAM section gets exactly 16 bytes at the end of the stack.
+static_assert(sizeof(BootRequestData) == 12, "");
+static_assert(_Alignof(BootRequestData) == 4, "");
+
+// Boot flag from RAM
+__attribute__((section(".boot_request"))) volatile BootRequestData boot_request;
+
+void hw_bootup_enableInterruptsForApp(void)
 {
     // Set vector table offset register.
     // The startup handler sets the VTOR to the default value (0x8000000), so even though we update it
@@ -28,4 +45,28 @@ void hw_bootup_enableInterruptsForApp()
     // are broken until the scheduler starts. So, re-enable interrupts here in case that happened, since the app we're
     // jumping too might rely on interrupts in initialization code (like for HAL_Delay, for example).
     portENABLE_INTERRUPTS();
+}
+
+void hw_bootup_setBootRequest(BootRequest request)
+{
+    boot_request.magic   = BOOT_MAGIC;
+    boot_request.request = request;
+}
+
+BootRequest hw_bootup_getBootRequest(void)
+{
+    if (boot_request.magic == BOOT_MAGIC)
+    {
+        return boot_request.request;
+    }
+    else
+    {
+        // Default to app if magic not present.
+        const BootRequest request = {
+            .target        = BOOT_TARGET_APP,
+            .context       = BOOT_CONTEXT_NONE,
+            .context_value = 0,
+        };
+        return request;
+    }
 }

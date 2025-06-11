@@ -13,7 +13,7 @@ option(BUILD_ASM "Build the assembly files" OFF)
 
 # STM32CUBEMX Binary Path
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-    # check if you have the STM32CubeMX_PATH environment variable set 
+    # check if you have the STM32CubeMX_PATH environment variable set
     if (NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
         set(STM32CUBEMX_BIN_PATH "$ENV{STM32CubeMX_PATH}/STM32CubeMX.exe")
     else ()
@@ -225,13 +225,6 @@ function(embedded_binary
             -Wl,-T ${LINKER_SCRIPT}
     )
 
-    #get_property(ELF_COMPILE_OPTIONS TARGET ${ELF_NAME} PROPERTY COMPILE_OPTIONS)
-    #get_property(ELF_COMPILE_DEFINITIONS TARGET ${ELF_NAME} PROPERTY COMPILE_DEFINITIONS)
-    #get_property(ELF_LINK_OPTIONS TARGET ${ELF_NAME} PROPERTY LINK_OPTIONS)
-    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Compile Options: ${ELF_COMPILE_OPTIONS}")
-    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Compile Definitions: ${ELF_COMPILE_DEFINITIONS}")
-    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Link Options: ${ELF_LINK_OPTIONS}")
-
     # 2) Hex file generation
     set(HEX_FILE "${BIN_NAME}.hex")
     set(HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${HEX_FILE}")
@@ -271,7 +264,7 @@ function(embedded_image
     set(IMAGE_HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${IMAGE_HEX}")
 
     set(GENERATE_IMAGE_SCRIPT "${SCRIPTS_DIR}/utilities/generate_image.py")
-    add_custom_target(${IMAGE_HEX} ALL
+    add_custom_target(${IMAGE_HEX}
             COMMENT "[Image] Building ${IMAGE_HEX} and ${APP_METADATA_HEX}"
             COMMAND ${PYTHON_COMMAND} ${GENERATE_IMAGE_SCRIPT}
             --app-hex ${APP_HEX_PATH}
@@ -281,7 +274,6 @@ function(embedded_image
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
-
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
 

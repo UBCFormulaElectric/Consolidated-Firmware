@@ -13,17 +13,9 @@
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
   "files.associations": {
-    "*.c": "c",
-    "*.html": "html",
-    "*.sqlbook": "sql",
-    "*.ndjson": "jsonl",
-    "*.dbclient-js": "javascript",
-    "io_jsoncan.h": "c",
-    "io_telemmessage.h": "c",
-    "chrono": "c",
-    "io_canrx.h": "c",
-    "io_telembasetime.h": "c",
-    "io_canmsg.h": "c",
-    "app_units.h": "c"
-  }
+    "hw_bootup.h": "c",
+    "hw_gpios.h": "c",
+    "hw_freertosconfigs.h": "c"
+  },
+  "cortex-debug.variableUseNaturalFormat": true
 }

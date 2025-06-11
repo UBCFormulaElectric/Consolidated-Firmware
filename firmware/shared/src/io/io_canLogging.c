@@ -58,7 +58,7 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-void io_canLogging_init(void)
+void io_canLogging_init(char *file_name_prefix)
 {
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
     assert(message_queue_id != NULL);
@@ -69,10 +69,14 @@ void io_canLogging_init(void)
     // create new file for this boot
     CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
-    sprintf(current_path, "/%lu.txt", current_bootcount);
+    if (file_name_prefix == NULL)
+        snprintf(current_path, sizeof(current_path), "/%03lu.txt", current_bootcount);
+    else
+        snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", file_name_prefix, current_bootcount);
+
+    // Open the log file
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);
 }
-
 void io_canLogging_recordMsgFromQueue(void)
 {
     CHECK_ENABLED();
