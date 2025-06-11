@@ -42,7 +42,7 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     JsonCanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(JsonCanMsg));
     tx_msg.std_id = {{msg.id_macro()}};
-    tx_msg.dlc = {{msg.bytes_macro()}};
+    tx_msg.dlc = {{msg.dlc_macro()}};
     #ifdef THREAD_SAFE_CAN_PACKING
     lock();
     #endif
@@ -72,8 +72,8 @@ void io_canTx_{{msg.name}}_sendAperiodic()
 
 void io_canTx_init( 
     {% for bus_name in node_bus_names -%}
-    void (*transmit_{{bus_name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
-    {% endfor %}
+    void (*transmit_{{bus_name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif -%}
+    {%- endfor %}
 )
 {
     {%- for bus_name in node_bus_names %}
@@ -81,26 +81,26 @@ void io_canTx_init(
     {%- endfor %}
 }
 
-{% for bus_name in node_bus_names %}
+
+{% for bus_name in node_bus_names -%}
 void io_canTx_enableMode_{{bus_name}}({{bus_name}}Mode mode, bool enable)
 {
     if (enable)
     {
         can_mode_{{bus_name}} |= (uint32_t)mode; // Enable mode
-        
     }
     else
     {
         can_mode_{{bus_name}} &= ~((uint32_t)mode); // Disable mode
     }
 }
-{% endfor %}
+{%- endfor %}
 
 
 
 void io_canTx_enqueue1HzMsgs()
 {
-    {%- for msg in messages if msg.cycle_time == 1000 %}
+    {% for msg in messages if msg.cycle_time == 1000 -%}
     io_canTx_{{ msg.name }}_sendPeriodic();
     {%- endfor %}
 }

@@ -13,19 +13,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: quintuna_VC
+          - board: quintuna_VC.hex
             bin_name: quintuna_VC_app_metadata.hex
             build_dir: firmware/quintuna/VC
-          - board: quintuna_BMS
+          - board: quintuna_BMS.hex
             bin_name: quintuna_BMS_app_metadata.hex
             build_dir: firmware/quintuna/BMS
-          - board: quintuna_FSM
+          - board: quintuna_FSM.hex
             bin_name: quintuna_FSM_app_metadata.hex
             build_dir: firmware/quintuna/FSM
-          - board: quintuna_RSM
+          - board: quintuna_RSM.hex
             bin_name: quintuna_RSM_app_metadata.hex
             build_dir: firmware/quintuna/RSM
-          - board: quintuna_DAM
+          - board: quintuna_DAM.hex
             bin_name: quintuna_DAM_app_metadata.hex
             build_dir: firmware/quintuna/DAM
     container:

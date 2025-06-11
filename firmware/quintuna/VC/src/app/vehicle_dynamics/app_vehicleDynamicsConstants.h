@@ -1,8 +1,8 @@
 #pragma once
-// #include "app_pid.h"
-// #include "app_yawRateController.h"
-#include "app_velocityEstimator.h"
+#include "app_pid.h"
+#include "app_yawRateController.h"
 #include "app_units.h"
+#include "app_velocityEstimator.h"
 
 // Constants
 
@@ -28,14 +28,15 @@
 #define PID_POWER_FACTOR_MIN (-0.9f)
 #define PID_POWER_FACTOR_MAX 0.1f
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f // Underestimate for wheel angles > 40deg. See Confluence/Steering System
-#define MAX_TORQUE_REQUEST_NM (90.0f)       // Max torque of EMRAX 188 HV CC motor
+#define MAX_TORQUE_REQUEST_NM (20.5f)       // Max torque of AMK DD5-14-10-POW motor -- ACTUAL LIMIT IS 21
+#define NOMINAL_TORQUE_REQUEST_NM (9.8f)    // Nominal torque of AMK DD5-14-10-POW motor
 #define MAX_REGEN_Nm -30.0f
 #define MAX_BATTERY_TEMP 45
 #define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
 
 // Tunable parameters
-// extern const PID_Config               PID_POWER_CORRECTION_CONFIG;
-// extern const PID_Config               PID_TRACTION_CONTROL_CONFIG;
-// extern const PID_Config               PID_YAW_RATE_CONTROLLER_CONFIG;
-// extern const YawRateController_Config YAW_RATE_CONTROLLER_CONFIG;
+extern const PID_Config               PID_POWER_CORRECTION_CONFIG;
+extern const PID_Config               PID_TRACTION_CONTROL_CONFIG;
+extern const PID_Config               PID_YAW_RATE_CONTROLLER_CONFIG;
+extern const YawRateController_Config YAW_RATE_CONTROLLER_CONFIG;
 extern const VelocityEstimator_Config VELOCITY_ESTIMATOR_CONFIG;

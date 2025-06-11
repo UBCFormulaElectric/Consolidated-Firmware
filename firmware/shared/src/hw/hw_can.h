@@ -5,6 +5,7 @@
 #include "io_canMsg.h"
 #include "main.h"
 #include "hw_utils.h"
+#include <cmsis_os.h>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
@@ -16,6 +17,7 @@ typedef struct
     const uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     void (*const receive_callback)(const CanMsg *rx_msg);
     bool ready;
+    // TaskHandle_t transmit_task;
 } CanHandle;
 
 /**
@@ -43,7 +45,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.

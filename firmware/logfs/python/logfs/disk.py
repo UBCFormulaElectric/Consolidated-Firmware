@@ -1,8 +1,8 @@
 import logging
+import os
 from typing import Tuple
 
-from logfs_src import LogFsErr
-import os
+from logfs.logfs_src import LogFsErr
 
 logger = logging.getLogger(__name__)
 
@@ -111,10 +111,13 @@ try:
     import win32file
 except ImportError:
     win32file = None
+
+
 class LogFsWinDisk(LogFsDisk):
     """
     Disk used for interacting with a logfs image on a disk on a Windows machine.
     """
+
     # example disk_patgh E: (indicate the E drive)
     def __init__(self, block_size: int, block_count: int, disk_path: str) -> None:
         super().__init__(block_size=block_size, block_count=block_count)
@@ -130,26 +133,36 @@ class LogFsWinDisk(LogFsDisk):
             0,
             None,
         )
+
     def write_impl(self, block: int, data: bytes) -> LogFsErr:
-        win32file.SetFilePointer(self.disk, self.block_size * block, win32file.FILE_BEGIN)
+        win32file.SetFilePointer(
+            self.disk, self.block_size * block, win32file.FILE_BEGIN
+        )
         win32file.WriteFile(self.disk, data)
         return LogFsErr.OK
+
     def read_impl(self, block: int) -> Tuple[LogFsErr, bytes]:
-        win32file.SetFilePointer(self.disk, self.block_size * block, win32file.FILE_BEGIN)
+        win32file.SetFilePointer(
+            self.disk, self.block_size * block, win32file.FILE_BEGIN
+        )
         err, data = win32file.ReadFile(self.disk, self.block_size)
         return LogFsErr.OK, data
+
     def __del__(self):
         if hasattr(self, "disk") and self.disk is not None:
             win32file.CloseHandle(self.disk)
-class LogFsDiskFactory():
+
+
+class LogFsDiskFactory:
     @staticmethod
     def create_disk(block_size: int, block_count: int, disk_path: str):
-        if os.name == "nt": 
+        if os.name == "nt":
             return LogFsWinDisk(block_size, block_count, disk_path)
         elif os.name == "posix":
             return LogFsUnixDisk(block_size, block_count, disk_path)
         else:
             raise NotImplementedError(f"Unsupported OS: { os.name }")
+
     @staticmethod
     def create_ram_disk(block_size: int, block_count: int):
         return LogFsRamDisk(block_size, block_count)

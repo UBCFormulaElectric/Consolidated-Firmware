@@ -19,7 +19,7 @@
 
 // Msg lengths (in bytes)
 {% for message in messages -%}
-#define {{ message.bytes_macro() }} ({{ message.bytes() }})
+#define {{ message.dlc_macro() }} ({{ message.dlc() }})
 {% endfor %}
 
 // Periodic msg cycle times (in MS)

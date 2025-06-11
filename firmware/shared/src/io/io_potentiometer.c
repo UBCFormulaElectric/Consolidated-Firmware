@@ -1,6 +1,8 @@
 #include "io_potentiometer.h"
 #include "app_utils.h"
-#include "hw_i2c.h"
+#include "hw_utils.h"
+#include "hw_i2cs.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

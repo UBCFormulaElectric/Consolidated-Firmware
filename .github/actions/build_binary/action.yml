@@ -25,4 +25,4 @@ runs:
       shell: bash
       run: |
         cmake --preset "FW Deploy CI" -B ${{ inputs.build_dir }}
-        cmake --build ${{ inputs.build_dir }} --target ${{ inputs.board }}.hex -- -j $(nproc)
+        cmake --build ${{ inputs.build_dir }} --target ${{ inputs.board }} -- -j $(nproc)

@@ -324,8 +324,12 @@ void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
     convertGpsToMeasurement(&measurement_gps, inputs);
 
     predict(&state_estimate, &control_input);
-    update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
-    update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
+    // use wheelspeed measurement if they are not slipping
+    if (inputs->rpm_derivative_ok)
+        update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
+    // use gps measurement if sbg is in the correct mode (solution mode 4)
+    if (inputs->ekf_solution_4_valid)
+        update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
 }
 
 float *app_velocityEstimator_getVelocity()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /*
  * Extended Kalman Filter (EKF)
@@ -55,6 +56,9 @@ typedef struct
     float accel_x;
     float accel_y;
     float yaw_rate_rad;
+    // conditional inputs
+    bool ekf_solution_4_valid;
+    bool rpm_derivative_ok;
 } VelocityEstimator_Inputs;
 
 typedef struct

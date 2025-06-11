@@ -18,7 +18,7 @@ class _BusConfigJson(TypedDict):
     modes: list[str]
     default_mode: str
     nodes: list[str]
-    FD: Optional_t[bool]
+    fd: Optional_t[bool]
 
 
 class _BusJson(TypedDict):
@@ -51,7 +51,7 @@ _BusJson_schema = Schema(
                         "modes": [str],
                         "default_mode": str,
                         "nodes": [str],
-                        Optional("FD"): bool,
+                        Optional("fd"): bool,
                     }
                 ]
             ),
@@ -94,7 +94,7 @@ def parse_bus_data(
             modes=bus["modes"],
             bus_speed=bus["bus_speed"],
             node_names=bus["nodes"],
-            fd=bus.get("FD", False),
+            fd=bus.get("fd", False),
         )
 
     forwarders = []

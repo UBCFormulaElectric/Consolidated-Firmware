@@ -1,0 +1,71 @@
+{
+  "Measurement": {
+    "msg_id": 269,
+    "cycle_time": 20,
+    "description": "EMeter Current and Voltage",
+    "signals": {
+      "MeasurementCurrent": {
+        "bits": 32,
+        "unit": "A"
+      },
+      "MeasurementVoltage": {
+        "bits": 32,
+        "unit": "V"
+      }
+    }
+  },
+  "Status": {
+    "msg_id": 1037,
+    "cycle_time": 100,
+    "description": "Status EMeter Message",
+    "signals": {
+      "Violation": {
+        "start_bit": 0,
+        "bits": 1
+      },
+      "Logging": {
+        "start_bit": 1,
+        "bits": 1
+      },
+      "Energy": {
+        "start_bit": 4,
+        "bits": 32,
+        "unit": "Whr"
+      }
+    }
+  },
+  "Temperature": {
+    "msg_id": 1549,
+    "cycle_time": 250,
+    "description": "Temperature EMeter Message (All temps need scale degC = raw * 0.5)",
+    "signals": {
+      "Signal0_1_2_3_4_5_6": {
+        "bits": 3
+      },
+      "NumSensor": {
+        "bits": 5
+      },
+      "MinTemp": {
+        "bits": 8
+      },
+      "MaxTemp": {
+        "bits": 8
+      },
+      "Temp0_5_10_15_20_25_30": {
+        "bits": 8
+      },
+      "Temp1_6_11_16_21_26_31": {
+        "bits": 8
+      },
+      "Temp2_7_12_17_22_27": {
+        "bits": 8
+      },
+      "Temp3_8_13_18_23_28": {
+        "bits": 8
+      },
+      "Temp4_9_14_19_24_29": {
+        "bits": 8
+      }
+    }
+  }
+}

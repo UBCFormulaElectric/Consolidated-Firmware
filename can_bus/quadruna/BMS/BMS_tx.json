@@ -844,7 +844,6 @@
   },
   "AverageSegmentTemperatureStats": {
     "msg_id": 165,
-
     "cycle_time": 1000,
     "description": "Average temperatures for each segment in the accumulator",
     "allowed_modes": ["debug"],

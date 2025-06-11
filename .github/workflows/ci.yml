@@ -103,19 +103,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #          - board: quadruna_VC
-          #          - board: quadruna_BMS
-          #          - board: quadruna_FSM
-          #          - board: quadruna_RSM
-          #          - board: quadruna_CRIT
-          - board: f4dev
-          - board: h7dev
-          - board: quintuna_BMS
-          - board: quintuna_CRIT
-          - board: quintuna_DAM
-          - board: quintuna_FSM
-          - board: quintuna_RSM
-          - board: quintuna_VC
+          - board: f4dev.elf
+          - board: h7dev.hex
+          - board: quintuna_BMS.hex
+          - board: quintuna_CRIT.hex
+          - board: quintuna_DAM.hex
+          - board: quintuna_FSM.hex
+          - board: quintuna_RSM.hex
+          - board: quintuna_VC.hex
 
     container:
       image: ubcformulaelectric/environment:arm_14
@@ -285,8 +280,7 @@ jobs:
 
       - name: Build and install `logfs`
         run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target install_python_logfs
+          pip install -e firmware/logfs/python
           pytest -v firmware/logfs/test
   test-jsoncan:
     name: Test jsonCAN

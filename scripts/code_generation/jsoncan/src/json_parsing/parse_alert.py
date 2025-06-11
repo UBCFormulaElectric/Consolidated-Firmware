@@ -231,7 +231,6 @@ def _parse_node_alerts(
         node_name, info, CanAlertType.INFO
     )
 
-    # noinspection PyTypeChecker
     alerts_msgs: tuple[
         CanMessage, CanMessage, CanMessage, CanMessage, CanMessage, CanMessage
     ] = tuple(

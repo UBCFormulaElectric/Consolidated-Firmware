@@ -2,9 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// TODO when jiajun gets can routing done
-// #include <io_canRouting>
-
 #ifdef STM32F412Rx
 #define CAN_PAYLOAD_BYTES 8
 #elif STM32H733xx

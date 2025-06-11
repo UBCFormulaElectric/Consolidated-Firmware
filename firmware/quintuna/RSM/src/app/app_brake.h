@@ -1,0 +1,1 @@
+void app_brake_broadcast(void);

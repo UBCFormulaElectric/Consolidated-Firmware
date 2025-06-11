@@ -1,7 +1,6 @@
 {
   "AlertsContext": {
     "msg_id": 414,
-
     "cycle_time": 1000,
     "signals": {
       "WatchdogTimeoutTaskName": {
@@ -17,7 +16,6 @@
   },
   "Vitals": {
     "msg_id": 415,
-
     "cycle_time": 100,
     "description": "RSM vitals message.",
     "signals": {
@@ -31,7 +29,6 @@
   },
   "Coolant": {
     "msg_id": 416,
-
     "cycle_time": 1000,
     "signals": {
       "CoolantFlowRate": {
@@ -69,7 +66,6 @@
   "Suspension": {
     "disabled": true,
     "msg_id": 417,
-
     "cycle_time": 100,
     "description": "Suspension travel.",
     "signals": {
@@ -90,7 +86,6 @@
   "LoadCell": {
     "disabled": true,
     "msg_id": 418,
-
     "cycle_time": 100,
     "description": "Mechanical load on load cell",
     "signals": {
@@ -108,7 +103,6 @@
   },
   "CommitInfo": {
     "msg_id": 419,
-
     "cycle_time": 100,
     "description": "RSM Current Running Git Commit Info",
     "signals": {
@@ -122,7 +116,6 @@
   },
   "BrakeLight": {
     "msg_id": 420,
-
     "cycle_time": 100,
     "description": "BrakeLight",
     "signals": {
@@ -133,7 +126,6 @@
   },
   "Fans": {
     "msg_id": 421,
-
     "cycle_time": 100,
     "description": "Accumulator and Radiator fan",
     "signals": {

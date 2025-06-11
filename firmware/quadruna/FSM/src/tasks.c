@@ -11,7 +11,7 @@
 #include "app_stackWaterMarks.h"
 #include "app_utils.h"
 
-#include "io_jsoncan.h"
+#include "app_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -100,7 +100,7 @@ void tasks_preInit(void)
 
 static void jsoncan_transmit(const JsonCanMsg *tx_msg)
 {
-    const CanMsg msg = io_jsoncan_copyToCanMsg(tx_msg);
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&msg);
 }
 
@@ -262,7 +262,7 @@ _Noreturn void tasks_runCanRx(void)
         CanMsg rx_msg = io_canQueue_popRx();
         io_bootHandler_processBootRequest(&rx_msg);
 
-        JsonCanMsg jsoncan_rx_msg = io_jsoncan_copyFromCanMsg(&rx_msg);
+        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

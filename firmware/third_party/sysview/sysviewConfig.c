@@ -1,9 +1,12 @@
 #include "FreeRTOS.h"
 #include "SEGGER_SYSVIEW.h"
 
+#include <SEGGER_RTT.h>
+#include <string.h>
+
 // EXTERNS
 extern const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI;
-void hw_sysviewConfig_sendSystemDesc(void); // define this in a hw_sysviewDescConfig.c
+void                               hw_sysviewConfig_sendSystemDesc(void); // define this in a hw_sysviewDescConfig.c
 
 // Frequency of the timestamp. Must match SEGGER_SYSVIEW_GET_TIMESTAMP in SEGGER_SYSVIEW_Conf.h
 #define SYSVIEW_TIMESTAMP_FREQ (configCPU_CLOCK_HZ)
@@ -13,7 +16,9 @@ void hw_sysviewConfig_sendSystemDesc(void); // define this in a hw_sysviewDescCo
 #define SYSVIEW_RAM_BASE (0x10000000)
 void SEGGER_SYSVIEW_Conf(void)
 {
-    SEGGER_SYSVIEW_Init(SYSVIEW_TIMESTAMP_FREQ, SYSVIEW_CPU_FREQ, &SYSVIEW_X_OS_TraceAPI, hw_sysviewConfig_sendSystemDesc);
+    memset(&_SEGGER_RTT, 0, sizeof(_SEGGER_RTT)); // Clear RTT buffer
+    SEGGER_SYSVIEW_Init(
+        SYSVIEW_TIMESTAMP_FREQ, SYSVIEW_CPU_FREQ, &SYSVIEW_X_OS_TraceAPI, hw_sysviewConfig_sendSystemDesc);
     SEGGER_SYSVIEW_SetRAMBase(SYSVIEW_RAM_BASE);
 }
 
