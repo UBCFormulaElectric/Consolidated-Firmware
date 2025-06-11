@@ -45,29 +45,70 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   const [scaleFactor, setScaleFactor] = useState(100);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLDivElement>(null);
   
   // Track signals this component instance subscribed to for proper cleanup
   const componentSubscriptions = useRef<Set<string>>(new Set());
 
   const chartData = React.useMemo(() => {
     const windowMs = 100;
-    const map: Record<number, any> = {};
+    const filteredData = numericalData.filter(
+      (d) =>
+        activeSignals.includes(d.name as string) &&
+        isNumericalSignal(d.name as string)
+    );
 
-    numericalData
-      .filter(
-        (d) =>
-          activeSignals.includes(d.name as string) &&
-          isNumericalSignal(d.name as string)
-      )
-      .forEach((d) => {
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        const r = Math.floor(t / windowMs) * windowMs;
-        if (!map[r]) map[r] = { time: r };
-        map[r][d.name as string] = d.value;
+    if (filteredData.length === 0) return [];
+
+    // Create time windows from all data points
+    const timeWindows = new Set<number>();
+    filteredData.forEach((d) => {
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      const r = Math.floor(t / windowMs) * windowMs;
+      timeWindows.add(r);
+    });
+
+    const sortedTimes = Array.from(timeWindows).sort((a, b) => a - b);
+    
+    // Track last known value for each signal to fill gaps
+    const lastKnownValues: Record<string, number> = {};
+    
+    // Group data by signal and time for efficient lookup
+    const dataBySignal: Record<string, Record<number, number>> = {};
+    filteredData.forEach((d) => {
+      const signalName = d.name as string;
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      const r = Math.floor(t / windowMs) * windowMs;
+      
+      if (!dataBySignal[signalName]) {
+        dataBySignal[signalName] = {};
+      }
+      dataBySignal[signalName][r] = d.value !== undefined ? Number(d.value) : 0;
+    });
+
+    // Build chart data with forward-filled values
+    return sortedTimes.map((time) => {
+      const dataPoint: any = { time };
+      
+      // For each active signal, get the value or carry forward the last known value
+      activeSignals.forEach((signalName) => {
+        if (!isNumericalSignal(signalName)) return;
+        
+        const signalData = dataBySignal[signalName];
+        if (signalData && signalData[time] !== undefined) {
+          // We have data for this time point
+          lastKnownValues[signalName] = signalData[time];
+          dataPoint[signalName] = signalData[time];
+        } else if (lastKnownValues[signalName] !== undefined) {
+          // No data for this time point, use last known value
+          dataPoint[signalName] = lastKnownValues[signalName];
+        }
+        // If no last known value exists, don't add the property (signal hasn't started yet)
       });
-
-    return Object.values(map).sort((a, b) => a.time - b.time);
+      
+      return dataPoint;
+    });
   }, [numericalData, activeSignals, isNumericalSignal]);
 
   const numericalSignals = React.useMemo(
@@ -138,13 +179,13 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   }, []);  // Empty deps - only on mount/unmount
 
   return (
-    <div className="mb-6 p-4 inline-block w-min-[100vm]">
+    <div className="mb-6 p-4 inline-block w-min-[100vm] relative">
       {isPaused && (
         <div className="top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10 block">
           PAUSED
         </div>
       )}
-      <div className=" sticky left-0 block w-[50vw] animate-none overscroll-contain">
+      <div className=" sticky left-0 block w-[50vw] animate-none overscroll-contain relative z-40">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="font-semibold">Numerical Graph</h3>
           <button
@@ -203,13 +244,26 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
             );
           })}
           {availableOptions.length > 0 && (
-            <div className="relative">
+            <div ref={buttonRef} className="relative z-50">
               <PlusButton
-                onClick={() => setIsSearchOpen((o) => !o)}
+                onClick={() => {
+                  if (buttonRef.current) {
+                    const rect = buttonRef.current.getBoundingClientRect();
+                    setDropdownPosition({
+                      top: rect.bottom + window.scrollY + 4,
+                      left: rect.left + window.scrollX
+                    });
+                  }
+                  setIsSearchOpen((o) => !o);
+                }}
                 variant="rowSide"
               />
               {isSearchOpen && (
-                <div className="absolute top-full left-0 mt-1 bg-white border rounded shadow w-64 p-2 z-10">
+                <div className="fixed bg-white border rounded shadow w-64 p-2 z-[9999]" 
+                     style={{
+                       top: dropdownPosition.top,
+                       left: dropdownPosition.left
+                     }}>
                   <input
                     type="text"
                     placeholder="Search numerical signals..."
