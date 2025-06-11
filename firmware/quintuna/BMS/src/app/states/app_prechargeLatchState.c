@@ -10,9 +10,8 @@ static void prechargeLatchStateRunOnEntry(void)
 
 static void prechargeLatchStateRunOnTick100Hz(void)
 {
-    io_time_delay(3000U); // Wait for 3 seconds to allow precharge circuit resistors to 
+    io_time_delay(3000U); // Wait for 3 seconds to allow precharge circuit resistors to
     app_stateMachine_setNextState(&init_state);
-    
 }
 
 static void prechargeLatchStateRunOnExit(void)

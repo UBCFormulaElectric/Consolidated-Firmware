@@ -24,7 +24,7 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
-    const bool irs_negative_closed = io_irs_negativeState();
+    const bool irs_negative_closed    = io_irs_negativeState();
     const bool ts_discharged          = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
     const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
     // const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
@@ -57,24 +57,24 @@ static void initStateRunOnTick100Hz(void)
         }
     }
 
-        // const bool precharge_for_charging = charger_connected && external_charging_request;
-        // TODO: Update state change condition
-        // const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled && !missing_hb;
-        const bool precharge_for_driving = app_canRx_VC_State_get() == VC_BMS_ON_STATE;
+    // const bool precharge_for_charging = charger_connected && external_charging_request;
+    // TODO: Update state change condition
+    // const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled && !missing_hb;
+    const bool precharge_for_driving = app_canRx_VC_State_get() == VC_BMS_ON_STATE;
 
-        // if (precharge_for_charging)
-        // {
-        //     app_stateMachine_setNextState(app_prechargeState_get());
-        // }
-        if (precharge_for_driving)
-        {
-            app_stateMachine_setNextState(&precharge_state);
-        }
-        else if (cell_balancing_enabled)
-        {
-            app_stateMachine_setNextState(&balancing_state);
-        }
+    // if (precharge_for_charging)
+    // {
+    //     app_stateMachine_setNextState(app_prechargeState_get());
+    // }
+    if (precharge_for_driving)
+    {
+        app_stateMachine_setNextState(&precharge_state);
     }
+    else if (cell_balancing_enabled)
+    {
+        app_stateMachine_setNextState(&balancing_state);
+    }
+}
 }
 
 const State init_state = {
