@@ -6,20 +6,14 @@
   "info_id": 905,
   "info_counts_id": 906,
   "warnings": {
-    "WatchdogTimeout": {
-      "id": 906,
-      "description": "Watchdog timeout detected."
-    },
-    "TxOverflow": {
-      "id": 907,
-      "description": "CAN TX queue has overflowed."
-    },
-    "RxOverflow": {
-      "id": 908,
-      "description": "CAN RX queue has overflowed."
-    }
   },
-  "faults": {
+  "faults": { 
+  },
+  "info": {
+    "StackOverflow": {
+      "id": 550,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
     "MissingBMSHeartbeat": {
       "id": 950,
       "description": "Missing heartbeat signal from the BMS."
@@ -39,12 +33,18 @@
     "MissingDAMHeartbeat": {
       "id": 952,
       "description": "Missing heartbeat signal from the RSM."
-    }
-  },
-  "info": {
-    "StackOverflow": {
-      "id": 550,
-      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "WatchdogTimeout": {
+      "id": 906,
+      "description": "Watchdog timeout detected."
+    },
+    "TxOverflow": {
+      "id": 907,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 908,
+      "description": "CAN RX queue has overflowed."
     }
   }
 }
