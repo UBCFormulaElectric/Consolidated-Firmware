@@ -243,6 +243,7 @@
       "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_boot.elf",
         "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: FSM (Quintuna)",
@@ -531,7 +532,7 @@
         ]
       }
     },
-      {
+    {
       "name": "Debug Embedded: VCR (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf",
@@ -554,7 +555,10 @@
       "windows": {
         "serverpath": "JLinkGDBServerCL"
       },
-      "serverArgs": ["-speed", "4000"],
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",
