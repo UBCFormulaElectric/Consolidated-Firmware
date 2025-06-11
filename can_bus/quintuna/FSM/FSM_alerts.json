@@ -55,6 +55,10 @@
     "AppsDisagreement": {
       "id": 610,
       "description": "Conflict between primary and secondary accelerator pedals."
+    },
+    "FrontBrakePressureOutOfRange": {
+      "id": 611,
+      "description": "Front brake pressure out of range."
     }
   },
   "faults": {}
