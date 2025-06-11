@@ -142,7 +142,6 @@ _Noreturn void tasks_run1kHz(void)
 
     static const TickType_t period_ms   = 1U;
     uint32_t                start_ticks = osKernelGetTickCount();
-    tasks_init();
     for (;;)
     {
         // const uint32_t task_start_ms = io_time_getCurrentMs();

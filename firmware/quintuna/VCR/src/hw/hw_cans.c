@@ -10,24 +10,15 @@
 
 // NOTE: can2 refers to the CAN2_TX/RX on the altium
 // I believe CAN2 on the altium refers to can3
-bool rx_filter_buffer(const CanMsg *msg)
-{
-    return (
-        io_canRx_filterMessageId_can1(msg->std_id) || io_canRx_filterMessageId_can2(msg->std_id) ||
-        io_canRx_filterMessageId_can3(msg->std_id));
-}
 
 void handleCallback(const CanMsg *rx_msg)
 {
-    if (!rx_filter_buffer(rx_msg))
-        return;
-
     io_bootloaderReroute_reRoute(rx_msg);
 
     JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(rx_msg);
 
     io_canReroute_can1(&json_can_msg);
-    io_canReroute_can2(&json_can_msg);
+    // io_canReroute_can2(&json_can_msg);
     io_canReroute_can3(&json_can_msg);
 }
 
