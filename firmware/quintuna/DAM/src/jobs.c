@@ -99,13 +99,13 @@ void jobs_run100Hz_tick(void)
 
     // following TSIM outline stated in
     // https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
-    const bool fault_detected = app_canRx_BMS_BmsLatchOk_get() || app_canRx_BMS_ImdLatchOk_get();
-    if (!fault_detected)
+    const bool no_fault = app_canRx_BMS_BmsLatchOk_get() && app_canRx_BMS_ImdLatchOk_get();
+    if (no_fault)
     {
         io_tsim_set_green();
         app_timer_stop(&tsim_toggle_timer);
     }
-    else if (fault_detected)
+    else if (!no_fault)
     {
         static TsimColor next_tsim_color = TSIM_RED;
 
