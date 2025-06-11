@@ -84,7 +84,7 @@ static TimerChannel cell_monitor_settle_timer;
 // Time for voltage and cell temperature values to settle
 #define CELL_MONITOR_TIME_TO_SETTLE_MS (300U)
 
-void profileInit(Profile *profile, const ProfileConfig *config)
+static void profileInit(Profile *profile, const ProfileConfig *config)
 {
     app_timer_init(&profile->under_voltage_fault_timer, config->under_voltage_debounce_ms);
     app_timer_init(&profile->over_voltage_fault_timer, config->over_voltage_debounce_ms);
@@ -96,7 +96,7 @@ void profileInit(Profile *profile, const ProfileConfig *config)
     app_timer_restart(&cell_monitor_settle_timer);
 }
 
-bool checkProfile(Profile *profile)
+static bool checkProfile(Profile *profile)
 {
     // if we are charging, max cell temp is 45C not 60C
     const bool  is_charging             = app_stateMachine_getCurrentState() == &charge_state;
