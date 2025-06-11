@@ -38,7 +38,8 @@ static void app_prechargeChargeStateRunOnEntry(void)
 
 static void app_prechargeChargeStateRunOnTick100Hz(void)
 {
-    const PrechargeState state = app_precharge_poll(true);
+    bool precharge_for_charging = true;
+    const PrechargeState state = app_precharge_poll(precharge_for_charging);
 
     if (state == PRECHARGE_STATE_FAILED_CRITICAL)
     {

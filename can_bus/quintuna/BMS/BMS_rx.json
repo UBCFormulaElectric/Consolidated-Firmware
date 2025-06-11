@@ -2,6 +2,7 @@
   "messages": [
     "Elcon_Vitals",
     "VC_Vitals",
+    "VC_MainBoardEfuse",
     "Debug_CanMode",
     "Debug_Charging",
     "Debug_SetBSPDTestCurrent",

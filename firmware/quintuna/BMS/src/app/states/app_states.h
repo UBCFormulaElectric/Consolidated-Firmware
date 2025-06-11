@@ -8,6 +8,7 @@ extern const State precharge_latch_state;
 
 // charge states
 extern const State precharge_charge_state;
+extern const State prechatge_drive_state;
 extern const State charge_state;
 extern const State charge_init_state;
 extern const State charge_fault_state;

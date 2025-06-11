@@ -1,5 +1,6 @@
 #include "app_stateMachine.h"
 #include "app_prechargeChargeState.h"
+#include "app_prechargeDriveState.h"
 #include "app_tractiveSystem.h"
 #include "io_faultLatch.h"
 #include "io_irs.h"
@@ -46,6 +47,10 @@ static void app_initStateRunOnTick100Hz(void)
         else if (cell_balancing_enabled)
         {
             app_stateMachine_setNextState(app_balancingState_get());
+        }
+        else if (app_canRx_VC_BMSStatus_get())
+        {
+            app_stateMachine_setNextState(app_prechargeDriveState_get());
         }
     }
 
