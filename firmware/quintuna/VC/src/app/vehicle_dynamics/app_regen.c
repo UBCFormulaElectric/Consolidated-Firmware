@@ -77,7 +77,7 @@ bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_In
 static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
 {
     inputs->motor_speed_rr_rpm = -(float)app_canRx_INVRL_ActualVelocity_get();
-    inputs->motor_speed_rl_rpm  = (float)app_canRx_INVRR_ActualVelocity_get();
+    inputs->motor_speed_rl_rpm = (float)app_canRx_INVRR_ActualVelocity_get();
 
     return MOTOR_RPM_TO_KMH(inputs->motor_speed_rr_rpm) > SPEED_MIN_kph &&
            MOTOR_RPM_TO_KMH(inputs->motor_speed_rl_rpm) > SPEED_MIN_kph;
@@ -95,7 +95,6 @@ void app_regen_sendTorqueRequest(float left, float right)
     app_canTx_VC_INVFRTorqueSetpoint_set((int)right);
     app_canTx_VC_INVRLTorqueSetpoint_set((int)left);
     app_canTx_VC_INVRRTorqueSetpoint_set((int)right);
-
 }
 
 void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
@@ -106,7 +105,8 @@ void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs
     float cr = (1 - Delta);
 
     float torque_limit_Nm = -app_activeDifferential_powerToTorque(
-        inputs->power_max_kW, inputs->motor_speed_rr_rpm, inputs->motor_speed_rl_rpm, inputs->motor_speed_fr_rpm, inputs->motor_speed_fl_rpm, cl, cr);
+        inputs->power_max_kW, inputs->motor_speed_rr_rpm, inputs->motor_speed_rl_rpm, inputs->motor_speed_fr_rpm,
+        inputs->motor_speed_fl_rpm, cl, cr);
 
     float torque_left_Nm         = torque_limit_Nm * cl;
     float torque_right_Nm        = torque_limit_Nm * cr;
@@ -131,11 +131,11 @@ static void computeRegenTorqueRequest(
     float min_motor_speed =
         MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_rr_rpm, activeDiffInputs->motor_speed_rl_rpm));
 
-    powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value 
+    powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value
     // powerInputs->left_motor_temp_C         = app_canRx_INVL_MotorTemperature_get();
     // powerInputs->right_motor_temp_C        = app_canRx_INVR_MotorTemperature_get();
-    powerInputs->left_motor_temp_C         = 0.0f;
-    powerInputs->right_motor_temp_C        = 0.0f;
+    powerInputs->left_motor_temp_C  = 0.0f;
+    powerInputs->right_motor_temp_C = 0.0f;
 
     regenAttr->derating_value = 1.0f;
 

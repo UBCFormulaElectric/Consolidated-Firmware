@@ -9,7 +9,7 @@
 // consider velocity different on different points of the car
 /**
  * Ex. Driving in a left hand circle
- * 
+ *
  * Outer side of the car travels faster than the inside of the car?
  * Idk if this is correct as the car is a single body not independent
  * like the wheels
@@ -23,11 +23,8 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     float slip_ratio_rl = app_tractionControl_computeSlip(inputs->motor_speed_rl_rpm, inputs->vehicle_velocity_kmh);
     float slip_ratio_rr = app_tractionControl_computeSlip(inputs->motor_speed_rr_rpm, inputs->vehicle_velocity_kmh);
 
-    float slip_ratio_max = fmaxf(
-        fmaxf(slip_ratio_fl, slip_ratio_fr),
-        fmaxf(slip_ratio_rl, slip_ratio_rr)
-    );
-    float k = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+    float slip_ratio_max = fmaxf(fmaxf(slip_ratio_fl, slip_ratio_fr), fmaxf(slip_ratio_rl, slip_ratio_rr));
+    float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
     // Send debug messages over CAN
     app_canTx_VC_SlipRatioFL_set(slip_ratio_fl);
@@ -48,6 +45,5 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
 
 float app_tractionControl_computeSlip(float motor_speed_rpm, float vehicle_velocity)
 {
-    return (MOTOR_RPM_TO_KMH(motor_speed_rpm) / GEAR_RATIO - vehicle_velocity) /
-           (vehicle_velocity + SMALL_EPSILON);
+    return (MOTOR_RPM_TO_KMH(motor_speed_rpm) / GEAR_RATIO - vehicle_velocity) / (vehicle_velocity + SMALL_EPSILON);
 }

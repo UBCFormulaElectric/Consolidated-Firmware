@@ -15,7 +15,6 @@ static float getMaxMotorTemp(void);
  */
 float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
 {
-
     /**
      *  AMK INVERTER DOES TEMPERATURE BASED POWER LIMITING.. WE LIKELY CAN JUST USE THIS SEE PAGE 84 but using below
      for redundancy
@@ -31,12 +30,12 @@ float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
     }
     else if (max_motor_temp > MOTOR_TEMP_CUTOFF_c)
     {
-        P_max_motor_temps = RULE_BASED_POWER_LIMIT_KW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) *
-        MOTOR_TEMP_POWER_DECREMENTING_RATIO;
+        P_max_motor_temps =
+            RULE_BASED_POWER_LIMIT_KW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) * MOTOR_TEMP_POWER_DECREMENTING_RATIO;
     }
 
     // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
-    float P_max =(fminf(fminf(RULE_BASED_POWER_LIMIT_KW, inputs->current_based_power_limit_kW), P_max_motor_temps));
+    float P_max = (fminf(fminf(RULE_BASED_POWER_LIMIT_KW, inputs->current_based_power_limit_kW), P_max_motor_temps));
     app_canTx_VC_PowerLimitValue_set((float)P_max);
 
     return P_max;
