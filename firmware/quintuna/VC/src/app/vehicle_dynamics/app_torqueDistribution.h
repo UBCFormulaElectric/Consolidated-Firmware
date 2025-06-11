@@ -2,6 +2,13 @@
 #include <app_vehicleDynamics.h>
 #include "io_imu_config.h"
 
+TorqueAllocationOutputs torqueToMotors  = {
+                                            .front_left_torque = 0.0f,
+                                            .front_right_torque = 0.0f,
+                                            .rear_left_torque = 0.0f,
+                                            .rear_right_torque = 0.0f
+                                          }; 
+
 /*
  * Broadcasts the vertical force of each wheel
  * calculated based on IMU accelerations

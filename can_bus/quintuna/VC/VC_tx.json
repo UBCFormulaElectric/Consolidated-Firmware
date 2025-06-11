@@ -56,6 +56,18 @@
       },
       "VehicleVelocity": {
         "bits": 8
+      },
+      "FrontYawMoment":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "RearYawMoment":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
       }
     }
   },

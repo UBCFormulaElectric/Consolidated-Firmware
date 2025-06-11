@@ -47,13 +47,17 @@ static void driveStateRunOnEntry(){
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
-    app_canTx_VC_BuzzerOn_set(true);
+    app_canTx_VC_BuzzerControl_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
 
-    app_canTx_VC_LeftInverterEnable_set(true);
-    app_canTx_VC_RightInverterEnable_set(true);
+    // Enable inverters
+    app_canTx_VC_INVFRbEnable_set(true);
+    app_canTx_VC_INVFLbEnable_set(true);
+    app_canTx_VC_INVRRbEnable_set(true);
+    app_canTx_VC_INVRLbEnable_set(true);
+
     // TODO: replace with new messages
     // app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
     // app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
@@ -73,10 +77,7 @@ static void driveStateRunOnEntry(){
     }
 }
 
-static void driveStateRunOnTick1Hz(void)
-{
-    app_allStates_runOnTick1Hz(); // NOT SURE IF QUINTUNA WILL STILL HAVE THIS 
-}
+static void driveStateRunOnTick1Hz(void){}
 
 static void driveStateRunOnTick100Hz(void)
 {
@@ -85,6 +86,10 @@ static void driveStateRunOnTick100Hz(void)
 
     if (!driveStatePassPreCheck())
     {
+        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
         return;
     }
 
@@ -126,14 +131,7 @@ static bool driveStatePassPreCheck()
     if (app_canRx_BMS_State_get() != BMS_DRIVE_STATE)
     {
         app_stateMachine_setNextState(&fault_state);
-    }
-
-    if (NO_WARNINGS != warning_check)
-    {
-        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
+        return false; 
     }
 
     if(INVERTER_FAULT == warning_check)
@@ -142,23 +140,16 @@ static bool driveStatePassPreCheck()
         app_canAlerts_VC_Warning_InverterRetry_set(true);
         app_stateMachine_setNextState(&hvInit_state);
         // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged 
-       
         return false; 
     }
-
 
     else if (BOARD_WARNING_DETECTED == warning_check)
     {
         return false; 
     }
  
-
     if(SWITCH_OFF == app_canRx_CRIT_StartSwitch_get())
     {
-        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
         app_stateMachine_setNextState(&hv_state);
         return false; 
     }
@@ -179,15 +170,16 @@ static bool driveStatePassPreCheck()
 
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
 {
-    if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
-    {
-        // If bspd warning is true, set torque to 0.0
-        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
-        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
-    }
-    else if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    //TODO: bring back when software BSPD is done
+    // if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
+    // {
+    //     // If bspd warning is true, set torque to 0.0
+    //     app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+    //     app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+    //     app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+    //     app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
+    // }
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
         app_regen_run(apps_pedal_percentage);
     }
@@ -199,6 +191,8 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     {
         app_regularDrive_run(apps_pedal_percentage);
     }
+
+    // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 }
 
 static void app_regularDrive_run(float apps_pedal_percentage)
@@ -226,9 +220,10 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // Calculate the maximum torque request, according to the BMS available power
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    // Calculate the actual torque request to transmit
+    // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
     int16_t torque_request =(int16_t)(MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM) * 1000);
+
 
     // Transmit torque command to both inverters
     app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);

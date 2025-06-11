@@ -14,8 +14,8 @@
 #define WHEELBASE_m (WHEELBASE_mm * MM_TO_M)
 #define TRACK_WIDTH_mm 1100
 #define TRACK_WIDTH_m (TRACK_WIDTH_mm * MM_TO_M)
-#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // 60 / (2 * pi) to for T = P/w formula
-#define POWER_LIMIT_CAR_kW 40.0f               // max power = 80.0f we can use by FSAE rules
+#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // as specified in the manual for the emrax 188 motors
+#define POWER_LIMIT_CAR_kW 40.0f               // Actual Value: 80.0f   // max power we can use by FSAE rules
 #define MOTOR_TEMP_CUTOFF_c 90.0f
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO \
     80.0f / 30.0f // amount to decrease max power by for every degree celsius over motor cutoff temp (we got this number
@@ -25,7 +25,8 @@
 #define PID_POWER_FACTOR_MIN (-0.9f)
 #define PID_POWER_FACTOR_MAX 0.1f
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f // Underestimate for wheel angles > 40deg. See Confluence/Steering System
-#define MAX_TORQUE_REQUEST_NM (21.0f)       // Max torque of AMK DD5-14-10-POW motors (spec sheet)
+#define MAX_TORQUE_REQUEST_NM (21.0f)       // Max torque of AMK DD5-14-10-POW motor
+#define NOMINAL_TORQUE_REQUEST_NM (9.8f)    // Nominal torque of AMK DD5-14-10-POW motor 
 #define MAX_REGEN_Nm -30.0f
 #define MAX_BATTERY_TEMP 45
 #define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?

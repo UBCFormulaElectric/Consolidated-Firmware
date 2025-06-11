@@ -9,7 +9,3 @@ typedef enum
 } warningType;
 
 warningType app_warningHandling_globalWarningCheck(void);
-
-bool app_warningHandling_boardWarningCheck(void);
-
-bool app_warningHandling_inverterStatus(void);

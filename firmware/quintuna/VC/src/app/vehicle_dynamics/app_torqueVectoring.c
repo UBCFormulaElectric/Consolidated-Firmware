@@ -10,15 +10,13 @@
 #include "app_canTx.h"
 #include "app_utils.h"
 #include "app_imu.h"
-#include "app_loadTransfer.h"
+#include "app_torqueDistribution.h"
 #include "app_units.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
 
-static PowerLimiting_Inputs       power_limiting_inputs = { .power_limit_kW = POWER_LIMIT_CAR_kW };
-static ActiveDifferential_Inputs  active_differential_inputs;
-static ActiveDifferential_Outputs active_differential_outputs;
+static PowerLimiting_Inputs       power_limiting_inputs;
 static TractionControl_Inputs     traction_control_inputs;
 // static TractionControl_Outputs    traction_control_outputs;
 static YawRateController yaw_rate_controller;
@@ -35,7 +33,7 @@ static PID                    pid_power_correction;
 static float                  pid_power_correction_factor = 0.0f;
 static PID                    pid_traction_control;
 const ImuData                *imu_output;
-static TorqueAllocationInputs torqueToLoadTransf;
+static TorqueAllocationInputs torqueAllocation;
 static PID                    yrc_pid;
 
 static float accelerator_pedal_percent;
@@ -48,7 +46,6 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
-static float long_load_transfer_scalar;
 
 void app_torqueVectoring_init(void)
 {
@@ -100,7 +97,7 @@ void app_torqueVectoring_handleAcceleration(void)
     app_timer_restart(&pid_timeout);
 
     // imu load transfer calc
-    long_load_transfer_scalar = app_loadTransferConstant(imu_output->long_accel);
+    torqueAllocation.load_transfer_const = app_loadTransferConstant(imu_output->long_accel);
 
     // Power Limiting
     power_limiting_inputs.left_motor_temp_C         = left_motor_temp_C;
@@ -110,16 +107,6 @@ void app_torqueVectoring_handleAcceleration(void)
     estimated_power_limit = app_powerLimiting_computeMaxPower(&power_limiting_inputs);
     // Power limit correction
     float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
-
-    // Active Differential
-    // active_differential_inputs.power_max_kW          = power_limit;
-    // active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
-    // active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
-    // active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
-    // active_differential_inputs.requested_torque      = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    // app_activeDifferential_computeTorque(&active_differential_inputs, &active_differential_outputs);
-    // app_canTx_VC_ActiveDiffTorqueLeft_set(active_differential_outputs.torque_left_Nm);
-    // app_canTx_VC_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
 
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
@@ -145,12 +132,12 @@ void app_torqueVectoring_handleAcceleration(void)
     //     app_tractionControl_computeTorque(&traction_control_inputs, &traction_control_outputs);
     // }
 
-    // Inverter Torque Request
+
     float desired_tot_yaw_moment               = app_yawRateController_getYawMoment();
-    torqueToLoadTransf.rear_left_motor_torque  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    torqueToLoadTransf.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    torqueToLoadTransf.rear_yaw_moment         = desired_tot_yaw_moment / (1 + long_load_transfer_scalar);
-    torqueToLoadTransf.front_yaw_moment        = desired_tot_yaw_moment - torqueToLoadTransf.rear_yaw_moment;
+    torqueAllocation.total_torque_request  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+    torqueAllocation.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+    torqueAllocation.rear_yaw_moment         = desired_tot_yaw_moment / (1 + long_load_transfer_scalar);
+    torqueAllocation.front_yaw_moment        = desired_tot_yaw_moment - torqueToLoadTransf.rear_yaw_moment;
     // if (run_traction_control)
     // {
     //     torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;

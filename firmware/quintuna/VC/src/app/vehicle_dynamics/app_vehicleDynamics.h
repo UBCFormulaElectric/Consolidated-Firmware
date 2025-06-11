@@ -48,7 +48,7 @@ typedef struct PowerLimiting_Inputs
 {
     float       left_motor_temp_C;
     float       right_motor_temp_C;
-    const float power_limit_kW;
+    const float current_based_power_limit_kW;
     float       accelerator_pedal_percent;
 } PowerLimiting_Inputs;
 
@@ -57,8 +57,17 @@ typedef struct TorqueAllocationInputs // regardless of if controller is used or 
 {
     // float front_left_motor_torque;  uncomment for 4WD
     // float front_right_motor_torque;  uncomment for 4WD
-    float rear_left_motor_torque;
-    float rear_right_motor_torque;
+    float power_limit_kw; 
+    float load_transfer_const;
+    float total_torque_request;
     float rear_yaw_moment;
     float front_yaw_moment;
 } TorqueAllocationInputs;
+
+typedef struct TorqueAllocationOutputs
+{
+    float front_left_torque; 
+    float front_right_torque; 
+    float rear_left_torque; 
+    float rear_right_torque; 
+} TorqueAllocationOutputs;

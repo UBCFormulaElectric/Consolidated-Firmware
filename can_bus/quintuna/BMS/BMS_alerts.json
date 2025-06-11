@@ -23,7 +23,8 @@
         "description": "Insulation lost"
       },
       "BspdLatchedFault": {
-        "bits": 1
+        "id":405,
+        "description": "hardware bspd lost"
       }
   },
   "info_id": 405,

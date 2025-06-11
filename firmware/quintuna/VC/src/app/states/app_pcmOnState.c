@@ -34,19 +34,21 @@ static PowerManagerConfig power_manager_state = {
 
 static TimerChannel  *pcm_voltage_in_range_timer;
 static TimerChannel  *pcm_toggle_timer; 
-static bool           toggle_pcm;
 static pcmRetryStates pcm_retry_state;
-static float          pcm_curr_voltage; 
+static float          pcm_curr_voltage;
 static float          pcm_prev_voltage; 
+
+static bool pcmUnderVoltage(void); 
+static bool toggleTimer(void);
+
 
 static void pcmOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_PCM_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
-    toggle_pcm      = false;
     pcm_retry_state = NO_RETRY;
-    pcm_prev_voltage = 0.0f;
-    pcm_curr_voltage = 0.0f; 
+    pcm_curr_voltage = 0.0f;
+    pcm_prev_voltage = 0.0f; 
 
     io_pcm_set(true);
     app_timer_init(pcm_voltage_in_range_timer, PCM_TIMEOUT);
@@ -86,7 +88,7 @@ static void pcmOnStateRunOnTick100Hz(void)
             {
                 // already retried, now go to fault state
                 app_timer_stop(pcm_voltage_in_range_timer);
-                app_canAlerts_VC_Info_PcmUnderVoltage(true);
+                pcm_retry_state = RETRY_DONE; 
             }
 
             break;
@@ -97,9 +99,18 @@ static void pcmOnStateRunOnTick100Hz(void)
     }
 
 
-    app_stateMachine_setNextState(&hvInit_state);
+    if(!pcmUnderVoltage())
+    {
+        app_stateMachine_setNextState(&hvInit_state); 
+    }
+    else if (RETRY_DONE == pcm_retry_state)
+    {
+        app_canAlerts_VC_Info_PcmUnderVoltage(true);
+        app_stateMachine_setNextState(&hvInit_state); 
 
+    }
 
+    pcm_prev_voltage = pcm_curr_voltage; 
 
 }
 static void pcmOnStateRunOnExit(void) 
@@ -127,6 +138,19 @@ static bool toggleTimer(void)
             break;
     }
     return timer_done; 
+}
+
+static bool pcmUnderVoltage(void)
+{
+    // debouncing
+    if(HV_READY_VOLTAGE <= pcm_curr_voltage && pcm_curr_voltage <= PCM_MAX_VOLTAGE)
+    {
+        if(HV_READY_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE)
+        {
+            return false; 
+        }
+    }
+    return true;
 }
 
 State pcmOn_state = { .name              = "PCM ON",
