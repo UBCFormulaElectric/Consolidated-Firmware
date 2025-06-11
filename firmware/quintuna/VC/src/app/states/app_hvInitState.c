@@ -86,7 +86,7 @@ static void hvInitStateRunOnTick100Hz(void)
                     app_stateMachine_setNextState(&init_state);
                     break;
                 case TIMER_STATE_RUNNING:
-                    __attribute__((fallthrough));
+                    // __attribute__((fallthrough));
                 default:
                     break;
             }
@@ -129,7 +129,7 @@ static void hvInitStateRunOnTick100Hz(void)
                     app_stateMachine_setNextState(&init_state);
                     break;
                 case TIMER_STATE_RUNNING:
-                    __attribute__((fallthrough));
+                    // __attribute__((fallthrough));
                 default:
                     break;
             }
