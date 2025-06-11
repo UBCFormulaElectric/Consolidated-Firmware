@@ -124,14 +124,22 @@ bool checkProfile(Profile *profile)
     }
     const bool comm_err = !comm_ok;
 
+    // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
+    // monitoring chips within 3 cycles
+    const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
+
     const bool under_voltage_debounced =
-        app_timer_runIfCondition(&profile->under_voltage_fault_timer, under_voltage_condition) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->under_voltage_fault_timer, under_voltage_condition) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
     const bool over_voltage_debounced =
-        app_timer_runIfCondition(&profile->over_voltage_fault_timer, over_voltage_condition) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->over_voltage_fault_timer, over_voltage_condition) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
     const bool over_temp_debounced =
-        app_timer_runIfCondition(&profile->over_temp_fault_timer, over_temp_condition) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->over_temp_fault_timer, over_temp_condition) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
     const bool comm_err_debounced =
-        app_timer_runIfCondition(&profile->comm_err_fault_timer, comm_err) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->comm_err_fault_timer, comm_err) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
 
     profile->config->under_voltage_setter(under_voltage_debounced);
     profile->config->over_voltage_setter(over_voltage_debounced);
@@ -140,10 +148,6 @@ bool checkProfile(Profile *profile)
 
     // TODO: How long to debounce OWC comm err fault? Since OWC only runs every 10s at present...
     // TODO: How do we want to respond to open wire in general?
-
-    // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
-    // monitoring chips within 3 cycles
-    const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
 
     return under_voltage_debounced || over_voltage_debounced || over_temp_debounced || comm_err_debounced;
 }
