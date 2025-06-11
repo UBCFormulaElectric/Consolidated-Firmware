@@ -468,6 +468,32 @@
       }
     }
   },
+  "Balancing": {
+    "msg_id": 466,
+    "cycle_time": 1000,
+    "description": "Info about balancing",
+    "signals": {
+      "BalancingState": {
+        "enum": "BalancingState"
+      },
+      "ImbalanceMagnitude": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 1,
+        "unit": "V"
+      },
+      "BalancingLeaderSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "BalancingLeaderCellIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
   "CellVoltages_Seg0_Seg3": {
     "msg_id": 460,
     "cycle_time": 1000,

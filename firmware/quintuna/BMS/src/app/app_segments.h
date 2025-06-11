@@ -173,6 +173,13 @@ bool app_segments_checkWarnings(void);
 bool app_segments_checkFaults(void);
 
 /**
+ * @file segments/app_segments_balancing.c
+ */
+
+void app_segments_balancingInit(void);
+void app_segments_balancingTick(bool enabled);
+
+/**
  * @file segments/app_segments_getters.c
  */
 
