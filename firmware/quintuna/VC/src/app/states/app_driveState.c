@@ -66,13 +66,13 @@ static void driveStateRunOnEntry(){
 
     if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
-        app_torqueVectoring_init();
+        // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN 
         torque_vectoring_switch_is_on = true;
     }
 
     if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
     {
-        app_regen_init();
+        // app_regen_init(); -- COMMENTED OUT TO SPIN
         regen_switch_is_on = true;
     }
 }
@@ -81,8 +81,8 @@ static void driveStateRunOnTick1Hz(void){}
 
 static void driveStateRunOnTick100Hz(void)
 {
-    float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
-    float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
+    float apps_pedal_percentage  = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    float sapps_pedal_percentage = (float)app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
     if (!driveStatePassPreCheck())
     {
@@ -96,22 +96,22 @@ static void driveStateRunOnTick100Hz(void)
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
     {
-        io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
-        app_canTx_VC_BuzzerOn_set(false);
+        // io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
+        app_canTx_VC_BuzzerControl_set(false);
     }
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
-    if (regen_switch_is_on)
-    {
-        apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
-        sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
-    }
+    // if (regen_switch_is_on) -- COMMENTED OUT FOR WHEEL SPINNING 
+    // {
+    //     apps_pedal_percentage  = (float) app_regen_pedalRemapping(apps_pedal_percentage);
+    //     sapps_pedal_percentage = (float)app_regen_pedalRemapping(sapps_pedal_percentage);
+    // }
 
-    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
-    runDrivingAlgorithm(apps_pedal_percentage, sapps_pedal_percentage);
+    // app_canTx_VC_MappedPedalPercentage_set((float)apps_pedal_percentage);
+    runDrivingAlgorithm((float)apps_pedal_percentage, (float)sapps_pedal_percentage);
 }
 
-static void driveStateRunOnExit(void) {};
+static void driveStateRunOnExit(void) {}
 
 static bool driveStatePassPreCheck()
 {
@@ -179,18 +179,18 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     //     app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
     //     app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
     // }
-    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
-    {
-        app_regen_run(apps_pedal_percentage);
-    }
-    else if (torque_vectoring_switch_is_on)
-    {
-        app_torqueVectoring_run(apps_pedal_percentage);
-    }
-    else
-    {
+    // if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    // {
+    //     app_regen_run(apps_pedal_percentage);
+    // }
+    // else if (torque_vectoring_switch_is_on)
+    // {
+    //     app_torqueVectoring_run(apps_pedal_percentage);
+    // }
+    // else
+    // {
         app_regularDrive_run(apps_pedal_percentage);
-    }
+    // }
 
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 }
@@ -199,30 +199,32 @@ static void app_regularDrive_run(float apps_pedal_percentage)
 {
     // TODO: Use power limiting in regular drive
     //TODO: Implement active diff  in regular drive at min 
-    const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
-    const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
-    const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
-    const float left_front_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
-    const float left_back_motor_speed_rpm   = (float)app_canRx_INVL_MotorSpeed_get();
-    float       bms_torque_limit            = MAX_TORQUE_REQUEST_NM;
+    // const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
+    // const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
+    // const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
+    // const float left_front_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
+    // const float left_back_motor_speed_rpm   = (float)app_canRx_INVL_MotorSpeed_get();
+    // float       bms_torque_limit            = MAX_TORQUE_REQUEST_NM;
 
-    if ((right_front_motor_speed_rpm + right_back_motor_speed_rpm + left_front_motor_speed_rpm +
-         left_back_motor_speed_rpm) > 0.0f)
-    {
-        // Estimate the maximum torque request to draw the maximum power available from the BMS
-        const float available_output_power_w = bms_available_power * EFFICIENCY_ESTIMATE;
-        const float combined_motor_speed_rads =
-            RPM_TO_RADS(right_front_motor_speed_rpm) + RPM_TO_RADS(right_back_motor_speed_rpm) +
-            RPM_TO_RADS(left_front_motor_speed_rpm) + RPM_TO_RADS(left_back_motor_speed_rpm);
-        bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
-    }
+    // if ((right_front_motor_speed_rpm + right_back_motor_speed_rpm + left_front_motor_speed_rpm +
+    //      left_back_motor_speed_rpm) > 0.0f)
+    // {
+    //     // Estimate the maximum torque request to draw the maximum power available from the BMS
+    //     const float available_output_power_w = bms_available_power * EFFICIENCY_ESTIMATE;
+    //     const float combined_motor_speed_rads =
+    //         RPM_TO_RADS(right_front_motor_speed_rpm) + RPM_TO_RADS(right_back_motor_speed_rpm) +
+    //         RPM_TO_RADS(left_front_motor_speed_rpm) + RPM_TO_RADS(left_back_motor_speed_rpm);
+    //     bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
+    // }
 
     // Calculate the maximum torque request, according to the BMS available power
-    const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
+    // const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
+
+    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request =(int16_t)(MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM) * 1000);
+    int16_t torque_request =(int16_t)((pedal_based_torque/ MAX_TORQUE_REQUEST_NM)* 1000);
 
 
     // Transmit torque command to both inverters

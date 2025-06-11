@@ -10,6 +10,7 @@
 #include <app_canUtils.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "app_warningHanding.h"
 
 typedef enum
 {

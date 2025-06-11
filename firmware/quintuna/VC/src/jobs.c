@@ -14,6 +14,7 @@
 #include "app_commitInfo.h"
 #include "app_faultHandling.h"
 
+
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
@@ -65,7 +66,7 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    static bool bms_latch_state = app_faultHandling_bmsLatchedFaults();
+    bool bms_latch_state = app_faultHandling_bmsLatchedFaults();
 
     if (bms_latch_state)
     {
@@ -77,7 +78,6 @@ void jobs_run100Hz_tick(void)
     }
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
-    app_faultHandling_globalFaultCheck();
 
     app_stateMachine_tickTransitionState();
     io_canTx_enqueue100HzMsgs();

@@ -49,7 +49,7 @@ static void bmsOnStateRunOnTick100Hz(void)
     
     else if (bms_ready_for_drive)
     {
-        app_stateMachine_setNextState(&pcmOn_state);
+        app_stateMachine_setNextState(&hvInit_state); // HARD CODED FOR SPINNING WHEELS
     }
 }
 static void bmsOnStateRunOnExit(void) {}

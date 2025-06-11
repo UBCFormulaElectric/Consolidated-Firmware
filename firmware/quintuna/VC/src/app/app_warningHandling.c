@@ -12,7 +12,7 @@ static bool app_warningHandling_boardWarningCheck(void)
     return app_canAlerts_AnyBoardHasWarning();
 }
 
-static bool app_warningHandling_inverterStatus(void)
+bool app_warningHandling_inverterStatus(void)
 {
     const bool invrr_error = app_canRx_INVRR_bError_get() == true;
     const bool invrl_error = app_canRx_INVRL_bError_get() == true;

@@ -74,7 +74,8 @@ static void pcmOnStateRunOnTick100Hz(void)
     switch (app_timer_updateAndGetState(pcm_voltage_in_range_timer))
     {
         case TIMER_STATE_RUNNING:
-            pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
+            // pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get(); 
+            pcm_curr_voltage = 22.0;  // hard code
             break;
 
         case TIMER_STATE_EXPIRED:
@@ -105,7 +106,7 @@ static void pcmOnStateRunOnTick100Hz(void)
     }
     else if (RETRY_DONE == pcm_retry_state)
     {
-        app_canAlerts_VC_Info_PcmUnderVoltage(true);
+        app_canAlerts_VC_Info_PcmUnderVoltage_set(true);
         app_stateMachine_setNextState(&hvInit_state); 
 
     }
@@ -115,8 +116,8 @@ static void pcmOnStateRunOnTick100Hz(void)
 }
 static void pcmOnStateRunOnExit(void) 
 {
-    app_timer_stop(&pcm_voltage_in_range_timer);
-    app_timer_stop(&pcm_toggle_timer);
+    app_timer_stop(pcm_voltage_in_range_timer);
+    app_timer_stop(pcm_toggle_timer);
 }
 
 static bool toggleTimer(void)
