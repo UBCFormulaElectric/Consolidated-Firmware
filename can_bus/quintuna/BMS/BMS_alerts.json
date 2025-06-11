@@ -34,18 +34,22 @@
     }
   },
   "faults": {
-    "BmsLatchedFault": {
-        "id": 403,
-        "description": "BMS latch opened"
-      },
-      "ImdLatchedFault": {
-        "id":404,
-        "description": "Insulation lost"
-      },
-      "BspdLatchedFault": {
-        "id":405,
-        "description": "hardware bspd lost"
-      }
+    "CellUndervoltage": {
+      "id": 155,
+      "description": "Cell is critically undervoltage"
+    },
+    "CellOvervoltage": {
+      "id": 156,
+      "description": "Cell is critically overvoltage"
+    },
+    "CellOvertemp": {
+      "id": 159,
+      "description": "Cell is critically overtemp"
+    },
+    "ModuleCommunicationError": {
+      "id": 157,
+      "description": "Failed to communicate with LTC6813 modules."
+    }
   },
   "info_id": 405,
   "info_counts_id": 406,
