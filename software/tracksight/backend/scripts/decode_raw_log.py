@@ -11,7 +11,9 @@ from csv_to_mf4 import csv_to_mf4
 from logfs import LogFs, LogFsDiskFactory
 from tzlocal import get_localzone
 
-from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
+    JsonCanParser,
+)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -96,13 +98,19 @@ def decode_raw_log_to_signals(
         packet_data = raw_data[i:]
 
         try:
-            timestamp_ms, msg_id, data_bytes, size_bytes = decode_can_packet(data=packet_data)
+            timestamp_ms, msg_id, data_bytes, size_bytes = decode_can_packet(
+                data=packet_data
+            )
             i += size_bytes
         except Exception as err:
-            logger.warning(f"Exception raised while trying to decode a CAN message: {err}")
+            logger.warning(
+                f"Exception raised while trying to decode a CAN message: {err}"
+            )
             continue
 
-        delta_timestamp = pd.Timedelta(milliseconds=timestamp_ms) + overflow_fix_delta_ms
+        delta_timestamp = (
+            pd.Timedelta(milliseconds=timestamp_ms) + overflow_fix_delta_ms
+        )
 
         if delta_timestamp < last_timestamp_ms - pd.Timedelta(seconds=30):
             # We currently allocate 16 bits for timestamps, so we need to add 2^16 to undo the overflow.
@@ -114,14 +122,16 @@ def decode_raw_log_to_signals(
         timestamp = start_timestamp + delta_timestamp
 
         # Decode CAN packet with JSONCAN.
-        parsed_signals = can_db.unpack(id=msg_id, data=data_bytes)
+        parsed_signals = can_db.unpack(msg_id=msg_id, data=data_bytes)
 
         for signal in parsed_signals:
             signal_name = signal.name
             signal_value = signal.value
             signal_unit = signal.unit or ""
             signal_label = signal.label or ""
-            signals.append((timestamp, signal_name, signal_value, signal_label, signal_unit))
+            signals.append(
+                (timestamp, signal_name, signal_value, signal_label, signal_unit)
+            )
 
     return signals
 
@@ -148,9 +158,12 @@ if __name__ == "__main__":
         "-t",
         type=str,
         help="Time that this log was collected from, ex: `2024-06-1T12:30` is June 1, 2024 at 12:30PM.",
-        required=True,
+        # required=True,
+        default="2024-09-28T12:00",
     )
-    parser.add_argument("--block_size", "-b", type=int, help="Block size in bytes", default=512)
+    parser.add_argument(
+        "--block_size", "-b", type=int, help="Block size in bytes", default=512
+    )
     parser.add_argument(
         "--block_count",
         "-N",
@@ -185,7 +198,9 @@ if __name__ == "__main__":
         help="Range of file numbers to decode, e.g., '1-200'",
         default=None,
     )
-    parser.add_argument("--mf4", action="store_true", help="call csv_to_mf4 script", default=True)
+    parser.add_argument(
+        "--mf4", action="store_true", help="call csv_to_mf4 script", default=True
+    )
 
     args = parser.parse_args()
 
