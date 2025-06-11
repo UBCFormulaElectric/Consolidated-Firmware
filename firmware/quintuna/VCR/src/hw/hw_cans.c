@@ -18,7 +18,7 @@ void handleCallback(const CanMsg *rx_msg)
     JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(rx_msg);
 
     io_canReroute_can1(&json_can_msg);
-    // io_canReroute_can2(&json_can_msg);
+    io_canReroute_can2(&json_can_msg);
     io_canReroute_can3(&json_can_msg);
 }
 

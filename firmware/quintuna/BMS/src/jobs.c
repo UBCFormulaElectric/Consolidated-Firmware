@@ -73,13 +73,3 @@ void jobs_runCanRx_tick(void)
     JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
     io_canRx_updateRxTableWithMessage(&json_can_msg);
 }
-
-void jobs_canRxCallback(const CanMsg *rx_msg)
-{
-    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
-    {
-        io_canQueue_pushRx(rx_msg);
-    }
-
-    io_bootHandler_processBootRequest(rx_msg);
-}

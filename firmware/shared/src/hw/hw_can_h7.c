@@ -159,7 +159,7 @@ ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, C
 // ReSharper disable once CppParameterMayBeConst
 void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
 {
-    LOG_INFO("FDCAN on bus %d detected an error", hw_can_getHandle(hfdcan)->bus_num);
+    LOG_INFO("FDCAN on bus %d detected an error: %x", hw_can_getHandle(hfdcan)->bus_num, ErrorStatusITs);
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {
         FDCAN_ProtocolStatusTypeDef protocolStatus;
