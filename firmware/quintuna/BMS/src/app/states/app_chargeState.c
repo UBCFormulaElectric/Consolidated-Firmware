@@ -1,5 +1,6 @@
 #include "states/app_states.h"
 
+#include "app_timer.h"
 #include "io_irs.h"
 #include "io_charger.h"
 #include "app_canRx.h"
@@ -148,6 +149,10 @@ static ElconRx readElconStatus(void)
 //     return range;
 // }
 
+#define ELCON_ERR_DEBOUNCE_MS (3000)
+
+static TimerChannel elcon_err_debounce;
+
 static void buildTxFrame(const ElconTx *cmd)
 {
     app_canTx_BMS_MaxChargingVoltage_set(cmd->maxVoltage_V);
@@ -162,6 +167,8 @@ static void app_chargeStateRunOnEntry(void)
     // Reset charge state CAN when entering charge state.
     app_canTx_BMS_ChargingFaulted_set(false);
     app_canTx_BMS_ChargingDone_set(false);
+
+    app_timer_init(&elcon_err_debounce, ELCON_ERR_DEBOUNCE_MS);
 }
 
 static void app_chargeStateRunOnTick100Hz(void)
@@ -175,8 +182,9 @@ static void app_chargeStateRunOnTick100Hz(void)
 
     const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.chargingStateFault ||
                        rx.overTemperature || rx.inputVoltageFault || rx.commTimeout;
+    const bool fault_latched = app_timer_runIfCondition(&elcon_err_debounce, fault) == TIMER_STATE_EXPIRED;
 
-    if (fault || !userEnable)
+    if (fault_latched || !userEnable)
     {
         app_canTx_BMS_ChargingFaulted_set(fault);
         app_stateMachine_setNextState(&init_state);
@@ -208,7 +216,7 @@ static void app_chargeStateRunOnTick100Hz(void)
     /**
      * if any cell has reached the cutoff voltge charging has completed
      */
-    const float max_cell_voltage = app_segments_getMaxCellVoltage();
+    const float max_cell_voltage = app_segments_getMaxCellVoltage().value;
     if (max_cell_voltage >= CHARGING_CUTOFF_MAX_CELL_VOLTAGE)
     {
         app_canTx_BMS_ChargingDone_set(true);
@@ -223,6 +231,10 @@ static void app_chargeStateRunOnExit(void)
     // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
     // unintentionally re-enter charge state.
     app_canRx_Debug_StartCharging_update(false);
+
+    // Reset to zero on exit.
+    const ElconTx tx = { .maxVoltage_V = 0, .maxCurrent_A = 0, .stopCharging = true };
+    buildTxFrame(&tx);
 }
 
 const State charge_state = {

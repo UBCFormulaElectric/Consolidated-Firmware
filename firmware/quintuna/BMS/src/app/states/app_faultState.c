@@ -1,6 +1,7 @@
 #include "states/app_states.h"
 
 #include "app_precharge.h"
+#include "app_segments.h"
 #include "io_irs.h"
 #include "io_faultLatch.h"
 #include "app_canTx.h"
@@ -15,7 +16,8 @@ static void app_faultStateRunOnEntry(void)
 
 static void app_faultStateRunOnTick100Hz(void)
 {
-    const bool acc_fault_cleared = true; //! app_accumulator_checkFaults();
+    const bool acc_fault_cleared = !app_segments_checkFaults();
+    const bool precharge_ok      = !app_precharge_limitExceeded();
     const bool bms_fault_cleared = io_faultLatch_getLatchedStatus(&bms_ok_latch);
 
     if (acc_fault_cleared && bms_fault_cleared)

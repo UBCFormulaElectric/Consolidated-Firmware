@@ -3,14 +3,11 @@
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_tractiveSystem.h"
-#include "app_imd.h"
 // #include "app_soc.h"
 // #include "app_inverterOnState.h"
-#include "app_heartbeatMonitors.h"
 
 #include "io_faultLatch.h"
 #include "io_irs.h"
-#include "io_charger.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
@@ -28,7 +25,8 @@ static void initStateRunOnEntry(void)
 static void initStateRunOnTick100Hz(void)
 {
     const bool irs_negative_closed = io_irs_negativeState();
-    const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
+    const bool ts_discharged          = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
+    const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
     // const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault(&hb_monitor);
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
@@ -53,16 +51,11 @@ static void initStateRunOnTick100Hz(void)
         // {
         //     // TODO: Precharge for driving!
         // }
-
-        // TODO OLD
-        // const bool charger_connected = io_charger_getStatus() == EVSE_CONNECTED;
-        // const bool charger_disconnected      = io_charger_getStatus() == EVSE_DISCONNECTED;
-        const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
-        // const bool external_charging_request = app_canRx_Debug_StartCharging_get();
-        // TODO: Re-enable if elcon has specific CAN field to clear latched faults
-        //  const bool clear_elcon_latch         = app_canRx_Debug_ClearChargerLatchedFault_get();
-
-        // app_canTx_BMS_ClearLatch_set(clear_elcon_latch);
+        else if (cell_balancing_enabled)
+        {
+            app_stateMachine_setNextState(&balancing_state);
+        }
+    }
 
         // const bool precharge_for_charging = charger_connected && external_charging_request;
         // TODO: Update state change condition
