@@ -6,16 +6,17 @@ extern "C"
 {
 #include "jobs.h"
 #include "states/app_states.h"
-#include "app_canTx.h"
+#include "app_canRx.h"
+#include "io_canRx.h"
 }
 
 class BMSBaseTest : public EcuTestBase
 {
     void board_setup() override
     {
-        fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
-        fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
-        fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
+        fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+        fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
+        fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
 
         jobs_init();
     }

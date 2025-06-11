@@ -47,7 +47,7 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
     else if (state == PRECHARGE_STATE_SUCCESS)
     {
         // Precharge successful, close positive contactor.
-        io_irs_setPositive(CONTACTORS_CLOSED);
+        io_irs_setPositive(IRS_CLOSED);
         app_stateMachine_setNextState(&charge_state);
     }
 
@@ -61,7 +61,7 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
 
 static void app_prechargeChargeStateRunOnExit(void)
 {
-    io_irs_setPrecharge(CONTACTORS_OPEN);
+    io_irs_setPrecharge(IRS_OPEN);
 }
 
 const State precharge_charge_state = {

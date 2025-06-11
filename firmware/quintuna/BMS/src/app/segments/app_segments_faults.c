@@ -1,11 +1,11 @@
+#include "states/app_states.h"
+
 #include "app_segments.h"
 #include "app_segments_internal.h"
-#include "app_stateMachine.h"
 #include "app_timer.h"
 #include "app_canAlerts.h"
 #include "app_canRx.h"
 #include "io_ltc6813.h"
-#include "states/app_chargeState.h"
 
 // Allows balancing of cells even if slight over-charging occurs. Occured prior to Competition 2024, where a fully
 // charged pack with max cell V of 4.19 after charging reported as 4.21 after settling. Cause currently unknown, but
@@ -92,7 +92,7 @@ void profileInit(Profile *profile, const ProfileConfig *config)
 bool checkProfile(Profile *profile)
 {
     // if we are charging, max cell temp is 45C not 60C
-    const bool  is_charging             = app_stateMachine_getCurrentState() == app_chargeState_get();
+    const bool  is_charging             = app_stateMachine_getCurrentState() == &charge_state;
     const float max_allowable_cell_temp = is_charging ? MAX_CELL_CHARGE_TEMP_DEGC : profile->config->max_temp;
 
     // Check if balancing is enabled. For safety reasons, also check if current state is charge state, as we do not want

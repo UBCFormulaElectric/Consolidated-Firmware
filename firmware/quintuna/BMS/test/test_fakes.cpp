@@ -115,28 +115,28 @@ extern "C"
     }
 
 #include "io_irs.h"
-    static ContactorsState positive_state = CONTACTORS_OPEN;
-    void                   io_irs_setPositive(const ContactorsState state)
+    static IRsState positive_state = IRS_OPEN;
+    void                   io_irs_setPositive(const IRsState state)
     {
         positive_state = state;
     }
-    ContactorsState io_irs_positiveState(void)
+    IRsState io_irs_positiveState(void)
     {
         return positive_state;
     }
 
-    static ContactorsState precharge_state = CONTACTORS_OPEN;
-    void                   io_irs_setPrecharge(const ContactorsState state)
+    static IRsState precharge_state = IRS_OPEN;
+    void                   io_irs_setPrecharge(const IRsState state)
     {
         precharge_state = state;
     }
-    ContactorsState io_irs_prechargeState(void)
+    IRsState io_irs_prechargeState(void)
     {
         return precharge_state;
     }
 
-    static ContactorsState negative_state = CONTACTORS_OPEN;
-    ContactorsState        io_irs_negativeState(void)
+    static IRsState negative_state = IRS_OPEN;
+    IRsState        io_irs_negativeState(void)
     {
         return negative_state;
     }
@@ -260,7 +260,7 @@ namespace fakes
 {
 namespace irs
 {
-    void setNegativeState(const ContactorsState state)
+    void setNegativeState(const IRsState state)
     {
         negative_state = state;
     }

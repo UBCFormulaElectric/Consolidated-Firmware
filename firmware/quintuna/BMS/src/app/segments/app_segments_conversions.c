@@ -5,7 +5,6 @@
 #include "io_ltc6813.h"
 #include "io_time.h"
 
-#include <hw_utils.h>
 #include <stdint.h>
 #include <float.h>
 

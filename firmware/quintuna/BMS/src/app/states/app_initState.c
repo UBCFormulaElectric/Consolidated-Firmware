@@ -75,7 +75,6 @@ static void initStateRunOnTick100Hz(void)
         app_stateMachine_setNextState(&balancing_state);
     }
 }
-}
 
 const State init_state = {
     .name              = "INIT",

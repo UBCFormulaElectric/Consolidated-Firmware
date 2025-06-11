@@ -12,7 +12,7 @@ namespace fakes
 {
 namespace irs
 {
-    void setNegativeState(ContactorsState state);
+    void setNegativeState(IRsState state);
 }
 namespace tractiveSystem
 {
@@ -21,10 +21,10 @@ namespace tractiveSystem
     void setCurrentLowResolution(float current);
 } // namespace tractiveSystem
 
-namespace faultLatch
+namespace faultLatches
 {
     void resetFaultLatch(const FaultLatch *latch);
-} // namespace faultLatch
+} // namespace faultLatches
 
 namespace imd
 {
