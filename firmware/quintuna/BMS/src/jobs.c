@@ -28,6 +28,7 @@ static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 static void charger_transmit_func(const JsonCanMsg *msg)
 {
     // LOG_INFO("Send charger message: %d", msg->std_id);
+    UNUSED(msg);
 }
 
 void jobs_init()

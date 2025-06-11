@@ -27,7 +27,7 @@ static TimerChannel lower_bound_timer;
 static TimerChannel upper_bound_timer;
 static bool         precharge_limit_exceeded;
 static uint8_t      num_precharge_failures;
-static bool         precharge_for_charge;
+// static bool         precharge_for_charge;
 
 void app_precharge_init(void)
 {

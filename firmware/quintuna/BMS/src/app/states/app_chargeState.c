@@ -173,10 +173,10 @@ static void app_chargeStateRunOnEntry(void)
 
 static void app_chargeStateRunOnTick100Hz(void)
 {
-    const ConnectionStatus charger_connection_status = EVSE_CONNECTED; // io_charger_getConnectionStatus();
-    const bool             extShutdown               = !io_irs_negativeState();
-    const bool             chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
-    const bool             userEnable  = app_canRx_Debug_StartCharging_get();
+    // const ConnectionStatus charger_connection_status = EVSE_CONNECTED; // io_charger_getConnectionStatus();
+    const bool extShutdown = !io_irs_negativeState();
+    const bool chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
+    const bool userEnable  = app_canRx_Debug_StartCharging_get();
 
     ElconRx rx = readElconStatus();
 
@@ -243,3 +243,6 @@ const State charge_state = {
     .run_on_tick_100Hz = app_chargeStateRunOnTick100Hz,
     .run_on_exit       = app_chargeStateRunOnExit,
 };
+
+const State charge_fault_state;
+const State charge_init_state;

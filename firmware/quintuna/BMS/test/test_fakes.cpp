@@ -10,6 +10,7 @@ extern "C"
 #include "io_ltc6813.h"
     void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
     {
+        UNUSED(configs);
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             success[i] = EXIT_CODE_OK;
@@ -17,6 +18,7 @@ extern "C"
     }
     ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
     {
+        UNUSED(config);
         return EXIT_CODE_OK;
     }
     void io_ltc6813_readVoltageRegisters(
@@ -66,8 +68,9 @@ extern "C"
     {
         return EXIT_CODE_OK;
     }
-    ExitCode io_ltc6813_owcPull(PullDirection pull_direction)
+    ExitCode io_ltc6813_owcPull(const PullDirection pull_direction)
     {
+        UNUSED(pull_direction);
         return EXIT_CODE_OK;
     }
     ExitCode io_ltc6813_sendSelfTestVoltages(void)
@@ -96,6 +99,7 @@ extern "C"
     }
     void io_ltc6813_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
     {
+        UNUSED(status);
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             success[i] = EXIT_CODE_OK;
@@ -116,7 +120,7 @@ extern "C"
 
 #include "io_irs.h"
     static IRsState positive_state = IRS_OPEN;
-    void                   io_irs_setPositive(const IRsState state)
+    void            io_irs_setPositive(const IRsState state)
     {
         positive_state = state;
     }
@@ -126,7 +130,7 @@ extern "C"
     }
 
     static IRsState precharge_state = IRS_OPEN;
-    void                   io_irs_setPrecharge(const IRsState state)
+    void            io_irs_setPrecharge(const IRsState state)
     {
         precharge_state = state;
     }
