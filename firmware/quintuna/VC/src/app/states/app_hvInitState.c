@@ -115,8 +115,6 @@ static void hvInitStateRunOnTick100Hz(void)
             if (start_up_timer.state == TIMER_STATE_IDLE)
                 app_timer_restart(&start_up_timer);
 
-            const bool inv_timed_out = app_timer_updateAndGetState(&start_up_timer) == TIMER_STATE_EXPIRED;
-
             const bool inverter_invOn_quit =
                 app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get() &&
                 app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
@@ -159,6 +157,8 @@ static void hvInitStateRunOnExit(void)
 {
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
+    app_canAlerts_VC_Warning_InverterRetry_set(false);
+
 }
 
 State hvInit_state = { .name              = "HV INIT",

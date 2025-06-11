@@ -13,9 +13,9 @@
  * on recoverable faults 
  */
 
-bool app_faultHandling_bmsLatchedFaults(void)
+bool app_faultHandling_air_minus_closed(void)
 {
-    return app_canAlerts_BoardHasFault(BMS_NODE);
+    return (CONTACTOR_STATE_CLOSED == app_canRx_BMS_IrNegative_get());
 }
 
 bool app_faultHandling_fsm_bms_HeartbeartChecks(void)

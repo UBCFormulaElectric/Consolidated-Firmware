@@ -128,11 +128,6 @@ static bool driveStatePassPreCheck()
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
         or not before using closed loop features */
     // Update Regen + TV LEDs
-    if (app_canRx_BMS_State_get() != BMS_DRIVE_STATE)
-    {
-        app_stateMachine_setNextState(&fault_state);
-        return false; 
-    }
 
     if(INVERTER_FAULT == warning_check)
     {
@@ -220,11 +215,11 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // Calculate the maximum torque request, according to the BMS available power
     // const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), MAX_TORQUE_REQUEST_NM);
+    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), 1);
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request =(int16_t)((pedal_based_torque/ MAX_TORQUE_REQUEST_NM)* 1000);
+    int16_t torque_request =(int16_t)((pedal_based_torque/ NOMINAL_TORQUE_REQUEST_NM)* 1000);
 
 
     // Transmit torque command to both inverters

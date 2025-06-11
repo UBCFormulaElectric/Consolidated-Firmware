@@ -66,11 +66,11 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    bool bms_latch_state = app_faultHandling_bmsLatchedFaults();
+    bool air_minus_closed = app_canRx_BMS_IrNegative_get();
 
-    if (bms_latch_state)
+    if (air_minus_closed)
     {
-        app_stateMachine_setNextState(&fault_state);
+        app_stateMachine_setNextState(&init_state);
     }
     else
     {
