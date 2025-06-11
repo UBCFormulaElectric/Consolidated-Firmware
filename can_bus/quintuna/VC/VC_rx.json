@@ -4,6 +4,7 @@
     "BMS_Contactors",
     "BMS_Vitals",
     "FSM_ShdnNodeStatus",
+    "FSM_Brake",
     "DAM_ShdnNodeStatus",
     "RSM_ShdnNodeStatus",
     "BMS_BMSShdnNodeStatus",
