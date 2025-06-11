@@ -2,10 +2,6 @@
   "faults_id": 502,
   "faults_counts_id": 504,
   "faults": {
-    "MissingBMSHeartbeat": {
-      "id": 551,
-      "description": "Missing heartbeat signal from the BMS."
-    }
   },
   "warnings_id": 501,
   "warnings_counts_id": 503,
@@ -22,12 +18,20 @@
       "id": 554,
       "description": "Missing heartbeat signal from the CRIT."
     },
+    "MissingBMSHeartbeat": {
+      "id": 551,
+      "description": "Missing heartbeat signal from the BMS."
+    },
     "MissingFSMHeartbeat": {
       "id": 552,
       "description": "Missing heartbeat signal from the FSM."
     },
     "MissingRSMHeartbeat": {
       "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingVCRHeartbeat": {
+      "id": 567,
       "description": "Missing heartbeat signal from the RSM."
     },
     "InverterRetry": {
