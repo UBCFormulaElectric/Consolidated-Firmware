@@ -6,7 +6,7 @@
 #define VUV (0x619U) // 2.5V Under-voltage threshold = (VUV + 1) * 16 * 100uV
 #define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
 
-SegmentConfig segment_config[NUM_SEGMENTS];
+static SegmentConfig segment_config[NUM_SEGMENTS];
 
 void app_segments_setDefaultConfig(void)
 {

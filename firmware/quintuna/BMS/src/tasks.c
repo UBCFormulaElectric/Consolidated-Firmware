@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "app_stateMachine.h"
 #include "hw_bootup.h"
 #include "jobs.h"
 
@@ -6,7 +7,6 @@
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
-#include "app_stateMachine.h"
 
 #include "hw_bootup.h"
 #include "hw_gpios.h"
@@ -31,6 +31,7 @@
 #include <app_canRx.h>
 #include <cmsis_os.h>
 #include <cmsis_os2.h>
+#include <io_canTx.h>
 #include <portmacro.h>
 
 StaticSemaphore_t init_complete_locks_buf;
@@ -103,10 +104,6 @@ void tasks_init(void)
     // Write LTC configs.
     app_segments_setDefaultConfig();
     io_ltc6813_wakeup();
-
-    // TODO: This blocks forever if modules don't reply. If we can't talk to modules we're boned anyway so not the end
-    // of the world but there's probably a way to make this more clear...
-    // TODO: Actually fix this so there's a timeout!
     LOG_IF_ERR(app_segments_configSync());
 
     // Run all self tests at init.
@@ -150,7 +147,16 @@ void tasks_run100Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            jobs_run100Hz_tick();
+            const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+            io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+
+            // Need to wrap the state machine tick in the LTC app mutex so don't use jobs.c for 100Hz.
+            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+            app_stateMachine_tick100Hz();
+            xSemaphoreGive(ltc_app_data_lock);
+
+            app_stateMachine_tickTransitionState();
+            io_canTx_enqueue100HzMsgs();
         }
 
         start_ticks += period_ms;
@@ -193,7 +199,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms = 100U; // 10Hz
+    static const TickType_t period_ms = 1000U; // 1Hz
 
     for (;;)
     {
@@ -202,6 +208,7 @@ void tasks_runLtcVoltages(void)
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
+            LOG_IF_ERR(app_segments_configSync());
             LOG_IF_ERR(app_segments_runVoltageConversion());
         }
         xSemaphoreGive(isospi_bus_access_lock);
