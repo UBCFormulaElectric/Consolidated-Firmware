@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmsis_os.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
@@ -14,6 +15,7 @@ typedef struct
     uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     void (*const receive_callback)(const CanMsg *rx_msg);
     bool ready;
+    // TaskHandle_t transmit_task;
 } CanHandle;
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
@@ -40,7 +42,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Transmit a FD CAN msg on the bus, blocking until completed.
@@ -48,7 +50,7 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
  * @param msg FD CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-ExitCode hw_fdcan_transmit(const CanHandle *can_handle, CanMsg *msg);
+ExitCode hw_fdcan_transmit(CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a FD CAN msg from the bus, returning whether or not a message is available.

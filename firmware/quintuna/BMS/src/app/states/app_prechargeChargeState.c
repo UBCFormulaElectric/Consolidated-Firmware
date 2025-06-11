@@ -5,6 +5,7 @@
 #include "io_charger.h"
 #include "app_segments.h"
 #include "io_irs.h"
+#include "io_log.h"
 #include "io_time.h"
 #include "app_timer.h"
 #include "app_canRx.h"

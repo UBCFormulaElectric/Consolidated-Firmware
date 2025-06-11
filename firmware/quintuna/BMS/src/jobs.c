@@ -1,5 +1,6 @@
 #include "jobs.h"
 
+#include "app_precharge.h"
 #include "app_segments.h"
 #include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
@@ -45,6 +46,7 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    app_precharge_init();
     app_heartbeatMonitor_init(&hb_monitor);
 
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
@@ -70,14 +72,4 @@ void jobs_runCanRx_tick(void)
     const CanMsg rx_msg       = io_canQueue_popRx();
     JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
     io_canRx_updateRxTableWithMessage(&json_can_msg);
-}
-
-void jobs_canRxCallback(const CanMsg *rx_msg)
-{
-    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
-    {
-        io_canQueue_pushRx(rx_msg);
-    }
-
-    io_bootHandler_processBootRequest(rx_msg);
 }

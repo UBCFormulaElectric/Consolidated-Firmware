@@ -3,6 +3,8 @@
     "BMS_TractiveSystem",
     "BMS_Contactors",
     "BMS_Vitals",
+    "FSM_Vitals",
+    "RSM_Vitals",
     "FSM_ShdnNodeStatus",
     "FSM_Brake",
     "DAM_ShdnNodeStatus",
@@ -12,6 +14,12 @@
     "INVFL_FLInverterInfo1",
     "INVFR_FRInverterInfo1",
     "INVRL_RLInverterInfo1",
-    "INVRR_RRInverterInfo1"
+    "INVRR_RRInverterInfo1",
+    "VCR_Vitals",
+    "VCR_CommitInfo",
+    "VCR_Debug",
+    "FSM_Brake",
+    "FSM_Apps",
+    "CRIT_Switches"
   ]
 }
