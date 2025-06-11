@@ -96,16 +96,16 @@ const osThreadAttr_t InvCanTxTask_attributes = {
     .stack_size = sizeof(InvCanTxBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
-/* Definitions for task10Hz */
-osThreadId_t         task10HzHandle;
-uint32_t             task10HzBuffer[512];
-osStaticThreadDef_t  task10HzControlBlock;
-const osThreadAttr_t task10Hz_attributes = {
-    .name       = "task10Hz",
-    .cb_mem     = &task10HzControlBlock,
-    .cb_size    = sizeof(task10HzControlBlock),
-    .stack_mem  = &task10HzBuffer[0],
-    .stack_size = sizeof(task10HzBuffer),
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
@@ -124,7 +124,7 @@ void        StartFDCanTxTask(void *argument);
 void        StartCanRxTask(void *argument);
 void        StartSxCanTx(void *argument);
 void        StartInvCanTx(void *argument);
-void        startTask10Hz(void *argument);
+void        StartTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -208,8 +208,8 @@ int main(void)
     /* creation of InvCanTxTask */
     InvCanTxTaskHandle = osThreadNew(StartInvCanTx, NULL, &InvCanTxTask_attributes);
 
-    /* creation of task10Hz */
-    task10HzHandle = osThreadNew(startTask10Hz, NULL, &task10Hz_attributes);
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(StartTask1Hz, NULL, &Task1Hz_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -577,19 +577,19 @@ void StartInvCanTx(void *argument)
     /* USER CODE END StartInvCanTx */
 }
 
-/* USER CODE BEGIN Header_startTask10Hz */
+/* USER CODE BEGIN Header_StartTask1Hz */
 /**
- * @brief Function implementing the task10Hz thread.
+ * @brief Function implementing the Task1Hz thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_startTask10Hz */
-void startTask10Hz(void *argument)
+/* USER CODE END Header_StartTask1Hz */
+void StartTask1Hz(void *argument)
 {
-    /* USER CODE BEGIN startTask10Hz */
+    /* USER CODE BEGIN StartTask1Hz */
     /* Infinite loop */
-    tasks_run10Hz();
-    /* USER CODE END startTask10Hz */
+    tasks_run1Hz();
+    /* USER CODE END StartTask1Hz */
 }
 
 /* MPU Configuration */

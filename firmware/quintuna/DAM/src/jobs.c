@@ -8,6 +8,7 @@
 #include "app_timer.h"
 #include "app_canUtils.h"
 
+#include "io_bootHandler.h"
 #include "io_buzzer.h"
 #include "io_log.h"
 #include "io_tsim.h"
@@ -161,15 +162,18 @@ void jobs_runCanRx_tick(void)
 {
     const CanMsg rx_msg       = io_canQueue_popRx();
     JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-    // io_canRx_updateRxTableWithMessage(&json_can_msg);
+    io_canRx_updateRxTableWithMessage(&json_can_msg);
 }
 
 void jobs_runCanRx_callBack(const CanMsg *rx_msg)
 {
-    // if (io_canRx_filterMessageId_can1(rx_msg->std_id))
-    // {
-    //     io_canQueue_pushRx(rx_msg);
-    // }
+    io_bootHandler_processBootRequest(rx_msg);
+
+    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
+    {
+        io_canQueue_pushRx(rx_msg);
+    }
+
     if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, rx_msg->timestamp))
     {
         io_canLogging_loggingQueuePush(rx_msg);

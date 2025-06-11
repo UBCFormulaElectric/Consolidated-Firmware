@@ -20,6 +20,8 @@ void handleCallback(const CanMsg *rx_msg)
     io_canReroute_can1(&json_can_msg);
     io_canReroute_can2(&json_can_msg);
     io_canReroute_can3(&json_can_msg);
+
+    // Doesnt' receive anything via JSONCAN.
 }
 
 CanHandle fd_can  = { .hcan = &hfdcan2, .bus_num = 1, .receive_callback = handleCallback };
