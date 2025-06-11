@@ -46,7 +46,6 @@ static void driveStateRunOnEntry()
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
-    app_canTx_VC_BuzzerControl_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
@@ -88,13 +87,6 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
         app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
         return;
-    }
-
-    // Disable drive buzzer after 2 seconds.
-    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
-    {
-        // io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
-        app_canTx_VC_BuzzerControl_set(false);
     }
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]

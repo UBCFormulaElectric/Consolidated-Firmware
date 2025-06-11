@@ -25,9 +25,11 @@
 #include "hw_resetReason.h"
 
 #define RED_TOGGLE_TIME 150
+#define BOOTUP_IGNORE_TIME (3000)
 
 CanTxQueue          can_tx_queue;
 static TimerChannel tsim_toggle_timer;
+static TimerChannel tsim_bootup_ignore_timer;
 static TsimColor    curr_tsim_color;
 static TimerChannel buzzer_timeout;
 
@@ -67,6 +69,9 @@ void jobs_init()
     app_timer_init(&buzzer_timeout, 1000);
     curr_tsim_color = TSIM_OFF;
     app_canAlerts_DAM_Info_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
+
+    app_timer_init(&tsim_bootup_ignore_timer, (uint32_t)BOOTUP_IGNORE_TIME);
+    app_timer_restart(&tsim_bootup_ignore_timer);
 }
 
 void jobs_run1Hz_tick(void)
@@ -97,15 +102,17 @@ void jobs_run100Hz_tick(void)
             break;
     }
 
+    const bool ignore_fault_on_bootup = app_timer_updateAndGetState(&tsim_bootup_ignore_timer) == TIMER_STATE_RUNNING;
+
     // following TSIM outline stated in
     // https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
-    const bool no_fault = app_canRx_BMS_BmsLatchOk_get() && app_canRx_BMS_ImdLatchOk_get();
+    const bool no_fault = (app_canRx_BMS_BmsLatchOk_get() && app_canRx_BMS_ImdLatchOk_get()) || ignore_fault_on_bootup;
     if (no_fault)
     {
         io_tsim_set_green();
         app_timer_stop(&tsim_toggle_timer);
     }
-    else if (!no_fault)
+    else
     {
         static TsimColor next_tsim_color = TSIM_RED;
 

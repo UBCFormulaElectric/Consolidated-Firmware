@@ -349,8 +349,8 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.DataTimeSeg1         = 1;
     hfdcan1.Init.DataTimeSeg2         = 1;
     hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
@@ -400,8 +400,8 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.DataTimeSeg1         = 5;
     hfdcan2.Init.DataTimeSeg2         = 2;
     hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 0;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 1;
     hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
@@ -451,8 +451,8 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.DataTimeSeg1         = 1;
     hfdcan3.Init.DataTimeSeg2         = 1;
     hfdcan3.Init.MessageRAMOffset     = 0;
-    hfdcan3.Init.StdFiltersNbr        = 0;
-    hfdcan3.Init.ExtFiltersNbr        = 0;
+    hfdcan3.Init.StdFiltersNbr        = 1;
+    hfdcan3.Init.ExtFiltersNbr        = 1;
     hfdcan3.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
