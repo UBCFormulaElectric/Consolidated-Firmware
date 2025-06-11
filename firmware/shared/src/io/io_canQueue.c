@@ -8,6 +8,7 @@
 
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
+#include "io_canMsg.h"
 
 static osMessageQueueId_t         rx_queue_id;
 static StaticQueue_t              rx_queue_control_block;
@@ -87,6 +88,7 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     // use canQueue rx in isr
+
     osStatus_t status = osMessageQueuePut(rx_queue_id, rx_msg, 0, 0);
     if (status != osOK)
     {
