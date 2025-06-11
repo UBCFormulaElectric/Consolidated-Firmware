@@ -21,10 +21,9 @@
 #include "io_time.h"
 #include "io_bspdTest.h"
 #include "io_faultLatch.h"
+#include "io_irs.h"
 
-// Time for voltage and cell temperature values to settle
-#define CELL_MONITOR_TIME_TO_SETTLE_MS (300U)
-static TimerChannel cell_monitor_settle_timer;
+#include <app_canAlerts.h>
 
 CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
 
@@ -54,9 +53,6 @@ void jobs_init()
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
-
-    app_timer_init(&cell_monitor_settle_timer, CELL_MONITOR_TIME_TO_SETTLE_MS);
-    app_timer_restart(&cell_monitor_settle_timer);
 
     app_segments_initFaults();
     app_stateMachine_init(&init_state);
@@ -96,16 +92,15 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
     app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
+    // TODO these should just be broadcast functions, to show that they are CAN setters primarily for side effects
     (void)app_segments_checkWarnings();
+    (void)app_segments_checkFaults();
 
-    // Need to wrap the state machine tick in the LTC app mutex so don't use jobs.c for 100Hz.
-    app_stateMachine_tick100Hz();
-    // other state transitions
-    const bool acc_fault = app_segments_checkFaults(); // TODO surely we have to debounce thi
-    // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
-    // monitoring chips within 3 cycles
-    const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
-    if (acc_fault && settle_time_expired)
+    if (io_irs_negativeState() == IRS_OPEN)
+    {
+        app_stateMachine_setNextState(&init_state);
+    }
+    if (app_canAlerts_AnyBoardHasFault())
     {
         app_stateMachine_setNextState(&fault_state);
     }

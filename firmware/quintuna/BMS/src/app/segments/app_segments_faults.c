@@ -80,6 +80,10 @@ static const ProfileConfig fault_profile_config = {
 static Profile fault_profile;
 static Profile warning_profile;
 
+static TimerChannel cell_monitor_settle_timer;
+// Time for voltage and cell temperature values to settle
+#define CELL_MONITOR_TIME_TO_SETTLE_MS (300U)
+
 void profileInit(Profile *profile, const ProfileConfig *config)
 {
     app_timer_init(&profile->under_voltage_fault_timer, config->under_voltage_debounce_ms);
@@ -87,6 +91,9 @@ void profileInit(Profile *profile, const ProfileConfig *config)
     app_timer_init(&profile->over_temp_fault_timer, config->over_temp_debounce_ms);
     app_timer_init(&profile->comm_err_fault_timer, config->comm_err_debounce_ms);
     profile->config = config;
+
+    app_timer_init(&cell_monitor_settle_timer, CELL_MONITOR_TIME_TO_SETTLE_MS);
+    app_timer_restart(&cell_monitor_settle_timer);
 }
 
 bool checkProfile(Profile *profile)
@@ -133,6 +140,10 @@ bool checkProfile(Profile *profile)
 
     // TODO: How long to debounce OWC comm err fault? Since OWC only runs every 10s at present...
     // TODO: How do we want to respond to open wire in general?
+
+    // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
+    // monitoring chips within 3 cycles
+    const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
 
     return under_voltage_debounced || over_voltage_debounced || over_temp_debounced || comm_err_debounced;
 }
