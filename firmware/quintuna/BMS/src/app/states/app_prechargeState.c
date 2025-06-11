@@ -13,6 +13,8 @@ static void prechargeStateRunOnEntry()
 {
     io_irs_setPrecharge(IRS_CLOSED);
     app_precharge_restart();
+
+    app_timer_init(&cooldown_timer, PRECHARGE_COOLDOWN_TIME);
 }
 
 static void prechargeStateRunOnTick100Hz()
