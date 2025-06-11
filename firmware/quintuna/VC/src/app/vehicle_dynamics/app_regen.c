@@ -94,8 +94,8 @@
 //     app_canTx_VC_INVFLTorqueSetpoint_set(left);
 //     app_canTx_VC_INVFRTorqueSetpoint_set(right);
 //     app_canTx_VC_INVRLTorqueSetpoint_set(left);
-//     app_canTx_VC_INVRRTorqueSetpoint_set(right); 
-    
+//     app_canTx_VC_INVRRTorqueSetpoint_set(right);
+
 // }
 
 // void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
@@ -131,8 +131,8 @@
 //     float min_motor_speed =
 //         MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_right_rpm, activeDiffInputs->motor_speed_left_rpm));
 
-//     powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value
-//     powerInputs->left_motor_temp_C         = app_canRx_INVL_MotorTemperature_get();
+//     powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal
+//     value powerInputs->left_motor_temp_C         = app_canRx_INVL_MotorTemperature_get();
 //     powerInputs->right_motor_temp_C        = app_canRx_INVR_MotorTemperature_get();
 
 //     regenAttr->derating_value = 1.0f;

@@ -14,7 +14,6 @@
 #include "app_commitInfo.h"
 #include "app_faultHandling.h"
 
-
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);

@@ -1,10 +1,10 @@
-#pragma once 
+#pragma once
 #include "stdbool.h"
 
 typedef enum
 {
     NO_WARNINGS,
-    BOARD_WARNING_DETECTED, 
+    BOARD_WARNING_DETECTED,
     INVERTER_FAULT
 } warningType;
 

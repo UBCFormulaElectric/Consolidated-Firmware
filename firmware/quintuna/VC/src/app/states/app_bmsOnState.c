@@ -37,7 +37,7 @@ static void bmsOnStateRunOnTick100Hz(void)
     // Note: Still unsure what is happening with PCM state as there PCM is still in the air in terms of progress
     // Update: Currently we are having a state in which we tell the PCM MCU to send the turn on command and wait for hv
     // bus to go online
-    
+
     if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
     {
         app_stateMachine_setNextState(&hvInit_state); // HARD CODED FOR SPINNING WHEELS REVERT TO PCMONSTATE

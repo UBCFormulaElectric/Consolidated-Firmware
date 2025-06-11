@@ -33,28 +33,26 @@ static PowerManagerConfig power_manager_state = {
 };
 
 static TimerChannel  *pcm_voltage_in_range_timer;
-static TimerChannel  *pcm_toggle_timer; 
+static TimerChannel  *pcm_toggle_timer;
 static pcmRetryStates pcm_retry_state;
 static float          pcm_curr_voltage;
-static float          pcm_prev_voltage; 
+static float          pcm_prev_voltage;
 
-static bool pcmUnderVoltage(void); 
+static bool pcmUnderVoltage(void);
 static bool toggleTimer(void);
-
 
 static void pcmOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_PCM_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
-    pcm_retry_state = NO_RETRY;
+    pcm_retry_state  = NO_RETRY;
     pcm_curr_voltage = 0.0f;
-    pcm_prev_voltage = 0.0f; 
+    pcm_prev_voltage = 0.0f;
 
     io_pcm_set(true);
     app_timer_init(pcm_voltage_in_range_timer, PCM_TIMEOUT);
     app_timer_init(pcm_toggle_timer, PCM_TIMEOUT);
     app_timer_restart(pcm_voltage_in_range_timer);
-
 }
 static void pcmOnStateRunOnTick1Hz(void) {}
 static void pcmOnStateRunOnTick100Hz(void)
@@ -67,21 +65,20 @@ static void pcmOnStateRunOnTick100Hz(void)
         }
         else
         {
-            return; 
+            return;
         }
     }
 
     switch (app_timer_updateAndGetState(pcm_voltage_in_range_timer))
     {
         case TIMER_STATE_RUNNING:
-            // pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get(); 
-            pcm_curr_voltage = 22.0;  // hard code
+            // pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
+            pcm_curr_voltage = 22.0; // hard code
             break;
 
         case TIMER_STATE_EXPIRED:
             if (NO_RETRY == pcm_retry_state)
             {
-                
                 pcm_retry_state = RETRY_TRIGGERED;
                 io_pcm_set(false); // for retry we turn the pcm off and then turn it on, on the next tick
             }
@@ -89,7 +86,7 @@ static void pcmOnStateRunOnTick100Hz(void)
             {
                 // already retried, now go to fault state
                 app_timer_stop(pcm_voltage_in_range_timer);
-                pcm_retry_state = RETRY_DONE; 
+                pcm_retry_state = RETRY_DONE;
             }
 
             break;
@@ -99,22 +96,19 @@ static void pcmOnStateRunOnTick100Hz(void)
             break;
     }
 
-
-    if(!pcmUnderVoltage())
+    if (!pcmUnderVoltage())
     {
-        app_stateMachine_setNextState(&hvInit_state); 
+        app_stateMachine_setNextState(&hvInit_state);
     }
     else if (RETRY_DONE == pcm_retry_state)
     {
         app_canAlerts_VC_Info_PcmUnderVoltage_set(true);
-        app_stateMachine_setNextState(&hvInit_state); 
-
+        app_stateMachine_setNextState(&hvInit_state);
     }
 
-    pcm_prev_voltage = pcm_curr_voltage; 
-
+    pcm_prev_voltage = pcm_curr_voltage;
 }
-static void pcmOnStateRunOnExit(void) 
+static void pcmOnStateRunOnExit(void)
 {
     app_timer_stop(pcm_voltage_in_range_timer);
     app_timer_stop(pcm_toggle_timer);
@@ -122,33 +116,33 @@ static void pcmOnStateRunOnExit(void)
 
 static bool toggleTimer(void)
 {
-    bool timer_done = false; 
-     switch (app_timer_updateAndGetState(pcm_toggle_timer))
+    bool timer_done = false;
+    switch (app_timer_updateAndGetState(pcm_toggle_timer))
     {
         case TIMER_STATE_RUNNING:
-            // do nothing 
+            // do nothing
             break;
 
         case TIMER_STATE_EXPIRED:
-                io_pcm_set(true);
-                timer_done = true; 
+            io_pcm_set(true);
+            timer_done = true;
             break;
 
         case TIMER_STATE_IDLE:
             app_timer_restart(pcm_toggle_timer);
             break;
     }
-    return timer_done; 
+    return timer_done;
 }
 
 static bool pcmUnderVoltage(void)
 {
     // debouncing
-    if(HV_READY_VOLTAGE <= pcm_curr_voltage && pcm_curr_voltage <= PCM_MAX_VOLTAGE)
+    if (HV_READY_VOLTAGE <= pcm_curr_voltage && pcm_curr_voltage <= PCM_MAX_VOLTAGE)
     {
-        if(HV_READY_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE)
+        if (HV_READY_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE)
         {
-            return false; 
+            return false;
         }
     }
     return true;

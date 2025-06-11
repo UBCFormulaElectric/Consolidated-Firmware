@@ -47,7 +47,6 @@ static void hvInitStateRunOnEntry(void)
     app_powerManager_updateConfig(power_manager_state);
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_init(&start_up_timer, 1000);
-
 }
 static void hvInitStateRunOnTick1Hz(void) {}
 static void hvInitStateRunOnTick100Hz(void)
@@ -75,8 +74,7 @@ static void hvInitStateRunOnTick100Hz(void)
             const bool inverter_dc_quit = app_canRx_INVRR_bQuitDcOn_get() && app_canRx_INVRL_bQuitDcOn_get() &&
                                           app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
 
-            const TimerState timeout_state =
-                app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit);
+            const TimerState timeout_state = app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit);
 
             switch (timeout_state)
             {
@@ -119,8 +117,7 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get() &&
                 app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
 
-            const TimerState timeout_state =
-                app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit);
+            const TimerState timeout_state = app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit);
 
             switch (timeout_state)
             {
@@ -140,7 +137,7 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         }
         case INV_READY_FOR_DRIVE:
-            if(app_canAlerts_VC_Warning_InverterRetry_get())
+            if (app_canAlerts_VC_Warning_InverterRetry_get())
             {
                 app_warningHandling_inverterStatus();
                 app_canAlerts_VC_Warning_InverterRetry_set(false);
@@ -148,7 +145,7 @@ static void hvInitStateRunOnTick100Hz(void)
             }
             else
             {
-                app_stateMachine_setNextState(&hv_state);    
+                app_stateMachine_setNextState(&hv_state);
             }
             break;
     }
@@ -158,7 +155,6 @@ static void hvInitStateRunOnExit(void)
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
     app_canAlerts_VC_Warning_InverterRetry_set(false);
-
 }
 
 State hvInit_state = { .name              = "HV INIT",

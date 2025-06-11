@@ -9,8 +9,8 @@
 #define NUM_FAULT_NODES 14
 
 /**
- * New fault handling will not kick drive out of drive state, instead it will clamp torque to 0, this done to reduce exiting drive state 
- * on recoverable faults 
+ * New fault handling will not kick drive out of drive state, instead it will clamp torque to 0, this done to reduce
+ * exiting drive state on recoverable faults
  */
 
 bool app_faultHandling_air_minus_closed(void)
@@ -20,5 +20,5 @@ bool app_faultHandling_air_minus_closed(void)
 
 bool app_faultHandling_fsm_bms_HeartbeartChecks(void)
 {
-    return app_canAlerts_BoardHasFault(VC_NODE); 
+    return app_canAlerts_BoardHasFault(VC_NODE);
 }

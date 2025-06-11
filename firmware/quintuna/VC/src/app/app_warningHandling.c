@@ -6,7 +6,6 @@
 #include <app_canAlerts.h>
 #include "app_stateMachine.h"
 
-
 static bool app_warningHandling_boardWarningCheck(void)
 {
     return app_canAlerts_AnyBoardHasWarning();
@@ -24,7 +23,7 @@ bool app_warningHandling_inverterStatus(void)
     app_canAlerts_VC_Warning_RearLeftInverterFault_set(invfl_error);
     app_canAlerts_VC_Warning_RearRightInverterFault_set(invfr_error);
 
-    return invfl_error || invrl_error || invfl_error || invfr_error; 
+    return invfl_error || invrl_error || invfl_error || invfr_error;
 }
 
 warningType app_warningHandling_globalWarningCheck()

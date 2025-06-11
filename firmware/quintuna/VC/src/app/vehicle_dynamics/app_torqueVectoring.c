@@ -132,7 +132,6 @@
 //     //     app_tractionControl_computeTorque(&traction_control_inputs, &traction_control_outputs);
 //     // }
 
-
 //     float desired_tot_yaw_moment               = app_yawRateController_getYawMoment();
 //     torqueAllocation.total_torque_request  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
 //     torqueAllocation.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
