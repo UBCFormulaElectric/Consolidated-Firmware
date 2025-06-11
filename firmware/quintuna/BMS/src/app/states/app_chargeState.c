@@ -1,6 +1,7 @@
 #include "app_stateMachine.h"
 #include "app_chargeState.h"
 #include "app_initState.h"
+#include "app_timer.h"
 #include "io_irs.h"
 #include "io_charger.h"
 #include "app_charger.h"
@@ -14,7 +15,7 @@
 #define CHARGING_CUTOFF_MAX_CELL_VOLTAGE 4.15f
 
 // Charger / pack constants
-#define PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
+#define PACK_VOLTAGE_DC 581.0f   // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
 #define CHARGER_EFFICIENCY 0.93f // 93% – average DC-side efficiency of the Elcon
 
 // Charger’s own output limit (never command above this)
@@ -152,6 +153,10 @@ static ElconRx readElconStatus(void)
 //     return range;
 // }
 
+#define ELCON_ERR_DEBOUNCE_MS (3000)
+
+static TimerChannel elcon_err_debounce;
+
 static void buildTxFrame(const ElconTx *cmd)
 {
     app_canTx_BMS_MaxChargingVoltage_set(cmd->maxVoltage_V);
@@ -166,6 +171,8 @@ static void app_chargeStateRunOnEntry(void)
     // Reset charge state CAN when entering charge state.
     app_canTx_BMS_ChargingFaulted_set(false);
     app_canTx_BMS_ChargingDone_set(false);
+
+    app_timer_init(&elcon_err_debounce, ELCON_ERR_DEBOUNCE_MS);
 }
 
 static void app_chargeStateRunOnTick100Hz(void)
@@ -179,8 +186,9 @@ static void app_chargeStateRunOnTick100Hz(void)
 
     const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.chargingStateFault ||
                        rx.overTemperature || rx.inputVoltageFault || rx.commTimeout;
+    const bool fault_latched = app_timer_runIfCondition(&elcon_err_debounce, fault) == TIMER_STATE_EXPIRED;
 
-    if (fault || !userEnable)
+    if (fault_latched || !userEnable)
     {
         app_canTx_BMS_ChargingFaulted_set(fault);
         app_stateMachine_setNextState(app_initState_get());
@@ -230,6 +238,10 @@ static void app_chargeStateRunOnExit(void)
     // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
     // unintentionally re-enter charge state.
     app_canRx_Debug_StartCharging_update(false);
+
+    // Reset to zero on exit.
+    const ElconTx tx = { .maxVoltage_V = 0, .maxCurrent_A = 0, .stopCharging = true };
+    buildTxFrame(&tx);
 }
 
 const State *app_chargeState_get(void)

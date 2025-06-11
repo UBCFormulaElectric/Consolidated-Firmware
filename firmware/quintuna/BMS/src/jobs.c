@@ -1,5 +1,6 @@
 #include "jobs.h"
 
+#include "app_precharge.h"
 #include "app_segments.h"
 #include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
@@ -45,6 +46,7 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    app_precharge_init();
     app_heartbeatMonitor_init(&hb_monitor);
 
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);

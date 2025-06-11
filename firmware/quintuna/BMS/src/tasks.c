@@ -111,6 +111,7 @@ void tasks_init(void)
 
     // Write LTC configs.
     app_segments_setDefaultConfig();
+    app_segments_balancingInit();
     io_ltc6813_wakeup();
     LOG_IF_ERR(app_segments_configSync());
 
@@ -230,21 +231,6 @@ void tasks_runLtcVoltages(void)
         const uint32_t start_ticks = osKernelGetTickCount();
 
         const bool balancing_enabled = app_stateMachine_getCurrentState() == app_balancingState_get();
-        if (balancing_enabled)
-        {
-            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
-            {
-                bool balance_config[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-                memset(balance_config, true, sizeof(balance_config));
-
-                // Balance all except the lowest cell voltage.
-                const CellParam min_cell                        = app_segments_getMinCellVoltage();
-                balance_config[min_cell.segment][min_cell.cell] = false;
-
-                app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])balance_config);
-            }
-            xSemaphoreGive(ltc_app_data_lock);
-        }
 
         xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
         {
@@ -269,6 +255,7 @@ void tasks_runLtcVoltages(void)
         {
             app_segments_broadcastCellVoltages();
             app_segments_broadcastVoltageStats();
+            app_segments_balancingTick(balancing_enabled);
         }
         xSemaphoreGive(ltc_app_data_lock);
 
