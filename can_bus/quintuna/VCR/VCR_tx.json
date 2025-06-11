@@ -1,7 +1,7 @@
 {
   "Vitals": {
       "msg_id": 1600,
-      "cycle_time": 10,
+      "cycle_time": 1000,
       "description": "VC Vital signals",
       "signals": {
           "Heartbeat": {
@@ -16,7 +16,7 @@
   },
   "CommitInfo": {
       "msg_id": 1609,
-      "cycle_time": 100,
+      "cycle_time": 1000,
       "description": "VC Commit Info",
       "signals": {
           "Hash": {

@@ -29,6 +29,7 @@
 CanTxQueue          can_tx_queue;
 static TimerChannel tsim_toggle_timer;
 static TsimColor    curr_tsim_color;
+static TimerChannel buzzer_timeout;
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -63,6 +64,7 @@ void jobs_init()
     app_canTx_DAM_Heartbeat_set(true);
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
     app_timer_init(&tsim_toggle_timer, (uint32_t)RED_TOGGLE_TIME);
+    app_timer_init(&buzzer_timeout, 1000);
     curr_tsim_color = TSIM_OFF;
     app_canAlerts_DAM_Info_CanLoggingSdCardNotPresent_set(!io_fileSystem_present());
 }
@@ -81,18 +83,23 @@ void jobs_run100Hz_tick(void)
 {
     io_canTx_enqueue100HzMsgs();
 
-    const bool buzzer_control = app_canRx_VC_BuzzerControl_get();
-    if (buzzer_control)
+    const bool vc_drive_state = app_canRx_VC_State_get() == VC_DRIVE_STATE;
+
+    TimerState timer_buzz = app_timer_runIfCondition(&buzzer_timeout, vc_drive_state);
+
+    switch (timer_buzz)
     {
-        io_enable_buzzer();
+        case TIMER_STATE_RUNNING:
+            io_enable_buzzer();
+            break;
+        default:
+            io_disable_buzzer();
+            break;
     }
-    else
-    {
-        io_disable_buzzer();
-    }
+
     // following TSIM outline stated in
     // https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
-    const bool fault_detected = app_canRx_BMS_BmsLatchedFault_get() || app_canRx_BMS_ImdLatchedFault_get();
+    const bool fault_detected = app_canRx_BMS_BmsLatchOk_get() || app_canRx_BMS_ImdLatchOk_get();
     if (!fault_detected)
     {
         io_tsim_set_green();

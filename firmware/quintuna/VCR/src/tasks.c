@@ -14,6 +14,7 @@
 #include <io_canTx.h>
 #include <io_canReroute.h>
 #include <io_canRx.h>
+#include <io_canTx.h>
 #include <stdint.h>
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
@@ -59,7 +60,7 @@ _Noreturn void tasks_run10Hz(void)
 
     for (;;)
     {
-        io_canTx_enqueue100HzMsgs();
+        io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
