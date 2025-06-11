@@ -12,6 +12,7 @@
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 #include "app_commitInfo.h"
+#include "app_faultHandling.h"
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -57,17 +58,27 @@ void jobs_run1Hz_tick(void)
 {
     // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+
+    app_stateMachine_tickTransitionState();
     io_canTx_enqueue1HzMsgs();
 }
 
 void jobs_run100Hz_tick(void)
 {
-    app_stateMachine_tick100Hz();
-    // TODO fault transitions
-    app_stateMachine_tickTransitionState();
+    bool air_minus_closed = app_canRx_BMS_IrNegative_get();
+
+    if (air_minus_closed)
+    {
+        app_stateMachine_setNextState(&init_state);
+    }
+    else
+    {
+        app_stateMachine_tick100Hz();
+    }
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
 
+    app_stateMachine_tickTransitionState();
     io_canTx_enqueue100HzMsgs();
 }
 

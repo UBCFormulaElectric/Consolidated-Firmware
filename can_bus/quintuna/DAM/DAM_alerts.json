@@ -5,7 +5,20 @@
   "faults_counts_id": 804,
   "info_id": 805,
   "info_counts_id": 806,
-  "warnings": {
+  "warnings": {},
+  "info": {
+    "StackOverflow": {
+      "id": 850,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "CanLoggingSdCardNotPresent": {
+      "id": 809,
+      "description": "CAN logging SD card is not detected."
+    },
+    "CanLoggingErrored": {
+      "id": 810,
+      "description": "CAN logging received multiple errors and has been disabled."
+    },
     "StackWaterMarkHighTask1Hz": {
       "id": 801,
       "description": "1Hz task stack watermark exceeded."
@@ -48,19 +61,6 @@
       "id": 880,
       "description": "Dummy Fault"
     }
-  },
-  "info": {
-    "StackOverflow": {
-      "id": 850,
-      "description": "An RTOS task stack overflowed on the previous boot cycle."
-    },
-    "CanLoggingSdCardNotPresent": {
-      "id": 809,
-      "description": "CAN logging SD card is not detected."
-    },
-    "CanLoggingErrored": {
-      "id": 810,
-      "description": "CAN logging received multiple errors and has been disabled."
-    }
+
   }
 }

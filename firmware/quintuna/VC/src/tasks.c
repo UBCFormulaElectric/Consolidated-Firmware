@@ -51,7 +51,7 @@ void tasks_init(void)
     BootRequest boot_request = hw_bootup_getBootRequest();
     if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
     {
-        app_canAlerts_VC_Info_StackOverflow_set(true);
+        // app_canAlerts_VC_Info_StackOverflow_set(true);
         app_canTx_VC_StackOverflowTask_set(boot_request.context_value);
 
         // Clear stack overflow bootup.
