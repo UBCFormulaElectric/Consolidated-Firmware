@@ -88,7 +88,7 @@ if ("${TARGET}" STREQUAL "binary")
                "quintuna_VCR_commit_info"
                "${CMAKE_CURRENT_BINARY_DIR}/app"
        )
-
+        target_compile_definitions("quintuna_VCR_app.elf" PRIVATE VCR)
         target_link_libraries("quintuna_VCR_app.elf" PRIVATE
                 "quintuna_VCR_stm32cube"
                 "quintuna_VCR_stm32cube_hal"
