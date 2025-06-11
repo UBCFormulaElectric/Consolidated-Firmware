@@ -30,7 +30,6 @@ static void hvStateRunOnEntry(void)
     // Initialize to true to prevent a false start
     prev_start_switch_pos = true;
 }
-static void hvStateRunOnTick1Hz(void) {}
 
 static void hvStateRunOnTick100Hz(void)
 {

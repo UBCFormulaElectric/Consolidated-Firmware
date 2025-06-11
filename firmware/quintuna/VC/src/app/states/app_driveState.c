@@ -76,8 +76,6 @@ static void driveStateRunOnEntry()
     }
 }
 
-static void driveStateRunOnTick1Hz(void) {}
-
 static void driveStateRunOnTick100Hz(void)
 {
     float apps_pedal_percentage  = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;

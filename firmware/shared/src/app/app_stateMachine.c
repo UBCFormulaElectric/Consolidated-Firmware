@@ -6,38 +6,37 @@
 static const State *next_state;
 static const State *current_state;
 
-#ifdef __arm__
-static StaticSemaphore_t state_tick_mutex_storage;
-static SemaphoreHandle_t state_tick_mutex;
-#elif __unix__ || __APPLE__
-static pthread_mutex_t state_tick_mutex;
-#elif _WIN32
-static HANDLE state_tick_mutex;
-#endif
-
-/**
- * Run the given tick function over the given state machine if the tick function
- * is not null
- *
- * @param tick_function The tick function to run over the state machine
- */
-static void runTickFunction(void (*tick_function)())
+void app_stateMachine_init(const State *initial_state)
 {
-    if (tick_function != NULL)
+    current_state = initial_state;
+    next_state    = initial_state;
+
+    if (current_state->run_on_entry != NULL)
     {
-        tick_function();
+        current_state->run_on_entry();
     }
 }
 
-static void runTickStateTransition(void)
+const State *app_stateMachine_getCurrentState(void)
 {
-#ifdef __arm__
-    xSemaphoreTake(state_tick_mutex, portMAX_DELAY);
-#elif __unix__ || __APPLE__
-    pthread_mutex_lock(&(state_tick_mutex));
-#elif _WIN32
-    WaitForSingleObject(state_tick_mutex, INFINITE);
-#endif
+    return current_state;
+}
+
+void app_stateMachine_setNextState(const State *const state)
+{
+    next_state = state;
+}
+
+void app_stateMachine_tick100Hz(void)
+{
+    if (current_state->run_on_tick_100Hz != NULL)
+    {
+        current_state->run_on_tick_100Hz();
+    }
+}
+
+void app_stateMachine_tickTransitionState(void)
+{
     // Check if we should transition states
     if (next_state != current_state)
     {
@@ -64,22 +63,5 @@ void app_stateMachine_setCurrentState(const State *const state)
 {
     next_state = state;
     app_stateMachine_tickTransitionState();
-}
-
-void app_stateMachine_tick100Hz(void)
-{
-    runTickFunction(current_state->run_on_tick_100Hz);
-}
-
-void app_stateMachine_tickTransitionState(void)
-{
-    runTickStateTransition();
-}
-
-#ifdef TARGET_TEST
-void app_stateMachine_setCurrentState(const State *const state)
-{
-    next_state = state;
-    runTickStateTransition();
 }
 #endif

@@ -54,7 +54,6 @@ static void pcmOnStateRunOnEntry(void)
     app_timer_init(pcm_toggle_timer, PCM_TIMEOUT);
     app_timer_restart(pcm_voltage_in_range_timer);
 }
-static void pcmOnStateRunOnTick1Hz(void) {}
 static void pcmOnStateRunOnTick100Hz(void)
 {
     if (RETRY_TRIGGERED == pcm_retry_state)
@@ -150,6 +149,5 @@ static bool pcmUnderVoltage(void)
 
 State pcmOn_state = { .name              = "PCM ON",
                       .run_on_entry      = pcmOnStateRunOnEntry,
-                      .run_on_tick_1Hz   = pcmOnStateRunOnTick1Hz,
                       .run_on_tick_100Hz = pcmOnStateRunOnTick100Hz,
                       .run_on_exit       = pcmOnStateRunOnExit };
