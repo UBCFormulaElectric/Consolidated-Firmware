@@ -50,12 +50,24 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   
   // Track signals this component instance subscribed to for proper cleanup
   const componentSubscriptions = useRef<Set<string>>(new Set());
+  // Force re-render when subscriptions change
+  const [subscriptionVersion, setSubscriptionVersion] = useState(0);
+
+  // Get only the signals that this specific graph instance has subscribed to
+  const thisGraphSignals = React.useMemo(() => {
+    // When paused, show all signals this component has subscribed to regardless of global activeSignals
+    // When not paused, filter by both component subscriptions and global activeSignals
+    const result = Array.from(componentSubscriptions.current).filter((sig) => 
+      (isPaused || activeSignals.includes(sig)) && isNumericalSignal(sig)
+    );
+    return result;
+  }, [activeSignals, isNumericalSignal, subscriptionVersion, isPaused]);
 
   const chartData = React.useMemo(() => {
     const windowMs = 100;
     const filteredData = numericalData.filter(
       (d) =>
-        activeSignals.includes(d.name as string) &&
+        thisGraphSignals.includes(d.name as string) &&
         isNumericalSignal(d.name as string)
     );
 
@@ -91,8 +103,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     return sortedTimes.map((time) => {
       const dataPoint: any = { time };
       
-      // For each active signal, get the value or carry forward the last known value
-      activeSignals.forEach((signalName) => {
+      // For each signal this graph has subscribed to, get the value or carry forward the last known value
+      thisGraphSignals.forEach((signalName) => {
         if (!isNumericalSignal(signalName)) return;
         
         const signalData = dataBySignal[signalName];
@@ -109,19 +121,16 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
       
       return dataPoint;
     });
-  }, [numericalData, activeSignals, isNumericalSignal]);
+  }, [numericalData, thisGraphSignals, isNumericalSignal]);
 
-  const numericalSignals = React.useMemo(
-    () => activeSignals.filter((sig) => isNumericalSignal(sig)),
-    [activeSignals, isNumericalSignal]
-  );
+  const numericalSignals = thisGraphSignals;
 
   const availableOptions = React.useMemo(
     () =>
       availableSignals.filter(
-        (s) => !activeSignals.includes(s.name) && isNumericalSignal(s.name)
+        (s) => !thisGraphSignals.includes(s.name) && isNumericalSignal(s.name)
       ),
-    [availableSignals, activeSignals, isNumericalSignal]
+    [availableSignals, thisGraphSignals, isNumericalSignal]
   );
 
   const filteredSignals = React.useMemo(() => {
@@ -139,6 +148,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     (name: string) => {
       subscribeToSignal(name, SignalType.Numerical);
       componentSubscriptions.current.add(name);
+      setSubscriptionVersion(v => v + 1);
       setSearchTerm("");
       setIsSearchOpen(false);
     },
@@ -149,6 +159,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     (name: string) => {
       unsubscribeFromSignal(name);
       componentSubscriptions.current.delete(name);
+      setSubscriptionVersion(v => v + 1);
     },
     [unsubscribeFromSignal]
   );
@@ -164,9 +175,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   // Cleanup effect to prevent memory leaks and race conditions on unmount
   useEffect(() => {
     // Subscribe to the initial signal if provided
-    if (signalName && !activeSignals.includes(signalName)) {
+    if (signalName && !componentSubscriptions.current.has(signalName)) {
       subscribeToSignal(signalName, SignalType.Numerical);
       componentSubscriptions.current.add(signalName);
+      setSubscriptionVersion(v => v + 1);
     }
     
     return () => {
@@ -176,7 +188,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
       });
       componentSubscriptions.current.clear();
     };
-  }, []);  // Empty deps - only on mount/unmount
+  }, [signalName]); // Only depend on signalName, not the functions
 
   return (
     <div className="mb-6 p-4 inline-block w-min-[100vm] relative">

@@ -27,7 +27,7 @@ type SignalContextType = {
   enumData: DataPoint[]
   currentTime: number
   subscribeToSignal: (signalName: string, type?: SignalType) => void
-  unsubscribeFromSignal: (signalName: string) => void
+  unsubscribeFromSignal: (signalName: string, clearData?: boolean) => void
   clearData: () => void
   pruneData: (maxPoints?: number) => void
   pruneSignalData: (signalName: string) => void
@@ -85,7 +85,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const isNumericalSignal = useCallback((name: string) => {
     const type = signalTypes.current[name]
     return type ? type === SignalType.Numerical : !isEnumSignal(name)
-  }, [isEnumSignal])
+  }, [])
 
   const getSignalRefCount = useCallback((name: string) => signalSubscribers.current[name] || 0, [])
 
@@ -232,7 +232,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     
     signalsToProcess.forEach(sig => {
       if (DEBUG) {
-        console.log(`${isPaused ? 'Emitting unsubscription' : 'Resubscribing'} for ${sig}`)
+        console.log(`${isPaused ? 'Pausing data stream' : 'Resuming data stream'} for ${sig}`)
       }
       socket.emit(action, sig)
     })
@@ -279,7 +279,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     }
   }, [isConnected, isEnumSignal, isPaused, socket])
 
-  const unsubscribeFromSignal = useCallback((signalName: string) => {
+  const unsubscribeFromSignal = useCallback((signalName: string, clearData: boolean = true) => {
     const name = signalName.trim()
     
     // Prevent race conditions during deletion
@@ -318,8 +318,10 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         socket.emit('unsub', name)
       }
       
-      // Clean up data and refs immediately
-      pruneSignalData(name)
+      // Only clean up data if explicitly requested (for true unsubscription, not pause)
+      if (clearData) {
+        pruneSignalData(name)
+      }
       
       // Clear pending flag immediately for final unsubscription
       pendingUnsubscriptions.current.delete(name)
