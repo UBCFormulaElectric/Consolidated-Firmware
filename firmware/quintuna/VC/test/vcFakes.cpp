@@ -94,4 +94,16 @@ extern "C"
     CanTxQueue can1_tx_queue;
     CanTxQueue can2_tx_queue;
     CanTxQueue can3_tx_queue;
+
+#include "io_pcm.h"
+    static bool pcm_enabled = false;
+
+    void io_pcm_set(const bool enable)
+    {
+        pcm_enabled = enable;
+    }
+    bool io_pcm_enabled(void)
+    {
+        return pcm_enabled;
+    }
 }
