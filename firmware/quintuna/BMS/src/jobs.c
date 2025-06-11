@@ -1,23 +1,32 @@
 #include "jobs.h"
 
+// app
+#include "states/app_states.h"
 #include "app_precharge.h"
 #include "app_segments.h"
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
-
-#include "io_canTx.h"
-
-// app
+#include "app_canRx.h"
+#include "app_imd.h"
 #include "app_commitInfo.h"
-#include "app_stateMachine.h"
-#include "states/app_states.h"
-// io
-#include "io_canQueue.h"
 #include "app_jsoncan.h"
+#include "app_tractiveSystem.h"
+#include "app_irs.h"
+#include "app_shdnLoop.h"
+
+// io
+#include "io_canTx.h"
+#include "io_canQueue.h"
 #include "io_canMsg.h"
 #include "io_time.h"
+#include "io_bspdTest.h"
+#include "io_faultLatch.h"
 
-CanTxQueue can_tx_queue;
+// Time for voltage and cell temperature values to settle
+#define CELL_MONITOR_TIME_TO_SETTLE_MS (300U)
+static TimerChannel cell_monitor_settle_timer;
+
+CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -46,6 +55,9 @@ void jobs_init()
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
+    app_timer_init(&cell_monitor_settle_timer, CELL_MONITOR_TIME_TO_SETTLE_MS);
+    app_timer_restart(&cell_monitor_settle_timer);
+
     app_segments_initFaults();
     app_stateMachine_init(&init_state);
 }
@@ -53,6 +65,53 @@ void jobs_init()
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
+}
+
+void jobs_run100Hz_tick(void)
+{
+    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+
+    app_tractiveSystem_broadcast();
+    app_imd_broadcast();
+    app_irs_broadcast();
+    app_shdnLoop_broadcast();
+
+    io_bspdTest_enable(app_canRx_Debug_EnableTestCurrent_get());
+    app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
+
+    // If charge state has not placed a lock on broadcasting
+    // if the charger is charger is connected
+    const bool charger_is_connected = false; // TODO: Charger app_canRx_BRUSA_IsConnected_get();
+    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
+
+    // Update CAN signals for BMS latch statuses.
+    app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
+    app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
+    app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
+    app_canTx_BMS_BmsLatchOk_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
+    app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
+    app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
+
+    (void)app_segments_checkWarnings();
+
+    // Need to wrap the state machine tick in the LTC app mutex so don't use jobs.c for 100Hz.
+    app_stateMachine_tick100Hz();
+    // other state transitions
+    const bool acc_fault = app_segments_checkFaults(); // TODO surely we have to debounce thi
+    // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
+    // monitoring chips within 3 cycles
+    const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
+    if (acc_fault && settle_time_expired)
+    {
+        app_stateMachine_setNextState(&fault_state);
+    }
+    app_stateMachine_tickTransitionState();
+
+    io_canTx_enqueue100HzMsgs();
 }
 
 void jobs_run1kHz_tick(void)
