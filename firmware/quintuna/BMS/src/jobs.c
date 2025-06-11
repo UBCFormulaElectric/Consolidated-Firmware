@@ -20,6 +20,7 @@
 #include "io_canMsg.h"
 #include "io_time.h"
 #include "io_bspdTest.h"
+#include "io_charger.h"
 #include "io_faultLatch.h"
 #include "io_irs.h"
 
@@ -81,10 +82,13 @@ void jobs_run100Hz_tick(void)
 
     // If charge state has not placed a lock on broadcasting
     // if the charger is charger is connected
-    const bool charger_is_connected = false; // TODO: Charger app_canRx_BRUSA_IsConnected_get();
-    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
+    app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
+
+    (void)app_segments_checkWarnings();
+    const bool ams_fault = app_segments_checkFaults();
 
     // Update CAN signals for BMS latch statuses.
+    io_faultLatch_setCurrentStatus(&bms_ok_latch, ams_fault);
     app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
     app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
     app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
@@ -92,9 +96,9 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
     app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
-    // TODO these should just be broadcast functions, to show that they are CAN setters primarily for side effects
-    (void)app_segments_checkWarnings();
-    (void)app_segments_checkFaults();
+    app_canAlerts_BMS_Fault_AMSFault_set(ams_fault);
+    app_canAlerts_BMS_Fault_IMDFault_set(false);  // TODO
+    app_canAlerts_BMS_Fault_BSPDFault_set(false); // TODO
 
     app_stateMachine_tick100Hz();
 

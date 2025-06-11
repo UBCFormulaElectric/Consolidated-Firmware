@@ -6,10 +6,10 @@
 ConnectionStatus io_charger_getConnectionStatus()
 {
     if (990 <= hw_pwmInput_getFrequency(&evse_pwm_input) && hw_pwmInput_getFrequency(&evse_pwm_input) <= 1010)
-        return EVSE_CONNECTED;
+        return CHARGER_CONNECTED_EVSE;
     if (hw_gpio_readPin(&n_evse_i_lim_pin))
-        return WALL_CONNECTED;
-    return DISCONNECTED;
+        return CHARGER_CONNECTED_WALL;
+    return CHARGER_DISCONNECTED;
 }
 
 float io_charger_getDutyCycle()

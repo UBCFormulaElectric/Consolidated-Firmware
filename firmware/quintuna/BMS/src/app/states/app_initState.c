@@ -15,12 +15,10 @@
 static void initStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INIT_STATE);
-    io_faultLatch_setCurrentStatus(&bms_ok_latch, true);
-
     // AIR+ opens upon entering init state
     // Should always be opened at this point from other states, this is only for redundancy since we really don't want
     // AIR+ closed in init
-    io_irs_setPositive(false);
+    io_irs_setPositive(IRS_OPEN);
 }
 
 static void initStateRunOnTick100Hz(void)
@@ -41,8 +39,8 @@ static void initStateRunOnTick100Hz(void)
     if (irs_negative_closed && ts_discharged)
     {
         const bool external_charging_request = app_canRx_Debug_StartCharging_get();
-        const bool charger_connected =
-            io_charger_getConnectionStatus() == WALL_CONNECTED || io_charger_getConnectionStatus() == EVSE_CONNECTED;
+        const bool charger_connected         = io_charger_getConnectionStatus() == CHARGER_CONNECTED_WALL ||
+                                       io_charger_getConnectionStatus() == CHARGER_CONNECTED_EVSE;
         const bool precharge_for_driving  = app_canRx_VC_State_get() == VC_BMS_ON_STATE;
         const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 

@@ -165,14 +165,14 @@ extern "C"
     }
 
 #include "io_charger.h"
-    static ConnectionStatus connectionStatus = DISCONNECTED;
-    ConnectionStatus        io_charger_getConnectionStatus()
+    static ChargerConnectedType connectionStatus = CHARGER_DISCONNECTED;
+    ChargerConnectedType        io_charger_getConnectionStatus()
     {
         return connectionStatus;
     }
 
     static float evse_dutyCycle = 0.0f;
-    float        io_charger_getDutyCycle()
+    float        io_charger_getCPDutyCycle()
     {
         return evse_dutyCycle;
     }

@@ -18,8 +18,8 @@ static void driveStateRunOnEntry(void)
 
 static void driveStateRunOnTick100Hz(void)
 {
-    const bool             ir_negative_opened = !io_irs_negativeState();
-    const ConnectionStatus charger_status     = io_charger_getConnectionStatus();
+    const bool                 ir_negative_opened = !io_irs_negativeState();
+    const ChargerConnectedType charger_status     = io_charger_getConnectionStatus();
 
     bool ir_negative_opened_debounced = false;
 
@@ -28,7 +28,7 @@ static void driveStateRunOnTick100Hz(void)
         ir_negative_opened_debounced = true;
     }
 
-    if (ir_negative_opened_debounced || charger_status != DISCONNECTED)
+    if (ir_negative_opened_debounced || charger_status != CHARGER_DISCONNECTED)
     {
         app_stateMachine_setNextState(&init_state);
     }

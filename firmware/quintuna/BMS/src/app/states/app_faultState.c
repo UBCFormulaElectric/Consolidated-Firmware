@@ -9,9 +9,7 @@
 static void app_faultStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_FAULT_STATE);
-
-    io_irs_setPositive(false);
-    io_faultLatch_setCurrentStatus(&bms_ok_latch, false);
+    io_irs_setPositive(IRS_OPEN);
 }
 
 static void app_faultStateRunOnTick100Hz(void)

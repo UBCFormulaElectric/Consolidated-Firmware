@@ -173,9 +173,9 @@ static void app_chargeStateRunOnEntry(void)
 
 static void app_chargeStateRunOnTick100Hz(void)
 {
-    // const ConnectionStatus charger_connection_status = EVSE_CONNECTED; // io_charger_getConnectionStatus();
+    // const ConnectionStatus charger_connection_status = CHARGER_CONNECTED_EVSE; // io_charger_getConnectionStatus();
     const bool extShutdown = !io_irs_negativeState();
-    const bool chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
+    const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);
     const bool userEnable  = app_canRx_Debug_StartCharging_get();
 
     ElconRx rx = readElconStatus();
@@ -192,7 +192,7 @@ static void app_chargeStateRunOnTick100Hz(void)
 
     // TODO: Fix calc_dc_current_range
     // DCRange_t idc_range;
-    // if (charger_connection_status == EVSE_CONNECTED)
+    // if (charger_connection_status == CHARGER_CONNECTED_EVSE)
     // {
     //     const float evse_iac = app_charger_getAvaliableCurrent();
     //     idc_range            = calc_dc_current_range(evse_iac);

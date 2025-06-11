@@ -61,10 +61,6 @@
     "ModuleCommunicationError": {
       "id": 157,
       "description": "Failed to communicate with LTC6813 modules."
-    },
-    "MissingVCHeartbeat": {
-      "id": 115,
-      "description": "Missing heartbeat from the VC."
     }
   },
   "info_id": 405,

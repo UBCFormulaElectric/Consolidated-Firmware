@@ -3,7 +3,7 @@
 
 float app_charger_getAvaliableCurrent()
 {
-    const float evse_duty_cycle = io_charger_getDutyCycle();
+    const float evse_duty_cycle = io_charger_getCPDutyCycle();
 
     if (evse_duty_cycle >= 0.1f && evse_duty_cycle <= 0.85f)
     {
