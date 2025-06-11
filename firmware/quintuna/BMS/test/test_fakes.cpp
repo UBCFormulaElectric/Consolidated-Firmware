@@ -2,6 +2,11 @@
 
 extern "C"
 {
+#include "io_time.h"
+}
+
+extern "C"
+{
 #include "io_ltc6813.h"
     void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
     {
@@ -169,21 +174,27 @@ extern "C"
     }
 
 #include "io_imd.h"
-    float io_imd_getFrequency(void)
+    static float imd_frequency = 0.0f;
+    float        io_imd_getFrequency(void)
     {
-        return 0.0f;
+        return imd_frequency;
     }
-    float io_imd_getDutyCycle(void)
+
+    static float imd_duty_cycle = 0.0f;
+    float        io_imd_getDutyCycle(void)
     {
-        return 0.0f;
+        return imd_duty_cycle;
     }
+
     uint32_t io_imd_getTimeSincePowerOn(void)
     {
-        return 0;
+        return io_time_getCurrentMs();
     }
-    uint8_t io_imd_pwmCounterTick(void)
+
+    static uint8_t pwm_counter = 0;
+    uint8_t        io_imd_pwmCounterTick(void)
     {
-        return 0;
+        return pwm_counter;
     }
 
 #include "io_bmsShdn.h"
@@ -279,4 +290,20 @@ namespace faultLatches
         const_cast<FaultLatch *>(latch)->latched_state = FAULT_LATCH_OK;
     }
 } // namespace faultLatches
+
+namespace imd
+{
+    void setFrequency(const float frequency)
+    {
+        imd_frequency = frequency;
+    }
+    void setDutyCycle(const float duty_cycle)
+    {
+        imd_duty_cycle = duty_cycle;
+    }
+    void setPwmCounter(const uint8_t counter)
+    {
+        pwm_counter = counter;
+    }
+} // namespace imd
 } // namespace fakes

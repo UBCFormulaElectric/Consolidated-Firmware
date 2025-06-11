@@ -1,13 +1,9 @@
 #include "test_BMSBase.hpp"
-#include "test_fakes.h"
 
 extern "C"
 {
 #include "app_canTx.h"
-#include "app_canRx.h"
 #include "app_canAlerts.h"
-
-#include "io_faultLatch.h"
 }
 
 class BMSCanTest : public BMSBaseTest
@@ -46,9 +42,6 @@ TEST_F(BMSCanTest, check_states_is_broadcasted_over_can)
 
 TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
 {
-    fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
-    fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
-    fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
     //
     ASSERT_EQ(io_faultLatch_getCurrentStatus(&bms_ok_latch), FAULT_LATCH_OK) << "Expected BMS OK latch to be OK";
     ASSERT_EQ(io_faultLatch_getCurrentStatus(&imd_ok_latch), FAULT_LATCH_OK) << "Expected IMD OK latch to be OK";
@@ -85,6 +78,8 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
     ASSERT_FALSE(app_canTx_BMS_BspdLatchOk_get());
     ASSERT_FALSE(app_canAlerts_BMS_Fault_BSPDFault_get());
 
+    // LATCHES MUST PERSIST EVEN WHILE THE STATE IS RETURNED
+
     io_faultLatch_setCurrentStatus(&bms_ok_latch, FAULT_LATCH_OK);
     io_faultLatch_setCurrentStatus(&imd_ok_latch, FAULT_LATCH_OK);
     io_faultLatch_setCurrentStatus(&bspd_ok_latch, FAULT_LATCH_OK);
@@ -115,6 +110,8 @@ TEST_F(BMSCanTest, check_airs_can_signals_for_all_states)
     {
         enforceStatePreconditions(metadata);
         app_stateMachine_setCurrentState(metadata.state);
+        LetTimePass(10); // let the state settle
+        ASSERT_STATE_EQ(metadata.state);
 
         io_irs_setPositive(CONTACTORS_CLOSED);
         io_irs_setPrecharge(CONTACTORS_CLOSED);
@@ -134,14 +131,40 @@ TEST_F(BMSCanTest, check_airs_can_signals_for_all_states)
     }
 }
 
-TEST_F(BMSCanTest, charger_connection_status_in_all_states) {}
 TEST_F(BMSCanTest, check_imd_info_is_broadcasted_over_can_in_all_states)
 {
-    // frequency
-    // duty cycle
-    // insulation resistance 10hz, 20hz
-    // speed_start_status_30hz
-    // seconds_since_power_on
+    for (const auto &metadata : state_metadata)
+    {
+        enforceStatePreconditions(metadata);
+        app_stateMachine_setCurrentState(metadata.state);
+        LetTimePass(10); // let the state settle
+        ASSERT_STATE_EQ(metadata.state);
+
+        app_canTx_BMS_ImdOkHs_get();
+        app_canTx_BMS_ImdCondition_get();
+
+        // test 1
+        fakes::imd::setFrequency(60.0f);
+        fakes::imd::setDutyCycle(0.5);
+        LetTimePass(10);
+
+        ASSERT_EQ(app_canTx_BMS_ImdFrequency_get(), 60.0f)
+            << "Expected IMD frequency to be 60.0Hz, but got: " << app_canTx_BMS_ImdFrequency_get();
+        ASSERT_EQ(app_canTx_BMS_ImdDutyCycle_get(), 0.5f)
+            << "Expected IMD duty cycle to be 0.5, but got: " << app_canTx_BMS_ImdDutyCycle_get();
+        // app_canTx_BMS_ImdActiveFrequency_get();
+        // app_canTx_BMS_ImdValidDutyCycle_get();
+
+        // TODO idk what these are for...
+        // insulation resistance 10hz, 20hz
+        app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_get();
+        app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_get();
+        // speed_start_status_30hz
+        app_canTx_BMS_ImdSpeedStartStatus30Hz_get();
+
+        // seconds_since_power_on
+        ASSERT_EQ(app_canTx_BMS_ImdTimeSincePowerOn_get(), io_time_getCurrentMs());
+    }
 }
 
 TEST_F(BMSCanTest, check_shdn_broadcasted_in_all_states)
@@ -153,4 +176,9 @@ TEST_F(BMSCanTest, check_shdn_broadcasted_in_all_states)
         LetTimePass(10); // let the state settle
         ASSERT_STATE_EQ(metadata.state);
     }
+}
+
+TEST_F(BMSCanTest, charger_connection_status_in_all_states)
+{
+    // TODO
 }

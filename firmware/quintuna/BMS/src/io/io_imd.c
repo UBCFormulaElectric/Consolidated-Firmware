@@ -2,7 +2,6 @@
 #include "hw_pwms.h"
 #include "main.h"
 #include "io_time.h"
-#include <assert.h>
 
 #define PWM_TICKS_MAX 255
 

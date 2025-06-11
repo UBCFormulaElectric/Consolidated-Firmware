@@ -46,14 +46,14 @@ ImdCondition app_imd_getCondition(void);
  * @param imd The IMD to get PWM frequency for
  * @return The PWM frequency for the given IMD
  */
-float app_imd_getPwmFrequency(void);
+// float app_imd_getPwmFrequency(void);
 
 /**
  * Get the PWM duty cycle for the given IMD
  * @param imd The IMD to get PWM duty cycle for
  * @return The PWM duty cycle for the given IMD
  */
-float app_imd_getPwmDutyCycle(void);
+// float app_imd_getPwmDutyCycle(void);
 
 /**
  * Broadcast state of the IMD over the CAN bus.
