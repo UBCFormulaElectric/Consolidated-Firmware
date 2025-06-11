@@ -154,7 +154,12 @@ class CanSignal:
         """
         if self.enum:
             return self.enum.name
-        elif self.min_val == 0 and self.max_val == 1:
+        elif (
+            self.min_val == 0
+            and self.max_val == 1
+            and self.scale == 1
+            and self.offset == 0
+        ):
             return CanSignalDatatype.BOOL
         elif self.represent_as_integer():
             if self.min_val >= 0:
@@ -422,12 +427,10 @@ class CanDatabase:
         return decoded_signals
 
     def get_message_by_id(self, id: int):
-
         for msg in self.msgs.values():
             if msg.id == id:
                 return msg
         return None
-
 
 
 @dataclass()

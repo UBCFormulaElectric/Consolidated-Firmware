@@ -17,6 +17,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
