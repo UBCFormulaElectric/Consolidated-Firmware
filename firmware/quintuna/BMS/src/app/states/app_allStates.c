@@ -1,15 +1,15 @@
 #include "app_allStates.h"
-// #include "app_accumulator.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
 #include "app_imd.h"
 #include "app_irs.h"
+#include "app_segments.h"
 #include "app_shdnLoop.h"
-#include "app_thermistors.h"
+#include "app_stateMachine.h"
 #include "app_tractiveSystem.h"
 #include "io_bspdTest.h"
 #include "io_faultLatch.h"
-// #include "states/app_faultState.h"
+#include "states/app_faultState.h"
 #include <app_canRx.h>
 #include <app_canTx.h>
 
@@ -31,9 +31,6 @@ void app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    // app_accumulator_broadcast();
-    // app_thermistors_updateAuxThermistorTemps();
-    // app_thermistors_broadcast();
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
     app_irs_broadcast();
@@ -57,13 +54,14 @@ void app_allStates_runOnTick100Hz(void)
     app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
     app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
+    (void)app_segments_checkWarnings();
+    const bool acc_fault = app_segments_checkFaults();
+
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
-    const bool acc_fault           = false; // app_accumulator_checkFaults();
     const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
-
     if (acc_fault && settle_time_expired)
     {
-        // app_stateMachine_setNextState(app_faultState_get());
+        app_stateMachine_setNextState(app_faultState_get());
     }
 }

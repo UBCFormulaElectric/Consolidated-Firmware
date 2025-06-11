@@ -132,10 +132,10 @@ ExitCode hw_fdcan_transmit(CanHandle *can_handle, CanMsg *msg)
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
     tx_header.DataLength          = dlc;
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    tx_header.BitRateSwitch       = FDCAN_BRS_ON;
-    tx_header.FDFormat            = FDCAN_FD_CAN;
-    tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
-    tx_header.MessageMarker       = 0;
+    tx_header.BitRateSwitch = (can_handle->hcan->Init.FrameFormat == FDCAN_FRAME_FD_BRS) ? FDCAN_BRS_ON : FDCAN_BRS_OFF;
+    tx_header.FDFormat      = FDCAN_FD_CAN;
+    tx_header.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+    tx_header.MessageMarker      = 0;
 
     return tx(can_handle, tx_header, msg);
 }

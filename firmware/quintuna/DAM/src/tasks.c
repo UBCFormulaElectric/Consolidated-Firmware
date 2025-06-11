@@ -68,8 +68,6 @@ void tasks_init(void)
     // hw_gpio_writePin(&tsim_red_en_pin, true);
     // hw_gpio_writePin(&ntsim_green_en_pin, false);
 
-    // io_telemMessage_init();
-
     app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 
     // Check for stack overflow on a previous boot cycle and populate CAN alert.
@@ -186,7 +184,6 @@ _Noreturn void tasks_runTelem(void)
 {
     for (;;)
     {
-        LOG_INFO("telem task");
         io_telemMessage_broadcastMsgFromQueue();
     }
 }
