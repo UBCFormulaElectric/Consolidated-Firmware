@@ -9,9 +9,8 @@
 #include "app_utils.h"
 #include "io_ltc6813.h"
 
-#define CMD_SIZE (2U)            // 2 bytes
-#define PEC_SIZE (2U)            // 2 bytes
-#define REGISTER_GROUP_SIZE (6U) // 6 bytes
+#define CMD_SIZE (2U) // 2 bytes
+#define PEC_SIZE (2U) // 2 bytes
 
 // Misc. bit definitions.
 #define CHG (0x0 << 0)

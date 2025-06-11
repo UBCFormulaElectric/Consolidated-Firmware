@@ -5,7 +5,7 @@
     "RSM_Vitals",
     "VC_Vitals",
     "DAM_Vitals",
-    "BMS_LatchedFaults",
+    "BMS_LatchStatus",
     "VC_VehicleDynamics",
     "VC_GlobalShdnNodeStatus",
     "Debug_CanMode",

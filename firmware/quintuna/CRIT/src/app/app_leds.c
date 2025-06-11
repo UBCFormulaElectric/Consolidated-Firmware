@@ -142,9 +142,9 @@ static BoardLEDStatus worstBoardStatus(CanNode board)
 void app_leds_update(void)
 {
     // Single‑LED flags from CAN
-    const bool imd_fault  = app_canRx_BMS_ImdLatchedFault_get();
-    const bool bspd_fault = app_canRx_BMS_BspdLatchedFault_get();
-    const bool ams_fault  = app_canRx_BMS_BmsLatchedFault_get();
+    const bool imd_fault  = !app_canRx_BMS_ImdLatchOk_get();
+    const bool bspd_fault = !app_canRx_BMS_BspdLatchOk_get();
+    const bool ams_fault  = !app_canRx_BMS_BmsLatchOk_get();
     const bool push_drive = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
     const bool regen_on   = app_canRx_VC_RegenEnabled_get();
     const bool torque_on  = app_canRx_VC_TorqueVectoringEnabled_get();
