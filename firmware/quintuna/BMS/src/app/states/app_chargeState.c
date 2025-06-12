@@ -246,5 +246,9 @@ const State charge_state = {
     .run_on_exit       = app_chargeStateRunOnExit,
 };
 
-const State charge_fault_state;
-const State charge_init_state;
+const State charge_fault_state = {
+    .name = "CHARGE FAULT",
+};
+const State charge_init_state = {
+    .name = "CHARGE INIT",
+};

@@ -33,8 +33,7 @@ static void prechargeStateRunOnTick100Hz()
             app_timer_restart(&cooldown_timer);
             break;
         case PRECHARGE_STATE_SUCCESS:
-            // Precharge successful, close positive contactor.
-            app_stateMachine_setNextState(&charge_init_state);
+            app_stateMachine_setNextState(&drive_state);
             break;
         default:
             assert(0);
