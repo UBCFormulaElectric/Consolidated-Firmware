@@ -44,8 +44,10 @@ void app_precharge_restart(void)
 
 PrechargeState app_precharge_poll(bool precharge_for_charging)
 {
-    float ts_voltage        = app_tractiveSystem_getVoltage();
-    float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    float       ts_voltage   = app_tractiveSystem_getVoltage();
+    const float pack_voltage = 300.0f;
+    // float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    float threshold_voltage = pack_voltage * PRECHARGE_ACC_V_THRESHOLD;
 
     const bool is_air_negative_open = !io_irs_isNegativeClosed();
     const bool is_ts_rising_slowly =
