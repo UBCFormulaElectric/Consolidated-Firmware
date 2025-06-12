@@ -61,12 +61,10 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
 
-    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t) ((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t) ((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t) ((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t) ((-1) * (MAX_TORQUE_REQUEST_NM)));
-
-
+    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
 
     if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
