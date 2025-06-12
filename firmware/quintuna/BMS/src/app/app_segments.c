@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 
 // TODO: Take a closer look at these guys
 #define CONVERSION_TIME_MS (10)
@@ -37,16 +38,32 @@ typedef enum
 typedef struct
 {
     uint8_t segment;
-    int cell;
+    uint8_t cell;
     float   temp;
 } CellTemperature;
 typedef struct
 {
-    CellTemperature min_thermistor_temp;
-    CellTemperature max_thermistor_temp;
+    CellTemperature min_temp_cell;
+    CellTemperature max_temp_cell;
 } TemperatureStats;
 
 static TemperatureStats temperature_stats;
+
+typedef struct
+{
+    uint8_t segment;
+    uint8_t cell;
+    float   voltage;
+} CellVoltage;
+typedef struct
+{
+    CellVoltage min_voltage_cell;
+    CellVoltage max_voltage_cell;
+    float       segment_voltages[NUM_SEGMENTS];
+    float       pack_voltage;
+} VoltageStats;
+
+static VoltageStats voltage_stats;
 
 // Keeping separate buffers for every command is pretty wasteful but we have lots of RAM so oh well
 
@@ -336,6 +353,48 @@ ExitCode app_segments_runOpenWireCheck(void)
     return EXIT_CODE_OK;
 }
 
+void calculateVoltageStats(void)
+{
+    voltage_stats = (VoltageStats){
+        .min_voltage_cell = { .voltage = FLT_MAX },
+        .max_voltage_cell = { .voltage = -FLT_MAX},
+        .pack_voltage     = 0.0f,
+    };
+
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            const float cell_voltage = cell_voltages[segment][cell];
+            
+            if (cell_voltage < voltage_stats.min_voltage_cell.voltage)
+            {
+                voltage_stats.min_voltage_cell.voltage = cell_voltage;
+                voltage_stats.min_voltage_cell.segment = segment;
+                voltage_stats.min_voltage_cell.cell    = cell;
+                app_canTx_BMS_MinCellVoltageSegment_set(segment);
+                app_canTx_BMS_MinCellVoltageIdx_set(cell);
+                app_canTx_BMS_MinCellVoltage_set(cell_voltage);
+                
+            }
+            
+            if (cell_voltage > voltage_stats.max_voltage_cell.voltage)
+            {
+                voltage_stats.max_voltage_cell.voltage = cell_voltage;
+                voltage_stats.max_voltage_cell.segment = segment;
+                voltage_stats.max_voltage_cell.cell    = cell;
+                app_canTx_BMS_MaxCellVoltageSegment_set(segment);
+                app_canTx_BMS_MaxCellVoltageIdx_set(cell);
+                app_canTx_BMS_MaxCellVoltage_set(cell_voltage);
+            }
+            // Sum the voltages into a segment voltage
+            voltage_stats.segment_voltages[segment] += cell_voltage;
+        }
+        // Sum the segment voltages into a pack voltage
+        voltage_stats.pack_voltage += voltage_stats.segment_voltages[segment];
+    }
+}
+
 void app_segments_broadcastCellVoltages(void)
 {
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -362,25 +421,42 @@ void app_segments_broadcastCellVoltages(void)
             cell_voltage_setters[segment][cell](voltage);
         }
     }
+    calculateVoltageStats();
 }
 
-void app_segments_updateTemperatureStats(float cell_temp, uint8_t segment, int cell_number)
+void calculateTemperatureStats(void)
 {
-    if (cell_temp > temperature_stats.max_thermistor_temp.temp)
+    temperature_stats = (TemperatureStats){
+        .min_temp_cell = { .temp = FLT_MAX },
+        .max_temp_cell = { .temp = -FLT_MAX},
+    };
+
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
-        temperature_stats.max_thermistor_temp.temp    = cell_temp;
-        temperature_stats.max_thermistor_temp.segment = segment;
-        temperature_stats.max_thermistor_temp.cell    = cell_number;
-        app_canTx_BMS_MaxTempSegment_set(segment);
-        app_canTx_BMS_MaxTempIdx_set((uint8_t)cell_number);
-    }
-    if (cell_temp < temperature_stats.min_thermistor_temp.temp)
-    {
-        temperature_stats.min_thermistor_temp.temp    = cell_temp;
-        temperature_stats.min_thermistor_temp.segment = segment;
-        temperature_stats.min_thermistor_temp.cell    = cell_number;
-        app_canTx_BMS_MinTempSegment_set(segment);
-        app_canTx_BMS_MinTempIdx_set((uint8_t)cell_number);
+        for (uint8_t cell = 0U; cell < THERMISTORS_PER_SEGMENT; cell++)
+        {
+            const float cell_temp = cell_temps[segment][cell];
+            
+            if (cell_temp < temperature_stats.min_temp_cell.temp)
+            {
+                temperature_stats.min_temp_cell.temp    = cell_temp;
+                temperature_stats.min_temp_cell.segment = segment;
+                temperature_stats.min_temp_cell.cell    = cell;
+                app_canTx_BMS_MinCellTempSegment_set(segment);
+                app_canTx_BMS_MinCellTempIdx_set(cell);
+                app_canTx_BMS_MinCellTemp_set(cell_temp);
+            }
+            
+            if (cell_temp > temperature_stats.max_temp_cell.temp)
+            {
+                temperature_stats.max_temp_cell.temp    = cell_temp;
+                temperature_stats.max_temp_cell.segment = segment;
+                temperature_stats.max_temp_cell.cell    = cell;
+                app_canTx_BMS_MaxCellTempSegment_set(segment);
+                app_canTx_BMS_MaxCellTempIdx_set(cell);
+                app_canTx_BMS_MaxCellTemp_set(cell_temp);
+            }
+        }
     }
 }
 
@@ -427,11 +503,11 @@ void app_segments_broadcastTempsVRef(void)
                 const float temp       = app_thermistor_resistanceToTemp(resistance, &ltc_thermistor_lut);
 
                 cell_temps[segment][thermistor] = temp;
-                app_segments_updateTemperatureStats(temp, segment, thermistor);
                 thermistor_setters[segment][thermistor](temp);
             }
         }
     }
+    calculateTemperatureStats();
 }
 
 void app_segments_broadcastStatus(void)

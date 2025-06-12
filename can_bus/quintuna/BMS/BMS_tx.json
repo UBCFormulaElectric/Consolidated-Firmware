@@ -253,6 +253,12 @@
         "min": 0,
         "max": 13
       },
+      "MinCellVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
       "MaxCellVoltageSegment": {
         "bits": 3,
         "min": 0,
@@ -263,25 +269,43 @@
         "min": 0,
         "max": 13
       },
-      "MinTempSegment": {
+      "MaxCellVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "MinCellTempSegment": {
         "resolution": 1,
         "min": 0,
         "max": 9
       },
-      "MinTempIdx": {
+      "MinCellTempIdx": {
         "resolution": 1,
         "min": 0,
         "max": 13
       },
-      "MaxTempSegment": {
+      "MinCellTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "MaxCellTempSegment": {
         "resolution": 1,
         "min": 0,
         "max": 9
       },
-      "MaxTempIdx": {
+      "MaxCellTempIdx": {
         "resolution": 1,
         "min": 0,
         "max": 13
+      },
+      "MaxCellTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
       }
     }
   },
