@@ -38,7 +38,9 @@
 #include "hw_chimeraConfig_v2.h"
 #include "io_log.h"
 #include "hw_can.h"
+#include <SEGGER_SYSVIEW.h>
 #include <assert.h>
+#include <cmsis_os2.h>
 
 /* USER CODE END Includes */
 
@@ -226,6 +228,7 @@ int main(void)
     //     err = lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
     // }
 
+    SEGGER_SYSVIEW_Conf();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -596,7 +599,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+static const Gpio led_gpio = {
+    .pin  = LED_Pin,
+    .port = LED_GPIO_Port,
+};
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -611,7 +617,14 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    hw_chimera_v2_task(&chimera_v2_config);
+    // hw_chimera_v2_task(&chimera_v2_config);
+
+    for (;;)
+    {
+        LOG_INFO("Hello, world!");
+        hw_gpio_togglePin(&led_gpio);
+        osDelay(500);
+    }
     /* USER CODE END 5 */
 }
 
