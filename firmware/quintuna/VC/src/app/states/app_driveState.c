@@ -56,11 +56,15 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRRbEnable_set(true);
     app_canTx_VC_INVRLbEnable_set(true);
 
-    // TODO: replace with new messages
-    // app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
-    // app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
-    // app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVFLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVFRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+
+    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
 
     if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {

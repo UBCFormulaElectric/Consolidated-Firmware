@@ -1,3 +1,7 @@
 {
-  "messages": ["BMS_LatchStatus", "Debug_CanMode", "VC_Vitals"]
+  "messages": [
+    "Debug_CanMode",
+    "BMS_LatchStatus",
+    "VC_Vitals"
+  ]
 }
