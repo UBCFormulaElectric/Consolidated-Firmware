@@ -8,13 +8,13 @@
   "warnings": {},
   "faults": {},
   "info": {
-    "FlowRateOutOfRange": {
-      "id": 786,
-      "description": "Coolant flow out of range"
-    },
     "FlowMeterUnderflow": {
       "id": 785,
       "description": "Flow meter underflow"
+    },
+    "FlowRateOutOfRange": {
+      "id": 786,
+      "description": "Coolant flow out of range"
     },
     "RearLeftSuspension_OCSC": {
       "id": 784,
@@ -23,10 +23,6 @@
     "RearRightSuspension_OCSC": {
       "id": 783,
       "description": "Rear right suspension open or short circuit"
-    },
-    "MissingVCHeartbeat": {
-      "id": 780,
-      "description": "Missing VC heartbeat"
     },
     "MissingFSMHeartbeat": {
       "id": 781,

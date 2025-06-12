@@ -28,5 +28,10 @@
     "IMD_30Hz": 3,
     "IMD_40Hz": 4,
     "IMD_50Hz": 5
+  },
+  "BalancingState": {
+    "BALANCING_DISABLED": 0,
+    "BALANCING_SETTLE": 1,
+    "BALANCING_BALANCE": 2
   }
 }

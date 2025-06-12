@@ -238,11 +238,29 @@
       }
     }
   },
-  "CellStats": {
+  "CellVoltageStats": {
     "msg_id": 459,
-    "cycle_time": 100,
-    "description": "Avg BMS Cell Stats",
+    "cycle_time": 1000,
+    "description": "BMS cell voltage stats",
     "signals": {
+      "PackVoltage": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 650,
+        "unit": "V"
+      },
+      "AvgCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      },
+      "MinCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      },
       "MinCellVoltageSegment": {
         "resolution": 1,
         "min": 0,
@@ -253,8 +271,14 @@
         "min": 0,
         "max": 13
       },
+      "MaxCellVoltage": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 5,
+        "unit": "V"
+      },
       "MaxCellVoltageSegment": {
-        "bits": 3,
+        "resolution": 1,
         "min": 0,
         "max": 9
       },
@@ -262,23 +286,214 @@
         "resolution": 1,
         "min": 0,
         "max": 13
+      }
+    }
+  },
+  "CellTempStats": {
+    "msg_id": 463,
+    "cycle_time": 1000,
+    "description": "BMS cell temperature stats",
+    "signals": {
+      "AvgCellTemp": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
       },
-      "MinTempSegment": {
+      "MinCellTemp": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "MinCellTempSegment": {
         "resolution": 1,
         "min": 0,
         "max": 9
       },
-      "MinTempIdx": {
+      "MinCellTempIdx": {
         "resolution": 1,
         "min": 0,
         "max": 13
       },
-      "MaxTempSegment": {
+      "MaxCellTemp": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "degC"
+      },
+      "MaxCellTempSegment": {
         "resolution": 1,
         "min": 0,
         "max": 9
       },
-      "MaxTempIdx": {
+      "MaxCellTempIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
+      }
+    }
+  },
+  "AvgVoltageStats": {
+    "msg_id": 464,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "cycle_time": 1000,
+    "description": "Average voltages for each segment in the accumulator",
+    "signals": {
+      "Seg0_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg1_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg2_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg3_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg4_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg5_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg6_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg7_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg8_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      },
+      "Seg9_AvgVoltage": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 5,
+        "unit": "V"
+      }
+    }
+  },
+  "AvgTempStats": {
+    "msg_id": 465,
+    "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Average temps for each segment in the accumulator",
+    "signals": {
+      "Seg0_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg1_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg2_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg3_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg4_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg5_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg6_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg7_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg8_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      },
+      "Seg9_AvgTemp": {
+        "resolution": 0.2,
+        "min": 10,
+        "max": 70,
+        "unit": "degC"
+      }
+    }
+  },
+  "Balancing": {
+    "msg_id": 466,
+    "cycle_time": 1000,
+    "description": "Info about balancing",
+    "signals": {
+      "BalancingState": {
+        "enum": "BalancingState"
+      },
+      "ImbalanceMagnitude": {
+        "resolution": 0.001,
+        "min": 0,
+        "max": 1,
+        "unit": "V"
+      },
+      "BalancingLeaderSegment": {
+        "resolution": 1,
+        "min": 0,
+        "max": 9
+      },
+      "BalancingLeaderCellIdx": {
         "resolution": 1,
         "min": 0,
         "max": 13
@@ -287,7 +502,10 @@
   },
   "CellVoltages_Seg0_Seg3": {
     "msg_id": 460,
-    "cycle_time": 100,
+    "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Cell voltages: Segment 0-3",
     "signals": {
       "Seg0_Cell0_Voltage": {
@@ -630,7 +848,10 @@
   },
   "CellVoltages_Seg4_Seg7": {
     "msg_id": 461,
-    "cycle_time": 100,
+    "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Cell voltages: Segment 4-7",
     "signals": {
       "Seg4_Cell0_Voltage": {
@@ -973,7 +1194,10 @@
   },
   "CellVoltages_Seg8_Seg9": {
     "msg_id": 462,
-    "cycle_time": 100,
+    "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Cell voltages: Segment 8-9",
     "signals": {
       "Seg8_Cell0_Voltage": {
@@ -1147,9 +1371,12 @@
     }
   },
   "CellTemps_Seg0_Seg3": {
-    "msg_id": 464,
+    "msg_id": 470,
     "cycle_time": 1000,
     "description": "BMS Temps: Segments 0-3",
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "signals": {
       "Seg0_Cell0_Temp": {
         "resolution": 0.2,
@@ -1490,8 +1717,11 @@
     }
   },
   "CellTemps_Seg4_Seg7": {
-    "msg_id": 465,
+    "msg_id": 471,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "BMS Temps: Segments 4-8",
     "signals": {
       "Seg4_Cell0_Temp": {
@@ -1833,8 +2063,11 @@
     }
   },
   "CellTemps_Seg8_Seg9": {
-    "msg_id": 466,
+    "msg_id": 472,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "BMS Temps: Segments 8-9",
     "signals": {
       "Seg8_Cell0_Temp": {
@@ -2010,6 +2243,9 @@
   "LtcOwc": {
     "msg_id": 480,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "OWC results for all segments",
     "signals": {
       "Seg0_C0_OwcOk": {
@@ -2467,6 +2703,9 @@
   "LtcStatus": {
     "msg_id": 481,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "LTC status and other diagnostics for all segments",
     "signals": {
       "Seg0_CommOk": {

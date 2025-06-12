@@ -98,12 +98,25 @@ void io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
     CHECK_ENABLED();
 
     static uint32_t overflow_count = 0;
+    static uint32_t logged_count   = 0;
     CanMsgLog       msg_log;
     convertCanMsgToLog(rx_msg, &msg_log);
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    CHECK_ERR(osMessageQueuePut(message_queue_id, &msg_log, 0, 0) == osOK);
+    if (osMessageQueuePut(message_queue_id, &msg_log, 0, 0) != osOK)
+    {
+        overflow_count++;
+        // LOG_WARN("CAN logging queue overflow, count: %d", overflow_count);
+    }
+    else
+    {
+        logged_count++;
+        if (logged_count % 1000 == 0)
+        {
+            LOG_INFO("Logged %d CAN messages", logged_count);
+        }
+    }
 }
 
 void io_canLogging_sync(void)
