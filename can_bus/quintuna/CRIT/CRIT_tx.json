@@ -16,6 +16,22 @@
     "signals": {
       "ResetReason": {
         "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 16
+      }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 909,
+    "cycle_time": 100,
+    "description": "CRIT Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
       }
     }
   },
@@ -67,19 +83,6 @@
       }
     }
   },
-  "CommitInfo": {
-    "msg_id": 913,
-    "cycle_time": 100,
-    "description": "CRIT Current Running Git Commit Info",
-    "signals": {
-      "Hash": {
-        "bits": 32
-      },
-      "Clean": {
-        "bits": 1
-      }
-    }
-  },
   "CRITShdnNodeStatus": {
     "msg_id": 914,
     "cycle_time": 100,
@@ -90,38 +93,6 @@
       },
       "InertiaSenOKStatus": {
         "bits": 1
-      }
-    }
-  },
-  "WatermarkLevel": {
-    "msg_id": 915,
-    "cycle_time": 100,
-    "description": "",
-    "signals": {
-      "StackWaterMarkHighTask1HzLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTask100HzLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTask1kHzLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTaskCanRxLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
-      },
-      "StackWaterMarkHighTaskCanTxLevel": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100
       }
     }
   },

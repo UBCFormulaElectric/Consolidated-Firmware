@@ -5,6 +5,7 @@
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_canAlerts.h"
 #include "app_jsoncan.h"
 
 // io
@@ -14,6 +15,7 @@
 #include "io_canTx.h"
 #include "io_bootHandler.h"
 
+#include "app_jsoncan.h"
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
@@ -47,6 +49,19 @@ void tasks_init()
     jobs_init();
 
     app_canTx_RSM_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    // Check for stack overflow on a previous boot cycle and populate CAN alert.
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    {
+        app_canAlerts_RSM_Info_StackOverflow_set(true);
+        app_canTx_RSM_StackOverflowTask_set(boot_request.context_value);
+
+        // Clear stack overflow bootup.
+        boot_request.context       = BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw_bootup_setBootRequest(boot_request);
+    }
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -104,7 +119,7 @@ void tasks_runCanTx()
     // Setup tasks.
     for (;;)
     {
-        CanMsg msg = io_canQueue_popTx();
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can2, &msg));
     }
 }
@@ -112,7 +127,11 @@ void tasks_runCanTx()
 void tasks_runCanRxCallback(const CanMsg *msg)
 {
     io_bootHandler_processBootRequest(msg);
-    io_canQueue_pushRx(msg);
+
+    if (io_canRx_filterMessageId_can2(msg->std_id))
+    {
+        io_canQueue_pushRx(msg);
+    }
 }
 
 _Noreturn void tasks_runCanRx(void)

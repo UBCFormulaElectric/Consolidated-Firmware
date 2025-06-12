@@ -37,9 +37,17 @@
     "RightSuspensionOCSC": {
       "id": 607,
       "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
+    },
+    "StackOverflow": {
+      "id": 650,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
     }
   },
   "warnings": {
+    "AppsDisagreement": {
+      "id": 610,
+      "description": "Conflict between primary and secondary accelerator pedals."
+    },
     "PappsOCSC": {
       "id": 608,
       "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
@@ -47,12 +55,7 @@
     "SappsOCSC": {
       "id": 609,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
-    },
-    "AppsDisagreement": {
-      "id": 610,
-      "description": "Conflict between primary and secondary accelerator pedals."
     }
   },
-  "faults": {
-  }
+  "faults": {}
 }

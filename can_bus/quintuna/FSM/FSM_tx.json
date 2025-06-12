@@ -9,8 +9,21 @@
       }
     }
   },
+  "Debug": {
+    "msg_id": 608,
+    "cycle_time": 1000,
+    "description": "FSM Debug Signals",
+    "signals": {
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 16
+      }
+    }
+  },
   "CommitInfo": {
-    "msg_id": 607,
+    "msg_id": 609,
     "cycle_time": 1000,
     "description": "FSM Current Running Git Commit Info",
     "signals": {
@@ -19,16 +32,6 @@
       },
       "Clean": {
         "bits": 1
-      }
-    }
-  },
-  "Debug": {
-    "msg_id": 608,
-    "cycle_time": 1000,
-    "description": "FSM Debug Signals",
-    "signals": {
-      "ResetReason": {
-        "enum": "CanResetReason"
       }
     }
   },
@@ -154,7 +157,7 @@
       }
     }
   },
-  "FSMShdnNodeStatus": {
+  "ShdnNodeStatus": {
     "msg_id": 615,
     "cycle_time": 10,
     "description": "FSM Shutdown Node Status",
@@ -165,10 +168,10 @@
       "COCKPITOKStatus": {
         "bits": 1
       },
-      "FLOKStatus": {
+      "FrontLeftILCKOKStatus": {
         "bits": 1
       },
-      "FROKStatus": {
+      "FrontRightILCKOKStatus": {
         "bits": 1
       }
     }

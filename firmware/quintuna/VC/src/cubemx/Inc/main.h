@@ -32,6 +32,7 @@ extern "C"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_error.h"
 #include "cmsis_os.h"
     /* USER CODE END Includes */
 
@@ -140,10 +141,6 @@ extern "C"
 #define IMU_INT2_Pin GPIO_PIN_10
 #define IMU_INT2_GPIO_Port GPIOD
 #define IMU_INT2_EXTI_IRQn EXTI15_10_IRQn
-#define CAN2_RX_Pin GPIO_PIN_12
-#define CAN2_RX_GPIO_Port GPIOD
-#define CAN2_TX_Pin GPIO_PIN_13
-#define CAN2_TX_GPIO_Port GPIOD
 #define RAD_FAN_FR_STBY_Pin GPIO_PIN_6
 #define RAD_FAN_FR_STBY_GPIO_Port GPIOC
 #define PWR_MTR_nALERT_Pin GPIO_PIN_7

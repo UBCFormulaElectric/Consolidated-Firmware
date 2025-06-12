@@ -6,7 +6,7 @@ from crc import Calculator, Crc32
 from generated import telem_pb2
 from logger import logger
 from middleware.candb import update_base_time
-from middleware.serial_port import SerialPortSingleton
+from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
 
 HEADER_SIZE = 7
@@ -39,7 +39,7 @@ def find_magic_in_buffer(buffer, magic=MAGIC):  # do i need to set magic here
     """
     magic_len = len(magic)
     for i in range(len(buffer) - magic_len + 1):
-        if buffer[i : i + magic_len] == magic:
+        if buffer[i: i + magic_len] == magic:
             return i
     return -1
 
@@ -49,9 +49,9 @@ def calculate_message_timestamp(message_timestamp, base_time):
         # Convert milliseconds to seconds and create a timedelta
         delta = datetime.timedelta(milliseconds=message_timestamp)
         timestamp = base_time + delta
-        logger.debug(
-            f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}"
-        )
+        # logger.debug(
+        #     f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}"
+        # )
     else:
         timestamp = datetime.datetime.now()
         logger.warning(
@@ -115,9 +115,7 @@ def _read_messages(port: str):
     """
     Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
     """
-    ser = SerialPortSingleton().get_serial()
-    ser.reset_input_buffer()
-    ser.reset_output_buffer()
+    ser = get_serial()
 
     base_time = None
 
@@ -172,9 +170,11 @@ def _read_messages(port: str):
             print(f"get message {message_received.can_id} but no base time")
             continue
         # print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
-        timestamp = calculate_message_timestamp(message_received.time_stamp, base_time)
+        timestamp = calculate_message_timestamp(
+            message_received.time_stamp, base_time)
         can_msg_queue.put(
-            CanMsg(message_received.can_id, _make_bytes(message_received), timestamp)
+            CanMsg(message_received.can_id, _make_bytes(
+                message_received), timestamp)
         )
 
 

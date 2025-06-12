@@ -77,8 +77,11 @@ def _send_data() -> NoReturn:
                     except Exception as e:
                         logger.error(f"Emit failed for sid {sid}: {e}")
             # send to influx logger
-            print(
-                f"Sending to influx logger: {signal.name} = {signal.value}"
+            # print(
+            #     f"Sending to influx logger: {signal.name} = {signal.value}"
+            # )
+            influx_queue.put(
+                InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
             )
             # influx_queue.put(
             #     InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)

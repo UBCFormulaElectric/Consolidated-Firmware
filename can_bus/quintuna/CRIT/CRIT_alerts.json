@@ -5,26 +5,12 @@
   "faults_counts_id": 904,
   "info_id": 905,
   "info_counts_id": 906,
-  "warnings": {
-    "StackWaterMarkHighTask1Hz": {
-      "id": 901,
-      "description": "1Hz task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTask100Hz": {
-      "id": 902,
-      "description": "100Hz task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTask1kHz": {
-      "id": 903,
-      "description": "1kHz task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTaskCanRx": {
-      "id": 904,
-      "description": "CAN RX task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTaskCanTx": {
-      "id": 905,
-      "description": "CAN TX task stack watermark exceeded."
+  "warnings": {},
+  "faults": {},
+  "info": {
+    "StackOverflow": {
+      "id": 550,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
     },
     "WatchdogTimeout": {
       "id": 906,
@@ -37,9 +23,7 @@
     "RxOverflow": {
       "id": 908,
       "description": "CAN RX queue has overflowed."
-    }
-  },
-  "faults": {
+    },
     "MissingBMSHeartbeat": {
       "id": 950,
       "description": "Missing heartbeat signal from the BMS."
@@ -60,6 +44,5 @@
       "id": 952,
       "description": "Missing heartbeat signal from the RSM."
     }
-  },
-  "info": {}
+  }
 }

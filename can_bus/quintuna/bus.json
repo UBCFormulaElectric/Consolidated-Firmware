@@ -1,17 +1,17 @@
 {
   "forwarders": [
     {
-      "forwarder": "VC",
+      "forwarder": "VCR",
       "bus1": "can1",
       "bus2": "can2"
     },
     {
-      "forwarder": "VC",
+      "forwarder": "VCR",
       "bus1": "can2",
       "bus2": "can3"
     },
     {
-      "forwarder": "VC",
+      "forwarder": "VCR",
       "bus1": "can1",
       "bus2": "can3"
     },
@@ -24,62 +24,33 @@
   "buses": [
     {
       "name": "can1",
-      "nodes": [
-        "VC",
-        "BMS",
-        "DAM",
-        "Debug"
-      ],
-      "bus_speed": 500,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
-      "default_mode": "DEFAULT"
+      "nodes": ["VCR", "VC", "BMS", "DAM", "DAMLogger", "Debug"],
+      "bus_speed": 1000,
+      "modes": ["DEFAULT", "DEBUG"],
+      "default_mode": "DEFAULT",
+      "fd": true
     },
     {
       "name": "can2",
-      "nodes": [
-        "VC",
-        "FSM",
-        "RSM",
-        "CRIT",
-        "Debug"
-      ],
-      "bus_speed": 500,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
+      "nodes": ["VCR", "VC", "FSM", "RSM", "CRIT", "Debug"],
+      "bus_speed": 1000,
+      "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     },
     {
       "name": "can3",
-      "nodes": [
-        "VC"
-      ],
+      "nodes": ["VCR", "VC", "INVFR", "INVFL", "INVRR", "INVRL", "EMeter"],
       "bus_speed": 500,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
+      "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     },
     {
       "name": "charger",
-      "nodes": [
-        "BMS",
-        "Elcon"
-      ],
+      "nodes": ["BMS", "Elcon"],
       "bus_speed": 500,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
+      "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     }
   ],
-  "loggers": [
-    "DAM"
-  ]
+  "loggers": ["DAMLogger"]
 }

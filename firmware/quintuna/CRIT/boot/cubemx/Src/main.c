@@ -24,7 +24,6 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
-#include "hw_error.h"
 #include "hw_utils.h"
 #include "io_canQueue.h"
 /* USER CODE END Includes */
@@ -50,7 +49,7 @@ CAN_HandleTypeDef hcan2;
 
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
-uint32_t             canTxTaskBuffer[128];
+uint32_t             canTxTaskBuffer[512];
 osStaticThreadDef_t  canTxTaskControlBlock;
 const osThreadAttr_t canTxTask_attributes = {
     .name       = "canTxTask",
@@ -62,7 +61,7 @@ const osThreadAttr_t canTxTask_attributes = {
 };
 /* Definitions for tickTask */
 osThreadId_t         tickTaskHandle;
-uint32_t             tickTaskBuffer[128];
+uint32_t             tickTaskBuffer[512];
 osStaticThreadDef_t  tickTaskControlBlock;
 const osThreadAttr_t tickTask_attributes = {
     .name       = "tickTask",
@@ -74,7 +73,7 @@ const osThreadAttr_t tickTask_attributes = {
 };
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
-uint32_t             interfaceTaskBuffer[128];
+uint32_t             interfaceTaskBuffer[512];
 osStaticThreadDef_t  interfaceTaskControlBlock;
 const osThreadAttr_t interfaceTask_attributes = {
     .name       = "interfaceTask",
@@ -260,8 +259,8 @@ static void MX_CAN2_Init(void)
     hcan2.Init.AutoBusOff           = ENABLE;
     hcan2.Init.AutoWakeUp           = DISABLE;
     hcan2.Init.AutoRetransmission   = ENABLE;
-    hcan2.Init.ReceiveFifoLocked    = DISABLE;
-    hcan2.Init.TransmitFifoPriority = DISABLE;
+    hcan2.Init.ReceiveFifoLocked    = ENABLE;
+    hcan2.Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(&hcan2) != HAL_OK)
     {
         Error_Handler();

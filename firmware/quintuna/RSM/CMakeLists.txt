@@ -52,6 +52,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -78,6 +79,12 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
+    list(APPEND NO_CHECKS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+    )
+    embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_RSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
@@ -107,7 +114,6 @@ if ("${TARGET}" STREQUAL "binary")
     stm32f412rx_cube_library(
             "quintuna_RSM_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${SYSCALLS}"
             "${MD5_LOCATION}"
             TRUE
     )
@@ -129,16 +135,17 @@ if ("${TARGET}" STREQUAL "binary")
         file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
         file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
         stm32f4_boot_binary(
                 "quintuna_RSM_boot"
                 "${BOOT_SRCS}"
                 "${BOOT_CUBEMX_SRCS}"
                 "${BOOT_INCLUDE_DIRS}"
                 "quintuna_RSM"
-                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/RSM_boot.ioc"
         )
         target_link_libraries("quintuna_RSM_boot.elf" PRIVATE "quintuna_RSM_commit_info")
+
         embedded_image(
                 "quintuna_RSM"
                 "quintuna_RSM_app.hex"

@@ -32,12 +32,12 @@ extern "C"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_error.h"
 #include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
-    extern CRC_HandleTypeDef   hcrc;
     extern FDCAN_HandleTypeDef hfdcan2;
     extern I2C_HandleTypeDef   hi2c1;
     extern IWDG_HandleTypeDef  hiwdg1;
@@ -48,7 +48,23 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t TaskCanTxHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t TaskLoggingHandle;
+    extern osThreadId_t TaskTelemHandle;
+    extern osThreadId_t TaskTelemRxHandle;
 
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
+    extern const osThreadAttr_t TaskLogging_attributes;
+    extern const osThreadAttr_t TaskTelem_attributes;
+    extern const osThreadAttr_t TaskTelemRx_attributes;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

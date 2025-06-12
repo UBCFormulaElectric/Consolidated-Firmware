@@ -12,6 +12,8 @@
 #include "fdcan_spam.h"
 #include <assert.h>
 
+static CanTxQueue can_tx_queue;
+
 static void can_msg_received_callback(const CanMsg *rx_msg)
 {
     // TODO: check gpio present
@@ -35,9 +37,9 @@ void tasks_init()
     LOG_INFO("h7dev reset!");
     hw_hardFaultHandler_init();
     hw_can_init(&can);
-    io_canQueue_init();
-    if (io_fileSystem_init() == FILE_OK)
-        io_canLogging_init();
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
+    io_canLogging_init(NULL);
     // __HAL_DBGMCU_FREEZE_IWDG();
 }
 
@@ -45,7 +47,7 @@ void tasks_default()
 {
     for (;;)
     {
-        fd_can_demo_tick();
+        fd_can_demo_tick(&can_tx_queue);
     }
 }
 
@@ -62,7 +64,7 @@ void tasks_canTx()
 {
     for (;;)
     {
-        CanMsg msg = io_canQueue_popTx();
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         hw_can_transmit(&can, &msg);
     }
 }

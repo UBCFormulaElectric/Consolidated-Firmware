@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gtest/gtest.h>
-// #include "fake_io_time.hpp"
+#include "fake_io_time.hpp"
 
 class EcuTestBase : public testing::Test
 {
@@ -62,7 +62,7 @@ class EcuTestBase : public testing::Test
                 tick_100hz();
             }
 
-            // fake_io_time_getCurrentMs_returns(current_time_ms);
+            fake_io_time_getCurrentMs_returns(current_time_ms);
             current_time_ms++;
         }
     }
