@@ -99,19 +99,19 @@ static BoardLEDStatus worstBoardStatus(CanNode board)
     switch (board)
     {
         case BMS_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingBMSHeartbeat_get();
             break;
         case FSM_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingFSMHeartbeat_get();
             break;
         case RSM_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingRSMHeartbeat_get();
             break;
         case VC_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingVCHeartbeat_get();
             break;
         case DAM_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingDAMHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingDAMHeartbeat_get();
             break;
         default:
             missing = false;

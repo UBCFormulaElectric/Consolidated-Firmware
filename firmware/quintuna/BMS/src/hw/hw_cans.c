@@ -6,6 +6,7 @@
 #include "main.h"
 
 #include <assert.h>
+#include <io_canRx.h>
 
 static void canRxCallback(const CanMsg *msg)
 {
