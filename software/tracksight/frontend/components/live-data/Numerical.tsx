@@ -30,7 +30,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   signalName,
   onDelete,
 }) => {
-  const { isPaused } = usePausePlay();
+  const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
   const {
     availableSignals,
     activeSignals,
@@ -42,7 +42,6 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   } = useSignals();
 
   const [chartHeight, setChartHeight] = useState(256);
-  const [scaleFactor, setScaleFactor] = useState(100);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
@@ -142,7 +141,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
 
   const pixelPerPoint = 50;
   const width =
-    Math.max(chartData.length * pixelPerPoint, 100) * (scaleFactor / 100);
+    Math.max(chartData.length * pixelPerPoint, 100) * (horizontalScale / 100);
 
   const handleSelect = useCallback(
     (name: string) => {
@@ -222,13 +221,13 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm">Horizontal Scale: {scaleFactor}%</label>
+            <label className="text-sm">Horizontal Scale: {horizontalScale}%</label>
             <input
               type="range"
               min={1}
               max={1000}
-              value={scaleFactor}
-              onChange={(e) => setScaleFactor(+e.target.value)}
+              value={horizontalScale}
+              onChange={(e) => setHorizontalScale(+e.target.value)}
             />
           </div>
         </div>

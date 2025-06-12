@@ -4,44 +4,58 @@ import React, { createContext, useContext, useState, ReactNode } from 'react'
 import { Play, Pause } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// Context for global pause/play state
-interface PausePlayContextType {
+// Context for global display control state (pause/play and visual settings)
+interface DisplayControlContextType {
   isPaused: boolean
   togglePause: () => void
+  horizontalScale: number
+  setHorizontalScale: (scale: number) => void
 }
 
-const PausePlayContext = createContext<PausePlayContextType | undefined>(undefined)
+const DisplayControlContext = createContext<DisplayControlContextType | undefined>(undefined)
 
-// Export the context for use in other components
-export { PausePlayContext, type PausePlayContextType }
+// Export the context for use in other components (maintaining backward compatibility)
+export { DisplayControlContext as PausePlayContext, type DisplayControlContextType as PausePlayContextType }
 
 // Provider component to wrap the entire app
-export function PausePlayProvider({ children }: { children: ReactNode }) {
+export function DisplayControlProvider({ children }: { children: ReactNode }) {
   const [isPaused, setIsPaused] = useState(true) // Start in paused state
+  const [horizontalScale, setHorizontalScale] = useState(100) // Default to 100%
 
   const togglePause = () => {
     setIsPaused(prev => !prev)
   }
 
   return (
-    <PausePlayContext.Provider value={{ isPaused, togglePause }}>
+    <DisplayControlContext.Provider value={{ 
+      isPaused, 
+      togglePause, 
+      horizontalScale, 
+      setHorizontalScale 
+    }}>
       {children}
-    </PausePlayContext.Provider>
+    </DisplayControlContext.Provider>
   )
 }
 
-// Hook to use the pause/play state
-export function usePausePlay() {
-  const context = useContext(PausePlayContext)
+// Maintain backward compatibility
+export const PausePlayProvider = DisplayControlProvider
+
+// Hook to use the display control state
+export function useDisplayControl() {
+  const context = useContext(DisplayControlContext)
   if (!context) {
-    throw new Error('usePausePlay must be used within a PausePlayProvider')
+    throw new Error('useDisplayControl must be used within a DisplayControlProvider')
   }
   return context
 }
 
+// Maintain backward compatibility
+export const usePausePlay = useDisplayControl
+
 // The circular play/pause button component
 export function PausePlayButton() {
-  const { isPaused, togglePause } = usePausePlay()
+  const { isPaused, togglePause } = useDisplayControl()
 
   return (
     <button

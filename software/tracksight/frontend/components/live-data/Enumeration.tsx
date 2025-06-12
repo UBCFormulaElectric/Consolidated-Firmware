@@ -26,7 +26,7 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   signalName,
   onDelete,
 }) => {
-  const { isPaused } = usePausePlay();
+  const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
   const {
     enumData,
     subscribeToSignal,
@@ -34,7 +34,6 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     getEnumValues,
     mapEnumValue,
   } = useSignals();
-  const [pausedTime, setPausedTime] = useState<number | null>(null);
   
   // Track if this component subscribed to the signal for proper cleanup
   const hasSubscribed = useRef<boolean>(false);
@@ -53,69 +52,64 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     };
   }, [signalName]); // Removed function dependencies to prevent infinite loops
 
-  useEffect(() => {
-    if (isPaused && pausedTime === null) {
-      setPausedTime(Date.now());
-    } else if (!isPaused) {
-      setPausedTime(null);
-    }
-  }, [isPaused, pausedTime]);
+  const chartData = useMemo(() => {
+    const windowMs = 100; // Same as numerical component
+    const filteredData = enumData.filter(
+      (d) => d.name === signalName && d.value != null
+    );
 
-  const history = useMemo(() => {
-    const raw = enumData
-      .filter((dp) => dp.name === signalName && dp.value != null)
-      .map((dp) => ({
-        state: String(dp.value),
-        startTime:
-          typeof dp.time === "number" ? dp.time : new Date(dp.time).getTime(),
-      }));
-    const items: { state: string; startTime: number }[] = [];
-    raw.forEach((pt) => {
-      const last = items[items.length - 1];
-      if (!last || last.state !== pt.state) items.push(pt);
+    if (filteredData.length === 0) return [];
+
+    // Create time windows from all data points (similar to numerical)
+    const timeWindows = new Set<number>();
+    filteredData.forEach((d) => {
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      const r = Math.floor(t / windowMs) * windowMs;
+      timeWindows.add(r);
     });
-    return items;
+
+    const sortedTimes = Array.from(timeWindows).sort((a, b) => a - b);
+    
+    // Track last known state to fill gaps (similar to numerical's forward-fill)
+    let lastKnownState: string | undefined;
+    
+    // Group data by time for efficient lookup
+    const dataByTime: Record<number, string> = {};
+    filteredData.forEach((d) => {
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      const r = Math.floor(t / windowMs) * windowMs;
+      dataByTime[r] = String(d.value);
+    });
+
+    // Build chart data with forward-filled states
+    return sortedTimes.map((time) => {
+      if (dataByTime[time] !== undefined) {
+        // We have data for this time point
+        lastKnownState = dataByTime[time];
+        return { time, state: lastKnownState };
+      } else if (lastKnownState !== undefined) {
+        // No data for this time point, use last known state
+        return { time, state: lastKnownState };
+      }
+      // If no last known state exists, don't include this time point
+      return null;
+    }).filter(Boolean) as { time: number; state: string }[];
   }, [enumData, signalName]);
 
-  const computeBars = useCallback(
-    (hist: { state: string; startTime: number }[]) => {
-      const windowMs = 5000;
-      const width = typeof window !== "undefined" ? window.innerWidth : 1000;
-      const pxPerMs = width / windowMs;
-      const now = pausedTime !== null && isPaused ? pausedTime : Date.now();
+  const pixelPerPoint = 50; // Same as numerical component
+  const width = Math.max(chartData.length * pixelPerPoint, 100) * (horizontalScale / 100);
 
-      let offset = 0;
-      return hist
-        .map((item, i) => {
-          const next = hist[i + 1];
-          const end = next ? next.startTime : now;
-          const w = (end - item.startTime) * pxPerMs;
-          const bar =
-            w > 0
-              ? {
-                  state: item.state,
-                  startTime: item.startTime,
-                  width: w,
-                  xOffset: offset,
-                }
-              : null;
-          if (bar) offset += bar.width;
-          return bar;
-        })
-        .filter(Boolean) as {
-        state: string;
-        startTime: number;
-        width: number;
-        xOffset: number;
-      }[];
-    },
-    [isPaused, pausedTime]
-  );
-
-  const bars = computeBars(history);
+  const bars = useMemo(() => {
+    return chartData.map((dataPoint, index) => ({
+      state: dataPoint.state,
+      startTime: dataPoint.time,
+      width: pixelPerPoint * (horizontalScale / 100),
+      xOffset: index * pixelPerPoint * (horizontalScale / 100)
+    }));
+  }, [chartData, horizontalScale]);
   const enumVals = getEnumValues(signalName);
-  const lastCode = history.length
-    ? history[history.length - 1].state
+  const lastCode = chartData.length
+    ? chartData[chartData.length - 1].state
     : undefined;
   const lastLabel =
     lastCode != null
@@ -144,7 +138,7 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
           PAUSED
         </div>
       )}
-      <div className=" sticky left-0 block w-svw animate-none">
+      <div className=" sticky left-0 block w-[50vw] animate-none overscroll-contain relative z-40">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="font-semibold">Enumeration: {signalName}</h3>
           <button
@@ -154,6 +148,19 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
           >
             ×
           </button>
+        </div>
+
+        <div className="flex flex-wrap gap-4 mb-4">
+          <div className="flex flex-col">
+            <label className="text-sm">Horizontal Scale: {horizontalScale}%</label>
+            <input
+              type="range"
+              min={1}
+              max={1000}
+              value={horizontalScale}
+              onChange={(e) => setHorizontalScale(+e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-4 text-xs mb-4">
@@ -177,8 +184,20 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
         </div>
       </div>
 
-      <div className="relative inline-block w-full">
-        <div className="h-6 flex flex-row flex-nowrap">
+      {chartData.length === 0 ? (
+        <div className="w-full h-[24px] flex items-center justify-center text-gray-500">
+          No data
+        </div>
+      ) : (
+        <div 
+          className="relative inline-block"
+          style={{
+            width,
+            transition: "width 100ms ease-out",
+            marginLeft: "60px", // Match the left margin that AreaChart uses for Y-axis
+          }}
+        >
+          <div className="h-6 flex flex-row flex-nowrap">
           {bars.map((bar, idx) => {
             const label = mapEnumValue(signalName, bar.state) ?? bar.state;
             const iColor =
@@ -208,11 +227,6 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
             </div>
           ))}
         </div>
-      </div>
-
-      {!history.length && (
-        <div className="text-gray-500 mt-4">
-          Waiting for enumeration data from {signalName}...
         </div>
       )}
     </div>
