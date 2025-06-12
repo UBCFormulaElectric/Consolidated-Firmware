@@ -124,7 +124,7 @@ ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, C
     assert(can_handle->ready);
     FDCAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(
+    RETURN_IF_ERR_SILENT(
         hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data.data8)));
 
     msg->std_id    = header.Identifier;
@@ -150,31 +150,33 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
     }
 }
 
-static void handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
+static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 {
     const CanHandle *handle = hw_can_getHandle(hfdcan);
-    CanMsg           rx_msg;
-    if (IS_EXIT_ERR(hw_fdcan_receive(handle, fifo, &rx_msg)))
-        // Early return if RX msg is unavailable.
-        return;
+
+    CanMsg rx_msg;
+    RETURN_IF_ERR_SILENT(hw_fdcan_receive(handle, fifo, &rx_msg));
 
     if (handle->receive_callback == NULL)
     {
         LOG_ERROR("CAN has no callback configured!");
-        return;
+        return EXIT_CODE_INVALID_ARGS;
     }
 
     handle->receive_callback(&rx_msg);
+    return EXIT_CODE_OK;
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
-    UNUSED(RxFifo0ITs); // TODO check if this is used / consistent
-    handleCallback(hfdcan, FDCAN_RX_FIFO0);
+    UNUSED(RxFifo0ITs);
+    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO0)))
+        ;
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    handleCallback(hfdcan, FDCAN_RX_FIFO1);
+    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO1)))
+        ;
 }

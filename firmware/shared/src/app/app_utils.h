@@ -72,21 +72,25 @@ typedef enum
 #define IS_EXIT_ERR(code) ((code) != EXIT_CODE_OK)
 #define ASSERT_EXIT_OK(code) (assert(code == EXIT_CODE_OK))
 
-#define RETURN_IF_ERR(err_expr)                                                \
-    {                                                                          \
-        const ExitCode exit = err_expr;                                        \
-        if (IS_EXIT_ERR(exit))                                                 \
-        {                                                                      \
-            LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
-            return exit;                                                       \
-        }                                                                      \
+#define RETURN_IF_ERR(err_expr)         \
+    {                                   \
+        const ExitCode exit = err_expr; \
+        if (IS_EXIT_ERR(exit))          \
+        {                               \
+            return exit;                \
+        }                               \
     }
 
-#define LOG_IF_ERR(err_expr)                                        \
-    {                                                               \
-        const ExitCode exit = err_expr;                             \
-        if (IS_EXIT_ERR(exit))                                      \
-        {                                                           \
-            LOG_ERROR(#err_expr " exited with an error: %d", exit); \
-        }                                                           \
+#define RETURN_IF_ERR_SILENT(err_expr)  \
+    {                                   \
+        const ExitCode exit = err_expr; \
+        if (IS_EXIT_ERR(exit))          \
+        {                               \
+            return exit;                \
+        }                               \
+    }
+
+#define LOG_IF_ERR(err_expr)            \
+    {                                   \
+        const ExitCode exit = err_expr; \
     }

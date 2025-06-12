@@ -9,7 +9,7 @@
 //         .resetter     = app_canRx_VC_Heartbeat_update,
 //         .fault_setter = app_canAlerts_BMS_Warning_MissingVCHeartbeat_set,
 //         .fault_getter = app_canAlerts_BMS_Warning_MissingVCHeartbeat_get,
-//         .timeout_ms   = 200,
+//         .timeout_ms   = 3000,
 //     }
 // };
 

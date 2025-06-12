@@ -43,7 +43,7 @@ void tasks_init()
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("VCR reset!");
     jobs_init();
     hw_can_init(&fd_can);
     hw_can_init(&sx_can);
