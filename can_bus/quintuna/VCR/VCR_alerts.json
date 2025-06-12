@@ -3,12 +3,9 @@
   "faults_id": 1602,
   "warnings_counts_id": 1603,
   "faults_counts_id": 1604,
-  "warnings": {
-  },
-  "faults": {
-  },
+  "warnings": {},
+  "faults": {},
   "info_id": 1605,
   "info_counts_id": 1606,
-  "info": {
-  }
+  "info": {}
 }

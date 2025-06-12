@@ -127,6 +127,7 @@ void tasks_runCanTx()
 void tasks_runCanRxCallback(const CanMsg *msg)
 {
     io_bootHandler_processBootRequest(msg);
+
     if (io_canRx_filterMessageId_can2(msg->std_id))
     {
         io_canQueue_pushRx(msg);

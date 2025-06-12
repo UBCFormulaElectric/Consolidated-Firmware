@@ -1,3 +1,3 @@
 {
-  "messages": "all"
+  "messages": ["BMS_LatchStatus", "Debug_CanMode", "VC_Vitals"]
 }
