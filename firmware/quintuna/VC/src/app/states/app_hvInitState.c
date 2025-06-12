@@ -82,15 +82,20 @@ static void hvInitStateRunOnTick100Hz(void)
             switch (timeout_state)
             {
                 case TIMER_STATE_IDLE:
-                    app_canTx_VC_INVFLTorqueLimitPositive_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVFRTorqueLimitPositive_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRLTorqueLimitPositive_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRRTorqueLimitPositive_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVFLTorqueLimitPositive_set(NO_TORQUE);
+                    app_canTx_VC_INVFRTorqueLimitPositive_set(NO_TORQUE);
+                    app_canTx_VC_INVRLTorqueLimitPositive_set(NO_TORQUE);
+                    app_canTx_VC_INVRRTorqueLimitPositive_set(NO_TORQUE);
 
-                    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVFLTorqueLimitNegative_set(NO_TORQUE);
+                    app_canTx_VC_INVFRTorqueLimitNegative_set(NO_TORQUE);
+                    app_canTx_VC_INVRLTorqueLimitNegative_set(NO_TORQUE);
+                    app_canTx_VC_INVRRTorqueLimitNegative_set(NO_TORQUE);
+
+                    app_canTx_VC_INVFRTorqueSetpoint_set(NO_TORQUE);
+                    app_canTx_VC_INVRRTorqueSetpoint_set(NO_TORQUE);
+                    app_canTx_VC_INVFLTorqueSetpoint_set(NO_TORQUE);
+                    app_canTx_VC_INVRLTorqueSetpoint_set(NO_TORQUE);
                     current_inverter_state = INV_ENABLE;
                     break;
                 case TIMER_STATE_EXPIRED:

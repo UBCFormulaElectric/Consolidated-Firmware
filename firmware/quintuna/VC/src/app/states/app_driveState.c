@@ -56,15 +56,15 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRRbEnable_set(true);
     app_canTx_VC_INVRLbEnable_set(true);
 
-    app_canTx_VC_INVFLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_INVFRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVFLTorqueLimitPositive_set( (MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVFRTorqueLimitPositive_set( MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
 
-    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
 
     if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
@@ -207,11 +207,11 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // Calculate the maximum torque request, according to the BMS available power
     // const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), 1);
+    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request = (int16_t)((pedal_based_torque / NOMINAL_TORQUE_REQUEST_NM) * 1000);
+    int16_t torque_request = (int16_t)((pedal_based_torque));
 
     // Transmit torque command to both inverters
     app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
