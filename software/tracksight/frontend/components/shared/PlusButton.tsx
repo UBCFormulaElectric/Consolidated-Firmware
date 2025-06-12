@@ -16,7 +16,7 @@ export const PlusButton: React.FC<PlusButtonProps> = ({
 }) => {
   if (variant === "rowSide") {
     return (
-      <button onClick={onClick} className=" left-[50vw]">
+      <button onClick={onClick} className="">
         <Plus size={32} />
       </button>
     );
@@ -24,7 +24,7 @@ export const PlusButton: React.FC<PlusButtonProps> = ({
 
   // insertionCenter
   return (
-    <div onClick={onClick} className="left-[50vw]">
+    <div onClick={onClick} className="">
       <Plus size={32} />
     </div>
   );
