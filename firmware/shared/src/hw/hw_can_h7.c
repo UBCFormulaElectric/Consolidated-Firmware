@@ -1,6 +1,4 @@
 #include "app_utils.h"
-#include "hw_fdcan.h"
-#include <stm32h7xx_hal_fdcan.h>
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
 #include <cmsis_os2.h>
@@ -8,8 +6,11 @@
 #include <task.h>
 #include <string.h>
 
+#include "hw_fdcan.h"
 #include "io_log.h"
 #include "io_time.h"
+
+extern FDCAN_HandleTypeDef hfdcan1;
 
 void hw_can_init(CanHandle *can_handle)
 {
@@ -49,7 +50,7 @@ static ExitCode tx(CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMs
 {
     while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
         ;
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data));
 }
 
 ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg)
@@ -116,6 +117,12 @@ ExitCode hw_fdcan_transmit(CanHandle *can_handle, CanMsg *msg)
     tx_header.FDFormat      = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker      = 0;
+
+    if (msg->std_id == 611 && (msg->data[1] & 0x03) == 2)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
+
     return tx(can_handle, tx_header, msg);
 }
 
@@ -124,13 +131,20 @@ ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, C
     assert(can_handle->ready);
     FDCAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR_SILENT(
-        hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data.data8)));
+    uint8_t                 data[64];
+    const HAL_StatusTypeDef status = HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, data);
+    RETURN_IF_ERR_SILENT(hw_utils_convertHalStatus(status));
+    memcpy(msg->data, data, sizeof(data));
 
     msg->std_id    = header.Identifier;
     msg->dlc       = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
     msg->timestamp = io_time_getCurrentMs();
     msg->bus       = can_handle->bus_num;
+
+    if (msg->std_id == 611 && (msg->data[1] & 0x03) == 2)
+    {
+        LOG_INFO("error: %s", can_handle->hcan == &hfdcan1 ? "fd" : "sx");
+    }
 
     return EXIT_CODE_OK;
 }

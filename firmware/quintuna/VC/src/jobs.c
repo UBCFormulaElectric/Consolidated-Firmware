@@ -1,6 +1,7 @@
 #include "jobs.h"
 #include "app_stateMachine.h"
 #include "app_timer.h"
+#include "hw_utils.h"
 #include "io_canMsg.h"
 #include "io_canQueues.h"
 #include "app_jsoncan.h"
@@ -83,7 +84,13 @@ void jobs_run100Hz_tick(void)
     app_stateMachine_tick100Hz();
     // }
 
-    LOG_INFO("apps accelerator pedal = %d percent", (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get());
+    // LOG_INFO("apps accelerator pedal = %d percent", (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get());
+
+    if ((uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get() >= 45 &&
+        (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get() <= 55)
+    {
+        // BREAK_IF_DEBUGGER_CONNECTED();
+    }
 
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();

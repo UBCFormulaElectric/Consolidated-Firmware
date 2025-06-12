@@ -173,8 +173,14 @@ _Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
-        const CanMsg rx_msg       = io_canQueue_popRx();
-        JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        const CanMsg rx_msg = io_canQueue_popRx();
+
+        if (rx_msg.std_id == 611 && (rx_msg.data[1] & 0x03) == 2)
+        {
+            // BREAK_IF_DEBUGGER_CONNECTED();
+        }
+
+        JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_can_msg);
     }
 }

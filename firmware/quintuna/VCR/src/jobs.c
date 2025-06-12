@@ -1,5 +1,6 @@
 #include "jobs.h"
 #include "app_utils.h"
+#include "hw_utils.h"
 #include "io_canMsg.h"
 #include "io_canQueue.h"
 #include "io_canQueues.h"
@@ -16,18 +17,33 @@
 
 static void fd_can_tx(const JsonCanMsg *tx_msg)
 {
+    if (tx_msg->std_id == 611 && (tx_msg->data[1] & 0x03) == 2)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
+
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&fd_can_tx_queue, &msg);
 }
 
 static void sx_can_tx(const JsonCanMsg *tx_msg)
 {
+    if (tx_msg->std_id == 611) // && (tx_msg->data[1] & 0x03) == 2)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
+
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&sx_can_tx_queue, &msg);
 }
 
 static void inv_can_tx(const JsonCanMsg *tx_msg)
 {
+    if (tx_msg->std_id == 611) // && (tx_msg->data[1] & 0x03) == 2)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
+
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&inv_can_tx_queue, &msg);
 }
