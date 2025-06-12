@@ -102,9 +102,9 @@ const DynamicRowManager: React.FC = () => {
   };
 
   return (
-    <div className="w-auto">
-      <div className="overflow-x-scroll w-auto">
-        <div className="inline-block min-w-[100vw]">
+    <div className="">
+      <div className="overflow-x-scroll">
+        <div className="inline-block min-w-[calc(100vw-48px)]">
           {createdComponents.map((component) => (
             <DynamicSignalGraph
               key={component.id}

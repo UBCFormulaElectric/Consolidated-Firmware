@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { PlusButton } from './PlusButton';
-import { useSignals, SignalType } from '@/lib/contexts/SignalContext';
+import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
+import { X } from "lucide-react";
+import React from "react";
+import { PlusButton } from "./PlusButton";
 
-// Type for each row's state
+// Type for each row's state<X />
 export interface RowItem {
   isOpen: boolean;
   searchTerm: string;
@@ -31,10 +32,11 @@ export const RowEditor: React.FC<RowEditorProps> = ({
   onCreateComponent,
   onDeleteRow,
 }) => {
-  const { availableSignals, subscribeToSignal, isLoadingSignals } = useSignals();
+  const { availableSignals, subscribeToSignal, isLoadingSignals } =
+    useSignals();
 
   // Filter available signals based on search term
-  const filteredSignals = availableSignals.filter(signal =>
+  const filteredSignals = availableSignals.filter((signal) =>
     signal.name.toLowerCase().includes(row.searchTerm.toLowerCase())
   );
 
@@ -57,20 +59,18 @@ export const RowEditor: React.FC<RowEditorProps> = ({
           <div className="mr-4">
             <PlusButton variant="rowSide" onClick={() => onToggle(index)} />
           </div>
-          
+
           {/* Delete row button */}
           {onDeleteRow && (
-            <button
+            <X
               onClick={() => onDeleteRow(index)}
               className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4"
               title="Delete this row"
-            >
-              ×
-            </button>
+            ></X>
           )}
         </>
       )}
-      
+
       <div className="flex-1">
         {row.isOpen && (
           <div className="mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg w-64 p-2">
@@ -79,22 +79,26 @@ export const RowEditor: React.FC<RowEditorProps> = ({
               placeholder="Search for websocket signals..."
               className="w-full mb-2 px-2 py-1 border rounded bg-white dark:bg-gray-700 text-black dark:text-white"
               value={row.searchTerm}
-              onChange={e => onSearch(index, e.target.value)}
+              onChange={(e) => onSearch(index, e.target.value)}
             />
             <div className="max-h-32 overflow-y-auto">
               {isLoadingSignals ? (
-                <div className="px-2 py-1 text-gray-500">Loading signals...</div>
+                <div className="px-2 py-1 text-gray-500">
+                  Loading signals...
+                </div>
               ) : filteredSignals.length === 0 ? (
                 <div className="px-2 py-1 text-gray-500">No signals found</div>
               ) : (
-                filteredSignals.map(signal => (
+                filteredSignals.map((signal) => (
                   <div
                     key={signal.name}
                     onClick={() => handleSignalSelect(signal.name)}
                     className="px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-black dark:text-white"
                   >
                     <div className="font-medium">{signal.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{signal.unit}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {signal.unit}
+                    </div>
                   </div>
                 ))
               )}

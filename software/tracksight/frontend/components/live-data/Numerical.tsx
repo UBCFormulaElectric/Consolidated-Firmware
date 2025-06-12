@@ -4,7 +4,7 @@
 import { usePausePlay } from "@/components/shared/pause-play-control";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DynamicSignalGraphProps {
@@ -46,7 +46,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
-  
+
   // Track signals this component instance subscribed to for proper cleanup
   const componentSubscriptions = useRef<Set<string>>(new Set());
   // Force re-render when subscriptions change
@@ -56,8 +56,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   const thisGraphSignals = React.useMemo(() => {
     // When paused, show all signals this component has subscribed to regardless of global activeSignals
     // When not paused, filter by both component subscriptions and global activeSignals
-    const result = Array.from(componentSubscriptions.current).filter((sig) => 
-      (isPaused || activeSignals.includes(sig)) && isNumericalSignal(sig)
+    const result = Array.from(componentSubscriptions.current).filter(
+      (sig) =>
+        (isPaused || activeSignals.includes(sig)) && isNumericalSignal(sig)
     );
     return result;
   }, [activeSignals, isNumericalSignal, subscriptionVersion, isPaused]);
@@ -75,23 +76,25 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     // Create time windows from all data points
     const timeWindows = new Set<number>();
     filteredData.forEach((d) => {
-      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      const t =
+        typeof d.time === "number" ? d.time : new Date(d.time).getTime();
       const r = Math.floor(t / windowMs) * windowMs;
       timeWindows.add(r);
     });
 
     const sortedTimes = Array.from(timeWindows).sort((a, b) => a - b);
-    
+
     // Track last known value for each signal to fill gaps
     const lastKnownValues: Record<string, number> = {};
-    
+
     // Group data by signal and time for efficient lookup
     const dataBySignal: Record<string, Record<number, number>> = {};
     filteredData.forEach((d) => {
       const signalName = d.name as string;
-      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      const t =
+        typeof d.time === "number" ? d.time : new Date(d.time).getTime();
       const r = Math.floor(t / windowMs) * windowMs;
-      
+
       if (!dataBySignal[signalName]) {
         dataBySignal[signalName] = {};
       }
@@ -101,11 +104,11 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     // Build chart data with forward-filled values
     return sortedTimes.map((time) => {
       const dataPoint: any = { time };
-      
+
       // For each signal this graph has subscribed to, get the value or carry forward the last known value
       thisGraphSignals.forEach((signalName) => {
         if (!isNumericalSignal(signalName)) return;
-        
+
         const signalData = dataBySignal[signalName];
         if (signalData && signalData[time] !== undefined) {
           // We have data for this time point
@@ -117,7 +120,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
         }
         // If no last known value exists, don't add the property (signal hasn't started yet)
       });
-      
+
       return dataPoint;
     });
   }, [numericalData, thisGraphSignals, isNumericalSignal]);
@@ -147,7 +150,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     (name: string) => {
       subscribeToSignal(name, SignalType.Numerical);
       componentSubscriptions.current.add(name);
-      setSubscriptionVersion(v => v + 1);
+      setSubscriptionVersion((v) => v + 1);
       setSearchTerm("");
       setIsSearchOpen(false);
     },
@@ -158,7 +161,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     (name: string) => {
       unsubscribeFromSignal(name);
       componentSubscriptions.current.delete(name);
-      setSubscriptionVersion(v => v + 1);
+      setSubscriptionVersion((v) => v + 1);
     },
     [unsubscribeFromSignal]
   );
@@ -177,9 +180,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     if (signalName && !componentSubscriptions.current.has(signalName)) {
       subscribeToSignal(signalName, SignalType.Numerical);
       componentSubscriptions.current.add(signalName);
-      setSubscriptionVersion(v => v + 1);
+      setSubscriptionVersion((v) => v + 1);
     }
-    
+
     return () => {
       // Only cleanup signals that this specific component instance subscribed to
       componentSubscriptions.current.forEach((signal) => {
@@ -196,7 +199,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
           PAUSED
         </div>
       )}
-      <div className=" sticky left-0 block w-[50vw] animate-none overscroll-contain relative z-40">
+      <div className=" sticky left-0 block w-[50vw] animate-none overscroll-contain z-40">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="font-semibold">Numerical Graph</h3>
           <button
@@ -221,7 +224,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm">Horizontal Scale: {horizontalScale}%</label>
+            <label className="text-sm">
+              Horizontal Scale: {horizontalScale}%
+            </label>
             <input
               type="range"
               min={1}
@@ -262,7 +267,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
                     const rect = buttonRef.current.getBoundingClientRect();
                     setDropdownPosition({
                       top: rect.bottom + window.scrollY + 4,
-                      left: rect.left + window.scrollX
+                      left: rect.left + window.scrollX,
                     });
                   }
                   setIsSearchOpen((o) => !o);
@@ -270,11 +275,13 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
                 variant="rowSide"
               />
               {isSearchOpen && (
-                <div className="fixed bg-white border rounded shadow w-64 p-2 z-[9999]" 
-                     style={{
-                       top: dropdownPosition.top,
-                       left: dropdownPosition.left
-                     }}>
+                <div
+                  className="fixed bg-white border rounded shadow w-64 p-2 z-[9999]"
+                  style={{
+                    top: dropdownPosition.top,
+                    left: dropdownPosition.left,
+                  }}
+                >
                   <input
                     type="text"
                     placeholder="Search numerical signals..."
