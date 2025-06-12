@@ -24,63 +24,33 @@
   "buses": [
     {
       "name": "can1",
-      "nodes": [
-        "VCR",
-        "VC",
-        "BMS",
-        "DAM",
-        "Debug"
-      ],
+      "nodes": ["VCR", "VC", "BMS", "DAM", "DAMLogger", "Debug"],
       "bus_speed": 1000,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
+      "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT",
       "fd": true
     },
     {
       "name": "can2",
-      "nodes": [
-        "VCR",
-        "VC",
-        "FSM",
-        "RSM",
-        "CRIT",
-        "Debug"
-      ],
+      "nodes": ["VCR", "VC", "FSM", "RSM", "CRIT", "Debug"],
       "bus_speed": 1000,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
+      "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     },
     {
       "name": "can3",
-      "nodes": ["VCR","VC", "INVFR","INVFL","INVRR", "INVRL", "EMeter"],
+      "nodes": ["VCR", "VC", "INVFR", "INVFL", "INVRR", "INVRL", "EMeter"],
       "bus_speed": 500,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
+      "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     },
     {
       "name": "charger",
-      "nodes": [
-        "BMS",
-        "Elcon"
-      ],
+      "nodes": ["BMS", "Elcon"],
       "bus_speed": 500,
-      "modes": [
-        "DEFAULT",
-        "DEBUG"
-      ],
+      "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"
     }
   ],
-  "loggers": [
-    "DAM"
-  ]
+  "loggers": ["DAMLogger"]
 }

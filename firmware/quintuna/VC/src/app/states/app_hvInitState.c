@@ -149,10 +149,10 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         }
         case INV_READY_FOR_DRIVE:
-            if (app_canAlerts_VC_Warning_InverterRetry_get())
+            if (app_canAlerts_VC_Info_InverterRetry_get())
             {
                 app_warningHandling_inverterStatus();
-                app_canAlerts_VC_Warning_InverterRetry_set(false);
+                app_canAlerts_VC_Info_InverterRetry_set(false);
                 app_stateMachine_setNextState(&drive_state);
             }
             else
@@ -166,7 +166,7 @@ static void hvInitStateRunOnExit(void)
 {
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
-    app_canAlerts_VC_Warning_InverterRetry_set(false);
+    app_canAlerts_VC_Info_InverterRetry_set(false);
 }
 
 State hvInit_state = { .name              = "HV INIT",
