@@ -31,7 +31,6 @@ static void inverterOnStateRunOnEntry(void)
 static void inverterOnStateRunOnTick100Hz(void)
 {
     // here we need to check if the inverters are alive and are sending us active can messages
-
     const bool inverters_bsystemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
                                         app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
     if (inverters_bsystemReady)

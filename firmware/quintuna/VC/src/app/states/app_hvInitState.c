@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include "app_warningHanding.h"
 #include "app_vehicleDynamicsConstants.h"
+#include "io_log.h"
 
 #define NO_TORQUE 0.0
 
@@ -49,7 +50,17 @@ static void hvInitStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
     current_inverter_state = INV_SYSTEM_READY;
-    app_timer_init(&start_up_timer, 1000);
+    app_timer_init(&start_up_timer, 30000);
+
+    app_canTx_VC_INVFLTorqueLimitPositive_set(0);
+    app_canTx_VC_INVFRTorqueLimitPositive_set(0);
+    app_canTx_VC_INVRLTorqueLimitPositive_set(0);
+    app_canTx_VC_INVRRTorqueLimitPositive_set(0);
+
+    app_canTx_VC_INVFLTorqueLimitNegative_set(0);
+    app_canTx_VC_INVFRTorqueLimitNegative_set(0);
+    app_canTx_VC_INVRLTorqueLimitNegative_set(0);
+    app_canTx_VC_INVRRTorqueLimitNegative_set(0);
 }
 
 static void hvInitStateRunOnTick100Hz(void)
@@ -63,7 +74,9 @@ static void hvInitStateRunOnTick100Hz(void)
 
             if (inv_systemReady)
             {
+                LOG_INFO("inv_system_ready -> inv_dc_on");
                 current_inverter_state = INV_DC_ON;
+                app_timer_restart(&start_up_timer);
             }
             break;
         }
@@ -77,36 +90,19 @@ static void hvInitStateRunOnTick100Hz(void)
             const bool inverter_dc_quit = app_canRx_INVRR_bQuitDcOn_get() && app_canRx_INVRL_bQuitDcOn_get() &&
                                           app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
 
-            const TimerState timeout_state = app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit);
-
-            switch (timeout_state)
+            if (inverter_dc_quit)
             {
-                case TIMER_STATE_IDLE:
-                    app_canTx_VC_INVFLTorqueLimitPositive_set(NO_TORQUE);
-                    app_canTx_VC_INVFRTorqueLimitPositive_set(NO_TORQUE);
-                    app_canTx_VC_INVRLTorqueLimitPositive_set(NO_TORQUE);
-                    app_canTx_VC_INVRRTorqueLimitPositive_set(NO_TORQUE);
-
-                    app_canTx_VC_INVFLTorqueLimitNegative_set(NO_TORQUE);
-                    app_canTx_VC_INVFRTorqueLimitNegative_set(NO_TORQUE);
-                    app_canTx_VC_INVRLTorqueLimitNegative_set(NO_TORQUE);
-                    app_canTx_VC_INVRRTorqueLimitNegative_set(NO_TORQUE);
-
-                    app_canTx_VC_INVFRTorqueSetpoint_set(NO_TORQUE);
-                    app_canTx_VC_INVRRTorqueSetpoint_set(NO_TORQUE);
-                    app_canTx_VC_INVFLTorqueSetpoint_set(NO_TORQUE);
-                    app_canTx_VC_INVRLTorqueSetpoint_set(NO_TORQUE);
-                    current_inverter_state = INV_ENABLE;
-                    break;
-                case TIMER_STATE_EXPIRED:
-                    current_inverter_state = INV_SYSTEM_READY;
-                    app_stateMachine_setNextState(&init_state);
-                    break;
-                case TIMER_STATE_RUNNING:
-                    // __attribute__((fallthrough));
-                default:
-                    break;
+                LOG_INFO("inv_dc_on -> inv_enable");
+                current_inverter_state = INV_ENABLE;
+                app_timer_restart(&start_up_timer);
             }
+
+            if (app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED)
+            {
+                LOG_INFO("dc quit timeout");
+                app_stateMachine_setNextState(&init_state);
+            }
+
             break;
         }
         case INV_ENABLE:
@@ -115,9 +111,7 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVFRbEnable_set(true);
             app_canTx_VC_INVRLbEnable_set(true);
             app_canTx_VC_INVRRbEnable_set(true);
-
             current_inverter_state = INV_INVERTER_ON;
-            app_timer_stop(&start_up_timer);
             break;
         }
         case INV_INVERTER_ON:
@@ -127,28 +121,21 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVRRbInverterOn_set(true);
             app_canTx_VC_INVRLbInverterOn_set(true);
 
-            if (start_up_timer.state == TIMER_STATE_IDLE)
-                app_timer_restart(&start_up_timer);
-
             const bool inverter_invOn_quit =
                 app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get() &&
                 app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
 
-            const TimerState timeout_state = app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit);
-
-            switch (timeout_state)
+            if (inverter_invOn_quit)
             {
-                case TIMER_STATE_IDLE:
-                    current_inverter_state = INV_READY_FOR_DRIVE;
-                    break;
-                case TIMER_STATE_EXPIRED:
-                    current_inverter_state = INV_SYSTEM_READY;
-                    app_stateMachine_setNextState(&init_state);
-                    break;
-                case TIMER_STATE_RUNNING:
-                    // __attribute__((fallthrough));
-                default:
-                    break;
+                LOG_INFO("inv_on -> inv_ready_for_drive");
+                current_inverter_state = INV_READY_FOR_DRIVE;
+                app_timer_restart(&start_up_timer);
+            }
+
+            if (app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED)
+            {
+                LOG_INFO("inv on quit timeout");
+                app_stateMachine_setNextState(&init_state);
             }
 
             break;
