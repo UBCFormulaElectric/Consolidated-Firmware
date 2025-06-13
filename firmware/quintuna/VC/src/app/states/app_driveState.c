@@ -212,7 +212,15 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     //      app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
     //  }
 
-    if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    {
+        app_regen_run(apps_pedal_percentage);
+    }
+    else if (torque_vectoring_switch_is_on)
+    {
+        app_torqueVectoring_run(apps_pedal_percentage);
+    }
+    else if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
     {
         app_regularDrive_run(apps_pedal_percentage);
     }
@@ -230,21 +238,19 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // TODO: set Load Transfer Const = 1 and set Desired Yaw Moment = 0
 
     // TODO: Implement active diff in regular drive at min
-    const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
-    const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
-    const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
-    const float left_front_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
-    const float left_back_motor_speed_rpm   = (float)app_canRx_INVL_MotorSpeed_get();
-    float       bms_torque_limit            = MAX_TORQUE_REQUEST_NM;
+    const float bms_available_power = (float)app_canRx_BMS_AvailablePower_get();
+    const float motor_speed_fr_rpm  = (float)app_canRx_INVFR_ActualVelocity_get();
+    const float motor_speed_fl_rpm  = (float)app_canRx_INVFL_ActualVelocity_get();
+    const float motor_speed_rr_rpm  = (float)app_canRx_INVRR_ActualVelocity_get();
+    const float motor_speed_rl_rpm  = (float)app_canRx_INVRL_ActualVelocity_get();
+    float       bms_torque_limit    = MAX_TORQUE_REQUEST_NM;
 
-    if ((right_front_motor_speed_rpm + right_back_motor_speed_rpm + left_front_motor_speed_rpm +
-         left_back_motor_speed_rpm) > 0.0f)
+    if ((motor_speed_fr_rpm + motor_speed_fl_rpm + motor_speed_rr_rpm + motor_speed_rl_rpm) > 0.0f)
     {
         // Estimate the maximum torque request to draw the maximum power available from the BMS
-        const float available_output_power_w = bms_available_power * EFFICIENCY_ESTIMATE;
-        const float combined_motor_speed_rads =
-            RPM_TO_RADS(right_front_motor_speed_rpm) + RPM_TO_RADS(right_back_motor_speed_rpm) +
-            RPM_TO_RADS(left_front_motor_speed_rpm) + RPM_TO_RADS(left_back_motor_speed_rpm);
+        const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
+        const float combined_motor_speed_rads = RPM_TO_RADS(motor_speed_fr_rpm) + RPM_TO_RADS(motor_speed_fl_rpm) +
+                                                RPM_TO_RADS(motor_speed_rr_rpm) + RPM_TO_RADS(motor_speed_rl_rpm);
         bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
     }
 

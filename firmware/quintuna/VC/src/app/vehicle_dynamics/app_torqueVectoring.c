@@ -10,7 +10,6 @@
 #include "app_canTx.h"
 #include "app_utils.h"
 #include "app_imu.h"
-#include "app_loadTransfer.h"
 #include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_sbgEllipse.h"

@@ -7,8 +7,10 @@ typedef struct RegenBraking_Inputs
 {
     bool  enable_active_differential;
     float battery_level;
-    float left_inverter_torque_Nm;
-    float right_inverter_torque_Nm;
+    float torque_rr_Nm;
+    float torque_rl_Nm;
+    float torque_fr_Nm;
+    float torque_fl_Nm;
     float derating_value;
 } RegenBraking_Inputs;
 
@@ -61,7 +63,7 @@ typedef struct PowerLimiting_Inputs
     const float current_based_power_limit_kW;
     const float regen_power_limit_kW;
     float       accelerator_pedal_percent;
-} PowerLimiting_Inputs; // -- deprecated, leaving for regen 
+} PowerLimiting_Inputs; // -- deprecated, leaving for regen
 
 typedef struct TorqueAllocationInputs // regardless of if controller is used or not final torques MUST go into this
                                       // struct before being sent to the inverters

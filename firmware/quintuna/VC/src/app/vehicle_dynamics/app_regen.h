@@ -34,7 +34,7 @@ bool app_regen_safetyCheck(struct RegenBraking_Inputs *regenAttr, ActiveDifferen
  * @param left is the left inverter torque request
  * @param right is the right inverter torque request
  */
-void app_regen_sendTorqueRequest(float left, float right);
+void app_regen_sendTorqueRequest(RegenBraking_Inputs *regenAttr);
 
 /**
  * Activate torque requests for regen
