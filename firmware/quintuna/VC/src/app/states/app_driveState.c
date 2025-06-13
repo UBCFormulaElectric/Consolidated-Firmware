@@ -27,13 +27,6 @@ static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 static SensorChecks sensor_checks;
 
-#define EFFICIENCY_ESTIMATE (0.80f)
-#define BUZZER_ON_DURATION_MS 2000
-
-static bool         torque_vectoring_switch_is_on;
-static bool         regen_switch_is_on;
-static TimerChannel buzzer_timer;
-
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -118,24 +111,28 @@ static void driveStateRunOnTick100Hz(void)
 
 static void driveStateRunOnExit(void)
 {
-    //     // Disable inverters and apply zero torque upon exiting drive state
-    //     app_canTx_VC_LeftInverterEnable_set(false);
-    //     app_canTx_VC_RightInverterEnable_set(false);
+    // Disable inverters and apply zero torque upon exiting drive state
+    app_canTx_VC_INVFRbEnable_set(false);
+    app_canTx_VC_INVFLbEnable_set(false);
+    app_canTx_VC_INVRRbEnable_set(false);
+    app_canTx_VC_INVRLbEnable_set(false);
 
-    //     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
-    //     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+    app_canTx_VC_INVFRTorqueSetpoint_set(0.0f);
+    app_canTx_VC_INVRRTorqueSetpoint_set(0.0f);
+    app_canTx_VC_INVFLTorqueSetpoint_set(0.0f);
+    app_canTx_VC_INVRLTorqueSetpoint_set(0.0f);
 
-    //     // Clear mapped pedal percentage
-    //     app_canTx_VC_MappedPedalPercentage_set(0.0f);
+    // Clear mapped pedal percentage
+    app_canTx_VC_MappedPedalPercentage_set(0.0f);
 
-    //     // Clear latched inverter faults
-    //     app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
-    //     app_canTx_VC_INVL_CommandReadWrite_set(true);
-    //     app_canTx_VC_INVL_CommandData_set((uint16_t)0);
+    // TODO: Clear latched inverter faults
+    // app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
+    // app_canTx_VC_INVL_CommandReadWrite_set(true);
+    // app_canTx_VC_INVL_CommandData_set((uint16_t)0);
 
-    //     app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
-    //     app_canTx_VC_INVR_CommandReadWrite_set(true);
-    //     app_canTx_VC_INVR_CommandData_set((uint16_t)0);
+    // app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
+    // app_canTx_VC_INVR_CommandReadWrite_set(true);
+    // app_canTx_VC_INVR_CommandData_set((uint16_t)0);
 
     // #ifdef TARGET_EMBEDDED
     //     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
@@ -143,12 +140,12 @@ static void driveStateRunOnExit(void)
     //     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
     //     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
     // #endif
-    //     // Disable buzzer on exit drive.
-    //     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
-    //     app_canTx_VC_BuzzerOn_set(false);
+    // Disable buzzer on exit drive.
+    // io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
+    // app_canTx_VC_BuzzerOn_set(false);
 
-    //     app_canTx_VC_RegenEnabled_set(false);
-    //     app_canTx_VC_TorqueVectoringEnabled_set(false);
+    app_canTx_VC_RegenEnabled_set(false);
+    app_canTx_VC_TorqueVectoringEnabled_set(false);
 }
 
 static bool driveStatePassPreCheck()
