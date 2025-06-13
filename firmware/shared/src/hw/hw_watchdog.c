@@ -27,16 +27,15 @@ static void refreshHardwareWatchdog(void)
     HAL_IWDG_Refresh(&hiwdg1);
 }
 
-WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms, uint32_t grace_period_ms)
+WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms)
 {
     assert(watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
     WatchdogHandle *watchdog = &watchdog_table.watchdogs[watchdog_table.allocation_index++];
 
     watchdog->task            = xTaskGetCurrentTaskHandle();
     watchdog->period          = period_ms;
-    watchdog->grace_period    = grace_period_ms;
     watchdog->deadline        = io_time_getCurrentMs() + period_ms;
-    watchdog->check_in_status = true;
+    watchdog->check_in_status = false;
     watchdog->initialized     = true;
 
     return watchdog;
@@ -48,9 +47,8 @@ void hw_watchdog_checkIn(WatchdogHandle *watchdog)
     assert(watchdog->initialized == true);
 
     // Prevent check in if we've already timed out.
-    const bool passed_deadline_and_grace_period =
-        io_time_getCurrentMs() >= (watchdog->deadline + watchdog->grace_period);
-    if (passed_deadline_and_grace_period)
+    const bool passed_deadline = io_time_getCurrentMs() > watchdog->deadline;
+    if (passed_deadline)
     {
         return;
     }
@@ -73,34 +71,36 @@ void hw_watchdog_checkForTimeouts(void)
 
         const bool checked_in      = watchdog_table.watchdogs[i].check_in_status == true;
         const bool passed_deadline = io_time_getCurrentMs() > watchdog_table.watchdogs[i].deadline;
-        const bool passed_deadline_and_grace_period =
-            io_time_getCurrentMs() > (watchdog_table.watchdogs[i].deadline + watchdog_table.watchdogs[i].grace_period);
 
-        if (passed_deadline && checked_in)
+        if (passed_deadline)
         {
-            // Clear the check-in status.
-            watchdog_table.watchdogs[i].check_in_status = false;
+            if (checked_in)
+            {
+                // Clear the check-in status.
+                watchdog_table.watchdogs[i].check_in_status = false;
 
-            // Update deadline.
-            watchdog_table.watchdogs[i].deadline += watchdog_table.watchdogs[i].period;
-        }
-        else if (passed_deadline_and_grace_period && !checked_in)
-        {
-            TaskStatus_t status;
-            vTaskGetInfo(watchdog_table.watchdogs[i].task, &status, pdFALSE, eRunning);
+                // Update deadline.
+                watchdog_table.watchdogs[i].deadline = io_time_getCurrentMs() + watchdog_table.watchdogs[i].period;
+            }
+            else
+            {
+                TaskStatus_t status;
+                vTaskGetInfo(watchdog_table.watchdogs[i].task, &status, pdFALSE, eRunning);
 
-            LOG_ERROR(
-                "Software watchdog detected a timeout in a task, letting hardware watchdog reset the MCU (task = %s, "
-                "id = %d)",
-                pcTaskGetTaskName(watchdog_table.watchdogs[i].task), status.xTaskNumber);
+                LOG_ERROR(
+                    "Software watchdog detected a timeout in a task, letting hardware watchdog reset the MCU (task = "
+                    "%s, "
+                    "id = %d)",
+                    pcTaskGetTaskName(watchdog_table.watchdogs[i].task), status.xTaskNumber);
 
-            const BootRequest request = { .target        = BOOT_TARGET_APP,
-                                          .context       = BOOT_CONTEXT_WATCHDOG_TIMEOUT,
-                                          .context_value = status.xTaskNumber };
-            hw_bootup_setBootRequest(request);
+                const BootRequest request = { .target        = BOOT_TARGET_APP,
+                                              .context       = BOOT_CONTEXT_WATCHDOG_TIMEOUT,
+                                              .context_value = status.xTaskNumber };
+                hw_bootup_setBootRequest(request);
 
-            // Stop petting the hardware watchdog.
-            timeout_detected = true;
+                // Stop petting the hardware watchdog.
+                timeout_detected = true;
+            }
         }
     }
 

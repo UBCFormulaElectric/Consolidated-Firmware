@@ -44,8 +44,6 @@ typedef struct
     xTaskHandle task;
     // The tick period of the task being monitored.
     uint32_t period;
-    // Grace period (extra ticks to elapse after passing the deadline, to allow for some flexibility)
-    uint32_t grace_period;
     // The current deadline of the task being monitored.
     uint32_t deadline;
     // Has the task being monitored checked in for the current period?
@@ -58,9 +56,8 @@ typedef struct
  * @param watchdog: Handle to the software watchdog
  * @param task_id: ID to identify the task this watchdog is monitoring
  * @param period_ms: Period of the task in ms
- * @param grace_period_ms: Grace period for the task in ms
  */
-WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms, uint32_t grace_period_ms);
+WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms);
 
 /**
  * Every periodic task monitored by a software watchdog must call this at the
