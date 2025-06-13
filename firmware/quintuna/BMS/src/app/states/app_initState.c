@@ -49,7 +49,7 @@ static void initStateRunOnTick100Hz(void)
         }
         else if (precharge_for_driving)
         {
-            app_stateMachine_setNextState(&precharge_state);
+            app_stateMachine_setNextState(&precharge_drive_state);
         }
         else if (cell_balancing_enabled)
         {

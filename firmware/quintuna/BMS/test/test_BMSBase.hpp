@@ -37,7 +37,7 @@ class BMSBaseTest : public EcuTestBase
     std::array<StateMetadata, 10> state_metadata = { {
         { &init_state, BMS_INIT_STATE, false, false },
         { &fault_state, BMS_FAULT_STATE, false, true },
-        { &precharge_state, BMS_PRECHARGE_DRIVE_STATE, true, false },
+        { &precharge_drive_state, BMS_PRECHARGE_DRIVE_STATE, true, false },
         { &drive_state, BMS_DRIVE_STATE, true, false },
         { &balancing_state, BMS_BALANCING_STATE, true, false },
         { &precharge_latch_state, BMS_PRECHARGE_LATCH_STATE, true, false },

@@ -68,7 +68,7 @@ PrechargeState app_precharge_poll(const bool precharge_for_charging)
     }
 
     precharge_limit_exceeded = num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS;
-    app_canAlerts_BMS_Warning_CriticalPrechargeFailure_set(precharge_limit_exceeded);
+    app_canAlerts_BMS_Fault_CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // If there is a pre-charge fault and there were no more than three previous pre-charge faults
     // Go back to Init State, add one to the pre-charge failed counter and set the CAN charging message to false

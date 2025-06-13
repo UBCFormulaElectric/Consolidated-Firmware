@@ -25,8 +25,8 @@
 #include "io_irs.h"
 #include "io_semaphore.h"
 
-static Semaphore isospi_bus_access_lock = {};
-static Semaphore ltc_app_data_lock      = {};
+static Semaphore isospi_bus_access_lock;
+static Semaphore ltc_app_data_lock;
 
 CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
 
@@ -99,8 +99,8 @@ void jobs_run100Hz_tick(void)
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
 
-    app_heartbeatMonitor_checkIn(&hb_monitor);
-    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+    // app_heartbeatMonitor_checkIn(&hb_monitor);
+    // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     app_tractiveSystem_broadcast();
     app_imd_broadcast();

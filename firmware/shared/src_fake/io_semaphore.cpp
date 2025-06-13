@@ -1,10 +1,14 @@
 #include "io_semaphoreFake.h"
 
+#include "app_utils.h"
+#include <cassert>
+
 extern "C"
 {
-    void io_semaphore_create(const Semaphore *sem)
+    void io_semaphore_create(const Semaphore *sem, const bool priority_inversion_on)
     {
         const_cast<Semaphore *>(sem)->created = true;
+        UNUSED(priority_inversion_on);
     }
 
     void io_semaphore_give(const Semaphore *sem)
@@ -12,8 +16,9 @@ extern "C"
         assert(sem->created);
     }
 
-    void io_semaphore_take(const Semaphore *sem)
+    void io_semaphore_take(const Semaphore *sem, const uint32_t timeout)
     {
         assert(sem->created);
+        UNUSED(timeout);
     }
 }
