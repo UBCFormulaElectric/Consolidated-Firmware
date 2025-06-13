@@ -13,7 +13,7 @@
 #include "app_warningHanding.h"
 #include "app_vehicleDynamicsConstants.h"
 
-#define INV_QUIT_TIMEOUT_MS (30 * 1000)
+#define INV_QUIT_TIMEOUT_MS (10 * 1000)
 #define NO_TORQUE 0.0
 
 typedef enum
