@@ -191,6 +191,7 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // TODO: Use power limiting in regular drive
     // TODO: Implement active diff  in regular drive at min
     // TODO: Use sensor checks here to disable things accordingly (active diff, load trans)
+    // TODO: set Load Transfer Const = 1 and set Desired Yaw Moment = 0
     // const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
     // const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
     // const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
