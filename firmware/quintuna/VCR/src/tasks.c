@@ -2,6 +2,7 @@
 #include "app_utils.h"
 #include "hw_cans.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_resetReason.h"
 #include "hw_utils.h"
 #include "io_bootloaderReroute.h"
 #include "io_canMsg.h"
@@ -10,6 +11,7 @@
 #include "app_jsoncan.h"
 #include "main.h"
 #include "io_canQueues.h"
+#include <app_canTx.h>
 #include <cmsis_os2.h>
 #include <io_canReroute.h>
 #include <io_canRx.h>
@@ -49,6 +51,8 @@ void tasks_init()
     hw_can_init(&sx_can);
     hw_can_init(&inv_can);
     __HAL_DBGMCU_FREEZE_IWDG1();
+
+    app_canTx_VCR_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_run1Hz(void)

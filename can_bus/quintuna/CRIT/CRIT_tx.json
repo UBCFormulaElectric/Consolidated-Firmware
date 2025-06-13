@@ -77,9 +77,6 @@
       },
       "RxOverflowCount": {
         "bits": 8
-      },
-      "WatchdogTimeoutTaskName": {
-        "enum": "RtosTaskName"
       }
     }
   },

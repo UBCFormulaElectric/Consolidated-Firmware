@@ -1,8 +1,15 @@
+#include <FreeRTOS.h>
+#include <cmsis_os.h>
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include "hw_watchdog.h"
+#include "hw_bootup.h"
 #include "io_log.h"
+#include "io_time.h"
+#include "main.h"
+
+extern IWDG_HandleTypeDef hiwdg1;
 
 // Table of hardware-agnostic software watchdog
 typedef struct
@@ -15,41 +22,37 @@ typedef struct
 
 static WatchdogTable watchdog_table;
 
-// Hook functions that the user must define in order to use this library
-static void (*refreshHardwareWatchdog)(void);
-static void (*timeoutCallback)(WatchdogHandle *);
-
-void hw_watchdog_init(void (*refresh_hardware_watchdog)(void), void (*timeout_callback)(WatchdogHandle *))
+static void refreshHardwareWatchdog(void)
 {
-    assert(refresh_hardware_watchdog != NULL);
-    assert(timeout_callback != NULL);
-
-    memset(&watchdog_table, 0, sizeof(watchdog_table));
-
-    refreshHardwareWatchdog = refresh_hardware_watchdog;
-    timeoutCallback         = timeout_callback;
+    HAL_IWDG_Refresh(&hiwdg1);
 }
 
-WatchdogHandle *hw_watchdog_allocateWatchdog(void)
+WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms, uint32_t grace_period_ms)
 {
     assert(watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
+    WatchdogHandle *watchdog = &watchdog_table.watchdogs[watchdog_table.allocation_index++];
 
-    return (WatchdogHandle *)&watchdog_table.watchdogs[watchdog_table.allocation_index++];
-}
-
-void hw_watchdog_initWatchdog(WatchdogHandle *watchdog, uint8_t task_id, Tick_t period_in_ticks)
-{
-    watchdog->period          = period_in_ticks;
-    watchdog->deadline        = period_in_ticks;
+    watchdog->period          = period_ms;
+    watchdog->grace_period    = grace_period_ms;
+    watchdog->deadline        = io_time_getCurrentMs() + period_ms;
     watchdog->check_in_status = true;
     watchdog->initialized     = true;
-    watchdog->task_id         = task_id;
+
+    return watchdog;
 }
 
 void hw_watchdog_checkIn(WatchdogHandle *watchdog)
 {
     assert(watchdog != NULL);
     assert(watchdog->initialized == true);
+
+    // Prevent check in if we've already timed out.
+    const bool passed_deadline_and_grace_period =
+        io_time_getCurrentMs() >= (watchdog->deadline + watchdog->grace_period);
+    if (passed_deadline_and_grace_period)
+    {
+        return;
+    }
 
     watchdog->check_in_status = true;
 }
@@ -67,27 +70,36 @@ void hw_watchdog_checkForTimeouts(void)
         if (watchdog_table.watchdogs[i].initialized == false)
             continue;
 
-        if (osKernelGetTickCount() >= watchdog_table.watchdogs[i].deadline)
-        {
-            // Check if the check-in status is set
-            if (watchdog_table.watchdogs[i].check_in_status == true)
-            {
-                // Clear the check-in status
-                watchdog_table.watchdogs[i].check_in_status = false;
+        const bool checked_in      = watchdog_table.watchdogs[i].check_in_status == true;
+        const bool passed_deadline = io_time_getCurrentMs() >= watchdog_table.watchdogs[i].deadline;
+        const bool passed_deadline_and_grace_period =
+            io_time_getCurrentMs() >= (watchdog_table.watchdogs[i].deadline + watchdog_table.watchdogs[i].grace_period);
 
-                // Update deadline
-                watchdog_table.watchdogs[i].deadline += watchdog_table.watchdogs[i].period;
-            }
-            else
-            {
-                // We have no strict requirement that a timeout callback
-                // function must be provided.
-                if (timeoutCallback != NULL)
-                {
-                    timeoutCallback(&watchdog_table.watchdogs[i]);
-                }
-                timeout_detected = true;
-            }
+        if (passed_deadline && checked_in)
+        {
+            // Clear the check-in status.
+            watchdog_table.watchdogs[i].check_in_status = false;
+
+            // Update deadline.
+            watchdog_table.watchdogs[i].deadline += watchdog_table.watchdogs[i].period;
+        }
+        else if (passed_deadline_and_grace_period && !checked_in)
+        {
+            const TaskHandle_t timeout_task = xTaskGetCurrentTaskHandle();
+            LOG_ERROR(
+                "Software watchdog detected a timeout in a task, letting hardware watchdog reset the MCU (task = %s)",
+                pcTaskGetTaskName(timeout_task));
+
+            TaskStatus_t status;
+            vTaskGetInfo(xTaskGetCurrentTaskHandle(), &status, pdFALSE, eRunning);
+
+            const BootRequest request = { .target        = BOOT_TARGET_APP,
+                                          .context       = BOOT_CONTEXT_WATCHDOG_TIMEOUT,
+                                          .context_value = status.xTaskNumber };
+            hw_bootup_setBootRequest(request);
+
+            // Stop petting the hardware watchdog.
+            timeout_detected = true;
         }
     }
 
@@ -97,9 +109,4 @@ void hw_watchdog_checkForTimeouts(void)
         assert(refreshHardwareWatchdog != NULL);
         refreshHardwareWatchdog();
     }
-}
-
-uint8_t hw_watchdog_getTaskId(WatchdogHandle *watchdog)
-{
-    return watchdog->task_id;
 }

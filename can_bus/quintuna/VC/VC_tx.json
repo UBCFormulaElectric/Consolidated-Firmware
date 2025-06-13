@@ -35,11 +35,20 @@
     "cycle_time": 1000,
     "description": "VC Debug Signals",
     "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
       "ResetReason": {
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 16
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
       }
     }
   },
@@ -76,24 +85,6 @@
     "signals": {
       "FirstFaultNode": {
         "enum": "ShutdownNode"
-      }
-    }
-  },
-  "AlertsContext": {
-    "msg_id": 512,
-    "cycle_time": 10,
-    "signals": {
-      "WatchdogTimeout": {
-        "bits": 1
-      },
-      "WatchdogTimeoutTaskName": {
-        "enum": "RtosTaskName"
-      },
-      "TxOverflowCount": {
-        "bits": 16
-      },
-      "RxOverflowCount": {
-        "bits": 16
       }
     }
   },
