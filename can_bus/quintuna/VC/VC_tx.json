@@ -625,9 +625,6 @@
         "min": 0.0,
         "max": 800.0,
         "unit": "W"
-      },
-      "ChipStatus": {
-        "enum": "PowerMonitoringAlerts"
       }
     }
   }
