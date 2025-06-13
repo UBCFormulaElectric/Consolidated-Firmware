@@ -14,11 +14,9 @@
 #define REG_VBUS 0x07
 #define REG_VSENSE 0x0B
 #define REG_POWER 0x17
-#define REG_ALERT_STATUS 0x26
 #define REG_CTRL 0x01         // Control (SAMPLE_MODE, CHANNEL_N_OFF, ALERT pins)
 #define REG_NEG_PWR_FSR 0x1D  // VSENSE/VBUS FSR configuration
 #define REG_ACCUM_CONFIG 0x25 // Enable accumulation of VBUS & VSENSE
-#define REG_ALERT_ENABLE 0x49 // Enable alrts
 #define REG_OC1_LIMIT 0x30    // over current ch1
 #define REG_UC1_LIMIT 0x34    // under current ch1
 #define REG_OV1_LIMIT 0x3C    // over voltage ch1
@@ -86,53 +84,6 @@ bool io_powerMonitoring_init(void)
     {
         return false;
     }
-
-    // // 5) Over current limits
-    // uint16_t oc1         = (uint16_t)(CH1_OC / VSENSE_LSB);
-    // uint16_t oc2         = (uint16_t)(CH2_OC / VSENSE_LSB);
-    // uint8_t  oc_bytes[2] = { (uint8_t)(oc1 >> 8), (uint8_t)(oc1 & 0xFF) };
-    // write_register(REG_OC1_LIMIT, oc_bytes, 2);
-    // oc_bytes[0] = (uint8_t)(oc2 >> 8);
-    // oc_bytes[1] = (uint8_t)(oc2 & 0xFF);
-    // write_register(REG_OC1_LIMIT + 2, oc_bytes, 2);
-
-    // // 6) Under current limits
-    // uint16_t uc1         = (uint16_t)(CH1_UC / VSENSE_LSB);
-    // uint16_t uc2         = (uint16_t)(CH2_UC / VSENSE_LSB);
-    // uint8_t  uc_bytes[2] = { (uint8_t)(uc1 >> 8), (uint8_t)(uc1 & 0xFF) };
-    // write_register(REG_UC1_LIMIT, uc_bytes, 2);
-    // uc_bytes[0] = (uint8_t)(uc2 >> 8);
-    // uc_bytes[1] = (uint8_t)(uc2 & 0xFF);
-    // write_register(REG_UC1_LIMIT + 2, uc_bytes, 2);
-
-    // // 7) Over voltage limits
-    // uint16_t ov1         = (uint16_t)(CH1_OV / VBUS_LSB);
-    // uint16_t ov2         = (uint16_t)(CH2_OV / VBUS_LSB);
-    // uint8_t  ov_bytes[2] = { (uint8_t)(ov1 >> 8), (uint8_t)(ov1 & 0xFF) };
-    // write_register(REG_OV1_LIMIT, ov_bytes, 2);
-    // ov_bytes[0] = (uint8_t)(ov2 >> 8);
-    // ov_bytes[1] = (uint8_t)(ov2 & 0xFF);
-    // write_register(REG_OV1_LIMIT + 2, ov_bytes, 2);
-
-    // // 8) Under voltage limits
-    // uint16_t uv1         = (uint16_t)(CH1_UV / VBUS_LSB);
-    // uint16_t uv2         = (uint16_t)(CH2_UV / VBUS_LSB);
-    // uint8_t  uv_bytes[2] = { (uint8_t)(uv1 >> 8), (uint8_t)(uv1 & 0xFF) };
-    // write_register(REG_UV1_LIMIT, uv_bytes, 2);
-    // uv_bytes[0] = (uint8_t)(uv2 >> 8);
-    // uv_bytes[1] = (uint8_t)(uv2 & 0xFF);
-    // write_register(REG_UV1_LIMIT + 2, uv_bytes, 2);
-
-    // // 9) Enable alerts for ch1/2
-    // uint8_t alert_en[3] = { 0 };
-    // alert_en[0] |= ((1 << 7) | (1 << 6) | (1 << 3) | (1 << 2)); // OC1 | OC2 | UC1 | UC2
-    // alert_en[1] |= ((1 << 7) | (1 << 6) | (1 << 3) | (1 << 2)); // OV1 | OV2 | UV1 | UV2
-    // alert_en[2] = 0;                                            // to disable ch3 & ch4 alerts.
-
-    // if (!write_register(REG_ALERT_ENABLE, alert_en, 3))
-    // {
-    //     return false;
-    // }
 
     uint8_t cmd = REG_REFRESH;
     if (hw_i2c_transmit(&pwr_mtr, &cmd, 1) != EXIT_CODE_OK)
