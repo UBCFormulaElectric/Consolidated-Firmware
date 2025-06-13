@@ -15,11 +15,14 @@ typedef struct
     StaticSemaphore_t freertos_semaphore_buf;
     SemaphoreHandle_t freertos_semaphore;
 } Semaphore;
+
+#define MAX_TIMEOUT portMAX_DELAY
 #else
-struct Semaphore
+typedef struct
 {
     bool created;
-};
+} Semaphore;
+#define MAX_TIMEOUT UINT32_MAX
 #endif
 
 void io_semaphore_create(const Semaphore *sem, bool priority_inversion_on);
