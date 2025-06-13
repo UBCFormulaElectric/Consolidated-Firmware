@@ -3,10 +3,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from queue import Empty, Queue
 from threading import Thread
+
 # types
 from typing import NoReturn
 
 from api.socket import sio
+
 # ours
 from logger import logger
 from middleware.candb import fetch_jsoncan_configs, live_can_db, update_can_db
@@ -77,9 +79,7 @@ def _send_data() -> NoReturn:
                     except Exception as e:
                         logger.error(f"Emit failed for sid {sid}: {e}")
             # send to influx logger
-            # print(
-            #     f"Sending to influx logger: {signal.name} = {signal.value}"
-            # )
+            print(f"Sending to influx logger: {signal.name} = {signal.value}")
             influx_queue.put(
                 InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
             )
