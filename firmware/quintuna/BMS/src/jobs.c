@@ -47,14 +47,16 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
-    app_precharge_init();
-    // app_heartbeatMonitor_init(&hb_monitor);
-
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
+    app_precharge_init();
+    // app_heartbeatMonitor_init(&hb_monitor);
+
+    app_segments_setDefaultConfig();
     app_segments_initFaults();
+    app_segments_balancingInit();
 
     app_allStates_init();
     app_stateMachine_init(app_initState_get());
