@@ -1,5 +1,8 @@
 #include "test_fakes.h"
+
+#include <algorithm>
 #include <cstring>
+#include <gtest/gtest.h>
 
 extern "C"
 {
@@ -9,27 +12,67 @@ extern "C"
 extern "C"
 {
 #include "io_ltc6813.h"
+    static std::array<SegmentConfig, NUM_SEGMENTS> segment_config{};
+
     void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
     {
-        UNUSED(configs);
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
+            configs[i] = segment_config[i];
             success[i] = EXIT_CODE_OK;
         }
     }
     ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
     {
-        UNUSED(config);
+        std::ranges::copy_n(config, NUM_SEGMENTS, segment_config.data());
         return EXIT_CODE_OK;
     }
 
     static std::array<std::array<uint16_t, NUM_SEGMENTS>, CELLS_PER_SEGMENT> voltage_regs{};
 
+    static bool     started_adc_conversion     = false;
+    static bool     started_overlap_test       = false;
+    static bool     started_self_test_voltages = false;
+    static uint16_t expected_self_test_value   = 0x0;
+
+    ExitCode io_ltc6813_startCellsAdcConversion(void)
+    {
+        started_adc_conversion = true;
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_ltc6813_overlapADCTest(void)
+    {
+        started_overlap_test = true;
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_ltc6813_sendSelfTestVoltages(void)
+    {
+        started_self_test_voltages = true;
+        return EXIT_CODE_OK;
+    }
     void io_ltc6813_readVoltageRegisters(
         uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
     {
-        memcpy(cell_voltage_regs, voltage_regs.data(), sizeof(uint16_t) * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        if (started_adc_conversion || started_overlap_test)
+        {
+            memcpy(cell_voltage_regs, voltage_regs.data(), sizeof(uint16_t) * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        }
+        else if (started_self_test_voltages)
+        {
+            // Fill with self-test values
+            for (int i = 0; i < NUM_SEGMENTS; i++)
+            {
+                for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+                {
+                    cell_voltage_regs[i][j] = expected_self_test_value; // Example self-test value
+                }
+            }
+        }
+        else
+        {
+            FAIL() << "Did not start ADC conversion, overlap test or self-test voltages";
+        }
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             for (int j = 0; j < CELLS_PER_SEGMENT; j++)
@@ -37,12 +80,9 @@ extern "C"
                 comm_success[i][j] = EXIT_CODE_OK;
             }
         }
+        started_adc_conversion = false;
     }
 
-    ExitCode io_ltc6813_startCellsAdcConversion(void)
-    {
-        return EXIT_CODE_OK;
-    }
     void io_ltc6813_readAuxRegisters(
         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
@@ -78,10 +118,6 @@ extern "C"
         UNUSED(pull_direction);
         return EXIT_CODE_OK;
     }
-    ExitCode io_ltc6813_sendSelfTestVoltages(void)
-    {
-        return EXIT_CODE_OK;
-    }
     ExitCode io_ltc6813_sendSelfTestAux(void)
     {
         return EXIT_CODE_OK;
@@ -91,10 +127,6 @@ extern "C"
         return EXIT_CODE_OK;
     }
     ExitCode io_ltc6813_diagnoseMUX(void)
-    {
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_ltc6813_overlapADCTest(void)
     {
         return EXIT_CODE_OK;
     }
@@ -324,7 +356,7 @@ namespace segments
         {
             for (int j = 0; j < CELLS_PER_SEGMENT; j++)
             {
-                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1000);
+                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4);
             }
         }
     }
@@ -341,6 +373,11 @@ namespace segments
             }
         }
         setCellVoltages(v);
+    }
+
+    void setExpectedVoltageSelfTestValue(const uint16_t value)
+    {
+        expected_self_test_value = value;
     }
 } // namespace segments
 } // namespace fakes
