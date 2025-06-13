@@ -35,6 +35,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     availableSignals,
     activeSignals,
     numericalData,
+    enumData,
     subscribeToSignal,
     unsubscribeFromSignal,
     isLoadingSignals,
@@ -64,7 +65,6 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   }, [activeSignals, isNumericalSignal, subscriptionVersion, isPaused]);
 
   const chartData = React.useMemo(() => {
-    const windowMs = 100;
     const filteredData = numericalData.filter(
       (d) =>
         thisGraphSignals.includes(d.name as string) &&
@@ -73,16 +73,20 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
 
     if (filteredData.length === 0) return [];
 
-    // Create time windows from all data points
-    const timeWindows = new Set<number>();
-    filteredData.forEach((d) => {
-      const t =
-        typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-      const r = Math.floor(t / windowMs) * windowMs;
-      timeWindows.add(r);
+    // Get all unique timestamps from active signals (no windowing)
+    const timestamps = new Set<number>();
+    
+    // Get data from all active signals to create shared time grid
+    const allActiveData = [...numericalData, ...enumData].filter(d => 
+      activeSignals.includes(d.name as string)
+    );
+    
+    allActiveData.forEach((d) => {
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      timestamps.add(t);
     });
 
-    const sortedTimes = Array.from(timeWindows).sort((a, b) => a - b);
+    const sortedTimes = Array.from(timestamps).sort((a, b) => a - b);
 
     // Track last known value for each signal to fill gaps
     const lastKnownValues: Record<string, number> = {};
@@ -91,14 +95,12 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     const dataBySignal: Record<string, Record<number, number>> = {};
     filteredData.forEach((d) => {
       const signalName = d.name as string;
-      const t =
-        typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-      const r = Math.floor(t / windowMs) * windowMs;
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
 
       if (!dataBySignal[signalName]) {
         dataBySignal[signalName] = {};
       }
-      dataBySignal[signalName][r] = d.value !== undefined ? Number(d.value) : 0;
+      dataBySignal[signalName][t] = d.value !== undefined ? Number(d.value) : 0;
     });
 
     // Build chart data with forward-filled values
@@ -123,7 +125,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
 
       return dataPoint;
     });
-  }, [numericalData, thisGraphSignals, isNumericalSignal]);
+  }, [numericalData, enumData, activeSignals, thisGraphSignals, isNumericalSignal]);
 
   const numericalSignals = thisGraphSignals;
 

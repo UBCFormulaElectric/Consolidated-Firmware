@@ -22,12 +22,17 @@ const stateColors = [
   "#FF2D55",
 ];
 
+// Special color for N/A state
+const NA_COLOR = "#E5E7EB"; // Light gray for N/A state
+
 const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   signalName,
   onDelete,
 }) => {
   const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
   const {
+    activeSignals,
+    numericalData,
     enumData,
     subscribeToSignal,
     unsubscribeFromSignal,
@@ -53,23 +58,26 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   }, [signalName]); // Removed function dependencies to prevent infinite loops
 
   const chartData = useMemo(() => {
-    const windowMs = 100; // Same as numerical component
     const filteredData = enumData.filter(
       (d) => d.name === signalName && d.value != null
     );
 
     if (filteredData.length === 0) return [];
 
-    // Create time windows from all data points (similar to numerical)
-    const timeWindows = new Set<number>();
-    filteredData.forEach((d) => {
-      const t =
-        typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-      const r = Math.floor(t / windowMs) * windowMs;
-      timeWindows.add(r);
+    // Get all unique timestamps from active signals (no windowing)
+    const timestamps = new Set<number>();
+    
+    // Get data from all active signals to create shared time grid
+    const allActiveData = [...numericalData, ...enumData].filter(d => 
+      activeSignals.includes(d.name as string)
+    );
+    
+    allActiveData.forEach((d) => {
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      timestamps.add(t);
     });
 
-    const sortedTimes = Array.from(timeWindows).sort((a, b) => a - b);
+    const sortedTimes = Array.from(timestamps).sort((a, b) => a - b);
 
     // Track last known state to fill gaps (similar to numerical's forward-fill)
     let lastKnownState: string | undefined;
@@ -77,28 +85,26 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     // Group data by time for efficient lookup
     const dataByTime: Record<number, string> = {};
     filteredData.forEach((d) => {
-      const t =
-        typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-      const r = Math.floor(t / windowMs) * windowMs;
-      dataByTime[r] = String(d.value);
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      dataByTime[t] = String(d.value);
     });
 
-    // Build chart data with forward-filled states
+    // Build chart data with forward-filled states and N/A handling
     return sortedTimes
       .map((time) => {
         if (dataByTime[time] !== undefined) {
-          // We have data for this time point
+          // We have actual data for this time point
           lastKnownState = dataByTime[time];
           return { time, state: lastKnownState };
         } else if (lastKnownState !== undefined) {
-          // No data for this time point, use last known state
+          // No data for this time point, use last known state (forward-fill)
           return { time, state: lastKnownState };
+        } else {
+          // No data has arrived yet for this signal - show N/A state
+          return { time, state: "N/A" };
         }
-        // If no last known state exists, don't include this time point
-        return null;
-      })
-      .filter(Boolean) as { time: number; state: string }[];
-  }, [enumData, signalName]);
+      }) as { time: number; state: string }[];
+  }, [enumData, numericalData, activeSignals, signalName]);
 
   const pixelPerPoint = 50; // Same as numerical component
   const width =
@@ -171,6 +177,15 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
         </div>
 
         <div className="flex flex-wrap gap-4 text-xs mb-4">
+          {/* Add N/A state to legend */}
+          <div className="inline-flex items-center gap-1">
+            <span
+              className="w-3 h-3 block rounded"
+              style={{ backgroundColor: NA_COLOR }}
+            />
+            <span className="text-gray-500">N/A (No Data)</span>
+          </div>
+          
           {enumVals.map((label, i) => {
             const color = stateColors[i % stateColors.length];
             const active = label === lastLabel;
@@ -207,18 +222,28 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
           <div className="h-6 flex flex-row flex-nowrap">
             {bars.map((bar, idx) => {
               const label = mapEnumValue(signalName, bar.state) ?? bar.state;
-              const iColor =
-                stateColors[
-                  Math.max(enumVals.indexOf(label), 0) % stateColors.length
-                ];
+              
+              // Use special N/A color for N/A state, otherwise use normal color mapping
+              const iColor = bar.state === "N/A" 
+                ? NA_COLOR
+                : stateColors[
+                    Math.max(enumVals.indexOf(label), 0) % stateColors.length
+                  ];
+              
+              // Calculate end time for the current bar
+              const endTime = idx < bars.length - 1 
+                ? bars[idx + 1].startTime 
+                : bar.startTime + 100; // Default duration for last bar
+              
+              const startTimeStr = new Date(bar.startTime).toLocaleTimeString();
+              const endTimeStr = new Date(endTime).toLocaleTimeString();
+              
               return (
                 <div
                   key={idx}
                   className="h-6 shrink-0"
                   style={{ width: `${bar.width}px`, backgroundColor: iColor }}
-                  title={`${label} @ ${new Date(
-                    bar.startTime
-                  ).toLocaleTimeString()}`}
+                  title={`${label} from ${startTimeStr} to ${endTimeStr}`}
                 />
               );
             })}
