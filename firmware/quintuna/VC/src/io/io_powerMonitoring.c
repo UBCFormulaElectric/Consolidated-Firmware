@@ -55,6 +55,13 @@ static bool write_register(uint8_t reg, const uint8_t *data, uint16_t len)
     return (hw_i2c_memoryWrite(&pwr_mtr, reg, buf, len + 1) == EXIT_CODE_OK);
 }
 
+void io_powerMonitoring_refresh(void)
+{
+    uint8_t cmd = 0x00;
+    hw_i2c_transmit(&pwr_mtr, &cmd, 1);
+    osDelay(1);
+}
+
 bool io_powerMonitoring_init(void)
 {
     // 1) Check if peripheral is ready

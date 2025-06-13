@@ -45,9 +45,6 @@ void tasks_init(void)
     hw_can_init(&can2);
     hw_can_init(&can3);
 
-    // For testing.
-    hw_gpio_writePin(&bat_chrg_nshdn, false);
-
     jobs_init();
 
     app_canTx_VC_ResetReason_set((CanResetReason)hw_resetReason_get());

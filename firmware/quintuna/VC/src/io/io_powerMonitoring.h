@@ -10,6 +10,11 @@
 bool io_powerMonitoring_init(void);
 
 /**
+ * @brief Refresh the chip to get updated values, with a 1ms delay.
+ */
+void io_powerMonitoring_refresh(void);
+
+/**
  * @brief Read bus voltage on channel ch (1 or 2).
  *
  * @param ch channel to read

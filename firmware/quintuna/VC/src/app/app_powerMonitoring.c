@@ -1,9 +1,6 @@
 #include "app_powerMonitoring.h"
 #include "io_powerMonitoring.h"
 #include "app_canTx.h"
-#include <cmsis_os2.h>
-#include "hw_i2c.h"
-#include "hw_i2cs.h"
 
 #define CH1 1u
 #define CH2 2u
@@ -18,17 +15,12 @@ void app_powerMonitoring_update(void)
     }
     else
     {
-        float    ch1_voltage = 0.0f;
-        float    ch1_current = 0.0f;
-        float    ch1_power   = 0.0f;
-        float    ch2_voltage = 0.0f;
-        float    ch2_current = 0.0f;
-        float    ch2_power   = 0.0f;
-        uint32_t status      = 0u;
-
-        uint8_t cmd = 0x00;
-        hw_i2c_transmit(&pwr_mtr, &cmd, 1);
-        osDelay(1);
+        float ch1_voltage = 0.0f;
+        float ch1_current = 0.0f;
+        float ch1_power   = 0.0f;
+        float ch2_voltage = 0.0f;
+        float ch2_current = 0.0f;
+        float ch2_power   = 0.0f;
 
         io_powerMonitoring_read_voltage(CH1, &ch1_voltage);
         io_powerMonitoring_read_voltage(CH2, &ch2_voltage);
