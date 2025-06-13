@@ -5,7 +5,7 @@
 #include "app_activeDifferential.h"
 #include "app_tractionControl.h"
 #include "app_yawRateController.h"
-// #include "app_sbgEllipse.h"
+#include "app_sbgEllipse.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_utils.h"
@@ -71,36 +71,33 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
     {
         app_torqueVectoring_handleAcceleration();
     }
-    else
-    {
-        app_torqueBroadCast();
-    }
 }
 // Read data from CAN
 void app_torqueVectoring_handleAcceleration(void)
 {
-    // imu load transfer calc
-    torqueAllocation.load_transfer_const = app_loadTransferConstant(imu_output->long_accel);
-
     // Power Limiting
     // Power limit correction
     float power_limit = app_powerLimiting_computeMaxPower(RULES_BASED_POWER_LIMIT_KW); // -- HARD CODED FIX LATER
+    float total_yaw_moment               = 0.0f;
+    float load_transfer_const            = 1.0f;
 
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
     yaw_rate_controller.vehicle_velocity_mps = KMH_TO_MPS(app_sbgEllipse_getVehicleVelocity());
     yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(imu_output->yaw_rate);
     app_yawRateController_run(&yaw_rate_controller);
+    float desired_tot_yaw_moment               = app_yawRateController_getYawMoment();
 
     app_canTx_VC_ReferenceYawRate_set(RAD_TO_DEG(app_yawRateController_getRefYawRateRad()));
     app_canTx_VC_CorrectionYawRate_set(app_yawRateController_getYawMoment());
 
+    // imu load transfer calc
+    torqueAllocation.load_transfer_const = app_loadTransferConstant(imu_output->long_accel);
 
     float desired_tot_yaw_moment               = app_yawRateController_getYawMoment();
     torqueAllocation.total_torque_request  = accelerator_pedal_percent * (MAX_TORQUE_REQUEST_NM * 4);
-    torqueAllocation.rear_yaw_moment         = desired_tot_yaw_moment / (1 + torqueAllocation.load_transfer_const);
-    torqueAllocation.front_yaw_moment        = desired_tot_yaw_moment - torqueAllocation.rear_yaw_moment;
+    torqueAllocation.rear_yaw_moment         = total_yaw_moment / (1 + torqueAllocation.load_transfer_const);
+    torqueAllocation.front_yaw_moment        = total_yaw_moment - torqueAllocation.rear_yaw_moment;
     app_torqueAllocation(&torqueAllocation);
     app_torqueBroadCast();
-
 }

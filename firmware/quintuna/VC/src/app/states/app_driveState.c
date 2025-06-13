@@ -37,6 +37,8 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
+static SensorChecks sensor_checks;
+
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage);
 static bool driveStatePassPreCheck();
 static void app_regularDrive_run(float apps_pedal_percentage);
@@ -157,6 +159,8 @@ static bool driveStatePassPreCheck()
 
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
 {
+    app_performSensorChecks();
+
     // TODO: bring back when software BSPD is done
     //  if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
     //  {
@@ -166,18 +170,18 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     //      app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
     //      app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
     //  }
-    //  if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
-    //  {
-    //      app_regen_run(apps_pedal_percentage);
-    //  }
-    //  else if (torque_vectoring_switch_is_on)
-    //  {
-    //      app_torqueVectoring_run(apps_pedal_percentage);
-    //  }
-    //  else
-    //  {
-    app_regularDrive_run(apps_pedal_percentage);
-    // }
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    {
+        app_regen_run(apps_pedal_percentage);
+    }
+    else if (torque_vectoring_switch_is_on && sensor_checks.useTV)
+    {
+        app_torqueVectoring_run(apps_pedal_percentage);
+    }
+    else
+    {
+        app_regularDrive_run(apps_pedal_percentage);
+    }
 
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 }
@@ -186,6 +190,7 @@ static void app_regularDrive_run(float apps_pedal_percentage)
 {
     // TODO: Use power limiting in regular drive
     // TODO: Implement active diff  in regular drive at min
+    // TODO: Use sensor checks here to disable things accordingly (active diff, load trans)
     // const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
     // const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
     // const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
@@ -218,6 +223,15 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     app_canTx_VC_INVRRTorqueSetpoint_set(torque_request);
     app_canTx_VC_INVFLTorqueSetpoint_set(torque_request);
     app_canTx_VC_INVRLTorqueSetpoint_set(torque_request);
+}
+
+static void app_performSensorChecks(void)
+{
+    sensor_checks.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get();
+    sensor_checks.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
+    sensor_checks.steeringOk =
+        !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
+    sensor_checks.useTV = sensor_checks.gpsOk && sensor_checks.imuOk && sensor_checks.steeringOk;
 }
 
 State drive_state = {

@@ -36,6 +36,8 @@ static void can3_tx(const JsonCanMsg *tx_msg)
 
 void jobs_init()
 {
+    ExitCode exit;
+
     app_canTx_init();
     app_canRx_init();
 
@@ -49,7 +51,13 @@ void jobs_init()
     io_canQueue_initTx(&can2_tx_queue);
     io_canQueue_initTx(&can3_tx_queue);
 
-    ASSERT_EXIT_OK(io_sbgEllipse_init());
+    exit = io_sbgEllipse_init();
+    app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exit));
+    ASSERT_EXIT_OK(exit);
+
+    exit = io_imu_init();
+    app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exit));
+    ASSERT_EXIT_OK(exit);
 
     app_stateMachine_init(&init_state);
 
