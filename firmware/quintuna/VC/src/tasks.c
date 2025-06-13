@@ -48,7 +48,7 @@ void tasks_init(void)
 
     hw_gpio_writePin(&f_pump_en, true);
     hw_gpio_writePin(&rr_pump_en, true);
-    // hw_gpio_writePin(&rl_pump_en, true);
+    hw_gpio_writePin(&rl_pump_en, true);
     hw_gpio_writePin(&rsm_en, true);
     hw_gpio_writePin(&front_en, true);
     hw_gpio_writePin(&bms_en, true);
