@@ -25,9 +25,3 @@ bool app_faultHandling_fsm_bms_HeartbeartChecks(void)
 {
     return app_canAlerts_BoardHasFault(VC_NODE);
 }
-
-void app_faultCheck_softwareBspdInit(void)
-{
-    app_signal_init(
-        &apps_brake_disagreement_signal, APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT, APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR);
-}
