@@ -40,7 +40,7 @@ static float time_step;
  * ================================
  * Linear Algebra Functions
  * ================================
- * 
+ *
  * Should these be inlined or will that increase mem size too much?
  */
 
@@ -54,7 +54,7 @@ static float time_step;
 /*
  * Matrix Addition: result = A + B
  */
-static bool add(Matrix *result, const Matrix *A, const Matrix *B)
+static inline bool add(Matrix *result, const Matrix *A, const Matrix *B)
 {
     if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
         return false;
@@ -70,7 +70,7 @@ static bool add(Matrix *result, const Matrix *A, const Matrix *B)
 /*
  * Matrix Subtraction: result = A - B
  */
-static bool sub(Matrix *result, const Matrix *A, const Matrix *B)
+static inline bool sub(Matrix *result, const Matrix *A, const Matrix *B)
 {
     if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
         return false;
@@ -86,7 +86,7 @@ static bool sub(Matrix *result, const Matrix *A, const Matrix *B)
 /*
  * Matrix Multiplication: result = A * B
  */
-static bool mult(Matrix *result, const Matrix *A, const Matrix *B)
+static inline bool mult(Matrix *result, const Matrix *A, const Matrix *B)
 {
     if (A->cols != B->rows || result->rows != A->rows || result->cols != B->cols)
     {
@@ -115,7 +115,7 @@ static bool mult(Matrix *result, const Matrix *A, const Matrix *B)
 /*
  * Matrix Transpose: result = input^T
  */
-static bool transpose(Matrix *result, const Matrix *input)
+static inline bool transpose(Matrix *result, const Matrix *input)
 {
     if (result->rows != input->cols || result->cols != input->rows)
     {
@@ -136,7 +136,7 @@ static bool transpose(Matrix *result, const Matrix *input)
 /*
  * 2x2 Matrix Inversion: result = X^-1
  */
-static bool inverse2x2(Matrix *result, const Matrix *X)
+static inline bool inverse2x2(Matrix *result, const Matrix *X)
 {
     if (X->rows != 2 || X->cols != 2 || result->rows != 2 || result->cols != 2)
     {
@@ -324,17 +324,17 @@ void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
 
     predict(&state_estimate, &control_input);
 
-    #if(TOGGLE_WHEEL_SPD == 1)
+#if (TOGGLE_WHEEL_SPD == 1)
     // use wheelspeed measurement if they are not slipping
     if (inputs->rpm_derivative_ok)
         update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
-    #endif
+#endif
 
-    #if(TOGGLE_GPS == 1)
+#if (TOGGLE_GPS == 1)
     // use gps measurement if sbg is in the correct mode (solution mode 4)
     if (inputs->ekf_solution_4_valid)
         update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
-    #endif
+#endif
 }
 
 float *app_velocityEstimator_getVelocity()
