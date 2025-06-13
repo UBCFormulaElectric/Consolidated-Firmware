@@ -40,11 +40,11 @@ static void initStateRunOnEntry(void)
 }
 static void initStateRunOnTick100Hz(void)
 {
-    // const ContactorState air_minus_closed = app_canRx_BMS_IrNegative_get();
-    // if (air_minus_closed == CONTACTOR_STATE_CLOSED)
-    // {
-    app_stateMachine_setNextState(&inverterOn_state);
-    // }
+    const ContactorState air_minus_closed = app_canRx_BMS_IrNegative_get();
+    if (air_minus_closed == CONTACTOR_STATE_CLOSED)
+    {
+        app_stateMachine_setNextState(&inverterOn_state);
+    }
 }
 static void initStateRunOnExit(void) {}
 

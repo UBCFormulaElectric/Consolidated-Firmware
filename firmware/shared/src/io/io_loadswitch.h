@@ -7,6 +7,8 @@
 #include "hw_gpios.h"
 #include "hw_adcs.h"
 
+#define ADC_VOLTAGE_TO_CURRENT_A 1.720f
+
 typedef struct
 {
     const Gpio       *enable_gpio;
