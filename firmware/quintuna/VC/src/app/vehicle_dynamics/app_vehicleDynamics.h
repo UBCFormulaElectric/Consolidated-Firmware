@@ -1,6 +1,7 @@
 #pragma once
 #include "app_pid.h"
 #include <stdbool.h>
+#include "app_canRx.h"
 
 typedef struct RegenBraking_Inputs
 {
@@ -81,3 +82,11 @@ typedef struct TorqueAllocationOutputs
     float rear_left_torque;
     float rear_right_torque;
 } TorqueAllocationOutputs;
+
+typedef struct
+{
+    bool imuOk;
+    bool steeringOk;
+    bool gpsOk;
+    bool useTV;
+} SensorChecks;

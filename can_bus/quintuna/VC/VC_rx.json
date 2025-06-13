@@ -25,6 +25,7 @@
     "FSM_Brake",
     "FSM_Apps",
     "FSM_Steering",
-    "CRIT_Switches"
+    "CRIT_Switches",
+    "CRIT_DriveMode"
   ]
 }

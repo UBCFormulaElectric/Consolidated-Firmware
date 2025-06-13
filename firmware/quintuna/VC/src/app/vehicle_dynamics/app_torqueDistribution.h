@@ -28,3 +28,6 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs);
 void app_reset_torqueToMotors(void);
 
 void app_torqueBroadCast();
+
+TorqueAllocationOutputs* app_get_torqueToMotors()
+

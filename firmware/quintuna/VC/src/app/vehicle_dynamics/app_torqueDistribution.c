@@ -114,3 +114,8 @@ void app_torqueBroadCast()
     app_canTx_VC_INVRLTorqueSetpoint_set(PEDAL_REMAPPING(torqueToMotors.rear_left_torque));
     app_canTx_VC_INVRRTorqueSetpoint_set(PEDAL_REMAPPING(torqueToMotors.rear_right_torque));
 }
+
+TorqueAllocationOutputs* app_get_torqueToMotors()
+{
+    return &torqueToMotors;
+}

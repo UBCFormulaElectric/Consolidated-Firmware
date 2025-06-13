@@ -14,14 +14,18 @@
 #include "app_powerManager.h"
 #include "app_warningHanding.h"
 #include "app_canAlerts.h"
+#include "app_vehicleDynamics.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define BUZZER_ON_DURATION_MS 2000
 #define INV_OFF 0
 
-static bool         torque_vectoring_switch_is_on;
+static bool         launch_control_switch_is_on; 
+static bool         launch_control_switch_is_on;
 static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
+static SensorChecks sensor_checks;
+
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -37,7 +41,6 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-static SensorChecks sensor_checks;
 
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage);
 static bool driveStatePassPreCheck();
@@ -68,17 +71,6 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
     app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
 
-    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
-    {
-        // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN
-        torque_vectoring_switch_is_on = true;
-    }
-
-    if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
-    {
-        // app_regen_init(); -- COMMENTED OUT TO SPIN
-        regen_switch_is_on = true;
-    }
 }
 
 static void driveStateRunOnTick100Hz(void)
@@ -117,8 +109,8 @@ static bool driveStatePassPreCheck()
     bool prev_regen_switch_val = regen_switch_is_on;
     regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
 
-    bool prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
-    regen_switch_is_on = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON && prev_torque_vectoring_switch_val;
+    bool prev_launch_control_switch_is_on = launch_control_switch_is_on;
+    launch_control_switch_is_on = app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON && prev_launch_control_switch_is_on;
 
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
         or not before using closed loop features */
@@ -149,7 +141,7 @@ static bool driveStatePassPreCheck()
         app_canTx_VC_Info_RegenNotAvailable_set(true);
     }
 
-    if (!torque_vectoring_switch_is_on)
+    if (!launch_control_switch_is_on)
     {
         app_canTx_VC_TorqueVectoringEnabled_set(true);
     }
@@ -170,19 +162,15 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     //      app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
     //      app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
     //  }
-    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
-    {
-        app_regen_run(apps_pedal_percentage);
-    }
-    else if (torque_vectoring_switch_is_on && sensor_checks.useTV)
-    {
-        app_torqueVectoring_run(apps_pedal_percentage);
-    }
-    else
+
+    if ( SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
     {
         app_regularDrive_run(apps_pedal_percentage);
     }
+    else 
+    {
 
+    }
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 }
 
@@ -192,27 +180,7 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // TODO: Implement active diff  in regular drive at min
     // TODO: Use sensor checks here to disable things accordingly (active diff, load trans)
     // TODO: set Load Transfer Const = 1 and set Desired Yaw Moment = 0
-    // const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
-    // const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
-    // const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
-    // const float left_front_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
-    // const float left_back_motor_speed_rpm   = (float)app_canRx_INVL_MotorSpeed_get();
-    // float       bms_torque_limit            = MAX_TORQUE_REQUEST_NM;
-
-    // if ((right_front_motor_speed_rpm + right_back_motor_speed_rpm + left_front_motor_speed_rpm +
-    //      left_back_motor_speed_rpm) > 0.0f)
-    // {
-    //     // Estimate the maximum torque request to draw the maximum power available from the BMS
-    //     const float available_output_power_w = bms_available_power * EFFICIENCY_ESTIMATE;
-    //     const float combined_motor_speed_rads =
-    //         RPM_TO_RADS(right_front_motor_speed_rpm) + RPM_TO_RADS(right_back_motor_speed_rpm) +
-    //         RPM_TO_RADS(left_front_motor_speed_rpm) + RPM_TO_RADS(left_back_motor_speed_rpm);
-    //     bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
-    // }
-
-    // Calculate the maximum torque request, according to the BMS available power
-    // const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
-
+    
     const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), 1);
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
@@ -224,6 +192,39 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     app_canTx_VC_INVRRTorqueSetpoint_set(torque_request);
     app_canTx_VC_INVFLTorqueSetpoint_set(torque_request);
     app_canTx_VC_INVRLTorqueSetpoint_set(torque_request);
+}
+
+static void app_driveSwitchInit(void)
+{
+
+    if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
+    {
+        // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN
+        launch_control_switch_is_on = true;
+    }
+
+    if(SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
+    {
+        // app_regen_init(); -- COMMENTED OUT TO SPIN
+        regen_switch_is_on = true;
+    }
+}
+
+static app_driveMode_driving(void)
+{
+    DriveMode driveMode = app_canRx_CRIT_DriveMode_get();
+}
+
+static void app_non_vanilla_driving(float apps_pedal_percentage, float sapps_pedal_percentage)
+{
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    {
+        app_regen_run(apps_pedal_percentage);
+    }
+    else
+    {
+        // as of now no launch control is being implemented thus if the regen switch is not on then we stick to our drive modes
+    }
 }
 
 static void app_performSensorChecks(void)
