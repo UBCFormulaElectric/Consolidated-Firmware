@@ -69,9 +69,9 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    bool air_minus_closed = app_canRx_BMS_IrNegative_get();
+    bool air_minus_open = !app_canRx_BMS_IrNegative_get();
 
-    if (air_minus_closed)
+    if (air_minus_open)
     {
         app_stateMachine_setNextState(&init_state);
     }
@@ -79,6 +79,7 @@ void jobs_run100Hz_tick(void)
     {
         app_stateMachine_tick100Hz();
     }
+
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
     app_sbgEllipse_broadcast();

@@ -11,6 +11,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "app_warningHanding.h"
+#include "app_vehicleDynamicsConstants.h"
+
+#define NO_TORQUE 0.0
 
 typedef enum
 {
@@ -79,6 +82,15 @@ static void hvInitStateRunOnTick100Hz(void)
             switch (timeout_state)
             {
                 case TIMER_STATE_IDLE:
+                    app_canTx_VC_INVFLTorqueLimitPositive_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVFRTorqueLimitPositive_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVRLTorqueLimitPositive_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVRRTorqueLimitPositive_set((int32_t)NO_TORQUE);
+
+                    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)NO_TORQUE);
+                    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)NO_TORQUE);
                     current_inverter_state = INV_ENABLE;
                     break;
                 case TIMER_STATE_EXPIRED:
@@ -137,10 +149,10 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         }
         case INV_READY_FOR_DRIVE:
-            if (app_canAlerts_VC_Warning_InverterRetry_get())
+            if (app_canAlerts_VC_Info_InverterRetry_get())
             {
                 app_warningHandling_inverterStatus();
-                app_canAlerts_VC_Warning_InverterRetry_set(false);
+                app_canAlerts_VC_Info_InverterRetry_set(false);
                 app_stateMachine_setNextState(&drive_state);
             }
             else
@@ -154,7 +166,7 @@ static void hvInitStateRunOnExit(void)
 {
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
-    app_canAlerts_VC_Warning_InverterRetry_set(false);
+    app_canAlerts_VC_Info_InverterRetry_set(false);
 }
 
 State hvInit_state = { .name              = "HV INIT",

@@ -107,8 +107,7 @@
         "max": 100,
         "resolution": 0.1
       },
-      "RearYawMoment":
-      {
+      "RearYawMoment": {
         "min": -100,
         "max": 100,
         "resolution": 0.1
@@ -140,20 +139,6 @@
       },
       "RxOverflowCount": {
         "bits": 16
-      }
-    }
-  },
-
-  "DAMTsimBuzzerControl": {
-    "msg_id": 513,
-    "cycle_time": 100,
-    "description": "",
-    "signals": {
-      "TsimControl": {
-        "bits": 1
-      },
-      "BuzzerControl": {
-        "enum": "TsimColor"
       }
     }
   },

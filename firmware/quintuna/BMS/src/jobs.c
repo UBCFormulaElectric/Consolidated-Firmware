@@ -14,6 +14,7 @@
 #include "io_canRx.h"
 // app
 #include "app_commitInfo.h"
+#include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "app_stateMachine.h"
 // io
@@ -47,13 +48,15 @@ void jobs_init()
     io_canQueue_initTx(&can_tx_queue);
 
     app_precharge_init();
-    app_heartbeatMonitor_init(&hb_monitor);
+    // app_heartbeatMonitor_init(&hb_monitor);
 
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
     app_segments_initFaults();
+
+    app_allStates_init();
     app_stateMachine_init(app_initState_get());
 }
 

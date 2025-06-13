@@ -1,12 +1,7 @@
 {
   "faults_id": 502,
   "faults_counts_id": 504,
-  "faults": {
-    "MissingBMSHeartbeat": {
-      "id": 551,
-      "description": "Missing heartbeat signal from the BMS."
-    }
-  },
+  "faults": {},
   "warnings_id": 501,
   "warnings_counts_id": 503,
   "warnings": {
@@ -22,25 +17,8 @@
       "id": 564,
       "description": "Brakes and apps are active at same time."
     },
-    "MissingCRITHeartbeat": {
-      "id": 554,
-      "description": "Missing heartbeat signal from the CRIT."
-    },
-    "MissingFSMHeartbeat": {
-      "id": 552,
-      "description": "Missing heartbeat signal from the FSM."
-    },
-    "MissingRSMHeartbeat": {
-      "id": 553,
-      "description": "Missing heartbeat signal from the RSM."
-    },
-    "InverterRetry": {
-      "id": 553,
-      "description": "Inverter fault occured in drive state"
-    },
     "FrontLeftInverterFault": {
       "id": 555,
-
       "description": "Left inverter entered fault state."
     },
     "FrontRightInverterFault": {
@@ -59,6 +37,14 @@
   "info_id": 505,
   "info_counts_id": 506,
   "info": {
+    "InverterRetry": {
+      "id": 553,
+      "description": "Inverter fault occured in drive state"
+    },
+    "StackOverflow": {
+      "id": 510,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
     "LvChargeFault": {
       "id": 559,
       "description": "LV battery charger has faulted."
@@ -79,26 +65,6 @@
       "id": 557,
       "description": "LV rail from the 18650 batteries was overcurrent."
     },
-    "StackWaterMarkHighTask1Hz": {
-      "id": 501,
-      "description": "1Hz task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTask100Hz": {
-      "id": 502,
-      "description": "100Hz task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTask1kHz": {
-      "id": 503,
-      "description": "1kHz task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTaskCanRx": {
-      "id": 504,
-      "description": "CAN RX task stack watermark exceeded."
-    },
-    "StackWaterMarkHighTaskCanTx": {
-      "id": 505,
-      "description": "CAN TX task stack watermark exceeded."
-    },
     "WatchdogTimeout": {
       "id": 506,
       "description": "Watchdog timeout detected."
@@ -115,26 +81,13 @@
       "id": 509,
       "description": "Regen is not currently available."
     },
-    "HighNumberOfCanDataLogs": {
-      "id": 561,
-      "description": "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem."
-    },
-    "CanLoggingSdCardNotPresent": {
-      "id": 562,
-      "description": "CAN logging SD card is not detected."
-    },
-    "CanLoggingErrored": {
-      "id": 563,
-      "description": "CAN logging received multiple errors and has been disabled."
-    },
     "SbgInitFailed": {
       "id": 565,
       "description": "Initializing the SBG Ellipse GPS failed"
     },
-    "PcmUnderVoltage": {  
+    "PcmUnderVoltage": {
       "id": 566,
       "description": "PCM voltage under 18 volts"
     }
-  }  
+  }
 }
-

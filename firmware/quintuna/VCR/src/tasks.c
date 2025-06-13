@@ -11,7 +11,6 @@
 #include "main.h"
 #include "io_canQueues.h"
 #include <cmsis_os2.h>
-#include <io_canTx.h>
 #include <io_canReroute.h>
 #include <io_canRx.h>
 #include <io_canTx.h>
@@ -44,22 +43,24 @@ void tasks_init()
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("VCR reset!");
     jobs_init();
     hw_can_init(&fd_can);
     hw_can_init(&sx_can);
     hw_can_init(&inv_can);
     __HAL_DBGMCU_FREEZE_IWDG1();
 }
-_Noreturn void tasks_run10Hz(void)
+
+_Noreturn void tasks_run1Hz(void)
 {
-    static const TickType_t period_ms = 100;
+    static const TickType_t period_ms = 1000;
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
     for (;;)
     {
+        // TODO: Other frequency enqueueing.
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -101,6 +102,7 @@ _Noreturn void tasks_runcanRx(void)
 {
     for (;;)
     {
+        // Doesnt' receive anything via JSONCAN
         osDelay(osWaitForever);
     }
 }
