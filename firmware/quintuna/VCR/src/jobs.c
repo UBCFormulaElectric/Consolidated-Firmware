@@ -1,6 +1,5 @@
 #include "jobs.h"
 #include "app_utils.h"
-#include "hw_utils.h"
 #include "io_canMsg.h"
 #include "io_canQueue.h"
 #include "io_canQueues.h"

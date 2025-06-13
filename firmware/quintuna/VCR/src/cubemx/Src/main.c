@@ -367,7 +367,6 @@ static void MX_FDCAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN1_Init 2 */
-    hfdcan1.Instance->RXF0C &= ~FDCAN_RXF0C_F0OM;
 
     /* USER CODE END FDCAN1_Init 2 */
 }
@@ -419,7 +418,6 @@ static void MX_FDCAN2_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN2_Init 2 */
-    hfdcan2.Instance->RXF0C &= ~FDCAN_RXF0C_F0OM;
 
     /* USER CODE END FDCAN2_Init 2 */
 }
@@ -471,7 +469,7 @@ static void MX_FDCAN3_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN FDCAN3_Init 2 */
-    hfdcan3.Instance->RXF0C &= ~FDCAN_RXF0C_F0OM;
+
     /* USER CODE END FDCAN3_Init 2 */
 }
 

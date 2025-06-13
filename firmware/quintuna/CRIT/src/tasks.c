@@ -94,8 +94,8 @@ void tasks_run1Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        // if (!hw_chimera_v2_enabled)
-        jobs_run1Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1Hz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -109,8 +109,8 @@ void tasks_run100Hz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        // if (!hw_chimera_v2_enabled)
-        jobs_run100Hz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run100Hz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -124,8 +124,8 @@ void tasks_run1kHz()
     uint32_t                start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        // if (!hw_chimera_v2_enabled)
-        jobs_run1kHz_tick();
+        if (!hw_chimera_v2_enabled)
+            jobs_run1kHz_tick();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
