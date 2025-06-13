@@ -5,6 +5,7 @@
 #include "io_irs.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include "io_log.h"
 
 #include <assert.h>
 
@@ -21,27 +22,21 @@
 // (uint32_t)(PRECHARGE_COMPLETION_MS * 5.0f) #define PRECHARGE_COMPLETION_LOWERBOUND_MS
 // (uint32_t)(PRECHARGE_COMPLETION_MS * 0.5f)
 
-static TimerChannel cooldown_timer;
-#define PRECHARGE_COOLDOWN_TIME (1000U) // 1 second cooldown after precharge failure
-
 static void app_prechargeChargeStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);
     io_irs_setPrecharge(IRS_CLOSED);
 
     app_precharge_restart();
-    app_timer_init(&cooldown_timer, PRECHARGE_COOLDOWN_TIME);
 }
 
 static void app_prechargeChargeStateRunOnTick100Hz(void)
 {
-    if (app_timer_updateAndGetState(&cooldown_timer) == TIMER_STATE_RUNNING)
-    {
-        return;
-    }
-
     switch (app_precharge_poll(false))
     {
+        case PRECHARGE_STATE_RUNNING:
+        case PRECHARGE_STATE_COOLDOWN:
+            break;
         case PRECHARGE_STATE_FAILED_CRITICAL: // precharge failed multiple times
             // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
             // unintentionally re-enter charge state.
@@ -49,7 +44,7 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
             app_stateMachine_setNextState(&precharge_latch_state);
             break;
         case PRECHARGE_STATE_FAILED:
-            app_timer_restart(&cooldown_timer);
+            LOG_ERROR("precharge failed, retrying");
             break;
         case PRECHARGE_STATE_SUCCESS:
             app_stateMachine_setNextState(&charge_init_state);

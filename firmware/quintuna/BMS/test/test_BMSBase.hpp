@@ -20,10 +20,19 @@ class BMSBaseTest : public EcuTestBase
 
         fakes::segments::setPackVoltageEvenly(600.0f);
 
+        fake_io_time_getCurrentMs_reset();
+
         jobs_init();
     }
     void board_teardown() override {}
-    void tick_100hz() override { jobs_run100Hz_tick(); }
+    void tick_100hz() override
+    {
+        jobs_runLTCTemperatures();
+        jobs_runLTCVoltages();
+        jobs_runLTCDiagnostics();
+
+        jobs_run100Hz_tick();
+    }
     void tick_1hz() override { jobs_run1Hz_tick(); }
 
   public:

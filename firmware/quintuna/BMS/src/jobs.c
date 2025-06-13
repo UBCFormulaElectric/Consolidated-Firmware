@@ -126,10 +126,6 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
     app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
-    app_canAlerts_BMS_Fault_AMSFault_set(ams_fault);
-    app_canAlerts_BMS_Fault_IMDFault_set(false);  // TODO
-    app_canAlerts_BMS_Fault_BSPDFault_set(false); // TODO
-
     app_stateMachine_tick100Hz();
 
     if (io_irs_negativeState() == IRS_OPEN)

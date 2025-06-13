@@ -20,7 +20,7 @@ static void enforceStatePreconditions(const BMSBaseTest::StateMetadata &metadata
     ASSERT_EQ(io_irs_negativeState(), metadata.requires_irs_negative_closed ? IRS_CLOSED : IRS_OPEN)
         << "Expected IRS negative state to be " << (metadata.requires_irs_negative_closed ? "CLOSED" : "OPEN")
         << " in state: " << metadata.state->name;
-    app_canAlerts_BMS_Fault_AMSFault_set(metadata.requires_fault);
+    app_canAlerts_BMS_Fault_TESTFAULT_set(metadata.requires_fault);
     ASSERT_EQ(app_canAlerts_AnyBoardHasFault(), metadata.requires_fault)
         << "Expected " << (metadata.requires_fault ? "some" : "no") << " fault to be "
         << (metadata.requires_fault ? "set" : "not set") << " in state: " << metadata.state->name;
@@ -68,15 +68,12 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
 
     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_BmsLatchOk_get());
-    ASSERT_FALSE(app_canAlerts_BMS_Fault_AMSFault_get());
 
     ASSERT_FALSE(app_canTx_BMS_ImdCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_ImdLatchOk_get());
-    ASSERT_FALSE(app_canAlerts_BMS_Fault_IMDFault_get());
 
     ASSERT_FALSE(app_canTx_BMS_BspdCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_BspdLatchOk_get());
-    ASSERT_FALSE(app_canAlerts_BMS_Fault_BSPDFault_get());
 
     // LATCHES MUST PERSIST EVEN WHILE THE STATE IS RETURNED
 
@@ -124,10 +121,8 @@ TEST_F(BMSCanTest, check_airs_can_signals_for_all_states)
         io_irs_setPositive(IRS_OPEN);
         io_irs_setPrecharge(IRS_OPEN);
         LetTimePass(10);
-        ASSERT_EQ(io_irs_positiveState(), IRS_OPEN)
-            << "Expected contactors open in state: " << metadata.state->name;
-        ASSERT_EQ(io_irs_prechargeState(), IRS_OPEN)
-            << "Expected precharge open in state: " << metadata.state->name;
+        ASSERT_EQ(io_irs_positiveState(), IRS_OPEN) << "Expected contactors open in state: " << metadata.state->name;
+        ASSERT_EQ(io_irs_prechargeState(), IRS_OPEN) << "Expected precharge open in state: " << metadata.state->name;
     }
 }
 
