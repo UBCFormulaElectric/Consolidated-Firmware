@@ -14,12 +14,12 @@
 // #define NUM_OF_RESISTORS 1U
 // #define PRECHARGE_RESISTANCE_OHMS 3e3f
 // #define S_TO_MS 1000U
-// #define PRECHARGE_RC_MS \
-//     (S_TO_MS * (PRECHARGE_RESISTANCE_OHMS * NUM_OF_RESISTORS * INVERTER_CAPACITANCE_F * NUM_OF_INVERTERS))
-// #define MAX_PRECHARGE_ATTEMPTS 3U
-// #define PRECHARGE_COMPLETION_MS ((float)PRECHARGE_RC_MS * 2.7f) // 2.7RC corresponds to time to reach ~93% charged
-// #define PRECHARGE_COMPLETION_UPPERBOUND_MS (uint32_t)(PRECHARGE_COMPLETION_MS * 3.0f)
-// #define PRECHARGE_COMPLETION_LOWERBOUND_MS (uint32_t)(PRECHARGE_COMPLETION_MS * 0.5f)
+// #define PRECHARGE_RC_MS (S_TO_MS * (PRECHARGE_RESISTANCE_OHMS * NUM_OF_RESISTORS * INVERTER_CAPACITANCE_F *
+// NUM_OF_INVERTERS))
+// #define MAX_PRECHARGE_ATTEMPTS 3U #define PRECHARGE_COMPLETION_MS ((float)PRECHARGE_RC_MS * 2.7f)
+// // 2.7RC corresponds to time to reach ~93% charged #define PRECHARGE_COMPLETION_UPPERBOUND_MS
+// (uint32_t)(PRECHARGE_COMPLETION_MS * 5.0f) #define PRECHARGE_COMPLETION_LOWERBOUND_MS
+// (uint32_t)(PRECHARGE_COMPLETION_MS * 0.5f)
 
 static TimerChannel cooldown_timer;
 #define PRECHARGE_COOLDOWN_TIME (1000U) // 1 second cooldown after precharge failure
@@ -52,7 +52,6 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
             app_timer_restart(&cooldown_timer);
             break;
         case PRECHARGE_STATE_SUCCESS:
-            // Precharge successful, close positive contactor.
             app_stateMachine_setNextState(&charge_init_state);
             break;
         default:

@@ -26,6 +26,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_semaphore.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -156,6 +157,7 @@ elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SHARED_FAKES
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io_semaphore.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${SHARED_FAKES})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})

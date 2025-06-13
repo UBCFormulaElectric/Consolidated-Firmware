@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 extern "C"
 {
 #include "io_irs.h"
 #include "io_faultLatch.h"
+#include "io_ltc6813.h"
 }
 
 namespace fakes
@@ -32,4 +34,9 @@ namespace imd
     void setDutyCycle(float duty_cycle);
     void setPwmCounter(uint8_t counter);
 } // namespace imd
+namespace segments
+{
+    void setCellVoltages(const std::array<std::array<float, NUM_SEGMENTS>, CELLS_PER_SEGMENT> &voltages);
+    void setPackVoltageEvenly(float pack_voltage);
+} // namespace segments
 } // namespace fakes

@@ -4,17 +4,9 @@
   "warnings_counts_id": 403,
   "faults_counts_id": 404,
   "warnings": {
-    "MissingVCHeartbeat": {
-      "id": 115,
-      "description": "Missing heartbeat from the VC."
-    },
     "TractiveSystemOvercurrent": {
       "id": 101,
       "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
-    },
-    "CriticalPrechargeFailure": {
-      "id": 451,
-      "description": "Precharge failed >3x"
     },
     "CellUndervoltage": {
       "id": 155,
@@ -46,6 +38,10 @@
       "id": 203,
       "description": "BSPD fault detected."
     },
+    "CriticalPrechargeFailure": {
+      "id": 451,
+      "description": "Precharge failed >3x"
+    },
     "CellUndervoltage": {
       "id": 155,
       "description": "Cell is critically undervoltage"
@@ -66,6 +62,10 @@
   "info_id": 405,
   "info_counts_id": 406,
   "info": {
+    "MissingVCHeartbeat": {
+      "id": 115,
+      "description": "Missing heartbeat from the VC."
+    },
     "StackOverflow": {
       "id": 450,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
