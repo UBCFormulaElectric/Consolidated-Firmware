@@ -77,7 +77,7 @@ void jobs_run100Hz_tick(void)
     }
 
     app_powerManager_EfuseProtocolTick_100Hz();
-    app_pumpControl_MonitorPumps();
+    // app_pumpControl_MonitorPumps();
 
     app_stateMachine_tickTransitionState();
 
