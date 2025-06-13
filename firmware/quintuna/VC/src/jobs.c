@@ -88,6 +88,9 @@ void jobs_run100Hz_tick(void)
     app_pumpControl_MonitorPumps();
 
     app_stateMachine_tickTransitionState();
+
+    LOG_INFO("FSM apps = %d", (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get());
+
     io_canTx_enqueue100HzMsgs();
 }
 
