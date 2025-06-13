@@ -93,6 +93,15 @@
       "targets": ["quadruna_FSM.hex"]
     },
     {
+      "label": "Build Embedded: VCR (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_VCR_app.elf",
+      ]
+    },
+    {
       "label": "Build Embedded: RSM (Quadruna)",
       "group": "build",
       "type": "cmake",

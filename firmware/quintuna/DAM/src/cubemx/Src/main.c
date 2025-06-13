@@ -411,18 +411,18 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 2;
+    hfdcan2.Init.NominalPrescaler     = 6;
     hfdcan2.Init.NominalSyncJumpWidth = 2;
-    hfdcan2.Init.NominalTimeSeg1      = 45;
+    hfdcan2.Init.NominalTimeSeg1      = 13;
     hfdcan2.Init.NominalTimeSeg2      = 2;
-    hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 1;
-    hfdcan2.Init.DataTimeSeg1         = 1;
-    hfdcan2.Init.DataTimeSeg2         = 1;
+    hfdcan2.Init.DataPrescaler        = 3;
+    hfdcan2.Init.DataSyncJumpWidth    = 2;
+    hfdcan2.Init.DataTimeSeg1         = 5;
+    hfdcan2.Init.DataTimeSeg2         = 2;
     hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 0;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 1;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
@@ -430,7 +430,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.TxEventsNbr          = 0;
     hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
@@ -538,7 +538,7 @@ static void MX_SDMMC1_SD_Init(void)
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
-    hsd1.Init.ClockDiv            = 4;
+    hsd1.Init.ClockDiv            = 9;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
@@ -670,7 +670,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOE, TELEM_PWR_EN_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOD, nTSIM_GRN_EN_Pin | TSIM_RED_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(nTSIM_GRN_EN_GPIO_Port, nTSIM_GRN_EN_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pins : LED_Pin SD_FAIL_Pin */
     GPIO_InitStruct.Pin   = LED_Pin | SD_FAIL_Pin;

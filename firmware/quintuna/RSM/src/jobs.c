@@ -51,7 +51,7 @@ void jobs_init(void)
     io_coolant_init();
 
     ASSERT_EXIT_OK(io_rPump_isPumpReady());
-    ASSERT_EXIT_OK(io_imu_init());
+    // ASSERT_EXIT_OK(io_imu_init());
 }
 
 void jobs_run1Hz_tick(void)
@@ -66,7 +66,7 @@ void jobs_run100Hz_tick(void)
 {
     app_coolant_broadcast();
     app_suspension_broadcast();
-    app_imu_broadcast();
+    // app_imu_broadcast();
     app_brake_broadcast();
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);

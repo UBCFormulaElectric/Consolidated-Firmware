@@ -226,44 +226,7 @@
       "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: FSM (Quintuna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": ["-speed", "4000"],
-      "device": "STM32F412RG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: FSM",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Debug Embedded: FSM (Quintuna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_boot.elf",
         "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: FSM (Quintuna)",
@@ -418,7 +381,7 @@
       "name": "Debug Embedded: CRIT (Quintuna)",
       "cwd": "${workspaceRoot}",
       // binary config
-      "executable": "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
+      "executable": "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_boot.elf",
@@ -478,6 +441,90 @@
         "serverpath": "JLinkGDBServerCL"
       },
       "serverArgs": ["-speed", "4000"],
+      "device": "STM32H733VG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: BMS",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: VCR (Quintuna)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
+        "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: VCR (Quintuna)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H733VG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: BMS",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: VCR (Quintuna)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
+        "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: VCR (Quintuna)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
       "device": "STM32H733VG",
       "interface": "swd",
       "showDevDebugOutput": "none",

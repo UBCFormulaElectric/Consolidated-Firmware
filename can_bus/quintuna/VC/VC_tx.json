@@ -56,6 +56,16 @@
       },
       "VehicleVelocity": {
         "bits": 8
+      },
+      "FrontYawMoment": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "RearYawMoment": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
       }
     }
   },
@@ -84,20 +94,6 @@
       },
       "RxOverflowCount": {
         "bits": 16
-      }
-    }
-  },
-
-  "DAMTsimBuzzerControl": {
-    "msg_id": 513,
-    "cycle_time": 100,
-    "description": "",
-    "signals": {
-      "TsimControl": {
-        "bits": 1
-      },
-      "BuzzerControl": {
-        "enum": "TsimColor"
       }
     }
   },
@@ -437,7 +433,7 @@
         "start_bit": 12,
         "bits": 4
       },
-      "INVFLTargetSpeed": {
+      "INVFLTorqueSetpoint": {
         "start_bit": 16,
         "bits": 16,
         "signed": true
@@ -482,7 +478,7 @@
         "start_bit": 12,
         "bits": 4
       },
-      "INVFRTargetSpeed": {
+      "INVFRTorqueSetpoint": {
         "start_bit": 16,
         "bits": 16,
         "signed": true
