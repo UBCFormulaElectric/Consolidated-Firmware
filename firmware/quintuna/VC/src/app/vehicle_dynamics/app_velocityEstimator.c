@@ -6,6 +6,10 @@
 #include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
 
+// for debugging purposes
+#define TOGGLE_GPS 1
+#define TOGGLE_WHEEL_SPD 1
+
 /*
  * ================================
  * Velocity Estimator Variables
@@ -36,6 +40,8 @@ static float time_step;
  * ================================
  * Linear Algebra Functions
  * ================================
+ * 
+ * Should these be inlined or will that increase mem size too much?
  */
 
 // void print_arr(float *a, uint32_t len)
@@ -45,7 +51,6 @@ static float time_step;
 //         printf("%d: %f\n", i, a[i]);
 //     }
 // }
-
 /*
  * Matrix Addition: result = A + B
  */
@@ -307,12 +312,6 @@ void convertGpsToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inpu
     measurement->mat[1] = inputs->gps_vy;
 }
 
-/*
- * Notes:
- *
- * add rpm derivative check
- * add gps solution mode check
- */
 void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
 {
     Matrix control_input   = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM_U, .cols = 1 };
@@ -324,8 +323,18 @@ void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
     convertGpsToMeasurement(&measurement_gps, inputs);
 
     predict(&state_estimate, &control_input);
-    update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
-    update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
+
+    #if(TOGGLE_WHEEL_SPD == 1)
+    // use wheelspeed measurement if they are not slipping
+    if (inputs->rpm_derivative_ok)
+        update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
+    #endif
+
+    #if(TOGGLE_GPS == 1)
+    // use gps measurement if sbg is in the correct mode (solution mode 4)
+    if (inputs->ekf_solution_4_valid)
+        update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
+    #endif
 }
 
 float *app_velocityEstimator_getVelocity()
