@@ -13,9 +13,8 @@ static float getMaxMotorTemp(void);
  * the battery power limit (calculated by BMS), and accelerator pedal position.
  * @return A float for the maximum power allowed from the motor,
  */
-float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
-{
-    /**
+float app_powerLimiting_computeMaxPower(float current_based_power_limit_kW)
+{    /**
      *  AMK INVERTER DOES TEMPERATURE BASED POWER LIMITING.. WE LIKELY CAN JUST USE THIS SEE PAGE 84 but using below
      for redundancy
      */
@@ -35,7 +34,7 @@ float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
     }
 
     // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
-    float P_max = (fminf(fminf(RULE_BASED_POWER_LIMIT_KW, inputs->current_based_power_limit_kW), P_max_motor_temps));
+    float P_max = (fminf(fminf(RULE_BASED_POWER_LIMIT_KW, current_based_power_limit_kW), P_max_motor_temps));
     app_canTx_VC_PowerLimitValue_set((float)P_max);
 
     return P_max;

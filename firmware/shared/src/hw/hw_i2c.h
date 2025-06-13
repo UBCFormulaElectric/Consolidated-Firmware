@@ -69,5 +69,4 @@ ExitCode hw_i2c_memoryRead(const I2cDevice *device, uint16_t mem_addr, uint8_t *
  * @param tx_buffer_size The size fo the tx_buffer
  * @return True if data is read successfully, false otherwise
  */
-ExitCode
-    hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, const uint8_t *tx_buffer, uint16_t tx_buffer_size);
+ExitCode hw_i2c_memoryWrite(const I2cDevice *device, uint16_t mem_addr, const uint8_t *tx_buffer, uint16_t tx_buffer_size);

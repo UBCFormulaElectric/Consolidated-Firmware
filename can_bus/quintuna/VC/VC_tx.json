@@ -43,6 +43,38 @@
       }
     }
   },
+  "LoadTransfer": {
+    "msg_id" : 508,
+    "cycle_time": 100,
+    "description": "Vehicle Load Info",
+    "signals": {
+      "FrontLeftWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 0.1
+      },
+      "FrontRightWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 0.1
+      },
+      "RearLeftWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 0.1
+      },
+      "RearRightWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 0.1
+      },
+      "LoadTransferScalar": {
+        "min": -2,
+        "max": 2,
+        "resolution": 0.01
+      }
+    }
+  },
   "VehicleDynamics": {
     "msg_id": 510,
     "cycle_time": 100,
@@ -56,6 +88,18 @@
       },
       "VehicleVelocity": {
         "bits": 8
+      },
+      "ReferenceYawRate":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "CorrectionYawRate":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
       },
       "FrontYawMoment":
       {
@@ -424,12 +468,17 @@
     "cycle_time": 10,
     "description": "Debug Power Messages for Power Limit ",
     "signals": {
-      "PowerLimitValue": {
+      "TotalAllocatedPower": {
         "min": 0,
         "max": 120,
         "resolution": 0.1
       },
-      "PowerLimitValueAtFullThrottle": {
+      "RequestedPower": {
+        "min": 0,
+        "max": 120,
+        "resolution": 0.1
+      },
+      "PowerLimitValue" : {
         "min": 0,
         "max": 120,
         "resolution": 0.1

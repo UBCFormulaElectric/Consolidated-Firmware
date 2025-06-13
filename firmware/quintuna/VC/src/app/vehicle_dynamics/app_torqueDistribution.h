@@ -2,10 +2,7 @@
 #include <app_vehicleDynamics.h>
 #include "io_imu_config.h"
 
-TorqueAllocationOutputs torqueToMotors = { .front_left_torque  = 0.0f,
-                                           .front_right_torque = 0.0f,
-                                           .rear_left_torque   = 0.0f,
-                                           .rear_right_torque  = 0.0f };
+TorqueAllocationOutputs torqueToMotors;
 
 /*
  * Broadcasts the vertical force of each wheel
@@ -26,4 +23,6 @@ float app_loadTransferConstant(float long_accel);
  * Currently adapted to 2 wheel drive
  * Sends torque requests if TV is on
  */
-void app_torqueAllocation(TorqueAllocationInputs *inputs, float loadTransferConst);
+void app_torqueAllocation(TorqueAllocationInputs *inputs);
+
+void app_torqueBroadCast();

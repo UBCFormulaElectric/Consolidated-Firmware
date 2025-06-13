@@ -10,7 +10,7 @@
 #include "app_canTx.h"
 #include "app_utils.h"
 #include "app_imu.h"
-#include "app_loadTransfer.h"
+#include "app_torqueDistribution.h"
 #include "app_units.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
@@ -147,8 +147,7 @@ void app_torqueVectoring_handleAcceleration(void)
 
     // Inverter Torque Request
     float desired_tot_yaw_moment               = app_yawRateController_getYawMoment();
-    torqueToLoadTransf.rear_left_motor_torque  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
-    torqueToLoadTransf.rear_right_motor_torque = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+    torqueToLoadTransf.total_torque_request    = accelerator_pedal_percent * (MAX_TORQUE_REQUEST_NM * 4) // 20.5 for each motor 
     torqueToLoadTransf.rear_yaw_moment         = desired_tot_yaw_moment / (1 + long_load_transfer_scalar);
     torqueToLoadTransf.front_yaw_moment        = desired_tot_yaw_moment - torqueToLoadTransf.rear_yaw_moment;
     // if (run_traction_control)
