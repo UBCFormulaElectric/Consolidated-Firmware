@@ -15,7 +15,7 @@
 #define TRACK_WIDTH_mm 1100
 #define TRACK_WIDTH_m (TRACK_WIDTH_mm * MM_TO_M)
 // TODO: Change for AMK Inverters
-#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // as specified in the manual for the emrax 188 motors
+#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550.0f // as specified in the manual for the emrax 188 motors
 #define POWER_LIMIT_CAR_kW 40.0f               // Actual Value: 80.0f   // max power we can use by FSAE rules
 #define MOTOR_TEMP_CUTOFF_c 90.0f
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO \
@@ -29,6 +29,7 @@
 #define MAX_TORQUE_REQUEST_NM \
     (1) // Max torque of AMK DD5-14-10-POW motor -- ACTUAL LIMIT IS 21 --- HARD CODED TO 1 FOR NOW
 #define NOMINAL_TORQUE_REQUEST_NM (9.8f) // Nominal torque of AMK DD5-14-10-POW motor
+#define RULES_BASED_POWER_LIMIT_KW (80.0f)
 #define MAX_REGEN_Nm -30.0f
 #define MAX_BATTERY_TEMP 45
 #define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
@@ -58,7 +59,7 @@
 // DD5-14-10-POW motor is relative to their nominal torque (9.8 Nm) where 100% torque is 9.8. The motors are able to
 // output up to 21 Nm, this however cannot be a sustained behaviour. Note the message takes a int 16 that is essentially your percentage of nominal
 // torque * 1000
-#define PEDAL_REMAPPING(torque) ((int32_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f)) 
+#define PEDAL_REMAPPING(torque) ((int16_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f)) 
 #define TORQUE_TO_POWER(torque, rpm) \
     ( (torque) * ((rpm) / (GEAR_RATIO)) * (POWER_TO_TORQUE_CONVERSION_FACTOR) )
 #define POWER_TO_TORQUE(power, rpm) \

@@ -13,7 +13,7 @@
 
 static float app_totalPower(TorqueAllocationOutputs *torques)
 {
-    return  (TORQUE_TO_POWER(torques->front_left_torque, app_canRx_INVFL_ActualVelocity_get()) +
+    return  (float)(TORQUE_TO_POWER(torques->front_left_torque, app_canRx_INVFL_ActualVelocity_get()) +
             TORQUE_TO_POWER(torques->front_right_torque, app_canRx_INVFR_ActualVelocity_get()) +
             TORQUE_TO_POWER(torques->rear_left_torque, app_canRx_INVRL_ActualVelocity_get()) +
             TORQUE_TO_POWER(torques->rear_right_torque, app_canRx_INVRR_ActualVelocity_get()));
@@ -21,8 +21,8 @@ static float app_totalPower(TorqueAllocationOutputs *torques)
 
 static float app_totalWheelSpeed()
 {
-   return app_canRx_INVFL_ActualVelocity_get() + app_canRx_INVFR_ActualVelocity_get() + 
-            app_canRx_INVRL_ActualVelocity_get() + app_canRx_INVRR_ActualVelocity_get(); 
+   return (float)(app_canRx_INVFL_ActualVelocity_get() + app_canRx_INVFR_ActualVelocity_get() + 
+            app_canRx_INVRL_ActualVelocity_get() + app_canRx_INVRR_ActualVelocity_get()); 
 }
 
 void app_wheelVerticalForces_broadcast(const ImuData *imu)

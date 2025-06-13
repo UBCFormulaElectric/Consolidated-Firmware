@@ -14,6 +14,9 @@
   ],
   "files.associations": {
     "*.dbclient-js": "javascript",
-    "app_activedifferential.h": "c"
+    "app_activedifferential.h": "c",
+    "numeric": "c",
+    "compare": "c",
+    "cstdint": "c"
   }
 }

@@ -17,8 +17,6 @@
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
-
-static PowerLimiting_Inputs       power_limiting_inputs;
 static TractionControl_Inputs     traction_control_inputs;
 // static TractionControl_Outputs    traction_control_outputs;
 static YawRateController yaw_rate_controller;
@@ -44,8 +42,8 @@ static PID                    yrc_pid;
 
 static float accelerator_pedal_percent;
 static float battery_voltage;
-static float current_consumption;
 static float steering_angle_deg;
+static float current_limit_based_max_power; 
 
 void app_torqueVectoring_init(void)
 {
@@ -65,9 +63,9 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
     // NOTE: Pedal percent CAN is in range 0.0-100.0%
     accelerator_pedal_percent   = accelerator_pedal_percentage;
     battery_voltage             = app_canRx_BMS_TractiveSystemVoltage_get();
-    current_consumption         = app_canRx_BMS_TractiveSystemCurrent_get();
     steering_angle_deg          = app_canRx_FSM_SteeringAngle_get();
     imu_output                  = app_get_imu_struct();
+    // current_limit_based_max_power = app_canRx_BMS_current_limit(); 
 
     if (accelerator_pedal_percent > 0.0f)
     {
@@ -94,13 +92,8 @@ void app_torqueVectoring_handleAcceleration(void)
     torqueAllocation.load_transfer_const = app_loadTransferConstant(imu_output->long_accel);
 
     // Power Limiting
-    power_limiting_inputs.left_motor_temp_C         = left_motor_temp_C;
-    power_limiting_inputs.right_motor_temp_C        = right_motor_temp_C;
-    power_limiting_inputs.accelerator_pedal_percent = accelerator_pedal_percent;
-    float estimated_power_limit;
-    estimated_power_limit = app_powerLimiting_computeMaxPower(&power_limiting_inputs);
     // Power limit correction
-    float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
+    float power_limit = app_powerLimiting_computeMaxPower(RULES_BASED_POWER_LIMIT_KW); // -- HARD CODED FIX LATER
 
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);

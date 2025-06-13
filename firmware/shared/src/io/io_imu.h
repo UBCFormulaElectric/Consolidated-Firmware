@@ -1,4 +1,6 @@
 #pragma once
+#include "io_imu_config.h" 
+
 
 #include <stdbool.h>
 #ifdef TARGET_EMBEDDED

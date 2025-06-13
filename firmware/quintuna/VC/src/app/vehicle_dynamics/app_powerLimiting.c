@@ -4,8 +4,6 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 
-#define RULE_BASED_POWER_LIMIT_KW 80.0f
-
 static float getMaxMotorTemp(void);
 
 /**
@@ -22,7 +20,7 @@ float app_powerLimiting_computeMaxPower(float current_based_power_limit_kW)
     // ============== Calculate max powers =================
     // 1. Motor Temps
     float max_motor_temp    = getMaxMotorTemp();
-    float P_max_motor_temps = RULE_BASED_POWER_LIMIT_KW;
+    float P_max_motor_temps = RULES_BASED_POWER_LIMIT_KW;
     if (max_motor_temp - MOTOR_TEMP_CUTOFF_c >= 30.0f)
     {
         P_max_motor_temps = 0.0;
