@@ -4,7 +4,7 @@
 extern const State init_state;
 extern const State fault_state;
 
-extern const State precharge_state;
+extern const State precharge_drive_state;
 extern const State drive_state;
 
 extern const State balancing_state;

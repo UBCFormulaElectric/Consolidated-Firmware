@@ -44,11 +44,11 @@ TEST_F(BmsStateMachineTest, start_precharge_once_vc_bms_on_AND_irs_negative_clos
     app_canRx_VC_State_update(VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(IRS_CLOSED);
     LetTimePass(10);
-    ASSERT_STATE_EQ(precharge_state);
+    ASSERT_STATE_EQ(precharge_drive_state);
 
     app_canRx_VC_State_update(VC_INIT_STATE);
     LetTimePass(10);
-    ASSERT_STATE_EQ(precharge_state); // surely precharge state is stable for at least 20ms
+    ASSERT_STATE_EQ(precharge_drive_state); // surely precharge state is stable for at least 20ms
 }
 
 TEST_F(BmsStateMachineTest, irs_negative_open_to_init)
@@ -101,12 +101,12 @@ static constexpr int   too_fast_time = 20, just_good_time = 100, precharge_timeo
 static constexpr int   precharge_retries = 3;
 TEST_F(BmsStateMachineTest, precharge_success_test)
 {
-    app_stateMachine_setCurrentState(&precharge_state);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
     fakes::irs::setNegativeState(IRS_CLOSED);
 
     for (int i = 0; i < just_good_time; i += 10)
     {
-        ASSERT_STATE_EQ(precharge_state);
+        ASSERT_STATE_EQ(precharge_drive_state);
         ASSERT_EQ(io_irs_prechargeState(), IRS_CLOSED);
         LetTimePass(10);
     }
@@ -118,7 +118,7 @@ TEST_F(BmsStateMachineTest, precharge_success_test)
 
 TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
 {
-    app_stateMachine_setCurrentState(&precharge_state);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
     fakes::irs::setNegativeState(IRS_CLOSED);
     fakes::tractiveSystem::setVoltage(undervoltage);
 
@@ -126,7 +126,7 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
     {
         for (int i = 0; i < precharge_timeout; i += 10)
         {
-            ASSERT_STATE_EQ(precharge_state);
+            ASSERT_STATE_EQ(precharge_drive_state);
             ASSERT_EQ(io_irs_prechargeState(), IRS_CLOSED);
             LetTimePass(10);
         }
@@ -134,7 +134,7 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
         // cooldown
         for (int i = 0; i < precharge_cooldown; i += 10)
         {
-            ASSERT_STATE_EQ(precharge_state);
+            ASSERT_STATE_EQ(precharge_drive_state);
             ASSERT_EQ(io_irs_prechargeState(), IRS_OPEN);
             LetTimePass(10);
         }
@@ -146,11 +146,11 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
 
 TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
 {
-    app_stateMachine_setCurrentState(&precharge_state);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
     fakes::irs::setNegativeState(IRS_CLOSED);
     for (int i = 0; i < too_fast_time; i += 10)
     {
-        ASSERT_STATE_EQ(precharge_state);
+        ASSERT_STATE_EQ(precharge_drive_state);
         ASSERT_EQ(io_irs_prechargeState(), IRS_CLOSED);
         LetTimePass(10);
     }

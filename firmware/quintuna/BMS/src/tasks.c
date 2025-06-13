@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include <cmsis_os2.h>
 #include "app_stateMachine.h"
 #include "states/app_balancingState.h"
 #include "hw_bootup.h"
@@ -7,6 +8,7 @@
 
 #include "states/app_states.h"
 #include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
@@ -16,6 +18,8 @@
 #include "io_log.h"
 #include "io_canQueue.h"
 #incldue "io_canRx.h"
+#include "io_canTx.h"
+#include "io_semaphore.h"
 
 // hw
 #include "hw_usb.h"
@@ -30,19 +34,10 @@
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
 
-#include "semphr.h"
-#include <FreeRTOS.h>
-#include <app_canRx.h>
-#include <cmsis_os.h>
-#include <cmsis_os2.h>
-#include <io_canTx.h>
-#include <portmacro.h>
-
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
 
-StaticSemaphore_t init_complete_locks_buf;
-SemaphoreHandle_t init_complete_locks;
+static Semaphore init_complete_locks;
 
 // isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an LTC transaction doesn't get interrupted by
 // another task. It's just a regular semaphore (no priority inheritance) since it depends on hardware.
@@ -50,10 +45,8 @@ SemaphoreHandle_t init_complete_locks;
 // ltc_app_data_lock guards access to any LTC app data that may be written to by the LTC tasks and read from other tick
 // functions. It's a mutex (yes priority inheritance) since it's guarding shared data and doesn't depend on hardware.
 
-StaticSemaphore_t isospi_bus_access_lock_buf;
-SemaphoreHandle_t isospi_bus_access_lock;
-StaticSemaphore_t ltc_app_data_lock_buf;
-SemaphoreHandle_t ltc_app_data_lock;
+static Semaphore isospi_bus_access_lock = {};
+static Semaphore ltc_app_data_lock      = {};
 
 void tasks_runChimera(void)
 {
@@ -104,12 +97,8 @@ void tasks_init(void)
         hw_bootup_setBootRequest(boot_request);
     }
 
-    isospi_bus_access_lock = xSemaphoreCreateBinaryStatic(&isospi_bus_access_lock_buf);
-    ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
-    assert(isospi_bus_access_lock != NULL);
-    assert(ltc_app_data_lock != NULL);
-    xSemaphoreGive(isospi_bus_access_lock);
-    xSemaphoreGive(ltc_app_data_lock);
+    io_semaphore_create(&isospi_bus_access_lock);
+    io_semaphore_create(&ltc_app_data_lock);
 
     // Write LTC configs.
     app_segments_setDefaultConfig();
@@ -158,9 +147,9 @@ void tasks_run100Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+            io_semaphore_take(&ltc_app_data_lock, portMAX_DELAY);
             jobs_run100Hz_tick();
-            xSemaphoreGive(ltc_app_data_lock);
+            io_semaphore_give(&ltc_app_data_lock);
         }
 
         start_ticks += period_ms;
@@ -231,7 +220,7 @@ void tasks_runLtcVoltages(void)
 
         const bool balancing_enabled = app_stateMachine_getCurrentState() == app_balancingState_get();
 
-        xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+        io_semaphore_take(&isospi_bus_access_lock);
         {
             io_ltc6813_wakeup();
             LOG_IF_ERR(app_segments_configSync());
@@ -248,15 +237,15 @@ void tasks_runLtcVoltages(void)
 
             LOG_IF_ERR(app_segments_runVoltageConversion());
         }
-        xSemaphoreGive(isospi_bus_access_lock);
+        io_semaphore_give(&isospi_bus_access_lock);
 
-        xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+        io_semaphore_take(&ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastCellVoltages();
             app_segments_broadcastVoltageStats();
             app_segments_balancingTick(balancing_enabled);
         }
-        xSemaphoreGive(ltc_app_data_lock);
+        io_semaphore_give(&ltc_app_data_lock);
 
         LOG_INFO("LTC voltage period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
@@ -271,19 +260,19 @@ void tasks_runLtcTemps(void)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
 
-        xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+        io_semaphore_take(isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
             LOG_IF_ERR(app_segments_runAuxConversion());
         }
-        xSemaphoreGive(isospi_bus_access_lock);
+        io_semaphore_give(isospi_bus_access_lock);
 
-        xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+        io_semaphore_take(ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastTempsVRef();
             app_segments_broadcastTempStats();
         }
-        xSemaphoreGive(ltc_app_data_lock);
+        io_semaphore_give(ltc_app_data_lock);
 
         LOG_INFO("LTC temp period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
@@ -298,7 +287,7 @@ void tasks_runLtcDiagnostics(void)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
 
-        xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+        io_semaphore_take(&isospi_bus_access_lock, portMAX_DELAY);
         {
             io_ltc6813_wakeup();
 
@@ -314,9 +303,9 @@ void tasks_runLtcDiagnostics(void)
                 LOG_IF_ERR(app_segments_runStatusSelfTest());
             }
         }
-        xSemaphoreGive(isospi_bus_access_lock);
+        io_semaphore_give(&isospi_bus_access_lock);
 
-        xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+        io_semaphore_take(&ltc_app_data_lock, portMAX_DELAY);
         {
             app_segments_broadcastStatus();
             app_segments_broadcastOpenWireCheck();
@@ -329,7 +318,7 @@ void tasks_runLtcDiagnostics(void)
                 app_segments_broadcastStatusSelfTest();
             }
         }
-        xSemaphoreGive(ltc_app_data_lock);
+        io_semaphore_give(&ltc_app_data_lock);
 
         osDelayUntil(start_ticks + period_ms);
     }
