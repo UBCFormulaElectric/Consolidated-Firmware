@@ -8,7 +8,6 @@
 
 #define NUM_FAULT_NODES 14
 
-
 bool app_faultHandling_air_minus_closed(void)
 {
     return (CONTACTOR_STATE_CLOSED == app_canRx_BMS_IrNegative_get());

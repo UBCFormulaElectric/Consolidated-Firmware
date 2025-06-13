@@ -13,12 +13,11 @@ static float getMaxMotorTemp(void);
  * @return A float for the maximum power allowed from the motor,
  */
 float app_powerLimiting_computeMaxPower(float current_based_power_limit_kW)
-{    /**
-     *  AMK INVERTER DOES TEMPERATURE BASED LIMITING... USING THAT TEMP > 40 starts derating && TEMP > 60  = inverter off
-     */
+{ /**
+   *  AMK INVERTER DOES TEMPERATURE BASED LIMITING... USING THAT TEMP > 40 starts derating && TEMP > 60  = inverter off
+   */
 
     // ============== Calculate max powers =================
-    
 
     // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
     float P_max = fminf(RULES_BASED_POWER_LIMIT_KW, current_based_power_limit_kW);
