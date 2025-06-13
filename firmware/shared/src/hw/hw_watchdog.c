@@ -32,6 +32,7 @@ WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms, uint32_t grace_period_m
     assert(watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
     WatchdogHandle *watchdog = &watchdog_table.watchdogs[watchdog_table.allocation_index++];
 
+    watchdog->task            = xTaskGetCurrentTaskHandle();
     watchdog->period          = period_ms;
     watchdog->grace_period    = grace_period_ms;
     watchdog->deadline        = io_time_getCurrentMs() + period_ms;
@@ -68,12 +69,12 @@ void hw_watchdog_checkForTimeouts(void)
     {
         // Only check for timeout if the watchdog has been initialized
         if (watchdog_table.watchdogs[i].initialized == false)
-            continue;
+            break;
 
         const bool checked_in      = watchdog_table.watchdogs[i].check_in_status == true;
-        const bool passed_deadline = io_time_getCurrentMs() >= watchdog_table.watchdogs[i].deadline;
+        const bool passed_deadline = io_time_getCurrentMs() > watchdog_table.watchdogs[i].deadline;
         const bool passed_deadline_and_grace_period =
-            io_time_getCurrentMs() >= (watchdog_table.watchdogs[i].deadline + watchdog_table.watchdogs[i].grace_period);
+            io_time_getCurrentMs() > (watchdog_table.watchdogs[i].deadline + watchdog_table.watchdogs[i].grace_period);
 
         if (passed_deadline && checked_in)
         {
@@ -85,13 +86,13 @@ void hw_watchdog_checkForTimeouts(void)
         }
         else if (passed_deadline_and_grace_period && !checked_in)
         {
-            const TaskHandle_t timeout_task = xTaskGetCurrentTaskHandle();
-            LOG_ERROR(
-                "Software watchdog detected a timeout in a task, letting hardware watchdog reset the MCU (task = %s)",
-                pcTaskGetTaskName(timeout_task));
-
             TaskStatus_t status;
-            vTaskGetInfo(xTaskGetCurrentTaskHandle(), &status, pdFALSE, eRunning);
+            vTaskGetInfo(watchdog_table.watchdogs[i].task, &status, pdFALSE, eRunning);
+
+            LOG_ERROR(
+                "Software watchdog detected a timeout in a task, letting hardware watchdog reset the MCU (task = %s, "
+                "id = %d)",
+                pcTaskGetTaskName(watchdog_table.watchdogs[i].task), status.xTaskNumber);
 
             const BootRequest request = { .target        = BOOT_TARGET_APP,
                                           .context       = BOOT_CONTEXT_WATCHDOG_TIMEOUT,

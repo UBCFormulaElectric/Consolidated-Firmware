@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_watchdog.h"
 #include "jobs.h"
 #include "cmsis_os.h"
 #include "main.h"
@@ -46,22 +47,39 @@ void tasks_init()
     hw_can_init(&can2);
     ASSERT_EXIT_OK(hw_usb_init());
 
-    jobs_init();
+    const ResetReason reset_reason = hw_resetReason_get();
+    app_canTx_RSM_ResetReason_set((CanResetReason)reset_reason);
 
-    app_canTx_RSM_ResetReason_set((CanResetReason)hw_resetReason_get());
-
-    // Check for stack overflow on a previous boot cycle and populate CAN alert.
-    BootRequest boot_request = hw_bootup_getBootRequest();
-    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    // Check for watchdog timeout on a previous boot cycle and populate CAN alert.
+    if (reset_reason == RESET_REASON_WATCHDOG)
     {
-        app_canAlerts_RSM_Info_StackOverflow_set(true);
-        app_canTx_RSM_StackOverflowTask_set(boot_request.context_value);
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app_canAlerts_RSM_Info_WatchdogTimeout_set(true);
+    }
+
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context != BOOT_CONTEXT_NONE)
+    {
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app_canAlerts_RSM_Info_StackOverflow_set(true);
+            app_canTx_RSM_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app_canTx_RSM_WatchdogTimeoutTask_set(boot_request.context_value);
+        }
 
         // Clear stack overflow bootup.
         boot_request.context       = BOOT_CONTEXT_NONE;
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+
+    jobs_init();
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -71,8 +89,10 @@ _Noreturn void tasks_runChimera(void)
 
 _Noreturn void tasks_run1Hz()
 {
-    static const TickType_t period_ms   = 1000U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms = 1000U;
+    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 20);
+
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -86,8 +106,10 @@ _Noreturn void tasks_run1Hz()
 
 _Noreturn void tasks_run100Hz()
 {
-    static const TickType_t period_ms   = 10;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms = 10U;
+    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 5);
+
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -101,8 +123,10 @@ _Noreturn void tasks_run100Hz()
 
 _Noreturn void tasks_run1kHz()
 {
-    static const TickType_t period_ms   = 1;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    static const TickType_t period_ms = 1U;
+    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 2);
+
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {

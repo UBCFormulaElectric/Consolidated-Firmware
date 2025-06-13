@@ -44,8 +44,6 @@ void tasks_init(void)
     hw_can_init(&can2);
     hw_can_init(&can3);
 
-    jobs_init();
-
     const ResetReason reset_reason = hw_resetReason_get();
     app_canTx_VC_ResetReason_set((CanResetReason)reset_reason);
 
@@ -69,7 +67,7 @@ void tasks_init(void)
         else if (boot_request.context == BOOT_CONTEXT_WATCHDOG_TIMEOUT)
         {
             // If the software driver detected a watchdog timeout the context should be set.
-            app_canTx_VC_StackOverflowTask_set(boot_request.context_value);
+            app_canTx_VC_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
         // Clear stack overflow bootup.
@@ -77,6 +75,8 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+
+    jobs_init();
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -89,8 +89,7 @@ _Noreturn void tasks_run1Hz(void)
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 20);
 
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -112,8 +111,7 @@ _Noreturn void tasks_run100Hz(void)
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 5);
 
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -135,8 +133,7 @@ _Noreturn void tasks_run1kHz(void)
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 2);
 
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {

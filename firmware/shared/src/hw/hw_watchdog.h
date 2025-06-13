@@ -29,6 +29,7 @@
  */
 #pragma once
 
+#include <FreeRTOS.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <cmsis_os.h>
@@ -39,6 +40,8 @@ typedef struct
 {
     // Is this watchdog ready to be used?
     bool initialized;
+    // Task ID that created this handle.
+    xTaskHandle task;
     // The tick period of the task being monitored.
     uint32_t period;
     // Grace period (extra ticks to elapse after passing the deadline, to allow for some flexibility)
