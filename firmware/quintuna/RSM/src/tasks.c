@@ -89,15 +89,20 @@ _Noreturn void tasks_runChimera(void)
 
 _Noreturn void tasks_run1Hz()
 {
-    static const TickType_t period_ms = 1000U;
-    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 20);
+    const uint32_t  period_ms                = 1000U;
+    const uint32_t  watchdog_grace_period_ms = 50U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
-
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
+        {
             jobs_run1Hz_tick();
+        }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -106,15 +111,21 @@ _Noreturn void tasks_run1Hz()
 
 _Noreturn void tasks_run100Hz()
 {
-    static const TickType_t period_ms = 10U;
-    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 5);
+    const uint32_t  period_ms                = 10U;
+    const uint32_t  watchdog_grace_period_ms = 2U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
+        {
             jobs_run100Hz_tick();
+        }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -123,15 +134,23 @@ _Noreturn void tasks_run100Hz()
 
 _Noreturn void tasks_run1kHz()
 {
-    static const TickType_t period_ms = 1U;
-    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 2);
+    const uint32_t  period_ms                = 1U;
+    const uint32_t  watchdog_grace_period_ms = 1U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
+        hw_watchdog_checkForTimeouts();
+
         if (!hw_chimera_v2_enabled)
+        {
             jobs_run1kHz_tick();
+        }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

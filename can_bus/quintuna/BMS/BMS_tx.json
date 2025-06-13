@@ -30,11 +30,20 @@
     "cycle_time": 1000,
     "description": "BMS Debug Signals",
     "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
       "ResetReason": {
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 16
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
       }
     }
   },

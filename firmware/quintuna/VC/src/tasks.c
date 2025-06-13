@@ -140,8 +140,6 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        const uint32_t task_start_ms = io_time_getCurrentMs();
-
         hw_watchdog_checkForTimeouts();
 
         if (!hw_chimera_v2_enabled)

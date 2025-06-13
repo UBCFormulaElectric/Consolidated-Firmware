@@ -9,7 +9,15 @@
 #include "io_time.h"
 #include "main.h"
 
-extern IWDG_HandleTypeDef hiwdg1;
+#ifdef STM32F412Rx
+extern IWDG_HandleTypeDef  hiwdg;
+static IWDG_HandleTypeDef *iwdg_handle = &hiwdg;
+#elif STM32H733xx
+extern IWDG_HandleTypeDef  hiwdg1;
+static IWDG_HandleTypeDef *iwdg_handle = &hiwdg1;
+#else
+#error "Please define what MCU is used."
+#endif
 
 // Table of hardware-agnostic software watchdog
 typedef struct
@@ -24,7 +32,7 @@ static WatchdogTable watchdog_table;
 
 static void refreshHardwareWatchdog(void)
 {
-    HAL_IWDG_Refresh(&hiwdg1);
+    HAL_IWDG_Refresh(iwdg_handle);
 }
 
 WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms)
