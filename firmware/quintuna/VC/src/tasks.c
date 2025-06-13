@@ -1,5 +1,7 @@
 #include "tasks.h"
 #include "hw_bootup.h"
+#include "hw_gpio.h"
+#include "hw_gpios.h"
 #include "io_bootHandler.h"
 #include "jobs.h"
 #include "main.h"
@@ -42,6 +44,10 @@ void tasks_init(void)
     hw_can_init(&can1);
     hw_can_init(&can2);
     hw_can_init(&can3);
+
+    // hw_gpio_writePin(&f_pump_en, true);
+    // hw_gpio_writePin(&rr_pump_en, true);
+    // hw_gpio_writePin(&rl_pump_en, true);
 
     jobs_init();
 
