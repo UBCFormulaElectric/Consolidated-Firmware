@@ -22,7 +22,6 @@
 #define INV_OFF 0
 
 static bool         launch_control_switch_is_on;
-static bool         launch_control_switch_is_on;
 static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 static SensorChecks sensor_checks;
@@ -70,17 +69,7 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
     app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
 
-    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
-    {
-        app_torqueVectoring_init();
-        torque_vectoring_switch_is_on = true;
-    }
-
-    if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
-    {
-        app_regen_init();
-        regen_switch_is_on = true;
-    }
+    app_driveSwitchInit();
 }
 
 static void driveStateRunOnTick100Hz(void)
@@ -216,7 +205,7 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     {
         app_regen_run(apps_pedal_percentage);
     }
-    else if (torque_vectoring_switch_is_on)
+    else if (launch_control_switch_is_on)
     {
         app_torqueVectoring_run(apps_pedal_percentage);
     }
@@ -261,7 +250,7 @@ static void app_regularDrive_run(float apps_pedal_percentage)
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request = (int16_t)((pedal_based_torque));
+    int16_t torque_request = PEDAL_REMAPPING(pedal_based_torque);
 
     // Transmit torque command to both inverters
     app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
@@ -274,13 +263,13 @@ static void app_driveSwitchInit(void)
 {
     if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
     {
-        // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN
+        app_torqueVectoring_init();
         launch_control_switch_is_on = true;
     }
 
     if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
     {
-        // app_regen_init(); -- COMMENTED OUT TO SPIN
+        app_regen_init();
         regen_switch_is_on = true;
     }
 }
