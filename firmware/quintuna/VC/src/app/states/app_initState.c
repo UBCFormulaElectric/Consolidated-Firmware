@@ -5,10 +5,10 @@
 #include <stdbool.h>
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                       [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
@@ -40,11 +40,11 @@ static void initStateRunOnEntry(void)
 }
 static void initStateRunOnTick100Hz(void)
 {
-    // const ContactorState air_minus_closed = app_canRx_BMS_IrNegative_get();
-    // if (air_minus_closed == CONTACTOR_STATE_CLOSED)
-    // {
-    app_stateMachine_setNextState(&inverterOn_state);
-    // }
+    const ContactorState air_minus_closed = app_canRx_BMS_IrNegative_get();
+    if (air_minus_closed == CONTACTOR_STATE_CLOSED)
+    {
+        app_stateMachine_setNextState(&inverterOn_state);
+    }
 }
 static void initStateRunOnExit(void) {}
 

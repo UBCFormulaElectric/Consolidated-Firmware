@@ -17,7 +17,13 @@ typedef struct
     // fd data length range : [0, 64]
     uint32_t dlc;
     uint32_t timestamp;
-    uint8_t  data[CAN_PAYLOAD_BYTES];
-    uint8_t  bus; // TODO change this to the bus` enum when complete
-    bool     is_fd;
+    union
+    {
+        uint8_t  data8[CAN_PAYLOAD_BYTES];
+        uint16_t data16[CAN_PAYLOAD_BYTES / 2];
+        uint32_t data32[CAN_PAYLOAD_BYTES / 4];
+        uint64_t data64[CAN_PAYLOAD_BYTES / 8];
+    } data;
+    uint8_t bus; // TODO change this to the bus` enum when complete
+    bool    is_fd;
 } CanMsg;

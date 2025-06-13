@@ -59,8 +59,6 @@ void jobs_run100Hz_tick(void)
     app_suspension_broadcast();
     app_imu_broadcast();
 
-    LOG_INFO("apps accelerator pedal = %d percent", (uint32_t)app_canTx_FSM_PappsMappedPedalPercentage_get());
-
     io_canTx_enqueue100HzMsgs();
 }
 

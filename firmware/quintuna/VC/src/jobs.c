@@ -72,24 +72,16 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    // const bool air_minus_open_debounced =
-    //     app_timer_runIfCondition(&air_minus_open_debounce_timer, !app_canRx_BMS_IrNegative_get());
-    // if (air_minus_open_debounced)
-    // {
-    // LOG_INFO("air minus debounced");
-    // app_stateMachine_setNextState(&init_state);
-    // }
-    // else
-    // {
-    app_stateMachine_tick100Hz();
-    // }
-
-    // LOG_INFO("apps accelerator pedal = %d percent", (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get());
-
-    if ((uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get() >= 45 &&
-        (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get() <= 55)
+    const bool air_minus_open_debounced =
+        app_timer_runIfCondition(&air_minus_open_debounce_timer, !app_canRx_BMS_IrNegative_get());
+    if (air_minus_open_debounced)
     {
-        // BREAK_IF_DEBUGGER_CONNECTED();
+        LOG_INFO("air minus debounced");
+        app_stateMachine_setNextState(&init_state);
+    }
+    else
+    {
+        app_stateMachine_tick100Hz();
     }
 
     app_powerManager_EfuseProtocolTick_100Hz();

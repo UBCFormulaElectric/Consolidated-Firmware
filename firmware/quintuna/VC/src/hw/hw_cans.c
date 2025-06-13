@@ -9,11 +9,6 @@ static void canRxCallback(const CanMsg *msg)
 {
     io_bootHandler_processBootRequest(msg);
 
-    if (msg->std_id == 611 && (msg->data[1] & 0x03) == 2)
-    {
-        // BREAK_IF_DEBUGGER_CONNECTED();
-    }
-
     if (io_canRx_filterMessageId_can1(msg->std_id) || io_canRx_filterMessageId_can2(msg->std_id) ||
         io_canRx_filterMessageId_can3(msg->std_id))
     {

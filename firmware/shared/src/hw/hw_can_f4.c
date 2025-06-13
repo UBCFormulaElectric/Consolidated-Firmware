@@ -114,22 +114,12 @@ ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg)
     //     can_handle->transmit_task = NULL;
     // }
 
-    // if (msg->std_id == 611)
-    // {
-    //     BREAK_IF_DEBUGGER_CONNECTED();
-    // }
-
-    if (msg->std_id == 611 && (msg->data[1] & 0x03) == 2)
-    {
-        BREAK_IF_DEBUGGER_CONNECTED();
-    }
-
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
 
     while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
         ;
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data, &mailbox));
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data.data8, &mailbox));
 }
 
 ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
@@ -137,7 +127,8 @@ ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, Can
     assert(can_handle->ready);
     CAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data)););
+    RETURN_IF_ERR(
+        hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data.data8)););
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct

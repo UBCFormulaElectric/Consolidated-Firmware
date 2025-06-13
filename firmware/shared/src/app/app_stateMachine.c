@@ -41,7 +41,7 @@ void app_stateMachine_tickTransitionState(void)
     // Check if we should transition states
     if (next_state != current_state)
     {
-        LOG_INFO("state transition: %s -> %s", current_state->name, next_state->name);
+        LOG_INFO("State transition: %s -> %s", current_state->name, next_state->name);
 
         if (current_state->run_on_exit != NULL)
         {
