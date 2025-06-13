@@ -25,6 +25,7 @@
                 leds.bits.name##_r = 1;              \
                 break;                               \
             case BOARD_LED_STATUS_MISSING_HEARTBEAT: \
+                leds.bits.name##_b = 1;              \
                 break;                               \
             default:                                 \
                 break;                               \

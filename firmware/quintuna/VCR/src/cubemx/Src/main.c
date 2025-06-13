@@ -48,6 +48,8 @@ FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 FDCAN_HandleTypeDef hfdcan3;
 
+IWDG_HandleTypeDef hiwdg1;
+
 /* Definitions for FDCanTx */
 osThreadId_t         FDCanTxHandle;
 uint32_t             FDCanTXBuffer[512];
@@ -96,17 +98,29 @@ const osThreadAttr_t InvCanTxTask_attributes = {
     .stack_size = sizeof(InvCanTxBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
-/* Definitions for task10Hz */
-osThreadId_t         task10HzHandle;
-uint32_t             task10HzBuffer[512];
-osStaticThreadDef_t  task10HzControlBlock;
-const osThreadAttr_t task10Hz_attributes = {
-    .name       = "task10Hz",
-    .cb_mem     = &task10HzControlBlock,
-    .cb_size    = sizeof(task10HzControlBlock),
-    .stack_mem  = &task10HzBuffer[0],
-    .stack_size = sizeof(task10HzBuffer),
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for Task1kHz */
+osThreadId_t         Task1kHzHandle;
+uint32_t             Task1kHzBuffer[512];
+osStaticThreadDef_t  Task1kHzControlBlock;
+const osThreadAttr_t Task1kHz_attributes = {
+    .name       = "Task1kHz",
+    .cb_mem     = &Task1kHzControlBlock,
+    .cb_size    = sizeof(Task1kHzControlBlock),
+    .stack_mem  = &Task1kHzBuffer[0],
+    .stack_size = sizeof(Task1kHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
 };
 /* USER CODE BEGIN PV */
 
@@ -115,16 +129,17 @@ const osThreadAttr_t task10Hz_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 void        PeriphCommonClock_Config(void);
-static void MPU_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_FDCAN3_Init(void);
+static void MX_IWDG1_Init(void);
 void        StartFDCanTxTask(void *argument);
 void        StartCanRxTask(void *argument);
 void        StartSxCanTx(void *argument);
 void        StartInvCanTx(void *argument);
-void        startTask10Hz(void *argument);
+void        StartTask1Hz(void *argument);
+void        StartTask1kHz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -144,9 +159,6 @@ int main(void)
     /* USER CODE BEGIN 1 */
     tasks_preInit();
     /* USER CODE END 1 */
-
-    /* MPU Configuration--------------------------------------------------------*/
-    MPU_Config();
 
     /* MCU Configuration--------------------------------------------------------*/
 
@@ -172,6 +184,7 @@ int main(void)
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
     MX_FDCAN3_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     /* USER CODE END 2 */
 
@@ -208,8 +221,11 @@ int main(void)
     /* creation of InvCanTxTask */
     InvCanTxTaskHandle = osThreadNew(StartInvCanTx, NULL, &InvCanTxTask_attributes);
 
-    /* creation of task10Hz */
-    task10HzHandle = osThreadNew(startTask10Hz, NULL, &task10Hz_attributes);
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(StartTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of Task1kHz */
+    Task1kHzHandle = osThreadNew(StartTask1kHz, NULL, &Task1kHz_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -259,8 +275,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -348,10 +365,10 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.DataSyncJumpWidth    = 1;
     hfdcan1.Init.DataTimeSeg1         = 1;
     hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan1.Init.MessageRAMOffset     = 1280;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
@@ -359,7 +376,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.TxEventsNbr          = 0;
     hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan1.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
@@ -400,9 +417,9 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.DataTimeSeg1         = 5;
     hfdcan2.Init.DataTimeSeg2         = 2;
     hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 0;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 1;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
@@ -410,7 +427,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.TxEventsNbr          = 0;
     hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
@@ -450,10 +467,10 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.DataSyncJumpWidth    = 1;
     hfdcan3.Init.DataTimeSeg1         = 1;
     hfdcan3.Init.DataTimeSeg2         = 1;
-    hfdcan3.Init.MessageRAMOffset     = 0;
-    hfdcan3.Init.StdFiltersNbr        = 0;
-    hfdcan3.Init.ExtFiltersNbr        = 0;
-    hfdcan3.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan3.Init.MessageRAMOffset     = 1920;
+    hfdcan3.Init.StdFiltersNbr        = 1;
+    hfdcan3.Init.ExtFiltersNbr        = 1;
+    hfdcan3.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
@@ -461,7 +478,7 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.TxEventsNbr          = 0;
     hfdcan3.Init.TxBuffersNbr         = 0;
-    hfdcan3.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan3.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan3.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan3) != HAL_OK)
@@ -471,6 +488,33 @@ static void MX_FDCAN3_Init(void)
     /* USER CODE BEGIN FDCAN3_Init 2 */
 
     /* USER CODE END FDCAN3_Init 2 */
+}
+
+/**
+ * @brief IWDG1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG1_Init(void)
+{
+    /* USER CODE BEGIN IWDG1_Init 0 */
+
+    /* USER CODE END IWDG1_Init 0 */
+
+    /* USER CODE BEGIN IWDG1_Init 1 */
+
+    /* USER CODE END IWDG1_Init 1 */
+    hiwdg1.Instance       = IWDG1;
+    hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg1.Init.Window    = 4095;
+    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG1_Init 2 */
+
+    /* USER CODE END IWDG1_Init 2 */
 }
 
 /**
@@ -577,47 +621,34 @@ void StartInvCanTx(void *argument)
     /* USER CODE END StartInvCanTx */
 }
 
-/* USER CODE BEGIN Header_startTask10Hz */
+/* USER CODE BEGIN Header_StartTask1Hz */
 /**
- * @brief Function implementing the task10Hz thread.
+ * @brief Function implementing the Task1Hz thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_startTask10Hz */
-void startTask10Hz(void *argument)
+/* USER CODE END Header_StartTask1Hz */
+void StartTask1Hz(void *argument)
 {
-    /* USER CODE BEGIN startTask10Hz */
+    /* USER CODE BEGIN StartTask1Hz */
     /* Infinite loop */
-    tasks_run10Hz();
-    /* USER CODE END startTask10Hz */
+    tasks_run1Hz();
+    /* USER CODE END StartTask1Hz */
 }
 
-/* MPU Configuration */
-
-void MPU_Config(void)
+/* USER CODE BEGIN Header_StartTask1kHz */
+/**
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTask1kHz */
+void StartTask1kHz(void *argument)
 {
-    MPU_Region_InitTypeDef MPU_InitStruct = { 0 };
-
-    /* Disables the MPU */
-    HAL_MPU_Disable();
-
-    /** Initializes and configures the Region and the memory to be protected
-     */
-    MPU_InitStruct.Enable           = MPU_REGION_ENABLE;
-    MPU_InitStruct.Number           = MPU_REGION_NUMBER0;
-    MPU_InitStruct.BaseAddress      = 0x0;
-    MPU_InitStruct.Size             = MPU_REGION_SIZE_4GB;
-    MPU_InitStruct.SubRegionDisable = 0x87;
-    MPU_InitStruct.TypeExtField     = MPU_TEX_LEVEL0;
-    MPU_InitStruct.AccessPermission = MPU_REGION_NO_ACCESS;
-    MPU_InitStruct.DisableExec      = MPU_INSTRUCTION_ACCESS_DISABLE;
-    MPU_InitStruct.IsShareable      = MPU_ACCESS_SHAREABLE;
-    MPU_InitStruct.IsCacheable      = MPU_ACCESS_NOT_CACHEABLE;
-    MPU_InitStruct.IsBufferable     = MPU_ACCESS_NOT_BUFFERABLE;
-
-    HAL_MPU_ConfigRegion(&MPU_InitStruct);
-    /* Enables the MPU */
-    HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
+    /* USER CODE BEGIN StartTask1kHz */
+    /* Infinite loop */
+    tasks_run1kHz();
+    /* USER CODE END StartTask1kHz */
 }
 
 /**

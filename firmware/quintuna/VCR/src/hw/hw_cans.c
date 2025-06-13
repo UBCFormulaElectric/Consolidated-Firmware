@@ -1,11 +1,11 @@
 #include "hw_cans.h"
 #include "io_canMsg.h"
 #include "io_canQueues.h"
+#include "io_log.h"
 #include "main.h"
 #include <assert.h>
 #include "app_jsoncan.h"
 #include <io_canReroute.h>
-#include "io_bootloaderReroute.h"
 #include <stdbool.h>
 
 // NOTE: can2 refers to the CAN2_TX/RX on the altium
@@ -13,13 +13,15 @@
 
 void handleCallback(const CanMsg *rx_msg)
 {
-    io_bootloaderReroute_reRoute(rx_msg);
+    // io_bootloaderReroute_reRoute(rx_msg);
 
     JsonCanMsg json_can_msg = app_jsoncan_copyFromCanMsg(rx_msg);
 
     io_canReroute_can1(&json_can_msg);
     io_canReroute_can2(&json_can_msg);
     io_canReroute_can3(&json_can_msg);
+
+    // Doesnt' receive anything via JSONCAN.
 }
 
 CanHandle fd_can  = { .hcan = &hfdcan2, .bus_num = 1, .receive_callback = handleCallback };

@@ -60,6 +60,9 @@ static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
     log->id        = msg->std_id & ID_MASK;
     log->dlc       = msg->dlc & DLC_MASK;
     log->timestamp = msg->timestamp & TIMESTAMP_MASK;
+
+    // TODO: Bug - Needs to be 64! Fixed in this PR:
+    // https://github.com/UBCFormulaElectric/Consolidated-Firmware/pull/1422
     memcpy(log->data, msg->data.data8, 8);
 }
 

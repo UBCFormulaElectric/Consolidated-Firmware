@@ -18,7 +18,7 @@
         "USE_COMMIT_INFO": "MINIMAL",
         "NO_VENV": "ON",
         "BOOTLOAD": "ON",
-        "WATCHDOG": "OFF"
+        "WATCHDOG": "ON"
       },
       "binaryDir": "build_fw_dev"
     },

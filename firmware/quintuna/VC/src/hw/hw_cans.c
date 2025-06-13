@@ -1,4 +1,5 @@
 #include "hw_cans.h"
+#include "io_bootHandler.h"
 #include "io_canQueue.h"
 #include "main.h"
 #include <assert.h>
@@ -6,6 +7,8 @@
 
 static void canRxCallback(const CanMsg *msg)
 {
+    io_bootHandler_processBootRequest(msg);
+
     if (io_canRx_filterMessageId_can1(msg->std_id) || io_canRx_filterMessageId_can2(msg->std_id) ||
         io_canRx_filterMessageId_can3(msg->std_id))
     {

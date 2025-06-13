@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
+#include "app_utils.h"
 #include "hw_utils.h"
 
 #ifdef TARGET_EMBEDDED

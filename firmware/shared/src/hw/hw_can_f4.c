@@ -58,8 +58,7 @@ void hw_can_init(CanHandle *can_handle)
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_CAN_ActivateNotification(
-            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
-        HAL_OK);
+            can_handle->hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF) == HAL_OK);
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
@@ -119,8 +118,7 @@ ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg)
     uint32_t mailbox = 0;
 
     while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
-    {
-    }
+        ;
     return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data.data8, &mailbox));
 }
 
@@ -172,27 +170,3 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     handle_callback(hcan);
 }
-
-// static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
-// {
-//     const CanHandle *can = hw_can_getHandle(hcan);
-//     // if (can->transmit_task == NULL)
-//     // {
-//         // return;
-//     // }
-//     // BaseType_t higherPriorityTaskWoken = pdFALSE;
-//     vTaskNotifyGiveFromISR(can->transmit_task, &higherPriorityTaskWoken);
-//     portYIELD_FROM_ISR(higherPriorityTaskWoken);
-// }
-// void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
-// {
-//     mailbox_complete_handler(hcan);
-// }
-// void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
-// {
-//     mailbox_complete_handler(hcan);
-// }
-// void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
-// {
-//     mailbox_complete_handler(hcan);
-// }

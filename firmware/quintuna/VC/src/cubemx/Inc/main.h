@@ -71,9 +71,9 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LSI_FREQUENCY 32000
+#define IWDG_RESET_FREQUENCY 5
 #define IWDG_PRESCALER 4
-#define IWDG_RESET_FREQUENCY 4
+#define LSI_FREQUENCY 32000
 #define SB_SHDN_3V3_OUT_Pin GPIO_PIN_0
 #define SB_SHDN_3V3_OUT_GPIO_Port GPIOC
 #define INTERIA_3V3_OUT_Pin GPIO_PIN_1

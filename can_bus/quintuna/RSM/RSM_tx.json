@@ -1,4 +1,10 @@
 {
+  "Bootup": {
+    "msg_id": 715,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "Vitals": {
     "msg_id": 700,
     "cycle_time": 100,
@@ -15,13 +21,22 @@
   "Debug": {
     "msg_id": 707,
     "cycle_time": 1000,
-    "description": "RSM Debug Signals",
+    "description": "VC Debug Signals",
     "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
       "ResetReason": {
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 16
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
       }
     }
   },
@@ -125,14 +140,14 @@
       }
     }
   },
-    "ShdnNodeStatus" :{
-        "msg_id" : 714,
-        "cycle_time" : 10,
-        "description" : "RSM shutdown nodes",
-        "signals" :{
-            "RearLeftMotorInterlock":{
-                "bits" : 1
-            }
-        }
+  "ShdnNodeStatus": {
+    "msg_id": 714,
+    "cycle_time": 10,
+    "description": "RSM shutdown nodes",
+    "signals": {
+      "RearLeftMotorInterlock": {
+        "bits": 1
+      }
     }
+  }
 }

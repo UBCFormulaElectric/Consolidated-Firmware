@@ -82,6 +82,15 @@ typedef enum
         }                                                                      \
     }
 
+#define RETURN_IF_ERR_SILENT(err_expr)  \
+    {                                   \
+        const ExitCode exit = err_expr; \
+        if (IS_EXIT_ERR(exit))          \
+        {                               \
+            return exit;                \
+        }                               \
+    }
+
 #define LOG_IF_ERR(err_expr)                                        \
     {                                                               \
         const ExitCode exit = err_expr;                             \

@@ -28,8 +28,8 @@ void app_allStates_runOnTick1Hz(void) {}
 
 void app_allStates_runOnTick100Hz(void)
 {
-    app_heartbeatMonitor_checkIn(&hb_monitor);
-    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+    // app_heartbeatMonitor_checkIn(&hb_monitor);
+    // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
@@ -62,6 +62,7 @@ void app_allStates_runOnTick100Hz(void)
     const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
     if (acc_fault && settle_time_expired)
     {
-        app_stateMachine_setNextState(app_faultState_get());
+        // TODO: Re-enable!
+        // app_stateMachine_setNextState(app_faultState_get());
     }
 }
