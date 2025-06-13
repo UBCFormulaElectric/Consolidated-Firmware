@@ -17,20 +17,6 @@
 #define REG_CTRL 0x01         // Control (SAMPLE_MODE, CHANNEL_N_OFF, ALERT pins)
 #define REG_NEG_PWR_FSR 0x1D  // VSENSE/VBUS FSR configuration
 #define REG_ACCUM_CONFIG 0x25 // Enable accumulation of VBUS & VSENSE
-#define REG_OC1_LIMIT 0x30    // over current ch1
-#define REG_UC1_LIMIT 0x34    // under current ch1
-#define REG_OV1_LIMIT 0x3C    // over voltage ch1
-#define REG_UV1_LIMIT 0x40    // under voltage ch1
-
-// over/under current/voltage thresholds
-#define CH1_OC 0.0f
-#define CH2_OC 0.0f
-#define CH1_UC 0.0f
-#define CH2_UC 0.0f
-#define CH1_OV 0.0f
-#define CH2_OV 0.0f
-#define CH1_UV 0.0f
-#define CH2_UV 0.0f
 
 // LSB scaling factors
 #define VBUS_LSB (4.8828e-4f)
