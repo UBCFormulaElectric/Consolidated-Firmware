@@ -61,7 +61,7 @@
 // torque * 1000
 #define PEDAL_REMAPPING(torque) ((int16_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f)) 
 #define TORQUE_TO_POWER(torque, rpm) \
-    ( (torque) * ((rpm) / (GEAR_RATIO)) * (POWER_TO_TORQUE_CONVERSION_FACTOR) )
+    ( (torque) * ((float)(rpm) / (GEAR_RATIO)) * (POWER_TO_TORQUE_CONVERSION_FACTOR) )
 #define POWER_TO_TORQUE(power, rpm) \
     ( ((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / ((rpm) / (GEAR_RATIO)))
 

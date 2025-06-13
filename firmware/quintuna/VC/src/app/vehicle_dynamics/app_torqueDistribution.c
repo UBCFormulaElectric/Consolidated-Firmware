@@ -25,20 +25,20 @@ static float app_totalWheelSpeed()
             app_canRx_INVRL_ActualVelocity_get() + app_canRx_INVRR_ActualVelocity_get()); 
 }
 
-void app_wheelVerticalForces_broadcast(const ImuData *imu)
+void app_wheelVerticalForces_broadcast(const ImuData *imu_data)
 {
     app_canTx_VC_FrontLeftWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) -
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
     app_canTx_VC_FrontRightWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) +
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
     app_canTx_VC_RearLeftWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) -
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
     app_canTx_VC_RearRightWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu->long_accel)) / 4.0f) + 
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu->lat_accel));
+        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) + 
+        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
 }
 
 float app_loadTransferConstant(float long_accel)

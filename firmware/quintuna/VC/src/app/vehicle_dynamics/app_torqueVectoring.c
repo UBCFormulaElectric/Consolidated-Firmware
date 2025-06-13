@@ -79,15 +79,6 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
 // Read data from CAN
 void app_torqueVectoring_handleAcceleration(void)
 {
-    // Reset control loops if timeout elapsed
-    TimerState timeout = app_timer_updateAndGetState(&pid_timeout);
-    if (timeout == TIMER_STATE_EXPIRED)
-    {
-        app_pid_requestReset(&pid_power_correction);
-        app_pid_requestReset(&pid_traction_control);
-    }
-    app_timer_restart(&pid_timeout);
-
     // imu load transfer calc
     torqueAllocation.load_transfer_const = app_loadTransferConstant(imu_output->long_accel);
 
