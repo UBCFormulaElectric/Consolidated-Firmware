@@ -82,16 +82,8 @@ void app_warningHandling_inverterRest(void)
 {
     for (uint8_t inverter = 0; inverter < NUM_INVERTERS; inverter++)
     {
-        const bool bms_not_drive_state = BMS_DRIVE_STATE != app_canRx_BMS_State_get();
-        const bool inverter_reset =
-            (bms_not_drive_state && (inverter_reset_handle[inverter].can_error_info() == (uint32_t)DC_BUS_ISSUES ||
-             (inverter_reset_handle[inverter].can_error_info() == (uint32_t)CAN_ISSUES)));
-
-        if (inverter_reset)
-        {
-            inverter_reset_handle[inverter].can_invOn(false);
-            inverter_reset_handle[inverter].can_dcOn(false);
-            inverter_reset_handle[inverter].can_enable_inv(false);
-        }
+        inverter_reset_handle[inverter].can_invOn(false);
+        inverter_reset_handle[inverter].can_dcOn(false);
+        inverter_reset_handle[inverter].can_enable_inv(false);
     }
 }

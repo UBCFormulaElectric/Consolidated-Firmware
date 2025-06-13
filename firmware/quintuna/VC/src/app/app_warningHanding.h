@@ -18,3 +18,5 @@ typedef enum
 WarningType app_warningHandling_globalWarningCheck(void);
 
 bool app_warningHandling_inverterStatus();
+
+void app_warningHandling_inverterRest(void);
