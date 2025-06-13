@@ -18,6 +18,8 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
         fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
 
+        fakes::segments::setPackVoltageEvenly(600.0f);
+
         jobs_init();
     }
     void board_teardown() override {}

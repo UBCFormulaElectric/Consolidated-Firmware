@@ -1,4 +1,5 @@
 #include "test_fakes.h"
+#include <cstring>
 
 extern "C"
 {
@@ -21,19 +22,23 @@ extern "C"
         UNUSED(config);
         return EXIT_CODE_OK;
     }
+
+    static std::array<std::array<uint16_t, NUM_SEGMENTS>, CELLS_PER_SEGMENT> voltage_regs{};
+
     void io_ltc6813_readVoltageRegisters(
         uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
     {
+        memcpy(cell_voltage_regs, voltage_regs.data(), sizeof(uint16_t) * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             for (int j = 0; j < CELLS_PER_SEGMENT; j++)
             {
-                cell_voltage_regs[i][j] = 0;
-                comm_success[i][j]      = EXIT_CODE_OK;
+                comm_success[i][j] = EXIT_CODE_OK;
             }
         }
     }
+
     ExitCode io_ltc6813_startCellsAdcConversion(void)
     {
         return EXIT_CODE_OK;
@@ -310,4 +315,32 @@ namespace imd
         pwm_counter = counter;
     }
 } // namespace imd
+
+namespace segments
+{
+    void setCellVoltages(const std::array<std::array<float, NUM_SEGMENTS>, CELLS_PER_SEGMENT> &voltages)
+    {
+        for (int i = 0; i < NUM_SEGMENTS; i++)
+        {
+            for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+            {
+                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1000);
+            }
+        }
+    }
+
+    void setPackVoltageEvenly(const float pack_voltage)
+    {
+        const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        std::array<std::array<float, NUM_SEGMENTS>, CELLS_PER_SEGMENT> v{};
+        for (int i = 0; i < NUM_SEGMENTS; i++)
+        {
+            for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+            {
+                v[i][j] = cell_voltage;
+            }
+        }
+        setCellVoltages(v);
+    }
+} // namespace segments
 } // namespace fakes
