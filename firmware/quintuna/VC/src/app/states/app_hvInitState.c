@@ -52,6 +52,11 @@ static void hvInitStateRunOnEntry(void)
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_init(&start_up_timer, INV_QUIT_TIMEOUT_MS);
 
+    app_canTx_VC_INVFRTorqueSetpoint_set(0);
+    app_canTx_VC_INVRRTorqueSetpoint_set(0);
+    app_canTx_VC_INVFLTorqueSetpoint_set(0);
+    app_canTx_VC_INVRLTorqueSetpoint_set(0);
+
     app_canTx_VC_INVFLTorqueLimitPositive_set(0);
     app_canTx_VC_INVFRTorqueLimitPositive_set(0);
     app_canTx_VC_INVRLTorqueLimitPositive_set(0);
