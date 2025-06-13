@@ -86,8 +86,9 @@ _Noreturn void tasks_runChimera(void)
 
 _Noreturn void tasks_run1Hz(void)
 {
-    static const TickType_t period_ms = 1000U;
-    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 20);
+    const uint32_t  period_ms                = 1000U;
+    const uint32_t  watchdog_grace_period_ms = 50U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
 
@@ -108,8 +109,9 @@ _Noreturn void tasks_run1Hz(void)
 
 _Noreturn void tasks_run100Hz(void)
 {
-    static const TickType_t period_ms = 10;
-    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 5);
+    const uint32_t  period_ms                = 10U;
+    const uint32_t  watchdog_grace_period_ms = 2U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
 
@@ -130,8 +132,9 @@ _Noreturn void tasks_run100Hz(void)
 
 _Noreturn void tasks_run1kHz(void)
 {
-    static const TickType_t period_ms = 1U;
-    WatchdogHandle         *watchdog  = hw_watchdog_initTask(period_ms, 2);
+    const uint32_t  period_ms                = 1U;
+    const uint32_t  watchdog_grace_period_ms = 1U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
 
