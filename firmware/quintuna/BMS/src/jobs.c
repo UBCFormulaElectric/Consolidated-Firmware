@@ -58,23 +58,6 @@ void jobs_init()
     app_segments_initFaults();
     app_segments_balancingInit();
 
-    // Write LTC configs.
-    io_ltc6813_wakeup();
-    LOG_IF_ERR(app_segments_configSync());
-
-    // Run all self tests at init.
-    LOG_IF_ERR(app_segments_runAdcAccuracyTest());
-    LOG_IF_ERR(app_segments_runVoltageSelfTest());
-    LOG_IF_ERR(app_segments_runAuxSelfTest());
-    LOG_IF_ERR(app_segments_runStatusSelfTest());
-    LOG_IF_ERR(app_segments_runOpenWireCheck());
-
-    app_segments_broadcastAdcAccuracyTest();
-    app_segments_broadcastVoltageSelfTest();
-    app_segments_broadcastAuxSelfTest();
-    app_segments_broadcastStatusSelfTest();
-    app_segments_broadcastOpenWireCheck();
-
     app_allStates_init();
     app_stateMachine_init(app_initState_get());
 }

@@ -246,6 +246,14 @@ void tasks_runLtcVoltages(void)
 {
     static const TickType_t period_ms = 1000U; // 1Hz
 
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
@@ -288,6 +296,14 @@ void tasks_runLtcTemps(void)
 {
     static const TickType_t period_ms = 1000U; // 1Hz
 
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
@@ -314,6 +330,31 @@ void tasks_runLtcTemps(void)
 void tasks_runLtcDiagnostics(void)
 {
     static const TickType_t period_ms = 10000U; // Every 10s
+
+    // Run all self tests at init.
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+
+        LOG_IF_ERR(app_segments_runAdcAccuracyTest());
+        LOG_IF_ERR(app_segments_runVoltageSelfTest());
+        LOG_IF_ERR(app_segments_runAuxSelfTest());
+        LOG_IF_ERR(app_segments_runStatusSelfTest());
+        LOG_IF_ERR(app_segments_runOpenWireCheck());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
+    xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+    {
+        app_segments_broadcastAdcAccuracyTest();
+        app_segments_broadcastVoltageSelfTest();
+        app_segments_broadcastAuxSelfTest();
+        app_segments_broadcastStatusSelfTest();
+        app_segments_broadcastOpenWireCheck();
+    }
+    xSemaphoreGive(ltc_app_data_lock);
 
     for (;;)
     {
