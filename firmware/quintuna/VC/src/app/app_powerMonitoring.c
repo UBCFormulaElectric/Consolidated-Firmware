@@ -22,6 +22,7 @@ void app_powerMonitoring_update(void)
         float ch2_current = 0.0f;
         float ch2_power   = 0.0f;
 
+        io_powerMonitoring_refresh();
         io_powerMonitoring_read_voltage(CH1, &ch1_voltage);
         io_powerMonitoring_read_voltage(CH2, &ch2_voltage);
         io_powerMonitoring_read_current(CH1, &ch1_current);
