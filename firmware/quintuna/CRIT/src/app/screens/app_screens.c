@@ -19,6 +19,7 @@ void app_screens_init(void)
     io_shift_register_seven_seg_init();
     io_rotary_setClockwiseCallback(app_screens_rotaryCW);
     io_rotary_setCounterClockwiseCallback(app_screens_rotaryCCW);
+    io_rotary_setPushCallback(NULL);
 
     app_screens_update();
 }

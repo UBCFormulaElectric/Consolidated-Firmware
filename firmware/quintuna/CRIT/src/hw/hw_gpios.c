@@ -6,8 +6,6 @@
 // Rotary GPIO interrupt handler.
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    LOG_INFO("interrupt...");
-
     if (GPIO_Pin == rot_a.pin || GPIO_Pin == rot_b.pin)
     {
         io_rotary_rotA_rotB_IRQHandler();
