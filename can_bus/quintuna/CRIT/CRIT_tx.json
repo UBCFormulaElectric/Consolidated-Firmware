@@ -46,7 +46,7 @@
       "RegenSwitch": {
         "enum": "SwitchState"
       },
-      "TorqueVecSwitch": {
+      "VanillaOverrideSwitch": {
         "enum": "SwitchState"
       },
       "LaunchControlSwitch": {

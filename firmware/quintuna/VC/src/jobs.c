@@ -6,6 +6,7 @@
 #include <app_canTx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
+#include "io_log.h"
 #include "states/app_states.h"
 #include "io_time.h"
 #include "io_sbgEllipse.h"
@@ -93,6 +94,9 @@ void jobs_run100Hz_tick(void)
     app_sbgEllipse_broadcast();
 
     app_stateMachine_tickTransitionState();
+
+    LOG_INFO("FSM apps = %d", (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get());
+
     io_canTx_enqueue100HzMsgs();
 }
 
