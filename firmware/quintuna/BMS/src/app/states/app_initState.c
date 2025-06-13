@@ -3,11 +3,10 @@
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_tractiveSystem.h"
+#include "app_canUtils.h"
 // #include "app_soc.h"
-// #include "app_inverterOnState.h"
 
 #include "io_charger.h"
-#include "io_faultLatch.h"
 #include "io_irs.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)

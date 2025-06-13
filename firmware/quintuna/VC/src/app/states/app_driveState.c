@@ -46,7 +46,6 @@ static void driveStateRunOnEntry()
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
-    app_canTx_VC_BuzzerControl_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
@@ -57,11 +56,15 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRRbEnable_set(true);
     app_canTx_VC_INVRLbEnable_set(true);
 
-    // TODO: replace with new messages
-    // app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
-    // app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
-    // app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVFLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVFRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+
+    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
 
     if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
@@ -88,13 +91,6 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
         app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
         return;
-    }
-
-    // Disable drive buzzer after 2 seconds.
-    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
-    {
-        // io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
-        app_canTx_VC_BuzzerControl_set(false);
     }
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
@@ -128,7 +124,7 @@ static bool driveStatePassPreCheck()
 
     if (INVERTER_FAULT == warning_check)
     {
-        app_canAlerts_VC_Warning_InverterRetry_set(true);
+        app_canAlerts_VC_Info_InverterRetry_set(true);
         app_stateMachine_setNextState(&hvInit_state);
         // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
         return false;

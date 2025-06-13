@@ -44,8 +44,11 @@ void app_precharge_restart(void)
 
 PrechargeState app_precharge_poll(const bool precharge_for_charging)
 {
-    const float ts_voltage        = app_tractiveSystem_getVoltage();
-    const float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    float ts_voltage = app_tractiveSystem_getVoltage();
+    // TODO: Change to actual pack voltage.
+    const float pack_voltage = 300.0f;
+    // float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    float threshold_voltage = pack_voltage * PRECHARGE_ACC_V_THRESHOLD;
 
     const bool is_air_negative_open = !io_irs_negativeState();
     const bool is_ts_rising_slowly =
@@ -64,6 +67,7 @@ PrechargeState app_precharge_poll(const bool precharge_for_charging)
         num_precharge_failures++;
     }
 
+    precharge_limit_exceeded = num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS;
     app_canAlerts_BMS_Warning_CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // If there is a pre-charge fault and there were no more than three previous pre-charge faults
