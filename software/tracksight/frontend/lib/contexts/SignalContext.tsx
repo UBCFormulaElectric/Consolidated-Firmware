@@ -22,6 +22,39 @@ import {
   SignalType,
 } from "./SignalConfig";
 
+export const signalPatterns = {
+  warning: /^.+_Warning_(?!.*Count$).+$/, // Warning messages (not counts)
+  warning_count: /^.+_Warning_.+Count$/, // Warning counts
+  info: /^.+Info_(?!.*Count$).+$/, // Info messages (not counts)
+  info_count: /^.+_Info_.+Count$/, // Info counts
+  fault: /^.+Fault_(?!.*Count$).+$/, // Fault messages (not counts)
+  fault_count: /^.+_Fault_.+Count$/, // Fault counts
+};
+
+export type AlertType = "Fault" | "Warning" | "Info";
+export type AlertSignalType =
+  | AlertType
+  | "FaultCount"
+  | "WarningCount"
+  | "InfoCount";
+
+const patternToTypeMap: Record<keyof typeof signalPatterns, AlertSignalType> = {
+  warning: "Warning",
+  warning_count: "WarningCount",
+  info: "Info",
+  info_count: "InfoCount",
+  fault: "Fault",
+  fault_count: "FaultCount",
+};
+
+export const getSignalType = (name: string): AlertSignalType | null => {
+  for (const [patternKey, pattern] of Object.entries(signalPatterns)) {
+    if (pattern.test(name)) {
+      return patternToTypeMap[patternKey as keyof typeof signalPatterns];
+    }
+  }
+  return null;
+};
 // Context interface
 type SignalContextType = {
   availableSignals: SignalMeta[];
@@ -49,7 +82,15 @@ type SignalContextType = {
     signalName: string,
     value: number | string
   ) => string | undefined;
-  getAlertSignals: () => {};
+  getAlertSignals: () => Record<
+    | "warning"
+    | "warning_count"
+    | "info"
+    | "info_count"
+    | "fault"
+    | "fault_count",
+    SignalMeta[]
+  >;
 };
 
 // Create the context
@@ -114,30 +155,26 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     const fault: SignalMeta[] = [];
     const fault_count: SignalMeta[] = [];
 
+    const result: Record<keyof typeof signalPatterns, SignalMeta[]> = {
+      warning: [],
+      warning_count: [],
+      info: [],
+      info_count: [],
+      fault: [],
+      fault_count: [],
+    };
+
+    // Categorize each signal
     availableSignals.forEach((signal) => {
-      if (/^.+_Warning_.+$/.test(signal.name)) {
-        warning.push(signal);
-      } else if (/^.+_Warning_.+Count$/.test(signal.name)) {
-        warning_count.push(signal);
-      } else if (/^.+Info_.+$/.test(signal.name)) {
-        info.push(signal);
-      } else if (/^.+_Info_.+Count$/.test(signal.name)) {
-        info_count.push(signal);
-      } else if (/^.+Fault_.+$/.test(signal.name)) {
-        fault.push(signal);
-      } else if (/^.+_Fault_.+Count$/.test(signal.name)) {
-        fault_count.push(signal);
+      for (const [type, pattern] of Object.entries(signalPatterns)) {
+        if (pattern.test(signal.name)) {
+          result[type as keyof typeof signalPatterns].push(signal);
+          break; // Move to next signal after first match
+        }
       }
     });
 
-    return {
-      info,
-      info_count,
-      warning,
-      warning_count,
-      fault,
-      fault_count,
-    };
+    return result;
   };
 
   // subscript all alerts
@@ -520,6 +557,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         numericalData,
         enumData,
         currentTime,
+        signalPatterns,
         subscribeToSignal,
         unsubscribeFromSignal,
         clearData,

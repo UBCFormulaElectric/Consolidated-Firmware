@@ -1,9 +1,11 @@
-import { useSignals } from "@/lib/contexts/SignalContext";
+import {
+  getSignalType as getAlertSignalType,
+  useSignals,
+} from "@/lib/contexts/SignalContext";
 import { AlertCircle, AlertTriangle, Info } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Alert {
-  id: string;
   type: "Fault" | "Warning" | "Info";
   name: string;
   lastUpdated: string;
@@ -11,50 +13,65 @@ interface Alert {
 
 type Severity = "HIGH" | "MEDIUM" | "LOW";
 type AlertType = "Fault" | "Warning" | "Info";
-
+type SignalType = AlertType | "FaultCount" | "WarningCount" | "InfoCount";
 export default function AlertBoard() {
   const { data } = useSignals();
+
   console.log(data);
   // Separate state for each alert type
-  const [faults, setFaults] = useState<Alert[]>([
-    {
-      id: "1",
-      type: "Fault",
-      name: "Battery Overheating",
-      lastUpdated: "2023-05-15 14:30",
-    },
-    {
-      id: "2",
-      type: "Fault",
-      name: "Motor Failure",
-      lastUpdated: "2023-05-15 10:15",
-    },
-  ]);
+  const [faults, setFaults] = useState<Alert[]>([]);
+  const [warnings, setWarnings] = useState<Alert[]>([]);
+  const [infoAlerts, setInfoAlerts] = useState<Alert[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
 
-  const [warnings, setWarnings] = useState<Alert[]>([
-    {
-      id: "3",
-      type: "Warning",
-      name: "Low Tire Pressure",
-      lastUpdated: "2023-05-15 14:25",
-    },
-    {
-      id: "5",
-      type: "Warning",
-      name: "Low Battery",
-      lastUpdated: "2023-05-15 15:10",
-    },
-  ]);
+  useEffect(() => {
+    const newFaults: Alert[] = [];
+    const newWarnings: Alert[] = [];
+    const newInfo: Alert[] = [];
+    const newCounts: Record<string, number> = {};
 
-  const [infoAlerts, setInfoAlerts] = useState<Alert[]>([
-    {
-      id: "4",
-      type: "Info",
-      name: "Software Update Available",
-      lastUpdated: "2023-05-14 09:15",
-    },
-  ]);
+    for (const point of data) {
+      const signalType = getAlertSignalType(point.name);
 
+      if (signalType?.endsWith("Count")) {
+        newCounts[point.name] = point.value;
+        continue;
+      }
+
+      const newAlert: Alert = {
+        type: signalType as AlertType,
+        name: point.name,
+        lastUpdated:
+          new Date(point.time).toISOString() || new Date().toISOString(),
+      };
+
+      switch (signalType) {
+        case "Fault":
+          addOrUpdateAlert(newFaults, newAlert);
+          break;
+        case "Warning":
+          addOrUpdateAlert(newWarnings, newAlert);
+          break;
+        case "Info":
+          addOrUpdateAlert(newInfo, newAlert);
+          break;
+      }
+    }
+
+    setFaults(newFaults);
+    setWarnings(newWarnings);
+    setInfoAlerts(newInfo);
+    setCounts(newCounts);
+  }, [data]);
+
+  const addOrUpdateAlert = (list: Alert[], alert: Alert) => {
+    const index = list.findIndex((a) => a.name === alert.name);
+    if (index >= 0) {
+      list[index] = alert;
+    } else {
+      list.push(alert);
+    }
+  };
   const getTypeIcon = (type: AlertType) => {
     switch (type) {
       case "Fault":
@@ -143,7 +160,7 @@ export default function AlertBoard() {
           ) : (
             alerts.map((alert) => (
               <div
-                key={alert.id}
+                key={alert.name}
                 className="px-4 py-3 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex justify-between items-start">

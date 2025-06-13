@@ -2,7 +2,9 @@
 export enum SignalType {
     Numerical = 'numerical',
     Enumeration = 'enumeration',
-    Any = 'any'  // For signals that could be either
+    Any = 'any',  // For signals that could be either
+    Warning = "Warning",
+    WarningCount = "WarningCount"
 }
 
 // Signal metadata interface
