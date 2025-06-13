@@ -41,7 +41,6 @@ void tasks_init()
     LOG_INFO("RSM reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG();
-    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     hw_adcs_chipsInit();
     hw_can_init(&can2);
@@ -80,6 +79,8 @@ void tasks_init()
     }
 
     jobs_init();
+
+    io_canTx_RSM_Bootup_sendAperiodic();
 }
 
 _Noreturn void tasks_runChimera(void)

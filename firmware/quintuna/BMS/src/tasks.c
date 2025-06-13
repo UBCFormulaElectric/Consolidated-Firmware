@@ -73,6 +73,13 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG1();
 
+    isospi_bus_access_lock = xSemaphoreCreateBinaryStatic(&isospi_bus_access_lock_buf);
+    ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
+    assert(isospi_bus_access_lock != NULL);
+    assert(ltc_app_data_lock != NULL);
+    xSemaphoreGive(isospi_bus_access_lock);
+    xSemaphoreGive(ltc_app_data_lock);
+
     LOG_IF_ERR(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
@@ -121,12 +128,7 @@ void tasks_init(void)
 
     jobs_init();
 
-    isospi_bus_access_lock = xSemaphoreCreateBinaryStatic(&isospi_bus_access_lock_buf);
-    ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
-    assert(isospi_bus_access_lock != NULL);
-    assert(ltc_app_data_lock != NULL);
-    xSemaphoreGive(isospi_bus_access_lock);
-    xSemaphoreGive(ltc_app_data_lock);
+    io_canTx_BMS_Bootup_sendAperiodic();
 }
 
 void tasks_run1Hz(void)

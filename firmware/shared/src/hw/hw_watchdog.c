@@ -101,11 +101,12 @@ void hw_watchdog_checkForTimeouts(void)
                     "id = %d)",
                     pcTaskGetTaskName(watchdog_table.watchdogs[i].task), status.xTaskNumber);
 
+#ifndef NO_BOOTLOADER
                 const BootRequest request = { .target        = BOOT_TARGET_APP,
                                               .context       = BOOT_CONTEXT_WATCHDOG_TIMEOUT,
                                               .context_value = status.xTaskNumber };
                 hw_bootup_setBootRequest(request);
-
+#endif
                 // Stop petting the hardware watchdog.
                 timeout_detected = true;
             }

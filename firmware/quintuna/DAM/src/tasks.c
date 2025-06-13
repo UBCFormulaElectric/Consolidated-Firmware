@@ -17,6 +17,7 @@
 #include "io_telemMessage.h"
 #include "io_telemRx.h"
 #include "io_time.h"
+#include "io_canTx.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
@@ -98,6 +99,8 @@ void tasks_init(void)
     }
 
     jobs_init();
+
+    io_canTx_DAM_Bootup_sendAperiodic();
 }
 
 _Noreturn void tasks_runChimera(void)

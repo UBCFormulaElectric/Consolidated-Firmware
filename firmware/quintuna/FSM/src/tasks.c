@@ -12,6 +12,7 @@
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
+#include "io_canTx.h"
 #include "io_bootHandler.h"
 
 #include "app_jsoncan.h"
@@ -79,6 +80,8 @@ void tasks_init(void)
     }
 
     jobs_init();
+
+    io_canTx_FSM_Bootup_sendAperiodic();
 }
 
 _Noreturn void tasks_runChimera(void)

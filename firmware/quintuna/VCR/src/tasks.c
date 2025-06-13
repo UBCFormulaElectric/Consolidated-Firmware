@@ -21,17 +21,6 @@
 #include <app_canAlerts.h>
 #include <stdint.h>
 
-void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
-{
-    LOG_ERROR("Stack overflow detected in task %s, resetting...", pcTaskName);
-
-    TaskStatus_t status;
-    vTaskGetInfo(xTask, &status, pdFALSE, eRunning);
-
-    BREAK_IF_DEBUGGER_CONNECTED();
-    NVIC_SystemReset();
-}
-
 void tasks_preInit()
 {
     hw_hardFaultHandler_init();
@@ -49,7 +38,6 @@ void tasks_init()
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VCR reset!");
-    jobs_init();
     hw_can_init(&fd_can);
     hw_can_init(&sx_can);
     hw_can_init(&inv_can);
@@ -66,6 +54,10 @@ void tasks_init()
     }
 
     app_canTx_VCR_ResetReason_set((CanResetReason)hw_resetReason_get());
+
+    jobs_init();
+
+    io_canTx_VCR_Bootup_sendAperiodic();
 }
 
 _Noreturn void tasks_run1Hz(void)

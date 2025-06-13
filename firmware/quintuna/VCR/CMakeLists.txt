@@ -34,6 +34,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -96,6 +97,7 @@ if ("${TARGET}" STREQUAL "binary")
                 "quintuna_VCR_stm32cube_hal"
                 "quintuna_VCR_jsoncan"
                 "quintuna_VCR_commit_info")
+    target_compile_definitions("quintuna_VCR_app.elf" PRIVATE NO_BOOTLOADER)
 
     # embedded_image(
     #         "quintuna_VCR"

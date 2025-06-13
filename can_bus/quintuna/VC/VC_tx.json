@@ -1,4 +1,10 @@
 {
+  "Bootup": {
+    "msg_id": 230,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "Vitals": {
     "msg_id": 500,
     "cycle_time": 10,

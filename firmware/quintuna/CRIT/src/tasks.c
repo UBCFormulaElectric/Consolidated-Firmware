@@ -77,6 +77,8 @@ void tasks_init()
     }
 
     jobs_init();
+
+    io_canTx_CRIT_Bootup_sendAperiodic();
 }
 
 _Noreturn void tasks_runChimera(void)
