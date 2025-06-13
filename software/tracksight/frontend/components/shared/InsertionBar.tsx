@@ -12,7 +12,7 @@ export const InsertionBar: React.FC<InsertionBarProps> = ({ onInsert }) => (
     onClick={onInsert}
     className="sticky inline-block w-[calc(100vw-48px)] left-2"
   >
-    <div className="relative left-[calc(50vw-32px)] w-8">
+    <div className="relative left-[calc(50vw-39px)] w-8">
       <PlusButton />
     </div>
   </div>
