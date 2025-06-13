@@ -63,7 +63,7 @@ static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
     memcpy(log->data, msg->data.data8, 8);
 }
 
-void io_canLogging_init(void)
+void io_canLogging_init(char *file_name_prefix)
 {
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsgLog), &queue_attr);
     assert(message_queue_id != NULL);
@@ -74,10 +74,14 @@ void io_canLogging_init(void)
     // create new file for this boot
     CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
-    sprintf(current_path, "/%lu.txt", current_bootcount);
+    if (file_name_prefix == NULL)
+        snprintf(current_path, sizeof(current_path), "/%03lu.txt", current_bootcount);
+    else
+        snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", file_name_prefix, current_bootcount);
+
+    // Open the log file
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);
 }
-
 void io_canLogging_recordMsgFromQueue(void)
 {
     CHECK_ENABLED();
@@ -94,12 +98,25 @@ void io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
     CHECK_ENABLED();
 
     static uint32_t overflow_count = 0;
+    static uint32_t logged_count   = 0;
     CanMsgLog       msg_log;
     convertCanMsgToLog(rx_msg, &msg_log);
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    CHECK_ERR(osMessageQueuePut(message_queue_id, &msg_log, 0, 0) == osOK);
+    if (osMessageQueuePut(message_queue_id, &msg_log, 0, 0) != osOK)
+    {
+        overflow_count++;
+        // LOG_WARN("CAN logging queue overflow, count: %d", overflow_count);
+    }
+    else
+    {
+        logged_count++;
+        if (logged_count % 1000 == 0)
+        {
+            LOG_INFO("Logged %d CAN messages", logged_count);
+        }
+    }
 }
 
 void io_canLogging_sync(void)

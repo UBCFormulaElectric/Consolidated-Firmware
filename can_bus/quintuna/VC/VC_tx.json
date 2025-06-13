@@ -56,6 +56,16 @@
       },
       "VehicleVelocity": {
         "bits": 8
+      },
+      "FrontYawMoment": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "RearYawMoment": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
       }
     }
   },
@@ -84,19 +94,6 @@
       },
       "RxOverflowCount": {
         "bits": 16
-      }
-    }
-  },
-  "DAMTsimBuzzerControl": {
-    "msg_id": 513,
-    "cycle_time": 100,
-    "description": "",
-    "signals": {
-      "TsimControl": {
-        "bits": 1
-      },
-      "BuzzerControl": {
-        "enum": "TsimColor"
       }
     }
   },
@@ -409,7 +406,7 @@
     }
   },
   "INVFLSetPoints": {
-    "msg_id": 393,
+    "msg_id": 388,
     "cycle_time": 5,
     "signals": {
       "INVFLReserve1": {
@@ -436,7 +433,7 @@
         "start_bit": 12,
         "bits": 4
       },
-      "INVFLTargetSpeed": {
+      "INVFLTorqueSetpoint": {
         "start_bit": 16,
         "bits": 16,
         "signed": true
@@ -454,7 +451,7 @@
     }
   },
   "INVFRSetPoints": {
-    "msg_id": 394,
+    "msg_id": 389,
     "cycle_time": 5,
     "signals": {
       "INVFRReserve1": {
@@ -481,7 +478,7 @@
         "start_bit": 12,
         "bits": 4
       },
-      "INVFRTargetSpeed": {
+      "INVFRTorqueSetpoint": {
         "start_bit": 16,
         "bits": 16,
         "signed": true
@@ -499,7 +496,7 @@
     }
   },
   "INVRLSetPoints": {
-    "msg_id": 396,
+    "msg_id": 392,
     "cycle_time": 5,
     "signals": {
       "INVRLbReserve1": {
@@ -544,7 +541,7 @@
     }
   },
   "INVRRSetPoints": {
-    "msg_id": 397,
+    "msg_id": 393,
     "cycle_time": 5,
     "signals": {
       "INVRRbReserve1": {

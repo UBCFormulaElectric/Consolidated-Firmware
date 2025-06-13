@@ -42,7 +42,7 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     JsonCanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(JsonCanMsg));
     tx_msg.std_id = {{msg.id_macro()}};
-    tx_msg.dlc = {{msg.bytes_macro()}};
+    tx_msg.dlc = {{msg.dlc_macro()}};
     #ifdef THREAD_SAFE_CAN_PACKING
     lock();
     #endif

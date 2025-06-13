@@ -1,5 +1,4 @@
 import os
-
 from pathlib import Path
 from typing import LiteralString
 
@@ -9,7 +8,8 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 
 def str2bool(v):
-  return v.lower() in ("yes", "true", "t", "1")
+    return v.lower() in ("yes", "true", "t", "1")
+
 
 DOCKERIZED: bool = os.environ.get("DOCKERIZED") == "1"
 
@@ -24,7 +24,7 @@ INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN")
 CAR_NAME: str | None = os.environ.get("CAR_NAME")
 
 # booting configure
-ENABLE_MORK = str2bool(os.environ.get("ENABLE_MORK"))
+ENABLE_MOCK = str2bool(os.environ.get("ENABLE_MOCK"))
 ENABLE_WIRELESS = str2bool(os.environ.get("ENABLE_WIRELESS"))
 
 SERIAL_PORT = os.environ.get("SERIAL_PORT")

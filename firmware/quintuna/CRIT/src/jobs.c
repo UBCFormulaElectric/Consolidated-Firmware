@@ -83,12 +83,3 @@ void jobs_run1kHz_tick(void)
     {
     }
 }
-
-void jobs_runCanRx_tick(void)
-{
-    const CanMsg rx_msg   = io_canQueue_popRx();
-    JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-
-    io_canRx_updateRxTableWithMessage(&json_msg);
-    io_bootHandler_processBootRequest(&rx_msg);
-}

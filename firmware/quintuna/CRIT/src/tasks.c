@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "app_jsoncan.h"
 #include "cmsis_os.h"
 #include "shared.pb.h"
 #include "jobs.h"
@@ -80,10 +81,9 @@ void tasks_runCanRx()
     // Setup tasks.
     for (;;)
     {
-        CanMsg     rx_msg = io_canQueue_popRx();
-        JsonCanMsg jsoncan_rx_msg;
+        CanMsg     rx_msg         = io_canQueue_popRx();
+        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
-        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 
@@ -128,5 +128,3 @@ void tasks_run1kHz()
         osDelayUntil(start_ticks);
     }
 }
-
-void tasks_deinit() {}

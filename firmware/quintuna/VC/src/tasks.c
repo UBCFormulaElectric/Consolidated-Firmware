@@ -56,7 +56,7 @@ void tasks_init(void)
     BootRequest boot_request = hw_bootup_getBootRequest();
     if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
     {
-        app_canAlerts_VC_Info_StackOverflow_set(true);
+        // app_canAlerts_VC_Info_StackOverflow_set(true);
         app_canTx_VC_StackOverflowTask_set(boot_request.context_value);
 
         // Clear stack overflow bootup.
@@ -161,7 +161,7 @@ _Noreturn void tasks_runCan2Tx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can2_tx_queue);
-        hw_fdcan_transmit(&can3, &tx_msg);
+        hw_can_transmit(&can2, &tx_msg);
     }
 }
 
@@ -170,7 +170,7 @@ _Noreturn void tasks_runCan3Tx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can3_tx_queue);
-        hw_fdcan_transmit(&can3, &tx_msg);
+        hw_can_transmit(&can3, &tx_msg);
     }
 }
 
@@ -181,8 +181,6 @@ _Noreturn void tasks_runCanRx(void)
         const CanMsg rx_msg       = io_canQueue_popRx();
         JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_can_msg);
-
-        io_bootHandler_processBootRequest(&rx_msg);
     }
 }
 
