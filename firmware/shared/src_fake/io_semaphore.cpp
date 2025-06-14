@@ -5,9 +5,9 @@
 
 extern "C"
 {
-    void io_semaphore_create(const Semaphore *sem, const bool priority_inversion_on)
+    void io_semaphore_create(Semaphore *sem, const bool priority_inversion_on)
     {
-        const_cast<Semaphore *>(sem)->created = true;
+        sem->created = true;
         UNUSED(priority_inversion_on);
     }
 

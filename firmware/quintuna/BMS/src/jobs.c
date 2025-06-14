@@ -96,7 +96,7 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    io_semaphore_take(&ltc_app_data_lock, portMAX_DELAY);
+    io_semaphore_take(&ltc_app_data_lock, MAX_TIMEOUT);
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
 
