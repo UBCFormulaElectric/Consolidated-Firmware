@@ -46,12 +46,8 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
 static bool driveStatePassPreCheck();
 static void app_regularDrive_run(float apps_pedal_percentage);
 
-static void driveStateRunOnEntry()
+static void app_enable_inv(void)
 {
-    app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_updateConfig(power_manager_state);
-
-    // Enable inverters
     app_canTx_VC_INVFRbEnable_set(true);
     app_canTx_VC_INVFLbEnable_set(true);
     app_canTx_VC_INVRRbEnable_set(true);
@@ -62,12 +58,21 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
 
-    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+}
 
+static void driveStateRunOnEntry()
+{
+    app_canTx_VC_State_set(VC_DRIVE_STATE);
+    app_powerManager_updateConfig(power_manager_state);
+
+    // Enable inverters
+    app_enable_inv();
     app_driveSwitchInit();
+    app_reset_torqueToMotors(&torqueOutputToMotors);
 }
 
 static void driveStateRunOnTick100Hz(void)
@@ -177,7 +182,7 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     }
     else
     {
-        app_non_vanilla_driving(apps_pedal_percentage, &torqueOutputToMotors);
+        app_driveMode_driving(apps_pedal_percentage, &torqueOutputToMotors);
     }
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 

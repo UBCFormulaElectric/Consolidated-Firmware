@@ -27,7 +27,6 @@
     "FSM_Steering",
     "CRIT_Switches",
     "CRIT_DriveMode",
-    "BMS_CellVoltageStats",
-    "BMS_CurrentLimit"
+    "BMS_CellVoltageStats"
   ]
 }

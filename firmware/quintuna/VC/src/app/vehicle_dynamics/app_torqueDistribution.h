@@ -24,7 +24,7 @@ float app_loadTransferConstant(float long_accel);
  */
 void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutputs *torqueToMotors);
 
-void app_reset_torqueToMotors(void);
+void app_reset_torqueToMotors(TorqueAllocationOutputs *torqueToMotors);
 
 void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors);
 

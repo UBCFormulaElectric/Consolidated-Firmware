@@ -48,12 +48,6 @@ void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
     // TODO: USE TORQUE BROADCAST -- fix mapping
 }
 
-void app_non_vanilla_driving(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
-{
-    app_performSensorChecks();
-    app_driveMode_driving(apps_pedal_percentage, torqueOutputToMotors);
-}
-
 static void app_driveMode_driving(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
     const DriveMode driveMode          = app_canRx_CRIT_DriveMode_get();

@@ -595,7 +595,7 @@
     }
   },
   "PedalPercentage": {
-    "msg_id": 230,
+    "msg_id": 231,
     "cycle_time": 100,
     "description": "Pedal percentage info",
     "signals": {
