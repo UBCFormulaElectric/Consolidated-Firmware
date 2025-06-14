@@ -110,7 +110,7 @@ void tasks_init(void)
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
-  
+
     jobs_init();
 
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
