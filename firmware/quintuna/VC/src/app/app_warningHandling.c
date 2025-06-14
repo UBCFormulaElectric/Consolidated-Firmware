@@ -83,7 +83,7 @@ WarningType app_warningHandling_globalWarningCheck()
     return NO_WARNINGS;
 }
 
-void app_warningHandling_inverterRest(void)
+void app_warningHandling_inverterReset(void)
 {
     for (uint8_t inverter = 0; inverter < NUM_INVERTERS; inverter++)
     {
