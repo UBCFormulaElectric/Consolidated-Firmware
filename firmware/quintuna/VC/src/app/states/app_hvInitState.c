@@ -103,7 +103,7 @@ static void hvInitStateRunOnTick100Hz(void)
             else if (system_ready_timeout == TIMER_STATE_EXPIRED)
             {
                 LOG_INFO("inv system ready timeout");
-                app_stateMachine_setNextState(&init_state);
+                app_stateMachine_setNextState(&inverterOn_state);
             }
 
             break;
@@ -128,7 +128,7 @@ static void hvInitStateRunOnTick100Hz(void)
             if (app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED)
             {
                 LOG_INFO("dc quit timeout");
-                app_stateMachine_setNextState(&init_state);
+                app_stateMachine_setNextState(&inverterOn_state);
             }
 
             break;
@@ -163,7 +163,7 @@ static void hvInitStateRunOnTick100Hz(void)
             if (app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED)
             {
                 LOG_INFO("inv on quit timeout");
-                app_stateMachine_setNextState(&init_state);
+                app_stateMachine_setNextState(&inverterOn_state);
             }
 
             break;
