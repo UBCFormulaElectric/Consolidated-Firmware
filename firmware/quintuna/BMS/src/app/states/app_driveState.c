@@ -2,17 +2,11 @@
 
 #include "app_canUtils.h"
 #include "app_canTx.h"
-#include "app_timer.h"
 #include "io_irs.h"
-
-#define AIR_N_DEBOUNCE_PERIOD (200) // ms
-
-static TimerChannel debounce_timer;
 
 static void driveStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_DRIVE_STATE);
-    app_timer_init(&debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 }
 
 static void driveStateRunOnTick100Hz(void) {}

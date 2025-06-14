@@ -14,6 +14,7 @@
 #include "app_irs.h"
 #include "app_shdnLoop.h"
 #include "app_canAlerts.h"
+#include "app_timer.h"
 // io
 #include "io_canTx.h"
 #include "io_canQueue.h"
@@ -23,12 +24,12 @@
 #include "io_charger.h"
 #include "io_faultLatch.h"
 #include "io_irs.h"
-#include "io_semaphore.h"
-
-static Semaphore isospi_bus_access_lock;
-static Semaphore ltc_app_data_lock;
+#include "io_semaphores.h"
 
 CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
+
+static TimerChannel debounce_timer;
+#define AIR_N_DEBOUNCE_PERIOD (200) // ms
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
 {
@@ -93,6 +94,8 @@ void jobs_init()
     app_segments_broadcastStatusSelfTest();
     app_segments_broadcastOpenWireCheck();
     app_segments_balancingInit();
+
+    app_timer_init(&debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 
     app_stateMachine_init(&init_state);
 }
@@ -160,6 +163,17 @@ void jobs_run1kHz_tick(void)
     io_canTx_enqueueOtherPeriodicMsgs(io_time_getCurrentMs());
 }
 
+void jobs_initLTCVoltages(void)
+{
+    io_semaphore_take(&isospi_bus_access_lock, MAX_TIMEOUT);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    io_semaphore_give(&isospi_bus_access_lock);
+}
+
 void jobs_runLTCVoltages(void)
 {
     const bool balancing_enabled = app_stateMachine_getCurrentState() == &balancing_state;
@@ -191,6 +205,17 @@ void jobs_runLTCVoltages(void)
     io_semaphore_give(&ltc_app_data_lock);
 }
 
+void jobs_initLTCTemps(void)
+{
+    io_semaphore_take(&isospi_bus_access_lock, MAX_TIMEOUT);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    io_semaphore_give(&isospi_bus_access_lock);
+}
+
 void jobs_runLTCTemperatures(void)
 {
     io_semaphore_take(&isospi_bus_access_lock, MAX_TIMEOUT);
@@ -204,6 +229,34 @@ void jobs_runLTCTemperatures(void)
     {
         app_segments_broadcastTempsVRef();
         app_segments_broadcastTempStats();
+    }
+    io_semaphore_give(&ltc_app_data_lock);
+}
+
+void jobs_initLTCDiagnostics(void)
+{
+    // Run all self tests at init.
+    io_semaphore_take(&isospi_bus_access_lock, MAX_TIMEOUT);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+
+        LOG_IF_ERR(app_segments_runAdcAccuracyTest());
+        LOG_IF_ERR(app_segments_runVoltageSelfTest());
+        LOG_IF_ERR(app_segments_runAuxSelfTest());
+        LOG_IF_ERR(app_segments_runStatusSelfTest());
+        LOG_IF_ERR(app_segments_runOpenWireCheck());
+    }
+    io_semaphore_give(&isospi_bus_access_lock);
+
+    io_semaphore_take(&ltc_app_data_lock, MAX_TIMEOUT);
+    {
+        app_segments_broadcastAdcAccuracyTest();
+        app_segments_broadcastVoltageSelfTest();
+        app_segments_broadcastAuxSelfTest();
+        app_segments_broadcastStatusSelfTest();
+        app_segments_broadcastOpenWireCheck();
     }
     io_semaphore_give(&ltc_app_data_lock);
 }
