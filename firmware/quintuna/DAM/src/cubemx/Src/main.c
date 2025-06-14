@@ -132,7 +132,7 @@ const osThreadAttr_t TaskLogging_attributes = {
     .cb_size    = sizeof(TaskLoggingControlBlock),
     .stack_mem  = &TaskLoggingBuffer[0],
     .stack_size = sizeof(TaskLoggingBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for TaskTelem */
 osThreadId_t         TaskTelemHandle;

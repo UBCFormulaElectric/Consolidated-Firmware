@@ -4,14 +4,16 @@ import logging
 import os
 import struct
 import sys
+import crc8
 
 import pandas as pd
 from csv_to_mf4 import csv_to_mf4
 from logfs import LogFs, LogFsDiskFactory
 from tzlocal import get_localzone
 
-from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import \
-    JsonCanParser
+from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
+    JsonCanParser,
+)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -24,11 +26,14 @@ if root_dir not in sys.path:
     sys.path.append(root_dir)
 
 
-# Size of an individual packet.
-CAN_PACKET_SIZE_BYTES = 16
+# 1 byte for magic, 1 byte for CRC, 2 bytes for timestamp, 4 bytes for ID, 1 byte for DLC
+CAN_MSG_HEADER_SIZE = 1 + 1 + 2 + 4 + 1
 
-# Number of CAN msgs to unpack before logging an update.
-CAN_MSGS_CHUNK_SIZE = 100_000
+# Magic indicating the start of a logged CAN message
+CAN_MSG_LOG_MAGIC = 0xBA
+
+# Number of bytes to unpack before logging an update.
+UNPACK_CHUNK_SIZE_BYTES = 1_000_000
 
 # Columns of output CSV file.
 CSV_HEADER = ["time", "signal", "value", "label", "unit"]
@@ -43,18 +48,25 @@ def extract_bits(data: int, start_bit: int, size: int) -> int:
 
 def decode_can_packet(data: bytes):
     """
-    Decode a raw CAN packet. The format is defined in `firmware/shared/src/io/io_canLogging.h`.
+    Decode a raw CAN packet. The format is defined in `firmware/shared/src/io/io_canLogging.c`.
     """
-    # Packet header (message ID, data length code, and timestamp) is first 4 bytes.
-    # Raw CAN data bytes is the next 8 bytes.
-    packet_header, data_bytes, _unused = struct.unpack("<LQL", data)
+    magic, expected_crc, timestamp_ms, msg_id, dlc = struct.unpack("<BBHLB", data)
+    payload_size = CAN_MSG_HEADER_SIZE + dlc
 
-    # Parse the packet header.
-    msg_id = extract_bits(data=packet_header, start_bit=0, size=11)
-    dlc = extract_bits(data=packet_header, start_bit=11, size=4)
-    timestamp_ms = extract_bits(data=packet_header, start_bit=15, size=17)
+    if magic != CAN_MSG_LOG_MAGIC:
+        raise RuntimeError("Magic is incorrect (not 0xBA)")
 
-    return timestamp_ms, msg_id, data_bytes.to_bytes(length=8, byteorder="little")[:dlc]
+    data_bytes = data[CAN_MSG_HEADER_SIZE:payload_size]
+    if len(data_bytes) != dlc:
+        raise RuntimeError("Insufficient bytes for expected data length")
+
+    hasher = crc8.crc8()
+    hasher.update(data[:payload_size])
+    calculated_crc = hasher.digest()
+    if calculated_crc != expected_crc:
+        raise RuntimeError("CRC mismatch while trying to decode a CAN message")
+
+    return timestamp_ms, msg_id, data_bytes, payload_size
 
 
 def decode_raw_log_to_signals(
@@ -70,20 +82,39 @@ def decode_raw_log_to_signals(
     signals = []
     last_timestamp_ms = pd.Timedelta(milliseconds=0)
     overflow_fix_delta_ms = pd.Timedelta(milliseconds=0)
-    total_msgs = len(raw_data) // CAN_PACKET_SIZE_BYTES
 
-    for i in range(0, len(raw_data), CAN_PACKET_SIZE_BYTES):
-        packet_data = raw_data[i: i + CAN_PACKET_SIZE_BYTES]
-        if len(packet_data) != CAN_PACKET_SIZE_BYTES:
-            break
+    i = 0
+    while i < len(raw_data):
+        if i % UNPACK_CHUNK_SIZE_BYTES == 0:
+            percent_unpacked = i / len(raw_data) * 100
+            logger.info(f"Unpacked {int(percent_unpacked)}% of bytes in file.")
 
-        timestamp_ms, msg_id, data_bytes = decode_can_packet(data=packet_data)
-        delta_timestamp = pd.Timedelta(
-            milliseconds=timestamp_ms) + overflow_fix_delta_ms
+        # Scan for magic indicating the start of the next log
+        if raw_data[i] != CAN_MSG_LOG_MAGIC:
+            i += 1
+            continue
 
-        if delta_timestamp < last_timestamp_ms - pd.Timedelta(minutes=1):
-            # Undo timestamp overflow.
-            delta = pd.Timedelta(milliseconds=2**17)
+        # Parse raw CAN packet.
+        packet_data = raw_data[i:]
+
+        try:
+            timestamp_ms, msg_id, data_bytes, size_bytes = decode_can_packet(
+                data=packet_data
+            )
+            i += size_bytes
+        except Exception as err:
+            logger.warning(
+                f"Exception raised while trying to decode a CAN message: {err}"
+            )
+            continue
+
+        delta_timestamp = (
+            pd.Timedelta(milliseconds=timestamp_ms) + overflow_fix_delta_ms
+        )
+
+        if delta_timestamp < last_timestamp_ms - pd.Timedelta(seconds=30):
+            # We currently allocate 16 bits for timestamps, so we need to add 2^16 to undo the overflow.
+            delta = pd.Timedelta(milliseconds=2**16)
             overflow_fix_delta_ms += delta
             delta_timestamp += delta
 
@@ -101,6 +132,7 @@ def decode_raw_log_to_signals(
             signals.append(
                 (timestamp, signal_name, signal_value, signal_label, signal_unit)
             )
+
     return signals
 
 
@@ -157,7 +189,6 @@ if __name__ == "__main__":
         "-n",
         type=str,
         help="Descriptive name of this session.",
-        # required=True,
         default="test-drive",
     )
     parser.add_argument(
@@ -223,8 +254,7 @@ if __name__ == "__main__":
             # Convert the time part from format 'HH-MM-SS' to 'HH:MM:SS'
             ts_str = ts_str[:11] + ts_str[11:].replace("-", ":")
             start_timestamp = pd.Timestamp(ts_str, tz=get_localzone())
-            start_timestamp_no_spaces = start_timestamp.strftime(
-                "%Y-%m-%d_%H_%M")
+            start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H_%M")
 
         if (
             files_to_decode is not None
@@ -232,8 +262,7 @@ if __name__ == "__main__":
             and file_path.lstrip("/") not in files_to_decode
         ):
             # Doesn't match the files we want to decode, ignore.
-            logger.info(
-                f"Skipping file '{file_path}', doesn't match file flag.")
+            logger.info(f"Skipping file '{file_path}', doesn't match file flag.")
             continue
 
         logger.info(f"Opening log file '{file_path}'.")
@@ -264,6 +293,7 @@ if __name__ == "__main__":
                 csv_writer.writerow(CSV_HEADER)
                 for signal in signals:
                     csv_writer.writerow(signal)
+
     if args.mf4:
         csv_dir = args.output
         logger.info("Converting CSV files to MDF format.")
