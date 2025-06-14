@@ -38,7 +38,7 @@ bool io_switch_isClosed(Switch *sw)
         sw->last_raw_state     = raw;
     }
 
-    if ((HAL_GetTick() - sw->last_debounce_time) >= DEBOUNCE_DELAY_MS)
+    if ((io_time_getCurrentMs() - sw->last_debounce_time) >= DEBOUNCE_DELAY_MS)
     {
         sw->debounced_state = raw;
     }
