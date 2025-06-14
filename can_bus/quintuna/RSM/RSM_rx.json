@@ -1,3 +1,7 @@
 {
-  "messages": ["FSM_Vitals", "FSM_Brake"]
+  "messages": [
+    "FSM_Vitals", 
+    "FSM_Brake",
+    "VC_ConnectorBoardEfuse"
+  ]
 }

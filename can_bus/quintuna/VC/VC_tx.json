@@ -118,6 +118,9 @@
     "cycle_time": 100,
     "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
     "signals": {
+      "RsmTurnOnPump": {
+        "bits": 1
+      },
       "RearLeftPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
