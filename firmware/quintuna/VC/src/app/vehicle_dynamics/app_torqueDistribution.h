@@ -1,8 +1,7 @@
 #pragma once
-#include <app_vehicleDynamics.h>
+#include "app_vehicleDynamics.h"
 #include "io_imu_config.h"
-
-TorqueAllocationOutputs torqueToMotors;
+#include "app_vehicleDynamicsConstants.h"
 
 /*
  * Broadcasts the vertical force of each wheel
@@ -23,10 +22,14 @@ float app_loadTransferConstant(float long_accel);
  * Currently adapted to 2 wheel drive
  * Sends torque requests if TV is on
  */
-void app_torqueAllocation(TorqueAllocationInputs *inputs);
+void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutputs *torqueToMotors);
 
 void app_reset_torqueToMotors(void);
 
-void app_torqueBroadCast();
+void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors);
 
-TorqueAllocationOutputs *app_get_torqueToMotors()
+TorqueAllocationOutputs *app_get_torqueToMotors(TorqueAllocationOutputs *torqueToMotors);
+
+void app_torqueReduction(float total_requestedPower, float power_limit, TorqueAllocationOutputs *torqueToMotors);
+
+void app_totalPower(TorqueAllocationOutputs *torques);

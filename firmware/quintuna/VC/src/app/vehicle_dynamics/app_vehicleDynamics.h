@@ -58,15 +58,6 @@ typedef struct ActiveDifferential_Outputs
     float torque_fl_Nm;
 } ActiveDifferential_Outputs;
 
-typedef struct PowerLimiting_Inputs
-{
-    float       left_motor_temp_C;
-    float       right_motor_temp_C;
-    const float current_based_power_limit_kW;
-    const float regen_power_limit_kW;
-    float       accelerator_pedal_percent;
-} PowerLimiting_Inputs; // -- deprecated, leaving for regen
-
 typedef struct TorqueAllocationInputs // regardless of if controller is used or not final torques MUST go into this
                                       // struct before being sent to the inverters
 {
