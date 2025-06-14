@@ -176,7 +176,7 @@ static void app_chargeStateRunOnEntry(void)
 static void app_chargeStateRunOnTick100Hz(void)
 {
     // const ConnectionStatus charger_connection_status = CHARGER_CONNECTED_EVSE; // io_charger_getConnectionStatus();
-    const bool extShutdown = !io_irs_negativeState();
+    const bool extShutdown = io_irs_negativeState() == IRS_OPEN;
     const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);
     const bool userEnable  = app_canRx_Debug_StartCharging_get();
 
