@@ -18,7 +18,7 @@ bool io_switches_regen_get(void)
     return io_switch_isClosed(switches->regen_switch);
 }
 
-bool io_switches_torquevec_get(void)
+bool io_switches_vanilla_override_get(void)
 {
     return io_switch_isClosed(switches->torquevec_switch);
 }

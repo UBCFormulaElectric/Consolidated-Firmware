@@ -10,6 +10,6 @@ void app_switches_broadcast(void)
     const bool regen_switch_on = io_switches_regen_get();
     app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    const bool torquevec_switch_on = io_switches_torquevec_get();
-    app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
+    const bool vanilla_override_switch_on = io_switches_vanilla_override_get();
+    app_canTx_CRIT_VanillaOverride_set(vanilla_override_switch_on ? SWITCH_ON : SWITCH_OFF);
 }

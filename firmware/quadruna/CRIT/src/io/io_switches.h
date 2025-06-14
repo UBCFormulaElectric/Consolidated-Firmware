@@ -13,4 +13,4 @@ void io_switches_init(const Switches *switches_in);
 
 bool io_switches_start_get(void);
 bool io_switches_regen_get(void);
-bool io_switches_torquevec_get(void);
+bool io_switches_vanilla_override_get(void);
