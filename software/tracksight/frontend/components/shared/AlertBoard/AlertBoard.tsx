@@ -9,6 +9,7 @@ interface Alert {
   type: "Fault" | "Warning" | "Info";
   name: string;
   lastUpdated: string;
+  active: boolean;
 }
 
 type Severity = "HIGH" | "MEDIUM" | "LOW";
@@ -17,7 +18,6 @@ type SignalType = AlertType | "FaultCount" | "WarningCount" | "InfoCount";
 export default function AlertBoard() {
   const { data } = useSignals();
 
-  console.log(data);
   // Separate state for each alert type
   const [faults, setFaults] = useState<Alert[]>([]);
   const [warnings, setWarnings] = useState<Alert[]>([]);
@@ -25,35 +25,38 @@ export default function AlertBoard() {
   const [counts, setCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const newFaults: Alert[] = [];
-    const newWarnings: Alert[] = [];
-    const newInfo: Alert[] = [];
-    const newCounts: Record<string, number> = {};
+    const newFaults: Alert[] = [...faults];
+    const newWarnings: Alert[] = [...warnings];
+    const newInfo: Alert[] = [...infoAlerts];
+    const newCounts: Record<string, number> = {
+      ...counts,
+    };
 
     for (const point of data) {
       const signalType = getAlertSignalType(point.name);
-
       if (signalType?.endsWith("Count")) {
         newCounts[point.name] = point.value;
-        continue;
       }
+
+      const active = point.value == 1;
 
       const newAlert: Alert = {
         type: signalType as AlertType,
         name: point.name,
+        active : active,
         lastUpdated:
           new Date(point.time).toISOString() || new Date().toISOString(),
       };
 
       switch (signalType) {
         case "Fault":
-          addOrUpdateAlert(newFaults, newAlert);
+          addOrUpdateAlert(newFaults, newAlert, active);
           break;
         case "Warning":
-          addOrUpdateAlert(newWarnings, newAlert);
+          addOrUpdateAlert(newWarnings, newAlert, active);
           break;
         case "Info":
-          addOrUpdateAlert(newInfo, newAlert);
+          addOrUpdateAlert(newInfo, newAlert, active);
           break;
       }
     }
@@ -61,15 +64,18 @@ export default function AlertBoard() {
     setFaults(newFaults);
     setWarnings(newWarnings);
     setInfoAlerts(newInfo);
+    console.log(newCounts);
     setCounts(newCounts);
   }, [data]);
 
   const addOrUpdateAlert = (list: Alert[], alert: Alert) => {
     const index = list.findIndex((a) => a.name === alert.name);
     if (index >= 0) {
+      // if already exist
       list[index] = alert;
     } else {
-      list.push(alert);
+      if(alert.active) // only update the list when it is first active
+        list.push(alert);
     }
   };
   const getTypeIcon = (type: AlertType) => {
@@ -127,7 +133,10 @@ export default function AlertBoard() {
       Fault: faults,
       Warning: warnings,
       Info: infoAlerts,
-    }[type];
+    }[type].sort(
+      (a, b) =>
+        new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()
+    );
 
     const typeConfig = getTypeConfig(type);
 
@@ -165,7 +174,9 @@ export default function AlertBoard() {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-medium text-gray-900">{alert.name}</h3>
+                    <h3 className="font-medium text-gray-900">
+                      {alert.name} ({counts[`${alert.name}Count`] ?? 0})
+                    </h3>
                   </div>
                   <span className="text-xs text-gray-500 whitespace-nowrap">
                     Last seen: {alert.lastUpdated}
