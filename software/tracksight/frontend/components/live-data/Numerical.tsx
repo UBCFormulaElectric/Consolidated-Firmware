@@ -48,7 +48,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const [scrollLeft, setScrollLeft] = useState(0);
+  const [horizontalScrollPosition, setHorizontalScrollPosition] = useState(0);
 
   // Track signals this component instance subscribed to for proper cleanup
   const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -104,10 +104,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
     // Calculate scroll-based time window
     const totalWidth = sortedTimes.length * scaledPixelPerPoint;
     const maxScrollLeft = Math.max(0, totalWidth - viewportWidth);
-    const clampedScrollLeft = Math.min(scrollLeft, maxScrollLeft);
+    const clampedScrollPosition = Math.min(horizontalScrollPosition, maxScrollLeft);
     
     // Convert scroll position to data point index
-    const scrollProgress = maxScrollLeft > 0 ? clampedScrollLeft / maxScrollLeft : 0;
+    const scrollProgress = maxScrollLeft > 0 ? clampedScrollPosition / maxScrollLeft : 0;
     const maxStartIndex = Math.max(0, sortedTimes.length - pointsPerViewport);
     const viewportStartIndex = Math.floor(scrollProgress * maxStartIndex);
     
@@ -172,7 +172,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
 
       return dataPoint;
     });
-  }, [numericalData, enumData, activeSignals, thisGraphSignals, isNumericalSignal, horizontalScale, scrollLeft]);
+  }, [numericalData, enumData, activeSignals, thisGraphSignals, isNumericalSignal, horizontalScale, horizontalScrollPosition]);
 
   const numericalSignals = thisGraphSignals;
 
@@ -223,15 +223,15 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
     
     const totalTimelineWidth = totalDataPoints * scaledPixelPerPoint;
     const maxScrollLeft = Math.max(0, totalTimelineWidth - viewportWidth);
-    const clampedScrollLeft = Math.min(scrollLeft, maxScrollLeft);
+    const clampedScrollPosition = Math.min(horizontalScrollPosition, maxScrollLeft);
     
-    const scrollProgress = maxScrollLeft > 0 ? clampedScrollLeft / maxScrollLeft : 0;
+    const scrollProgress = maxScrollLeft > 0 ? clampedScrollPosition / maxScrollLeft : 0;
     const maxStartIndex = Math.max(0, totalDataPoints - pointsPerViewport);
     const viewportStartIndex = Math.floor(scrollProgress * maxStartIndex);
     const bufferStartIndex = Math.max(0, viewportStartIndex - bufferSize);
     
     return bufferStartIndex * scaledPixelPerPoint;
-  }, [totalDataPoints, horizontalScale, scrollLeft, pixelPerPoint]);
+  }, [totalDataPoints, horizontalScale, horizontalScrollPosition, pixelPerPoint]);
 
   const handleSelect = useCallback(
     (name: string) => {
@@ -283,7 +283,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
   useEffect(() => {
     const handleScroll = (event: Event) => {
       const target = event.target as HTMLElement;
-      setScrollLeft(target.scrollLeft);
+      setHorizontalScrollPosition(target.scrollLeft);
     };
 
     // Try multiple selectors to find the correct scroll container
@@ -306,7 +306,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
     if (activeContainer) {
       activeContainer.addEventListener('scroll', handleScroll, { passive: true });
       // Set initial scroll position
-      setScrollLeft(activeContainer.scrollLeft);
+      setHorizontalScrollPosition(activeContainer.scrollLeft);
       return () => activeContainer?.removeEventListener('scroll', handleScroll);
     }
   }, [chartData.length]); // Re-run when chart data changes
@@ -320,7 +320,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
     const pointsPerViewport = Math.ceil(viewportWidth / scaledPixelPerPoint);
     const totalWidth = totalDataPoints * scaledPixelPerPoint;
     const maxScrollLeft = Math.max(0, totalWidth - viewportWidth);
-    const scrollProgress = maxScrollLeft > 0 ? (scrollLeft / maxScrollLeft * 100).toFixed(1) : '0';
+    const scrollProgress = maxScrollLeft > 0 ? (horizontalScrollPosition / maxScrollLeft * 100).toFixed(1) : '0';
     
     return {
       pointsPerViewport,
@@ -328,7 +328,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
       totalWidth: Math.round(totalWidth),
       viewportWidth: Math.round(viewportWidth)
     };
-  }, [totalDataPoints, horizontalScale, scrollLeft]);
+  }, [totalDataPoints, horizontalScale, horizontalScrollPosition]);
 
   return (
     <div className="mb-6 p-4 inline-block w-min-[100vm] relative">
@@ -455,7 +455,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
         {/* Debug info for viewport windowing */}
         <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
           <div>Total points: {totalDataPoints} | Rendered: {chartData.length}</div>
-          <div>ScrollLeft: {scrollLeft}px | Chart Offset: {Math.round(chartOffset)}px</div>
+          <div>Horizontal Scroll: {horizontalScrollPosition}px | Chart Offset: {Math.round(chartOffset)}px</div>
           {debugInfo && (
             <div>
               Viewport: {debugInfo.pointsPerViewport} pts | Scroll: {debugInfo.scrollProgress} | 

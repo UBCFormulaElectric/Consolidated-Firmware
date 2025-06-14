@@ -64,7 +64,7 @@ export default function AlertBoard() {
     setFaults(newFaults);
     setWarnings(newWarnings);
     setInfoAlerts(newInfo);
-    console.log(newCounts);
+    // console.log(newCounts);
     setCounts(newCounts);
   }, [data]);
 

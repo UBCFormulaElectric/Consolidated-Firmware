@@ -123,11 +123,22 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const pendingUnsubscriptions = useRef<Set<string>>(new Set());
   const isMounted = useRef(true);
 
+  // BATCHING SYSTEM for multi-signal performance
+  const pendingDataUpdates = useRef<DataPoint[]>([]);
+  const batchUpdateTimer = useRef<NodeJS.Timeout | null>(null);
+  const BATCH_INTERVAL_MS = 50; // Batch updates every 50ms
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       isMounted.current = false;
       pendingUnsubscriptions.current.clear();
+      // Clear batch timer
+      if (batchUpdateTimer.current) {
+        clearTimeout(batchUpdateTimer.current);
+      }
     };
   }, []);
 
@@ -142,6 +153,52 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     const type = signalTypes.current[name];
     return type ? type === SignalType.Numerical : !isEnumSignal(name);
   }, []);
+
+  // BATCHED DATA UPDATE FUNCTION - This prevents cascade re-renders
+  // Use useCallback to prevent function recreation and infinite re-renders
+  const flushPendingDataUpdates = useCallback(() => {
+    if (pendingDataUpdates.current.length === 0) return;
+
+    const updates = [...pendingDataUpdates.current];
+    pendingDataUpdates.current = [];
+
+    // Group updates by type for efficient batch processing
+    const allData: DataPoint[] = [];
+    const numericalUpdates: DataPoint[] = [];
+    const enumUpdates: DataPoint[] = [];
+
+    updates.forEach((point) => {
+      allData.push(point);
+      // Use direct signal type checking instead of isEnumSignal function
+      const type = signalTypes.current[point.name as string];
+      if (type === SignalType.Enumeration || (!type && /state|mode|enum|status/.test((point.name as string).toLowerCase()))) {
+        enumUpdates.push(point);
+      } else if (!isNaN(point.value as number)) {
+        numericalUpdates.push(point);
+      }
+    });
+
+    // Single batched state update instead of multiple individual updates
+    setData(prev => [...prev, ...allData]);
+    if (numericalUpdates.length > 0) {
+      setNumericalData(prev => [...prev, ...numericalUpdates]);
+    }
+    if (enumUpdates.length > 0) {
+      setEnumData(prev => [...prev, ...enumUpdates]);
+    }
+
+    batchUpdateTimer.current = null;
+  }, []); // Empty dependency array since we use refs for data
+
+  // BATCHED DATA ADDITION - prevents individual re-renders per signal
+  const addDataPoint = useCallback((dataPoint: DataPoint) => {
+    pendingDataUpdates.current.push(dataPoint);
+
+    // Schedule batch update if not already scheduled
+    if (!batchUpdateTimer.current) {
+      batchUpdateTimer.current = setTimeout(flushPendingDataUpdates, BATCH_INTERVAL_MS);
+    }
+  }, [flushPendingDataUpdates]);
 
   const getSignalRefCount = useCallback(
     (name: string) => signalSubscribers.current[name] || 0,
@@ -300,29 +357,14 @@ export function SignalProvider({ children }: { children: ReactNode }) {
       inc.time ||= Date.now();
       if (typeof inc.value === "string") inc.value = parseFloat(inc.value);
       
-      // Optimized array operations - avoid spread operator memory allocation
-      // No data point limiting - preserve all data points as requested
+      // Use batched data addition instead of direct state updates
+      // This prevents multiple re-renders when many signals arrive simultaneously
+      addDataPoint(inc);
       
-      setData((d) => {
-        const newData = d.slice(); // Shallow copy (much faster than spread)
-        newData.push(inc);
-        return newData;
-      });
-      
-      if (isEnumSignal(name)) {
-        setEnumData((d) => {
-          const newData = d.slice();
-          newData.push(inc);
-          return newData;
-        });
-      } else if (!isNaN(inc.value as number)) {
-        setNumericalData((d) => {
-          const newData = d.slice();
-          newData.push(inc);
-          return newData;
-        });
+      // Only update currentTime occasionally to reduce re-renders
+      if (Math.random() < 0.1) { // Only update 10% of the time
+        setCurrentTime(Date.now());
       }
-      setCurrentTime(Date.now());
     };
 
     s.on("data", handler);
@@ -333,7 +375,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
       s.off("data", handler);
       s.disconnect();
     };
-  }, [activeSignals, isEnumSignal, isPaused, socket]);
+  }, [activeSignals, addDataPoint, isPaused]);
 
   const reconnect = useCallback(() => {
     DEBUG && console.log("Reconnecting...");
@@ -349,9 +391,14 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => !isPaused && setCurrentTime(Date.now()), 100);
+    // THROTTLED TIMER - reduced frequency to limit re-renders
+    const id = setInterval(() => {
+      if (!isPausedRef.current) {
+        setCurrentTime(Date.now());
+      }
+    }, 2000); // Reduced to 2 seconds to minimize re-renders
     return () => clearInterval(id);
-  }, [isPaused]);
+  }, []); // Empty dependency array - only run once
 
   // Pause/play effect with race condition prevention
   const pausedRef = useRef(isPaused);
