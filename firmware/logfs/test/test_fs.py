@@ -251,12 +251,12 @@ def test_list_dir_sizes(fs: LogFs, capsys: pytest.CaptureFixture) -> None:
         captured.out.strip()
         == """\
 +------------+----------+----------+
-|    File    |   Data   | Metadata |
+|    File    | Metadata |   Data   |
 +------------+----------+----------+
-| /test1.txt | 13 Bytes | 0 Bytes  |
-| /test2.txt | 0 Bytes  | 20 Bytes |
-| /test3.txt | 7 Bytes  | 13 Bytes |
+| /test1.txt | 0 Bytes  | 13 Bytes |
+| /test2.txt | 20 Bytes | 0 Bytes  |
+| /test3.txt | 13 Bytes | 7 Bytes  |
 | /test4.txt | 0 Bytes  | 0 Bytes  |
-| /test5.txt | 9.8 KiB  | 0 Bytes  |
+| /test5.txt | 0 Bytes  | 9.8 KiB  |
 +------------+----------+----------+"""
     )

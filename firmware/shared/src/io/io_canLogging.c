@@ -87,42 +87,44 @@ void io_canLogging_recordMsgFromQueue(void)
 
     // Message log payload:
     // 1. Magic number 0xBA (1 byte)
-    // 2. CRC8 checksum (1 byte)
+    // 2. DLC code (1 byte)
     // 3. Timestamp (2 bytes)
     // 4. ID (4 bytes)
-    // 5. DLC code (1 byte)
-    // 6. Data bytes (0-64 bytes)
-    // (9-73 bytes total)
+    // 5. Data bytes (0-64 bytes)
+    // 6. CRC8 checksum (1 byte)
 
-    const uint8_t  magic     = 0xBA;
-    const uint16_t timestamp = (uint16_t)msg.timestamp;
-    const uint32_t id        = msg.std_id;
-    const uint8_t  dlc       = (uint8_t)msg.dlc;
+    // Construct log header.
+    struct
+    {
+        uint8_t  magic;
+        uint8_t  dlc;
+        uint16_t timestamp;
+        uint32_t id;
+    } header = { .magic = 0xBA, .dlc = (uint8_t)msg.dlc, .timestamp = (uint16_t)msg.timestamp, .id = msg.std_id };
+    static_assert(sizeof(header) == 8, "Header is exactly 8 bytes!");
 
+    // Calculate CRC8 for error detetction.
     uint8_t crc = app_crc8_init();
-    crc         = app_crc8_update(crc, &timestamp, sizeof(timestamp));
-    crc         = app_crc8_update(crc, &id, sizeof(id));
-    crc         = app_crc8_update(crc, &dlc, sizeof(dlc));
-    crc         = app_crc8_update(crc, &msg.data.data8, dlc);
+    crc         = app_crc8_update(crc, &header, sizeof(header));
+    crc         = app_crc8_update(crc, msg.data.data8, msg.dlc);
     crc         = app_crc8_finalize(crc);
 
-    CHECK_ERR(io_fileSystem_write(log_fd, &magic, sizeof(magic)) == FILE_OK);
-    CHECK_ERR(io_fileSystem_write(log_fd, &crc, sizeof(crc)) == FILE_OK);
-    CHECK_ERR(io_fileSystem_write(log_fd, &timestamp, sizeof(timestamp)) == FILE_OK);
-    CHECK_ERR(io_fileSystem_write(log_fd, &id, sizeof(id)) == FILE_OK);
-    CHECK_ERR(io_fileSystem_write(log_fd, &dlc, sizeof(dlc)) == FILE_OK);
-    CHECK_ERR(io_fileSystem_write(log_fd, msg.data.data8, dlc) == FILE_OK);
+    // Copy to a buffer to write to the file.
+    uint8_t buf[sizeof(header) + msg.dlc + sizeof(uint8_t)];
+    memcpy(buf, &header, sizeof(header));
+    memcpy(buf + sizeof(header), msg.data.data8, msg.dlc);
+    memcpy(buf + sizeof(buf) - 1, &crc, sizeof(uint8_t));
+
+    CHECK_ERR(io_fileSystem_write(log_fd, &buf, sizeof(buf)) == FILE_OK);
 }
 
 void io_canLogging_loggingQueuePush(const CanMsg *rx_msg)
 {
     CHECK_ENABLED();
 
-    static uint32_t overflow_count = 0;
-
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    CHECK_ERR(osMessageQueuePut(message_queue_id, &rx_msg, 0, 0) == osOK);
+    CHECK_ERR(osMessageQueuePut(message_queue_id, rx_msg, 0, 0) == osOK);
 }
 
 void io_canLogging_sync(void)

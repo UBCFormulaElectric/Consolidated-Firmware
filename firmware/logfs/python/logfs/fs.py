@@ -2,8 +2,16 @@ from typing import Union, Optional, Type, Any, Dict
 import logging
 from tabulate import tabulate
 import humanize
+import pandas as pd
 from .disk import LogFsDisk
-from .logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
+from . import can_decoder
+from .logfs_src import (
+    LogFsErr,
+    PyLogFs,
+    PyLogFsFile,
+    PyLogFsReadFlags,
+    PyLogFsOpenFlags,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +41,34 @@ def _raise_err(err: LogFsErr) -> None:
         raise LogFsError(err)
 
 
+def _err2str(err: LogFsErr) -> None:
+    match err:
+        case LogFsErr.OK:
+            return "OK!"
+        case LogFsErr.IO:
+            return "A disk I/O operation failed."
+        case LogFsErr.CORRUPT:
+            return "The data you're trying to access was corrupted."
+        case LogFsErr.INVALID_ARG:
+            return "Argument is invalid."
+        case LogFsErr.INVALID_PATH:
+            return "Path is invalid. (your path either doesn't start with / or is too long!)"
+        case LogFsErr.UNMOUNTED:
+            return "Filesystem isn't mounted."
+        case LogFsErr.NOMEM:
+            return "Filesystem image used up all available memory."
+        case LogFsErr.NOT_OPEN:
+            return "File isn't open."
+        case LogFsErr.RD_ONLY:
+            return "Filesystem is read-only, and you tried to write."
+        case LogFsErr.WR_ONLY:
+            return "Filesystem is write-only, and you tried to read."
+        case LogFsErr.DNE:
+            return "Item does not exist."
+        case LogFsErr.DNE:
+            return "No more files remaining."
+
+
 class LogFsError(Exception):
     """
     Helper class for raising logfs-related exceptions.
@@ -47,7 +83,7 @@ class LogFsError(Exception):
         return f"<{self.__class__.__name__}({self.err})>"
 
     def __str__(self) -> str:
-        return f"LogFsErr: {self.err}"
+        return f"LogFS error:{self.err}\n{_err2str(self.err)}"
 
 
 class LogFsFile:
@@ -222,6 +258,9 @@ class LogFs:
         self.disk = disk
         self.fs = PyLogFs(block_size, block_count, write_cycles, rd_only, disk)
 
+        # Alias
+        self.ls = self.list_dir_table
+
         if format:
             self.format()
             self.mount()
@@ -321,14 +360,14 @@ class LogFs:
             data.append(
                 [
                     file,
-                    humanize.naturalsize(file_sizes["size"], binary=True),
                     humanize.naturalsize(file_sizes["metadata_size"], binary=True),
+                    humanize.naturalsize(file_sizes["size"], binary=True),
                 ]
             )
 
-        print(tabulate(data, headers=["File", "Data", "Metadata"], tablefmt="pretty"))
+        print(tabulate(data, headers=["File", "Metadata", "Data"], tablefmt="pretty"))
 
-    def cat(self, path: str) -> None:
+    def cat(self, path: str, decode: Optional[str] = None, **kwargs) -> None:
         """
         Linux command to print contents of a file.
 
@@ -337,7 +376,13 @@ class LogFs:
         metadata = file.read_metadata()
         data = file.read()
 
-        print("Metadata:")
-        print(metadata)
-        print("Data:")
-        print(data)
+        if decode == None:
+            print("Metadata:")
+            print(metadata)
+            print("Data:")
+            print(data)
+        elif decode == "can":
+            signals = can_decoder.decode(
+                raw_data=data, start_timestamp=pd.Timestamp.now(), **kwargs
+            )
+            print("\n".join(map(str, signals)))
