@@ -3,7 +3,7 @@
 #include "app_powerManager.h"
 #include "app_timer.h"
 #include "app_canAlerts.h"
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
 #include <app_canRx.h>
@@ -11,7 +11,7 @@
 #include <logs/sbgEComLogImu.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
 
@@ -68,9 +68,6 @@ static void hvInitStateRunOnEntry(void)
     app_canTx_VC_INVFRTorqueLimitNegative_set(0);
     app_canTx_VC_INVRLTorqueLimitNegative_set(0);
     app_canTx_VC_INVRRTorqueLimitNegative_set(0);
-
-    // start timer for inverter initial sequence
-    app_timer_restart(&start_up_timer);
 }
 
 static void hvInitStateRunOnTick100Hz(void)
@@ -81,8 +78,6 @@ static void hvInitStateRunOnTick100Hz(void)
         {
             const bool inv_systemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
                                          app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
-
-            const TimerState system_ready_timeout = app_timer_updateAndGetState(&start_up_timer);
 
             if (inv_systemReady)
             {
@@ -98,14 +93,8 @@ static void hvInitStateRunOnTick100Hz(void)
             }
             else if (app_canTx_VC_Info_InverterRetry_get())
             {
-                app_warningHandling_inverterRest();
+                app_warningHandling_inverterReset();
             }
-            else if (system_ready_timeout == TIMER_STATE_EXPIRED)
-            {
-                LOG_INFO("inv system ready timeout");
-                app_stateMachine_setNextState(&inverterOn_state);
-            }
-
             break;
         }
         case INV_DC_ON:
@@ -128,7 +117,7 @@ static void hvInitStateRunOnTick100Hz(void)
             if (app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED)
             {
                 LOG_INFO("dc quit timeout");
-                app_stateMachine_setNextState(&inverterOn_state);
+                current_inverter_state = INV_SYSTEM_READY;
             }
 
             break;
@@ -163,7 +152,7 @@ static void hvInitStateRunOnTick100Hz(void)
             if (app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED)
             {
                 LOG_INFO("inv on quit timeout");
-                app_stateMachine_setNextState(&inverterOn_state);
+                current_inverter_state = INV_SYSTEM_READY;
             }
 
             break;
