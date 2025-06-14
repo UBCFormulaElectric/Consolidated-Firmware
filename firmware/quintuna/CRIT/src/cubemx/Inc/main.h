@@ -76,12 +76,12 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_RESET_FREQUENCY 5
 #define SYS_TIMER_CLOCK 96000000
 #define PWM_AUTO_RELOAD 4095
+#define IWDG_PRESCALER 4
 #define PWM_PRESCALER 650
 #define LSI_FREQUENCY 32000
-#define IWDG_PRESCALER 4
-#define IWDG_RESET_FREQUENCY 4
 #define BOOT_Pin GPIO_PIN_4
 #define BOOT_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_5
@@ -101,8 +101,8 @@ extern "C"
 #define ROT_A_EXTI_IRQn EXTI0_IRQn
 #define LAUNCH_CONTROL_SIG_Pin GPIO_PIN_1
 #define LAUNCH_CONTROL_SIG_GPIO_Port GPIOB
-#define TORQUE_VECTORING_SIG_Pin GPIO_PIN_2
-#define TORQUE_VECTORING_SIG_GPIO_Port GPIOB
+#define VANILLA_SIG_Pin GPIO_PIN_2
+#define VANILLA_SIG_GPIO_Port GPIOB
 #define REGEN_SIG_Pin GPIO_PIN_10
 #define REGEN_SIG_GPIO_Port GPIOB
 #define LED_DIMMING_Pin GPIO_PIN_14

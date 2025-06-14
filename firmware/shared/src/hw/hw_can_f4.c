@@ -58,8 +58,7 @@ void hw_can_init(CanHandle *can_handle)
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_CAN_ActivateNotification(
-            can_handle->hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
-        HAL_OK);
+            can_handle->hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF) == HAL_OK);
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
@@ -73,10 +72,9 @@ void hw_can_deinit(const CanHandle *can_handle)
 }
 
 // NOTE this design assumes that there is only one task calling this function
-static TaskHandle_t transmit_task = NULL;
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef -> this breaks compatibility with FDCAN
-ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
+ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg)
 {
     assert(can_handle->ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -97,29 +95,31 @@ ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
-    {
-        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
-        // context switching
-        if (poll_count <= 1000)
-        {
-            poll_count++;
-            continue;
-        }
-        assert(transmit_task == NULL);
-        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        transmit_task = xTaskGetCurrentTaskHandle();
-        // timeout just in case the tx complete interrupt does not fire properly?
-        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
-        UNUSED(num_notifs);
-        transmit_task = NULL;
-    }
+    // for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
+    // {
+    //     // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead
+    //     of
+    //     // context switching
+    //     if (poll_count <= 1000)
+    //     {
+    //         poll_count++;
+    //         continue;
+    //     }
+    //     assert(can_handle->transmit_task == NULL);
+    //     assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+    //     can_handle->transmit_task = xTaskGetCurrentTaskHandle();
+    //     // timeout just in case the tx complete interrupt does not fire properly?
+    //     const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+    //     UNUSED(num_notifs);
+    //     can_handle->transmit_task = NULL;
+    // }
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
 
+    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
+        ;
     return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data.data8, &mailbox));
-    ;
 }
 
 ExitCode hw_can_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg)
@@ -169,27 +169,4 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     handle_callback(hcan);
-}
-
-static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
-{
-    if (transmit_task == NULL)
-    {
-        return;
-    }
-    BaseType_t higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(transmit_task, &higherPriorityTaskWoken);
-    portYIELD_FROM_ISR(higherPriorityTaskWoken);
-}
-void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
-{
-    mailbox_complete_handler(hcan);
-}
-void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
-{
-    mailbox_complete_handler(hcan);
-}
-void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
-{
-    mailbox_complete_handler(hcan);
 }

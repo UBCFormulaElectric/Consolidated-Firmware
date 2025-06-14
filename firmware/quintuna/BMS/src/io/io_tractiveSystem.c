@@ -8,7 +8,7 @@
 // testing with the HW
 
 // TODO: Test with HW to determine compensation
-// #define R_ERROR_COMPENSATION (1.0f)
+#define R_ERROR_COMPENSATION (1.0f)
 
 // Isolated amplifier gain
 #define AMPLIFIER_GAIN (1.0f)
@@ -31,15 +31,15 @@
 
 // Current Sensor error calibration parameters (based on experimental data)
 // TODO: Rerun sensor calibration with new mounting
-// #define OUTPUT1_DISCHARGING_ERROR_SLOPE (0.5028f)
-// #define OUTPUT1_DISCHARGING_ERROR_OFFSET (-0.0894f)
-// #define OUTPUT1_CHARGING_ERROR_SLOPE (0.5045f)
-// #define OUTPUT1_CHARGING_ERROR_OFFSET (-0.2677f)
+#define OUTPUT1_DISCHARGING_ERROR_SLOPE (0.0f)
+#define OUTPUT1_DISCHARGING_ERROR_OFFSET (0.0f)
+#define OUTPUT1_CHARGING_ERROR_SLOPE (0.0f)
+#define OUTPUT1_CHARGING_ERROR_OFFSET (0.0f)
 
-// #define OUTPUT2_DISCHARGING_ERROR_SLOPE (0.2417f)
-// #define OUTPUT2_DISCHARGING_ERROR_OFFSET (2.3634f)
-// #define OUTPUT2_CHARGING_ERROR_SLOPE (0.2324f)
-// #define OUTPUT2_CHARGING_ERROR_OFFSET (2.4038f)
+#define OUTPUT2_DISCHARGING_ERROR_SLOPE (0.0f)
+#define OUTPUT2_DISCHARGING_ERROR_OFFSET (0.0f)
+#define OUTPUT2_CHARGING_ERROR_SLOPE (0.0f)
+#define OUTPUT2_CHARGING_ERROR_OFFSET (0.0f)
 
 float io_tractiveSystem_getVoltage(void)
 {
@@ -82,7 +82,7 @@ float io_tractiveSystem_getVoltage(void)
     }
     else
     {
-        float real_voltage = ts_vsense / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        float real_voltage = ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
         return real_voltage;
     }
 }
@@ -96,11 +96,11 @@ float io_tractiveSystem_getCurrentHighResolution(void)
         adc_voltage = 0.0f;
     }
 
-    // DHAB S/124 Output 1 (+/- 75A):
+    // DHAB S/138 Output 1 (+/- 50A):
     //
     // +------------------+                +-------------+
-    // | DHAB S/124       |---<33k>---+---| ADC Channel |
-    // | Output 2 Voltage |            |   +-------------+
+    // | DHAB S/138       |---<33k>----+---| ADC Channel |
+    // | Output 1 Voltage |            |   +-------------+
     // +------------------+            |
     //                              <60.4k>
     //                                 |
@@ -108,10 +108,10 @@ float io_tractiveSystem_getCurrentHighResolution(void)
     //                                GND
     //
     //                                                                  1
-    // Current = (DHAB S/124 Output 1 Voltage - Offset Voltage) x ---------------
+    // Current = (DHAB S/138 Output 1 Voltage - Offset Voltage) x ---------------
     //                                                             Sensitivity
     //                                              33k + 60.4k
-    // DHAB S/124 Output 2 Voltage = ADC Voltage x --------------
+    // DHAB S/138 Output 1 Voltage = ADC Voltage x --------------
     //                                                 60.4k
     // Offset Voltage = 2.5V (Datasheet)
     //
@@ -127,11 +127,12 @@ float io_tractiveSystem_getCurrentHighResolution(void)
     float high_res_curr_calibration = 0.0f;
     if (high_res_current > -0.2f)
     {
-        high_res_curr_calibration = high_res_current;
+        high_res_curr_calibration =
+            high_res_current * OUTPUT1_DISCHARGING_ERROR_SLOPE + OUTPUT1_DISCHARGING_ERROR_OFFSET;
     }
     else
     {
-        high_res_curr_calibration = high_res_current;
+        high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
     }
 
     return -(high_res_current + high_res_curr_calibration);
@@ -146,10 +147,10 @@ float io_tractiveSystem_getCurrentLowResolution(void)
         adc_voltage = 0.0f;
     }
 
-    // DHAB S/124 Output 2 (+/- 500A):
+    // DHAB S/138 Output 2 (-320A to +450A):
     //
     // +------------------+                +-------------+
-    // | DHAB S/124       |---<33k>---+---| ADC Channel |
+    // | DHAB S/138       |---<33k>----+---| ADC Channel |
     // | Output 2 Voltage |            |   +-------------+
     // +------------------+            |
     //                              <60.4k>
@@ -158,10 +159,10 @@ float io_tractiveSystem_getCurrentLowResolution(void)
     //                                GND
     //
     //                                                                  1
-    // Current = (DHAB S/124 Output 1 Voltage - Offset Voltage) x ---------------
+    // Current = (DHAB S/138 Output 1 Voltage - Offset Voltage) x ---------------
     //                                                             Sensitivity
     //                                              33k + 60.4k
-    // DHAB S/124 Output 2 Voltage = ADC Voltage x --------------
+    // DHAB S/138 Output 2 Voltage = ADC Voltage x --------------
     //                                                 60.4k
     // Offset Voltage = 2.5V (Datasheet)
     //
@@ -177,11 +178,11 @@ float io_tractiveSystem_getCurrentLowResolution(void)
     float low_res_curr_calibration = 0.0f;
     if (low_res_current > -0.2f)
     {
-        low_res_curr_calibration = low_res_current;
+        low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
     }
     else
     {
-        low_res_curr_calibration = low_res_current;
+        low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
     }
 
     return -(low_res_current + low_res_curr_calibration);

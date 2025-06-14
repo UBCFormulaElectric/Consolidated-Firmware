@@ -2,6 +2,8 @@
 
 #include "app_globals.h"
 #include "app_soc.h"
+#include "app_precharge.h"
+#include "app_segments.h"
 #include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
@@ -17,10 +19,14 @@
 #include "io_canRx.h"
 // app
 #include "app_commitInfo.h"
+#include "states/app_allStates.h"
+#include "states/app_initState.h"
+#include "app_stateMachine.h"
 // io
 #include "io_bootHandler.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
+#include "app_stateMachine.h"
 #include "io_canMsg.h"
 #include "io_time.h"
 #include "io_log.h"
@@ -46,15 +52,22 @@ void jobs_init()
     io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
-
     // TODO: Uncomment after soc is tested
     // app_soc_init();
-    // app_init_globals()
-    app_heartbeatMonitor_init(&hb_monitor);
-
+    // app_init_globals();
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
+
+    app_precharge_init();
+    // app_heartbeatMonitor_init(&hb_monitor);
+
+    app_segments_setDefaultConfig();
+    app_segments_initFaults();
+    app_segments_balancingInit();
+
+    app_allStates_init();
+    app_stateMachine_init(app_initState_get());
 }
 
 void jobs_run1Hz_tick(void)
@@ -100,12 +113,13 @@ void jobs_run100Hz_tick(void)
     /**
      * Update CAN signals for BMS latch statuses
      */
-    app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
-    app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
-    app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
-    app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
-    app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
-    app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
+    // Wait for mega pr to fix this
+    // app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
+    // app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
+    // app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
+    // app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
+    // app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
+    // app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
     // TODO: Uncomment after soc is tested
     // app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
