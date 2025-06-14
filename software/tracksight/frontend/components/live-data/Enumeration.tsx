@@ -25,7 +25,7 @@ const stateColors = [
 // Special color for N/A state
 const NA_COLOR = "#E5E7EB"; // Light gray for N/A state
 
-const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
+const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
   signalName,
   onDelete,
 }) => {
@@ -263,6 +263,9 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = ({
       )}
     </div>
   );
-};
+});
+
+// Add display name for better debugging
+EnumerationGraphComponent.displayName = 'EnumerationGraphComponent';
 
 export default EnumerationGraphComponent;

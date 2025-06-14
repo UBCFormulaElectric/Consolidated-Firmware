@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
+import React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTheme } from "next-themes"
 import { useSignals } from "@/lib/contexts/SignalContext"
@@ -21,7 +22,7 @@ interface TimeSeriesChartProps {
   maxDataPoints?: number
 }
 
-export default function TimeSeriesChart({ height = 250, maxDataPoints = 100 }: TimeSeriesChartProps) {
+const TimeSeriesChart = React.memo<TimeSeriesChartProps>(({ height = 250, maxDataPoints = 100 }) => {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const { data, activeSignals } = useSignals()
@@ -132,4 +133,9 @@ export default function TimeSeriesChart({ height = 250, maxDataPoints = 100 }: T
       </CardContent>
     </Card>
   )
-}
+});
+
+// Add display name for better debugging
+TimeSeriesChart.displayName = 'TimeSeriesChart';
+
+export default TimeSeriesChart;

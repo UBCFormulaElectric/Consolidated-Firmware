@@ -26,7 +26,7 @@ const signalColors = [
   "#ffec3d",
 ];
 
-const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
+const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
   signalName,
   onDelete,
 }) => {
@@ -47,6 +47,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   // Track signals this component instance subscribed to for proper cleanup
   const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -73,8 +75,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
 
     if (filteredData.length === 0) return [];
 
-    // Get all unique timestamps from active signals (no windowing)
-    const timestamps = new Set<number>();
+    // Get all unique timestamps from active signals for the complete timeline
+    const allTimestamps = new Set<number>();
     
     // Get data from all active signals to create shared time grid
     const allActiveData = [...numericalData, ...enumData].filter(d => 
@@ -83,13 +85,58 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
     
     allActiveData.forEach((d) => {
       const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-      timestamps.add(t);
+      allTimestamps.add(t);
     });
 
-    const sortedTimes = Array.from(timestamps).sort((a, b) => a - b);
+    const sortedTimes = Array.from(allTimestamps).sort((a, b) => a - b);
+    
+    if (sortedTimes.length === 0) return [];
+
+    // Calculate viewport-based windowing parameters
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const pixelPerPoint = 50;
+    const scaledPixelPerPoint = pixelPerPoint * (horizontalScale / 100);
+    const pointsPerViewport = Math.ceil(viewportWidth / scaledPixelPerPoint);
+    
+    // Buffer: 2x viewport on each side
+    const bufferSize = pointsPerViewport * 2;
+    
+    // Calculate scroll-based time window
+    const totalWidth = sortedTimes.length * scaledPixelPerPoint;
+    const maxScrollLeft = Math.max(0, totalWidth - viewportWidth);
+    const clampedScrollLeft = Math.min(scrollLeft, maxScrollLeft);
+    
+    // Convert scroll position to data point index
+    const scrollProgress = maxScrollLeft > 0 ? clampedScrollLeft / maxScrollLeft : 0;
+    const maxStartIndex = Math.max(0, sortedTimes.length - pointsPerViewport);
+    const viewportStartIndex = Math.floor(scrollProgress * maxStartIndex);
+    
+    // Apply buffer around the viewport
+    const bufferStartIndex = Math.max(0, viewportStartIndex - bufferSize);
+    const bufferEndIndex = Math.min(sortedTimes.length, viewportStartIndex + pointsPerViewport + bufferSize);
+    
+    const windowedTimes = sortedTimes.slice(bufferStartIndex, bufferEndIndex);
 
     // Track last known value for each signal to fill gaps
     const lastKnownValues: Record<string, number> = {};
+
+    // Initialize last known values from data before the window (for forward-filling)
+    const preWindowData = sortedTimes.slice(0, bufferStartIndex);
+    preWindowData.forEach((time) => {
+      thisGraphSignals.forEach((signalName) => {
+        if (!isNumericalSignal(signalName)) return;
+        
+        // Find the most recent value for this signal before the window
+        const signalData = filteredData.find(d => 
+          d.name === signalName && 
+          (typeof d.time === "number" ? d.time : new Date(d.time).getTime()) === time
+        );
+        
+        if (signalData && signalData.value !== undefined) {
+          lastKnownValues[signalName] = Number(signalData.value);
+        }
+      });
+    });
 
     // Group data by signal and time for efficient lookup
     const dataBySignal: Record<string, Record<number, number>> = {};
@@ -103,8 +150,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
       dataBySignal[signalName][t] = d.value !== undefined ? Number(d.value) : 0;
     });
 
-    // Build chart data with forward-filled values
-    return sortedTimes.map((time) => {
+    // Build chart data with forward-filled values for the windowed time range
+    return windowedTimes.map((time) => {
       const dataPoint: any = { time };
 
       // For each signal this graph has subscribed to, get the value or carry forward the last known value
@@ -125,7 +172,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
 
       return dataPoint;
     });
-  }, [numericalData, enumData, activeSignals, thisGraphSignals, isNumericalSignal]);
+  }, [numericalData, enumData, activeSignals, thisGraphSignals, isNumericalSignal, horizontalScale, scrollLeft]);
 
   const numericalSignals = thisGraphSignals;
 
@@ -145,8 +192,46 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
   }, [availableOptions, searchTerm]);
 
   const pixelPerPoint = 50;
-  const width =
-    Math.max(chartData.length * pixelPerPoint, 100) * (horizontalScale / 100);
+  
+  // Calculate total width based on ALL data points to maintain scroll illusion
+  const totalDataPoints = React.useMemo(() => {
+    const allTimestamps = new Set<number>();
+    const allActiveData = [...numericalData, ...enumData].filter(d => 
+      activeSignals.includes(d.name as string)
+    );
+    allActiveData.forEach((d) => {
+      const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+      allTimestamps.add(t);
+    });
+    return allTimestamps.size;
+  }, [numericalData, enumData, activeSignals]);
+
+  // Total width represents the entire timeline for scrolling
+  const totalWidth = Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
+  
+  // Chart width matches the rendered data
+  const chartWidth = Math.max(chartData.length * pixelPerPoint, 100) * (horizontalScale / 100);
+
+  // Calculate chart position offset to maintain scroll illusion
+  const chartOffset = React.useMemo(() => {
+    if (totalDataPoints === 0) return 0;
+    
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const scaledPixelPerPoint = pixelPerPoint * (horizontalScale / 100);
+    const pointsPerViewport = Math.ceil(viewportWidth / scaledPixelPerPoint);
+    const bufferSize = pointsPerViewport * 2;
+    
+    const totalTimelineWidth = totalDataPoints * scaledPixelPerPoint;
+    const maxScrollLeft = Math.max(0, totalTimelineWidth - viewportWidth);
+    const clampedScrollLeft = Math.min(scrollLeft, maxScrollLeft);
+    
+    const scrollProgress = maxScrollLeft > 0 ? clampedScrollLeft / maxScrollLeft : 0;
+    const maxStartIndex = Math.max(0, totalDataPoints - pointsPerViewport);
+    const viewportStartIndex = Math.floor(scrollProgress * maxStartIndex);
+    const bufferStartIndex = Math.max(0, viewportStartIndex - bufferSize);
+    
+    return bufferStartIndex * scaledPixelPerPoint;
+  }, [totalDataPoints, horizontalScale, scrollLeft, pixelPerPoint]);
 
   const handleSelect = useCallback(
     (name: string) => {
@@ -193,6 +278,57 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
       componentSubscriptions.current.clear();
     };
   }, [signalName]); // Only depend on signalName, not the functions
+
+  // Track scroll position for viewport windowing
+  useEffect(() => {
+    const handleScroll = (event: Event) => {
+      const target = event.target as HTMLElement;
+      setScrollLeft(target.scrollLeft);
+    };
+
+    // Try multiple selectors to find the correct scroll container
+    const scrollContainers = [
+      document.querySelector('.overflow-x-scroll'),
+      chartContainerRef.current?.closest('.overflow-x-scroll'),
+      document.querySelector('[class*="overflow-x-scroll"]')
+    ].filter(Boolean);
+
+    let activeContainer: Element | null = null;
+
+    // Find the container that actually has horizontal scroll capability
+    for (const container of scrollContainers) {
+      if (container && container.scrollWidth > container.clientWidth) {
+        activeContainer = container;
+        break;
+      }
+    }
+
+    if (activeContainer) {
+      activeContainer.addEventListener('scroll', handleScroll, { passive: true });
+      // Set initial scroll position
+      setScrollLeft(activeContainer.scrollLeft);
+      return () => activeContainer?.removeEventListener('scroll', handleScroll);
+    }
+  }, [chartData.length]); // Re-run when chart data changes
+
+  // Debug info for windowing calculations
+  const debugInfo = React.useMemo(() => {
+    if (totalDataPoints === 0) return null;
+    
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const scaledPixelPerPoint = 50 * (horizontalScale / 100);
+    const pointsPerViewport = Math.ceil(viewportWidth / scaledPixelPerPoint);
+    const totalWidth = totalDataPoints * scaledPixelPerPoint;
+    const maxScrollLeft = Math.max(0, totalWidth - viewportWidth);
+    const scrollProgress = maxScrollLeft > 0 ? (scrollLeft / maxScrollLeft * 100).toFixed(1) : '0';
+    
+    return {
+      pointsPerViewport,
+      scrollProgress: `${scrollProgress}%`,
+      totalWidth: Math.round(totalWidth),
+      viewportWidth: Math.round(viewportWidth)
+    };
+  }, [totalDataPoints, horizontalScale, scrollLeft]);
 
   return (
     <div className="mb-6 p-4 inline-block w-min-[100vm] relative">
@@ -315,6 +451,18 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
             </div>
           )}
         </div>
+
+        {/* Debug info for viewport windowing */}
+        <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
+          <div>Total points: {totalDataPoints} | Rendered: {chartData.length}</div>
+          <div>ScrollLeft: {scrollLeft}px | Chart Offset: {Math.round(chartOffset)}px</div>
+          {debugInfo && (
+            <div>
+              Viewport: {debugInfo.pointsPerViewport} pts | Scroll: {debugInfo.scrollProgress} | 
+              Width: {debugInfo.viewportWidth}px / {debugInfo.totalWidth}px
+            </div>
+          )}
+        </div>
       </div>
 
       {chartData.length === 0 ? (
@@ -322,14 +470,24 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
           No data
         </div>
       ) : (
-        <div
-          style={{
-            width,
-            height: chartHeight,
-            transition: "width 100ms ease-out",
-          }}
-        >
-          <AreaChart width={width} height={chartHeight} data={chartData}>
+        <>
+          <div
+            ref={chartContainerRef}
+            style={{
+              width: totalWidth,
+              height: chartHeight,
+              transition: "width 100ms ease-out",
+              position: 'relative'
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                left: chartOffset,
+                top: 0
+              }}
+            >
+              <AreaChart width={chartWidth} height={chartHeight} data={chartData}>
             <XAxis
               dataKey="time"
               tickFormatter={(t) => new Date(t).toLocaleTimeString()}
@@ -350,12 +508,16 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = ({
                 strokeWidth={1}
                 isAnimationActive={false}
               />
-            ))}
-          </AreaChart>
-        </div>
+            ))}              </AreaChart>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
-};
+});
+
+// Add display name for better debugging
+NumericalGraphComponent.displayName = 'NumericalGraphComponent';
 
 export default NumericalGraphComponent;

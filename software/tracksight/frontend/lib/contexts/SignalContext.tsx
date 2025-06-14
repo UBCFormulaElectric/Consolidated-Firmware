@@ -91,6 +91,7 @@ type SignalContextType = {
     | "fault_count",
     SignalMeta[]
   >;
+  signalPatterns: typeof signalPatterns;
 };
 
 // Create the context
@@ -298,10 +299,29 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         return DEBUG && console.log(`Ignoring data for ${name}`);
       inc.time ||= Date.now();
       if (typeof inc.value === "string") inc.value = parseFloat(inc.value);
-      setData((d) => [...d, inc]);
-      isEnumSignal(name)
-        ? setEnumData((d) => [...d, inc])
-        : !isNaN(inc.value as number) && setNumericalData((d) => [...d, inc]);
+      
+      // Optimized array operations - avoid spread operator memory allocation
+      // No data point limiting - preserve all data points as requested
+      
+      setData((d) => {
+        const newData = d.slice(); // Shallow copy (much faster than spread)
+        newData.push(inc);
+        return newData;
+      });
+      
+      if (isEnumSignal(name)) {
+        setEnumData((d) => {
+          const newData = d.slice();
+          newData.push(inc);
+          return newData;
+        });
+      } else if (!isNaN(inc.value as number)) {
+        setNumericalData((d) => {
+          const newData = d.slice();
+          newData.push(inc);
+          return newData;
+        });
+      }
       setCurrentTime(Date.now());
     };
 
