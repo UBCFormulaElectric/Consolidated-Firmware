@@ -119,11 +119,10 @@ static void driveStateRunOnTick100Hz(void)
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
        or not before using closed loop features */
 
-    // Regen + TV LEDs and update warnings
+    // Initialize LEDs and update warnings on rising edge
     if (turn_regen_led)
     {
-        app_canTx_VC_RegenEnabled_set(true);
-        app_canTx_VC_Warning_RegenNotAvailable_set(false);
+        app_regen_init();
     }
 
     if (!regen_switch_is_on)
@@ -150,16 +149,20 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_BuzzerOn_set(false);
     }
 
-    // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+    // change pedal percentage from [0.0f, 100.0f] to [0.0f, 1.0f]
     float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
+
+    // regen switches pedal percentage from [0.0f, 1.0f] to [-0.2f, 0.8f] and then scaled to [-1.0f, 1.0f]
     if (regen_switch_is_on)
     {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
         sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
     }
 
-    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
+    // transmit
+    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
+
     if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
     {
         // If bspd warning is true, set torque to 0.0
@@ -197,6 +200,9 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
     app_canTx_VC_INVR_CommandReadWrite_set(true);
     app_canTx_VC_INVR_CommandData_set((uint16_t)0);
+
+    // Clear mapped pedal percentage
+    app_canTx_VC_MappedPedalPercentage_set(0.0f);
 
 #ifdef TARGET_EMBEDDED
     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
