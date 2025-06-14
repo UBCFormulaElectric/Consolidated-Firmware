@@ -106,10 +106,10 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVRRbEnable_set(false);
     app_canTx_VC_INVRLbEnable_set(false);
 
-    app_canTx_VC_INVFRTorqueSetpoint_set(0.0f);
-    app_canTx_VC_INVRRTorqueSetpoint_set(0.0f);
-    app_canTx_VC_INVFLTorqueSetpoint_set(0.0f);
-    app_canTx_VC_INVRLTorqueSetpoint_set(0.0f);
+    app_canTx_VC_INVFRTorqueSetpoint_set(0);
+    app_canTx_VC_INVRRTorqueSetpoint_set(0);
+    app_canTx_VC_INVFLTorqueSetpoint_set(0);
+    app_canTx_VC_INVRLTorqueSetpoint_set(0);
 
     // Clear mapped pedal percentage
     app_canTx_VC_MappedPedalPercentage_set(0.0f);
@@ -140,13 +140,13 @@ static void driveStateRunOnExit(void)
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    warningType warning_check = app_warningHandling_globalWarningCheck();
+    const warningType warning_check = app_warningHandling_globalWarningCheck();
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
-    bool prev_regen_switch_val = regen_switch_is_on;
-    regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
+    const bool prev_regen_switch_val = regen_switch_is_on;
+    regen_switch_is_on               = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
 
-    bool prev_launch_control_switch_is_on = launch_control_switch_is_on;
+    const bool prev_launch_control_switch_is_on = launch_control_switch_is_on;
     launch_control_switch_is_on =
         app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON && prev_launch_control_switch_is_on;
 
@@ -160,8 +160,7 @@ static bool driveStatePassPreCheck()
         // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
         return false;
     }
-
-    else if (BOARD_WARNING_DETECTED == warning_check)
+    if (BOARD_WARNING_DETECTED == warning_check)
     {
         return false;
     }
@@ -187,7 +186,7 @@ static bool driveStatePassPreCheck()
     return true;
 }
 
-static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
+static void runDrivingAlgorithm(const float apps_pedal_percentage, const float sapps_pedal_percentage)
 {
     app_performSensorChecks();
 
@@ -219,7 +218,7 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 }
 
-static void app_regularDrive_run(float apps_pedal_percentage)
+static void app_regularDrive_run(const float apps_pedal_percentage)
 {
     // TODO: Use power limiting in regular drive
     // TODO: Implement active diff  in regular drive at min
@@ -250,55 +249,13 @@ static void app_regularDrive_run(float apps_pedal_percentage)
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request = PEDAL_REMAPPING(pedal_based_torque);
+    const int16_t torque_request = PEDAL_REMAPPING(pedal_based_torque);
 
     // Transmit torque command to both inverters
     app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
     app_canTx_VC_INVRRTorqueSetpoint_set(torque_request);
     app_canTx_VC_INVFLTorqueSetpoint_set(torque_request);
     app_canTx_VC_INVRLTorqueSetpoint_set(torque_request);
-}
-
-static void app_driveSwitchInit(void)
-{
-    if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
-    {
-        app_torqueVectoring_init();
-        launch_control_switch_is_on = true;
-    }
-
-    if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
-    {
-        app_regen_init();
-        regen_switch_is_on = true;
-    }
-}
-
-static app_driveMode_driving(void)
-{
-    DriveMode driveMode = app_canRx_CRIT_DriveMode_get();
-}
-
-static void app_non_vanilla_driving(float apps_pedal_percentage, float sapps_pedal_percentage)
-{
-    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
-    {
-        app_regen_run(apps_pedal_percentage);
-    }
-    else
-    {
-        // as of now no launch control is being implemented thus if the regen switch is not on then we stick to our
-        // drive modes
-    }
-}
-
-static void app_performSensorChecks(void)
-{
-    sensor_checks.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get();
-    sensor_checks.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
-    sensor_checks.steeringOk =
-        !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
-    sensor_checks.useTV = sensor_checks.gpsOk && sensor_checks.imuOk && sensor_checks.steeringOk;
 }
 
 State drive_state = {
