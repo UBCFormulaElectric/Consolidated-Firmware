@@ -44,6 +44,8 @@ def get_signal_metadata():
             "enum": signal.enum,
             "tx_node": msg.tx_node_name,
             "cycle_time_ms": msg.cycle_time,
+            "id": msg.id,
+            "msg_name": msg.name,
         }
         for msg in live_can_db.msgs.values()
         for signal in msg.signals

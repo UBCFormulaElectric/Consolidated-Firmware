@@ -166,7 +166,7 @@ export default function AlertBoard() {
               <p className="text-xs text-gray-500">{typeConfig.description}</p>
             </div>
           </div>
-          <span className="text-lg font-bold">{alerts.length}</span>
+          <span className="font-bold">{alerts.length}</span>
         </div>
 
         {/* Alert Items */}
@@ -187,15 +187,15 @@ export default function AlertBoard() {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3
-                      className={`font-medium ${
+                    <p
+                      className={`${
                         alert.active
                           ? "text-gray-900"
                           : "text-gray-400 line-through"
                       }`}
                     >
                       {alert.name} ({counts[`${alert.name}Count`] ?? 0})
-                    </h3>
+                    </p>
                   </div>
                   <span className="text-xs text-gray-500 whitespace-nowrap">
                     Last seen: {alert.lastUpdated}

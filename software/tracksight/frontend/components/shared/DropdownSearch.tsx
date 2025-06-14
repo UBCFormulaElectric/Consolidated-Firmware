@@ -62,11 +62,13 @@ export const RowEditor: React.FC<RowEditorProps> = ({
 
           {/* Delete row button */}
           {onDeleteRow && (
-            <X
-              onClick={() => onDeleteRow(index)}
-              className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4"
-              title="Delete this row"
-            ></X>
+            <span title="Delete this row">
+              <X
+                size={32}
+                onClick={() => onDeleteRow(index)}
+                className="bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center "
+              />
+            </span>
           )}
         </>
       )}
