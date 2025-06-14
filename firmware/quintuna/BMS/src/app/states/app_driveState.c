@@ -15,18 +15,7 @@ static void driveStateRunOnEntry(void)
     app_timer_init(&debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 }
 
-static void driveStateRunOnTick100Hz(void)
-{
-    const bool ir_negative_opened = io_irs_negativeState() == IRS_OPEN;
-
-    // TODO move this logic to ALL STATES
-    const bool ir_negative_opened_debounced =
-        app_timer_runIfCondition(&debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
-    if (ir_negative_opened_debounced)
-    {
-        app_stateMachine_setNextState(&init_state);
-    }
-}
+static void driveStateRunOnTick100Hz(void) {}
 
 static void driveStateRunOnExit(void)
 {
