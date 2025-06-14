@@ -19,37 +19,27 @@
 // Value of shunt resistor
 #define IR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
-bool io_irs_isNegativeClosed(void)
+IRsState io_irs_negativeState(void)
 {
-    return hw_gpio_readPin(&msd_shdn_sns_pin);
+    return hw_gpio_readPin(&msd_shdn_sns_pin) ? IRS_CLOSED : IRS_OPEN;
 }
 
-void io_irs_closePositive(void)
+void io_irs_setPositive(const IRsState state)
 {
-    hw_gpio_writePin(&ir_p_en_pin, true);
+    hw_gpio_writePin(&ir_p_en_pin, state == IRS_CLOSED);
 }
 
-void io_irs_openPositive(void)
+IRsState io_irs_positiveState(void)
 {
-    hw_gpio_writePin(&ir_p_en_pin, false);
+    return hw_gpio_readPin(&ir_p_en_pin) ? IRS_CLOSED : IRS_OPEN;
 }
 
-bool io_irs_isPositiveClosed(void)
+void io_irs_setPrecharge(const IRsState state)
 {
-    return hw_gpio_readPin(&ir_p_en_pin);
+    hw_gpio_writePin(&precharge_en_pin, state == IRS_CLOSED);
 }
 
-void io_irs_closePrecharge(void)
+IRsState io_irs_prechargeState(void)
 {
-    hw_gpio_writePin(&precharge_en_pin, true);
-}
-
-void io_irs_openPrecharge(void)
-{
-    hw_gpio_writePin(&precharge_en_pin, false);
-}
-
-bool io_irs_isPrechargeClosed(void)
-{
-    return hw_gpio_readPin(&precharge_en_pin);
+    return hw_gpio_readPin(&precharge_en_pin) ? IRS_CLOSED : IRS_OPEN;
 }

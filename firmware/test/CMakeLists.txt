@@ -68,8 +68,11 @@ function(compile_gtest_executable
             ${TEST_DIR}
     )
     target_compile_options(${TEST_EXECUTABLE_NAME}
-            PUBLIC
+            PRIVATE
             -Wall
+            -Wextra
+            -Werror
+            -pedantic
     )
     target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}

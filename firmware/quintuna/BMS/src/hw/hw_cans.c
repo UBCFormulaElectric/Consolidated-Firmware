@@ -2,6 +2,7 @@
 #include "io_bootHandler.h"
 #include "io_canMsg.h"
 #include "io_canQueue.h"
+#include "io_canRx.h"
 #include "main.h"
 
 #include <assert.h>
