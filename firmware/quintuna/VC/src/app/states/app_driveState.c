@@ -51,10 +51,6 @@ static void driveStateRunOnEntry()
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
 
-    // Start warning handling
-    // is this the best place to do this or should this happen in jobs
-    app_softwareBspd_init();
-
     // Enable inverters
     app_canTx_VC_INVFRbEnable_set(true);
     app_canTx_VC_INVFLbEnable_set(true);
