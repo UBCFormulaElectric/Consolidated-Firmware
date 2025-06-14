@@ -16,7 +16,7 @@ static void app_faultStateRunOnTick100Hz(void)
 {
     const bool acc_fault_cleared = !app_segments_checkFaults();
     // const bool precharge_ok      = !app_precharge_limitExceeded();
-    const bool bms_fault_cleared = io_faultLatch_getLatchedStatus(&bms_ok_latch);
+    const bool bms_fault_cleared = io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK;
 
     if (acc_fault_cleared && bms_fault_cleared)
     {
