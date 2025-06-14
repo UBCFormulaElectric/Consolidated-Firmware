@@ -16,5 +16,5 @@ void app_brake_broadcast(void)
     app_canTx_FSM_FrontBrakePressure_set((uint32_t)roundf(front_pressure));
     app_canAlerts_FSM_Info_FrontBrakePressureOCSC_set(front_brake_pressure_ocsc);
     app_canTx_FSM_Warning_FrontBrakePressureOutOfRange_set(
-        (front_pressure >= MAX_BRAKE_PRESSURE_PSI) || (front_pressure < MAX_BRAKE_PRESSURE_PSI));
+        (front_pressure >= MAX_BRAKE_PRESSURE_PSI) || (front_pressure < MIN_BRAKE_PRESSURE_PSI));
 }

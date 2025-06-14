@@ -13,5 +13,5 @@ void app_brake_broadcast(void)
     app_canTx_RSM_RearBrakePressure_set((uint32_t)roundf(rear_pressure));
 
     app_canTx_RSM_Warning_RearBrakePressureOutOfRange_set(
-        (rear_pressure >= MAX_BRAKE_PRESSURE_PSI) || (rear_pressure < MAX_BRAKE_PRESSURE_PSI));
+        (rear_pressure >= MAX_BRAKE_PRESSURE_PSI) || (rear_pressure < MIN_BRAKE_PRESSURE_PSI));
 }
