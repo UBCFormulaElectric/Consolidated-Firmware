@@ -61,6 +61,9 @@
     "CriticalPrechargeFailure": {
       "id": 451,
       "description": "Precharge failed >3x"
+    "WatchdogTimeout": {
+      "id": 452,
+      "description": "Watchdog timeout detected."
     }
   }
 }

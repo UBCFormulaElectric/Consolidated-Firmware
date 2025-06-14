@@ -94,8 +94,8 @@ void app_canRx_clear_board_rx_table(CanNode board)
             break;
             {%- endif %}
         {%- endfor %}
-        case {{ node.upper() }}_NODE:
-            // Do nothing, this is the current node :)
+        case {{ node.upper() }}_NODE: // Do nothing, this is the current node :)
+        default:
             break;
     }
 }

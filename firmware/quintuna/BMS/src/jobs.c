@@ -69,6 +69,10 @@ void jobs_init()
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
+    app_precharge_init();
+    // app_heartbeatMonitor_init(&hb_monitor);
+
+    app_segments_setDefaultConfig();
     app_segments_initFaults();
     // Write LTC configs.
     app_segments_setDefaultConfig();
@@ -88,6 +92,7 @@ void jobs_init()
     app_segments_broadcastAuxSelfTest();
     app_segments_broadcastStatusSelfTest();
     app_segments_broadcastOpenWireCheck();
+    app_segments_balancingInit();
 
     app_stateMachine_init(&init_state);
 }

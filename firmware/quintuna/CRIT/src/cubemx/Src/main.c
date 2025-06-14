@@ -343,7 +343,7 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Reload    = 4095;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
         Error_Handler();
@@ -497,8 +497,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(ROT_A_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LAUNCH_CONTROL_SIG_Pin TORQUE_VECTORING_SIG_Pin REGEN_SIG_Pin */
-    GPIO_InitStruct.Pin  = LAUNCH_CONTROL_SIG_Pin | TORQUE_VECTORING_SIG_Pin | REGEN_SIG_Pin;
+    /*Configure GPIO pins : LAUNCH_CONTROL_SIG_Pin VANILLA_SIG_Pin REGEN_SIG_Pin */
+    GPIO_InitStruct.Pin  = LAUNCH_CONTROL_SIG_Pin | VANILLA_SIG_Pin | REGEN_SIG_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

@@ -13,14 +13,15 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_semaphore.h"
+#include "io_ltc6813.h"
 
 // hw
 #include "hw_usb.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_pwms.h"
-#include "hw_watchdogConfig.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_watchdog.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -54,10 +55,16 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG1();
 
+    isospi_bus_access_lock = xSemaphoreCreateBinaryStatic(&isospi_bus_access_lock_buf);
+    ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
+    assert(isospi_bus_access_lock != NULL);
+    assert(ltc_app_data_lock != NULL);
+    xSemaphoreGive(isospi_bus_access_lock);
+    xSemaphoreGive(ltc_app_data_lock);
+
     LOG_IF_ERR(hw_usb_init());
     hw_adcs_chipsInit();
     hw_pwms_init();
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     // TODO: Start CAN1/CAN2 based on if we're charging at runtime.
     // #ifdef CHARGER_CAN
@@ -66,16 +73,34 @@ void tasks_init(void)
     hw_can_init(&can2);
     // #endif
 
-    jobs_init();
+    // Shutdown loop power comes from a load switch on the BMS.
+    hw_gpio_writePin(&shdn_en_pin, true);
 
-    app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());
+    const ResetReason reset_reason = hw_resetReason_get();
+    app_canTx_BMS_ResetReason_set((CanResetReason)reset_reason);
 
-    // Check for stack overflow on a previous boot cycle and populate CAN alert.
-    BootRequest boot_request = hw_bootup_getBootRequest();
-    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    // Check for watchdog timeout on a previous boot cycle and populate CAN alert.
+    if (reset_reason == RESET_REASON_WATCHDOG)
     {
-        app_canAlerts_BMS_Info_StackOverflow_set(true);
-        app_canTx_BMS_StackOverflowTask_set(boot_request.context_value);
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app_canAlerts_BMS_Info_WatchdogTimeout_set(true);
+    }
+
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context != BOOT_CONTEXT_NONE)
+    {
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app_canAlerts_BMS_Info_StackOverflow_set(true);
+            app_canTx_BMS_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app_canTx_BMS_WatchdogTimeoutTask_set(boot_request.context_value);
+        }
 
         // Clear stack overflow bootup.
         boot_request.context       = BOOT_CONTEXT_NONE;
@@ -85,18 +110,28 @@ void tasks_init(void)
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
+  
+    jobs_init();
+
+    io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 
 void tasks_run1Hz(void)
 {
-    static const TickType_t period_ms   = 1000U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 1000U;
+    const uint32_t  watchdog_grace_period_ms = 50U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
         {
             jobs_run1Hz_tick();
         }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -105,14 +140,20 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    static const TickType_t period_ms   = 10U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 10U;
+    const uint32_t  watchdog_grace_period_ms = 2U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
         {
             jobs_run100Hz_tick();
         }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -121,12 +162,19 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
-    static const TickType_t period_ms   = 1U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 1U;
+    const uint32_t  watchdog_grace_period_ms = 1U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        // hw_watchdog_checkForTimeouts();
+        hw_watchdog_checkForTimeouts();
+
         jobs_run1kHz_tick();
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -176,6 +224,14 @@ void tasks_runLtcVoltages(void)
 {
     static const TickType_t period_ms = 1000U; // 1Hz
 
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
@@ -189,6 +245,14 @@ void tasks_runLtcTemps(void)
 {
     static const TickType_t period_ms = 1000U; // 1Hz
 
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
@@ -201,6 +265,31 @@ void tasks_runLtcTemps(void)
 void tasks_runLtcDiagnostics(void)
 {
     static const TickType_t period_ms = 10000U; // Every 10s
+
+    // Run all self tests at init.
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+
+        LOG_IF_ERR(app_segments_runAdcAccuracyTest());
+        LOG_IF_ERR(app_segments_runVoltageSelfTest());
+        LOG_IF_ERR(app_segments_runAuxSelfTest());
+        LOG_IF_ERR(app_segments_runStatusSelfTest());
+        LOG_IF_ERR(app_segments_runOpenWireCheck());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
+    xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+    {
+        app_segments_broadcastAdcAccuracyTest();
+        app_segments_broadcastVoltageSelfTest();
+        app_segments_broadcastAuxSelfTest();
+        app_segments_broadcastStatusSelfTest();
+        app_segments_broadcastOpenWireCheck();
+    }
+    xSemaphoreGive(ltc_app_data_lock);
 
     for (;;)
     {

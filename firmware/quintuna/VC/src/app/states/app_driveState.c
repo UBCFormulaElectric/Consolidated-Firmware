@@ -1,3 +1,4 @@
+#include "io_log.h"
 #ifdef TARGET_EMBEDDED
 #include "io_canTx.h"
 #endif
@@ -66,7 +67,7 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
     app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
 
-    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
+    if (app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON)
     {
         // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN
         torque_vectoring_switch_is_on = true;
@@ -116,7 +117,7 @@ static bool driveStatePassPreCheck()
     regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
 
     bool prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
-    regen_switch_is_on = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON && prev_torque_vectoring_switch_val;
+    // regen_switch_is_on = app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON && prev_torque_vectoring_switch_val;
 
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
         or not before using closed loop features */
@@ -158,14 +159,15 @@ static bool driveStatePassPreCheck()
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
 {
     // TODO: bring back when software BSPD is done
-    //  if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
-    //  {
-    //      // If bspd warning is true, set torque to 0.0
-    //      app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
-    //      app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
-    //      app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
-    //      app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
-    //  }
+    if (app_warningHandling_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
+    {
+        // If bspd warning is true, set torque to 0.0
+        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
+        return;
+    }
     //  if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     //  {
     //      app_regen_run(apps_pedal_percentage);
@@ -207,11 +209,11 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // Calculate the maximum torque request, according to the BMS available power
     // const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), 1);
+    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request = (int16_t)((pedal_based_torque / NOMINAL_TORQUE_REQUEST_NM) * 1000);
+    int16_t torque_request = (int16_t)((pedal_based_torque));
 
     // Transmit torque command to both inverters
     app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);

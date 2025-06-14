@@ -5,6 +5,7 @@
 #include "io_log.h"
 
 // Protobuf.
+#include <cmsis_os2.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "shared.pb.h"
@@ -536,13 +537,20 @@ static void hw_chimera_v2_tick(const hw_chimera_v2_Config *config)
 
 _Noreturn void hw_chimera_v2_task(const hw_chimera_v2_Config *config)
 {
+    osDelay(0xFFFFFFFF);
+
     // Main loop.
     for (;;)
     {
         // block until USB connected is ok
         hw_usb_waitForConnected();
         LOG_INFO("[CHIMERA] USB CONNECTED!");
-        hw_chimera_v2_enabled = true;
+
+        // For some reason that makes no sense: When I was turning on the BMS after a power cycle,
+        // `hw_chimera_v2_enabled` seemed to be being set to true, which can only happen here. This makes no sense,
+        // since nothing was plugged into the USB port, but I'm disabling it anyway.
+        // hw_chimera_v2_enabled = true;
+
         // Otherwise tick.
         while (hw_usb_connected())
         {
