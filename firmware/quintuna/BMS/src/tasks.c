@@ -403,7 +403,7 @@ void tasks_runLtcDiagnostics(void)
 
 void tasks_runSdCard(void)
 {
-     static const TickType_t period_ms = 10000U; // Every 10s
+    static const TickType_t period_ms = 10000U; // Every 10s
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
