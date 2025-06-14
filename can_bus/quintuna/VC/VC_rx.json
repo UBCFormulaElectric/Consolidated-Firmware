@@ -26,6 +26,7 @@
     "FSM_Apps",
     "FSM_Steering",
     "CRIT_Switches",
-    "CRIT_DriveMode"
+    "CRIT_DriveMode",
+    "BMS_CellVoltageStats"
   ]
 }

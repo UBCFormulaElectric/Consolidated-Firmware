@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include "math.h"
+
 #include "app_regen.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_powerLimiting.h"
@@ -6,11 +9,9 @@
 #include "app_canTx.h"
 #include "app_units.h"
 #include "app_utils.h"
-#include <stdlib.h>
-#include "math.h"
 
 /**
- * Check if left or right wheel is greater than 5.0km/hr
+ * Stop regen < 5.0km/hr and start regen > 7.0km/hr
  * @param ActiveDifferential_Inputs struct to populate data
  * @return true if wheel speed meets this condition, false
  * otherwise
@@ -18,7 +19,7 @@
 static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs);
 
 /**
- * Check if battery cells are less than 4.0V
+ * Check if battery cells are less than 4.1V
  * @param RegenBraking_Inputs struct to populate data
  * @return true battery cells meet this condition,
  * false otherwise
@@ -37,9 +38,11 @@ static void computeRegenTorqueRequest(
     RegenBraking_Inputs       *regenAttr,
     PowerLimiting_Inputs      *powerInputs);
 
+// Global variables for regenerative braking logic
 static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
 static PowerLimiting_Inputs      powerLimitingInputs = { .regen_power_limit_kW = POWER_LIMIT_REGEN_kW };
+static bool                      regen_enabled       = true;
 
 void app_regen_init(void)
 {
@@ -49,6 +52,7 @@ void app_regen_init(void)
 
 void app_regen_run(float accelerator_pedal_percentage)
 {
+    // pedal percentage = [-1.0f, 0.0f] for deceleration range
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
     bool regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
 
@@ -58,14 +62,16 @@ void app_regen_run(float accelerator_pedal_percentage)
     }
     else
     {
-        regenAttributes.left_inverter_torque_Nm  = 0.0;
-        regenAttributes.right_inverter_torque_Nm = 0.0;
+        regenAttributes.torque_rr_Nm = 0.0f;
+        regenAttributes.torque_rl_Nm = 0.0f;
+        regenAttributes.torque_fr_Nm = 0.0f;
+        regenAttributes.torque_fl_Nm = 0.0f;
     }
 
     app_canTx_VC_RegenEnabled_set(regen_available);
     app_canTx_VC_Warning_RegenNotAvailable_set(!regen_available);
 
-    app_regen_sendTorqueRequest(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
+    app_regen_sendTorqueRequest(&regenAttributes);
 }
 
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
@@ -76,50 +82,33 @@ bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_In
 
 static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
 {
-    inputs->motor_speed_rr_rpm = -(float)app_canRx_INVRL_ActualVelocity_get();
-    inputs->motor_speed_rl_rpm = (float)app_canRx_INVRR_ActualVelocity_get();
+    inputs->motor_speed_rr_rpm = (float)app_canRx_INVRR_ActualVelocity_get();
+    inputs->motor_speed_rl_rpm = (float)app_canRx_INVRL_ActualVelocity_get();
+    inputs->motor_speed_fr_rpm = (float)app_canRx_INVFR_ActualVelocity_get();
+    inputs->motor_speed_fl_rpm = (float)app_canRx_INVFL_ActualVelocity_get();
 
-    return MOTOR_RPM_TO_KMH(inputs->motor_speed_rr_rpm) > SPEED_MIN_kph &&
-           MOTOR_RPM_TO_KMH(inputs->motor_speed_rl_rpm) > SPEED_MIN_kph;
+    // Hysterisis
+
+    float min_motor_speed = MOTOR_RPM_TO_KMH(MIN4(
+        inputs->motor_speed_rr_rpm, inputs->motor_speed_rl_rpm, inputs->motor_speed_fr_rpm,
+        inputs->motor_speed_fl_rpm));
+
+    if (!regen_enabled && min_motor_speed > 7.0f)
+    {
+        regen_enabled = true;
+    }
+    else if (regen_enabled && min_motor_speed <= SPEED_MIN_kph)
+    {
+        regen_enabled = false;
+    }
+
+    return regen_enabled;
 }
 
 static bool batteryLevelInRange(RegenBraking_Inputs *regenAttr)
 {
-    // regenAttr->battery_level = app_canRx_BMS_MaxCellVoltage_get();
+    regenAttr->battery_level = app_canRx_BMS_MaxCellVoltage_get();
     return regenAttr->battery_level < 4.1f;
-}
-
-void app_regen_sendTorqueRequest(float left, float right)
-{
-    app_canTx_VC_INVFLTorqueSetpoint_set((int)left);
-    app_canTx_VC_INVFRTorqueSetpoint_set((int)right);
-    app_canTx_VC_INVRLTorqueSetpoint_set((int)left);
-    app_canTx_VC_INVRRTorqueSetpoint_set((int)right);
-}
-
-void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
-{
-    float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
-
-    float cl = (1 + Delta);
-    float cr = (1 - Delta);
-
-    float torque_limit_Nm = -app_activeDifferential_powerToTorque(
-        inputs->power_max_kW, inputs->motor_speed_rr_rpm, inputs->motor_speed_rl_rpm, inputs->motor_speed_fr_rpm,
-        inputs->motor_speed_fl_rpm, cl, cr);
-
-    float torque_left_Nm         = torque_limit_Nm * cl;
-    float torque_right_Nm        = torque_limit_Nm * cr;
-    float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
-
-    float scale = CLAMP_TO_ONE(regenAttr->derating_value);
-    if (torque_negative_max_Nm < MAX_REGEN_Nm)
-    {
-        scale *= MAX_REGEN_Nm / torque_negative_max_Nm;
-    }
-
-    regenAttr->left_inverter_torque_Nm  = torque_left_Nm * scale;
-    regenAttr->right_inverter_torque_Nm = torque_right_Nm * scale;
 }
 
 static void computeRegenTorqueRequest(
@@ -127,48 +116,64 @@ static void computeRegenTorqueRequest(
     RegenBraking_Inputs       *regenAttr,
     PowerLimiting_Inputs      *powerInputs)
 {
-    float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
-    float min_motor_speed =
-        MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_rr_rpm, activeDiffInputs->motor_speed_rl_rpm));
-
-    powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value
-    // powerInputs->left_motor_temp_C         = app_canRx_INVL_MotorTemperature_get();
-    // powerInputs->right_motor_temp_C        = app_canRx_INVR_MotorTemperature_get();
-    powerInputs->left_motor_temp_C  = 0.0f;
-    powerInputs->right_motor_temp_C = 0.0f;
-
     regenAttr->derating_value = 1.0f;
 
     if (regenAttr->battery_level > 3.9f)
     {
-        regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
+        activeDiffInputs->derating_value = SOC_LIMIT_DERATING_VALUE;
     }
 
-    if (min_motor_speed <= 10.0f)
+    float min_motor_speed_kmh = MOTOR_RPM_TO_KMH(MIN4(
+        activeDiffInputs->motor_speed_rr_rpm, activeDiffInputs->motor_speed_rl_rpm,
+        activeDiffInputs->motor_speed_fr_rpm, activeDiffInputs->motor_speed_fl_rpm));
+
+    if (min_motor_speed_kmh < 10.0f)
     {
-        regenAttr->derating_value = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph);
+        activeDiffInputs->derating_value =
+            activeDiffInputs->derating_value * (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
     }
 
-    activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(powerInputs);
+    activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(POWER_LIMIT_REGEN_kW);
     activeDiffInputs->wheel_angle_deg = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
     if (regenAttr->enable_active_differential)
     {
-        app_regen_computeActiveDifferentialTorque(activeDiffInputs, regenAttr);
+        app_activeDifferential_computeTorque(activeDiffInputs);
     }
     else
     {
         // no power limit, no active differential
-        regenAttr->left_inverter_torque_Nm  = MAX_REGEN_Nm * pedal_percentage * regenAttr->derating_value;
-        regenAttr->right_inverter_torque_Nm = MAX_REGEN_Nm * pedal_percentage * regenAttr->derating_value;
+        float regen_torque_request =
+            MAX_REGEN_Nm * activeDiffInputs->accelerator_pedal_percentage * regenAttr->derating_value;
+        regenAttr->torque_rr_Nm = regen_torque_request;
+        regenAttr->torque_rl_Nm = regen_torque_request;
+        regenAttr->torque_fr_Nm = regen_torque_request;
+        regenAttr->torque_fl_Nm = regen_torque_request;
     }
+}
+
+void app_regen_sendTorqueRequest(RegenBraking_Inputs *regenAttr)
+{
+    app_canTx_VC_INVFLTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_fl_Nm));
+    app_canTx_VC_INVFRTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_fr_Nm));
+    app_canTx_VC_INVRLTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_rl_Nm));
+    app_canTx_VC_INVRRTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_rr_Nm));
 }
 
 float app_regen_pedalRemapping(float apps_pedal_percentage)
 {
-    apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
-    apps_pedal_percentage = apps_pedal_percentage < 0.0f ? apps_pedal_percentage / PEDAL_SCALE
-                                                         : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
+    apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE);
 
-    return apps_pedal_percentage;
+    if (apps_pedal_percentage < 0.0f)
+    {
+        return apps_pedal_percentage / PEDAL_SCALE;
+    }
+    else if (apps_pedal_percentage <= 0.1f)
+    {
+        return 0.0f;
+    }
+    else
+    {
+        return (apps_pedal_percentage - 0.1f) / (MAX_PEDAL_PERCENT - PEDAL_SCALE - 0.1f);
+    }
 }

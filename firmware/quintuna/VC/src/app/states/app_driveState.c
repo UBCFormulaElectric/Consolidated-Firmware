@@ -18,15 +18,11 @@
 #include "app_vehicleDynamics.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
-#define BUZZER_ON_DURATION_MS 2000
 #define INV_OFF 0
 
-static bool         launch_control_switch_is_on; 
 static bool         launch_control_switch_is_on;
 static bool         regen_switch_is_on;
-static TimerChannel buzzer_timer;
 static SensorChecks sensor_checks;
-
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -42,17 +38,12 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage);
 static bool driveStatePassPreCheck();
 static void app_regularDrive_run(float apps_pedal_percentage);
 
 static void driveStateRunOnEntry()
 {
-    // Enable buzzer on transition to drive, and start 2s timer.
-    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
-    app_timer_restart(&buzzer_timer);
-
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
 
@@ -72,10 +63,12 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
     app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
 
+    app_driveSwitchInit();
 }
 
 static void driveStateRunOnTick100Hz(void)
 {
+    // pedal mapped changed from [0, 100] to [0.0, 1.0]
     float apps_pedal_percentage  = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float sapps_pedal_percentage = (float)app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
@@ -88,34 +81,68 @@ static void driveStateRunOnTick100Hz(void)
         return;
     }
 
-    // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
-    // if (regen_switch_is_on) -- COMMENTED OUT FOR WHEEL SPINNING
-    // {
-    //     apps_pedal_percentage  = (float) app_regen_pedalRemapping(apps_pedal_percentage);
-    //     sapps_pedal_percentage = (float)app_regen_pedalRemapping(sapps_pedal_percentage);
-    // }
+    // regen switches pedal percentage from [0.0f, 1.0f] to [-0.2f, 0.8f] and then scaled to [-1.0f, 1.0f]
+    if (regen_switch_is_on)
+    {
+        apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
+        sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
+    }
 
-    // app_canTx_VC_MappedPedalPercentage_set((float)apps_pedal_percentage);
-    runDrivingAlgorithm((float)apps_pedal_percentage, (float)sapps_pedal_percentage);
+    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
+    runDrivingAlgorithm(apps_pedal_percentage, sapps_pedal_percentage);
 }
 
-static void driveStateRunOnExit(void) {}
+static void driveStateRunOnExit(void)
+{
+    // Disable inverters and apply zero torque upon exiting drive state
+    app_canTx_VC_INVFRbEnable_set(false);
+    app_canTx_VC_INVFLbEnable_set(false);
+    app_canTx_VC_INVRRbEnable_set(false);
+    app_canTx_VC_INVRLbEnable_set(false);
+
+    app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+    app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+    app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+    app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
+
+    // Clear mapped pedal percentage
+    app_canTx_VC_MappedPedalPercentage_set(0.0f);
+
+    // TODO: Clear latched inverter faults
+    // app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
+    // app_canTx_VC_INVL_CommandReadWrite_set(true);
+    // app_canTx_VC_INVL_CommandData_set((uint16_t)0);
+
+    // app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
+    // app_canTx_VC_INVR_CommandReadWrite_set(true);
+    // app_canTx_VC_INVR_CommandData_set((uint16_t)0);
+
+    // #ifdef TARGET_EMBEDDED
+    //     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    //     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    //     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+    //     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+    // #endif
+
+    app_canTx_VC_RegenEnabled_set(false);
+    app_canTx_VC_TorqueVectoringEnabled_set(false);
+}
 
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    warningType warning_check = app_warningHandling_globalWarningCheck();
+    const warningType warning_check = app_warningHandling_globalWarningCheck();
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
-    bool prev_regen_switch_val = regen_switch_is_on;
-    regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
+    const bool prev_regen_switch_val = regen_switch_is_on;
+    regen_switch_is_on               = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
 
-    bool prev_launch_control_switch_is_on = launch_control_switch_is_on;
-    launch_control_switch_is_on = app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON && prev_launch_control_switch_is_on;
+    const bool prev_launch_control_switch_is_on = launch_control_switch_is_on;
+    launch_control_switch_is_on =
+        app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON && prev_launch_control_switch_is_on;
 
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
         or not before using closed loop features */
-    // Update Regen + TV LEDs
 
     if (INVERTER_FAULT == warning_check)
     {
@@ -124,8 +151,7 @@ static bool driveStatePassPreCheck()
         // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
         return false;
     }
-
-    else if (BOARD_WARNING_DETECTED == warning_check)
+    if (BOARD_WARNING_DETECTED == warning_check)
     {
         return false;
     }
@@ -136,6 +162,7 @@ static bool driveStatePassPreCheck()
         return false;
     }
 
+    // Update Regen + TV LEDs
     if (!regen_switch_is_on)
     {
         app_canTx_VC_RegenEnabled_set(false);
@@ -150,7 +177,7 @@ static bool driveStatePassPreCheck()
     return true;
 }
 
-static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
+static void runDrivingAlgorithm(const float apps_pedal_percentage, const float sapps_pedal_percentage)
 {
     app_performSensorChecks();
 
@@ -164,49 +191,56 @@ static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_p
     //      app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
     //  }
 
-    if ( SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    {
+        app_regen_run(apps_pedal_percentage);
+    }
+    else if (launch_control_switch_is_on)
+    {
+        app_torqueVectoring_run(apps_pedal_percentage);
+    }
+    else if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
     {
         app_regularDrive_run(apps_pedal_percentage);
     }
-    else 
+    else
     {
-
     }
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 }
 
-static void app_regularDrive_run(float apps_pedal_percentage)
+static void app_regularDrive_run(const float apps_pedal_percentage)
 {
     // TODO: Use power limiting in regular drive
     // TODO: Implement active diff  in regular drive at min
     // TODO: Use sensor checks here to disable things accordingly (active diff, load trans)
     // TODO: set Load Transfer Const = 1 and set Desired Yaw Moment = 0
-    // const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
-    // const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
-    // const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
-    // const float left_front_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
-    // const float left_back_motor_speed_rpm   = (float)app_canRx_INVL_MotorSpeed_get();
-    // float       bms_torque_limit            = MAX_TORQUE_REQUEST_NM;
 
-    // if ((right_front_motor_speed_rpm + right_back_motor_speed_rpm + left_front_motor_speed_rpm +
-    //      left_back_motor_speed_rpm) > 0.0f)
-    // {
-    //     // Estimate the maximum torque request to draw the maximum power available from the BMS
-    //     const float available_output_power_w = bms_available_power * EFFICIENCY_ESTIMATE;
-    //     const float combined_motor_speed_rads =
-    //         RPM_TO_RADS(right_front_motor_speed_rpm) + RPM_TO_RADS(right_back_motor_speed_rpm) +
-    //         RPM_TO_RADS(left_front_motor_speed_rpm) + RPM_TO_RADS(left_back_motor_speed_rpm);
-    //     bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
-    // }
+    // TODO: Implement active diff in regular drive at min
+    const float bms_available_power = (float)app_canRx_BMS_AvailablePower_get();
+    const float motor_speed_fr_rpm  = (float)app_canRx_INVFR_ActualVelocity_get();
+    const float motor_speed_fl_rpm  = (float)app_canRx_INVFL_ActualVelocity_get();
+    const float motor_speed_rr_rpm  = (float)app_canRx_INVRR_ActualVelocity_get();
+    const float motor_speed_rl_rpm  = (float)app_canRx_INVRL_ActualVelocity_get();
+    float       bms_torque_limit    = MAX_TORQUE_REQUEST_NM;
+
+    if ((motor_speed_fr_rpm + motor_speed_fl_rpm + motor_speed_rr_rpm + motor_speed_rl_rpm) > 0.0f)
+    {
+        // Estimate the maximum torque request to draw the maximum power available from the BMS
+        const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
+        const float combined_motor_speed_rads = RPM_TO_RADS(motor_speed_fr_rpm) + RPM_TO_RADS(motor_speed_fl_rpm) +
+                                                RPM_TO_RADS(motor_speed_rr_rpm) + RPM_TO_RADS(motor_speed_rl_rpm);
+        bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
+    }
 
     // Calculate the maximum torque request, according to the BMS available power
-    // const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
+    const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), MAX_TORQUE_REQUEST_NM);
+    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), 1);
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request = (int16_t)((pedal_based_torque));
+    const int16_t torque_request = PEDAL_REMAPPING(pedal_based_torque);
 
     // Transmit torque command to both inverters
     app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
@@ -217,14 +251,13 @@ static void app_regularDrive_run(float apps_pedal_percentage)
 
 static void app_driveSwitchInit(void)
 {
-
     if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
     {
         // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN
         launch_control_switch_is_on = true;
     }
 
-    if(SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
+    if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
     {
         // app_regen_init(); -- COMMENTED OUT TO SPIN
         regen_switch_is_on = true;
@@ -244,7 +277,8 @@ static void app_non_vanilla_driving(float apps_pedal_percentage, float sapps_ped
     }
     else
     {
-        // as of now no launch control is being implemented thus if the regen switch is not on then we stick to our drive modes
+        // as of now no launch control is being implemented thus if the regen switch is not on then we stick to our
+        // drive modes
     }
 }
 

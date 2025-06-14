@@ -14,9 +14,8 @@
 #define WHEELBASE_m (WHEELBASE_mm * MM_TO_M)
 #define TRACK_WIDTH_mm 1100
 #define TRACK_WIDTH_m (TRACK_WIDTH_mm * MM_TO_M)
-// TODO: Change for AMK Inverters
-#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550.0f // as specified in the manual for the emrax 188 motors
-#define POWER_LIMIT_CAR_kW 40.0f               // Actual Value: 80.0f   // max power we can use by FSAE rules
+#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // 60 / (2 * pi) * 1000 to for T = P/w formula
+#define POWER_LIMIT_CAR_kW 40.0f               // max power = 80.0f we can use by FSAE rules
 #define MOTOR_TEMP_CUTOFF_c 90.0f
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO \
     80.0f / 30.0f // amount to decrease max power by for every degree celsius over motor cutoff temp (we got this number
@@ -45,7 +44,7 @@
 /************** Macros for finding vertical forces on wheels based on diagram on page 21 ****************/
 #define REAR_WEIGHT_DISTRIBUTION (WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG)
 #define LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel) \
-    ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_m / WHEELBASE_m)) 
+    ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_m / WHEELBASE_m))
 #define LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel) \
     ((CAR_MASS_AT_CG_KG * (lat_accel) * CG_HEIGHT_FROM_GROUND_m / (2.0f * (TRACK_WIDTH_m))))
 
@@ -57,13 +56,11 @@
 
 // Our motors no longer take in a torque command, instead they take in a percentage value. The percentage for the
 // DD5-14-10-POW motor is relative to their nominal torque (9.8 Nm) where 100% torque is 9.8. The motors are able to
-// output up to 21 Nm, this however cannot be a sustained behaviour. Note the message takes a int 16 that is essentially your percentage of nominal
-// torque * 1000
-#define PEDAL_REMAPPING(torque) ((int16_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f)) 
-#define TORQUE_TO_POWER(torque, rpm) \
-    ( (torque) * ((float)(rpm) / (GEAR_RATIO)) * (POWER_TO_TORQUE_CONVERSION_FACTOR) )
-#define POWER_TO_TORQUE(power, rpm) \
-    ( ((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / ((rpm) / (GEAR_RATIO)))
+// output up to 21 Nm, this however cannot be a sustained behaviour. Note the message takes a int 16 that is essentially
+// your percentage of nominal torque * 1000
+#define PEDAL_REMAPPING(torque) ((int16_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f))
+#define TORQUE_TO_POWER(torque, rpm) ((torque) * ((float)(rpm) / (GEAR_RATIO)) * (POWER_TO_TORQUE_CONVERSION_FACTOR))
+#define POWER_TO_TORQUE(power, rpm) (((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / ((rpm) / (GEAR_RATIO)))
 
 // Tunable parameters
 extern const PID_Config               PID_POWER_CORRECTION_CONFIG;

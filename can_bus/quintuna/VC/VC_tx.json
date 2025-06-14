@@ -594,6 +594,19 @@
       }
     }
   },
+  "PedalPercentage": {
+    "msg_id": 230,
+    "cycle_time": 100,
+    "description": "Pedal percentage info",
+    "signals": {
+      "MappedPedalPercentage": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1,
+        "unit": "%"
+      }
+    }
+  },
   "INVFLSetPoints": {
     "msg_id": 388,
     "cycle_time": 5,
