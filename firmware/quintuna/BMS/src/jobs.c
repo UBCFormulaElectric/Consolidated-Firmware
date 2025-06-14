@@ -24,9 +24,12 @@
 #include "io_charger.h"
 #include "io_faultLatch.h"
 #include "io_irs.h"
-#include "io_semaphores.h"
+#include "io_semaphore.h"
 
 CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
+
+static Semaphore isospi_bus_access_lock;
+static Semaphore ltc_app_data_lock;
 
 static TimerChannel debounce_timer;
 #define AIR_N_DEBOUNCE_PERIOD (200) // ms
