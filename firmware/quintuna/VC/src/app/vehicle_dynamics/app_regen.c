@@ -145,7 +145,7 @@ static void computeRegenTorqueRequest(
         torqueOutputToMotors->rear_right_torque  = activeDifferentialOutputs.torque_rr_Nm;
 
         const float requested_power = app_totalPower(torqueOutputToMotors);
-        app_torqueReduction(requested_power, activeDiffInputs->power_max_kW, );
+        app_torqueReduction(requested_power, activeDiffInputs->power_max_kW, torqueOutputToMotors);
     }
     else
     {

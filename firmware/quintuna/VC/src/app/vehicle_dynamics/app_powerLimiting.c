@@ -18,21 +18,22 @@ float app_powerLimiting_computeMaxPower(bool isRegenOn)
 
     // ============== Calculate max powers =================
 
-     float current_based_power_limit_kW; 
-     float P_max;
+    float current_based_power_limit_kW;
+    float P_max;
 
-
-    // TODO: CONFIRM REGEN POWER LIMIT 
+    // TODO: CONFIRM REGEN POWER LIMIT
     // TODO: LOOK INTO BMS DERATED POWER LIMIT, USE IT TO VALIDATE CURRENT LIMIT
 
     if (isRegenOn)
     {
-        current_based_power_limit_kW = app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_ChargeCurrentLimit_get();
+        current_based_power_limit_kW =
+            app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_ChargeCurrentLimit_get();
         P_max = fminf(POWER_LIMIT_REGEN_kW, current_based_power_limit_kW);
     }
     else
     {
-        current_based_power_limit_kW = app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_DischargeCurrentLimit_get(); 
+        current_based_power_limit_kW =
+            app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_DischargeCurrentLimit_get();
         P_max = fminf(RULES_BASED_POWER_LIMIT_KW, current_based_power_limit_kW);
     }
 
