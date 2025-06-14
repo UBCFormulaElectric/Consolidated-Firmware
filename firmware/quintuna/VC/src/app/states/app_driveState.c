@@ -1,3 +1,4 @@
+#include "io_log.h"
 #ifdef TARGET_EMBEDDED
 #include "io_canTx.h"
 #endif
@@ -180,12 +181,32 @@ static void app_regularDrive_run(float apps_pedal_percentage)
     // TODO: Implement active diff  in regular drive at min
     // TODO: Use sensor checks here to disable things accordingly (active diff, load trans)
     // TODO: set Load Transfer Const = 1 and set Desired Yaw Moment = 0
-    
-    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), 1);
+    // const float bms_available_power         = (float)app_canRx_BMS_AvailablePower_get();
+    // const float right_front_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
+    // const float right_back_motor_speed_rpm  = (float)app_canRx_INVR_MotorSpeed_get();
+    // const float left_front_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
+    // const float left_back_motor_speed_rpm   = (float)app_canRx_INVL_MotorSpeed_get();
+    // float       bms_torque_limit            = MAX_TORQUE_REQUEST_NM;
+
+    // if ((right_front_motor_speed_rpm + right_back_motor_speed_rpm + left_front_motor_speed_rpm +
+    //      left_back_motor_speed_rpm) > 0.0f)
+    // {
+    //     // Estimate the maximum torque request to draw the maximum power available from the BMS
+    //     const float available_output_power_w = bms_available_power * EFFICIENCY_ESTIMATE;
+    //     const float combined_motor_speed_rads =
+    //         RPM_TO_RADS(right_front_motor_speed_rpm) + RPM_TO_RADS(right_back_motor_speed_rpm) +
+    //         RPM_TO_RADS(left_front_motor_speed_rpm) + RPM_TO_RADS(left_back_motor_speed_rpm);
+    //     bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
+    // }
+
+    // Calculate the maximum torque request, according to the BMS available power
+    // const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
+
+    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    int16_t torque_request = (int16_t)((pedal_based_torque / NOMINAL_TORQUE_REQUEST_NM) * 1000);
+    int16_t torque_request = (int16_t)((pedal_based_torque));
 
     // Transmit torque command to both inverters
     app_canTx_VC_INVFRTorqueSetpoint_set(torque_request);
