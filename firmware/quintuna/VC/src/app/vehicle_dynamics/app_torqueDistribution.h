@@ -1,6 +1,7 @@
 #pragma once
-#include <app_vehicleDynamics.h>
+#include "app_vehicleDynamics.h"
 #include "io_imu_config.h"
+#include "app_vehicleDynamicsConstants.h"
 
 TorqueAllocationOutputs torqueToMotors;
 
@@ -29,4 +30,8 @@ void app_reset_torqueToMotors(void);
 
 void app_torqueBroadCast();
 
-TorqueAllocationOutputs *app_get_torqueToMotors()
+TorqueAllocationOutputs *app_get_torqueToMotors();
+
+void app_torqueReduction(float total_requestedPower, float power_limit);
+
+void app_totalPower(TorqueAllocationOutputs *torques);

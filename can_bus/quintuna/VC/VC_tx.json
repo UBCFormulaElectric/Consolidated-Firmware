@@ -599,7 +599,7 @@
     "cycle_time": 100,
     "description": "Pedal percentage info",
     "signals": {
-      "MappedPedalPercentage": {
+      "RegenMappedPedalPercentage": {
         "min": -100,
         "max": 100,
         "resolution": 0.1,

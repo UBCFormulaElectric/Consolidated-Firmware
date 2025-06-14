@@ -7,6 +7,6 @@
  * @note
  * @return A float (pointer?) for the maximum power allowed from the motor,
  */
-float app_powerLimiting_computeMaxPower(float current_based_power_limit_kW);
+float app_powerLimiting_computeMaxPower(bool isRegenOn);
 
 float getMaxMotorTemp(void);

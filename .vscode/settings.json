@@ -17,6 +17,7 @@
     "app_activedifferential.h": "c",
     "numeric": "c",
     "compare": "c",
-    "cstdint": "c"
+    "cstdint": "c",
+    "app_vehicledynamicsconstants.h": "c"
   }
 }
