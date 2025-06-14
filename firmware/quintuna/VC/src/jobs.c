@@ -10,10 +10,14 @@
 #include "io_log.h"
 #include "states/app_states.h"
 #include "io_time.h"
+#include "io_sbgEllipse.h"
+#include "io_imu.h"
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 #include "app_commitInfo.h"
+#include "app_sbgEllipse.h"
+#include "app_faultHandling.h"
 #include "app_canRx.h"
 #include "app_warningHanding.h"
 
@@ -41,6 +45,8 @@ static TimerChannel air_minus_open_debounce_timer;
 
 void jobs_init()
 {
+    ExitCode exit;
+
     app_canTx_init();
     app_canRx_init();
 
@@ -53,6 +59,14 @@ void jobs_init()
     io_canQueue_initTx(&can1_tx_queue);
     io_canQueue_initTx(&can2_tx_queue);
     io_canQueue_initTx(&can3_tx_queue);
+
+    exit = io_sbgEllipse_init();
+    app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exit));
+    ASSERT_EXIT_OK(exit);
+
+    exit = io_imu_init();
+    app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exit));
+    ASSERT_EXIT_OK(exit);
 
     app_stateMachine_init(&init_state);
 
@@ -89,6 +103,7 @@ void jobs_run100Hz_tick(void)
 
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
+    app_sbgEllipse_broadcast();
 
     app_stateMachine_tickTransitionState();
 

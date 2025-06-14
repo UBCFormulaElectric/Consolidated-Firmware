@@ -5,6 +5,14 @@
   "warnings_id": 501,
   "warnings_counts_id": 503,
   "warnings": {
+    "PcmLvOvercurrentFault": {
+      "id": 558,
+      "description": "LV rail from the HV DCDC was overcurrent."
+    },
+    "RegenNotAvailable": {
+      "id": 509,
+      "description": "Regen is not currently available."
+    },
     "SoftwareBspd": {
       "id": 564,
       "description": "Brakes and apps are active at same time."
