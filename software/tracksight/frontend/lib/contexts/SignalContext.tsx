@@ -238,7 +238,6 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   // subscript all alerts
   useEffect(() => {
     const alerts = getAlertSignals();
-    console.log(alerts);
     Object.values(alerts).forEach((alertArray) => {
       alertArray.forEach((alert) => {
         subscribeToSignal(alert.name);
@@ -286,6 +285,8 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         name: s.name,
         unit: s.unit,
         cycle_time_ms: s.cycle_time_ms,
+        msg_name:s.msg_name,
+        msg_id:s.id
       }));
       setAvailableSignals(metas);
 

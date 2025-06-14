@@ -12,6 +12,8 @@ export interface SignalMeta {
   name: string;
   unit: string;
   cycle_time_ms?: number;
+  msg_id: number;
+  msg_name: string;
 }
 
 // Data point interface

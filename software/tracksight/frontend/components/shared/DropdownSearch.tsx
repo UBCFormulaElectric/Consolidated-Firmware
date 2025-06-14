@@ -36,8 +36,11 @@ export const RowEditor: React.FC<RowEditorProps> = ({
     useSignals();
 
   // Filter available signals based on search term
-  const filteredSignals = availableSignals.filter((signal) =>
-    signal.name.toLowerCase().includes(row.searchTerm.toLowerCase())
+  const filteredSignals = availableSignals.filter(
+    (signal) =>
+      signal.name.toLowerCase().includes(row.searchTerm.toLowerCase()) ||
+      signal.msg_name.toLowerCase().includes(row.searchTerm.toLowerCase()) ||
+      (!isNaN(Number(row.searchTerm)) && signal.msg_id === Number(row.searchTerm))
   );
 
   const handleSignalSelect = (signalName: string) => {
