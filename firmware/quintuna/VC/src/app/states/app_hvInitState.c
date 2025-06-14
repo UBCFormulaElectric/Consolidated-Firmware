@@ -14,6 +14,7 @@
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
 
+#define INV_QUIT_TIMEOUT_MS (10 * 1000)
 #define NO_TORQUE 0.0
 
 typedef enum
@@ -50,7 +51,12 @@ static void hvInitStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
     current_inverter_state = INV_SYSTEM_READY;
-    app_timer_init(&start_up_timer, 30000);
+    app_timer_init(&start_up_timer, INV_QUIT_TIMEOUT_MS);
+
+    app_canTx_VC_INVFRTorqueSetpoint_set(0);
+    app_canTx_VC_INVRRTorqueSetpoint_set(0);
+    app_canTx_VC_INVFLTorqueSetpoint_set(0);
+    app_canTx_VC_INVRLTorqueSetpoint_set(0);
 
     app_canTx_VC_INVFLTorqueLimitPositive_set(0);
     app_canTx_VC_INVFRTorqueLimitPositive_set(0);

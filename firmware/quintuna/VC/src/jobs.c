@@ -1,6 +1,7 @@
 #include "jobs.h"
 #include "app_stateMachine.h"
 #include "app_timer.h"
+#include "hw_utils.h"
 #include "io_canMsg.h"
 #include "io_canQueues.h"
 #include "app_jsoncan.h"
@@ -15,6 +16,8 @@
 #include "app_powerManager.h"
 #include "app_commitInfo.h"
 #include "app_canRx.h"
+
+#define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -57,7 +60,7 @@ void jobs_init()
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_VC_Heartbeat_set(true);
 
-    app_timer_init(&air_minus_open_debounce_timer, 1000);
+    app_timer_init(&air_minus_open_debounce_timer, AIR_MINUS_OPEN_DEBOUNCE_MS);
 }
 
 void jobs_run1Hz_tick(void)
@@ -71,26 +74,21 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    // const bool air_minus_open_debounced =
-    //     app_timer_runIfCondition(&air_minus_open_debounce_timer, !app_canRx_BMS_IrNegative_get());
-    // if (air_minus_open_debounced)
-    // {
-    // LOG_INFO("air minus debounced");
-    // app_stateMachine_setNextState(&init_state);
-    // }
-    // else
-    // {
-    app_stateMachine_tick100Hz();
-    // }
-
-    LOG_INFO("apps accelerator pedal = %d percent", (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get());
+    const bool air_minus_open_debounced =
+        app_timer_runIfCondition(&air_minus_open_debounce_timer, !app_canRx_BMS_IrNegative_get());
+    if (air_minus_open_debounced)
+    {
+        app_stateMachine_setNextState(&init_state);
+    }
+    else
+    {
+        app_stateMachine_tick100Hz();
+    }
 
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
 
     app_stateMachine_tickTransitionState();
-
-    LOG_INFO("FSM apps = %d", (uint32_t)app_canRx_FSM_PappsMappedPedalPercentage_get());
 
     io_canTx_enqueue100HzMsgs();
 }
