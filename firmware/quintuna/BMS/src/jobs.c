@@ -17,6 +17,7 @@
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "app_stateMachine.h"
+#include "app_powerCurrentLimit.h"
 // io
 #include "io_bootHandler.h"
 #include "io_canQueue.h"
