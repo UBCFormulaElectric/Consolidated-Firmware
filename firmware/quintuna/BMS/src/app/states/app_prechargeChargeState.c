@@ -25,8 +25,8 @@
 static void app_prechargeChargeStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);
-    io_irs_setPrecharge(IRS_CLOSED);
 
+    app_precharge_init();
     app_precharge_restart();
 }
 
@@ -35,18 +35,24 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
     switch (app_precharge_poll(false))
     {
         case PRECHARGE_STATE_RUNNING:
+            io_irs_setPrecharge(IRS_OPEN);
+            break;
         case PRECHARGE_STATE_COOLDOWN:
+            io_irs_setPrecharge(IRS_CLOSED);
             break;
         case PRECHARGE_STATE_FAILED_CRITICAL: // precharge failed multiple times
+            io_irs_setPrecharge(IRS_OPEN);
             // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
             // unintentionally re-enter charge state.
             app_canRx_Debug_StartCharging_update(false);
             app_stateMachine_setNextState(&precharge_latch_state);
             break;
         case PRECHARGE_STATE_FAILED:
+            io_irs_setPrecharge(IRS_OPEN);
             LOG_ERROR("precharge failed, retrying");
             break;
         case PRECHARGE_STATE_SUCCESS:
+            io_irs_setPositive(IRS_CLOSED);
             app_stateMachine_setNextState(&charge_init_state);
             break;
         default:

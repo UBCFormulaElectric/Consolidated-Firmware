@@ -37,6 +37,7 @@ void app_precharge_init(void)
     app_timer_init(&lower_bound_timer, PRECHARGE_COMPLETION_LOWER_BOUND);
     app_timer_init(&upper_bound_timer, PRECHARGE_COMPLETION_UPPER_BOUND);
     app_timer_init(&cooldown_timer, PRECHARGE_COOLDOWN_TIME);
+    num_precharge_failures = 0;
 }
 
 void app_precharge_restart(void)

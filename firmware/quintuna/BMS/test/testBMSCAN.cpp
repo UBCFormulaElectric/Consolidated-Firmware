@@ -3,6 +3,7 @@
 extern "C"
 {
 #include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_canAlerts.h"
 }
 
@@ -24,6 +25,9 @@ static void enforceStatePreconditions(const BMSBaseTest::StateMetadata &metadata
     ASSERT_EQ(app_canAlerts_AnyBoardHasFault(), metadata.requires_fault)
         << "Expected " << (metadata.requires_fault ? "some" : "no") << " fault to be "
         << (metadata.requires_fault ? "set" : "not set") << " in state: " << metadata.state->name;
+
+    app_canRx_Debug_CellBalancingRequest_update(metadata.state == &balancing_state);
+    app_canRx_Debug_StartCharging_update(metadata.state == &charge_state);
 }
 
 TEST_F(BMSCanTest, check_states_is_broadcasted_over_can)

@@ -11,7 +11,6 @@ static TimerChannel debounce_timer;
 
 static void driveStateRunOnEntry(void)
 {
-    app_timer_init(&debounce_timer, AIR_N_DEBOUNCE_PERIOD);
     app_canTx_BMS_State_set(BMS_DRIVE_STATE);
     app_timer_init(&debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 }

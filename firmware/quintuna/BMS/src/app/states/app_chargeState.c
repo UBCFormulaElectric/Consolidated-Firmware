@@ -246,9 +246,30 @@ const State charge_state = {
     .run_on_exit       = app_chargeStateRunOnExit,
 };
 
+static void app_chargeFaultStateRunOnEntry()
+{
+    app_canTx_BMS_State_set(BMS_CHARGE_FAULT_STATE);
+}
+static void app_chargeFaultStateRunOnTick100Hz() {}
+static void app_chargeFaultStateRunOnExit() {}
+
 const State charge_fault_state = {
-    .name = "CHARGE FAULT",
+    .name              = "CHARGE FAULT",
+    .run_on_entry      = app_chargeFaultStateRunOnEntry,
+    .run_on_tick_100Hz = app_chargeFaultStateRunOnTick100Hz,
+    .run_on_exit       = app_chargeFaultStateRunOnExit,
 };
+
+static void app_chargeInitStateRunOnEntry()
+{
+    app_canTx_BMS_State_set(BMS_CHARGE_INIT_STATE);
+}
+static void app_chargeInitStateRunOnTick100Hz() {}
+static void app_chargeInitStateRunOnExit() {}
+
 const State charge_init_state = {
-    .name = "CHARGE INIT",
+    .name              = "CHARGE INIT",
+    .run_on_entry      = app_chargeInitStateRunOnEntry,
+    .run_on_tick_100Hz = app_chargeInitStateRunOnTick100Hz,
+    .run_on_exit       = app_chargeInitStateRunOnExit,
 };

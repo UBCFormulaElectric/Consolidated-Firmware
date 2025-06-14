@@ -13,6 +13,7 @@ static void app_prechargeDriveStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_DRIVE_STATE);
 
+    app_precharge_init();
     app_precharge_restart();
 }
 
