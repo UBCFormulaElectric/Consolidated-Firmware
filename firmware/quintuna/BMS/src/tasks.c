@@ -15,6 +15,7 @@
 #include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_sds.h"
 
 // hw
 #include "hw_usb.h"
@@ -127,6 +128,9 @@ void tasks_init(void)
     }
 
     jobs_init();
+
+    // TODO: Uncomment after SoC and SD card are tested
+    // io_sds_queue_init();
 
     io_canTx_BMS_Bootup_sendAperiodic();
 }
@@ -393,6 +397,18 @@ void tasks_runLtcDiagnostics(void)
         }
         xSemaphoreGive(ltc_app_data_lock);
 
+        osDelayUntil(start_ticks + period_ms);
+    }
+}
+
+void tasks_runSdCard(void)
+{
+    static const TickType_t period_ms = 10000U; // Every 10s
+    for (;;)
+    {
+        const uint32_t start_ticks = osKernelGetTickCount();
+        // TODO uncomment when SoC and SD card are tested
+        // jobs_runSdCard_tick();
         osDelayUntil(start_ticks + period_ms);
     }
 }

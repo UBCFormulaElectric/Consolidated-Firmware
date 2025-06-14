@@ -21,3 +21,4 @@ void jobs_run1Hz_tick(void);
 void jobs_run1kHz_tick(void);
 void jobs_runCanRx_tick(void);
 void jobs_runCanRx_callBack(const CanMsg *rx_msg);
+void jobs_runSdCard_tick(void);

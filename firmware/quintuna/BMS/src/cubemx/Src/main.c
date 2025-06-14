@@ -183,6 +183,18 @@ const osThreadAttr_t TaskInit_attributes = {
     .stack_size = sizeof(TaskInitBuffer),
     .priority   = (osPriority_t)osPriorityRealtime,
 };
+/* Definitions for TaskSDCard */
+osThreadId_t         TaskSDCardHandle;
+uint32_t             TaskSDCardBuffer[128];
+osStaticThreadDef_t  TaskSDCardControlBlock;
+const osThreadAttr_t TaskSDCard_attributes = {
+    .name       = "TaskSDCard",
+    .cb_mem     = &TaskSDCardControlBlock,
+    .cb_size    = sizeof(TaskSDCardControlBlock),
+    .stack_mem  = &TaskSDCardBuffer[0],
+    .stack_size = sizeof(TaskSDCardBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -213,6 +225,7 @@ void        RunTaskLtcVoltages(void *argument);
 void        RunTaskLtcTemps(void *argument);
 void        RunTaskLtcDiag(void *argument);
 void        RunTaskInit(void *argument);
+void        RunTaskSDCard(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -317,6 +330,9 @@ int main(void)
 
     /* creation of TaskInit */
     TaskInitHandle = osThreadNew(RunTaskInit, NULL, &TaskInit_attributes);
+
+    /* creation of TaskSDCard */
+    TaskSDCardHandle = osThreadNew(RunTaskSDCard, NULL, &TaskSDCard_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1328,6 +1344,21 @@ void RunTaskInit(void *argument)
     xTaskNotifyGive(TaskCanRxHandle);
     vTaskDelete(NULL);
     /* USER CODE END RunTaskInit */
+}
+
+/* USER CODE BEGIN Header_RunTaskSDCard */
+/**
+ * @brief Function implementing the TaskSDCard thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskSDCard */
+void RunTaskSDCard(void *argument)
+{
+    /* USER CODE BEGIN RunTaskSDCard */
+    /* Infinite loop */
+    tasks_runSdCard();
+    /* USER CODE END RunTaskSDCard */
 }
 
 /**

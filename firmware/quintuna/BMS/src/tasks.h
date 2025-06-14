@@ -11,3 +11,4 @@ _Noreturn void tasks_runChimera(void);
 _Noreturn void tasks_runLtcVoltages(void);
 _Noreturn void tasks_runLtcTemps(void);
 _Noreturn void tasks_runLtcDiagnostics(void);
+_Noreturn void tasks_runSdCard(void);
