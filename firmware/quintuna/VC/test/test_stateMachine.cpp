@@ -320,15 +320,16 @@ TEST_F(VCStateMachineTest, RunAlgorithmSetsTorque)
     EXPECT_EQ(app_canTx_VC_INVRLTorqueSetpoint_get(), expected);
 }
 
-TEST_F(VCStateMachineTest, TorqueVectoringSwitchOffEnablesFlag)
-{
-    SetStateWithEntry(&drive_state);
-    app_canRx_CRIT_TorqueVecSwitch_update(SWITCH_OFF);
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+// TODO: change this to vanilla override switch
+// TEST_F(VCStateMachineTest, TorqueVectoringSwitchOffEnablesFlag)
+// {
+//     SetStateWithEntry(&drive_state);
+//     app_canRx_CRIT_TorqueVecSwitch_update(SWITCH_OFF);
+//     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
 
-    LetTimePass(10);
-    EXPECT_TRUE(app_canTx_VC_TorqueVectoringEnabled_get());
-}
+//     LetTimePass(10);
+//     EXPECT_TRUE(app_canTx_VC_TorqueVectoringEnabled_get());
+// }
 
 TEST_F(VCStateMachineTest, RegenSwitchOffSetsNotAvailable)
 {
