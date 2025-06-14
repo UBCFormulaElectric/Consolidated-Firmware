@@ -52,7 +52,7 @@ export const RowEditor: React.FC<RowEditorProps> = ({
   };
 
   return (
-    <div className="flex items-start border-b border-gray-200 p-4 w-[calc(100vw-48px)] sticky left-2">
+    <div className="flex items-start border-gray-200 p-4 w-[calc(100vw-48px)] sticky left-2">
       {/* Only show plus button and delete button if component hasn't been created */}
       {!row.hasCreatedComponent && (
         <>
