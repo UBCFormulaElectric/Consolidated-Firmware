@@ -3,7 +3,7 @@
 #include "hw_pwms.h"
 #include "hw_gpios.h"
 
-ConnectionStatus io_charger_getConnectionStatus()
+ChargerConnectedType io_charger_getConnectionStatus()
 {
     if (990 <= hw_pwmInput_getFrequency(&evse_pwm_input) && hw_pwmInput_getFrequency(&evse_pwm_input) <= 1010)
         return CHARGER_CONNECTED_EVSE;

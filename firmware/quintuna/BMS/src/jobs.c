@@ -4,7 +4,7 @@
 #include "states/app_states.h"
 #include "app_precharge.h"
 #include "app_segments.h"
-#include "app_heartbeatMonitors.h"
+// #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_imd.h"
@@ -96,6 +96,7 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
+    io_semaphore_take(&ltc_app_data_lock, portMAX_DELAY);
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
 
@@ -139,6 +140,7 @@ void jobs_run100Hz_tick(void)
     app_stateMachine_tickTransitionState();
 
     io_canTx_enqueue100HzMsgs();
+    io_semaphore_give(&ltc_app_data_lock);
 }
 
 void jobs_run1kHz_tick(void)

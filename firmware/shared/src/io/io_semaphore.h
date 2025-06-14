@@ -4,10 +4,8 @@
 #include <stdint.h>
 
 #ifdef TARGET_EMBEDDED
-#include "semphr.h"
 #include <FreeRTOS.h>
-#include <cmsis_os.h>
-#include <cmsis_os2.h>
+#include "semphr.h"
 #include <portmacro.h>
 
 typedef struct
@@ -25,6 +23,6 @@ typedef struct
 #define MAX_TIMEOUT UINT32_MAX
 #endif
 
-void io_semaphore_create(const Semaphore *sem, bool priority_inversion_on);
+void io_semaphore_create(Semaphore *sem, bool priority_inversion_on);
 void io_semaphore_take(const Semaphore *sem, uint32_t timeout);
 void io_semaphore_give(const Semaphore *sem);

@@ -9,6 +9,8 @@
 #include "io_charger.h"
 #include "io_irs.h"
 
+#include <stddef.h>
+
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
 static void initStateRunOnEntry(void)

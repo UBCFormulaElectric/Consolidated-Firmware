@@ -19,27 +19,27 @@
 // Value of shunt resistor
 #define IR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
-ContactorsState io_irs_isNegativeClosed(void)
+IRsState io_irs_negativeState(void)
 {
-    return hw_gpio_readPin(&msd_shdn_sns_pin) ? CONTACTORS_CLOSED : CONTACTORS_OPEN;
+    return hw_gpio_readPin(&msd_shdn_sns_pin) ? IRS_CLOSED : IRS_OPEN;
 }
 
-void io_irs_setPositive(const ContactorsState state)
+void io_irs_setPositive(const IRsState state)
 {
-    hw_gpio_writePin(&ir_p_en_pin, state == CONTACTORS_CLOSED);
+    hw_gpio_writePin(&ir_p_en_pin, state == IRS_CLOSED);
 }
 
-ContactorsState io_irs_isPositiveClosed(void)
+IRsState io_irs_positiveState(void)
 {
-    return hw_gpio_readPin(&ir_p_en_pin) ? CONTACTORS_CLOSED : CONTACTORS_OPEN;
+    return hw_gpio_readPin(&ir_p_en_pin) ? IRS_CLOSED : IRS_OPEN;
 }
 
-void io_irs_setPrecharge(const ContactorsState state)
+void io_irs_setPrecharge(const IRsState state)
 {
-    hw_gpio_writePin(&precharge_en_pin, state == CONTACTORS_CLOSED);
+    hw_gpio_writePin(&precharge_en_pin, state == IRS_CLOSED);
 }
 
-ContactorsState io_irs_isPrechargeClosed(void)
+IRsState io_irs_prechargeState(void)
 {
-    return hw_gpio_readPin(&precharge_en_pin) ? CONTACTORS_CLOSED : CONTACTORS_OPEN;
+    return hw_gpio_readPin(&precharge_en_pin) ? IRS_CLOSED : IRS_OPEN;
 }

@@ -1,23 +1,16 @@
 #include "tasks.h"
-#include <cmsis_os2.h>
-#include "app_stateMachine.h"
-#include "states/app_balancingState.h"
-#include "hw_bootup.h"
-#include "io_ltc6813.h"
 #include "jobs.h"
+#include <cmsis_os2.h>
 
-#include "states/app_states.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
+#include "app_jsoncan.h"
 
-#include "hw_bootup.h"
-#include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
-#incldue "io_canRx.h"
+#include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_semaphore.h"
 
@@ -33,6 +26,8 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
+#include "hw_bootup.h"
+#include "hw_gpios.h"
 
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
@@ -116,9 +111,7 @@ void tasks_run100Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            io_semaphore_take(&ltc_app_data_lock, portMAX_DELAY);
             jobs_run100Hz_tick();
-            io_semaphore_give(&ltc_app_data_lock);
         }
 
         start_ticks += period_ms;
