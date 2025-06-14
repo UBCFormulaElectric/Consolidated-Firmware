@@ -59,7 +59,7 @@
 // output up to 21 Nm, this however cannot be a sustained behaviour. Note the message takes a int 16 that is essentially
 // your percentage of nominal torque * 1000
 #define PEDAL_REMAPPING(torque) ((int16_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f))
-#define TORQUE_TO_POWER(torque, rpm) ((torque) * ((float)(rpm) / (GEAR_RATIO)) * (POWER_TO_TORQUE_CONVERSION_FACTOR))
+#define TORQUE_TO_POWER(torque, rpm) ((torque) * ((float)(rpm) / (GEAR_RATIO)) / (POWER_TO_TORQUE_CONVERSION_FACTOR))
 #define POWER_TO_TORQUE(power, rpm) (((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / ((rpm) / (GEAR_RATIO)))
 
 // Tunable parameters
