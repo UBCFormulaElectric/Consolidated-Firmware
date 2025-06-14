@@ -58,8 +58,13 @@ def read_messages_from_file() -> NoReturn:
             can_msg_queue.put(
                 CanMsg(506, bytearray(os.urandom(8)), datetime.datetime.now())
             )
+            can_msg_queue.put(
+                CanMsg(233, bytearray(os.urandom(8)), datetime.datetime.now())
+            )
 
-            time.sleep(1)
+
+
+            time.sleep(0.1)
 
 
 def get_mock_task() -> Thread:
