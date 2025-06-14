@@ -19,7 +19,7 @@ void app_pid_init(PID *pid, const PID_Config *conf)
  * @param input also "measurement"/"process variable"
  * @return controller output/"effort"
  */
-float app_pid_compute(PID *pid, float setpoint, float input)
+float app_pid_compute(PID *pid, const float setpoint, const float input)
 {
     pid->error = setpoint - input;
     pid->integral += pid->error;

@@ -98,7 +98,7 @@ typedef struct
  */
 static ElconRx readElconStatus(void)
 {
-    ElconRx s = { .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
+    const ElconRx s = { .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
                   .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
                   .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
                   .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
@@ -182,7 +182,7 @@ static void app_chargeStateRunOnTick100Hz(void)
     const bool             chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
     const bool             userEnable  = app_canRx_Debug_StartCharging_get();
 
-    ElconRx rx = readElconStatus();
+    const ElconRx rx = readElconStatus();
 
     const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.chargingStateFault ||
                        rx.overTemperature || rx.inputVoltageFault || rx.commTimeout;
