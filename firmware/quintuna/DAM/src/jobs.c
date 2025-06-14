@@ -142,7 +142,7 @@ void jobs_run100Hz_tick(void)
                 break;
             case TIMER_STATE_RUNNING:
                 // do nothing, hold state until timer expires
-                LOG_PRINTF("time passed %d\n", app_timer_getElapsedTime(&tsim_toggle_timer));
+                // LOG_PRINTF("time passed %d\n", app_timer_getElapsedTime(&tsim_toggle_timer));
                 break;
             default:
                 io_tsim_set_red();

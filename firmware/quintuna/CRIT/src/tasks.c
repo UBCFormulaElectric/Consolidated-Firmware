@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "app_jsoncan.h"
 #include "cmsis_os.h"
+#include "hw_watchdog.h"
 #include "shared.pb.h"
 #include "jobs.h"
 #include "main.h"
@@ -41,24 +42,43 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_can_init(&can1);
-    ASSERT_EXIT_OK(hw_usb_init());
+    LOG_IF_ERR(hw_usb_init());
 
-    jobs_init();
+    const ResetReason reset_reason = hw_resetReason_get();
+    app_canTx_CRIT_ResetReason_set((CanResetReason)reset_reason);
 
-    app_canTx_CRIT_ResetReason_set((CanResetReason)hw_resetReason_get());
-
-    // Check for stack overflow on a previous boot cycle and populate CAN alert.
-    BootRequest boot_request = hw_bootup_getBootRequest();
-    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+    // Check for watchdog timeout on a previous boot cycle and populate CAN alert.
+    if (reset_reason == RESET_REASON_WATCHDOG)
     {
-        app_canAlerts_CRIT_Info_StackOverflow_set(true);
-        app_canTx_CRIT_StackOverflowTask_set(boot_request.context_value);
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app_canAlerts_CRIT_Info_WatchdogTimeout_set(true);
+    }
+
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context != BOOT_CONTEXT_NONE)
+    {
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app_canAlerts_CRIT_Info_StackOverflow_set(true);
+            app_canTx_CRIT_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app_canTx_CRIT_WatchdogTimeoutTask_set(boot_request.context_value);
+        }
 
         // Clear stack overflow bootup.
         boot_request.context       = BOOT_CONTEXT_NONE;
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+
+    jobs_init();
+
+    io_canTx_CRIT_Bootup_sendAperiodic();
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -89,13 +109,21 @@ void tasks_runCanRx()
 
 void tasks_run1Hz()
 {
-    // Setup tasks.
-    static const TickType_t period_ms   = 1000U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 1000U;
+    const uint32_t  watchdog_grace_period_ms = 50U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
+        {
             jobs_run1Hz_tick();
+        }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -103,13 +131,21 @@ void tasks_run1Hz()
 
 void tasks_run100Hz()
 {
-    // Setup tasks.
-    static const TickType_t period_ms   = 10;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 10U;
+    const uint32_t  watchdog_grace_period_ms = 2U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
+        {
             jobs_run100Hz_tick();
+        }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -117,13 +153,23 @@ void tasks_run100Hz()
 
 void tasks_run1kHz()
 {
-    // Setup tasks.
-    static const TickType_t period_ms   = 1;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 1U;
+    const uint32_t  watchdog_grace_period_ms = 1U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
+        hw_watchdog_checkForTimeouts();
+
         if (!hw_chimera_v2_enabled)
+        {
             jobs_run1kHz_tick();
+        }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
