@@ -18,12 +18,10 @@
 #include "app_vehicleDynamics.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
-#define BUZZER_ON_DURATION_MS 2000
 #define INV_OFF 0
 
 static bool         launch_control_switch_is_on;
 static bool         regen_switch_is_on;
-static TimerChannel buzzer_timer;
 static SensorChecks sensor_checks;
 
 static PowerManagerConfig power_manager_state = {
@@ -46,10 +44,6 @@ static void app_regularDrive_run(float apps_pedal_percentage);
 
 static void driveStateRunOnEntry()
 {
-    // Enable buzzer on transition to drive, and start 2s timer.
-    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
-    app_timer_restart(&buzzer_timer);
-
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
 
@@ -106,10 +100,10 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVRRbEnable_set(false);
     app_canTx_VC_INVRLbEnable_set(false);
 
-    app_canTx_VC_INVFRTorqueSetpoint_set(0);
-    app_canTx_VC_INVRRTorqueSetpoint_set(0);
-    app_canTx_VC_INVFLTorqueSetpoint_set(0);
-    app_canTx_VC_INVRLTorqueSetpoint_set(0);
+    app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+    app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+    app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+    app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
 
     // Clear mapped pedal percentage
     app_canTx_VC_MappedPedalPercentage_set(0.0f);
@@ -129,9 +123,6 @@ static void driveStateRunOnExit(void)
     //     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
     //     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
     // #endif
-    // Disable buzzer on exit drive.
-    // io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
-    // app_canTx_VC_BuzzerOn_set(false);
 
     app_canTx_VC_RegenEnabled_set(false);
     app_canTx_VC_TorqueVectoringEnabled_set(false);

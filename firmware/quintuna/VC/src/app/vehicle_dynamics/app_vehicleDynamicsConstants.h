@@ -14,7 +14,7 @@
 #define WHEELBASE_m (WHEELBASE_mm * MM_TO_M)
 #define TRACK_WIDTH_mm 1100
 #define TRACK_WIDTH_m (TRACK_WIDTH_mm * MM_TO_M)
-#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // 60 / (2 * pi) to for T = P/w formula
+#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // 60 / (2 * pi) * 1000 to for T = P/w formula
 #define POWER_LIMIT_CAR_kW 40.0f               // max power = 80.0f we can use by FSAE rules
 #define MOTOR_TEMP_CUTOFF_c 90.0f
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO \

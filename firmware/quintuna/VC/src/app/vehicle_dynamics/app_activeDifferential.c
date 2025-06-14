@@ -33,7 +33,7 @@ void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, Act
 
     float scale = CLAMP_TO_ONE(inputs->derating_value);
 
-    if (inputs->is_regen_mode && torque_negative_max_Nm < -torque_lim_Nm)
+    if (inputs->is_regen_mode && (torque_negative_max_Nm < -torque_lim_Nm))
     {
         scale *= -torque_lim_Nm / torque_negative_max_Nm;
     }
