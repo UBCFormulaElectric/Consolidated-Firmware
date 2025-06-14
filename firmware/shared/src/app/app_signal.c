@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "app_signal.h"
 
-void app_signal_init(Signal *signal, uint32_t entry_time, uint32_t exit_time)
+void app_signal_init(Signal *signal, const uint32_t entry_time, const uint32_t exit_time)
 {
     assert(signal != NULL);
 

@@ -180,7 +180,7 @@ static void app_chargeStateRunOnTick100Hz(void)
     const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);
     const bool userEnable  = app_canRx_Debug_StartCharging_get();
 
-    ElconRx rx = readElconStatus();
+    const ElconRx rx = readElconStatus();
 
     const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.chargingStateFault ||
                        rx.overTemperature || rx.inputVoltageFault || rx.commTimeout;
