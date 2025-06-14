@@ -4,8 +4,6 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 
-static float getMaxMotorTemp(void);
-
 /**
  * @note Computes the max allowable power draw from the battery based on motor temps,
  * the battery power limit (calculated by BMS), and accelerator pedal position.

@@ -9,6 +9,8 @@
 #include "app_driveHandling.h"
 #include "app_activeDifferential.h"
 #include "app_canRx.h"
+#define EFFICIENCY_ESTIMATE (0.80f)
+
 static TorqueAllocationInputs torqueToMotorsInputs;
 
 void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
@@ -48,7 +50,7 @@ void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
     // TODO: USE TORQUE BROADCAST -- fix mapping
 }
 
-static void app_driveMode_driving(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
+void app_driveMode_driving(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
     const DriveMode driveMode          = app_canRx_CRIT_DriveMode_get();
     const float     motor_speed_fr_rpm = (float)app_canRx_INVFR_ActualVelocity_get();
@@ -64,18 +66,20 @@ static void app_driveMode_driving(const float apps_pedal_percentage, TorqueAlloc
             torqueToMotorsInputs.front_yaw_moment    = 0.0f;
             torqueToMotorsInputs.rear_yaw_moment     = 0.0f;
             torqueToMotorsInputs.load_transfer_const = 0.0f;
-            torqueToMotorsInputs.power_limit_kw =
-                app_powerLimiting_computeMaxPower(regen_switch_is_on) app_torqueAllocation(&torqueToMotorsInputs);
+            torqueToMotorsInputs.power_limit_kw      = app_powerLimiting_computeMaxPower(false);
+            app_torqueAllocation(&torqueToMotorsInputs, torqueOutputToMotors);
             break;
         case DRIVE_MODE_POWER_AND_ACTIVE:
-            const ActiveDifferential_Inputs ad_in = { .accelerator_pedal_percentage = apps_pedal_percentage,
-                                                      .motor_speed_fl_rpm           = motor_speed_fl_rpm,
-                                                      .motor_speed_fr_rpm           = motor_speed_fr_rpm,
-                                                      .motor_speed_rl_rpm           = motor_speed_rl_rpm,
-                                                      .motor_speed_rr_rpm           = motor_speed_rr_rpm,
-                                                      .power_max_kW    = app_powerLimiting_computeMaxPower(false),
-                                                      .wheel_angle_deg = wheel_angle };
-            ActiveDifferential_Outputs      ad_out;
+        {
+            ActiveDifferential_Inputs ad_in = { .accelerator_pedal_percentage = apps_pedal_percentage,
+                                                .motor_speed_fl_rpm           = motor_speed_fl_rpm,
+                                                .motor_speed_fr_rpm           = motor_speed_fr_rpm,
+                                                .motor_speed_rl_rpm           = motor_speed_rl_rpm,
+                                                .motor_speed_rr_rpm           = motor_speed_rr_rpm,
+                                                .power_max_kW    = app_powerLimiting_computeMaxPower(false),
+                                                .wheel_angle_deg = wheel_angle };
+
+            ActiveDifferential_Outputs ad_out;
 
             app_activeDifferential_computeTorque(&ad_in, &ad_out);
 
@@ -88,8 +92,9 @@ static void app_driveMode_driving(const float apps_pedal_percentage, TorqueAlloc
             app_torqueReduction(requested_power, ad_in.power_max_kW, torqueOutputToMotors);
             /// dont use torque allocation here
             break;
+        }
         case DRIVE_MODE_TV:
-            app_torqueVectoring_handleAcceleration(apps_pedal_percentage);
+            app_torqueVectoring_run(apps_pedal_percentage);
 
         default:
             break;

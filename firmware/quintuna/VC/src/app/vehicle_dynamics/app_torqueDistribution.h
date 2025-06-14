@@ -32,4 +32,4 @@ TorqueAllocationOutputs *app_get_torqueToMotors(TorqueAllocationOutputs *torqueT
 
 void app_torqueReduction(float total_requestedPower, float power_limit, TorqueAllocationOutputs *torqueToMotors);
 
-void app_totalPower(TorqueAllocationOutputs *torques);
+float app_totalPower(TorqueAllocationOutputs *torques);

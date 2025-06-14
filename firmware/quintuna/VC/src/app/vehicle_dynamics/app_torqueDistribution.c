@@ -75,7 +75,7 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
     float total_requestedPower = app_totalPower(torqueToMotors);
     app_canTx_VC_RequestedPower_set(total_requestedPower);
 
-    app_torqueReduction(total_requestedPower, inputs->power_limit_kw);
+    app_torqueReduction(total_requestedPower, inputs->power_limit_kw, torqueToMotors);
 
     app_canTx_VC_TotalAllocatedPower_set(app_totalPower(torqueToMotors));
 

@@ -20,7 +20,6 @@
 #include "app_torqueDistribution.h"
 #include "app_driveHandling.h"
 
-#define EFFICIENCY_ESTIMATE (0.80f)
 #define OFF 0
 
 static bool                    launch_control_switch_is_on;
@@ -42,9 +41,9 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage);
+static void runDrivingAlgorithm(float apps_pedal_percentage);
 static bool driveStatePassPreCheck();
-static void app_regularDrive_run(float apps_pedal_percentage);
+static void app_driveSwitchInit(void);
 
 static void app_enable_inv(void)
 {
@@ -114,6 +113,8 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
     app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
     app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
+
+    app_reset_torqueToMotors(&torqueOutputToMotors);
 
     // Clear mapped pedal percentage
     app_canTx_VC_RegenMappedPedalPercentage_set(0.0f);
@@ -204,14 +205,14 @@ static void app_driveSwitchInit(void)
     }
 }
 
-static void app_performSensorChecks(void)
-{
-    sensor_checks.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get();
-    sensor_checks.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
-    sensor_checks.steeringOk =
-        !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
-    sensor_checks.useTV = sensor_checks.gpsOk && sensor_checks.imuOk && sensor_checks.steeringOk;
-}
+// static void app_performSensorChecks(void)
+// {
+//     sensor_checks.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get();
+//     sensor_checks.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
+//     sensor_checks.steeringOk =
+//         !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
+//     sensor_checks.useTV = sensor_checks.gpsOk && sensor_checks.imuOk && sensor_checks.steeringOk;
+// }
 
 State drive_state = {
     .name              = "DRIVE",

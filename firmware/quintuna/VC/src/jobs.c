@@ -11,6 +11,7 @@
 #include "states/app_states.h"
 #include "io_time.h"
 #include "io_sbgEllipse.h"
+#include "io_imu.h"
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"

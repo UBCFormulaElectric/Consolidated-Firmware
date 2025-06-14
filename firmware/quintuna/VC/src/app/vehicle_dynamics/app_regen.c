@@ -35,9 +35,9 @@ static bool batteryLevelInRange(RegenBraking_Inputs *regenAttr);
  * @param regenAttr struct provides for torque request
  */
 static void computeRegenTorqueRequest(
-    ActiveDifferential_Inputs *inputs,
+    ActiveDifferential_Inputs *activeDiffInputs,
     RegenBraking_Inputs       *regenAttr,
-    PowerLimiting_Inputs      *powerInputs);
+    TorqueAllocationOutputs   *torqueOutputToMotors);
 
 // Global variables for regenerative braking logic
 static RegenBraking_Inputs        regenAttributes = { .enable_active_differential = true };
