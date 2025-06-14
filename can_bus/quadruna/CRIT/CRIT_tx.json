@@ -1,6 +1,7 @@
 {
   "Vitals": {
     "msg_id": 502,
+
     "cycle_time": 100,
     "description": "CRIT vitals message.",
     "signals": {
@@ -14,6 +15,7 @@
   },
   "Switches": {
     "msg_id": 503,
+
     "cycle_time": 100,
     "description": "States of the switches on the CRIT.",
     "signals": {
@@ -23,13 +25,14 @@
       "RegenSwitch": {
         "enum": "SwitchState"
       },
-      "VanillaOverrideSwitch": {
+      "TorqueVecSwitch": {
         "enum": "SwitchState"
       }
     }
   },
   "DriveMode": {
     "msg_id": 504,
+
     "cycle_time": 100,
     "description": "Drive Mode.",
     "signals": {
@@ -40,6 +43,7 @@
   },
   "AlertsContext": {
     "msg_id": 505,
+
     "cycle_time": 1000,
     "description": "Context info for CRIT alerts",
     "signals": {
@@ -56,6 +60,7 @@
   },
   "CommitInfo": {
     "msg_id": 506,
+
     "cycle_time": 100,
     "description": "CRIT Current Running Git Commit Info",
     "signals": {
@@ -69,6 +74,7 @@
   },
   "CRITShdnNodeStatus": {
     "msg_id": 507,
+
     "cycle_time": 100,
     "description": "CRIT Shutdown Node Status",
     "signals": {
