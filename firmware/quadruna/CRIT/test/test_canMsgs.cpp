@@ -30,9 +30,9 @@ TEST_F(CanBroadcastTest, check_torquevec_switch_is_broadcasted_over_can_in_drive
 {
     fake_io_switches_torquevec_get_returns(false);
     LetTimePass(10);
-    ASSERT_EQ(SWITCH_OFF, app_canTx_CRIT_VanillaOverrideSwitch_get());
+    ASSERT_EQ(SWITCH_OFF, app_canTx_CRIT_TorqueVecSwitch_get());
 
     fake_io_switches_torquevec_get_returns(true);
     LetTimePass(10);
-    ASSERT_EQ(SWITCH_ON, app_canTx_CRIT_VanillaOverrideSwitch_get());
+    ASSERT_EQ(SWITCH_ON, app_canTx_CRIT_TorqueVecSwitch_get());
 }

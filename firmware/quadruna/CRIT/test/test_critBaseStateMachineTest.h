@@ -47,7 +47,7 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         fake_io_led_ams_set_reset();
         fake_io_led_start_set_reset();
         fake_io_led_regen_set_reset();
-        fake_io_led_vanillaOverride_set_reset();
+        fake_io_led_torquevec_set_reset();
         fake_io_led_shutdown_set_reset();
         fake_io_led_bms_status_set_reset();
         fake_io_led_fsm_status_set_reset();
@@ -58,6 +58,6 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         fake_io_switches_init_reset();
         fake_io_switches_start_get_reset();
         fake_io_switches_regen_get_reset();
-        fake_io_led_vanillaOverride_get_reset();
+        fake_io_switches_torquevec_get_reset();
     }
 };
