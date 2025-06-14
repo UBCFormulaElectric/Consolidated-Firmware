@@ -50,8 +50,8 @@ static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
     assert(loadswitch->efuse1 != NULL && loadswitch->efuse2 != NULL);
 
     // Checking if ther is an overtemperature/short to ground condition
-    float vsenseh_efuse1 = io_loadswitch_isChannelEnabled(loadswitch->efuse1) / ADC_VOLTAGE_TO_CURRENT_A;
-    float vsenseh_efuse2 = io_loadswitch_isChannelEnabled(loadswitch->efuse2) / ADC_VOLTAGE_TO_CURRENT_A;
+    float vsenseh_efuse1 = io_loadswitch_getChannelCurrent(loadswitch->efuse1) / ADC_VOLTAGE_TO_CURRENT_A;
+    float vsenseh_efuse2 = io_loadswitch_getChannelCurrent(loadswitch->efuse2) / ADC_VOLTAGE_TO_CURRENT_A;
 
     if (io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 >= 3.0f)
     {

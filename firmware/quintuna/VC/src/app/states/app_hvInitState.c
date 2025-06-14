@@ -68,10 +68,9 @@ static void hvInitStateRunOnEntry(void)
     app_canTx_VC_INVFRTorqueLimitNegative_set(0);
     app_canTx_VC_INVRLTorqueLimitNegative_set(0);
     app_canTx_VC_INVRRTorqueLimitNegative_set(0);
-    
-    //start timer for inverter initial sequence
-    app_timer_restart(&start_up_timer);
 
+    // start timer for inverter initial sequence
+    app_timer_restart(&start_up_timer);
 }
 
 static void hvInitStateRunOnTick100Hz(void)
@@ -100,9 +99,9 @@ static void hvInitStateRunOnTick100Hz(void)
             else if (app_canTx_VC_Info_InverterRetry_get())
             {
                 app_warningHandling_inverterRest();
-
             }
-            else if(system_ready_timeout == TIMER_STATE_EXPIRED){
+            else if (system_ready_timeout == TIMER_STATE_EXPIRED)
+            {
                 LOG_INFO("inv system ready timeout");
                 app_stateMachine_setNextState(&init_state);
             }
@@ -190,7 +189,7 @@ static void hvInitStateRunOnExit(void)
     app_canAlerts_VC_Info_InverterRetry_set(false);
 
     // We are setting back this to zero meaning that we either succedded in reseting the inverters or out reset protocl
-    // didnt work so we are going back to init 
+    // didnt work so we are going back to init
     app_canTx_VC_INVFLbErrorReset_set(false);
     app_canTx_VC_INVFRbErrorReset_set(false);
     app_canTx_VC_INVRLbErrorReset_set(false);
