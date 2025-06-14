@@ -59,6 +59,9 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    app_canTx_init();
+    app_canRx_init();
+
     app_precharge_init();
     // app_heartbeatMonitor_init(&hb_monitor);
 
@@ -119,7 +122,7 @@ void jobs_run100Hz_tick(void)
     const bool ams_fault = app_segments_checkFaults();
 
     // Update CAN signals for BMS latch statuses.
-    io_faultLatch_setCurrentStatus(&bms_ok_latch, ams_fault);
+    io_faultLatch_setCurrentStatus(&bms_ok_latch, ams_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
     app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
     app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
     app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));

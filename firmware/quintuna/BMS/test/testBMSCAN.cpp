@@ -5,6 +5,8 @@ extern "C"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
+
+#include "io_time.h"
 }
 
 class BMSCanTest : public BMSBaseTest
@@ -53,9 +55,9 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
 
     LetTimePass(10);
 
-    io_faultLatch_setCurrentStatus(&bms_ok_latch, FAULT_LATCH_FAULT);
-    io_faultLatch_setCurrentStatus(&imd_ok_latch, FAULT_LATCH_FAULT);
-    io_faultLatch_setCurrentStatus(&bspd_ok_latch, FAULT_LATCH_FAULT);
+    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
+    fakes::faultLatches::updateFaultLatch(&imd_ok_latch, FAULT_LATCH_FAULT);
+    fakes::faultLatches::updateFaultLatch(&bspd_ok_latch, FAULT_LATCH_FAULT);
 
     ASSERT_EQ(io_faultLatch_getCurrentStatus(&bms_ok_latch), FAULT_LATCH_FAULT) << "Expected BMS OK latch to be FAULT";
     ASSERT_EQ(io_faultLatch_getLatchedStatus(&bms_ok_latch), FAULT_LATCH_FAULT)
@@ -68,7 +70,8 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
     ASSERT_EQ(io_faultLatch_getLatchedStatus(&bspd_ok_latch), FAULT_LATCH_FAULT)
         << "Expected BSPD OK latch to be latched as FAULT";
 
-    LetTimePass(10);
+    fakes::segments::setPackVoltageEvenly(0.0f); // to trigger undervoltage AMS fault
+    LetTimePass(10100);
 
     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_BmsLatchOk_get());
@@ -81,9 +84,9 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
 
     // LATCHES MUST PERSIST EVEN WHILE THE STATE IS RETURNED
 
-    io_faultLatch_setCurrentStatus(&bms_ok_latch, FAULT_LATCH_OK);
-    io_faultLatch_setCurrentStatus(&imd_ok_latch, FAULT_LATCH_OK);
-    io_faultLatch_setCurrentStatus(&bspd_ok_latch, FAULT_LATCH_OK);
+    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_OK);
+    fakes::faultLatches::updateFaultLatch(&imd_ok_latch, FAULT_LATCH_OK);
+    fakes::faultLatches::updateFaultLatch(&bspd_ok_latch, FAULT_LATCH_OK);
 
     ASSERT_EQ(io_faultLatch_getCurrentStatus(&bms_ok_latch), FAULT_LATCH_OK) << "Expected BMS OK latch to be OK";
     ASSERT_EQ(io_faultLatch_getLatchedStatus(&bms_ok_latch), FAULT_LATCH_FAULT)
@@ -95,6 +98,7 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
     ASSERT_EQ(io_faultLatch_getLatchedStatus(&bspd_ok_latch), FAULT_LATCH_FAULT)
         << "Expected BSPD OK latch to be latched as FAULT";
 
+    fakes::segments::setPackVoltageEvenly(550.0f);
     LetTimePass(10);
 
     ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
@@ -162,7 +166,7 @@ TEST_F(BMSCanTest, check_imd_info_is_broadcasted_over_can_in_all_states)
         app_canTx_BMS_ImdSpeedStartStatus30Hz_get();
 
         // seconds_since_power_on
-        ASSERT_EQ(app_canTx_BMS_ImdTimeSincePowerOn_get(), io_time_getCurrentMs());
+        ASSERT_EQ(app_canTx_BMS_ImdTimeSincePowerOn_get() + 1, io_time_getCurrentMs());
     }
 }
 

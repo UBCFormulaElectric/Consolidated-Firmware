@@ -8,6 +8,7 @@ extern "C"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "io_irs.h"
+#include "io_time.h"
 }
 
 class BmsStateMachineTest : public BMSBaseTest
@@ -86,9 +87,10 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     ASSERT_STATE_EQ(init_state);
 }
 
-TEST_F(BmsStateMachineTest, stays_in_fault_state_if_ir_negative_opens)
+TEST_F(BmsStateMachineTest, stays_in_fault_state_if_ir_negative_closes)
 {
     app_stateMachine_setCurrentState(&fault_state);
+    app_canAlerts_BMS_Fault_TESTFAULT_set(true);
     fakes::irs::setNegativeState(IRS_CLOSED);
     LetTimePass(100);
     ASSERT_STATE_EQ(fault_state);

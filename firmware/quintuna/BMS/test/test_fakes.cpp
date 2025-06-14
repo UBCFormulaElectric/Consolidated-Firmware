@@ -28,7 +28,7 @@ extern "C"
         return EXIT_CODE_OK;
     }
 
-    static std::array<std::array<uint16_t, NUM_SEGMENTS>, CELLS_PER_SEGMENT> voltage_regs{};
+    static std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> voltage_regs{};
 
     static bool     started_adc_conversion     = false;
     static bool     started_overlap_test       = false;
@@ -254,15 +254,14 @@ extern "C"
 
 #include "io_faultLatch.h"
     // latches to operate on
-    FaultLatch bms_ok_latch{};
-    FaultLatch imd_ok_latch{};
-    FaultLatch bspd_ok_latch{};
+    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false };
+    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
+    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
 
     void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
     {
-        const_cast<FaultLatch *>(latch)->status = status;
-        const_cast<FaultLatch *>(latch)->latched_state =
-            latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
+        assert(!latch->read_only);
+        fakes::faultLatches::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
     }
     FaultLatchState io_faultLatch_getCurrentStatus(const FaultLatch *latch)
     {
@@ -329,6 +328,11 @@ namespace faultLatches
     {
         const_cast<FaultLatch *>(latch)->status        = FAULT_LATCH_OK;
         const_cast<FaultLatch *>(latch)->latched_state = FAULT_LATCH_OK;
+    }
+    void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
+    {
+        latch->status        = status;
+        latch->latched_state = latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
     }
 } // namespace faultLatches
 

@@ -25,6 +25,7 @@ typedef struct
 {
     FaultLatchState status;
     FaultLatchState latched_state;
+    const bool      read_only; // Certain fault latches can only be read from.
 } FaultLatch;
 
 extern FaultLatch bms_ok_latch;
