@@ -134,18 +134,26 @@ export default function AlertBoard() {
       Fault: faults,
       Warning: warnings,
       Info: infoAlerts,
-    }[type].sort(
-      (a, b) =>
-        new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()
-    );
+    }[type].sort((a, b) => {
+      // First: Active alerts come before inactive
+      if (a.active !== b.active) {
+        return a.active ? -1 : 1;
+      }
 
+      // Then: Newer alerts come first
+      return (
+        new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()
+      );
+    });
     const typeConfig = getTypeConfig(type);
 
     return (
-      <div className={`rounded-lg border ${typeConfig.borderColor} shadow-sm`}>
+      <div
+        className={`rounded-lg border ${typeConfig.borderColor} shadow-sm max-h-[40vh] overflow-y-auto overscroll-contain`}
+      >
         {/* Header */}
         <div
-          className={`px-4 py-3 ${typeConfig.headerColor} border-b flex items-center justify-between`}
+          className={`sticky top-0 z-10 px-4 py-3 ${typeConfig.headerColor} border-b flex items-center justify-between`}
         >
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-full ${typeConfig.iconColor}`}>
@@ -171,11 +179,21 @@ export default function AlertBoard() {
             alerts.map((alert) => (
               <div
                 key={alert.name}
-                className="px-4 py-3 hover:bg-gray-50 transition-colors"
+                className={`px-4 py-3 transition-colors ${
+                  alert.active
+                    ? "bg-white hover:bg-gray-50"
+                    : "bg-gray-100 text-gray-400 italic"
+                }`}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-medium text-gray-900">
+                    <h3
+                      className={`font-medium ${
+                        alert.active
+                          ? "text-gray-900"
+                          : "text-gray-400 line-through"
+                      }`}
+                    >
                       {alert.name} ({counts[`${alert.name}Count`] ?? 0})
                     </h3>
                   </div>
