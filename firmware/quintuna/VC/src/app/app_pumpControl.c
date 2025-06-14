@@ -14,11 +14,12 @@ static uint16_t time             = 0;
 static inline void pumpControl_rampUp(void)
 {
     // if we are done ramping up note that we are not ramping up
+
     if (finished_ramp_up)
     {
         return;
     }
-    // calcualte percentage based on defined slope above
+    // calculate percentage based on defined slope above
     uint8_t percentage = (uint8_t)(SLOPE * time);
 
     io_pumpControl_setPercentage(percentage, RR_PUMP);
@@ -44,6 +45,8 @@ static inline void pumpControl_stopFlow(void)
 
 void app_pumpControl_MonitorPumps(void)
 {
+    time += 10;
+
     const bool pumps_ok = io_TILoadswitch_pgood(&f_pump_loadswitch) && io_TILoadswitch_pgood(&rl_pump_loadswitch) &&
                           io_TILoadswitch_pgood(&rr_pump_loadswitch);
 
@@ -52,8 +55,12 @@ void app_pumpControl_MonitorPumps(void)
          io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RL_PUMP]) ||
          io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
 
-    if (pumps_ok && pumps_enabled)
+    bool ramp_up_pumps = pumps_ok && pumps_enabled;
+
+    if (ramp_up_pumps)
         pumpControl_rampUp();
     else
         pumpControl_stopFlow();
+
+    app_canTx_VC_RsmTurnOnPump_set(ramp_up_pumps);
 }
