@@ -38,4 +38,4 @@ static HeartbeatBoard heartbeat_boards[5] = {
       .timeout_ms   = 200 }
 };
 
-const HeartbeatMonitor hb_monitor = { .boards = heartbeat_boards, .board_count = 4, .block_faults = false };
+const HeartbeatMonitor hb_monitor = { .boards = heartbeat_boards, .board_count = 5, .block_faults = false };
