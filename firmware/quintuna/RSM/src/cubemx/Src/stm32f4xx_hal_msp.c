@@ -444,6 +444,9 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
         GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
         HAL_GPIO_Init(FLOW_METER_5V_GPIO_Port, &GPIO_InitStruct);
 
+        /* TIM4 interrupt Init */
+        HAL_NVIC_SetPriority(TIM4_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM4_IRQn);
         /* USER CODE BEGIN TIM4_MspInit 1 */
 
         /* USER CODE END TIM4_MspInit 1 */
@@ -495,6 +498,8 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
         */
         HAL_GPIO_DeInit(FLOW_METER_5V_GPIO_Port, FLOW_METER_5V_Pin);
 
+        /* TIM4 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM4_IRQn);
         /* USER CODE BEGIN TIM4_MspDeInit 1 */
 
         /* USER CODE END TIM4_MspDeInit 1 */
