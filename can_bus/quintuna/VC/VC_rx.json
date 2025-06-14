@@ -6,6 +6,7 @@
     "FSM_Vitals",
     "RSM_Vitals",
     "FSM_ShdnNodeStatus",
+    "FSM_Brake",
     "DAM_ShdnNodeStatus",
     "RSM_ShdnNodeStatus",
     "BMS_BMSShdnNodeStatus",
@@ -17,7 +18,6 @@
     "VCR_Vitals",
     "VCR_CommitInfo",
     "VCR_Debug",
-    "FSM_Brake",
     "FSM_Apps",
     "CRIT_Switches",
     "CRIT_Vitals"

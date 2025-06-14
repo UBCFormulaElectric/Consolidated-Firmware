@@ -24,10 +24,6 @@
       "id": 783,
       "description": "Rear right suspension open or short circuit"
     },
-    "MissingVCHeartbeat": {
-      "id": 780,
-      "description": "Missing VC heartbeat"
-    },
     "MissingFSMHeartbeat": {
       "id": 781,
       "description": "Missing FSM heartbeat"
@@ -35,6 +31,10 @@
     "StackOverflow": {
       "id": 750,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "WatchdogTimeout": {
+      "id": 782,
+      "description": "Watchdog timeout detected."
     }
   }
 }

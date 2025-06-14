@@ -10,8 +10,6 @@ typedef struct
 extern Screen main_drive_screen;
 extern Screen init_screen;
 extern Screen start_up_screen;
-extern Screen vd_screen;
-extern Screen warning_screen;
 
 void app_screens_init(void);
 void app_screens_update(void);

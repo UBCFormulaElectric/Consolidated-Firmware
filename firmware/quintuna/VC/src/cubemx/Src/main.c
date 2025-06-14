@@ -125,7 +125,7 @@ const osThreadAttr_t Task1Hz_attributes = {
 };
 /* Definitions for TaskBtrMonitor */
 osThreadId_t         TaskBtrMonitorHandle;
-uint32_t             TaskBatteryMoniBuffer[256];
+uint32_t             TaskBatteryMoniBuffer[512];
 osStaticThreadDef_t  TaskBatteryMoniControlBlock;
 const osThreadAttr_t TaskBtrMonitor_attributes = {
     .name       = "TaskBtrMonitor",
@@ -137,7 +137,7 @@ const osThreadAttr_t TaskBtrMonitor_attributes = {
 };
 /* Definitions for TaskChimera */
 osThreadId_t         TaskChimeraHandle;
-uint32_t             TaskChimeraBuffer[256];
+uint32_t             TaskChimeraBuffer[512];
 osStaticThreadDef_t  TaskChimeraControlBlock;
 const osThreadAttr_t TaskChimera_attributes = {
     .name       = "TaskChimera",
@@ -656,9 +656,9 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.DataTimeSeg1         = 5;
     hfdcan1.Init.DataTimeSeg2         = 2;
     hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
@@ -666,7 +666,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.TxEventsNbr          = 0;
     hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan1.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
@@ -706,10 +706,10 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.DataSyncJumpWidth    = 1;
     hfdcan2.Init.DataTimeSeg1         = 1;
     hfdcan2.Init.DataTimeSeg2         = 1;
-    hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 0;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan2.Init.MessageRAMOffset     = 1280;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 1;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
@@ -717,7 +717,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan2.Init.TxEventsNbr          = 0;
     hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
@@ -757,10 +757,10 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.DataSyncJumpWidth    = 1;
     hfdcan3.Init.DataTimeSeg1         = 1;
     hfdcan3.Init.DataTimeSeg2         = 1;
-    hfdcan3.Init.MessageRAMOffset     = 0;
-    hfdcan3.Init.StdFiltersNbr        = 0;
-    hfdcan3.Init.ExtFiltersNbr        = 0;
-    hfdcan3.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan3.Init.MessageRAMOffset     = 1920;
+    hfdcan3.Init.StdFiltersNbr        = 1;
+    hfdcan3.Init.ExtFiltersNbr        = 1;
+    hfdcan3.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
@@ -768,7 +768,7 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.TxEventsNbr          = 0;
     hfdcan3.Init.TxBuffersNbr         = 0;
-    hfdcan3.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan3.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan3.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan3) != HAL_OK)
