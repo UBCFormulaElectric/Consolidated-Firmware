@@ -4,6 +4,7 @@
 #include "app_regen.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_powerLimiting.h"
+#include "app_torqueDistribution.h"
 #include "app_activeDifferential.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
@@ -39,10 +40,10 @@ static void computeRegenTorqueRequest(
     PowerLimiting_Inputs      *powerInputs);
 
 // Global variables for regenerative braking logic
-static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
-static ActiveDifferential_Inputs activeDifferentialInputs;
-static PowerLimiting_Inputs      powerLimitingInputs = { .regen_power_limit_kW = POWER_LIMIT_REGEN_kW };
-static bool                      regen_enabled       = true;
+static RegenBraking_Inputs        regenAttributes = { .enable_active_differential = true };
+static ActiveDifferential_Inputs  activeDifferentialInputs;
+static ActiveDifferential_Outputs activeDifferentialOutputs;
+static bool                       regen_enabled = true;
 
 void app_regen_init(void)
 {
@@ -50,7 +51,7 @@ void app_regen_init(void)
     app_canTx_VC_Warning_RegenNotAvailable_set(false);
 }
 
-void app_regen_run(float accelerator_pedal_percentage)
+void app_regen_run(float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
     // pedal percentage = [-1.0f, 0.0f] for deceleration range
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
@@ -58,20 +59,18 @@ void app_regen_run(float accelerator_pedal_percentage)
 
     if (regen_available)
     {
-        computeRegenTorqueRequest(&activeDifferentialInputs, &regenAttributes, &powerLimitingInputs);
+        computeRegenTorqueRequest(&activeDifferentialInputs, &regenAttributes, torqueOutputToMotors);
     }
     else
     {
-        regenAttributes.torque_rr_Nm = 0.0f;
-        regenAttributes.torque_rl_Nm = 0.0f;
-        regenAttributes.torque_fr_Nm = 0.0f;
-        regenAttributes.torque_fl_Nm = 0.0f;
+        torqueOutputToMotors->front_left_torque  = 0.0f;
+        torqueOutputToMotors->front_right_torque = 0.0f;
+        torqueOutputToMotors->rear_left_torque   = 0.0f;
+        torqueOutputToMotors->rear_right_torque  = 0.0f;
     }
 
     app_canTx_VC_RegenEnabled_set(regen_available);
     app_canTx_VC_Warning_RegenNotAvailable_set(!regen_available);
-
-    app_regen_sendTorqueRequest(&regenAttributes);
 }
 
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
@@ -114,13 +113,13 @@ static bool batteryLevelInRange(RegenBraking_Inputs *regenAttr)
 static void computeRegenTorqueRequest(
     ActiveDifferential_Inputs *activeDiffInputs,
     RegenBraking_Inputs       *regenAttr,
-    PowerLimiting_Inputs      *powerInputs)
+    TorqueAllocationOutputs   *torqueOutputToMotors)
 {
     regenAttr->derating_value = 1.0f;
 
     if (regenAttr->battery_level > 3.9f)
     {
-        activeDiffInputs->derating_value = SOC_LIMIT_DERATING_VALUE;
+        regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
     }
 
     float min_motor_speed_kmh = MOTOR_RPM_TO_KMH(MIN4(
@@ -129,35 +128,35 @@ static void computeRegenTorqueRequest(
 
     if (min_motor_speed_kmh < 10.0f)
     {
-        activeDiffInputs->derating_value =
-            activeDiffInputs->derating_value * (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
+        regenAttr->derating_value = regenAttr->derating_value * (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
     }
-
-    activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(POWER_LIMIT_REGEN_kW);
-    activeDiffInputs->wheel_angle_deg = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
     if (regenAttr->enable_active_differential)
     {
-        app_activeDifferential_computeTorque(activeDiffInputs);
+        activeDiffInputs->derating_value      = regenAttr->derating_value;
+        activeDiffInputs->power_max_kW        = app_powerLimiting_computeMaxPower(regen_enabled);
+        activeDiffInputs->wheel_angle_deg     = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
+        activeDiffInputs->requested_torque_Nm = MAX_REGEN_Nm * activeDiffInputs->accelerator_pedal_percentage;
+        app_activeDifferential_computeTorque(activeDiffInputs, &activeDifferentialOutputs);
+
+        torqueOutputToMotors->front_left_torque  = activeDifferentialOutputs.torque_fl_Nm;
+        torqueOutputToMotors->front_right_torque = activeDifferentialOutputs.torque_fr_Nm;
+        torqueOutputToMotors->rear_left_torque   = activeDifferentialOutputs.torque_rl_Nm;
+        torqueOutputToMotors->rear_right_torque  = activeDifferentialOutputs.torque_rr_Nm;
+
+        const float requested_power = app_totalPower(torqueOutputToMotors);
+        app_torqueReduction(requested_power, activeDiffInputs->power_max_kW, );
     }
     else
     {
         // no power limit, no active differential
         float regen_torque_request =
             MAX_REGEN_Nm * activeDiffInputs->accelerator_pedal_percentage * regenAttr->derating_value;
-        regenAttr->torque_rr_Nm = regen_torque_request;
-        regenAttr->torque_rl_Nm = regen_torque_request;
-        regenAttr->torque_fr_Nm = regen_torque_request;
-        regenAttr->torque_fl_Nm = regen_torque_request;
+        torqueOutputToMotors->front_left_torque  = regen_torque_request;
+        torqueOutputToMotors->front_right_torque = regen_torque_request;
+        torqueOutputToMotors->rear_left_torque   = regen_torque_request;
+        torqueOutputToMotors->rear_right_torque  = regen_torque_request;
     }
-}
-
-void app_regen_sendTorqueRequest(RegenBraking_Inputs *regenAttr)
-{
-    app_canTx_VC_INVFLTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_fl_Nm));
-    app_canTx_VC_INVFRTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_fr_Nm));
-    app_canTx_VC_INVRLTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_rl_Nm));
-    app_canTx_VC_INVRRTorqueSetpoint_set(PEDAL_REMAPPING(regenAttr->torque_rr_Nm));
 }
 
 float app_regen_pedalRemapping(float apps_pedal_percentage)

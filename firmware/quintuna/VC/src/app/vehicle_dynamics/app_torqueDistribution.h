@@ -3,8 +3,6 @@
 #include "io_imu_config.h"
 #include "app_vehicleDynamicsConstants.h"
 
-TorqueAllocationOutputs torqueToMotors;
-
 /*
  * Broadcasts the vertical force of each wheel
  * calculated based on IMU accelerations
@@ -24,14 +22,14 @@ float app_loadTransferConstant(float long_accel);
  * Currently adapted to 2 wheel drive
  * Sends torque requests if TV is on
  */
-void app_torqueAllocation(TorqueAllocationInputs *inputs);
+void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutputs *torqueToMotors);
 
 void app_reset_torqueToMotors(void);
 
-void app_torqueBroadCast();
+void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors);
 
-TorqueAllocationOutputs *app_get_torqueToMotors();
+TorqueAllocationOutputs *app_get_torqueToMotors(TorqueAllocationOutputs *torqueToMotors);
 
-void app_torqueReduction(float total_requestedPower, float power_limit);
+void app_torqueReduction(float total_requestedPower, float power_limit, TorqueAllocationOutputs *torqueToMotors);
 
 void app_totalPower(TorqueAllocationOutputs *torques);

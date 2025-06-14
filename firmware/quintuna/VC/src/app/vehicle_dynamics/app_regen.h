@@ -18,7 +18,7 @@ void app_regen_init(void);
  * before calculating and sending regenerative braking negative torque requests
  * @param accelerator_pedal_percentage is the pedal percentage
  */
-void app_regen_run(float accelerator_pedal_percentage);
+void app_regen_run(float accelerator_pedal_percentage, TorqueAllocationInputs *torqueOutputToMotors);
 
 /**
  * Check if conditions allow for regenerative braking, if not reset
@@ -28,13 +28,6 @@ void app_regen_run(float accelerator_pedal_percentage);
  * @return true or false depending on if it is safe to run regen
  */
 bool app_regen_safetyCheck(struct RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs);
-
-/**
- * Activate torque requests for regen
- * @param left is the left inverter torque request
- * @param right is the right inverter torque request
- */
-void app_regen_sendTorqueRequest(RegenBraking_Inputs *regenAttr);
 
 /**
  * Remap Papps and Sapps pedal percentage

@@ -23,9 +23,10 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define OFF 0
 
-static bool         launch_control_switch_is_on;
-static bool         regen_switch_is_on;
-static SensorChecks sensor_checks;
+static bool                    launch_control_switch_is_on;
+static bool                    regen_switch_is_on;
+static SensorChecks            sensor_checks;
+static TorqueAllocationOutputs torqueOutputToMotors;
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -92,7 +93,7 @@ static void driveStateRunOnTick100Hz(void)
         sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
     }
 
-    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
+    app_canTx_VC_RegenMappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
     runDrivingAlgorithm(apps_pedal_percentage);
 }
 
@@ -110,7 +111,7 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
 
     // Clear mapped pedal percentage
-    app_canTx_VC_RegenMappedPedalPercentagee_set(0.0f);
+    app_canTx_VC_RegenMappedPedalPercentage_set(0.0f);
     app_canTx_VC_RegenEnabled_set(false);
     app_canTx_VC_TorqueVectoringEnabled_set(false);
 }
@@ -166,32 +167,34 @@ static bool driveStatePassPreCheck()
 
 static void runDrivingAlgorithm(const float apps_pedal_percentage)
 {
-
-    if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
-        app_VanillaDrive_run(apps_pedal_percentage);
+        app_regen_run(apps_pedal_percentage, &torqueOutputToMotors);
     }
-
+    else if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
+    {
+        app_VanillaDrive_run(apps_pedal_percentage, &torqueOutputToMotors);
+    }
     else
     {
-        app_non_vanilla_driving(apps_pedal_percentage);
+        app_non_vanilla_driving(apps_pedal_percentage, &torqueOutputToMotors);
     }
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 
-    app_torqueBroadCast();
+    app_torqueBroadCast(&torqueOutputToMotors);
 }
 
 static void app_driveSwitchInit(void)
 {
     if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
     {
-        // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN
+        app_torqueVectoring_init();
         launch_control_switch_is_on = true;
     }
 
     if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
     {
-        // app_regen_init(); -- COMMENTED OUT TO SPIN
+        app_regen_init();
         regen_switch_is_on = true;
     }
 }
