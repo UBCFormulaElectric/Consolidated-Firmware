@@ -57,7 +57,7 @@ void app_canDataCapture_init()
     {%- endfor %}
 }
 
-bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms)
+bool app_dataCapture_needsLog(uint32_t msg_id, uint32_t time_ms)
 {
     switch (msg_id)
     {
@@ -80,7 +80,7 @@ bool app_dataCapture_needsLog(uint16_t msg_id, uint32_t time_ms)
     return false;
 }
 
-bool app_dataCapture_needsTelem(uint16_t msg_id, uint32_t time_ms)
+bool app_dataCapture_needsTelem(uint32_t msg_id, uint32_t time_ms)
 {
     switch (msg_id)
     {
