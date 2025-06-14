@@ -44,6 +44,7 @@ void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg)
         case {{ r.message.id_macro() }}:
         {
             transmit_func_{{r.to_bus_name}}(rx_msg);
+            break;
         }
         {%- endfor %}
         default:

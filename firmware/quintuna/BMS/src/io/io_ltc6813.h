@@ -9,12 +9,13 @@
 #include "app_utils.h"
 
 // Physical constants for our accumulator.
-#define NUM_SEGMENTS 1
+#define NUM_SEGMENTS 10
 #define CELLS_PER_SEGMENT 14
 #define THERMISTORS_PER_SEGMENT 14
 
 // LTC6813 realities.
 #define REGS_PER_GROUP 3
+#define REGISTER_GROUP_SIZE (6U) // 6 bytes
 #define VOLTAGE_REGISTER_GROUPS 5
 #define AUX_REG_GROUPS 3
 #define AUX_REGS_PER_SEGMENT (AUX_REG_GROUPS * REGS_PER_GROUP)
@@ -44,6 +45,7 @@ typedef struct __attribute__((__packed__))
     uint8_t dcc_9_12 : 4;
     uint8_t dcto : 4; // some shit for extended balancing
 } CFGAR;
+static_assert(sizeof(CFGAR) == REGISTER_GROUP_SIZE);
 
 // as per table 39
 typedef struct __attribute__((__packed__))
@@ -62,6 +64,7 @@ typedef struct __attribute__((__packed__))
     // byte 3-6
     uint32_t reserved;
 } CFGBR;
+static_assert(sizeof(CFGBR) == REGISTER_GROUP_SIZE);
 
 typedef struct
 {
