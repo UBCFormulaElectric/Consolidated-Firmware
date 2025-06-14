@@ -116,17 +116,11 @@ static void computeRegenTorqueRequest(
     RegenBraking_Inputs       *regenAttr,
     PowerLimiting_Inputs      *powerInputs)
 {
-    float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
-
-    powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value
-    // powerInputs->left_motor_temp_C         = app_canRx_INVL_MotorTemperature_get();
-    // powerInputs->right_motor_temp_C        = app_canRx_INVR_MotorTemperature_get();
-
     regenAttr->derating_value = 1.0f;
 
     if (regenAttr->battery_level > 3.9f)
     {
-        regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
+        activeDiffInputs->derating_value = SOC_LIMIT_DERATING_VALUE;
     }
 
     float min_motor_speed_kmh = MOTOR_RPM_TO_KMH(MIN4(
@@ -135,52 +129,27 @@ static void computeRegenTorqueRequest(
 
     if (min_motor_speed_kmh < 10.0f)
     {
-        regenAttr->derating_value = regenAttr->derating_value * (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
+        activeDiffInputs->derating_value =
+            activeDiffInputs->derating_value * (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
     }
 
-    activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(powerInputs->current_based_power_limit_kW);
+    activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(POWER_LIMIT_REGEN_kW);
     activeDiffInputs->wheel_angle_deg = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
     if (regenAttr->enable_active_differential)
     {
-        app_regen_computeActiveDifferentialTorque(activeDiffInputs, regenAttr);
+        app_activeDifferential_computeTorque(activeDiffInputs);
     }
     else
     {
         // no power limit, no active differential
-        float regen_torque_request = MAX_REGEN_Nm * pedal_percentage * regenAttr->derating_value;
-        regenAttr->torque_rr_Nm    = regen_torque_request;
-        regenAttr->torque_rl_Nm    = regen_torque_request;
-        regenAttr->torque_fr_Nm    = regen_torque_request;
-        regenAttr->torque_fl_Nm    = regen_torque_request;
+        float regen_torque_request =
+            MAX_REGEN_Nm * activeDiffInputs->accelerator_pedal_percentage * regenAttr->derating_value;
+        regenAttr->torque_rr_Nm = regen_torque_request;
+        regenAttr->torque_rl_Nm = regen_torque_request;
+        regenAttr->torque_fr_Nm = regen_torque_request;
+        regenAttr->torque_fl_Nm = regen_torque_request;
     }
-}
-
-void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
-{
-    float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
-
-    float cl = (1 + Delta);
-    float cr = (1 - Delta);
-
-    float torque_limit_Nm = -app_activeDifferential_powerToTorque(
-        inputs->power_max_kW, inputs->motor_speed_fl_rpm, inputs->motor_speed_fr_rpm, inputs->motor_speed_rl_rpm,
-        inputs->motor_speed_rr_rpm, cl, cr);
-
-    float torque_left_Nm         = torque_limit_Nm * cl;
-    float torque_right_Nm        = torque_limit_Nm * cr;
-    float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
-
-    float scale = CLAMP_TO_ONE(regenAttr->derating_value);
-    if (torque_negative_max_Nm < MAX_REGEN_Nm)
-    {
-        scale *= MAX_REGEN_Nm / torque_negative_max_Nm;
-    }
-
-    regenAttr->torque_rr_Nm = torque_right_Nm * scale;
-    regenAttr->torque_rl_Nm = torque_left_Nm * scale;
-    regenAttr->torque_fr_Nm = torque_right_Nm * scale;
-    regenAttr->torque_fl_Nm = torque_left_Nm * scale;
 }
 
 void app_regen_sendTorqueRequest(RegenBraking_Inputs *regenAttr)

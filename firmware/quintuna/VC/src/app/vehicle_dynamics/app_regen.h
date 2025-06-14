@@ -37,15 +37,6 @@ bool app_regen_safetyCheck(struct RegenBraking_Inputs *regenAttr, ActiveDifferen
 void app_regen_sendTorqueRequest(RegenBraking_Inputs *regenAttr);
 
 /**
- * Activate torque requests for regen
- * @param inputs are inputs for active differential
- * @param regenAttr struct provides for torque request
- * @param torqueRequest is the torque requst used in active
- * differential
- */
-void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr);
-
-/**
  * Remap Papps and Sapps pedal percentage
  * @param apps_pedal_percentage is the FSM given pedal percentage
  * @return remap pedal percentage from [0.0, 1.0] to

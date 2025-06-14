@@ -46,6 +46,8 @@ typedef struct ActiveDifferential_Inputs
     float power_max_kW;
     float accelerator_pedal_percentage;
     float requested_torque_Nm;
+    float derating_value;
+    bool  is_regen_mode;
 } ActiveDifferential_Inputs;
 
 typedef struct ActiveDifferential_Outputs
