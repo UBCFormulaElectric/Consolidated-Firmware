@@ -8,6 +8,7 @@
 #include <app_canTx.h>
 #include <app_canRx.h>
 #include <app_canUtils.h>
+#include <logs/sbgEComLogImu.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "app_warningHanding.h"
@@ -67,6 +68,10 @@ static void hvInitStateRunOnEntry(void)
     app_canTx_VC_INVFRTorqueLimitNegative_set(0);
     app_canTx_VC_INVRLTorqueLimitNegative_set(0);
     app_canTx_VC_INVRRTorqueLimitNegative_set(0);
+    
+    //start timer for inverter initial sequence
+    app_timer_restart(&start_up_timer);
+
 }
 
 static void hvInitStateRunOnTick100Hz(void)
@@ -78,12 +83,30 @@ static void hvInitStateRunOnTick100Hz(void)
             const bool inv_systemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
                                          app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
 
+            const TimerState system_ready_timeout = app_timer_updateAndGetState(&start_up_timer);
+
             if (inv_systemReady)
             {
                 LOG_INFO("inv_system_ready -> inv_dc_on");
                 current_inverter_state = INV_DC_ON;
                 app_timer_restart(&start_up_timer);
+
+                // Error reset should be set to false cause we were successful
+                app_canTx_VC_INVFLbErrorReset_set(false);
+                app_canTx_VC_INVFRbErrorReset_set(false);
+                app_canTx_VC_INVRLbErrorReset_set(false);
+                app_canTx_VC_INVRRbErrorReset_set(false);
             }
+            else if (app_canTx_VC_Info_InverterRetry_get())
+            {
+                app_warningHandling_inverterRest();
+
+            }
+            else if(system_ready_timeout == TIMER_STATE_EXPIRED){
+                LOG_INFO("inv system ready timeout");
+                app_stateMachine_setNextState(&init_state);
+            }
+
             break;
         }
         case INV_DC_ON:
@@ -165,6 +188,13 @@ static void hvInitStateRunOnExit(void)
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
     app_canAlerts_VC_Info_InverterRetry_set(false);
+
+    // We are setting back this to zero meaning that we either succedded in reseting the inverters or out reset protocl
+    // didnt work so we are going back to init 
+    app_canTx_VC_INVFLbErrorReset_set(false);
+    app_canTx_VC_INVFRbErrorReset_set(false);
+    app_canTx_VC_INVRLbErrorReset_set(false);
+    app_canTx_VC_INVRRbErrorReset_set(false);
 }
 
 State hvInit_state = { .name              = "HV INIT",

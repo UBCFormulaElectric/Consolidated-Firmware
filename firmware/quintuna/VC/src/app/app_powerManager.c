@@ -76,7 +76,7 @@ static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
         return false;
     }
 
-    //reset the stby reset gpio to low
+    // reset the stby reset gpio to low
     hw_gpio_writePin(loadswitch->stby_reset_gpio, false);
     return true;
 }

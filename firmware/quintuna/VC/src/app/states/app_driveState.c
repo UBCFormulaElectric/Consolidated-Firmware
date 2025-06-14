@@ -127,7 +127,7 @@ static void driveStateRunOnExit(void) {}
 //     {
 //         app_canAlerts_VC_Info_InverterRetry_set(true);
 //         // Go to inverter on state to unset the fault on the inverters and restart the sequence
-//         app_stateMachine_setNextState(&inverterOn);
+//         app_stateMachine_setNextState(&hvInit);
 //         // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
 //         return false;
 //     }
