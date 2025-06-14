@@ -2,6 +2,7 @@ import {
   getSignalType as getAlertSignalType,
   useSignals,
 } from "@/lib/contexts/SignalContext";
+import { formatWithMs } from "@/lib/utils/dateformat";
 import { AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -43,9 +44,8 @@ export default function AlertBoard() {
       const newAlert: Alert = {
         type: signalType as AlertType,
         name: point.name,
-        active : active,
-        lastUpdated:
-          new Date(point.time).toISOString() || new Date().toISOString(),
+        active: active,
+        lastUpdated: formatWithMs(new Date(point.time) || new Date()),
       };
 
       switch (signalType) {
@@ -74,7 +74,8 @@ export default function AlertBoard() {
       // if already exist
       list[index] = alert;
     } else {
-      if(alert.active) // only update the list when it is first active
+      if (alert.active)
+        // only update the list when it is first active
         list.push(alert);
     }
   };
