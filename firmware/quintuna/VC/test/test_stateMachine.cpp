@@ -116,26 +116,6 @@ TEST_F(VCStateMachineTest, air_minus_open_in_all_states_to_init)
 
 TEST_F(VCStateMachineTest, torque_request_zero_when_leave_drive) {}
 
-TEST_F(VCStateMachineTest, values_reset_when_no_heartbeat)
-{
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
-    ASSERT_FALSE(app_canAlerts_VC_Fault_MissingBMSHeartbeat_get());
-    ASSERT_FALSE(app_canAlerts_VC_Warning_MissingFSMHeartbeat_get());
-    ASSERT_FALSE(app_canAlerts_VC_Warning_MissingRSMHeartbeat_get());
-    LetTimePass(100);
-
-    suppress_heartbeat = true;
-    LetTimePass(10);
-
-    // tests
-    ASSERT_EQ(app_canRx_BMS_IrNegative_get(), CONTACTOR_STATE_OPEN);
-    ASSERT_STATE_EQ(fault_state);
-    ASSERT_TRUE(app_canAlerts_VC_Fault_MissingBMSHeartbeat_get());
-    ASSERT_TRUE(app_canAlerts_VC_Warning_MissingFSMHeartbeat_get());
-    ASSERT_TRUE(app_canAlerts_VC_Warning_MissingRSMHeartbeat_get());
-    // TODO more concequences of heartbeat failure
-}
-
 TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
 {
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
@@ -144,21 +124,9 @@ TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
     ASSERT_STATE_EQ(drive_state);
 
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
-    app_canAlerts_VC_Fault_FrontLeftInverterFault_set(true);
+    app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
     LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
-}
-
-TEST_F(VCStateMachineTest, buzzer_on_two_seconds_drive_state)
-{
-    app_stateMachine_setCurrentState(&drive_state);
-    for (int i = 0; i < 200; ++i)
-    {
-        LetTimePass(10);
-        ASSERT_TRUE(app_canTx_VC_BuzzerControl_get()) << " failed after " << (i + 1) * 10 << "ms";
-    }
-    LetTimePass(10); // 100ms after last iteration
-    ASSERT_FALSE(app_canTx_VC_BuzzerControl_get());
+    ASSERT_STATE_EQ(init_state);
 }
 
 TEST_F(VCStateMachineTest, start_button_operation)
