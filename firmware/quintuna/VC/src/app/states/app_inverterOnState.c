@@ -2,6 +2,7 @@
 #include "app_states.h"
 #include "app_loadswitches.h"
 #include "app_powerManager.h"
+#include "app_faultHandling.h"
 #include <app_canRx.h>
 #include <app_canTx.h>
 #include <app_canUtils.h>
@@ -33,7 +34,6 @@ static void inverterOnStateRunOnTick100Hz(void)
 
     const bool inverters_bsystemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
                                         app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
-
     if (inverters_bsystemReady)
     { // hwere we also need to check if the bus voltage is also above the dc cap voltage
         app_stateMachine_setNextState(&bmsOn_state);

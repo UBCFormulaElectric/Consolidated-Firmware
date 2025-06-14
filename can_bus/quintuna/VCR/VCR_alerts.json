@@ -1,0 +1,16 @@
+{
+  "warnings_id": 1601,
+  "faults_id": 1602,
+  "warnings_counts_id": 1603,
+  "faults_counts_id": 1604,
+  "warnings": {},
+  "faults": {},
+  "info_id": 1605,
+  "info_counts_id": 1606,
+  "info": {
+    "WatchdogTimeout": {
+      "id": 451,
+      "description": "Watchdog timeout detected."
+    }
+  }
+}

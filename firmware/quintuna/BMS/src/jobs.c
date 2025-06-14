@@ -14,6 +14,7 @@
 #include "io_canRx.h"
 // app
 #include "app_commitInfo.h"
+#include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "app_stateMachine.h"
 #include "app_powerCurrentLimit.h"
@@ -47,14 +48,18 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
-    app_precharge_init();
-    app_heartbeatMonitor_init(&hb_monitor);
-
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
+    app_precharge_init();
+    // app_heartbeatMonitor_init(&hb_monitor);
+
+    app_segments_setDefaultConfig();
     app_segments_initFaults();
+    app_segments_balancingInit();
+
+    app_allStates_init();
     app_stateMachine_init(app_initState_get());
 }
 
@@ -73,14 +78,4 @@ void jobs_runCanRx_tick(void)
     const CanMsg rx_msg       = io_canQueue_popRx();
     JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
     io_canRx_updateRxTableWithMessage(&json_can_msg);
-}
-
-void jobs_canRxCallback(const CanMsg *rx_msg)
-{
-    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
-    {
-        io_canQueue_pushRx(rx_msg);
-    }
-
-    io_bootHandler_processBootRequest(rx_msg);
 }

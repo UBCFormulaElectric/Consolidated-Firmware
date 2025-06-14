@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "app_stateMachine.h"
+#include "hw_watchdog.h"
 #include "states/app_balancingState.h"
 #include "hw_bootup.h"
 #include "io_ltc6813.h"
@@ -22,7 +23,6 @@
 #include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_pwms.h"
-#include "hw_watchdogConfig.h"
 #include "hw_hardFaultHandler.h"
 
 // chimera
@@ -75,35 +75,6 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG1();
 
-    LOG_IF_ERR(hw_usb_init());
-    hw_adcs_chipsInit();
-    hw_pwms_init();
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-
-// TODO: Start CAN1/CAN2 based on if we're charging at runtime.
-#ifdef CHARGER_CAN
-    hw_can_init(&can2);
-#else
-    hw_can_init(&can1);
-#endif
-
-    jobs_init();
-
-    app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());
-
-    // Check for stack overflow on a previous boot cycle and populate CAN alert.
-    BootRequest boot_request = hw_bootup_getBootRequest();
-    if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
-    {
-        app_canAlerts_BMS_Info_StackOverflow_set(true);
-        app_canTx_BMS_StackOverflowTask_set(boot_request.context_value);
-
-        // Clear stack overflow bootup.
-        boot_request.context       = BOOT_CONTEXT_NONE;
-        boot_request.context_value = 0;
-        hw_bootup_setBootRequest(boot_request);
-    }
-
     isospi_bus_access_lock = xSemaphoreCreateBinaryStatic(&isospi_bus_access_lock_buf);
     ltc_app_data_lock      = xSemaphoreCreateMutexStatic(&ltc_app_data_lock_buf);
     assert(isospi_bus_access_lock != NULL);
@@ -111,39 +82,73 @@ void tasks_init(void)
     xSemaphoreGive(isospi_bus_access_lock);
     xSemaphoreGive(ltc_app_data_lock);
 
-    // Write LTC configs.
-    app_segments_setDefaultConfig();
-    app_segments_balancingInit();
-    io_ltc6813_wakeup();
-    LOG_IF_ERR(app_segments_configSync());
+    LOG_IF_ERR(hw_usb_init());
+    hw_adcs_chipsInit();
+    hw_pwms_init();
 
-    // Run all self tests at init.
-    LOG_IF_ERR(app_segments_runAdcAccuracyTest());
-    LOG_IF_ERR(app_segments_runVoltageSelfTest());
-    LOG_IF_ERR(app_segments_runAuxSelfTest());
-    LOG_IF_ERR(app_segments_runStatusSelfTest());
-    LOG_IF_ERR(app_segments_runOpenWireCheck());
-
-    app_segments_broadcastAdcAccuracyTest();
-    app_segments_broadcastVoltageSelfTest();
-    app_segments_broadcastAuxSelfTest();
-    app_segments_broadcastStatusSelfTest();
-    app_segments_broadcastOpenWireCheck();
+    // TODO: Start CAN1/CAN2 based on if we're charging at runtime.
+    // #ifdef CHARGER_CAN
+    // hw_can_init(&can2);
+    // #else
+    hw_can_init(&can2);
+    // #endif
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
+
+    const ResetReason reset_reason = hw_resetReason_get();
+    app_canTx_BMS_ResetReason_set((CanResetReason)reset_reason);
+
+    // Check for watchdog timeout on a previous boot cycle and populate CAN alert.
+    if (reset_reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app_canAlerts_BMS_Info_WatchdogTimeout_set(true);
+    }
+
+    BootRequest boot_request = hw_bootup_getBootRequest();
+    if (boot_request.context != BOOT_CONTEXT_NONE)
+    {
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app_canAlerts_BMS_Info_StackOverflow_set(true);
+            app_canTx_BMS_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app_canTx_BMS_WatchdogTimeoutTask_set(boot_request.context_value);
+        }
+
+        // Clear stack overflow bootup.
+        boot_request.context       = BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw_bootup_setBootRequest(boot_request);
+    }
+
+    jobs_init();
+
+    io_canTx_BMS_Bootup_sendAperiodic();
 }
 
 void tasks_run1Hz(void)
 {
-    static const TickType_t period_ms   = 1000U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 1000U;
+    const uint32_t  watchdog_grace_period_ms = 50U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
         {
             jobs_run1Hz_tick();
         }
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -152,8 +157,11 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    static const TickType_t period_ms   = 10U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 10U;
+    const uint32_t  watchdog_grace_period_ms = 2U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
@@ -172,6 +180,9 @@ void tasks_run100Hz(void)
 
         app_powerCurrentLimit_broadcast(); // Current and power limiting CAN messages
 
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -179,12 +190,19 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
-    static const TickType_t period_ms   = 1U;
-    uint32_t                start_ticks = osKernelGetTickCount();
+    const uint32_t  period_ms                = 1U;
+    const uint32_t  watchdog_grace_period_ms = 1U;
+    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        // hw_watchdog_checkForTimeouts();
+        hw_watchdog_checkForTimeouts();
+
         jobs_run1kHz_tick();
+
+        // Watchdog check-in must be the last function called before putting the task to sleep.
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -197,22 +215,24 @@ void tasks_runCanTx(void)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
 
-#ifdef CHARGER_CAN
-        // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN for those
-        // (they won't get seen by the charger, but they'll show up on CANoe).
-        // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the FD
-        // peripheral is configured without BRS. Figure out why it wasn't working?
-        if (tx_msg.dlc > 8)
-        {
-            LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
-        }
-        else
-        {
-            LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
-        }
-#else
-        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-#endif
+        // #ifdef CHARGER_CAN
+        //         // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN
+        //         for those
+        //         // (they won't get seen by the charger, but they'll show up on CANoe).
+        //         // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the
+        //         FD
+        //         // peripheral is configured without BRS. Figure out why it wasn't working?
+        //         if (tx_msg.dlc > 8)
+        //         {
+        //             LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
+        //         }
+        //         else
+        //         {
+        //             LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
+        //         }
+        // #else
+        LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
+        // #endif
     }
 }
 
@@ -229,6 +249,14 @@ void tasks_runCanRx(void)
 void tasks_runLtcVoltages(void)
 {
     static const TickType_t period_ms = 1000U; // 1Hz
+
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
 
     for (;;)
     {
@@ -272,6 +300,14 @@ void tasks_runLtcTemps(void)
 {
     static const TickType_t period_ms = 1000U; // 1Hz
 
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
@@ -298,6 +334,31 @@ void tasks_runLtcTemps(void)
 void tasks_runLtcDiagnostics(void)
 {
     static const TickType_t period_ms = 10000U; // Every 10s
+
+    // Run all self tests at init.
+    xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
+    {
+        // Write LTC configs.
+        io_ltc6813_wakeup();
+        LOG_IF_ERR(app_segments_configSync());
+
+        LOG_IF_ERR(app_segments_runAdcAccuracyTest());
+        LOG_IF_ERR(app_segments_runVoltageSelfTest());
+        LOG_IF_ERR(app_segments_runAuxSelfTest());
+        LOG_IF_ERR(app_segments_runStatusSelfTest());
+        LOG_IF_ERR(app_segments_runOpenWireCheck());
+    }
+    xSemaphoreGive(isospi_bus_access_lock);
+
+    xSemaphoreTake(ltc_app_data_lock, portMAX_DELAY);
+    {
+        app_segments_broadcastAdcAccuracyTest();
+        app_segments_broadcastVoltageSelfTest();
+        app_segments_broadcastAuxSelfTest();
+        app_segments_broadcastStatusSelfTest();
+        app_segments_broadcastOpenWireCheck();
+    }
+    xSemaphoreGive(ltc_app_data_lock);
 
     for (;;)
     {
