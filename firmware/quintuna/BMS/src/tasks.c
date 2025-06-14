@@ -77,7 +77,8 @@ void tasks_init(void)
 
     jobs_init();
 
-    io_sds_queue_init();
+    // TODO: Uncomment after SoC and SD card are tested
+    // io_sds_queue_init();
 
     app_canTx_BMS_ResetReason_set((CanResetReason)hw_resetReason_get());
 
@@ -284,8 +285,12 @@ void tasks_runLtcDiagnostics(void)
 
 void tasks_runSdCard(void)
 {
+     static const TickType_t period_ms = 10000U; // Every 10s
     for (;;)
     {
-        jobs_runSdCard_tick();
+        const uint32_t start_ticks = osKernelGetTickCount();
+        // TODO uncomment when SoC and SD card are tested
+        // jobs_runSdCard_tick();
+        osDelayUntil(start_ticks + period_ms);
     }
 }

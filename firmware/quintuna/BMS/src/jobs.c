@@ -47,6 +47,9 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    // TODO: Uncomment after soc is tested
+    // app_soc_init();
+    // app_init_globals()
     app_heartbeatMonitor_init(&hb_monitor);
 
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
@@ -58,34 +61,27 @@ void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
 
-    const float min_soc = app_soc_getMinSocCoulombs();
-    if (min_soc < 0)
-    {
-        // TODO: Not surre if we still have this as a constant and where it would
-        if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
-        {
-            app_soc_resetSocFromVoltage();
-        }
-    }
-    else
-    {
-        // Send SD card write request via queue
-        SdRequest req = {
-            .type        = SD_REQ_WRITE_SOC,
-            .soc_value   = min_soc,
-            .done_sem    = NULL,
-            .success_ptr = NULL,
-            .result_ptr  = NULL,
-        };
-        io_sds_enqueue(&req);
-    }
-    /**
-     * add charger connection status CAN tx once charging implementation branch is merged
-     */
-
-    /**
-     * add reset SOC from min cell voltage if soc corrupt and voltage readings settled after soc app is finished
-     */
+    // TODO: Unomment after soc is tested
+    // const float min_soc = app_soc_getMinSocCoulombs();
+    // if (min_soc < 0)
+    // {
+    //     if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
+    //     {
+    //         app_soc_resetSocFromVoltage();
+    //     }
+    // }
+    // else
+    // {
+    //     // Send SD card write request via queue
+    //     SdRequest req = {
+    //         .type        = SD_REQ_WRITE_SOC,
+    //         .soc_value   = min_soc,
+    //         .done_sem    = NULL,
+    //         .success_ptr = NULL,
+    //         .result_ptr  = NULL,
+    //     };
+    //     io_sds_enqueue(&req);
+    // }
 }
 
 void jobs_run100Hz_tick(void)
@@ -111,15 +107,16 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
     app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
-    app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
-    if (io_irs_isNegativeClosed() && io_irs_isPositiveClosed())
-    {
-        app_soc_updateSocStats();
-    }
-    if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
-    {
-        globals->cell_monitor_settle_count++;
-    }
+    // TODO: Uncomment after soc is tested
+    // app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
+    // if (io_irs_isNegativeClosed() && io_irs_isPositiveClosed())
+    // {
+    //     app_soc_updateSocStats();
+    // }
+    // if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
+    // {
+    //     globals->cell_monitor_settle_count++;
+    // }
     /**
      * add cell balancing check once cell balancing is enabled
      */
