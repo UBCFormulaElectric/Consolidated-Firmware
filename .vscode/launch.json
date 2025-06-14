@@ -280,47 +280,6 @@
       }
     },
     {
-      "name": "Debug Embedded: FSM (Quintuna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: FSM (Quintuna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32F412RG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: FSM",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
       "name": "Debug Embedded: RSM (Quadruna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quadruna/RSM/quadruna_RSM.hex",
@@ -455,7 +414,7 @@
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_boot.elf",
-        //"build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf"
+        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf"
       ],
       "preLaunchTask": "Build Embedded: CRIT (Quintuna)",
       // cortex configurations
@@ -771,6 +730,20 @@
       "program": "${workspaceRoot}/build_fw_test/firmware/quintuna/CRIT/quintuna_CRIT_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: CRIT (Quintuna)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: VC (Quintuna)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quintuna/VC/quintuna_VC_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: VC (Quintuna)",
       "linux": {
         "MIMode": "gdb"
       },
