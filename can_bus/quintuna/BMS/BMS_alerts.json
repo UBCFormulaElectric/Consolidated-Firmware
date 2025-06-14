@@ -8,7 +8,6 @@
       "id": 115,
       "description": "Missing heartbeat from the VC."
     },
-<<<<<<< HEAD
     "CurrentLimitActive": {
       "id": 116,
       "description": "Current Limit Active Alert"
@@ -16,11 +15,10 @@
     "PowerLimitActive": {
       "id": 117,
       "description": "Power Limit Active Alert"
-=======
+    },
     "TractiveSystemOvercurrent": {
       "id": 101,
       "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
->>>>>>> master
     },
     "CriticalPrechargeFailure": {
       "id": 451,

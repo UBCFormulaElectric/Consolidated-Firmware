@@ -63,28 +63,6 @@ void jobs_run1Hz_tick(void)
     io_canTx_enqueue1HzMsgs();
 }
 
-<<<<<<< HEAD
-void jobs_run100Hz_tick(void)
-{
-    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
-
-    app_heartbeatMonitor_checkIn(&hb_monitor);
-    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-    app_shdnLoop_broadcast();
-
-    app_stateMachine_tick100Hz();
-    app_stateMachine_tickTransitionState();
-
-    app_shdnLoop_broadcast();
-
-    io_canTx_enqueue100HzMsgs();
-
-    app_powerCurrentLimit_broadcast();
-}
-
-=======
->>>>>>> master
 void jobs_run1kHz_tick(void)
 {
     io_canTx_enqueueOtherPeriodicMsgs(io_time_getCurrentMs());

@@ -238,7 +238,6 @@
       }
     }
   },
-<<<<<<< HEAD
   "CurrentLimit": {
     "msg_id": 122,
     "cycle_time": 100,
@@ -289,10 +288,7 @@
     }
   }
 },
-  "CellStats": {
-=======
   "CellVoltageStats": {
->>>>>>> master
     "msg_id": 459,
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",

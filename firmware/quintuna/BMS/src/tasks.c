@@ -9,6 +9,8 @@
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
+#include "app_powerCurrentLimit.h"
+#include "segments/app_segments_internal.h"
 
 #include "hw_bootup.h"
 #include "hw_gpios.h"
@@ -167,6 +169,8 @@ void tasks_run100Hz(void)
             app_stateMachine_tickTransitionState();
             io_canTx_enqueue100HzMsgs();
         }
+
+        app_powerCurrentLimit_broadcast(); // Current and power limiting CAN messages
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);

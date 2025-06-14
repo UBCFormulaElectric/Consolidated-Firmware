@@ -55,7 +55,7 @@ void app_powerCurrentLimit_broadcast()
 
 float app_powerCurrentLimit_getDischargePowerLimit()
 {
-    const float max_cell_temp = app_segments_getMaxCellTemp();
+    const float max_cell_temp = app_segments_getMaxCellTemp().value;
 
     const float temp_based_power_limit = app_math_linearDerating(
         max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP, REDUCE_X);
@@ -80,7 +80,7 @@ float app_powerCurrentLimit_getDischargePowerLimit()
 
 float app_powerCurrentLimit_getChargePowerLimit()
 {
-    const float max_cell_temp   = app_segments_getMaxCellTemp();
+    const float max_cell_temp   = app_segments_getMaxCellTemp().value;
     float       power_limit     = MAX_POWER_LIMIT_W;
     uint8_t     p_lim_condition = NO_CHARGE_POWER_LIMIT;
 
@@ -114,7 +114,7 @@ float app_powerCurrentLimit_getChargePowerLimit()
 float app_powerCurrentLimit_getDischargeCurrentLimit()
 {
     // Get max cell temperature
-    float max_cell_temp = app_segments_getMaxCellTemp();
+    float max_cell_temp = app_segments_getMaxCellTemp().value;
 
     // Calculate individual current limits
     float t_lim = app_powerCurrentLimit_calcTempCurrentLimit(max_cell_temp);
@@ -166,7 +166,7 @@ float app_powerCurrentLimit_getDischargeCurrentLimit()
 float app_powerCurrentLimit_getChargeCurrentLimit()
 {
     // Get max cell temperature
-    float max_cell_temp = app_segments_getMaxCellTemp();
+    float max_cell_temp = app_segments_getMaxCellTemp().value;
 
     // Calculate temperature-based charging limit
     float t_lim = app_powerCurrentLimit_calcTempCurrentLimit(max_cell_temp);
@@ -215,12 +215,7 @@ float app_powerCurrentLimit_getChargeCurrentLimit()
     return c_lim;
 }
 
-float app_powerCurrentLimit_bspdPrefaultPowerLimit()
-{
-    
-}
-
-float app_powerCurrentLimit_tempCurrentLimit(float max_cell_temp)
+float app_powerCurrentLimit_calcTempCurrentLimit(float max_cell_temp)
 {
     return app_math_linearDerating(
         max_cell_temp, MAX_CONTINUOUS_CURRENT, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);

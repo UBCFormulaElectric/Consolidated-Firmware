@@ -198,12 +198,6 @@ float app_segments_getPackVoltage(void);
 /**
  * Get the highest voltage of any cell in the accumulator
  */
-<<<<<<< HEAD
-float app_segments_getMaxCellVoltage();
-
-// Get the max cell temperature
-float app_segments_getMaxCellTemp();
-=======
 CellParam app_segments_getMaxCellVoltage(void);
 
 /**
@@ -220,4 +214,3 @@ CellParam app_segments_getMaxCellTemp(void);
  * Get the lowest temp of any cell in the accumulator
  */
 CellParam app_segments_getMinCellTemp(void);
->>>>>>> master
