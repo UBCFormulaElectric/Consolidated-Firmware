@@ -83,11 +83,11 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
 
-    // if (app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON)
-    // {
-    //     app_torqueVectoring_init();
-    //     torque_vectoring_switch_is_on = true;
-    // }
+    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
+    {
+        app_torqueVectoring_init();
+        torque_vectoring_switch_is_on = true;
+    }
 
     if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
     {
