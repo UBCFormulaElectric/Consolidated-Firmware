@@ -99,12 +99,12 @@ typedef struct
 static ElconRx readElconStatus(void)
 {
     const ElconRx s = { .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
-                  .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
-                  .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
-                  .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
-                  .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
-                  .outputVoltage_V    = app_canRx_Elcon_OutputVoltage_get(),
-                  .outputCurrent_A    = app_canRx_Elcon_OutputCurrent_get() };
+                        .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
+                        .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
+                        .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
+                        .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
+                        .outputVoltage_V    = app_canRx_Elcon_OutputVoltage_get(),
+                        .outputCurrent_A    = app_canRx_Elcon_OutputCurrent_get() };
     return s;
 }
 

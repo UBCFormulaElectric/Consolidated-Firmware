@@ -13,7 +13,7 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
 
     // A vector between 0 and 2pi, in pi/4 increments
     const std::vector<float> x_vec{ 0.0,         M_PI * 0.25, M_PI * 0.5,  M_PI * 0.75, M_PI,
-                              M_PI * 1.25, M_PI * 1.5,  M_PI * 1.75, M_PI * 2.0 };
+                                    M_PI * 1.25, M_PI * 1.5,  M_PI * 1.75, M_PI * 2.0 };
 
     // Expected value calculated using Wolfram's Trapezium Rule MyAlevelMathsTutor
     const std::vector<float> expected_val{ 0.0, 0.27768, 0.948059, 1.61844, 1.896119, 1.61844, 0.948059, 0.27768, 0.0 };

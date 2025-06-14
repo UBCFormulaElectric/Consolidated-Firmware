@@ -20,7 +20,7 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
         app_tractionControl_computeSlip(inputs->motor_speed_right_rpm, wheel_speed_front_right_rpm);
 
     const float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
-    float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+    float       k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
     // Send debug messages over CAN
     app_canTx_VC_SlipRatioLeft_set(slip_ratio_left);

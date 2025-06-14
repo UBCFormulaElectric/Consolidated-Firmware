@@ -121,7 +121,7 @@ bool app_soc_getCorrupt(void)
 void app_soc_updateSocStats(void)
 {
     // NOTE current sign is relative to current into the battery
-    double *charge_c     = &stats.charge_c;
+    double     *charge_c     = &stats.charge_c;
     float      *prev_current = &stats.prev_current_A;
     const float current      = app_tractiveSystem_getCurrent();
 

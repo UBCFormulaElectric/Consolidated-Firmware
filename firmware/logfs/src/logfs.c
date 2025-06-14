@@ -344,9 +344,13 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, const uint32_t size)
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf,
-    const uint32_t size,
-    const LogFsReadFlags flags, uint32_t *num_read)
+LogFsErr logfs_read(
+    LogFs               *fs,
+    LogFsFile           *file,
+    void                *buf,
+    const uint32_t       size,
+    const LogFsReadFlags flags,
+    uint32_t            *num_read)
 {
     CHECK_ARG(fs);
     CHECK_ARG(file);
@@ -386,11 +390,12 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf,
         // Calculate number of available bytes.
         const uint32_t num_in_block     = file->cache_data->num_bytes - file->read_iter_data_byte;
         const uint32_t num_left_to_read = size - *num_read;
-        const uint32_t       num_available    = MIN(num_left_to_read, num_in_block);
+        const uint32_t num_available    = MIN(num_left_to_read, num_in_block);
 
         // Read out data from cached block.
         uint8_t *const       buf_end = (uint8_t *)buf + size - *num_read;
-        const uint8_t *const cache_end = &file->cache_data->data + file->cache_data->num_bytes - file->read_iter_data_byte;
+        const uint8_t *const cache_end =
+            &file->cache_data->data + file->cache_data->num_bytes - file->read_iter_data_byte;
         memcpy(buf_end - num_available, cache_end - num_available, num_available);
         *num_read += num_available;
 

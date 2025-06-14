@@ -46,7 +46,8 @@ class PyLogFs
         const uint32_t block_size,
         const uint32_t block_count,
         const uint32_t write_cycles,
-        const bool rd_only, py::object disk)
+        const bool     rd_only,
+        py::object     disk)
       : disk(disk)
     {
         // Init config struct.
