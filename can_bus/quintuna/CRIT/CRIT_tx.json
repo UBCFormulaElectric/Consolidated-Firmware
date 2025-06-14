@@ -78,7 +78,7 @@
     "description": "Drive Mode.",
     "signals": {
       "DriveMode": {
-        "bits": 4
+        "enum": "DriveMode"
       }
     }
   },
