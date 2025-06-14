@@ -74,7 +74,8 @@ void jobs_run100Hz_tick(void)
     io_brakeLight_set(app_canRx_FSM_BrakeActuated_get());
     io_canTx_enqueue100HzMsgs();
 
-    io_potentiometer_writePercentage(&rsm_pot, (POTENTIOMETER_WIPER)WIPER0, 20);
+    io_potentiometer_writePercentage(
+        &rsm_pot, (POTENTIOMETER_WIPER)WIPER0, (uint8_t)app_canRx_Debug_CoolantPumpOverride_get());
     uint8_t data;
     io_potentiometer_readPercentage(&rsm_pot, (POTENTIOMETER_WIPER)WIPER0, &data);
 }

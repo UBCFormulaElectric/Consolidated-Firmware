@@ -46,21 +46,6 @@ void tasks_init(void)
     hw_can_init(&can2);
     hw_can_init(&can3);
 
-    hw_gpio_writePin(&f_pump_en, true);
-    hw_gpio_writePin(&rr_pump_en, true);
-    hw_gpio_writePin(&rl_pump_en, true);
-    hw_gpio_writePin(&rsm_en, true);
-    hw_gpio_writePin(&front_en, true);
-    hw_gpio_writePin(&bms_en, true);
-    hw_gpio_writePin(&dam_en, true);
-
-    io_pumpControl_setPercentage(20, RR_PUMP);
-    io_pumpControl_setPercentage(20, F_PUMP);
-
-    for (;;)
-    {
-    }
-
     jobs_init();
 
     app_canTx_VC_ResetReason_set((CanResetReason)hw_resetReason_get());

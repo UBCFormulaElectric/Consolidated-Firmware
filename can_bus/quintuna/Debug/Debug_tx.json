@@ -96,19 +96,16 @@
       }
     }
   },
-  "SetCoolantPump": {
+  "CoolantPumpOverride": {
     "msg_id": 1005,
     "cycle_time": 1000,
     "description": "Value set by the user to set the coolant pump flow rate.",
     "signals": {
-      "SetCoolantPump_CustomEnable": {
-        "bits": 1
-      },
-      "SetCoolantPump_CustomVal": {
-        "resolution": 15.625,
+      "CoolantPumpOverride": {
+        "resolution": 1,
         "min": 0,
-        "max": 2000,
-        "unit": "L/H"
+        "max": 100,
+        "unit": "%"
       }
     }
   },

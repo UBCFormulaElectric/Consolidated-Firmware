@@ -19,6 +19,7 @@
     "VCR_Debug",
     "FSM_Brake",
     "FSM_Apps",
-    "CRIT_Switches"
+    "CRIT_Switches",
+    "Debug_CoolantPumpOverride"
   ]
 }
