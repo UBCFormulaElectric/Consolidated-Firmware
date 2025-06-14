@@ -249,6 +249,48 @@ static void app_regularDrive_run(const float apps_pedal_percentage)
     app_canTx_VC_INVRLTorqueSetpoint_set(torque_request);
 }
 
+static void app_driveSwitchInit(void)
+{
+    if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
+    {
+        // app_torqueVectoring_init(); -- COMMENTED OUT TO SPIN
+        launch_control_switch_is_on = true;
+    }
+
+    if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
+    {
+        // app_regen_init(); -- COMMENTED OUT TO SPIN
+        regen_switch_is_on = true;
+    }
+}
+
+static app_driveMode_driving(void)
+{
+    DriveMode driveMode = app_canRx_CRIT_DriveMode_get();
+}
+
+static void app_non_vanilla_driving(float apps_pedal_percentage, float sapps_pedal_percentage)
+{
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    {
+        app_regen_run(apps_pedal_percentage);
+    }
+    else
+    {
+        // as of now no launch control is being implemented thus if the regen switch is not on then we stick to our
+        // drive modes
+    }
+}
+
+static void app_performSensorChecks(void)
+{
+    sensor_checks.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get();
+    sensor_checks.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
+    sensor_checks.steeringOk =
+        !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
+    sensor_checks.useTV = sensor_checks.gpsOk && sensor_checks.imuOk && sensor_checks.steeringOk;
+}
+
 State drive_state = {
     .name              = "DRIVE",
     .run_on_entry      = driveStateRunOnEntry,
