@@ -1,5 +1,7 @@
 #include "jobs.h"
 
+#include "app_precharge.h"
+#include "app_segments.h"
 #include "app_shdnLoop.h"
 #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
@@ -45,12 +47,14 @@ void jobs_init()
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    app_precharge_init();
     app_heartbeatMonitor_init(&hb_monitor);
 
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
+    app_segments_initFaults();
     app_stateMachine_init(app_initState_get());
 }
 
@@ -59,6 +63,7 @@ void jobs_run1Hz_tick(void)
     io_canTx_enqueue1HzMsgs();
 }
 
+<<<<<<< HEAD
 void jobs_run100Hz_tick(void)
 {
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -78,6 +83,8 @@ void jobs_run100Hz_tick(void)
     app_powerCurrentLimit_broadcast();
 }
 
+=======
+>>>>>>> master
 void jobs_run1kHz_tick(void)
 {
     io_canTx_enqueueOtherPeriodicMsgs(io_time_getCurrentMs());

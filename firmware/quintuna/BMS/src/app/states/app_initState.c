@@ -3,8 +3,8 @@
 #include "app_tractiveSystem.h"
 #include "io_faultLatch.h"
 #include "io_irs.h"
-#include "io_charger.h"
 #include "states/app_allStates.h"
+#include "states/app_balancingState.h"
 #include "stdio.h"
 #include "app_canRx.h"
 #include <app_canTx.h>
@@ -26,6 +26,7 @@ static void app_initStateRunOnTick100Hz(void)
 {
     const bool is_irs_negative_closed = io_irs_isNegativeClosed();
     const bool ts_discharged          = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
+    const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 
     // TODO: Detect charger via PWM.
     // const bool is_charger_connected      = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
@@ -42,6 +43,10 @@ static void app_initStateRunOnTick100Hz(void)
         // {
         //     // TODO: Precharge for driving!
         // }
+        else if (cell_balancing_enabled)
+        {
+            app_stateMachine_setNextState(app_balancingState_get());
+        }
     }
 
     // Run last since this checks for faults which overrides any other state transitions.
