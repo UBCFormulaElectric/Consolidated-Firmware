@@ -32,8 +32,8 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-static TimerChannel  pcm_voltage_in_range_timer;
-static TimerChannel  pcm_toggle_timer;
+static TimerChannel   pcm_voltage_in_range_timer;
+static TimerChannel   pcm_toggle_timer;
 static pcmRetryStates pcm_retry_state;
 static float          pcm_curr_voltage;
 static float          pcm_prev_voltage;
