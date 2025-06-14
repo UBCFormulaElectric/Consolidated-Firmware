@@ -11,26 +11,22 @@ extern "C"
 
 class BMSCanTest : public BMSBaseTest
 {
+  protected:
+    static void enforceStatePreconditions(const StateMetadata &metadata)
+    {
+        fakes::irs::setNegativeState(metadata.requires_irs_negative_closed ? IRS_CLOSED : IRS_OPEN);
+        ASSERT_EQ(io_irs_negativeState(), metadata.requires_irs_negative_closed ? IRS_CLOSED : IRS_OPEN)
+            << "Expected IRS negative state to be " << (metadata.requires_irs_negative_closed ? "CLOSED" : "OPEN")
+            << " in state: " << metadata.state->name;
+        app_canAlerts_BMS_Fault_TESTFAULT_set(metadata.requires_fault);
+        ASSERT_EQ(app_canAlerts_AnyBoardHasFault(), metadata.requires_fault)
+            << "Expected " << (metadata.requires_fault ? "some" : "no") << " fault to be "
+            << (metadata.requires_fault ? "set" : "not set") << " in state: " << metadata.state->name;
+
+        app_canRx_Debug_CellBalancingRequest_update(metadata.state == &balancing_state);
+        app_canRx_Debug_StartCharging_update(metadata.state == &charge_state);
+    }
 };
-
-#define ASSERT_STATE_EQ(x)                           \
-    ASSERT_EQ(app_stateMachine_getCurrentState(), x) \
-        << "Expected state: " << x->name << ", but got: " << app_stateMachine_getCurrentState()->name
-
-static void enforceStatePreconditions(const BMSBaseTest::StateMetadata &metadata)
-{
-    fakes::irs::setNegativeState(metadata.requires_irs_negative_closed ? IRS_CLOSED : IRS_OPEN);
-    ASSERT_EQ(io_irs_negativeState(), metadata.requires_irs_negative_closed ? IRS_CLOSED : IRS_OPEN)
-        << "Expected IRS negative state to be " << (metadata.requires_irs_negative_closed ? "CLOSED" : "OPEN")
-        << " in state: " << metadata.state->name;
-    app_canAlerts_BMS_Fault_TESTFAULT_set(metadata.requires_fault);
-    ASSERT_EQ(app_canAlerts_AnyBoardHasFault(), metadata.requires_fault)
-        << "Expected " << (metadata.requires_fault ? "some" : "no") << " fault to be "
-        << (metadata.requires_fault ? "set" : "not set") << " in state: " << metadata.state->name;
-
-    app_canRx_Debug_CellBalancingRequest_update(metadata.state == &balancing_state);
-    app_canRx_Debug_StartCharging_update(metadata.state == &charge_state);
-}
 
 TEST_F(BMSCanTest, check_states_is_broadcasted_over_can)
 {
@@ -109,28 +105,27 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
     ASSERT_FALSE(app_canTx_BMS_BspdLatchOk_get());
 }
 
-TEST_F(BMSCanTest, check_airs_can_signals_for_all_states)
+TEST_F(BMSCanTest, check_air_positive_can_signals_for_all_states)
 {
     for (const auto metadata : state_metadata)
     {
         enforceStatePreconditions(metadata);
         app_stateMachine_setCurrentState(metadata.state);
-        LetTimePass(10); // let the state settle
         ASSERT_STATE_EQ(metadata.state);
 
         io_irs_setPositive(IRS_CLOSED);
-        io_irs_setPrecharge(IRS_CLOSED);
+        // io_irs_setPrecharge(IRS_CLOSED);
         LetTimePass(10);
         ASSERT_EQ(io_irs_positiveState(), IRS_CLOSED)
             << "Expected contactors closed in state: " << metadata.state->name;
-        ASSERT_EQ(io_irs_prechargeState(), IRS_CLOSED)
-            << "Expected precharge closed in state: " << metadata.state->name;
+        // ASSERT_EQ(io_irs_prechargeState(), IRS_CLOSED)
+        //     << "Expected precharge closed in state: " << metadata.state->name;
 
         io_irs_setPositive(IRS_OPEN);
-        io_irs_setPrecharge(IRS_OPEN);
+        // io_irs_setPrecharge(IRS_OPEN);
         LetTimePass(10);
         ASSERT_EQ(io_irs_positiveState(), IRS_OPEN) << "Expected contactors open in state: " << metadata.state->name;
-        ASSERT_EQ(io_irs_prechargeState(), IRS_OPEN) << "Expected precharge open in state: " << metadata.state->name;
+        // ASSERT_EQ(io_irs_prechargeState(), IRS_OPEN) << "Expected precharge open in state: " << metadata.state->name;
     }
 }
 

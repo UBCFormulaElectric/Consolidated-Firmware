@@ -117,29 +117,10 @@ void jobs_run100Hz_tick(void)
     // app_heartbeatMonitor_checkIn(&hb_monitor);
     // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
-    app_tractiveSystem_broadcast();
-    app_imd_broadcast();
-    app_irs_broadcast();
-    app_shdnLoop_broadcast();
-
     io_bspdTest_enable(app_canRx_Debug_EnableTestCurrent_get());
-    app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
-
-    // If charge state has not placed a lock on broadcasting
-    // if the charger is charger is connected
-    app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
-
     (void)app_segments_checkWarnings();
     const bool ams_fault = app_segments_checkFaults();
-
-    // Update CAN signals for BMS latch statuses.
     io_faultLatch_setCurrentStatus(&bms_ok_latch, ams_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
-    app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_BmsLatchOk_set(io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
 
     app_stateMachine_tick100Hz();
 
@@ -156,6 +137,26 @@ void jobs_run100Hz_tick(void)
         app_stateMachine_setNextState(&fault_state);
     }
     app_stateMachine_tickTransitionState();
+
+    // broadcast after all state machine transitions as to provide latest up to date information
+
+    app_tractiveSystem_broadcast();
+    app_imd_broadcast();
+    app_irs_broadcast();
+    app_shdnLoop_broadcast();
+
+    app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_BmsLatchOk_set(io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
+
+    // If charge state has not placed a lock on broadcasting
+    // if the charger is charger is connected
+    app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
+
+    app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
 
     io_canTx_enqueue100HzMsgs();
     io_semaphore_give(&ltc_app_data_lock);

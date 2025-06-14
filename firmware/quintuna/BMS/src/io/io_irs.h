@@ -1,9 +1,11 @@
 #pragma once
 
+#include "app_canUtils.h"
+
 typedef enum
 {
-    IRS_OPEN,
-    IRS_CLOSED
+    IRS_OPEN   = CONTACTOR_STATE_CLOSED,
+    IRS_CLOSED = CONTACTOR_STATE_OPEN,
 } IRsState;
 
 /**
