@@ -53,7 +53,7 @@ static void driveStateRunOnEntry()
 
     // Start warning handling
     // is this the best place to do this or should this happen in jobs
-    app_warningHandling_init();
+    app_softwareBspd_init();
 
     // Enable inverters
     app_canTx_VC_INVFRbEnable_set(true);

@@ -65,7 +65,7 @@ warningType app_warningHandling_globalWarningCheck()
     return NO_WARNINGS;
 }
 
-void app_warningHandling_init(void)
+void app_softwareBspd_init(void)
 {
     app_signal_init(
         &apps_brake_disagreement_signal, APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT, APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR);
