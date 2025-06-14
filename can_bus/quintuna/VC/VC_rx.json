@@ -19,6 +19,7 @@
     "VCR_CommitInfo",
     "VCR_Debug",
     "FSM_Apps",
-    "CRIT_Switches"
+    "CRIT_Switches",
+    "CRIT_Vitals"
   ]
 }
