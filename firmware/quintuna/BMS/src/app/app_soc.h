@@ -1,5 +1,6 @@
 #pragma once
 
+#include "app_segments.h"
 #include "app_utils.h"
 #include "app_timer.h"
 

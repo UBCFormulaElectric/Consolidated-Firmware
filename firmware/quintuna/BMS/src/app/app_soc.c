@@ -1,6 +1,7 @@
 #include "app_soc.h"
 #include "app_math.h"
 #include "app_tractiveSystem.h"
+#include "app_canTx.h"
 #include "io_sds.h"
 
 #ifdef TARGET_EMBEDDED
