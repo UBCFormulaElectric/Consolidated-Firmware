@@ -19,7 +19,7 @@ class SoftwareBspdTest : public testing::Test
 TEST_F(SoftwareBspdTest, test_bspd_active)
 {
     // TODO: fix this test
-    
+
     // app_faultCheck_init();
 
     // app_canRx_FSM_BrakeActuated_update(1);

@@ -5,7 +5,6 @@
 #include <app_canAlerts.h>
 #include "app_stateMachine.h"
 #include "states/app_states.h"
-#include "app_signal.h"
 
 #define NUM_FAULT_NODES 14
 
