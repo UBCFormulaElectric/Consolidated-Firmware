@@ -192,8 +192,14 @@ _Noreturn void tasks_batteryMonitoring(void)
 
 _Noreturn void tasks_powerMonitoring(void)
 {
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
+
     for (;;)
     {
         jobs_runPowerMonitoring_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
