@@ -1,14 +1,12 @@
 #include "jobs.h"
 #include "app_stateMachine.h"
 #include "app_timer.h"
-// #include "hw_utils.h"
 #include "io_canMsg.h"
 #include "io_canQueues.h"
 #include "app_jsoncan.h"
 #include <app_canTx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
-// #include "io_log.h"
 #include "states/app_states.h"
 #include "io_time.h"
 #include "app_canRx.h"
