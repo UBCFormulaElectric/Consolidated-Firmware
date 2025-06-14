@@ -581,5 +581,48 @@
         "signed": true
       }
     }
+  },
+  "PowerMonitoring": {
+    "msg_id": 514,
+    "cycle_time": 100,
+    "description": "Power monitoring chip",
+    "signals": {
+      "ChannelOneVoltage": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 32.0,
+        "unit": "V"
+      },
+      "ChannelTwoVoltage": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 32.0,
+        "unit": "V"
+      },
+      "ChannelOneCurrent": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 25.0,
+        "unit": "A"
+      },
+      "ChannelTwoCurrent": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 25.0,
+        "unit": "A"
+      },
+      "ChannelOnePower": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 800.0,
+        "unit": "W"
+      },
+      "ChannelTwoPower": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 800.0,
+        "unit": "W"
+      }
+    }
   }
 }
