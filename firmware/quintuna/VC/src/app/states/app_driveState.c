@@ -163,14 +163,15 @@ static bool driveStatePassPreCheck()
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage)
 {
     // TODO: bring back when software BSPD is done
-    //  if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
-    //  {
-    //      // If bspd warning is true, set torque to 0.0
-    //      app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
-    //      app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
-    //      app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
-    //      app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
-    //  }
+    if (app_warningHandling_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
+    {
+        // If bspd warning is true, set torque to 0.0
+        app_canTx_VC_INVFRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRRTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVFLTorqueSetpoint_set(INV_OFF);
+        app_canTx_VC_INVRLTorqueSetpoint_set(INV_OFF);
+        return;
+    }
     //  if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     //  {
     //      app_regen_run(apps_pedal_percentage);
