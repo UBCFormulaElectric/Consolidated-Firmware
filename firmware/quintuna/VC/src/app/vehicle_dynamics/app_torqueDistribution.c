@@ -40,7 +40,7 @@ void app_wheelVerticalForces_broadcast(const ImuData *imu_data)
         LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
 }
 
-float app_loadTransferConstant(float long_accel)
+float app_loadTransferConstant(const float long_accel)
 {
     /************************************** following formula for Kmz on page 57*********************************/
     float load_transfer_scalar =
@@ -107,7 +107,9 @@ void app_reset_torqueToMotors(TorqueAllocationOutputs *torqueToMotors)
     torqueToMotors->rear_right_torque  = 0.0f;
 }
 
-void app_torqueReduction(float total_requestedPower, float power_limit, TorqueAllocationOutputs *torqueToMotors)
+void app_torqueReduction(
+    const float total_requestedPower,
+    const float power_limit, TorqueAllocationOutputs *torqueToMotors)
 {
     if (total_requestedPower > power_limit)
     {

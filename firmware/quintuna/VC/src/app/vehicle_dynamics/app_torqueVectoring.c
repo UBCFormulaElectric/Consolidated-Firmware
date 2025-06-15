@@ -56,7 +56,7 @@ void app_torqueVectoring_init(void)
     app_timer_init(&pid_timeout, PID_TIMEOUT_ms);
 }
 // TODO: pass in the torque output pointer
-void app_torqueVectoring_run(float accelerator_pedal_percentage)
+void app_torqueVectoring_run(const float accelerator_pedal_percentage)
 {
     // Read data from CAN
     // NOTE: Pedal percent CAN is in range 0.0-100.0%

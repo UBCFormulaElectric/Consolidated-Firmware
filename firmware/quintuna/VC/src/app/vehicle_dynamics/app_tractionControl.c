@@ -43,7 +43,7 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     outputs->torque_rr_final_Nm = (1.0f + k) * inputs->torque_rr_Nm;
 }
 
-float app_tractionControl_computeSlip(float motor_speed_rpm, float vehicle_velocity)
+float app_tractionControl_computeSlip(const float motor_speed_rpm, const float vehicle_velocity)
 {
     return (MOTOR_RPM_TO_KMH(motor_speed_rpm) / GEAR_RATIO - vehicle_velocity) / (vehicle_velocity + SMALL_EPSILON);
 }

@@ -13,7 +13,7 @@
 
 /**
  * Stop regen < 5.0km/hr and start regen > 7.0km/hr
- * @param ActiveDifferential_Inputs struct to populate data
+ * @param inputs struct to populate data
  * @return true if wheel speed meets this condition, false
  * otherwise
  */
@@ -21,7 +21,7 @@ static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs);
 
 /**
  * Check if battery cells are less than 4.1V
- * @param RegenBraking_Inputs struct to populate data
+ * @param regenAttr struct to populate data
  * @return true battery cells meet this condition,
  * false otherwise
  */
@@ -31,8 +31,9 @@ static bool batteryLevelInRange(RegenBraking_Inputs *regenAttr);
  * Algorithm to send negative torque request dependent
  * on accelerator pedal percentage in range [-100, 0]
  * and to do active differential or not
- * @param inputs are inputs for active differential
+ * @param activeDiffInputs
  * @param regenAttr struct provides for torque request
+ * @param torqueOutputToMotors
  */
 static void computeRegenTorqueRequest(
     ActiveDifferential_Inputs *activeDiffInputs,
@@ -51,12 +52,11 @@ void app_regen_init(void)
     app_canTx_VC_Warning_RegenNotAvailable_set(false);
 }
 
-void app_regen_run(float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
+void app_regen_run(const float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
     // pedal percentage = [-1.0f, 0.0f] for deceleration range
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
-    bool regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
-
+    const bool regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
     if (regen_available)
     {
         computeRegenTorqueRequest(&activeDifferentialInputs, &regenAttributes, torqueOutputToMotors);
@@ -75,7 +75,7 @@ void app_regen_run(float accelerator_pedal_percentage, TorqueAllocationOutputs *
 
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
 {
-    bool battery_temp_in_range = app_canRx_BMS_MaxCellTemp_get() < MAX_BATTERY_TEMP;
+    const bool battery_temp_in_range = app_canRx_BMS_MaxCellTemp_get() < MAX_BATTERY_TEMP;
     return battery_temp_in_range && wheelSpeedInRange(inputs) && batteryLevelInRange(regenAttr);
 }
 
@@ -88,7 +88,7 @@ static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
 
     // Hysterisis
 
-    float min_motor_speed = MOTOR_RPM_TO_KMH(MIN4(
+    const float min_motor_speed = MOTOR_RPM_TO_KMH(MIN4(
         inputs->motor_speed_rr_rpm, inputs->motor_speed_rl_rpm, inputs->motor_speed_fr_rpm,
         inputs->motor_speed_fl_rpm));
 
@@ -115,20 +115,18 @@ static void computeRegenTorqueRequest(
     RegenBraking_Inputs       *regenAttr,
     TorqueAllocationOutputs   *torqueOutputToMotors)
 {
-    regenAttr->derating_value = 1.0f;
-
-    if (regenAttr->battery_level > 3.9f)
-    {
-        regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
-    }
-
-    float min_motor_speed_kmh = MOTOR_RPM_TO_KMH(MIN4(
+    const float min_motor_speed_kmh = MOTOR_RPM_TO_KMH(MIN4(
         activeDiffInputs->motor_speed_rr_rpm, activeDiffInputs->motor_speed_rl_rpm,
         activeDiffInputs->motor_speed_fr_rpm, activeDiffInputs->motor_speed_fl_rpm));
 
     if (min_motor_speed_kmh < 10.0f)
     {
-        regenAttr->derating_value = regenAttr->derating_value * (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
+        regenAttr->derating_value = (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
+    }
+    if (regenAttr->battery_level > 3.9f)
+    {
+        // TODO surely something smarter? and or more derate as SOC gets too high
+        regenAttr->derating_value *= SOC_LIMIT_DERATING_VALUE;
     }
 
     if (regenAttr->enable_active_differential)
@@ -150,7 +148,7 @@ static void computeRegenTorqueRequest(
     else
     {
         // no power limit, no active differential
-        float regen_torque_request =
+        const float regen_torque_request =
             MAX_REGEN_Nm * activeDiffInputs->accelerator_pedal_percentage * regenAttr->derating_value;
         torqueOutputToMotors->front_left_torque  = regen_torque_request;
         torqueOutputToMotors->front_right_torque = regen_torque_request;

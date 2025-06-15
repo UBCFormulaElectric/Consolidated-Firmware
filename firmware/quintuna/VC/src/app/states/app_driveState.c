@@ -50,10 +50,10 @@ static void app_enable_inv(void)
     app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
 
-    app_canTx_VC_INVFLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVFRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVRLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_INVRRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
 }
 
 static void driveStateRunOnEntry()
@@ -71,8 +71,8 @@ static void driveStateRunOnTick100Hz(void)
 {
     // pedal mapped changed from [0, 100] to [0.0, 1.0]
     // TODO: HOW ARE WE USING THESE, DO WE USE BOTH OR JUST USE APPS
-    float apps_pedal_percentage  = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
-    float sapps_pedal_percentage = (float)app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
+    float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    // float sapps_pedal_percentage = (float)app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
     if (!driveStatePassPreCheck())
     {
@@ -86,8 +86,8 @@ static void driveStateRunOnTick100Hz(void)
     // regen switches pedal percentage from [0.0f, 1.0f] to [-0.2f, 0.8f] and then scaled to [-1.0f, 1.0f]
     if (regen_switch_is_on)
     {
-        apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
-        sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
+        apps_pedal_percentage = app_regen_pedalRemapping(apps_pedal_percentage);
+        // sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
     }
 
     app_canTx_VC_RegenMappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
