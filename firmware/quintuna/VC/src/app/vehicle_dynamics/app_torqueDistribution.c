@@ -88,10 +88,10 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
 
 void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors)
 {
-    app_canTx_VC_INVFLTorqueSetpoint_set(PEDAL_REMAPPING(torqueToMotors->front_left_torque));
-    app_canTx_VC_INVFRTorqueSetpoint_set(PEDAL_REMAPPING(torqueToMotors->front_right_torque));
-    app_canTx_VC_INVRLTorqueSetpoint_set(PEDAL_REMAPPING(torqueToMotors->rear_left_torque));
-    app_canTx_VC_INVRRTorqueSetpoint_set(PEDAL_REMAPPING(torqueToMotors->rear_right_torque));
+    app_canTx_VC_INVFLTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->front_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->front_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
 }
 
 // TorqueAllocationOutputs *app_get_torqueToMotors()
@@ -121,8 +121,8 @@ void app_torqueReduction(
         torqueToMotors->rear_left_torque -= torque_reduction;
     }
 
-    torqueToMotors->front_left_torque  = CLAMP(torqueToMotors->front_left_torque, 0, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->front_right_torque = CLAMP(torqueToMotors->front_right_torque, 0, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->rear_left_torque   = CLAMP(torqueToMotors->rear_left_torque, 0, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->rear_right_torque  = CLAMP(torqueToMotors->rear_right_torque, 0, MAX_TORQUE_REQUEST_NM);
+    torqueToMotors->front_left_torque  = (float)CLAMP(torqueToMotors->front_left_torque, 0, MAX_TORQUE_REQUEST_NM);
+    torqueToMotors->front_right_torque = (float)CLAMP(torqueToMotors->front_right_torque, 0, MAX_TORQUE_REQUEST_NM);
+    torqueToMotors->rear_left_torque   = (float)CLAMP(torqueToMotors->rear_left_torque, 0, MAX_TORQUE_REQUEST_NM);
+    torqueToMotors->rear_right_torque  = (float)CLAMP(torqueToMotors->rear_right_torque, 0, MAX_TORQUE_REQUEST_NM);
 }

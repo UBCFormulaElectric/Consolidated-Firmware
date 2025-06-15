@@ -13,7 +13,7 @@
 
 static TorqueAllocationInputs torqueToMotorsInputs;
 
-void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
+void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
     const float bms_available_power = (float)app_canRx_BMS_AvailablePower_get();
     const float motor_speed_fr_rpm  = (float)app_canRx_INVFR_ActualVelocity_get();
@@ -45,7 +45,7 @@ void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
     torqueOutputToMotors->rear_right_torque = torque_request;
 }
 
-void app_driveMode_driving(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
+void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
     const DriveMode driveMode          = app_canRx_CRIT_DriveMode_get();
     const float     motor_speed_fr_rpm = (float)app_canRx_INVFR_ActualVelocity_get();

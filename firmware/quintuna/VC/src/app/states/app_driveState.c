@@ -176,7 +176,7 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     }
     else
     {
-        app_driveMode_driving(apps_pedal_percentage, &torqueOutputToMotors);
+        app_driveMode_run(apps_pedal_percentage, &torqueOutputToMotors);
     }
     // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
 

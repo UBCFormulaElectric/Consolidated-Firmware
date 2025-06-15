@@ -25,7 +25,7 @@
 #define PID_POWER_FACTOR_MIN (-0.9f)
 #define PID_POWER_FACTOR_MAX 0.1f
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f // Underestimate for wheel angles > 40deg. See Confluence/Steering System
-#define MAX_TORQUE_REQUEST_NM (20.5) // Max torque of AMK DD5-14-10-POW motor (actual max is 21, using this as safety)
+#define MAX_TORQUE_REQUEST_NM (20.5f) // Max torque of AMK DD5-14-10-POW motor (actual max is 21, using this as safety)
 #define NOMINAL_TORQUE_REQUEST_NM (9.8f) // Nominal torque of AMK DD5-14-10-POW motor
 #define RULES_BASED_POWER_LIMIT_KW (80.0f)
 #define MAX_REGEN_Nm -30.0f

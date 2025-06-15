@@ -16,6 +16,4 @@
 
 void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
 
-void app_non_vanilla_driving(float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
-
-void app_driveMode_driving(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
+void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
