@@ -141,6 +141,25 @@
       },
       "BSPDCurrentThresholdExceeded": {
         "bits": 1
+      },
+      "BSPDAccelBrakeOk": {
+        "bits": 1
+      }
+    }
+  },
+  "BSPDStatus":{
+    "msg_id":414,
+    "cycle_time": 100,
+    "description": "BSPD Status",
+    "signals":{
+      "BSPDBrakePressureExceeded": {
+        "bits": 1
+      },
+      "BSPDCurrentThresholdExceeded": {
+        "bits": 1
+      },
+      "BSPDAccelBrakeOk": {
+        "bits": 1
       }
     }
   },

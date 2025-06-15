@@ -99,6 +99,54 @@ TEST_F(BmsStateMachineTest, stays_in_fault_state_if_ir_negative_closes)
     ASSERT_STATE_EQ(&fault_state);
 }
 
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch){
+    app_stateMachine_setCurrentState(&drive_state);
+    fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
+    fakes::irs::setNegativeState(IRS_CLOSED);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_BMS_ImdCurrentlyOk_get(), true);
+    ASSERT_EQ(app_canTx_BMS_ImdLatchOk_get(), true);
+    ASSERT_STATE_EQ(&drive_state);
+    fakes::faultLatches::updateFaultLatch(&imd_ok_latch, FAULT_LATCH_FAULT);
+    fakes::irs::setNegativeState(IRS_OPEN);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(&init_state);
+    ASSERT_EQ(app_canTx_BMS_ImdCurrentlyOk_get(), false);
+    ASSERT_EQ(app_canTx_BMS_ImdLatchOk_get(), false);
+}
+
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch){
+    app_stateMachine_setCurrentState(&drive_state);
+    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+    fakes::irs::setNegativeState(IRS_CLOSED);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_BMS_BmsCurrentlyOk_get(), true);
+    ASSERT_EQ(app_canTx_BMS_BmsLatchOk_get(), true);
+    ASSERT_STATE_EQ(&drive_state);
+    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
+    fakes::irs::setNegativeState(IRS_OPEN);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(&init_state);
+    ASSERT_EQ(app_canTx_BMS_BmsCurrentlyOk_get(), false);
+    ASSERT_EQ(app_canTx_BMS_BmsLatchOk_get(), false);
+}
+
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch){
+    app_stateMachine_setCurrentState(&drive_state);
+    fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
+    fakes::irs::setNegativeState(IRS_CLOSED);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_BMS_BspdCurrentlyOk_get(), true);
+    ASSERT_EQ(app_canTx_BMS_BspdLatchOk_get(), true);
+    ASSERT_STATE_EQ(&drive_state);
+    fakes::faultLatches::updateFaultLatch(&bspd_ok_latch, FAULT_LATCH_FAULT);
+    fakes::irs::setNegativeState(IRS_OPEN);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(&init_state);
+    ASSERT_EQ(app_canTx_BMS_BspdCurrentlyOk_get(), false);
+    ASSERT_EQ(app_canTx_BMS_BspdLatchOk_get(), false);
+}
+
 // precharge tests
 // TODO set these values
 static constexpr float undervoltage = 200.0f, target_voltage = 600.0f;

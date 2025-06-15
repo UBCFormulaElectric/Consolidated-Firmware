@@ -176,6 +176,47 @@ TEST_F(BMSCanTest, check_shdn_broadcasted_in_all_states)
     }
 }
 
+TEST_F(BMSCanTest, check_tractive_system_params_broadcasted_in_all_states)
+{
+    std::map<BmsState, std::pair<float, float>> set_voltage_current = {
+        {BMS_INIT_STATE, {0.0f, 0.0f}},
+        {BMS_FAULT_STATE, {0.0f, 0.0f}},
+        {BMS_PRECHARGE_DRIVE_STATE, {500.0f, 0.0f}},
+        {BMS_DRIVE_STATE, {550.0f, 100.0f}},
+        {BMS_BALANCING_STATE, {0.0f, 0.0f}},
+        {BMS_PRECHARGE_LATCH_STATE, {0.0f, 0.0f}},
+        {BMS_PRECHARGE_CHARGE_STATE, {500.0f, 0.0f}},
+        {BMS_CHARGE_STATE, {550.0f, -20.0f}},
+        // {BMS_CHARGE_INIT_STATE, {550.0f, 550.0f}}, No clue what is reasonable for charge init state
+        {BMS_CHARGE_FAULT_STATE, {0.0f, 0.0f}}
+    };
+    
+    for (const auto &metadata : state_metadata)
+    {
+        enforceStatePreconditions(metadata);
+        app_stateMachine_setCurrentState(metadata.state);
+        LetTimePass(10); // let the state settle
+        ASSERT_STATE_EQ(metadata.state);
+
+        float expected_voltage = set_voltage_current[metadata.can_state].first;
+        float expected_current = set_voltage_current[metadata.can_state].second;
+        float expected_power_kw = expected_voltage * expected_current / 1000.0f;
+        fakes::tractiveSystem::setVoltage(expected_voltage);
+        if(std::abs(expected_current) > 50.0f){
+            fakes::tractiveSystem::setCurrentLowResolution(expected_current);
+            fakes::tractiveSystem::setCurrentHighResolution(0.0f);
+        }
+        else{
+            fakes::tractiveSystem::setCurrentHighResolution(expected_current);
+            fakes::tractiveSystem::setCurrentLowResolution(0.0f);
+        }
+        LetTimePass(10);
+        ASSERT_NEAR(app_canTx_BMS_TractiveSystemVoltage_get(), expected_voltage, 0.1f);
+        ASSERT_NEAR(app_canTx_BMS_TractiveSystemCurrent_get(), expected_current, 0.1f);
+        ASSERT_NEAR(app_canTx_BMS_TractiveSystemPower_get(), expected_power_kw, 0.01f);
+    }
+}
+
 TEST_F(BMSCanTest, charger_connection_status_in_all_states)
 {
     // TODO
