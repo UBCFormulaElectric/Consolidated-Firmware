@@ -104,15 +104,15 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch){
     fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
     fakes::irs::setNegativeState(IRS_CLOSED);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_BMS_ImdCurrentlyOk_get(), true);
-    ASSERT_EQ(app_canTx_BMS_ImdLatchOk_get(), true);
+    ASSERT_TRUE(app_canTx_BMS_ImdCurrentlyOk_get());
+    ASSERT_TRUE(app_canTx_BMS_ImdLatchOk_get());
     ASSERT_STATE_EQ(&drive_state);
     fakes::faultLatches::updateFaultLatch(&imd_ok_latch, FAULT_LATCH_FAULT);
     fakes::irs::setNegativeState(IRS_OPEN);
     LetTimePass(100);
     ASSERT_STATE_EQ(&init_state);
-    ASSERT_EQ(app_canTx_BMS_ImdCurrentlyOk_get(), false);
-    ASSERT_EQ(app_canTx_BMS_ImdLatchOk_get(), false);
+    ASSERT_FALSE(app_canTx_BMS_ImdCurrentlyOk_get());
+    ASSERT_FALSE(app_canTx_BMS_ImdLatchOk_get());
 }
 
 TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch){
@@ -120,15 +120,15 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch){
     fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
     fakes::irs::setNegativeState(IRS_CLOSED);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_BMS_BmsCurrentlyOk_get(), true);
-    ASSERT_EQ(app_canTx_BMS_BmsLatchOk_get(), true);
+    ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
+    ASSERT_TRUE(app_canTx_BMS_BmsLatchOk_get());
     ASSERT_STATE_EQ(&drive_state);
     fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
     fakes::irs::setNegativeState(IRS_OPEN);
     LetTimePass(100);
     ASSERT_STATE_EQ(&init_state);
-    ASSERT_EQ(app_canTx_BMS_BmsCurrentlyOk_get(), false);
-    ASSERT_EQ(app_canTx_BMS_BmsLatchOk_get(), false);
+    ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
+    ASSERT_FALSE(app_canTx_BMS_BmsLatchOk_get());
 }
 
 TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch){
@@ -136,15 +136,78 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch){
     fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
     fakes::irs::setNegativeState(IRS_CLOSED);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_BMS_BspdCurrentlyOk_get(), true);
-    ASSERT_EQ(app_canTx_BMS_BspdLatchOk_get(), true);
+    ASSERT_TRUE(app_canTx_BMS_BspdCurrentlyOk_get());
+    ASSERT_TRUE(app_canTx_BMS_BspdLatchOk_get());
     ASSERT_STATE_EQ(&drive_state);
     fakes::faultLatches::updateFaultLatch(&bspd_ok_latch, FAULT_LATCH_FAULT);
     fakes::irs::setNegativeState(IRS_OPEN);
     LetTimePass(100);
     ASSERT_STATE_EQ(&init_state);
-    ASSERT_EQ(app_canTx_BMS_BspdCurrentlyOk_get(), false);
-    ASSERT_EQ(app_canTx_BMS_BspdLatchOk_get(), false);
+    ASSERT_FALSE(app_canTx_BMS_BspdCurrentlyOk_get());
+    ASSERT_FALSE(app_canTx_BMS_BspdLatchOk_get());
+}
+
+// fault tests probably can move to testFaults.cpp
+TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_over_voltage_fault)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 4.21f; // last cell overvoltage
+    io_ltc6813_startCellsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::irs::setNegativeState(IRS_CLOSED);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(&fault_state);
+    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+    ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
+TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 2.6f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 2.49f; 
+    io_ltc6813_startCellsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::irs::setNegativeState(IRS_CLOSED);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(&fault_state);
+    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+    ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
+TEST_F(BmsStateMachineTest, goes_to__state_cell_over_temp_fault)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> cell_temps_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < AUX_REGS_PER_SEGMENT; ++cell)
+        {
+            cell_temps_arr[seg][cell] = 50.0f;
+        }
+    }
+    cell_temps_arr[NUM_SEGMENTS - 1][AUX_REGS_PER_SEGMENT - 1] = 61.0f; // last cell over temperature
+    fakes::segments::setCellTemperatures(cell_temps_arr);
+    fakes::irs::setNegativeState(IRS_CLOSED);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(&fault_state);
+    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+    ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
 }
 
 // precharge tests

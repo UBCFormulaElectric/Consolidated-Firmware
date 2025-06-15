@@ -37,7 +37,8 @@ namespace imd
 } // namespace imd
 namespace segments
 {
-    void setCellVoltages(const std::array<std::array<float, NUM_SEGMENTS>, CELLS_PER_SEGMENT> &voltages);
+    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);
     void setPackVoltageEvenly(float pack_voltage);
+    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures);
 } // namespace segments
 } // namespace fakes

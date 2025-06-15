@@ -83,10 +83,22 @@ extern "C"
         started_adc_conversion = false;
     }
 
+    static std::array<std::array<uint16_t, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> aux_regs_storage{};
+    
+    bool started_therm_adc_conversion = false;
+
     void io_ltc6813_readAuxRegisters(
         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
     {
+        if (started_therm_adc_conversion)
+        {
+            memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
+        }
+        else
+        {
+            FAIL() << "Did not start thermistor ADC conversion";
+        }
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
@@ -95,9 +107,12 @@ extern "C"
                 comm_success[i][j] = EXIT_CODE_OK;
             }
         }
+        started_therm_adc_conversion = false;
     }
+
     ExitCode io_ltc6813_startThermistorsAdcConversion(void)
     {
+        started_therm_adc_conversion = true;
         return EXIT_CODE_OK;
     }
     void     io_ltc6813_wakeup(void) {}
@@ -354,7 +369,7 @@ namespace imd
 
 namespace segments
 {
-    void setCellVoltages(const std::array<std::array<float, NUM_SEGMENTS>, CELLS_PER_SEGMENT> &voltages)
+    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
     {
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
@@ -365,10 +380,21 @@ namespace segments
         }
     }
 
+    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
+    {
+        for (int i = 0; i < NUM_SEGMENTS; i++)
+        {
+            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            {
+                aux_regs_storage[i][j] = static_cast<uint16_t>(temperatures[i][j] * 1000);  //Not sure if conversion is correct
+            }
+        }
+    }
+
     void setPackVoltageEvenly(const float pack_voltage)
     {
         const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        std::array<std::array<float, NUM_SEGMENTS>, CELLS_PER_SEGMENT> v{};
+        std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             for (int j = 0; j < CELLS_PER_SEGMENT; j++)
