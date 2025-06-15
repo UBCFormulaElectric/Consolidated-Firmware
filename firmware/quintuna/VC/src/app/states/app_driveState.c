@@ -193,7 +193,6 @@ static void app_driveSwitchInit(void)
 
     if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
     {
-        app_regen_init();
         regen_switch_is_on = true;
     }
 }

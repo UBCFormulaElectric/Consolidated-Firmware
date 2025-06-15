@@ -46,12 +46,6 @@ static ActiveDifferential_Inputs  activeDifferentialInputs;
 static ActiveDifferential_Outputs activeDifferentialOutputs;
 static bool                       regen_enabled = true;
 
-void app_regen_init(void)
-{
-    app_canTx_VC_RegenEnabled_set(true);
-    app_canTx_VC_Warning_RegenNotAvailable_set(false);
-}
-
 void app_regen_run(const float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
     // pedal percentage = [-1.0f, 0.0f] for deceleration range

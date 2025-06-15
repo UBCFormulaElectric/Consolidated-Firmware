@@ -9,11 +9,6 @@
 #define MAX_PEDAL_PERCENT 1.0f
 
 /**
- * Initialize regen related attributes
- */
-void app_regen_init(void);
-
-/**
  * Runs when pedal percentage is in range [-100, 0] and does safety checks
  * before calculating and sending regenerative braking negative torque requests
  * @param accelerator_pedal_percentage is the pedal percentage
