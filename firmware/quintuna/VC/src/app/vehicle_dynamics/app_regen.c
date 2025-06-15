@@ -64,7 +64,7 @@ void app_regen_run(const float accelerator_pedal_percentage, TorqueAllocationOut
     }
 
     app_canTx_VC_RegenEnabled_set(regen_available);
-    app_canTx_VC_Warning_RegenNotAvailable_set(!regen_available);
+    app_canTx_VC_Info_RegenNotAvailable_set(!regen_available);
 }
 
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
