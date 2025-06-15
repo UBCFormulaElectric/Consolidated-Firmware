@@ -14,7 +14,7 @@
 #define PROGRAM_ID_LOWBITS (0x6)
 #define VERIFY_ID_LOWBITS (0x7)
 #define APP_VALIDITY_ID_LOWBITS (0x8)
-#define GO_TO_BOOT (0x9)
+#define GO_TO_BOOT (0x8)
 
 static void (*transmit_func_can2)(const CanMsg *tx_msg);
 static void (*transmit_func_can1)(const CanMsg *tx_msg);
