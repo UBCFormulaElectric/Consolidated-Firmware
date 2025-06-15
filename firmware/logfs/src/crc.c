@@ -75,7 +75,7 @@ bool crc_checkBlock(const LogFs *fs, void *buf)
 {
     // Check block with CRC (first word) set to zero.
     uint32_t *const block_crc = (uint32_t *)buf;
-    uint32_t        crc       = *block_crc;
+    const uint32_t  crc       = *block_crc;
     *block_crc                = 0;
     return crc == crc_crc32(buf, fs->cfg->block_size);
 }
