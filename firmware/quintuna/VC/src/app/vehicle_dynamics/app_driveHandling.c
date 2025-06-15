@@ -15,12 +15,6 @@ static TorqueAllocationInputs torqueToMotorsInputs;
 
 void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
-    // TODO: Use power limiting in regular drive
-    // TODO: Implement active diff  in regular drive at min
-    // TODO: Use sensor checks here to disable things accordingly (active diff, load trans)
-    // TODO: set Load Transfer Const = 1 and set Desired Yaw Moment = 0
-
-    // TODO: Implement active diff in regular drive at min
     const float bms_available_power = (float)app_canRx_BMS_AvailablePower_get();
     const float motor_speed_fr_rpm  = (float)app_canRx_INVFR_ActualVelocity_get();
     const float motor_speed_fl_rpm  = (float)app_canRx_INVFL_ActualVelocity_get();
@@ -40,14 +34,15 @@ void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
     // Calculate the maximum torque request, according to the BMS available power
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    const float pedal_based_torque = MIN((apps_pedal_percentage * MAX_TORQUE_REQUEST_NM), 1);
+    const float pedal_based_torque = apps_pedal_percentage * MAX_TORQUE_REQUEST_NM;
 
-    // Calculate the actual torque request to transmit ---- VERY IMPORTANT NEED TO MAKE A TORQUE TRANSMISSION FUNCTION
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
-    const int16_t torque_request = PEDAL_REMAPPING(pedal_based_torque);
+    const float torque_request = fminf(pedal_based_torque, max_bms_torque_request);
 
-    // Transmit torque command to both inverters
-    // TODO: USE TORQUE BROADCAST -- fix mapping
+    torqueOutputToMotors->front_left_torque = torque_request;
+    torqueOutputToMotors->front_right_torque = torque_request;
+    torqueOutputToMotors->rear_left_torque = torque_request;
+    torqueOutputToMotors->rear_right_torque = torque_request;
 }
 
 void app_driveMode_driving(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
