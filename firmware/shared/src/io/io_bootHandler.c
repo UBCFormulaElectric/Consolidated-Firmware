@@ -5,7 +5,7 @@
 #include "bootloaderConfig.h"
 #include <stdint.h>
 
-#define BOOT_CAN_START_LOWBITS 0x9
+#define BOOT_CAN_START_LOWBITS 0x8
 
 void io_bootHandler_processBootRequest(const CanMsg *msg)
 {
