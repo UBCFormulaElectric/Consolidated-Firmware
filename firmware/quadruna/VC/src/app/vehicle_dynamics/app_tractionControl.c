@@ -12,15 +12,15 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
 
     // float wheel_speed_front_left_rpm  = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_left_kph);
     // float wheel_speed_front_right_rpm = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_right_kph);
-    float wheel_speed_front_left_rpm  = WHEEL_KMH_TO_RPM(inputs->wheel_speed_front_left_kph);
-    float wheel_speed_front_right_rpm = WHEEL_KMH_TO_RPM(inputs->wheel_speed_front_right_kph);
+    const float wheel_speed_front_left_rpm  = WHEEL_KMH_TO_RPM(inputs->wheel_speed_front_left_kph);
+    const float wheel_speed_front_right_rpm = WHEEL_KMH_TO_RPM(inputs->wheel_speed_front_right_kph);
 
     float slip_ratio_left = app_tractionControl_computeSlip(inputs->motor_speed_left_rpm, wheel_speed_front_left_rpm);
     float slip_ratio_right =
         app_tractionControl_computeSlip(inputs->motor_speed_right_rpm, wheel_speed_front_right_rpm);
 
-    float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
-    float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+    const float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
+    float       k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
     // Send debug messages over CAN
     app_canTx_VC_SlipRatioLeft_set(slip_ratio_left);
@@ -35,7 +35,7 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     outputs->torque_right_final_Nm = (1.0f + k) * inputs->torque_right_Nm;
 }
 
-float app_tractionControl_computeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
+float app_tractionControl_computeSlip(const float motor_speed_rpm, const float front_wheel_speed_rpm)
 {
     return (motor_speed_rpm / GEAR_RATIO - front_wheel_speed_rpm) / (front_wheel_speed_rpm + SMALL_EPSILON);
 }
