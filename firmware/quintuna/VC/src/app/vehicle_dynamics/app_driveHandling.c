@@ -14,9 +14,8 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 
 static TorqueAllocationInputs torqueToMotorsInputs;
-static SensorStatus           sensor_status;
 
-static void app_performSensorChecks(void);
+static SensorStatus app_performSensorChecks(void);
 
 void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
@@ -54,7 +53,7 @@ void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
 
 void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
-    app_performSensorChecks();
+    const SensorStatus sensor_status = app_performSensorChecks();
 
     const DriveMode driveMode          = app_canRx_CRIT_DriveMode_get();
     const float     motor_speed_fr_rpm = (float)app_canRx_INVFR_ActualVelocity_get();
@@ -130,8 +129,9 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
     }
 }
 
-static void app_performSensorChecks(void)
+static SensorStatus app_performSensorChecks(void)
 {
+    SensorStatus sensor_status;
     sensor_status.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get() || !(app_sbgEllipse_getEkfSolutionMode() == POSITION);
     sensor_status.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
     sensor_status.steeringOk =
@@ -144,4 +144,5 @@ static void app_performSensorChecks(void)
         LOG_WARN("Imu not ok.");
     if (!sensor_status.steeringOk)
         LOG_WARN("Steering not ok");
+    return sensor_status;
 }
