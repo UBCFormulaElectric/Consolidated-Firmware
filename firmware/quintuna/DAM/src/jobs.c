@@ -24,7 +24,6 @@
 #include "io_log.h"
 
 #include "hw_resetReason.h"
-#include <io_canTx.h>
 
 #define RED_TOGGLE_TIME 150
 #define BOOTUP_IGNORE_TIME (3000)
@@ -84,31 +83,6 @@ void jobs_run1Hz_tick(void)
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
     //
     io_telemBaseTimeSend();
-
-    // Debugging!
-    CanMsg msg = { .std_id     = CAN_MSG_BMS_CELL_VOLTAGE_STATS_ID,
-                   .dlc        = CAN_MSG_BMS_CELL_VOLTAGE_STATS_DLC,
-                   .data.data8 = { 0 },
-                   .timestamp  = 1000,
-                   .bus        = 2,
-                   .is_fd      = true };
-
-    const BMS_CellVoltageStats_Signals signals = { .BMS_PackVoltage_value           = 600.0f,
-                                                   .BMS_AvgCellVoltage_value        = 3.5f,
-                                                   .BMS_MinCellVoltage_value        = 2.5f,
-                                                   .BMS_MinCellVoltageSegment_value = 0,
-                                                   .BMS_MinCellVoltageIdx_value     = 0,
-                                                   .BMS_MaxCellVoltage_value        = 4.2f,
-                                                   .BMS_MaxCellVoltageSegment_value = 9,
-                                                   .BMS_MaxCellVoltageIdx_value     = 13 };
-
-    app_canUtils_BMS_CellVoltageStats_pack(&signals, msg.data.data8);
-
-    if (io_canLogging_errorsRemaining() > 0 && app_dataCapture_needsLog((uint16_t)msg.std_id, msg.timestamp))
-    {
-        LOG_INFO("Logged debug message");
-        io_canLogging_loggingQueuePush(&msg);
-    }
 }
 
 void jobs_run100Hz_tick(void)

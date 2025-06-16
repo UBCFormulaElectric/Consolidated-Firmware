@@ -2,7 +2,6 @@
   "messages": [
     "Debug_CanMode",
     "BMS_LatchStatus",
-    "VC_Vitals",
-    "BMS_CellVoltageStats"
+    "VC_Vitals"
   ]
 }
