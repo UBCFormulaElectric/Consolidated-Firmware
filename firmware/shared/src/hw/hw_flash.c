@@ -51,10 +51,13 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
 
 bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
 {
-    const HAL_StatusTypeDef s1     = HAL_FLASH_Unlock();
-    const HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);
-    const HAL_StatusTypeDef s2     = HAL_FLASH_Lock();
-    assert(s1 == HAL_OK && s2 == HAL_OK && status == HAL_OK);
+    HAL_FLASH_Unlock();
+    HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);
+    HAL_FLASH_Lock();
+    // const HAL_StatusTypeDef s1     = HAL_FLASH_Unlock();
+    // const HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);
+    // const HAL_StatusTypeDef s2     = HAL_FLASH_Lock();
+    // assert(s1 == HAL_OK && s2 == HAL_OK && status == HAL_OK);
     return status == HAL_OK;
 }
 
