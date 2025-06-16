@@ -33,89 +33,6 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-static void runDrivingAlgorithm(float apps_pedal_percentage);
-static bool driveStatePassPreCheck();
-static void app_driveSwitchInit(void);
-
-static void app_enable_inv(void)
-{
-    app_canTx_VC_INVFRbEnable_set(true);
-    app_canTx_VC_INVFLbEnable_set(true);
-    app_canTx_VC_INVRRbEnable_set(true);
-    app_canTx_VC_INVRLbEnable_set(true);
-
-    // TODO: set points should be integer values not floats
-    // !commented out to avoid build issues
-    // app_canTx_VC_INVFLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_INVFRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-
-    // app_canTx_VC_INVFLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_INVFRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_INVRLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
-    // app_canTx_VC_INVRRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
-}
-
-static void driveStateRunOnEntry()
-{
-    app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_updateConfig(power_manager_state);
-
-    // Enable inverters
-    app_enable_inv();
-    app_driveSwitchInit();
-    app_reset_torqueToMotors(&torqueOutputToMotors);
-}
-
-static void driveStateRunOnTick100Hz(void)
-{
-    // pedal mapped changed from [0, 100] to [0.0, 1.0]
-    // TODO: HOW ARE WE USING THESE, DO WE USE BOTH OR JUST USE APPS
-    float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
-    // float sapps_pedal_percentage = (float)app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
-
-    if (!driveStatePassPreCheck())
-    {
-        app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
-        app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
-        app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
-        app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
-        return;
-    }
-
-    // regen switches pedal percentage from [0.0f, 1.0f] to [-0.2f, 0.8f] and then scaled to [-1.0f, 1.0f]
-    if (regen_switch_is_on)
-    {
-        apps_pedal_percentage = app_regen_pedalRemapping(apps_pedal_percentage);
-        // sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
-    }
-
-    app_canTx_VC_RegenMappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
-    runDrivingAlgorithm(apps_pedal_percentage);
-}
-
-static void driveStateRunOnExit(void)
-{
-    // Disable inverters and apply zero torque upon exiting drive state
-    app_canTx_VC_INVFRbEnable_set(false);
-    app_canTx_VC_INVFLbEnable_set(false);
-    app_canTx_VC_INVRRbEnable_set(false);
-    app_canTx_VC_INVRLbEnable_set(false);
-
-    app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
-    app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
-    app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
-    app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
-
-    app_reset_torqueToMotors(&torqueOutputToMotors);
-
-    // Clear mapped pedal percentage
-    app_canTx_VC_RegenMappedPedalPercentage_set(0.0f);
-    app_canTx_VC_RegenEnabled_set(false);
-    app_canTx_VC_TorqueVectoringEnabled_set(false);
-}
-
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
@@ -179,8 +96,7 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     {
         app_driveMode_run(apps_pedal_percentage, &torqueOutputToMotors);
     }
-    // TODO: we want to add two more driving modes... just Power limiting and Power limiting and active diff
-
+    
     app_torqueBroadCast(&torqueOutputToMotors);
 }
 
@@ -197,6 +113,84 @@ static void app_driveSwitchInit(void)
         regen_switch_is_on = true;
     }
 }
+
+static void app_enable_inv(void)
+{
+    app_canTx_VC_INVFRbEnable_set(true);
+    app_canTx_VC_INVFLbEnable_set(true);
+    app_canTx_VC_INVRRbEnable_set(true);
+    app_canTx_VC_INVRLbEnable_set(true);
+
+    app_canTx_VC_INVFLTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVFRTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRLTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRRTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+
+    app_canTx_VC_INVFLTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVFRTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRLTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRRTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+}
+
+static void driveStateRunOnEntry()
+{
+    app_canTx_VC_State_set(VC_DRIVE_STATE);
+    app_powerManager_updateConfig(power_manager_state);
+
+    // Enable inverters
+    app_enable_inv();
+    app_driveSwitchInit();
+    app_reset_torqueToMotors(&torqueOutputToMotors);
+}
+
+static void driveStateRunOnTick100Hz(void)
+{
+    // pedal mapped changed from [0, 100] to [0.0, 1.0]
+    // TODO: HOW ARE WE USING THESE, DO WE USE BOTH OR JUST USE APPS
+    float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    // float sapps_pedal_percentage = (float)app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
+
+    if (!driveStatePassPreCheck())
+    {
+        app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
+        app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
+        app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
+        app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
+        return;
+    }
+
+    // regen switches pedal percentage from [0.0f, 1.0f] to [-0.2f, 0.8f] and then scaled to [-1.0f, 1.0f]
+    if (regen_switch_is_on)
+    {
+        apps_pedal_percentage = app_regen_pedalRemapping(apps_pedal_percentage);
+        // sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
+    }
+
+    app_canTx_VC_RegenMappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
+    runDrivingAlgorithm(apps_pedal_percentage);
+}
+
+static void driveStateRunOnExit(void)
+{
+    // Disable inverters and apply zero torque upon exiting drive state
+    app_canTx_VC_INVFRbEnable_set(false);
+    app_canTx_VC_INVFLbEnable_set(false);
+    app_canTx_VC_INVRRbEnable_set(false);
+    app_canTx_VC_INVRLbEnable_set(false);
+
+    app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
+    app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
+    app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
+    app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
+
+    app_reset_torqueToMotors(&torqueOutputToMotors);
+
+    // Clear mapped pedal percentage
+    app_canTx_VC_RegenMappedPedalPercentage_set(0.0f);
+    app_canTx_VC_RegenEnabled_set(false);
+    app_canTx_VC_TorqueVectoringEnabled_set(false);
+}
+
 
 State drive_state = {
     .name              = "DRIVE",
