@@ -106,4 +106,27 @@ extern "C"
     {
         return pcm_enabled;
     }
+
+#include "io_powerMonitoring.h"
+    bool io_powerMonitoring_init(void)
+    {
+        return true;
+    }
+    void io_powerMonitoring_refresh(void) {}
+
+    void io_powerMonitoring_read_voltage(const uint8_t ch, float *voltage)
+    {
+        UNUSED(ch);
+        *voltage = 0.0f;
+    }
+    void io_powerMonitoring_read_current(const uint8_t ch, float *current)
+    {
+        UNUSED(ch);
+        *current = 0.0f;
+    }
+    void io_powerMonitoring_read_power(const uint8_t ch, float *power)
+    {
+        UNUSED(ch);
+        *power = 0.0f;
+    }
 }

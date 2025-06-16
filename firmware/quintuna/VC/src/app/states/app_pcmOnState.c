@@ -71,8 +71,7 @@ static void pcmOnStateRunOnTick100Hz(void)
     switch (app_timer_updateAndGetState(&pcm_voltage_in_range_timer))
     {
         case TIMER_STATE_RUNNING:
-            // pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
-            pcm_curr_voltage = 22.0; // hard code
+            pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
             break;
 
         case TIMER_STATE_EXPIRED:
@@ -87,7 +86,6 @@ static void pcmOnStateRunOnTick100Hz(void)
                 app_timer_stop(&pcm_voltage_in_range_timer);
                 pcm_retry_state = RETRY_DONE;
             }
-
             break;
 
         case TIMER_STATE_IDLE:
