@@ -161,7 +161,7 @@ ImdCondition app_imd_getCondition()
 
 float app_imd_getPwmFrequency()
 {
-    return io_imd_getCPFrequency();
+    return io_imd_getFrequency();
 }
 
 float app_imd_getPwmDutyCycle()
