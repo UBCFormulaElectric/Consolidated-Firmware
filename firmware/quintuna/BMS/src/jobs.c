@@ -157,8 +157,8 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
 
     app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
-    app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
-    app_canTx_BMS_AccelBrakeOk_set(io_bspdConditions_isAccelBrakeOk());
+    app_canTx_BMS_BSPDBrakePressureExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
+    app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdConditions_isAccelBrakeOk());
 
     io_canTx_enqueue100HzMsgs();
     io_semaphore_give(&ltc_app_data_lock);
