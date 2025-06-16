@@ -1,10 +1,12 @@
+import os
+import sys
 from typing import Union, Optional, Type, Any, Dict
 import logging
 from tabulate import tabulate
 import humanize
 import pandas as pd
 from .disk import LogFsDisk
-from . import can_decoder
+from .can_logger import Decoder
 from .logfs_src import (
     LogFsErr,
     PyLogFs,
@@ -13,6 +15,17 @@ from .logfs_src import (
     PyLogFsOpenFlags,
 )
 
+
+# Path fuckery so we can import JSONCAN.
+script_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.join(script_dir, "..", "..", "..", "..")
+if root_dir not in sys.path:
+    sys.path.append(root_dir)
+
+from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
+    JsonCanParser,
+    CanDatabase,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -382,7 +395,7 @@ class LogFs:
             print("Data:")
             print(data)
         elif decode == "can":
-            signals = can_decoder.decode(
-                raw_data=data, start_timestamp=pd.Timestamp.now(), **kwargs
-            )
+            db = JsonCanParser(can_data_dir=kwargs["jsoncan_dir"]).make_database()
+            decoder = Decoder(db=db)
+            signals = decoder.decode(metadata=metadata, data=data)
             print("\n".join(map(str, signals)))
