@@ -2,14 +2,19 @@ import argparse
 import csv
 import logging
 import os
-import struct
 import sys
-import crc8
-
 import pandas as pd
+
+from tzlocal import get_localzone
 from csv_to_mf4 import csv_to_mf4
 from logfs import LogFs, LogFsDiskFactory
-from tzlocal import get_localzone
+from logfs import can_logger
+
+# Path fuckery so we can import JSONCAN.
+script_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.join(script_dir, "..", "..", "..", "..")
+if root_dir not in sys.path:
+    sys.path.append(root_dir)
 
 from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
     JsonCanParser,
@@ -19,122 +24,8 @@ logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-# Path fuckery so we can import JSONCAN.
-script_dir = os.path.dirname(os.path.abspath(__file__))
-root_dir = os.path.join(script_dir, "..", "..", "..", "..")
-if root_dir not in sys.path:
-    sys.path.append(root_dir)
-
-
-# 1 byte for magic, 1 byte for CRC, 2 bytes for timestamp, 4 bytes for ID, 1 byte for DLC
-CAN_MSG_HEADER_SIZE = 1 + 1 + 2 + 4 + 1
-
-# Magic indicating the start of a logged CAN message
-CAN_MSG_LOG_MAGIC = 0xBA
-
-# Number of bytes to unpack before logging an update.
-UNPACK_CHUNK_SIZE_BYTES = 1_000_000
-
 # Columns of output CSV file.
 CSV_HEADER = ["time", "signal", "value", "label", "unit"]
-
-
-def extract_bits(data: int, start_bit: int, size: int) -> int:
-    """
-    Extract the raw bits of length `size`, starting at `start_bit`.
-    """
-    return (data >> start_bit) & ((1 << size) - 1)
-
-
-def decode_can_packet(data: bytes):
-    """
-    Decode a raw CAN packet. The format is defined in `firmware/shared/src/io/io_canLogging.c`.
-    """
-    magic, expected_crc, timestamp_ms, msg_id, dlc = struct.unpack("<BBHLB", data)
-    payload_size = CAN_MSG_HEADER_SIZE + dlc
-
-    if magic != CAN_MSG_LOG_MAGIC:
-        raise RuntimeError("Magic is incorrect (not 0xBA)")
-
-    data_bytes = data[CAN_MSG_HEADER_SIZE:payload_size]
-    if len(data_bytes) != dlc:
-        raise RuntimeError("Insufficient bytes for expected data length")
-
-    hasher = crc8.crc8()
-    hasher.update(data[:payload_size])
-    calculated_crc = hasher.digest()
-    if calculated_crc != expected_crc:
-        raise RuntimeError("CRC mismatch while trying to decode a CAN message")
-
-    return timestamp_ms, msg_id, data_bytes, payload_size
-
-
-def decode_raw_log_to_signals(
-    raw_data: bytes,
-    can_db,
-    start_timestamp: pd.Timestamp,
-) -> list:
-    """
-    Decode raw CAN log data into a list of signals.
-    Each signal is represented as a tuple:
-    (timestamp, signal_name, signal_value, signal_label, signal_unit)
-    """
-    signals = []
-    last_timestamp_ms = pd.Timedelta(milliseconds=0)
-    overflow_fix_delta_ms = pd.Timedelta(milliseconds=0)
-
-    i = 0
-    while i < len(raw_data):
-        if i % UNPACK_CHUNK_SIZE_BYTES == 0:
-            percent_unpacked = i / len(raw_data) * 100
-            logger.info(f"Unpacked {int(percent_unpacked)}% of bytes in file.")
-
-        # Scan for magic indicating the start of the next log
-        if raw_data[i] != CAN_MSG_LOG_MAGIC:
-            i += 1
-            continue
-
-        # Parse raw CAN packet.
-        packet_data = raw_data[i:]
-
-        try:
-            timestamp_ms, msg_id, data_bytes, size_bytes = decode_can_packet(
-                data=packet_data
-            )
-            i += size_bytes
-        except Exception as err:
-            logger.warning(
-                f"Exception raised while trying to decode a CAN message: {err}"
-            )
-            continue
-
-        delta_timestamp = (
-            pd.Timedelta(milliseconds=timestamp_ms) + overflow_fix_delta_ms
-        )
-
-        if delta_timestamp < last_timestamp_ms - pd.Timedelta(seconds=30):
-            # We currently allocate 16 bits for timestamps, so we need to add 2^16 to undo the overflow.
-            delta = pd.Timedelta(milliseconds=2**16)
-            overflow_fix_delta_ms += delta
-            delta_timestamp += delta
-
-        last_timestamp_ms = delta_timestamp
-        timestamp = start_timestamp + delta_timestamp
-
-        # Decode CAN packet with JSONCAN.
-        parsed_signals = can_db.unpack(msg_id=msg_id, data=data_bytes)
-
-        for signal in parsed_signals:
-            signal_name = signal.name
-            signal_value = signal.value
-            signal_unit = signal.unit or ""
-            signal_label = signal.label or ""
-            signals.append(
-                (timestamp, signal_name, signal_value, signal_label, signal_unit)
-            )
-
-    return signals
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -232,6 +123,7 @@ if __name__ == "__main__":
 
     # Parse JSONCAN source files to create CAN database.
     can_db = JsonCanParser(can_data_dir=args.can_json).make_database()
+    decoder = can_logger.Decoder(db=can_db)
 
     # Read and decode all files.
     files = logfs.list_dir()
@@ -239,22 +131,6 @@ if __name__ == "__main__":
         if file_path == "/bootcount.txt":
             # This isn't a log file, ignore.
             continue
-
-        logger.info(f"Opening log file '{file_path}'.")
-        # New: adjust start_timestamp if file_path matches the pattern '/YYYY-MM-DDTXX-XX-XX_BOOTCOUNT.txt'
-        import re
-
-        # match the file path that like this '/2025-05-30T16-55-06_002.txt'
-        m = re.match(
-            r"/(?P<ts>\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})_(?P<bootcount>\d+)\.txt",
-            file_path,
-        )
-        if m:
-            ts_str = m.group("ts")
-            # Convert the time part from format 'HH-MM-SS' to 'HH:MM:SS'
-            ts_str = ts_str[:11] + ts_str[11:].replace("-", ":")
-            start_timestamp = pd.Timestamp(ts_str, tz=get_localzone())
-            start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H_%M")
 
         if (
             files_to_decode is not None
@@ -267,14 +143,8 @@ if __name__ == "__main__":
 
         logger.info(f"Opening log file '{file_path}'.")
         with logfs.open(path=file_path) as file:
-            raw_data = file.read()
-
-            if raw_data == b"":
-                logger.info(f"Skipping file '{file_path}', no data found.")
-                continue
-
             file_path_no_ext, _ = file_path.lstrip("/").split(".")
-            out_name = f"{start_timestamp_no_spaces}_{args.name}_{file_path_no_ext}"
+            out_name = f"{args.name}_{file_path_no_ext}"
             out_path = os.path.join(args.output, out_name + ".csv")
 
             if not os.path.exists(os.path.dirname(out_path)):
@@ -282,16 +152,19 @@ if __name__ == "__main__":
                 os.makedirs(os.path.dirname(out_path))
 
             logger.info(f"Decoding file '{file_path}' to '{out_path}'.")
-            signals = decode_raw_log_to_signals(
-                raw_data=raw_data,
-                can_db=can_db,
-                start_timestamp=start_timestamp,
-            )
+            signals = decoder.decode(metadata=file.read_metadata(), data=file.read())
 
             with open(file=out_path, mode="w+", newline="") as out_file:
                 csv_writer = csv.writer(out_file)
                 csv_writer.writerow(CSV_HEADER)
                 for signal in signals:
+                    row_signal = [
+                        signal.timestamp,
+                        signal.name,
+                        signal.value,
+                        signal.label,
+                        signal.unit,
+                    ]
                     csv_writer.writerow(signal)
 
     if args.mf4:

@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Union
-
+import math
 import pandas as pd
 from strenum import StrEnum
 
@@ -468,7 +468,9 @@ class CanDatabase:
             signal = signal_map[decoded_signal.name]
 
             # Apply scale and offset.
-            raw_value = (decoded_signal.value - signal.offset) // signal.scale
+            raw_value = math.floor(
+                (decoded_signal.value - signal.offset) / signal.scale
+            )
 
             # Shift the bits representing the current signal.
             bitmask = (1 << signal.bits) - 1

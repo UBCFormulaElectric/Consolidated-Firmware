@@ -1,4 +1,5 @@
 import os
+from typing import Optional, Callable
 import sys
 import pandas as pd
 import struct
@@ -29,7 +30,21 @@ MSG_MAGIC = 0xBA
 # Number of bytes to unpack before logging an update
 UNPACK_CHUNK_SIZE_BYTES = 1_000_000
 
+# Timestamp of bootup is stored in metadata section. Fields are:
+# 1. Second (byte)
+# 2. Minute (byte)
+# 3. Hour (byte)
+# 4. Day (byte)
+# 5. Weekday (byte)
+# 6. Month (byte)
+# 7. Year, since 2000 (byte)
 TIMESTAMP_FMT = "<BBBBBBB"
+
+# Every logged CAN message has a header. Fields are:
+# 1. Magic, 0xAB (byte)
+# 2. DLC (byte)
+# 3. Timestamp, in ms (2 bytes)
+# 4. Message ID (4 bytes)
 MSG_HDR_FMT = "<BBHL"
 
 
@@ -37,7 +52,7 @@ class Encoder:
     def __init__(self, db: CanDatabase):
         self.db = db
 
-    def encode_start_timestamp(self, timestamp: pd.Timestamp) -> bytes:
+    def _encode_start_timestamp(self, timestamp: pd.Timestamp) -> bytes:
         return struct.pack(
             TIMESTAMP_FMT,
             timestamp.second,
@@ -49,29 +64,35 @@ class Encoder:
             timestamp.year - 2000,
         )
 
-    def encode_msg(self, msg_id, payload: bytes, timestamp_ms: int) -> bytes:
+    def _encode_msg(self, start_timestamp: pd.Timestamp, msg: DecodedMessage) -> bytes:
+        timestamp_ms = (msg.timestamp - start_timestamp).microseconds // 1000
+        timestamp_ms &= 2**16 - 1
+
+        msg_id, payload = self.db.pack(decoded_msg=msg)
         header = struct.pack(MSG_HDR_FMT, MSG_MAGIC, len(payload), timestamp_ms, msg_id)
         crc = crc8.crc8().update(header).update(payload).digest()
         assert len(crc) == 1
+
         return header + payload + crc
 
-    def encode(self, msgs: list[DecodedMessage]) -> tuple[bytes, bytes]:
+    def encode(
+        self,
+        msgs: list[DecodedMessage],
+        mangle_fn: Optional[Callable] = None,
+    ) -> tuple[bytes, bytes]:
         if len(msgs) == 0:
             return bytes(), bytes()
 
         start_timestamp = msgs[0].timestamp
-        metadata = self.encode_start_timestamp(timestamp=start_timestamp)
+        metadata = self._encode_start_timestamp(timestamp=start_timestamp)
 
         data = bytes()
         for msg in msgs:
-            msg_id, payload = self.db.pack(decoded_msg=msg)
-
-            timestamp_ms = (msg.timestamp - start_timestamp).microseconds // 1000
-            timestamp_ms &= 2**16 - 1
-            encoded_msg = self.encode_msg(
-                msg_id=msg_id, payload=payload, timestamp_ms=timestamp_ms
-            )
-            data += encoded_msg
+            encoded_msg = self._encode_msg(start_timestamp=start_timestamp, msg=msg)
+            if mangle_fn is not None:
+                data += mangle_fn(msg, encoded_msg)
+            else:
+                data += encoded_msg
 
         return metadata, data
 
@@ -80,7 +101,7 @@ class Decoder:
     def __init__(self, db: CanDatabase):
         self.db = db
 
-    def decode_start_timestamp(self, metadata: bytes) -> pd.Timestamp:
+    def _decode_start_timestamp(self, metadata: bytes) -> pd.Timestamp:
         second, minute, hour, day, _weekday, month, year = struct.unpack(
             TIMESTAMP_FMT, metadata[:MSG_HDR_SIZE]
         )
@@ -90,7 +111,7 @@ class Decoder:
         )
         return start_timestamp
 
-    def decode_msg(self, data: bytes):
+    def _decode_msg(self, data: bytes):
         """
         Decode a raw CAN packet. The format is defined in `firmware/shared/src/io/io_canLogging.c`.
         """
@@ -119,10 +140,8 @@ class Decoder:
     def decode(self, metadata: bytes, data: bytes) -> list[DecodedSignal]:
         """
         Decode raw CAN log data into a list of signals.
-        Each signal is represented as a tuple:
-        (timestamp, signal_name, signal_value, signal_label, signal_unit)
         """
-        start_timestamp = self.decode_start_timestamp(metadata=metadata)
+        start_timestamp = self._decode_start_timestamp(metadata=metadata)
 
         signals = []
         last_timestamp_ms = pd.Timedelta(milliseconds=0)
@@ -143,7 +162,7 @@ class Decoder:
             packet_data = data[i:]
 
             try:
-                timestamp_ms, msg_id, data_bytes, size = self.decode_msg(
+                timestamp_ms, msg_id, data_bytes, size = self._decode_msg(
                     data=packet_data
                 )
                 i += size
