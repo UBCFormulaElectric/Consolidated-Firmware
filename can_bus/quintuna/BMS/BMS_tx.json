@@ -253,33 +253,8 @@
       }
     }
   },
-  "CurrentLimit": {
-    "msg_id": 122,
-    "cycle_time": 100,
-    "description": "BMS Current Limit",
-    "signals": {
-      "ChargeCurrentLimit": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 265.5,
-        "unit": "A"
-      },
-      "DischargeCurrentLimit": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 265.5,
-        "unit": "A"
-      },
-      "ChargeCurrentLimitCondition": {
-        "enum": "ChargeCurrentLimitConditionName"
-      },
-      "DischargeCurrentLimitCondition": {
-        "enum": "DischargeCurrentLimitConditionName"
-      }
-    }    
-  },
   "PowerLimit": {
-  "msg_id": 123,
+  "msg_id": 122,
   "cycle_time": 100,
   "description": "BMS Power Limit",
   "signals": {
@@ -296,10 +271,10 @@
       "unit": "W"
     },
     "ChargePowerLimitCondition": {
-      "enum": "ChargePowerLimitConditionName"
+      "enum": "ChargePowerLimitCondition"
     },
     "DischargePowerLimitCondition": {
-      "enum": "DischargePowerLimitConditionName"
+      "enum": "DischargePowerLimitCondition"
     }
   }
 },

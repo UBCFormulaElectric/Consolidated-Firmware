@@ -4,14 +4,6 @@
   "warnings_counts_id": 403,
   "faults_counts_id": 404,
   "warnings": {
-    "CurrentLimitActive": {
-      "id": 116,
-      "description": "Current Limit Active Alert"
-    },
-    "PowerLimitActive": {
-      "id": 117,
-      "description": "Power Limit Active Alert"
-    },
     "TractiveSystemOvercurrent": {
       "id": 101,
       "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
@@ -61,6 +53,14 @@
     "MissingVCHeartbeat": {
       "id": 115,
       "description": "Missing heartbeat from the VC."
+    },
+    "ChargePowerLimitActive": {
+      "id": 116,
+      "description": "A charge power limit is active"
+    },
+    "DischargePowerLimitActive": {
+      "id": 117,
+      "description": "A discharge power limit is active"
     },
     "StackOverflow": {
       "id": 450,
