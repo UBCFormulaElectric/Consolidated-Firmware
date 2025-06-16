@@ -78,36 +78,34 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
         }
         case DRIVE_MODE_POWER_AND_ACTIVE:
         {
-            if (sensor_status.steeringOk)
-            {
-                app_canAlerts_VC_Info_DriveModeOverride_set(false);
-
-                ActiveDifferential_Inputs ad_in = { .accelerator_pedal_percentage = apps_pedal_percentage,
-                                                    .motor_speed_fl_rpm           = motor_speed_fl_rpm,
-                                                    .motor_speed_fr_rpm           = motor_speed_fr_rpm,
-                                                    .motor_speed_rl_rpm           = motor_speed_rl_rpm,
-                                                    .motor_speed_rr_rpm           = motor_speed_rr_rpm,
-                                                    .power_max_kW    = app_powerLimiting_computeMaxPower(false),
-                                                    .wheel_angle_deg = wheel_angle };
-
-                ActiveDifferential_Outputs ad_out;
-
-                app_activeDifferential_computeTorque(&ad_in, &ad_out);
-
-                torqueOutputToMotors->front_left_torque  = ad_out.torque_fl_Nm;
-                torqueOutputToMotors->front_right_torque = ad_out.torque_fr_Nm;
-                torqueOutputToMotors->rear_left_torque   = ad_out.torque_rl_Nm;
-                torqueOutputToMotors->rear_right_torque  = ad_out.torque_rr_Nm;
-
-                const float requested_power = app_totalPower(torqueOutputToMotors);
-                app_torqueReduction(requested_power, ad_in.power_max_kW, torqueOutputToMotors);
-                /// dont use torque allocation here
-            }
-            else
+            if (!sensor_status.steeringOk)
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(true);
                 app_vanillaDrive_run(apps_pedal_percentage, torqueOutputToMotors);
+                break;
             }
+            app_canAlerts_VC_Info_DriveModeOverride_set(false);
+
+            ActiveDifferential_Inputs ad_in = { .accelerator_pedal_percentage = apps_pedal_percentage,
+                                                .motor_speed_fl_rpm           = motor_speed_fl_rpm,
+                                                .motor_speed_fr_rpm           = motor_speed_fr_rpm,
+                                                .motor_speed_rl_rpm           = motor_speed_rl_rpm,
+                                                .motor_speed_rr_rpm           = motor_speed_rr_rpm,
+                                                .power_max_kW    = app_powerLimiting_computeMaxPower(false),
+                                                .wheel_angle_deg = wheel_angle };
+
+            ActiveDifferential_Outputs ad_out;
+
+            app_activeDifferential_computeTorque(&ad_in, &ad_out);
+
+            torqueOutputToMotors->front_left_torque  = ad_out.torque_fl_Nm;
+            torqueOutputToMotors->front_right_torque = ad_out.torque_fr_Nm;
+            torqueOutputToMotors->rear_left_torque   = ad_out.torque_rl_Nm;
+            torqueOutputToMotors->rear_right_torque  = ad_out.torque_rr_Nm;
+
+            const float requested_power = app_totalPower(torqueOutputToMotors);
+            app_torqueReduction(requested_power, ad_in.power_max_kW, torqueOutputToMotors);
+            /// dont use torque allocation here
             break;
         }
         case DRIVE_MODE_TV:
