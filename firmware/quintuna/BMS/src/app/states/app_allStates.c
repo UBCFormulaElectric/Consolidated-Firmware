@@ -37,7 +37,6 @@ void app_allStates_runOnTick100Hz(void)
 
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
-    app_irs_broadcast();
     app_shdnLoop_broadcast();
 
     io_bspdTest_enable(app_canRx_Debug_EnableTestCurrent_get());
@@ -46,6 +45,10 @@ void app_allStates_runOnTick100Hz(void)
     // If charge state has not placed a lock on broadcasting
     // if the charger is charger is connected
     app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
+
+    (void)app_segments_checkWarnings();
+    const bool acc_fault = app_segments_checkFaults();
+    io_faultLatch_setCurrentStatus(&bms_ok_latch, acc_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
 
     // Update CAN signals for BMS latch statuses.
     app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch) == FAULT_LATCH_OK);
@@ -58,9 +61,6 @@ void app_allStates_runOnTick100Hz(void)
     app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
     app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdTest_isAccelBrakeOk());
 
-    (void)app_segments_checkWarnings();
-    const bool acc_fault = app_segments_checkFaults();
-    io_faultLatch_setCurrentStatus(&bms_ok_latch, acc_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
     // // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // // monitoring chips within 3 cycles
     // const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;

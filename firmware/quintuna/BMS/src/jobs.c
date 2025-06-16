@@ -2,6 +2,7 @@
 
 // app
 #include "states/app_states.h"
+#include "states/app_allStates.h"
 #include "app_precharge.h"
 #include "app_segments.h"
 // #include "app_heartbeatMonitors.h"
@@ -12,9 +13,11 @@
 #include "app_canAlerts.h"
 #include "app_timer.h"
 // io
+#include "app_irs.h"
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_canMsg.h"
+#include "io_irs.h"
 #include "io_time.h"
 #include "io_semaphore.h"
 
@@ -90,10 +93,12 @@ void jobs_init()
     app_timer_init(&air_n_debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 
     app_stateMachine_init(&init_state);
+    app_allStates_init();
 }
 
 void jobs_run1Hz_tick(void)
 {
+    app_allStates_runOnTick1Hz();
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -103,18 +108,22 @@ void jobs_run100Hz_tick(void)
 
     app_stateMachine_tick100Hz();
 
-    // const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
-    // const bool ir_negative_opened_debounced =
-    //     app_timer_runIfCondition(&debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
-    // if (ir_negative_opened_debounced)
-    // {
-    //     app_stateMachine_setNextState(&init_state);
-    // }
+    app_allStates_runOnTick100Hz();
+
+    const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
+    const bool ir_negative_opened_debounced =
+        app_timer_runIfCondition(&air_n_debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
+    if (ir_negative_opened_debounced)
+    {
+        app_stateMachine_setNextState(&init_state);
+    }
     if (app_canAlerts_AnyBoardHasFault())
     {
         app_stateMachine_setNextState(&fault_state);
     }
     app_stateMachine_tickTransitionState();
+
+    app_irs_broadcast();
 
     io_canTx_enqueue100HzMsgs();
     io_semaphore_give(&ltc_app_data_lock);
