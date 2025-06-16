@@ -16,7 +16,12 @@ typedef struct
 
 #else
 
-EMPTY_STRUCT(FaultLatch);
+typedef struct
+{
+    const bool read_only;
+    bool       current_status;
+    bool       latched_status;
+} FaultLatch;
 
 #endif
 

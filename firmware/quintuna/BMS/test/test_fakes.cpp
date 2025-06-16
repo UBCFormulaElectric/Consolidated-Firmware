@@ -174,27 +174,35 @@ extern "C"
 
 #include "io_irs.h"
     static bool positive_closed = false;
-    void        io_irs_setPositive(const bool closed)
+    void        io_irs_openPositive()
     {
-        positive_closed = closed;
+        positive_closed = false;
     }
-    bool io_irs_positiveState(void)
+    void io_irs_closePositive()
+    {
+        positive_closed = true;
+    }
+    bool io_irs_isPositiveClosed(void)
     {
         return positive_closed;
     }
 
     static bool precharge_closed = false;
-    void        io_irs_setPrecharge(const bool closed)
+    void        io_irs_openPrecharge()
     {
-        precharge_closed = closed;
+        precharge_closed = false;
     }
-    bool io_irs_prechargeState(void)
+    void io_irs_closePrecharge()
+    {
+        precharge_closed = true;
+    }
+    bool io_irs_isPrechargeClosed(void)
     {
         return precharge_closed;
     }
 
     static bool negative_closed = false;
-    bool        io_irs_negativeState(void)
+    bool        io_irs_isNegativeClosed(void)
     {
         return negative_closed;
     }
@@ -283,22 +291,21 @@ extern "C"
 
 #include "io_faultLatch.h"
     // latches to operate on
-    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false };
-    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
-    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
+    const FaultLatch bms_ok_latch  = { .read_only = false, .current_status = true, .latched_status = true };
+    const FaultLatch imd_ok_latch  = { .read_only = true, .current_status = true, .latched_status = true };
+    const FaultLatch bspd_ok_latch = { .read_only = true, .current_status = true, .latched_status = true };
 
-    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
+    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, bool is_ok)
     {
-        assert(!latch->read_only);
-        fakes::faultLatches::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
+        fakes::faultLatches::updateFaultLatch(const_cast<FaultLatch *>(latch), is_ok);
     }
-    FaultLatchState io_faultLatch_getCurrentStatus(const FaultLatch *latch)
+    bool io_faultLatch_getCurrentStatus(const FaultLatch *latch)
     {
-        return latch->status;
+        return latch->current_status;
     }
-    FaultLatchState io_faultLatch_getLatchedStatus(const FaultLatch *latch)
+    bool io_faultLatch_getLatchedStatus(const FaultLatch *latch)
     {
-        return latch->latched_state;
+        return latch->latched_status;
     }
 
 #include "io_bspdTest.h"
@@ -365,15 +372,15 @@ namespace tractiveSystem
 
 namespace faultLatches
 {
-    void resetFaultLatch(const FaultLatch *latch)
+    void resetFaultLatch(FaultLatch *latch)
     {
-        const_cast<FaultLatch *>(latch)->status        = FAULT_LATCH_OK;
-        const_cast<FaultLatch *>(latch)->latched_state = FAULT_LATCH_OK;
+        latch->current_status = true;
+        latch->latched_status = true;
     }
-    void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
+    void updateFaultLatch(FaultLatch *latch, const bool is_ok)
     {
-        latch->status        = status;
-        latch->latched_state = latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
+        latch->current_status = is_ok;
+        latch->latched_status = latch->latched_status ? latch->current_status : false;
     }
 } // namespace faultLatches
 

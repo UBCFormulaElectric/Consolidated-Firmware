@@ -1,11 +1,19 @@
 #pragma once
 #include "ecuTestBase.hpp"
+
 #include "test_fakes.h"
 
 extern "C"
 {
 #include "jobs.h"
-#include "states/app_states.h"
+#include "states/app_initState.h"
+#include "states/app_faultState.h"
+#include "states/app_chargeState.h"
+#include "states/app_prechargeLatchState.h"
+#include "states/app_prechargeDriveState.h"
+#include "states/app_prechargeChargeState.h"
+#include "states/app_driveState.h"
+#include "states/app_balancingState.h"
 #include "app_canRx.h"
 #include "io_canRx.h"
 }
@@ -43,16 +51,14 @@ class BMSBaseTest : public EcuTestBase
         bool         requires_irs_negative_closed;
         bool         requires_fault;
     };
-    std::array<StateMetadata, 7> state_metadata = { {
-        { &init_state, BMS_INIT_STATE, false, false },
-        { &fault_state, BMS_FAULT_STATE, false, true },
-        // { &precharge_drive_state, BMS_PRECHARGE_DRIVE_STATE, true, false },
-        // { &drive_state, BMS_DRIVE_STATE, true, false },
-        // { &balancing_state, BMS_BALANCING_STATE, true, false },
-        { &precharge_latch_state, BMS_PRECHARGE_LATCH_STATE, true, false },
-        { &precharge_charge_state, BMS_PRECHARGE_CHARGE_STATE, true, false },
-        { &charge_state, BMS_CHARGE_STATE, true, false },
-        { &charge_init_state, BMS_CHARGE_INIT_STATE, true, false },
-        { &charge_fault_state, BMS_CHARGE_FAULT_STATE, true, false },
+    std::array<StateMetadata, 8> state_metadata = { {
+        { app_initState_get(), BMS_INIT_STATE, false, false },
+        { app_faultState_get(), BMS_FAULT_STATE, false, true },
+        { app_prechargeDriveState_get(), BMS_PRECHARGE_DRIVE_STATE, true, false },
+        { app_driveState_get(), BMS_DRIVE_STATE, true, false },
+        { app_balancingState_get(), BMS_BALANCING_STATE, true, false },
+        { app_prechargeLatchState_get(), BMS_PRECHARGE_LATCH_STATE, true, false },
+        { app_prechargeChargeState_get(), BMS_PRECHARGE_CHARGE_STATE, true, false },
+        { app_chargeState_get(), BMS_CHARGE_STATE, true, false },
     } };
 };

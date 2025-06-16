@@ -28,7 +28,7 @@ namespace tractiveSystem
 namespace faultLatches
 {
     void resetFaultLatch(const FaultLatch *latch);
-    void updateFaultLatch(FaultLatch *latch, FaultLatchState status);
+    void updateFaultLatch(FaultLatch *latch, bool is_ok);
 } // namespace faultLatches
 
 namespace imd

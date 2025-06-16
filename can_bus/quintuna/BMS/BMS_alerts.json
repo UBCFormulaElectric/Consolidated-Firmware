@@ -41,10 +41,6 @@
     "ModuleCommunicationError": {
       "id": 157,
       "description": "Failed to communicate with LTC6813 modules."
-    },
-    "TESTFAULT": {
-      "id": 999,
-      "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
   "info_id": 405,
