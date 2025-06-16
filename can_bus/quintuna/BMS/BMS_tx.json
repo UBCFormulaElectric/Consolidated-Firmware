@@ -138,12 +138,6 @@
         "min": 0,
         "max": 100000,
         "unit": "W"
-      },
-      "BSPDCurrentThresholdExceeded": {
-        "bits": 1
-      },
-      "BSPDAccelBrakeOk": {
-        "bits": 1
       }
     }
   },
@@ -152,7 +146,7 @@
     "cycle_time": 100,
     "description": "BSPD Status",
     "signals":{
-      "BSPDBrakePressureExceeded": {
+      "BSPDBrakePressureThresholdExceeded": {
         "bits": 1
       },
       "BSPDCurrentThresholdExceeded": {

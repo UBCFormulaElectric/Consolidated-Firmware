@@ -65,7 +65,7 @@ PrechargeState app_precharge_poll(const bool precharge_for_charging)
     const float ts_voltage        = app_tractiveSystem_getVoltage();
     const float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 
-    const bool is_air_negative_open = io_irs_negativeState() == IRS_OPEN;
+    const bool is_air_negative_open = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool is_ts_rising_slowly =
         ts_voltage < threshold_voltage && app_timer_updateAndGetState(&upper_bound_timer) == TIMER_STATE_EXPIRED;
     const bool is_ts_rising_quickly =

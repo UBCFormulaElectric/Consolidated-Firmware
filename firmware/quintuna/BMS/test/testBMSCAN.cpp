@@ -14,8 +14,8 @@ class BMSCanTest : public BMSBaseTest
   protected:
     static void enforceStatePreconditions(const StateMetadata &metadata)
     {
-        fakes::irs::setNegativeState(metadata.requires_irs_negative_closed ? IRS_CLOSED : IRS_OPEN);
-        ASSERT_EQ(io_irs_negativeState(), metadata.requires_irs_negative_closed ? IRS_CLOSED : IRS_OPEN)
+        fakes::irs::setNegativeState(metadata.requires_irs_negative_closed ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+        ASSERT_EQ(io_irs_negativeState(), metadata.requires_irs_negative_closed ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN)
             << "Expected IRS negative state to be " << (metadata.requires_irs_negative_closed ? "CLOSED" : "OPEN")
             << " in state: " << metadata.state->name;
         app_canAlerts_BMS_Fault_TESTFAULT_set(metadata.requires_fault);
@@ -113,19 +113,19 @@ TEST_F(BMSCanTest, check_air_positive_can_signals_for_all_states)
         app_stateMachine_setCurrentState(metadata.state);
         ASSERT_STATE_EQ(metadata.state);
 
-        io_irs_setPositive(IRS_CLOSED);
-        // io_irs_setPrecharge(IRS_CLOSED);
+        io_irs_setPositive(CONTACTOR_STATE_CLOSED);
+        // io_irs_setPrecharge(CONTACTOR_STATE_CLOSED);
         LetTimePass(10);
-        ASSERT_EQ(io_irs_positiveState(), IRS_CLOSED)
+        ASSERT_EQ(io_irs_positiveState(), CONTACTOR_STATE_CLOSED)
             << "Expected contactors closed in state: " << metadata.state->name;
-        // ASSERT_EQ(io_irs_prechargeState(), IRS_CLOSED)
+        // ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED)
         //     << "Expected precharge closed in state: " << metadata.state->name;
 
-        io_irs_setPositive(IRS_OPEN);
-        // io_irs_setPrecharge(IRS_OPEN);
+        io_irs_setPositive(CONTACTOR_STATE_OPEN);
+        // io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
         LetTimePass(10);
-        ASSERT_EQ(io_irs_positiveState(), IRS_OPEN) << "Expected contactors open in state: " << metadata.state->name;
-        // ASSERT_EQ(io_irs_prechargeState(), IRS_OPEN) << "Expected precharge open in state: " << metadata.state->name;
+        ASSERT_EQ(io_irs_positiveState(), CONTACTOR_STATE_OPEN) << "Expected contactors open in state: " << metadata.state->name;
+        // ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_OPEN) << "Expected precharge open in state: " << metadata.state->name;
     }
 }
 

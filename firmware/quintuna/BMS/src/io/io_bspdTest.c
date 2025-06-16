@@ -16,7 +16,7 @@ bool io_bspdTest_isBrakePressureThresholdExceeded(void)
     return !hw_gpio_readPin(&n_brake_press_3v3_pin);
 }
 
-bool io_bspdConditions_isAccelBrakeOk(void)
+bool io_bspdTest_isAccelBrakeOk(void)
 {
     return hw_gpio_readPin(&accel_brake_ok_pin);
 }

@@ -168,7 +168,7 @@ static void app_chargeStateRunOnEntry(void)
     app_canTx_BMS_ChargingFaulted_set(false);
     app_canTx_BMS_ChargingDone_set(false);
 
-    io_irs_setPositive(IRS_CLOSED);
+    io_irs_setPositive(CONTACTOR_STATE_CLOSED);
 
     app_timer_init(&elcon_err_debounce, ELCON_ERR_DEBOUNCE_MS);
 }
@@ -176,7 +176,7 @@ static void app_chargeStateRunOnEntry(void)
 static void app_chargeStateRunOnTick100Hz(void)
 {
     // const ConnectionStatus charger_connection_status = CHARGER_CONNECTED_EVSE; // io_charger_getConnectionStatus();
-    const bool extShutdown = io_irs_negativeState() == IRS_OPEN;
+    const bool extShutdown = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);
     const bool userEnable  = app_canRx_Debug_StartCharging_get();
 

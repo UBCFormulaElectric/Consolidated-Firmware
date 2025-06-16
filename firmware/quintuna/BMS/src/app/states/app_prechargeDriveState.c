@@ -22,21 +22,21 @@ static void app_prechargeDriveStateRunOnTick100Hz(void)
     switch (app_precharge_poll(false))
     {
         case PRECHARGE_STATE_COOLDOWN:
-            io_irs_setPrecharge(IRS_OPEN);
+            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
             break;
         case PRECHARGE_STATE_RUNNING:
-            io_irs_setPrecharge(IRS_CLOSED);
+            io_irs_setPrecharge(CONTACTOR_STATE_CLOSED);
             break;
         case PRECHARGE_STATE_FAILED_CRITICAL: // precharge failed multiple times
-            io_irs_setPrecharge(IRS_OPEN);
+            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
             app_stateMachine_setNextState(&precharge_latch_state);
             break;
         case PRECHARGE_STATE_FAILED:
-            io_irs_setPrecharge(IRS_OPEN);
+            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
             LOG_ERROR("precharge failed, retrying");
             break;
         case PRECHARGE_STATE_SUCCESS:
-            io_irs_setPositive(IRS_CLOSED); // i am not sure this is smart? cause if all states overrides into fault
+            io_irs_setPositive(CONTACTOR_STATE_CLOSED); // i am not sure this is smart? cause if all states overrides into fault
                                             // state, does it close contactors in time?
             // also on the other hand you want to close positive before you open precharge, so i guess?? but i think the
             // time between the two should be very minimal since they get handled in the onentry and onexit of each
@@ -51,7 +51,7 @@ static void app_prechargeDriveStateRunOnTick100Hz(void)
 
 static void app_prechargeDriveStateRunOnExit(void)
 {
-    io_irs_setPrecharge(IRS_OPEN);
+    io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
 }
 
 const State precharge_drive_state = {

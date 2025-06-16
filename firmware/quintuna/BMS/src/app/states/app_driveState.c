@@ -9,12 +9,15 @@ static void driveStateRunOnEntry(void)
     app_canTx_BMS_State_set(BMS_DRIVE_STATE);
 }
 
-static void driveStateRunOnTick100Hz(void) {}
+static void driveStateRunOnTick100Hz(void) 
+{
+
+}
 
 static void driveStateRunOnExit(void)
 {
     // IR+ opens upon exiting drive state
-    io_irs_setPositive(IRS_OPEN);
+    io_irs_setPositive(CONTACTOR_STATE_OPEN);
 }
 
 const State drive_state = {

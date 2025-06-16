@@ -14,7 +14,7 @@ namespace fakes
 {
 namespace irs
 {
-    void setNegativeState(IRsState state);
+    void setNegativeState(ContactorState state);
 }
 namespace tractiveSystem
 {
