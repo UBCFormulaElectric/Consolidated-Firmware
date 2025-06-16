@@ -9,7 +9,7 @@
  * the battery power limit (calculated by BMS), and accelerator pedal position.
  * @return A float for the maximum power allowed from the motor,
  */
-float app_powerLimiting_computeMaxPower(bool isRegenOn)
+float app_powerLimiting_computeMaxPower(const bool isRegenOn)
 { /**
    *  AMK INVERTER DOES TEMPERATURE BASED LIMITING... USING THAT TEMP > 40 starts derating && TEMP > 60  = inverter off
    */
