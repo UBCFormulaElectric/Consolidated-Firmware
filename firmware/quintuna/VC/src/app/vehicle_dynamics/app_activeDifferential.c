@@ -3,47 +3,57 @@
 #include <math.h>
 #include "app_units.h"
 #include "app_utils.h"
-#include <stdlib.h>
+
+static float powerToTorque(
+    const float power_kW,
+    const float motor_speed_fl_rpm,
+    const float motor_speed_fr_rpm,
+    const float motor_speed_rl_rpm,
+    const float motor_speed_rr_rpm,
+    const float cl,
+    const float cr)
+{
+    // TODO: Change conversion factor for AMK inverters
+    return POWER_TO_TORQUE_CONVERSION_FACTOR * power_kW /
+           ((motor_speed_fl_rpm + motor_speed_fr_rpm) * cl + (motor_speed_rl_rpm + motor_speed_rr_rpm) * cr +
+            SMALL_EPSILON);
+}
 
 void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)
 {
     const float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
-    const float cl    = 1 + Delta;
-    const float cr    = 1 - Delta;
+    const float cl = inputs->is_regen_mode ? 1 - Delta : 1 + Delta, cr = inputs->is_regen_mode ? 1 + Delta : 1 - Delta;
 
-    const float torque_lim_Nm = app_activeDifferential_powerToTorque(
-        inputs->power_max_kW, inputs->motor_speed_left_rpm, inputs->motor_speed_right_rpm, cl, cr);
+    const float torque_lim_Nm = powerToTorque(
+        inputs->power_max_kW, inputs->motor_speed_fl_rpm, inputs->motor_speed_fr_rpm, inputs->motor_speed_rl_rpm,
+        inputs->motor_speed_rr_rpm, cl, cr);
 
-    const float torque_left_Nm  = inputs->requested_torque * (1 + Delta);
-    const float torque_right_Nm = inputs->requested_torque * (1 - Delta);
-    const float torque_max_Nm   = fmaxf(torque_left_Nm, torque_right_Nm);
+    const float torque_left_Nm         = inputs->requested_torque_Nm * cl;
+    const float torque_right_Nm        = inputs->requested_torque_Nm * cr;
+    const float torque_max_Nm          = fmaxf(torque_left_Nm, torque_right_Nm);
+    const float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
 
-    float scale = 1.0f;
-    if (torque_max_Nm > torque_lim_Nm)
+    float scale = CLAMP_TO_ONE(inputs->derating_value);
+
+    if (inputs->is_regen_mode && torque_negative_max_Nm < -torque_lim_Nm)
+    {
+        scale *= -torque_lim_Nm / torque_negative_max_Nm;
+    }
+    else if (!inputs->is_regen_mode && torque_max_Nm > torque_lim_Nm)
     {
         scale = torque_lim_Nm / torque_max_Nm;
     }
 
-    outputs->torque_left_Nm  = torque_left_Nm * scale;
-    outputs->torque_right_Nm = torque_right_Nm * scale;
+    outputs->torque_fl_Nm = torque_left_Nm * scale;
+    outputs->torque_fr_Nm = torque_right_Nm * scale;
+    outputs->torque_rl_Nm = torque_left_Nm * scale;
+    outputs->torque_rr_Nm = torque_right_Nm * scale;
 }
 
 float app_activeDifferential_wheelAngleToSpeedDelta(const float wheel_angle_deg)
 {
-    // equation below derrived from https://ieeexplore.ieee.org/document/6635706 equation 11
-    // angle > 0 = right5
-    // angle < = left
+    // equation below derived from https://ieeexplore.ieee.org/document/6635706 equation 11
+    // angle > 0 = right, angle < 0 = left
 
     return TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_deg)) / (2 * WHEELBASE_mm);
-}
-
-float app_activeDifferential_powerToTorque(
-    const float power_kW,
-    const float left_motor_speed_rpm,
-    const float right_motor_speed_rpm,
-    const float cl,
-    const float cr)
-{
-    return (POWER_TO_TORQUE_CONVERSION_FACTOR * power_kW) /
-           (left_motor_speed_rpm * cl + right_motor_speed_rpm * cr + SMALL_EPSILON);
 }

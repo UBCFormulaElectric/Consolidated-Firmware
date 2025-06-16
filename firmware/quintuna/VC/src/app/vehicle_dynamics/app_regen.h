@@ -4,21 +4,16 @@
 
 #define MIN_SCALING_SPEED_kph 35.0f
 #define SPEED_MIN_kph 5.0f
-#define SOC_LIMIT_DERATING_VALUE 0.85f;
-#define PEDAL_SCALE 0.3f
+#define SOC_LIMIT_DERATING_VALUE 0.85f
+#define PEDAL_SCALE 0.2f // 0.25f, 0.3f
 #define MAX_PEDAL_PERCENT 1.0f
-
-/**
- * Initialize regen related attributes
- */
-void app_regen_init(void);
 
 /**
  * Runs when pedal percentage is in range [-100, 0] and does safety checks
  * before calculating and sending regenerative braking negative torque requests
  * @param accelerator_pedal_percentage is the pedal percentage
  */
-void app_regen_run(float accelerator_pedal_percentage);
+void app_regen_run(float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
 
 /**
  * Check if conditions allow for regenerative braking, if not reset
@@ -30,24 +25,11 @@ void app_regen_run(float accelerator_pedal_percentage);
 bool app_regen_safetyCheck(struct RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs);
 
 /**
- * Activate torque requests for regen
- * @param left is the left inverter torque request
- * @param right is the right inverter torque request
- */
-void app_regen_sendTorqueRequest(float left, float right);
-
-/**
- * Activate torque requests for regen
- * @param inputs are inputs for active differential
- * @param regenAttr struct provides for torque request
- * @param torqueRequest is the torque requst used in active
- * differential
- */
-void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr);
-
-/**
  * Remap Papps and Sapps pedal percentage
  * @param apps_pedal_percentage is the FSM given pedal percentage
- * @return remap pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+ * @return remap pedal percentage from [0.0, 1.0] to
+ * regen range:        [0%-20%) [-0.2, 0.0) which then gets mapped [-1.0, 0.0)
+ * cruising range:     [20%-30%) [0.0, 0.1) which then gets mapped to [0.0]
+ * acceleration range: [30%-100%] [0.1, 0.8] which then gets mapped (0.0, 1.0]
  */
 float app_regen_pedalRemapping(float apps_pedal_percentage);
