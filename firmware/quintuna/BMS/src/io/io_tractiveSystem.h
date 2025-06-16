@@ -25,3 +25,15 @@ float io_tractiveSystem_getCurrentHighResolution(void);
  * @return Main current from low resolution sensor.
  */
 float io_tractiveSystem_getCurrentLowResolution(void);
+
+/**
+ * Get the state of the diagnostic output pin on the voltage sensor.
+ * @return Status of gpio pin for voltage sensor diagnostics.
+ */
+bool io_tractiveSystem_getVoltageDiagState(void);
+
+/**
+ * Get the state of the "open circuit"/"short circuit" output pin on the current sensor.
+ * @return Status of gpio pin for current sensor ocsc.
+ */
+bool io_tractiveSystem_getCurrentDiagState(void);

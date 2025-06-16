@@ -218,6 +218,18 @@ extern "C"
         return currentLowResolution;
     }
 
+    static bool voltageDiagState = true;
+    bool        io_tractiveSystem_getVoltageDiagState(void)
+    {
+        return voltageDiagState;
+    }
+
+    static bool currentDiagState = true;
+    bool        io_tractiveSystem_getCurrentDiagState(void)
+    {
+        return currentDiagState;
+    }
+
 #include "io_charger.h"
     static ChargerConnectedType connectionStatus = CHARGER_DISCONNECTED;
     ChargerConnectedType        io_charger_getConnectionStatus()
@@ -340,6 +352,14 @@ namespace tractiveSystem
     void setCurrentLowResolution(const float current)
     {
         currentLowResolution = current;
+    }
+    void setVoltageDiagState(const bool state)
+    {
+        voltageDiagState = state;
+    }
+    void setCurrentDiagState(const bool state)
+    {
+        currentDiagState = state;
     }
 } // namespace tractiveSystem
 

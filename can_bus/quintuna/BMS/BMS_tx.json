@@ -138,6 +138,12 @@
         "min": 0,
         "max": 100000,
         "unit": "W"
+      },
+      "VoltageDiagState":{
+        "bits": 1
+      },
+      "CurrentDiagState":{
+        "bits": 1
       }
     }
   },
