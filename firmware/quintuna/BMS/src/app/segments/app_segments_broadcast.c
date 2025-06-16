@@ -7,6 +7,7 @@
 #include <app_canTx.h>
 #include <string.h>
 #include <float.h>
+#include <stdlib.h>
 
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * 1E-4f)
 #define CONVERT_VOLTAGE_TO_100UV(v) ((uint16_t)(v * 1E4f))

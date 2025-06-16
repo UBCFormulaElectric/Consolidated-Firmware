@@ -1,3 +1,4 @@
+#include "app_canUtils.h"
 #include "app_stateMachine.h"
 #include "app_chargeState.h"
 #include "app_initState.h"
@@ -15,7 +16,7 @@
 #define CHARGING_CUTOFF_MAX_CELL_VOLTAGE 4.15f
 
 // Charger / pack constants
-#define PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
+#define PACK_VOLTAGE_DC 581.0f   // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
 #define CHARGER_EFFICIENCY 0.93f // 93% – average DC-side efficiency of the Elcon
 
 // Charger’s own output limit (never command above this)
@@ -177,10 +178,10 @@ static void app_chargeStateRunOnEntry(void)
 
 static void app_chargeStateRunOnTick100Hz(void)
 {
-    const ConnectionStatus charger_connection_status = EVSE_CONNECTED; // io_charger_getConnectionStatus();
-    const bool             extShutdown               = !io_irs_isNegativeClosed();
-    const bool             chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
-    const bool             userEnable  = app_canRx_Debug_StartCharging_get();
+    const ChargerConnectedType charger_connection_status = CHARGER_CONNECTED_EVSE; // io_charger_getConnectionStatus();
+    const bool                 extShutdown               = !io_irs_isNegativeClosed();
+    const bool                 chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
+    const bool                 userEnable  = app_canRx_Debug_StartCharging_get();
 
     const ElconRx rx = readElconStatus();
 

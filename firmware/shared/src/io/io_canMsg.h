@@ -7,7 +7,7 @@
 #elif STM32H733xx
 #define CAN_PAYLOAD_BYTES 64
 #else
-#error "Please define what MCU is used."
+#define CAN_PAYLOAD_BYTES 64
 #endif
 
 typedef struct
