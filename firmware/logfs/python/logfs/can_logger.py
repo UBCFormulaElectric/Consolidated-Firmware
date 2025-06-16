@@ -85,8 +85,6 @@ class Decoder:
         if calculated_crc != rxed_crc:
             raise RuntimeError(f"CRC mismatch while trying to decode a CAN message")
 
-        print("what?")
-
         return timestamp_ms, msg_id, data_bytes, size
 
     def decode(self, metadata: bytes, data: bytes) -> list[DecodedSignal]:
@@ -121,7 +119,9 @@ class Decoder:
                 )
                 i += size
             except Exception as err:
-                print(f"Exception raised while trying to decode a CAN message: {err}")
+                logger.warning(
+                    f"Exception raised while trying to decode a CAN message: {err}"
+                )
                 i += 1
                 continue
 
