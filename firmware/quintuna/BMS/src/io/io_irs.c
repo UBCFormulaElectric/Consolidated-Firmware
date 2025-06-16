@@ -1,11 +1,5 @@
 #include "io_irs.h"
-
 #include "hw_gpios.h"
-#include "hw_adcs.h"
-
-#include "app_canUtils.h"
-
-#include <math.h>
 
 // Shunt resistor used to measure IR loop current
 #define IR_TOTAL_ISENSE_SHUNT_R_OHMS (0.075f)

@@ -111,54 +111,21 @@ void jobs_run1Hz_tick(void)
 void jobs_run100Hz_tick(void)
 {
     io_semaphore_take(&ltc_app_data_lock, MAX_TIMEOUT);
-    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
-
-    // app_heartbeatMonitor_checkIn(&hb_monitor);
-    // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-
-    io_bspdTest_enable(app_canRx_Debug_EnableTestCurrent_get());
-    (void)app_segments_checkWarnings();
-    const bool ams_fault = app_segments_checkFaults();
-    io_faultLatch_setCurrentStatus(&bms_ok_latch, ams_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
 
     app_stateMachine_tick100Hz();
 
-    const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
-    const bool ir_negative_opened_debounced =
-        app_timer_runIfCondition(&debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
-    if (ir_negative_opened_debounced)
-    {
-        app_stateMachine_setNextState(&init_state);
-    }
-
+    // const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
+    // const bool ir_negative_opened_debounced =
+    //     app_timer_runIfCondition(&debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
+    // if (ir_negative_opened_debounced)
+    // {
+    //     app_stateMachine_setNextState(&init_state);
+    // }
     if (app_canAlerts_AnyBoardHasFault())
     {
         app_stateMachine_setNextState(&fault_state);
     }
     app_stateMachine_tickTransitionState();
-
-    // broadcast after all state machine transitions as to provide latest up to date information
-
-    app_tractiveSystem_broadcast();
-    app_imd_broadcast();
-    app_irs_broadcast();
-    app_shdnLoop_broadcast();
-
-    app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_BmsLatchOk_set(io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch) == FAULT_LATCH_OK);
-    app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
-
-    // If charge state has not placed a lock on broadcasting
-    // if the charger is charger is connected
-    app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
-
-    app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
-    app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
-    app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdTest_isAccelBrakeOk());
 
     io_canTx_enqueue100HzMsgs();
     io_semaphore_give(&ltc_app_data_lock);
