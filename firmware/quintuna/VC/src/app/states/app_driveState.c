@@ -96,7 +96,7 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     {
         app_driveMode_run(apps_pedal_percentage, &torqueOutputToMotors);
     }
-    
+
     app_torqueBroadCast(&torqueOutputToMotors);
 }
 
@@ -190,7 +190,6 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_RegenEnabled_set(false);
     app_canTx_VC_TorqueVectoringEnabled_set(false);
 }
-
 
 State drive_state = {
     .name              = "DRIVE",

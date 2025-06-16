@@ -70,7 +70,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
 
             torqueToMotorsInputs.front_yaw_moment    = 0.0f;
             torqueToMotorsInputs.rear_yaw_moment     = 0.0f;
-            torqueToMotorsInputs.load_transfer_const = 0.0f;
+            torqueToMotorsInputs.load_transfer_const = 1.0f;
             torqueToMotorsInputs.power_limit_kw      = app_powerLimiting_computeMaxPower(false);
             app_torqueAllocation(&torqueToMotorsInputs, torqueOutputToMotors);
             break;

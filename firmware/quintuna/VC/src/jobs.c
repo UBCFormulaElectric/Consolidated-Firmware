@@ -46,8 +46,6 @@ static TimerChannel air_minus_open_debounce_timer;
 
 void jobs_init()
 {
-    ExitCode exit;
-
     app_canTx_init();
     app_canRx_init();
 
@@ -61,13 +59,11 @@ void jobs_init()
     io_canQueue_initTx(&can2_tx_queue);
     io_canQueue_initTx(&can3_tx_queue);
 
-    exit = io_sbgEllipse_init();
-    app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exit));
-    ASSERT_EXIT_OK(exit);
+    ExitCode exitSbg = io_sbgEllipse_init();
+    app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
 
-    exit = io_imu_init();
-    app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exit));
-    ASSERT_EXIT_OK(exit);
+    ExitCode exitImu = io_imu_init();
+    app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
 
     app_stateMachine_init(&init_state);
 
