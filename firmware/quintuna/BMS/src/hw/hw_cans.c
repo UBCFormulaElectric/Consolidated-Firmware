@@ -3,7 +3,6 @@
 #include "io_canMsg.h"
 #include "io_canQueue.h"
 #include "main.h"
-#include "io_canQueue.h"
 
 #include <assert.h>
 #include <io_canRx.h>
