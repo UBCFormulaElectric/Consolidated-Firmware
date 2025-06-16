@@ -6,8 +6,8 @@ class RsmAppTest : public RsmBaseStateMachineTest
   protected:
     template <typename T>
     void CheckInRangeCanSignals(
-        float min_val,
-        float max_val,
+        const float min_val,
+        const float max_val,
         void (*fake_setter)(float),
         T (*can_signal_val_getter)(),
         bool (*alert_getter)())
