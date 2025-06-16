@@ -95,6 +95,8 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_sd_ex.c"
             "stm32h7xx_hal_sd.c"
             "stm32h7xx_hal_spi.c"
+            "stm32h7xx_hal_crc.c"
+            "stm32h7xx_hal_crc_ex.c"
             "stm32h7xx_hal_pcd.c"
             "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_hal_tim_ex.c"
