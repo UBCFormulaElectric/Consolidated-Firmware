@@ -84,9 +84,9 @@ extern "C"
     }
 
     static std::array<std::array<uint16_t, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> aux_regs_storage{};
-    
+
     bool started_therm_adc_conversion = false;
-    bool started_self_test_aux = false;
+    bool started_self_test_aux        = false;
 
     void io_ltc6813_readAuxRegisters(
         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
@@ -174,7 +174,7 @@ extern "C"
 
 #include "io_irs.h"
     static ContactorState positive_state = CONTACTOR_STATE_OPEN;
-    void            io_irs_setPositive(const ContactorState state)
+    void                  io_irs_setPositive(const ContactorState state)
     {
         positive_state = state;
     }
@@ -184,7 +184,7 @@ extern "C"
     }
 
     static ContactorState precharge_state = CONTACTOR_STATE_OPEN;
-    void            io_irs_setPrecharge(const ContactorState state)
+    void                  io_irs_setPrecharge(const ContactorState state)
     {
         precharge_state = state;
     }
@@ -392,7 +392,8 @@ namespace segments
         {
             for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
-                aux_regs_storage[i][j] = static_cast<uint16_t>(temperatures[i][j] * 1000);  //Not sure if conversion is correct
+                aux_regs_storage[i][j] =
+                    static_cast<uint16_t>(temperatures[i][j] * 1000); // Not sure if conversion is correct
             }
         }
     }

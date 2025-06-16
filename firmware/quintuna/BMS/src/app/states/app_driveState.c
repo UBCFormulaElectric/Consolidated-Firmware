@@ -9,10 +9,7 @@ static void driveStateRunOnEntry(void)
     app_canTx_BMS_State_set(BMS_DRIVE_STATE);
 }
 
-static void driveStateRunOnTick100Hz(void) 
-{
-
-}
+static void driveStateRunOnTick100Hz(void) {}
 
 static void driveStateRunOnExit(void)
 {

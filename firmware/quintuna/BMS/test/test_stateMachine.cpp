@@ -99,7 +99,8 @@ TEST_F(BmsStateMachineTest, stays_in_fault_state_if_ir_negative_closes)
     ASSERT_STATE_EQ(&fault_state);
 }
 
-TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch){
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch)
+{
     app_stateMachine_setCurrentState(&drive_state);
     fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
@@ -115,7 +116,8 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch){
     ASSERT_FALSE(app_canTx_BMS_ImdLatchOk_get());
 }
 
-TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch){
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch)
+{
     app_stateMachine_setCurrentState(&drive_state);
     fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
@@ -131,7 +133,8 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch){
     ASSERT_FALSE(app_canTx_BMS_BmsLatchOk_get());
 }
 
-TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch){
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch)
+{
     app_stateMachine_setCurrentState(&drive_state);
     fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
@@ -180,7 +183,7 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
             cell_voltages_arr[seg][cell] = 2.6f;
         }
     }
-    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 2.49f; 
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 2.49f;
     io_ltc6813_startCellsAdcConversion();
     fakes::segments::setCellVoltages(cell_voltages_arr);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
@@ -206,7 +209,7 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
 //     fakes::segments::setCellTemperatures(cell_temps_arr);
 //     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
 //     LetTimePass(10010);
-//     LetTimePass(1000); 
+//     LetTimePass(1000);
 //     ASSERT_STATE_EQ(&fault_state);
 //     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 //     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
@@ -270,7 +273,8 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
         if (retry == precharge_retries - 1)
             break;
         int open_time;
-        for (open_time = 0; io_irs_prechargeState() == CONTACTOR_STATE_OPEN && open_time < precharge_cooldown_ub; open_time += 10)
+        for (open_time = 0; io_irs_prechargeState() == CONTACTOR_STATE_OPEN && open_time < precharge_cooldown_ub;
+             open_time += 10)
         {
             ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
             LetTimePass(10);
