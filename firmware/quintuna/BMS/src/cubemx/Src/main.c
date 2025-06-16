@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -268,7 +267,6 @@ int main(void)
     MX_TIM5_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -1178,6 +1176,7 @@ void RunTask100Hz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_run100Hz();
     /* USER CODE END 5 */
 }
@@ -1192,6 +1191,7 @@ void RunTask100Hz(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
@@ -1206,6 +1206,7 @@ void RunTaskCanRx(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
@@ -1220,6 +1221,7 @@ void RunTaskCanTx(void *argument)
 void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
@@ -1234,6 +1236,7 @@ void RunTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
@@ -1248,7 +1251,7 @@ void RunTask1Hz(void *argument)
 void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunTaskChimera */
-    /* Infinite loop */
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
@@ -1263,11 +1266,8 @@ void RunTaskChimera(void *argument)
 void RunTaskLtcVoltages(void *argument)
 {
     /* USER CODE BEGIN RunTaskLtcVoltages */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    tasks_runLtcVoltages();
     /* USER CODE END RunTaskLtcVoltages */
 }
 
@@ -1281,11 +1281,8 @@ void RunTaskLtcVoltages(void *argument)
 void RunTaskLtcTemps(void *argument)
 {
     /* USER CODE BEGIN RunTaskLtcTemps */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    tasks_runLtcTemps();
     /* USER CODE END RunTaskLtcTemps */
 }
 
@@ -1299,11 +1296,8 @@ void RunTaskLtcTemps(void *argument)
 void RunTaskLtcDiag(void *argument)
 {
     /* USER CODE BEGIN RunTaskLtcDiag */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    tasks_runLtcDiagnostics();
     /* USER CODE END RunTaskLtcDiag */
 }
 
@@ -1317,11 +1311,22 @@ void RunTaskLtcDiag(void *argument)
 void RunTaskInit(void *argument)
 {
     /* USER CODE BEGIN RunTaskInit */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    // Some init code needs to run *after* the scheduler has started. The mechanism here is this task is the highest
+    // priority, but also needs to block all other tasks since if it yields then other tasks might jump in before init
+    // is complete. This is accomplished with task notifications.
+    // TODO: Will need to think about this a bit harder when we re-enable the watchdog...
+    tasks_init();
+
+    xTaskNotifyGive(Task1kHzHandle);
+    xTaskNotifyGive(Task100HzHandle);
+    xTaskNotifyGive(TaskChimeraHandle);
+    xTaskNotifyGive(Task1HzHandle);
+    xTaskNotifyGive(TaskLtcVoltagesHandle);
+    xTaskNotifyGive(TaskLtcTempsHandle);
+    xTaskNotifyGive(TaskLtcDiagHandle);
+    xTaskNotifyGive(TaskCanTxHandle);
+    xTaskNotifyGive(TaskCanRxHandle);
+    vTaskDelete(NULL);
     /* USER CODE END RunTaskInit */
 }
 
