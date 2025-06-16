@@ -17,7 +17,6 @@
 
 static bool                    launch_control_switch_is_on;
 static bool                    regen_switch_is_on;
-static SensorChecks            sensor_checks;
 static TorqueAllocationOutputs torqueOutputToMotors;
 
 static PowerManagerConfig power_manager_state = {
@@ -45,15 +44,17 @@ static void app_enable_inv(void)
     app_canTx_VC_INVRRbEnable_set(true);
     app_canTx_VC_INVRLbEnable_set(true);
 
-    app_canTx_VC_INVFLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_INVFRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    // TODO: set points should be integer values not floats 
+    // !commented out to avoid build issues
+    // app_canTx_VC_INVFLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    // app_canTx_VC_INVFRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    // app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
+    // app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
 
-    app_canTx_VC_INVFLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_INVFRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_INVRLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
-    app_canTx_VC_INVRRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
+    // app_canTx_VC_INVFLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
+    // app_canTx_VC_INVFRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
+    // app_canTx_VC_INVRLTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
+    // app_canTx_VC_INVRRTorqueLimitNegative_set(-MAX_TORQUE_REQUEST_NM);
 }
 
 static void driveStateRunOnEntry()
@@ -172,7 +173,7 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     }
     else if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
     {
-        app_VanillaDrive_run(apps_pedal_percentage, &torqueOutputToMotors);
+        app_vanillaDrive_run(apps_pedal_percentage, &torqueOutputToMotors);
     }
     else
     {
@@ -196,15 +197,6 @@ static void app_driveSwitchInit(void)
         regen_switch_is_on = true;
     }
 }
-
-// static void app_performSensorChecks(void)
-// {
-//     sensor_checks.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get();
-//     sensor_checks.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
-//     sensor_checks.steeringOk =
-//         !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
-//     sensor_checks.useTV = sensor_checks.gpsOk && sensor_checks.imuOk && sensor_checks.steeringOk;
-// }
 
 State drive_state = {
     .name              = "DRIVE",

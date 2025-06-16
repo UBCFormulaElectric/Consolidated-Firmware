@@ -80,8 +80,8 @@ typedef struct TorqueAllocationOutputs
 
 typedef struct
 {
-    bool imuOk;
-    bool steeringOk;
-    bool gpsOk;
-    bool useTV;
-} SensorChecks;
+    bool imuOk : 1;
+    bool steeringOk : 1;
+    bool gpsOk : 1;
+    bool useTV : 1;
+} SensorStatus;

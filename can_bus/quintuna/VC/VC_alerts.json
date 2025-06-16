@@ -84,6 +84,10 @@
     "PcmUnderVoltage": {
       "id": 566,
       "description": "PCM voltage under 18 volts"
+    },
+    "DriveModeOverride": {
+      "id": 567,
+      "description": "Override requested drive mode to vanilla if sensor fails"
     }
   }
 }

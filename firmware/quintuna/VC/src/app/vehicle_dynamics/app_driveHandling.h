@@ -14,6 +14,6 @@
 #include "app_powerLimiting.h"
 #include "app_torqueDistribution.h"
 
-void app_VanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
+void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
 
 void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
