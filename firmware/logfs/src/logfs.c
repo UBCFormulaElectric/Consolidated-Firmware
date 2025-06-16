@@ -29,7 +29,7 @@ inline static void logfs_init(LogFs *fs, const LogFsCfg *cfg)
     fs->cache_data     = fs->cfg->cache;
 }
 
-inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, LogFsOpenFlags flags)
+inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, const LogFsOpenFlags flags)
 {
     file->cache.cached_addr = LOGFS_INVALID_BLOCK;
     file->cache.buf         = cfg->cache;
@@ -136,7 +136,7 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
     while (true)
     {
         // Read file.
-        LogFsErr err = disk_fetchPair(fs, &cur_file_pair, cur_file);
+        const LogFsErr err = disk_fetchPair(fs, &cur_file_pair, cur_file);
         if (err == LOGFS_ERR_CORRUPT && cur_file != LOGFS_ORIGIN)
         {
             // Next file is corrupt, assume it is the end (this will be fixed
@@ -190,7 +190,7 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg, uint32_t flags)
+LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg, const uint32_t flags)
 {
     CHECK_ARG(fs);
     CHECK_ARG(file);
@@ -372,7 +372,13 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, const void *buf, uint32_t size)
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsReadFlags flags, uint32_t *num_read)
+LogFsErr logfs_read(
+    LogFs               *fs,
+    LogFsFile           *file,
+    void                *buf,
+    const uint32_t       size,
+    const LogFsReadFlags flags,
+    uint32_t            *num_read)
 {
     CHECK_ARG(fs);
     CHECK_ARG(file);
@@ -410,11 +416,12 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
         // Calculate number of available bytes.
         const uint32_t num_in_block     = file->cache_data->num_bytes - file->read_iter_data_byte;
         const uint32_t num_left_to_read = size - *num_read;
-        uint32_t       num_available    = MIN(num_left_to_read, num_in_block);
+        const uint32_t num_available    = MIN(num_left_to_read, num_in_block);
 
         // Read out data from cached block.
-        uint8_t *const buf_end   = (uint8_t *)buf + size - *num_read;
-        uint8_t *const cache_end = &file->cache_data->data + file->cache_data->num_bytes - file->read_iter_data_byte;
+        uint8_t *const       buf_end = (uint8_t *)buf + size - *num_read;
+        const uint8_t *const cache_end =
+            &file->cache_data->data + file->cache_data->num_bytes - file->read_iter_data_byte;
         memcpy(buf_end - num_available, cache_end - num_available, num_available);
         *num_read += num_available;
 

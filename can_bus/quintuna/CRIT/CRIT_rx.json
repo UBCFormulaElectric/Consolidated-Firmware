@@ -9,6 +9,7 @@
     "VC_VehicleDynamics",
     "VC_GlobalShdnNodeStatus",
     "Debug_CanMode",
-    "BMS_HvBatteryProperties"
+    "BMS_HvBatteryProperties",
+    "BMS_TractiveSystem"
   ]
 }

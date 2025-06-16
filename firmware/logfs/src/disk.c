@@ -11,7 +11,7 @@
     pair->seq_num %= NUM_SEQ_NUMS;
 #define PAIR_ACTIVE_BLOCK(pair) (pair->addrs[pair->seq_num % LOGFS_PAIR_SIZE])
 
-static inline bool disk_compareSeqNums(int s1, int s2)
+static inline bool disk_compareSeqNums(const int s1, const int s2)
 {
     // Sequence numbers are compared as follows:
     // - 4 > 3
@@ -24,11 +24,11 @@ static inline bool disk_compareSeqNums(int s1, int s2)
 static inline uint8_t disk_getSeqNumFromCache(const LogFs *fs)
 {
     // First word (4 bytes) is reserved for CRC, next byte is for sequence number of pairs.
-    uint8_t *cache_seq_num = (uint8_t *)fs->cfg->cache + sizeof(uint32_t);
+    const uint8_t *cache_seq_num = (uint8_t *)fs->cfg->cache + sizeof(uint32_t);
     return *cache_seq_num;
 }
 
-static inline void disk_setSeqNumInCache(const LogFs *fs, uint8_t seq_num)
+static inline void disk_setSeqNumInCache(const LogFs *fs, const uint8_t seq_num)
 {
     // First word (4 bytes) is reserved for CRC, next byte is for sequence number of pairs.
     uint8_t *cache_seq_num = (uint8_t *)fs->cfg->cache + sizeof(uint32_t);
@@ -58,13 +58,13 @@ static inline LogFsErr disk_replacePair(LogFs *fs, LogFsPair *pair)
     return LOGFS_ERR_OK;
 }
 
-inline LogFsErr disk_write(const LogFs *fs, uint32_t block, void *buf)
+inline LogFsErr disk_write(const LogFs *fs, const uint32_t block, void *buf)
 {
     crc_stampBlock(fs, buf);
     return fs->cfg->write(fs->cfg, block, buf);
 }
 
-inline LogFsErr disk_read(const LogFs *fs, uint32_t block, void *buf)
+inline LogFsErr disk_read(const LogFs *fs, const uint32_t block, void *buf)
 {
     RET_ERR(fs->cfg->read(fs->cfg, block, buf));
     return crc_checkBlock(fs, buf) ? LOGFS_ERR_OK : LOGFS_ERR_CORRUPT;
@@ -105,7 +105,7 @@ LogFsErr disk_syncCache(const LogFs *fs, const LogFsCache *cache)
     return disk_write(fs, cache->cached_addr, cache->buf);
 }
 
-void disk_newPair(LogFsPair *pair, uint32_t block)
+void disk_newPair(LogFsPair *pair, const uint32_t block)
 {
     pair->addrs[0]        = block;
     pair->addrs[1]        = block + 1;

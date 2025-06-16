@@ -12,7 +12,7 @@ static IoRtcTime start_time;
 
 ExitCode io_telemBaseTimeInit()
 {
-    ExitCode status = io_rtc_readTime(&start_time);
+    const ExitCode status = io_rtc_readTime(&start_time);
     if (status != EXIT_CODE_OK)
     {
         return status;
