@@ -3,8 +3,7 @@ import os
 import sys
 import pandas as pd
 from logfs import LogFs
-from logfs.can_logger import Decoder, Encoder
-from .conftest import random_data
+from logfs import can_logger
 
 
 # Path fuckery so we can import JSONCAN.
@@ -42,36 +41,58 @@ def can_db() -> CanDatabase:
 
 
 @pytest.fixture
-def encoder(can_db: CanDatabase) -> Decoder:
-    return Encoder(db=can_db)
+def encoder(can_db: CanDatabase) -> can_logger.Decoder:
+    return can_logger.Encoder(db=can_db)
 
 
 @pytest.fixture
-def decoder(can_db: CanDatabase) -> Decoder:
-    return Decoder(db=can_db)
+def decoder(can_db: CanDatabase) -> can_logger.Decoder:
+    return can_logger.Decoder(db=can_db)
 
 
-def test_basic(encoder: Encoder, decoder: Decoder):
-    metadata, data = encoder.encode(
-        msgs=[
-            DecodedMessage(
-                name="ECU1_BasicSignalTypes",
-                msg_id=106,
-                timestamp=pd.Timestamp.now(),
-                signals=[
-                    DecodedSignal(
-                        name="ECU1_Boolean1",
-                        value=1,
-                        timestamp=pd.Timestamp.now(),
-                        label=None,
-                        unit=None,
-                    )
-                ],
-            )
-        ]
-    )
+def test_round_trip(
+    fs: LogFs, encoder: can_logger.Encoder, decoder: can_logger.Decoder
+):
+    start_timestamp = pd.Timestamp.fromisocalendar(year=2025, week=2, day=7)
+    msgs = [
+        DecodedMessage(
+            name="ECU1_BasicSignalTypes",
+            timestamp=start_timestamp + pd.Timedelta(milliseconds=0),
+            signals=[
+                DecodedSignal(name="ECU1_Boolean1", value=1),
+                DecodedSignal(name="ECU1_Boolean2", value=0),
+                DecodedSignal(name="ECU1_Enum", value=2, label="ENUM_EX_2"),
+                DecodedSignal(name="ECU1_UInt8", value=58),
+                DecodedSignal(name="ECU1_UInt16", value=1024),
+                DecodedSignal(name="ECU1_UInt32", value=0xFFFFFFFF),
+            ],
+        ),
+        DecodedMessage(
+            name="ECU1_BasicSignalTypes",
+            timestamp=start_timestamp + pd.Timedelta(milliseconds=100),
+            signals=[
+                DecodedSignal(name="ECU1_Boolean1", value=0),
+                DecodedSignal(name="ECU1_Boolean2", value=1),
+                DecodedSignal(name="ECU1_Enum", value=1, label="ENUM_EX_1"),
+                DecodedSignal(name="ECU1_UInt8", value=24),
+                DecodedSignal(name="ECU1_UInt16", value=0xFFFF),
+                DecodedSignal(name="ECU1_UInt32", value=0xAB),
+            ],
+        ),
+    ]
+    expected_signals = []
+    for msg in msgs:
+        for signal in msg.signals:
+            signal.timestamp = msg.timestamp
+            expected_signals.append(signal)
 
-    print(metadata, data)
+    metadata, data = encoder.encode(msgs=msgs)
+    file = fs.open("/test.txt", "wx")
+    file.write_metadata(metadata)
+    file.write(data)
+    file.close()
+    del file, metadata, data
 
-    signals = decoder.decode(metadata=metadata, data=data)
-    assert signals == []
+    file = fs.open("/test.txt", "r")
+    decoded_signals = decoder.decode(metadata=file.read_metadata(), data=file.read())
+    assert decoded_signals == expected_signals

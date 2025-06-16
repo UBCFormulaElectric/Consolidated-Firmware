@@ -437,7 +437,7 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
+LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, const void *buf, uint32_t size)
 {
     CHECK_ARG(fs);
     CHECK_ARG(file);

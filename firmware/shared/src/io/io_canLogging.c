@@ -11,6 +11,7 @@
 #include "io_canMsg.h"
 #include "io_fileSystem.h"
 #include "io_log.h"
+#include "io_rtc.h"
 
 // Message Queue configuration
 #define QUEUE_SIZE 2000
@@ -58,7 +59,9 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-void io_canLogging_init(char *file_name_prefix)
+static char boot_time_string[27]; // YYYY-MM-DDTHH:MM:SS
+
+void io_canLogging_init(const IoRtcTime *boot_time)
 {
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
     assert(message_queue_id != NULL);
@@ -69,14 +72,19 @@ void io_canLogging_init(char *file_name_prefix)
     // create new file for this boot
     CHECK_ERR_CRITICAL(io_fileSystem_getBootCount(&current_bootcount) == FILE_OK);
 
-    if (file_name_prefix == NULL)
-        snprintf(current_path, sizeof(current_path), "/%03lu.txt", current_bootcount);
-    else
-        snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", file_name_prefix, current_bootcount);
+    sprintf(
+        boot_time_string, "20%02d-%02d-%02dT%02d-%02d-%02d", boot_time->year, boot_time->month, boot_time->day,
+        boot_time->hours, boot_time->minutes, boot_time->seconds);
+    LOG_INFO("Booted up at: %s", boot_time_string);
+    snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", boot_time_string, current_bootcount);
 
     // Open the log file
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);
+
+    // Write boot time to metadata section
+    CHECK_ERR(io_fileSystem_writeMetadata(log_fd, boot_time, sizeof(IoRtcTime)) == FILE_OK);
 }
+
 void io_canLogging_recordMsgFromQueue(void)
 {
     CHECK_ENABLED();

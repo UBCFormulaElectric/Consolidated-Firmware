@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
+#include "io_rtc.h"
 
 // Empirically determined number which corresponds to the time to mount the filesystem, plus the time to create a new
 // blank CAN log, taking approximately 500ms. This was found using logfs (not littlefs, there is probably a different
@@ -18,7 +19,7 @@
  * Create a new message queue for can logging message
  * Create a new file for this boot for record message
  */
-void io_canLogging_init(char *file_name_prefix);
+void io_canLogging_init(const IoRtcTime *boot_time);
 
 /**
  * Populate queue with another item

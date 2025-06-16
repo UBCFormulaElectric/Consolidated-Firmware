@@ -328,7 +328,7 @@ class CanNode:
 class DecodedSignal:
     name: str
     value: int | float
-    timestamp: pd.Timestamp
+    timestamp: Optional[pd.Timestamp] = None
     label: Optional[str] = None
     unit: Optional[str] = None
 
@@ -342,7 +342,6 @@ class DecodedSignal:
 @dataclass
 class DecodedMessage:
     name: str
-    msg_id: int
     signals: List[DecodedSignal]
     timestamp: pd.Timestamp
 
@@ -400,6 +399,7 @@ class CanDatabase:
         """
         Unpack a CAN dataframe.
         Returns a list of decoded signals as `DecodedSignal` objects.
+        TODO: Big-endian support!
         """
         msg = self.get_message_by_id(msg_id)
         if msg is None:
@@ -443,9 +443,10 @@ class CanDatabase:
 
         return decoded_signals
 
-    def pack(self, decoded_msg: DecodedMessage) -> bytes:
+    def pack(self, decoded_msg: DecodedMessage) -> tuple[int, bytes]:
         """
         Pack a CAN dataframe.
+        TODO: Big-endian support!
         """
         msg = self.msgs.get(decoded_msg.name)
         if msg is None:
@@ -476,7 +477,9 @@ class CanDatabase:
             # Pack into uint.
             data_uint |= data_shifted
 
-        return data_uint.to_bytes()
+        return msg.id, data_uint.to_bytes(
+            length=msg.dlc(), byteorder="little", signed=False
+        )
 
     def get_message_by_id(self, id: int) -> Optional[CanMessage]:
         for msg in self.msgs.values():

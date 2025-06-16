@@ -26,16 +26,31 @@ MSG_HDR_SIZE = 1 + 1 + 2 + 4
 # Magic indicating the start of a logged CAN message
 MSG_MAGIC = 0xBA
 
-# Number of bytes to unpack before logging an update.
+# Number of bytes to unpack before logging an update
 UNPACK_CHUNK_SIZE_BYTES = 1_000_000
+
+TIMESTAMP_FMT = "<BBBBBBB"
+MSG_HDR_FMT = "<BBHL"
 
 
 class Encoder:
     def __init__(self, db: CanDatabase):
         self.db = db
 
-    def encode_msg(self, msg_id, payload: bytes, timestamp_ms: int) -> bytes():
-        header = struct.pack("<BBHL", MSG_MAGIC, len(payload), timestamp_ms, msg_id)
+    def encode_start_timestamp(self, timestamp: pd.Timestamp) -> bytes:
+        return struct.pack(
+            TIMESTAMP_FMT,
+            timestamp.second,
+            timestamp.minute,
+            timestamp.hour,
+            timestamp.day,
+            timestamp.weekday(),
+            timestamp.month,
+            timestamp.year - 2000,
+        )
+
+    def encode_msg(self, msg_id, payload: bytes, timestamp_ms: int) -> bytes:
+        header = struct.pack(MSG_HDR_FMT, MSG_MAGIC, len(payload), timestamp_ms, msg_id)
         crc = crc8.crc8().update(header).update(payload).digest()
         assert len(crc) == 1
         return header + payload + crc
@@ -45,29 +60,43 @@ class Encoder:
             return bytes(), bytes()
 
         start_timestamp = msgs[0].timestamp
+        metadata = self.encode_start_timestamp(timestamp=start_timestamp)
+
         data = bytes()
         for msg in msgs:
-            payload = self.db.pack(decoded_msg=msg)
+            msg_id, payload = self.db.pack(decoded_msg=msg)
 
             timestamp_ms = (msg.timestamp - start_timestamp).microseconds // 1000
             timestamp_ms &= 2**16 - 1
             encoded_msg = self.encode_msg(
-                msg_id=msg.msg_id, payload=payload, timestamp_ms=timestamp_ms
+                msg_id=msg_id, payload=payload, timestamp_ms=timestamp_ms
             )
             data += encoded_msg
 
-        return bytes(), data
+        return metadata, data
 
 
 class Decoder:
     def __init__(self, db: CanDatabase):
         self.db = db
 
+    def decode_start_timestamp(self, metadata: bytes) -> pd.Timestamp:
+        second, minute, hour, day, _weekday, month, year = struct.unpack(
+            TIMESTAMP_FMT, metadata[:MSG_HDR_SIZE]
+        )
+        year += 2000
+        start_timestamp = pd.Timestamp(
+            year=year, month=month, day=day, hour=hour, minute=minute, second=second
+        )
+        return start_timestamp
+
     def decode_msg(self, data: bytes):
         """
         Decode a raw CAN packet. The format is defined in `firmware/shared/src/io/io_canLogging.c`.
         """
-        magic, dlc, timestamp_ms, msg_id = struct.unpack("<BBHL", data[:MSG_HDR_SIZE])
+        magic, dlc, timestamp_ms, msg_id = struct.unpack(
+            MSG_HDR_FMT, data[:MSG_HDR_SIZE]
+        )
 
         if magic != MSG_MAGIC:
             raise RuntimeError("Magic is incorrect (not 0xBA)")
@@ -93,7 +122,7 @@ class Decoder:
         Each signal is represented as a tuple:
         (timestamp, signal_name, signal_value, signal_label, signal_unit)
         """
-        start_timestamp = pd.Timestamp.now()  # TODO
+        start_timestamp = self.decode_start_timestamp(metadata=metadata)
 
         signals = []
         last_timestamp_ms = pd.Timedelta(milliseconds=0)
@@ -141,6 +170,6 @@ class Decoder:
             parsed_signals = self.db.unpack(
                 msg_id=msg_id, data=data_bytes, timestamp=timestamp
             )
-            signals.append(parsed_signals)
+            signals.extend(parsed_signals)
 
         return signals

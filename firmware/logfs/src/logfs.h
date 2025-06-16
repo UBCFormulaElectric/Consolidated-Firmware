@@ -266,7 +266,7 @@ extern "C"
      * @param size Size of data to write, in bytes.
      * @return LOGFS_ERR_OK if successful, or an error code.
      */
-    LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
+    LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, const void *buf, uint32_t size);
 
     /**
      * Read data from the metadata section of a file.

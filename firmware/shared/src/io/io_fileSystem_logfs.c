@@ -237,6 +237,14 @@ FileSystemError io_fileSystem_write(uint32_t fd, const void *buf, const size_t s
     return logfsErrorToFsError(logfs_write(&fs, &files[fd], buf, size));
 }
 
+FileSystemError io_fileSystem_writeMetadata(uint32_t fd, const void *buf, size_t size)
+{
+    CHECK_MOUNT();
+    CHECK_FILE_DESCRIPTOR(fd);
+
+    return logfsErrorToFsError(logfs_writeMetadata(&fs, &files[fd], buf, size));
+}
+
 FileSystemError io_fileSystem_getBootCount(uint32_t *bootcount)
 {
     CHECK_MOUNT();

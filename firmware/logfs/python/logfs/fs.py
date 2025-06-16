@@ -4,9 +4,8 @@ from typing import Union, Optional, Type, Any, Dict
 import logging
 from tabulate import tabulate
 import humanize
-import pandas as pd
 from .disk import LogFsDisk
-from .can_logger import Decoder
+from . import can_logger
 from .logfs_src import (
     LogFsErr,
     PyLogFs,
@@ -96,7 +95,7 @@ class LogFsError(Exception):
         return f"<{self.__class__.__name__}({self.err})>"
 
     def __str__(self) -> str:
-        return f"LogFS error:{self.err}\n{_err2str(self.err)}"
+        return f"LogFS error: {self.err}\n{_err2str(self.err)}"
 
 
 class LogFsFile:
@@ -396,6 +395,6 @@ class LogFs:
             print(data)
         elif decode == "can":
             db = JsonCanParser(can_data_dir=kwargs["jsoncan_dir"]).make_database()
-            decoder = Decoder(db=db)
+            decoder = can_logger.Decoder(db=db)
             signals = decoder.decode(metadata=metadata, data=data)
             print("\n".join(map(str, signals)))
