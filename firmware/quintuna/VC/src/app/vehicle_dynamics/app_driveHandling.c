@@ -61,7 +61,6 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
     const float     motor_speed_rr_rpm = (float)app_canRx_INVRR_ActualVelocity_get();
     const float     motor_speed_rl_rpm = (float)app_canRx_INVRL_ActualVelocity_get();
     const float     wheel_angle        = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
-    const float     max_power_limit    = app_powerLimiting_computeMaxPower(false);
 
     switch (driveMode)
     {
@@ -130,7 +129,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
 static SensorStatus app_performSensorChecks(void)
 {
     SensorStatus sensor_status;
-    sensor_status.gpsOk = !app_canTx_VC_Info_SbgInitFailed_get() || !(app_sbgEllipse_getEkfSolutionMode() == POSITION);
+    sensor_status.gpsOk = !(app_canTx_VC_Info_SbgInitFailed_get() || app_sbgEllipse_getEkfSolutionMode() != POSITION);
     sensor_status.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
     sensor_status.steeringOk =
         !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());

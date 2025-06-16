@@ -13,44 +13,23 @@ float app_powerLimiting_computeMaxPower(bool isRegenOn)
 { /**
    *  AMK INVERTER DOES TEMPERATURE BASED LIMITING... USING THAT TEMP > 40 starts derating && TEMP > 60  = inverter off
    */
-
     // ============== Calculate max powers =================
-
-    float current_based_power_limit_kW;
-    float P_max;
-
     // TODO: CONFIRM REGEN POWER LIMIT
     // TODO: LOOK INTO BMS DERATED POWER LIMIT, USE IT TO VALIDATE CURRENT LIMIT
+    const float current_based_power_limit_kW =
+        app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_DischargeCurrentLimit_get();
+    const float P_max =
+        fminf(isRegenOn ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW, current_based_power_limit_kW);
 
-    if (isRegenOn)
-    {
-        // TODO: CHANGE THIS PLZZ
-        // current_based_power_limit_kW = app_canRx_BMS_TractiveSystemVoltage_get() *
-        // app_canRx_BMS_ChargeCurrentLimit_get();
-        current_based_power_limit_kW = 0.0f;
-        P_max                        = fminf(POWER_LIMIT_REGEN_kW, current_based_power_limit_kW);
-    }
-    else
-    {
-        // TODO: CHANGE THIS PLZZ
-        // current_based_power_limit_kW =
-        //     app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_DischargeCurrentLimit_get();
-        current_based_power_limit_kW = 0.0f;
-        P_max                        = fminf(RULES_BASED_POWER_LIMIT_KW, current_based_power_limit_kW);
-    }
-
-    app_canTx_VC_PowerLimitValue_set((float)P_max);
+    app_canTx_VC_PowerLimitValue_set(P_max);
     return P_max;
 }
 
-float getMaxMotorTemp(void)
+float getMaxMotorTemp(void) // not used anywhere???
 {
-    float motor_fl_temp = app_canRx_INVRL_MotorTemperature_get();
-    float motor_fr_temp = app_canRx_INVFL_MotorTemperature_get();
-    float motor_rl_temp = app_canRx_INVRL_MotorTemperature_get();
-    float motor_rr_temp = app_canRx_INVRR_MotorTemperature_get();
-
-    float max_motor_temp = fmaxf(fmaxf(fmaxf(motor_fl_temp, motor_fr_temp), motor_rl_temp), motor_rr_temp);
-
-    return max_motor_temp;
+    const float motor_fl_temp = app_canRx_INVRL_MotorTemperature_get();
+    const float motor_fr_temp = app_canRx_INVFL_MotorTemperature_get();
+    const float motor_rl_temp = app_canRx_INVRL_MotorTemperature_get();
+    const float motor_rr_temp = app_canRx_INVRR_MotorTemperature_get();
+    return fmaxf(fmaxf(fmaxf(motor_fl_temp, motor_fr_temp), motor_rl_temp), motor_rr_temp);
 }
