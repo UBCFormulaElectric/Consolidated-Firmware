@@ -7,12 +7,8 @@
 // #include "app_heartbeatMonitors.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_imd.h"
 #include "app_commitInfo.h"
 #include "app_jsoncan.h"
-#include "app_tractiveSystem.h"
-#include "app_irs.h"
-#include "app_shdnLoop.h"
 #include "app_canAlerts.h"
 #include "app_timer.h"
 // io
@@ -20,10 +16,6 @@
 #include "io_canQueue.h"
 #include "io_canMsg.h"
 #include "io_time.h"
-#include "io_bspdTest.h"
-#include "io_charger.h"
-#include "io_faultLatch.h"
-#include "io_irs.h"
 #include "io_semaphore.h"
 
 CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
@@ -31,7 +23,7 @@ CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
 static Semaphore isospi_bus_access_lock;
 static Semaphore ltc_app_data_lock;
 
-static TimerChannel debounce_timer;
+static TimerChannel air_n_debounce_timer;
 #define AIR_N_DEBOUNCE_PERIOD (200) // ms
 
 static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
@@ -66,9 +58,6 @@ void jobs_init()
     app_canTx_init();
     app_canRx_init();
 
-    app_precharge_init();
-    // app_heartbeatMonitor_init(&hb_monitor);
-
     app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
@@ -98,7 +87,7 @@ void jobs_init()
     app_segments_broadcastOpenWireCheck();
     app_segments_balancingInit();
 
-    app_timer_init(&debounce_timer, AIR_N_DEBOUNCE_PERIOD);
+    app_timer_init(&air_n_debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 
     app_stateMachine_init(&init_state);
 }
