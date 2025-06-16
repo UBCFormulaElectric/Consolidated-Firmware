@@ -44,7 +44,7 @@ static void app_enable_inv(void)
     app_canTx_VC_INVRRbEnable_set(true);
     app_canTx_VC_INVRLbEnable_set(true);
 
-    // TODO: set points should be integer values not floats 
+    // TODO: set points should be integer values not floats
     // !commented out to avoid build issues
     // app_canTx_VC_INVFLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
     // app_canTx_VC_INVFRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);

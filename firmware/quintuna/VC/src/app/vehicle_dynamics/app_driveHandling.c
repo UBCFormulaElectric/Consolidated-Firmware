@@ -14,7 +14,7 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 
 static TorqueAllocationInputs torqueToMotorsInputs;
-static SensorStatus            sensor_status;
+static SensorStatus           sensor_status;
 
 static void app_performSensorChecks(void);
 
@@ -44,11 +44,11 @@ void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
     const float torque_request = fminf(pedal_based_torque, max_bms_torque_request);
 
-    torqueOutputToMotors->front_left_torque = torque_request;
+    torqueOutputToMotors->front_left_torque  = torque_request;
     torqueOutputToMotors->front_right_torque = torque_request;
-    torqueOutputToMotors->rear_left_torque = torque_request;
-    torqueOutputToMotors->rear_right_torque = torque_request;
-    
+    torqueOutputToMotors->rear_left_torque   = torque_request;
+    torqueOutputToMotors->rear_right_torque  = torque_request;
+
     app_canAlerts_VC_Info_DriveModeOverride_set(false);
 }
 
@@ -67,9 +67,9 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
     switch (driveMode)
     {
         case DRIVE_MODE_POWER:
-        {    
+        {
             app_canAlerts_VC_Info_DriveModeOverride_set(false);
-            
+
             torqueToMotorsInputs.front_yaw_moment    = 0.0f;
             torqueToMotorsInputs.rear_yaw_moment     = 0.0f;
             torqueToMotorsInputs.load_transfer_const = 0.0f;
@@ -82,14 +82,14 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             if (sensor_status.steeringOk)
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(false);
-                
+
                 ActiveDifferential_Inputs ad_in = { .accelerator_pedal_percentage = apps_pedal_percentage,
-                    .motor_speed_fl_rpm           = motor_speed_fl_rpm,
-                    .motor_speed_fr_rpm           = motor_speed_fr_rpm,
-                    .motor_speed_rl_rpm           = motor_speed_rl_rpm,
-                    .motor_speed_rr_rpm           = motor_speed_rr_rpm,
-                    .power_max_kW    = app_powerLimiting_computeMaxPower(false),
-                    .wheel_angle_deg = wheel_angle };
+                                                    .motor_speed_fl_rpm           = motor_speed_fl_rpm,
+                                                    .motor_speed_fr_rpm           = motor_speed_fr_rpm,
+                                                    .motor_speed_rl_rpm           = motor_speed_rl_rpm,
+                                                    .motor_speed_rr_rpm           = motor_speed_rr_rpm,
+                                                    .power_max_kW    = app_powerLimiting_computeMaxPower(false),
+                                                    .wheel_angle_deg = wheel_angle };
 
                 ActiveDifferential_Outputs ad_out;
 
@@ -103,22 +103,23 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
                 const float requested_power = app_totalPower(torqueOutputToMotors);
                 app_torqueReduction(requested_power, ad_in.power_max_kW, torqueOutputToMotors);
                 /// dont use torque allocation here
-            } 
-            else 
+            }
+            else
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(true);
                 app_vanillaDrive_run(apps_pedal_percentage, torqueOutputToMotors);
             }
             break;
         }
-        case DRIVE_MODE_TV: 
+        case DRIVE_MODE_TV:
         {
-            if (sensor_status.useTV) 
+            if (sensor_status.useTV)
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(false);
                 app_torqueVectoring_run(apps_pedal_percentage);
             }
-            else {
+            else
+            {
                 app_canAlerts_VC_Info_DriveModeOverride_set(true);
                 app_vanillaDrive_run(apps_pedal_percentage, torqueOutputToMotors);
             }

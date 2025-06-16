@@ -88,10 +88,14 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
 
 void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors)
 {
-    app_canTx_VC_INVFLTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->front_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->front_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueSetpoint_set(CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFLTorqueSetpoint_set(
+        CLAMP(PEDAL_REMAPPING(torqueToMotors->front_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueSetpoint_set(
+        CLAMP(PEDAL_REMAPPING(torqueToMotors->front_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueSetpoint_set(
+        CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueSetpoint_set(
+        CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
 }
 
 // TorqueAllocationOutputs *app_get_torqueToMotors()
@@ -108,8 +112,9 @@ void app_reset_torqueToMotors(TorqueAllocationOutputs *torqueToMotors)
 }
 
 void app_torqueReduction(
-    const float total_requestedPower,
-    const float power_limit, TorqueAllocationOutputs *torqueToMotors)
+    const float              total_requestedPower,
+    const float              power_limit,
+    TorqueAllocationOutputs *torqueToMotors)
 {
     if (total_requestedPower > power_limit)
     {
