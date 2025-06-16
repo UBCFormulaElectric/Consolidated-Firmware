@@ -56,14 +56,14 @@ extern bool     sd_inited;
 #ifndef TARGET_EMBEDDED
 
 // ONLY FOR USE IN OFF-TARGET TESTING
-void app_soc_setPrevCurrent(float current)
+void app_soc_setPrevCurrent(const float current)
 {
     stats.prev_current_A = current;
 }
 
 #endif
 
-float app_soc_getSocFromOcv(float voltage)
+float app_soc_getSocFromOcv(const float voltage)
 {
     uint8_t lut_index = 0;
 
@@ -80,7 +80,7 @@ float app_soc_getSocFromOcv(float voltage)
     return LUT_BASE_SOC + lut_index * 0.5f;
 }
 
-float app_soc_getOcvFromSoc(float soc_percent)
+float app_soc_getOcvFromSoc(const float soc_percent)
 {
     uint8_t lut_index = 0;
 
@@ -121,11 +121,11 @@ bool app_soc_getCorrupt(void)
 void app_soc_updateSocStats(void)
 {
     // NOTE current sign is relative to current into the battery
-    double *charge_c     = &stats.charge_c;
-    float  *prev_current = &stats.prev_current_A;
-    float   current      = app_tractiveSystem_getCurrent();
+    double     *charge_c     = &stats.charge_c;
+    float      *prev_current = &stats.prev_current_A;
+    const float current      = app_tractiveSystem_getCurrent();
 
-    double elapsed_time_s = (double)app_timer_getElapsedTime(&stats.soc_timer) * MS_TO_S;
+    const double elapsed_time_s = (double)app_timer_getElapsedTime(&stats.soc_timer) * MS_TO_S;
     app_timer_restart(&stats.soc_timer);
 
     // Trapezoidal Rule adds integral of current time-step to previous integral value.
@@ -141,13 +141,13 @@ float app_soc_getMinSocCoulombs(void)
 float app_soc_getMinSocPercent(void)
 {
     // return SOC in %
-    float soc_percent = ((float)stats.charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
+    const float soc_percent = ((float)stats.charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
     return soc_percent;
 }
 
 float app_soc_getMinOcvFromSoc(void)
 {
-    float soc_percent = app_soc_getMinSocPercent();
+    const float soc_percent = app_soc_getMinSocPercent();
     return app_soc_getOcvFromSoc(soc_percent);
 }
 
@@ -164,7 +164,7 @@ void app_soc_resetSocFromVoltage(void)
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
-void app_soc_resetSocCustomValue(float soc_percent)
+void app_soc_resetSocCustomValue(const float soc_percent)
 {
     stats.charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
 

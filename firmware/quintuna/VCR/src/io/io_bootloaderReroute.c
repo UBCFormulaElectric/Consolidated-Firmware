@@ -53,7 +53,7 @@ static void bootloader_reroute_can1(const CanMsg *msg)
     io_canQueue_pushTx(&fd_can_tx_queue, &new_msg);
 }
 
-static void routing_logic(const CanMsg *msg, uint8_t message_id)
+static void routing_logic(const CanMsg *msg, const uint8_t message_id)
 {
     if (message_id == START_UPDATE_ID_LOWBITS || message_id == ERASE_SECTOR_ID_LOWBITS ||
         message_id == PROGRAM_ID_LOWBITS || message_id == VERIFY_ID_LOWBITS || message_id == GO_TO_APP_LOWBITS ||
@@ -71,8 +71,8 @@ static void routing_logic(const CanMsg *msg, uint8_t message_id)
 
 void io_bootloaderReroute_reRoute(const CanMsg *msg)
 {
-    uint64_t board_id   = msg->std_id & 0x1FFFFFC0;
-    uint8_t  message_id = msg->std_id & 0xF;
+    const uint64_t board_id   = msg->std_id & 0x1FFFFFC0;
+    const uint8_t  message_id = msg->std_id & 0xF;
     switch (board_id)
     {
         case (FSM_BOOTCONFIG):
