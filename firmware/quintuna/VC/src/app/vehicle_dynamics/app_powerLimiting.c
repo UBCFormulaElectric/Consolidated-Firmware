@@ -17,7 +17,8 @@ float app_powerLimiting_computeMaxPower(const bool isRegenOn)
     // TODO: CONFIRM REGEN POWER LIMIT
     // TODO: LOOK INTO BMS DERATED POWER LIMIT, USE IT TO VALIDATE CURRENT LIMIT
     const float current_based_power_limit_kW =
-        app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_DischargeCurrentLimit_get();
+        app_canRx_BMS_TractiveSystemVoltage_get() *
+        (isRegenOn ? app_canRx_BMS_ChargeCurrentLimit_get() : app_canRx_BMS_DischargeCurrentLimit_get());
     const float P_max =
         fminf(isRegenOn ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW, current_based_power_limit_kW);
 
