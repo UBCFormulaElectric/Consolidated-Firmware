@@ -42,7 +42,7 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     JsonCanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(JsonCanMsg));
     tx_msg.std_id = {{msg.id_macro()}};
-    tx_msg.dlc = {{msg.bytes_macro()}};
+    tx_msg.dlc = {{msg.dlc_macro()}};
     #ifdef THREAD_SAFE_CAN_PACKING
     lock();
     #endif
@@ -53,10 +53,10 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     {%- for msg_bus_name in busses_for_msg(msg.name) %}
     if (
     {%- if msg.modes == None %}
-        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{bus_config[msg_bus_name].default_mode.upper()}})
+        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{bus_config[msg_bus_name].default_mode}})
     {%- else %}
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{mode.upper()}})
+        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{mode}})
     {%- endfor %}
     {% endif %}
     )

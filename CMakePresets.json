@@ -18,7 +18,7 @@
         "USE_COMMIT_INFO": "MINIMAL",
         "NO_VENV": "ON",
         "BOOTLOAD": "ON",
-        "WATCHDOG": "OFF"
+        "WATCHDOG": "ON"
       },
       "binaryDir": "build_fw_dev"
     },
@@ -69,6 +69,11 @@
         "NO_VENV": "ON"
       },
       "binaryDir": "build_fw_test"
+    },
+    {
+      "name": "FW Test Ninja",
+      "inherits": "FW Test",
+      "generator": "Ninja"
     },
     {
       "name": "FW Test CI",
