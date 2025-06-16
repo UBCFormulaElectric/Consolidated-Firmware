@@ -49,6 +49,8 @@ ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc3;
 
+CRC_HandleTypeDef hcrc;
+
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
@@ -134,17 +136,53 @@ const osThreadAttr_t TaskChimera_attributes = {
     .stack_size = sizeof(TaskChimeraBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
-/* Definitions for TaskLTC */
-osThreadId_t         TaskLTCHandle;
-uint32_t             TaskLTCBuffer[512];
-osStaticThreadDef_t  TaskLTCControlBlock;
-const osThreadAttr_t TaskLTC_attributes = {
-    .name       = "TaskLTC",
-    .cb_mem     = &TaskLTCControlBlock,
-    .cb_size    = sizeof(TaskLTCControlBlock),
-    .stack_mem  = &TaskLTCBuffer[0],
-    .stack_size = sizeof(TaskLTCBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal1,
+/* Definitions for TaskLtcVoltages */
+osThreadId_t         TaskLtcVoltagesHandle;
+uint32_t             TaskLtcVoltagesBuffer[512];
+osStaticThreadDef_t  TaskLtcVoltagesControlBlock;
+const osThreadAttr_t TaskLtcVoltages_attributes = {
+    .name       = "TaskLtcVoltages",
+    .cb_mem     = &TaskLtcVoltagesControlBlock,
+    .cb_size    = sizeof(TaskLtcVoltagesControlBlock),
+    .stack_mem  = &TaskLtcVoltagesBuffer[0],
+    .stack_size = sizeof(TaskLtcVoltagesBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskLtcTemps */
+osThreadId_t         TaskLtcTempsHandle;
+uint32_t             TaskLtcTempsBuffer[512];
+osStaticThreadDef_t  TaskLtcTempsControlBlock;
+const osThreadAttr_t TaskLtcTemps_attributes = {
+    .name       = "TaskLtcTemps",
+    .cb_mem     = &TaskLtcTempsControlBlock,
+    .cb_size    = sizeof(TaskLtcTempsControlBlock),
+    .stack_mem  = &TaskLtcTempsBuffer[0],
+    .stack_size = sizeof(TaskLtcTempsBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskLtcDiag */
+osThreadId_t         TaskLtcDiagHandle;
+uint32_t             TaskLtcDiagBuffer[512];
+osStaticThreadDef_t  TaskLtcDiagControlBlock;
+const osThreadAttr_t TaskLtcDiag_attributes = {
+    .name       = "TaskLtcDiag",
+    .cb_mem     = &TaskLtcDiagControlBlock,
+    .cb_size    = sizeof(TaskLtcDiagControlBlock),
+    .stack_mem  = &TaskLtcDiagBuffer[0],
+    .stack_size = sizeof(TaskLtcDiagBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskInit */
+osThreadId_t         TaskInitHandle;
+uint32_t             TaskInitBuffer[512];
+osStaticThreadDef_t  TaskInitControlBlock;
+const osThreadAttr_t TaskInit_attributes = {
+    .name       = "TaskInit",
+    .cb_mem     = &TaskInitControlBlock,
+    .cb_size    = sizeof(TaskInitControlBlock),
+    .stack_mem  = &TaskInitBuffer[0],
+    .stack_size = sizeof(TaskInitBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
 };
 /* USER CODE BEGIN PV */
 
@@ -163,6 +201,7 @@ static void MX_ADC3_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_FDCAN2_Init(void);
+static void MX_CRC_Init(void);
 static void MX_TIM5_Init(void);
 static void MX_IWDG1_Init(void);
 void        RunTask100Hz(void *argument);
@@ -171,7 +210,10 @@ void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskChimera(void *argument);
-void        RunTaskLTC(void *argument);
+void        RunTaskLtcVoltages(void *argument);
+void        RunTaskLtcTemps(void *argument);
+void        RunTaskLtcDiag(void *argument);
+void        RunTaskInit(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -222,6 +264,7 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM3_Init();
     MX_FDCAN2_Init();
+    MX_CRC_Init();
     MX_TIM5_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
@@ -265,8 +308,17 @@ int main(void)
     /* creation of TaskChimera */
     TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
-    /* creation of TaskLTC */
-    TaskLTCHandle = osThreadNew(RunTaskLTC, NULL, &TaskLTC_attributes);
+    /* creation of TaskLtcVoltages */
+    TaskLtcVoltagesHandle = osThreadNew(RunTaskLtcVoltages, NULL, &TaskLtcVoltages_attributes);
+
+    /* creation of TaskLtcTemps */
+    TaskLtcTempsHandle = osThreadNew(RunTaskLtcTemps, NULL, &TaskLtcTemps_attributes);
+
+    /* creation of TaskLtcDiag */
+    TaskLtcDiagHandle = osThreadNew(RunTaskLtcDiag, NULL, &TaskLtcDiag_attributes);
+
+    /* creation of TaskInit */
+    TaskInitHandle = osThreadNew(RunTaskInit, NULL, &TaskInit_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -362,7 +414,7 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI4 | RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
     PeriphClkInitStruct.PLL2.PLL2N           = 24;
     PeriphClkInitStruct.PLL2.PLL2P           = 2;
@@ -371,7 +423,6 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.Spi45ClockSelection  = RCC_SPI45CLKSOURCE_PLL2;
     PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
     PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -563,6 +614,35 @@ static void MX_ADC3_Init(void)
 }
 
 /**
+ * @brief CRC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_CRC_Init(void)
+{
+    /* USER CODE BEGIN CRC_Init 0 */
+
+    /* USER CODE END CRC_Init 0 */
+
+    /* USER CODE BEGIN CRC_Init 1 */
+
+    /* USER CODE END CRC_Init 1 */
+    hcrc.Instance                     = CRC;
+    hcrc.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
+    hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
+    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
+    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_BYTES;
+    if (HAL_CRC_Init(&hcrc) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN CRC_Init 2 */
+
+    /* USER CODE END CRC_Init 2 */
+}
+
+/**
  * @brief FDCAN1 Initialization Function
  * @param None
  * @retval None
@@ -582,26 +662,26 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 2;
+    hfdcan1.Init.NominalPrescaler     = 6;
     hfdcan1.Init.NominalSyncJumpWidth = 2;
-    hfdcan1.Init.NominalTimeSeg1      = 45;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
     hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 6;
-    hfdcan1.Init.DataTimeSeg1         = 17;
-    hfdcan1.Init.DataTimeSeg2         = 6;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
     hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 0;
+    hfdcan1.Init.StdFiltersNbr        = 1;
     hfdcan1.Init.ExtFiltersNbr        = 1;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 1;
+    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxBuffersNbr         = 0;
-    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
+    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.TxEventsNbr          = 0;
     hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan1.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
@@ -628,33 +708,33 @@ static void MX_FDCAN2_Init(void)
 
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
     hfdcan2.Init.NominalPrescaler     = 12;
-    hfdcan2.Init.NominalSyncJumpWidth = 3;
+    hfdcan2.Init.NominalSyncJumpWidth = 2;
     hfdcan2.Init.NominalTimeSeg1      = 12;
     hfdcan2.Init.NominalTimeSeg2      = 3;
-    hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 1;
-    hfdcan2.Init.DataTimeSeg1         = 1;
-    hfdcan2.Init.DataTimeSeg2         = 1;
-    hfdcan2.Init.MessageRAMOffset     = 0;
+    hfdcan2.Init.DataPrescaler        = 3;
+    hfdcan2.Init.DataSyncJumpWidth    = 2;
+    hfdcan2.Init.DataTimeSeg1         = 5;
+    hfdcan2.Init.DataTimeSeg2         = 2;
+    hfdcan2.Init.MessageRAMOffset     = 1280;
     hfdcan2.Init.StdFiltersNbr        = 1;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.ExtFiltersNbr        = 1;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
+    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxBuffersNbr         = 0;
-    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.TxEventsNbr          = 0;
     hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
     {
         Error_Handler();
@@ -681,7 +761,7 @@ static void MX_IWDG1_Init(void)
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = 4095;
+    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
     {
         Error_Handler();
@@ -742,7 +822,7 @@ static void MX_SPI4_Init(void)
     hspi4.Init.CLKPolarity                = SPI_POLARITY_HIGH;
     hspi4.Init.CLKPhase                   = SPI_PHASE_2EDGE;
     hspi4.Init.NSS                        = SPI_NSS_SOFT;
-    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_256;
+    hspi4.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_64;
     hspi4.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi4.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi4.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;
@@ -853,7 +933,7 @@ static void MX_TIM3_Init(void)
     htim3.Instance               = TIM3;
     htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = (TIM3_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -1015,10 +1095,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(SPI_CS_LS_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
-                             DIAG_Pin SD_CD_Pin */
-    GPIO_InitStruct.Pin =
-        MSD_SHDN_SNS_Pin | HV_P_INTLCK_SNS_Pin | HV_N_INTLCK_SNS_Pin | IMD_LATCH_Pin | DIAG_Pin | SD_CD_Pin;
+    /*Configure GPIO pins : HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin DIAG_Pin
+                             SD_CD_Pin */
+    GPIO_InitStruct.Pin  = HV_P_INTLCK_SNS_Pin | HV_N_INTLCK_SNS_Pin | IMD_LATCH_Pin | DIAG_Pin | SD_CD_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -1030,8 +1109,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LEDB_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BSPD_OK_Pin ACCEL_BRAKE_OK_Pin nBRAKE_PRESS_3V3_Pin nHIGH_CURRENT_BSPD_Pin */
-    GPIO_InitStruct.Pin  = BSPD_OK_Pin | ACCEL_BRAKE_OK_Pin | nBRAKE_PRESS_3V3_Pin | nHIGH_CURRENT_BSPD_Pin;
+    /*Configure GPIO pins : BSPD_OK_Pin MSD_SHDN_SNS_Pin ACCEL_BRAKE_OK_Pin nBRAKE_PRESS_3V3_Pin
+                             nHIGH_CURRENT_BSPD_Pin */
+    GPIO_InitStruct.Pin =
+        BSPD_OK_Pin | MSD_SHDN_SNS_Pin | ACCEL_BRAKE_OK_Pin | nBRAKE_PRESS_3V3_Pin | nHIGH_CURRENT_BSPD_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -1172,18 +1253,76 @@ void RunTaskChimera(void *argument)
     /* USER CODE END RunTaskChimera */
 }
 
-/* USER CODE BEGIN Header_RunTaskLTC */
+/* USER CODE BEGIN Header_RunTaskLtcVoltages */
 /**
- * @brief Function implementing the TaskLTC thread.
+ * @brief Function implementing the TaskLtcVoltages thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTaskLTC */
-void RunTaskLTC(void *argument)
+/* USER CODE END Header_RunTaskLtcVoltages */
+void RunTaskLtcVoltages(void *argument)
 {
-    /* USER CODE BEGIN RunTaskLTC */
-    tasks_runLtc();
-    /* USER CODE END RunTaskLTC */
+    /* USER CODE BEGIN RunTaskLtcVoltages */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskLtcVoltages */
+}
+
+/* USER CODE BEGIN Header_RunTaskLtcTemps */
+/**
+ * @brief Function implementing the TaskLtcTemps thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLtcTemps */
+void RunTaskLtcTemps(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLtcTemps */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskLtcTemps */
+}
+
+/* USER CODE BEGIN Header_RunTaskLtcDiag */
+/**
+ * @brief Function implementing the TaskLtcDiag thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLtcDiag */
+void RunTaskLtcDiag(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLtcDiag */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskLtcDiag */
+}
+
+/* USER CODE BEGIN Header_RunTaskInit */
+/**
+ * @brief Function implementing the TaskInit thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskInit */
+void RunTaskInit(void *argument)
+{
+    /* USER CODE BEGIN RunTaskInit */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskInit */
 }
 
 /**
