@@ -124,7 +124,7 @@ void jobs_run100Hz_tick(void)
 
     app_stateMachine_tick100Hz();
 
-    const bool ir_negative_opened = io_irs_negativeState() == IRS_OPEN;
+    const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool ir_negative_opened_debounced =
         app_timer_runIfCondition(&debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
     if (ir_negative_opened_debounced)
@@ -157,8 +157,8 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
 
     app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
-    app_canTx_BMS_BSPDBrakePressureExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
-    app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdConditions_isAccelBrakeOk());
+    app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
+    app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdTest_isAccelBrakeOk());
 
     io_canTx_enqueue100HzMsgs();
     io_semaphore_give(&ltc_app_data_lock);
