@@ -11,7 +11,7 @@
  */
 float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
 {
-    float max_motor_temp = fmaxf(inputs->left_motor_temp_C, inputs->right_motor_temp_C);
+    const float max_motor_temp = fmaxf(inputs->left_motor_temp_C, inputs->right_motor_temp_C);
 
     // ============== Calculate max powers =================
     // 1. Motor Temps
@@ -27,16 +27,16 @@ float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
     }
 
     // 2. Battery state of charge
-    float P_max_battery = inputs->power_limit_kW;
+    const float P_max_battery = inputs->power_limit_kW;
 
     // 3. Pedal percentage
-    float P_max_accelerator = inputs->accelerator_pedal_percent * inputs->power_limit_kW;
+    const float P_max_accelerator = inputs->accelerator_pedal_percent * inputs->power_limit_kW;
 
     // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
-    float P_max_full_throttle = fminf(P_max_motor_temps, P_max_battery);
+    const float P_max_full_throttle = fminf(P_max_motor_temps, P_max_battery);
     app_canTx_VC_PowerLimitValueAtFullThrottle_set((float)P_max_full_throttle);
 
-    float P_max = fminf(P_max_full_throttle, P_max_accelerator);
+    const float P_max = fminf(P_max_full_throttle, P_max_accelerator);
 
     app_canTx_VC_PowerLimitValue_set((float)P_max);
     return P_max;

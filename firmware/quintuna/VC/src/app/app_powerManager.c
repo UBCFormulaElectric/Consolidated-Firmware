@@ -82,6 +82,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             // timeout expired or no timeout
             app_timer_stop(&sequencing_timer);
             // ReSharper disable once CppRedundantEmptyStatement
+            // TODO: what the fuck
             __attribute__((fallthrough));
         case TIMER_STATE_IDLE:
             for (LoadswitchChannel current_efuse_sequence = 0;

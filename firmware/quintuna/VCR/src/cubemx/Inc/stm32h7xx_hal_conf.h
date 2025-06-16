@@ -36,7 +36,7 @@ extern "C"
 #define HAL_MODULE_ENABLED
 
     /* #define HAL_ADC_MODULE_ENABLED   */
-/* #define HAL_FDCAN_MODULE_ENABLED   */
+#define HAL_FDCAN_MODULE_ENABLED
 /* #define HAL_FMAC_MODULE_ENABLED   */
 /* #define HAL_CEC_MODULE_ENABLED   */
 /* #define HAL_COMP_MODULE_ENABLED   */
@@ -63,7 +63,7 @@ extern "C"
 /* #define HAL_XSPI_MODULE_ENABLED   */
 /* #define HAL_I2S_MODULE_ENABLED   */
 /* #define HAL_SMBUS_MODULE_ENABLED   */
-/* #define HAL_IWDG_MODULE_ENABLED   */
+#define HAL_IWDG_MODULE_ENABLED
 /* #define HAL_LPTIM_MODULE_ENABLED   */
 /* #define HAL_LTDC_MODULE_ENABLED   */
 /* #define HAL_XSPI_MODULE_ENABLED   */

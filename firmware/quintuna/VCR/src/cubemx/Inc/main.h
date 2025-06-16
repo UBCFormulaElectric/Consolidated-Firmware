@@ -42,7 +42,9 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan2;
+    extern FDCAN_HandleTypeDef hfdcan3;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -58,6 +60,9 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
+#define LSI_FREQUENCY 32000
 #define BOOT_Pin GPIO_PIN_6
 #define BOOT_GPIO_Port GPIOE
 #define LED_Pin GPIO_PIN_0

@@ -1,4 +1,10 @@
 {
+  "Bootup": {
+    "msg_id": 456,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "Vitals": {
     "msg_id": 400,
     "cycle_time": 100,
@@ -30,11 +36,20 @@
     "cycle_time": 1000,
     "description": "BMS Debug Signals",
     "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
       "ResetReason": {
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 16
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
       }
     }
   },
@@ -336,6 +351,9 @@
   },
   "AvgVoltageStats": {
     "msg_id": 464,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "cycle_time": 1000,
     "description": "Average voltages for each segment in the accumulator",
     "signals": {
@@ -404,6 +422,9 @@
   "AvgTempStats": {
     "msg_id": 465,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Average temps for each segment in the accumulator",
     "signals": {
       "Seg0_AvgTemp": {
@@ -497,6 +518,9 @@
   "CellVoltages_Seg0_Seg3": {
     "msg_id": 460,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Cell voltages: Segment 0-3",
     "signals": {
       "Seg0_Cell0_Voltage": {
@@ -840,6 +864,9 @@
   "CellVoltages_Seg4_Seg7": {
     "msg_id": 461,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Cell voltages: Segment 4-7",
     "signals": {
       "Seg4_Cell0_Voltage": {
@@ -1183,6 +1210,9 @@
   "CellVoltages_Seg8_Seg9": {
     "msg_id": 462,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Cell voltages: Segment 8-9",
     "signals": {
       "Seg8_Cell0_Voltage": {
@@ -1359,6 +1389,9 @@
     "msg_id": 470,
     "cycle_time": 1000,
     "description": "BMS Temps: Segments 0-3",
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "signals": {
       "Seg0_Cell0_Temp": {
         "resolution": 0.2,
@@ -1701,6 +1734,9 @@
   "CellTemps_Seg4_Seg7": {
     "msg_id": 471,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "BMS Temps: Segments 4-8",
     "signals": {
       "Seg4_Cell0_Temp": {
@@ -2044,6 +2080,9 @@
   "CellTemps_Seg8_Seg9": {
     "msg_id": 472,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "BMS Temps: Segments 8-9",
     "signals": {
       "Seg8_Cell0_Temp": {
@@ -2219,6 +2258,9 @@
   "LtcOwc": {
     "msg_id": 480,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "OWC results for all segments",
     "signals": {
       "Seg0_C0_OwcOk": {
@@ -2676,6 +2718,9 @@
   "LtcStatus": {
     "msg_id": 481,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "LTC status and other diagnostics for all segments",
     "signals": {
       "Seg0_CommOk": {
