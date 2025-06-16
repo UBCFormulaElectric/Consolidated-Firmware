@@ -15,7 +15,6 @@
     "INVFR_FRInverterInfo1",
     "INVRL_RLInverterInfo1",
     "INVRR_RRInverterInfo1",
-    "BMS_CurrentLimit",
     "BMS_PowerLimit",
     "VCR_Vitals",
     "VCR_CommitInfo",

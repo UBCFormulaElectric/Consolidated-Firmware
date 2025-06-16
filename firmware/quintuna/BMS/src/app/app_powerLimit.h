@@ -34,13 +34,6 @@ float app_powerCurrentLimit_getDischargeCurrentLimit();
 float app_powerCurrentLimit_getChargeCurrentLimit();
 
 /**
- * @brief Gets the temperature based discharge current limit
- * @param max_cell_temp hottest measured temp of the series element
- * @return Temp based current limit
- */
-float app_powerCurrentLimit_calcTempCurrentLimit(float max_cell_temp);
-
-/**
  * @brief Gets the Low Voltage Clamp based discharge current limtit
  * @return Low Voltage Clamp based discharge current Limit value
  */
@@ -65,3 +58,8 @@ float app_powerCurrentLimit_calcLowSOCCurrentLimit(); // TODO: implement this - 
  * @return High SOC based charge current Limit value
  */
 float app_powerCurrentLimit_calcHighSOCCurrentLimit(); // TODO: implement this - see quadrina current limit pr
+
+/**
+ * Helper function to keep track of temperature hysteresis
+ */
+void update_temperature_hysteresis();

@@ -10,7 +10,7 @@
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
-#include "app_powerCurrentLimit.h"
+#include "app_powerLimit.h"
 #include "segments/app_segments_internal.h"
 
 #include "hw_bootup.h"

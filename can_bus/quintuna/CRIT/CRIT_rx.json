@@ -10,7 +10,6 @@
     "VC_GlobalShdnNodeStatus",
     "Debug_CanMode",
     "BMS_HvBatteryProperties",
-    "BMS_CurrentLimit",
     "BMS_PowerLimit",
     "BMS_TractiveSystem"
   ]
