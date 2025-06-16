@@ -32,8 +32,8 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-static TimerChannel  *pcm_voltage_in_range_timer;
-static TimerChannel  *pcm_toggle_timer;
+static TimerChannel   pcm_voltage_in_range_timer;
+static TimerChannel   pcm_toggle_timer;
 static pcmRetryStates pcm_retry_state;
 static float          pcm_curr_voltage;
 static float          pcm_prev_voltage;
@@ -50,9 +50,9 @@ static void pcmOnStateRunOnEntry(void)
     pcm_prev_voltage = 0.0f;
 
     io_pcm_set(true);
-    app_timer_init(pcm_voltage_in_range_timer, PCM_TIMEOUT);
-    app_timer_init(pcm_toggle_timer, PCM_TIMEOUT);
-    app_timer_restart(pcm_voltage_in_range_timer);
+    app_timer_init(&pcm_voltage_in_range_timer, PCM_TIMEOUT);
+    app_timer_init(&pcm_toggle_timer, PCM_TIMEOUT);
+    app_timer_restart(&pcm_voltage_in_range_timer);
 }
 static void pcmOnStateRunOnTick100Hz(void)
 {
@@ -60,7 +60,7 @@ static void pcmOnStateRunOnTick100Hz(void)
     {
         if (toggleTimer())
         {
-            app_timer_restart(pcm_voltage_in_range_timer);
+            app_timer_restart(&pcm_voltage_in_range_timer);
         }
         else
         {
@@ -68,7 +68,7 @@ static void pcmOnStateRunOnTick100Hz(void)
         }
     }
 
-    switch (app_timer_updateAndGetState(pcm_voltage_in_range_timer))
+    switch (app_timer_updateAndGetState(&pcm_voltage_in_range_timer))
     {
         case TIMER_STATE_RUNNING:
             pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
@@ -83,13 +83,13 @@ static void pcmOnStateRunOnTick100Hz(void)
             else if (RETRY_TRIGGERED == pcm_retry_state)
             {
                 // already retried, now go to fault state
-                app_timer_stop(pcm_voltage_in_range_timer);
+                app_timer_stop(&pcm_voltage_in_range_timer);
                 pcm_retry_state = RETRY_DONE;
             }
             break;
 
         case TIMER_STATE_IDLE:
-            app_timer_restart(pcm_voltage_in_range_timer);
+            app_timer_restart(&pcm_voltage_in_range_timer);
             break;
     }
 
@@ -107,14 +107,14 @@ static void pcmOnStateRunOnTick100Hz(void)
 }
 static void pcmOnStateRunOnExit(void)
 {
-    app_timer_stop(pcm_voltage_in_range_timer);
-    app_timer_stop(pcm_toggle_timer);
+    app_timer_stop(&pcm_voltage_in_range_timer);
+    app_timer_stop(&pcm_toggle_timer);
 }
 
 static bool toggleTimer(void)
 {
     bool timer_done = false;
-    switch (app_timer_updateAndGetState(pcm_toggle_timer))
+    switch (app_timer_updateAndGetState(&pcm_toggle_timer))
     {
         case TIMER_STATE_RUNNING:
             // do nothing
@@ -126,7 +126,7 @@ static bool toggleTimer(void)
             break;
 
         case TIMER_STATE_IDLE:
-            app_timer_restart(pcm_toggle_timer);
+            app_timer_restart(&pcm_toggle_timer);
             break;
     }
     return timer_done;

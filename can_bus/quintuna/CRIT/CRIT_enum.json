@@ -1,7 +1,8 @@
 {
   "DriveMode": {
-    "DRIVE_MODE_MAIN_DRIVE": 0,
-    "DRIVE_MODE_INDOORS": 1,
-    "DRIVE_MODE_COUNT": 2
+    "DRIVE_MODE_POWER": 0,
+    "DRIVE_MODE_POWER_AND_ACTIVE": 1,
+    "DRIVE_MODE_TV": 2,
+    "DRIVE_MODE_COUNT": 3
   }
 }

@@ -61,7 +61,7 @@
       "RegenSwitch": {
         "enum": "SwitchState"
       },
-      "TorqueVecSwitch": {
+      "VanillaOverrideSwitch": {
         "enum": "SwitchState"
       },
       "LaunchControlSwitch": {
@@ -78,7 +78,7 @@
     "description": "Drive Mode.",
     "signals": {
       "DriveMode": {
-        "bits": 4
+        "enum": "DriveMode"
       }
     }
   },

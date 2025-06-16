@@ -145,7 +145,7 @@ TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverter_
 
 TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state)
 {
-    for (auto &state : GetAllStates())
+    for (const auto &state : GetAllStates())
     {
         VCBaseTest::SetUp();
         SetInitialState(state);
