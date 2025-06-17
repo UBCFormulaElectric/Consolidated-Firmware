@@ -36,7 +36,6 @@ static void app_prechargeDriveStateRunOnTick100Hz(void)
         // also on the other hand you want to close positive before you open precharge, so i guess?? but i think the
         // time between the two should be very minimal since they get handled in the onentry and onexit of each
         // state transition, which happens consecutively
-
         io_irs_closePositive();
 
         app_stateMachine_setNextState(app_driveState_get());

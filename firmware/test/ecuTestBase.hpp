@@ -5,9 +5,6 @@
 
 class EcuTestBase : public testing::Test
 {
-#define ASSERT_STATE_EQ(x)                             \
-    ASSERT_EQ(app_stateMachine_getCurrentState(), (x)) \
-        << "Expected state: " << (x)->name << ", but got: " << app_stateMachine_getCurrentState()->name
   public:
     ~EcuTestBase() override = default;
 

@@ -1,32 +1,12 @@
 #include "app_precharge.h"
 #include "app_stateMachine.h"
-#include "app_tractiveSystem.h"
 #include "app_initState.h"
-#include "io_charger.h"
-#include "app_segments.h"
 #include "io_irs.h"
-#include "io_log.h"
-#include "io_time.h"
-#include "app_timer.h"
 #include "app_canRx.h"
 #include "states/app_allStates.h"
 #include "states/app_chargeState.h"
 #include <app_canTx.h>
-#include "app_segments.h"
-#include "states/app_faultState.h"
-
-#define PRECHARGE_ACC_VOLTAGE_THRESHOLD 0.9f
-#define NUM_OF_INVERTERS 4U
-#define INVERTER_CAPACITANCE_F 75e-6f
-#define NUM_OF_RESISTORS 1U
-#define PRECHARGE_RESISTANCE_OHMS 3e3f
-#define S_TO_MS 1000U
-#define PRECHARGE_RC_MS \
-    (S_TO_MS * (PRECHARGE_RESISTANCE_OHMS * NUM_OF_RESISTORS * INVERTER_CAPACITANCE_F * NUM_OF_INVERTERS))
-#define MAX_PRECHARGE_ATTEMPTS 3U
-#define PRECHARGE_COMPLETION_MS (float)PRECHARGE_RC_MS * 2.7f // 2.7RC corresponds to time to reach ~93% charged
-#define PRECHARGE_COMPLETION_UPPERBOUND_MS (uint32_t)(PRECHARGE_COMPLETION_MS * 5.0f)
-#define PRECHARGE_COMPLETION_LOWERBOUND_MS (uint32_t)(PRECHARGE_COMPLETION_MS * 0.5f)
+#include "states/app_prechargeLatchState.h"
 
 static void app_prechargeChargeStateRunOnEntry(void)
 {
@@ -46,7 +26,7 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
         // unintentionally re-enter charge state.
         app_canRx_Debug_StartCharging_update(false);
 
-        app_stateMachine_setNextState(app_faultState_get());
+        app_stateMachine_setNextState(app_prechargeLatchState_get());
     }
     else if (state == PRECHARGE_STATE_FAILED)
     {

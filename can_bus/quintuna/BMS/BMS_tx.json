@@ -138,27 +138,15 @@
         "min": 0,
         "max": 100000,
         "unit": "W"
-      },
-      "VoltageDiagState":{
-        "bits": 1
-      },
-      "CurrentDiagState":{
-        "bits": 1
       }
     }
   },
-  "BSPDStatus":{
-    "msg_id":414,
+  "BSPDStatus": {
+    "msg_id": 414,
     "cycle_time": 100,
     "description": "BSPD Status",
-    "signals":{
-      "BSPDBrakePressureThresholdExceeded": {
-        "bits": 1
-      },
+    "signals": {
       "BSPDCurrentThresholdExceeded": {
-        "bits": 1
-      },
-      "BSPDAccelBrakeOk": {
         "bits": 1
       }
     }
