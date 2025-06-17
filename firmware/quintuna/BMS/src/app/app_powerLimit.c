@@ -18,15 +18,15 @@
 // persistent hysteresis state across calls
 static bool temp_hysteresis_engaged = false;
 
-void app_powerCurrentLimit_broadcast()
+void app_powerLimit_broadcast()
 {
     // Get current limits
-    float discharge_c_lim = app_powerCurrentLimit_getDischargeCurrentLimit();
-    float charge_c_lim    = app_powerCurrentLimit_getChargeCurrentLimit();
+    float discharge_c_lim = app_powerLimit_getDischargeCurrentLimit();
+    float charge_c_lim    = app_powerLimit_getChargeCurrentLimit();
 
     // Get power limits
-    float discharge_p_lim = MIN(app_powerCurrentLimit_getDischargePowerLimit(), discharge_c_lim * pack_voltage);
-    float charge_p_lim    = MIN(app_powerCurrentLimit_getChargePowerLimit(), charge_c_lim * pack_voltage);
+    float discharge_p_lim = MIN(app_powerLimit_getDischargePowerLimit(), discharge_c_lim * pack_voltage);
+    float charge_p_lim    = MIN(app_powerLimit_getChargePowerLimit(), charge_c_lim * pack_voltage);
 
     // Determine if power limit is active
     const bool discharge_lim_active = (discharge_p_lim < MAX_POWER_LIMIT_W);
@@ -62,7 +62,7 @@ void app_powerCurrentLimit_broadcast()
     }
 }
 
-float app_powerCurrentLimit_getDischargePowerLimit()
+float app_powerLimit_getDischargePowerLimit()
 {
     // Calculate power limit from temperature
     const float temp_power_limit = app_math_linearDerating(
@@ -85,7 +85,7 @@ float app_powerCurrentLimit_getDischargePowerLimit()
     return power_limit;
 }
 
-float app_powerCurrentLimit_getChargePowerLimit()
+float app_powerLimit_getChargePowerLimit()
 {
     // Calculate power limit from temperature
     const float temp_power_limit = app_math_linearDerating(
@@ -108,7 +108,7 @@ float app_powerCurrentLimit_getChargePowerLimit()
     return power_limit;
 }
 
-float app_powerCurrentLimit_getDischargeCurrentLimit()
+float app_powerLimit_getDischargeCurrentLimit()
 {
     // float low_v_lim    = app_powerCurrentLimit_calcLowVoltageClampCurrentLimit();
     // float low_soc_lim  = app_powerCurrentLimit_calcLowSOCCurrentLimit();
@@ -141,7 +141,7 @@ float app_powerCurrentLimit_getDischargeCurrentLimit()
     return c_lim;
 }
 
-float app_powerCurrentLimit_getChargeCurrentLimit()
+float app_powerLimit_getChargeCurrentLimit()
 {
     // float high_v_lim   = app_powerCurrentLimit_calchighVoltageClampCurrentLimit();
     // float high_soc_lim = app_powerCurrentLimit_calcHighSOCCurrentLimit();
@@ -175,25 +175,25 @@ float app_powerCurrentLimit_getChargeCurrentLimit()
 }
 
 // TODO: implement this once app SOC is merged with master - see quadrina current limit pr
-float app_powerCurrentLimit_lowVoltageClampCurrentLimit()
+float app_powerLimit_lowVoltageClampCurrentLimit()
 {
     return -1;
 }
 
 // TODO: implement this once app SOC is merged with master - see quadrina current limit pr
-float app_powerCurrentLimit_highVoltageClampCurrentLimit()
+float app_powerLimit_highVoltageClampCurrentLimit()
 {
     return -1;
 }
 
 // TODO: implement this - see quadrina current limit pr
-float app_powerCurrentLimit_lowSOCCurrentLimit()
+float app_powerLimit_lowSOCCurrentLimit()
 {
     return -1;
 }
 
 // TODO: implement this - see quadrina current limit pr
-float app_powerCurrentLimit_highSOCCurrentLimit()
+float app_powerLimit_highSOCCurrentLimit()
 {
     return -1;
 }
