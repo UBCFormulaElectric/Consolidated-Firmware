@@ -1,3 +1,3 @@
 #pragma once
 
-#define BOARD_HIGHBITS (0x08000000)
+#define BOARD_HIGHBITS (0x0C000000)
