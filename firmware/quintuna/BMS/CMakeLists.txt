@@ -183,4 +183,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes")
+    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()
