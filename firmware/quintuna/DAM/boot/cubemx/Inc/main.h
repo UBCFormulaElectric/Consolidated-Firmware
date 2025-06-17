@@ -58,35 +58,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LSI_FREQUENCY 32000
-#define IWDG_PRESCALER 4
-#define IWDG_RESET_FREQUENCY 4
-#define DEBUG_LED_Pin GPIO_PIN_0
-#define DEBUG_LED_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_0
+#define LED_GPIO_Port GPIOC
 #define BOOT_LED_Pin GPIO_PIN_1
 #define BOOT_LED_GPIO_Port GPIOC
-#define SD_FAIL_Pin GPIO_PIN_3
-#define SD_FAIL_GPIO_Port GPIOC
-#define TELEM_PWR_EN_Pin GPIO_PIN_9
-#define TELEM_PWR_EN_GPIO_Port GPIOE
-#define BUZZER_PWR_EN_Pin GPIO_PIN_15
-#define BUZZER_PWR_EN_GPIO_Port GPIOE
-#define nTSIM_GRN_EN_Pin GPIO_PIN_13
-#define nTSIM_GRN_EN_GPIO_Port GPIOD
-#define TSIM_RED_EN_Pin GPIO_PIN_15
-#define TSIM_RED_EN_GPIO_Port GPIOD
-#define SPLITTER_SHDN_SENSE_Pin GPIO_PIN_6
-#define SPLITTER_SHDN_SENSE_GPIO_Port GPIOC
-#define L_SHDN_SENSE_Pin GPIO_PIN_7
-#define L_SHDN_SENSE_GPIO_Port GPIOC
-#define SD_CD_Pin GPIO_PIN_8
-#define SD_CD_GPIO_Port GPIOA
-#define SWDIO_Pin GPIO_PIN_13
-#define SWDIO_GPIO_Port GPIOA
-#define SWCLK_Pin GPIO_PIN_14
-#define SWCLK_GPIO_Port GPIOA
-#define SWO_Pin GPIO_PIN_3
-#define SWO_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
