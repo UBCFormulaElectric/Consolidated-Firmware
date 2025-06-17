@@ -332,7 +332,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(({
   }, [totalDataPoints, horizontalScale, horizontalScrollPosition]);
 
   return (
-    <div className="mb-6 p-4 inline-block w-min-[100vm] relative">
+    <div className="mb-6 p-4 block w-full relative">
       {isPaused && (
         <div className="top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10 block">
           PAUSED

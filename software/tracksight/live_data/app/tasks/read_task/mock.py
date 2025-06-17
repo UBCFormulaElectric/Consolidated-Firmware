@@ -38,26 +38,26 @@ def read_messages_from_file() -> NoReturn:
             can_msg_queue.put(
                 CanMsg(500, bytearray(os.urandom(8)), datetime.datetime.now())
             )
-            can_msg_queue.put(
-                CanMsg(501, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
-            can_msg_queue.put(
-                CanMsg(502, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
+            # can_msg_queue.put(
+            #     CanMsg(501, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+            # can_msg_queue.put(
+            #     CanMsg(502, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
 
-            can_msg_queue.put(
-                CanMsg(503, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
+            # can_msg_queue.put(
+            #     CanMsg(503, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
 
-            can_msg_queue.put(
-                CanMsg(504, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
-            can_msg_queue.put(
-                CanMsg(505, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
-            can_msg_queue.put(
-                CanMsg(506, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
+            # can_msg_queue.put(
+            #     CanMsg(504, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+            # can_msg_queue.put(
+            #     CanMsg(505, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+            # can_msg_queue.put(
+            #     CanMsg(506, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
             can_msg_queue.put(
                 CanMsg(233, bytearray(os.urandom(8)), datetime.datetime.now())
             )

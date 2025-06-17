@@ -141,7 +141,7 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     }, [signalName, onDelete]); // Removed unsubscribeFromSignal dependency
 
     return (
-      <div className="mb-6 p-4 inline-block">
+      <div className="mb-6 p-4 block w-full">
         {isPaused && (
           <div className="top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10 block">
             PAUSED
