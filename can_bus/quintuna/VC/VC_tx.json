@@ -1,10 +1,4 @@
 {
-  "Bootup": {
-    "msg_id": 230,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 500,
     "cycle_time": 10,
@@ -581,6 +575,12 @@
         "signed": true
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 599,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   },
   "PowerMonitoring": {
     "msg_id": 514,
