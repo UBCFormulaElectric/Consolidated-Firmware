@@ -1,10 +1,4 @@
 {
-  "Bootup": {
-    "msg_id": 715,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 700,
     "cycle_time": 100,
@@ -12,9 +6,6 @@
     "signals": {
       "Heartbeat": {
         "bits": 1
-      },
-      "State": {
-        "enum": "RsmStates"
       }
     }
   },
@@ -150,20 +141,10 @@
       }
     }
   },
-  "RearPump": {
-    "msg_id": 716,
-    "cycle_time": 100,
-    "description": "RSM rear pump info",
-    "signals": {
-      "PumpRampUpSetPoint": {
-        "resolution": 1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      },
-      "PumpFailure": {
-        "bits": 1
-      }
-    }
+  "Bootup": {
+    "msg_id": 799,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }
