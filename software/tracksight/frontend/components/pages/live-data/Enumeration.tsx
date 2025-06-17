@@ -3,8 +3,8 @@
 
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
+import { formatWithMs } from "@/lib/utils/dateformat";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { useDisplayControl } from "@/components/shared/PausePlayControl";
 
 interface DynamicSignalGraphProps {
   signalName: string;
@@ -238,10 +238,8 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                     ? bars[idx + 1].startTime
                     : bar.startTime + 100; // Default duration for last bar
 
-                const startTimeStr = new Date(
-                  bar.startTime
-                ).toLocaleTimeString();
-                const endTimeStr = new Date(endTime).toLocaleTimeString();
+                const startTimeStr = formatWithMs(new Date(bar.startTime));
+                const endTimeStr = formatWithMs(new Date(endTime));
 
                 return (
                   <div
@@ -260,7 +258,7 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                   className="absolute whitespace-nowrap text"
                   style={{ left: `${bar.xOffset}px` }}
                 >
-                  {new Date(bar.startTime).toLocaleTimeString()}
+                  {formatWithMs(new Date(bar.startTime))}
                 </div>
               ))}
             </div>
