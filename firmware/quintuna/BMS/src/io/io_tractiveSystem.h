@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 /**
  * Initialize the tractive system driver.
  * @param ts_config Config struct.
