@@ -87,7 +87,7 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityLow,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = { .hcan = &hfdcan3, .bus_num = 3, .receive_callback = io_canQueue_pushRx };
+CanHandle can = { .hcan = &hfdcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
