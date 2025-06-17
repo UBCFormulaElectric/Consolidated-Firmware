@@ -61,7 +61,6 @@ type SignalContextType = {
   availableSignals: SignalMeta[];
   isLoadingSignals: boolean;
   signalError: string | null;
-  socket: Socket | null;
   isConnected: boolean;
   activeSignals: string[];
   data: DataPoint[];
@@ -109,7 +108,6 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const [availableSignals, setAvailableSignals] = useState<SignalMeta[]>([]);
   const [isLoadingSignals, setIsLoadingSignals] = useState(true);
   const [signalError, setSignalError] = useState<string | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const [activeSignals, setActiveSignals] = useState<string[]>([]);
@@ -120,6 +118,9 @@ export function SignalProvider({ children }: { children: ReactNode }) {
 
   // Use ref for enumMetadata to avoid closure issues in socket handlers
   const enumMetadataRef = useRef<Record<string, Record<string, string>>>({});
+
+  // Socket stored in ref to prevent re-initialization on dependency changes
+  const socketRef = useRef<Socket | null>(null);
 
   // Optimized data storage
   const dataStore = useRef<SignalDataStore>(new SignalDataStore());
@@ -148,6 +149,9 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const isPausedRef = useRef(isPaused);
   isPausedRef.current = isPaused;
 
+  // Stable ref for addDataPoint to avoid socket re-initialization
+  const addDataPointRef = useRef<(dataPoint: DataPoint) => void>(() => {});
+
   // Update compatibility arrays from data store
   const updateCompatibilityArrays = useCallback(() => {
     const allData = dataStore.current.getAllData();
@@ -171,8 +175,118 @@ export function SignalProvider({ children }: { children: ReactNode }) {
       if (rafUpdateTimer.current) {
         cancelAnimationFrame(rafUpdateTimer.current);
       }
+      // Disconnect socket on unmount
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
   }, []);
+
+  // Initialize socket exactly once
+  useEffect(() => {
+    DEBUG && console.log("Initializing socket - one time only");
+    
+    const s = io(BACKEND_URL, {
+      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+      timeout: 10000,
+    });
+
+    s.on("connect", () => {
+      DEBUG && console.log("Socket connected");
+      setIsConnected(true);
+      setReconnectAttempts(0);
+    });
+
+    s.on("connect_error", (e) => {
+      DEBUG && console.log("Socket error:", e);
+      setIsConnected(false);
+    });
+
+    s.on("disconnect", (r) => {
+      DEBUG && console.log("Socket disconnected:", r);
+      setIsConnected(false);
+    });
+
+    // Data handler setup - this callback is stable and doesn't depend on volatile state
+    const handleData = (inc: any) => {
+      DEBUG && console.log("Received data:", inc);
+      const { name, value } = inc;
+      if (!name) return;
+      
+      // Check ref count at time of data arrival
+      if ((signalSubscribers.current[name] || 0) === 0) {
+        return DEBUG && console.log(`Ignoring data for ${name}`);
+      }
+      
+      inc.time ||= Date.now();
+      
+      // Check if this signal is an enumeration signal using pattern matching
+      const isEnum = /state|mode|enum|status/.test(name.toLowerCase());
+      
+      if (DEBUG) {
+        console.log(`Signal ${name}: isEnum=${isEnum}, value=${inc.value} (${typeof inc.value})`);
+      }
+      
+      // Handle enum signals (convert numeric values to strings for display)
+      if (isEnum) {
+        if (typeof inc.value === "number") {
+          // Get the current enum metadata from ref (not closure)
+          const currentEnumMetadata = enumMetadataRef.current;
+          const hasEnumMetadata = currentEnumMetadata[name] && Object.keys(currentEnumMetadata[name]).length > 0;
+          
+          if (DEBUG) {
+            console.log(`${name}: hasEnumMetadata=${hasEnumMetadata}, available keys:`, 
+              hasEnumMetadata ? Object.keys(currentEnumMetadata[name]) : 'none');
+          }
+          
+          if (hasEnumMetadata) {
+            // Convert numeric enum value to string using metadata
+            const enumStringValue = currentEnumMetadata[name][String(inc.value)];
+            if (enumStringValue) {
+              inc.value = enumStringValue;
+              if (DEBUG) console.log(`✓ Converted ${name} enum value to string: "${enumStringValue}"`);
+            } else {
+              // Use fallback conversion for unmapped values
+              const stringValue = `State_${inc.value}`;
+              inc.value = stringValue;
+              if (DEBUG) console.log(`⚠ No mapping found for ${name} value ${inc.value}, using fallback: "${stringValue}"`);
+            }
+          } else {
+            // No metadata available, use fallback string conversion
+            const stringValue = `State_${inc.value}`;
+            inc.value = stringValue;
+            if (DEBUG) console.log(`⚠ No metadata for enum signal ${name}, using fallback: "${stringValue}"`);
+          }
+        } else if (typeof inc.value === "string") {
+          // String enum value, keep as-is
+          if (DEBUG) console.log(`✓ Keeping ${name} as string enum value: "${inc.value}"`);
+        }
+      } else {
+        // Non-enum signal - convert strings to numbers if possible
+        if (typeof inc.value === "string") {
+          const numValue = parseFloat(inc.value);
+          if (!isNaN(numValue)) {
+            inc.value = numValue;
+            if (DEBUG) console.log(`Converted ${name} value to number: ${numValue}`);
+          }
+        }
+      }
+      
+      // Use batched data addition
+      addDataPointRef.current(inc);
+    };
+
+    s.on("data", handleData);
+    s.on("sub_ack", () => DEBUG && console.log("Subscription acknowledged"));
+
+    socketRef.current = s;
+    console.log("Socket init complete");
+
+    return () => {
+      s.off("data", handleData);
+      s.disconnect();
+    };
+  }, []); // Empty dependency array - initialize only once
 
   const isEnumSignal = useCallback((name: string) => {
     const type = signalTypes.current[name];
@@ -266,6 +380,9 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     }
   }, [flushPendingDataUpdates]);
 
+  // Set the ref to the stable callback
+  addDataPointRef.current = addDataPoint;
+
   const getSignalRefCount = useCallback(
     (name: string) => signalSubscribers.current[name] || 0,
     []
@@ -337,191 +454,146 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     updateCompatibilityArrays();
   }, [updateCompatibilityArrays]);
 
-  const fetchSignalMetadata = useCallback(async () => {
-    if (DEBUG) console.log("Fetching signal metadata");
-    try {
-      setIsLoadingSignals(true);
-      setSignalError(null);
-      const res = await fetch(`${BACKEND_URL}/api/signal`);
-      if (!res.ok) throw new Error(`Failed to fetch signals: ${res.status}`);
-      const list = await res.json();
-      const metas: SignalMeta[] = list.map((s: any) => ({
-        name: s.name,
-        unit: s.unit,
-        cycle_time_ms: s.cycle_time_ms,
-        msg_name:s.msg_name,
-        msg_id:s.id
-      }));
-      setAvailableSignals(metas);
+  // Fetch signal metadata separately from socket initialization
+  useEffect(() => {
+    let cancelled = false;
+    
+    const fetchSignalMetadata = async () => {
+      if (DEBUG) console.log("Fetching signal metadata");
+      try {
+        setIsLoadingSignals(true);
+        setSignalError(null);
+        const res = await fetch(`${BACKEND_URL}/api/signal`);
+        if (!res.ok) throw new Error(`Failed to fetch signals: ${res.status}`);
+        const list = await res.json();
+        
+        if (cancelled) return; // Don't update state if component unmounted
+        
+        const metas: SignalMeta[] = list.map((s: any) => ({
+          name: s.name,
+          unit: s.unit,
+          cycle_time_ms: s.cycle_time_ms,
+          msg_name: s.msg_name,
+          msg_id: s.id
+        }));
+        setAvailableSignals(metas);
 
-      const enumMap: Record<string, Record<string, string>> = {};
-      list.forEach((s: any) => {
-        if (DEBUG && s.name === 'VC_State') {
-          console.log(`VC_State signal metadata:`, s);
-          console.log(`VC_State has enum?`, !!s.enum);
-          if (s.enum) {
-            console.log(`VC_State enum data:`, s.enum);
-            console.log(`VC_State enum items:`, s.enum.items);
-            console.log(`VC_State enum name:`, s.enum.name);
-          }
-        }
-        if (s.enum?.items) {
-          enumMap[s.name] = s.enum.items;
+        const enumMap: Record<string, Record<string, string>> = {};
+        list.forEach((s: any) => {
           if (DEBUG && s.name === 'VC_State') {
-            console.log(`✓ Added VC_State to enumMap:`, s.enum.items);
-          }
-        }
-      });
-      setEnumMetadata(enumMap);
-      
-      // Update ref for socket handlers
-      enumMetadataRef.current = enumMap;
-
-      if (DEBUG) {
-        console.log("Fetched enumerations and states:");
-        Object.entries(enumMap).forEach(([s, m]) =>
-          console.log(`  ${s}: [${Object.values(m).join(", ")}]`)
-        );
-        console.log(`Available enum signals: ${Object.keys(enumMap).length > 0 ? Object.keys(enumMap).join(', ') : 'None'}`);
-        console.log("VC_State in enumMap?", !!enumMap['VC_State']);
-      }
-
-      setIsLoadingSignals(false);
-    } catch (err: any) {
-      DEBUG && console.log("Error fetching signals:", err);
-      setSignalError(err.message);
-      setIsLoadingSignals(false);
-      if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-        setTimeout(() => {
-          setReconnectAttempts((a) => a + 1);
-          fetchSignalMetadata();
-        }, RECONNECT_INTERVAL);
-      }
-    }
-  }, [reconnectAttempts]);
-
-  const initializeSocket = useCallback(() => {
-    DEBUG && console.log("Initializing socket");
-    socket?.disconnect();
-    const s = io(BACKEND_URL, {
-      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
-      timeout: 10000,
-    });
-
-    s.on("connect", () => {
-      DEBUG && console.log("Socket connected");
-      setIsConnected(true);
-      setReconnectAttempts(0);
-      if (!isPaused)
-        activeSignals.forEach((sig) => {
-          if ((signalSubscribers.current[sig] || 0) > 0) {
-            if (DEBUG) {
-              console.log(`Resubscribing to ${sig} on reconnect`);
+            console.log(`VC_State signal metadata:`, s);
+            console.log(`VC_State has enum?`, !!s.enum);
+            if (s.enum) {
+              console.log(`VC_State enum data:`, s.enum);
+              console.log(`VC_State enum items:`, s.enum.items);
+              console.log(`VC_State enum name:`, s.enum.name);
             }
-            s.emit("sub", sig);
+          }
+          if (s.enum?.items) {
+            enumMap[s.name] = s.enum.items;
+            if (DEBUG && s.name === 'VC_State') {
+              console.log(`✓ Added VC_State to enumMap:`, s.enum.items);
+            }
           }
         });
-    });
-    s.on("connect_error", (e) => {
-      DEBUG && console.log("Socket error:", e);
-      setIsConnected(false);
-    });
-    s.on("disconnect", (r) => {
-      DEBUG && console.log("Socket disconnected:", r);
-      setIsConnected(false);
-    });
+        setEnumMetadata(enumMap);
+        
+        // Update ref for socket handlers
+        enumMetadataRef.current = enumMap;
 
-    const handler = (inc: any) => {
-      DEBUG && console.log("Received data:", inc);
-      const { name, value } = inc;
-      if (!name) return;
-      if ((signalSubscribers.current[name] || 0) === 0)
-        return DEBUG && console.log(`Ignoring data for ${name}`);
-      
-      inc.time ||= Date.now();
-      
-      // Check if this signal is an enumeration signal using original pattern matching
-      const isEnum = isEnumSignal(name);
-      
-      if (DEBUG) {
-        console.log(`Signal ${name}: isEnum=${isEnum}, value=${inc.value} (${typeof inc.value})`);
-        if (isEnum) {
-          console.log(`Current enumMetadata for ${name}:`, enumMetadata[name]);
-          console.log(`hasMetadata=${!!enumMetadata[name]}`);
+        if (DEBUG) {
+          console.log("Fetched enumerations and states:");
+          Object.entries(enumMap).forEach(([s, m]) =>
+            console.log(`  ${s}: [${Object.values(m).join(", ")}]`)
+          );
+          console.log(`Available enum signals: ${Object.keys(enumMap).length > 0 ? Object.keys(enumMap).join(', ') : 'None'}`);
+          console.log("VC_State in enumMap?", !!enumMap['VC_State']);
+        }
+
+        setIsLoadingSignals(false);
+      } catch (err: any) {
+        if (cancelled) return;
+        DEBUG && console.log("Error fetching signals:", err);
+        setSignalError(err.message);
+        setIsLoadingSignals(false);
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          setTimeout(() => {
+            setReconnectAttempts((a) => a + 1);
+            // Retry will be handled by the dependency on reconnectAttempts
+          }, RECONNECT_INTERVAL);
         }
       }
-      
-      // Handle enum signals (convert numeric values to strings for display)
-      if (isEnum) {
-        if (typeof inc.value === "number") {
-          // Get the current enum metadata from ref (not closure)
-          const currentEnumMetadata = enumMetadataRef.current;
-          const hasEnumMetadata = currentEnumMetadata[name] && Object.keys(currentEnumMetadata[name]).length > 0;
-          
-          if (DEBUG) {
-            console.log(`${name}: hasEnumMetadata=${hasEnumMetadata}, available keys:`, 
-              hasEnumMetadata ? Object.keys(currentEnumMetadata[name]) : 'none');
-          }
-          
-          if (hasEnumMetadata) {
-            // Convert numeric enum value to string using metadata
-            const enumStringValue = currentEnumMetadata[name][String(inc.value)];
-            if (enumStringValue) {
-              inc.value = enumStringValue;
-              if (DEBUG) console.log(`✓ Converted ${name} enum value to string: "${enumStringValue}"`);
-            } else {
-              // Use fallback conversion for unmapped values
-              const stringValue = `State_${inc.value}`;
-              inc.value = stringValue;
-              if (DEBUG) console.log(`⚠ No mapping found for ${name} value ${inc.value}, using fallback: "${stringValue}"`);
-            }
-          } else {
-            // No metadata available, use fallback string conversion
-            const stringValue = `State_${inc.value}`;
-            inc.value = stringValue;
-            if (DEBUG) console.log(`⚠ No metadata for enum signal ${name}, using fallback: "${stringValue}"`);
-          }
-        } else if (typeof inc.value === "string") {
-          // String enum value, keep as-is
-          if (DEBUG) console.log(`✓ Keeping ${name} as string enum value: "${inc.value}"`);
-        }
-      } else {
-        // Non-enum signal - convert strings to numbers if possible
-        if (typeof inc.value === "string") {
-          const numValue = parseFloat(inc.value);
-          if (!isNaN(numValue)) {
-            inc.value = numValue;
-            if (DEBUG) console.log(`Converted ${name} value to number: ${numValue}`);
-          }
-        }
-      }
-      
-      // Use batched data addition instead of direct state updates
-      // This prevents multiple re-renders when many signals arrive simultaneously
-      addDataPoint(inc);
     };
 
-    s.on("data", handler);
-    s.on("sub_ack", () => DEBUG && console.log("Subscription acknowledged"));
-    setSocket(s);
-    console.log("Socket init complete");
+    fetchSignalMetadata();
+    
     return () => {
-      s.off("data", handler);
-      s.disconnect();
+      cancelled = true;
     };
-  }, [activeSignals, addDataPoint, isPaused, enumMetadata, isEnumSignal]);
+  }, [reconnectAttempts]); // Only depends on reconnect attempts
+
+  // Centralized subscription management - single effect to handle all subscription changes
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !isConnected || isPaused) return;
+
+    // Subscribe to all active signals when they change or when reconnecting
+    activeSignals.forEach((sig) => {
+      if ((signalSubscribers.current[sig] || 0) > 0) {
+        if (DEBUG) {
+          console.log(`Subscribing to ${sig}`);
+        }
+        socket.emit("sub", sig);
+      }
+    });
+
+    // Cleanup function - unsubscribe when dependencies change
+    return () => {
+      if (socket && isConnected) {
+        activeSignals.forEach((sig) => {
+          if (DEBUG) {
+            console.log(`Unsubscribing from ${sig} due to dependency change`);
+          }
+          socket.emit("unsub", sig);
+        });
+      }
+    };
+  }, [activeSignals, isConnected, isPaused]);
+
+  // Separate effect to handle pause/resume without affecting the subscription list
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !isConnected) return;
+
+    const action = isPaused ? "unsub" : "sub";
+    const signalsToProcess = activeSignals.filter((sig) => {
+      const refCount = signalSubscribers.current[sig] || 0;
+      const notPending = !pendingUnsubscriptions.current.has(sig);
+      return refCount > 0 && notPending;
+    });
+
+    if (DEBUG && signalsToProcess.length > 0) {
+      console.log(
+        `${isPaused ? "Pausing" : "Resuming"} ${signalsToProcess.length} signals: [${signalsToProcess.join(", ")}]`
+      );
+    }
+
+    signalsToProcess.forEach((sig) => {
+      if (DEBUG) {
+        console.log(
+          `${isPaused ? "Pausing data stream" : "Resuming data stream"} for ${sig}`
+        );
+      }
+      socket.emit(action, sig);
+    });
+  }, [isPaused, isConnected]); // Removed activeSignals dependency to prevent loops
 
   const reconnect = useCallback(() => {
     DEBUG && console.log("Reconnecting...");
     setReconnectAttempts(0);
-    fetchSignalMetadata();
-    initializeSocket();
-  }, [fetchSignalMetadata, initializeSocket]);
-
-  useEffect(() => {
-    fetchSignalMetadata();
-    const clean = initializeSocket();
-    return clean;
+    // Socket will auto-reconnect due to socket.io config
+    // Just trigger metadata refresh
+    setReconnectAttempts((prev) => prev + 1);
   }, []);
 
   useEffect(() => {
@@ -534,57 +606,6 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     }, 5000); // Increased to 5 seconds - mainly for UI clock updates when no data flows
     return () => clearInterval(id);
   }, []); // Empty dependency array - only run once
-
-  // Pause/play effect with race condition prevention
-  const pausedRef = useRef(isPaused);
-
-  useEffect(() => {
-    if (!socket || !isConnected || !isMounted.current) return;
-
-    // Only act on actual pause state changes, not activeSignals changes
-    const pauseStateChanged = pausedRef.current !== isPaused;
-    if (!pauseStateChanged) return;
-
-    pausedRef.current = isPaused;
-
-    const action = isPaused ? "unsub" : "sub";
-    if (DEBUG) {
-      console.log(
-        `SignalProvider - ${
-          isPaused ? "Pausing" : "Playing"
-        } - isPaused: ${isPaused}`
-      );
-    }
-
-    // Use current activeSignals value from state, not dependency
-    const currentActiveSignals = activeSignals;
-
-    // Only process signals that have ref count > 0 and are not pending unsubscription
-    const signalsToProcess = currentActiveSignals.filter((sig) => {
-      const refCount = signalSubscribers.current[sig] || 0;
-      const notPending = !pendingUnsubscriptions.current.has(sig);
-      return refCount > 0 && notPending;
-    });
-
-    if (DEBUG && signalsToProcess.length > 0) {
-      console.log(
-        `Processing ${
-          signalsToProcess.length
-        } signals: [${signalsToProcess.join(", ")}]`
-      );
-    }
-
-    signalsToProcess.forEach((sig) => {
-      if (DEBUG) {
-        console.log(
-          `${
-            isPaused ? "Pausing data stream" : "Resuming data stream"
-          } for ${sig}`
-        );
-      }
-      socket.emit(action, sig);
-    });
-  }, [isPaused, socket, isConnected]); // Removed activeSignals dependency
 
   const subscribeToSignal = useCallback(
     (signalName: string, type: SignalType = SignalType.Any) => {
@@ -637,7 +658,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         console.log("Signal ref counts:", refs);
       }
 
-      // Only add to activeSignals and emit subscription if this is the first subscriber
+      // Only add to activeSignals if this is the first subscriber
       const isFirstSubscriber = signalSubscribers.current[name] === 1;
 
       if (isFirstSubscriber) {
@@ -647,13 +668,10 @@ export function SignalProvider({ children }: { children: ReactNode }) {
           return [...current, name];
         });
 
-        // Only emit subscription if connected and not paused
-        if (socket && isConnected && !isPaused) {
-          socket.emit("sub", name);
-        }
+        // Socket subscription will be handled by the centralized subscription effect
       }
     },
-    [isConnected, isEnumSignal, isPaused, socket]
+    [isEnumSignal, enumMetadata]
   );
 
   const unsubscribeFromSignal = useCallback(
@@ -698,8 +716,8 @@ export function SignalProvider({ children }: { children: ReactNode }) {
 
         // Always emit unsubscription if connected, regardless of pause state
         // This ensures clean disconnection from the signal
-        if (socket && isConnected) {
-          socket.emit("unsub", name);
+        if (socketRef.current && isConnected) {
+          socketRef.current.emit("unsub", name);
         }
 
         // Only clean up data if explicitly requested (for true unsubscription, not pause)
@@ -718,7 +736,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         }, 50);
       }
     },
-    [isConnected, pruneSignalData, socket]
+    [pruneSignalData]
   );
 
   const clearData = () => {
@@ -738,8 +756,8 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     pendingUnsubscriptions.current.clear();
 
     // Batch unsubscribe all active signals
-    if (socket && isConnected) {
-      activeSignals.forEach((sig) => socket.emit("unsub", sig));
+    if (socketRef.current && isConnected) {
+      activeSignals.forEach((sig) => socketRef.current!.emit("unsub", sig));
     }
 
     // Clear all state
@@ -750,7 +768,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     setData([]);
     setNumericalData([]);
     setEnumData([]);
-  }, [activeSignals, isConnected, socket]);
+  }, [activeSignals, isConnected]);
 
   const getEnumValues = useCallback(
     (name: string) =>
@@ -781,7 +799,6 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         availableSignals,
         isLoadingSignals,
         signalError,
-        socket,
         isConnected,
         activeSignals,
         data,
