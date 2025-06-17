@@ -14,7 +14,7 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 
 static TorqueAllocationInputs torqueToMotorsInputs;
-static PowerLimitingInputs powerLimitingInputs;
+static PowerLimitingInputs    powerLimitingInputs;
 
 static SensorStatus app_performSensorChecks(void);
 
@@ -50,6 +50,8 @@ void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
     torqueOutputToMotors->rear_right_torque  = torque_request;
 
     app_canAlerts_VC_Info_DriveModeOverride_set(false);
+
+    LOG_INFO("DriveHandling: Vanilla Mode Active");
 }
 
 void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
@@ -62,7 +64,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
     const float     motor_speed_rr_rpm = fabsf((float)app_canRx_INVRR_ActualVelocity_get());
     const float     motor_speed_rl_rpm = fabsf((float)app_canRx_INVRL_ActualVelocity_get());
     const float     wheel_angle        = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
-    const float     power_limit = app_powerLimiting_computeMaxPower(false);
+    const float     power_limit        = app_powerLimiting_computeMaxPower(false);
 
     switch (driveMode)
     {
@@ -72,10 +74,11 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
 
             torqueToMotorsInputs.front_yaw_moment    = 0.0f;
             torqueToMotorsInputs.rear_yaw_moment     = 0.0f;
-            torqueToMotorsInputs.load_transfer_const = 1.0f; 
+            torqueToMotorsInputs.load_transfer_const = 1.0f;
             torqueToMotorsInputs.load_transfer_const = 1.0f;
             torqueToMotorsInputs.power_limit_kw      = app_powerLimiting_computeMaxPower(false);
             app_torqueAllocation(&torqueToMotorsInputs, torqueOutputToMotors);
+            LOG_INFO("DriveHandling: PowerLimit Mode Active");
             break;
         }
         case DRIVE_MODE_POWER_AND_ACTIVE:
@@ -89,22 +92,22 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             app_canAlerts_VC_Info_DriveModeOverride_set(false);
 
             ActiveDifferential_Inputs ad_in = { .accelerator_pedal_percentage = apps_pedal_percentage,
-                                                .is_regen_mode                = false, 
+                                                .is_regen_mode                = false,
                                                 .motor_speed_fl_rpm           = motor_speed_fl_rpm,
                                                 .motor_speed_fr_rpm           = motor_speed_fr_rpm,
                                                 .motor_speed_rl_rpm           = motor_speed_rl_rpm,
                                                 .motor_speed_rr_rpm           = motor_speed_rr_rpm,
-                                                .power_max_kW    = power_limit,
-                                                .wheel_angle_deg = wheel_angle };
-
+                                                .power_max_kW                 = power_limit,
+                                                .wheel_angle_deg              = wheel_angle };
 
             app_activeDifferential_computeTorque(&ad_in, torqueOutputToMotors);
-            powerLimitingInputs.is_regen_mode = false; 
-            powerLimitingInputs.power_limit = power_limit;
-            powerLimitingInputs.torqueToMotors = torqueOutputToMotors;
+            powerLimitingInputs.is_regen_mode        = false;
+            powerLimitingInputs.power_limit          = power_limit;
+            powerLimitingInputs.torqueToMotors       = torqueOutputToMotors;
             powerLimitingInputs.total_requestedPower = app_totalPower(torqueOutputToMotors);
             app_powerLimiting_torqueReduction(&powerLimitingInputs);
             /// dont use torque allocation here
+            LOG_INFO("DriveHandling: Active Diff Power Limit Mode Active");
             break;
         }
         case DRIVE_MODE_TV:
@@ -113,6 +116,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(false);
                 app_torqueVectoring_run(apps_pedal_percentage);
+                LOG_INFO("DriveHandling: Torque Vectoring Mode Active");
             }
             else
             {

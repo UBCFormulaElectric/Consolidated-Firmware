@@ -23,10 +23,10 @@ void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, Tor
     const float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
     const float cl = inputs->is_regen_mode ? 1 - Delta : 1 + Delta, cr = inputs->is_regen_mode ? 1 + Delta : 1 - Delta;
 
-    outputs->front_left_torque = inputs->requested_torque_Nm * cl;
+    outputs->front_left_torque  = inputs->requested_torque_Nm * cl;
     outputs->front_right_torque = inputs->requested_torque_Nm * cr;
-    outputs->rear_left_torque = inputs->requested_torque_Nm * cl;
-    outputs->rear_right_torque = inputs->requested_torque_Nm * cr;
+    outputs->rear_left_torque   = inputs->requested_torque_Nm * cl;
+    outputs->rear_right_torque  = inputs->requested_torque_Nm * cr;
 }
 
 float app_activeDifferential_wheelAngleToSpeedDelta(const float wheel_angle_deg)

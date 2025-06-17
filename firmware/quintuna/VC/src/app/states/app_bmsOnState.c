@@ -39,7 +39,7 @@ static void bmsOnStateRunOnTick100Hz(void)
 
     if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
     {
-        app_stateMachine_setNextState(&pcmOn_state); 
+        app_stateMachine_setNextState(&pcmOn_state);
     }
 }
 static void bmsOnStateRunOnExit(void) {}

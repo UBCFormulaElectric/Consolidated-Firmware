@@ -10,7 +10,7 @@
 #include "io_imu_config.h"
 #include "app_powerLimiting.h"
 
-static PowerLimitingInputs powerLimitingInputs; 
+static PowerLimitingInputs powerLimitingInputs;
 
 void app_wheelVerticalForces_broadcast(const ImuData *imu_data)
 {
@@ -62,10 +62,9 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
 
     powerLimitingInputs.total_requestedPower = app_totalPower(torqueToMotors);
     app_canTx_VC_RequestedPower_set(powerLimitingInputs.total_requestedPower);
-    powerLimitingInputs.is_regen_mode = false; 
+    powerLimitingInputs.is_regen_mode  = false;
     powerLimitingInputs.torqueToMotors = torqueToMotors;
-    powerLimitingInputs.power_limit = inputs->power_limit_kw;
-
+    powerLimitingInputs.power_limit    = inputs->power_limit_kw;
 
     app_powerLimiting_torqueReduction(&powerLimitingInputs);
 

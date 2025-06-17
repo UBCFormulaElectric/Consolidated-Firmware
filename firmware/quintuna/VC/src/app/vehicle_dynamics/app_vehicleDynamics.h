@@ -86,11 +86,11 @@ typedef struct
     bool useTV : 1;
 } SensorStatus;
 
-typedef struct  PowerLimitingInputs
+typedef struct PowerLimitingInputs
 {
-    float              total_requestedPower;
-    float              power_limit;
+    float                    total_requestedPower;
+    float                    power_limit;
     TorqueAllocationOutputs *torqueToMotors;
     bool                     is_regen_mode;
     float                    derating_value;
-}PowerLimitingInputs;
+} PowerLimitingInputs;

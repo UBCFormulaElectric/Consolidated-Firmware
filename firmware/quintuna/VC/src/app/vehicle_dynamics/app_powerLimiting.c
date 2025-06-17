@@ -16,10 +16,10 @@ float app_totalPower(TorqueAllocationOutputs *torques)
 
 static float app_totalWheelSpeed()
 {
-    return (float)(fabsf((float)app_canRx_INVFL_ActualVelocity_get()) + fabsf((float)app_canRx_INVFR_ActualVelocity_get()) +
-                   fabsf((float)app_canRx_INVRL_ActualVelocity_get()) + fabsf((float)app_canRx_INVRR_ActualVelocity_get()));
+    return (
+        float)(fabsf((float)app_canRx_INVFL_ActualVelocity_get()) + fabsf((float)app_canRx_INVFR_ActualVelocity_get()) +
+               fabsf((float)app_canRx_INVRL_ActualVelocity_get()) + fabsf((float)app_canRx_INVRR_ActualVelocity_get()));
 }
-
 
 /**
  * @note Computes the max allowable power draw from the battery based on motor temps,
@@ -43,7 +43,8 @@ float app_powerLimiting_computeMaxPower(const bool isRegenOn)
     return P_max;
 }
 
-float getMaxMotorTemp(void) // -- we're relying solely on the inverter thermal derating -- this is no longer needed but will likely be used in the future
+float getMaxMotorTemp(void) // -- we're relying solely on the inverter thermal derating -- this is no longer needed but
+                            // will likely be used in the future
 {
     const float motor_fl_temp = (float)app_canRx_INVRL_MotorTemperature_get();
     const float motor_fr_temp = (float)app_canRx_INVFL_MotorTemperature_get();
@@ -54,10 +55,9 @@ float getMaxMotorTemp(void) // -- we're relying solely on the inverter thermal d
 
 void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
 {
-
-
-    const float torque_negative_max_Nm = MIN4(inputs->torqueToMotors->front_left_torque, inputs->torqueToMotors->front_right_torque, 
-                                              inputs->torqueToMotors->rear_left_torque, inputs->torqueToMotors->rear_right_torque);
+    const float torque_negative_max_Nm = MIN4(
+        inputs->torqueToMotors->front_left_torque, inputs->torqueToMotors->front_right_torque,
+        inputs->torqueToMotors->rear_left_torque, inputs->torqueToMotors->rear_right_torque);
     const float avg_max_neg_torque = POWER_TO_TORQUE(inputs->power_limit, app_totalWheelSpeed());
 
     float scale = CLAMP_TO_ONE(inputs->derating_value);
@@ -73,7 +73,8 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
 
     else if (inputs->total_requestedPower > inputs->power_limit)
     {
-        float torque_reduction = POWER_TO_TORQUE((inputs->total_requestedPower - inputs->power_limit), app_totalWheelSpeed());
+        float torque_reduction =
+            POWER_TO_TORQUE((inputs->total_requestedPower - inputs->power_limit), app_totalWheelSpeed());
 
         inputs->torqueToMotors->front_left_torque -= torque_reduction;
         inputs->torqueToMotors->front_right_torque -= torque_reduction;
@@ -81,8 +82,12 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
         inputs->torqueToMotors->rear_left_torque -= torque_reduction;
     }
 
-    inputs->torqueToMotors->front_left_torque  = (float)CLAMP(inputs->torqueToMotors->front_left_torque, 0, MAX_TORQUE_REQUEST_NM);
-    inputs->torqueToMotors->front_right_torque = (float)CLAMP(inputs->torqueToMotors->front_right_torque, 0, MAX_TORQUE_REQUEST_NM);
-    inputs->torqueToMotors->rear_left_torque   = (float)CLAMP(inputs->torqueToMotors->rear_left_torque, 0, MAX_TORQUE_REQUEST_NM);
-    inputs->torqueToMotors->rear_right_torque  = (float)CLAMP(inputs->torqueToMotors->rear_right_torque, 0, MAX_TORQUE_REQUEST_NM);
+    inputs->torqueToMotors->front_left_torque =
+        (float)CLAMP(inputs->torqueToMotors->front_left_torque, 0, MAX_TORQUE_REQUEST_NM);
+    inputs->torqueToMotors->front_right_torque =
+        (float)CLAMP(inputs->torqueToMotors->front_right_torque, 0, MAX_TORQUE_REQUEST_NM);
+    inputs->torqueToMotors->rear_left_torque =
+        (float)CLAMP(inputs->torqueToMotors->rear_left_torque, 0, MAX_TORQUE_REQUEST_NM);
+    inputs->torqueToMotors->rear_right_torque =
+        (float)CLAMP(inputs->torqueToMotors->rear_right_torque, 0, MAX_TORQUE_REQUEST_NM);
 }

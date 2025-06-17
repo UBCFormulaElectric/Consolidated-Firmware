@@ -46,12 +46,12 @@ static bool driveStatePassPreCheck()
     launch_control_switch_is_on =
         app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON && prev_launch_control_switch_is_on;
 
-    // should take priority over inverter fault as this will set torque to 0 and then 
-    // inverter retry can happen the next time the user enters drive state if inverters have faulted 
-    if(SWITCH_ON == app_canRx_CRIT_StartSwitch_get())
+    // should take priority over inverter fault as this will set torque to 0 and then
+    // inverter retry can happen the next time the user enters drive state if inverters have faulted
+    if (SWITCH_ON == app_canRx_CRIT_StartSwitch_get())
     {
         app_stateMachine_setNextState(&hv_state);
-        return false; 
+        return false;
     }
 
     if (INVERTER_FAULT == warning_check)
@@ -81,7 +81,7 @@ static bool driveStatePassPreCheck()
     return true;
 }
 
-static void  runDrivingAlgorithm(const float apps_pedal_percentage)
+static void runDrivingAlgorithm(const float apps_pedal_percentage)
 {
     if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
@@ -138,7 +138,7 @@ static void driveStateRunOnEntry()
     app_enable_inv();
     app_switchInit();
     app_reset_torqueToMotors(&torqueOutputToMotors);
-    app_torqueVectoring_init(); 
+    app_torqueVectoring_init();
 }
 
 static void driveStateRunOnTick100Hz(void)
