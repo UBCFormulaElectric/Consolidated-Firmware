@@ -10,19 +10,7 @@
 #include "io_imu_config.h"
 #include "app_powerLimiting.h"
 
-float app_totalPower(TorqueAllocationOutputs *torques)
-{
-    return (float)(TORQUE_TO_POWER(torques->front_left_torque, app_canRx_INVFL_ActualVelocity_get()) +
-                   TORQUE_TO_POWER(torques->front_right_torque, app_canRx_INVFR_ActualVelocity_get()) +
-                   TORQUE_TO_POWER(torques->rear_left_torque, app_canRx_INVRL_ActualVelocity_get()) +
-                   TORQUE_TO_POWER(torques->rear_right_torque, app_canRx_INVRR_ActualVelocity_get()));
-}
-
-static float app_totalWheelSpeed()
-{
-    return (float)(app_canRx_INVFL_ActualVelocity_get() + app_canRx_INVFR_ActualVelocity_get() +
-                   app_canRx_INVRL_ActualVelocity_get() + app_canRx_INVRR_ActualVelocity_get());
-}
+static PowerLimitingInputs powerLimitingInputs; 
 
 void app_wheelVerticalForces_broadcast(const ImuData *imu_data)
 {
@@ -72,10 +60,14 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
         (inputs->total_torque_request * inputs->load_transfer_const) / (2 * (inputs->load_transfer_const + 1));
     torqueToMotors->rear_right_torque = (torqueToMotors->rear_left_torque + (inputs->rear_yaw_moment / F));
 
-    float total_requestedPower = app_totalPower(torqueToMotors);
-    app_canTx_VC_RequestedPower_set(total_requestedPower);
+    powerLimitingInputs.total_requestedPower = app_totalPower(torqueToMotors);
+    app_canTx_VC_RequestedPower_set(powerLimitingInputs.total_requestedPower);
+    powerLimitingInputs.is_regen_mode = false; 
+    powerLimitingInputs.torqueToMotors = torqueToMotors;
+    powerLimitingInputs.power_limit = inputs->power_limit_kw;
 
-    app_torqueReduction(total_requestedPower, inputs->power_limit_kw, torqueToMotors);
+
+    app_powerLimiting_torqueReduction(&powerLimitingInputs);
 
     app_canTx_VC_TotalAllocatedPower_set(app_totalPower(torqueToMotors));
 
@@ -109,25 +101,4 @@ void app_reset_torqueToMotors(TorqueAllocationOutputs *torqueToMotors)
     torqueToMotors->front_right_torque = 0.0f;
     torqueToMotors->rear_left_torque   = 0.0f;
     torqueToMotors->rear_right_torque  = 0.0f;
-}
-
-void app_torqueReduction(
-    const float              total_requestedPower,
-    const float              power_limit,
-    TorqueAllocationOutputs *torqueToMotors)
-{
-    if (total_requestedPower > power_limit)
-    {
-        float torque_reduction = POWER_TO_TORQUE((total_requestedPower - power_limit), app_totalWheelSpeed());
-
-        torqueToMotors->front_left_torque -= torque_reduction;
-        torqueToMotors->front_right_torque -= torque_reduction;
-        torqueToMotors->rear_left_torque -= torque_reduction;
-        torqueToMotors->rear_left_torque -= torque_reduction;
-    }
-
-    torqueToMotors->front_left_torque  = (float)CLAMP(torqueToMotors->front_left_torque, 0, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->front_right_torque = (float)CLAMP(torqueToMotors->front_right_torque, 0, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->rear_left_torque   = (float)CLAMP(torqueToMotors->rear_left_torque, 0, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->rear_right_torque  = (float)CLAMP(torqueToMotors->rear_right_torque, 0, MAX_TORQUE_REQUEST_NM);
 }

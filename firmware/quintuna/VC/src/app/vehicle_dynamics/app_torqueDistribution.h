@@ -29,7 +29,3 @@ void app_reset_torqueToMotors(TorqueAllocationOutputs *torqueToMotors);
 void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors);
 
 TorqueAllocationOutputs *app_get_torqueToMotors(TorqueAllocationOutputs *torqueToMotors);
-
-void app_torqueReduction(float total_requestedPower, float power_limit, TorqueAllocationOutputs *torqueToMotors);
-
-float app_totalPower(TorqueAllocationOutputs *torques);

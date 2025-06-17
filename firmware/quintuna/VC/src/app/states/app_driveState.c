@@ -46,24 +46,23 @@ static bool driveStatePassPreCheck()
     launch_control_switch_is_on =
         app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON && prev_launch_control_switch_is_on;
 
-    /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
-        or not before using closed loop features */
+    // should take priority over inverter fault as this will set torque to 0 and then 
+    // inverter retry can happen the next time the user enters drive state if inverters have faulted 
+    if(SWITCH_ON == app_canRx_CRIT_StartSwitch_get())
+    {
+        app_stateMachine_setNextState(&hv_state);
+        return false; 
+    }
 
     if (INVERTER_FAULT == warning_check)
     {
         app_canAlerts_VC_Info_InverterRetry_set(true);
         app_stateMachine_setNextState(&hvInit_state);
-        // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
-        return false;
-    }
-    if (BOARD_WARNING_DETECTED == warning_check)
-    {
         return false;
     }
 
-    if (SWITCH_OFF == app_canRx_CRIT_StartSwitch_get())
+    if (BOARD_WARNING_DETECTED == warning_check)
     {
-        app_stateMachine_setNextState(&hv_state);
         return false;
     }
 
@@ -76,13 +75,13 @@ static bool driveStatePassPreCheck()
 
     if (!launch_control_switch_is_on)
     {
-        app_canTx_VC_TorqueVectoringEnabled_set(true);
+        app_canTx_VC_TorqueVectoringEnabled_set(false);
     }
 
     return true;
 }
 
-static void runDrivingAlgorithm(const float apps_pedal_percentage)
+static void  runDrivingAlgorithm(const float apps_pedal_percentage)
 {
     if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
@@ -100,11 +99,10 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     app_torqueBroadCast(&torqueOutputToMotors);
 }
 
-static void app_driveSwitchInit(void)
+static void app_switchInit(void)
 {
     if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
     {
-        app_torqueVectoring_init();
         launch_control_switch_is_on = true;
     }
 
@@ -136,19 +134,17 @@ static void driveStateRunOnEntry()
 {
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
-
     // Enable inverters
     app_enable_inv();
-    app_driveSwitchInit();
+    app_switchInit();
     app_reset_torqueToMotors(&torqueOutputToMotors);
+    app_torqueVectoring_init(); 
 }
 
 static void driveStateRunOnTick100Hz(void)
 {
     // pedal mapped changed from [0, 100] to [0.0, 1.0]
-    // TODO: HOW ARE WE USING THESE, DO WE USE BOTH OR JUST USE APPS
     float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
-    // float sapps_pedal_percentage = (float)app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
     if (!driveStatePassPreCheck())
     {

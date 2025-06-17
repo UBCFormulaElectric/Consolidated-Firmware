@@ -10,3 +10,8 @@
 float app_powerLimiting_computeMaxPower(bool isRegenOn);
 
 float getMaxMotorTemp(void);
+
+void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs);
+
+float app_totalPower(TorqueAllocationOutputs *torques);
+

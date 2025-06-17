@@ -45,6 +45,7 @@ static RegenBraking_Inputs        regenAttributes = { .enable_active_differentia
 static ActiveDifferential_Inputs  activeDifferentialInputs;
 static ActiveDifferential_Outputs activeDifferentialOutputs;
 static bool                       regen_enabled = true;
+static PowerLimitingInputs powerLimitingInputs; 
 
 void app_regen_run(const float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
@@ -75,10 +76,10 @@ bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_In
 
 static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
 {
-    inputs->motor_speed_rr_rpm = (float)app_canRx_INVRR_ActualVelocity_get();
-    inputs->motor_speed_rl_rpm = (float)app_canRx_INVRL_ActualVelocity_get();
-    inputs->motor_speed_fr_rpm = (float)app_canRx_INVFR_ActualVelocity_get();
-    inputs->motor_speed_fl_rpm = (float)app_canRx_INVFL_ActualVelocity_get();
+    inputs->motor_speed_rr_rpm = fabsf((float)app_canRx_INVRR_ActualVelocity_get());
+    inputs->motor_speed_rl_rpm = fabsf((float)app_canRx_INVRL_ActualVelocity_get());
+    inputs->motor_speed_fr_rpm = fabsf((float)app_canRx_INVFR_ActualVelocity_get());
+    inputs->motor_speed_fl_rpm = fabsf((float)app_canRx_INVFL_ActualVelocity_get());
 
     // Hysterisis
 
@@ -119,7 +120,7 @@ static void computeRegenTorqueRequest(
     }
     if (regenAttr->battery_level > 3.9f)
     {
-        // TODO surely something smarter? and or more derate as SOC gets too high
+        // TODO surely  smarter? and or more derate as SOC gets too high
         regenAttr->derating_value *= SOC_LIMIT_DERATING_VALUE;
     }
 
@@ -129,15 +130,15 @@ static void computeRegenTorqueRequest(
         activeDiffInputs->power_max_kW        = app_powerLimiting_computeMaxPower(regen_enabled);
         activeDiffInputs->wheel_angle_deg     = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
         activeDiffInputs->requested_torque_Nm = MAX_REGEN_Nm * activeDiffInputs->accelerator_pedal_percentage;
-        app_activeDifferential_computeTorque(activeDiffInputs, &activeDifferentialOutputs);
 
-        torqueOutputToMotors->front_left_torque  = activeDifferentialOutputs.torque_fl_Nm;
-        torqueOutputToMotors->front_right_torque = activeDifferentialOutputs.torque_fr_Nm;
-        torqueOutputToMotors->rear_left_torque   = activeDifferentialOutputs.torque_rl_Nm;
-        torqueOutputToMotors->rear_right_torque  = activeDifferentialOutputs.torque_rr_Nm;
+        app_activeDifferential_computeTorque(activeDiffInputs, torqueOutputToMotors);
 
-        const float requested_power = app_totalPower(torqueOutputToMotors);
-        app_torqueReduction(requested_power, activeDiffInputs->power_max_kW, torqueOutputToMotors);
+        powerLimitingInputs.derating_value = regenAttr->derating_value;
+        powerLimitingInputs.power_limit = app_powerLimiting_computeMaxPower(true);
+        powerLimitingInputs.is_regen_mode = true; 
+        powerLimitingInputs.torqueToMotors = torqueOutputToMotors;
+        powerLimitingInputs.total_requestedPower = app_totalPower(torqueOutputToMotors); 
+        app_powerLimiting_torqueReduction(&powerLimitingInputs);
     }
     else
     {

@@ -30,7 +30,7 @@
 #define RULES_BASED_POWER_LIMIT_KW (80.0f)
 #define MAX_REGEN_Nm -15.0f
 #define MAX_BATTERY_TEMP 45
-#define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
+#define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits? -- ASK AROUND 
 
 /**
  * Reference used: https://www.zotero.org/groups/5809911/vehicle_controls_2024/items/N4TQBR67/reader
