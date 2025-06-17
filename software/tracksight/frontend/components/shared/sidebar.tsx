@@ -34,12 +34,12 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
             isActive={activePage === "live-data"}
             onClick={() => setActivePage("live-data")}
           />
-          <NavItem
+          {/* <NavItem
             icon={<SaveIcon size={18} />}
             label="Logging"
             isActive={activePage === "logging"}
             onClick={() => setActivePage("logging")}
-          />
+          /> */}
         </ul>
       </nav>
 

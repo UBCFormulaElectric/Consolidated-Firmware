@@ -3,8 +3,6 @@
 import { useState } from "react"
 import Sidebar from "@/components/shared/sidebar"
 import LiveDataPage from "@/components/live-data/live-data-page"
-import LoggingPage from "@/components/logging/logging-page"
-import SettingsPage from "@/components/settings/settings-page"
 
 export default function Home() {
   const [activePage, setActivePage] = useState<string>("live-data")
@@ -14,10 +12,6 @@ export default function Home() {
     switch (activePage) {
       case "live-data":
         return <LiveDataPage />
-      case "logging":
-        return <LoggingPage />
-      case "settings":
-        return <SettingsPage />
       default:
         return <LiveDataPage />
     }
