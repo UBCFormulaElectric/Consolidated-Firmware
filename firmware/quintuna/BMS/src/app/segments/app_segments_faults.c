@@ -44,15 +44,15 @@ typedef struct
 // TODO: Get final values for these guys (check with Joe).
 static const ProfileConfig warning_profile_config = {
     // voltages
-    .min_voltage = 2.5f,
-    .max_voltage = 4.2f,
+    .min_voltage = MIN_CELL_VOLTAGE_WARNING_V,
+    .max_voltage = MAX_CELL_VOLTAGE_WARNING_V,
     // temps
-    .max_temp = 60.0f,
+    .max_temp = MAX_CELL_TEMP_WARNING_V,
     // debounce
-    .under_voltage_debounce_ms = 1000,
-    .over_voltage_debounce_ms  = 1000,
-    .over_temp_debounce_ms     = 1000,
-    .comm_err_debounce_ms      = 1000,
+    .under_voltage_debounce_ms = UNDER_VOLTAGE_DEBOUNCE_WARNING_MS,
+    .over_voltage_debounce_ms  = OVER_VOLTAGE_DEBOUNCE_WARNING_MS,
+    .over_temp_debounce_ms     = OVER_TEMP_DEBOUNCE_WARNING_MS,
+    .comm_err_debounce_ms      = COMM_ERR_DEBOUNCE_WARNING_MS,
     // setters
     .under_voltage_setter = app_canAlerts_BMS_Warning_CellUndervoltage_set,
     .over_voltage_setter  = app_canAlerts_BMS_Warning_CellUndervoltage_set,
