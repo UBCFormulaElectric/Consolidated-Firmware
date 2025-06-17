@@ -10,6 +10,7 @@
 #include "app_imu.h"
 #include "app_heartbeatMonitors.h"
 #include "app_jsoncan.h"
+#include "app_steering.h"
 
 // io
 #include "io_time.h"
@@ -66,8 +67,9 @@ void jobs_run100Hz_tick(void)
 {
     app_coolant_broadcast();
     app_suspension_broadcast();
-    // app_imu_broadcast();
+    app_imu_broadcast();
     app_brake_broadcast();
+    app_steering_broadcast();
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
