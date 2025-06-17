@@ -20,6 +20,7 @@ import {
   RECONNECT_INTERVAL,
   SignalMeta,
   SignalType,
+  SignalDataStore,
 } from "./SignalConfig";
 
 export const signalPatterns = {
@@ -92,6 +93,10 @@ type SignalContextType = {
     SignalMeta[]
   >;
   signalPatterns: typeof signalPatterns;
+  // Optimized query methods
+  getDataInTimeRange: (startTime: number, endTime: number) => DataPoint[];
+  getSignalData: (signalName: string) => DataPoint[];
+  getDataCount: () => number;
 };
 
 // Create the context
@@ -108,13 +113,21 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const [activeSignals, setActiveSignals] = useState<string[]>([]);
-  const [data, setData] = useState<DataPoint[]>([]);
-  const [numericalData, setNumericalData] = useState<DataPoint[]>([]);
-  const [enumData, setEnumData] = useState<DataPoint[]>([]);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [enumMetadata, setEnumMetadata] = useState<
     Record<string, Record<string, string>>
   >({});
+
+  // Use ref for enumMetadata to avoid closure issues in socket handlers
+  const enumMetadataRef = useRef<Record<string, Record<string, string>>>({});
+
+  // Optimized data storage
+  const dataStore = useRef<SignalDataStore>(new SignalDataStore());
+  
+  // Backward compatibility - computed from optimized store
+  const [data, setData] = useState<DataPoint[]>([]);
+  const [numericalData, setNumericalData] = useState<DataPoint[]>([]);
+  const [enumData, setEnumData] = useState<DataPoint[]>([]);
 
   const signalSubscribers = useRef<Record<string, number>>({});
   const signalTypes = useRef<Record<string, SignalType>>({});
@@ -123,21 +136,40 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const pendingUnsubscriptions = useRef<Set<string>>(new Set());
   const isMounted = useRef(true);
 
-  // BATCHING SYSTEM for multi-signal performance
+  // OPTIMIZED BATCHING SYSTEM using data store
   const pendingDataUpdates = useRef<DataPoint[]>([]);
   const batchUpdateTimer = useRef<NodeJS.Timeout | null>(null);
-  const BATCH_INTERVAL_MS = 50; // Batch updates every 50ms
+  const rafUpdateTimer = useRef<number | null>(null);
+  const BATCH_INTERVAL_MS = 50; // Fallback for setTimeout
+  const MAX_BATCH_SIZE = 100; // Max data points per batch
+  const currentTimeUpdateCounter = useRef(0);
+  const CURRENT_TIME_UPDATE_FREQUENCY = 10; // Update currentTime every 10th batch
+  const lastBatchTime = useRef(Date.now());
   const isPausedRef = useRef(isPaused);
   isPausedRef.current = isPaused;
+
+  // Update compatibility arrays from data store
+  const updateCompatibilityArrays = useCallback(() => {
+    const allData = dataStore.current.getAllData();
+    const numData = dataStore.current.getNumericalData();
+    const enumDataPoints = dataStore.current.getEnumData();
+    
+    setData(allData);
+    setNumericalData(numData);
+    setEnumData(enumDataPoints);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       isMounted.current = false;
       pendingUnsubscriptions.current.clear();
-      // Clear batch timer
+      // Clear batch timers
       if (batchUpdateTimer.current) {
         clearTimeout(batchUpdateTimer.current);
+      }
+      if (rafUpdateTimer.current) {
+        cancelAnimationFrame(rafUpdateTimer.current);
       }
     };
   }, []);
@@ -145,6 +177,8 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const isEnumSignal = useCallback((name: string) => {
     const type = signalTypes.current[name];
     if (type) return type === SignalType.Enumeration;
+    
+    // Original detection: pattern matching only
     const l = name.toLowerCase();
     return /state|mode|enum|status/.test(l);
   }, []);
@@ -154,49 +188,81 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     return type ? type === SignalType.Numerical : !isEnumSignal(name);
   }, []);
 
-  // BATCHED DATA UPDATE FUNCTION - This prevents cascade re-renders
-  // Use useCallback to prevent function recreation and infinite re-renders
+  // OPTIMIZED BATCHED DATA UPDATE FUNCTION with RAF and smart batching
   const flushPendingDataUpdates = useCallback(() => {
     if (pendingDataUpdates.current.length === 0) return;
 
     const updates = [...pendingDataUpdates.current];
     pendingDataUpdates.current = [];
 
-    // Group updates by type for efficient batch processing
-    const allData: DataPoint[] = [];
-    const numericalUpdates: DataPoint[] = [];
-    const enumUpdates: DataPoint[] = [];
+    // Track batching performance for adaptive behavior
+    const now = Date.now();
+    const timeSinceLastBatch = now - lastBatchTime.current;
+    lastBatchTime.current = now;
 
+    // Group updates by signal for more efficient processing
+    const signalGroups = new Map<string, DataPoint[]>();
     updates.forEach((point) => {
-      allData.push(point);
-      // Use direct signal type checking instead of isEnumSignal function
-      const type = signalTypes.current[point.name as string];
-      if (type === SignalType.Enumeration || (!type && /state|mode|enum|status/.test((point.name as string).toLowerCase()))) {
-        enumUpdates.push(point);
-      } else if (!isNaN(point.value as number)) {
-        numericalUpdates.push(point);
+      const signalName = point.name;
+      if (signalName && !signalGroups.has(signalName)) {
+        signalGroups.set(signalName, []);
+      }
+      if (signalName) {
+        signalGroups.get(signalName)!.push(point);
       }
     });
 
-    // Single batched state update instead of multiple individual updates
-    setData(prev => [...prev, ...allData]);
-    if (numericalUpdates.length > 0) {
-      setNumericalData(prev => [...prev, ...numericalUpdates]);
-    }
-    if (enumUpdates.length > 0) {
-      setEnumData(prev => [...prev, ...enumUpdates]);
+    // Add all updates to the optimized data store
+    signalGroups.forEach((points) => {
+      points.forEach((point) => {
+        dataStore.current.addDataPoint(point);
+      });
+    });
+
+    // Update compatibility arrays once per batch
+    updateCompatibilityArrays();
+
+    // Adaptive currentTime updates based on data flow
+    currentTimeUpdateCounter.current++;
+    const isHighFrequency = timeSinceLastBatch < 100; // High frequency if batches < 100ms apart
+    const updateFrequency = isHighFrequency ? CURRENT_TIME_UPDATE_FREQUENCY * 2 : CURRENT_TIME_UPDATE_FREQUENCY;
+    
+    if (currentTimeUpdateCounter.current >= updateFrequency) {
+      currentTimeUpdateCounter.current = 0;
+      setCurrentTime(now);
     }
 
+    // Clear timers
     batchUpdateTimer.current = null;
-  }, []); // Empty dependency array since we use refs for data
+    rafUpdateTimer.current = null;
+  }, [updateCompatibilityArrays]);
 
-  // BATCHED DATA ADDITION - prevents individual re-renders per signal
+  // ENHANCED BATCHED DATA ADDITION with RAF and size-based flushing
   const addDataPoint = useCallback((dataPoint: DataPoint) => {
     pendingDataUpdates.current.push(dataPoint);
 
-    // Schedule batch update if not already scheduled
-    if (!batchUpdateTimer.current) {
-      batchUpdateTimer.current = setTimeout(flushPendingDataUpdates, BATCH_INTERVAL_MS);
+    // Immediate flush if batch size exceeds threshold (prevents memory buildup)
+    if (pendingDataUpdates.current.length >= MAX_BATCH_SIZE) {
+      if (rafUpdateTimer.current) {
+        cancelAnimationFrame(rafUpdateTimer.current);
+        rafUpdateTimer.current = null;
+      }
+      if (batchUpdateTimer.current) {
+        clearTimeout(batchUpdateTimer.current);
+        batchUpdateTimer.current = null;
+      }
+      flushPendingDataUpdates();
+      return;
+    }
+
+    // Prefer requestAnimationFrame for smooth 60fps updates
+    if (!rafUpdateTimer.current && !batchUpdateTimer.current) {
+      if (typeof requestAnimationFrame !== 'undefined') {
+        rafUpdateTimer.current = requestAnimationFrame(flushPendingDataUpdates);
+      } else {
+        // Fallback to setTimeout for environments without RAF
+        batchUpdateTimer.current = setTimeout(flushPendingDataUpdates, BATCH_INTERVAL_MS);
+      }
     }
   }, [flushPendingDataUpdates]);
 
@@ -259,19 +325,17 @@ export function SignalProvider({ children }: { children: ReactNode }) {
 
   const pruneSignalData = useCallback((name: string) => {
     if (DEBUG) console.log(`Pruning all data for signal: ${name}`);
-    setData((d) => d.filter((p) => p.name !== name));
-    setNumericalData((d) => d.filter((p) => p.name !== name));
-    setEnumData((d) => d.filter((p) => p.name !== name));
+    dataStore.current.removeSignalData(name);
+    updateCompatibilityArrays();
     delete signalTypes.current[name];
     delete signalSubscribers.current[name];
-  }, []);
+  }, [updateCompatibilityArrays]);
 
   const pruneData = useCallback((max = DEFAULT_MAX_DATA_POINTS) => {
     if (DEBUG) console.log(`Pruning data to last ${max} points`);
-    setData((d) => (d.length > max ? d.slice(-max) : d));
-    setNumericalData((d) => (d.length > max ? d.slice(-max) : d));
-    setEnumData((d) => (d.length > max ? d.slice(-max) : d));
-  }, []);
+    dataStore.current.pruneToLastN(max);
+    updateCompatibilityArrays();
+  }, [updateCompatibilityArrays]);
 
   const fetchSignalMetadata = useCallback(async () => {
     if (DEBUG) console.log("Fetching signal metadata");
@@ -291,17 +355,35 @@ export function SignalProvider({ children }: { children: ReactNode }) {
       setAvailableSignals(metas);
 
       const enumMap: Record<string, Record<string, string>> = {};
-      list.forEach(
-        (s: any) => s.enum?.items && (enumMap[s.name] = s.enum.items)
-      );
+      list.forEach((s: any) => {
+        if (DEBUG && s.name === 'VC_State') {
+          console.log(`VC_State signal metadata:`, s);
+          console.log(`VC_State has enum?`, !!s.enum);
+          if (s.enum) {
+            console.log(`VC_State enum data:`, s.enum);
+            console.log(`VC_State enum items:`, s.enum.items);
+            console.log(`VC_State enum name:`, s.enum.name);
+          }
+        }
+        if (s.enum?.items) {
+          enumMap[s.name] = s.enum.items;
+          if (DEBUG && s.name === 'VC_State') {
+            console.log(`✓ Added VC_State to enumMap:`, s.enum.items);
+          }
+        }
+      });
       setEnumMetadata(enumMap);
+      
+      // Update ref for socket handlers
+      enumMetadataRef.current = enumMap;
 
       if (DEBUG) {
         console.log("Fetched enumerations and states:");
         Object.entries(enumMap).forEach(([s, m]) =>
           console.log(`  ${s}: [${Object.values(m).join(", ")}]`)
         );
-        console.log("Fetched signals:", metas);
+        console.log(`Available enum signals: ${Object.keys(enumMap).length > 0 ? Object.keys(enumMap).join(', ') : 'None'}`);
+        console.log("VC_State in enumMap?", !!enumMap['VC_State']);
       }
 
       setIsLoadingSignals(false);
@@ -355,17 +437,68 @@ export function SignalProvider({ children }: { children: ReactNode }) {
       if (!name) return;
       if ((signalSubscribers.current[name] || 0) === 0)
         return DEBUG && console.log(`Ignoring data for ${name}`);
+      
       inc.time ||= Date.now();
-      if (typeof inc.value === "string") inc.value = parseFloat(inc.value);
+      
+      // Check if this signal is an enumeration signal using original pattern matching
+      const isEnum = isEnumSignal(name);
+      
+      if (DEBUG) {
+        console.log(`Signal ${name}: isEnum=${isEnum}, value=${inc.value} (${typeof inc.value})`);
+        if (isEnum) {
+          console.log(`Current enumMetadata for ${name}:`, enumMetadata[name]);
+          console.log(`hasMetadata=${!!enumMetadata[name]}`);
+        }
+      }
+      
+      // Handle enum signals (convert numeric values to strings for display)
+      if (isEnum) {
+        if (typeof inc.value === "number") {
+          // Get the current enum metadata from ref (not closure)
+          const currentEnumMetadata = enumMetadataRef.current;
+          const hasEnumMetadata = currentEnumMetadata[name] && Object.keys(currentEnumMetadata[name]).length > 0;
+          
+          if (DEBUG) {
+            console.log(`${name}: hasEnumMetadata=${hasEnumMetadata}, available keys:`, 
+              hasEnumMetadata ? Object.keys(currentEnumMetadata[name]) : 'none');
+          }
+          
+          if (hasEnumMetadata) {
+            // Convert numeric enum value to string using metadata
+            const enumStringValue = currentEnumMetadata[name][String(inc.value)];
+            if (enumStringValue) {
+              inc.value = enumStringValue;
+              if (DEBUG) console.log(`✓ Converted ${name} enum value to string: "${enumStringValue}"`);
+            } else {
+              // Use fallback conversion for unmapped values
+              const stringValue = `State_${inc.value}`;
+              inc.value = stringValue;
+              if (DEBUG) console.log(`⚠ No mapping found for ${name} value ${inc.value}, using fallback: "${stringValue}"`);
+            }
+          } else {
+            // No metadata available, use fallback string conversion
+            const stringValue = `State_${inc.value}`;
+            inc.value = stringValue;
+            if (DEBUG) console.log(`⚠ No metadata for enum signal ${name}, using fallback: "${stringValue}"`);
+          }
+        } else if (typeof inc.value === "string") {
+          // String enum value, keep as-is
+          if (DEBUG) console.log(`✓ Keeping ${name} as string enum value: "${inc.value}"`);
+        }
+      } else {
+        // Non-enum signal - convert strings to numbers if possible
+        if (typeof inc.value === "string") {
+          const numValue = parseFloat(inc.value);
+          if (!isNaN(numValue)) {
+            inc.value = numValue;
+            if (DEBUG) console.log(`Converted ${name} value to number: ${numValue}`);
+          }
+        }
+      }
       
       // Use batched data addition instead of direct state updates
       // This prevents multiple re-renders when many signals arrive simultaneously
       addDataPoint(inc);
-      
-      // Only update currentTime occasionally to reduce re-renders
-      if (Math.random() < 0.1) { // Only update 10% of the time
-        setCurrentTime(Date.now());
-      }
     };
 
     s.on("data", handler);
@@ -376,7 +509,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
       s.off("data", handler);
       s.disconnect();
     };
-  }, [activeSignals, addDataPoint, isPaused]);
+  }, [activeSignals, addDataPoint, isPaused, enumMetadata, isEnumSignal]);
 
   const reconnect = useCallback(() => {
     DEBUG && console.log("Reconnecting...");
@@ -392,12 +525,13 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // THROTTLED TIMER - reduced frequency to limit re-renders
+    // REDUCED FREQUENCY TIMER - currentTime is now primarily updated by batching logic
+    // This timer serves as a fallback when no data is flowing
     const id = setInterval(() => {
       if (!isPausedRef.current) {
         setCurrentTime(Date.now());
       }
-    }, 2000); // Reduced to 2 seconds to minimize re-renders
+    }, 5000); // Increased to 5 seconds - mainly for UI clock updates when no data flows
     return () => clearInterval(id);
   }, []); // Empty dependency array - only run once
 
@@ -472,6 +606,18 @@ export function SignalProvider({ children }: { children: ReactNode }) {
             : SignalType.Numerical
           : type;
       signalTypes.current[name] = assigned;
+      
+      if (DEBUG) {
+        const hasEnumMetadata = enumMetadata[name] && Object.keys(enumMetadata[name]).length > 0;
+        console.log(`Subscribing to ${name}:`);
+        console.log(`  - Type requested: ${type}`);
+        console.log(`  - Assigned type: ${assigned === SignalType.Enumeration ? "enum" : "numerical"}`);
+        console.log(`  - Has enum metadata: ${hasEnumMetadata}`);
+        console.log(`  - Pattern match: ${/state|mode|enum|status/.test(name.toLowerCase())}`);
+        if (hasEnumMetadata) {
+          console.log(`  - Enum values: ${Object.values(enumMetadata[name]).join(', ')}`);
+        }
+      }
       signalSubscribers.current[name] =
         (signalSubscribers.current[name] || 0) + 1;
 
@@ -577,6 +723,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
 
   const clearData = () => {
     if (DEBUG) console.log("Clearing data");
+    dataStore.current.clear();
     setData([]);
     setNumericalData([]);
     setEnumData([]);
@@ -599,18 +746,34 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     setActiveSignals([]);
     signalSubscribers.current = {};
     signalTypes.current = {};
-    clearData();
+    dataStore.current.clear();
+    setData([]);
+    setNumericalData([]);
+    setEnumData([]);
   }, [activeSignals, isConnected, socket]);
 
   const getEnumValues = useCallback(
     (name: string) =>
-      enumMetadata[name] ? Object.values(enumMetadata[name]) : [],
-    [enumMetadata]
+      enumMetadataRef.current[name] ? Object.values(enumMetadataRef.current[name]) : [],
+    []
   );
   const mapEnumValue = useCallback(
-    (name: string, val: number | string) => enumMetadata[name]?.[String(val)],
-    [enumMetadata]
+    (name: string, val: number | string) => enumMetadataRef.current[name]?.[String(val)],
+    []
   );
+
+  // Optimized query methods
+  const getDataInTimeRange = useCallback((startTime: number, endTime: number): DataPoint[] => {
+    return dataStore.current.getDataInTimeRange(startTime, endTime);
+  }, []);
+
+  const getSignalData = useCallback((signalName: string): DataPoint[] => {
+    return dataStore.current.getSignalData(signalName);
+  }, []);
+
+  const getDataCount = useCallback((): number => {
+    return dataStore.current.getDataCount();
+  }, []);
 
   return (
     <SignalContext.Provider
@@ -639,6 +802,9 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         getEnumValues,
         mapEnumValue,
         getAlertSignals,
+        getDataInTimeRange,
+        getSignalData,
+        getDataCount,
       }}
     >
       {children}

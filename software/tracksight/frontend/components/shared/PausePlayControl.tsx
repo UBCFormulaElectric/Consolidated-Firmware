@@ -10,6 +10,8 @@ interface DisplayControlContextType {
   togglePause: () => void
   horizontalScale: number
   setHorizontalScale: (scale: number) => void
+  isAutoscrollEnabled: boolean
+  toggleAutoscroll: () => void
 }
 
 const DisplayControlContext = createContext<DisplayControlContextType | undefined>(undefined)
@@ -21,9 +23,14 @@ export { DisplayControlContext as PausePlayContext, type DisplayControlContextTy
 export function DisplayControlProvider({ children }: { children: ReactNode }) {
   const [isPaused, setIsPaused] = useState(true) // Start in paused state
   const [horizontalScale, setHorizontalScale] = useState(100) // Default to 100%
+  const [isAutoscrollEnabled, setIsAutoscrollEnabled] = useState(false) // Default to disabled
 
   const togglePause = () => {
     setIsPaused(prev => !prev)
+  }
+
+  const toggleAutoscroll = () => {
+    setIsAutoscrollEnabled(prev => !prev)
   }
 
   return (
@@ -31,7 +38,9 @@ export function DisplayControlProvider({ children }: { children: ReactNode }) {
       isPaused, 
       togglePause, 
       horizontalScale, 
-      setHorizontalScale 
+      setHorizontalScale,
+      isAutoscrollEnabled,
+      toggleAutoscroll
     }}>
       {children}
     </DisplayControlContext.Provider>

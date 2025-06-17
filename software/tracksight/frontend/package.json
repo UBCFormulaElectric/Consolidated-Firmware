@@ -54,6 +54,8 @@
     "react-hook-form": "^7.54.1",
     "react-plotly.js": "^2.6.0",
     "react-resizable-panels": "^2.1.7",
+    "react-virtualized-auto-sizer": "^1.0.26",
+    "react-window": "^1.8.11",
     "recharts": "2.15.0",
     "socket.io-client": "^4.8.1",
     "sonner": "latest",

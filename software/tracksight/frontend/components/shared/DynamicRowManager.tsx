@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { RowEditor, RowItem } from "./DropdownSearch";
 import DynamicSignalGraph from "./DynamicSignalGraph";
 import { InsertionBar } from "./InsertionBar";
+import { useDisplayControl } from "@/components/shared/PausePlayControl";
+import { useSignals } from "@/lib/contexts/SignalContext";
 
 interface CreatedComponent {
   id: string;
@@ -16,6 +18,38 @@ const DynamicRowManager: React.FC = () => {
   const [createdComponents, setCreatedComponents] = useState<
     CreatedComponent[]
   >([]);
+
+  // Autoscroll functionality
+  const { isAutoscrollEnabled, isPaused } = useDisplayControl();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Keep scroll position at max right when autoscroll is enabled
+  useEffect(() => {
+    if (!isAutoscrollEnabled || isPaused || !scrollContainerRef.current) {
+      return;
+    }
+
+    const container = scrollContainerRef.current;
+    
+    // Function to scroll to the far right (instantly to stay locked)
+    const scrollToRight = () => {
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      container.scrollLeft = maxScrollLeft;
+    };
+
+    // Scroll to right immediately
+    scrollToRight();
+
+    // Set up interval to maintain scroll position at exact max right
+    const interval = setInterval(() => {
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      if (container.scrollLeft < maxScrollLeft) {
+        container.scrollLeft = maxScrollLeft;
+      }
+    }, 50); // Check more frequently for responsive locking
+
+    return () => clearInterval(interval);
+  }, [isAutoscrollEnabled, isPaused]);
 
   const addRow = (index: number) => {
     setRows((prev) => {
@@ -103,7 +137,7 @@ const DynamicRowManager: React.FC = () => {
 
   return (
     <div className="">
-      <div className="overflow-x-scroll">
+      <div className="overflow-x-scroll" ref={scrollContainerRef}>
         <div className="inline-block min-w-[calc(100vw-48px)]">
           {createdComponents.map((component) => (
             <DynamicSignalGraph

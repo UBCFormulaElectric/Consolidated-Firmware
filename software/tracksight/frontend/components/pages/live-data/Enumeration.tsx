@@ -4,6 +4,7 @@
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { useDisplayControl } from "@/components/shared/PausePlayControl";
 
 interface DynamicSignalGraphProps {
   signalName: string;

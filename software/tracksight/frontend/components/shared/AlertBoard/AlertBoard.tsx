@@ -34,9 +34,12 @@ export default function AlertBoard() {
     };
 
     for (const point of data) {
+      // Skip points without a name
+      if (!point.name) continue;
+      
       const signalType = getAlertSignalType(point.name);
       if (signalType?.endsWith("Count")) {
-        newCounts[point.name] = point.value;
+        newCounts[point.name] = Number(point.value) || 0;
       }
 
       const active = point.value == 1;
@@ -50,13 +53,13 @@ export default function AlertBoard() {
 
       switch (signalType) {
         case "Fault":
-          addOrUpdateAlert(newFaults, newAlert, active);
+          addOrUpdateAlert(newFaults, newAlert);
           break;
         case "Warning":
-          addOrUpdateAlert(newWarnings, newAlert, active);
+          addOrUpdateAlert(newWarnings, newAlert);
           break;
         case "Info":
-          addOrUpdateAlert(newInfo, newAlert, active);
+          addOrUpdateAlert(newInfo, newAlert);
           break;
       }
     }

@@ -6,6 +6,7 @@ import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
+import { useDisplayControl } from "@/components/shared/PausePlayControl";
 
 interface DynamicSignalGraphProps {
   signalName: string;

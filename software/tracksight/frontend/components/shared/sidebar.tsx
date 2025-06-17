@@ -1,10 +1,11 @@
 "use client"
-import { Database, SaveIcon } from "lucide-react"
+import { Database, SaveIcon, Trash2, ArrowRight } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type React from "react"
 
 import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { PausePlayButton } from "@/components/shared/PausePlayControl"
+import { PausePlayButton, useDisplayControl } from "@/components/shared/PausePlayControl"
+import { useSignals } from "@/lib/contexts/SignalContext"
 import Image from "next/image"
 
 interface SidebarProps {
@@ -14,10 +15,18 @@ interface SidebarProps {
 
 export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
   const router = useRouter()
+  const { clearData } = useSignals()
+  const { isAutoscrollEnabled, toggleAutoscroll } = useDisplayControl()
 
   const handleNavigation = (page: string, route: string) => {
     setActivePage(page)
     router.push(route)
+  }
+
+  const handlePruneData = () => {
+    if (confirm("Are you sure you want to clear all stored data? This will keep your signal subscriptions but remove all historical data.")) {
+      clearData()
+    }
   }
 
   return (
@@ -63,8 +72,36 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
         <PausePlayButton />
       </div>
 
-      {/* Theme toggle - pushed to right */}
-      <div className="flex items-center ml-auto">
+      {/* Right side controls */}
+      <div className="flex items-center ml-auto space-x-3">
+        {/* Autoscroll Toggle Button */}
+        <button
+          onClick={toggleAutoscroll}
+          className={`p-2 rounded-md transition-colors relative ${
+            isAutoscrollEnabled 
+              ? "bg-green-600 text-white hover:bg-green-700" 
+              : "bg-gray-600 text-white hover:bg-gray-700"
+          }`}
+          title={isAutoscrollEnabled ? "Disable autoscroll" : "Enable autoscroll - automatically scroll to new data"}
+          aria-label="Toggle autoscroll"
+        >
+          <ArrowRight size={18} className={isAutoscrollEnabled ? "animate-pulse" : ""} />
+          {isAutoscrollEnabled && (
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"></span>
+          )}
+        </button>
+
+        {/* Prune Data Button */}
+        <button
+          onClick={handlePruneData}
+          className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+          title="Clear all stored data (keeps subscriptions)"
+          aria-label="Prune data"
+        >
+          <Trash2 size={18} />
+        </button>
+
+        {/* Theme Toggle */}
         <ThemeToggle />
       </div>
     </div>

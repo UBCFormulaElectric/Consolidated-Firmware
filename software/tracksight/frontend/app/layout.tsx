@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/shared/ThemeProvider"
-import { Toaster } from "sonner"
 import { SignalProvider } from "@/lib/contexts/SignalContext"
 import { PausePlayProvider } from "@/components/shared/PausePlayControl"
 import LayoutWrapper from "@/components/shared/LayoutWrapper"
@@ -30,7 +29,6 @@ export default function RootLayout({
               <LayoutWrapper>
                 {children}
               </LayoutWrapper>
-              <Toaster position="top-right" richColors />
             </SignalProvider>
           </PausePlayProvider>
         </ThemeProvider>
