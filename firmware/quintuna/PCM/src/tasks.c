@@ -24,7 +24,7 @@ typedef enum
 } PcmState;
 
 // Define this guy for debug mode.
-// #define PCM_DEBUG
+#define PCM_DEBUG
 
 static const Gpio pcm_en_in      = { .port = PCM_EN_GPIO_Port, .pin = PCM_EN_Pin };
 static const Gpio lv_buck_en_out = { .port = LV_BUCK_EN_GPIO_Port, .pin = LV_BUCK_EN_Pin };
@@ -36,13 +36,10 @@ static PcmState state = PCM_STATE_OFF;
 static char debug_buf[1024];
 #endif
 
-void tasks_preInit(void)
-{
-    hw_hardFaultHandler_init();
-}
-
 void tasks_init(void)
 {
+    hw_hardFaultHandler_init();
+
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("PCM reset!");
 
