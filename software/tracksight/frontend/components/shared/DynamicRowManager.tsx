@@ -138,7 +138,7 @@ const DynamicRowManager: React.FC = () => {
   return (
     <div className="">
       <div className="overflow-x-scroll" ref={scrollContainerRef}>
-        <div className="block min-w-[calc(100vw-48px)]">
+        <div className="sticky inline-block min-w-[calc(100vw)]">
           {createdComponents.map((component) => (
             <DynamicSignalGraph
               key={component.id}
