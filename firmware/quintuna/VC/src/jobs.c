@@ -6,6 +6,7 @@
 #include "app_jsoncan.h"
 #include <app_canTx.h>
 #include <io_canTx.h>
+#include "io_lowVoltageBattery.h"
 #include <stdbool.h>
 #include "io_log.h"
 #include "states/app_states.h"
@@ -15,6 +16,7 @@
 #include "app_powerManager.h"
 #include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
+#include "app_batteryMonitor.h"
 #include "app_canRx.h"
 #include "app_warningHanding.h"
 
@@ -55,6 +57,8 @@ void jobs_init()
     io_canQueue_initTx(&can2_tx_queue);
     io_canQueue_initTx(&can3_tx_queue);
 
+    ASSERT_EXIT_OK(io_lowVoltageBattery_init());
+
     app_stateMachine_init(&init_state);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
@@ -90,6 +94,7 @@ void jobs_run100Hz_tick(void)
 
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
+    app_batteryMonitor_broadcast();
 
     app_stateMachine_tickTransitionState();
 
