@@ -84,12 +84,12 @@ void tasks_init(void)
     hw_adcs_chipsInit();
     hw_pwms_init();
 
-    // TODO: Start CAN1/CAN2 based on if we're charging at runtime.
-    // #ifdef CHARGER_CAN
-    // hw_can_init(&can2);
-    // #else
+// TODO: Start CAN1/CAN2 based on if we're charging at runtime.
+#ifdef CHARGER_CAN
+    hw_can_init(&can2);
+#else
     hw_can_init(&can1);
-    // #endif
+#endif
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
@@ -211,24 +211,22 @@ void tasks_runCanTx(void)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
 
-        // #ifdef CHARGER_CAN
-        //         // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN
-        //         for those
-        //         // (they won't get seen by the charger, but they'll show up on CANoe).
-        //         // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the
-        //         FD
-        //         // peripheral is configured without BRS. Figure out why it wasn't working?
-        //         if (tx_msg.dlc > 8)
-        //         {
-        //             LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
-        //         }
-        //         else
-        //         {
-        //             LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
-        //         }
-        // #else
+#ifdef CHARGER_CAN
+        // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN for those
+        // (they won't get seen by the charger, but they'll show up on CANoe).
+        // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the FD
+        // peripheral is configured without BRS. Figure out why it wasn't working?
+        if (tx_msg.dlc > 8)
+        {
+            LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
+        }
+        else
+        {
+            LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
+        }
+#else
         LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        // #endif
+#endif
     }
 }
 
