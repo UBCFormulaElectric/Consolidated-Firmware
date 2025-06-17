@@ -228,7 +228,7 @@ static void app_chargeStateRunOnTick100Hz(void)
 
 static void app_chargeStateRunOnExit(void)
 {
-    io_irs_setPositive(false);
+    io_irs_setPositive(CONTACTOR_STATE_OPEN);
 
     // Just in case we exited charging not due to CAN (fault, etc.) set the CAN table back to false so we don't
     // unintentionally re-enter charge state.
