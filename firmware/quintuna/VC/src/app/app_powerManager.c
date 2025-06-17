@@ -1,7 +1,7 @@
 #include "app_powerManager.h"
 
 #include "app_timer.h"
-#include "hw_gpio.h"
+#include "hw_gpios.h"
 #include "io_loadswitch.h"
 #include "io_loadswitches.h"
 

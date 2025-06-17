@@ -16,7 +16,7 @@
 #include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
 #include "app_canRx.h"
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 
 #define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
 

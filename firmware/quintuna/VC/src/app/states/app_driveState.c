@@ -115,8 +115,9 @@ static bool driveStatePassPreCheck()
     bool prev_regen_switch_val = regen_switch_is_on;
     regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
 
-    bool prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
-    // regen_switch_is_on = app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON && prev_torque_vectoring_switch_val;
+    // bool prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
+    //  regen_switch_is_on = app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON &&
+    //  prev_torque_vectoring_switch_val;
 
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
         or not before using closed loop features */
