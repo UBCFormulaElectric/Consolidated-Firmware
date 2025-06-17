@@ -44,10 +44,10 @@ typedef struct
 // TODO: Get final values for these guys (check with Joe).
 static const ProfileConfig warning_profile_config = {
     // voltages
-    .min_voltage = 2.6f,
-    .max_voltage = 4.1f,
+    .min_voltage = 2.5f,
+    .max_voltage = 4.2f,
     // temps
-    .max_temp = 55.0f,
+    .max_temp = 60.0f,
     // debounce
     .under_voltage_debounce_ms = 1000,
     .over_voltage_debounce_ms  = 1000,
