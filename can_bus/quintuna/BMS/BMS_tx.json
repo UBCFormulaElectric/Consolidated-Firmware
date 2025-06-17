@@ -249,7 +249,7 @@
   },
   "PowerLimit": {
   "msg_id": 122,
-  "cycle_time": 100,
+  "cycle_time": 10,
   "description": "BMS Power Limit",
   "signals": {
     "ChargePowerLimit": {
