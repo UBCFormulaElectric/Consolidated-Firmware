@@ -28,7 +28,7 @@
 #define MAX_TORQUE_REQUEST_NM (20.5f) // Max torque of AMK DD5-14-10-POW motor (actual max is 21, using this as safety)
 #define NOMINAL_TORQUE_REQUEST_NM (9.8f) // Nominal torque of AMK DD5-14-10-POW motor
 #define RULES_BASED_POWER_LIMIT_KW (80.0f)
-#define MAX_REGEN_Nm -30.0f
+#define MAX_REGEN_Nm -15.0f
 #define MAX_BATTERY_TEMP 45
 #define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
 
