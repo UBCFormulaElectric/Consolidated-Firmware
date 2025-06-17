@@ -12,31 +12,6 @@ extern "C"
 
 namespace fakes
 {
-namespace irs
-{
-    void setNegativeState(bool closed);
-}
-namespace tractiveSystem
-{
-    void setVoltage(float voltage);
-    void setCurrentHighResolution(float current);
-    void setCurrentLowResolution(float current);
-    void setVoltageDiagState(bool state);
-    void setCurrentDiagState(bool state);
-} // namespace tractiveSystem
-
-namespace faultLatches
-{
-    void resetFaultLatch(const FaultLatch *latch);
-    void updateFaultLatch(FaultLatch *latch, bool is_ok);
-} // namespace faultLatches
-
-namespace imd
-{
-    void setFrequency(float frequency);
-    void setDutyCycle(float duty_cycle);
-    void setPwmCounter(uint8_t counter);
-} // namespace imd
 namespace segments
 {
     void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);

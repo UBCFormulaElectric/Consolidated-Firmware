@@ -172,72 +172,6 @@ extern "C"
         return EXIT_CODE_OK;
     }
 
-#include "io_irs.h"
-    static bool positive_closed = false;
-    void        io_irs_openPositive()
-    {
-        positive_closed = false;
-    }
-    void io_irs_closePositive()
-    {
-        positive_closed = true;
-    }
-    bool io_irs_isPositiveClosed(void)
-    {
-        return positive_closed;
-    }
-
-    static bool precharge_closed = false;
-    void        io_irs_openPrecharge()
-    {
-        precharge_closed = false;
-    }
-    void io_irs_closePrecharge()
-    {
-        precharge_closed = true;
-    }
-    bool io_irs_isPrechargeClosed(void)
-    {
-        return precharge_closed;
-    }
-
-    static bool negative_closed = false;
-    bool        io_irs_isNegativeClosed(void)
-    {
-        return negative_closed;
-    }
-
-#include "io_tractiveSystem.h"
-    void io_tractiveSystem_init(void) {}
-
-    static float tractiveSystemVoltage = 0.0f;
-    float        io_tractiveSystem_getVoltage(void)
-    {
-        return tractiveSystemVoltage;
-    }
-
-    static float currentHighResolution = 0.0f, currentLowResolution = 0.0f;
-    float        io_tractiveSystem_getCurrentHighResolution(void)
-    {
-        return currentHighResolution;
-    }
-    float io_tractiveSystem_getCurrentLowResolution(void)
-    {
-        return currentLowResolution;
-    }
-
-    static bool voltageDiagState = true;
-    bool        io_tractiveSystem_getVoltageDiagState(void)
-    {
-        return voltageDiagState;
-    }
-
-    static bool currentDiagState = true;
-    bool        io_tractiveSystem_getCurrentDiagState(void)
-    {
-        return currentDiagState;
-    }
-
 #include "io_charger.h"
     static ChargerConnectedType connectionStatus = CHARGER_DISCONNECTED;
     ChargerConnectedType        io_charger_getConnectionStatus()
@@ -249,30 +183,6 @@ extern "C"
     float        io_charger_getCPDutyCycle()
     {
         return evse_dutyCycle;
-    }
-
-#include "io_imd.h"
-    static float imd_frequency = 0.0f;
-    float        io_imd_getFrequency(void)
-    {
-        return imd_frequency;
-    }
-
-    static float imd_duty_cycle = 0.0f;
-    float        io_imd_getDutyCycle(void)
-    {
-        return imd_duty_cycle;
-    }
-
-    uint32_t io_imd_getTimeSincePowerOn(void)
-    {
-        return io_time_getCurrentMs();
-    }
-
-    static uint8_t pwm_counter = 0;
-    uint8_t        io_imd_pwmCounterTick(void)
-    {
-        return pwm_counter;
     }
 
 #include "io_bmsShdn.h"
@@ -287,25 +197,6 @@ extern "C"
     bool io_bmsShdn_hv_n_intlck_sns_pin_get(void)
     {
         return false;
-    }
-
-#include "io_faultLatch.h"
-    // latches to operate on
-    const FaultLatch bms_ok_latch  = { .read_only = false, .current_status = true, .latched_status = true };
-    const FaultLatch imd_ok_latch  = { .read_only = true, .current_status = true, .latched_status = true };
-    const FaultLatch bspd_ok_latch = { .read_only = true, .current_status = true, .latched_status = true };
-
-    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, bool is_ok)
-    {
-        fakes::faultLatches::updateFaultLatch(const_cast<FaultLatch *>(latch), is_ok);
-    }
-    bool io_faultLatch_getCurrentStatus(const FaultLatch *latch)
-    {
-        return latch->current_status;
-    }
-    bool io_faultLatch_getLatchedStatus(const FaultLatch *latch)
-    {
-        return latch->latched_status;
     }
 
 #include "io_bspdTest.h"
@@ -338,67 +229,6 @@ extern "C"
 
 namespace fakes
 {
-namespace irs
-{
-    void setNegativeState(const bool closed)
-    {
-        negative_closed = closed;
-    }
-} // namespace irs
-
-namespace tractiveSystem
-{
-    void setVoltage(const float voltage)
-    {
-        tractiveSystemVoltage = voltage;
-    }
-    void setCurrentHighResolution(const float current)
-    {
-        currentHighResolution = current;
-    }
-    void setCurrentLowResolution(const float current)
-    {
-        currentLowResolution = current;
-    }
-    void setVoltageDiagState(const bool state)
-    {
-        voltageDiagState = state;
-    }
-    void setCurrentDiagState(const bool state)
-    {
-        currentDiagState = state;
-    }
-} // namespace tractiveSystem
-
-namespace faultLatches
-{
-    void resetFaultLatch(FaultLatch *latch)
-    {
-        latch->current_status = true;
-        latch->latched_status = true;
-    }
-    void updateFaultLatch(FaultLatch *latch, const bool is_ok)
-    {
-        latch->current_status = is_ok;
-        latch->latched_status = latch->latched_status ? latch->current_status : false;
-    }
-} // namespace faultLatches
-
-namespace imd
-{
-    void setFrequency(const float frequency)
-    {
-        imd_frequency = frequency;
-    }
-    void setDutyCycle(const float duty_cycle)
-    {
-        imd_duty_cycle = duty_cycle;
-    }
-    void setPwmCounter(const uint8_t counter)
-    {
-        pwm_counter = counter;
-    }
-} // namespace imd
 
 namespace segments
 {

@@ -15,14 +15,7 @@ typedef struct
 } FaultLatch;
 
 #else
-
-typedef struct
-{
-    const bool read_only;
-    bool       current_status;
-    bool       latched_status;
-} FaultLatch;
-
+EMPTY_STRUCT(FaultLatch);
 #endif
 
 // latches to operate on

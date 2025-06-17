@@ -168,7 +168,10 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
-            #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_irs.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
     )
     create_fake_library(

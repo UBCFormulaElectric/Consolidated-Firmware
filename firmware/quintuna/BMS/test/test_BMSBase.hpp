@@ -2,6 +2,11 @@
 #include "ecuTestBase.hpp"
 
 #include "test_fakes.h"
+#include "fake_io_irs.hpp"
+#include "fake_io_tractiveSystem.hpp"
+#include "fake_io_tractiveSystem.hpp"
+#include "fake_io_imd.hpp"
+#include "fake_io_faultLatch.hpp"
 
 extern "C"
 {
@@ -16,49 +21,77 @@ extern "C"
 #include "states/app_balancingState.h"
 #include "app_canRx.h"
 #include "io_canRx.h"
+#include "jobs.h"
+#include "app_stateMachine.h"
+#include "app_segments.h"
+#include "app_imd.h"
 }
+
+const FaultLatch bms_ok_latch  = {};
+const FaultLatch imd_ok_latch  = {};
+const FaultLatch bspd_ok_latch = {};
 
 class BMSBaseTest : public EcuTestBase
 {
+  protected:
     void board_setup() override
     {
-        fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
-        fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
-        fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
-
         fakes::segments::setPackVoltageEvenly(550.0f);
-
-        fake_io_time_getCurrentMs_reset();
 
         jobs_init();
     }
     void board_teardown() override {}
     void tick_100hz() override
     {
-        // jobs_runLTCTemperatures();
-        // jobs_runLTCVoltages();
-        // jobs_runLTCDiagnostics();
+        app_segments_runVoltageConversion();
+        app_segments_broadcastCellVoltages();
+        app_segments_broadcastVoltageStats();
 
-        // jobs_run100Hz_tick();
+        app_stateMachine_tick100Hz();
+        app_stateMachine_tickTransitionState();
     }
     void tick_1hz() override { jobs_run1Hz_tick(); }
 
-  public:
-    struct StateMetadata
+    void TearDown() override
     {
-        const State *state;
-        BmsState     can_state;
-        bool         requires_irs_negative_closed;
-        bool         requires_fault;
-    };
-    std::array<StateMetadata, 8> state_metadata = { {
-        { app_initState_get(), BMS_INIT_STATE, false, false },
-        { app_faultState_get(), BMS_FAULT_STATE, false, true },
-        { app_prechargeDriveState_get(), BMS_PRECHARGE_DRIVE_STATE, true, false },
-        { app_driveState_get(), BMS_DRIVE_STATE, true, false },
-        { app_balancingState_get(), BMS_BALANCING_STATE, true, false },
-        { app_prechargeLatchState_get(), BMS_PRECHARGE_LATCH_STATE, true, false },
-        { app_prechargeChargeState_get(), BMS_PRECHARGE_CHARGE_STATE, true, false },
-        { app_chargeState_get(), BMS_CHARGE_STATE, true, false },
-    } };
+        fake_io_time_getCurrentMs_reset();
+        fake_io_tractiveSystem_getVoltage_reset();
+        fake_io_irs_isNegativeClosed_reset();
+        fake_io_irs_isPositiveClosed_reset();
+        fake_io_imd_getFrequency_reset();
+        fake_io_imd_getDutyCycle_reset();
+        fake_io_faultLatch_getCurrentStatus_reset();
+        fake_io_faultLatch_getLatchedStatus_reset();
+        fake_io_tractiveSystem_getCurrentHighResolution_reset();
+        fake_io_tractiveSystem_getCurrentLowResolution_reset();
+        fake_io_irs_closePositive_reset();
+        fake_io_faultLatch_setCurrentStatus_reset();
+    }
+
+    void SetInitialState(const State *const initial_state)
+    {
+        app_stateMachine_init(initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
+    }
+
+    std::vector<const State *> GetAllStates(void)
+    {
+        return std::vector<const State *>{
+            app_initState_get(),           app_prechargeDriveState_get(), app_prechargeChargeState_get(),
+            app_prechargeLatchState_get(), app_driveState_get(),          app_chargeState_get(),
+            app_balancingState_get(),      app_faultState_get(),
+        };
+    }
+
+    void SetImdCondition(const ImdConditionName condition_name)
+    {
+        const std::map<ImdConditionName, float> mapping{
+            { IMD_CONDITION_SHORT_CIRCUIT, 0.0f },          { IMD_CONDITION_NORMAL, 10.0f },
+            { IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f }, { IMD_CONDITION_SST, 30.0f },
+            { IMD_CONDITION_DEVICE_ERROR, 40.0f },          { IMD_CONDITION_GROUND_FAULT, 50.0f }
+        };
+
+        fake_io_imd_getFrequency_returns(mapping.at(condition_name));
+        ASSERT_EQ(condition_name, app_imd_getCondition().name);
+    }
 };
