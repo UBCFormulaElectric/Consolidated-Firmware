@@ -373,7 +373,7 @@
         "bits": 1
       },
       "PumpRampUpSetPoint": {
-        "resolution": 1,
+        "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"

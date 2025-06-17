@@ -2,6 +2,7 @@
   "messages": [
     "FSM_Vitals", 
     "FSM_Brake",
-    "VC_ConnectorBoardEfuse"
+    "VC_ConnectorBoardEfuse",
+    "VC_PumpStatus"
   ]
 }
