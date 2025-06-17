@@ -54,14 +54,6 @@
       "id": 115,
       "description": "Missing heartbeat from the VC."
     },
-    "ChargePowerLimitActive": {
-      "id": 116,
-      "description": "A charge power limit is active"
-    },
-    "DischargePowerLimitActive": {
-      "id": 117,
-      "description": "A discharge power limit is active"
-    },
     "StackOverflow": {
       "id": 450,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
