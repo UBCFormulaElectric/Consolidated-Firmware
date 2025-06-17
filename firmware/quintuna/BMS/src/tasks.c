@@ -10,6 +10,7 @@
 #include "app_segments.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
+#include "app_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_gpios.h"
