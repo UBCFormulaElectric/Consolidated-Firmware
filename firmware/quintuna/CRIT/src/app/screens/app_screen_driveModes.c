@@ -42,7 +42,7 @@ static void drive_mode_update(void)
     {
         case DRIVE_MODE_POWER:
             data_buffer[3] = SEG_PATTERN_P;
-            data_buffer[4] = SEG_PATTERN_W;
+            data_buffer[4] = SEG_PATTERN_U;
             data_buffer[5] = SEG_PATTERN_R;
             break;
         case DRIVE_MODE_POWER_AND_ACTIVE:
