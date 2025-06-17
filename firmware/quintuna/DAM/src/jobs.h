@@ -5,6 +5,7 @@
 #pragma once
 #include "io_canMsg.h"
 #include "io_canQueue.h"
+#include "jobs.h"
 
 extern CanTxQueue can_tx_queue;
 
@@ -19,5 +20,6 @@ void jobs_init(void);
 void jobs_run1Hz_tick(void);
 void jobs_run100Hz_tick(void);
 void jobs_run1kHz_tick(void);
+void jobs_runCanRx_tick(void);
 
 void jobs_runCanRx_callBack(const CanMsg *rx_msg);
