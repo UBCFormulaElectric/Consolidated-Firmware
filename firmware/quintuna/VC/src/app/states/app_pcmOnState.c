@@ -4,19 +4,13 @@
 #include "app_timer.h"
 #include "app_canAlerts.h"
 #include "io_pcm.h"
+#include "app_canUtils.h"
 
 #define HV_READY_VOLTAGE (18.0f)
 #define PCM_MAX_VOLTAGE (30.0f)
 #define PCM_MAX_CURRENT (40.0f)
 #define PCM_TIMEOUT \
     (100) // if voltage doesnt rise above 18V in this amout of time after entering pcmOnState then go into fault state
-
-typedef enum
-{
-    NO_RETRY,
-    RETRY_TRIGGERED,
-    RETRY_DONE
-} pcmRetryStates;
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -34,7 +28,7 @@ static PowerManagerConfig power_manager_state = {
 
 static TimerChannel   pcm_voltage_in_range_timer;
 static TimerChannel   pcm_toggle_timer;
-static pcmRetryStates pcm_retry_state;
+static PcmRetryStates pcm_retry_state;
 static float          pcm_curr_voltage;
 static float          pcm_prev_voltage;
 
@@ -86,6 +80,7 @@ static void pcmOnStateRunOnTick100Hz(void)
                 app_timer_stop(&pcm_voltage_in_range_timer);
                 pcm_retry_state = RETRY_DONE;
             }
+            app_canTx_VC_PcmRetryState_set(pcm_retry_state);
             break;
 
         case TIMER_STATE_IDLE:

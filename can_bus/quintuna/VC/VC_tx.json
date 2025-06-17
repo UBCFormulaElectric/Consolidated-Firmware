@@ -829,5 +829,27 @@
         "unit": "W"
       }
     }
+  },
+  "PCM": {
+    "msg_id": 234,
+    "cycle_time" : 100, 
+    "signals":
+    {
+      "PcmRetryState":
+      {
+        "enum": "PcmRetryStates"
+      }
+    }
+  },
+  "DriveMode": {
+    "msg_id": 235,
+    "cycle_time" : 100, 
+    "signals":
+    {
+      "VcDriveMode":
+      {
+        "enum": "DriveMode"
+      }
+    }
   }
 }

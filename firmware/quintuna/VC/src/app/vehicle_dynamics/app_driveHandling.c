@@ -78,6 +78,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             torqueToMotorsInputs.load_transfer_const = 1.0f;
             torqueToMotorsInputs.power_limit_kw      = app_powerLimiting_computeMaxPower(false);
             app_torqueAllocation(&torqueToMotorsInputs, torqueOutputToMotors);
+            app_canTx_VC_VcDriveMode_set(DRIVE_MODE_POWER);
             LOG_INFO("DriveHandling: PowerLimit Mode Active");
             break;
         }
@@ -107,6 +108,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             powerLimitingInputs.total_requestedPower = app_totalPower(torqueOutputToMotors);
             app_powerLimiting_torqueReduction(&powerLimitingInputs);
             /// dont use torque allocation here
+            app_canTx_VC_VcDriveMode_set(DRIVE_MODE_POWER_AND_ACTIVE);
             LOG_INFO("DriveHandling: Active Diff Power Limit Mode Active");
             break;
         }
@@ -116,6 +118,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(false);
                 app_torqueVectoring_run(apps_pedal_percentage);
+                app_canTx_VC_VcDriveMode_set(DRIVE_MODE_TV);
                 LOG_INFO("DriveHandling: Torque Vectoring Mode Active");
             }
             else

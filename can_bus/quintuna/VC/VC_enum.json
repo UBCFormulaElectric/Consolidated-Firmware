@@ -44,5 +44,11 @@
     "ELLIPSE_NOT_CONTINUOUS_FRAME": 18,
     "ELLIPSE_INCOMPATIBLE_HARDWARE": 19,
     "ELLIPSE_INVALID_VERSION": 20
-  }
+  },
+  "PcmRetryStates":
+  {
+    "NO_RETRY" : 0,
+    "RETRY_TRIGGERED" : 1,
+    "RETRY_DONE": 2
+  } 
 }
