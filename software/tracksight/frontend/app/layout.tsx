@@ -2,10 +2,11 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/shared/theme-provider"
+import { ThemeProvider } from "@/components/shared/ThemeProvider"
 import { Toaster } from "sonner"
 import { SignalProvider } from "@/lib/contexts/SignalContext"
-import { PausePlayProvider } from "@/components/shared/pause-play-control"
+import { PausePlayProvider } from "@/components/shared/PausePlayControl"
+import LayoutWrapper from "@/components/shared/LayoutWrapper"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,7 +27,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <PausePlayProvider>
             <SignalProvider>
-              {children}
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
               <Toaster position="top-right" richColors />
             </SignalProvider>
           </PausePlayProvider>

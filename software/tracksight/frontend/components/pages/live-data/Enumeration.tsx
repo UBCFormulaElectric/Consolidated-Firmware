@@ -1,7 +1,7 @@
 // enumeration.tsx
 "use client";
 
-import { usePausePlay } from "@/components/shared/pause-play-control";
+import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 

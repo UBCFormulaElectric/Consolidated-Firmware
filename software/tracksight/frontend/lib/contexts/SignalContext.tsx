@@ -1,6 +1,6 @@
 "use client";
 
-import { PausePlayContext } from "@/components/shared/pause-play-control";
+import { PausePlayContext } from "@/components/shared/PausePlayControl";
 import {
   createContext,
   ReactNode,

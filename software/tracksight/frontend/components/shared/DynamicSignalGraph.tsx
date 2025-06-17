@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { SignalProvider, useSignals } from '@/lib/contexts/SignalContext';
-import NumericalGraphComponent from '../live-data/Numerical';
-import EnumerationGraphComponent from '../live-data/Enumeration';
+import NumericalGraphComponent from '@/components/pages/live-data/Numerical';
+import EnumerationGraphComponent from '@/components/pages/live-data/Enumeration';
 
 interface DynamicSignalGraphProps {
   signalName: string;

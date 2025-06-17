@@ -1,7 +1,7 @@
 // numerical.tsx
 "use client";
 
-import { usePausePlay } from "@/components/shared/pause-play-control";
+import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
 import React, { useCallback, useEffect, useRef, useState } from "react";

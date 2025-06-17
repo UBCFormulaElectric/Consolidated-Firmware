@@ -1,9 +1,10 @@
 "use client"
 import { Database, SaveIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
 import type React from "react"
 
-import { ThemeToggle } from "@/components/shared/theme-toggle"
-import { PausePlayButton } from "@/components/shared/pause-play-control"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { PausePlayButton } from "@/components/shared/PausePlayControl"
 import Image from "next/image"
 
 interface SidebarProps {
@@ -12,6 +13,13 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
+  const router = useRouter()
+
+  const handleNavigation = (page: string, route: string) => {
+    setActivePage(page)
+    router.push(route)
+  }
+
   return (
     <div className="sticky top-0 h-16 w-full bg-blue-900 dark:bg-blue-900 relative flex items-center px-4">
       {/* Logo */}
@@ -32,13 +40,20 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
             icon={<Database size={18} />}
             label="Live Data"
             isActive={activePage === "live-data"}
-            onClick={() => setActivePage("live-data")}
+            onClick={() => handleNavigation("live-data", "/live-data")}
           />
-          {/* <NavItem
+          {/* Future navigation items can be added here:
+          <NavItem
             icon={<SaveIcon size={18} />}
-            label="Logging"
-            isActive={activePage === "logging"}
-            onClick={() => setActivePage("logging")}
+            label="Dashboard"
+            isActive={activePage === "dashboard"}
+            onClick={() => handleNavigation("dashboard", "/dashboard")}
+          />
+          <NavItem
+            icon={<ChartIcon size={18} />}
+            label="Visualize"
+            isActive={activePage === "visualize"}
+            onClick={() => handleNavigation("visualize", "/visualize")}
           /> */}
         </ul>
       </nav>
@@ -64,15 +79,10 @@ interface NavItemProps {
 }
 
 function NavItem({ icon, label, isActive, onClick }: NavItemProps) {
-  const handleClick = () => {
-    console.log(`Navigating to: ${label}`)
-    onClick()
-  }
-
   return (
     <li>
       <button
-        onClick={handleClick}
+        onClick={onClick}
         className={`flex items-center px-2 py-1 text-sm rounded-md transition-colors ${
           isActive ? "bg-blue-800 text-white" : "text-blue-100 hover:bg-blue-800/50"
         }`}
