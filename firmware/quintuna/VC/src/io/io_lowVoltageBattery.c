@@ -12,7 +12,6 @@
 #define BYTE_MASK(x) ((x) & 0XFF)
 #define FRACTION 4294967296.0
 
-
 typedef struct
 {
     float  r_sense;
@@ -37,19 +36,17 @@ static const HardwareConfig_t HardwareConfig = { .r_sense                = 3.0f,
  * @return true if the subcommand was sent and the response is ready; false otherwise.
  */
 
+static inline uint8_t check_sum_calc(uint16_t cmd, uint8_t *data, size_t length)
+{
+    uint8_t calcChecksum = (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8)))));
 
-static inline uint8_t check_sum_calc(uint16_t cmd, uint8_t* data, size_t length){
-    
-    uint8_t calcChecksum =
-    (uint8_t)(((uint8_t)(BYTE_MASK(cmd))) + ((uint8_t)((BYTE_MASK(cmd >> 8)))));
-
-    for (uint8_t i = 0; i<length; i++) {
-        calcChecksum+=data[length];
+    for (uint8_t i = 0; i < length; i++)
+    {
+        calcChecksum += data[length];
     }
 
     return ~((uint8_t)BYTE_MASK(calcChecksum));
 }
-
 
 static ExitCode send_subcommand(uint16_t cmd)
 {
@@ -92,36 +89,37 @@ static ExitCode recieve_subcommand(uint16_t cmd, Subcommand_Response *response)
     return EXIT_CODE_OK;
 }
 
-static float translateVoltageData(int16_t voltage) {
+static float translateVoltageData(int16_t voltage)
+{
     return voltage * 0.001f;
 }
 
 static ExitCode command_to_setThresholds(uint16_t cmd_id, uint8_t *data, size_t size_of_data)
 {
-    uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(cmd_id), (uint8_t) BYTE_MASK(cmd_id >> 8)};
-    //first we are writing to address 0x3E to set the subcommand
+    uint8_t thresh_cmd_address[2] = { (uint8_t)BYTE_MASK(cmd_id), (uint8_t)BYTE_MASK(cmd_id >> 8) };
+    // first we are writing to address 0x3E to set the subcommand
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
 
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_DATA_BUFFER, data, 2));
-    //need to add the CRC config here and we need to transmit both checksum and length in one
+    // need to add the CRC config here and we need to transmit both checksum and length in one
 
-    uint8_t calcChecksum = check_sum_calc(cmd_id, data, size_of_data);
-    uint8_t size_of_frame_mem = (uint8_t) size_of_data + 4;
+    uint8_t calcChecksum      = check_sum_calc(cmd_id, data, size_of_data);
+    uint8_t size_of_frame_mem = (uint8_t)size_of_data + 4;
 
-    uint8_t crc_length_thresh[2] = {calcChecksum, size_of_frame_mem};
+    uint8_t crc_length_thresh[2] = { calcChecksum, size_of_frame_mem };
 
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_CHECKSUM, crc_length_thresh, 2));
 
     RETURN_IF_ERR(hw_i2c_memoryWrite(&bat_mtr, REG_SUBCOMMAND, thresh_cmd_address, 2));
     Subcommand_Response thresh_response;
-    RETURN_IF_ERR(recieve_subcommand(cmd_id,&thresh_response));
+    RETURN_IF_ERR(recieve_subcommand(cmd_id, &thresh_response));
 
     return EXIT_CODE_OK;
 }
 
-ExitCode io_lowVoltageBattery_SafetyStatusCheck(SafetyStatusA *safetyA, SafetyStatusB *safetyB, SafetyStatusC *safetyC){
-
-    //check the raw battery alarm status to see what is going on
+ExitCode io_lowVoltageBattery_SafetyStatusCheck(SafetyStatusA *safetyA, SafetyStatusB *safetyB, SafetyStatusC *safetyC)
+{
+    // check the raw battery alarm status to see what is going on
     uint8_t buffer_safety[1] = { (uint8_t)0x64 };
 
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_safety, 1));
@@ -129,32 +127,35 @@ ExitCode io_lowVoltageBattery_SafetyStatusCheck(SafetyStatusA *safetyA, SafetySt
     AlertStatus safety_status;
     RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&safety_status, 2));
 
-    //if there is bit set in status A check what is going on
-    if (safety_status.SSA){
+    // if there is bit set in status A check what is going on
+    if (safety_status.SSA)
+    {
         LOG_ERROR("Registered a status fault A");
         uint8_t buffer_safetA[1] = { (uint8_t)0x03 };
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_safetA, 1));
-        
+
         RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)safetyA, 1));
     }
-    //if there is bit a bit set in status B check what is going on
-    else if (safety_status.SSBC) {
+    // if there is bit a bit set in status B check what is going on
+    else if (safety_status.SSBC)
+    {
         LOG_ERROR("Registered a status fault B");
-        uint8_t buffer_safetB =  (uint8_t)0x05;
+        uint8_t buffer_safetB = (uint8_t)0x05;
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, &buffer_safetB, 1));
 
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safetyB, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)safetyB, 1));
 
-        uint8_t buffer_safetC =(uint8_t)0x07 ;
+        uint8_t buffer_safetC = (uint8_t)0x07;
         RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, &buffer_safetC, 1));
 
-        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t*) safetyC, 1));
+        RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)safetyC, 1));
     }
 
     return EXIT_CODE_OK;
 }
 
-ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status){
+ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status)
+{
     uint8_t buffer_bat[1] = { (uint8_t)BATTERY_STATUS };
     // ask for battery status to check if the device is sleep or not
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_bat, 1));
@@ -163,7 +164,8 @@ ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status){
     return EXIT_CODE_OK;
 }
 
-ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status){
+ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status)
+{
     uint8_t buffer_control[1] = { (uint8_t)CONTROL_STATUS };
     RETURN_IF_ERR(hw_i2c_transmit(&bat_mtr, buffer_control, 1));
     RETURN_IF_ERR(hw_i2c_receive(&bat_mtr, (uint8_t *)&ctrl_status, 2));
@@ -184,7 +186,7 @@ ExitCode io_lowVoltageBattery_init(void)
     Battery_Status bat_status;
     RETURN_IF_ERR(io_lowvoltageBattery_batteryStatus(&bat_status));
 
-    //Put the chip into config update mode
+    // Put the chip into config update mode
     RETURN_IF_ERR(send_subcommand((uint16_t)0x0090));
 
     RETURN_IF_ERR(io_lowVoltageBattery_SafetyStatusCheck(&safetyA, &safetyB, &safetyC));
@@ -214,13 +216,13 @@ ExitCode io_lowVoltageBattery_init(void)
     // Subcommand_Response response;
     // RETURN_IF_ERR(recieve_subcommand(manu_status,&response));
 
-    uint8_t thresh_scd[2] = {0x09,0x00};
-    RETURN_IF_ERR(command_to_setThresholds( (uint16_t) SCD_THRESHOLD, thresh_scd, 2));
+    uint8_t thresh_scd[2] = { 0x09, 0x00 };
+    RETURN_IF_ERR(command_to_setThresholds((uint16_t)SCD_THRESHOLD, thresh_scd, 2));
 
-    uint8_t CUV_thresh[2] = {0x37,0x00};
-    RETURN_IF_ERR(command_to_setThresholds((uint16_t) UV_THRESHOLD, CUV_thresh, 2));
+    uint8_t CUV_thresh[2] = { 0x37, 0x00 };
+    RETURN_IF_ERR(command_to_setThresholds((uint16_t)UV_THRESHOLD, CUV_thresh, 2));
 
-    RETURN_IF_ERR(send_subcommand((uint16_t) 0x0092));
+    RETURN_IF_ERR(send_subcommand((uint16_t)0x0092));
 
     uint16_t fet_enable = 0x0022;
     RETURN_IF_ERR(send_subcommand(fet_enable));
@@ -326,7 +328,7 @@ ExitCode io_lowVoltageBattery_controlBalancing(bool cell0, bool cell1, bool cell
 ExitCode io_lowVoltageBattery_configureBalancingThreshold(uint16_t voltage)
 {
     return EXIT_CODE_UNIMPLEMENTED;
-    
+
     /*
     uint8_t thresh_cmd_address[2] = {(uint8_t) BYTE_MASK(voltage), (uint8_t) BYTE_MASK(voltage)};
 
@@ -350,7 +352,7 @@ ExitCode io_lowVoltageBattery_configureBalancingThreshold(uint16_t voltage)
 ExitCode io_lowVoltageBattery_showCellsBalancing(BalanceStatus *status)
 {
     return EXIT_CODE_UNIMPLEMENTED;
-    
+
     // RETURN_IF_ERR(hw_i2c_memoryRead(&bat_mtr, CELL_BALANCING, &status, 2));
     // return EXIT_CODE_OK;
 }
@@ -359,7 +361,6 @@ ExitCode io_lowVoltageBattery_additionalMeasurements(void)
 {
     return EXIT_CODE_UNIMPLEMENTED;
 }
-
 
 /**
  * @brief Handles releasing the semaphore after an interupt.

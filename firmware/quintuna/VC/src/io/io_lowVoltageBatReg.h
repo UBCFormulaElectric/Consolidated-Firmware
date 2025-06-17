@@ -43,26 +43,25 @@ typedef struct __attribute__((packed))
     uint8_t OCD1 : 1;  // Overcurrent in discharge 1
     uint8_t OCD2 : 1;  // Overcurrent in discharge 2
     uint8_t SCD : 1;   // Short Circuit in Discharge
-} SafetyStatusA;        // alerts associated with the battery chip
-
+} SafetyStatusA;       // alerts associated with the battery chip
 
 typedef struct __attribute__((packed))
 {
     uint8_t UTC : 1;
     uint8_t UTD : 1;
     uint8_t UTINT : 1;
-    uint8_t RSVD :1;
+    uint8_t RSVD : 1;
     uint8_t OTC : 1;
     uint8_t OTD : 1;
     uint8_t OTINT : 1;
-    uint8_t OTF : 1;  
+    uint8_t OTF : 1;
 } SafetyStatusB;
 
 typedef struct __attribute__((packed))
 {
     uint8_t RSVD1 : 1;
-    uint8_t RSVD2 : 1;  
-    uint8_t PTOS :1;
+    uint8_t RSVD2 : 1;
+    uint8_t PTOS : 1;
     uint8_t RSVD3 : 1;
     uint8_t COVL : 1;
     uint8_t OCDL : 1;
@@ -72,40 +71,38 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-
-    uint8_t WAKE : 1; 
-    uint8_t ADSCAN : 1; 
-    uint8_t CB : 1;   
-    uint8_t FUSE : 1; 
+    uint8_t WAKE : 1;
+    uint8_t ADSCAN : 1;
+    uint8_t CB : 1;
+    uint8_t FUSE : 1;
     uint8_t SHUTV : 1;
-    uint8_t XDSG : 1;  
-    uint8_t XCHG : 1;  
-    uint8_t FULLSCAN : 1; 
-    
-    uint8_t RSVD: 1;
+    uint8_t XDSG : 1;
+    uint8_t XCHG : 1;
+    uint8_t FULLSCAN : 1;
+
+    uint8_t RSVD : 1;
     uint8_t INITCOMP : 1;
     uint8_t INITSTART : 1;
-    uint8_t MSK_PFALERT :1;
+    uint8_t MSK_PFALERT : 1;
     uint8_t MSK_SFALERT : 1;
-    uint8_t PF :1;
-    uint8_t SSA :1;
-    uint8_t SSBC : 1;  
+    uint8_t PF : 1;
+    uint8_t SSA : 1;
+    uint8_t SSBC : 1;
 } AlertStatus;
 
 typedef enum
 {
-    BQ76922_I2C_ADDR    = 0x10,
-    REG_SUBCOMMAND      = 0x3E,
-    REG_DATA_BUFFER     = 0x40,
-    REG_CHECKSUM        = 0x60,
-    REG_RESPONSE_LENGTH = 0x61,
-    ALERT_PIN_CONFIG    = 0x56,
-    ALARM_ENABLE_REG    = 0x66,
-    ALARM_STATUS_REG    = 0x62,
-    CELL_BALANCING = 0x83,
+    BQ76922_I2C_ADDR       = 0x10,
+    REG_SUBCOMMAND         = 0x3E,
+    REG_DATA_BUFFER        = 0x40,
+    REG_CHECKSUM           = 0x60,
+    REG_RESPONSE_LENGTH    = 0x61,
+    ALERT_PIN_CONFIG       = 0x56,
+    ALARM_ENABLE_REG       = 0x66,
+    ALARM_STATUS_REG       = 0x62,
+    CELL_BALANCING         = 0x83,
     CELL_BALANCING_SET_LVL = 0x84
 } register_address_t;
-
 
 typedef enum
 {
@@ -157,10 +154,10 @@ typedef enum
 
 typedef struct __attribute__((packed))
 {
-    uint8_t BALANCE_CELL0 : 1;
-    uint8_t BALANCE_CELL1 : 1;
-    uint8_t BALANCE_CELL2 : 1;
-    uint8_t BALANCE_CELL3 : 1;
-    uint8_t BALANCE_CELL4 : 1;
+    uint8_t  BALANCE_CELL0 : 1;
+    uint8_t  BALANCE_CELL1 : 1;
+    uint8_t  BALANCE_CELL2 : 1;
+    uint8_t  BALANCE_CELL3 : 1;
+    uint8_t  BALANCE_CELL4 : 1;
     uint16_t RSVD : 11;
 } BalanceStatus;

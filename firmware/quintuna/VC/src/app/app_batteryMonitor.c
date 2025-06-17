@@ -2,7 +2,8 @@
 #include "io_lowVoltageBattery.h"
 #include "app_canTx.h"
 
-void app_batteryMonitor_broadcast(void) {
+void app_batteryMonitor_broadcast(void)
+{
     Battery_Status bat_status;
     SafetyStatusA  safetyA;
     SafetyStatusB  safetyB;
@@ -31,20 +32,20 @@ void app_batteryMonitor_broadcast(void) {
     app_canTx_VC_ShortCircuitInDischarge_set(safetyA.SCD);
 
     // safety messages B
-    app_canTx_VC_UndertemperatureInCharge_set(     safetyB.UTC    );
-    app_canTx_VC_UndertemperatureInDischarge_set(  safetyB.UTD    );
-    app_canTx_VC_InternalUndertemperature_set(     safetyB.UTINT  );
-    app_canTx_VC_OvertemperatureInCharge_set(      safetyB.OTC    );
-    app_canTx_VC_OvertemperatureInDischarge_set(   safetyB.OTD    );
-    app_canTx_VC_InternalOvertemperature_set(      safetyB.OTINT  );
-    app_canTx_VC_FETOvertemperature_set(           safetyB.OTF    );
+    app_canTx_VC_UndertemperatureInCharge_set(safetyB.UTC);
+    app_canTx_VC_UndertemperatureInDischarge_set(safetyB.UTD);
+    app_canTx_VC_InternalUndertemperature_set(safetyB.UTINT);
+    app_canTx_VC_OvertemperatureInCharge_set(safetyB.OTC);
+    app_canTx_VC_OvertemperatureInDischarge_set(safetyB.OTD);
+    app_canTx_VC_InternalOvertemperature_set(safetyB.OTINT);
+    app_canTx_VC_FETOvertemperature_set(safetyB.OTF);
 
     // safety messages C
-    app_canTx_VC_PrechargeTimeout_set(             safetyC.PTOS   );
-    app_canTx_VC_CellOvervoltageLatch_set(         safetyC.COVL   );
-    app_canTx_VC_OvercurrentDischargeLatch_set(    safetyC.OCDL   );
-    app_canTx_VC_ShortCircuitDischargeLatch_set(   safetyC.SCDL   );
-    app_canTx_VC_OvercurrentDischarge3_set(        safetyC.OCD3   );
+    app_canTx_VC_PrechargeTimeout_set(safetyC.PTOS);
+    app_canTx_VC_CellOvervoltageLatch_set(safetyC.COVL);
+    app_canTx_VC_OvercurrentDischargeLatch_set(safetyC.OCDL);
+    app_canTx_VC_ShortCircuitDischargeLatch_set(safetyC.SCDL);
+    app_canTx_VC_OvercurrentDischarge3_set(safetyC.OCD3);
 
     // battery and pack voltage
     app_canTx_VC_StackVoltage_set(io_lowVoltageBattery_get_voltage(CELL0_VOLTAGE_COMMAND));

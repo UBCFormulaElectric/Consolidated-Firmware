@@ -54,7 +54,6 @@ float io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
  */
 void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
 
-
 /**
  * @brief Function to obtain the battery status from the chip
  *
@@ -62,7 +61,6 @@ void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
  * @return Exitcode to say whether the transaction was succesful or not
  */
 ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status);
-
 
 /**
  * @brief Function to obtain the safety status from the chip
@@ -94,7 +92,7 @@ ExitCode io_lowVoltageBattery_controlStatus(Control_Status *ctrl_status);
 ExitCode io_lowVoltageBattery_controlBalancing(bool cell0, bool cell1, bool cell2, bool cell3);
 
 /**
- * @brief Configure the threshold (mV) for balancing, if a cell is 
+ * @brief Configure the threshold (mV) for balancing, if a cell is
  * above this threshold it will begin balancing
  *
  * @param voltage voltage threshold to balance at (mV)

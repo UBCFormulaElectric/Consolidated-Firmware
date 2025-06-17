@@ -27,7 +27,7 @@ TEST_F(DriveHandlingTest, DriveModeVanillaNotPowerLimiting)
     app_canRx_INVRR_ActualVelocity_update(inverter_rpm);
     app_canRx_INVRL_ActualVelocity_update(inverter_rpm);
 
-    float torque_limit = (float)(bms_avail_power_w / (4 * inverter_rpm));
+    float torque_limit     = (float)(bms_avail_power_w / (4 * inverter_rpm));
     float torque_to_motors = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
 
     ASSERT_TRUE(torque_to_motors == MAX_TORQUE_REQUEST_NM);
@@ -44,7 +44,7 @@ TEST_F(DriveHandlingTest, DriveModeVanillaNotPowerLimiting)
     app_canRx_INVRR_ActualVelocity_update(inverter_rpm);
     app_canRx_INVRL_ActualVelocity_update(inverter_rpm);
 
-    float torque_limit = (float)(bms_avail_power_w / (4 * RPM_TO_RADS(inverter_rpm)));
+    float torque_limit     = (float)(bms_avail_power_w / (4 * RPM_TO_RADS(inverter_rpm)));
     float torque_to_motors = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
 
     ASSERT_TRUE(torque_to_motors == MAX_TORQUE_REQUEST_NM);
