@@ -1,7 +1,6 @@
 #include "jobs.h"
 #include "app_stateMachine.h"
 #include "app_timer.h"
-#include "hw_utils.h"
 #include "io_canMsg.h"
 #include "io_canQueues.h"
 #include "app_jsoncan.h"
@@ -14,8 +13,10 @@
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
+#include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
 #include "app_canRx.h"
+#include "app_warningHanding.h"
 
 #define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
 
@@ -61,6 +62,8 @@ void jobs_init()
     app_canTx_VC_Heartbeat_set(true);
 
     app_timer_init(&air_minus_open_debounce_timer, AIR_MINUS_OPEN_DEBOUNCE_MS);
+
+    app_softwareBspd_init();
 }
 
 void jobs_run1Hz_tick(void)
@@ -97,4 +100,9 @@ void jobs_run1kHz_tick(void)
 {
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+}
+
+void jobs_runPowerMonitoring_tick(void)
+{
+    app_powerMonitoring_update();
 }
