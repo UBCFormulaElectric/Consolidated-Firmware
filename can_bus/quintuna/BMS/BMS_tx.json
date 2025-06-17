@@ -132,6 +132,12 @@
         "min": 0,
         "max": 100000,
         "unit": "W"
+      },
+      "CurrentSensorOk": {
+        "bits": 1
+      },
+      "VoltageSensorOk": {
+        "bits": 1
       }
     }
   },
