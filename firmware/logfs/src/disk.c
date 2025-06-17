@@ -1,5 +1,6 @@
 #include "disk.h"
 #include "crc.h"
+#include "logfs.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
@@ -48,7 +49,7 @@ static inline LogFsErr disk_replacePair(LogFs *fs, LogFsPair *pair)
 
     // Update pair state, so pair replacements are abstracted away from the programmer.
     memcpy(pair, &replacement_pair, sizeof(LogFsPair));
-    fs->head_addr += LOGFS_PAIR_SIZE;
+    INC_HEAD(fs, LOGFS_PAIR_SIZE);
 
     // Restore new pair to the cache, since it was in the cache at the start of this function and changing the cache is
     // not an obvious side-effect.
@@ -69,17 +70,19 @@ inline LogFsErr disk_read(const LogFs *fs, const uint32_t block, void *buf)
     return crc_checkBlock(fs, buf) ? LOGFS_ERR_OK : LOGFS_ERR_CORRUPT;
 }
 
-LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, const uint32_t block, bool write_back, bool fetch)
+LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, DiskCacheExchangeFlags flags)
 {
     if (cache->cached_addr != block)
     {
         // A different block is currently in the cache, sync it to disk.
-        if (write_back && cache->cached_addr != LOGFS_INVALID_BLOCK)
+        const bool write_back = flags & DISK_CACHE_WRITE_BACK;
+        if (write_back)
         {
             RET_ERR(disk_syncCache(fs, cache));
         }
 
         // Fetch block from disk.
+        const bool fetch = flags & DISK_CACHE_FETCH;
         if (fetch)
         {
             RET_ERR(disk_read(fs, block, cache->buf));
@@ -170,6 +173,8 @@ LogFsErr disk_fetchPair(const LogFs *fs, LogFsPair *pair, uint32_t block)
 
     // Successfully fetched pair from disk.
     pair->seq_num_on_disk = true;
+
+    RET_ERR(disk_readPair(fs, pair));
     return LOGFS_ERR_OK;
 }
 

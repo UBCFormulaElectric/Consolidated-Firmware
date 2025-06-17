@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Union
-
+import math
 import pandas as pd
 from strenum import StrEnum
 
@@ -327,9 +327,23 @@ class CanNode:
 @dataclass
 class DecodedSignal:
     name: str
-    value: float
-    unit: Optional[str] = None
+    value: int | float
+    timestamp: Optional[pd.Timestamp] = None
     label: Optional[str] = None
+    unit: Optional[str] = None
+
+    def __str__(self) -> str:
+        if self.label is not None:
+            return f"{self.timestamp}: {self.name} = {self.label}"
+        else:
+            return f"{self.timestamp}: {self.name} = {self.value}{'' if self.unit is None else self.unit }"
+
+
+@dataclass
+class DecodedMessage:
+    name: str
+    signals: List[DecodedSignal]
+    timestamp: pd.Timestamp
 
 
 @dataclass(frozen=True)
@@ -379,12 +393,13 @@ class CanDatabase:
         pandas_data = pd.DataFrame(data)
         return pandas_data
 
-    def unpack(self, msg_id: int, data: bytes) -> List[DecodedSignal]:
+    def unpack(
+        self, msg_id: int, data: bytes, timestamp: Optional[pd.Timestamp] = None
+    ) -> List[DecodedSignal]:
         """
         Unpack a CAN dataframe.
         Returns a list of decoded signals as `DecodedSignal` objects.
-
-        TODO: Also add packing!
+        TODO: Big-endian support!
         """
         msg = self.get_message_by_id(msg_id)
         if msg is None:
@@ -408,7 +423,9 @@ class CanDatabase:
             scaled_value = raw_value * signal.scale + signal.offset
 
             # Initialize decoded signal
-            decoded = DecodedSignal(name=signal.name, value=scaled_value)
+            decoded = DecodedSignal(
+                name=signal.name, value=scaled_value, timestamp=timestamp
+            )
 
             if signal.unit:
                 decoded.unit = signal.unit
@@ -426,7 +443,47 @@ class CanDatabase:
 
         return decoded_signals
 
-    def get_message_by_id(self, id: int):
+    def pack(self, decoded_msg: DecodedMessage) -> tuple[int, bytes]:
+        """
+        Pack a CAN dataframe.
+        TODO: Big-endian support!
+        """
+        msg = self.msgs.get(decoded_msg.name)
+        if msg is None:
+            logger.warning(
+                f"Message named '{decoded_msg.name}' is not defined in the JSON."
+            )
+            return b""
+
+        signal_map = {signal.name: signal for signal in msg.signals}
+        data_uint = 0
+
+        for decoded_signal in decoded_msg.signals:
+            if decoded_signal.name not in signal_map:
+                logger.warning(
+                    f"Signal named '{decoded_signal.name}' is not defined for message '{msg.name}'."
+                )
+                continue
+
+            signal = signal_map[decoded_signal.name]
+
+            # Apply scale and offset.
+            raw_value = math.floor(
+                (decoded_signal.value - signal.offset) / signal.scale
+            )
+
+            # Shift the bits representing the current signal.
+            bitmask = (1 << signal.bits) - 1
+            data_shifted = (raw_value & bitmask) << signal.start_bit
+
+            # Pack into uint.
+            data_uint |= data_shifted
+
+        return msg.id, data_uint.to_bytes(
+            length=msg.dlc(), byteorder="little", signed=False
+        )
+
+    def get_message_by_id(self, id: int) -> Optional[CanMessage]:
         for msg in self.msgs.values():
             if msg.id == id:
                 return msg
