@@ -92,19 +92,16 @@ extern "C"
         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
     {
-        // if (started_therm_adc_conversion || started_self_test_aux)
-        // {
-        //     memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
-        // }
-        // else
-        // {
-        //     FAIL() << "Did not start thermistor ADC conversion";
-        // }
+        if (!started_therm_adc_conversion)
+        {
+            FAIL() << "Did not start thermistor ADC conversion";
+        }
+
+        memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
-                aux_regs[i][j]     = 0;
                 comm_success[i][j] = EXIT_CODE_OK;
             }
         }
@@ -171,60 +168,6 @@ extern "C"
     {
         return EXIT_CODE_OK;
     }
-
-#include "io_charger.h"
-    static ChargerConnectedType connectionStatus = CHARGER_DISCONNECTED;
-    ChargerConnectedType        io_charger_getConnectionStatus()
-    {
-        return connectionStatus;
-    }
-
-    static float evse_dutyCycle = 0.0f;
-    float        io_charger_getCPDutyCycle()
-    {
-        return evse_dutyCycle;
-    }
-
-#include "io_bmsShdn.h"
-    bool io_bmsShdn_msd_shdn_sns_pin_get(void)
-    {
-        return false;
-    }
-    bool io_bmsShdn_hv_p_intlck_sns_pin_get(void)
-    {
-        return false;
-    }
-    bool io_bmsShdn_hv_n_intlck_sns_pin_get(void)
-    {
-        return false;
-    }
-
-#include "io_bspdTest.h"
-    void io_bspdTest_enable(const bool enable)
-    {
-        UNUSED(enable);
-    }
-    bool io_bspdTest_isCurrentThresholdExceeded(void)
-    {
-        return false;
-    }
-    bool io_bspdTest_isBrakePressureThresholdExceeded(void)
-    {
-        return false;
-    }
-    bool io_bspdTest_isAccelBrakeOk(void)
-    {
-        return true;
-    }
-
-#include "io_canTx.h"
-    void io_canTx_init(
-        void (*transmit_can1_msg_func)(const JsonCanMsg *),
-        void (*transmit_charger_msg_func)(const JsonCanMsg *))
-    {
-        UNUSED(transmit_can1_msg_func);
-        UNUSED(transmit_charger_msg_func);
-    }
 }
 
 namespace fakes
@@ -232,7 +175,7 @@ namespace fakes
 
 namespace segments
 {
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
+    void SetCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
     {
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
@@ -243,19 +186,12 @@ namespace segments
         }
     }
 
-    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
+    void SetCellVoltage(uint8_t segment, uint8_t cell, float voltage)
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
-        {
-            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
-            {
-                aux_regs_storage[i][j] =
-                    static_cast<uint16_t>(temperatures[i][j] * 1000); // Not sure if conversion is correct
-            }
-        }
+        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
     }
 
-    void setPackVoltageEvenly(const float pack_voltage)
+    void SetPackVoltageEvenly(const float pack_voltage)
     {
         const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
         std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
@@ -266,12 +202,29 @@ namespace segments
                 v[i][j] = cell_voltage;
             }
         }
-        setCellVoltages(v);
+        SetCellVoltages(v);
     }
 
-    void setExpectedVoltageSelfTestValue(const uint16_t value)
+    void SetExpectedVoltageSelfTestValue(const uint16_t value)
     {
         expected_self_test_value = value;
     }
+
+    void SetAuxRegs(float voltage)
+    {
+        for (int segment = 0; segment < NUM_SEGMENTS; segment++)
+        {
+            for (int cell = 0; cell < AUX_REGS_PER_SEGMENT; cell++)
+            {
+                aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
+            }
+        }
+    }
+
+    void SetAuxReg(uint8_t segment, uint8_t cell, float voltage)
+    {
+        aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
+    }
+
 } // namespace segments
 } // namespace fakes

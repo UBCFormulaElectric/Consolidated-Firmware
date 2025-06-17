@@ -27,30 +27,38 @@ extern "C"
 #include "app_imd.h"
 }
 
-const FaultLatch bms_ok_latch  = {};
-const FaultLatch imd_ok_latch  = {};
-const FaultLatch bspd_ok_latch = {};
+#define LTC_CONVERSION_PERIOD_MS (1000U)
 
 class BMSBaseTest : public EcuTestBase
 {
   protected:
     void board_setup() override
     {
-        fakes::segments::setPackVoltageEvenly(550.0f);
+        fakes::segments::SetPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::segments::SetAuxRegs(1.5f); // Approx. 25C
 
         jobs_init();
     }
     void board_teardown() override {}
     void tick_100hz() override
     {
+        app_stateMachine_tick100Hz();
+        app_stateMachine_tickTransitionState();
+    }
+    void tick_1hz() override
+    {
+        jobs_run1Hz_tick();
+
+        // These run in a separate task on the micro but at 1Hz.
+
         app_segments_runVoltageConversion();
         app_segments_broadcastCellVoltages();
         app_segments_broadcastVoltageStats();
 
-        app_stateMachine_tick100Hz();
-        app_stateMachine_tickTransitionState();
+        app_segments_runAuxConversion();
+        app_segments_broadcastTempsVRef();
+        app_segments_broadcastTempStats();
     }
-    void tick_1hz() override { jobs_run1Hz_tick(); }
 
     void TearDown() override
     {
@@ -95,3 +103,7 @@ class BMSBaseTest : public EcuTestBase
         ASSERT_EQ(condition_name, app_imd_getCondition().name);
     }
 };
+
+inline const FaultLatch bms_ok_latch  = {};
+inline const FaultLatch imd_ok_latch  = {};
+inline const FaultLatch bspd_ok_latch = {};

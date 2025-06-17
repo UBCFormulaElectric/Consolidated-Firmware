@@ -157,6 +157,15 @@ void app_segments_broadcastTempStats(void);
  * @file segments/app_segments_faults.c
  */
 
+#define MAX_CELL_VOLTAGE_FAULT_V (4.2f)
+#define MIN_CELL_VOLTAGE_FAULT_V (2.5f)
+#define MAX_CELL_TEMP_FAULT_V (60)
+
+#define OVER_VOLTAGE_DEBOUNCE_FAULT_MS (5000)
+#define UNDER_VOLTAGE_DEBOUNCE_FAULT_MS (5000)
+#define OVER_TEMP_DEBOUNCE_FAULT_MS (5000)
+#define COMM_ERR_DEBOUNCE_FAULT_MS (5000)
+
 /**
  * Init faults module (init debounce timers).
  */

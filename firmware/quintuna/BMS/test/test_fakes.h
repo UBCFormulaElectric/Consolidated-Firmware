@@ -5,8 +5,6 @@
 
 extern "C"
 {
-#include "io_irs.h"
-#include "io_faultLatch.h"
 #include "io_ltc6813.h"
 }
 
@@ -14,8 +12,12 @@ namespace fakes
 {
 namespace segments
 {
-    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);
-    void setPackVoltageEvenly(float pack_voltage);
-    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures);
+    void SetCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);
+    void SetCellVoltage(uint8_t segment, uint8_t cell, float voltage);
+    void SetPackVoltageEvenly(float pack_voltage);
+
+    // TODO: Better testing interface for temps.
+    void SetAuxRegs(float voltage);
+    void SetAuxReg(uint8_t segment, uint8_t cell, float voltage);
 } // namespace segments
 } // namespace fakes

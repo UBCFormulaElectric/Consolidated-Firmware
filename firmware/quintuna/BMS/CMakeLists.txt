@@ -172,6 +172,9 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_irs.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bmsShdn.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_charger.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
     )
     create_fake_library(

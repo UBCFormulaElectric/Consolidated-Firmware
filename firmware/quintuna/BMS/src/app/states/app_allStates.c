@@ -64,7 +64,6 @@ void app_allStates_runOnTick100Hz(void)
     const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
     if (acc_fault && settle_time_expired)
     {
-        // TODO: Re-enable!
-        // app_stateMachine_setNextState(app_faultState_get());
+        app_stateMachine_setNextState(app_faultState_get());
     }
 }
