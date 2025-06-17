@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "app_signal.h"
 
-void app_signal_init(Signal *signal, uint32_t entry_time, uint32_t exit_time)
+void app_signal_init(Signal *signal, const uint32_t entry_time, const uint32_t exit_time)
 {
     assert(signal != NULL);
 
@@ -15,8 +15,8 @@ void app_signal_init(Signal *signal, uint32_t entry_time, uint32_t exit_time)
 
 SignalState app_signal_getState(Signal *signal, bool entry_condition_high, bool exit_condition_high)
 {
-    TimerState entry_timer_state = app_timer_runIfCondition(&signal->entry_timer, entry_condition_high);
-    TimerState exit_timer_state  = app_timer_runIfCondition(&signal->exit_timer, exit_condition_high);
+    const TimerState entry_timer_state = app_timer_runIfCondition(&signal->entry_timer, entry_condition_high);
+    const TimerState exit_timer_state  = app_timer_runIfCondition(&signal->exit_timer, exit_condition_high);
     // either both false, or they are different
     assert((!entry_condition_high && !exit_condition_high) || entry_condition_high != exit_condition_high);
 

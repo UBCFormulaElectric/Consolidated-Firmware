@@ -11,7 +11,6 @@ is the full program running on a microcontroller on the car.
 
 import argparse
 import intelhex
-import math
 import struct
 import binascii
 
@@ -30,24 +29,14 @@ if __name__ == "__main__":
     app_hex = intelhex.IntelHex(args.app_hex)
     boot_hex = intelhex.IntelHex(args.boot_hex)
 
-    # Add checksum to app file metadata, so the bootloader can verify the chip has a valid
-    # binary before booting. Our bootloader programs 8 bytes at a time (2 4-byte words), so
-    # round the size up to the nearest 8 bytes.
-    app_size_bytes = int(math.ceil((app_hex.maxaddr() - app_hex.minaddr()) / 8) * 8)
-    app_code = bytes(
-        [
-            app_hex[i]
-            for i in range(app_hex.minaddr(), app_hex.minaddr() + app_size_bytes)
-        ]
-    )
+    app_size_bytes = app_hex.maxaddr() - app_hex.minaddr()
+    app_code = bytes([app_hex[i] for i in range(app_hex.minaddr(), app_hex.maxaddr())])
     checksum = binascii.crc32(app_code)
 
     # Add checksum and app size (in bytes) to the app's metadata region.
     # Keep update to date with the "Metadata" struct in firmware/boot/shared/bootloader.c.
     metadata_bytes = struct.pack("<LL", checksum, app_size_bytes)
-    app_hex[APP_METADATA_START : APP_METADATA_START + len(metadata_bytes)] = list(
-        metadata_bytes
-    )
+    app_hex[APP_METADATA_START : APP_METADATA_START + len(metadata_bytes)] = list(metadata_bytes)
 
     # Write app with metadata to filesystem.
     with open(args.app_metadata_hex_out, "w") as file:

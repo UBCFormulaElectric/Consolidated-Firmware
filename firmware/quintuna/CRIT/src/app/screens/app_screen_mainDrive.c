@@ -3,12 +3,13 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "io_shift_register.h"
+#include <stdint.h>
 
 typedef struct
 {
     uint8_t   data_buffer[SEVEN_SEG_DATA_LENGTH];
     DriveMode current_drive_mode;
-    uint8_t   hv_soc;
+    uint8_t   power_draw;
     uint8_t   speed;
 } app_screen_main_drive_data_t;
 
@@ -74,13 +75,13 @@ static uint8_t digit_to_segment(uint8_t digit)
 static void main_drive_update(void)
 {
     // Get inputs.
-    instance.speed  = (uint8_t)app_canRx_VC_VehicleVelocity_get();
-    instance.hv_soc = (uint8_t)app_canRx_BMS_HvBatterySoc_get();
+    instance.speed      = (uint8_t)app_canRx_VC_VehicleVelocity_get();
+    instance.power_draw = (uint8_t)app_canRx_BMS_TractiveSystemPower_get();
 
     // Update SoC data buffer.
-    instance.data_buffer[0] = digit_to_segment(instance.hv_soc / 100);
-    instance.data_buffer[1] = digit_to_segment(instance.hv_soc / 10);
-    instance.data_buffer[2] = digit_to_segment(instance.hv_soc % 10);
+    instance.data_buffer[0] = digit_to_segment(instance.power_draw / 100);
+    instance.data_buffer[1] = digit_to_segment(instance.power_draw / 10);
+    instance.data_buffer[2] = digit_to_segment(instance.power_draw % 10);
 
     // Update speed data buffer.
     instance.data_buffer[3] = digit_to_segment(instance.speed / 100);
@@ -90,18 +91,22 @@ static void main_drive_update(void)
     // Update drive mode data buffer.
     switch (instance.current_drive_mode)
     {
-        case DRIVE_MODE_MAIN_DRIVE:
-            instance.data_buffer[6] = SEG_PATTERN_D;
-            instance.data_buffer[7] = SEG_PATTERN_R;
-            instance.data_buffer[8] = SEG_PATTERN_V;
+        case DRIVE_MODE_POWER:
+            instance.data_buffer[6] = SEG_PATTERN_P;
+            instance.data_buffer[7] = SEG_PATTERN_W;
+            instance.data_buffer[8] = SEG_PATTERN_R;
             break;
-        case DRIVE_MODE_INDOORS:
-            instance.data_buffer[6] = SEG_PATTERN_I;
-            instance.data_buffer[7] = SEG_PATTERN_N;
-            instance.data_buffer[8] = SEG_PATTERN_D;
+        case DRIVE_MODE_POWER_AND_ACTIVE:
+            instance.data_buffer[6] = SEG_PATTERN_P;
+            instance.data_buffer[7] = SEG_PATTERN_DP;
+            instance.data_buffer[8] = SEG_PATTERN_A;
+            break;
+        case DRIVE_MODE_TV:
+            instance.data_buffer[6] = SEG_PATTERN_T;
+            instance.data_buffer[7] = SEG_PATTERN_V;
+            instance.data_buffer[8] = SEG_PATTERN_DP;
             break;
         default:
-            // show “888” on the last three digits
             instance.data_buffer[6] = SEG_PATTERN_8;
             instance.data_buffer[7] = SEG_PATTERN_8;
             instance.data_buffer[8] = SEG_PATTERN_8;
@@ -109,8 +114,6 @@ static void main_drive_update(void)
     }
 
     io_shift_register_updateSevenSegRegisters((uint8_t *)instance.data_buffer);
-
-    // Set ouputs:
     app_canTx_CRIT_DriveMode_set(instance.current_drive_mode);
 }
 

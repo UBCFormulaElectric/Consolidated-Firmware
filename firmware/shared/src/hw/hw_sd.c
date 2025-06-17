@@ -24,7 +24,8 @@ SdCardStatus hw_sd_read(uint8_t *pdata, const uint32_t block_addr, const uint32_
     CHECK_SD_PRESENT();
     while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
-    return (SdCardStatus)HAL_SD_ReadBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
+    HAL_StatusTypeDef status = HAL_SD_ReadBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
+    return (SdCardStatus)status;
 }
 
 SdCardStatus hw_sd_readOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
@@ -41,7 +42,8 @@ SdCardStatus hw_sd_write(uint8_t *pdata, const uint32_t block_addr, const uint32
 {
     while (HAL_SD_GetCardState(sd1.hsd) != HAL_SD_CARD_TRANSFER)
         ;
-    return (SdCardStatus)HAL_SD_WriteBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
+    HAL_StatusTypeDef status = HAL_SD_WriteBlocks(sd1.hsd, pdata, block_addr, num_blocks, sd1.timeout);
+    return (SdCardStatus)status;
 }
 
 SdCardStatus hw_sd_writeOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
@@ -72,6 +74,15 @@ SdCardStatus hw_sd_writeDma(uint8_t *pdata, const uint32_t block_addr, const uin
 
     dma_tx_completed = false;
     return (SdCardStatus)HAL_SD_WriteBlocks_DMA(sd1.hsd, pdata, block_addr, num_blocks);
+}
+
+SdCardStatus hw_sd_abort(void)
+{
+    CHECK_SD_PRESENT();
+
+    HAL_StatusTypeDef status = HAL_SD_Abort(sd1.hsd);
+
+    return (SdCardStatus)status;
 }
 
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)

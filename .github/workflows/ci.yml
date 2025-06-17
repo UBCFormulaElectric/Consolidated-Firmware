@@ -280,8 +280,7 @@ jobs:
 
       - name: Build and install `logfs`
         run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target install_python_logfs
+          pip install -e firmware/logfs/python
           pytest -v firmware/logfs/test
   test-jsoncan:
     name: Test jsonCAN

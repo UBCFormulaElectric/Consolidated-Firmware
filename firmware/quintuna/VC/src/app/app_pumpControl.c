@@ -11,7 +11,7 @@ static uint16_t time             = 0;
 
 #define CURRENT_THRESH 0.025f
 
-static void pumpControl_rampUp(void)
+static inline void pumpControl_rampUp(void)
 {
     // if we are done ramping up note that we are not ramping up
     if (finished_ramp_up)
@@ -32,7 +32,7 @@ static void pumpControl_rampUp(void)
     }
 }
 
-static void pumpControl_stopFlow(void)
+static inline void pumpControl_stopFlow(void)
 {
     io_pumpControl_setPercentage(0, RR_PUMP);
     io_pumpControl_setPercentage(0, F_PUMP);

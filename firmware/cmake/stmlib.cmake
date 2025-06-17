@@ -37,7 +37,6 @@ function(generate_stm32cube_code
     if ("${WATCHDOG}" STREQUAL "OFF")
         target_compile_definitions(${LIB_NAME} INTERFACE WATCHDOG_DISABLED)
     endif ()
-    embedded_no_checks("${GENERATED_SRCS}")
 
     set(GENERATE_CUBE_CODE_SCRIPT_PY ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
     get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
@@ -65,12 +64,10 @@ endfunction()
 
 message("  🔃 Registered stm32f412rx_cube_library() function")
 # HAL_SRCS: the ones that we want, stripped prefixes
-# SYSCALLS: most of the functions defined inside are weak references, only used to make sure it builds without error.
 # USB_ENABLED: flags if usb middleware should be included.
 function(stm32f412rx_cube_library
         HAL_LIB_NAME
         HAL_SRCS
-        SYSCALLS
         IOC_CHECKSUM
         USB_ENABLED
 )
@@ -124,7 +121,7 @@ function(stm32f412rx_cube_library
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
     if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
@@ -158,7 +155,6 @@ message("  🔃 Registered stm32h733xx_cube_library() function")
 function(stm32h733xx_cube_library
         HAL_LIB_NAME
         HAL_SRCS
-        SYSCALLS
         IOC_CHECKSUM
         USB_ENABLED
 )
@@ -212,7 +208,7 @@ function(stm32h733xx_cube_library
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).

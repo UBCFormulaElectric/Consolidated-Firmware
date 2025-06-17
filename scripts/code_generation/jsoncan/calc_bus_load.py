@@ -28,7 +28,7 @@ def msg_payload_bits(msg):
             FRAME_BITS,
             ID_BITS,
             CONTROL_BITS,
-            DATA_BYTE_BITS * msg.bytes(),
+            DATA_BYTE_BITS * msg.dlc(),
             CRC_BITS,
         ]
     )

@@ -1,41 +1,152 @@
 #include "test_VCBase.hpp"
 
+extern "C"
+{
+#include "states/app_states.h"
+#include "app_canRx.h"
+#include "app_canTx.h"
+#include "app_canAlerts.h"
+#include "io_pcm.h"
+}
+
 class VCStateMachineTest : public VCBaseTest
 {
 };
 
-TEST_F(VCStateMachineTest, test_SetStateToDrive) {}
+#define ASSERT_STATE_EQ(expected)                            \
+    ASSERT_EQ(app_stateMachine_getCurrentState(), &expected) \
+        << "Expected state: " << expected.name << ", but got: " << app_stateMachine_getCurrentState()->name
 
-TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up) {}
+TEST_F(VCStateMachineTest, init_state_management)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
 
-TEST_F(VCStateMachineTest, check_init_state_is_broadcasted_over_can) {}
+    jobs_init();
 
-TEST_F(VCStateMachineTest, check_state_transition_from_init_to_inverter_on) {}
+    ASSERT_EQ(app_canRx_BMS_IrNegative_get(), CONTACTOR_STATE_OPEN);
+    ASSERT_STATE_EQ(init_state);
+}
 
-TEST_F(VCStateMachineTest, check_drive_state_is_broadcasted_over_can) {}
+TEST_F(VCStateMachineTest, air_minus_close_to_inv_on_state)
+{
+    app_stateMachine_setCurrentState(&init_state);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
 
-TEST_F(VCStateMachineTest, check_inverter_on_state_is_broadcasted_over_can) {}
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverterOn_state);
+}
 
-TEST_F(VCStateMachineTest, disable_inverters_in_init_state) {}
+TEST_F(VCStateMachineTest, inverter_on_leave_condition_test)
+{
+    app_stateMachine_setCurrentState(&inverterOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
 
-TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverter_on_state) {}
+    app_canRx_INVFL_bSystemReady_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverterOn_state);
 
-TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state) {}
+    app_canRx_INVFR_bSystemReady_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverterOn_state);
 
-TEST_F(VCStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed) {}
+    app_canRx_INVRL_bSystemReady_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverterOn_state);
 
-TEST_F(VCStateMachineTest, exit_drive_state_on_left_inverter_fault) {}
+    app_canRx_INVRR_bSystemReady_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(bmsOn_state);
+}
 
-TEST_F(VCStateMachineTest, exit_drive_state_on_right_inverter_fault) {}
+TEST_F(VCStateMachineTest, bms_drive_state_transition_out_of_bms_on)
+{
+    app_stateMachine_setCurrentState(&bmsOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(bmsOn_state);
 
-TEST_F(VCStateMachineTest, exit_drive_state_on_bms_fault) {}
+    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(pcmOn_state);
+}
 
-TEST_F(VCStateMachineTest, exit_drive_state_on_fsm_fault) {}
+TEST_F(VCStateMachineTest, pcm_on_tests)
+{
+    // TODO when io power monitor is implemented
 
-TEST_F(VCStateMachineTest, exit_drive_state_on_VC_fault) {}
+    app_stateMachine_setCurrentState(&pcmOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    // TODO set power monitor to 0v
 
-TEST_F(VCStateMachineTest, exit_drive_state_on_CRIT_fault) {}
+    // testing retries
+    for (int retry = 0; retry < 10; ++retry)
+    {
+        // TODO determine the true timings
+        for (int i = 0; i < 30; i++) // 300ms
+        {
+            ASSERT_TRUE(io_pcm_enabled());
+            LetTimePass(10);
+        }
+        for (int i = 0; i < 10; i++) // 100ms
+        {
+            ASSERT_FALSE(io_pcm_enabled());
+            LetTimePass(10);
+        }
+        ASSERT_STATE_EQ(pcmOn_state) << "Failed after " << (retry + 1) * 100 << "ms";
+    }
+}
 
-TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on) {}
+TEST_F(VCStateMachineTest, air_minus_open_in_all_states_to_init)
+{
+    app_stateMachine_setCurrentState(&inverterOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
 
-TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on_to_init) {}
+    app_stateMachine_setCurrentState(&bmsOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
+
+    // etc.
+}
+
+TEST_F(VCStateMachineTest, torque_request_zero_when_leave_drive) {}
+
+TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
+{
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    app_stateMachine_setCurrentState(&drive_state);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(drive_state);
+
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+    app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
+}
+
+TEST_F(VCStateMachineTest, start_button_operation)
+{
+    app_stateMachine_setCurrentState(&hv_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    for (int i = 0; i < 100; ++i)
+    {
+        LetTimePass(10);
+        ASSERT_STATE_EQ(drive_state) << " failed after " << (i + 1) * 10 << "ms";
+    }
+
+    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(drive_state);
+
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hv_state);
+}

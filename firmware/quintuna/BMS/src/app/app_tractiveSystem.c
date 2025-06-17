@@ -1,8 +1,25 @@
 #include "app_tractiveSystem.h"
 #include "app_canAlerts.h"
 #include "app_canTx.h"
+#include "app_utils.h"
 #include "io_tractiveSystem.h"
 #include "app_timer.h"
+
+#define HIGH_RES_MAX_CURRENT_READING (50.0f)
+
+// Taken from our cell's datasheet, https://www.molicel.com/wp-content/uploads/INR18650P26A-V2-80087.pdf
+#define MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS (-35.0f)
+#define MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS (6.0f)
+#define STANDARD_TS_CHARGE_CURRENT_PER_CELL_AMPS (2.6f)
+
+#define CELLS_IN_PARALLEL (5)
+#define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
+#define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
+#define STANDARD_TS_CHARGE_CURRENT_AMPS (STANDARD_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
+
+#define TS_OVERCURRENT_DEBOUNCE_DURATION_MS (100U)
+
+#define W_TO_KW 1.0e-3f
 
 TimerChannel overcurrent_fault_timer;
 
@@ -10,8 +27,6 @@ void app_tractiveSystem_init(void)
 {
     app_timer_init(&overcurrent_fault_timer, TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
 }
-
-#define W_TO_KW 1.0e-3f
 
 float app_tractiveSystem_getVoltage(void)
 {
@@ -42,10 +57,7 @@ void app_tractiveSystem_broadcast(void)
     app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
     app_canTx_BMS_TractiveSystemCurrent_set(ts_current);
     app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
-}
 
-bool app_tractiveSystem_checkFaults(void)
-{
     //    Charge current is positive, discharge current is negative
     //    TS current should be in the range: (-175, 30)
     const float current_A = app_tractiveSystem_getCurrent();
@@ -56,6 +68,4 @@ bool app_tractiveSystem_checkFaults(void)
         app_timer_runIfCondition(&overcurrent_fault_timer, ts_current_out_of_bounds) == TIMER_STATE_EXPIRED;
 
     app_canAlerts_BMS_Warning_TractiveSystemOvercurrent_set(ts_overcurrent_fault);
-
-    return ts_overcurrent_fault;
 }

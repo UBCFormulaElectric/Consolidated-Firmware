@@ -27,7 +27,7 @@ DBC_SIGNAL_TEMPLATE = 'SG_ {name} : {bit_start}|{num_bits}{endianness}{signed} (
 DBC_ATTRIBUTE_DEFINITONS_TEMPLATE = """\
 BA_DEF_  "BusType" STRING ;
 BA_DEF_DEF_  "BusType" "CAN";
-BA_ "BusType" "CAN";
+BA_ "BusType" "CAN FD";
 """
 DBC_ATTRIBUTE_TEMPLATE = (
     'BA_ "{attr_name}" {attr_operand} {id} {signal_name} {value};\n'
@@ -123,8 +123,14 @@ class DbcGenerator:
         """
         Format and return DBC message definition.
         """
+        # The 31st bit needs to be set to indicate this message has an extended
+        # ID, otherwise CANoe doesn't decode it properly.
+        id = msg.id
+        if msg.id >= 2**11:
+            id |= 2**31
+
         return DBC_MESSAGE_TEMPLATE.format(
-            id=msg.id, name=msg.name, num_bytes=msg.bytes(), tx_node=msg.tx_node_name
+            id=id, name=msg.name, num_bytes=msg.dlc(), tx_node=msg.tx_node_name
         )
 
     @staticmethod
@@ -137,9 +143,19 @@ class DbcGenerator:
             if DBC_DEFAULT_RECEIVER not in rx_nodes
             else rx_nodes
         )
+
+        start_bit = signal.start_bit
+        if signal.big_endian:
+            # If big endian then the start bit is the most significant bit,
+            # which is the most significant bit taken up in the least
+            # significant byte (because big endian). Wow this is dumb!
+            start_bit = min(
+                (signal.start_bit // 8 * 8) + 7, signal.start_bit + signal.bits
+            )
+
         return DBC_SIGNAL_TEMPLATE.format(
             name=signal.name,
-            bit_start=signal.start_bit,
+            bit_start=start_bit,
             num_bits=signal.bits,
             scale=signal.scale,
             offset=signal.offset,
@@ -147,7 +163,7 @@ class DbcGenerator:
             max_val=signal.max_val,
             unit=signal.unit,
             rx_node_names=",".join(rx_nodes),
-            endianness=f"@1",  # TODO: Big endianness
+            endianness="@0" if signal.big_endian else "@1",
             signed="-" if signal.signed else "+",
         )
 

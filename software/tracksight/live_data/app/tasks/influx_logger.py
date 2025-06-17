@@ -12,17 +12,16 @@ import datetime
 from dataclasses import dataclass
 from queue import Queue
 from threading import Thread
-
 # types
 from typing import NoReturn
 
 # influx
 import influxdb_client
 from influxdb_client.client.write_api import WriteOptions, WriteType
-
 # ours
 from logger import logger
-from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
+from settings import (CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN,
+                      INFLUX_URL)
 from urllib3.exceptions import NewConnectionError
 
 if INFLUX_ORG is None:
@@ -73,7 +72,8 @@ def _log_influx() -> NoReturn:
         url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=False
     ) as _client:
         with _client.write_api(
-            write_options=WriteOptions(write_type=WriteType.synchronous, batch_size=10)
+            write_options=WriteOptions(
+                write_type=WriteType.synchronous, batch_size=10)
         ) as write_api:
             while True:
                 signal: InfluxCanMsg = influx_queue.get()
@@ -83,7 +83,7 @@ def _log_influx() -> NoReturn:
                     record={
                         "measurement": f"{CAR_NAME}_live",
                         "fields": {signal.name: signal.value},
-                        "time": signal.timestamp,  #!!! CHANGE THIS to implement the base time
+                        "time": signal.timestamp,
                     },
                     write_precision=influxdb_client.WritePrecision.MS,
                 )

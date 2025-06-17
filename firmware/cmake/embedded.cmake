@@ -225,19 +225,11 @@ function(embedded_binary
             -Wl,-T ${LINKER_SCRIPT}
     )
 
-    #get_property(ELF_COMPILE_OPTIONS TARGET ${ELF_NAME} PROPERTY COMPILE_OPTIONS)
-    #get_property(ELF_COMPILE_DEFINITIONS TARGET ${ELF_NAME} PROPERTY COMPILE_DEFINITIONS)
-    #get_property(ELF_LINK_OPTIONS TARGET ${ELF_NAME} PROPERTY LINK_OPTIONS)
-    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Compile Options: ${ELF_COMPILE_OPTIONS}")
-    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Compile Definitions: ${ELF_COMPILE_DEFINITIONS}")
-    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Link Options: ${ELF_LINK_OPTIONS}")
-
     # 2) Hex file generation
     set(HEX_FILE "${BIN_NAME}.hex")
     set(HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${HEX_FILE}")
     # objcopy is used to create a hex, and assembly file from the elf.
-    add_custom_command(
-            OUTPUT ${HEX_FILE}
+    add_custom_target(${HEX_FILE} ALL
             COMMENT "[Binary] Building ${HEX_FILE}"
             COMMAND ${CMAKE_OBJCOPY} -Oihex ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} ${HEX_PATH}
             DEPENDS ${ELF_NAME}
@@ -282,7 +274,7 @@ function(embedded_image
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
-    #    add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
+    add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
 
 function(embedded_no_checks SRCS)

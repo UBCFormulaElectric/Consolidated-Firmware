@@ -17,7 +17,7 @@ typedef struct
     uint8_t day;      // 1-31
     uint8_t weekdays; // Weekday (0d-6, Sunday=0)
     uint8_t month;    // Month (1d-12)
-    uint8_t year;     // Year (0d-99)
+    uint8_t year;     // Year (0d-99) need to offset by 2000 when you interpret it
 } IoRtcTime;
 
 // always 24-hour mode

@@ -527,6 +527,11 @@
         "min": -150,
         "max": 150,
         "unit": "km/h"
+      },
+      "LoadTransferScalar":{
+        "resolution": 0.01,
+        "min": -2,
+        "max": 2
       }
     }
   },

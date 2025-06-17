@@ -1,19 +1,21 @@
+#include "hw_pwms.h"
 #include "hw_gpios.h"
 #include "io_charger.h"
 #include "cmsis_os.h"
+#include "assert.h"
 
-#define PWM_TIMEOUT_MS 1000.0f
-
-EVSE_STATUS io_charger_getStatus(void)
+ConnectionStatus io_charger_getConnectionStatus()
 {
-    EVSE_STATUS current_status = EVSE_DISCONNECTED;
-
-    if (hw_gpio_readPin(&n_evse_i_lim_pin))
-    {
-        current_status = EVSE_CONNECTED;
-    }
-
-    return current_status;
+    hw_pwmInput_tick(&evse_pwm_input);
+    if (990 <= evse_pwm_input.frequency_hz && evse_pwm_input.frequency_hz <= 1010)
+        return EVSE_CONNECTED;
+    else if (hw_gpio_readPin(&n_evse_i_lim_pin))
+        return WALL_CONNECTED;
+    return DISCONNECTED;
 }
 
-void io_charger_pwm_callback(TIM_HandleTypeDef *htim) {}
+void io_charger_inputCaptureCallback(TIM_HandleTypeDef *htim)
+{
+    assert(htim == evse_pwm_input.htim);
+    hw_pwmInput_tick(&evse_pwm_input);
+}

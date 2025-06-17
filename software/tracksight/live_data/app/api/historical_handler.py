@@ -11,7 +11,8 @@ with sqlite3.connect(DB_PATH) as _hdb:
     _hdb.execute(
         "CREATE TABLE IF NOT EXISTS files (file_name TEXT, commit_sha TEXT, start_iso_time TEXT PRIMARY KEY, duration_iso TEXT)"
     )
-    _hdb.execute("CREATE UNIQUE INDEX IF NOT EXISTS file_name ON files(file_name);")
+    _hdb.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS file_name ON files(file_name);")
     _hdb.execute("pragma journal_mode=wal")
     _hdb.commit()
 
@@ -60,7 +61,8 @@ def delete_historical_file(file_name: str):
     # remove file from db
     with sqlite3.connect("historical.db") as historical_db:
         try:
-            historical_db.execute("DELETE FROM files WHERE file_name = ?", file_name)
+            historical_db.execute(
+                "DELETE FROM files WHERE file_name = ?", file_name)
             historical_db.commit()
             return None, 200
         except Exception:

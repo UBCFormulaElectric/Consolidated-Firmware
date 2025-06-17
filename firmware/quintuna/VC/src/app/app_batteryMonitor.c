@@ -1,4 +1,5 @@
 #include "app_batteryMonitor.h"
+#include "io_lowVoltageBattery.h"
 #include "app_canTx.h"
 
 void app_batteryMonitor_broadcast(void) {

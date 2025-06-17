@@ -73,6 +73,7 @@ _tx_signal_schema = Schema(
                 "bits": int,
                 "min": Or(int, float),
                 "max": Or(int, float),
+                Optional("big_endian"): bool,
                 Optional("start_value"): Or(int, float),
                 Optional("start_bit"): int,
                 Optional("signed"): bool,
@@ -84,11 +85,13 @@ _tx_signal_schema = Schema(
 
 _tx_msg_schema = Schema(
     {
-        "msg_id": And(int, lambda x: 0 <= x < 2**11),
-        # Standard CAN uses 11-bit identifiers TODO add support for extended CAN (i think all busses are extended, you can also add a discriminated union for that) - next pr perhaps because extended CAN is not just ID but also the data length
-        "signals": {
-            str: _tx_signal_schema,
-        },
+        "msg_id": And(int, lambda x: 0 <= x < 2**29),
+        "signals": Or(
+            {
+                str: _tx_signal_schema,
+            },
+            {},
+        ),
         "cycle_time": Or(int, Schema(None), lambda x: x >= 0),
         Optional("disabled"): bool,
         Optional("description"): str,
@@ -127,6 +130,7 @@ def _get_parsed_can_signal(
         signal_json_data, "start_bit", next_available_bit
     )
     signed = signal_json_data.get("signed", False)
+    big_endian = signal_json_data.get("big_endian", False)
 
     # Get signal value data. Method depends on which data provided in JSON file.
     # Option 1: Provide DBC data
@@ -216,6 +220,7 @@ def _get_parsed_can_signal(
             enum=enum,
             start_val=start_val,
             signed=signed,
+            big_endian=big_endian,
         ),
         specified_start_bit,
     )

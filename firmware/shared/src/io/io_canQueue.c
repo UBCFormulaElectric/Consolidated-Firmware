@@ -1,20 +1,26 @@
 #include "io_canQueue.h"
 
+#include <cmsis_os2.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
 
 #include "FreeRTOS.h"
-#include "message_buffer.h"
 #include "cmsis_os.h"
+#include "io_canMsg.h"
 
-MessageBufferHandle_t        rx_queue_id;
-StaticQueue_t                rx_queue_control_block;
-uint8_t                      rx_queue_buf[RX_QUEUE_BYTES];
-static StaticMessageBuffer_t rx_buffer_control_block;
-static uint32_t              rx_overflow_count;
-static bool                  rx_init_complete;
+static osMessageQueueId_t         rx_queue_id;
+static StaticQueue_t              rx_queue_control_block;
+uint8_t                           rx_queue_buf[RX_QUEUE_BYTES];
+static const osMessageQueueAttr_t rx_queue_attr = { .name      = "CAN RX Queue",
+                                                    .attr_bits = 0,
+                                                    .cb_mem    = &rx_queue_control_block,
+                                                    .cb_size   = sizeof(StaticQueue_t),
+                                                    .mq_mem    = rx_queue_buf,
+                                                    .mq_size   = RX_QUEUE_BYTES };
+static uint32_t                   rx_overflow_count;
+static bool                       rx_init_complete;
 
 __weak void canTxQueueOverflowCallBack(const uint32_t overflow_count) {}
 __weak void canTxQueueOverflowClearCallback(void) {}
@@ -24,7 +30,7 @@ __weak void canRxQueueOverflowClearCallback(void) {}
 void io_canQueue_initRx(void)
 {
     // Initialize CAN queues.
-    rx_queue_id = xMessageBufferCreateStatic(RX_QUEUE_BYTES, rx_queue_buf, &rx_buffer_control_block);
+    rx_queue_id = osMessageQueueNew(CAN_RX_QUEUE_SIZE, CAN_MSG_SIZE, &rx_queue_attr);
     assert(rx_queue_id != NULL);
 
     rx_init_complete = true;
@@ -82,8 +88,9 @@ void io_canQueue_pushRx(const CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the message on the CAN RX queue.
     // use canQueue rx in isr
-    size_t bytes_sent = xMessageBufferSendFromISR(rx_queue_id, rx_msg, CAN_MSG_SIZE, 0);
-    if (bytes_sent != CAN_MSG_SIZE)
+
+    osStatus_t status = osMessageQueuePut(rx_queue_id, rx_msg, 0, 0);
+    if (status != osOK)
     {
         canRxQueueOverflowCallBack(++rx_overflow_count);
     }
@@ -97,9 +104,9 @@ CanMsg io_canQueue_popRx(void)
 {
     assert(rx_init_complete);
 
-    CanMsg msg;
-    // Pop a message off the RX queue.
-    size_t bytes_received = xMessageBufferReceive(rx_queue_id, &msg, CAN_MSG_SIZE, portMAX_DELAY);
-    assert(bytes_received == CAN_MSG_SIZE);
+    CanMsg           msg;
+    const osStatus_t s = osMessageQueueGet(rx_queue_id, &msg, NULL, osWaitForever);
+    assert(s == osOK);
+
     return msg;
 }

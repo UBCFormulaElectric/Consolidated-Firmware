@@ -196,7 +196,6 @@ set(STM32_HAL_SRCS
 stm32f412rx_cube_library(
 "f4dev_stm32cube"
 "${STM32_HAL_SRCS}"
-"${SYSCALLS}"
 "${MD5_LOCATION}"
 TRUE
 )

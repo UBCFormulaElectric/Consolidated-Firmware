@@ -120,8 +120,7 @@ void io_ltc6813_readRegGroup(
 
     for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
     {
-        // look for data for the current segment from the back
-        const RegGroupPayload *seg_reg_group = &rx_buffer[(NUM_SEGMENTS - 1) - seg_idx];
+        const RegGroupPayload *seg_reg_group = &rx_buffer[seg_idx];
 
         if (!checkPec((uint8_t *)seg_reg_group, REGISTER_GROUP_SIZE, seg_reg_group->pec))
         {
@@ -129,7 +128,7 @@ void io_ltc6813_readRegGroup(
             continue;
         }
 
-        memcpy(regs, seg_reg_group->regs, REGS_PER_GROUP * sizeof(uint16_t));
+        memcpy(regs[seg_idx], seg_reg_group->regs, REGS_PER_GROUP * sizeof(uint16_t));
         comm_success[seg_idx] = EXIT_CODE_OK;
     }
 }

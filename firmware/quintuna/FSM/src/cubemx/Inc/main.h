@@ -65,13 +65,13 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_RESET_FREQUENCY 5
 #define TIM2_ARR TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY)
 #define TIM2_PRESCALER 4
+#define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
 #define TIM2_FREQUENCY 1000
 #define TIMx_FREQUENCY 96000000
-#define IWDG_RESET_FREQUENCY 4
-#define IWDG_PRESCALER 4
 #define STR_ANGLE_3V3_Pin GPIO_PIN_1
 #define STR_ANGLE_3V3_GPIO_Port GPIOC
 #define APPS1_3V3_Pin GPIO_PIN_2

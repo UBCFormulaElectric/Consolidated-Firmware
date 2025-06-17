@@ -25,6 +25,7 @@
                 leds.bits.name##_r = 1;              \
                 break;                               \
             case BOARD_LED_STATUS_MISSING_HEARTBEAT: \
+                leds.bits.name##_b = 1;              \
                 break;                               \
             default:                                 \
                 break;                               \
@@ -99,19 +100,19 @@ static BoardLEDStatus worstBoardStatus(CanNode board)
     switch (board)
     {
         case BMS_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingBMSHeartbeat_get();
             break;
         case FSM_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingFSMHeartbeat_get();
             break;
         case RSM_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingRSMHeartbeat_get();
             break;
         case VC_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingVCHeartbeat_get();
             break;
         case DAM_NODE:
-            missing = app_canAlerts_CRIT_Fault_MissingDAMHeartbeat_get();
+            missing = app_canAlerts_CRIT_Info_MissingDAMHeartbeat_get();
             break;
         default:
             missing = false;
@@ -142,9 +143,9 @@ static BoardLEDStatus worstBoardStatus(CanNode board)
 void app_leds_update(void)
 {
     // Single‑LED flags from CAN
-    const bool imd_fault  = app_canRx_BMS_ImdLatchedFault_get();
-    const bool bspd_fault = app_canRx_BMS_BspdLatchedFault_get();
-    const bool ams_fault  = app_canRx_BMS_BmsLatchedFault_get();
+    const bool imd_fault  = !app_canRx_BMS_ImdLatchOk_get();
+    const bool bspd_fault = !app_canRx_BMS_BspdLatchOk_get();
+    const bool ams_fault  = !app_canRx_BMS_BmsLatchOk_get();
     const bool push_drive = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
     const bool regen_on   = app_canRx_VC_RegenEnabled_get();
     const bool torque_on  = app_canRx_VC_TorqueVectoringEnabled_get();

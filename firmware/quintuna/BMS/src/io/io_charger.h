@@ -1,13 +1,19 @@
 #pragma once
+#include "stm32h7xx_hal.h"
 
 typedef enum
 {
-    EVSE_DISCONNECTED,
+    WALL_CONNECTED,
     EVSE_CONNECTED,
-    EVSE_CHARGING,
-    EVSE_ERROR
-} EVSE_STATUS;
+    DISCONNECTED
+} ConnectionStatus;
 
-EVSE_STATUS io_charger_getStatus(void);
+/**
+ * get the status of the EVSE CP PWM
+ */
+ConnectionStatus io_charger_getConnectionStatus();
 
-void io_charger_pwm_callback(TIM_HandleTypeDef *htim);
+/**
+ * hw interrupt to update PWM values
+ */
+void io_charger_inputCaptureCallback(TIM_HandleTypeDef *htim);

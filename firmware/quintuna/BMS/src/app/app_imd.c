@@ -15,7 +15,7 @@
  * @param condition_name: The IMD condition name to look up ideal frequency for
  * @return The ideal frequency for the given IMD condition name
  */
-static float getIdealPwmFrequency(ImdConditionName condition_name)
+static float getIdealPwmFrequency(const ImdConditionName condition_name)
 {
     assert(condition_name < NUM_OF_IMD_CONDITIONS);
 
@@ -110,7 +110,7 @@ ImdCondition app_imd_getCondition()
                     // resistance exceeds 50Ohms once the duty cycle is below
                     // ~7.1%. Thus, we manually saturate the value at 50MOhms to
                     // get well-defined behaviours.
-                    uint16_t resistance = (uint16_t)(1080.0f / (pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f);
+                    const uint16_t resistance = (uint16_t)(1080.0f / (pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f);
 
                     condition.pwm_encoding.insulation_measurement_dcp_kohms = MIN(resistance, 50000);
                 }

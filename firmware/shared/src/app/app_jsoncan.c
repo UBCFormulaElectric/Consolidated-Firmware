@@ -20,6 +20,5 @@ CanMsg app_jsoncan_copyToCanMsg(const JsonCanMsg *msg)
     tx_msg.timestamp = io_time_getCurrentMs();
     tx_msg.bus       = false;
     tx_msg.is_fd     = false;
-    tx_msg.timestamp = 0;
     return tx_msg;
 }

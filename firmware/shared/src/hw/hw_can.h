@@ -3,13 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
-#include "main.h"
+#include "app_utils.h"
 #include "hw_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
 // STM32 HAL CAN handle.
-
 typedef struct
 {
     CAN_HandleTypeDef *const hcan;
@@ -43,7 +42,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-ExitCode hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.

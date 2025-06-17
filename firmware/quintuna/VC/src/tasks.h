@@ -12,3 +12,4 @@ _Noreturn void tasks_runCan2Tx(void);
 _Noreturn void tasks_runCan3Tx(void);
 _Noreturn void tasks_runCanRx(void);
 _Noreturn void tasks_batteryMonitoring(void);
+_Noreturn void tasks_powerMonitoring(void);

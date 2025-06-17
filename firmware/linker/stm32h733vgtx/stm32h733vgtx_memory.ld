@@ -1,5 +1,6 @@
 MEMORY
 {
+  DTCMRAM (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
   ram           (xrw) : ORIGIN = 0x24000000, LENGTH = 0x4FFF0
   boot_request_ram (xrw) : ORIGIN = 0x2404FFF0, LENGTH = 0x10
   boot_code     (rx)  : ORIGIN = 0x08000000, LENGTH = 128K

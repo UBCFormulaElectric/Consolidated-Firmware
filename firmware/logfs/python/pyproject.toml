@@ -1,0 +1,27 @@
+[project]
+name = "logfs-python"
+version = "0.1.0"
+description = "Python bindings for LogFS"
+requires-python = ">=3.9"
+
+
+[build-system]
+requires = [
+    "scikit-build-core>=0.7.0",
+    "pybind11",
+    "wheel"
+]
+build-backend = "scikit_build_core.build"
+
+
+[tool.scikit-build]
+wheel.packages    = ["logfs"]
+wheel.install-dir = "logfs"
+
+[tool.scikit-build.cmake]
+source-dir = ".."
+args = [
+    "-DCMAKE_C_FLAGS=-g",
+    "-DCMAKE_CXX_FLAGS=-g",
+    "-DCMAKE_INSTALL_DO_STRIP=OFF"
+]
