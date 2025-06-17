@@ -57,8 +57,7 @@ extern "C"
         [EFUSE_CHANNEL_F_INV] = &f_inv_efuse,     [EFUSE_CHANNEL_RSM] = &rsm_efuse,
         [EFUSE_CHANNEL_BMS] = &bms_efuse,         [EFUSE_CHANNEL_R_INV] = &r_inv_efuse,
         [EFUSE_CHANNEL_DAM] = &dam_efuse,         [EFUSE_CHANNEL_FRONT] = &front_efuse,
-        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_RR_PUMP] = &rr_pump_efuse,
-        [EFUSE_CHANNEL_F_PUMP] = &f_pump_efuse,   [EFUSE_CHANNEL_L_RAD] = &l_rad_fan_efuse,
+        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_L_RAD] = &l_rad_fan_efuse,
         [EFUSE_CHANNEL_R_RAD] = &r_rad_fan_efuse
     };
 
