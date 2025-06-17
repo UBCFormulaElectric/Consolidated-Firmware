@@ -88,7 +88,7 @@ void tasks_init(void)
     // #ifdef CHARGER_CAN
     // hw_can_init(&can2);
     // #else
-    hw_can_init(&can2);
+    hw_can_init(&can1);
     // #endif
 
     // Shutdown loop power comes from a load switch on the BMS.
@@ -227,7 +227,7 @@ void tasks_runCanTx(void)
         //             LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
         //         }
         // #else
-        LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
         // #endif
     }
 }
