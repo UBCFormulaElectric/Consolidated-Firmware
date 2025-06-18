@@ -12,6 +12,7 @@
 #include "app_vehicleDynamics.h"
 #include "app_torqueDistribution.h"
 #include "app_driveHandling.h"
+#include "app_startSwitch.h"
 
 #define OFF 0
 
@@ -46,7 +47,7 @@ static bool driveStatePassPreCheck()
 
     // should take priority over inverter fault as this will set torque to 0 and then
     // inverter retry can happen the next time the user enters drive state if inverters have faulted
-    if (SWITCH_ON == app_canRx_CRIT_StartSwitch_get())
+    if (app_startSwitch_hasRisingEdge())
     {
         app_stateMachine_setNextState(&hv_state);
         return false;

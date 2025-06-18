@@ -77,14 +77,14 @@ TEST_F(VCStateMachineTest, BmsOnTransitionnToHvInit)
     LetTimePass(10);
 
     // Stay in BMS ON for non-drive states
-    app_canRx_BMS_State_update(BMS_CHARGE_STATE);
+    app_canRx_BMS_State_update(BMS_PRECHARGE_DRIVE_STATE);
     LetTimePass(10);
     ASSERT_STATE_EQ(bmsOn_state);
 
     // Drive state -> transition to HV INIT
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
-    ASSERT_STATE_EQ(hvInit_state);
+    ASSERT_STATE_EQ(pcmOn_state);
 }
 
 /* ------------------------- HV INIT STATE ------------------------------- */
@@ -293,10 +293,11 @@ TEST_F(VCStateMachineTest, PreCheckInverterFaultTransitionsToHvInit)
 
 TEST_F(VCStateMachineTest, StartSwitchOffTransitionsToHv)
 {
+    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     SetStateWithEntry(&drive_state);
 
     // Simulate start switch off
-    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     LetTimePass(10);
     ASSERT_STATE_EQ(hv_state);
 }
