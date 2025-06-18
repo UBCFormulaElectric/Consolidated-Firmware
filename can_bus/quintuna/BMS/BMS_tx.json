@@ -260,6 +260,31 @@
       }
     }
   },
+  "PowerLimit": {
+  "msg_id": 122,
+  "cycle_time": 10,
+  "description": "BMS Power Limit",
+  "signals": {
+    "ChargePowerLimit": {
+      "resolution": 1,
+      "min": 0,
+      "max": 100000,
+      "unit": "W"
+    },
+    "DischargePowerLimit": {
+      "resolution": 1,
+      "min": 0,
+      "max": 100000,
+      "unit": "W"
+    },
+    "ChargePowerLimitCondition": {
+      "enum": "ChargePowerLimitCondition"
+    },
+    "DischargePowerLimitCondition": {
+      "enum": "DischargePowerLimitCondition"
+    }
+  }
+},
   "CellVoltageStats_1": {
     "msg_id": 459,
     "cycle_time": 1000,

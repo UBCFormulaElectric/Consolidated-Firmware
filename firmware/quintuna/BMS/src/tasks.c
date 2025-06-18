@@ -13,6 +13,7 @@
 #include "app_utils.h"
 #include "app_jsoncan.h"
 #include "app_canAlerts.h"
+#include "app_powerLimit.h"
 #include "app_jsoncan.h"
 
 #include "hw_gpios.h"
@@ -197,6 +198,8 @@ void tasks_run100Hz(void)
             app_stateMachine_tickTransitionState();
             io_canTx_enqueue100HzMsgs();
         }
+
+        app_powerLimit_broadcast(); // Current and power limiting CAN messages
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
