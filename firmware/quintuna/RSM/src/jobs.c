@@ -51,6 +51,8 @@ void jobs_init(void)
     LOG_IF_ERR(io_imu_init());
     LOG_IF_ERR(io_rPump_isPumpReady());
     io_coolant_init();
+
+    LOG_IF_ERR(io_rPump_isPumpReady());
 }
 
 void jobs_run1Hz_tick(void)
