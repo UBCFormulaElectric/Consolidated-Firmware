@@ -22,6 +22,7 @@
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
 #include "io_time.h"
+#include "io_shdn_loop.h"
 
 #include "hw_resetReason.h"
 
