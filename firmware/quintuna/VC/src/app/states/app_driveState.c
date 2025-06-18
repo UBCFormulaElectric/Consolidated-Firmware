@@ -5,15 +5,14 @@
 
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_units.h"
-#include "app_utils.h"
+#include <app_utils.h>
 #include "app_signal.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
 #include "app_regen.h"
 #include "app_states.h"
 #include "app_powerManager.h"
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 #include "app_canAlerts.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
@@ -39,7 +38,7 @@ static PowerManagerConfig power_manager_state = {
 };
 
 static void runDrivingAlgorithm(float apps_pedal_percentage, float sapps_pedal_percentage);
-static bool driveStatePassPreCheck();
+static bool driveStatePassPreCheck(void);
 static void app_regularDrive_run(float apps_pedal_percentage);
 
 static void driveStateRunOnEntry()
@@ -62,10 +61,10 @@ static void driveStateRunOnEntry()
     app_canTx_VC_INVRLTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_INVRRTorqueLimitPositive_set(MAX_TORQUE_REQUEST_NM);
 
-    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueLimitNegative_set(((-1) * (MAX_TORQUE_REQUEST_NM)));
 
     if (app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON)
     {
@@ -110,7 +109,7 @@ static void driveStateRunOnExit(void) {}
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    warningType warning_check = app_warningHandling_globalWarningCheck();
+    WarningType warning_check = app_warningHandling_globalWarningCheck();
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     bool prev_regen_switch_val = regen_switch_is_on;
@@ -126,6 +125,7 @@ static bool driveStatePassPreCheck()
     if (INVERTER_FAULT == warning_check)
     {
         app_canAlerts_VC_Info_InverterRetry_set(true);
+        // Go to inverter on state to unset the fault on the inverters and restart the sequence
         app_stateMachine_setNextState(&hvInit_state);
         // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
         return false;

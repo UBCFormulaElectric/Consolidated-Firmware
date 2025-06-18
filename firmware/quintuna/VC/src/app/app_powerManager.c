@@ -1,9 +1,11 @@
 #include "app_powerManager.h"
 
 #include "app_timer.h"
+#include "hw_gpio.h"
 #include "io_loadswitch.h"
 #include "io_loadswitches.h"
 
+#include <logs/sbgEComLogImu.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
@@ -43,22 +45,39 @@ void app_powerManager_updateConfig(const PowerManagerConfig new_power_manager_co
     power_manager_state = new_power_manager_config;
 }
 
-#define CURRENT_THRESH 0.025f
 static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
 {
     assert(loadswitch->efuse1 != NULL && loadswitch->efuse2 != NULL);
-    if (io_loadswitch_isChannelEnabled(loadswitch->efuse1) &&
-        io_loadswitch_getChannelCurrent(loadswitch->efuse1) <= CURRENT_THRESH)
+
+    // Checking if ther is an overtemperature/short to ground condition
+    float vsenseh_efuse1 = io_loadswitch_getChannelCurrent(loadswitch->efuse1) / ADC_VOLTAGE_TO_CURRENT_A;
+    float vsenseh_efuse2 = io_loadswitch_getChannelCurrent(loadswitch->efuse2) / ADC_VOLTAGE_TO_CURRENT_A;
+
+    if (io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 >= 3.0f)
     {
         return false;
     }
 
-    if (io_loadswitch_isChannelEnabled(loadswitch->efuse2) &&
-        io_loadswitch_getChannelCurrent(loadswitch->efuse2) <= CURRENT_THRESH)
+    if (io_loadswitch_isChannelEnabled(loadswitch->efuse2) && vsenseh_efuse2 >= 3.0f)
     {
         return false;
     }
 
+    // Checking if there is a short to VBAT condition
+    hw_gpio_writePin(loadswitch->stby_reset_gpio, true);
+
+    if (!io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 > 3.0f)
+    {
+        return false;
+    }
+
+    if (!io_loadswitch_isChannelEnabled(loadswitch->efuse2) && vsenseh_efuse2 > 3.0f)
+    {
+        return false;
+    }
+
+    // reset the stby reset gpio to low
+    hw_gpio_writePin(loadswitch->stby_reset_gpio, false);
     return true;
 }
 

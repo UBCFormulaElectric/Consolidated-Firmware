@@ -1,5 +1,7 @@
+#include "app_stateMachine.h"
 #include "app_states.h"
 #include "app_powerManager.h"
+#include "app_warningHandling.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
 #include <app_canRx.h>
@@ -36,12 +38,17 @@ static void hvStateRunOnTick100Hz(void)
     const bool curr_start_switch_on     = app_canRx_CRIT_StartSwitch_get();
     const bool was_start_switch_enabled = !prev_start_switch_pos && curr_start_switch_on;
     const bool is_brake_actuated        = app_canRx_FSM_BrakeActuated_get();
-
+    const bool inverters_warning        = app_warningHandling_inverterStatus();
     if (is_brake_actuated && was_start_switch_enabled)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
         app_stateMachine_setNextState(&drive_state);
+    }
+    else if (inverters_warning)
+    {
+        app_stateMachine_setNextState(&hvInit_state);
+        app_canTx_VC_Info_InverterRetry_set(true);
     }
 
     prev_start_switch_pos = curr_start_switch_on;

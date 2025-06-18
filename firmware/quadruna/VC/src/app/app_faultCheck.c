@@ -32,7 +32,7 @@ bool app_faultCheck_checkInverters()
     return (left_inverter_fault || right_inverter_fault);
 }
 
-bool app_faultCheck_checkSoftwareBspd(float papps_pedal_percentage, float sapps_pedal_percentage)
+bool app_faultCheck_checkSoftwareBspd(const float papps_pedal_percentage, const float sapps_pedal_percentage)
 {
     // Accelerator Brake Plausibility (bad user input safety issues)
     // Protect against brake/apps active at same time
@@ -43,7 +43,7 @@ bool app_faultCheck_checkSoftwareBspd(float papps_pedal_percentage, float sapps_
 
     bool apps_less_than_5_percent = papps_pedal_percentage < 0.05f && sapps_pedal_percentage < 0.05f;
 
-    SignalState apps_brake_disagreement_signal_state =
+    const SignalState apps_brake_disagreement_signal_state =
         app_signal_getState(&apps_brake_disagreement_signal, apps_brakes_conflict, apps_less_than_5_percent);
 
     const bool apps_brake_disagreement_active = apps_brake_disagreement_signal_state == SIGNAL_STATE_ACTIVE;

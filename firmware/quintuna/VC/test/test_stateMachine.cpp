@@ -249,7 +249,7 @@ TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeAndStart)
     ASSERT_STATE_EQ(hv_state);
 }
 
-TEST_F(VCStateMachineTest, TransitionToDriveOnStartAndBrake)
+TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
 {
     SetStateWithEntry(&hv_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
@@ -259,12 +259,10 @@ TEST_F(VCStateMachineTest, TransitionToDriveOnStartAndBrake)
     app_canRx_FSM_BrakeActuated_update(true);
     LetTimePass(10);
 
-    // Now switch on
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    app_canRx_FSM_BrakeActuated_update(true);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+    app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
     LetTimePass(10);
-
-    ASSERT_STATE_EQ(drive_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
 TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeEvenIfStart)

@@ -12,6 +12,7 @@
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
+#include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
 #include "app_canRx.h"
 #include "app_warningHanding.h"
@@ -98,4 +99,9 @@ void jobs_run1kHz_tick(void)
 {
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+}
+
+void jobs_runPowerMonitoring_tick(void)
+{
+    app_powerMonitoring_update();
 }

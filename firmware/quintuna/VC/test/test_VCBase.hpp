@@ -51,11 +51,13 @@ class VCBaseTest : public EcuTestBase
         VCState      can_state;
         StateMetadata(const State *s, const VCState cs) : state(s), can_state(cs) {}
     };
-    const std::array<StateMetadata, 7> state_metadatas = { { { &init_state, VC_INIT_STATE },
-                                                             { &inverterOn_state, VC_INVERTER_ON_STATE },
-                                                             { &bmsOn_state, VC_BMS_ON_STATE },
-                                                             { &pcmOn_state, VC_PCM_ON_STATE },
-                                                             { &hvInit_state, VC_HV_INIT_STATE },
-                                                             { &hv_state, VC_HV_ON_STATE },
-                                                             { &drive_state, VC_DRIVE_STATE } } };
+    const std::array<StateMetadata, 7> state_metadatas = { {
+        { &init_state, VC_INIT_STATE },
+        { &inverterOn_state, VC_INVERTER_ON_STATE },
+        { &bmsOn_state, VC_BMS_ON_STATE },
+        { &pcmOn_state, VC_PCM_ON_STATE },
+        { &hvInit_state, VC_HV_INIT_STATE },
+        { &hv_state, VC_HV_ON_STATE },
+        { &drive_state, VC_DRIVE_STATE },
+    } };
 };
