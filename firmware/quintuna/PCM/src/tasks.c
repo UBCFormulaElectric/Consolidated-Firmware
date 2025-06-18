@@ -45,7 +45,6 @@ void tasks_init(void)
 
 #ifdef PCM_DEBUG
     LOG_IF_ERR(vicor_operation(true));
-    LOG_IF_ERR(vicor_setpage(false));
 #endif
 }
 

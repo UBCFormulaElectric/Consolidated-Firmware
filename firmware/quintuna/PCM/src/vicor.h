@@ -11,7 +11,6 @@ ExitCode vicor_readVout(float *val);
 ExitCode vicor_readIout(float *val);
 ExitCode vicor_readTemp(float *val);
 ExitCode vicor_readPout(float *val);
-ExitCode vicor_setpage(bool enabled);
 ExitCode vicor_readSerial(void);
 ExitCode vicor_statusWord(uint16_t *status);
 ExitCode vicor_statusIout(uint8_t *status);
