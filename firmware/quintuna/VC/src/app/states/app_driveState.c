@@ -100,7 +100,6 @@ static void  runDrivingAlgorithm(const float apps_pedal_percentage)
 }
 
 static void app_switchInit(void)
-static void app_switchInit(void)
 {
     if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
     {
@@ -137,7 +136,6 @@ static void driveStateRunOnEntry()
     app_powerManager_updateConfig(power_manager_state);
     // Enable inverters
     app_enable_inv();
-    app_switchInit();
     app_switchInit();
     app_reset_torqueToMotors(&torqueOutputToMotors);
     app_torqueVectoring_init(); 

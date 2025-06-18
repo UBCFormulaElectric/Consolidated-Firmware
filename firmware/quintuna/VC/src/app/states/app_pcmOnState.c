@@ -51,7 +51,7 @@ static void pcmOnStateRunOnEntry(void)
 static void pcmOnStateRunOnTick100Hz(void)
 {
     if (RETRY_TRIGGERED == pcm_retry_state)
-    {
+    {        
         if (toggleTimer())
         {
             app_timer_restart(&pcm_voltage_in_range_timer);
@@ -67,12 +67,13 @@ static void pcmOnStateRunOnTick100Hz(void)
         case TIMER_STATE_RUNNING:
             pcm_curr_voltage = (float)app_canTx_VC_ChannelOneVoltage_get();
             break;
-
         case TIMER_STATE_EXPIRED:
             if (NO_RETRY == pcm_retry_state)
             {
                 pcm_retry_state = RETRY_TRIGGERED;
                 io_pcm_set(false); // for retry we turn the pcm off and then turn it on, on the next tick
+                app_timer_restart(&pcm_toggle_timer);
+
             }
             else if (RETRY_TRIGGERED == pcm_retry_state)
             {
@@ -82,9 +83,8 @@ static void pcmOnStateRunOnTick100Hz(void)
             }
             app_canTx_VC_PcmRetryState_set(pcm_retry_state);
             break;
-
         case TIMER_STATE_IDLE:
-            app_timer_restart(&pcm_voltage_in_range_timer);
+            assert(0);
             break;
     }
 
@@ -114,14 +114,13 @@ static bool toggleTimer(void)
         case TIMER_STATE_RUNNING:
             // do nothing
             break;
-
         case TIMER_STATE_EXPIRED:
             io_pcm_set(true);
             timer_done = true;
             break;
-
         case TIMER_STATE_IDLE:
-            app_timer_restart(&pcm_toggle_timer);
+            // app_timer_restart(&pcm_toggle_timer);
+            assert(0);
             break;
     }
     return timer_done;
@@ -129,15 +128,12 @@ static bool toggleTimer(void)
 
 static bool pcmUnderVoltage(void)
 {
-    // debouncing
-    if (HV_READY_VOLTAGE <= pcm_curr_voltage && pcm_curr_voltage <= PCM_MAX_VOLTAGE)
-    {
-        if (HV_READY_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE)
-        {
-            return false;
-        }
-    }
-    return true;
+    return !(
+        HV_READY_VOLTAGE <= pcm_curr_voltage &&
+        pcm_curr_voltage <= PCM_MAX_VOLTAGE &&
+        HV_READY_VOLTAGE <= pcm_prev_voltage &&
+        pcm_prev_voltage <= PCM_MAX_VOLTAGE
+    );
 }
 
 State pcmOn_state = { .name              = "PCM ON",
