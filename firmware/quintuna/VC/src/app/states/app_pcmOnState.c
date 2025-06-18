@@ -51,7 +51,7 @@ static void pcmOnStateRunOnEntry(void)
 static void pcmOnStateRunOnTick100Hz(void)
 {
     if (RETRY_TRIGGERED == pcm_retry_state)
-    {        
+    {
         if (toggleTimer())
         {
             app_timer_restart(&pcm_voltage_in_range_timer);
@@ -73,7 +73,6 @@ static void pcmOnStateRunOnTick100Hz(void)
                 pcm_retry_state = RETRY_TRIGGERED;
                 io_pcm_set(false); // for retry we turn the pcm off and then turn it on, on the next tick
                 app_timer_restart(&pcm_toggle_timer);
-
             }
             else if (RETRY_TRIGGERED == pcm_retry_state)
             {
@@ -129,11 +128,8 @@ static bool toggleTimer(void)
 static bool pcmUnderVoltage(void)
 {
     return !(
-        HV_READY_VOLTAGE <= pcm_curr_voltage &&
-        pcm_curr_voltage <= PCM_MAX_VOLTAGE &&
-        HV_READY_VOLTAGE <= pcm_prev_voltage &&
-        pcm_prev_voltage <= PCM_MAX_VOLTAGE
-    );
+        HV_READY_VOLTAGE <= pcm_curr_voltage && pcm_curr_voltage <= PCM_MAX_VOLTAGE &&
+        HV_READY_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE);
 }
 
 State pcmOn_state = { .name              = "PCM ON",
