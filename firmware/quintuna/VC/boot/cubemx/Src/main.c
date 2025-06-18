@@ -25,6 +25,7 @@
 #include "hw_fdcan.h"
 #include "bootloader.h"
 #include "io_canQueue.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,8 +47,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* Private variables ---------------------------------------------------------*/
 
 FDCAN_HandleTypeDef hfdcan1;
-FDCAN_HandleTypeDef hfdcan2;
-FDCAN_HandleTypeDef hfdcan3;
 
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
@@ -86,16 +85,13 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityLow,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = { .hcan = &hfdcan3, .bus_num = 3, .receive_callback = io_canQueue_pushRx };
+CanHandle can = { .hcan = &hfdcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
-void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
-static void MX_FDCAN2_Init(void);
-static void MX_FDCAN3_Init(void);
 void        runInterfaceTask(void *argument);
 void        runCanTxTask(void *argument);
 void        runTickTask(void *argument);
@@ -131,9 +127,6 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /* Configure the peripherals common clocks */
-    PeriphCommonClock_Config();
-
     /* USER CODE BEGIN SysInit */
 
     /* USER CODE END SysInit */
@@ -141,8 +134,6 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_FDCAN1_Init();
-    MX_FDCAN2_Init();
-    MX_FDCAN3_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(BAT_CHRG_nSHDN_GPIO_Port, BAT_CHRG_nSHDN_Pin, false);
 
@@ -262,32 +253,6 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief Peripherals Common Clock Configuration
- * @retval None
- */
-void PeriphCommonClock_Config(void)
-{
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-
-    /** Initializes the peripherals clock
-     */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-    PeriphClkInitStruct.PLL2.PLL2M           = 1;
-    PeriphClkInitStruct.PLL2.PLL2N           = 24;
-    PeriphClkInitStruct.PLL2.PLL2P           = 2;
-    PeriphClkInitStruct.PLL2.PLL2Q           = 2;
-    PeriphClkInitStruct.PLL2.PLL2R           = 2;
-    PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
-    PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
-    PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
-        Error_Handler();
-    }
-}
-
-/**
  * @brief FDCAN1 Initialization Function
  * @param None
  * @retval None
@@ -306,7 +271,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = ENABLE;
+    hfdcan1.Init.ProtocolException    = DISABLE;
     hfdcan1.Init.NominalPrescaler     = 6;
     hfdcan1.Init.NominalSyncJumpWidth = 2;
     hfdcan1.Init.NominalTimeSeg1      = 12;
@@ -336,108 +301,6 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE BEGIN FDCAN1_Init 2 */
 
     /* USER CODE END FDCAN1_Init 2 */
-}
-
-/**
- * @brief FDCAN2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_FDCAN2_Init(void)
-{
-    /* USER CODE BEGIN FDCAN2_Init 0 */
-
-    /* USER CODE END FDCAN2_Init 0 */
-
-    /* USER CODE BEGIN FDCAN2_Init 1 */
-
-    /* USER CODE END FDCAN2_Init 1 */
-    hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
-    hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan2.Init.AutoRetransmission   = ENABLE;
-    hfdcan2.Init.TransmitPause        = DISABLE;
-    hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 12;
-    hfdcan2.Init.NominalSyncJumpWidth = 3;
-    hfdcan2.Init.NominalTimeSeg1      = 12;
-    hfdcan2.Init.NominalTimeSeg2      = 3;
-    hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 1;
-    hfdcan2.Init.DataTimeSeg1         = 1;
-    hfdcan2.Init.DataTimeSeg2         = 1;
-    hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 1;
-    hfdcan2.Init.ExtFiltersNbr        = 1;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.RxBuffersNbr         = 0;
-    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.TxEventsNbr          = 0;
-    hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
-    hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN FDCAN2_Init 2 */
-
-    /* USER CODE END FDCAN2_Init 2 */
-}
-
-/**
- * @brief FDCAN3 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_FDCAN3_Init(void)
-{
-    /* USER CODE BEGIN FDCAN3_Init 0 */
-
-    /* USER CODE END FDCAN3_Init 0 */
-
-    /* USER CODE BEGIN FDCAN3_Init 1 */
-
-    /* USER CODE END FDCAN3_Init 1 */
-    hfdcan3.Instance                  = FDCAN3;
-    hfdcan3.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
-    hfdcan3.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan3.Init.AutoRetransmission   = DISABLE;
-    hfdcan3.Init.TransmitPause        = DISABLE;
-    hfdcan3.Init.ProtocolException    = DISABLE;
-    hfdcan3.Init.NominalPrescaler     = 6;
-    hfdcan3.Init.NominalSyncJumpWidth = 2;
-    hfdcan3.Init.NominalTimeSeg1      = 12;
-    hfdcan3.Init.NominalTimeSeg2      = 3;
-    hfdcan3.Init.DataPrescaler        = 1;
-    hfdcan3.Init.DataSyncJumpWidth    = 6;
-    hfdcan3.Init.DataTimeSeg1         = 17;
-    hfdcan3.Init.DataTimeSeg2         = 6;
-    hfdcan3.Init.MessageRAMOffset     = 0;
-    hfdcan3.Init.StdFiltersNbr        = 1;
-    hfdcan3.Init.ExtFiltersNbr        = 1;
-    hfdcan3.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan3.Init.RxBuffersNbr         = 0;
-    hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
-    hfdcan3.Init.TxEventsNbr          = 0;
-    hfdcan3.Init.TxBuffersNbr         = 0;
-    hfdcan3.Init.TxFifoQueueElmtsNbr  = 1;
-    hfdcan3.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan3) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN FDCAN3_Init 2 */
-
-    /* USER CODE END FDCAN3_Init 2 */
 }
 
 /**
