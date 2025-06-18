@@ -3,11 +3,11 @@
 #include "io_loadswitch.h"
 #include <stdbool.h>
 
+#define ADC_VOLTAGE_TO_CURRENT_A 1.720f
+
 #ifdef TARGET_EMBEDDED
 #include "hw_gpios.h"
 #include "hw_adcs.h"
-
-#define ADC_VOLTAGE_TO_CURRENT_A 1.720f
 
 typedef struct
 {
@@ -67,6 +67,13 @@ bool io_loadswitch_isChannelEnabled(const Efuse *channel);
  * @return The current read from the provided channel, in A
  */
 float io_loadswitch_getChannelCurrent(const Efuse *channel);
+
+/**
+ * @param loadswitch
+ * @param set
+ */
+void io_STloadswitch_reset_set(const ST_LoadSwitch *loadswitch, bool set);
+
 /**
  * Reset the hardfault set by the loadswitch
  * @param loadswitch Reset the hardfault set by loadswitch

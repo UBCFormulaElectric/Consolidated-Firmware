@@ -108,6 +108,9 @@ WarningType app_warningHandling_globalWarningCheck()
     return NO_WARNINGS;
 }
 
+#define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10u)
+#define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10u)
+
 void app_warningHandling_inverterReset(void)
 {
     for (uint8_t inverter = 0; inverter < NUM_INVERTERS; inverter++)

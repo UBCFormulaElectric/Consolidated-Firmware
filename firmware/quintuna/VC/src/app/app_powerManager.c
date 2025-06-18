@@ -1,15 +1,11 @@
 #include "app_powerManager.h"
 
 #include "app_timer.h"
-#include "hw_gpio.h"
-#include "io_loadswitch.h"
 #include "io_loadswitches.h"
 
-#include <logs/sbgEComLogImu.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
-#include <stddef.h>
 
 static PowerManagerConfig power_manager_state;
 static TimerChannel       sequencing_timer;
@@ -62,7 +58,7 @@ static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
     }
 
     // Checking if there is a short to VBAT condition
-    hw_gpio_writePin(loadswitch->stby_reset_gpio, true);
+    io_STloadswitch_reset_set(loadswitch, true);
 
     if (!io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 > 3.0f)
     {
@@ -75,7 +71,7 @@ static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
     }
 
     // reset the stby reset gpio to low
-    hw_gpio_writePin(loadswitch->stby_reset_gpio, false);
+    io_STloadswitch_reset_set(loadswitch, false);
     return true;
 }
 

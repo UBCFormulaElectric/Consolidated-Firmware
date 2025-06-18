@@ -34,7 +34,7 @@ static PowerManagerConfig power_manager_state = {
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const warningType warning_check = app_warningHandling_globalWarningCheck();
+    const WarningType warning_check = app_warningHandling_globalWarningCheck();
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     const bool prev_regen_switch_val = regen_switch_is_on;
