@@ -40,7 +40,8 @@ export const RowEditor: React.FC<RowEditorProps> = ({
     (signal) =>
       signal.name.toLowerCase().includes(row.searchTerm.toLowerCase()) ||
       signal.msg_name.toLowerCase().includes(row.searchTerm.toLowerCase()) ||
-      (!isNaN(Number(row.searchTerm)) && signal.msg_id === Number(row.searchTerm))
+      (!isNaN(Number(row.searchTerm)) &&
+        signal.msg_id === Number(row.searchTerm))
   );
 
   const handleSignalSelect = (signalName: string) => {
@@ -55,11 +56,11 @@ export const RowEditor: React.FC<RowEditorProps> = ({
   };
 
   return (
-    <div className="flex items-start border-gray-200 p-4 w-[calc(100vw-48px)] sticky left-2">
+    <div className="inline-block p-4 sticky left-2 ">
       {/* Only show plus button and delete button if component hasn't been created */}
       {!row.hasCreatedComponent && (
-        <>
-          <div className="mr-4">
+        <div className="flex items-center gap-2">
+          <div>
             <PlusButton variant="rowSide" onClick={() => onToggle(index)} />
           </div>
 
@@ -69,11 +70,11 @@ export const RowEditor: React.FC<RowEditorProps> = ({
               <X
                 size={32}
                 onClick={() => onDeleteRow(index)}
-                className="bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center "
+                className="bg-red-500 hover:bg-red-600 text-white rounded-full"
               />
             </span>
           )}
-        </>
+        </div>
       )}
 
       <div className="flex-1">
