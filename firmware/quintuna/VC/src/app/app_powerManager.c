@@ -3,7 +3,6 @@
 #include "app_timer.h"
 #include "io_loadswitches.h"
 
-#include <logs/sbgEComLogImu.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
