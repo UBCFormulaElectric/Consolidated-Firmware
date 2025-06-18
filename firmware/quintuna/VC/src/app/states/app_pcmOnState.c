@@ -6,6 +6,8 @@
 #include "io_pcm.h"
 #include "app_canUtils.h"
 
+#include <assert.h>
+
 #define HV_READY_VOLTAGE (18.0f)
 #define PCM_MAX_VOLTAGE (30.0f)
 #define PCM_MAX_CURRENT (40.0f)

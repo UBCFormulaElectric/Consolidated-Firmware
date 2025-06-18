@@ -28,7 +28,7 @@
     "CRIT_Switches",
     "CRIT_DriveMode",
     "BMS_CellVoltageStats_1",
-    "BMS_CellVoltageStats_2"
+    "BMS_CellVoltageStats_2",
     "CRIT_Vitals",
     "DAM_Vitals"
   ]
