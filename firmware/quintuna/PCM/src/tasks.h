@@ -1,4 +1,4 @@
 #pragma once
 
 void tasks_init(void);
-void tasks_tick(void);
+_Noreturn void tasks_tick(void);
