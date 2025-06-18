@@ -21,6 +21,10 @@
 #include "app_faultHandling.h"
 #include "app_canRx.h"
 #include "app_warningHanding.h"
+#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
+#include "app_shdnLoop.h"
+#include "app_shdnLast.h"
 
 #define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
 
@@ -65,6 +69,7 @@ void jobs_init()
     ExitCode exitImu = io_imu_init();
     app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
 
+    app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(&init_state);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
@@ -98,9 +103,14 @@ void jobs_run100Hz_tick(void)
         app_stateMachine_tick100Hz();
     }
 
+    app_shdnLoop_broadcast();
+    app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
     app_sbgEllipse_broadcast();
+
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     app_stateMachine_tickTransitionState();
 

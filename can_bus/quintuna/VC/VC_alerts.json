@@ -13,6 +13,18 @@
       "id": 564,
       "description": "Brakes and apps are active at same time."
     },
+    "MissingCRITHeartbeat": {
+      "id": 554,
+      "description": "Missing heartbeat signal from the CRIT."
+    },
+    "MissingBMSHeartbeat": {
+      "id": 551,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 552,
+      "description": "Missing heartbeat signal from the FSM."
+    },
     "FrontLeftInverterFault": {
       "id": 555,
       "description": "Left inverter entered fault state."
@@ -33,6 +45,18 @@
   "info_id": 505,
   "info_counts_id": 506,
   "info": {
+    "MissingRSMHeartbeat": {
+      "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingVCRHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
     "InverterRetry": {
       "id": 553,
       "description": "Inverter fault occured in drive state"
