@@ -1,15 +1,14 @@
 #include "app_math.h"
 #include "app_segments.h"
 #include "app_powerLimit.h"
-#include "segments/app_segments_internal.h"
 #include "app_canAlerts.h"
 #include "app_canTx.h"
 #include "app_canUtils.h"
+#include "app_tractiveSystem.h"
 
 // TODO: use global variables
 #define MAX_DISCHARGE_POWER_LIMIT_W 78.0e3f
 #define MAX_CHARGE_POWER_LIMIT_W 15.0e3f
-#define MIN_POWER_LIMIT_W 0.0f
 #define MAX_DISCHARGE_CURRENT_LIMIT 175.0f
 #define MAX_CHARGE_CURRENT_LIMIT 30.0f
 #define MIN_DISCHARGE_CURRENT_LIMIT 10.0f
@@ -27,9 +26,11 @@
  */
 float app_powerLimit_getDischargePowerLimit()
 {
+    const float max_cell_temp = app_segments_getMaxCellTemp().value;
+
     // Calculate power limit from temperature
     const float temp_power_limit = app_math_linearDerating(
-        max_cell_temp.value, MAX_DISCHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
+        max_cell_temp, MAX_DISCHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
 
     // Final power limit (capped at max)
     const float power_limit = MIN(temp_power_limit, MAX_DISCHARGE_POWER_LIMIT_W);
@@ -37,7 +38,7 @@ float app_powerLimit_getDischargePowerLimit()
     // Determine limiting condition enum
     DischargePowerLimitCondition p_lim_condition = NO_DISCHARGE_POWER_LIMIT;
 
-    if (max_cell_temp.value >= TEMP_WARNING_THRESHOLD)
+    if (max_cell_temp >= TEMP_WARNING_THRESHOLD)
     {
         p_lim_condition = HIGH_TEMP_DISCHARGE_POWER_LIMIT;
     }
@@ -55,9 +56,11 @@ float app_powerLimit_getDischargePowerLimit()
  */
 float app_powerLimit_getChargePowerLimit()
 {
+    const float max_cell_temp = app_segments_getMaxCellTemp().value;
+
     // Calculate power limit from temperature
     const float temp_power_limit = app_math_linearDerating(
-        max_cell_temp.value, MAX_CHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
+        max_cell_temp, MAX_CHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
 
     // Final power limit (capped at max)
     const float power_limit = MIN(temp_power_limit, MAX_CHARGE_POWER_LIMIT_W);
@@ -65,7 +68,7 @@ float app_powerLimit_getChargePowerLimit()
     // Determine limiting condition enum
     ChargePowerLimitCondition p_lim_condition = NO_CHARGE_POWER_LIMIT;
 
-    if (max_cell_temp.value >= TEMP_WARNING_THRESHOLD)
+    if (max_cell_temp >= TEMP_WARNING_THRESHOLD)
     {
         p_lim_condition = HIGH_TEMP_CHARGE_POWER_LIMIT;
     }
@@ -147,13 +150,15 @@ void app_powerLimit_broadcast()
     float charge_c_lim    = app_powerLimit_getChargeCurrentLimit();
 
     // Get power limits
-    float discharge_p_lim = MIN(app_powerLimit_getDischargePowerLimit(), discharge_c_lim * pack_voltage);
-    float charge_p_lim    = MIN(app_powerLimit_getChargePowerLimit(), charge_c_lim * pack_voltage);
+    const float ts_voltage = app_tractiveSystem_getVoltage(); // Pack voltage would be better here but the sample rate
+                                                              // is low so TS voltage is a good proxy
+    float discharge_p_lim = MIN(app_powerLimit_getDischargePowerLimit(), discharge_c_lim * ts_voltage);
+    float charge_p_lim    = MIN(app_powerLimit_getChargePowerLimit(), charge_c_lim * ts_voltage);
 
     // Enforce a minimum cutoff for safety
-    if (discharge_p_lim / pack_voltage < MIN_DISCHARGE_CURRENT_LIMIT)
+    if (discharge_p_lim / ts_voltage < MIN_DISCHARGE_CURRENT_LIMIT)
     {
-        discharge_p_lim = MIN_DISCHARGE_CURRENT_LIMIT * pack_voltage;
+        discharge_p_lim = MIN_DISCHARGE_CURRENT_LIMIT * ts_voltage;
     }
 
     // Broadcast limits

@@ -269,7 +269,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 2Hz
 
     xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
     {
@@ -319,7 +319,7 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 1Hz
 
     xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
     {
