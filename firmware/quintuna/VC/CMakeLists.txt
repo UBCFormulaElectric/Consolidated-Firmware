@@ -31,6 +31,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_loadswitch.c"
         "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
 
@@ -69,9 +70,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
     list(APPEND NO_CHECKS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
     )
     embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_VC_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -126,7 +127,8 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_VC_commit_info"
             "logfs_cm7"
             "sbg_ecom_cm7"
-            "chimera_v2_proto_cm7")
+            "chimera_v2_proto_cm7"
+            m)
 
 
     if ("${BOOTLOAD}" STREQUAL "ON")
@@ -187,6 +189,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
             #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
     )
     create_fake_library(
             "quintuna_VC_fakes"

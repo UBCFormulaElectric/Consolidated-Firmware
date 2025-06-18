@@ -657,7 +657,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, LED_Pin | SD_FAIL_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_Pin | BOOT_LED_Pin | SD_FAIL_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(_900M_GPIO_GPIO_Port, _900M_GPIO_Pin, GPIO_PIN_RESET);
@@ -671,17 +671,11 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, GPIO_PIN_SET);
 
-    /*Configure GPIO pins : LED_Pin SD_FAIL_Pin */
-    GPIO_InitStruct.Pin   = LED_Pin | SD_FAIL_Pin;
+    /*Configure GPIO pins : LED_Pin BOOT_LED_Pin SD_FAIL_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_LED_Pin | SD_FAIL_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : BOOT_Pin SPLITTER_SHDN_SENSE_Pin L_SHDN_SENSE_Pin */
-    GPIO_InitStruct.Pin  = BOOT_Pin | SPLITTER_SHDN_SENSE_Pin | L_SHDN_SENSE_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pin : _900M_GPIO_Pin */
@@ -704,6 +698,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : SPLITTER_SHDN_SENSE_Pin L_SHDN_SENSE_Pin */
+    GPIO_InitStruct.Pin  = SPLITTER_SHDN_SENSE_Pin | L_SHDN_SENSE_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pin : SD_CD_Pin */
     GPIO_InitStruct.Pin  = SD_CD_Pin;

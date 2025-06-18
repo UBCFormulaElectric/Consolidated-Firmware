@@ -7,16 +7,23 @@
 #include <app_canTx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
-#include "io_log.h"
 #include "states/app_states.h"
 #include "io_time.h"
+#include "io_sbgEllipse.h"
+#include "io_imu.h"
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 #include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
+#include "app_sbgEllipse.h"
+#include "app_faultHandling.h"
 #include "app_canRx.h"
 #include "app_warningHandling.h"
+#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
+#include "app_shdnLoop.h"
+#include "app_shdnLast.h"
 
 #define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
 
@@ -55,6 +62,13 @@ void jobs_init()
     io_canQueue_initTx(&can2_tx_queue);
     io_canQueue_initTx(&can3_tx_queue);
 
+    ExitCode exitSbg = io_sbgEllipse_init();
+    app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
+
+    ExitCode exitImu = io_imu_init();
+    app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
+
+    app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(&init_state);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
@@ -88,8 +102,14 @@ void jobs_run100Hz_tick(void)
         app_stateMachine_tick100Hz();
     }
 
+    app_shdnLoop_broadcast();
+    app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
+    app_sbgEllipse_broadcast();
+
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     app_stateMachine_tickTransitionState();
 

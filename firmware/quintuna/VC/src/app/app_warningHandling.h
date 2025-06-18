@@ -8,6 +8,12 @@ typedef enum
     INVERTER_FAULT
 } WarningType;
 
+typedef enum
+{
+    CAN_ISSUES = 3587,
+    DC_BUS_ISSUES,
+} Inverter_Fault_Info;
+
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10U)
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10U)
 

@@ -57,8 +57,7 @@ extern "C"
         [EFUSE_CHANNEL_F_INV] = &f_inv_efuse,     [EFUSE_CHANNEL_RSM] = &rsm_efuse,
         [EFUSE_CHANNEL_BMS] = &bms_efuse,         [EFUSE_CHANNEL_R_INV] = &r_inv_efuse,
         [EFUSE_CHANNEL_DAM] = &dam_efuse,         [EFUSE_CHANNEL_FRONT] = &front_efuse,
-        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_RR_PUMP] = &rr_pump_efuse,
-        [EFUSE_CHANNEL_F_PUMP] = &f_pump_efuse,   [EFUSE_CHANNEL_L_RAD] = &l_rad_fan_efuse,
+        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_L_RAD] = &l_rad_fan_efuse,
         [EFUSE_CHANNEL_R_RAD] = &r_rad_fan_efuse
     };
 
@@ -78,16 +77,6 @@ extern "C"
     bool io_vcShdn_SplitterBoxInterlockFault_get(void)
     {
         return fake::io_vcShdn::splitterBoxInterlockFault;
-    }
-
-#include "io_pumpControl.h"
-    ExitCode io_pumpControl_setPercentage(uint8_t percentage, PUMPS pump)
-    {
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_pumpControl_readPercentage(uint8_t *percentage, PUMPS pump)
-    {
-        return EXIT_CODE_OK;
     }
 
 #include "io_canQueues.h"
