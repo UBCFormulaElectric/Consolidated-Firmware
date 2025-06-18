@@ -11,7 +11,6 @@ is the full program running on a microcontroller on the car.
 
 import argparse
 import intelhex
-import math
 import struct
 import binascii
 
@@ -37,9 +36,7 @@ if __name__ == "__main__":
     # Add checksum and app size (in bytes) to the app's metadata region.
     # Keep update to date with the "Metadata" struct in firmware/boot/shared/bootloader.c.
     metadata_bytes = struct.pack("<LL", checksum, app_size_bytes)
-    app_hex[APP_METADATA_START : APP_METADATA_START + len(metadata_bytes)] = list(
-        metadata_bytes
-    )
+    app_hex[APP_METADATA_START : APP_METADATA_START + len(metadata_bytes)] = list(metadata_bytes)
 
     # Write app with metadata to filesystem.
     with open(args.app_metadata_hex_out, "w") as file:

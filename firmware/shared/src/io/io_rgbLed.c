@@ -1,6 +1,6 @@
 #include "io_rgbLed.h"
 
-void io_rgbLed_enable(const RgbLed *rgb_led, RgbLedColour colour)
+void io_rgbLed_enable(const RgbLed *rgb_led, const RgbLedColour colour)
 {
     bool red_on   = false;
     bool blue_on  = false;

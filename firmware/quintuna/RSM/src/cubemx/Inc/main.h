@@ -32,6 +32,7 @@ extern "C"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_error.h"
 #include "cmsis_os.h"
     /* USER CODE END Includes */
 
@@ -65,7 +66,7 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define IWDG_RESET_FREQUENCY 4
+#define IWDG_RESET_FREQUENCY 5
 #define TIM4_PRESCALER 256
 #define ADC_FREQUENCY 1000
 #define TIM2_ARR TIMx_FREQUENCY / (TIM2_PRESCALER * TIM2_FREQUENCY)

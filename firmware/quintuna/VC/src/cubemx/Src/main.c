@@ -171,6 +171,18 @@ const osThreadAttr_t TaskCan3Tx_attributes = {
     .stack_size = sizeof(TaskCan3TxBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
+/* Definitions for TaskPwrMontr */
+osThreadId_t         TaskPwrMontrHandle;
+uint32_t             TaskPwrMontrBuffer[512];
+osStaticThreadDef_t  TaskPwrMontrControlBlock;
+const osThreadAttr_t TaskPwrMontr_attributes = {
+    .name       = "TaskPwrMontr",
+    .cb_mem     = &TaskPwrMontrControlBlock,
+    .cb_size    = sizeof(TaskPwrMontrControlBlock),
+    .stack_mem  = &TaskPwrMontrBuffer[0],
+    .stack_size = sizeof(TaskPwrMontrBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal2,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -200,6 +212,7 @@ void        RunTaskBtrMonitor(void *argument);
 void        RunTaskChimera(void *argument);
 void        RunCan2TxTask(void *argument);
 void        RunTask3TxTask(void *argument);
+void        RunPwrMontr(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -304,6 +317,9 @@ int main(void)
 
     /* creation of TaskCan3Tx */
     TaskCan3TxHandle = osThreadNew(RunTask3TxTask, NULL, &TaskCan3Tx_attributes);
+
+    /* creation of TaskPwrMontr */
+    TaskPwrMontrHandle = osThreadNew(RunPwrMontr, NULL, &TaskPwrMontr_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -646,27 +662,27 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = ENABLE;
-    hfdcan1.Init.NominalPrescaler     = 2;
+    hfdcan1.Init.ProtocolException    = DISABLE;
+    hfdcan1.Init.NominalPrescaler     = 6;
     hfdcan1.Init.NominalSyncJumpWidth = 2;
-    hfdcan1.Init.NominalTimeSeg1      = 45;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
     hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 6;
-    hfdcan1.Init.DataTimeSeg1         = 17;
-    hfdcan1.Init.DataTimeSeg2         = 6;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
     hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 1;
+    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxBuffersNbr         = 0;
     hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.TxEventsNbr          = 0;
     hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan1.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
@@ -693,33 +709,33 @@ static void MX_FDCAN2_Init(void)
 
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
-    hfdcan2.Init.ProtocolException    = ENABLE;
-    hfdcan2.Init.NominalPrescaler     = 2;
-    hfdcan2.Init.NominalSyncJumpWidth = 2;
-    hfdcan2.Init.NominalTimeSeg1      = 45;
-    hfdcan2.Init.NominalTimeSeg2      = 2;
+    hfdcan2.Init.ProtocolException    = DISABLE;
+    hfdcan2.Init.NominalPrescaler     = 12;
+    hfdcan2.Init.NominalSyncJumpWidth = 3;
+    hfdcan2.Init.NominalTimeSeg1      = 12;
+    hfdcan2.Init.NominalTimeSeg2      = 3;
     hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 6;
-    hfdcan2.Init.DataTimeSeg1         = 17;
-    hfdcan2.Init.DataTimeSeg2         = 6;
-    hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 0;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
-    hfdcan2.Init.RxFifo1ElmtsNbr      = 1;
-    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
+    hfdcan2.Init.DataSyncJumpWidth    = 1;
+    hfdcan2.Init.DataTimeSeg1         = 1;
+    hfdcan2.Init.DataTimeSeg2         = 1;
+    hfdcan2.Init.MessageRAMOffset     = 1280;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 1;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
+    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan2.Init.RxBuffersNbr         = 0;
-    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
+    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan2.Init.TxEventsNbr          = 0;
     hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
+    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
     {
         Error_Handler();
@@ -744,33 +760,33 @@ static void MX_FDCAN3_Init(void)
 
     /* USER CODE END FDCAN3_Init 1 */
     hfdcan3.Instance                  = FDCAN3;
-    hfdcan3.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
+    hfdcan3.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
     hfdcan3.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan3.Init.AutoRetransmission   = ENABLE;
     hfdcan3.Init.TransmitPause        = DISABLE;
     hfdcan3.Init.ProtocolException    = DISABLE;
-    hfdcan3.Init.NominalPrescaler     = 2;
-    hfdcan3.Init.NominalSyncJumpWidth = 2;
-    hfdcan3.Init.NominalTimeSeg1      = 45;
-    hfdcan3.Init.NominalTimeSeg2      = 2;
+    hfdcan3.Init.NominalPrescaler     = 6;
+    hfdcan3.Init.NominalSyncJumpWidth = 3;
+    hfdcan3.Init.NominalTimeSeg1      = 12;
+    hfdcan3.Init.NominalTimeSeg2      = 3;
     hfdcan3.Init.DataPrescaler        = 1;
-    hfdcan3.Init.DataSyncJumpWidth    = 6;
-    hfdcan3.Init.DataTimeSeg1         = 17;
-    hfdcan3.Init.DataTimeSeg2         = 6;
-    hfdcan3.Init.MessageRAMOffset     = 0;
-    hfdcan3.Init.StdFiltersNbr        = 0;
-    hfdcan3.Init.ExtFiltersNbr        = 0;
-    hfdcan3.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
-    hfdcan3.Init.RxFifo1ElmtsNbr      = 1;
-    hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
+    hfdcan3.Init.DataSyncJumpWidth    = 1;
+    hfdcan3.Init.DataTimeSeg1         = 1;
+    hfdcan3.Init.DataTimeSeg2         = 1;
+    hfdcan3.Init.MessageRAMOffset     = 1920;
+    hfdcan3.Init.StdFiltersNbr        = 1;
+    hfdcan3.Init.ExtFiltersNbr        = 1;
+    hfdcan3.Init.RxFifo0ElmtsNbr      = 32;
+    hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.RxBuffersNbr         = 0;
-    hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
+    hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.TxEventsNbr          = 0;
     hfdcan3.Init.TxBuffersNbr         = 0;
-    hfdcan3.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan3.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan3.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
+    hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan3) != HAL_OK)
     {
         Error_Handler();
@@ -1339,6 +1355,24 @@ void RunTask3TxTask(void *argument)
     /* USER CODE BEGIN RunTask3TxTask */
     tasks_runCan3Tx();
     /* USER CODE END RunTask3TxTask */
+}
+
+/* USER CODE BEGIN Header_RunPwrMontr */
+/**
+ * @brief Function implementing the TaskPwrMontr thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunPwrMontr */
+void RunPwrMontr(void *argument)
+{
+    /* USER CODE BEGIN RunPwrMontr */
+    /* Infinite loop */
+    for (;;)
+    {
+        tasks_powerMonitoring();
+    }
+    /* USER CODE END RunPwrMontr */
 }
 
 /**

@@ -57,8 +57,7 @@ extern "C"
         [EFUSE_CHANNEL_F_INV] = &f_inv_efuse,     [EFUSE_CHANNEL_RSM] = &rsm_efuse,
         [EFUSE_CHANNEL_BMS] = &bms_efuse,         [EFUSE_CHANNEL_R_INV] = &r_inv_efuse,
         [EFUSE_CHANNEL_DAM] = &dam_efuse,         [EFUSE_CHANNEL_FRONT] = &front_efuse,
-        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_RR_PUMP] = &rr_pump_efuse,
-        [EFUSE_CHANNEL_F_PUMP] = &f_pump_efuse,   [EFUSE_CHANNEL_L_RAD] = &l_rad_fan_efuse,
+        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_L_RAD] = &l_rad_fan_efuse,
         [EFUSE_CHANNEL_R_RAD] = &r_rad_fan_efuse
     };
 
@@ -94,4 +93,39 @@ extern "C"
     CanTxQueue can1_tx_queue;
     CanTxQueue can2_tx_queue;
     CanTxQueue can3_tx_queue;
+
+#include "io_pcm.h"
+    static bool pcm_enabled = false;
+
+    void io_pcm_set(const bool enable)
+    {
+        pcm_enabled = enable;
+    }
+    bool io_pcm_enabled(void)
+    {
+        return pcm_enabled;
+    }
+
+#include "io_powerMonitoring.h"
+    bool io_powerMonitoring_init(void)
+    {
+        return true;
+    }
+    void io_powerMonitoring_refresh(void) {}
+
+    void io_powerMonitoring_read_voltage(const uint8_t ch, float *voltage)
+    {
+        UNUSED(ch);
+        *voltage = 0.0f;
+    }
+    void io_powerMonitoring_read_current(const uint8_t ch, float *current)
+    {
+        UNUSED(ch);
+        *current = 0.0f;
+    }
+    void io_powerMonitoring_read_power(const uint8_t ch, float *power)
+    {
+        UNUSED(ch);
+        *power = 0.0f;
+    }
 }

@@ -8,7 +8,7 @@
  * @param pwm_input: The PWM input to set frequency for
  * @param frequency_hz: Frequency, in Hz
  */
-static void setFrequency(PwmInputFreqOnly *pwm_input, float frequency_hz)
+static void setFrequency(PwmInputFreqOnly *pwm_input, const float frequency_hz)
 {
     assert(frequency_hz >= 0.0f);
     pwm_input->frequency_hz = frequency_hz;

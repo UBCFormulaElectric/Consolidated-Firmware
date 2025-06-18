@@ -39,9 +39,9 @@ void jobs_init(void)
     LOG_IF_ERR(io_imu_init());
     app_apps_init();
 
-    // broadcast commit info
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_FSM_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick(void)

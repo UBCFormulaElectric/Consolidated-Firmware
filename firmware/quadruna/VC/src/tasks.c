@@ -36,7 +36,7 @@ void tasks_preInit(void)
 void tasks_preInitWatchdog(void)
 {
     LOG_INFO("VC reset!");
-    io_canLogging_init();
+    io_canLogging_init(NULL);
 }
 
 void tasks_deinit(void)

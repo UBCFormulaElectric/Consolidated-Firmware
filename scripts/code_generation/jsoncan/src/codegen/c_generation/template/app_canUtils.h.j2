@@ -14,12 +14,12 @@
 
 // Msg IDs
 {% for message in all_messages -%}
-#define {{ message.id_macro() }} ({{ message.id }})
+#define {{ message.id_macro() }} ({{ message.id }}U)
 {% endfor %}
 
 // Msg lengths (in bytes)
 {% for message in messages -%}
-#define {{ message.bytes_macro() }} ({{ message.bytes() }})
+#define {{ message.dlc_macro() }} ({{ message.dlc() }})
 {% endfor %}
 
 // Periodic msg cycle times (in MS)
