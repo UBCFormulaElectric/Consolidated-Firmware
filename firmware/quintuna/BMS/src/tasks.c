@@ -179,7 +179,7 @@ void tasks_run100Hz(void)
         }
 
         app_powerLimit_broadcast(); // Current and power limiting CAN messages
-        
+
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
 
