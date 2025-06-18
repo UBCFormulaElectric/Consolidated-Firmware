@@ -551,7 +551,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                   <XAxis
                     dataKey="time"
                     tickFormatter={(t) => formatWithMs(new Date(t))}
-                    interval={10}
+                    interval={1}
                   />
                   <YAxis domain={[0, "auto"]} />
                   <Tooltip
