@@ -91,7 +91,7 @@ extern "C"
 #define FR_STBY_REAR_Pin GPIO_PIN_13
 #define FR_STBY_REAR_GPIO_Port GPIOB
 #define FRONT_EN_Pin GPIO_PIN_14
-#define FRONT_EN_GPIO_Port GPIOB
+#define ffFRONT_EN_GPIO_Port GPIOB
 #define RSM_EN_Pin GPIO_PIN_15
 #define RSM_EN_GPIO_Port GPIOB
 #define IMU_INT1_Pin GPIO_PIN_9
@@ -130,10 +130,6 @@ extern "C"
 #define RL_PUMP_EN_GPIO_Port GPIOD
 #define SWO1_Pin GPIO_PIN_3
 #define SWO1_GPIO_Port GPIOB
-#define CAN3_RX_Pin GPIO_PIN_5
-#define CAN3_RX_GPIO_Port GPIOB
-#define CAN3_TX_Pin GPIO_PIN_6
-#define CAN3_TX_GPIO_Port GPIOB
 #define L_RAD_FAN_EN_Pin GPIO_PIN_7
 #define L_RAD_FAN_EN_GPIO_Port GPIOB
 

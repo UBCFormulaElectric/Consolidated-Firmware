@@ -1,13 +1,7 @@
 {
-  "Bootup": {
-    "msg_id": 456,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 400,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Vitals message for the BMS.",
     "signals": {
       "Heartbeat": {
@@ -253,14 +247,14 @@
       }
     }
   },
-  "CellVoltageStats": {
+  "CellVoltageStats_1": {
     "msg_id": 459,
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
       "PackVoltage": {
         "resolution": 0.01,
-        "min": 0,
+        "min": 100,
         "max": 650,
         "unit": "V"
       },
@@ -280,7 +274,14 @@
         "resolution": 1,
         "min": 0,
         "max": 9
-      },
+      }
+    }
+  },
+  "CellVoltageStats_2": {
+    "msg_id": 469,
+    "cycle_time": 1000,
+    "description": "BMS cell voltage stats",
+    "signals": {
       "MinCellVoltageIdx": {
         "resolution": 1,
         "min": 0,
@@ -3297,5 +3298,11 @@
         "bits": 1
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 499,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }

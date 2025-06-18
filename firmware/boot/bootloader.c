@@ -247,11 +247,14 @@ _Noreturn void bootloader_runTickTask(void)
 
     for (;;)
     {
-        // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg         = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
-        status_msg.data.data32[0] = GIT_COMMIT_HASH;
-        status_msg.data.data8[4]  = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
-        io_canQueue_pushTx(&can_tx_queue, &status_msg);
+        if (!update_in_progress)
+        {
+            // Broadcast a message at 1Hz so we can check status over CAN.
+            CanMsg status_msg         = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
+            status_msg.data.data32[0] = GIT_COMMIT_HASH;
+            status_msg.data.data8[4]  = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
+            io_canQueue_pushTx(&can_tx_queue, &status_msg);
+        }
 
         bootloader_boardSpecific_tick();
 
