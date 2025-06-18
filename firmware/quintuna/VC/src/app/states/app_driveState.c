@@ -145,7 +145,8 @@ static void driveStateRunOnTick100Hz(void)
     // pedal mapped changed from [0, 100] to [0.0, 1.0]
     float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
-    if (!driveStatePassPreCheck())
+    // ensure precheck and software bspd are good
+    if (!driveStatePassPreCheck() || app_warningHandling_checkSoftwareBspd(apps_pedal_percentage))
     {
         app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
         app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
