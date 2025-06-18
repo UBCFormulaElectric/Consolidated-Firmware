@@ -20,9 +20,6 @@ static inline void pumpControl_rampUp(void)
     }
     // calcualte percentage based on defined slope above
     uint8_t percentage = (uint8_t)(SLOPE * time);
-
-    io_pumpControl_setPercentage(percentage, RR_PUMP);
-    io_pumpControl_setPercentage(percentage, F_PUMP);
     app_canTx_VC_PumpRampUpSetPoint_set((uint32_t)percentage);
 
     if (percentage == 100)
@@ -34,9 +31,6 @@ static inline void pumpControl_rampUp(void)
 
 static inline void pumpControl_stopFlow(void)
 {
-    io_pumpControl_setPercentage(0, RR_PUMP);
-    io_pumpControl_setPercentage(0, F_PUMP);
-
     app_canTx_VC_PumpFailure_set(true);
     finished_ramp_up = false;
     time             = 0;
@@ -44,13 +38,9 @@ static inline void pumpControl_stopFlow(void)
 
 void app_pumpControl_MonitorPumps(void)
 {
-    const bool pumps_ok = io_TILoadswitch_pgood(&f_pump_loadswitch) && io_TILoadswitch_pgood(&rl_pump_loadswitch) &&
-                          io_TILoadswitch_pgood(&rr_pump_loadswitch);
+    const bool pumps_ok = io_TILoadswitch_pgood(&rl_pump_loadswitch);
 
-    const bool pumps_enabled =
-        (io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]) ||
-         io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RL_PUMP]) ||
-         io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
+    const bool pumps_enabled = io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RL_PUMP]);
 
     if (pumps_ok && pumps_enabled)
         pumpControl_rampUp();
