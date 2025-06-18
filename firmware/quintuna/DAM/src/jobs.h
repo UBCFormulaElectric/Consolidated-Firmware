@@ -5,7 +5,6 @@
 #pragma once
 #include "io_canMsg.h"
 #include "io_canQueue.h"
-#include "jobs.h"
 
 extern CanTxQueue can_tx_queue;
 
