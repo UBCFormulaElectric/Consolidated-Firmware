@@ -56,7 +56,13 @@ TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_FullPower_HighRPM)
 
     app_vanillaDrive_run(apps, &torqueOutputToMotors);
 
-    ASSERT_TRUE(torqueOutputToMotors.front_left_torque < MAX_TORQUE_REQUEST_NM);
+    float expected_torque = (bms_avail_power_w * 0.8) / (4 * inverter_rpm * M_PI_F / 30.0f);
+
+    ASSERT_FLOAT_EQ(torqueOutputToMotors.front_left_torque, expected_torque);
+    ASSERT_FLOAT_EQ(torqueOutputToMotors.front_right_torque, expected_torque);
+    ASSERT_FLOAT_EQ(torqueOutputToMotors.rear_left_torque, expected_torque);
+    ASSERT_FLOAT_EQ(torqueOutputToMotors.rear_right_torque, expected_torque);
+
 }
 
 TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_LessPower_LessRPM)

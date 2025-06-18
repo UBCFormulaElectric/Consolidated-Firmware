@@ -84,7 +84,7 @@ TEST_F(VCStateMachineTest, BmsOnTransitionnToHvInit)
     // Drive state -> transition to HV INIT
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
-    ASSERT_STATE_EQ(hvInit_state);
+    ASSERT_STATE_EQ(pcmOn_state);
 }
 
 /* ------------------------- HV INIT STATE ------------------------------- */
