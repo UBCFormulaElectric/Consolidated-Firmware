@@ -1,5 +1,4 @@
 #pragma once
-
 #include <stdbool.h>
 #ifdef TARGET_EMBEDDED
 #include "hw_i2c.h"

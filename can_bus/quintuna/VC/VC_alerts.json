@@ -5,6 +5,10 @@
   "warnings_id": 501,
   "warnings_counts_id": 503,
   "warnings": {
+    "PcmLvOvercurrentFault": {
+      "id": 558,
+      "description": "LV rail from the HV DCDC was overcurrent."
+    },
     "SoftwareBspd": {
       "id": 564,
       "description": "Brakes and apps are active at same time."
@@ -104,6 +108,10 @@
     "PcmUnderVoltage": {
       "id": 566,
       "description": "PCM voltage under 18 volts"
+    },
+    "DriveModeOverride": {
+      "id": 567,
+      "description": "Override requested drive mode to vanilla if sensor fails"
     }
   }
 }
