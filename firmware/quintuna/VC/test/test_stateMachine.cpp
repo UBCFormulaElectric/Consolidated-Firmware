@@ -17,6 +17,14 @@ class VCStateMachineTest : public VCBaseTest
     ASSERT_EQ(app_stateMachine_getCurrentState(), &expected) \
         << "Expected state: " << expected.name << ", but got: " << app_stateMachine_getCurrentState()->name
 
+// Helper to set state and invoke its entry action
+static void SetStateWithEntry(const State *s)
+{
+    app_stateMachine_setCurrentState(s);
+    s->run_on_entry();
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+}
+
 TEST_F(VCStateMachineTest, init_state_management)
 {
     app_stateMachine_setCurrentState(&drive_state);
@@ -149,4 +157,28 @@ TEST_F(VCStateMachineTest, start_button_operation)
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     LetTimePass(10);
     ASSERT_STATE_EQ(hv_state);
+}
+
+TEST_F(VCStateMachineTest, UnderVoltageRetryThenFault)
+{
+    // Enter PCM ON
+    SetStateWithEntry(&pcmOn_state);
+
+    // Always return 0 V
+    app_canTx_VC_ChannelOneVoltage_set(0.0f);
+
+    // should trigger retry and turn PCM off
+    LetTimePass(100);
+    EXPECT_FALSE(io_pcm_enabled());
+
+    // should turn PCM back ON
+    LetTimePass(110);
+    EXPECT_TRUE(io_pcm_enabled());
+
+    // should fault out
+    LetTimePass(100);
+
+    EXPECT_TRUE(app_canAlerts_VC_Info_PcmUnderVoltage_get());
+
+    ASSERT_STATE_EQ(hvInit_state);
 }
