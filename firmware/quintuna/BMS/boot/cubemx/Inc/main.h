@@ -93,8 +93,8 @@ extern "C"
 #define HV_P_INTLCK_SNS_GPIO_Port GPIOC
 #define HV_N_INTLCK_SNS_Pin GPIO_PIN_2
 #define HV_N_INTLCK_SNS_GPIO_Port GPIOC
-#define LEDB_Pin GPIO_PIN_0
-#define LEDB_GPIO_Port GPIOA
+#define BOOT_LED_Pin GPIO_PIN_0
+#define BOOT_LED_GPIO_Port GPIOA
 #define IMD_LATCH_Pin GPIO_PIN_4
 #define IMD_LATCH_GPIO_Port GPIOC
 #define DIAG_Pin GPIO_PIN_5
