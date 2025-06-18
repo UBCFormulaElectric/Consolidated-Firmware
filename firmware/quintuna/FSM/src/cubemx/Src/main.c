@@ -190,7 +190,6 @@ int main(void)
     MX_TIM2_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -210,7 +209,6 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
-    tasks_init();
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */

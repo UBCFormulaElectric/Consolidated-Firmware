@@ -27,7 +27,6 @@
 #include "hw_utils.h"
 #include "hw_error.h"
 #include "io_canQueue.h"
-
 #include <assert.h>
 /* USER CODE END Includes */
 

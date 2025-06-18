@@ -28,5 +28,11 @@
     "SHDN_FL_INERTIA_ILCK": 13,
     "SHDN_TSMS": 14,
     "SHDN_OK": 15
+  },
+  "DriveMode": {
+    "DRIVE_MODE_POWER": 0,
+    "DRIVE_MODE_POWER_AND_ACTIVE": 1,
+    "DRIVE_MODE_TV": 2,
+    "DRIVE_MODE_COUNT": 3
   }
 }

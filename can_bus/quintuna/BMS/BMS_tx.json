@@ -260,14 +260,14 @@
       }
     }
   },
-  "CellVoltageStats": {
+  "CellVoltageStats_1": {
     "msg_id": 459,
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
       "PackVoltage": {
         "resolution": 0.01,
-        "min": 0,
+        "min": 100,
         "max": 650,
         "unit": "V"
       },
@@ -287,7 +287,14 @@
         "resolution": 1,
         "min": 0,
         "max": 9
-      },
+      }
+    }
+  },
+  "CellVoltageStats_2": {
+    "msg_id": 469,
+    "cycle_time": 1000,
+    "description": "BMS cell voltage stats",
+    "signals": {
       "MinCellVoltageIdx": {
         "resolution": 1,
         "min": 0,

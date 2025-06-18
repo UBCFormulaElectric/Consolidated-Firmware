@@ -5,14 +5,16 @@
 #include "hw_bootup.h"
 #include "io_ltc6813.h"
 #include "jobs.h"
+#include "io_bootHandler.h"
+#include "io_canMsg.h"
 
 #include "app_canTx.h"
 #include "app_segments.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 #include "app_canAlerts.h"
 #include "app_jsoncan.h"
 
-#include "hw_bootup.h"
 #include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -28,13 +30,13 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
+#include <io_canRx.h>
+#include <io_canTx.h>
 
 #include "semphr.h"
 #include <FreeRTOS.h>
 #include <app_canRx.h>
-#include <cmsis_os.h>
 #include <cmsis_os2.h>
-#include <io_canTx.h>
 #include <portmacro.h>
 
 CanTxQueue can_tx_queue;
