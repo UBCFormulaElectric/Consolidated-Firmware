@@ -6,8 +6,15 @@
 #define I2C_ADDR 0x51
 #define I2C_TIMEOUT_MS 1000
 
+#define CMD_PAGE 0x0
 #define CMD_OPERATION 0x1
 #define CMD_CLEAR_FAULTS 0x03
+#define CMD_STATUS_WORD 0x79
+#define CMD_STATUS_IOUT 0x7B
+#define CMD_STATUS_INPUT 0x7C
+#define CMD_STATUS_TEMP 0x7D
+#define CMD_STATUS_CML 0x7E
+#define CMD_STATUS_MFR_SPECIFIC 0x80
 #define CMD_READ_VIN 0x88
 #define CMD_READ_IIN 0x89
 #define CMD_READ_VOUT 0x8B
@@ -47,11 +54,11 @@ static ExitCode writeByte(uint8_t cmd, uint8_t data)
 //     memcpy(&payload[1], &data, sizeof(data));
 //     return hw_i2c_receive(&vicor_i2c, payload, sizeof(payload));
 // }
-// static ExitCode readByte(uint8_t cmd, uint8_t *data)
-// {
-//     RETURN_IF_ERR(hw_i2c_transmit(&vicor_i2c, &cmd, sizeof(uint8_t)));
-//     return hw_i2c_receive(&vicor_i2c, data, sizeof(uint8_t));
-// }
+
+static ExitCode readByte(uint8_t cmd, uint8_t *data)
+{
+    return hw_i2c_memoryRead(&vicor_i2c, cmd, data, sizeof(uint8_t));
+}
 
 static ExitCode readWord(uint8_t cmd, uint16_t *data)
 {
@@ -119,7 +126,7 @@ ExitCode vicor_readPout(float *val)
 
 ExitCode vicor_setpage(const bool enabled)
 {
-    return writeByte(0x00, enabled);
+    return writeByte(CMD_PAGE, enabled);
 }
 
 ExitCode vicor_readSerial()
@@ -127,16 +134,46 @@ ExitCode vicor_readSerial()
     // uint16_t word;
     // RETURN_IF_ERR(readWord(0x9D, &word));
     // LOG_INFO("%d", word);
-    uint8_t serial[16];
-    hw_i2c_memoryRead(&vicor_i2c, 0x9E, serial, sizeof(serial));
-    LOG_INFO(
-        "Serial: %X%X%X%X%X%X%X%X%X%X%X%X%X%X%X", serial[0], serial[1], serial[2], serial[3], serial[4], serial[5],
-        serial[6], serial[7], serial[8], serial[9], serial[10], serial[11], serial[12], serial[13], serial[14],
-        serial[15]);
+    // uint8_t serial[16];
+    // hw_i2c_memoryRead(&vicor_i2c, 0x9E, serial, sizeof(serial));
+    // LOG_INFO(
+    //     "Serial: %X%X%X%X%X%X%X%X%X%X%X%X%X%X%X", serial[0], serial[1], serial[2], serial[3], serial[4], serial[5],
+    //     serial[6], serial[7], serial[8], serial[9], serial[10], serial[11], serial[12], serial[13], serial[14],
+    //     serial[15]);
 
-    // model
-    char model[18];
-    hw_i2c_memoryRead(&vicor_i2c, 0x9A, model, sizeof(model));
-    LOG_INFO("model: %s", model);
+    // // model
+    // char model[18];
+    // hw_i2c_memoryRead(&vicor_i2c, 0x9A, model, sizeof(model));
+    // LOG_INFO("model: %s", model);
     return EXIT_CODE_OK;
+}
+
+ExitCode vicor_statusWord(uint16_t *status)
+{
+    return readWord(CMD_STATUS_WORD, status);
+}
+
+ExitCode vicor_statusIout(uint8_t *status)
+{
+    return readByte(CMD_STATUS_IOUT, status);
+}
+
+ExitCode vicor_statusInput(uint8_t *status)
+{
+    return readByte(CMD_STATUS_INPUT, status);
+}
+
+ExitCode vicor_statusTemp(uint8_t *status)
+{
+    return readByte(CMD_STATUS_TEMP, status);
+}
+
+ExitCode vicor_statusComm(uint8_t *status)
+{
+    return readByte(CMD_STATUS_CML, status);
+}
+
+ExitCode vicor_statusMfrSpecific(uint8_t *status)
+{
+    return readByte(CMD_STATUS_MFR_SPECIFIC, status);
 }

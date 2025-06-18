@@ -550,7 +550,7 @@
         "-speed",
         "4000"
       ],
-      "device": "STM32H733VG",
+      "device": "STM32F412RG",
       "interface": "swd",
       "showDevDebugOutput": "none",
       "rttConfig": {
