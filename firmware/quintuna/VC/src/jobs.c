@@ -7,7 +7,6 @@
 #include <app_canTx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
-#include "io_log.h"
 #include "states/app_states.h"
 #include "io_time.h"
 #include "app_canRx.h"
