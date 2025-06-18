@@ -327,7 +327,7 @@
       "executable": "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        // "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_boot.elf",
+        "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_boot.elf",
         "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: RSM (Quintuna)",
@@ -414,7 +414,7 @@
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_boot.elf",
-        //"build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf"
+        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf"
       ],
       "preLaunchTask": "Build Embedded: CRIT (Quintuna)",
       // cortex configurations
