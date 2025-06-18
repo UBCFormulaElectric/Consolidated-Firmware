@@ -19,6 +19,8 @@
 #include "app_warningHanding.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
+#include "app_shdnLoop.h"
+#include "app_shdnLast.h"
 
 #define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
 
@@ -91,6 +93,8 @@ void jobs_run100Hz_tick(void)
         app_stateMachine_tick100Hz();
     }
 
+    app_shdnLoop_broadcast();
+    app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
 

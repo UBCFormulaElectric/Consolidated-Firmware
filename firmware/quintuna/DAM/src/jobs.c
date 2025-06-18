@@ -150,6 +150,10 @@ void jobs_run100Hz_tick(void)
                 break;
         }
     }
+
+    // Set shutdown node status.
+    app_canTx_DAM_REStopOKStatus_set(io_r_shdn_pin_is_high());
+    app_canTx_DAM_LEStopOKStatus_set(io_l_shdn_pin_is_high());
 }
 
 void jobs_run1kHz_tick(void)
