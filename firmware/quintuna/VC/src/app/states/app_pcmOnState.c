@@ -52,7 +52,7 @@ static void pcmOnStateRunOnTick100Hz(void)
 {
     if (RETRY_TRIGGERED == pcm_retry_state)
     {
-        if (toggleTimer())
+        if (toggleTimer() && pcm_retry_state == RETRY_TRIGGERED)
         {
             app_timer_restart(&pcm_voltage_in_range_timer);
         }
@@ -74,11 +74,9 @@ static void pcmOnStateRunOnTick100Hz(void)
                 io_pcm_set(false); // for retry we turn the pcm off and then turn it on, on the next tick
                 app_timer_restart(&pcm_toggle_timer);
             }
-            else if (RETRY_TRIGGERED == pcm_retry_state)
+            else if (RETRY_DONE == pcm_retry_state)
             {
-                // already retried, now go to fault state
                 app_timer_stop(&pcm_voltage_in_range_timer);
-                pcm_retry_state = RETRY_DONE;
             }
             app_canTx_VC_PcmRetryState_set(pcm_retry_state);
             break;
@@ -115,7 +113,15 @@ static bool toggleTimer(void)
             break;
         case TIMER_STATE_EXPIRED:
             io_pcm_set(true);
-            timer_done = true;
+            if (pcm_retry_state == RETRY_TRIGGERED)
+            {
+                pcm_retry_state = RETRY_DONE;
+                timer_done      = false;
+            }
+            else
+            {
+                timer_done = true;
+            }
             break;
         case TIMER_STATE_IDLE:
             // app_timer_restart(&pcm_toggle_timer);
