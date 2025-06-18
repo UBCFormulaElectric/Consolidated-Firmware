@@ -118,7 +118,7 @@ static void i64_to_str(const size_t size, char *buffer, const int64_t value)
     if (value < 0)
     {
         buffer[0] = '-';
-        uvalue    = (uint64_t)-(value + 1) + 1; // Carefully negate to avoid overflow at INT64_MIN
+        uvalue    = (uint64_t) - (value + 1) + 1; // Carefully negate to avoid overflow at INT64_MIN
     }
     else
     {
@@ -223,7 +223,7 @@ static void handle_object_size_mismatch(const struct type_mismatch_data_common *
 }
 static void ubsan_type_mismatch_common(const struct type_mismatch_data_common *data, unsigned long ptr)
 {
-#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a) - 1)) == 0)
+#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a)-1)) == 0)
     if (!ptr)
     {
         handle_null_ptr_deref(data);

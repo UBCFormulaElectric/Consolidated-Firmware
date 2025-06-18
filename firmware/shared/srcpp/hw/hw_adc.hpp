@@ -62,7 +62,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 
   public:
     explicit AdcChip(ADC_HandleTypeDef *const in_hadc, TIM_HandleTypeDef *const in_htim)
-      : hadc(in_hadc), htim(in_htim) {};
+      : hadc(in_hadc), htim(in_htim){};
 
     void init() const
     {
@@ -83,7 +83,7 @@ class Adc
     const float *const voltage_source;
 
   public:
-    explicit Adc(const float *in_voltage_source) : voltage_source(in_voltage_source) {};
+    explicit Adc(const float *in_voltage_source) : voltage_source(in_voltage_source){};
     [[nodiscard]] float getVoltage() const { return *voltage_source; }
 };
 } // namespace hw

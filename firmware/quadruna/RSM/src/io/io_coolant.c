@@ -19,7 +19,7 @@
 #define PRESSURE_PSI_MAX (100.0f)
 // min pressure is 0 PSI
 #define VOLTAGE_PRESSURE_CONVERSION(voltage) \
-    (((voltage) - PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
+    (((voltage)-PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
 
 // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
 #define TEMPERATURE_VOLTAGE_MIN (0.0f)

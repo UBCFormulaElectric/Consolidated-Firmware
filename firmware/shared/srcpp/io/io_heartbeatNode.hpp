@@ -36,6 +36,6 @@ class node
         void (*const in_resetter)(),
         bool (*const in_fault_getter)(),
         void (*const in_fault_setter)(bool))
-      : getter(in_getter), resetter(in_resetter), fault_getter(in_fault_getter), fault_setter(in_fault_setter) {};
+      : getter(in_getter), resetter(in_resetter), fault_getter(in_fault_getter), fault_setter(in_fault_setter){};
 };
 } // namespace io::heartbeat
