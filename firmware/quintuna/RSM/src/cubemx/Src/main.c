@@ -197,7 +197,6 @@ int main(void)
     MX_TIM2_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -577,8 +576,9 @@ static void MX_TIM4_Init(void)
 
     /* USER CODE END TIM4_Init 0 */
 
-    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC          = { 0 };
 
     /* USER CODE BEGIN TIM4_Init 1 */
 
@@ -589,6 +589,15 @@ static void MX_TIM4_Init(void)
     htim4.Init.Period            = TIM4_ARR - 1;
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
     if (HAL_TIM_IC_Init(&htim4) != HAL_OK)
     {
         Error_Handler();

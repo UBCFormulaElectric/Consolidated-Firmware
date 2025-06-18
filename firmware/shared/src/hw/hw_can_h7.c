@@ -126,7 +126,6 @@ ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, C
 
     RETURN_IF_ERR_SILENT(
         hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(can_handle->hcan, rx_fifo, &header, msg->data.data8)));
-
     msg->std_id    = header.Identifier;
     msg->dlc       = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
     msg->timestamp = io_time_getCurrentMs();

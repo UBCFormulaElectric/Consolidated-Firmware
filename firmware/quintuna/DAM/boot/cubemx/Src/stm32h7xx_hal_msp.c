@@ -1,3 +1,4 @@
+
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
@@ -20,7 +21,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -88,16 +88,24 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
 {
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hfdcan->Instance == FDCAN1)
+    if (hfdcan->Instance == FDCAN2)
     {
-        /* USER CODE BEGIN FDCAN1_MspInit 0 */
+        /* USER CODE BEGIN FDCAN2_MspInit 0 */
 
-        /* USER CODE END FDCAN1_MspInit 0 */
+        /* USER CODE END FDCAN2_MspInit 0 */
 
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
+        PeriphClkInitStruct.PLL2.PLL2M           = 4;
+        PeriphClkInitStruct.PLL2.PLL2N           = 96;
+        PeriphClkInitStruct.PLL2.PLL2P           = 2;
+        PeriphClkInitStruct.PLL2.PLL2Q           = 2;
+        PeriphClkInitStruct.PLL2.PLL2R           = 2;
+        PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_1;
+        PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
+        PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -107,25 +115,20 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         __HAL_RCC_FDCAN_CLK_ENABLE();
 
         __HAL_RCC_GPIOB_CLK_ENABLE();
-        /**FDCAN1 GPIO Configuration
-        PB8     ------> FDCAN1_RX
-        PB9     ------> FDCAN1_TX
+        /**FDCAN2 GPIO Configuration
+        PB12     ------> FDCAN2_RX
+        PB13     ------> FDCAN2_TX
         */
-        GPIO_InitStruct.Pin       = GPIO_PIN_8 | GPIO_PIN_9;
+        GPIO_InitStruct.Pin       = GPIO_PIN_12 | GPIO_PIN_13;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
+        GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN2;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-        /* FDCAN1 interrupt Init */
-        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 5, 0);
-        HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
-        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 5, 0);
-        HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
-        /* USER CODE BEGIN FDCAN1_MspInit 1 */
+        /* USER CODE BEGIN FDCAN2_MspInit 1 */
 
-        /* USER CODE END FDCAN1_MspInit 1 */
+        /* USER CODE END FDCAN2_MspInit 1 */
     }
 }
 
@@ -137,26 +140,23 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
  */
 void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
 {
-    if (hfdcan->Instance == FDCAN1)
+    if (hfdcan->Instance == FDCAN2)
     {
-        /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
+        /* USER CODE BEGIN FDCAN2_MspDeInit 0 */
 
-        /* USER CODE END FDCAN1_MspDeInit 0 */
+        /* USER CODE END FDCAN2_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_FDCAN_CLK_DISABLE();
 
-        /**FDCAN1 GPIO Configuration
-        PB8     ------> FDCAN1_RX
-        PB9     ------> FDCAN1_TX
+        /**FDCAN2 GPIO Configuration
+        PB12     ------> FDCAN2_RX
+        PB13     ------> FDCAN2_TX
         */
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_8 | GPIO_PIN_9);
+        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12 | GPIO_PIN_13);
 
-        /* FDCAN1 interrupt DeInit */
-        HAL_NVIC_DisableIRQ(FDCAN1_IT0_IRQn);
-        HAL_NVIC_DisableIRQ(FDCAN1_IT1_IRQn);
-        /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
+        /* USER CODE BEGIN FDCAN2_MspDeInit 1 */
 
-        /* USER CODE END FDCAN1_MspDeInit 1 */
+        /* USER CODE END FDCAN2_MspDeInit 1 */
     }
 }
 
