@@ -23,6 +23,6 @@ bool app_warningHandling_inverterStatus(void);
 
 void app_warningHandling_inverterReset(void);
 
-bool app_warningHandling_checkSoftwareBspd(float papps_pedal_percentage, float sapps_pedal_percentage);
-
 void app_softwareBspd_init(void);
+
+bool app_warningHandling_checkSoftwareBspd(float papps_pedal_percentage);
