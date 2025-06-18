@@ -26,6 +26,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_semaphore.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -69,9 +70,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
     list(APPEND NO_CHECKS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
     )
     embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_BMS_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -154,8 +155,11 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(SHARED_FAKES
+            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io_semaphore.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${SHARED_FAKES})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     compile_gtest_executable(
             "quintuna_BMS_test"
@@ -165,6 +169,13 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # JSONCAN
     jsoncan_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}")
+
+    #commit info
+    commit_info_library(
+            "quintuna_BMS_test"
+            "quintuna_BMS_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+    )
 
     # FakeIO
     set(HEADERS_TO_FAKE
@@ -176,5 +187,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes")
+    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_jsoncan_fakes" "quintuna_BMS_fakes" "quintuna_BMS_commit_info")
+    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()

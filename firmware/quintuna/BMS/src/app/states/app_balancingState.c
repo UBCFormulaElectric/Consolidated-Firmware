@@ -1,6 +1,5 @@
-#include "app_stateMachine.h"
-#include "states/app_allStates.h"
-#include "states/app_initState.h"
+#include "states/app_states.h"
+
 #include "io_irs.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -13,15 +12,12 @@ static void balancingStateRunOnEntry(void)
 
 static void balancingStateRunOnTick100Hz(void)
 {
-    const bool air_negative_open          = !io_irs_isNegativeClosed();
+    const bool air_negative_open          = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool stopped_requesting_balance = !app_canRx_Debug_CellBalancingRequest_get();
     if (air_negative_open || stopped_requesting_balance)
     {
-        app_stateMachine_setNextState(app_initState_get());
+        app_stateMachine_setNextState(&init_state);
     }
-
-    // Run last since this checks for faults which overrides any other state transitions.
-    app_allStates_runOnTick100Hz();
 }
 
 static void balancingStateRunOnExit(void)
@@ -29,14 +25,9 @@ static void balancingStateRunOnExit(void)
     app_canRx_Debug_CellBalancingRequest_update(false);
 }
 
-const State *app_balancingState_get(void)
-{
-    static State balancing_state = {
-        .name              = "BALANCING",
-        .run_on_entry      = balancingStateRunOnEntry,
-        .run_on_tick_100Hz = balancingStateRunOnTick100Hz,
-        .run_on_exit       = balancingStateRunOnExit,
-    };
-
-    return &balancing_state;
-}
+const State balancing_state = {
+    .name              = "BALANCING",
+    .run_on_entry      = balancingStateRunOnEntry,
+    .run_on_tick_100Hz = balancingStateRunOnTick100Hz,
+    .run_on_exit       = balancingStateRunOnExit,
+};
