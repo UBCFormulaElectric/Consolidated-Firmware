@@ -1,3 +1,4 @@
+#include "app_utils.h"
 #include "io_loadswitchFake.h"
 
 #include <cassert>
@@ -70,6 +71,13 @@ extern "C"
         io_loadswitch_setChannel(loadswitch->efuse1, true);
         io_loadswitch_setChannel(loadswitch->efuse2, true);
     }
+
+    void io_STloadswitch_reset_set(const ST_LoadSwitch *loadswitch, bool set)
+    {
+        UNUSED(loadswitch);
+        UNUSED(set);
+    }
+
     void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch)
     {
         io_loadswitch_setChannel(loadSwitch->efuse, true);
