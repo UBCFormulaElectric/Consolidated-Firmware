@@ -21,14 +21,6 @@
       "id": 552,
       "description": "Missing heartbeat signal from the FSM."
     },
-    "MissingRSMHeartbeat": {
-      "id": 553,
-      "description": "Missing heartbeat signal from the RSM."
-    },
-    "MissingVCRHeartbeat": {
-      "id": 567,
-      "description": "Missing heartbeat signal from the RSM."
-    },
     "InverterRetry": {
       "id": 553,
       "description": "Inverter fault occured in drive state"
@@ -53,6 +45,18 @@
   "info_id": 505,
   "info_counts_id": 506,
   "info": {
+    "MissingRSMHeartbeat": {
+      "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingVCRHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
     "InverterRetry": {
       "id": 553,
       "description": "Inverter fault occured in drive state"

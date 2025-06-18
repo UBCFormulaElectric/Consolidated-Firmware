@@ -20,6 +20,7 @@
     "VCR_Debug",
     "FSM_Apps",
     "CRIT_Switches",
-    "CRIT_Vitals"
+    "CRIT_Vitals",
+    "DAM_Vitals"
   ]
 }
