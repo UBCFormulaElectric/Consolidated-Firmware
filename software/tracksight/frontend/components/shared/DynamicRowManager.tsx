@@ -164,7 +164,9 @@ const DynamicRowManager: React.FC = () => {
           {/* Only show the insertion bar if there are no rows or the last row has created a component */}
           {(rows.length === 0 ||
             rows[rows.length - 1]?.hasCreatedComponent) && (
-            <InsertionBar onInsert={() => addRow(rows.length)} />
+            <div className="pb-8">
+              <InsertionBar onInsert={() => addRow(rows.length)} />
+            </div>
           )}
         </div>
       </div>
