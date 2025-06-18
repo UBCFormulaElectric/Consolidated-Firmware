@@ -18,6 +18,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_math.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -169,7 +170,13 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
-            #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_irs.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bmsShdn.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_charger.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
     )
     create_fake_library(
@@ -178,4 +185,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes")
+    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()
