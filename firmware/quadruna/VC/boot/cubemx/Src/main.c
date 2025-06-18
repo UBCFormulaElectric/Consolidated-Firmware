@@ -28,6 +28,7 @@
 #include "io_log.h"
 #include <assert.h>
 #include "io_canQueue.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

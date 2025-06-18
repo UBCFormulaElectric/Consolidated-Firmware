@@ -18,10 +18,10 @@
 #include "io_fileSystem.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
-#include "io_time.h"
+#include "io_canTx.h"
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
-#include "io_log.h"
+#include "io_time.h"
 
 #include "hw_resetReason.h"
 

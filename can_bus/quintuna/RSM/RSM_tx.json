@@ -1,10 +1,4 @@
 {
-  "Bootup": {
-    "msg_id": 715,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 700,
     "cycle_time": 100,
@@ -12,9 +6,6 @@
     "signals": {
       "Heartbeat": {
         "bits": 1
-      },
-      "State": {
-        "enum": "RsmStates"
       }
     }
   },
@@ -152,5 +143,11 @@
         "bits": 1
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 799,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }
