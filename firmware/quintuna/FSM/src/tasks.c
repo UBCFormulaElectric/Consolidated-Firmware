@@ -140,6 +140,7 @@ void tasks_run1kHz(void)
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
+    tasks_init();
     for (;;)
     {
         hw_watchdog_checkForTimeouts();
