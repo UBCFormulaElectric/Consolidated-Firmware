@@ -78,7 +78,7 @@ void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly *const pwm_input)
         else if (curr_rising_edge < prev_rising_edge)
         {
             // Occurs when the counter rolls over
-            rising_edge_delta = (*(pwm_input->config)).tim_auto_reload_reg - prev_rising_edge + curr_rising_edge + 1;
+            rising_edge_delta = (*(pwm_input->config)).tim_auto_reload_reg - prev_rising_edge + curr_rising_edge;
             setFrequency(pwm_input, (*(pwm_input->config)).tim_frequency_hz / (float)rising_edge_delta);
         }
         else

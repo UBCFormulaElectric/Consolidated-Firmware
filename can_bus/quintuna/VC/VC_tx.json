@@ -112,6 +112,9 @@
     "cycle_time": 100,
     "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
     "signals": {
+      "RsmTurnOnPump": {
+        "bits": 1
+      },
       "RearLeftPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
@@ -119,24 +122,6 @@
         "unit": "A"
       },
       "RearLeftPumpStatus": {
-        "bits": 1
-      },
-      "RearRightPumpCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "RearRightPumpStatus": {
-        "bits": 1
-      },
-      "FrontPumpCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "FrontPumpStatus": {
         "bits": 1
       },
       "LeftRadiatorFanCurrent": {
@@ -364,7 +349,7 @@
         "bits": 1
       },
       "PumpRampUpSetPoint": {
-        "resolution": 1,
+        "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
