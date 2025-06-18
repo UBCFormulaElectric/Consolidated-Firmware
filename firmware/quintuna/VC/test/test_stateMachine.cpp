@@ -30,10 +30,11 @@ static void SetStateWithEntry(const State *s)
 /* ------------------------- INIT STATE ------------------------------- */
 TEST_F(VCStateMachineTest, InitToInverterOnTransition)
 {
-    SetStateWithEntry(&init_state);
+    app_stateMachine_setCurrentState(&init_state);
+    init_state.run_on_entry();
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
 
     // With contactor open, remain in INIT
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state);
 
