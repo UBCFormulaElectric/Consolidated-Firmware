@@ -93,8 +93,8 @@
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
-      "ChargerConnected": {
-        "bits": 1
+      "ChargerConnectedType": {
+        "enum": "ChargerConnectedType"
       },
       "ChargingDone": {
         "bits": 1
@@ -133,6 +133,19 @@
         "max": 100000,
         "unit": "W"
       },
+      "CurrentSensorOk": {
+        "bits": 1
+      },
+      "VoltageSensorOk": {
+        "bits": 1
+      }
+    }
+  },
+  "BSPDStatus": {
+    "msg_id": 414,
+    "cycle_time": 100,
+    "description": "BSPD Status",
+    "signals": {
       "BSPDCurrentThresholdExceeded": {
         "bits": 1
       }

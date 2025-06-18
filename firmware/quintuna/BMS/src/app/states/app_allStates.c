@@ -1,4 +1,5 @@
 #include "app_allStates.h"
+#include "app_canUtils.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
 #include "app_imd.h"
@@ -43,8 +44,9 @@ void app_allStates_runOnTick100Hz(void)
 
     // If charge state has not placed a lock on broadcasting
     // if the charger is charger is connected
-    bool charger_is_connected = false; // TODO: Charger app_canRx_BRUSA_IsConnected_get();
-    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
+    const ChargerConnectedType charger_connected =
+        CHARGER_DISCONNECTED; // TODO: Charger app_canRx_BRUSA_IsConnected_get();
+    app_canTx_BMS_ChargerConnectedType_set(charger_connected);
 
     // Update CAN signals for BMS latch statuses.
     app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
@@ -62,7 +64,6 @@ void app_allStates_runOnTick100Hz(void)
     const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
     if (acc_fault && settle_time_expired)
     {
-        // TODO: Re-enable!
-        // app_stateMachine_setNextState(app_faultState_get());
+        app_stateMachine_setNextState(app_faultState_get());
     }
 }
