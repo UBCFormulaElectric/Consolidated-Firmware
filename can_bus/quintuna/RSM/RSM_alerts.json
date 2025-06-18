@@ -5,14 +5,13 @@
   "faults_counts_id": 704,
   "info_id": 705,
   "info_counts_id": 706,
-  "warnings": {
+  "warnings": {},
+  "faults": {},
+  "info": {
     "RearBrakePressureOutOfRange": {
       "id": 782,
       "description": "Rear brake pressure out of range."
-    }
-  },
-  "faults": {},
-  "info": {
+    },
     "FlowMeterUnderflow": {
       "id": 785,
       "description": "Flow meter underflow"

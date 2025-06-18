@@ -41,6 +41,10 @@
     "StackOverflow": {
       "id": 650,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "FrontBrakePressureOutOfRange": {
+      "id": 611,
+      "description": "Front brake pressure out of range."
     }
   },
   "warnings": {
@@ -55,10 +59,6 @@
     "SappsOCSC": {
       "id": 609,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
-    },
-    "FrontBrakePressureOutOfRange": {
-      "id": 611,
-      "description": "Front brake pressure out of range."
     }
   },
   "faults": {}
