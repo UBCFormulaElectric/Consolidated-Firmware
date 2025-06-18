@@ -4,7 +4,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_powerManager.h"
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 
 #include "app_regen.h"
 #include "app_vehicleDynamicsConstants.h"

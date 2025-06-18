@@ -19,7 +19,7 @@
 #include "app_sbgEllipse.h"
 #include "app_faultHandling.h"
 #include "app_canRx.h"
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
 #include "app_shdnLoop.h"
