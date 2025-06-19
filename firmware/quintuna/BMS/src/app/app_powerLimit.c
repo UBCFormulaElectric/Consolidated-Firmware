@@ -5,11 +5,11 @@
 #include "app_canAlerts.h"
 #include "app_canTx.h"
 #include "app_canUtils.h"
+#include "app_tractiveSystem.h"
 
 // TODO: use global variables
 #define MAX_DISCHARGE_POWER_LIMIT_W 78.0e3f
 #define MAX_CHARGE_POWER_LIMIT_W 15.0e3f
-#define MIN_POWER_LIMIT_W 0.0f
 #define MAX_DISCHARGE_CURRENT_LIMIT 175.0f
 #define MAX_CHARGE_CURRENT_LIMIT 30.0f
 #define MIN_DISCHARGE_CURRENT_LIMIT 10.0f
@@ -146,20 +146,20 @@ float app_powerLimit_highSOCCurrentLimit()
 
 void app_powerLimit_broadcast()
 {
-    const float pack_voltage = app_segments_getPackVoltage();
-
     // Get current limits
     float discharge_c_lim = app_powerLimit_getDischargeCurrentLimit();
     float charge_c_lim    = app_powerLimit_getChargeCurrentLimit();
 
     // Get power limits
-    float discharge_p_lim = MIN(app_powerLimit_getDischargePowerLimit(), discharge_c_lim * pack_voltage);
-    float charge_p_lim    = MIN(app_powerLimit_getChargePowerLimit(), charge_c_lim * pack_voltage);
+    const float ts_voltage = app_tractiveSystem_getVoltage(); // Pack voltage would be better here but the sample rate
+                                                              // is low so TS voltage is a good proxy
+    float discharge_p_lim = MIN(app_powerLimit_getDischargePowerLimit(), discharge_c_lim * ts_voltage);
+    float charge_p_lim    = MIN(app_powerLimit_getChargePowerLimit(), charge_c_lim * ts_voltage);
 
     // Enforce a minimum cutoff for safety
-    if (discharge_p_lim / pack_voltage < MIN_DISCHARGE_CURRENT_LIMIT)
+    if (discharge_p_lim / ts_voltage < MIN_DISCHARGE_CURRENT_LIMIT)
     {
-        discharge_p_lim = MIN_DISCHARGE_CURRENT_LIMIT * pack_voltage;
+        discharge_p_lim = MIN_DISCHARGE_CURRENT_LIMIT * ts_voltage;
     }
 
     // Broadcast limits
