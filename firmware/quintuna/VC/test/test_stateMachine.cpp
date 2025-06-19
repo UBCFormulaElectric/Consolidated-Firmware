@@ -456,6 +456,7 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
 {
     SetStateWithEntry(&pcmOn_state);
     EXPECT_EQ(app_canTx_VC_State_get(), VC_PCM_ON_STATE);
+    LetTimePass(10);
     EXPECT_TRUE(io_pcm_enabled());
 }
 

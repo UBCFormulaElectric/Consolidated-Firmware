@@ -37,7 +37,9 @@ static PowerManagerConfig power_manager_state = {
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const WarningType warning_check = app_warningHandling_globalWarningCheck();
+    // const WarningType warning_check = app_warningHandling_globalWarningCheck();
+    const bool inverter_warning = app_warningHandling_inverterStatus();
+    const bool board_warning    = app_warningHandling_boardWarningCheck();
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     const bool prev_regen_switch_val = regen_switch_is_on;
@@ -55,7 +57,7 @@ static bool driveStatePassPreCheck()
         return false;
     }
 
-    if (INVERTER_FAULT == warning_check)
+    if (inverter_warning)
     {
         app_canAlerts_VC_Info_InverterRetry_set(true);
         // Go to inverter on state to unset the fault on the inverters and restart the sequence
@@ -63,7 +65,7 @@ static bool driveStatePassPreCheck()
         return false;
     }
 
-    if (BOARD_WARNING_DETECTED == warning_check)
+    if (board_warning)
     {
         return false;
     }
@@ -85,9 +87,6 @@ static bool driveStatePassPreCheck()
 
 static void runDrivingAlgorithm(const float apps_pedal_percentage)
 {
-    // All states module checks for faults, and returns whether or not a fault was detected.
-    WarningType warning_check = app_warningHandling_globalWarningCheck();
-
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     bool prev_regen_switch_val = regen_switch_is_on;
     regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
