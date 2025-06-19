@@ -9,8 +9,10 @@
 #include "app_stateMachine.h"
 #include "app_signal.h"
 
-static Signal apps_brake_disagreement_signal;
+#define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10u)
+#define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10u)
 
+static Signal apps_brake_disagreement_signal;
 typedef enum
 {
     INVERTER_FL,
