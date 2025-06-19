@@ -69,17 +69,17 @@ static void main_drive_update(void)
 
     // Update min cell voltage data buffer.
     instance.data_buffer[0] = digit_to_segment(min_cell_voltage / 100) | SEG_PATTERN_DP;
-    instance.data_buffer[1] = digit_to_segment(min_cell_voltage / 10);
+    instance.data_buffer[1] = digit_to_segment((min_cell_voltage / 10) % 10);
     instance.data_buffer[2] = digit_to_segment(min_cell_voltage % 10);
 
     // Update power draw data buffer.
     instance.data_buffer[3] = digit_to_segment(power_draw / 100);
-    instance.data_buffer[4] = digit_to_segment(power_draw / 10);
+    instance.data_buffer[4] = digit_to_segment((power_draw / 10) % 10);
     instance.data_buffer[5] = digit_to_segment(power_draw % 10);
 
     // Update max motor temp data buffer.
     instance.data_buffer[6] = digit_to_segment(max_motor_temp / 100);
-    instance.data_buffer[7] = digit_to_segment(max_motor_temp / 10);
+    instance.data_buffer[7] = digit_to_segment((max_motor_temp / 10) % 10);
     instance.data_buffer[8] = digit_to_segment(max_motor_temp % 10);
 
     io_shift_register_updateSevenSegRegisters((uint8_t *)instance.data_buffer);

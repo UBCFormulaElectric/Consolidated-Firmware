@@ -69,7 +69,7 @@ static void drive_mode_update(void)
     (void)memset(&data_buffer[0], SEG_PATTERN_DP, (sizeof(uint8_t) * SEVEN_SEG_DATA_LENGTH));
 
     data_buffer[3] = digit_to_segment(max_cell_temp / 100);
-    data_buffer[4] = digit_to_segment(max_cell_temp / 10);
+    data_buffer[4] = digit_to_segment((max_cell_temp / 10) % 10);
     data_buffer[5] = digit_to_segment(max_cell_temp % 10);
 
     switch (drive_mode)
