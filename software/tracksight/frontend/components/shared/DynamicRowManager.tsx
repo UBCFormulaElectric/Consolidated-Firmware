@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useDisplayControl } from "@/components/shared/PausePlayControl";
+import React, { useEffect, useRef, useState } from "react";
 import { RowEditor, RowItem } from "./DropdownSearch";
 import DynamicSignalGraph from "./DynamicSignalGraph";
 import { InsertionBar } from "./InsertionBar";
-import { useDisplayControl } from "@/components/shared/PausePlayControl";
-import { useSignals } from "@/lib/contexts/SignalContext";
 
 interface CreatedComponent {
   id: string;
@@ -30,7 +29,7 @@ const DynamicRowManager: React.FC = () => {
     }
 
     const container = scrollContainerRef.current;
-    
+
     // Function to scroll to the far right (instantly to stay locked)
     const scrollToRight = () => {
       const maxScrollLeft = container.scrollWidth - container.clientWidth;
@@ -138,7 +137,7 @@ const DynamicRowManager: React.FC = () => {
   return (
     <div className="">
       <div className="overflow-x-scroll" ref={scrollContainerRef}>
-        <div className="sticky inline-block min-w-[calc(100vw)]">
+        <div className="sticky inline-block min-w-[calc(100vw)] pb-10">
           {createdComponents.map((component) => (
             <DynamicSignalGraph
               key={component.id}
@@ -164,7 +163,9 @@ const DynamicRowManager: React.FC = () => {
           {/* Only show the insertion bar if there are no rows or the last row has created a component */}
           {(rows.length === 0 ||
             rows[rows.length - 1]?.hasCreatedComponent) && (
-            <InsertionBar onInsert={() => addRow(rows.length)} />
+            <div className="pb-8">
+              <InsertionBar onInsert={() => addRow(rows.length)} />
+            </div>
           )}
         </div>
       </div>
