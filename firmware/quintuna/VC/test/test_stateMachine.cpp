@@ -332,7 +332,7 @@ TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
 
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
     app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
-    LetTimePass(10);
+    LetTimePass(1010); /// the time out timer is 1000ms then to wait for next tick we add 10 ms
     ASSERT_STATE_EQ(init_state);
 
     app_canAlerts_VC_Warning_FrontLeftInverterFault_set(false); // cleanup
@@ -461,28 +461,32 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
 }
 
 /* ------------------------- PCM ON STATE ------------------------------- */
-// TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
-// {
-//     SetStateWithEntry(&pcmOn_state);
-//     app_canTx_VC_ChannelOneVoltage_set(20.0f);
-//     LetTimePass(10); // first tick: update voltage
-//     LetTimePass(10); // second tick: debounced, should transition
-//     ASSERT_STATE_EQ(hvInit_state);
-// }
+TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
+{
+    SetStateWithEntry(&pcmOn_state);
+    app_canTx_VC_ChannelOneVoltage_set(20.0f);
+    LetTimePass(10); //
+    LetTimePass(10); // second tick: debounced, should transition
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
+    ASSERT_STATE_EQ(hvInit_state);
+}
 
-// TEST_F(VCStateMachineTest, UnderVoltageRetryThenFault)
-// {
-//     // Override voltage read function to return below threshold
-//     app_canTx_VC_ChannelOneVoltage_set(0.0f);
-//     LetTimePass(100);
+TEST_F(VCStateMachineTest, UnderVoltageRetryThenFault)
+{
+    // Override voltage read function to return below threshold
+    SetStateWithEntry(&pcmOn_state);
+    app_canTx_VC_ChannelOneVoltage_set(16.0f);
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
 
-//     EXPECT_FALSE(io_pcm_enabled());
-//     LetTimePass(10);
-//     EXPECT_TRUE(io_pcm_enabled());
+    EXPECT_TRUE(io_pcm_enabled());
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 1);
 
-//     LetTimePass(100);
+    LetTimePass(100);
 
-//     // Should set under-voltage alert and transition to HV_INIT
-//     EXPECT_TRUE(app_canAlerts_VC_Info_PcmUnderVoltage_get());
-//     ASSERT_STATE_EQ(hvInit_state);
-// }
+    // Should set under-voltage alert and transition to HV_INIT
+    EXPECT_TRUE(app_canAlerts_VC_Info_PcmUnderVoltage_get());
+    ASSERT_STATE_EQ(hvInit_state);
+}
