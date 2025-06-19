@@ -17,7 +17,7 @@ class VCBaseTest : public EcuTestBase
     {
         suppress_heartbeat = false;
         // micro startup simulation
-        for (const TI_LoadSwitch &tils : { rl_pump_loadswitch, rr_pump_loadswitch, f_pump_loadswitch })
+        for (const TI_LoadSwitch &tils : { rl_pump_loadswitch})
         {
             fake::io_loadswitch::reset_tiLoadswitch(const_cast<TI_LoadSwitch &>(tils));
         }

@@ -16,7 +16,6 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
 };
 
@@ -24,6 +23,7 @@ static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
+    app_canTx_VC_Info_InverterRetry_set(false);
 }
 
 static void inverterOnStateRunOnTick100Hz(void)

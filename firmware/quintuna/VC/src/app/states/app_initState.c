@@ -2,6 +2,7 @@
 #include "app_powerManager.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include "app_canUtils.h"
 #include <stdbool.h>
 
 static PowerManagerConfig power_manager_state = {
@@ -12,7 +13,6 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
 };
 
@@ -20,6 +20,7 @@ static void initStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
+    app_canTx_VC_Info_InverterRetry_set(false);
 
     app_canTx_VC_INVFRTorqueSetpoint_set(0);
     app_canTx_VC_INVRRTorqueSetpoint_set(0);

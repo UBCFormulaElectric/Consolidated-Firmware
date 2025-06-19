@@ -52,24 +52,18 @@ extern "C"
     static Efuse dam_efuse{};
     static Efuse front_efuse{};
     static Efuse rl_pump_efuse{};
-    static Efuse rr_pump_efuse{};
-    static Efuse f_pump_efuse{};
-    static Efuse l_rad_fan_efuse{};
     static Efuse r_rad_fan_efuse{};
 
     ST_LoadSwitch      inv_rsm_loadswitch                 = { .efuse1 = &f_inv_efuse, .efuse2 = &rsm_efuse };
     ST_LoadSwitch      inv_bms_loadswitch                 = { .efuse1 = &bms_efuse, .efuse2 = &r_inv_efuse };
     ST_LoadSwitch      front_loadswitch                   = { .efuse1 = &dam_efuse, .efuse2 = &front_efuse };
     TI_LoadSwitch      rl_pump_loadswitch                 = { .efuse = &rl_pump_efuse };
-    TI_LoadSwitch      rr_pump_loadswitch                 = { .efuse = &rr_pump_efuse };
-    TI_LoadSwitch      f_pump_loadswitch                  = { .efuse = &f_pump_efuse };
-    ST_LoadSwitch      rad_fan_loadswitch                 = { .efuse1 = &l_rad_fan_efuse, .efuse2 = &r_rad_fan_efuse };
+    ST_LoadSwitch      rad_fan_loadswitch                 = { .efuse1 = NULL, .efuse2 = &r_rad_fan_efuse };
     const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS] = {
         [EFUSE_CHANNEL_F_INV] = &f_inv_efuse,     [EFUSE_CHANNEL_RSM] = &rsm_efuse,
         [EFUSE_CHANNEL_BMS] = &bms_efuse,         [EFUSE_CHANNEL_R_INV] = &r_inv_efuse,
         [EFUSE_CHANNEL_DAM] = &dam_efuse,         [EFUSE_CHANNEL_FRONT] = &front_efuse,
-        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_L_RAD] = &l_rad_fan_efuse,
-        [EFUSE_CHANNEL_R_RAD] = &r_rad_fan_efuse
+        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_R_RAD] = &r_rad_fan_efuse
     };
 
 #include "io_vcShdn.h"

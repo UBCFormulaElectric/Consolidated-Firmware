@@ -2,6 +2,7 @@
 
 #include "app_timer.h"
 #include "io_loadswitches.h"
+#include "app_canAlerts.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -30,13 +31,15 @@ static RetryProtocol efuses_retry_state[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_DAM]     = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_FRONT]   = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_RL_PUMP] = { .loadswitch.ti = &rl_pump_loadswitch, .retry_num = 0 },
-    [EFUSE_CHANNEL_L_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_R_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 }
 };
 
 void app_powerManager_updateConfig(const PowerManagerConfig new_power_manager_config)
 {
     power_manager_state = new_power_manager_config;
+
+    power_manager_state.efuse_configs[EFUSE_CHANNEL_RL_PUMP].efuse_enable = !app_canAlerts_VC_Info_PcmUnderVoltage_get();
+    power_manager_state.efuse_configs[EFUSE_CHANNEL_R_RAD].efuse_enable = !app_canAlerts_VC_Info_PcmUnderVoltage_get();
 }
 
 static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
