@@ -17,8 +17,6 @@
 #define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 #define STANDARD_TS_CHARGE_CURRENT_AMPS (STANDARD_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 
-#define TS_OVERCURRENT_DEBOUNCE_DURATION_MS (100U)
-
 #define W_TO_KW 1.0e-3f
 
 TimerChannel overcurrent_fault_timer;
@@ -48,15 +46,30 @@ float app_tractiveSystem_getCurrent(void)
     }
 }
 
+bool app_tractiveSystem_currentSensorOk(void)
+{
+    return io_tractiveSystem_currentSensorOk();
+}
+
+bool app_tractiveSystem_voltageSensorOk(void)
+{
+    return io_tractiveSystem_voltageSensorOk();
+}
+
 void app_tractiveSystem_broadcast(void)
 {
-    const float ts_voltage  = app_tractiveSystem_getVoltage();
-    const float ts_current  = app_tractiveSystem_getCurrent();
-    const float ts_power_kw = ts_voltage * ts_current * W_TO_KW;
+    const float ts_voltage        = app_tractiveSystem_getVoltage();
+    const float ts_current        = app_tractiveSystem_getCurrent();
+    const float ts_power_kw       = ts_voltage * ts_current * W_TO_KW;
+    const bool  ts_voltage_sns_ok = app_tractiveSystem_voltageSensorOk();
+    const bool  ts_current_sns_ok = app_tractiveSystem_currentSensorOk();
 
     app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
     app_canTx_BMS_TractiveSystemCurrent_set(ts_current);
     app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
+
+    app_canTx_BMS_CurrentSensorOk_set(ts_current_sns_ok);
+    app_canTx_BMS_VoltageSensorOk_set(ts_voltage_sns_ok);
 
     //    Charge current is positive, discharge current is negative
     //    TS current should be in the range: (-175, 30)

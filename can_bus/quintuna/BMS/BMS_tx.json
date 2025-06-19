@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 400,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Vitals message for the BMS.",
     "signals": {
       "Heartbeat": {
@@ -30,11 +30,20 @@
     "cycle_time": 1000,
     "description": "BMS Debug Signals",
     "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
       "ResetReason": {
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 16
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
       }
     }
   },
@@ -84,8 +93,8 @@
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
-      "ChargerConnected": {
-        "bits": 1
+      "ChargerConnectedType": {
+        "enum": "ChargerConnectedType"
       },
       "ChargingDone": {
         "bits": 1
@@ -124,6 +133,19 @@
         "max": 100000,
         "unit": "W"
       },
+      "CurrentSensorOk": {
+        "bits": 1
+      },
+      "VoltageSensorOk": {
+        "bits": 1
+      }
+    }
+  },
+  "BSPDStatus": {
+    "msg_id": 414,
+    "cycle_time": 100,
+    "description": "BSPD Status",
+    "signals": {
       "BSPDCurrentThresholdExceeded": {
         "bits": 1
       }
@@ -238,14 +260,39 @@
       }
     }
   },
-  "CellVoltageStats": {
+  "PowerLimit": {
+  "msg_id": 122,
+  "cycle_time": 10,
+  "description": "BMS Power Limit",
+  "signals": {
+    "ChargePowerLimit": {
+      "resolution": 1,
+      "min": 0,
+      "max": 100000,
+      "unit": "W"
+    },
+    "DischargePowerLimit": {
+      "resolution": 1,
+      "min": 0,
+      "max": 100000,
+      "unit": "W"
+    },
+    "ChargePowerLimitCondition": {
+      "enum": "ChargePowerLimitCondition"
+    },
+    "DischargePowerLimitCondition": {
+      "enum": "DischargePowerLimitCondition"
+    }
+  }
+},
+  "CellVoltageStats_1": {
     "msg_id": 459,
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
       "PackVoltage": {
         "resolution": 0.01,
-        "min": 0,
+        "min": 100,
         "max": 650,
         "unit": "V"
       },
@@ -265,7 +312,14 @@
         "resolution": 1,
         "min": 0,
         "max": 9
-      },
+      }
+    }
+  },
+  "CellVoltageStats_2": {
+    "msg_id": 469,
+    "cycle_time": 1000,
+    "description": "BMS cell voltage stats",
+    "signals": {
       "MinCellVoltageIdx": {
         "resolution": 1,
         "min": 0,
@@ -3282,5 +3336,11 @@
         "bits": 1
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 499,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }

@@ -80,15 +80,15 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LSI_FREQUENCY 32000
+#define IWDG_RESET_FREQUENCY 5
 #define IWDG_PRESCALER 4
-#define IWDG_RESET_FREQUENCY 4
+#define LSI_FREQUENCY 32000
 #define nRTC_INT1_Pin GPIO_PIN_5
 #define nRTC_INT1_GPIO_Port GPIOE
 #define LED_Pin GPIO_PIN_0
 #define LED_GPIO_Port GPIOC
-#define BOOT_Pin GPIO_PIN_1
-#define BOOT_GPIO_Port GPIOC
+#define BOOT_LED_Pin GPIO_PIN_1
+#define BOOT_LED_GPIO_Port GPIOC
 #define SD_FAIL_Pin GPIO_PIN_3
 #define SD_FAIL_GPIO_Port GPIOC
 #define FROM_900M_CTS_Pin GPIO_PIN_0

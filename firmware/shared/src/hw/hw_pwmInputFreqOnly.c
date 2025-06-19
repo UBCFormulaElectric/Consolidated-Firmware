@@ -8,7 +8,7 @@
  * @param pwm_input: The PWM input to set frequency for
  * @param frequency_hz: Frequency, in Hz
  */
-static void setFrequency(PwmInputFreqOnly *pwm_input, float frequency_hz)
+static void setFrequency(PwmInputFreqOnly *pwm_input, const float frequency_hz)
 {
     assert(frequency_hz >= 0.0f);
     pwm_input->frequency_hz = frequency_hz;
@@ -78,7 +78,7 @@ void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly *const pwm_input)
         else if (curr_rising_edge < prev_rising_edge)
         {
             // Occurs when the counter rolls over
-            rising_edge_delta = (*(pwm_input->config)).tim_auto_reload_reg - prev_rising_edge + curr_rising_edge + 1;
+            rising_edge_delta = (*(pwm_input->config)).tim_auto_reload_reg - prev_rising_edge + curr_rising_edge;
             setFrequency(pwm_input, (*(pwm_input->config)).tim_frequency_hz / (float)rising_edge_delta);
         }
         else

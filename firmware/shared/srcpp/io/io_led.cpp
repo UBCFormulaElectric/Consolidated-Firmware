@@ -5,7 +5,7 @@ void io::binary_led::set(bool state) const
     pin.writePin(state);
 }
 
-void io::led::set(io::led::RgbColor colour) const
+void io::led::set(const io::led::RgbColor colour) const
 {
     const bool red_on = colour == RgbColor::RED || colour == RgbColor::YELLOW || colour == RgbColor::MAGENTA ||
                         colour == RgbColor::WHITE;

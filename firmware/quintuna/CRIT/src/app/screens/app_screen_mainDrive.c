@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <math.h>
 #include "app_screens.h"
 #include "app_screen_defines.h"
 #include "app_canTx.h"
@@ -6,15 +8,13 @@
 
 typedef struct
 {
-    uint8_t   data_buffer[SEVEN_SEG_DATA_LENGTH];
-    DriveMode current_drive_mode;
-    uint8_t   hv_soc;
-    uint8_t   speed;
+    uint8_t data_buffer[SEVEN_SEG_DATA_LENGTH];
+    uint8_t min_cell_voltage;
+    uint8_t power_draw;
+    uint8_t max_motor_temp;
 } app_screen_main_drive_data_t;
 
 /*********************** Static Function Declarations ***************************/
-static void    main_drive_ccw(void);
-static void    main_drive_cw(void);
 static void    main_drive_update(void);
 static uint8_t digit_to_segment(uint8_t d);
 
@@ -22,26 +22,6 @@ static uint8_t digit_to_segment(uint8_t d);
 static app_screen_main_drive_data_t instance = { 0 };
 
 /*********************** Function Definitions ***************************/
-static void main_drive_ccw(void)
-{
-    if (instance.current_drive_mode == 0)
-    {
-        instance.current_drive_mode = (DriveMode)(DRIVE_MODE_COUNT - 1);
-    }
-    else
-    {
-        instance.current_drive_mode--;
-    }
-
-    main_drive_update();
-}
-
-static void main_drive_cw(void)
-{
-    instance.current_drive_mode = (DriveMode)((instance.current_drive_mode + 1) % DRIVE_MODE_COUNT);
-    main_drive_update();
-}
-
 static uint8_t digit_to_segment(uint8_t digit)
 {
     switch (digit)
@@ -74,46 +54,35 @@ static uint8_t digit_to_segment(uint8_t digit)
 static void main_drive_update(void)
 {
     // Get inputs.
-    instance.speed  = (uint8_t)app_canRx_VC_VehicleVelocity_get();
-    instance.hv_soc = (uint8_t)app_canRx_BMS_HvBatterySoc_get();
+    uint8_t fl_motor_temp = (uint8_t)app_canRx_INVFL_MotorTemperature_get();
+    uint8_t fr_motor_temp = (uint8_t)app_canRx_INVFR_MotorTemperature_get();
+    uint8_t rl_motor_temp = (uint8_t)app_canRx_INVRL_MotorTemperature_get();
+    uint8_t rr_motor_temp = (uint8_t)app_canRx_INVRR_MotorTemperature_get();
 
-    // Update SoC data buffer.
-    instance.data_buffer[0] = digit_to_segment(instance.hv_soc / 100);
-    instance.data_buffer[1] = digit_to_segment(instance.hv_soc / 10);
-    instance.data_buffer[2] = digit_to_segment(instance.hv_soc % 10);
+    uint8_t min_cell_voltage = (uint8_t)app_canRx_BMS_MinCellVoltage_get();
+    uint8_t power_draw       = (uint8_t)app_canRx_BMS_TractiveSystemPower_get();
 
-    // Update speed data buffer.
-    instance.data_buffer[3] = digit_to_segment(instance.speed / 100);
-    instance.data_buffer[4] = digit_to_segment(instance.speed / 10);
-    instance.data_buffer[5] = digit_to_segment(instance.speed % 10);
+    // Max motor temp
+    uint8_t max_motor_temp = (uint8_t)fmax(fl_motor_temp, fr_motor_temp);
+    max_motor_temp         = (uint8_t)fmax(max_motor_temp, rl_motor_temp);
+    max_motor_temp         = (uint8_t)fmax(max_motor_temp, rr_motor_temp);
 
-    // Update drive mode data buffer.
-    switch (instance.current_drive_mode)
-    {
-        case DRIVE_MODE_MAIN_DRIVE:
-            instance.data_buffer[6] = SEG_PATTERN_D;
-            instance.data_buffer[7] = SEG_PATTERN_R;
-            instance.data_buffer[8] = SEG_PATTERN_V;
-            break;
-        case DRIVE_MODE_INDOORS:
-            instance.data_buffer[6] = SEG_PATTERN_I;
-            instance.data_buffer[7] = SEG_PATTERN_N;
-            instance.data_buffer[8] = SEG_PATTERN_D;
-            break;
-        default:
-            // show “888” on the last three digits
-            instance.data_buffer[6] = SEG_PATTERN_8;
-            instance.data_buffer[7] = SEG_PATTERN_8;
-            instance.data_buffer[8] = SEG_PATTERN_8;
-            break;
-    }
+    // Update min cell voltage data buffer.
+    instance.data_buffer[0] = digit_to_segment(min_cell_voltage / 100);
+    instance.data_buffer[1] = digit_to_segment(min_cell_voltage / 10);
+    instance.data_buffer[2] = digit_to_segment(min_cell_voltage % 10);
+
+    // Update power draw data buffer.
+    instance.data_buffer[3] = digit_to_segment(power_draw / 100);
+    instance.data_buffer[4] = digit_to_segment(power_draw / 10);
+    instance.data_buffer[5] = digit_to_segment(power_draw % 10);
+
+    // Update max motor temp data buffer.
+    instance.data_buffer[6] = digit_to_segment(max_motor_temp / 100);
+    instance.data_buffer[7] = digit_to_segment(max_motor_temp / 10);
+    instance.data_buffer[8] = digit_to_segment(max_motor_temp % 10);
 
     io_shift_register_updateSevenSegRegisters((uint8_t *)instance.data_buffer);
-
-    // Set ouputs:
-    app_canTx_CRIT_DriveMode_set(instance.current_drive_mode);
 }
 
-Screen main_drive_screen = { .ccw_callback = main_drive_ccw,
-                             .cw_callback  = main_drive_cw,
-                             .update       = main_drive_update };
+Screen main_drive_screen = { .ccw_callback = NULL, .cw_callback = NULL, .update = main_drive_update };

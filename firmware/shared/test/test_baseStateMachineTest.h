@@ -42,7 +42,7 @@ class BaseStateMachineTest : public testing::Test
         fake_io_time_getCurrentMs_returns(current_time_ms);
     }
 
-    void LetTimePass(uint32_t time_ms)
+    void LetTimePass(const uint32_t time_ms)
     {
         for (uint32_t ms = 0; ms < time_ms; ms++)
         {
