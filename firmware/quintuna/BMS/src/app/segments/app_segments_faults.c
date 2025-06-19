@@ -55,7 +55,7 @@ static const ProfileConfig warning_profile_config = {
     .comm_err_debounce_ms      = COMM_ERR_DEBOUNCE_WARNING_MS,
     // setters
     .under_voltage_setter = app_canAlerts_BMS_Warning_CellUndervoltage_set,
-    .over_voltage_setter  = app_canAlerts_BMS_Warning_CellUndervoltage_set,
+    .over_voltage_setter  = app_canAlerts_BMS_Warning_CellOvervoltage_set,
     .over_temp_setter     = app_canAlerts_BMS_Warning_CellOvertemp_set,
     .comm_err_setter      = app_canAlerts_BMS_Warning_ModuleCommunicationError_set,
 };

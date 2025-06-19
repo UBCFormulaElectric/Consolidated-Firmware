@@ -42,10 +42,6 @@
   "info_id": 405,
   "info_counts_id": 406,
   "info": {
-    "MissingVCHeartbeat": {
-      "id": 115,
-      "description": "Missing heartbeat from the VC."
-    },
     "StackOverflow": {
       "id": 450,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
