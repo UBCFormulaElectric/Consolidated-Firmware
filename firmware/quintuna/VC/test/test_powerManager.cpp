@@ -51,15 +51,15 @@ struct efuse_expected_state
     ASSERT_EQ(rad_fan_loadswitch.efuse1->enabled, l_rad_fan_efuse);                                         \
     ASSERT_EQ(rad_fan_loadswitch.efuse2->enabled, r_rad_fan_efuse);
 
-//TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
+// TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
 //{
-    // this tests that the efuse sequencing happens
+//  this tests that the efuse sequencing happens
 //    ASSERT_EQ(app_stateMachine_getCurrentState(), &init_state)
 //        << app_stateMachine_getCurrentState()->name << " != init_state";
 //    LetTimePass(10);
 //    check_efuses(false, true, true, false, true, true, false, false, false);
 
-    // close ir negative
+// close ir negative
 //    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
 //    LetTimePass(10);
 //    ASSERT_EQ(app_stateMachine_getCurrentState(), &inverterOn_state)

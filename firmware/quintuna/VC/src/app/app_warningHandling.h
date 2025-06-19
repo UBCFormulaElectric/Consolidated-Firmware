@@ -1,5 +1,4 @@
 #pragma once
-#include "app_faultHandling.h"
 #include "stdbool.h"
 
 typedef enum
@@ -17,7 +16,7 @@ typedef enum
 
 WarningType app_warningHandling_globalWarningCheck(void);
 
-bool app_warningHandling_inverterStatus();
+bool app_warningHandling_inverterStatus(void);
 
 void app_warningHandling_inverterReset(void);
 

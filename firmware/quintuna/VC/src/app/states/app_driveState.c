@@ -2,6 +2,8 @@
 
 #include "app_canTx.h"
 #include "app_canRx.h"
+
+#include <app_utils.h>
 #include "app_canAlerts.h"
 #include "app_powerManager.h"
 #include "app_warningHandling.h"
@@ -83,6 +85,21 @@ static bool driveStatePassPreCheck()
 
 static void runDrivingAlgorithm(const float apps_pedal_percentage)
 {
+    // All states module checks for faults, and returns whether or not a fault was detected.
+    WarningType warning_check = app_warningHandling_globalWarningCheck();
+
+    // Make sure you can only turn on VD in init and not during drive, only able to turn off
+    bool prev_regen_switch_val = regen_switch_is_on;
+    regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
+
+    // bool prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
+    //  regen_switch_is_on = app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON &&
+    //  prev_torque_vectoring_switch_val;
+
+    /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
+        or not before using closed loop features */
+    // Update Regen + TV LEDs
+
     if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
         app_regen_run(apps_pedal_percentage, &torqueOutputToMotors);
