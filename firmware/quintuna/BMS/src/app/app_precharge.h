@@ -3,10 +3,9 @@
 #include <stdbool.h>
 #include "app_units.h"
 
-// TODO: Change these constants for 4x AMK inverters
-#define NUM_OF_INVERTERS (2U)
-#define PRECHARGE_RESISTOR_OHMS (500U)
-#define INV_CAPACITANCE_F (0.280e-3f)
+#define NUM_OF_INVERTERS (4U)
+#define PRECHARGE_RESISTOR_OHMS (1.5e3 + 1.5e3)
+#define INV_CAPACITANCE_F (75e-6f)
 #define PRECHARGE_CAPACITANCE_F (INV_CAPACITANCE_F * NUM_OF_INVERTERS)
 #define PRECHARGE_RC_MS (S_TO_MS(PRECHARGE_RESISTOR_OHMS * PRECHARGE_CAPACITANCE_F))
 
