@@ -86,7 +86,7 @@ void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors)
     app_canTx_VC_INVRLTorqueSetpoint_set(
         CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_left_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM), PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
     app_canTx_VC_INVRRTorqueSetpoint_set(
-        CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+        CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM), PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
 }
 
 // TorqueAllocationOutputs *app_get_torqueToMotors()
