@@ -227,6 +227,7 @@ void app_segments_broadcastOpenWireCheck(void)
     // Known limitation: If >=2x adjacent cells are open wire, it only reports the lowest one.
 
     memset(owc_comm_ok, true, sizeof(owc_comm_ok));
+    bool overall_ok = true;
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
@@ -265,7 +266,11 @@ void app_segments_broadcastOpenWireCheck(void)
 
         cell_owc_setters[segment][CELL_TAPS_PER_SEGMENT - 1](owc_passing_last);
         comm_ok_setters[segment](ALL_COMM_OK(segment));
+
+        overall_ok &= owc_comm_ok[segment];
     }
+
+    app_canTx_BMS_OpenWireCheckStatus_set(overall_ok);
 }
 
 void app_segments_broadcastVoltageStats(void)
