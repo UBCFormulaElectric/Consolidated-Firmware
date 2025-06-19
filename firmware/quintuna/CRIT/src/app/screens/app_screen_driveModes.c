@@ -64,12 +64,9 @@ static void drive_mode_cw(void)
 
 static void drive_mode_update(void)
 {
-    uint8_t data_buffer[SEVEN_SEG_DATA_LENGTH] = { 0 };
+    const uint8_t max_cell_temp                      = (uint8_t)app_canRx_BMS_MaxCellTemp_get();
+    uint8_t       data_buffer[SEVEN_SEG_DATA_LENGTH] = { 0 };
     (void)memset(&data_buffer[0], SEG_PATTERN_DP, (sizeof(uint8_t) * SEVEN_SEG_DATA_LENGTH));
-
-    const uint8_t max_cell_temp = (uint8_t)app_canRx_BMS_MaxCellTemp_get();
-
-    data_buffer[1] = SEG_PATTERN_DP;
 
     data_buffer[3] = digit_to_segment(max_cell_temp / 100);
     data_buffer[4] = digit_to_segment(max_cell_temp / 10);
