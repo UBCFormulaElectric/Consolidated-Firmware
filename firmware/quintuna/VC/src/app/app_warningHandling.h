@@ -14,9 +14,6 @@ typedef enum
     DC_BUS_ISSUES,
 } Inverter_Fault_Info;
 
-#define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10U)
-#define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10U)
-
 WarningType app_warningHandling_globalWarningCheck(void);
 
 bool app_warningHandling_inverterStatus(void);
