@@ -261,7 +261,6 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     app_canRx_INVRL_bError_update(false);
     app_canRx_INVRR_bError_update(false);
 
-
     app_canRx_INVRR_bSystemReady_update(true);
     app_canRx_INVRL_bSystemReady_update(true);
     app_canRx_INVFL_bSystemReady_update(true);
@@ -269,7 +268,7 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
 
     LetTimePass(10);
 
-    //checking to see if we are transitioning correctly
+    // checking to see if we are transitioning correctly
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_DC_ON);
 
     app_canRx_INVFR_bQuitDcOn_update(true);
@@ -285,7 +284,6 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
 
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_INVERTER_ON);
 
-
     app_canRx_INVFL_bQuitInverterOn_update(true);
     app_canRx_INVFR_bQuitInverterOn_update(true);
     app_canRx_INVRL_bQuitInverterOn_update(true);
@@ -294,12 +292,11 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     LetTimePass(10);
 
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_READY_FOR_DRIVE);
-    
+
     LetTimePass(10);
 
     ASSERT_EQ(app_canTx_VC_Info_InverterRetry_get(), false);
     ASSERT_STATE_EQ(drive_state);
-
 }
 
 /* ------------------------- HV STATE ------------------------------- */

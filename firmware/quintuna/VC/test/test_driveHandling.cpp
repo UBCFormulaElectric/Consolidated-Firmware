@@ -17,8 +17,8 @@ class DriveHandlingTest : public VCBaseTest
 
 TEST_F(DriveHandlingTest, DriveModeVanillaNotPowerLimiting)
 {
-    float bms_avail_power_w = 80000 * EFFICIENCY_ESTIMATE;
-    uint32_t inverter_rpm      = 1000;
+    float       bms_avail_power_w = 80000 * EFFICIENCY_ESTIMATE;
+    uint32_t    inverter_rpm      = 1000;
     const float apps              = 1.0f;
 
     TorqueAllocationOutputs torqueOutputToMotors;
@@ -32,14 +32,13 @@ TEST_F(DriveHandlingTest, DriveModeVanillaNotPowerLimiting)
     app_vanillaDrive_run(apps, &torqueOutputToMotors);
 
     float torque_limit     = bms_avail_power_w / (4 * RPM_TO_RADS(inverter_rpm));
-    float     torque_to_motors = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
+    float torque_to_motors = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
 
     ASSERT_EQ(torque_to_motors, MAX_TORQUE_REQUEST_NM);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_left_torque, torque_to_motors);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_right_torque, torque_to_motors);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.rear_left_torque, torque_to_motors);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.rear_right_torque, torque_to_motors);
-
 }
 
 TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_FullPower_HighRPM)
@@ -47,8 +46,8 @@ TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_FullPower_HighRPM)
     // Full power
     uint32_t bms_avail_power_w = 80000 * EFFICIENCY_ESTIMATE;
     // Higher RPM will enable power limiting
-    uint32_t inverter_rpm      = 10000;
-    const float apps              = 1.0f;
+    uint32_t    inverter_rpm = 10000;
+    const float apps         = 1.0f;
 
     TorqueAllocationOutputs torqueOutputToMotors;
 
@@ -60,21 +59,20 @@ TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_FullPower_HighRPM)
 
     app_vanillaDrive_run(apps, &torqueOutputToMotors);
 
-    float torque_limit = (bms_avail_power_w * EFFICIENCY_ESTIMATE) / (4 * RPM_TO_RADS(inverter_rpm));
-    float     expected_torque = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
+    float torque_limit    = (bms_avail_power_w * EFFICIENCY_ESTIMATE) / (4 * RPM_TO_RADS(inverter_rpm));
+    float expected_torque = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
 
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_left_torque, expected_torque);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_right_torque, expected_torque);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.rear_left_torque, expected_torque);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.rear_right_torque, expected_torque);
-
 }
 
 TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_LessPower_LessRPM)
 {
     // less power will enable power limiting
-    uint32_t bms_avail_power_w = 70000 * EFFICIENCY_ESTIMATE;
-    uint32_t inverter_rpm      = 1000;
+    uint32_t    bms_avail_power_w = 70000 * EFFICIENCY_ESTIMATE;
+    uint32_t    inverter_rpm      = 1000;
     const float apps              = 1.0f;
 
     TorqueAllocationOutputs torqueOutputToMotors;
@@ -87,8 +85,8 @@ TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_LessPower_LessRPM)
 
     app_vanillaDrive_run(apps, &torqueOutputToMotors);
 
-    float torque_limit = (bms_avail_power_w * EFFICIENCY_ESTIMATE) / (4 * RPM_TO_RADS(inverter_rpm));
-    float     expected_torque = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
+    float torque_limit    = (bms_avail_power_w * EFFICIENCY_ESTIMATE) / (4 * RPM_TO_RADS(inverter_rpm));
+    float expected_torque = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
 
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_left_torque, expected_torque);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_right_torque, expected_torque);
@@ -101,8 +99,8 @@ TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_LessPower_HighRPM)
     // less power will enable power limiting
     uint32_t bms_avail_power_w = 70000 * EFFICIENCY_ESTIMATE;
     // high rpm wll also enable power limiting
-    uint32_t inverter_rpm      = 10000;
-    const float apps              = 1.0f;
+    uint32_t    inverter_rpm = 10000;
+    const float apps         = 1.0f;
 
     TorqueAllocationOutputs torqueOutputToMotors;
 
@@ -114,8 +112,8 @@ TEST_F(DriveHandlingTest, DriveModeVanillaWithPowerLimiting_LessPower_HighRPM)
 
     app_vanillaDrive_run(apps, &torqueOutputToMotors);
 
-    float torque_limit = (bms_avail_power_w * EFFICIENCY_ESTIMATE) / (4 * RPM_TO_RADS(inverter_rpm));
-    float     expected_torque = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
+    float torque_limit    = (bms_avail_power_w * EFFICIENCY_ESTIMATE) / (4 * RPM_TO_RADS(inverter_rpm));
+    float expected_torque = fminf(torque_limit, MAX_TORQUE_REQUEST_NM);
 
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_left_torque, expected_torque);
     ASSERT_FLOAT_EQ(torqueOutputToMotors.front_right_torque, expected_torque);
