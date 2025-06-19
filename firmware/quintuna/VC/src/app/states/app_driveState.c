@@ -51,6 +51,7 @@ static bool driveStatePassPreCheck()
 
     // should take priority over inverter fault as this will set torque to 0 and then
     // inverter retry can happen the next time the user enters drive state if inverters have faulted
+
     if (app_startSwitch_hasRisingEdge())
     {
         app_stateMachine_setNextState(&hv_state);
@@ -74,6 +75,7 @@ static bool driveStatePassPreCheck()
     if (!regen_switch_is_on)
     {
         app_canTx_VC_RegenEnabled_set(false);
+        // TODO: sus can msg?
         app_canTx_VC_Info_RegenNotAvailable_set(true);
     }
 
@@ -99,6 +101,11 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
         or not before using closed loop features */
     // Update Regen + TV LEDs
 
+    // TODO: regen_switch_is_on in this function is a redundant check
+    // it is checked by the calling function and is unchanged throughout
+    // the entire tick so this could be removed.
+    // at face value this would cause a negative pedal percentage to the 
+    // non regen algorithm
     if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
         app_regen_run(apps_pedal_percentage, &torqueOutputToMotors);
