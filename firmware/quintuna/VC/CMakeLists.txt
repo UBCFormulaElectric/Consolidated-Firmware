@@ -189,7 +189,6 @@ elseif ("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
             #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
     )
     create_fake_library(
             "quintuna_VC_fakes"

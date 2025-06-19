@@ -9,6 +9,7 @@ extern "C"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 #include "io_pcm.h"
+#include "app_vehicleDynamicsConstants.h"
 }
 
 class VCStateMachineTest : public VCBaseTest
@@ -30,10 +31,11 @@ static void SetStateWithEntry(const State *s)
 /* ------------------------- INIT STATE ------------------------------- */
 TEST_F(VCStateMachineTest, InitToInverterOnTransition)
 {
-    SetStateWithEntry(&init_state);
+    app_stateMachine_setCurrentState(&init_state);
+    init_state.run_on_entry();
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
 
     // With contactor open, remain in INIT
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state);
 
@@ -76,14 +78,14 @@ TEST_F(VCStateMachineTest, BmsOnTransitionnToHvInit)
     LetTimePass(10);
 
     // Stay in BMS ON for non-drive states
-    app_canRx_BMS_State_update(BMS_CHARGE_STATE);
+    app_canRx_BMS_State_update(BMS_PRECHARGE_DRIVE_STATE);
     LetTimePass(10);
     ASSERT_STATE_EQ(bmsOn_state);
 
     // Drive state -> transition to HV INIT
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
-    ASSERT_STATE_EQ(hvInit_state);
+    ASSERT_STATE_EQ(pcmOn_state);
 }
 
 /* ------------------------- HV INIT STATE ------------------------------- */
@@ -230,6 +232,76 @@ TEST_F(VCStateMachineTest, ReadyForDriveWithRetryFlagGoesToDriveState)
     ASSERT_STATE_EQ(drive_state);
 }
 
+TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
+{
+    // Starting from VC being in drive state
+    SetStateWithEntry(&drive_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    LetTimePass(30);
+
+    // After some time we are gonna mock inverters failing
+    app_canRx_INVFL_bError_update(true);
+    app_canRx_INVFR_bError_update(true);
+    app_canRx_INVRL_bError_update(true);
+    app_canRx_INVRR_bError_update(true);
+
+    LetTimePass(10);
+
+    // Making sure that we are in hvInit and making sure that inverter flag is set
+    ASSERT_EQ(app_canTx_VC_Info_InverterRetry_get(), true);
+    ASSERT_STATE_EQ(hvInit_state);
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_SYSTEM_READY);
+
+    LetTimePass(10);
+
+    // Mock the inverters to indicate that there fault has cleared
+    app_canRx_INVFL_bError_update(false);
+    app_canRx_INVFR_bError_update(false);
+    app_canRx_INVRL_bError_update(false);
+    app_canRx_INVRR_bError_update(false);
+
+
+    app_canRx_INVRR_bSystemReady_update(true);
+    app_canRx_INVRL_bSystemReady_update(true);
+    app_canRx_INVFL_bSystemReady_update(true);
+    app_canRx_INVFR_bSystemReady_update(true);
+
+    LetTimePass(10);
+
+    //checking to see if we are transitioning correctly
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_DC_ON);
+
+    app_canRx_INVFR_bQuitDcOn_update(true);
+    app_canRx_INVFL_bQuitDcOn_update(true);
+    app_canRx_INVRR_bQuitDcOn_update(true);
+    app_canRx_INVRL_bQuitDcOn_update(true);
+
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_ENABLE);
+
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_INVERTER_ON);
+
+
+    app_canRx_INVFL_bQuitInverterOn_update(true);
+    app_canRx_INVFR_bQuitInverterOn_update(true);
+    app_canRx_INVRL_bQuitInverterOn_update(true);
+    app_canRx_INVRR_bQuitInverterOn_update(true);
+
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_READY_FOR_DRIVE);
+    
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_Info_InverterRetry_get(), false);
+    ASSERT_STATE_EQ(drive_state);
+
+}
+
 /* ------------------------- HV STATE ------------------------------- */
 TEST_F(VCStateMachineTest, EntryInitializesState)
 {
@@ -263,6 +335,8 @@ TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
     app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state);
+
+    app_canAlerts_VC_Warning_FrontLeftInverterFault_set(false); // cleanup
 }
 
 TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeEvenIfStart)
@@ -292,49 +366,53 @@ TEST_F(VCStateMachineTest, PreCheckInverterFaultTransitionsToHvInit)
 
 TEST_F(VCStateMachineTest, StartSwitchOffTransitionsToHv)
 {
+    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     SetStateWithEntry(&drive_state);
 
     // Simulate start switch off
-    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     LetTimePass(10);
     ASSERT_STATE_EQ(hv_state);
 }
 
 TEST_F(VCStateMachineTest, RunAlgorithmSetsTorque)
 {
+    suppress_heartbeat = true;
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
 
     // Simulate 50% pedal
     app_canRx_FSM_PappsMappedPedalPercentage_update(50);
-    app_canRx_FSM_SappsMappedPedalPercentage_update(0);
-    LetTimePass(10);
+    app_canRx_FSM_SappsMappedPedalPercentage_update(50);
+    LetTimePass(20);
+
+    ASSERT_STATE_EQ(drive_state);
 
     // Expect torque = 0.5 * MAX_TORQUE_REQUEST_NM
-    int16_t expected = static_cast<int16_t>(0.5f * 300);
-    EXPECT_EQ(app_canTx_VC_INVFRTorqueSetpoint_get(), expected);
-    EXPECT_EQ(app_canTx_VC_INVFLTorqueSetpoint_get(), expected);
-    EXPECT_EQ(app_canTx_VC_INVRRTorqueSetpoint_get(), expected);
-    EXPECT_EQ(app_canTx_VC_INVRLTorqueSetpoint_get(), expected);
+    int16_t expected = PEDAL_REMAPPING(0.5f * MAX_TORQUE_REQUEST_NM);
+    ASSERT_EQ(app_canTx_VC_INVFRTorqueSetpoint_get(), expected);
+    ASSERT_EQ(app_canTx_VC_INVFLTorqueSetpoint_get(), expected);
+    ASSERT_EQ(app_canTx_VC_INVRRTorqueSetpoint_get(), expected);
+    ASSERT_EQ(app_canTx_VC_INVRLTorqueSetpoint_get(), expected);
 }
 
 // TODO: change this to vanilla override switch
-// TEST_F(VCStateMachineTest, TorqueVectoringSwitchOffEnablesFlag)
-// {
-//     SetStateWithEntry(&drive_state);
-//     app_canRx_CRIT_TorqueVecSwitch_update(SWITCH_OFF);
-//     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+TEST_F(VCStateMachineTest, TorqueVectoringSwitchOffEnablesFlag)
+{
+    SetStateWithEntry(&drive_state);
+    app_canRx_CRIT_VanillaOverrideSwitch_update(SWITCH_OFF);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
 
-//     LetTimePass(10);
-//     EXPECT_TRUE(app_canTx_VC_TorqueVectoringEnabled_get());
-// }
+    LetTimePass(10);
+    EXPECT_TRUE(app_canTx_VC_TorqueVectoringEnabled_get());
+}
 
 TEST_F(VCStateMachineTest, RegenSwitchOffSetsNotAvailable)
 {
+    suppress_heartbeat = true;
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_RegenSwitch_update(SWITCH_OFF);
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    LetTimePass(10);
+    LetTimePass(20);
     EXPECT_FALSE(app_canTx_VC_RegenEnabled_get());
     EXPECT_TRUE(app_canTx_VC_Info_RegenNotAvailable_get());
 }

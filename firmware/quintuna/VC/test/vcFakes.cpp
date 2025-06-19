@@ -118,4 +118,61 @@ extern "C"
         UNUSED(ch);
         *power = 0.0f;
     }
+
+#include "io_sbgEllipse.h"
+    ExitCode io_sbgEllipse_init()
+    {
+        return EXIT_CODE_OK;
+    }
+    void     io_sbgEllipse_handleLogs(void) {}
+    uint32_t io_sbgEllipse_getTimestampUs(void)
+    {
+        return 0;
+    }
+    uint16_t io_sbgEllipse_getGeneralStatus(void)
+    {
+        return 0;
+    }
+    uint32_t io_sbgEllipse_getComStatus(void)
+    {
+        return 0;
+    }
+    uint32_t io_sbgEllipse_getOverflowCount(void)
+    {
+        return 0;
+    }
+    uint32_t io_sbgEllipse_getEkfSolutionMode(void)
+    {
+        return 0;
+    }
+
+    static Vector3 imu_accelerations;
+    Vector3       *io_sbgEllipse_getImuAccelerations(void)
+    {
+        return &imu_accelerations;
+    }
+
+    static Attitude imu_attitude;
+    Attitude       *io_sbgEllipse_getImuAngularVelocities(void)
+    {
+        return &imu_attitude;
+    }
+
+    static Attitude ekf_attitude;
+    Attitude       *io_sbgEllipse_getEkfEulerAngles(void)
+    {
+        return &ekf_attitude;
+    }
+
+    static VelocityData ekf_velocity_data;
+    VelocityData       *io_sbgEllipse_getEkfNavVelocityData(void)
+    {
+        return &ekf_velocity_data;
+    }
+
+    static PositionData ekf_position_data;
+    PositionData       *io_sbgEllipse_getEkfNavPositionData(void)
+    {
+        return &ekf_position_data;
+    }
 }
