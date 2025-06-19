@@ -2,23 +2,19 @@
 #include "app_segments.h"
 #include "app_powerLimit.h"
 #include "app_segments.h"
-#include "app_canAlerts.h"
 #include "app_canTx.h"
 #include "app_canUtils.h"
 #include "app_tractiveSystem.h"
 
-// TODO: use global variables
 #define MAX_DISCHARGE_POWER_LIMIT_W 78.0e3f
 #define MAX_CHARGE_POWER_LIMIT_W 15.0e3f
-#define MAX_DISCHARGE_CURRENT_LIMIT 175.0f
+#define NUM_CELLS_IN_PARALLEL 5U
+#define MAX_DISCHARGE_CURRENT_PER_CELL 35.0f
+#define MAX_DISCHARGE_CURRENT_LIMIT (NUM_CELLS_IN_PARALLEL * MAX_DISCHARGE_CURRENT_PER_CELL)
 #define MAX_CHARGE_CURRENT_LIMIT 30.0f
 #define MIN_DISCHARGE_CURRENT_LIMIT 10.0f
 #define TEMP_FAULT_THRESHOLD 60.0f
 #define TEMP_WARNING_THRESHOLD 50.0f
-// #define TEMP_HYSTERESIS_THRESHOLD 50.0f
-
-// persistent hysteresis state across calls
-// static bool temp_hysteresis_engaged = false;
 
 /**
  * @brief Gets the min discharge power Limit based on all of the temp
