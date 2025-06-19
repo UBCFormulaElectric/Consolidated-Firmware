@@ -8,6 +8,7 @@
 #include "io_pcm.h"
 
 #include <app_canAlerts.h>
+#include <sys/types.h>
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -21,7 +22,7 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-#define HV_READY_VOLTAGE (18.0f)
+#define PCM_NOMINAL_VOLTAGE (18.0f)
 #define PCM_MAX_VOLTAGE (30.0f)
 #define PCM_MAX_CURRENT (40.0f)
 // if voltage doesnt rise above 18V in this amout of time after entering pcmOnState then go into fault state
@@ -37,13 +38,13 @@ typedef enum
 } PCM_INTERNAL;
 static PCM_INTERNAL state;
 #define PCM_MAX_RETRIES (5)
-static int pcm_retries;
+static uint32_t pcm_retries;
 
 static bool pcmOnDone(const float pcm_curr_voltage)
 {
-    return !(
-        HV_READY_VOLTAGE <= pcm_curr_voltage && pcm_curr_voltage <= PCM_MAX_VOLTAGE &&
-        HV_READY_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE);
+    return (
+        PCM_NOMINAL_VOLTAGE <= pcm_curr_voltage && pcm_curr_voltage <= PCM_MAX_VOLTAGE &&
+        PCM_NOMINAL_VOLTAGE <= pcm_prev_voltage && pcm_prev_voltage <= PCM_MAX_VOLTAGE);
 }
 
 static void pcmOnStateRunOnEntry(void)
@@ -62,6 +63,8 @@ static void pcmOnStateRunOnEntry(void)
 static void pcmOnStateRunOnTick100Hz(void)
 {
     const float pcm_curr_voltage = app_canTx_VC_ChannelOneVoltage_get();
+    app_canTx_VC_PcmRetryCount_set(pcm_retries);
+
     switch (state)
     {
         case PCM_ON_STATE:

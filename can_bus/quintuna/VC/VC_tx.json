@@ -823,9 +823,11 @@
     "cycle_time" : 100, 
     "signals":
     {
-      "PcmRetryState":
+      "PcmRetryCount":
       {
-        "enum": "PcmRetryStates"
+        "min" : 0,
+        "max" : 5,
+        "resolution": 1
       }
     }
   },
