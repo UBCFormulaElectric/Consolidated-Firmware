@@ -477,16 +477,95 @@ TEST_F(VCStateMachineTest, UnderVoltageRetryThenFault)
     SetStateWithEntry(&pcmOn_state);
     app_canTx_VC_ChannelOneVoltage_set(16.0f);
     ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
-
+    LetTimePass(20); // PCM is not turned on in entry so wait 2 ticks then check
     EXPECT_TRUE(io_pcm_enabled());
+
     LetTimePass(100);
     LetTimePass(10);
     EXPECT_FALSE(io_pcm_enabled());
     ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 1);
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
+    ASSERT_STATE_EQ(pcmOn_state);
 
     LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 2);
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
+    ASSERT_STATE_EQ(pcmOn_state);
 
-    // Should set under-voltage alert and transition to HV_INIT
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 3);
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
+    ASSERT_STATE_EQ(pcmOn_state);
+
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 4);
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
+    ASSERT_STATE_EQ(pcmOn_state);
+
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 5);
+    LetTimePass(100);
+    LetTimePass(10);
+
     EXPECT_TRUE(app_canAlerts_VC_Info_PcmUnderVoltage_get());
+    ASSERT_STATE_EQ(hvInit_state);
+}
+
+TEST_F(VCStateMachineTest, UnderVoltageRetryThenRecover)
+{
+    // Override voltage read function to return below threshold
+    SetStateWithEntry(&pcmOn_state);
+    app_canTx_VC_ChannelOneVoltage_set(16.0f);
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
+    LetTimePass(20); // PCM is not turned on in entry so wait 2 ticks then check
+    EXPECT_TRUE(io_pcm_enabled());
+
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 1);
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
+    ASSERT_STATE_EQ(pcmOn_state);
+
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 2);
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
+    ASSERT_STATE_EQ(pcmOn_state);
+
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_FALSE(io_pcm_enabled());
+    ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 3);
+    LetTimePass(100);
+    LetTimePass(10);
+    EXPECT_TRUE(io_pcm_enabled()); // retry toggle complete
+    ASSERT_STATE_EQ(pcmOn_state);
+    app_canTx_VC_ChannelOneVoltage_set(18.0f);
+
+    LetTimePass(10); // first tick
+    LetTimePass(10); // debounce tick
+    EXPECT_FALSE(app_canAlerts_VC_Info_PcmUnderVoltage_get());
     ASSERT_STATE_EQ(hvInit_state);
 }

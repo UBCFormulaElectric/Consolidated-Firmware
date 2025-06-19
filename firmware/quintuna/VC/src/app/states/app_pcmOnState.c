@@ -51,7 +51,6 @@ static void pcmOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_PCM_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
-
     pcm_prev_voltage = 0.0f;
     pcm_retries      = 0;
     state            = PCM_ON_STATE;
@@ -63,7 +62,6 @@ static void pcmOnStateRunOnEntry(void)
 static void pcmOnStateRunOnTick100Hz(void)
 {
     const float pcm_curr_voltage = app_canTx_VC_ChannelOneVoltage_get();
-    app_canTx_VC_PcmRetryCount_set(pcm_retries);
 
     switch (state)
     {
@@ -83,6 +81,8 @@ static void pcmOnStateRunOnTick100Hz(void)
                 case TIMER_STATE_EXPIRED:
                     state = PCM_COOLDOWN_STATE;
                     pcm_retries++;
+                    app_canTx_VC_PcmRetryCount_set(pcm_retries);
+                    app_timer_stop(&pcm_on_timer);
                     break;
             }
             break;
@@ -96,6 +96,7 @@ static void pcmOnStateRunOnTick100Hz(void)
                     break;
                 case TIMER_STATE_EXPIRED:
                     state = PCM_ON_STATE;
+                    app_timer_stop(&pcm_cooldown_timer);
                     break;
             }
             break;
