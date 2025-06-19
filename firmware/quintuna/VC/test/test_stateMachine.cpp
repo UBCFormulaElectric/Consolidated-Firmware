@@ -264,6 +264,8 @@ TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
     app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state);
+
+    app_canAlerts_VC_Warning_FrontLeftInverterFault_set(false); // cleanup
 }
 
 TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeEvenIfStart)
@@ -304,13 +306,16 @@ TEST_F(VCStateMachineTest, StartSwitchOffTransitionsToHv)
 
 TEST_F(VCStateMachineTest, RunAlgorithmSetsTorque)
 {
+    suppress_heartbeat = true;
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
 
     // Simulate 50% pedal
     app_canRx_FSM_PappsMappedPedalPercentage_update(50);
-    app_canRx_FSM_SappsMappedPedalPercentage_update(0);
-    LetTimePass(10);
+    app_canRx_FSM_SappsMappedPedalPercentage_update(50);
+    LetTimePass(20);
+
+    ASSERT_STATE_EQ(drive_state);
 
     // Expect torque = 0.5 * MAX_TORQUE_REQUEST_NM
     int16_t expected = static_cast<int16_t>(0.5f * 300);
@@ -333,10 +338,10 @@ TEST_F(VCStateMachineTest, RunAlgorithmSetsTorque)
 
 TEST_F(VCStateMachineTest, RegenSwitchOffSetsNotAvailable)
 {
+    suppress_heartbeat = true;
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_RegenSwitch_update(SWITCH_OFF);
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    LetTimePass(10);
+    LetTimePass(20);
     EXPECT_FALSE(app_canTx_VC_RegenEnabled_get());
     EXPECT_TRUE(app_canTx_VC_Info_RegenNotAvailable_get());
 }

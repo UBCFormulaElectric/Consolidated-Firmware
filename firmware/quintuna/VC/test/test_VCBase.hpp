@@ -32,9 +32,10 @@ class VCBaseTest : public EcuTestBase
     void board_teardown() override {}
     void tick_100hz() override
     {
-        if (!suppress_heartbeat)
+        if (suppress_heartbeat)
         {
             app_canRx_BMS_Heartbeat_update(true);
+            app_canRx_CRIT_Heartbeat_update(true);
             app_canRx_FSM_Heartbeat_update(true);
             app_canRx_RSM_Heartbeat_update(true);
         }

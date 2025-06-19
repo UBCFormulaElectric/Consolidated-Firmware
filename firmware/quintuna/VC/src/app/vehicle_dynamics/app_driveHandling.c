@@ -72,11 +72,11 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
         {
             app_canAlerts_VC_Info_DriveModeOverride_set(false);
 
-            torqueToMotorsInputs.front_yaw_moment    = 0.0f;
-            torqueToMotorsInputs.rear_yaw_moment     = 0.0f;
-            torqueToMotorsInputs.load_transfer_const = 1.0f;
-            torqueToMotorsInputs.load_transfer_const = 1.0f;
-            torqueToMotorsInputs.power_limit_kw      = app_powerLimiting_computeMaxPower(false);
+            torqueToMotorsInputs.front_yaw_moment     = 0.0f;
+            torqueToMotorsInputs.rear_yaw_moment      = 0.0f;
+            torqueToMotorsInputs.load_transfer_const  = 1.0f;
+            torqueToMotorsInputs.total_torque_request = apps_pedal_percentage * MAX_TORQUE_REQUEST_NM * 4;
+            torqueToMotorsInputs.power_limit_kw       = app_powerLimiting_computeMaxPower(false);
             app_torqueAllocation(&torqueToMotorsInputs, torqueOutputToMotors);
             app_canTx_VC_VcDriveMode_set(DRIVE_MODE_POWER);
             LOG_INFO("DriveHandling: PowerLimit Mode Active");
