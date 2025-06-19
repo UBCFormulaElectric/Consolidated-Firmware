@@ -59,8 +59,9 @@
 // your percentage of nominal torque * 1000
 #define PEDAL_REMAPPING(torque) ((int16_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f))
 #define TORQUE_TO_POWER(torque, rpm) ((torque) * ((float)(rpm) / (GEAR_RATIO)) / (POWER_TO_TORQUE_CONVERSION_FACTOR))
-#define POWER_TO_TORQUE(power, rpm) (((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / ((rpm) / (GEAR_RATIO)))
-
+#define POWER_TO_TORQUE(power, rpm)                  \
+    (((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / \
+     ((fmax(rpm, 0.00001f)) / (GEAR_RATIO))) // Doing this for no division by 0, and assuming rpm is always positive
 // Tunable parameters
 extern const PID_Config               PID_POWER_CORRECTION_CONFIG;
 extern const PID_Config               PID_TRACTION_CONTROL_CONFIG;
