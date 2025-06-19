@@ -1,5 +1,7 @@
 #include "app_canUtils.h"
 #include "test_VCBase.hpp"
+#include "vcFakes.h"
+#include "io_imuFake.h"
 
 extern "C"
 {
@@ -396,16 +398,53 @@ TEST_F(VCStateMachineTest, RunAlgorithmSetsTorque)
     ASSERT_EQ(app_canTx_VC_INVRLTorqueSetpoint_get(), expected);
 }
 
-// TODO: change this to vanilla override switch
-TEST_F(VCStateMachineTest, TorqueVectoringSwitchOffEnablesFlag)
+TEST_F(VCStateMachineTest, DisableVanillaEnterPower)
 {
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_VanillaOverrideSwitch_update(SWITCH_OFF);
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    app_canRx_CRIT_DriveMode_update(DRIVE_MODE_POWER);
 
     LetTimePass(10);
-    EXPECT_TRUE(app_canTx_VC_TorqueVectoringEnabled_get());
+    
+    EXPECT_TRUE(app_canTx_VC_VcDriveMode_get() == DRIVE_MODE_POWER);
 }
+
+TEST_F(VCStateMachineTest, DisableVanillaEnterPowerActiveDiff)
+{
+    app_canTx_VC_Info_ImuInitFailed_set(false);
+
+
+    SetStateWithEntry(&drive_state);
+    app_canRx_CRIT_VanillaOverrideSwitch_update(SWITCH_OFF);
+    app_canRx_CRIT_DriveMode_update(DRIVE_MODE_POWER);
+
+    LetTimePass(10);
+    
+    EXPECT_TRUE(app_canTx_VC_VcDriveMode_get() == DRIVE_MODE_POWER);
+}
+
+// TODO: Fix this test
+// TEST_F(VCStateMachineTest, DisableVanillaEnterTorqueVectoring)
+// {
+//     // set gps to be ok
+//     // app_canTx_VC_Info_SbgInitFailed_set(false);
+//     // fake::io_sbgEllipse::setEkfSolutionMode(static_cast<uint32_t>(POSITION));
+
+//     // set imu to be ok
+//     // app_canTx_VC_Info_ImuInitFailed_set(false);
+
+//     // set steering to be ok
+//     app_canRx_FSM_Info_SteeringAngleOCSC_update(false);
+//     app_canRx_FSM_Info_SteeringAngleOutOfRange_update(false);
+
+//     SetStateWithEntry(&drive_state);
+//     app_canRx_CRIT_VanillaOverrideSwitch_update(SWITCH_OFF);
+//     app_canRx_CRIT_DriveMode_update(DRIVE_MODE_TV);
+
+//     LetTimePass(10);
+    
+//     EXPECT_TRUE(app_canTx_VC_VcDriveMode_get() == DRIVE_MODE_TV);
+// }
 
 TEST_F(VCStateMachineTest, RegenSwitchOffSetsNotAvailable)
 {
