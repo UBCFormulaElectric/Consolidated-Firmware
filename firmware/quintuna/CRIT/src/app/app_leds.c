@@ -190,13 +190,9 @@ void app_leds_update(void)
     }
     if (open_wire_check)
     {
-        // Reset led
-        led_value |= 0u << BMS_R_BIT;
-        led_value |= 0u << BMS_G_BIT;
-        led_value |= 0u << BMS_B_BIT;
-
         // Set led to magenta
         led_value |= 1u << BMS_R_BIT;
+        led_value |= 0u << BMS_G_BIT;
         led_value |= 1u << BMS_B_BIT;
     }
 
