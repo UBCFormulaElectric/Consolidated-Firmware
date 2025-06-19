@@ -68,7 +68,7 @@ static void main_drive_update(void)
     max_motor_temp         = (uint8_t)fmax(max_motor_temp, rr_motor_temp);
 
     // Update min cell voltage data buffer.
-    instance.data_buffer[0] = digit_to_segment(min_cell_voltage / 100);
+    instance.data_buffer[0] = digit_to_segment(min_cell_voltage / 100) | SEG_PATTERN_DP;
     instance.data_buffer[1] = digit_to_segment(min_cell_voltage / 10);
     instance.data_buffer[2] = digit_to_segment(min_cell_voltage % 10);
 

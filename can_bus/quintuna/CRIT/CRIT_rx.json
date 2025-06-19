@@ -15,6 +15,7 @@
     "INVRR_RRInverterInfo2",
     "INVRL_RLInverterInfo2",
     "BMS_CellVoltageStats_1",
-    "BMS_OpenWireCheck"
+    "BMS_OpenWireCheck",
+    "BMS_CellTempStats"
   ]
 }
