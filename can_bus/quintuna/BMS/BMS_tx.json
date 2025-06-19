@@ -3337,6 +3337,16 @@
       }
     }
   },
+  "OpenWireCheck": {
+    "msg_id": 477,
+    "cycle_time": 100,
+    "description": "Open wire check status",
+    "signals": {
+      "OpenWireCheckStatus": {
+        "bits": 1
+      }
+    }
+  },
   "Bootup": {
     "msg_id": 499,
     "cycle_time": null,
