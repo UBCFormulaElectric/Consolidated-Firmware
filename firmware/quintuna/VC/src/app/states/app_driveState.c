@@ -204,9 +204,9 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_TorqueVectoringEnabled_set(false);
 }
 
-    State drive_state = {
-        .name              = "DRIVE",
-        .run_on_entry      = driveStateRunOnEntry,
-        .run_on_tick_100Hz = driveStateRunOnTick100Hz,
-        .run_on_exit       = driveStateRunOnExit,
-    };
+State drive_state = {
+    .name              = "DRIVE",
+    .run_on_entry      = driveStateRunOnEntry,
+    .run_on_tick_100Hz = driveStateRunOnTick100Hz,
+    .run_on_exit       = driveStateRunOnExit,
+};
