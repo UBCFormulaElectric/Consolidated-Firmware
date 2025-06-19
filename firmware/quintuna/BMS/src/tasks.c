@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "app_stateMachine.h"
+#include "hw_gpio.h"
 #include "hw_watchdog.h"
 #include "states/app_balancingState.h"
 #include "hw_bootup.h"
@@ -198,8 +199,6 @@ void tasks_run100Hz(void)
             app_stateMachine_tickTransitionState();
             io_canTx_enqueue100HzMsgs();
         }
-
-        app_powerLimit_broadcast(); // Current and power limiting CAN messages
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);

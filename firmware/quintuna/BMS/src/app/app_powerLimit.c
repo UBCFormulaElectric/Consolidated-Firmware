@@ -1,7 +1,7 @@
 #include "app_math.h"
 #include "app_segments.h"
 #include "app_powerLimit.h"
-#include "segments/app_segments_internal.h"
+#include "app_segments.h"
 #include "app_canAlerts.h"
 #include "app_canTx.h"
 #include "app_canUtils.h"
@@ -27,9 +27,11 @@
  */
 float app_powerLimit_getDischargePowerLimit()
 {
+    const float max_cell_temp = app_segments_getMaxCellTemp().value;
+
     // Calculate power limit from temperature
     const float temp_power_limit = app_math_linearDerating(
-        max_cell_temp.value, MAX_DISCHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
+        max_cell_temp, MAX_DISCHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
 
     // Final power limit (capped at max)
     const float power_limit = MIN(temp_power_limit, MAX_DISCHARGE_POWER_LIMIT_W);
@@ -37,7 +39,7 @@ float app_powerLimit_getDischargePowerLimit()
     // Determine limiting condition enum
     DischargePowerLimitCondition p_lim_condition = NO_DISCHARGE_POWER_LIMIT;
 
-    if (max_cell_temp.value >= TEMP_WARNING_THRESHOLD)
+    if (max_cell_temp >= TEMP_WARNING_THRESHOLD)
     {
         p_lim_condition = HIGH_TEMP_DISCHARGE_POWER_LIMIT;
     }
@@ -55,9 +57,11 @@ float app_powerLimit_getDischargePowerLimit()
  */
 float app_powerLimit_getChargePowerLimit()
 {
+    const float max_cell_temp = app_segments_getMaxCellTemp().value;
+
     // Calculate power limit from temperature
     const float temp_power_limit = app_math_linearDerating(
-        max_cell_temp.value, MAX_CHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
+        max_cell_temp, MAX_CHARGE_POWER_LIMIT_W, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
 
     // Final power limit (capped at max)
     const float power_limit = MIN(temp_power_limit, MAX_CHARGE_POWER_LIMIT_W);
@@ -65,7 +69,7 @@ float app_powerLimit_getChargePowerLimit()
     // Determine limiting condition enum
     ChargePowerLimitCondition p_lim_condition = NO_CHARGE_POWER_LIMIT;
 
-    if (max_cell_temp.value >= TEMP_WARNING_THRESHOLD)
+    if (max_cell_temp >= TEMP_WARNING_THRESHOLD)
     {
         p_lim_condition = HIGH_TEMP_CHARGE_POWER_LIMIT;
     }
@@ -142,6 +146,8 @@ float app_powerLimit_highSOCCurrentLimit()
 
 void app_powerLimit_broadcast()
 {
+    const float pack_voltage = app_segments_getPackVoltage();
+
     // Get current limits
     float discharge_c_lim = app_powerLimit_getDischargeCurrentLimit();
     float charge_c_lim    = app_powerLimit_getChargeCurrentLimit();
