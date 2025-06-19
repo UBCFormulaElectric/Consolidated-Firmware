@@ -79,7 +79,7 @@ extern "C"
     {
         return fake::io_vcShdn::rearRightMotorInterlock;
     }
-    bool io_vcShdn_SplitterBoxInterlockFault_get(void)
+    bool io_vcShdn_MSDOrEMeterFault_get(void)
     {
         return fake::io_vcShdn::splitterBoxInterlockFault;
     }
