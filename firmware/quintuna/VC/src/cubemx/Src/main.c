@@ -171,6 +171,18 @@ const osThreadAttr_t TaskCan3Tx_attributes = {
     .stack_size = sizeof(TaskCan3TxBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
+/* Definitions for TaskPwrMontr */
+osThreadId_t         TaskPwrMontrHandle;
+uint32_t             TaskPwrMontrBuffer[512];
+osStaticThreadDef_t  TaskPwrMontrControlBlock;
+const osThreadAttr_t TaskPwrMontr_attributes = {
+    .name       = "TaskPwrMontr",
+    .cb_mem     = &TaskPwrMontrControlBlock,
+    .cb_size    = sizeof(TaskPwrMontrControlBlock),
+    .stack_mem  = &TaskPwrMontrBuffer[0],
+    .stack_size = sizeof(TaskPwrMontrBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal2,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -200,6 +212,7 @@ void        RunTaskBtrMonitor(void *argument);
 void        RunTaskChimera(void *argument);
 void        RunCan2TxTask(void *argument);
 void        RunTask3TxTask(void *argument);
+void        RunPwrMontr(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -304,6 +317,9 @@ int main(void)
 
     /* creation of TaskCan3Tx */
     TaskCan3TxHandle = osThreadNew(RunTask3TxTask, NULL, &TaskCan3Tx_attributes);
+
+    /* creation of TaskPwrMontr */
+    TaskPwrMontrHandle = osThreadNew(RunPwrMontr, NULL, &TaskPwrMontr_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -658,7 +674,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.MessageRAMOffset     = 0;
     hfdcan1.Init.StdFiltersNbr        = 1;
     hfdcan1.Init.ExtFiltersNbr        = 1;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 64;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
@@ -706,10 +722,10 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.DataSyncJumpWidth    = 1;
     hfdcan2.Init.DataTimeSeg1         = 1;
     hfdcan2.Init.DataTimeSeg2         = 1;
-    hfdcan2.Init.MessageRAMOffset     = 0;
+    hfdcan2.Init.MessageRAMOffset     = 1280;
     hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 1;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 64;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
@@ -757,10 +773,10 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.DataSyncJumpWidth    = 1;
     hfdcan3.Init.DataTimeSeg1         = 1;
     hfdcan3.Init.DataTimeSeg2         = 1;
-    hfdcan3.Init.MessageRAMOffset     = 0;
+    hfdcan3.Init.MessageRAMOffset     = 1920;
     hfdcan3.Init.StdFiltersNbr        = 1;
     hfdcan3.Init.ExtFiltersNbr        = 1;
-    hfdcan3.Init.RxFifo0ElmtsNbr      = 64;
+    hfdcan3.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
@@ -1339,6 +1355,24 @@ void RunTask3TxTask(void *argument)
     /* USER CODE BEGIN RunTask3TxTask */
     tasks_runCan3Tx();
     /* USER CODE END RunTask3TxTask */
+}
+
+/* USER CODE BEGIN Header_RunPwrMontr */
+/**
+ * @brief Function implementing the TaskPwrMontr thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunPwrMontr */
+void RunPwrMontr(void *argument)
+{
+    /* USER CODE BEGIN RunPwrMontr */
+    /* Infinite loop */
+    for (;;)
+    {
+        tasks_powerMonitoring();
+    }
+    /* USER CODE END RunPwrMontr */
 }
 
 /**

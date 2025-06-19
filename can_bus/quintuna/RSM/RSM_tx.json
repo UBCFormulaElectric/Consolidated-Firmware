@@ -6,22 +6,28 @@
     "signals": {
       "Heartbeat": {
         "bits": 1
-      },
-      "State": {
-        "enum": "RsmStates"
       }
     }
   },
   "Debug": {
     "msg_id": 707,
     "cycle_time": 1000,
-    "description": "RSM Debug Signals",
+    "description": "VC Debug Signals",
     "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
       "ResetReason": {
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 16
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
       }
     }
   },
@@ -115,24 +121,33 @@
   "Brakes": {
     "msg_id": 713,
     "cycle_time": 1000,
-    "description": "Brake data",
+    "description": "Front and rear brake pressures",
     "signals": {
-      "BrakePressure": {
+      "RearBrakePressure": {
         "resolution": 0.1,
         "min": 0,
-        "max": 100,
-        "unit": "bar"
+        "max": 2500,
+        "unit": "psi"
+      },
+      "BrakeActuated": {
+        "bits": 1
       }
     }
   },
-    "ShdnNodeStatus" :{
-        "msg_id" : 714,
-        "cycle_time" : 10,
-        "description" : "RSM shutdown nodes",
-        "signals" :{
-            "RearLeftMotorInterlock":{
-                "bits" : 1
-            }
-        }
+  "ShdnNodeStatus": {
+    "msg_id": 714,
+    "cycle_time": 10,
+    "description": "RSM shutdown nodes",
+    "signals": {
+      "RearLeftMotorInterlock": {
+        "bits": 1
+      }
     }
+  },
+  "Bootup": {
+    "msg_id": 799,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  }
 }

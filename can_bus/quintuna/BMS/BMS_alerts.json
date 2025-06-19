@@ -26,10 +26,6 @@
     }
   },
   "faults": {
-    "CriticalPrechargeFailure": {
-      "id": 451,
-      "description": "Precharge failed >3x"
-    },
     "CellUndervoltage": {
       "id": 155,
       "description": "Cell is critically undervoltage"
@@ -57,6 +53,14 @@
     "StackOverflow": {
       "id": 450,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "CriticalPrechargeFailure": {
+      "id": 451,
+      "description": "Precharge failed >3x"
+    },
+    "WatchdogTimeout": {
+      "id": 452,
+      "description": "Watchdog timeout detected."
     }
   }
 }

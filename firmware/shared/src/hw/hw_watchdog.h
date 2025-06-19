@@ -29,53 +29,35 @@
  */
 #pragma once
 
+#include <FreeRTOS.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <cmsis_os.h>
 
 #define MAX_NUM_OF_SOFTWARE_WATCHDOG 10
 
-// Platform independent typedef for OS ticks. The C file will be implemented
-// using platform-specific OS ticks.
-typedef uint32_t Tick_t;
-
 typedef struct
 {
     // Is this watchdog ready to be used?
     bool initialized;
+    // Task ID that created this handle.
+    xTaskHandle task;
     // The tick period of the task being monitored.
-    TickType_t period;
+    uint32_t period;
     // The current deadline of the task being monitored.
-    TickType_t deadline;
+    uint32_t deadline;
     // Has the task being monitored checked in for the current period?
     bool check_in_status;
-    // ID to identify the task this watchdog monitors (for debugging only).
-    uint8_t task_id;
 } WatchdogHandle;
-
-/**
- * Initialize the watchdog library.
- * @param refresh_hardware_watchdog: Function to refresh the hardware watchdog
- * @param timeout_callback: Callback function used to perform additional
- *        operations prior to the reset of the microcontroller. For example, a
- *        message may be written to a log file.
- */
-void hw_watchdog_init(void (*refresh_hardware_watchdog)(), void (*timeout_callback)(WatchdogHandle *));
-
-/**
- * Allocate memory for a software watchdog (if there's space left).
- * @return Handle to the allocated software watchdog
- */
-WatchdogHandle *hw_watchdog_allocateWatchdog(void);
 
 /**
  * Initialize a software watchdog. Once a software watchdog is initialized, it
  * is ready to monitor a periodic task.
  * @param watchdog: Handle to the software watchdog
  * @param task_id: ID to identify the task this watchdog is monitoring
- * @param period_in_ticks: Period of the task in OS ticks
+ * @param period_ms: Period of the task in ms
  */
-void hw_watchdog_initWatchdog(WatchdogHandle *watchdog, uint8_t task_id, Tick_t period_in_ticks);
+WatchdogHandle *hw_watchdog_initTask(uint32_t period_ms);
 
 /**
  * Every periodic task monitored by a software watchdog must call this at the
@@ -93,10 +75,3 @@ void hw_watchdog_checkIn(WatchdogHandle *watchdog);
  *        it from the system tick handler.
  */
 void hw_watchdog_checkForTimeouts(void);
-
-/**
- * Get the ID of a software watchdog.
- * @param watchdog: Handle to the software watchdog
- * @return ID of the software watchdog
- */
-uint8_t hw_watchdog_getTaskId(WatchdogHandle *watchdog);

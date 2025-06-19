@@ -86,9 +86,12 @@ _tx_signal_schema = Schema(
 _tx_msg_schema = Schema(
     {
         "msg_id": And(int, lambda x: 0 <= x < 2**29),
-        "signals": {
-            str: _tx_signal_schema,
-        },
+        "signals": Or(
+            {
+                str: _tx_signal_schema,
+            },
+            {},
+        ),
         "cycle_time": Or(int, Schema(None), lambda x: x >= 0),
         Optional("disabled"): bool,
         Optional("description"): str,

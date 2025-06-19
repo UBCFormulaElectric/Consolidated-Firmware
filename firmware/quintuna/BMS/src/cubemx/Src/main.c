@@ -671,7 +671,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.MessageRAMOffset     = 0;
     hfdcan1.Init.StdFiltersNbr        = 1;
     hfdcan1.Init.ExtFiltersNbr        = 1;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 64;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
@@ -711,7 +711,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 6;
+    hfdcan2.Init.NominalPrescaler     = 12;
     hfdcan2.Init.NominalSyncJumpWidth = 2;
     hfdcan2.Init.NominalTimeSeg1      = 12;
     hfdcan2.Init.NominalTimeSeg2      = 3;
@@ -719,10 +719,10 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.DataSyncJumpWidth    = 2;
     hfdcan2.Init.DataTimeSeg1         = 5;
     hfdcan2.Init.DataTimeSeg2         = 2;
-    hfdcan2.Init.MessageRAMOffset     = 0;
+    hfdcan2.Init.MessageRAMOffset     = 1280;
     hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 1;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
@@ -730,7 +730,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.TxEventsNbr          = 0;
     hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
@@ -759,7 +759,7 @@ static void MX_IWDG1_Init(void)
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg1.Init.Window    = 4095;
-    hiwdg1.Init.Reload    = 4095;
+    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
     {
         Error_Handler();

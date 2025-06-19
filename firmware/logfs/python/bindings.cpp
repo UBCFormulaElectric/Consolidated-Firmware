@@ -7,10 +7,10 @@ namespace py = pybind11;
 static LogFsErr readWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
     // Invoke user-defined read function.
-    py::object *disk   = (py::object *)cfg->context;
-    py::tuple   result = disk->attr("read")(block);
-    LogFsErr    err    = result[0].cast<LogFsErr>();
-    py::bytes   bytes  = result[1].cast<py::bytes>();
+    const py::object *disk   = (py::object *)cfg->context;
+    const py::tuple   result = disk->attr("read")(block);
+    const LogFsErr    err    = result[0].cast<LogFsErr>();
+    const py::bytes   bytes  = result[1].cast<py::bytes>();
 
     // Copy returned data into buffer.
     const std::string byte_str = bytes.cast<std::string>();
@@ -21,9 +21,9 @@ static LogFsErr readWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 static LogFsErr writeWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
     // Invoke user-defined write function.
-    py::object *disk   = (py::object *)cfg->context;
-    py::bytes   bytes  = py::bytes((char *)buf, cfg->block_size);
-    py::object  result = disk->attr("write")(block, bytes);
+    const py::object *disk   = (py::object *)cfg->context;
+    py::bytes         bytes  = py::bytes((char *)buf, cfg->block_size);
+    const py::object  result = disk->attr("write")(block, bytes);
     return result.cast<LogFsErr>();
 }
 
@@ -42,7 +42,12 @@ class PyLogFsFile
 class PyLogFs
 {
   public:
-    PyLogFs(uint32_t block_size, uint32_t block_count, uint32_t write_cycles, bool rd_only, py::object disk)
+    PyLogFs(
+        const uint32_t block_size,
+        const uint32_t block_count,
+        const uint32_t write_cycles,
+        const bool     rd_only,
+        py::object     disk)
       : disk(disk)
     {
         // Init config struct.
@@ -68,7 +73,7 @@ class PyLogFs
 
     LogFsErr format(void) { return logfs_format(&fs, &cfg); }
 
-    LogFsErr open(PyLogFsFile &file, char *path, uint32_t flags)
+    LogFsErr open(PyLogFsFile &file, char *path, const uint32_t flags)
     {
         // Allocate file cache on the heap.
         LogFsFileCfg file_cfg = { path, malloc(cfg.block_size) };
@@ -97,7 +102,7 @@ class PyLogFs
         return logfs_write(&fs, &file.file, (void *)buf.data(), buf.size());
     }
 
-    py::tuple read(PyLogFsFile &file, uint32_t size, LogFsReadFlags flags)
+    py::tuple read(PyLogFsFile &file, const uint32_t size, const LogFsReadFlags flags)
     {
         // Create an empty string to hold the read data.
         std::string    buf(size, '\0');
@@ -116,7 +121,7 @@ class PyLogFs
         return logfs_writeMetadata(&fs, &file.file, (void *)buf.data(), buf.size());
     }
 
-    py::tuple readMetadata(PyLogFsFile &file, uint32_t size)
+    py::tuple readMetadata(PyLogFsFile &file, const uint32_t size)
     {
         // Create an empty string to hold the read data.
         std::string    buf(size, '\0');

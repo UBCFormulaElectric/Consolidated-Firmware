@@ -47,7 +47,7 @@ struct WatchdogInstance
     // ID to identify the task this watchdog monitors (for debugging only).
     uint8_t task_id;
 
-    explicit WatchdogInstance(uint8_t in_task_id, uint32_t period_in_ticks)
+    explicit WatchdogInstance(const uint8_t in_task_id, const uint32_t period_in_ticks)
       : initialized(true),
         period(period_in_ticks),
         deadline(period_in_ticks),

@@ -30,7 +30,7 @@ class Timer
      * @param timer The timer in question
      * @param duration_ms The duration of this timer, in milliseconds
      */
-    explicit Timer(uint32_t in_duration_ms)
+    explicit Timer(const uint32_t in_duration_ms)
       : duration_ms(in_duration_ms), state(TimerState::EXPIRED), start_time_ms(0){};
 
     /**

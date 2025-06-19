@@ -1,18 +1,32 @@
 #include "jobs.h"
 #include "app_stateMachine.h"
+#include "app_timer.h"
 #include "io_canMsg.h"
 #include "io_canQueues.h"
 #include "app_jsoncan.h"
 #include <app_canTx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
+#include "io_log.h"
 #include "states/app_states.h"
 #include "io_time.h"
+#include "io_sbgEllipse.h"
+#include "io_imu.h"
 #include "app_canRx.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
+#include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
+#include "app_sbgEllipse.h"
 #include "app_faultHandling.h"
+#include "app_canRx.h"
+#include "app_warningHanding.h"
+#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitors.h"
+#include "app_shdnLoop.h"
+#include "app_shdnLast.h"
+
+#define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
 
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
@@ -32,6 +46,8 @@ static void can3_tx(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&can3_tx_queue, &msg);
 }
 
+static TimerChannel air_minus_open_debounce_timer;
+
 void jobs_init()
 {
     app_canTx_init();
@@ -47,11 +63,22 @@ void jobs_init()
     io_canQueue_initTx(&can2_tx_queue);
     io_canQueue_initTx(&can3_tx_queue);
 
+    ExitCode exitSbg = io_sbgEllipse_init();
+    app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
+
+    ExitCode exitImu = io_imu_init();
+    app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
+
+    app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(&init_state);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_VC_Heartbeat_set(true);
+
+    app_timer_init(&air_minus_open_debounce_timer, AIR_MINUS_OPEN_DEBOUNCE_MS);
+
+    app_softwareBspd_init();
 }
 
 void jobs_run1Hz_tick(void)
@@ -65,9 +92,9 @@ void jobs_run1Hz_tick(void)
 
 void jobs_run100Hz_tick(void)
 {
-    bool air_minus_open = !app_canRx_BMS_IrNegative_get();
-
-    if (air_minus_open)
+    const bool air_minus_open_debounced =
+        app_timer_runIfCondition(&air_minus_open_debounce_timer, !app_canRx_BMS_IrNegative_get());
+    if (air_minus_open_debounced)
     {
         app_stateMachine_setNextState(&init_state);
     }
@@ -76,10 +103,17 @@ void jobs_run100Hz_tick(void)
         app_stateMachine_tick100Hz();
     }
 
+    app_shdnLoop_broadcast();
+    app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
+    app_sbgEllipse_broadcast();
+
+    app_heartbeatMonitor_checkIn(&hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
     app_stateMachine_tickTransitionState();
+
     io_canTx_enqueue100HzMsgs();
 }
 
@@ -87,4 +121,9 @@ void jobs_run1kHz_tick(void)
 {
     const uint32_t task_start_ms = io_time_getCurrentMs();
     io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+}
+
+void jobs_runPowerMonitoring_tick(void)
+{
+    app_powerMonitoring_update();
 }

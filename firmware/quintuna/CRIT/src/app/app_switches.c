@@ -13,8 +13,8 @@ void app_switches_broadcast(void)
     const bool regen_switch_on = io_switch_isClosed(&regen_switch);
     app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    const bool torquevec_switch_on = io_switch_isClosed(&torque_vectoring_switch);
-    app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
+    const bool vanilla_override_on = io_switch_isClosed(&vanilla_override_switch);
+    app_canTx_CRIT_VanillaOverrideSwitch_set(vanilla_override_on ? SWITCH_ON : SWITCH_OFF);
 
     const bool launch_control_switch_on = io_switch_isClosed(&launch_control_switch);
     app_canTx_CRIT_LaunchControlSwitch_set(launch_control_switch_on ? SWITCH_ON : SWITCH_OFF);

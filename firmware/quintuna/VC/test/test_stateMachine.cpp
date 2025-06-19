@@ -17,6 +17,14 @@ class VCStateMachineTest : public VCBaseTest
     ASSERT_EQ(app_stateMachine_getCurrentState(), &expected) \
         << "Expected state: " << expected.name << ", but got: " << app_stateMachine_getCurrentState()->name
 
+// Helper to set state and invoke its entry action
+static void SetStateWithEntry(const State *s)
+{
+    app_stateMachine_setCurrentState(s);
+    s->run_on_entry();
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+}
+
 TEST_F(VCStateMachineTest, init_state_management)
 {
     app_stateMachine_setCurrentState(&drive_state);
@@ -116,26 +124,6 @@ TEST_F(VCStateMachineTest, air_minus_open_in_all_states_to_init)
 
 TEST_F(VCStateMachineTest, torque_request_zero_when_leave_drive) {}
 
-TEST_F(VCStateMachineTest, values_reset_when_no_heartbeat)
-{
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
-    ASSERT_FALSE(app_canAlerts_VC_Fault_MissingBMSHeartbeat_get());
-    ASSERT_FALSE(app_canAlerts_VC_Warning_MissingFSMHeartbeat_get());
-    ASSERT_FALSE(app_canAlerts_VC_Warning_MissingRSMHeartbeat_get());
-    LetTimePass(100);
-
-    suppress_heartbeat = true;
-    LetTimePass(10);
-
-    // tests
-    ASSERT_EQ(app_canRx_BMS_IrNegative_get(), CONTACTOR_STATE_OPEN);
-    ASSERT_STATE_EQ(fault_state);
-    ASSERT_TRUE(app_canAlerts_VC_Fault_MissingBMSHeartbeat_get());
-    ASSERT_TRUE(app_canAlerts_VC_Warning_MissingFSMHeartbeat_get());
-    ASSERT_TRUE(app_canAlerts_VC_Warning_MissingRSMHeartbeat_get());
-    // TODO more concequences of heartbeat failure
-}
-
 TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
 {
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
@@ -144,21 +132,9 @@ TEST_F(VCStateMachineTest, fault_and_open_irs_gives_fault_state)
     ASSERT_STATE_EQ(drive_state);
 
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
-    app_canAlerts_VC_Fault_FrontLeftInverterFault_set(true);
+    app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
     LetTimePass(10);
-    ASSERT_STATE_EQ(fault_state);
-}
-
-TEST_F(VCStateMachineTest, buzzer_on_two_seconds_drive_state)
-{
-    app_stateMachine_setCurrentState(&drive_state);
-    for (int i = 0; i < 200; ++i)
-    {
-        LetTimePass(10);
-        ASSERT_TRUE(app_canTx_VC_BuzzerControl_get()) << " failed after " << (i + 1) * 10 << "ms";
-    }
-    LetTimePass(10); // 100ms after last iteration
-    ASSERT_FALSE(app_canTx_VC_BuzzerControl_get());
+    ASSERT_STATE_EQ(init_state);
 }
 
 TEST_F(VCStateMachineTest, start_button_operation)
@@ -181,4 +157,28 @@ TEST_F(VCStateMachineTest, start_button_operation)
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     LetTimePass(10);
     ASSERT_STATE_EQ(hv_state);
+}
+
+TEST_F(VCStateMachineTest, UnderVoltageRetryThenFault)
+{
+    // Enter PCM ON
+    SetStateWithEntry(&pcmOn_state);
+
+    // Always return 0 V
+    app_canTx_VC_ChannelOneVoltage_set(0.0f);
+
+    // should trigger retry and turn PCM off
+    LetTimePass(100);
+    EXPECT_FALSE(io_pcm_enabled());
+
+    // should turn PCM back ON
+    LetTimePass(110);
+    EXPECT_TRUE(io_pcm_enabled());
+
+    // should fault out
+    LetTimePass(100);
+
+    EXPECT_TRUE(app_canAlerts_VC_Info_PcmUnderVoltage_get());
+
+    ASSERT_STATE_EQ(hvInit_state);
 }

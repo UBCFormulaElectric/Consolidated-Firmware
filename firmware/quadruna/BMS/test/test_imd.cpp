@@ -2,9 +2,9 @@
 
 TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditions)
 {
-    std::vector<ImdConditionName> condition_names = { IMD_CONDITION_NORMAL, IMD_CONDITION_UNDERVOLTAGE_DETECTED };
+    const std::vector<ImdConditionName> condition_names = { IMD_CONDITION_NORMAL, IMD_CONDITION_UNDERVOLTAGE_DETECTED };
 
-    for (auto &condition_name : condition_names)
+    for (const auto &condition_name : condition_names)
     {
         test_imd_setImdCondition(condition_name);
 

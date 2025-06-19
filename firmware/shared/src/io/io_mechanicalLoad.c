@@ -9,7 +9,7 @@
 #define SENSETIVITY_FACTOR (0.002f) // 2mv/V
 #define CONVERSION(voltage) ((voltage) / (SENSETIVITY_FACTOR * EXCITATION_VOLTAGE))
 
-float io_voltageToMechanicalLoad(float voltage)
+float io_voltageToMechanicalLoad(const float voltage)
 {
     return CONVERSION(voltage);
 }

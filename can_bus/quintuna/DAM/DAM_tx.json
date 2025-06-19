@@ -1,7 +1,7 @@
 {
   "Vitals": {
     "msg_id": 800,
-    "cycle_time": 10,
+    "cycle_time": 100,
     "description": "DAM Vital signals",
     "signals": {
       "Heartbeat": {
@@ -27,11 +27,20 @@
     "cycle_time": 1000,
     "description": "DAM Debug Signals",
     "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
       "ResetReason": {
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 16
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
       }
     }
   },
@@ -47,5 +56,11 @@
         "bits": 1
       }
     }
-  }  
+  },
+  "Bootup": {
+    "msg_id": 899,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  }
 }

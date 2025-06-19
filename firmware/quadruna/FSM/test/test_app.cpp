@@ -6,8 +6,8 @@ class FsmAppTest : public FsmBaseStateMachineTest
   protected:
     template <typename T>
     void CheckInRangeCanSignals(
-        float min_value,
-        float max_value,
+        const float min_value,
+        const float max_value,
         void (*fake_setter)(float),
         T (*value_can_signal_getter)(),
         bool (*alert_getter)())

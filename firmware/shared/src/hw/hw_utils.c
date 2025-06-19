@@ -11,7 +11,7 @@ ExitCode hw_utils_convertHalStatus(HAL_StatusTypeDef status)
         case HAL_BUSY:
             return EXIT_CODE_BUSY;
         case HAL_TIMEOUT:
-            return EXIT_CODE_BUSY;
+            return EXIT_CODE_TIMEOUT;
         default:
             return EXIT_CODE_OK;
     }
