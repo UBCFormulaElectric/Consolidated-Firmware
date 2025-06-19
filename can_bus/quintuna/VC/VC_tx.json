@@ -14,6 +14,9 @@
         "resolution": 1,
         "min": 0,
         "max": 10
+      },
+      "InverterState": {
+        "enum" : "VCInverterState"
       }
     }
   },

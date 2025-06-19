@@ -232,6 +232,76 @@ TEST_F(VCStateMachineTest, ReadyForDriveWithRetryFlagGoesToDriveState)
     ASSERT_STATE_EQ(drive_state);
 }
 
+TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
+{
+    // Starting from VC being in drive state
+    SetStateWithEntry(&drive_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    LetTimePass(30);
+
+    // After some time we are gonna mock inverters failing
+    app_canRx_INVFL_bError_update(true);
+    app_canRx_INVFR_bError_update(true);
+    app_canRx_INVRL_bError_update(true);
+    app_canRx_INVRR_bError_update(true);
+
+    LetTimePass(10);
+
+    // Making sure that we are in hvInit and making sure that inverter flag is set
+    ASSERT_EQ(app_canTx_VC_Info_InverterRetry_get(), true);
+    ASSERT_STATE_EQ(hvInit_state);
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_SYSTEM_READY);
+
+    LetTimePass(10);
+
+    // Mock the inverters to indicate that there fault has cleared
+    app_canRx_INVFL_bError_update(false);
+    app_canRx_INVFR_bError_update(false);
+    app_canRx_INVRL_bError_update(false);
+    app_canRx_INVRR_bError_update(false);
+
+
+    app_canRx_INVRR_bSystemReady_update(true);
+    app_canRx_INVRL_bSystemReady_update(true);
+    app_canRx_INVFL_bSystemReady_update(true);
+    app_canRx_INVFR_bSystemReady_update(true);
+
+    LetTimePass(10);
+
+    //checking to see if we are transitioning correctly
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_DC_ON);
+
+    app_canRx_INVFR_bQuitDcOn_update(true);
+    app_canRx_INVFL_bQuitDcOn_update(true);
+    app_canRx_INVRR_bQuitDcOn_update(true);
+    app_canRx_INVRL_bQuitDcOn_update(true);
+
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_ENABLE);
+
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_INVERTER_ON);
+
+
+    app_canRx_INVFL_bQuitInverterOn_update(true);
+    app_canRx_INVFR_bQuitInverterOn_update(true);
+    app_canRx_INVRL_bQuitInverterOn_update(true);
+    app_canRx_INVRR_bQuitInverterOn_update(true);
+
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_READY_FOR_DRIVE);
+    
+    LetTimePass(10);
+
+    ASSERT_EQ(app_canTx_VC_Info_InverterRetry_get(), false);
+    ASSERT_STATE_EQ(drive_state);
+
+}
+
 /* ------------------------- HV STATE ------------------------------- */
 TEST_F(VCStateMachineTest, EntryInitializesState)
 {

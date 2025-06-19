@@ -5,9 +5,9 @@
 #include "app_canAlerts.h"
 #include "app_warningHandling.h"
 #include "io_loadswitches.h"
-#include <app_canTx.h>
-#include <app_canRx.h>
-#include <app_canUtils.h>
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canUtils.h"
 #include <stdbool.h>
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
@@ -15,16 +15,7 @@
 #define INV_QUIT_TIMEOUT_MS (10 * 1000)
 #define NO_TORQUE 0.0
 
-typedef enum
-{
-    INV_SYSTEM_READY    = 0,
-    INV_DC_ON           = 1,
-    INV_ENABLE          = 2,
-    INV_INVERTER_ON     = 3,
-    INV_READY_FOR_DRIVE = 4
-} INVERTER_STATES;
-
-static INVERTER_STATES current_inverter_state;
+static VCInverterState current_inverter_state;
 static TimerChannel    start_up_timer;
 
 static PowerManagerConfig power_manager_state = {
@@ -164,7 +155,12 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_stateMachine_setNextState(&hv_state);
             }
             break;
+
+        default:
+            break;
     }
+
+    app_canTx_VC_InverterState_set(current_inverter_state);
 }
 static void hvInitStateRunOnExit(void)
 {
