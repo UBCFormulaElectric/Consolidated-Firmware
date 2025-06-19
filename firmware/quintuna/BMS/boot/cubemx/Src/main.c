@@ -59,7 +59,7 @@ const osThreadAttr_t interfaceTask_attributes = {
     .cb_size    = sizeof(interfaceTaskControlBlock),
     .stack_mem  = &interfaceTaskBuffer[0],
     .stack_size = sizeof(interfaceTaskBuffer),
-    .priority   = (osPriority_t)osPriorityRealtime,
+    .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
@@ -71,7 +71,7 @@ const osThreadAttr_t canTxTask_attributes = {
     .cb_size    = sizeof(canTxTaskControlBlock),
     .stack_mem  = &canTxTaskBuffer[0],
     .stack_size = sizeof(canTxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityHigh,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for tickTask */
 osThreadId_t         tickTaskHandle;
@@ -83,7 +83,7 @@ const osThreadAttr_t tickTask_attributes = {
     .cb_size    = sizeof(tickTaskControlBlock),
     .stack_mem  = &tickTaskBuffer[0],
     .stack_size = sizeof(tickTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
 CanHandle can = { .bus_num = 0, .hcan = &hfdcan1, .receive_callback = io_canQueue_pushRx, .ready = false };
@@ -275,10 +275,10 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.NominalSyncJumpWidth = 2;
     hfdcan1.Init.NominalTimeSeg1      = 13;
     hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 6;
-    hfdcan1.Init.DataTimeSeg1         = 17;
-    hfdcan1.Init.DataTimeSeg2         = 6;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
     hfdcan1.Init.MessageRAMOffset     = 0;
     hfdcan1.Init.StdFiltersNbr        = 1;
     hfdcan1.Init.ExtFiltersNbr        = 1;
@@ -409,14 +409,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(TS_ISENSE_OCSC_OK_3V3_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PB5 PB6 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
