@@ -35,11 +35,11 @@ namespace io_vc
 namespace io_sbgEllipse
 {
     static uint32_t ekf_solution_mode;
-    void setEkfSolutionMode(const uint32_t ekf_solution_mode)
+    void            setEkfSolutionMode(const uint32_t ekf_solution_mode)
     {
         io_sbgEllipse::ekf_solution_mode = ekf_solution_mode;
     }
-}
+} // namespace io_sbgEllipse
 } // namespace fake
 
 extern "C"

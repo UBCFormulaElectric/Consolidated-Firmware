@@ -402,7 +402,7 @@ TEST_F(VCStateMachineTest, DisableVanillaEnterPower)
     app_canRx_CRIT_DriveMode_update(DRIVE_MODE_POWER);
 
     LetTimePass(10);
-    
+
     EXPECT_TRUE(app_canTx_VC_VcDriveMode_get() == DRIVE_MODE_POWER);
 }
 
@@ -410,13 +410,12 @@ TEST_F(VCStateMachineTest, DisableVanillaEnterPowerActiveDiff)
 {
     app_canTx_VC_Info_ImuInitFailed_set(false);
 
-
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_VanillaOverrideSwitch_update(SWITCH_OFF);
     app_canRx_CRIT_DriveMode_update(DRIVE_MODE_POWER);
 
     LetTimePass(10);
-    
+
     EXPECT_TRUE(app_canTx_VC_VcDriveMode_get() == DRIVE_MODE_POWER);
 }
 
@@ -439,7 +438,7 @@ TEST_F(VCStateMachineTest, DisableVanillaEnterPowerActiveDiff)
 //     app_canRx_CRIT_DriveMode_update(DRIVE_MODE_TV);
 
 //     LetTimePass(10);
-    
+
 //     EXPECT_TRUE(app_canTx_VC_VcDriveMode_get() == DRIVE_MODE_TV);
 // }
 
