@@ -99,118 +99,110 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
         or not before using closed loop features */
     // Update Regen + TV LEDs
 
-    if (INVERTER_FAULT == warning_check)
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
-        app_canAlerts_VC_Info_InverterRetry_set(true);
-        // Go to inverter on state to unset the fault on the inverters and restart the sequence
-        app_stateMachine_setNextState(&hvInit_state);
-        // MAKE FUNCTION IN TORQUE DISTRIBUTION WHEN 4WD merged
-        return false;
-
-        if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
-        {
-            app_regen_run(apps_pedal_percentage, &torqueOutputToMotors);
-        }
-        else if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
-        {
-            app_vanillaDrive_run(apps_pedal_percentage, &torqueOutputToMotors);
-        }
-        else
-        {
-            app_driveMode_run(apps_pedal_percentage, &torqueOutputToMotors);
-        }
-
-        app_torqueBroadCast(&torqueOutputToMotors);
+        app_regen_run(apps_pedal_percentage, &torqueOutputToMotors);
+    }
+    else if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
+    {
+        app_vanillaDrive_run(apps_pedal_percentage, &torqueOutputToMotors);
+    }
+    else
+    {
+        app_driveMode_run(apps_pedal_percentage, &torqueOutputToMotors);
     }
 
-    static void app_switchInit(void)
-    {
-        if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
-        {
-            launch_control_switch_is_on = true;
-        }
+    app_torqueBroadCast(&torqueOutputToMotors);
+}
 
-        if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
-        {
-            regen_switch_is_on = true;
-        }
+static void app_switchInit(void)
+{
+    if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
+    {
+        launch_control_switch_is_on = true;
     }
 
-    static void app_enable_inv(void)
+    if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
     {
-        app_canTx_VC_INVFRbEnable_set(true);
-        app_canTx_VC_INVFLbEnable_set(true);
-        app_canTx_VC_INVRRbEnable_set(true);
-        app_canTx_VC_INVRLbEnable_set(true);
-
-        app_canTx_VC_INVFLTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
-        app_canTx_VC_INVFRTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
-        app_canTx_VC_INVRLTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
-        app_canTx_VC_INVRRTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
-
-        app_canTx_VC_INVFLTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
-        app_canTx_VC_INVFRTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
-        app_canTx_VC_INVRLTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
-        app_canTx_VC_INVRRTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+        regen_switch_is_on = true;
     }
+}
 
-    static void driveStateRunOnEntry()
+static void app_enable_inv(void)
+{
+    app_canTx_VC_INVFRbEnable_set(true);
+    app_canTx_VC_INVFLbEnable_set(true);
+    app_canTx_VC_INVRRbEnable_set(true);
+    app_canTx_VC_INVRLbEnable_set(true);
+
+    app_canTx_VC_INVFLTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVFRTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRLTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRRTorqueLimitPositive_set(PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+
+    app_canTx_VC_INVFLTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVFRTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRLTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+    app_canTx_VC_INVRRTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
+}
+
+static void driveStateRunOnEntry()
+{
+    app_canTx_VC_State_set(VC_DRIVE_STATE);
+    app_powerManager_updateConfig(power_manager_state);
+    // Enable inverters
+    app_enable_inv();
+    app_switchInit();
+    app_reset_torqueToMotors(&torqueOutputToMotors);
+    app_torqueVectoring_init();
+}
+
+static void driveStateRunOnTick100Hz(void)
+{
+    // pedal mapped changed from [0, 100] to [0.0, 1.0]
+    float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+
+    // ensure precheck and software bspd are good
+    if (!driveStatePassPreCheck() || app_warningHandling_checkSoftwareBspd(apps_pedal_percentage))
     {
-        app_canTx_VC_State_set(VC_DRIVE_STATE);
-        app_powerManager_updateConfig(power_manager_state);
-        // Enable inverters
-        app_enable_inv();
-        app_switchInit();
-        app_reset_torqueToMotors(&torqueOutputToMotors);
-        app_torqueVectoring_init();
-    }
-
-    static void driveStateRunOnTick100Hz(void)
-    {
-        // pedal mapped changed from [0, 100] to [0.0, 1.0]
-        float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
-
-        // ensure precheck and software bspd are good
-        if (!driveStatePassPreCheck() || app_warningHandling_checkSoftwareBspd(apps_pedal_percentage))
-        {
-            app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
-            app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
-            app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
-            app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
-            return;
-        }
-
-        // regen switches pedal percentage from [0.0f, 1.0f] to [-0.2f, 0.8f] and then scaled to [-1.0f, 1.0f]
-        if (regen_switch_is_on)
-        {
-            apps_pedal_percentage = app_regen_pedalRemapping(apps_pedal_percentage);
-            // sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
-        }
-
-        app_canTx_VC_RegenMappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
-        runDrivingAlgorithm(apps_pedal_percentage);
-    }
-
-    static void driveStateRunOnExit(void)
-    {
-        // Disable inverters and apply zero torque upon exiting drive state
-        app_canTx_VC_INVFRbEnable_set(false);
-        app_canTx_VC_INVFLbEnable_set(false);
-        app_canTx_VC_INVRRbEnable_set(false);
-        app_canTx_VC_INVRLbEnable_set(false);
-
         app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
         app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
         app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
         app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
-
-        app_reset_torqueToMotors(&torqueOutputToMotors);
-
-        // Clear mapped pedal percentage
-        app_canTx_VC_RegenMappedPedalPercentage_set(0.0f);
-        app_canTx_VC_RegenEnabled_set(false);
-        app_canTx_VC_TorqueVectoringEnabled_set(false);
+        return;
     }
+
+    // regen switches pedal percentage from [0.0f, 1.0f] to [-0.2f, 0.8f] and then scaled to [-1.0f, 1.0f]
+    if (regen_switch_is_on)
+    {
+        apps_pedal_percentage = app_regen_pedalRemapping(apps_pedal_percentage);
+        // sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
+    }
+
+    app_canTx_VC_RegenMappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
+    runDrivingAlgorithm(apps_pedal_percentage);
+}
+
+static void driveStateRunOnExit(void)
+{
+    // Disable inverters and apply zero torque upon exiting drive state
+    app_canTx_VC_INVFRbEnable_set(false);
+    app_canTx_VC_INVFLbEnable_set(false);
+    app_canTx_VC_INVRRbEnable_set(false);
+    app_canTx_VC_INVRLbEnable_set(false);
+
+    app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
+    app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
+    app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
+    app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
+
+    app_reset_torqueToMotors(&torqueOutputToMotors);
+
+    // Clear mapped pedal percentage
+    app_canTx_VC_RegenMappedPedalPercentage_set(0.0f);
+    app_canTx_VC_RegenEnabled_set(false);
+    app_canTx_VC_TorqueVectoringEnabled_set(false);
+}
 
     State drive_state = {
         .name              = "DRIVE",
