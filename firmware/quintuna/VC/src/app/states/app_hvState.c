@@ -4,6 +4,7 @@
 #include "app_startSwitch.h"
 #include "app_warningHandling.h"
 #include "io_loadswitches.h"
+#include <app_canAlerts.h>
 #include <app_canTx.h>
 #include <app_canRx.h>
 #include <app_canUtils.h>
@@ -24,7 +25,7 @@ static void hvStateRunOnEntry(void)
 {
     app_powerManager_updateConfig(power_manager_state);
     app_canTx_VC_State_set(VC_HV_ON_STATE);
-    app_canTx_VC_Info_InverterRetry_set(false);
+    app_canAlerts_VC_Info_InverterRetry_set(false);
 }
 
 static void hvStateRunOnTick100Hz(void)

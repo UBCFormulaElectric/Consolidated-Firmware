@@ -77,7 +77,7 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_canTx_VC_INVRLbErrorReset_set(false);
                 app_canTx_VC_INVRRbErrorReset_set(false);
             }
-            else if (app_canTx_VC_Info_InverterRetry_get())
+            else if (app_canAlerts_VC_Info_InverterRetry_get())
             {
                 app_warningHandling_inverterReset();
             }

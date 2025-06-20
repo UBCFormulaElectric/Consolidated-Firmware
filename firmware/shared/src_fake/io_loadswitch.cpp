@@ -19,14 +19,16 @@ void reset_tiLoadswitch(TI_LoadSwitch &tils)
 }
 void reset_stLoadswitch(ST_LoadSwitch &stls)
 {
-    stls.pgood                                       = true;
-    stls.set_stby_reset_gpio                         = false;
-    if(stls.efuse1 != NULL) {
+    stls.pgood               = true;
+    stls.set_stby_reset_gpio = false;
+    if (stls.efuse1 != NULL)
+    {
         const_cast<Efuse *>(stls.efuse1)->current        = 0.0f;
         const_cast<Efuse *>(stls.efuse1)->enabled        = false;
         const_cast<Efuse *>(stls.efuse1)->simulate_fault = false;
     }
-    if(stls.efuse2 != NULL) {
+    if (stls.efuse2 != NULL)
+    {
         const_cast<Efuse *>(stls.efuse2)->current        = 0.0f;
         const_cast<Efuse *>(stls.efuse2)->enabled        = false;
         const_cast<Efuse *>(stls.efuse2)->simulate_fault = false;

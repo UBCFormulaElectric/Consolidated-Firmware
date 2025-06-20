@@ -28,6 +28,7 @@
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
 
+#include <app_canAlerts.h>
 #include <stdbool.h>
 
 static void can1_tx(const JsonCanMsg *tx_msg)
@@ -70,7 +71,7 @@ void jobs_init()
     // app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
 
     const ExitCode exitImu = io_imu_init();
-    app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
+    app_canAlerts_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
 
     app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(&init_state);

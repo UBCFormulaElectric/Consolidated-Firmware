@@ -103,7 +103,7 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     // TODO: regen_switch_is_on in this function is a redundant check
     // it is checked by the calling function and is unchanged throughout
     // the entire tick so this could be removed.
-    // at face value this would cause a negative pedal percentage to the 
+    // at face value this would cause a negative pedal percentage to the
     // non regen algorithm
     if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {

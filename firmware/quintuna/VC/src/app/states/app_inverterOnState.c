@@ -3,6 +3,7 @@
 #include "app_loadswitches.h"
 #include "app_powerManager.h"
 #include "app_faultHandling.h"
+#include <app_canAlerts.h>
 #include <app_canRx.h>
 #include <app_canTx.h>
 #include <app_canUtils.h>
@@ -23,7 +24,7 @@ static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
-    app_canTx_VC_Info_InverterRetry_set(false);
+    app_canAlerts_VC_Info_InverterRetry_set(false);
 }
 
 static void inverterOnStateRunOnTick100Hz(void)

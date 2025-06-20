@@ -3,6 +3,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canUtils.h"
+#include <app_canAlerts.h>
 #include <stdbool.h>
 
 static PowerManagerConfig power_manager_state = {
@@ -20,7 +21,7 @@ static void initStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
-    app_canTx_VC_Info_InverterRetry_set(false);
+    app_canAlerts_VC_Info_InverterRetry_set(false);
 
     app_canTx_VC_INVFRTorqueSetpoint_set(0);
     app_canTx_VC_INVRRTorqueSetpoint_set(0);
