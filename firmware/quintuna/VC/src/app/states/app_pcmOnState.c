@@ -60,6 +60,13 @@ static void pcmOnStateRunOnEntry(void)
 
 static void pcmOnStateRunOnTick100Hz(void)
 {
+    // TODO REMOVE
+    {
+        io_pcm_set(false);
+        app_stateMachine_setNextState(&hvInit_state);
+        return;
+    }
+
     const float pcm_curr_voltage = app_canTx_VC_ChannelOneVoltage_get();
 
     switch (state)

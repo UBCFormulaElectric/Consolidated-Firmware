@@ -71,7 +71,7 @@ bool app_warningHandling_inverterStatus(void)
     app_canAlerts_VC_Warning_FrontLeftInverterFault_set(invfl_error);
     app_canAlerts_VC_Warning_RearRightInverterFault_set(invfr_error);
 
-    return invfl_error || invrl_error || invfl_error || invfr_error;
+    return invfl_error || invrl_error || invrr_error || invfr_error;
 }
 
 // TODO: integrate with warnings (will have to make compatible with regen)

@@ -69,7 +69,7 @@ static void hvInitStateRunOnTick100Hz(void)
             {
                 LOG_INFO("inv_system_ready -> inv_dc_on");
                 current_inverter_state = INV_DC_ON;
-                app_timer_restart(&start_up_timer);
+                app_timer_stop(&start_up_timer);
 
                 // Error reset should be set to false cause we were successful
                 app_canTx_VC_INVFLbErrorReset_set(false);
@@ -97,10 +97,9 @@ static void hvInitStateRunOnTick100Hz(void)
             {
                 LOG_INFO("inv_dc_on -> inv_enable");
                 current_inverter_state = INV_ENABLE;
-                app_timer_restart(&start_up_timer);
+                app_timer_stop(&start_up_timer);
             }
-
-            if (app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED)
+            else if (app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED)
             {
                 LOG_INFO("dc quit timeout");
                 current_inverter_state = INV_SYSTEM_READY;
@@ -132,10 +131,9 @@ static void hvInitStateRunOnTick100Hz(void)
             {
                 LOG_INFO("inv_on -> inv_ready_for_drive");
                 current_inverter_state = INV_READY_FOR_DRIVE;
-                app_timer_restart(&start_up_timer);
+                app_timer_stop(&start_up_timer);
             }
-
-            if (app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED)
+            else if (app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED)
             {
                 LOG_INFO("inv on quit timeout");
                 current_inverter_state = INV_SYSTEM_READY;

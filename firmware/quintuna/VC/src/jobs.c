@@ -30,8 +30,6 @@
 
 #include <stdbool.h>
 
-#define AIR_MINUS_OPEN_DEBOUNCE_MS (1000U)
-
 static void can1_tx(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
@@ -50,6 +48,7 @@ static void can3_tx(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&can3_tx_queue, &msg);
 }
 
+#define AIR_MINUS_OPEN_DEBOUNCE_MS (100U)
 static TimerChannel air_minus_open_debounce_timer;
 
 void jobs_init()
@@ -67,8 +66,8 @@ void jobs_init()
     io_canQueue_initTx(&can2_tx_queue);
     io_canQueue_initTx(&can3_tx_queue);
 
-    const ExitCode exitSbg = io_sbgEllipse_init();
-    app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
+    // const ExitCode exitSbg = io_sbgEllipse_init();
+    // app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
 
     const ExitCode exitImu = io_imu_init();
     app_canTx_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
@@ -87,7 +86,6 @@ void jobs_init()
 
 void jobs_run1Hz_tick(void)
 {
-    app_stateMachine_tickTransitionState();
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -123,7 +121,7 @@ void jobs_run100Hz_tick(void)
     app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
-    app_sbgEllipse_broadcast();
+    // app_sbgEllipse_broadcast();
 
     io_canTx_enqueue100HzMsgs();
 }
