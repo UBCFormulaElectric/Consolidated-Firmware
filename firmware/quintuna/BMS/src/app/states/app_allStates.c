@@ -35,8 +35,10 @@ void app_allStates_runOnTick100Hz(void)
     app_shdnLoop_broadcast();
     app_powerLimit_broadcast();
 
-    const bool hv_up = io_irs_isNegativeClosed() && io_irs_isPositiveClosed();
-    io_fans_tick(hv_up);
+    // TODO: Enable fans for endurance when contactors are closed.
+    // const bool hv_up = io_irs_isNegativeClosed() && io_irs_isPositiveClosed();
+    // io_fans_tick(hv_up);
+    io_fans_tick(false);
 
     const bool bspd_test_current_enable = app_canRx_Debug_EnableTestCurrent_get();
     io_bspdTest_enable(bspd_test_current_enable);
