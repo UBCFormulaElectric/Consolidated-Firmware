@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
+#include <stddef.h>
 
 static PowerManagerConfig power_manager_state;
 static TimerChannel       sequencing_timer;
@@ -38,7 +39,8 @@ void app_powerManager_updateConfig(const PowerManagerConfig new_power_manager_co
 {
     power_manager_state = new_power_manager_config;
 
-    power_manager_state.efuse_configs[EFUSE_CHANNEL_RL_PUMP].efuse_enable = !app_canAlerts_VC_Info_PcmUnderVoltage_get();
+    power_manager_state.efuse_configs[EFUSE_CHANNEL_RL_PUMP].efuse_enable =
+        !app_canAlerts_VC_Info_PcmUnderVoltage_get();
     power_manager_state.efuse_configs[EFUSE_CHANNEL_R_RAD].efuse_enable = !app_canAlerts_VC_Info_PcmUnderVoltage_get();
 }
 
