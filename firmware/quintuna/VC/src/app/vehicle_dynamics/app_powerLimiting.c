@@ -33,13 +33,12 @@ float app_powerLimiting_computeMaxPower(const bool isRegenOn)
     // ============== Calculate max powers =================
     // TODO: CONFIRM REGEN POWER LIMIT
     // TODO: LOOK INTO BMS DERATED POWER LIMIT, USE IT TO VALIDATE CURRENT LIMIT
-    // const float current_based_power_limit_kW =
-    //     app_canRx_BMS_TractiveSystemVoltage_get() *
-    //     (isRegenOn ? app_canRx_BMS_ChargeCurrentLimit_get() : app_canRx_BMS_DischargeCurrentLimit_get());
-    const float P_max = isRegenOn ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW;
+    const float bms_power_limit_kW = isRegenOn ? app_canRx_BMS_ChargeCurrentLimit_get() : app_canRx_BMS_DischargeCurrentLimit_get();
+    const float abs_p_max = isRegenOn ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW;
+    const float powerLimit = fminf(bms_power_limit_kW,abs_p_max);
 
-    app_canTx_VC_PowerLimitValue_set(P_max);
-    return P_max;
+    app_canTx_VC_PowerLimitValue_set(powerLimit);
+    return powerLimit;
 }
 
 float getMaxMotorTemp(void) // -- we're relying solely on the inverter thermal derating -- this is no longer needed but
