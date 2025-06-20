@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass
 
 import jinja2 as j2
@@ -19,6 +20,7 @@ class IoCanRerouteModule(CModule):
     def __init__(
         self, db: CanDatabase, node: str, node_reroutes: Set[CanForward] | None
     ):
+        self._node = node
         self._db = db
         self._node_reroutes = node_reroutes
         self._node_bus_names = db.nodes[node].bus_names
@@ -39,15 +41,28 @@ class IoCanRerouteModule(CModule):
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(load_template("io_canReroute.c.j2"))
-        from_bus_to_reroutes = {bus_name: [] for bus_name in self._node_bus_names}
+        m = {bus_name: defaultdict(list) for bus_name in self._node_bus_names}
         for reroute in self._node_reroutes:
-            from_bus_to_reroutes[reroute.from_bus_name].append(
-                IoCanRerouteModule.ReRouteInstance(
-                    to_bus_name=reroute.to_bus_name,
-                    message=self._db.msgs[reroute.message_name],
-                )
-            )
+            assert reroute.forwarder_name == self._node
+            m[reroute.from_bus_name][reroute.message_name].append(reroute.to_bus_name)
+
+
+        @dataclass
+        class RouteOutMessage:
+            msg: CanMessage
+            to_busses: list[str]
+
+        @dataclass
+        class BusReroutes:
+            bus_name: str
+            reroutes: list[RouteOutMessage]
+
+        bus_name_and_reroutes = [
+            BusReroutes(bus_name, [
+                RouteOutMessage(self._db.msgs[msg_name], to_busses) for msg_name, to_busses in m[bus_name].items()
+            ]
+          ) for bus_name in m]
         return template.render(
             node_bus_names=self._node_bus_names,
-            bus_name_and_reroutes=from_bus_to_reroutes.items(),
+            bus_name_and_reroutes=bus_name_and_reroutes
         )
