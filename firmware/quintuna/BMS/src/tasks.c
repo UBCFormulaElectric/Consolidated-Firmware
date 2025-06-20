@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "app_stateMachine.h"
+#include "hw_gpio.h"
 #include "hw_watchdog.h"
 #include "states/app_balancingState.h"
 #include "hw_bootup.h"
@@ -199,8 +200,6 @@ void tasks_run100Hz(void)
             io_canTx_enqueue100HzMsgs();
         }
 
-        app_powerLimit_broadcast(); // Current and power limiting CAN messages
-
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
 
@@ -269,7 +268,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 2Hz
 
     xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
     {
@@ -319,7 +318,7 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 2Hz
 
     xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
     {

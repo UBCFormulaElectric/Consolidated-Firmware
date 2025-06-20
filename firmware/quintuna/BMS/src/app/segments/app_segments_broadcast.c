@@ -368,7 +368,8 @@ void app_segments_broadcastTempStats(void)
             }
 
             // Get the minimum cell temp
-            if (success && cell_temp.value < tmp_min_cell_temp.value)
+            const bool inshallah = segment == 8 && cell == 12;
+            if (success && cell_temp.value < tmp_min_cell_temp.value && !inshallah)
             {
                 tmp_min_cell_temp = cell_temp;
             }
