@@ -109,48 +109,51 @@ void jobs_run100Hz_tick(void)
     // following TSIM outline stated in
     // https://ubcformulaelectric.atlassian.net/browse/EE-1358?isEligibleForUserSurvey=true
     const bool no_fault = (app_canRx_BMS_BmsLatchOk_get() && app_canRx_BMS_ImdLatchOk_get()) || ignore_fault_on_bootup;
-    if (no_fault)
-    {
-        io_tsim_set_green();
-        app_timer_stop(&tsim_toggle_timer);
-    }
-    else
-    {
-        static TsimColor next_tsim_color = TSIM_RED;
 
-        switch (app_timer_updateAndGetState(&tsim_toggle_timer))
-        {
-            case TIMER_STATE_IDLE: // should only ever be IDLE at the very beginning when the first red command sent
-                io_tsim_set_red();
-                app_timer_restart(&tsim_toggle_timer);
-                break;
-            case TIMER_STATE_EXPIRED:
-                if ((TSIM_OFF == curr_tsim_color) && (TSIM_RED == next_tsim_color))
-                {
-                    io_tsim_set_red();
-                    app_timer_restart(&tsim_toggle_timer);
-                    curr_tsim_color = TSIM_RED;
-                    next_tsim_color = TSIM_OFF;
-                }
-                else if ((TSIM_RED == curr_tsim_color) && (TSIM_OFF == next_tsim_color))
-                {
-                    io_tsim_set_off();
-                    app_timer_restart(&tsim_toggle_timer);
-                    curr_tsim_color = TSIM_OFF;
-                    next_tsim_color = TSIM_RED;
-                }
+    io_tsim_set_green();
+    // if (no_fault)
+    // {
+    //     io_tsim_set_green();
+    //     app_timer_stop(&tsim_toggle_timer);
+    // }
+    // else
+    // {
 
-                break;
-            case TIMER_STATE_RUNNING:
-                // do nothing, hold state until timer expires
-                // LOG_PRINTF("time passed %d\n", app_timer_getElapsedTime(&tsim_toggle_timer));
-                break;
-            default:
-                io_tsim_set_red();
-                app_timer_restart(&tsim_toggle_timer);
-                break;
-        }
-    }
+        // static TsimColor next_tsim_color = TSIM_RED;
+
+        // switch (app_timer_updateAndGetState(&tsim_toggle_timer))
+        // {
+        //     case TIMER_STATE_IDLE: // should only ever be IDLE at the very beginning when the first red command sent
+        //         io_tsim_set_red();
+        //         app_timer_restart(&tsim_toggle_timer);
+        //         break;
+        //     case TIMER_STATE_EXPIRED:
+        //         if ((TSIM_OFF == curr_tsim_color) && (TSIM_RED == next_tsim_color))
+        //         {
+        //             io_tsim_set_red();
+        //             app_timer_restart(&tsim_toggle_timer);
+        //             curr_tsim_color = TSIM_RED;
+        //             next_tsim_color = TSIM_OFF;
+        //         }
+        //         else if ((TSIM_RED == curr_tsim_color) && (TSIM_OFF == next_tsim_color))
+        //         {
+        //             io_tsim_set_off();
+        //             app_timer_restart(&tsim_toggle_timer);
+        //             curr_tsim_color = TSIM_OFF;
+        //             next_tsim_color = TSIM_RED;
+        //         }
+
+        //         break;
+        //     case TIMER_STATE_RUNNING:
+        //         // do nothing, hold state until timer expires
+        //         // LOG_PRINTF("time passed %d\n", app_timer_getElapsedTime(&tsim_toggle_timer));
+        //         break;
+        //     default:
+        //         io_tsim_set_red();
+        //         app_timer_restart(&tsim_toggle_timer);
+        //         break;
+        // }
+    // }
 
     // Set shutdown node status.
     app_canTx_DAM_REStopOKStatus_set(io_r_shdn_pin_is_high());
