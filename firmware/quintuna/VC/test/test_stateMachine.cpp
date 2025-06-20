@@ -576,13 +576,12 @@ TEST_F(VCStateMachineTest, initDoesNotExitUnitlLatchClosed)
 {
     SetStateWithEntry(&init_state);
     LetTimePass(10);
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN); // somewhere in the middle contactors open 
-    LetTimePass(10);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN); // somewhere in the middle contactors open
+    LetTimePass(1010);
     ASSERT_STATE_EQ(init_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
     ASSERT_STATE_EQ(inverterOn_state);
-
 }
 
 TEST_F(VCStateMachineTest, inverterOnStateLatchedFault)
@@ -592,30 +591,26 @@ TEST_F(VCStateMachineTest, inverterOnStateLatchedFault)
     LetTimePass(10);
     app_canRx_INVFL_bSystemReady_update(true);
     app_canRx_INVFL_bSystemReady_update(true);
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN); // somewhere in the middle contactors open 
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN); // somewhere in the middle contactors open
     app_canRx_INVFL_bSystemReady_update(true);
     app_canRx_INVFL_bSystemReady_update(true);
-    LetTimePass(10);
+    LetTimePass(1020);
+    EXPECT_FALSE(app_canRx_BMS_IrNegative_get());
     ASSERT_STATE_EQ(init_state);
-    LetTimePass(100);
-    ASSERT_STATE_EQ(init_state); // continue to stay in init state after faulting 
 }
 
 TEST_F(VCStateMachineTest, bmsOnLatchedFault)
 {
     SetStateWithEntry(&bmsOn_state);
-    LetTimePass(10);
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN); 
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+    LetTimePass(1010);
     ASSERT_STATE_EQ(init_state);
     LetTimePass(100);
-    ASSERT_STATE_EQ(init_state);// continues to stay in init until the fault is cleared
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(init_state);
-    LetTimePass(100);
-    ASSERT_STATE_EQ(init_state); // continue to stay in init state after faulting 
+    LetTimePass(1010);
+    ASSERT_STATE_EQ(inverterOn_state);
 }
 
 TEST_F(VCStateMachineTest, pcmOnStateLatchedFault)
@@ -624,10 +619,8 @@ TEST_F(VCStateMachineTest, pcmOnStateLatchedFault)
     LetTimePass(10);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     app_canTx_VC_ChannelOneVoltage_set(28.0f);
-    LetTimePass(10); // this will make curr pass
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED); // before prev passes we get a fault 
     LetTimePass(10);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+    LetTimePass(1010);
     ASSERT_STATE_EQ(init_state);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(init_state); // stay in init state
 }

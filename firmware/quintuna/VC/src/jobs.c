@@ -109,6 +109,7 @@ void jobs_run100Hz_tick(void)
     {
         case TIMER_STATE_IDLE:
             // air minus is closed
+            break;
         case TIMER_STATE_RUNNING:
             // air minus is open but debounce has not hit yet
             break;
