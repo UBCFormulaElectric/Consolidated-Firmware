@@ -290,12 +290,6 @@
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
-      "PackVoltage": {
-        "resolution": 0.01,
-        "min": 100,
-        "max": 650,
-        "unit": "V"
-      },
       "AvgCellVoltage": {
         "resolution": 0.001,
         "min": 0,
@@ -312,6 +306,11 @@
         "resolution": 1,
         "min": 0,
         "max": 9
+      },
+      "MinCellVoltageIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
       }
     }
   },
@@ -320,10 +319,11 @@
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
-      "MinCellVoltageIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
+      "PackVoltage": {
+        "resolution": 0.01,
+        "min": 100,
+        "max": 650,
+        "unit": "V"
       },
       "MaxCellVoltage": {
         "resolution": 0.001,
