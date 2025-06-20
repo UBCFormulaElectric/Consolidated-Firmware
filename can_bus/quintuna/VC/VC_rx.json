@@ -20,6 +20,7 @@
     "INVFR_FRInverterInfo2",
     "INVRL_RLInverterInfo2",
     "INVRR_RRInverterInfo2",
+    "BMS_PowerLimit",
     "VCR_Vitals",
     "VCR_CommitInfo",
     "VCR_Debug",

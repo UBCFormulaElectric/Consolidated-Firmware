@@ -631,6 +631,3 @@ TEST_F(VCStateMachineTest, pcmOnStateLatchedFault)
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state); // stay in init state
 }
-
-
-

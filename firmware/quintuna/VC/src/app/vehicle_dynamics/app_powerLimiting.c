@@ -45,8 +45,8 @@ float app_powerLimiting_computeMaxPower(const bool isRegenOn)
 float getMaxMotorTemp(void) // -- we're relying solely on the inverter thermal derating -- this is no longer needed but
                             // will likely be used in the future
 {
-    const float motor_fl_temp = (float)app_canRx_INVRL_MotorTemperature_get();
-    const float motor_fr_temp = (float)app_canRx_INVFL_MotorTemperature_get();
+    const float motor_fl_temp = (float)app_canRx_INVFL_MotorTemperature_get();
+    const float motor_fr_temp = (float)app_canRx_INVFR_MotorTemperature_get();
     const float motor_rl_temp = (float)app_canRx_INVRL_MotorTemperature_get();
     const float motor_rr_temp = (float)app_canRx_INVRR_MotorTemperature_get();
     return fmaxf(fmaxf(fmaxf(motor_fl_temp, motor_fr_temp), motor_rl_temp), motor_rr_temp);
@@ -61,15 +61,19 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
 
     float scale = CLAMP_TO_ONE(inputs->derating_value);
 
-    if (inputs->is_regen_mode && torque_negative_max_Nm < -avg_max_neg_torque)
+    if (inputs->is_regen_mode)
     {
-        scale *= -avg_max_neg_torque / torque_negative_max_Nm;
+        // If regen torque exceeds limit, scale all torque proportionally
+        if (torque_negative_max_Nm < -avg_max_neg_torque)
+        {
+            scale *= -avg_max_neg_torque / torque_negative_max_Nm;
+        }
+
         inputs->torqueToMotors->front_left_torque *= scale;
         inputs->torqueToMotors->front_right_torque *= scale;
         inputs->torqueToMotors->rear_left_torque *= scale;
-        inputs->torqueToMotors->rear_left_torque *= scale;
+        inputs->torqueToMotors->rear_right_torque *= scale;
     }
-
     else if (inputs->total_requestedPower > inputs->power_limit)
     {
         float torque_reduction =
@@ -78,7 +82,7 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
         inputs->torqueToMotors->front_left_torque -= torque_reduction;
         inputs->torqueToMotors->front_right_torque -= torque_reduction;
         inputs->torqueToMotors->rear_left_torque -= torque_reduction;
-        inputs->torqueToMotors->rear_left_torque -= torque_reduction;
+        inputs->torqueToMotors->rear_right_torque -= torque_reduction;
     }
 
     inputs->torqueToMotors->front_left_torque =
