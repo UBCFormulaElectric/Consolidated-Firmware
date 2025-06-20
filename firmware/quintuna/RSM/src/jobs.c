@@ -48,8 +48,8 @@ void jobs_init(void)
     app_canTx_RSM_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_RSM_Heartbeat_set(true);
 
-    LOG_IF_ERR(io_imu_init());
-    LOG_IF_ERR(io_rPump_isPumpReady());
+    // LOG_IF_ERR(io_imu_init());
+    // LOG_IF_ERR(io_rPump_isPumpReady());
     io_coolant_init();
 
     LOG_IF_ERR(io_rPump_isPumpReady());
