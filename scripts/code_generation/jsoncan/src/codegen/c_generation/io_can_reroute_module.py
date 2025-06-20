@@ -41,15 +41,6 @@ class IoCanRerouteModule(CModule):
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(load_template("io_canReroute.c.j2"))
-        # from_bus_to_reroutes = {bus_name: [] for bus_name in self._node_bus_names}
-        # for reroute in self._node_reroutes:
-        #     from_bus_to_reroutes[reroute.from_bus_name].append(
-        #         IoCanRerouteModule.ReRouteInstance(
-        #             to_bus_name=reroute.to_bus_name,
-        #             message=self._db.msgs[reroute.message_name],
-        #         )
-        #     )
-        # m[BUS_NAME][MSG_NAME] = bus_names: str[]
         m = {bus_name: defaultdict(list) for bus_name in self._node_bus_names}
         for reroute in self._node_reroutes:
             assert reroute.forwarder_name == self._node
