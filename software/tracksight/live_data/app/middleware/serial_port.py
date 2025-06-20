@@ -38,7 +38,13 @@ if ENABLE_WIRELESS and SERIAL_PORT:
         _serial_port.reset_input_buffer()  # Clear input buffer
         _serial_port.reset_output_buffer()  # Clear output buffer
     except serial.SerialException:
+        print("No serial found or the serial is taken")
         sys.exit()
+
+
+class SerialPortSingleton:
+    _instance = None
+    _serial_port = None
 
 
 def get_serial():

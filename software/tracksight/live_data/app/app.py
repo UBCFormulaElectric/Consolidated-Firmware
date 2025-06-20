@@ -55,13 +55,16 @@ if ENABLE_MOCK:
 broadcast_thread.start()
 influx_logger_task.start()
 
-if(not DEBUG): # only when debug is off because it in debug mode it will create a subprocess and run this again
+if (
+    not DEBUG
+):  # only when debug is off because it in debug mode it will create a subprocess and run this again
     register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
 
 # please be adviced, that the 0.0.0.0 is strictly mandatory
 sio.run(
     app,
     debug=bool(DEBUG),
+    # debug=False,
     host="0.0.0.0",
     port=5000,
 )

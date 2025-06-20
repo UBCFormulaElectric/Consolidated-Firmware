@@ -31,5 +31,5 @@ SERIAL_PORT = os.environ.get("SERIAL_PORT")
 DATA_FILE = os.environ.get("DATA_FILE")
 DEBUG = str2bool(os.environ.get("DEBUG"))
 
-SERVER_IP = os.environ.get("BACKEND_IP", "192.168.1.126")
-SERVER_DOMAIN_NAME = os.environ.get("SERVER_DOMAIN_NAME", "telemservices")
+SERVER_IP = os.environ.get("SERVER_IP", "192.168.137.1")
+SERVER_DOMAIN_NAME = os.environ.get("SERVER_DOMAIN_NAME", "telem")

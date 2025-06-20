@@ -4,6 +4,8 @@ from xml import dom
 
 from zeroconf import ServiceInfo, Zeroconf
 
+started = False
+
 
 def register_mdns_service(ip: str, service_name: str):
 

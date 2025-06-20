@@ -74,6 +74,8 @@ void jobs_init()
 
     app_timer_init(&tsim_bootup_ignore_timer, (uint32_t)BOOTUP_IGNORE_TIME);
     app_timer_restart(&tsim_bootup_ignore_timer);
+    // send the telemBase time
+    io_telemBaseTimeSend();
 }
 
 void jobs_run1Hz_tick(void)
