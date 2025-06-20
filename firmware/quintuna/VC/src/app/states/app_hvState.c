@@ -39,11 +39,6 @@ static void hvStateRunOnTick100Hz(void)
         // EV.10.4.3):
         app_stateMachine_setNextState(&drive_state);
     }
-    else if (inverters_warning)
-    {
-        app_stateMachine_setNextState(&hvInit_state);
-        app_canTx_VC_Info_InverterRetry_set(true);
-    }
 }
 static void hvStateRunOnExit(void) {}
 
