@@ -1,8 +1,6 @@
 #include "tasks.h"
 #include "hw_bootup.h"
 #include "hw_watchdog.h"
-#include "io_bootHandler.h"
-#include "hw_gpio.h"
 #include "hw_gpios.h"
 #include "jobs.h"
 #include "main.h"
@@ -15,12 +13,12 @@
 
 #include "io_log.h"
 #include "io_canQueues.h"
-#include "io_time.h"
 // hw
 #include "hw_usb.h"
 #include "hw_resetReason.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
+#include "hw_adcs.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -45,6 +43,8 @@ void tasks_init(void)
     hw_can_init(&can1);
     hw_can_init(&can2);
     hw_can_init(&can3);
+
+    hw_adcs_chipsInit();
 
     const ResetReason reset_reason = hw_resetReason_get();
     app_canTx_VC_ResetReason_set((CanResetReason)reset_reason);

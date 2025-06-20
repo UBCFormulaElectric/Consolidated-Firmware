@@ -101,9 +101,9 @@ void app_sbgEllipse_broadcast()
     const float euler_pitch = io_sbgEllipse_getEkfEulerAngles()->pitch;
     const float euler_yaw   = io_sbgEllipse_getEkfEulerAngles()->yaw;
 
-    // app_canTx_VC_EulerAnglesRoll_set(euler_roll);
-    // app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
-    // app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
+    app_canTx_VC_EulerAnglesRoll_set(euler_roll);
+    app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
+    app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
 }
 
 // void app_sbgEllipse_calculateVelocity(VelocityData *velocity)

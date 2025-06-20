@@ -1,7 +1,7 @@
 #include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
 #include "app_regen.h"
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 #include "app_canAlerts.h"
 #include "app_vehicleDynamics.h"
 #include "app_powerLimiting.h"
@@ -72,11 +72,11 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
         {
             app_canAlerts_VC_Info_DriveModeOverride_set(false);
 
-            torqueToMotorsInputs.front_yaw_moment    = 0.0f;
-            torqueToMotorsInputs.rear_yaw_moment     = 0.0f;
-            torqueToMotorsInputs.load_transfer_const = 1.0f;
-            torqueToMotorsInputs.load_transfer_const = 1.0f;
-            torqueToMotorsInputs.power_limit_kw      = app_powerLimiting_computeMaxPower(false);
+            torqueToMotorsInputs.front_yaw_moment     = 0.0f;
+            torqueToMotorsInputs.rear_yaw_moment      = 0.0f;
+            torqueToMotorsInputs.load_transfer_const  = 1.0f;
+            torqueToMotorsInputs.total_torque_request = apps_pedal_percentage * MAX_TORQUE_REQUEST_NM * 4;
+            torqueToMotorsInputs.power_limit_kw       = app_powerLimiting_computeMaxPower(false);
             app_torqueAllocation(&torqueToMotorsInputs, torqueOutputToMotors);
             app_canTx_VC_VcDriveMode_set(DRIVE_MODE_POWER);
             LOG_INFO("DriveHandling: PowerLimit Mode Active");
@@ -136,8 +136,9 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
 static SensorStatus app_performSensorChecks(void)
 {
     SensorStatus sensor_status;
-    sensor_status.gpsOk = !(app_canTx_VC_Info_SbgInitFailed_get() || app_sbgEllipse_getEkfSolutionMode() != POSITION);
-    sensor_status.imuOk = !app_canTx_VC_Info_ImuInitFailed_get();
+    sensor_status.gpsOk =
+        !(app_canAlerts_VC_Info_SbgInitFailed_get() || app_sbgEllipse_getEkfSolutionMode() != POSITION);
+    sensor_status.imuOk = !app_canAlerts_VC_Info_ImuInitFailed_get();
     sensor_status.steeringOk =
         !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
     sensor_status.useTV = sensor_status.gpsOk && sensor_status.imuOk && sensor_status.steeringOk;

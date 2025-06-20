@@ -14,6 +14,9 @@
         "resolution": 1,
         "min": 0,
         "max": 10
+      },
+      "InverterState": {
+        "enum" : "VCInverterState"
       }
     }
   },
@@ -147,7 +150,7 @@
       "TSMSOKStatus": {
         "bits": 1
       },
-      "SplitterBoxInterlockOKStatus": {
+      "MSDOrEMeterOKStatus": {
         "bits": 1
       }
     }
@@ -820,9 +823,11 @@
     "cycle_time" : 100, 
     "signals":
     {
-      "PcmRetryState":
+      "PcmRetryCount":
       {
-        "enum": "PcmRetryStates"
+        "min" : 0,
+        "max" : 5,
+        "resolution": 1
       }
     }
   },
