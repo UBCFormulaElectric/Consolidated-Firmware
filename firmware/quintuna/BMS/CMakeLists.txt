@@ -14,8 +14,6 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_thermistor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
-        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_math.c"
@@ -177,6 +175,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bmsShdn.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_charger.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fans.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
     )
     create_fake_library(

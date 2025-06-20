@@ -1,15 +1,17 @@
 #include "app_allStates.h"
 #include "app_canUtils.h"
-#include "app_heartbeatMonitor.h"
-#include "app_heartbeatMonitors.h"
 #include "app_imd.h"
 #include "app_irs.h"
+#include "app_powerLimit.h"
 #include "app_segments.h"
 #include "app_shdnLoop.h"
+#include "app_timer.h"
 #include "app_stateMachine.h"
 #include "app_tractiveSystem.h"
 #include "io_bspdTest.h"
+#include "io_fans.h"
 #include "io_faultLatch.h"
+#include "io_irs.h"
 #include "states/app_faultState.h"
 #include <app_canRx.h>
 #include <app_canTx.h>
@@ -25,17 +27,18 @@ void app_allStates_init(void)
     app_timer_restart(&cell_monitor_settle_timer);
 }
 
-void app_allStates_runOnTick1Hz(void) {}
-
 void app_allStates_runOnTick100Hz(void)
 {
-    // app_heartbeatMonitor_checkIn(&hb_monitor);
-    // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
     app_irs_broadcast();
     app_shdnLoop_broadcast();
+    app_powerLimit_broadcast();
+
+    // TODO: Enable fans for endurance when contactors are closed.
+    // const bool hv_up = io_irs_isNegativeClosed() && io_irs_isPositiveClosed();
+    // io_fans_tick(hv_up);
+    io_fans_tick(false);
 
     const bool bspd_test_current_enable = app_canRx_Debug_EnableTestCurrent_get();
     io_bspdTest_enable(bspd_test_current_enable);
