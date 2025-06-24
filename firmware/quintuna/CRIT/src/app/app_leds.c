@@ -63,7 +63,9 @@
                 led_value |= 1u << prefix##_R_BIT; /* red */                              \
                 break;                                                                    \
             case BOARD_LED_STATUS_MISSING_HEARTBEAT:                                      \
-                led_value |= 1u << prefix##_B_BIT; /* blue */                             \
+                led_value &= ~(1u << prefix##_R_BIT);                                     \
+                led_value &= ~(1u << prefix##_G_BIT);                                     \
+                led_value &= ~(1u << prefix##_B_BIT);                                     \
                 break;                                                                    \
             default:                                                                      \
                 break;                                                                    \
@@ -184,10 +186,16 @@ void app_leds_update(void)
     {
         led_value |= 1u << TORQUE_BIT;
     }
+
     if (shdn_ok)
     {
         led_value |= 1u << SHDN_R_BIT;
     }
+    else
+    {
+        led_value |= 1u << SHDN_G_BIT;
+    }
+
     if (open_wire_check)
     {
         // Set led to magenta
