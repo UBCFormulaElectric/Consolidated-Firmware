@@ -22,6 +22,7 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_hardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,13 +56,16 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 extern DMA_HandleTypeDef   hdma_adc1;
 extern DMA_HandleTypeDef   hdma_adc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern FDCAN_HandleTypeDef hfdcan2;
 extern SD_HandleTypeDef    hsd1;
+extern SPI_HandleTypeDef   hspi4;
 extern TIM_HandleTypeDef   htim1;
 extern TIM_HandleTypeDef   htim3;
+extern TIM_HandleTypeDef   htim5;
 extern TIM_HandleTypeDef   htim2;
 
 /* USER CODE BEGIN EV */
@@ -92,7 +96,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -304,6 +308,46 @@ void SDMMC1_IRQHandler(void)
     /* USER CODE BEGIN SDMMC1_IRQn 1 */
 
     /* USER CODE END SDMMC1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM5 global interrupt.
+ */
+void TIM5_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM5_IRQn 0 */
+
+    /* USER CODE END TIM5_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim5);
+    /* USER CODE BEGIN TIM5_IRQn 1 */
+
+    /* USER CODE END TIM5_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB On The Go HS global interrupt.
+ */
+void OTG_HS_IRQHandler(void)
+{
+    /* USER CODE BEGIN OTG_HS_IRQn 0 */
+    /* USER CODE END OTG_HS_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    /* USER CODE BEGIN OTG_HS_IRQn 1 */
+    /* USER CODE END OTG_HS_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SPI4 global interrupt.
+ */
+void SPI4_IRQHandler(void)
+{
+    /* USER CODE BEGIN SPI4_IRQn 0 */
+
+    /* USER CODE END SPI4_IRQn 0 */
+    HAL_SPI_IRQHandler(&hspi4);
+    /* USER CODE BEGIN SPI4_IRQn 1 */
+
+    /* USER CODE END SPI4_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

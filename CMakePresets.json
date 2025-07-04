@@ -16,7 +16,9 @@
         "TARGET": "binary",
         "HANDLE_DEPS": "OFF",
         "USE_COMMIT_INFO": "MINIMAL",
-        "NO_VENV": "ON"
+        "NO_VENV": "ON",
+        "BOOTLOAD": "ON",
+        "WATCHDOG": "ON"
       },
       "binaryDir": "build_fw_dev"
     },
@@ -31,7 +33,9 @@
         "TARGET": "binary",
         "HANDLE_DEPS": "OFF",
         "USE_COMMIT_INFO": "ON",
-        "NO_VENV": "ON"
+        "NO_VENV": "ON",
+        "BOOTLOAD": "ON",
+        "WATCHDOG": "ON"
       },
       "binaryDir": "build_fw_deploy"
     },
@@ -65,6 +69,11 @@
         "NO_VENV": "ON"
       },
       "binaryDir": "build_fw_test"
+    },
+    {
+      "name": "FW Test Ninja",
+      "inherits": "FW Test",
+      "generator": "Ninja"
     },
     {
       "name": "FW Test CI",

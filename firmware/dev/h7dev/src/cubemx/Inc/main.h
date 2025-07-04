@@ -42,7 +42,10 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan2;
+    extern SD_HandleTypeDef    hsd1;
+    extern UART_HandleTypeDef  huart9;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

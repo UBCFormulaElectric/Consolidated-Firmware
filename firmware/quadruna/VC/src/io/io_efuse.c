@@ -1,4 +1,4 @@
-#include "io_efuse.h"
+#include "io_efuses.h"
 
 #include <assert.h>
 

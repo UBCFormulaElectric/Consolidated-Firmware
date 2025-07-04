@@ -1,6 +1,6 @@
 #include "test_vcBaseStateMachineTest.h"
 
-class VCStateMachineTest : public VcBaseStateMachineTest
+class VCStateMachineTest : public VCBaseTest
 {
   protected:
     void TestFaultBlocksDrive(const std::function<void(void)> &set_fault, const std::function<void(void)> &clear_fault)
@@ -145,9 +145,9 @@ TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverter_
 
 TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state)
 {
-    for (auto &state : GetAllStates())
+    for (const auto &state : GetAllStates())
     {
-        VcBaseStateMachineTest::SetUp();
+        VCBaseTest::SetUp();
         SetInitialState(state);
         app_heartbeatMonitor_clearFaults(&hb_monitor);
 

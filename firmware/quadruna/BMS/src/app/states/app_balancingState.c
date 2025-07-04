@@ -1,12 +1,11 @@
 #include "states/app_allStates.h"
-#include "app_accumulator.h"
-#include "app_utils.h"
+
 #include "io_airs.h"
+#include "io_ltc6813.h"
 
 static void balancingStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_BALANCING_STATE);
-    app_accumulator_enableBalancing(true);
 }
 
 static void balancingStateRunOnTick1Hz(void)
@@ -29,7 +28,7 @@ static void balancingStateRunOnTick100Hz(void)
 
 static void balancingStateRunOnExit(void)
 {
-    app_accumulator_enableBalancing(false);
+    io_ltc6813_sendStopBalanceCommand(); // extra precaution
 }
 
 const State *app_balancingState_get(void)

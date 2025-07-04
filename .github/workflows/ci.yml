@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     #    container:
-    #      image: ubcformulaelectric/environment:no_cube
+    #      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -35,36 +35,38 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: VC
-            ioc_dir: firmware/quadruna/VC/src/cubemx
-          - board: BMS
-            ioc_dir: firmware/quadruna/BMS/src/cubemx
-          - board: FSM
-            ioc_dir: firmware/quadruna/FSM/src/cubemx
-          - board: RSM
-            ioc_dir: firmware/quadruna/RSM/src/cubemx
-          - board: CRIT
-            ioc_dir: firmware/quadruna/CRIT/src/cubemx
+          #- board: VC
+          #  ioc_dir: firmware/quadruna/VC/src/cubemx
+          #- board: BMS
+          #  ioc_dir: firmware/quadruna/BMS/src/cubemx
+          #- board: FSM
+          #  ioc_dir: firmware/quadruna/FSM/src/cubemx
+          #- board: RSM
+          #  ioc_dir: firmware/quadruna/RSM/src/cubemx
+          #- board: CRIT
+          #  ioc_dir: firmware/quadruna/CRIT/src/cubemx
           - board: f4dev
             ioc_dir: firmware/dev/f4dev/src/cubemx
           - board: h7dev
             ioc_dir: firmware/dev/h7dev/src/cubemx
-          #          - board: BMS
-          #            ioc_dir: firmware/quintuna/BMS/src/cubemx
+          - board: BMS
+            ioc_dir: firmware/quintuna/BMS/src/cubemx
           - board: CRIT
             ioc_dir: firmware/quintuna/CRIT/src/cubemx
-          #          - board: FSM
-          #            ioc_dir: firmware/quintuna/FSM/src/cubemx
+          - board: DAM
+            ioc_dir: firmware/quintuna/DAM/src/cubemx
+          - board: FSM
+            ioc_dir: firmware/quintuna/FSM/src/cubemx
           - board: RSM
             ioc_dir: firmware/quintuna/RSM/src/cubemx
           - board: VC
             ioc_dir: firmware/quintuna/VC/src/cubemx
-          - board: DAM
-            ioc_dir: firmware/quintuna/DAM/src/cubemx
+          - board: VCR
+            ioc_dir: firmware/quintuna/VCR/src/cubemx
 
     # both packages shouldn't need to use python dependences that we need...
     #    container:
-    #      image: ubcformulaelectric/environment:no_cube
+    #      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -103,22 +105,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: quadruna_VC
-          - board: quadruna_BMS
-          - board: quadruna_FSM
-          - board: quadruna_RSM
-          - board: quadruna_CRIT
-          - board: f4dev
-          - board: h7dev
-          #          - board: quintuna_BMS
-          - board: quintuna_CRIT
-          #          - board: quintuna_FSM
-          - board: quintuna_RSM
-          - board: quintuna_VC
-          - board: quintuna_DAM
+          - board: f4dev.elf
+          - board: h7dev.hex
+          - board: quintuna_BMS.hex
+          - board: quintuna_CRIT.hex
+          - board: quintuna_DAM.hex
+          - board: quintuna_FSM.hex
+          - board: quintuna_RSM.hex
+          - board: quintuna_VC.hex
+          - board: quintuna_VCR_app.elf
 
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.docker_token }}
@@ -139,19 +137,31 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          #- board: VC
+          #  car: quadruna
+          #- board: BMS
+          #  car: quadruna
+          #- board: FSM
+          #  car: quadruna
+          #- board: RSM
+          #  car: quadruna
+          #- board: CRIT
+          #  car: quadruna
+          # - board: BMS
+          #   car: quintuna
+          #- board: CRIT
+          #  car: quintuna
+          #- board: DAM
+          #  car: quintuna
+          #- board: FSM
+          #  car: quintuna
+          #- board: RSM
+          #  car: quintuna
           - board: VC
-            car: quadruna
-          - board: BMS
-            car: quadruna
-          - board: FSM
-            car: quadruna
-          - board: RSM
-            car: quadruna
-          - board: CRIT
-            car: quadruna
+            car: quintuna
 
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -185,7 +195,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -219,7 +229,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -252,7 +262,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:no_cube
+      image: ubcformulaelectric/environment:arm_14
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -273,6 +283,28 @@ jobs:
 
       - name: Build and install `logfs`
         run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target install_python_logfs
+          pip install -e firmware/logfs/python
           pytest -v firmware/logfs/test
+  test-jsoncan:
+    name: Test jsonCAN
+    runs-on: ubuntu-22.04
+    needs: [ clang-format ]
+    container:
+      image: ubcformulaelectric/environment:arm_14
+    env:
+      BUILD_DIR: build_fw_test
+    steps:
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run jsoncan unit tests
+        run: python3 -m pytest ./scripts/code_generation/jsoncan/test
+      - name: Build jsonCAN integration tests
+        run: |
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target jsoncan_test
+      - name: Run jsonCAN integration tests
+        run: |
+          cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
+          valgrind --tool=memcheck --leak-check=yes ./jsoncan_test

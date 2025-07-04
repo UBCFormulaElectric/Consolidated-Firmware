@@ -18,7 +18,7 @@ typedef struct
     TimerChannel timer;
 
     // PUBLIC ELEMENTS
-    const uint8_t timeout_ms;
+    const uint32_t timeout_ms;
 
     // HEARTBEAT CAN SIGNALS
     // getters for heartbeats on the CAN table

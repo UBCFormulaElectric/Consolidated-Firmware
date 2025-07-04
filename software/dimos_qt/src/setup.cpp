@@ -26,7 +26,7 @@ void set_qt_environment()
 void init_json_can()
 {
     io_canTx_init(reinterpret_cast<void (*)(const JsonCanMsg *)>(Can_Write));
-    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_enableMode_Can(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
     qInfo() << "JsonCAN Initialized";

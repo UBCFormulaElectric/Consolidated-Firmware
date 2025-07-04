@@ -1,14 +1,117 @@
 {
-    "warnings_id": 601,
-    "faults_id": 602,
-    "warnings_counts_id": 603,
-    "faults_counts_id": 604,
-    "warnings": {
+  "faults_id": 502,
+  "faults_counts_id": 504,
+  "faults": {},
+  "warnings_id": 501,
+  "warnings_counts_id": 503,
+  "warnings": {
+    "PcmLvOvercurrentFault": {
+      "id": 558,
+      "description": "LV rail from the HV DCDC was overcurrent."
     },
-    "faults": {
-        "DummyFault": {
-            "id": 600,
-            "description": "Dummy Fault"
-        }
+    "SoftwareBspd": {
+      "id": 564,
+      "description": "Brakes and apps are active at same time."
+    },
+    "MissingCRITHeartbeat": {
+      "id": 554,
+      "description": "Missing heartbeat signal from the CRIT."
+    },
+    "MissingBMSHeartbeat": {
+      "id": 551,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 552,
+      "description": "Missing heartbeat signal from the FSM."
+    },
+    "FrontLeftInverterFault": {
+      "id": 555,
+      "description": "Left inverter entered fault state."
+    },
+    "FrontRightInverterFault": {
+      "id": 556,
+      "description": "Right inverter entered fault state."
+    },
+    "RearLeftInverterFault": {
+      "id": 557,
+      "description": "Left inverter entered fault state."
+    },
+    "RearRightInverterFault": {
+      "id": 558,
+      "description": "Right inverter entered fault state."
     }
+  },
+  "info_id": 505,
+  "info_counts_id": 506,
+  "info": {
+    "MissingRSMHeartbeat": {
+      "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingVCRHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
+    "InverterRetry": {
+      "id": 553,
+      "description": "Inverter fault occured in drive state"
+    },
+    "StackOverflow": {
+      "id": 510,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "LvChargeFault": {
+      "id": 559,
+      "description": "LV battery charger has faulted."
+    },
+    "BoostControllerFault": {
+      "id": 560,
+      "description": "Boost controller has faulted."
+    },
+    "ImuInitFailed": {
+      "id": 516,
+      "description": "Initializing the embedded IMU failed."
+    },
+    "FlowRateInputOutOfRange": {
+      "id": 517,
+      "description": "Input to app_pumpControl_setFlowRate out of range"
+    },
+    "BatteryRailOvercurrentFault": {
+      "id": 557,
+      "description": "LV rail from the 18650 batteries was overcurrent."
+    },
+    "WatchdogTimeout": {
+      "id": 506,
+      "description": "Watchdog timeout detected."
+    },
+    "TxOverflow": {
+      "id": 507,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 508,
+      "description": "CAN RX queue has overflowed."
+    },
+    "RegenNotAvailable": {
+      "id": 509,
+      "description": "Regen is not currently available."
+    },
+    "SbgInitFailed": {
+      "id": 565,
+      "description": "Initializing the SBG Ellipse GPS failed"
+    },
+    "PcmUnderVoltage": {
+      "id": 566,
+      "description": "PCM voltage under 18 volts"
+    },
+    "DriveModeOverride": {
+      "id": 567,
+      "description": "Override requested drive mode to vanilla if sensor fails"
+    }
+  }
 }

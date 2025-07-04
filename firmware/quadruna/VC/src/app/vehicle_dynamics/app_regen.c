@@ -44,10 +44,10 @@ static PowerLimiting_Inputs      powerLimitingInputs = { .power_limit_kW = POWER
 void app_regen_init(void)
 {
     app_canTx_VC_RegenEnabled_set(true);
-    app_canTx_VC_Warning_RegenNotAvailable_set(false);
+    app_canAlerts_VC_Warning_RegenNotAvailable_set(false);
 }
 
-void app_regen_run(float accelerator_pedal_percentage)
+void app_regen_run(const float accelerator_pedal_percentage)
 {
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
     bool regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
@@ -63,7 +63,7 @@ void app_regen_run(float accelerator_pedal_percentage)
     }
 
     app_canTx_VC_RegenEnabled_set(regen_available);
-    app_canTx_VC_Warning_RegenNotAvailable_set(!regen_available);
+    app_canAlerts_VC_Warning_RegenNotAvailable_set(!regen_available);
 
     app_regen_sendTorqueRequest(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }
@@ -97,17 +97,17 @@ void app_regen_sendTorqueRequest(float left, float right)
 
 void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
 {
-    float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
+    const float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
 
-    float cl = (1 + Delta);
-    float cr = (1 - Delta);
+    const float cl = (1 + Delta);
+    const float cr = (1 - Delta);
 
-    float torque_limit_Nm = -app_activeDifferential_powerToTorque(
+    const float torque_limit_Nm = -app_activeDifferential_powerToTorque(
         inputs->power_max_kW, inputs->motor_speed_left_rpm, inputs->motor_speed_right_rpm, cl, cr);
 
-    float torque_left_Nm         = torque_limit_Nm * cl;
-    float torque_right_Nm        = torque_limit_Nm * cr;
-    float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
+    const float torque_left_Nm         = torque_limit_Nm * cl;
+    const float torque_right_Nm        = torque_limit_Nm * cr;
+    const float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
 
     float scale = CLAMP_TO_ONE(regenAttr->derating_value);
     if (torque_negative_max_Nm < MAX_REGEN_Nm)
@@ -124,8 +124,8 @@ static void computeRegenTorqueRequest(
     RegenBraking_Inputs       *regenAttr,
     PowerLimiting_Inputs      *powerInputs)
 {
-    float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
-    float min_motor_speed =
+    const float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
+    const float min_motor_speed =
         MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_right_rpm, activeDiffInputs->motor_speed_left_rpm));
 
     powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value

@@ -1,0 +1,66 @@
+{
+  "Vitals": {
+    "msg_id": 800,
+    "cycle_time": 100,
+    "description": "DAM Vital signals",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 809,
+    "cycle_time": 100,
+    "description": "DAM Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Debug": {
+    "msg_id": 807,
+    "cycle_time": 1000,
+    "description": "DAM Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
+      }
+    }
+  },
+  "ShdnNodeStatus": {
+    "msg_id": 810,
+    "cycle_time": 10,
+    "description": "DAM Shudown Messages",
+    "signals": {
+      "REStopOKStatus": {
+        "bits": 1
+      },
+      "LEStopOKStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 899,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  }
+}

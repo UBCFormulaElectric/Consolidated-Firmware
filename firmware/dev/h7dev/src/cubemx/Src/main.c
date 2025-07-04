@@ -22,23 +22,18 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include "pb_encode.h"
-#include "pb_decode.h"
-#include "sample.pb.h"
-#include "string.h"
-#include "hw_hardFaultHandler.h"
-#include "hw_sd.h"
+#include <string.h>
+#include "tasks.h"
+
 #include "hw_bootup.h"
 #include "hw_uart.h"
-#include "hw_can.h"
+#include "hw_fdcan.h"
 #include "io_canQueue.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "hw_gpio.h"
+#include "hw_sd.h"
 #include "io_log.h"
-#include "hw_utils.h"
-
-#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,6 +56,8 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
+
+RTC_HandleTypeDef hrtc;
 
 SD_HandleTypeDef hsd1;
 
@@ -117,11 +114,13 @@ int overflow_num = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
+void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_UART9_Init(void);
+static void MX_RTC_Init(void);
 void        runDefaultTask(void *argument);
 void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
@@ -132,20 +131,21 @@ void        runCanRxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle        can = { .hcan = &hfdcan2 };
-const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+
+// gpio PA0 interrupt callback
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    assert(hfdcan == can.hcan);
-    return &can;
+    if (GPIO_Pin == GPIO_PIN_0)
+    {
+        // CHANGE: enter standby mode on button press
+
+        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+        HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2); // use PA2 as wakeup pin
+        HAL_PWR_EnterSTANDBYMode();               // enter standby mode
+
+        LOG_ERROR("Should not reach here!");
+    }
 }
-
-SdCard sd1 = { .hsd = &hsd1, .timeout = osWaitForever };
-
-Gpio sd_present = {
-    .pin  = GPIO_PIN_8,
-    .port = GPIOA,
-};
-bool sd_inited;
 
 /* USER CODE END 0 */
 
@@ -158,6 +158,8 @@ int main(void)
     /* USER CODE BEGIN 1 */
     hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
+
+    /* Enable the CPU Cache */
 
     /* Enable I-Cache---------------------------------------------------------*/
     SCB_EnableICache();
@@ -176,8 +178,27 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /* USER CODE BEGIN SysInit */
+    /* Configure the peripherals common clocks */
+    PeriphCommonClock_Config();
 
+    /* USER CODE BEGIN SysInit */
+    // __HAL_RCC_PWR_CLK_ENABLE();
+    if (__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET)
+    {
+        LOG_INFO("System resumed from standby mode");
+        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
+    }
+    else
+    {
+        LOG_INFO("System started from reset");
+    }
+
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+    LOG_INFO("Entering standby");
+    HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2); // use PA2 as wakeup pin
+    HAL_PWR_EnterSTANDBYMode();               // enter standby mode
+
+    LOG_ERROR("Should not reach here!");
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -186,30 +207,32 @@ int main(void)
     MX_SDMMC1_SD_Init();
     MX_FDCAN1_Init();
     MX_UART9_Init();
+    MX_RTC_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
     // __HAL_DBGMCU_FREEZE_IWDG();
 
-    hw_hardFaultHandler_init();
-    hw_can_init(&can);
-    io_canQueue_init();
+    // hw_can_init(&can);
+    // io_canQueue_init();
 
-    if (sd_inited)
-    {
-        sd1.hsd     = &hsd1;
-        sd1.timeout = osWaitForever;
-        int err     = io_fileSystem_init();
-        io_canLogging_init();
-    }
+    // if (sd_inited)
+    //{
+    //   sd1.hsd     = &hsd1;
+    //   sd1.timeout = osWaitForever;
+    //   io_canLogging_init();
+    // }
 
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("h7dev reset!");
+    // SEGGER_SYSVIEW_Conf();
+    // LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
 
     /* Init scheduler */
     osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
-    /* add mutexes, ... */
+    // TODO: standby mode testing code
+    // Use to fire interrupt
+
     /* USER CODE END RTOS_MUTEX */
 
     /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -246,6 +269,7 @@ int main(void)
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
+
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -272,7 +296,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -281,12 +305,13 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 24;
+    RCC_OscInitStruct.PLL.PLLN       = 64;
     RCC_OscInitStruct.PLL.PLLP       = 1;
     RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
@@ -304,13 +329,39 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV4;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+}
+
+/**
+ * @brief Peripherals Common Clock Configuration
+ * @retval None
+ */
+void PeriphCommonClock_Config(void)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+
+    /** Initializes the peripherals clock
+     */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PLL2.PLL2M           = 1;
+    PeriphClkInitStruct.PLL2.PLL2N           = 96;
+    PeriphClkInitStruct.PLL2.PLL2P           = 2;
+    PeriphClkInitStruct.PLL2.PLL2Q           = 8;
+    PeriphClkInitStruct.PLL2.PLL2R           = 2;
+    PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
+    PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
+    PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
+    PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
     }
@@ -336,10 +387,10 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.AutoRetransmission   = DISABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
+    hfdcan1.Init.NominalPrescaler     = 6;
     hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 2;
-    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 12;
+    hfdcan1.Init.NominalTimeSeg2      = 3;
     hfdcan1.Init.DataPrescaler        = 1;
     hfdcan1.Init.DataSyncJumpWidth    = 1;
     hfdcan1.Init.DataTimeSeg1         = 1;
@@ -382,19 +433,19 @@ static void MX_FDCAN2_Init(void)
 
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 16;
-    hfdcan2.Init.NominalSyncJumpWidth = 4;
-    hfdcan2.Init.NominalTimeSeg1      = 13;
+    hfdcan2.Init.NominalPrescaler     = 2;
+    hfdcan2.Init.NominalSyncJumpWidth = 2;
+    hfdcan2.Init.NominalTimeSeg1      = 45;
     hfdcan2.Init.NominalTimeSeg2      = 2;
     hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 1;
-    hfdcan2.Init.DataTimeSeg1         = 1;
-    hfdcan2.Init.DataTimeSeg2         = 1;
+    hfdcan2.Init.DataSyncJumpWidth    = 6;
+    hfdcan2.Init.DataTimeSeg1         = 17;
+    hfdcan2.Init.DataTimeSeg2         = 6;
     hfdcan2.Init.MessageRAMOffset     = 0;
     hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 0;
@@ -419,6 +470,68 @@ static void MX_FDCAN2_Init(void)
 }
 
 /**
+ * @brief RTC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_RTC_Init(void)
+{
+    /* USER CODE BEGIN RTC_Init 0 */
+
+    /* USER CODE END RTC_Init 0 */
+
+    RTC_TimeTypeDef sTime = { 0 };
+    RTC_DateTypeDef sDate = { 0 };
+
+    /* USER CODE BEGIN RTC_Init 1 */
+
+    /* USER CODE END RTC_Init 1 */
+
+    /** Initialize RTC Only
+     */
+    hrtc.Instance            = RTC;
+    hrtc.Init.HourFormat     = RTC_HOURFORMAT_24;
+    hrtc.Init.AsynchPrediv   = 127;
+    hrtc.Init.SynchPrediv    = 255;
+    hrtc.Init.OutPut         = RTC_OUTPUT_DISABLE;
+    hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    hrtc.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+    hrtc.Init.OutPutRemap    = RTC_OUTPUT_REMAP_NONE;
+    if (HAL_RTC_Init(&hrtc) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /* USER CODE BEGIN Check_RTC_BKUP */
+
+    /* USER CODE END Check_RTC_BKUP */
+
+    /** Initialize RTC and set the Time and Date
+     */
+    sTime.Hours          = 0x0;
+    sTime.Minutes        = 0x0;
+    sTime.Seconds        = 0x0;
+    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+    sDate.Month   = RTC_MONTH_JANUARY;
+    sDate.Date    = 0x1;
+    sDate.Year    = 0x0;
+
+    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN RTC_Init 2 */
+
+    /* USER CODE END RTC_Init 2 */
+}
+
+/**
  * @brief SDMMC1 Initialization Function
  * @param None
  * @retval None
@@ -426,9 +539,8 @@ static void MX_FDCAN2_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-    if (hw_gpio_readPin(&sd_present))
+    if (!hw_sd_present())
     {
-        sd_inited = false;
         return;
     }
 
@@ -448,7 +560,6 @@ static void MX_SDMMC1_SD_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
-    sd_inited = true;
     /* USER CODE END SDMMC1_Init 2 */
 }
 
@@ -512,9 +623,9 @@ static void MX_GPIO_Init(void)
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
@@ -527,17 +638,28 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
+    /*Configure GPIO pin : PA0 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_0;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
     /*Configure GPIO pin : PA8 */
     GPIO_InitStruct.Pin  = GPIO_PIN_8;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
+
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_runDefaultTask */
@@ -552,45 +674,7 @@ void runDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        // UART modem_uart = { .handle = &huart9 };
-        // /* Infinite loop */
-        // // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-        // // uint8_t num; // use this if just want numbers
-        // // uint8_t predicData[3];
-        // // predicData[1] = 13;
-        // // predicData[2] = 10;
-        // uint8_t buffer[128];
-        // uint8_t message_length;
-        // bool    status;
-
-        // // SimpleMessage message = SimpleMessage_init_zero;
-
-        // for (;;)
-        // {
-        //     /* Create a stream that will write to our buffer. */
-        //     TelemMessage message = TelemMessage_init_zero;
-        //     pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
-        //     /* Fill in the lucky number */
-        //     message.can_id     = 53;
-        //     message.data       = 23;
-        //     message.time_stamp = 9;
-
-        //     /* Now we are ready to encode the message! */
-        //     status         = pb_encode(&stream, TelemMessage_fields, &message);
-        //     message_length = (uint8_t)stream.bytes_written;
-        //     // message_length = stream.bytes_written;
-        //     if (status)
-        //     {
-        //         hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
-        //         hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
-        //     }
-        //     osDelay(10);
-        // }
-    }
+    tasks_default();
     /* USER CODE END 5 */
 }
 
@@ -604,20 +688,7 @@ void runDefaultTask(void *argument)
 void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
-    /* Infinite loop */
-
-    for (unsigned int i = 0; i < 10000; i++)
-    {
-        CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        for (int j = 0; j < 6; j++)
-        {
-            read_num++;
-            // io_canLogging_pushTxMsgToQueue(&msg);
-        }
-        osDelay(1);
-    }
-
-    osDelay(osWaitForever);
+    tasks_canTx();
     /* USER CODE END runCanTxTask */
 }
 
@@ -631,30 +702,7 @@ void runCanTxTask(void *argument)
 void runCanRxTask(void *argument)
 {
     /* USER CODE BEGIN runCanRxTask */
-    /* Infinite loop */
-    static uint32_t count = 0;
-    for (;;)
-    {
-        // CanMsg msg;
-        // io_can_popRxMsgFromQueue(&msg);
-
-        // NOTE: this is copied from the previous code, idk what it does.
-        // TODO: check gpio present
-        // static uint32_t id = 0;
-        // rx_msg->std_id     = id;
-        // id++;
-        // io_canLogging_loggingQueuePush(rx_msg);
-
-        io_canLogging_recordMsgFromQueue();
-        write_num++;
-        count++;
-
-        if (count > 256)
-        {
-            io_canLogging_sync();
-            count = 0;
-        }
-    }
+    tasks_canRx();
     /* USER CODE END runCanRxTask */
 }
 

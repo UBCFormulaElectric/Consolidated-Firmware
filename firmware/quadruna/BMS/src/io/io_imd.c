@@ -6,7 +6,14 @@
 
 #define PWM_TICKS_MAX 255
 
-static PwmInput pwm_input;
+static PwmInput imd_pwm_input = {
+    .duty_cycle               = 0,
+    .frequency_hz             = 0,
+    .htim                     = &htim1,
+    .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
+    .rising_edge_tim_channel  = TIM_CHANNEL_1,
+    .falling_edge_tim_channel = TIM_CHANNEL_2,
+};
 
 static uint8_t pwm_counter = 0;
 /*
@@ -27,28 +34,27 @@ uint8_t io_imd_pwmCounterTick(void)
     return pwm_counter;
 }
 
-void io_imd_init(const PwmInputConfig *pwm_input_config)
+void io_imd_init(void)
 {
-    io_pwmInput_init(&pwm_input, pwm_input_config);
+    hw_pwmInput_init(&imd_pwm_input);
 }
 
 float io_imd_getFrequency(void)
 {
-    return hw_pwmInput_getFrequency(&pwm_input);
+    return hw_pwmInput_getFrequency(&imd_pwm_input);
 }
 
 float io_imd_getDutyCycle(void)
 {
-    return hw_pwmInput_getDutyCycle(&pwm_input);
+    return hw_pwmInput_getDutyCycle(&imd_pwm_input);
 }
 
 void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == pwm_input.config->htim)
-    {
-        hw_pwmInput_tick(&pwm_input);
-        pwm_counter = 0; // Reset the ticks since the last pwm reading
-    }
+    assert(htim == imd_pwm_input.htim);
+
+    hw_pwmInput_tick(&imd_pwm_input);
+    pwm_counter = 0; // Reset the ticks since the last pwm reading
 }
 
 uint32_t io_imd_getTimeSincePowerOn(void)

@@ -1,200 +1,325 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "Launch: STM32CubeMX",
-        "type": "shell",
-        "command": "./STM32CubeMX",
-        "group": "build",
-        "linux": {
-          "options": {
-            "cwd": "/usr/local/STM32CubeMX/"
-          }
-        },
-        "osx": {
-          "options": {
-            "cwd": "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs"
-          }
-        }
-      },
-      {
-        "label": "Format: Codebase",
-        "type": "shell",
-        "command": "python3 fix_formatting.py",
-        "group": "build",
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Launch: STM32CubeMX",
+      "type": "shell",
+      "command": "./STM32CubeMX",
+      "group": "build",
+      "linux": {
         "options": {
-          "cwd": "${workspaceFolder}/scripts/utilities/"
+          "cwd": "/usr/local/STM32CubeMX/"
         }
       },
-      {
-        "label": "CMake: Load",
-        "detail": "CMake Generate step",
-        "group": "build",
-        "type": "cmake",
-        "command": "configure",
-        "preset": "${command:cmake.activeConfigurePresetName}"
-      },
-      {
-        "label": "Build Embedded Quadruna",
-        "detail": "CMake Generate step",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_BMS.hex",
-                    "quadruna_VC.hex",
-                    "quadruna_CRIT.hex",
-                    "quadruna_RSM.hex",
-                    "quadruna_FSM.hex",
-                    "can_bus_load_quadruna"]
-      },
-      {
-        "label": "Build Embedded Quintuna",
-        "detail": "CMake Generate step",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quintuna_BMS.hex",
-                    "quintuna_VC.hex",
-                    "quintuna_CRIT.hex",
-                    "quintuna_RSM.hex",
-                    "quintuna_FSM.hex",
-                    "quintuna_DAM.hex",
-                    "can_bus_load_quintuna"]
-      },
-      {
-        "label": "CMake: Clean",
-        "detail": "CMake template clean task",
-        "group": "build",
-        "type": "cmake",
-        "command": "clean",
-        "preset": "${command:cmake.activeBuildPresetName}"
-      },
-      {
-        "label": "Build Embedded: BMS (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_BMS.hex", "can_bus_load_quadruna"]
-      },
-      {
-        "label": "Build Embedded: CRIT (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_CRIT.hex", "can_bus_load_quadruna"]
-      },
-      {
-        "label": "Build Embedded: FSM (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_FSM.hex", "can_bus_load_quadruna"]
-      },
-      {
-        "label": "Build Embedded: RSM (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_RSM.hex", "can_bus_load_quadruna"]
-      },
-      {
-        "label": "Build Embedded: VC (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_VC.hex", "can_bus_load_quadruna"]
-      },
-      {
-        "label": "Build Embedded: BMS (Quintuna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quintuna_BMS.hex", "can_bus_load_quadruna"]
-      },
-      {
-        "label": "Build Embedded: CRIT (Quintuna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quintuna_CRIT.hex", "can_bus_load_quintuna"]
-      },
-      {
-        "label": "Build Embedded: DAM (Quintuna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quintuna_DAM.hex", "can_bus_load_quintuna"]
-      },
-      {
-        "label": "Build Embedded: f4dev",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["f4dev.hex"]
-      },
-      {
-        "label": "Build Embedded: h7dev",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["h7dev.hex"]
-      },
-      {
-        "label": "Build Embedded: SSM",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["ssm.hex"]
-      },
-      {
-        "label": "Build Tests: BMS (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_BMS_test"]
-      },
-      {
-        "label": "Build Tests: CRIT (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_CRIT_test"]
-      },
-      {
-        "label": "Build Tests: CRIT (Quintuna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quintuna_CRIT_test"]
-      },
-
-      {
-        "label": "Build Tests: FSM (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_FSM_test"]
-      },
-      {
-        "label": "Build Tests: RSM (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_RSM_test"]
-      },
-      {
-        "label": "Build Tests: VC (Quadruna)",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["quadruna_VC_test"]
-      },
-      {
-        "label": "Build Tests: Shared",
-        "group": "build",
-        "type": "cmake",
-        "command": "build",
-        "targets": ["shared_test"]
+      "osx": {
+        "options": {
+          "cwd": "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs"
+        }
       }
-    ]
+    },
+    {
+      "label": "Format: Codebase",
+      "type": "shell",
+      "command": "python ${workspaceFolder}/scripts/utilities/fix_formatting.py",
+      "group": "build",
+      "options": {}
+    },
+    {
+      "label": "CMake: Load",
+      "detail": "CMake Generate step",
+      "group": "build",
+      "type": "cmake",
+      "command": "configure",
+      "preset": "${command:cmake.activeConfigurePresetName}"
+    },
+    {
+      "label": "Build Embedded Quadruna",
+      "detail": "CMake Generate step",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_BMS.hex",
+        "quadruna_VC.hex",
+        "quadruna_CRIT.hex",
+        "quadruna_RSM.hex",
+        "quadruna_FSM.hex",
+        "can_bus_load_quadruna"
+      ]
+    },
+    {
+      "label": "Build Embedded Quintuna",
+      "detail": "CMake Generate step",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_BMS.hex",
+        "quintuna_VC.hex",
+        "quintuna_CRIT.hex",
+        "quintuna_RSM.hex",
+        "quintuna_FSM.hex",
+        "quintuna_DAM.hex",
+        "can_bus_load_quintuna"
+      ]
+    },
+    {
+      "label": "CMake: Clean",
+      "detail": "CMake template clean task",
+      "group": "build",
+      "type": "cmake",
+      "command": "clean",
+      "preset": "${command:cmake.activeBuildPresetName}"
+    },
+    {
+      "label": "Build Embedded: BMS (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_BMS.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: CRIT (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_CRIT.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: FSM (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_FSM.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: VCR (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_VCR_app.elf",
+      ]
+    },
+    {
+      "label": "Build Embedded: RSM (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_RSM.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: VC (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_VC.hex"
+      ]
+    },
+    {
+      "label": "Build Embedded: BMS (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_BMS.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: VC (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_VC.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: CRIT (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_CRIT.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: DAM (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_DAM.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: RSM (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_RSM.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: FSM (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_FSM.hex",
+      ]
+    },
+    {
+      "label": "Build Embedded: f4dev",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "f4dev.hex"
+      ]
+    },
+    {
+      "label": "Build Embedded: h7dev",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "h7dev.hex"
+      ]
+    },
+    {
+      "label": "Build Embedded: SSM",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "ssm.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: BMS (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_BMS_test"
+      ]
+    },
+    {
+      "label": "Build Tests: CRIT (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_CRIT_test"
+      ]
+    },
+    {
+      "label": "Build Tests: CRIT (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_CRIT_test"
+      ]
+    },
+    {
+      "label": "Build Tests: FSM (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_FSM_test"
+      ]
+    },
+    {
+      "label": "Build Tests: RSM (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_RSM_test"
+      ]
+    },
+    {
+      "label": "Build Tests: VC (Quadruna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quadruna_VC_test"
+      ]
+    },
+    {
+      "label": "Build Tests: VC (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_VC_test"
+      ]
+    },
+    {
+      "label": "Build Tests: BMS (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_BMS_test"
+      ]
+    },
+    {
+      "label": "Build Tests: Shared",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "shared_test"
+      ]
+    },
+    {
+      "label": "Build Tests: JSON CAN intergation",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "jsoncan_test"
+      ]
+    },
+    {
+      "label": "CAN Bus Load: Quadruna",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "can_bus_load_quadruna"
+      ]
+    },
+    {
+      "label": "CAN Bus Load: Quintuna",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "can_bus_load_quintuna"
+      ]
+    },
+    {
+      "label": "Run Telem Backend",
+      "type": "shell",
+      "command": "python ${workspaceRoot}/software/tracksight/live_data/app/app.py",
+      "group": "build",
+      "options": {}
+    },
+  ]
 }

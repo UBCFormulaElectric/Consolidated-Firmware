@@ -117,7 +117,7 @@ uint32_t io_sbgEllipse_getEkfSolutionMode(void);
  * - float y: Lateral acceleration in m/s^2
  * - float z: Vertical acceleration in m/s^2
  */
-Vector3 *io_sbgEllipse_getImuAccelerations();
+Vector3 *io_sbgEllipse_getImuAccelerations(void);
 
 /*
  * Get the IMU angular velocities as a struct pointer with fields:
@@ -125,7 +125,7 @@ Vector3 *io_sbgEllipse_getImuAccelerations();
  * - float pitch: Pitch angular velocity in rad/s
  * - float yaw: Yaw angular velocity in rad/s
  */
-Attitude *io_sbgEllipse_getImuAngularVelocities();
+Attitude *io_sbgEllipse_getImuAngularVelocities(void);
 
 /*
  * Get the Euler angles as a struct pointer with fields:
@@ -133,7 +133,7 @@ Attitude *io_sbgEllipse_getImuAngularVelocities();
  * - float pitch: Pitch angle in rad
  * - float yaw: Yaw angle in rad
  */
-Attitude *io_sbgEllipse_getEkfEulerAngles();
+Attitude *io_sbgEllipse_getEkfEulerAngles(void);
 
 /*
  * Get the GPS velocity data as a struct pointer with fields:
@@ -145,7 +145,7 @@ Attitude *io_sbgEllipse_getEkfEulerAngles();
  * - float velocity_accuracy_e: East velocity accuracy in m/s
  * - float velocity_accuracy_d: Down velocity accuracy in m/s
  */
-VelocityData *io_sbgEllipse_getEkfNavVelocityData();
+VelocityData *io_sbgEllipse_getEkfNavVelocityData(void);
 
 /*
  * Get the GPS position data as a struct pointer with fields:
@@ -158,7 +158,7 @@ VelocityData *io_sbgEllipse_getEkfNavVelocityData();
  * - float altitude_accuracy: Altitude accuracy in meters
  *
  */
-PositionData *io_sbgEllipse_getEkfNavPositionData();
+PositionData *io_sbgEllipse_getEkfNavPositionData(void);
 
 /*
  * Handle SBG Ellipse UART Callbacks

@@ -1,12 +1,8 @@
 #pragma once
 
+#include <io_ltc6813.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "app_canTx.h"
-#include "app_tractiveSystem.h"
-#include "ltc6813/io_ltc6813Shared.h"
 
 // Min and Max cell temperatures depending on state
 // C_RATE_TO_AMP conversion value is obtained by using the 5.9Ahrs
@@ -66,12 +62,6 @@ void app_accumulator_broadcast(void);
 bool app_accumulator_checkFaults(void);
 
 /**
- * Enable or disable cell balancing.
- * @param enabled Whether or not to enable balancing
- */
-void app_accumulator_enableBalancing(bool enabled);
-
-/**
  * Get the total accumulator voltage, in V.
  * @return Accumulator voltage.
  */
@@ -94,11 +84,9 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
 float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
 
 /**
- * Calculate cells to balance based on min cell voltage
- */
-void app_accumulator_calculateCellsToBalance(void);
-
-/**
  * Send command to segments to begin balancing based on cells marked for discharge
+ * @attention This will trigger balancing
  */
 void app_accumulator_balanceCells(void);
+
+extern float cell_voltages[NUM_SEGMENTS][CELLS_PER_SEGMENT];

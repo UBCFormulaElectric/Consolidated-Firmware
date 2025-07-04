@@ -1,6 +1,11 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_hal.h"
 #include "hw_utils.h"
+#include "main.h"
+
+#if !(defined(LED_GPIO_Port) && defined(LED_Pin))
+#warning "LED_GPIO_Port and LED_Pin are not defined. Please define them in main.h"
+#endif
 
 void hw_hardFaultHandler_init(void)
 {
@@ -52,6 +57,13 @@ void                   hw_hardFaultHandler_logInfo(uint32_t *fault_stack)
 
     for (;;)
     {
+#if defined(LED_GPIO_Port) && defined(LED_Pin)
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        for (int i = 0; i < 3000000; i++)
+        {
+            __ASM("nop");
+        }
+#endif
     };
 }
 #pragma GCC diagnostic pop

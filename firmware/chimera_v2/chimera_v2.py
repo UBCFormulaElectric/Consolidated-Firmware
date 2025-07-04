@@ -1,34 +1,42 @@
 """Debug UBC Formula Electric boards with Python.
 
-Provides tooling to debug devices over USB, CAN, etc.
+Provides tooling to debug devices over USB.
 
 """
 
 # Typing.
 from __future__ import annotations
-from typing import Dict, Optional, Any
 import types
-
-# Threading.
-import threading
-import signal
 
 # Peripherals.
 import libusb_package
-import cantools
-import can
+
+# Protobuf autogen packages.
+import proto_autogen.shared_pb2
+import proto_autogen.f4dev_pb2
+import proto_autogen.fsm_pb2
+import proto_autogen.rsm_pb2
+import proto_autogen.ssm_pb2
+import proto_autogen.crit_pb2
+import proto_autogen.dam_pb2
 
 # Pyvisa Peripherals.
 from load_bank import *
 from power_supply import *
+from scope import *
 
 # Protobuf autogen packages.
+import proto_autogen.shared_pb2
+
 import proto_autogen.f4dev_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
-import proto_autogen.shared_pb2
+import proto_autogen.bms_pb2
+import proto_autogen.rsm_pb2
+import proto_autogen.fsm_pb2
+import proto_autogen.vc_pb2
 
-
+# USB Manufacturer ID, specified per-board in STM32 CubeMX.
 _MANUFACTURER = "ubc_formula_electric"
 
 # Roughly 3 years.
@@ -45,78 +53,6 @@ def log_usb_devices():
             f"Product ID: {device.idProduct:#x},",
             f"Vendor ID: {device.idVendor:#x}",
         )
-
-
-class CanDevice:
-    def __init__(self, dbc_path: str, bus: can.BusABC):
-        """Create an abstraction around a CAN bus device.
-
-        Args:
-            dbc_path: Path to a dbc file.
-            bus: handle to a can bus.
-
-        """
-        self._db = cantools.database.load_file(dbc_path, database_format="dbc")
-        self._can_bus = bus
-
-        # Build CAN message tables.
-        self.rx_table: Dict[str, Dict[str, Any]] = {}
-        for msg in self._db.messages:  # type: ignore
-            self.rx_table[msg.name] = {}
-            for sig in msg.signals:
-                self.rx_table[msg.name][sig.name] = None
-
-        # Setup exit handler and signal.
-        exit_event = threading.Event()
-
-        def exit_handler(_signalnum: int, _stackframe: Any):
-            exit_event.set()
-
-        signal.signal(signal.SIGINT, exit_handler)
-
-        # Spin up a loop on a seperate thread to constantly receive messages.
-        def can_rx_loop():
-            while True:
-                raw_msg = self._can_bus.recv(0.1)
-                if raw_msg is not None:
-                    name = self._db.get_message_by_frame_id(raw_msg.arbitration_id).name
-                    msg = self._db.decode_message(raw_msg.arbitration_id, raw_msg.data)
-                    self.rx_table[name] = msg
-
-                if exit_event.is_set():
-                    break
-
-        self.can_rx_thread = threading.Thread(target=can_rx_loop)
-        self.can_rx_thread.start()
-
-    def get(self, msg_name: str, signal_name: str) -> Optional[Any]:
-        """Get a given signal from the last received can message.
-
-        Args:
-            msg_name: Name of the message.
-            signal_name: Name of the signal.
-
-        Returns:
-            The value of the signal, or None of the message name has not been received.
-
-        """
-
-        if self.rx_table[msg_name] == None:
-            return None
-        return self.rx_table[msg_name][signal_name]
-
-    def transmit(self, msg_name: str, data: Dict[str, Any]):
-        """Transmit a message given it's data.
-
-        Args:
-            msg_name: Name of the message.
-            data: Dictonary containing the signals to send.
-
-        """
-        msg_type = self._db.get_message_by_name(msg_name)  # type: ignore
-        raw_data = msg_type.encode(data)
-        raw_msg = can.Message(arbitration_id=msg_type.frame_id, data=raw_data)
-        self._can_bus.send(raw_msg)
 
 
 class _UsbDevice:
@@ -142,6 +78,7 @@ class _UsbDevice:
         self._endpoint_write = self._interface[0]
         self._endpoint_read = self._interface[1]
         self._read_chunk_size = self._endpoint_read.wMaxPacketSize
+        self._write_chunk_size = self._endpoint_write.wMaxPacketSize
 
         # Buffer for read bytes.
         # We have to read in chunks of _read_chunk_size, so if we read too much,
@@ -155,7 +92,11 @@ class _UsbDevice:
             buffer: Bytes to send over USB.
 
         """
-        self._device.write(self._endpoint_write.bEndpointAddress, buffer)
+
+        # Chunk to maximum size accepted by endpoint before writing.
+        for index in range(0, len(buffer), self._write_chunk_size):
+            chunk = buffer[index : index + self._write_chunk_size]
+            self._device.write(self._endpoint_write.bEndpointAddress, chunk)
 
     def read(self, length: int) -> bytes:
         """Read bytes over usb. Will block until all bytes are received.
@@ -189,28 +130,21 @@ class _Board:
     # [ length low byte  | length high byte | content bytes    | ... ]
 
     def __init__(
-        self,
-        usb_device: _UsbDevice,
-        gpio_net_name: str,
-        adc_net_name: str,
-        i2c_net_name: str,
-        board_module: types.ModuleType,
+        self, usb_device: _UsbDevice, net_name_tag: str, board_module: types.ModuleType
     ):
         """Create an abstration around a Chimera V2 board.
 
         Args:
             usb_device: Interface to the usb device.
-            gpio_net_name: Identifier for the GpioNetName corresponding to your board, defined in shared.proto.
-            i2c_net_name: Identifier for the I2cNetName corresponding to your board, defined in shared.proto.
-            adc_net_name: Identifier for the AdcNetName corresponding to your board, defined in shared.proto.
+            net_name_tag:
+                Identifier for the net name corresponding to your board.
+                We expect this to be the same for every peripheral. Defined in ``shared.proto``.
             board_module: Generated protobuf module, found in proto_autogen.
 
         """
 
         self._usb_device = usb_device
-        self.gpio_net_name = gpio_net_name
-        self.adc_net_name = adc_net_name
-        self.i2c_net_name = i2c_net_name
+        self._net_name_tag = net_name_tag
         self.board_module = board_module
 
     def _write(self, msg: proto_autogen.shared_pb2.ChimeraV2Request):
@@ -264,7 +198,7 @@ class _Board:
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
             request.gpio_read.net_name,
-            self.gpio_net_name,
+            self._net_name_tag,
             self.board_module.GpioNetName.Value(net_name),
         )
         self._write(request)
@@ -274,7 +208,7 @@ class _Board:
         assert response.WhichOneof("payload") == "gpio_read"
         return response.gpio_read.value
 
-    def gpio_write(self, net_name: str, value: bool) -> None:
+    def gpio_write(self, net_name: str, value: bool):
         """Write a value to a GPIO pin.
 
         Args:
@@ -287,7 +221,7 @@ class _Board:
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
             request.gpio_write.net_name,
-            self.gpio_net_name,
+            self._net_name_tag,
             self.board_module.GpioNetName.Value(net_name),
         )
         request.gpio_write.value = value
@@ -313,7 +247,7 @@ class _Board:
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
             request.adc_read.net_name,
-            self.adc_net_name,
+            self._net_name_tag,
             self.board_module.AdcNetName.Value(net_name),
         )
         self._write(request)
@@ -334,6 +268,18 @@ class _Board:
 
         """
         return I2cDevice(self, net_name)
+
+    def spi_device(self, net_name: str) -> SpiDevice:
+        """Create an abstraction around a SPI device.
+
+        Args:
+            net_name: Identifier of the SPI device.
+
+        Returns:
+            An SPI device abstraction.
+
+        """
+        return SpiDevice(self, net_name)
 
 
 class I2cDevice:
@@ -362,7 +308,7 @@ class I2cDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.i2c_ready.net_name, self._owner.i2c_net_name, self._net_name)
+        setattr(request.i2c_ready.net_name, self._owner._net_name_tag, self._net_name)
         self._owner._write(request)
 
         # Wait for response.
@@ -383,7 +329,7 @@ class I2cDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.i2c_receive.net_name, self._owner.i2c_net_name, self._net_name)
+        setattr(request.i2c_receive.net_name, self._owner._net_name_tag, self._net_name)
         request.i2c_receive.length = length
 
         self._owner._write(request)
@@ -403,7 +349,9 @@ class I2cDevice:
 
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
-        setattr(request.i2c_transmit.net_name, self._owner.i2c_net_name, self._net_name)
+        setattr(
+            request.i2c_transmit.net_name, self._owner._net_name_tag, self._net_name
+        )
         request.i2c_transmit.data = data
 
         self._owner._write(request)
@@ -428,7 +376,7 @@ class I2cDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
-            request.i2c_memory_read.net_name, self._owner.i2c_net_name, self._net_name
+            request.i2c_memory_read.net_name, self._owner._net_name_tag, self._net_name
         )
         request.i2c_memory_read.memory_address = memory_address
         request.i2c_memory_read.length = length
@@ -452,7 +400,7 @@ class I2cDevice:
         # Create and send message.
         request = proto_autogen.shared_pb2.ChimeraV2Request()
         setattr(
-            request.i2c_memory_write.net_name, self._owner.i2c_net_name, self._net_name
+            request.i2c_memory_write.net_name, self._owner._net_name_tag, self._net_name
         )
         request.i2c_memory_write.memory_address = memory_address
         request.i2c_memory_write.data = data
@@ -465,40 +413,178 @@ class I2cDevice:
         assert response.i2c_memory_write.success
 
 
+class SpiDevice:
+    def __init__(self, owner: _Board, net_name: str):
+        """Create an abstraction around an SPI device.
+
+        This constructor should NEVER be called on its own,
+        instead create SPI devices via a board's ``spi_device`` method.
+
+        Args:
+            owner: Owner board.
+            net_name: Identifier of the SPI device.
+
+        """
+
+        self._owner = owner
+        self._net_name = self._owner.board_module.SpiNetName.Value(net_name)
+
+    def receive(self, length: int) -> bytes:
+        """Receive bytes from the SPI device.
+
+        Args:
+            length: Number of bytes to receive.
+
+        Returns:
+            Bytes received.
+
+        """
+
+        # Create and send message.
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(request.spi_receive.net_name, self._owner._net_name_tag, self._net_name)
+        request.spi_receive.length = length
+
+        self._owner._write(request)
+
+        # Wait for response.
+        response = self._owner._read()
+        assert response.WhichOneof("payload") == "spi_receive"
+        return response.spi_receive.data
+
+    def transmit(self, data: bytes):
+        """Transmit bytes to the SPI device.
+
+        Args:
+            data: Bytes to transmit.
+
+        """
+
+        # Create and send message.
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.spi_transmit.net_name, self._owner._net_name_tag, self._net_name
+        )
+        request.spi_transmit.data = data
+
+        self._owner._write(request)
+
+        # Wait for response.
+        response = self._owner._read()
+        assert response.WhichOneof("payload") == "spi_transmit"
+        assert response.spi_transmit.success
+
+    def transact(self, request_data: bytes, response_length: int) -> bytes:
+        """Run a full transaction (tx/rx) to the SPI device.
+
+        Args:
+            request_data: Bytes to transmit.
+            response_length: Number of bytes to read.
+
+        Returns:
+            Bytes received.
+
+        """
+
+        # Create and send message.
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.spi_transaction.net_name, self._owner._net_name_tag, self._net_name
+        )
+        request.spi_transaction.tx_data = request_data
+        request.spi_transaction.rx_length = response_length
+
+        self._owner._write(request)
+
+        # Wait for response.
+        response = self._owner._read()
+        assert response.WhichOneof("payload") == "spi_transaction"
+        return response.spi_transaction.rx_data
+
+
 class F4Dev(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to an F4Dev board."""
 
         super().__init__(
             usb_device=_UsbDevice(product="f4dev"),
-            gpio_net_name="f4dev_net_name",
-            adc_net_name="f4dev_net_name",
-            i2c_net_name="f4dev_net_name",
+            net_name_tag="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )
 
 
 class SSM(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to an SSM board."""
 
         super().__init__(
             usb_device=_UsbDevice(product="ssm"),
-            gpio_net_name="ssm_net_name",
-            adc_net_name="ssm_net_name",
-            i2c_net_name="ssm_net_name",
+            net_name_tag="ssm_net_name",
             board_module=proto_autogen.ssm_pb2,
         )
 
 
 class CRIT(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to a CRIT/cDIM board."""
 
         super().__init__(
             usb_device=_UsbDevice(product="crit"),
-            gpio_net_name="crit_net_name",
-            adc_net_name="crit_net_name",
-            i2c_net_name="crit_net_name",
+            net_name_tag="crit_net_name",
             board_module=proto_autogen.crit_pb2,
+        )
+
+
+class BMS(_Board):
+    def __init__(self):
+        """Create an interface to a BMS board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="bms"),
+            net_name_tag="bms_net_name",
+            board_module=proto_autogen.bms_pb2,
+        )
+
+
+class RSM(_Board):
+    def __init__(self):
+        """Create an interface to a RSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="rsm"),
+            net_name_tag="rsm_net_name",
+            board_module=proto_autogen.rsm_pb2,
+        )
+
+
+class FSM(_Board):
+    def __init__(self):
+        """Create an interface to a FSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="fsm"),
+            net_name_tag="fsm_net_name",
+            board_module=proto_autogen.fsm_pb2,
+        )
+
+
+class DAM(_Board):
+    def __init__(self):
+        """Create an interface to a DAM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="dam"),
+            net_name_tag="dam_net_name",
+            board_module=proto_autogen.dam_pb2,
+        )
+
+
+class VC(_Board):
+    def __init__(self):
+        """Create an interface to a VC board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="vc"),
+            net_name_tag="vc_net_name",
+            board_module=proto_autogen.vc_pb2,
         )

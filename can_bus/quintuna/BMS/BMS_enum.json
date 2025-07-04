@@ -1,11 +1,55 @@
 {
-    "BmsState": {
-        "BMS_INIT_STATE": 0,
-        "BMS_PRECHARGE_STATE": 1,
-        "BMS_CHARGE_STATE": 2,
-        "BMS_DRIVE_STATE": 3,
-        "BMS_BALANCING_STATE": 4,
-        "BMS_FAULT_STATE": 5,
-        "BMS_INVERTER_ON_STATE": 6
-    }
+  "BmsState": {
+    "BMS_INIT_STATE": 0,
+    "BMS_PRECHARGE_DRIVE_STATE": 1,
+    "BMS_PRECHARGE_CHARGE_STATE": 2,
+    "BMS_PRECHARGE_LATCH_STATE": 3,
+    "BMS_DRIVE_STATE": 4,
+    "BMS_CHARGE_STATE": 5,
+    "BMS_BALANCING_STATE": 6,
+    "BMS_FAULT_STATE": 7
+  },
+  "ContactorState": {
+    "CONTACTOR_STATE_OPEN": 0,
+    "CONTACTOR_STATE_CLOSED": 1
+  },
+  "DischargePowerLimitCondition": {
+    "NO_DISCHARGE_POWER_LIMIT": 0,
+    "HIGH_TEMP_DISCHARGE_POWER_LIMIT": 1,
+    "LOW_VOLT_DISCHARGE_POWER_LIMIT": 2,
+    "LOW_SOC_DISCHARGE_POWER_LIMIT": 3
+  },
+  "ChargePowerLimitCondition": {
+    "NO_CHARGE_POWER_LIMIT": 0,
+    "HIGH_TEMP_CHARGE_POWER_LIMIT": 1,
+    "LOW_TEMP_CHARGE_POWER_LIMIT": 2,
+    "HIGH_VOLT_CHARGE_POWER_LIMIT": 3
+  },
+  "ImdConditionName": {
+    "IMD_CONDITION_SHORT_CIRCUIT": 0,
+    "IMD_CONDITION_NORMAL": 1,
+    "IMD_CONDITION_UNDERVOLTAGE_DETECTED": 2,
+    "IMD_CONDITION_SST": 3,
+    "IMD_CONDITION_DEVICE_ERROR": 4,
+    "IMD_CONDITION_GROUND_FAULT": 5,
+    "IMD_CONDITION_INVALID": 6
+  },
+  "ImdActiveFrequency": {
+    "IMD_0Hz": 0,
+    "IMD_10Hz": 1,
+    "IMD_20Hz": 2,
+    "IMD_30Hz": 3,
+    "IMD_40Hz": 4,
+    "IMD_50Hz": 5
+  },
+  "BalancingState": {
+    "BALANCING_DISABLED": 0,
+    "BALANCING_SETTLE": 1,
+    "BALANCING_BALANCE": 2
+  },
+  "ChargerConnectedType": {
+    "CHARGER_DISCONNECTED": 0,
+    "CHARGER_CONNECTED_EVSE": 1,
+    "CHARGER_CONNECTED_WALL": 2
+  }
 }

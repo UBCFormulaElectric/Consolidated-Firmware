@@ -83,4 +83,11 @@ SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t off
  */
 SdCardStatus hw_sd_erase(uint32_t start_addr, uint32_t end_addr);
 
-bool hw_sd_present();
+bool hw_sd_present(void);
+
+/**
+ * @brief   Abort the current operation
+ * @param   sd the state struct of sd card
+ * @return  SD_card_status the status of the opeation
+ */
+SdCardStatus hw_sd_abort(void);

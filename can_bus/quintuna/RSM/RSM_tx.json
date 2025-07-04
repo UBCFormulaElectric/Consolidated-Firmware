@@ -1,15 +1,153 @@
 {
-    "Vitals": {
-        "msg_id": 700,
-        "cycle_time": 100,
-        "description": "RSM vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "RsmStates"
-            }
-        }
+  "Vitals": {
+    "msg_id": 700,
+    "cycle_time": 100,
+    "description": "RSM vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      }
     }
+  },
+  "Debug": {
+    "msg_id": 707,
+    "cycle_time": 1000,
+    "description": "VC Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
+      }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 709,
+    "cycle_time": 100,
+    "description": "RSM Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Coolant": {
+    "msg_id": 710,
+    "cycle_time": 1000,
+    "signals": {
+      "CoolantFlowRate": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "L/min"
+      }
+    }
+  },
+  "SuspensionTravel": {
+    "msg_id": 711,
+    "cycle_time": 1000,
+    "description": "Suspension travel",
+    "signals": {
+      "RearRightSuspensionTravel": {
+        "resolution": 0.1,
+        "min": -10,
+        "max": 10,
+        "unit": "cm"
+      },
+      "RearLeftSuspensionTravel": {
+        "resolution": 0.1,
+        "min": -10,
+        "max": 10,
+        "unit": "cm"
+      }
+    }
+  },
+  "IMU": {
+    "msg_id": 712,
+    "cycle_time": 1000,
+    "description": "IMU data",
+    "signals": {
+      "LinearAccelerationInX": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "LinearAccelerationInY": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "LinearAccelerationInZ": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "RollAngularAcceleration": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      },
+      "PitchAngularAcceleration": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      },
+      "YawAngularAcceleration": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s^2"
+      }
+    }
+  },
+  "Brakes": {
+    "msg_id": 713,
+    "cycle_time": 1000,
+    "description": "Front and rear brake pressures",
+    "signals": {
+      "RearBrakePressure": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 2500,
+        "unit": "psi"
+      },
+      "BrakeActuated": {
+        "bits": 1
+      }
+    }
+  },
+  "ShdnNodeStatus": {
+    "msg_id": 714,
+    "cycle_time": 10,
+    "description": "RSM shutdown nodes",
+    "signals": {
+      "RearLeftMotorInterlock": {
+        "bits": 1
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 799,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  }
 }

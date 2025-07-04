@@ -1,12 +1,20 @@
 {
-    "messages": [
-        "BMS_Vitals",
-        "FSM_Vitals",
-        "RSM_Vitals",
-        "VC_Vitals",
-        "BMS_LatchedFaults",
-        "VC_VehicleDynamics",
-        "VC_GlobalShdnNodeStatus",
-        "Debug_CanMode"
-    ]
+  "messages": [
+    "BMS_Vitals",
+    "FSM_Vitals",
+    "RSM_Vitals",
+    "VC_Vitals",
+    "DAM_Vitals",
+    "BMS_LatchStatus",
+    "VC_VehicleDynamics",
+    "VC_GlobalShdnNodeStatus",
+    "Debug_CanMode",
+    "BMS_TractiveSystem",
+    "INVFL_FLInverterInfo2",
+    "INVFR_FRInverterInfo2",
+    "INVRR_RRInverterInfo2",
+    "INVRL_RLInverterInfo2",
+    "BMS_CellVoltageStats_1",
+    "BMS_OpenWireCheck"
+  ]
 }

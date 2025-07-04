@@ -1,7 +1,7 @@
 from typing import Union, Optional, Type, Any
 import logging
 from .disk import LogFsDisk
-from logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
+from .logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
 
 
 logger = logging.getLogger(__name__)

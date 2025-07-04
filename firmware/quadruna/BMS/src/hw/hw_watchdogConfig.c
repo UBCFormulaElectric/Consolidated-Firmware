@@ -16,8 +16,3 @@ void hw_watchdogConfig_refresh(void)
 void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
-
-    const uint8_t watchdog_id = hw_watchdog_getTaskId(watchdog);
-    app_canAlerts_BMS_Warning_WatchdogTimeout_set(true);
-    app_canTx_BMS_WatchdogTimeoutTaskName_set((RtosTaskName)watchdog_id);
-}

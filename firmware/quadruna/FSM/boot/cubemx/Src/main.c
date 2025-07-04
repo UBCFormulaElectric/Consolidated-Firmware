@@ -25,6 +25,8 @@
 #include "bootloader.h"
 #include "hw_can.h"
 #include "hw_utils.h"
+#include "io_canQueue.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,7 +87,7 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = { .hcan = &hcan1 };
+CanHandle can = { .hcan = &hcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

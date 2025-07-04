@@ -1,10 +1,10 @@
 name: Build DBC Action
-description: Builds the DBC file from the JSON files to ./quadruna.dbc
+description: Builds the DBC file from the JSON files to ./quintuna.dbc
 runs:
   using: "composite"
   steps:
-    - name: Generate DBC
+    - name: Generate Quintuna DBC
       shell: bash
       run: |
-        python3 scripts/code_generation/jsoncan/generate_can_from_json.py \
-          --only_dbc --can_data_dir "can_bus/quadruna" --dbc_output "quadruna.dbc"
+        python3 -m scripts.code_generation.jsoncan.generate_can_from_json \
+          --only_dbc --can_data_dir "can_bus/quintuna" --dbc_output "quintuna.dbc"

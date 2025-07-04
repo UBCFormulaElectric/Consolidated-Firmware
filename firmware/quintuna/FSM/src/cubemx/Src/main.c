@@ -19,13 +19,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -48,16 +50,81 @@ CAN_HandleTypeDef hcan2;
 
 I2C_HandleTypeDef hi2c1;
 
+IWDG_HandleTypeDef hiwdg;
+
 TIM_HandleTypeDef htim2;
 
-PCD_HandleTypeDef hpcd_USB_OTG_FS;
-
-/* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .stack_size = 128 * 4,
+/* Definitions for Task1kHz */
+osThreadId_t         Task1kHzHandle;
+uint32_t             Task1kHzBuffer[512];
+osStaticThreadDef_t  Task1kHzControlBlock;
+const osThreadAttr_t Task1kHz_attributes = {
+    .name       = "Task1kHz",
+    .cb_mem     = &Task1kHzControlBlock,
+    .cb_size    = sizeof(Task1kHzControlBlock),
+    .stack_mem  = &Task1kHzBuffer[0],
+    .stack_size = sizeof(Task1kHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
+/* Definitions for Task100Hz */
+osThreadId_t         Task100HzHandle;
+uint32_t             Task100HzBuffer[512];
+osStaticThreadDef_t  Task100HzControlBlock;
+const osThreadAttr_t Task100Hz_attributes = {
+    .name       = "Task100Hz",
+    .cb_mem     = &Task100HzControlBlock,
+    .cb_size    = sizeof(Task100HzControlBlock),
+    .stack_mem  = &Task100HzBuffer[0],
+    .stack_size = sizeof(Task100HzBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+/* Definitions for TaskCanTx */
+osThreadId_t         TaskCanTxHandle;
+uint32_t             TaskCanTxBuffer[512];
+osStaticThreadDef_t  TaskCanTxControlBlock;
+const osThreadAttr_t TaskCanTx_attributes = {
+    .name       = "TaskCanTx",
+    .cb_mem     = &TaskCanTxControlBlock,
+    .cb_size    = sizeof(TaskCanTxControlBlock),
+    .stack_mem  = &TaskCanTxBuffer[0],
+    .stack_size = sizeof(TaskCanTxBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
+uint32_t             TaskCanRxBuffer[512];
+osStaticThreadDef_t  TaskCanRxControlBlock;
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
+    .cb_mem     = &TaskCanRxControlBlock,
+    .cb_size    = sizeof(TaskCanRxControlBlock),
+    .stack_mem  = &TaskCanRxBuffer[0],
+    .stack_size = sizeof(TaskCanRxBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
 
@@ -69,10 +136,15 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN2_Init(void);
-static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM2_Init(void);
-void        StartDefaultTask(void *argument);
+static void MX_IWDG_Init(void);
+void        RunTask1kHz(void *argument);
+void        RunTask100Hz(void *argument);
+void        RunTask1Hz(void *argument);
+void        RunTaskCanTx(void *argument);
+void        RunTaskCanRx(void *argument);
+void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -90,7 +162,7 @@ void        StartDefaultTask(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -114,11 +186,10 @@ int main(void)
     MX_DMA_Init();
     MX_ADC1_Init();
     MX_CAN2_Init();
-    MX_USB_OTG_FS_PCD_Init();
     MX_I2C1_Init();
     MX_TIM2_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -141,8 +212,23 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* creation of defaultTask */
-    defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+    /* creation of Task1kHz */
+    Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
+
+    /* creation of Task100Hz */
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskCanTx */
+    TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
+
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunTaskCanRx, NULL, &TaskCanRx_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -185,8 +271,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 4;
@@ -224,8 +311,7 @@ static void MX_ADC1_Init(void)
 
     /* USER CODE END ADC1_Init 0 */
 
-    ADC_AnalogWDGConfTypeDef AnalogWDGConfig = { 0 };
-    ADC_ChannelConfTypeDef   sConfig         = { 0 };
+    ADC_ChannelConfTypeDef sConfig = { 0 };
 
     /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -244,20 +330,8 @@ static void MX_ADC1_Init(void)
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 6;
     hadc1.Init.DMAContinuousRequests = ENABLE;
-    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure the analog watchdog
-     */
-    AnalogWDGConfig.WatchdogMode  = ADC_ANALOGWATCHDOG_SINGLE_REG;
-    AnalogWDGConfig.HighThreshold = 0;
-    AnalogWDGConfig.LowThreshold  = 0;
-    AnalogWDGConfig.Channel       = ADC_CHANNEL_1;
-    AnalogWDGConfig.ITMode        = DISABLE;
-    if (HAL_ADC_AnalogWDGConfig(&hadc1, &AnalogWDGConfig) != HAL_OK)
     {
         Error_Handler();
     }
@@ -336,17 +410,17 @@ static void MX_CAN2_Init(void)
 
     /* USER CODE END CAN2_Init 1 */
     hcan2.Instance                  = CAN2;
-    hcan2.Init.Prescaler            = 16;
+    hcan2.Init.Prescaler            = 3;
     hcan2.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan2.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan2.Init.TimeSeg1             = CAN_BS1_1TQ;
-    hcan2.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan2.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan2.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan2.Init.TimeSeg2             = CAN_BS2_3TQ;
     hcan2.Init.TimeTriggeredMode    = DISABLE;
-    hcan2.Init.AutoBusOff           = DISABLE;
+    hcan2.Init.AutoBusOff           = ENABLE;
     hcan2.Init.AutoWakeUp           = DISABLE;
-    hcan2.Init.AutoRetransmission   = DISABLE;
-    hcan2.Init.ReceiveFifoLocked    = DISABLE;
-    hcan2.Init.TransmitFifoPriority = DISABLE;
+    hcan2.Init.AutoRetransmission   = ENABLE;
+    hcan2.Init.ReceiveFifoLocked    = ENABLE;
+    hcan2.Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(&hcan2) != HAL_OK)
     {
         Error_Handler();
@@ -389,6 +463,32 @@ static void MX_I2C1_Init(void)
 }
 
 /**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+#endif
+    /* USER CODE END IWDG_Init 2 */
+}
+
+/**
  * @brief TIM2 Initialization Function
  * @param None
  * @retval None
@@ -399,73 +499,36 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 0 */
 
-    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-    TIM_OC_InitTypeDef      sConfigOC     = { 0 };
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
 
     /* USER CODE BEGIN TIM2_Init 1 */
 
     /* USER CODE END TIM2_Init 1 */
     htim2.Instance               = TIM2;
-    htim2.Init.Prescaler         = 0;
+    htim2.Init.Prescaler         = TIM2_PRESCALER - 1;
     htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim2.Init.Period            = 4294967295;
+    htim2.Init.Period            = TIM2_ARR - 1;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_OC_Init(&htim2) != HAL_OK)
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sConfigOC.OCMode     = TIM_OCMODE_TIMING;
-    sConfigOC.Pulse      = 0;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    if (HAL_TIM_OC_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN TIM2_Init 2 */
 
     /* USER CODE END TIM2_Init 2 */
-}
-
-/**
- * @brief USB_OTG_FS Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_OTG_FS_PCD_Init(void)
-{
-    /* USER CODE BEGIN USB_OTG_FS_Init 0 */
-
-    /* USER CODE END USB_OTG_FS_Init 0 */
-
-    /* USER CODE BEGIN USB_OTG_FS_Init 1 */
-
-    /* USER CODE END USB_OTG_FS_Init 1 */
-    hpcd_USB_OTG_FS.Instance                     = USB_OTG_FS;
-    hpcd_USB_OTG_FS.Init.dev_endpoints           = 6;
-    hpcd_USB_OTG_FS.Init.speed                   = PCD_SPEED_FULL;
-    hpcd_USB_OTG_FS.Init.dma_enable              = DISABLE;
-    hpcd_USB_OTG_FS.Init.phy_itface              = PCD_PHY_EMBEDDED;
-    hpcd_USB_OTG_FS.Init.Sof_enable              = DISABLE;
-    hpcd_USB_OTG_FS.Init.low_power_enable        = DISABLE;
-    hpcd_USB_OTG_FS.Init.lpm_enable              = DISABLE;
-    hpcd_USB_OTG_FS.Init.battery_charging_enable = DISABLE;
-    hpcd_USB_OTG_FS.Init.vbus_sensing_enable     = DISABLE;
-    hpcd_USB_OTG_FS.Init.use_dedicated_ep1       = DISABLE;
-    if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USB_OTG_FS_Init 2 */
-
-    /* USER CODE END USB_OTG_FS_Init 2 */
 }
 
 /**
@@ -500,10 +563,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, DEBUG_LED_Pin | BOOT_LED_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, IMU_INT1_Pin | IMU_INT2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_Pin | BOOT_LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : FR_INT_3V3_Pin FL_INT_3V3_Pin nSTR_ANGLE_OCSC_Pin nBPS_F_OCSC_Pin */
     GPIO_InitStruct.Pin  = FR_INT_3V3_Pin | FL_INT_3V3_Pin | nSTR_ANGLE_OCSC_Pin | nBPS_F_OCSC_Pin;
@@ -523,19 +583,22 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : DEBUG_LED_Pin BOOT_LED_Pin */
-    GPIO_InitStruct.Pin   = DEBUG_LED_Pin | BOOT_LED_Pin;
+    /*Configure GPIO pins : LED_Pin BOOT_LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin */
-    GPIO_InitStruct.Pin   = IMU_INT1_Pin | IMU_INT2_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Pin  = IMU_INT1_Pin | IMU_INT2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -545,22 +608,113 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_RunTask1kHz */
 /**
- * @brief  Function implementing the defaultTask thread.
+ * @brief  Function implementing the Task1kHz thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void *argument)
 {
+    /* init code for USB_DEVICE */
+    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_run1kHz();
     /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_RunTask100Hz */
+/**
+ * @brief Function implementing the Task100Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void *argument)
+{
+    /* USER CODE BEGIN RunTask100Hz */
+    tasks_run100Hz();
+    /* USER CODE END RunTask100Hz */
+}
+
+/* USER CODE BEGIN Header_RunTask1Hz */
+/**
+ * @brief Function implementing the Task1Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void *argument)
+{
+    /* USER CODE BEGIN RunTask1Hz */
+    tasks_run1Hz();
+    /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    tasks_runCanTx();
+    /* USER CODE END RunTaskCanTx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void *argument)
+{
+    /* USER CODE BEGIN RunTaskCanRx */
+    tasks_runCanRx();
+    /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskChimera */
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskChimera */
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
+}
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+    if (htim->Instance == TIM6)
+    {
+        HAL_IncTick();
+    }
+    /* USER CODE BEGIN Callback 1 */
+
+    /* USER CODE END Callback 1 */
 }
 
 /**

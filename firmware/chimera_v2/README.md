@@ -1,17 +1,22 @@
 # Chimera V2
-Control UBC Formula Electric STM boards over USB with Python, and talk to them over CAN.
+
+Control UBC Formula Electric STM boards over USB with Python.
 
 ![Chimera Architecture](../../images/chimera/chimera_v2_high_res.drawio.png)
 
 *For Python API docs, see [`./docs`](./docs)*
 
+*To see available peripherals by board, see the [`./proto`](./proto) directory.*
+
 ## Quick Start
+
 To install the `chimera_v2` Python package, run
+
 ```sh
 pip install 'git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@master#egg=chimera-v2&subdirectory=firmware/chimera_v2'
 ```
 
-To output a quick 10Hz square wave over GPIO 6 of the F4Dev board, 
+To output a quick 10Hz square wave over GPIO 6 of the F4Dev board,
 
 ```python
 import time
@@ -35,12 +40,14 @@ while True:
     chimera_device.gpio_write(LED_NET_NAME, False)
     time.sleep((1.0 - DUTY_CYCLE) / RATE_HZ)
 ```
+
 *From [`./examples/f4dev_blinky.py`](./examples/f4dev_blinky.py)*
 
-If you would like to use the `load_bank` or `power_supply` modules, you will also need to install the [VISA drivers](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html).
+If you would like to use the `load_bank` or `power_supply` modules, you will also need to install
+the [VISA drivers](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html).
 
 ```python
-import chimera_v2.power_supply
+import power_supply
 import time
 
 # Config.
@@ -48,7 +55,7 @@ CHANNEL = 2
 CURRENT = 1.51
 
 # Setup supply.
-supply = chimera_v2.power_supply.DP821A()
+supply = power_supply.DP821A()
 print(supply.get_id())
 
 # Output current for 5s.
@@ -67,11 +74,15 @@ supply.disable_output()
 *From [`./examples/power_supply.py`](./examples/power_supply.py)*
 
 ## Platform Instructions
+
 ### For Mac Users
+
 Make sure you run your Chimera V2 scripts with `sudo`, ie. `sudo python ./examples/f4dev_blinky.py`.
 
 ### For Windows Users
-On Windows, you will need to install Zadig. Go to [https://zadig.akeo.ie/](https://zadig.akeo.ie/), and download the latest version.
+
+On Windows, you will need to install Zadig. Go to [https://zadig.akeo.ie/](https://zadig.akeo.ie/), and download the
+latest version.
 
 When you open Zadig, you should see the following,
 
@@ -85,7 +96,8 @@ Select the STM32 device on the dropdown (will be named after the board you are c
 
 ![Zadig 3](../../images/chimera/zadig/3.png)
 
-Then, in the menu pointed to by the green arrow, select *libusb-win32*. You will have to use the up and down buttons near the box to cycle through your options.
+Then, in the menu pointed to by the green arrow, select *libusb-win32*. You will have to use the up and down buttons
+near the box to cycle through your options.
 
 ![Zadig 4](../../images/chimera/zadig/4.png)
 
@@ -94,21 +106,34 @@ Then click Replace Driver.
 ![Zadig 5](../../images/chimera/zadig/5.png)
 
 ## User Docs
+
 For users of this package, checkout [`./docs`](./docs).
 
 ## Development
-Chimera V2 has two ends - board side and Python side. Board side code can be found at [`io_chimera_v2.h`](../shared/src/io/io_chimera_v2.h)/[`io_chimera_v2.c`](../shared/src/io/io_chimera_v2.c). Python side code is in the [same directory as this README](.).
+
+Chimera V2 has two ends - board side and Python side. Board side code can be found at [
+`hw_chimera_v2.h`](../shared/src/hw/hw_chimera_v2.h)/[`hw_chimera_v2.c`](../shared/src/hw/hw_chimera_v2.c). Python side
+code is in the [same directory as this README](.).
+
+### Versioning
+
+Every change to Chimera V2 should correspond with a minor version bump. An update to support a new car should correspond
+with a major version bump.
 
 ### Configuring a New Device
-Open up the `.ioc` file of your board in STM32CubeMX, and search fot the `USB_DEVICE` setting. Set the device class to `Communication Device Class (Virtual Port Com)`.
+
+Open up the `.ioc` file of your board in STM32CubeMX, and search fot the `USB_DEVICE` setting. Set the device class to
+`Communication Device Class (Virtual Port Com)`.
 
 ![USB_DEVICE configuration](../../images/chimera/stm/usb_device.png).
 
-Then, under the *Device Descriptor* Panel, set `MANUFACTURER_STRING` to `ubc_formula_electric`, and `PRODUCT_STRING` to the name of your board (we are enforcing a no-caps style here).
+Then, under the *Device Descriptor* Panel, set `MANUFACTURER_STRING` to `ubc_formula_electric`, and `PRODUCT_STRING` to
+the name of your board (we are enforcing a no-caps style here).
 
 ![USB ID configuration](../../images/chimera/stm/usb_id.png).
 
-Then search for the `USB_OTG_FS` (or `USB_OTG_HS` on H7s) setting. Set the mode to `Device_Only`, and Activate_VBUS to `Disable`.
+Then search for the `USB_OTG_FS` (or `USB_OTG_HS` on H7s) setting. Set the mode to `Device_Only`, and Activate_VBUS to
+`Disable`.
 
 ![USB_OTG configuration](../../images/chimera/stm/usb_otg.png)
 
@@ -119,22 +144,29 @@ You should see two pins configured on the chip for USB,
 
 ![USB pins](../../images/chimera/stm/usb_pins.png)
 
-Next, we need to make sure we build our binaries with all the USB dependencies. First, make sure that the call to `stm32f412rx_cube_library`/`stm32h733xx_cube_library` has `TRUE` as it's last argument (this flag enables USB).
+Next, lets make a dedicated Chimera V2 task. Go to the FreeRTOS menu, and create the task.
+
+![FREERTOS tasks](../../images/chimera/stm/tasks.png)
+
+Next, we need to make sure we build our binaries with all the USB dependencies. First, make sure that the call to
+`stm32f412rx_cube_library`/`stm32h733xx_cube_library` has `TRUE` as it's last argument (this flag enables USB).
 
 Eg.
+
 ```cmake
 stm32h733xx_cube_library(
-    "h7dev_stm32cube"
-    "${STM32_HAL_SRCS}"
-    "${SYSCALLS}"
-    "${MD5_LOCATION}"
-    TRUE
+        "h7dev_stm32cube"
+        "${STM32_HAL_SRCS}"
+        "${SYSCALLS}"
+        "${MD5_LOCATION}"
+        TRUE
 )
 ```
 
-We also need to add to the passed HAL sources files required by USB. 
+We also need to add to the passed HAL sources files required by USB.
 
 For the H7, make sure you have
+
 ```cmake
 "stm32h7xx_hal_pcd.c"
 "stm32h7xx_hal_pcd_ex.c"
@@ -142,6 +174,7 @@ For the H7, make sure you have
 ```
 
 For the F4, make sure you have
+
 ```cmake
 "stm32f4xx_hal_pcd.c"
 "stm32f4xx_hal_pcd_ex.c"
@@ -154,33 +187,27 @@ Eg. From the F4Dev,
 ...
 
 set(STM32_HAL_SRCS
-        ...
-        "stm32f4xx_hal_pcd.c"
-        "stm32f4xx_hal_pcd_ex.c"
-        "stm32f4xx_ll_usb.c"
+...
+"stm32f4xx_hal_pcd.c"
+"stm32f4xx_hal_pcd_ex.c"
+"stm32f4xx_ll_usb.c"
 )
 
 stm32f412rx_cube_library(
-        "f4dev_stm32cube"
-        "${STM32_HAL_SRCS}"
-        "${SYSCALLS}"
-        "${MD5_LOCATION}"
-        TRUE
+"f4dev_stm32cube"
+"${STM32_HAL_SRCS}"
+"${MD5_LOCATION}"
+TRUE
 )
 
 ...
 ```
 
-Also make sure to explicitly enable I2C/ADC, even if your board does not have them (Chimera V2 relies on them).
-
-Eg. For the SSM
-```cmake
-target_compile_definitions("ssm.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
-```
-
 Try to build. This will regenerate all the STM32 code, with USB files setup.
 
-Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](../shared/src/hw/hw_usb.h) and [`io_log.h`](../shared/src/io/io_log.h).
+Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](../shared/src/hw/hw_usb.h) and [
+`io_log.h`](../shared/src/io/io_log.h).
+
 ```c
 /* USER CODE BEGIN INCLUDE */
 #include "hw_usb.h"
@@ -188,9 +215,16 @@ Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](..
 /* USER CODE END INCLUDE */
 ```
 
-Next, find the defenition of `CDC_Receive_FS`/`CDC_Receive_HS`. Add a call to `hw_usb_pushRxMsgToQueue(Buf, *Len);` in the body of the function.
+Next, find the defenition of `CDC_Receive_FS`/`CDC_Receive_HS`. Add a call to `hw_usb_pushRxMsgToQueue(Buf, *Len);` in
+the body of the function.
+
+Next, find HAL_PCD_ResumeCallback and HAL_PCD_SuspendCallback. Put `hw_usb_connect_callback()` and
+`hw_usb_disconnect_callback()`
+in the body of these functions. Ensure that it is in the user code section as to not have them deleted when code is
+regenerated.
 
 Eg. from the F4Dev,
+
 ```c
 static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
 {
@@ -207,12 +241,15 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
 }
 ```
 
-In the `main.c` of your board, you will need to initialize the `hw_usb` RX queue. To do this, go to where you init all your peripherals, and call `hw_usb_init()` (you will need to include [`hw_usb.h`](../shared/src/hw/hw_usb.h) in `main.c` well).
+In the `main.c` of your board, you will need to initialize the `hw_usb` RX queue. To do this, go to where you init all
+your peripherals, and call `hw_usb_init()` (you will need to include [`hw_usb.h`](../shared/src/hw/hw_usb.h) in `main.c`
+well).
 
-> Warning! `hw_usb_init()` creates a CMSIS OS Message Queue under the hood. 
+> Warning! `hw_usb_init()` creates a CMSIS OS Message Queue under the hood.
 > Make sure to initialize after `osKernelInitialize` is called.
 
-Next, you need to setup the protobuf messages for your board. Go to [`./proto`](./proto), and create a new `.proto` file named after your board. It should look like this:
+Next, you need to setup the protobuf messages for your board. Go to [`./proto`](./proto), and create a new `.proto` file
+named after your board. It should look like this:
 
 ```proto
 syntax = "proto3";
@@ -230,77 +267,98 @@ enum AdcNetName {
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
 }
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+}
 ```
 
-Now go into [`./proto/shared.proto`](./proto/shared.proto), and import your board's proto at the top of the file. In `GpioNetName`, `AdcNetName`, and `I2cNetName`, add your new board-specific enums.
+> Note: you do not need to include enums for peripherals that your board does not need. Eg. A board that has no SPI
+> peripherals does not need to define `SpiNetName`
 
-Eg. With the F4Dev configued:
+Now go into [`./proto/shared.proto`](./proto/shared.proto), and import your board's proto at the top of the file. In
+`GpioNetName`, `AdcNetName`, `SpiNetName`, and `I2cNetName`, add your new board-specific enums.
+
+Eg. With the CRIT configued (the CRIT has no I2C peripheral, so we do not need to update the `I2cNetName` enum):
 
 ```proto
 ...
 
-import "f4dev.proto";
+import "crit.proto";
 
 ...
 
+/* GPIOs */
 message GpioNetName {
-  oneof name {
-    ...
-    f4dev.GpioNetName f4dev_net_name = 1;
-  }
+    oneof name {
+        ...
+        crit.GpioNetName crit_net_name = 3;
+        ...
+    }
 }
 
 ...
 
+/* ADCs */
 message AdcNetName {
   oneof name {
     ...
-    f4dev.AdcNetName f4dev_net_name = 1;
+    crit.AdcNetName crit_net_name = 1;
+    ...
   }
 }
 
 ...
 
-message I2cNetName {
+/* SPIs */
+message SpiNetName {
   oneof name {
     ...
-    f4dev.I2cNetName f4dev_net_name = 1;
+    crit.SpiNetName crit_net_name = 1;
+    ...
   }
 }
 
+...
 ```
 
 To generate the Protobuf Python libraries, run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh).
 
-The Protobuf C libraries will be exposed statically as `chimera_v2_proto_cm7` (H7s) and `chimera_v2_proto_cm4` (F4s). Make sure to link the appropriate library into your binary.
+The Protobuf C libraries will be exposed statically as `chimera_v2_proto_cm7` (H7s) and `chimera_v2_proto_cm4` (F4s).
+Make sure to link the appropriate library into your binary.
 
-Next, we need to add the board to [`./chimera_v2.py`](./chimera_v2.py). To do this, import the appropriate autogenerated Python library, `proto_autogen.name_of_board_pb2`. Then, at the bottom, add a class for your board.
+Next, we need to add the board to [`./chimera_v2.py`](./chimera_v2.py). To do this, import the appropriate autogenerated
+Python library, `proto_autogen.name_of_board_pb2`. Then, at the bottom, add a class for your board.
 
 Eg. for the F4 Dev board,
+
 ```python
 class F4Dev(_Board):
-    def __init__(self) -> None:
+    def __init__(self):
         """Create an interface to an F4Dev board."""
 
         super().__init__(
             usb_device=_UsbDevice(product="f4dev"),
-            gpio_net_name="f4dev_net_name",
-            adc_net_name="f4dev_net_name",
-            i2c_net_name="f4dev_net_name",
+            net_name_tag="f4dev_net_name",
             board_module=proto_autogen.f4dev_pb2,
         )
 ```
 
 Note: the `product` field in the `_UsbDevice` initializer is the same as you configured in STM32CubeMX.
 
-The next step is to configure Chimera on the board. Open [`io_chimera_v2.c`](../shared/src/io/io_chimera_v2.c). Modify `io_chimera_v2_getGpio`, `io_chimera_v2_getAdc`, and `io_chimera_v2_getI2c` with a branch corresponding to your board.
+The next step is to configure Chimera on the board. Open [`hw_chimera_v2.c`](../shared/src/hw/hw_chimera_v2.c). Modify
+`hw_chimera_v2_getGpio`, `hw_chimera_v2_getAdc`, `hw_chimera_v2_getSpi`, and `hw_chimera_v2_getI2c` with a branch
+corresponding to your board.
 
-eg.
+> Note: If your board does not have any of a given peripheral, do not add such a branch. Eg, a board with no SPI
+> peripherals should not have a branch in `hw_chimera_v2_getSpi`.
+
+eg. For `hw_chimera_v2_getGpio` on the F4Dev,
+
 ```c
 ...
 
-// Convert a given GpioNetName to a GPIO pin.
-static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
+static const Gpio *hw_chimera_v2_getGpio(const GpioNetName *net_name)
 {
     ...
 
@@ -310,35 +368,15 @@ static const Gpio *io_chimera_v2_getGpio(const GpioNetName *net_name)
     ...
 }
 
-// Convert a given AdcNetName to an ADC channel pin.
-static const AdcChannel *io_chimera_v2_getAdc(const AdcNetName *net_name)
-{
-    ...
-
-    if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
-        return id_to_adc[net_name->name.f4dev_net_name];
-
-    ...
-}
-
-// Convert a given I2C enum to an I2C device.
-static const I2cDevice *io_chimera_v2_getI2c(const I2cNetName *net_name)
-{
-    ...
-
-    if (net_name->which_name == AdcNetName_f4dev_net_name_tag)
-        return id_to_i2c[net_name->name.f4dev_net_name];
-
-    ...
-}
-
-
 ...
 ```
 
-Next, we need to add Chimera-controllable peripherals to the board. Open up the `.proto` file you made named after your board (ie. [`./proto/f4dev.proto`](./proto/f4dev.proto)). Add an item to the enum for whatever type of peripheral you want to set.
+Next, we need to add Chimera-controllable peripherals to the board. Open up the `.proto` file you made named after your
+board (ie. [`./proto/f4dev.proto`](./proto/f4dev.proto)). Add an item to the enum for whatever type of peripheral you
+want to set.
 
 Eg. For a GPIO on the f4dev,
+
 ```proto
 enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED = 0;
@@ -346,96 +384,100 @@ enum GpioNetName {
 }
 ```
 
-Now run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh) again to generate the python proto libraries. Also try to build binaries for your board.
+> Note: We would like each item in the enum to be prefixed with the name of the peripheral, so items in `GpioNetName`
+> should be prefixed with `GPIO_`, items in `I2cNetName` should be prefixed with `I2C_`, etc.
 
-To capture these peripherals on the board side, we need to create a mapping from protobuf names to the actual GPIO pins/ADC Channels. In the `io` level of your board, create files called `io_chimeraConfig_v2.h`/`io_chimeraConfig_v2.c`.
+Now run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh) again to generate the python proto libraries. Also
+try to build binaries for your board.
 
-`io_chimeraConfig_v2.h` should look like this,
+To capture these peripherals on the board side, we need to create a mapping from protobuf names to the actual GPIO
+pins/ADC Channels. In the `hw` level of your board, create files called `hw_chimeraConfig_v2.h`/`hw_chimeraConfig_v2.c`.
+
+`hw_chimeraConfig_v2.h` should look like this,
 
 ```c
 #pragma once
-#include "hw_gpio.h"
-#include "hw_adc.h"
-#include "hw_i2c.h"
+#include "hw_chimera_v2.h"
 
-extern const Gpio       *id_to_gpio[];
-extern const AdcChannel *id_to_adc[];
-extern const I2cDevice  *id_to_i2c[];
+// Exposed Chimera V2 configs.
+extern hw_chimera_v2_Config chimera_v2_config;
 ```
 
-`io_chimeraConfig_v2.c` should extern declare tables mapping from the protobuf net name enums, to the actual peripherals.
+`hw_chimeraConfig_v2.c` should declare an `hw_chimera_v2_Config` struct by the name `chimera_v2_config`.
 
-Eg. GPIO 6 on the F4 Dev board,
+Eg. On the CRIT,
+
 ```c
-#include "f4dev.pb.h"
-#include "hw_gpio.h"
+#include "crit.pb.h"
+#include "shared.pb.h"
 #include "hw_gpios.h"
-#include "hw_adc.h"
-#include "hw_adcs.h"
-#include "hw_i2cs.h"
+#include "hw_spis.h"
+#include "hw_chimeraConfig_v2.h"
 
-const Gpio *id_to_gpio[] = {
-    [f4dev_GpioNetName_GPIO_6] = &gpio_6,
-    ...
-};
+// Chimera V2 enums to GPIO peripherals.
+const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boot,
+                             [crit_GpioNetName_GPIO_LED]                  = &led,
+                             [crit_GpioNetName_GPIO_TELEM_SIG]            = &telem_sig,
+                             [crit_GpioNetName_GPIO_PUSH_DRIVE_SIG]       = &push_drive_sig,
+                             [crit_GpioNetName_GPIO_ROT_S]                = &rot_s,
+                             [crit_GpioNetName_GPIO_ROT_B]                = &rot_b,
+                             [crit_GpioNetName_GPIO_ROT_A]                = &rot_a,
+                             [crit_GpioNetName_GPIO_LAUNCH_CONTROL_SIG]   = &launch_control_sig,
+                             [crit_GpioNetName_GPIO_TORQUE_VECTORING_SIG] = &torque_vectoring_sig,
+                             [crit_GpioNetName_GPIO_REGEN_SIG]            = &regen_sig,
+                             [crit_GpioNetName_GPIO_LED_RCK]              = &led_rck,
+                             [crit_GpioNetName_GPIO_SEVEN_SEG_RCK]        = &seven_seg_rck,
+                             [crit_GpioNetName_GPIO_SEVEN_SEG_DIMMING]    = &seven_seg_dimming,
+                             [crit_GpioNetName_GPIO_LED_DIMMING]          = &led_dimming };
 
-// TODO: Configure adcs.
-const AdcChannel *id_to_adc[] = { [f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
+const SpiDevice
+    *id_to_spi[] = { [crit_SpiNetName_SPI_LED] = &led_spi, [crit_SpiNetName_SPI_SEVEN_SEG] = &seven_seg_spi };
 
-// TODO: Configure I2Cs.
-const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
+hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_crit_net_name_tag,
+                                           .id_to_gpio        = id_to_gpio,
+                                           .spi_net_name_tag  = SpiNetName_crit_net_name_tag,
+                                           .id_to_spi         = id_to_spi };
 ```
 
-> Note: Because chimera rellies on the existance of all of these peripherals, you will need a `hw_i2cs.h`, `hw_gpios.h`, and `hw_i2cs.h` header in every board. This will likely mean you have to add the i2c HAL headers, see other boards on how to do this.
->
-> If your board has none of a given peripheral, (ie. no ADC channels, or no I2C devices), you can provide an id_to_peripheral table as follows:
->
->```c
-> // TODO: Configure adcs.
-> const AdcChannel *id_to_adc[] = { [f4dev_AdcNetName_ADC_NET_NAME_UNSPECIFIED] = NULL };
-> 
-> // TODO: Configure I2Cs.
-> const I2cDevice *id_to_i2c[] = { [f4dev_I2cNetName_I2C_NET_NAME_UNSPECIFIED] = NULL };
->```
->
-> Since a lot of boards might not have I2C devices, it is sufficent to supply a `hw_i2cs.h` as follows:
-> ```c
-> #pragma once
-> 
-> #include "hw_i2c.h"
-> ```
->
-> And `hw_i2cs.c` as follows:
-> ```c
-> #include "hw_i2cs.h"
-> #include "main.h"
-> 
-> I2cBus *hw_i2c_getBusFromHandle(const I2C_HandleTypeDef *handle)
-> {
->     return NULL;
-> }
-> ```
+We can finally run chimera.
 
+Include the shared `hw_chimera_v2.h` and `hw_chimeraConfig_v2.h` libraries in your `tasks.c`. Then, also in `tasks.c`,
+create the following function.
 
-We can finally run chimera. Include the shared `io_chimera_v2.h` library, and run `io_chimera_v2_main` in your desired task (You need to also include `shared.pb.h` and `io_chimeraConfig_v2.h` at the top of your file).
-
-Eg. For the f4dev,
 ```c
-    io_chimera_v2_main(
-        GpioNetName_f4dev_net_name_tag, id_to_gpio, 
-        AdcNetName_f4dev_net_name_tag, id_to_adc,
-        I2cNetName_f4dev_net_name_tag, id_to_i2c
-    );
+_Noreturn void tasks_runChimera(void)
+{
+    hw_chimera_v2_task(&chimera_v2_config);
+}
 ```
 
-Note: you might want to use the provided `io_chimera_v2_enabled` flag to disable other non-chimera jobs.
+You will also have to add the decleration in the `tasks.h` file.
 
-`io_chimera_v2_main` will skip running if no USB is plugged in on boot.
+```c
+_Noreturn void tasks_runChimera(void);
+```
+
+Make sure to invoke this task function in `main.c`.
+
+```c
+void RunTaskChimera(void *argument)
+{
+    /* USER CODE BEGIN RunTaskChimera */
+    /* Infinite loop */
+    tasks_runChimera();
+    /* USER CODE END RunTaskChimera */
+}
+```
+
+Note: you will want to use the provided `hw_chimera_v2_enabled` flag to disable other non-Chimera jobs when Chimera is
+running.
 
 ### Development Environment
-For development, start by changing to [the directory of this README](.), and installing it as a pip package. 
+
+For development, start by changing to [the directory of this README](.), and installing it as a pip package.
 
 From the root of the project,
+
 ```sh
 cd ./firmware/chimera_v2
 pip install .
@@ -443,23 +485,35 @@ pip install .
 
 This will install a version of `chimera_v2` with all your local changes.
 
-Open the examples directory, and write a quick example script to test Chimera out! See [`./examples/f4dev_blinky.py`](./examples/f4dev_blinky.py) for an example.
+Open the examples directory, and write a quick example script to test Chimera out! See [
+`./examples/f4dev_blinky.py`](./examples/f4dev_blinky.py) for an example.
 
 Chimera is now ready to go 🥳!
 
 ### Generated Files
-To generate Proto libraries for Chimera, you can run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh). To generate user docs, you can run [`./scripts/generate_docs.sh`](./scripts/generate_docs.sh). Look inside both scripts for details on how they operate.
 
-> Note: Generating docs will reinstall/uninstall chimera_v2 on your system. It's a kink in the system to be ironed out later.
+To generate Proto libraries for Chimera, you can run [`./scripts/generate_proto.sh`](./scripts/generate_proto.sh). To
+generate user docs, you can run [`./scripts/generate_docs.sh`](./scripts/generate_docs.sh). Look inside both scripts for
+details on how they operate.
+
+> Note: Generating docs will reinstall/uninstall chimera_v2 on your system. It's a kink in the system to be ironed out
+> later.
 
 ### USB Drivers
-Chimera V2 (unlike the original Chimera) is based on USB. The drivers can be found in [`hw_usb.h`](../shared/src/hw/hw_usb.h)/[`hw_usb.c`](../shared/src/hw/hw_usb.c).
 
-We use the Communications Device Class (CDC) for our devices. This class takes 64 byte bulk input and output, which we convert to a continuous stream using a CMSIS `osMessageQueue` on the device side, and a buffer string on the Python side.
+Chimera V2 (unlike the original Chimera) is based on USB. The drivers can be found in [
+`hw_usb.h`](../shared/src/hw/hw_usb.h)/[`hw_usb.c`](../shared/src/hw/hw_usb.c).
 
-`hw_usb` exposes a `hw_usb_pushRxMsgToQueue` method, that must be called from the `CDC_Receive_FS` method in the STM32 autogenerated `usb_cdc_if.c` file.
+We use the Communications Device Class (CDC) for our devices. This class takes 64 byte bulk input and output, which we
+convert to a continuous stream using a CMSIS `osMessageQueue` on the device side, and a buffer string on the Python
+side.
 
-> Note: F4s and H7s have different exposed USB APIs, since H7s support HS (high speed) and F4s support FS (full speed). If the receive callback on the F4 is called `CDC_Receive_FS`, it will be called `CDC_Receive_HS` on the H7.
+`hw_usb` exposes a `hw_usb_pushRxMsgToQueue` method, that must be called from the `CDC_Receive_FS` method in the STM32
+autogenerated `usb_cdc_if.c` file.
+
+> Note: F4s and H7s have different exposed USB APIs, since H7s support HS (high speed) and F4s support FS (full speed).
+> If the receive callback on the F4 is called `CDC_Receive_FS`, it will be called `CDC_Receive_HS` on the H7.
 
 ### Linting
+
 See [`./scripts/lint.sh`](./scripts/lint.sh).

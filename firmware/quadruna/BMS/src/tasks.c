@@ -26,15 +26,9 @@
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
+#include "app_utils.h"
 
 #include "shared.pb.h"
-
-static const PwmInputConfig imd_pwm_input_config = {
-    .htim                     = &htim1,
-    .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
-    .rising_edge_tim_channel  = TIM_CHANNEL_1,
-    .falling_edge_tim_channel = TIM_CHANNEL_2,
-};
 
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
@@ -66,13 +60,12 @@ void tasks_init(void)
 
     hw_adcs_chipsInit();
 
-    hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_can_init(&can1);
 
+    io_imd_init();
     io_tractiveSystem_init(&ts_config);
-    io_imd_init(&imd_pwm_input_config);
     io_chimera_init(GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
     io_sdGpio_init(&sd_gpio);
 
@@ -125,7 +118,7 @@ _Noreturn void tasks_run1Hz(void)
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enableMode_Can(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -203,7 +196,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
     }
 }
 
@@ -213,12 +206,4 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
         jobs_runCanRx_tick();
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == debug_uart.handle)
-    {
-        io_chimera_msgRxCallback();
-    }
 }

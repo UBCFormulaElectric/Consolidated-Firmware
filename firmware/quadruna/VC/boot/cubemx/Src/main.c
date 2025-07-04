@@ -23,10 +23,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "hw_can.h"
+#include "hw_fdcan.h"
 #include "hw_utils.h"
 #include "io_log.h"
 #include <assert.h>
+#include "io_canQueue.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -106,7 +108,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .hcan = &hfdcan1 };
+CanHandle can = { .hcan = &hfdcan1, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END 0 */
 
 /**

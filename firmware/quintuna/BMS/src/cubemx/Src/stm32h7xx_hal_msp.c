@@ -520,12 +520,23 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
  */
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
     if (hspi->Instance == SPI4)
     {
         /* USER CODE BEGIN SPI4_MspInit 0 */
 
         /* USER CODE END SPI4_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI4;
+        PeriphClkInitStruct.Spi45ClockSelection  = RCC_SPI45CLKSOURCE_HSE;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* Peripheral clock enable */
         __HAL_RCC_SPI4_CLK_ENABLE();
 
@@ -535,13 +546,23 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         PE5     ------> SPI4_MISO
         PE6     ------> SPI4_MOSI
         */
-        GPIO_InitStruct.Pin       = GPIO_PIN_2 | GPIO_PIN_5 | GPIO_PIN_6;
+        GPIO_InitStruct.Pin       = GPIO_PIN_2 | GPIO_PIN_6;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
         HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
+        GPIO_InitStruct.Pin       = GPIO_PIN_5;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_PULLUP;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
+        HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+        /* SPI4 interrupt Init */
+        HAL_NVIC_SetPriority(SPI4_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI4_IRQn);
         /* USER CODE BEGIN SPI4_MspInit 1 */
 
         /* USER CODE END SPI4_MspInit 1 */
@@ -571,6 +592,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         */
         HAL_GPIO_DeInit(GPIOE, GPIO_PIN_2 | GPIO_PIN_5 | GPIO_PIN_6);
 
+        /* SPI4 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI4_IRQn);
         /* USER CODE BEGIN SPI4_MspDeInit 1 */
 
         /* USER CODE END SPI4_MspDeInit 1 */
@@ -626,39 +649,31 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
 
         /* USER CODE END TIM3_MspInit 1 */
     }
-}
-
-/**
- * @brief TIM_IC MSP Initialization
- * This function configures the hardware resources used in this example
- * @param htim_ic: TIM_IC handle pointer
- * @retval None
- */
-void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
-{
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (htim_ic->Instance == TIM15)
+    else if (htim_base->Instance == TIM5)
     {
-        /* USER CODE BEGIN TIM15_MspInit 0 */
+        /* USER CODE BEGIN TIM5_MspInit 0 */
 
-        /* USER CODE END TIM15_MspInit 0 */
+        /* USER CODE END TIM5_MspInit 0 */
         /* Peripheral clock enable */
-        __HAL_RCC_TIM15_CLK_ENABLE();
+        __HAL_RCC_TIM5_CLK_ENABLE();
 
         __HAL_RCC_GPIOA_CLK_ENABLE();
-        /**TIM15 GPIO Configuration
-        PA3     ------> TIM15_CH2
+        /**TIM5 GPIO Configuration
+        PA3     ------> TIM5_CH4
         */
         GPIO_InitStruct.Pin       = nEVSE_I_LIM_PWM_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF4_TIM15;
+        GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;
         HAL_GPIO_Init(nEVSE_I_LIM_PWM_GPIO_Port, &GPIO_InitStruct);
 
-        /* USER CODE BEGIN TIM15_MspInit 1 */
+        /* TIM5 interrupt Init */
+        HAL_NVIC_SetPriority(TIM5_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM5_IRQn);
+        /* USER CODE BEGIN TIM5_MspInit 1 */
 
-        /* USER CODE END TIM15_MspInit 1 */
+        /* USER CODE END TIM5_MspInit 1 */
     }
 }
 
@@ -703,89 +718,24 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
 
         /* USER CODE END TIM3_MspDeInit 1 */
     }
-}
-
-/**
- * @brief TIM_IC MSP De-Initialization
- * This function freeze the hardware resources used in this example
- * @param htim_ic: TIM_IC handle pointer
- * @retval None
- */
-void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
-{
-    if (htim_ic->Instance == TIM15)
+    else if (htim_base->Instance == TIM5)
     {
-        /* USER CODE BEGIN TIM15_MspDeInit 0 */
+        /* USER CODE BEGIN TIM5_MspDeInit 0 */
 
-        /* USER CODE END TIM15_MspDeInit 0 */
+        /* USER CODE END TIM5_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_TIM15_CLK_DISABLE();
+        __HAL_RCC_TIM5_CLK_DISABLE();
 
-        /**TIM15 GPIO Configuration
-        PA3     ------> TIM15_CH2
+        /**TIM5 GPIO Configuration
+        PA3     ------> TIM5_CH4
         */
         HAL_GPIO_DeInit(nEVSE_I_LIM_PWM_GPIO_Port, nEVSE_I_LIM_PWM_Pin);
 
-        /* USER CODE BEGIN TIM15_MspDeInit 1 */
+        /* TIM5 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM5_IRQn);
+        /* USER CODE BEGIN TIM5_MspDeInit 1 */
 
-        /* USER CODE END TIM15_MspDeInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP Initialization
- * This function configures the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
-{
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hpcd->Instance == USB_OTG_HS)
-    {
-        /* USER CODE BEGIN USB_OTG_HS_MspInit 0 */
-
-        /* USER CODE END USB_OTG_HS_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
-        /** Enable USB Voltage detector
-         */
-        HAL_PWREx_EnableUSBVoltageDetector();
-
-        /* Peripheral clock enable */
-        __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
-        /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
-
-        /* USER CODE END USB_OTG_HS_MspInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP De-Initialization
- * This function freeze the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
-{
-    if (hpcd->Instance == USB_OTG_HS)
-    {
-        /* USER CODE BEGIN USB_OTG_HS_MspDeInit 0 */
-
-        /* USER CODE END USB_OTG_HS_MspDeInit 0 */
-        /* Peripheral clock disable */
-        __HAL_RCC_USB_OTG_HS_CLK_DISABLE();
-        /* USER CODE BEGIN USB_OTG_HS_MspDeInit 1 */
-
-        /* USER CODE END USB_OTG_HS_MspDeInit 1 */
+        /* USER CODE END TIM5_MspDeInit 1 */
     }
 }
 

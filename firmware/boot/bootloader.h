@@ -4,14 +4,15 @@
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
 
-// Command IDs.
-#define ERASE_SECTOR_ID 1000
-#define PROGRAM_ID 1001
-#define VERIFY_ID 1002
-
-// Reply IDs.
-#define ERASE_SECTOR_COMPLETE_ID 1010
-#define APP_VALIDITY_ID 1011
+#define STATUS_10HZ_ID_LOWBITS (0x0)
+#define START_UPDATE_ID_LOWBITS (0x1)
+#define UPDATE_ACK_ID_LOWBITS (0x2)
+#define GO_TO_APP_LOWBITS (0x3)
+#define ERASE_SECTOR_ID_LOWBITS (0x4)
+#define ERASE_SECTOR_COMPLETE_ID_LOWBITS (0x5)
+#define PROGRAM_ID_LOWBITS (0x6)
+#define VERIFY_ID_LOWBITS (0x7)
+#define APP_VALIDITY_ID_LOWBITS (0x8)
 
 void           bootloader_preInit(void);
 void           bootloader_init(void);

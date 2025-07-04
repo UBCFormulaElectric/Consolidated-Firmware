@@ -1,38 +1,845 @@
 {
-    "Vitals": {
-        "msg_id": 600,
-        "cycle_time": 100,
-        "description": "VC vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "VCState"
-            }
-        }
-    },
-    "VehicleDynamics": {
-        "msg_id": 610,
-        "cycle_time": 100,
-        "description": "Vehicle dynamics info",
-        "signals": {
-            "RegenEnabled": {
-                "bits": 1
-            },
-            "TorqueVectoringEnabled": {
-                "bits": 1
-            }
-        }
-    },
-    "GlobalShdnNodeStatus": {
-        "msg_id": 611,
-        "cycle_time": 100,
-        "description": "Global Shutdown Node Status",
-        "signals": {
-            "FirstFaultNode": {
-                "enum": "ShutdownNode"
-            }
-        }
+  "Vitals": {
+    "msg_id": 500,
+    "cycle_time": 10,
+    "description": "VC Vital signals",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "State": {
+        "enum": "VCState"
+      },
+      "CanLoggingRemainingErrors": {
+        "resolution": 1,
+        "min": 0,
+        "max": 10
+      },
+      "InverterState": {
+        "enum" : "VCInverterState"
+      }
     }
+  },
+  "CommitInfo": {
+    "msg_id": 509,
+    "cycle_time": 100,
+    "description": "VC Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Debug": {
+    "msg_id": 507,
+    "cycle_time": 1000,
+    "description": "VC Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
+      }
+    }
+  },
+  "LoadTransfer": {
+    "msg_id" : 508,
+    "cycle_time": 100,
+    "description": "Vehicle Load Info",
+    "signals": {
+      "FrontLeftWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "FrontRightWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "RearLeftWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "RearRightWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "LoadTransferScalar": {
+        "min": -2,
+        "max": 2,
+        "resolution": 0.1
+      }
+    }
+  },
+  "VehicleDynamics": {
+    "msg_id": 510,
+    "cycle_time": 100,
+    "description": "Vehicle dynamics info",
+    "signals": {
+      "RegenEnabled": {
+        "bits": 1
+      },
+      "TorqueVectoringEnabled": {
+        "bits": 1
+      },
+      "VehicleVelocity": {
+        "bits": 8
+      },
+      "ReferenceYawRate":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "CorrectionYawRate":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "FrontYawMoment":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "RearYawMoment": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      }
+    }
+  },
+  "GlobalShdnNodeStatus": {
+    "msg_id": 511,
+    "cycle_time": 100,
+    "description": "Global Shutdown Node Status",
+    "signals": {
+      "FirstFaultNode": {
+        "enum": "ShutdownNode"
+      }
+    }
+  },
+  "ShdnNodeStatus": {
+    "msg_id": 228,
+    "cycle_time": 100,
+    "description": "VC Shutdown Node Status",
+    "signals": {
+      "RearRightMotorInterlock": {
+        "bits": 1
+      },
+      "InertiaSwitch": {
+        "bits": 1
+      },
+      "TSMSOKStatus": {
+        "bits": 1
+      },
+      "MSDOrEMeterOKStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "ConnectorBoardEfuse": {
+    "msg_id": 233,
+    "cycle_time": 100,
+    "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
+    "signals": {
+      "RsmTurnOnPump": {
+        "bits": 1
+      },
+      "RearLeftPumpCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "RearLeftPumpStatus": {
+        "bits": 1
+      },
+      "LeftRadiatorFanCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "LeftRadiatorFanStatus": {
+        "bits": 1
+      },
+      "RightRadiatorFanCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "RightRadiatorFanStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "EllipseStatus": {
+    "msg_id": 223,
+    "cycle_time": 100,
+    "description": "Status of the SBG Ellipse N sensor.",
+    "signals": {
+      "EllipseGeneralStatusBitmask": {
+        "bits": 16
+      },
+      "EllipseComStatusBitmask": {
+        "bits": 32
+      },
+      "EllipseErrorCode": {
+        "enum": "EllipseErrorCode"
+      },
+      "EkfSolutionMode": {
+        "enum": "VcEkfStatus"
+      },
+      "EllipseQueueOverflowCount": {
+        "bits": 8
+      }
+    }
+  },
+  "EllipseTime": {
+    "msg_id": 209,
+    "cycle_time": 100,
+    "description": "Timestamp from the SBG Ellipse N sensor.",
+    "signals": {
+      "EllipseTimestamp": {
+        "bits": 32,
+        "unit": "us"
+      }
+    }
+  },
+  "EllipseAcceleration": {
+    "disabled": true,
+    "msg_id": 201,
+    "cycle_time": 1000,
+    "description": "Acceleration from the SBG Ellipse N sensor.",
+    "signals": {
+      "AccelerationForward": {
+        "min": -30,
+        "max": 30,
+        "resolution": 0.01,
+        "unit": "m/s^2"
+      },
+      "AccelerationLateral": {
+        "min": -30,
+        "max": 30,
+        "resolution": 0.01,
+        "unit": "m/s^2"
+      },
+      "AccelerationVertical": {
+        "min": -30,
+        "max": 30,
+        "resolution": 0.01,
+        "unit": "m/s^2"
+      }
+    }
+  },
+  "EllipseAngularVelocity": {
+    "disabled": true,
+    "msg_id": 203,
+    "cycle_time": 1000,
+    "description": "Angular velocity from the SBG Ellipse N sensor.",
+    "signals": {
+      "AngularVelocityRoll": {
+        "min": -360,
+        "max": 360,
+        "resolution": 1,
+        "unit": "deg/s"
+      },
+      "AngularVelocityPitch": {
+        "min": -360,
+        "max": 360,
+        "resolution": 1,
+        "unit": "deg/s"
+      },
+      "AngularVelocityYaw": {
+        "min": -360,
+        "max": 360,
+        "resolution": 1,
+        "unit": "deg/s"
+      }
+    }
+  },
+  "EllipseEulerAngles": {
+    "msg_id": 222,
+    "cycle_time": 1000,
+    "description": "Euler angles from the SBG Ellipse N sensor.",
+    "signals": {
+      "EulerAnglesRoll": {
+        "min": -180,
+        "max": 180,
+        "resolution": 0.1,
+        "unit": "deg"
+      },
+      "EulerAnglesPitch": {
+        "min": -180,
+        "max": 180,
+        "resolution": 0.1,
+        "unit": "deg"
+      },
+      "EulerAnglesYaw": {
+        "min": -180,
+        "max": 180,
+        "resolution": 0.1,
+        "unit": "deg"
+      }
+    }
+  },
+  "EllipseEkfNavVelocity": {
+    "msg_id": 218,
+    "cycle_time": 100,
+    "description": "Car Velocity info",
+    "signals": {
+      "VelocityNorth": {
+          "resolution": 0.05,
+          "min": -35,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityNorthAccuracy": {
+          "resolution": 0.1,
+          "min": 0,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityEast": {
+          "resolution": 0.05,
+          "min": -35,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityEastAccuracy": {
+          "resolution": 0.1,
+          "min": 0,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityDown": {
+          "resolution": 0.05,
+          "min": -35,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityDownAccuracy": {
+          "resolution": 0.1,
+          "min": 0,
+          "max": 35,
+          "unit": "m/s"
+      }
+    }
+  },
+  "PIDSlipRatio": {
+    "msg_id": 213,
+    "cycle_time": 1000,
+    "description": "Debug messages for the PID slip ratio controller",
+    "signals": {
+      "PIDSlipRatioOutput": {
+        "start_bit": 0,
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "PIDSlipRatioError": {
+        "start_bit": 8,
+        "bits": 16,
+        "offset": 0,
+        "signed": true,
+        "min": -80,
+        "max": 80,
+        "scale": 0.1
+      },
+      "PIDSlipRatioDerivative": {
+        "start_bit": 24,
+        "bits": 16,
+        "offset": 0,
+        "signed": true,
+        "min": -160,
+        "max": 160,
+        "scale": 0.1
+      },
+      "PIDSlipRatioIntegral": {
+        "start_bit": 40,
+        "bits": 24,
+        "offset": 0,
+        "signed": true,
+        "min": -21474836,
+        "max": 21474836,
+        "scale": 0.1
+      }
+    }
+  },
+  "SlipRatios": {
+    "msg_id": 214,
+    "cycle_time": 1000,
+    "description": "Debug Messages for the Traction Control component of Torque Vectoring",
+    "signals": {
+      "SlipRatioRR": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "SlipRatioRL": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "SlipRatioFR": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "SlipRatioFL": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      }
+    }
+  },
+  "PowerLimit": {
+    "msg_id": 216,
+    "cycle_time": 10,
+    "description": "Debug Power Messages for Power Limit ",
+    "signals": {
+      "TotalAllocatedPower": {
+        "min": 0,
+        "max": 120,
+        "resolution": 0.1
+      },
+      "RequestedPower": {
+        "min": 0,
+        "max": 120,
+        "resolution": 0.1
+      },
+      "PowerLimitValue" : {
+        "min": 0,
+        "max": 120,
+        "resolution": 0.1
+      }
+    }
+  },
+  "ImuData": {
+    "msg_id": 225,
+    "cycle_time": 10,
+    "description": "Linear Acceleration x, y and z direction from the IMU",
+    "signals": {
+      "ImuAccelerationX": {
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
+      },
+      "ImuAccelerationY": {
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
+      },
+      "ImuAccelerationZ": {
+        "resolution": 0.001,
+        "min": -50,
+        "max": 50,
+        "unit": "m/s^2"
+      }
+    }
+  },
+  "MainBoardEfuse": {
+    "msg_id": 221,
+    "cycle_time": 100,
+    "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
+    "signals": {
+      "FrontInvertersCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "FrontInvertersStatus": {
+        "bits": 1
+      },
+      "RSMCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 20,
+        "unit": "A"
+      },
+      "RSMStatus": {
+        "bits": 1
+      },
+      "BMSCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "BMSStatus": {
+        "bits": 1
+      },
+      "RearInvertersCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "RearInvertersStatus": {
+        "bits": 1
+      },
+      "DAMCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "DAMStatus": {
+        "bits": 1
+      },
+      "FrontCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "FrontStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "PumpStatus": {
+    "msg_id": 229,
+    "cycle_time": 10,
+    "description": "All pump descriptions",
+    "signals": {
+      "PumpFailure": {
+        "bits": 1
+      },
+      "PumpRampUpSetPoint": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    }
+  },
+  "ImuAngularData": {
+    "msg_id": 227,
+    "cycle_time": 10,
+    "description": "Angular Velocity in x, y and z direction from the IMU",
+    "signals": {
+      "ImuAngularVelocityRoll": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      },
+      "ImuAngularVelocityPitch": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      },
+      "ImuAngularVelocityYaw": {
+        "resolution": 0.1,
+        "min": -360,
+        "max": 360,
+        "unit": "deg/s"
+      }
+    }
+  },
+  "PedalPercentage": {
+    "msg_id": 231,
+    "cycle_time": 100,
+    "description": "Pedal percentage info",
+    "signals": {
+      "RegenMappedPedalPercentage": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1,
+        "unit": "%"
+      }
+    }
+  },
+  "INVFLSetPoints": {
+    "msg_id": 388,
+    "cycle_time": 5,
+    "signals": {
+      "INVFLReserve1": {
+        "start_bit": 0,
+        "bits": 8
+      },
+      "INVFLbInverterOn": {
+        "start_bit": 8,
+        "bits": 1
+      },
+      "INVFLbDcOn": {
+        "start_bit": 9,
+        "bits": 1
+      },
+      "INVFLbEnable": {
+        "start_bit": 10,
+        "bits": 1
+      },
+      "INVFLbErrorReset": {
+        "start_bit": 11,
+        "bits": 1
+      },
+      "INVFLbReserve2": {
+        "start_bit": 12,
+        "bits": 4
+      },
+      "INVFLTorqueSetpoint": {
+        "start_bit": 16,
+        "bits": 16,
+        "signed": true
+      },
+      "INVFLTorqueLimitPositive": {
+        "start_bit": 32,
+        "bits": 16,
+        "signed": true
+      },
+      "INVFLTorqueLimitNegative": {
+        "start_bit": 48,
+        "bits": 16,
+        "signed": true
+      }
+    }
+  },
+  "INVFRSetPoints": {
+    "msg_id": 389,
+    "cycle_time": 5,
+    "signals": {
+      "INVFRReserve1": {
+        "start_bit": 0,
+        "bits": 8
+      },
+      "INVFRbInverterOn": {
+        "start_bit": 8,
+        "bits": 1
+      },
+      "INVFRbDcOn": {
+        "start_bit": 9,
+        "bits": 1
+      },
+      "INVFRbEnable": {
+        "start_bit": 10,
+        "bits": 1
+      },
+      "INVFRbErrorReset": {
+        "start_bit": 11,
+        "bits": 1
+      },
+      "INVFRbReserve2": {
+        "start_bit": 12,
+        "bits": 4
+      },
+      "INVFRTorqueSetpoint": {
+        "start_bit": 16,
+        "bits": 16,
+        "signed": true
+      },
+      "INVFRTorqueLimitPositive": {
+        "start_bit": 32,
+        "bits": 16,
+        "signed": true
+      },
+      "INVFRTorqueLimitNegative": {
+        "start_bit": 48,
+        "bits": 16,
+        "signed": true
+      }
+    }
+  },
+  "INVRLSetPoints": {
+    "msg_id": 392,
+    "cycle_time": 5,
+    "signals": {
+      "INVRLbReserve1": {
+        "start_bit": 0,
+        "bits": 8
+      },
+      "INVRLbInverterOn": {
+        "start_bit": 8,
+        "bits": 1
+      },
+      "INVRLbDcOn": {
+        "start_bit": 9,
+        "bits": 1
+      },
+      "INVRLbEnable": {
+        "start_bit": 10,
+        "bits": 1
+      },
+      "INVRLbErrorReset": {
+        "start_bit": 11,
+        "bits": 1
+      },
+      "INVRLbReserve2": {
+        "start_bit": 12,
+        "bits": 4
+      },
+      "INVRLTorqueSetpoint": {
+        "start_bit": 16,
+        "bits": 16,
+        "signed": true
+      },
+      "INVRLTorqueLimitPositive": {
+        "start_bit": 32,
+        "bits": 16,
+        "signed": true
+      },
+      "INVRLTorqueLimitNegative": {
+        "start_bit": 48,
+        "bits": 16,
+        "signed": true
+      }
+    }
+  },
+  "INVRRSetPoints": {
+    "msg_id": 393,
+    "cycle_time": 5,
+    "signals": {
+      "INVRRbReserve1": {
+        "start_bit": 0,
+        "bits": 8
+      },
+      "INVRRbInverterOn": {
+        "start_bit": 8,
+        "bits": 1
+      },
+      "INVRRbDcOn": {
+        "start_bit": 9,
+        "bits": 1
+      },
+      "INVRRbEnable": {
+        "start_bit": 10,
+        "bits": 1
+      },
+      "INVRRbErrorReset": {
+        "start_bit": 11,
+        "bits": 1
+      },
+      "INVRRbReserve2": {
+        "start_bit": 12,
+        "bits": 4
+      },
+      "INVRRTorqueSetpoint": {
+        "start_bit": 16,
+        "bits": 16,
+        "signed": true
+      },
+      "INVRRTorqueLimitPositive": {
+        "start_bit": 32,
+        "bits": 16,
+        "signed": true
+      },
+      "INVRRTorqueLimitNegative": {
+        "start_bit": 48,
+        "bits": 16,
+        "signed": true
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 599,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "PowerMonitoring": {
+    "msg_id": 514,
+    "cycle_time": 100,
+    "description": "Power monitoring chip",
+    "signals": {
+      "ChannelOneVoltage": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 32.0,
+        "unit": "V"
+      },
+      "ChannelTwoVoltage": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 32.0,
+        "unit": "V"
+      },
+      "ChannelOneCurrent": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 25.0,
+        "unit": "A"
+      },
+      "ChannelTwoCurrent": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 25.0,
+        "unit": "A"
+      },
+      "ChannelOnePower": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 800.0,
+        "unit": "W"
+      },
+      "ChannelTwoPower": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 800.0,
+        "unit": "W"
+      }
+    }
+  },
+  "PCM": {
+    "msg_id": 234,
+    "cycle_time" : 100, 
+    "signals":
+    {
+      "PcmRetryCount":
+      {
+        "min" : 0,
+        "max" : 5,
+        "resolution": 1
+      }
+    }
+  },
+  "DriveMode": {
+    "msg_id": 235,
+    "cycle_time" : 100, 
+    "signals":
+    {
+      "VcDriveMode":
+      {
+        "enum": "DriveMode"
+      }
+    }
+  }
 }

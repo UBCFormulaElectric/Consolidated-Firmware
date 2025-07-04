@@ -79,6 +79,48 @@ void HAL_MspInit(void)
 }
 
 /**
+ * @brief CRC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hcrc: CRC handle pointer
+ * @retval None
+ */
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
+{
+    if (hcrc->Instance == CRC)
+    {
+        /* USER CODE BEGIN CRC_MspInit 0 */
+
+        /* USER CODE END CRC_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_CRC_CLK_ENABLE();
+        /* USER CODE BEGIN CRC_MspInit 1 */
+
+        /* USER CODE END CRC_MspInit 1 */
+    }
+}
+
+/**
+ * @brief CRC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hcrc: CRC handle pointer
+ * @retval None
+ */
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
+{
+    if (hcrc->Instance == CRC)
+    {
+        /* USER CODE BEGIN CRC_MspDeInit 0 */
+
+        /* USER CODE END CRC_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_CRC_CLK_DISABLE();
+        /* USER CODE BEGIN CRC_MspDeInit 1 */
+
+        /* USER CODE END CRC_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief FDCAN MSP Initialization
  * This function configures the hardware resources used in this example
  * @param hfdcan: FDCAN handle pointer
@@ -97,7 +139,15 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
+        PeriphClkInitStruct.PLL2.PLL2M           = 1;
+        PeriphClkInitStruct.PLL2.PLL2N           = 24;
+        PeriphClkInitStruct.PLL2.PLL2P           = 2;
+        PeriphClkInitStruct.PLL2.PLL2Q           = 2;
+        PeriphClkInitStruct.PLL2.PLL2R           = 2;
+        PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
+        PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
+        PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -199,6 +249,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
         /* Peripheral clock enable */
         __HAL_RCC_I2C1_CLK_ENABLE();
+        /* I2C1 interrupt Init */
+        HAL_NVIC_SetPriority(I2C1_EV_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+        HAL_NVIC_SetPriority(I2C1_ER_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
         /* USER CODE BEGIN I2C1_MspInit 1 */
 
         /* USER CODE END I2C1_MspInit 1 */
@@ -229,6 +284,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 
         HAL_GPIO_DeInit(RTC_I2C_SDA_GPIO_Port, RTC_I2C_SDA_Pin);
 
+        /* I2C1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(I2C1_EV_IRQn);
+        HAL_NVIC_DisableIRQ(I2C1_ER_IRQn);
         /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
         /* USER CODE END I2C1_MspDeInit 1 */
@@ -430,6 +488,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* USART2 interrupt Init */
+        HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(USART2_IRQn);
         /* USER CODE BEGIN USART2_MspInit 1 */
 
         /* USER CODE END USART2_MspInit 1 */
@@ -460,6 +521,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         */
         HAL_GPIO_DeInit(GPIOA, FROM_900M_CTS_Pin | TO_900M_RTS_Pin | TO_900M_TX_Pin | FROM_900M_RX_Pin);
 
+        /* USART2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(USART2_IRQn);
         /* USER CODE BEGIN USART2_MspDeInit 1 */
 
         /* USER CODE END USART2_MspDeInit 1 */

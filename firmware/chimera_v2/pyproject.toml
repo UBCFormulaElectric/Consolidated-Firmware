@@ -1,21 +1,21 @@
 [project]
 name = "chimera_v2"
-version = "0.1"
+version = "0.5"
 
 dependencies = [
     # Protobuf dependencies.
     "protobuf", "grpcio-tools", "protoletariat", 
 
     # We use libusb-package to get a version of pyusb's usb.core with libusb packaged in.
-    "libusb-package", 
-
-    # CAN support dependencies.
-    "cantools", "python-can",
+    "libusb-package", "pyusb",
 
     # Visa peripherals.
-    "pyvisa"
+    "pyvisa",
+
+    # Data.
+    "pandas", "numpy"
 ]
 
 [tool.setuptools]
-py-modules=["chimera_v2", "load_bank", "power_supply"]
+py-modules=["chimera_v2", "load_bank", "power_supply", "scope"]
 packages=["proto_autogen"]

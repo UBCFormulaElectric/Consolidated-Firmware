@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "app_utils.h"
 #include "hw_gpio.h"
 #include "main.h"
 
@@ -13,9 +14,9 @@ typedef struct
 
 typedef struct
 {
-    SpiBus  *bus;
-    Gpio     nss_pin;
-    uint32_t timeout_ms;
+    SpiBus     *bus;
+    const Gpio *nss_pin;
+    uint32_t    timeout_ms;
 } SpiDevice;
 
 // Board-specific config: You need to define this function which maps STM32 handle to SpiBus struct!
@@ -35,9 +36,9 @@ SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle);
  * @return True if data is transmitted and received successfully. Else return
  * false.
  */
-bool hw_spi_transmitThenReceive(
+ExitCode hw_spi_transmitThenReceive(
     const SpiDevice *device,
-    uint8_t         *tx_buffer,
+    const uint8_t   *tx_buffer,
     uint16_t         tx_buffer_size,
     uint8_t         *rx_buffer,
     uint16_t         rx_buffer_size);
@@ -50,7 +51,7 @@ bool hw_spi_transmitThenReceive(
  * @param tx_buffer_size The size of the tx_data buffer.
  * @return True if data is transmitted successfully. Else, return false.
  */
-bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+ExitCode hw_spi_transmit(const SpiDevice *device, const uint8_t *tx_buffer, uint16_t tx_buffer_size);
 
 /**
  * Receive data from the device connected to the given SPI interface.
@@ -60,4 +61,4 @@ bool hw_spi_transmit(const SpiDevice *device, uint8_t *tx_buffer, uint16_t tx_bu
  * @param rx_buffer_size The size of the rx_data buffer.
  * @return True if data is received successfully. Else, return false.
  */
-bool hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size);
+ExitCode hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, uint16_t rx_buffer_size);

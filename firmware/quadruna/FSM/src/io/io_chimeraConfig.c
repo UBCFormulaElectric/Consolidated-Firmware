@@ -22,5 +22,4 @@ const AdcChannel *id_to_adc[] = {
     [FSM_AdcNetName_SteeringAngle_3V3]  = &steering_angle,
 };
 
-const UART *chimera_uart   = &debug_uart;
 const Gpio *n_chimera_gpio = &n_chimera_pin;

@@ -7,12 +7,3 @@ enum GpioNetName {
   GPIO_6 = 1;
   GPIO_5 = 2;
 }
-
-enum AdcNetName {
-  ADC_NET_NAME_UNSPECIFIED = 0;
-}
-
-enum I2cNetName {
-  I2C_NET_NAME_UNSPECIFIED = 0;
-  I2C_3 = 1;
-}

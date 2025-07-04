@@ -30,19 +30,41 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
-
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "hw_error.h"
+#include "cmsis_os.h"
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
-
+    extern FDCAN_HandleTypeDef hfdcan2;
+    extern I2C_HandleTypeDef   hi2c1;
+    extern IWDG_HandleTypeDef  hiwdg1;
+    extern SD_HandleTypeDef    hsd1;
+    extern TIM_HandleTypeDef   htim15;
+    extern UART_HandleTypeDef  huart2;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern osThreadId_t Task100HzHandle;
+    extern osThreadId_t TaskCanTxHandle;
+    extern osThreadId_t TaskCanRxHandle;
+    extern osThreadId_t Task1kHzHandle;
+    extern osThreadId_t Task1HzHandle;
+    extern osThreadId_t TaskLoggingHandle;
+    extern osThreadId_t TaskTelemHandle;
+    extern osThreadId_t TaskTelemRxHandle;
 
+    extern const osThreadAttr_t Task100Hz_attributes;
+    extern const osThreadAttr_t TaskCanTx_attributes;
+    extern const osThreadAttr_t TaskCanRx_attributes;
+    extern const osThreadAttr_t Task1kHz_attributes;
+    extern const osThreadAttr_t Task1Hz_attributes;
+    extern const osThreadAttr_t TaskLogging_attributes;
+    extern const osThreadAttr_t TaskTelem_attributes;
+    extern const osThreadAttr_t TaskTelemRx_attributes;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -58,12 +80,15 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
+#define LSI_FREQUENCY 32000
 #define nRTC_INT1_Pin GPIO_PIN_5
 #define nRTC_INT1_GPIO_Port GPIOE
 #define LED_Pin GPIO_PIN_0
 #define LED_GPIO_Port GPIOC
-#define BOOT_Pin GPIO_PIN_1
-#define BOOT_GPIO_Port GPIOC
+#define BOOT_LED_Pin GPIO_PIN_1
+#define BOOT_LED_GPIO_Port GPIOC
 #define SD_FAIL_Pin GPIO_PIN_3
 #define SD_FAIL_GPIO_Port GPIOC
 #define FROM_900M_CTS_Pin GPIO_PIN_0

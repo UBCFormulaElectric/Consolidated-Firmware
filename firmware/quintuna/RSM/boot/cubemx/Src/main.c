@@ -24,6 +24,8 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
+#include "io_canQueue.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,9 +45,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-CAN_HandleTypeDef hcan1;
-
-CRC_HandleTypeDef hcrc;
+CAN_HandleTypeDef hcan2;
 
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
@@ -57,7 +57,7 @@ const osThreadAttr_t interfaceTask_attributes = {
     .cb_size    = sizeof(interfaceTaskControlBlock),
     .stack_mem  = &interfaceTaskBuffer[0],
     .stack_size = sizeof(interfaceTaskBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
+    .priority   = (osPriority_t)osPriorityRealtime,
 };
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
@@ -69,7 +69,7 @@ const osThreadAttr_t canTxTask_attributes = {
     .cb_size    = sizeof(canTxTaskControlBlock),
     .stack_mem  = &canTxTaskBuffer[0],
     .stack_size = sizeof(canTxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
+    .priority   = (osPriority_t)osPriorityHigh,
 };
 /* Definitions for tickTask */
 osThreadId_t         tickTaskHandle;
@@ -81,17 +81,16 @@ const osThreadAttr_t tickTask_attributes = {
     .cb_size    = sizeof(tickTaskControlBlock),
     .stack_mem  = &tickTaskBuffer[0],
     .stack_size = sizeof(tickTaskBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityLow,
 };
 /* USER CODE BEGIN PV */
-CanHandle can = { .hcan = &hcan1 };
+CanHandle can = { .hcan = &hcan2, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CAN1_Init(void);
-static void MX_CRC_Init(void);
+static void MX_CAN2_Init(void);
 void        runInterfaceTask(void *argument);
 void        runCanTxTask(void *argument);
 void        runTickTask(void *argument);
@@ -133,8 +132,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_CAN1_Init();
-    MX_CRC_Init();
+    MX_CAN2_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
     /* USER CODE END 2 */
@@ -213,10 +211,10 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 8;
-    RCC_OscInitStruct.PLL.PLLN       = 192;
+    RCC_OscInitStruct.PLL.PLLM       = 4;
+    RCC_OscInitStruct.PLL.PLLN       = 96;
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ       = 2;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -238,62 +236,38 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief CAN1 Initialization Function
+ * @brief CAN2 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_CAN1_Init(void)
+static void MX_CAN2_Init(void)
 {
-    /* USER CODE BEGIN CAN1_Init 0 */
+    /* USER CODE BEGIN CAN2_Init 0 */
 
-    /* USER CODE END CAN1_Init 0 */
+    /* USER CODE END CAN2_Init 0 */
 
-    /* USER CODE BEGIN CAN1_Init 1 */
+    /* USER CODE BEGIN CAN2_Init 1 */
 
-    /* USER CODE END CAN1_Init 1 */
-    hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 6;
-    hcan1.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
-    hcan1.Init.TimeSeg1             = CAN_BS1_13TQ;
-    hcan1.Init.TimeSeg2             = CAN_BS2_2TQ;
-    hcan1.Init.TimeTriggeredMode    = DISABLE;
-    hcan1.Init.AutoBusOff           = ENABLE;
-    hcan1.Init.AutoWakeUp           = DISABLE;
-    hcan1.Init.AutoRetransmission   = ENABLE;
-    hcan1.Init.ReceiveFifoLocked    = ENABLE;
-    hcan1.Init.TransmitFifoPriority = ENABLE;
-    if (HAL_CAN_Init(&hcan1) != HAL_OK)
+    /* USER CODE END CAN2_Init 1 */
+    hcan2.Instance                  = CAN2;
+    hcan2.Init.Prescaler            = 3;
+    hcan2.Init.Mode                 = CAN_MODE_NORMAL;
+    hcan2.Init.SyncJumpWidth        = CAN_SJW_3TQ;
+    hcan2.Init.TimeSeg1             = CAN_BS1_12TQ;
+    hcan2.Init.TimeSeg2             = CAN_BS2_3TQ;
+    hcan2.Init.TimeTriggeredMode    = DISABLE;
+    hcan2.Init.AutoBusOff           = ENABLE;
+    hcan2.Init.AutoWakeUp           = DISABLE;
+    hcan2.Init.AutoRetransmission   = ENABLE;
+    hcan2.Init.ReceiveFifoLocked    = ENABLE;
+    hcan2.Init.TransmitFifoPriority = ENABLE;
+    if (HAL_CAN_Init(&hcan2) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN CAN1_Init 2 */
+    /* USER CODE BEGIN CAN2_Init 2 */
 
-    /* USER CODE END CAN1_Init 2 */
-}
-
-/**
- * @brief CRC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CRC_Init(void)
-{
-    /* USER CODE BEGIN CRC_Init 0 */
-
-    /* USER CODE END CRC_Init 0 */
-
-    /* USER CODE BEGIN CRC_Init 1 */
-
-    /* USER CODE END CRC_Init 1 */
-    hcrc.Instance = CRC;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CRC_Init 2 */
-
-    /* USER CODE END CRC_Init 2 */
+    /* USER CODE END CAN2_Init 2 */
 }
 
 /**
@@ -308,46 +282,22 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, BRAKE_LIGHT_EN_3V3_Pin | FR_STBY_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LED_Pin | BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, RAD_FAN_EN_Pin | ACC_FAN_EN_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin : LED_Pin */
-    GPIO_InitStruct.Pin   = LED_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : BRAKE_LIGHT_EN_3V3_Pin FR_STBY_Pin */
-    GPIO_InitStruct.Pin   = BRAKE_LIGHT_EN_3V3_Pin | FR_STBY_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : RAD_FAN_EN_Pin ACC_FAN_EN_Pin */
-    GPIO_InitStruct.Pin   = RAD_FAN_EN_Pin | ACC_FAN_EN_Pin;
+    /*Configure GPIO pins : BOOT_LED_Pin LED_Pin BRAKE_LIGHT_EN_Pin */
+    GPIO_InitStruct.Pin   = BOOT_LED_Pin | LED_Pin | BRAKE_LIGHT_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : nBOOT_EN_Pin */
-    GPIO_InitStruct.Pin  = nBOOT_EN_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nBOOT_EN_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

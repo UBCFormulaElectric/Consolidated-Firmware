@@ -3,38 +3,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
+#include "app_utils.h"
+#include "hw_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
-#ifdef CANFD
-// STM32 HAL CAN FD handle.
-typedef struct
-{
-    FDCAN_HandleTypeDef *hcan;
-    uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
-    bool                 ready;
-} CanHandle;
-/**
- * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
- * @param hcan takes a handle to a STM32 HAL CAN object
- * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
- */
-const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
-#else
 // STM32 HAL CAN handle.
 typedef struct
 {
-    CAN_HandleTypeDef *hcan;
-    uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
-    bool               ready;
+    CAN_HandleTypeDef *const hcan;
+    const uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    void (*const receive_callback)(const CanMsg *rx_msg);
+    bool ready;
 } CanHandle;
+
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
-#endif
 #endif
 
 /**
@@ -54,7 +42,7 @@ void hw_can_deinit(const CanHandle *can_handle);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
+ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.
@@ -64,4 +52,4 @@ bool hw_can_transmit(const CanHandle *can_handle, CanMsg *msg);
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
  */
-bool hw_can_receive(const CanHandle *can_handle, uint32_t rx_fifo, CanMsg *msg);
+ExitCode hw_can_receive(const CanHandle *can_handle, uint32_t rx_fifo, CanMsg *msg);

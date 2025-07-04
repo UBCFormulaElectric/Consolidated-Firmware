@@ -1,15 +1,19 @@
 #pragma once
 
+#include "app_utils.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
 /**
  * @brief Initialize the USB CDC peripheral, must be called in the `USER CODE BEGIN RTOS_QUEUES` section.
+ * @returns whether the USB is ok to be used
+ * @note you can call it multiple times
  */
-void hw_usb_init();
+ExitCode hw_usb_init();
 
 /**
- * @brief Check if the USB port is connected.
+ * @brief Check if the USB port is connected (in a "configured" state).
  * @return True if the port is connected, otherwise false.
  */
 bool hw_usb_checkConnection();
@@ -20,15 +24,17 @@ bool hw_usb_checkConnection();
  * @param len The length of the buffer.
  * @return True if data is transmitted successfully, otherwise false.
  */
-bool hw_usb_transmit(uint8_t *msg, uint16_t len);
+ExitCode hw_usb_transmit(uint8_t *msg, uint16_t len);
 
 /**
  * @brief Receive data from the usb host.
  * @param dest A pointer to the destination buffer.
- * @param len Number of bytes to receive.
- * @return True if data is received successfully, otherwise false.
+ * @param timeout_ms Maximum timeout to wait.
+ * @return True if data is received successfully,
+ *         false if an error occurred or the timeout has passed.
+ * @note that this function will return one byte from the buffer
  */
-bool hw_usb_receive(uint8_t *dest, uint32_t len);
+ExitCode hw_usb_receive(uint8_t *dest, uint32_t timeout_ms);
 
 /**
  * @brief Push a message to the RX queue. To be called from usbd_cdc_if.c, CDC_Receive_FS.
@@ -36,7 +42,7 @@ bool hw_usb_receive(uint8_t *dest, uint32_t len);
  * @param len Number of bytes to receive.
  * @return True if data is pushed to the queue successfully, otherwise false.
  */
-bool hw_usb_pushRxMsgToQueue(uint8_t *msg, uint32_t len);
+bool hw_usb_pushRxMsgToQueue(const uint8_t *msg, uint32_t len); // TODO make this use ExitCodes
 
 /**
  * @brief Transmits "hello" repeatedly over USB.
@@ -47,3 +53,28 @@ void hw_usb_transmit_example();
  * @brief Logs all received bytes as chars.
  */
 void hw_usb_receive_example();
+
+// CONNECTION HANDLER
+
+/**
+ * Blocks the thread until the USB is connected
+ */
+void hw_usb_waitForConnected();
+
+/**
+ * @return Whether the USB is connected
+ * @note This might not be the true source of truth on whether the USB is connected. Please use hw_usb_checkConnection
+ * to verify that it is connected.
+ * @note Use this in conjunction with hw_usb_waitForConnected to handle async USB behaviour
+ */
+bool hw_usb_connected();
+
+/**
+ * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_ResumeCallback IN USBD_CONF.c (for now)
+ */
+void hw_usb_connect_callback();
+
+/**
+ * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_SuspendCallback IN USBD_CONF.c (for now)
+ */
+void hw_usb_disconnect_callback();

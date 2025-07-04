@@ -31,12 +31,15 @@
 #include "hw_usb.h"
 #include "shared.pb.h"
 #include "f4dev.pb.h"
-#include "io_chimera_v2.h"
+#include "hw_chimera_v2.h"
 #include "hw_gpio.h"
 #include "hw_gpios.h"
 #include "hw_adcs.h"
-#include "io_chimeraConfig_v2.h"
+#include "hw_chimeraConfig_v2.h"
 #include "io_log.h"
+#include "hw_can.h"
+#include <assert.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,13 +76,6 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = 512 * 4,
     .priority   = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for anotherTask */
-osThreadId_t         anotherTaskHandle;
-const osThreadAttr_t anotherTask_attributes = {
-    .name       = "anotherTask",
-    .stack_size = 512 * 4,
-    .priority   = (osPriority_t)osPriorityLow,
-};
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
 
@@ -93,7 +89,6 @@ static void MX_CAN2_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C3_Init(void);
 void        StartDefaultTask(void *argument);
-void        StartAnotherTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -101,6 +96,12 @@ void        StartAnotherTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+CanHandle        can = { .hcan = &hcan2 };
+const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can.hcan);
+    return &can;
+}
 // int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
 // int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
 // int lfs_erase(const struct lfs_config *c, lfs_block_t block);
@@ -243,15 +244,12 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    hw_usb_init();
+    ASSERT_EXIT_OK(hw_usb_init());
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
-    /* creation of anotherTask */
-    anotherTaskHandle = osThreadNew(StartAnotherTask, NULL, &anotherTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -546,6 +544,9 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, GPIO_PIN_RESET);
 
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+
     /*Configure GPIO pin : GPIO_6_Pin */
     GPIO_InitStruct.Pin   = GPIO_6_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
@@ -568,6 +569,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : GPIO_5_Pin */
     GPIO_InitStruct.Pin  = GPIO_5_Pin;
@@ -603,29 +611,8 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    io_chimera_v2_main(
-        GpioNetName_f4dev_net_name_tag, id_to_gpio, AdcNetName_f4dev_net_name_tag, id_to_adc,
-        I2cNetName_f4dev_net_name_tag, id_to_i2c);
+    hw_chimera_v2_task(&chimera_v2_config);
     /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_StartAnotherTask */
-/**
- * @brief Function implementing the anotherTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartAnotherTask */
-void StartAnotherTask(void *argument)
-{
-    /* USER CODE BEGIN StartAnotherTask */
-    /* Infinite loop */
-    for (;;)
-    {
-        LOG_INFO("Another Task: Another Task Tick");
-        osDelay(1000);
-    }
-    /* USER CODE END StartAnotherTask */
 }
 
 /**

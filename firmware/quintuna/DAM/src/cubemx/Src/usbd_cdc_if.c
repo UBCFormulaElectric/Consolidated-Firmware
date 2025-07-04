@@ -1,28 +1,31 @@
 /* USER CODE BEGIN Header */
-/**                                                                             \
- ****************************************************************************** \
- * @file           : usbd_cdc_if.c                                              \
- * @version        : v1.0_Cube                                                  \
- * @brief          : Usb device for Virtual Com Port.                           \
- ****************************************************************************** \
- * @attention                                                                   \
- *                                                                              \
- * Copyright (c) 2025 STMicroelectronics.                                       \
- * All rights reserved.                                                         \
- *                                                                              \
- * This software is licensed under terms that can be found in the LICENSE file  \
- * in the root directory of this software component.                            \
- * If no LICENSE file comes with this software, it is provided AS-IS.           \
- *                                                                              \
- ****************************************************************************** \
- */                                                                             \
+/**
+ ******************************************************************************
+ * @file           : usbd_cdc_if.c
+ * @version        : v1.0_Cube
+ * @brief          : Usb device for Virtual Com Port.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "hw_usb.h"
+#include "io_log.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -260,6 +263,11 @@ static int8_t CDC_Receive_HS(uint8_t *Buf, uint32_t *Len)
     /* USER CODE BEGIN 11 */
     USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceHS);
+
+    // Hook to hw_usb.
+    if (!hw_usb_pushRxMsgToQueue(Buf, *Len))
+        LOG_ERROR("Error encountered pushing USB RX Message to queue.");
+
     return (USBD_OK);
     /* USER CODE END 11 */
 }

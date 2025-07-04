@@ -18,6 +18,7 @@
  */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -66,9 +67,9 @@
 
 #define USBD_VID 1155
 #define USBD_LANGID_STRING 1033
-#define USBD_MANUFACTURER_STRING "STMicroelectronics"
+#define USBD_MANUFACTURER_STRING "ubc_formula_electric"
 #define USBD_PID_HS 22336
-#define USBD_PRODUCT_STRING_HS "STM32 Virtual ComPort"
+#define USBD_PRODUCT_STRING_HS "dam"
 #define USBD_CONFIGURATION_STRING_HS "CDC Config"
 #define USBD_INTERFACE_STRING_HS "CDC Interface"
 

@@ -2,7 +2,7 @@
 
 #include "hw_uart.h"
 
-extern const UART debug_uart;
-extern const UART sbg_uart;
-extern const UART modem2G4_uart;
-extern const UART modem900_uart;
+extern UartDevice chimera_uart;
+extern UartDevice sbg_ellipse_uart;
+extern UartDevice modem_2g4_uart;
+extern UartDevice modem_900k_uart;

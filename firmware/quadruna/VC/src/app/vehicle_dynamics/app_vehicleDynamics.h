@@ -51,3 +51,14 @@ typedef struct PowerLimiting_Inputs
     const float power_limit_kW;
     float       accelerator_pedal_percent;
 } PowerLimiting_Inputs;
+
+typedef struct TorqueAllocationInputs // regardless of if controller is used or not final torques MUST go into this
+                                      // struct before being sent to the inverters
+{
+    // float front_left_motor_torque;  uncomment for 4WD
+    // float front_right_motor_torque;  uncomment for 4WD
+    float rear_left_motor_torque;
+    float rear_right_motor_torque;
+    float rear_yaw_moment;
+    float front_yaw_moment;
+} TorqueAllocationInputs;

@@ -1,5 +1,6 @@
 #pragma once
 
+void           tasks_deinit(void);
 void           tasks_preInit(void);
 void           tasks_init(void);
 _Noreturn void tasks_run1Hz(void);

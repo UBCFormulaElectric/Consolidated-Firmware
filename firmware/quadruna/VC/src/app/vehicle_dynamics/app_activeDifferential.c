@@ -7,16 +7,16 @@
 
 void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)
 {
-    float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
-    float cl    = 1 + Delta;
-    float cr    = 1 - Delta;
+    const float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
+    const float cl    = 1 + Delta;
+    const float cr    = 1 - Delta;
 
-    float torque_lim_Nm = app_activeDifferential_powerToTorque(
+    const float torque_lim_Nm = app_activeDifferential_powerToTorque(
         inputs->power_max_kW, inputs->motor_speed_left_rpm, inputs->motor_speed_right_rpm, cl, cr);
 
-    float torque_left_Nm  = inputs->requested_torque * (1 + Delta);
-    float torque_right_Nm = inputs->requested_torque * (1 - Delta);
-    float torque_max_Nm   = fmaxf(torque_left_Nm, torque_right_Nm);
+    const float torque_left_Nm  = inputs->requested_torque * (1 + Delta);
+    const float torque_right_Nm = inputs->requested_torque * (1 - Delta);
+    const float torque_max_Nm   = fmaxf(torque_left_Nm, torque_right_Nm);
 
     float scale = 1.0f;
     if (torque_max_Nm > torque_lim_Nm)
@@ -28,8 +28,9 @@ void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, Act
     outputs->torque_right_Nm = torque_right_Nm * scale;
 }
 
-float app_activeDifferential_wheelAngleToSpeedDelta(float wheel_angle_deg)
+float app_activeDifferential_wheelAngleToSpeedDelta(const float wheel_angle_deg)
 {
+    // equation below derrived from https://ieeexplore.ieee.org/document/6635706 equation 11
     // angle > 0 = right5
     // angle < = left
 
@@ -37,11 +38,11 @@ float app_activeDifferential_wheelAngleToSpeedDelta(float wheel_angle_deg)
 }
 
 float app_activeDifferential_powerToTorque(
-    float power_kW,
-    float left_motor_speed_rpm,
-    float right_motor_speed_rpm,
-    float cl,
-    float cr)
+    const float power_kW,
+    const float left_motor_speed_rpm,
+    const float right_motor_speed_rpm,
+    const float cl,
+    const float cr)
 {
     return (POWER_TO_TORQUE_CONVERSION_FACTOR * power_kW) /
            (left_motor_speed_rpm * cl + right_motor_speed_rpm * cr + SMALL_EPSILON);

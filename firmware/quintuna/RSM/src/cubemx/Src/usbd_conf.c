@@ -27,7 +27,7 @@
 #include "usbd_cdc.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "hw_usb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -78,12 +78,8 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *pcdHandle)
 
         /** Initializes the peripherals clock
          */
-        PeriphClkInitStruct.PLLI2S.PLLI2SN      = 96;
-        PeriphClkInitStruct.PLLI2S.PLLI2SM      = 4;
-        PeriphClkInitStruct.PLLI2S.PLLI2SR      = 2;
-        PeriphClkInitStruct.PLLI2S.PLLI2SQ      = 4;
-        PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLI2SQ;
-        PeriphClkInitStruct.PLLI2SSelection     = RCC_PLLI2SCLKSOURCE_PLLSRC;
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+        PeriphClkInitStruct.Clk48ClockSelection  = RCC_CLK48CLKSOURCE_PLLQ;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -237,6 +233,7 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
     __HAL_PCD_GATE_PHYCLOCK(hpcd);
     /* Enter in STOP mode. */
     /* USER CODE BEGIN 2 */
+    hw_usb_disconnect_callback();
     if (hpcd->Init.low_power_enable)
     {
         /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
@@ -258,7 +255,7 @@ void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 {
     /* USER CODE BEGIN 3 */
-
+    hw_usb_connect_callback();
     /* USER CODE END 3 */
     USBD_LL_Resume((USBD_HandleTypeDef *)hpcd->pData);
 }

@@ -22,8 +22,6 @@ services:
     volumes:
       - ../backend/logs:/backend/logs
       - ../backend/data:/backend/data
-    environment:
-      - IN_DOCKER_CONTAINER=1
   frontend:
     extends:
       file: common.yml

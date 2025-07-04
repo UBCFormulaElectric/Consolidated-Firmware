@@ -16,10 +16,14 @@ variables, so the following changes are made:
 */
 
 import "nanopb.proto";
-
+import "rsm.proto";
 import "f4dev.proto";
 import "ssm.proto";
 import "crit.proto";
+import "bms.proto";
+import "dam.proto";
+import "fsm.proto";
+import "vc.proto";
 
 /* GPIOs */
 message GpioNetName {
@@ -27,6 +31,11 @@ message GpioNetName {
         f4dev.GpioNetName f4dev_net_name = 1;
         ssm.GpioNetName ssm_net_name = 2;
         crit.GpioNetName crit_net_name = 3;
+        dam.GpioNetName dam_net_name = 4;
+        rsm.GpioNetName rsm_net_name = 5;
+        fsm.GpioNetName fsm_net_name = 6;
+        bms.GpioNetName bms_net_name = 7;
+        vc.GpioNetName vc_net_name = 8;
     }
 }
 
@@ -52,9 +61,10 @@ message GpioWriteResponse {
 /* ADCs */
 message AdcNetName {
   oneof name {
-    f4dev.AdcNetName f4dev_net_name = 1;
-    ssm.AdcNetName ssm_net_name = 2;
-    crit.AdcNetName crit_net_name = 3;
+    rsm.AdcNetName rsm_net_name = 1;
+    fsm.AdcNetName fsm_net_name = 2;
+    bms.AdcNetName bms_net_name = 3;
+    vc.AdcNetName vc_net_name = 4;
   }
 }
 
@@ -70,9 +80,10 @@ message AdcReadResponse {
 /* I2Cs */
 message I2cNetName {
   oneof name {
-    f4dev.I2cNetName f4dev_net_name = 1;
-    ssm.I2cNetName ssm_net_name = 2;
-    crit.I2cNetName crit_net_name = 3;
+    dam.I2cNetName dam_net_name = 1;
+    rsm.I2cNetName rsm_net_name = 2;
+    fsm.I2cNetName fsm_net_name = 3;
+    vc.I2cNetName vc_net_name = 4;
   }
 }
 
@@ -92,13 +103,13 @@ message I2cReceiveRequest {
 }
 
 message I2cReceiveResponse {
-  bytes data = 1 [(nanopb).max_size = 1024];
+  bytes data = 1 [(nanopb).max_size = 128];
 }
 
 // I2C transmit data request/response.
 message I2cTransmitRequest {
   I2cNetName net_name = 1;
-  bytes data = 2 [(nanopb).max_size = 1024];
+  bytes data = 2 [(nanopb).max_size = 128];
 }
 
 message I2cTransmitResponse {
@@ -113,18 +124,57 @@ message I2cMemoryReadRequest {
 }
 
 message I2cMemoryReadResponse {
-  bytes data = 1 [(nanopb).max_size = 1024];
+  bytes data = 1 [(nanopb).max_size = 128];
 }
 
 // I2C write memory request/response.
 message I2cMemoryWriteRequest {
   I2cNetName net_name = 1;
   uint32 memory_address = 2;
-  bytes data = 3 [(nanopb).max_size = 1024];
+  bytes data = 3 [(nanopb).max_size = 128];
 }
 
 message I2cMemoryWriteResponse {
   bool success = 1;
+}
+
+/* SPIs */
+message SpiNetName {
+  oneof name {
+    bms.SpiNetName bms_net_name = 1;
+    ssm.SpiNetName ssm_net_name = 2;
+  }
+}
+
+// SPI transmit data request/response.
+message SpiTransmitRequest {
+  SpiNetName net_name = 1;
+  bytes data = 2 [(nanopb).max_size = 128];
+}
+
+message SpiTransmitResponse {
+  bool success = 1;
+}
+
+// SPI receive data request/response.
+message SpiReceiveRequest {
+  SpiNetName net_name = 1;
+  uint32 length = 2;
+}
+
+message SpiReceiveResponse {
+  bytes data = 1 [(nanopb).max_size = 128];
+}
+
+// SPI full-duplex request/response.
+message SpiTransactionRequest {
+  SpiNetName net_name = 1;
+  bytes tx_data = 2 [(nanopb).max_size = 128];
+  uint32 rx_length = 3;
+}
+
+message SpiTransactionResponse {
+  bytes rx_data = 1 [(nanopb).max_size = 128];
 }
 
 /* 
@@ -150,6 +200,11 @@ message ChimeraV2Request {
     I2cTransmitRequest i2c_transmit = 6;
     I2cMemoryReadRequest i2c_memory_read = 7;
     I2cMemoryWriteRequest i2c_memory_write = 8;
+
+    // SPI.
+    SpiReceiveRequest spi_receive = 9;
+    SpiTransmitRequest spi_transmit = 10;
+    SpiTransactionRequest spi_transaction = 11;
   }
 }
 
@@ -168,5 +223,10 @@ message ChimeraV2Response {
     I2cTransmitResponse i2c_transmit = 6;
     I2cMemoryReadResponse i2c_memory_read = 7;
     I2cMemoryWriteResponse i2c_memory_write = 8;
+
+    // SPI.
+    SpiReceiveResponse spi_receive = 9;
+    SpiTransmitResponse spi_transmit = 10;
+    SpiTransactionResponse spi_transaction = 11;
   }
 }

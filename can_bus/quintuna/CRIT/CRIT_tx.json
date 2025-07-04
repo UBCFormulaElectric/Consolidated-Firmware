@@ -1,115 +1,108 @@
 {
-    "Vitals": {
-        "msg_id": 800,
-        "cycle_time": 100,
-        "description": "CRIT vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "CritState"
-            }
-        }
-    },
-    "Switches": {
-        "msg_id": 810,
-        "cycle_time": 100,
-        "description": "States of the switches on the CRIT.",
-        "signals": {
-            "StartSwitch": {
-                "enum": "SwitchState"
-            },
-            "RegenSwitch": {
-                "enum": "SwitchState"
-            },
-            "TorqueVecSwitch": {
-                "enum": "SwitchState"
-            }
-        }
-    },
-    "DriveMode": {
-        "msg_id": 811,
-        "cycle_time": 100,
-        "description": "Drive Mode.",
-        "signals": {
-            "DriveMode": {
-                "bits": 4
-            }
-        }
-    },
-    "AlertsContext": {
-        "msg_id": 812,
-        "cycle_time": 1000,
-        "description": "Context info for CRIT alerts",
-        "signals": {
-            "TxOverflowCount": {
-                "bits": 8
-            },
-            "RxOverflowCount": {
-                "bits": 8
-            },
-            "WatchdogTimeoutTaskName": {
-                "enum": "RtosTaskName"
-            }
-        }
-    },
-    "CommitInfo": {
-        "msg_id": 813,
-        "cycle_time": 100,
-        "description": "CRIT Current Running Git Commit Info",
-        "signals": {
-            "Hash": {
-                "bits": 32
-            },
-            "Clean": {
-                "bits": 1
-            }
-        }
-    },
-    "CRITShdnNodeStatus": {
-        "msg_id": 814,
-        "cycle_time": 100,
-        "description": "CRIT Shutdown Node Status",
-        "signals": {
-            "CockpitEStopOKStatus": {
-                "bits": 1
-            },
-            "InertiaSenOKStatus": {
-                "bits": 1
-            }
-        }
-    },
-    "WatermarkLevel": {
-        "msg_id": 815,
-        "cycle_time": 100,
-        "description":  "",
-        "signals": {
-            "StackWaterMarkHighTask1HzLevel": {
-                "resolution": 1,
-                "min": 0,
-                "max": 100
-            },
-            "StackWaterMarkHighTask100HzLevel": {
-                "resolution": 1,
-                "min": 0,
-                "max": 100
-            },
-            "StackWaterMarkHighTask1kHzLevel": {
-                "resolution": 1,
-                "min": 0,
-                "max": 100
-            },
-            "StackWaterMarkHighTaskCanRxLevel": {
-                "resolution": 1,
-                "min": 0,
-                "max": 100
-            },
-            "StackWaterMarkHighTaskCanTxLevel": {
-                "resolution": 1,
-                "min": 0,
-                "max": 100
-            }
-        }
+  "Vitals": {
+    "msg_id": 900,
+    "cycle_time": 100,
+    "description": "CRIT vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      }
     }
+  },
+  "Debug": {
+    "msg_id": 907,
+    "cycle_time": 1000,
+    "description": "CRIT Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
+      }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 909,
+    "cycle_time": 100,
+    "description": "CRIT Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Switches": {
+    "msg_id": 910,
+    "cycle_time": 100,
+    "description": "States of the switches on the CRIT.",
+    "signals": {
+      "StartSwitch": {
+        "enum": "SwitchState"
+      },
+      "RegenSwitch": {
+        "enum": "SwitchState"
+      },
+      "VanillaOverrideSwitch": {
+        "enum": "SwitchState"
+      },
+      "LaunchControlSwitch": {
+        "enum": "SwitchState"
+      },
+      "TelemSwitch": {
+        "enum": "SwitchState"
+      }
+    }
+  },
+  "DriveMode": {
+    "msg_id": 911,
+    "cycle_time": 100,
+    "description": "Drive Mode.",
+    "signals": {
+      "DriveMode": {
+        "enum": "DriveMode"
+      }
+    }
+  },
+  "CRITShdnNodeStatus": {
+    "msg_id": 914,
+    "cycle_time": 100,
+    "description": "CRIT Shutdown Node Status",
+    "signals": {
+      "CockpitEStopOKStatus": {
+        "bits": 1
+      },
+      "InertiaSenOKStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "WarningInfo": {
+    "msg_id": 916,
+    "cycle_time": 100,
+    "description": "",
+    "signals": {
+      "SuppressWarnings": {
+        "bits": 1
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 999,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  }
 }

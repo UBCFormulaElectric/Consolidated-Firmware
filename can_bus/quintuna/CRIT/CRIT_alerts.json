@@ -1,58 +1,48 @@
 {
-    "warnings_id": 801,
-    "faults_id": 802,
-    "warnings_counts_id": 803,
-    "faults_counts_id": 804,
-    "warnings": {
-        "StackWaterMarkHighTask1Hz": {
-            "id": 801,
-            "description": "1Hz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTask100Hz": {
-            "id": 802,
-            "description": "100Hz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTask1kHz": {
-            "id": 803,
-            "description": "1kHz task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTaskCanRx": {
-            "id": 804,
-            "description": "CAN RX task stack watermark exceeded."
-        },
-        "StackWaterMarkHighTaskCanTx": {
-            "id": 805,
-            "description": "CAN TX task stack watermark exceeded."
-        },
-        "WatchdogTimeout": {
-            "id": 806,
-            "description": "Watchdog timeout detected."
-        },
-        "TxOverflow": {
-            "id": 807,
-            "description": "CAN TX queue has overflowed."
-        },
-        "RxOverflow": {
-            "id": 808,
-            "description": "CAN RX queue has overflowed."
-        }
+  "warnings_id": 901,
+  "faults_id": 902,
+  "warnings_counts_id": 903,
+  "faults_counts_id": 904,
+  "info_id": 905,
+  "info_counts_id": 906,
+  "warnings": {},
+  "faults": {},
+  "info": {
+    "StackOverflow": {
+      "id": 550,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
     },
-    "faults": {
-        "MissingBMSHeartbeat": {
-            "id": 850,
-            "description": "Missing heartbeat signal from the BMS."
-        },
-        "MissingFSMHeartbeat": {
-            "id": 851,
-            "description": "Missing heartbeat signal from the FSM."
-        },
-        "MissingVCHeartbeat": {
-            "id": 853,
-            "description": "Missing heartbeat signal from the VC."
-        },
-        "MissingRSMHeartbeat": {
-            "id": 852,
-            "description": "Missing heartbeat signal from the RSM."
-        }
+    "WatchdogTimeout": {
+      "id": 906,
+      "description": "Watchdog timeout detected."
+    },
+    "TxOverflow": {
+      "id": 907,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 908,
+      "description": "CAN RX queue has overflowed."
+    },
+    "MissingBMSHeartbeat": {
+      "id": 950,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 951,
+      "description": "Missing heartbeat signal from the FSM."
+    },
+    "MissingVCHeartbeat": {
+      "id": 953,
+      "description": "Missing heartbeat signal from the VC."
+    },
+    "MissingRSMHeartbeat": {
+      "id": 952,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 952,
+      "description": "Missing heartbeat signal from the RSM."
     }
+  }
 }

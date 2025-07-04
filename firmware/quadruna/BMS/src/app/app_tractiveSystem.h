@@ -47,4 +47,4 @@ void app_tractiveSystem_broadcast(void);
  * Check the status of Tractive System faults and Warnings, sends warning over CAN bus
  * @return True if faults present, false otherwise
  */
-bool app_tractveSystem_checkFaults(void);
+bool app_tractiveSystem_checkFaults(void);

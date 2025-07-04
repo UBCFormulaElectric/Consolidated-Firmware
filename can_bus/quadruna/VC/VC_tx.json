@@ -1,6 +1,7 @@
 {
   "Vitals": {
     "msg_id": 200,
+
     "cycle_time": 100,
     "description": "VC vitals message.",
     "signals": {
@@ -27,6 +28,7 @@
   },
   "LeftInverterCommand": {
     "msg_id": 32,
+
     "cycle_time": 10,
     "signals": {
       "LeftInverterTorqueCommand": {
@@ -86,6 +88,7 @@
   },
   "INVL_ReadWriteParamCommand": {
     "msg_id": 33,
+
     "cycle_time": null,
     "signals": {
       "INVL_CommandParameterAddress": {
@@ -107,6 +110,7 @@
   },
   "RightInverterCommand": {
     "msg_id": 82,
+
     "cycle_time": 10,
     "signals": {
       "RightInverterTorqueCommand": {
@@ -166,6 +170,7 @@
   },
   "INVR_ReadWriteParamCommand": {
     "msg_id": 83,
+
     "cycle_time": null,
     "signals": {
       "INVR_CommandParameterAddress": {
@@ -187,6 +192,7 @@
   },
   "AlertsContext": {
     "msg_id": 202,
+
     "cycle_time": 10,
     "signals": {
       "WatchdogTimeout": {
@@ -205,6 +211,7 @@
   },
   "EllipseStatus": {
     "msg_id": 223,
+
     "cycle_time": 100,
     "description": "Status of the SBG Ellipse N sensor.",
     "signals": {
@@ -219,11 +226,15 @@
       },
       "EkfSolutionMode": {
         "enum": "VcEkfStatus"
+      },
+      "EllipseQueueOverflowCount": {
+        "bits": 8
       }
     }
   },
   "EllipseTime": {
     "msg_id": 209,
+
     "cycle_time": 100,
     "description": "Timestamp from the SBG Ellipse N sensor.",
     "signals": {
@@ -236,6 +247,7 @@
   "EllipseAcceleration": {
     "disabled": true,
     "msg_id": 201,
+
     "cycle_time": 1000,
     "description": "Acceleration from the SBG Ellipse N sensor.",
     "signals": {
@@ -262,6 +274,7 @@
   "EllipseAngularVelocity": {
     "disabled": true,
     "msg_id": 203,
+
     "cycle_time": 1000,
     "description": "Angular velocity from the SBG Ellipse N sensor.",
     "signals": {
@@ -287,6 +300,7 @@
   },
   "EllipseEulerAngles": {
     "msg_id": 222,
+
     "cycle_time": 1000,
     "description": "Euler angles from the SBG Ellipse N sensor.",
     "signals": {
@@ -312,6 +326,7 @@
   },
   "CommitInfo": {
     "msg_id": 204,
+
     "cycle_time": 100,
     "description": "VC Current Running Git Commit Info",
     "signals": {
@@ -325,6 +340,7 @@
   },
   "PowerEstimate": {
     "msg_id": 211,
+
     "cycle_time": 1000,
     "description": "Debug Power Messages",
     "signals": {
@@ -342,6 +358,7 @@
   },
   "PowerEstimatePID": {
     "msg_id": 212,
+
     "cycle_time": 1000,
     "description": "Debug messages for the PID power estimate controller",
     "signals": {
@@ -385,6 +402,7 @@
   },
   "PIDSlipRatio": {
     "msg_id": 213,
+
     "cycle_time": 1000,
     "description": "Debug messages for the PID slip ratio controller",
     "signals": {
@@ -428,6 +446,7 @@
   },
   "SlipRatios": {
     "msg_id": 214,
+
     "cycle_time": 1000,
     "description": "Debug Messages for the Traction Control component of Torque Vectoring",
     "signals": {
@@ -451,6 +470,7 @@
   },
   "ActiveDiffOutputs": {
     "msg_id": 215,
+
     "cycle_time": 1000,
     "description": "Debug Messages for the Active Differential component of Torque Vectoring",
     "signals": {
@@ -468,6 +488,7 @@
   },
   "PowerLimit": {
     "msg_id": 216,
+
     "cycle_time": 10,
     "description": "Debug Power Messages for Power Limit ",
     "signals": {
@@ -485,6 +506,7 @@
   },
   "VehicleDynamics": {
     "msg_id": 226,
+
     "cycle_time": 100,
     "description": "Vehicle dynamics info",
     "signals": {
@@ -505,12 +527,18 @@
         "min": -150,
         "max": 150,
         "unit": "km/h"
+      },
+      "LoadTransferScalar":{
+        "resolution": 0.01,
+        "min": -2,
+        "max": 2
       }
     }
   },
   "EllipseEkfNavPosition": {
     "disabled": true,
     "msg_id": 217,
+
     "cycle_time": 100,
     "description": "Car position info",
     "signals": {
@@ -554,6 +582,7 @@
   },
   "EllipseEkfNavVelocity": {
     "msg_id": 218,
+
     "cycle_time": 100,
     "description": "Car Velocity info",
     "signals": {
@@ -597,6 +626,7 @@
   },
   "Voltages": {
     "msg_id": 219,
+
     "cycle_time": 100,
     "description": "VC voltages.",
     "signals": {
@@ -622,6 +652,7 @@
   },
   "CurrentSensing": {
     "msg_id": 220,
+
     "cycle_time": 100,
     "description": "Battery and accumulator currents.",
     "signals": {
@@ -641,6 +672,7 @@
   },
   "Efuse": {
     "msg_id": 221,
+
     "cycle_time": 100,
     "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
     "signals": {
@@ -702,8 +734,9 @@
   },
   "ImuData": {
     "msg_id": 225,
+
     "cycle_time": 10,
-    "description": "Linear Acceleration x, y and z direction from the IMU",
+    "description": "Linear Acceleration  x, y and z direction from the IMU",
     "signals": {
       "ImuAccelerationX": {
         "resolution": 0.001,
@@ -723,10 +756,11 @@
         "max": 50,
         "unit": "m/s^2"
       }
-    }
-  },
+      }
+    },
   "ImuAngularData": {
     "msg_id": 227,
+
     "cycle_time": 10,
     "description": "Angular Velocity in x, y and z direction from the IMU",
     "signals": {
@@ -752,6 +786,7 @@
   },
   "CoolantPumpFlowRate": {
     "msg_id": 224,
+
     "cycle_time": 1000,
     "description": "Broadcast flow rate of coolant pump.",
     "signals": {
@@ -765,6 +800,7 @@
   },
   "VCShdnNodeStatus": {
     "msg_id": 228,
+
     "cycle_time": 100,
     "description": "VC Shutdown Node Status",
     "signals": {
@@ -784,6 +820,7 @@
   },
   "GlobalShdnNodeStatus": {
     "msg_id": 229,
+
     "cycle_time": 100,
     "description": "Global Shutdown Node Status",
     "signals": {
@@ -794,6 +831,7 @@
   },
   "PedalPercentage": {
     "msg_id": 230,
+
     "cycle_time": 100,
     "description": "Pedal percentage info",
     "signals": {
@@ -802,6 +840,95 @@
         "max": 1,
         "resolution": 0.01,
         "unit": "%"
+      }
+    }
+  },
+  "TireVerticalForces": {
+    "msg_id": 231,
+
+    "cycle_time": 100,
+    "description": "Vertical forces on car tires",
+    "signals": {
+      "FrontLeftWheelVerticalForce": {
+        "min": -500,
+        "max": 500,
+        "resolution": 0.1,
+        "unit": "N"
+      },
+      "FrontRightWheelVerticalForce": {
+        "min": -500,
+        "max": 500,
+        "resolution": 0.1,
+        "unit": "N"
+      },
+      "RearLeftWheelVerticalForce": {
+        "min": -500,
+        "max": 500,
+        "resolution": 0.1,
+        "unit": "N"
+      },
+      "RearRightWheelVerticalForce": {
+        "min": -500,
+        "max": 500,
+        "resolution": 0.1,
+        "unit": "N"
+      }
+    }
+  },
+  "LoadBasedTorqueAllocation": {
+    "msg_id": 232,
+
+    "cycle_time": 10,
+    "description": "Torque allocation based on vertical forces on tires",
+    "signals": {
+      "RightLoadBasedTorqueReq": {
+        "min": 0,
+        "max": 90,
+        "resolution": 0.1,
+        "unit": "Nm"
+      },
+      "LeftLoadBasedTorqueReq": {
+        "min": 0,
+        "max": 90,
+        "resolution": 0.1,
+        "unit": "Nm"
+      },
+      "LoadTransferScalar": {
+        "min": -10,
+        "max": 10,
+        "resolution": 0.1
+      },
+      "RearYawMoment": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "Nm"
+      },
+      "FrontYawMoment": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "Nm"
+      }
+    }
+  },
+  "YawRateControllerInfo": {
+    "msg_id": 233,
+
+    "cycle_time": 10,
+    "description": "Debug messages for yaw rate controller for yaw rates and yaw moment",
+    "signals": {
+      "ReferenceYawRate": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "deg/s"
+      },
+      "YawMoment": {
+        "min": -360,
+        "max": 360,
+        "resolution": 0.1,
+        "unit": "Nm"
       }
     }
   }

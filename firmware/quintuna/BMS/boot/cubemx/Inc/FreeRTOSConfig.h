@@ -56,7 +56,7 @@ extern uint32_t SystemCoreClock;
 #define CMSIS_device_header "stm32h7xx.h"
 #endif /* CMSIS_device_header */
 
-#define configENABLE_FPU 0
+#define configENABLE_FPU 1
 #define configENABLE_MPU 0
 
 #define configUSE_PREEMPTION 1
@@ -174,8 +174,7 @@ standard names. */
 #define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 0
 
 /* USER CODE BEGIN Defines */
-/* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
-#include "sysviewFreeRTOSConfigs.h"
+#include "hw_freeRtosConfigs.h"
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

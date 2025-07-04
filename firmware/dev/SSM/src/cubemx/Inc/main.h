@@ -42,15 +42,14 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern SPI_HandleTypeDef hspi1;
+    extern SPI_HandleTypeDef hspi2;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
     /* USER CODE BEGIN EM */
 
     /* USER CODE END EM */
-
-    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
@@ -114,8 +113,8 @@ extern "C"
 #define INDICATOR3_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-#define CSLD_Pin GPIO_PIN_4
-#define CSLD_GPIO_Port GPIOB
+#define CS_LD_Pin GPIO_PIN_4
+#define CS_LD_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

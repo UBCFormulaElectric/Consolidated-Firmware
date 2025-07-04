@@ -1,22 +1,26 @@
 #include "tasks.h"
+#include "hw_sd.h"
 #include "main.h"
 #include "cmsis_os.h"
 #include "shared.pb.h"
 #include "jobs.h"
 
+#include <app_canTx.h>
 #include <assert.h>
 
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
+#include "app_utils.h"
 
 #include "io_log.h"
-#include "io_canLoggingQueue.h"
+#include "io_canLogging.h"
 #include "io_telemMessage.h"
 #include "io_chimera.h"
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_fileSystem.h"
 #include "io_canQueue.h"
+#include "app_jsoncan.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -31,8 +35,39 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
-    if (io_fileSystem_init() == FILE_OK)
-        io_canLogging_init();
+    LOG_INFO("VC reset!");
+    io_canLogging_init(NULL);
+}
+
+void tasks_deinit(void)
+{
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_Stop_IT(&hadc3);
+
+    HAL_ADC_DeInit(&hadc1);
+    HAL_ADC_DeInit(&hadc3);
+
+    HAL_TIM_Base_Stop_IT(&htim3);
+    HAL_TIM_Base_DeInit(&htim3);
+
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_Abort_IT(&huart2);
+    HAL_UART_Abort_IT(&huart3);
+    HAL_UART_Abort_IT(&huart7);
+
+    HAL_UART_DeInit(&huart1);
+    HAL_UART_DeInit(&huart2);
+    HAL_UART_DeInit(&huart3);
+    HAL_UART_DeInit(&huart7);
+
+    HAL_SD_Abort(&hsd1);
+    HAL_SD_DeInit(&hsd1);
+
+    HAL_DMA_Abort(&hdma_adc1);
+    HAL_DMA_Abort(&hdma_usart2_rx);
+
+    HAL_DMA_DeInit(&hdma_adc1);
+    HAL_DMA_DeInit(&hdma_usart2_rx);
 }
 
 void tasks_init(void)
@@ -40,10 +75,9 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
-    LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
-    hw_hardFaultHandler_init();
+
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_adcs_chipsInit();
     hw_can_init(&can1); // cast const away in initialization; no mut :(
@@ -145,7 +179,14 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx();
-        hw_can_transmit(&can1, &tx_msg);
+        if (tx_msg.is_fd)
+        {
+            hw_fdcan_transmit(&can1, &tx_msg);
+        }
+        else
+        {
+            LOG_IF_ERR(hw_can_transmit(&can1, &tx_msg));
+        }
     }
 }
 
@@ -161,6 +202,8 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
@@ -169,39 +212,26 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    if (!io_fileSystem_ready())
-    {
-        // queue shouldn't populate, so this is just an extra precaution
-        osThreadSuspend(osThreadGetId());
-    }
+    io_chimera_sleepTaskIfEnabled();
 
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
+
     for (;;)
     {
+        if (io_canLogging_errorsRemaining() == 0)
+        {
+            osThreadSuspend(osThreadGetId());
+        }
+
         io_canLogging_recordMsgFromQueue();
         message_batch_count++;
         write_count++;
+
         if (message_batch_count > 256)
         {
             io_canLogging_sync();
             message_batch_count = 0;
         }
-    }
-}
-
-/*
- * INTERRUPTS
- */
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == &huart1)
-    {
-        io_chimera_msgRxCallback();
-    }
-    else if (huart == &huart2)
-    {
-        io_sbgEllipse_msgRxCallback();
     }
 }

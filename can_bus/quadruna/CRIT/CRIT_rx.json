@@ -1,13 +1,14 @@
 {
-    "messages": [
-        "BMS_Vitals",
-        "FSM_Vitals",
-        "RSM_Vitals",
-        "VC_Vitals",
-        "BMS_Contactors",
-        "BMS_OkStatuses",
-        "VC_VehicleDynamics",
-        "VC_GlobalShdnNodeStatus",
-        "Debug_CanMode"
-    ]
+  "messages": [
+    "BMS_Vitals",
+    "FSM_Vitals",
+    "RSM_Vitals",
+    "VC_Vitals",
+    "BMS_Contactors",
+    "BMS_OkStatuses",
+    "VC_VehicleDynamics",
+    "VC_GlobalShdnNodeStatus",
+    "Debug_CanMode",
+    "Debug_BootloaderCAN"
+  ]
 }

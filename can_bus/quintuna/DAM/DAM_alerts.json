@@ -1,0 +1,40 @@
+{
+  "warnings_id": 801,
+  "faults_id": 802,
+  "warnings_counts_id": 803,
+  "faults_counts_id": 804,
+  "info_id": 805,
+  "info_counts_id": 806,
+  "warnings": {},
+  "info": {
+    "StackOverflow": {
+      "id": 850,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "CanLoggingSdCardNotPresent": {
+      "id": 809,
+      "description": "CAN logging SD card is not detected."
+    },
+    "CanLoggingErrored": {
+      "id": 810,
+      "description": "CAN logging received multiple errors and has been disabled."
+    },
+    "WatchdogTimeout": {
+      "id": 806,
+      "description": "Watchdog timeout detected."
+    },
+    "TxOverflow": {
+      "id": 807,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 808,
+      "description": "CAN RX queue has overflowed."
+    },
+    "RegenNotAvailable": {
+      "id": 811,
+      "description": "Regen is not currently available."
+    }
+  },
+  "faults": {}
+}

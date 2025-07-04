@@ -7,8 +7,11 @@
 
 typedef struct
 {
-    const Gpio gpio;
-    const bool closed_state; // GPIO state that indicates closed.
+    const Gpio *gpio;
+    bool        closed_state;
+    bool        debounced_state;    // last stable state
+    bool        last_raw_state;     // last reading
+    uint32_t    last_debounce_time; // raw state last changed
 } Switch;
 #else
 #include "app_utils.h"
@@ -20,4 +23,4 @@ EMPTY_STRUCT(Switch);
  * @param binary_switch Binary switch instance.
  * @return True if the switch is turned on, else false.
  */
-bool io_switch_isClosed(const Switch *binary_switch);
+bool io_switch_isClosed(Switch *sw);

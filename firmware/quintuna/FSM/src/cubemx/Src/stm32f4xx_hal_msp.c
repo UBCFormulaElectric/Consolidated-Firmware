@@ -136,6 +136,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
         __HAL_LINKDMA(hadc, DMA_Handle, hdma_adc1);
 
+        /* ADC1 interrupt Init */
+        HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(ADC_IRQn);
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
         /* USER CODE END ADC1_MspInit 1 */
@@ -172,6 +175,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /* ADC1 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);
+
+        /* ADC1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(ADC_IRQn);
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
         /* USER CODE END ADC1_MspDeInit 1 */
@@ -208,6 +214,15 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
         GPIO_InitStruct.Alternate = GPIO_AF9_CAN2;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* CAN2 interrupt Init */
+        HAL_NVIC_SetPriority(CAN2_TX_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_TX_IRQn);
+        HAL_NVIC_SetPriority(CAN2_RX0_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_RX0_IRQn);
+        HAL_NVIC_SetPriority(CAN2_RX1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_RX1_IRQn);
+        HAL_NVIC_SetPriority(CAN2_SCE_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN2_SCE_IRQn);
         /* USER CODE BEGIN CAN2_MspInit 1 */
 
         /* USER CODE END CAN2_MspInit 1 */
@@ -237,6 +252,11 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
         */
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12 | GPIO_PIN_13);
 
+        /* CAN2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(CAN2_TX_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_RX0_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_RX1_IRQn);
+        HAL_NVIC_DisableIRQ(CAN2_SCE_IRQn);
         /* USER CODE BEGIN CAN2_MspDeInit 1 */
 
         /* USER CODE END CAN2_MspDeInit 1 */
@@ -272,6 +292,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
         /* Peripheral clock enable */
         __HAL_RCC_I2C1_CLK_ENABLE();
+        /* I2C1 interrupt Init */
+        HAL_NVIC_SetPriority(I2C1_EV_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+        HAL_NVIC_SetPriority(I2C1_ER_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
         /* USER CODE BEGIN I2C1_MspInit 1 */
 
         /* USER CODE END I2C1_MspInit 1 */
@@ -302,6 +327,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 
         HAL_GPIO_DeInit(IMU_SCL_GPIO_Port, IMU_SCL_Pin);
 
+        /* I2C1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(I2C1_EV_IRQn);
+        HAL_NVIC_DisableIRQ(I2C1_ER_IRQn);
         /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
         /* USER CODE END I2C1_MspDeInit 1 */
@@ -309,14 +337,14 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 }
 
 /**
- * @brief TIM_OC MSP Initialization
+ * @brief TIM_Base MSP Initialization
  * This function configures the hardware resources used in this example
- * @param htim_oc: TIM_OC handle pointer
+ * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim_oc)
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
 {
-    if (htim_oc->Instance == TIM2)
+    if (htim_base->Instance == TIM2)
     {
         /* USER CODE BEGIN TIM2_MspInit 0 */
 
@@ -330,14 +358,14 @@ void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim_oc)
 }
 
 /**
- * @brief TIM_OC MSP De-Initialization
+ * @brief TIM_Base MSP De-Initialization
  * This function freeze the hardware resources used in this example
- * @param htim_oc: TIM_OC handle pointer
+ * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef *htim_oc)
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
 {
-    if (htim_oc->Instance == TIM2)
+    if (htim_base->Instance == TIM2)
     {
         /* USER CODE BEGIN TIM2_MspDeInit 0 */
 
@@ -347,79 +375,6 @@ void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef *htim_oc)
         /* USER CODE BEGIN TIM2_MspDeInit 1 */
 
         /* USER CODE END TIM2_MspDeInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP Initialization
- * This function configures the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
-{
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hpcd->Instance == USB_OTG_FS)
-    {
-        /* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
-
-        /* USER CODE END USB_OTG_FS_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
-        PeriphClkInitStruct.Clk48ClockSelection  = RCC_CLK48CLKSOURCE_PLLQ;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-        /**USB_OTG_FS GPIO Configuration
-        PA11     ------> USB_OTG_FS_DM
-        PA12     ------> USB_OTG_FS_DP
-        */
-        GPIO_InitStruct.Pin       = USB_D_N_Pin | USB_D_P_Pin;
-        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-        /* Peripheral clock enable */
-        __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
-        /* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
-
-        /* USER CODE END USB_OTG_FS_MspInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP De-Initialization
- * This function freeze the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
-{
-    if (hpcd->Instance == USB_OTG_FS)
-    {
-        /* USER CODE BEGIN USB_OTG_FS_MspDeInit 0 */
-
-        /* USER CODE END USB_OTG_FS_MspDeInit 0 */
-        /* Peripheral clock disable */
-        __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
-
-        /**USB_OTG_FS GPIO Configuration
-        PA11     ------> USB_OTG_FS_DM
-        PA12     ------> USB_OTG_FS_DP
-        */
-        HAL_GPIO_DeInit(GPIOA, USB_D_N_Pin | USB_D_P_Pin);
-
-        /* USER CODE BEGIN USB_OTG_FS_MspDeInit 1 */
-
-        /* USER CODE END USB_OTG_FS_MspDeInit 1 */
     }
 }
 

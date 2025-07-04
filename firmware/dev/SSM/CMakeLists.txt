@@ -10,10 +10,6 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 set(HW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/hw")
 file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 
-# IO.
-set(IO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/io")
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-
 # Main.
 set(MAIN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 file(GLOB_RECURSE MAIN_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
@@ -22,94 +18,84 @@ list(REMOVE_ITEM MAIN_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c"
 # Shared HW srcs.
 set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-)
-
-# Shared IO srcs.
-set(IO_SHARED_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
 )
 
 # Collect include dirs and srcs.
-set(EMBEDDED_INCLUDE_DIRS 
+set(EMBEDDED_INCLUDE_DIRS
         "${HW_INCLUDE_DIR}" "${IO_INCLUDE_DIR}" "${MAIN_INCLUDE_DIR}"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}"
 )
-set(EMBEDDED_SRCS
-        "${HW_SRCS}" "${IO_SRCS}" "${MAIN_SRCS}"
-        "${IO_SHARED_SRCS}" "${HW_SHARED_SRCS}"
-)
+set(EMBEDDED_SRCS "${HW_SRCS}" "${IO_SRCS}" "${HW_SHARED_SRCS}")
 
 # Only binary targets supported for SSM.
 IF ("${TARGET}" STREQUAL "binary")
-        # STM code.
-        generate_stm32cube_code(
-                "ssm"
-                "${IOC_PATH}"
-        )
+    # STM code.
+    generate_stm32cube_code(
+            "ssm_stm32cube"
+            "${IOC_PATH}"
+            "${MAIN_SRCS}"
+    )
 
-        # Collect HAL.
-        set(STM32_HAL_SRCS
-                "stm32f4xx_hal_adc_ex.c"
-                "stm32f4xx_hal_adc.c"
-                "stm32f4xx_hal_can.c"
-                "stm32f4xx_hal_cortex.c"
-                "stm32f4xx_hal_dma_ex.c"
-                "stm32f4xx_hal_dma.c"
-                "stm32f4xx_hal_exti.c"
-                "stm32f4xx_hal_gpio.c"
-                "stm32f4xx_hal_iwdg.c"
-                "stm32f4xx_hal_rcc_ex.c"
-                "stm32f4xx_hal_rcc.c"
-                "stm32f4xx_hal_tim_ex.c"
-                "stm32f4xx_hal_tim.c"
-                "stm32f4xx_hal_uart.c"
-                "stm32f4xx_hal.c"
-                "stm32f4xx_hal_sd.c"
-                "stm32f4xx_ll_sdmmc.c"
-                "stm32f4xx_hal_i2c.c"
-                "stm32f4xx_hal_i2c_ex.c"
-                "stm32f4xx_hal_pcd.c"
-                "stm32f4xx_hal_pcd_ex.c"
-                "stm32f4xx_ll_usb.c"
-                "stm32f4xx_hal_spi.c"
-        )
+    # Collect HAL.
+    set(STM32_HAL_SRCS
+            "stm32f4xx_hal_adc_ex.c"
+            "stm32f4xx_hal_adc.c"
+            "stm32f4xx_hal_can.c"
+            "stm32f4xx_hal_cortex.c"
+            "stm32f4xx_hal_dma_ex.c"
+            "stm32f4xx_hal_dma.c"
+            "stm32f4xx_hal_exti.c"
+            "stm32f4xx_hal_gpio.c"
+            "stm32f4xx_hal_iwdg.c"
+            "stm32f4xx_hal_rcc_ex.c"
+            "stm32f4xx_hal_rcc.c"
+            "stm32f4xx_hal_tim_ex.c"
+            "stm32f4xx_hal_tim.c"
+            "stm32f4xx_hal_uart.c"
+            "stm32f4xx_hal.c"
+            "stm32f4xx_hal_sd.c"
+            "stm32f4xx_ll_sdmmc.c"
+            "stm32f4xx_hal_i2c.c"
+            "stm32f4xx_hal_i2c_ex.c"
+            "stm32f4xx_hal_pcd.c"
+            "stm32f4xx_hal_pcd_ex.c"
+            "stm32f4xx_ll_usb.c"
+            "stm32f4xx_hal_spi.c"
+    )
 
-        # Don't check cubemx srcs.
-        embedded_no_checks("${MAIN_SRCS}")
+    # Don't check syscalls.
+    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
 
-        # Pass syscalls to the cube library so we can build without warnings.
-        set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-        stm32f412rx_cube_library(
-                "ssm_stm32cube"
-                "${STM32_HAL_SRCS}"
-                "${SYSCALLS}"
-                "${MD5_LOCATION}"
-                TRUE
-        )
+    stm32f412rx_cube_library(
+            "ssm_stm32cube_hal"
+            "${STM32_HAL_SRCS}"
+            "${MD5_LOCATION}"
+            TRUE
+    )
 
-        # Setup binary target.
-        embedded_binary(
-                "ssm"
-                "${EMBEDDED_SRCS}"
-                "${EMBEDDED_INCLUDE_DIRS}"
-                "${LINKER_SCRIPT}"
-                "${ARM_CORE}"
-        )
+    # Setup binary target.
+    embedded_binary(
+            "ssm"
+            "${EMBEDDED_SRCS}"
+            "${EMBEDDED_INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
+    )
 
-        # Autogenerate git commit info header/source.
-        commit_info_library(
-                "ssm.elf"
-                "ssm_commit_info"
-                "${CMAKE_CURRENT_BINARY_DIR}/app"
-                "${ARM_CORE}"
-        )
+    # Autogenerate git commit info header/source.
+    commit_info_library(
+            "ssm.elf"
+            "ssm_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+            "${ARM_CORE}"
+    )
 
-        # Link.
-        target_link_libraries("ssm.elf" "ssm_stm32cube" "ssm_commit_info" "chimera_v2_proto_cm4")
-
-        # Enable ADC and I2C explictly for Chimera V2.
-        target_compile_definitions("ssm.elf" PRIVATE HAL_ADC_MODULE_ENABLED HAL_I2C_MODULE_ENABLED)
+    # Link.
+    target_link_libraries("ssm.elf" "ssm_stm32cube" "ssm_stm32cube_hal" "ssm_commit_info" "chimera_v2_proto_cm4")
 ENDIF ()
