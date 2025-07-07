@@ -21,3 +21,6 @@ _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pc
     BREAK_IF_DEBUGGER_CONNECTED();
     NVIC_SystemReset();
 }
+
+// responsible for handling cpu load and stack watermark calculations
+void vApplicationIdleHook(void) {}

@@ -6,3 +6,5 @@
 #define INCLUDE_pxTaskGetStackStart 1
 
 #define configCHECK_FOR_STACK_OVERFLOW 2
+
+#define configRECORD_STACK_HIGH_ADDRESS 1
