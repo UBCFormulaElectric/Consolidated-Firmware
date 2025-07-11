@@ -279,6 +279,15 @@
       ]
     },
     {
+      "label": "Build Tests: BMS (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_BMS_test"
+      ]
+    },
+    {
       "label": "Build Tests: Shared",
       "group": "build",
       "type": "cmake",

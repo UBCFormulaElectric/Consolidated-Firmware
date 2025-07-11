@@ -18,10 +18,11 @@
 #include "io_fileSystem.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
-#include "io_time.h"
+#include "io_canTx.h"
 #include "io_telemMessage.h"
 #include "io_telemBaseTime.h"
-#include "io_log.h"
+#include "io_time.h"
+#include "io_shdn_loop.h"
 
 #include "hw_resetReason.h"
 
@@ -150,6 +151,10 @@ void jobs_run100Hz_tick(void)
                 break;
         }
     }
+
+    // Set shutdown node status.
+    app_canTx_DAM_REStopOKStatus_set(io_r_shdn_pin_is_high());
+    app_canTx_DAM_LEStopOKStatus_set(io_l_shdn_pin_is_high());
 }
 
 void jobs_run1kHz_tick(void)

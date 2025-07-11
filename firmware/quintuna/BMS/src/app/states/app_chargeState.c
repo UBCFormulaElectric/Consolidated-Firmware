@@ -1,3 +1,4 @@
+#include "app_canUtils.h"
 #include "app_stateMachine.h"
 #include "app_chargeState.h"
 #include "app_initState.h"
@@ -177,10 +178,10 @@ static void app_chargeStateRunOnEntry(void)
 
 static void app_chargeStateRunOnTick100Hz(void)
 {
-    const ConnectionStatus charger_connection_status = EVSE_CONNECTED; // io_charger_getConnectionStatus();
-    const bool             extShutdown               = !io_irs_isNegativeClosed();
-    const bool             chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
-    const bool             userEnable  = app_canRx_Debug_StartCharging_get();
+    const ChargerConnectedType charger_connection_status = CHARGER_CONNECTED_EVSE; // io_charger_getConnectionStatus();
+    const bool                 extShutdown               = !io_irs_isNegativeClosed();
+    const bool                 chargerConn = true; // (charger_connection_status == EVSE_CONNECTED || WALL_CONNECTED);
+    const bool                 userEnable  = app_canRx_Debug_StartCharging_get();
 
     const ElconRx rx = readElconStatus();
 
@@ -212,7 +213,7 @@ static void app_chargeStateRunOnTick100Hz(void)
         .maxVoltage_V =
             PACK_VOLTAGE_DC, // always cap at 581V
                              // .maxCurrent_A = idc_range.idc_min, // cap at min idc value to stay on the safe side
-        .maxCurrent_A = 5,
+        .maxCurrent_A = app_canRx_Debug_ChargingCurrent_get(),
         .stopCharging = !userEnable
     };
     buildTxFrame(&tx);

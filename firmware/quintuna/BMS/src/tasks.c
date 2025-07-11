@@ -1,17 +1,22 @@
 #include "tasks.h"
 #include "app_stateMachine.h"
+#include "hw_gpio.h"
 #include "hw_watchdog.h"
 #include "states/app_balancingState.h"
 #include "hw_bootup.h"
 #include "io_ltc6813.h"
 #include "jobs.h"
+#include "io_bootHandler.h"
+#include "io_canMsg.h"
 
 #include "app_canTx.h"
 #include "app_segments.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 #include "app_canAlerts.h"
+#include "app_powerLimit.h"
+#include "app_jsoncan.h"
 
-#include "hw_bootup.h"
 #include "hw_gpios.h"
 #include "io_log.h"
 #include "io_canQueue.h"
@@ -27,14 +32,27 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 #include "hw_resetReason.h"
+#include <io_canRx.h>
+#include <io_canTx.h>
 
 #include "semphr.h"
 #include <FreeRTOS.h>
 #include <app_canRx.h>
-#include <cmsis_os.h>
 #include <cmsis_os2.h>
-#include <io_canTx.h>
 #include <portmacro.h>
+
+CanTxQueue can_tx_queue;
+
+static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&can_tx_queue, &msg);
+}
+
+static void charger_transmit_func(const JsonCanMsg *msg)
+{
+    // LOG_INFO("Send charger message: %d", msg->std_id);
+}
 
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
@@ -125,6 +143,12 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
+    io_canTx_init(jsoncan_transmit_func, charger_transmit_func);
+    io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+    io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
 
     jobs_init();
 
@@ -234,7 +258,9 @@ void tasks_runCanRx(void)
 {
     for (;;)
     {
-        jobs_runCanRx_tick();
+        const CanMsg rx_msg       = io_canQueue_popRx();
+        JsonCanMsg   json_can_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&json_can_msg);
     }
 }
 
@@ -242,7 +268,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 2Hz
 
     xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
     {
@@ -292,7 +318,7 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 2Hz
 
     xSemaphoreTake(isospi_bus_access_lock, portMAX_DELAY);
     {
