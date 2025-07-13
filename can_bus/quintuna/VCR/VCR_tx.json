@@ -1,43 +1,58 @@
 {
   "Vitals": {
-      "msg_id": 1600,
-      "cycle_time": 1000,
-      "description": "VC Vital signals",
-      "signals": {
-          "Heartbeat": {
-              "bits": 1
-          },
-          "CanLoggingRemainingErrors": {
-              "resolution": 1,
-              "min": 0,
-              "max": 10
-          }
-      }
-  },
-  "CommitInfo": {
-      "msg_id": 1609,
-      "cycle_time": 1000,
-      "description": "VC Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
-      }
-  },
-  "Debug": {
-      "msg_id": 1607,
-      "cycle_time": 1000,
-      "description": "VC Debug Signals",
-      "signals": {
-          "ResetReason": {
-              "enum": "CanResetReason"
-          },
-          "StackOverflowTask": {
-              "bits": 16
-          }
+    "msg_id": 1600,
+    "cycle_time": 1000,
+    "description": "VCR Vital signals",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
+      },
+      "CanLoggingRemainingErrors": {
+        "resolution": 1,
+        "min": 0,
+        "max": 10
       }
     }
+  },
+  "CommitInfo": {
+    "msg_id": 1609,
+    "cycle_time": 1000,
+    "description": "VCR Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "Debug": {
+    "msg_id": 1607,
+    "cycle_time": 1000,
+    "description": "VCR Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 1699,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  }
 }

@@ -17,7 +17,7 @@ class VCBaseTest : public EcuTestBase
     {
         suppress_heartbeat = false;
         // micro startup simulation
-        for (const TI_LoadSwitch &tils : { rl_pump_loadswitch, rr_pump_loadswitch, f_pump_loadswitch })
+        for (const TI_LoadSwitch &tils : { rl_pump_loadswitch })
         {
             fake::io_loadswitch::reset_tiLoadswitch(const_cast<TI_LoadSwitch &>(tils));
         }
@@ -32,9 +32,10 @@ class VCBaseTest : public EcuTestBase
     void board_teardown() override {}
     void tick_100hz() override
     {
-        if (!suppress_heartbeat)
+        if (suppress_heartbeat)
         {
             app_canRx_BMS_Heartbeat_update(true);
+            app_canRx_CRIT_Heartbeat_update(true);
             app_canRx_FSM_Heartbeat_update(true);
             app_canRx_RSM_Heartbeat_update(true);
         }
@@ -51,13 +52,13 @@ class VCBaseTest : public EcuTestBase
         VCState      can_state;
         StateMetadata(const State *s, const VCState cs) : state(s), can_state(cs) {}
     };
-    const std::array<StateMetadata, 9> state_metadatas = { { { &init_state, VC_INIT_STATE },
-                                                             { &inverterOn_state, VC_INVERTER_ON_STATE },
-                                                             { &bmsOn_state, VC_BMS_ON_STATE },
-                                                             { &pcmOn_state, VC_PCM_ON_STATE },
-                                                             { &hvInit_state, VC_HV_INIT_STATE },
-                                                             { &hv_state, VC_HV_ON_STATE },
-                                                             { &drive_state, VC_DRIVE_STATE },
-                                                             { &driveWarning_state, VC_DRIVE_WARNING_STATE },
-                                                             { &fault_state, VC_FAULT_STATE } } };
+    const std::array<StateMetadata, 7> state_metadatas = { {
+        { &init_state, VC_INIT_STATE },
+        { &inverterOn_state, VC_INVERTER_ON_STATE },
+        { &bmsOn_state, VC_BMS_ON_STATE },
+        { &pcmOn_state, VC_PCM_ON_STATE },
+        { &hvInit_state, VC_HV_INIT_STATE },
+        { &hv_state, VC_HV_ON_STATE },
+        { &drive_state, VC_DRIVE_STATE },
+    } };
 };

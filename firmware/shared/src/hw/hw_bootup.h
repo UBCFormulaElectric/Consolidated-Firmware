@@ -16,6 +16,7 @@ typedef enum __attribute__((packed))
 {
     BOOT_CONTEXT_NONE,
     BOOT_CONTEXT_STACK_OVERFLOW,
+    BOOT_CONTEXT_WATCHDOG_TIMEOUT,
 } BootContext;
 
 typedef struct

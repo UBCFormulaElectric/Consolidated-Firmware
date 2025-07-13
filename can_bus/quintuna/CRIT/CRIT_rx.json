@@ -9,6 +9,13 @@
     "VC_VehicleDynamics",
     "VC_GlobalShdnNodeStatus",
     "Debug_CanMode",
-    "BMS_HvBatteryProperties"
+    "BMS_TractiveSystem",
+    "INVFL_FLInverterInfo2",
+    "INVFR_FRInverterInfo2",
+    "INVRR_RRInverterInfo2",
+    "INVRL_RLInverterInfo2",
+    "BMS_CellVoltageStats_1",
+    "BMS_OpenWireCheck",
+    "BMS_CellTempStats"
   ]
 }

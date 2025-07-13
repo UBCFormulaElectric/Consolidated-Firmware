@@ -5,34 +5,73 @@
 #include "app_canAlerts.h"
 #include "io_shift_register.h"
 
-// Macro to set an RGB LED.
-#define SET_BOARD_RGB(name, status)                  \
-    do                                               \
-    {                                                \
-        leds.bits.name##_r = 0;                      \
-        leds.bits.name##_g = 0;                      \
-        leds.bits.name##_b = 0;                      \
-        switch (status)                              \
-        {                                            \
-            case BOARD_LED_STATUS_OK:                \
-                leds.bits.name##_g = 1;              \
-                break;                               \
-            case BOARD_LED_STATUS_WARNING:           \
-                leds.bits.name##_r = 1;              \
-                leds.bits.name##_g = 1;              \
-                break;                               \
-            case BOARD_LED_STATUS_FAULT:             \
-                leds.bits.name##_r = 1;              \
-                break;                               \
-            case BOARD_LED_STATUS_MISSING_HEARTBEAT: \
-                leds.bits.name##_b = 1;              \
-                break;                               \
-            default:                                 \
-                break;                               \
-        }                                            \
+#define SHDN_R_BIT 0
+#define SHDN_G_BIT 1
+#define SHDN_B_BIT 2
+#define DAM_R_BIT 3
+#define VC_R_BIT 4
+#define VC_G_BIT 5
+#define VC_B_BIT 6
+#define DAM_G_BIT 7
+
+#define CRIT_R_BIT 8
+#define CRIT_G_BIT 9
+#define CRIT_B_BIT 10
+#define IMD_BIT 11
+#define FSM_R_BIT 12
+#define FSM_G_BIT 13
+#define FSM_B_BIT 14
+#define DAM_B_BIT 15
+
+#define BMS_R_BIT 16
+#define BMS_G_BIT 17
+#define BMS_B_BIT 18
+#define AMS_BIT 19
+#define REGEN_BIT 20
+#define RSM_R_BIT 21
+#define RSM_G_BIT 22
+#define RSM_B_BIT 23
+
+#define BSPD_BIT 24
+#define PUSH_R_BIT 25
+#define PUSH_G_BIT 26
+#define PUSH_B_BIT 27
+#define LAUNCH_R_BIT 28
+#define LAUNCH_G_BIT 29
+#define LAUNCH_B_BIT 30
+#define TORQUE_BIT 31
+
+// Helper to build a 3-bit mask for an RGB group
+#define RGB_MASK(prefix) ((1u << prefix##_R_BIT) | (1u << prefix##_G_BIT) | (1u << prefix##_B_BIT))
+
+// Macro to set an RGB LED using your *_BIT defines
+#define SET_BOARD_RGB(prefix, status)                                                     \
+    do                                                                                    \
+    {                                                                                     \
+        /* clear R,G,B */                                                                 \
+        led_value &= ~RGB_MASK(prefix);                                                   \
+        /* set new bits */                                                                \
+        switch ((status))                                                                 \
+        {                                                                                 \
+            case BOARD_LED_STATUS_OK:                                                     \
+                led_value |= 1u << prefix##_G_BIT; /* green */                            \
+                break;                                                                    \
+            case BOARD_LED_STATUS_WARNING:                                                \
+                led_value |= (1u << prefix##_R_BIT) | (1u << prefix##_G_BIT); /* yellow*/ \
+                break;                                                                    \
+            case BOARD_LED_STATUS_FAULT:                                                  \
+                led_value |= 1u << prefix##_R_BIT; /* red */                              \
+                break;                                                                    \
+            case BOARD_LED_STATUS_MISSING_HEARTBEAT:                                      \
+                led_value &= ~(1u << prefix##_R_BIT);                                     \
+                led_value &= ~(1u << prefix##_G_BIT);                                     \
+                led_value &= ~(1u << prefix##_B_BIT);                                     \
+                break;                                                                    \
+            default:                                                                      \
+                break;                                                                    \
+        }                                                                                 \
     } while (0)
 
-// Enumerates the overall LED statuses a board can have.
 typedef enum
 {
     BOARD_LED_STATUS_OK = 0,
@@ -41,54 +80,6 @@ typedef enum
     BOARD_LED_STATUS_NOT_IMPLEMENTED,
     BOARD_LED_STATUS_MISSING_HEARTBEAT
 } BoardLEDStatus;
-
-// 32‑bit register laid out exactly like the four (LSB first on the wire).
-typedef union
-{
-    uint32_t value;
-    struct __attribute__((packed, aligned(1)))
-    {
-        /* byte 0 = chip #1 */
-        unsigned shdn_r : 1; // bit  0
-        unsigned shdn_g : 1; // bit  1
-        unsigned shdn_b : 1; // bit  2
-        unsigned dam_r : 1;  // bit  3
-        unsigned vc_r : 1;   // bit  4
-        unsigned vc_g : 1;   // bit  5
-        unsigned vc_b : 1;   // bit  6
-        unsigned dam_g : 1;  // bit  7
-
-        /* byte 1 = chip #2 */
-        unsigned crit_r : 1; // bit  8
-        unsigned crit_g : 1; // bit  9
-        unsigned crit_b : 1; // bit 10
-        unsigned imd : 1;    // bit 11
-        unsigned fsm_r : 1;  // bit 12
-        unsigned fsm_g : 1;  // bit 13
-        unsigned fsm_b : 1;  // bit 14
-        unsigned dam_b : 1;  // bit 15
-
-        /* byte 2 = chip #3 */
-        unsigned bms_r : 1; // bit 16
-        unsigned bms_g : 1; // bit 17
-        unsigned bms_b : 1; // bit 18
-        unsigned ams : 1;   // bit 19
-        unsigned regen : 1; // bit 20
-        unsigned rsm_r : 1; // bit 21
-        unsigned rsm_g : 1; // bit 22
-        unsigned rsm_b : 1; // bit 23
-
-        /* byte 3 = chip #4 */
-        unsigned bspd : 1;     // bit 24
-        unsigned push_r : 1;   // bit 25
-        unsigned push_g : 1;   // bit 26
-        unsigned push_b : 1;   // bit 27
-        unsigned launch_r : 1; // bit 28
-        unsigned launch_g : 1; // bit 29
-        unsigned launch_b : 1; // bit 30
-        unsigned torque : 1;   // bit 31
-    } bits;
-} LedReg_t;
 
 /**
  * @brief Choose the worst status: MISSING_HEARTBEAT > FAULT > WARNING > OK.
@@ -143,13 +134,14 @@ static BoardLEDStatus worstBoardStatus(CanNode board)
 void app_leds_update(void)
 {
     // Single‑LED flags from CAN
-    const bool imd_fault  = !app_canRx_BMS_ImdLatchOk_get();
-    const bool bspd_fault = !app_canRx_BMS_BspdLatchOk_get();
-    const bool ams_fault  = !app_canRx_BMS_BmsLatchOk_get();
-    const bool push_drive = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
-    const bool regen_on   = app_canRx_VC_RegenEnabled_get();
-    const bool torque_on  = app_canRx_VC_TorqueVectoringEnabled_get();
-    const bool shdn_ok    = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
+    const bool imd_fault       = !app_canRx_BMS_ImdLatchOk_get();
+    const bool bspd_fault      = !app_canRx_BMS_BspdLatchOk_get();
+    const bool ams_fault       = !app_canRx_BMS_BmsLatchOk_get();
+    const bool push_drive      = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
+    const bool regen_on        = app_canRx_VC_RegenEnabled_get();
+    const bool torque_on       = app_canRx_VC_TorqueVectoringEnabled_get();
+    const bool shdn_ok         = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
+    const bool open_wire_check = app_canRx_BMS_OpenWireCheckStatus_get();
 
     // Worst‑status of each RGB board
     BoardLEDStatus rsm_st  = worstBoardStatus(RSM_NODE);
@@ -159,47 +151,59 @@ void app_leds_update(void)
     BoardLEDStatus vc_st   = worstBoardStatus(VC_NODE);
     BoardLEDStatus dam_st  = worstBoardStatus(DAM_NODE);
 
-    // Build the 32‑bit LED word
-    LedReg_t leds = { .value = 0 };
+    uint32_t led_value = 0;
 
     // Set each RGB board’s LEDs in place
-    SET_BOARD_RGB(rsm, rsm_st);
-    SET_BOARD_RGB(crit, crit_st);
-    SET_BOARD_RGB(fsm, fsm_st);
-    SET_BOARD_RGB(bms, bms_st);
-    SET_BOARD_RGB(vc, vc_st);
-    SET_BOARD_RGB(dam, dam_st);
+    SET_BOARD_RGB(RSM, rsm_st);
+    SET_BOARD_RGB(CRIT, crit_st);
+    SET_BOARD_RGB(FSM, fsm_st);
+    SET_BOARD_RGB(BMS, bms_st);
+    SET_BOARD_RGB(VC, vc_st);
+    SET_BOARD_RGB(DAM, dam_st);
 
-    // Now the single‑bit flags
+    // Now the single-bit flags
     if (push_drive)
     {
-        leds.bits.push_r = 1;
+        led_value |= 1u << PUSH_R_BIT;
     }
     if (imd_fault)
     {
-        leds.bits.imd = 1;
+        led_value |= 1u << IMD_BIT;
     }
     if (bspd_fault)
     {
-        leds.bits.bspd = 1;
+        led_value |= 1u << BSPD_BIT;
     }
     if (ams_fault)
     {
-        leds.bits.ams = 1;
+        led_value |= 1u << AMS_BIT;
     }
     if (regen_on)
     {
-        leds.bits.regen = 1;
+        led_value |= 1u << REGEN_BIT;
     }
     if (torque_on)
     {
-        leds.bits.torque = 1;
+        led_value |= 1u << TORQUE_BIT;
     }
+
     if (shdn_ok)
     {
-        leds.bits.shdn_r = 1;
+        led_value |= 1u << SHDN_R_BIT;
+    }
+    else
+    {
+        led_value |= 1u << SHDN_G_BIT;
+    }
+
+    if (open_wire_check)
+    {
+        // Set led to magenta
+        led_value |= 1u << BMS_R_BIT;
+        led_value &= ~(1u << BMS_G_BIT);
+        led_value |= 1u << BMS_B_BIT;
     }
 
     // Shift out all 4 bytes (LSB first)
-    io_shift_register_updateLedRegisters((uint8_t *)&leds.value);
+    io_shift_register_updateLedRegisters((uint8_t *)&led_value);
 }

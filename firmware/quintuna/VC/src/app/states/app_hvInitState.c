@@ -3,28 +3,20 @@
 #include "app_powerManager.h"
 #include "app_timer.h"
 #include "app_canAlerts.h"
-#include "app_warningHanding.h"
+#include "app_warningHandling.h"
 #include "io_loadswitches.h"
-#include <app_canTx.h>
-#include <app_canRx.h>
-#include <app_canUtils.h>
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canUtils.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include "app_warningHanding.h"
 #include "app_vehicleDynamicsConstants.h"
+#include "io_log.h"
 
+#define INV_QUIT_TIMEOUT_MS (10 * 1000)
 #define NO_TORQUE 0.0
 
-typedef enum
-{
-    INV_SYSTEM_READY    = 0,
-    INV_DC_ON           = 1,
-    INV_ENABLE          = 2,
-    INV_INVERTER_ON     = 3,
-    INV_READY_FOR_DRIVE = 4
-} INVERTER_STATES;
-
-static INVERTER_STATES current_inverter_state;
+static VCInverterState current_inverter_state;
 static TimerChannel    start_up_timer;
 
 static PowerManagerConfig power_manager_state = {
@@ -35,9 +27,6 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_RR_PUMP] = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_F_PUMP]  = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
@@ -49,7 +38,22 @@ static void hvInitStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
     current_inverter_state = INV_SYSTEM_READY;
-    app_timer_init(&start_up_timer, 1000);
+    app_timer_init(&start_up_timer, INV_QUIT_TIMEOUT_MS);
+
+    app_canTx_VC_INVFRTorqueSetpoint_set(0);
+    app_canTx_VC_INVRRTorqueSetpoint_set(0);
+    app_canTx_VC_INVFLTorqueSetpoint_set(0);
+    app_canTx_VC_INVRLTorqueSetpoint_set(0);
+
+    app_canTx_VC_INVFLTorqueLimitPositive_set(0);
+    app_canTx_VC_INVFRTorqueLimitPositive_set(0);
+    app_canTx_VC_INVRLTorqueLimitPositive_set(0);
+    app_canTx_VC_INVRRTorqueLimitPositive_set(0);
+
+    app_canTx_VC_INVFLTorqueLimitNegative_set(0);
+    app_canTx_VC_INVFRTorqueLimitNegative_set(0);
+    app_canTx_VC_INVRLTorqueLimitNegative_set(0);
+    app_canTx_VC_INVRRTorqueLimitNegative_set(0);
 }
 
 static void hvInitStateRunOnTick100Hz(void)
@@ -63,7 +67,19 @@ static void hvInitStateRunOnTick100Hz(void)
 
             if (inv_systemReady)
             {
+                LOG_INFO("inv_system_ready -> inv_dc_on");
                 current_inverter_state = INV_DC_ON;
+                app_timer_stop(&start_up_timer);
+
+                // Error reset should be set to false cause we were successful
+                app_canTx_VC_INVFLbErrorReset_set(false);
+                app_canTx_VC_INVFRbErrorReset_set(false);
+                app_canTx_VC_INVRLbErrorReset_set(false);
+                app_canTx_VC_INVRRbErrorReset_set(false);
+            }
+            else if (app_canAlerts_VC_Info_InverterRetry_get())
+            {
+                app_warningHandling_inverterReset();
             }
             break;
         }
@@ -77,31 +93,18 @@ static void hvInitStateRunOnTick100Hz(void)
             const bool inverter_dc_quit = app_canRx_INVRR_bQuitDcOn_get() && app_canRx_INVRL_bQuitDcOn_get() &&
                                           app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
 
-            const TimerState timeout_state = app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit);
-
-            switch (timeout_state)
+            if (inverter_dc_quit)
             {
-                case TIMER_STATE_IDLE:
-                    app_canTx_VC_INVFLTorqueLimitPositive_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVFRTorqueLimitPositive_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRLTorqueLimitPositive_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRRTorqueLimitPositive_set((int32_t)NO_TORQUE);
-
-                    app_canTx_VC_INVFLTorqueLimitNegative_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVFRTorqueLimitNegative_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRLTorqueLimitNegative_set((int32_t)NO_TORQUE);
-                    app_canTx_VC_INVRRTorqueLimitNegative_set((int32_t)NO_TORQUE);
-                    current_inverter_state = INV_ENABLE;
-                    break;
-                case TIMER_STATE_EXPIRED:
-                    current_inverter_state = INV_SYSTEM_READY;
-                    app_stateMachine_setNextState(&init_state);
-                    break;
-                case TIMER_STATE_RUNNING:
-                    // __attribute__((fallthrough));
-                default:
-                    break;
+                LOG_INFO("inv_dc_on -> inv_enable");
+                current_inverter_state = INV_ENABLE;
+                app_timer_stop(&start_up_timer);
             }
+            else if (app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED)
+            {
+                LOG_INFO("dc quit timeout");
+                current_inverter_state = INV_SYSTEM_READY;
+            }
+
             break;
         }
         case INV_ENABLE:
@@ -110,9 +113,7 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVFRbEnable_set(true);
             app_canTx_VC_INVRLbEnable_set(true);
             app_canTx_VC_INVRRbEnable_set(true);
-
             current_inverter_state = INV_INVERTER_ON;
-            app_timer_stop(&start_up_timer);
             break;
         }
         case INV_INVERTER_ON:
@@ -122,28 +123,20 @@ static void hvInitStateRunOnTick100Hz(void)
             app_canTx_VC_INVRRbInverterOn_set(true);
             app_canTx_VC_INVRLbInverterOn_set(true);
 
-            if (start_up_timer.state == TIMER_STATE_IDLE)
-                app_timer_restart(&start_up_timer);
-
             const bool inverter_invOn_quit =
                 app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get() &&
                 app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
 
-            const TimerState timeout_state = app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit);
-
-            switch (timeout_state)
+            if (inverter_invOn_quit)
             {
-                case TIMER_STATE_IDLE:
-                    current_inverter_state = INV_READY_FOR_DRIVE;
-                    break;
-                case TIMER_STATE_EXPIRED:
-                    current_inverter_state = INV_SYSTEM_READY;
-                    app_stateMachine_setNextState(&init_state);
-                    break;
-                case TIMER_STATE_RUNNING:
-                    // __attribute__((fallthrough));
-                default:
-                    break;
+                LOG_INFO("inv_on -> inv_ready_for_drive");
+                current_inverter_state = INV_READY_FOR_DRIVE;
+                app_timer_stop(&start_up_timer);
+            }
+            else if (app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED)
+            {
+                LOG_INFO("inv on quit timeout");
+                current_inverter_state = INV_SYSTEM_READY;
             }
 
             break;
@@ -160,13 +153,25 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_stateMachine_setNextState(&hv_state);
             }
             break;
+
+        default:
+            break;
     }
+
+    app_canTx_VC_InverterState_set(current_inverter_state);
 }
 static void hvInitStateRunOnExit(void)
 {
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
     app_canAlerts_VC_Info_InverterRetry_set(false);
+
+    // We are setting back this to zero meaning that we either succedded in reseting the inverters or out reset protocl
+    // didnt work so we are going back to init
+    app_canTx_VC_INVFLbErrorReset_set(false);
+    app_canTx_VC_INVFRbErrorReset_set(false);
+    app_canTx_VC_INVRLbErrorReset_set(false);
+    app_canTx_VC_INVRRbErrorReset_set(false);
 }
 
 State hvInit_state = { .name              = "HV INIT",

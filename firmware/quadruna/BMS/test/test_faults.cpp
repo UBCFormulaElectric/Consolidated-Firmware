@@ -6,7 +6,7 @@ class BmsFaultTest : public BmsBaseStateMachineTest
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Test that any cell can cause an overvoltage fault
@@ -63,7 +63,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Test that any cell can cause an undervoltage fault
@@ -120,7 +120,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_init_state)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Reset test
@@ -179,7 +179,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_charge_state)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Reset test
@@ -240,7 +240,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_init_state)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Reset test
@@ -300,7 +300,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_charge_state)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Reset test
@@ -360,7 +360,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_discharge_overcurrent)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Reset test
@@ -416,7 +416,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_charge_overcurrent)
 {
-    bool debounce_expires[2] = { true, false };
+    const bool debounce_expires[2] = { true, false };
     for (int i = 0; i < sizeof(debounce_expires); i++)
     {
         // Reset test

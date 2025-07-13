@@ -8,6 +8,10 @@
   "warnings": {},
   "faults": {},
   "info": {
+    "RearBrakePressureOutOfRange": {
+      "id": 782,
+      "description": "Rear brake pressure out of range."
+    },
     "FlowMeterUnderflow": {
       "id": 785,
       "description": "Flow meter underflow"
@@ -31,6 +35,10 @@
     "StackOverflow": {
       "id": 750,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "WatchdogTimeout": {
+      "id": 782,
+      "description": "Watchdog timeout detected."
     }
   }
 }

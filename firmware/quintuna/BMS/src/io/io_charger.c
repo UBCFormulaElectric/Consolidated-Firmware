@@ -1,21 +1,18 @@
+#include "io_charger.h"
+
 #include "hw_pwms.h"
 #include "hw_gpios.h"
-#include "io_charger.h"
-#include "cmsis_os.h"
-#include "assert.h"
 
-ConnectionStatus io_charger_getConnectionStatus()
+ChargerConnectedType io_charger_getConnectionStatus()
 {
-    hw_pwmInput_tick(&evse_pwm_input);
-    if (990 <= evse_pwm_input.frequency_hz && evse_pwm_input.frequency_hz <= 1010)
-        return EVSE_CONNECTED;
-    else if (hw_gpio_readPin(&n_evse_i_lim_pin))
-        return WALL_CONNECTED;
-    return DISCONNECTED;
+    if (990 <= hw_pwmInput_getFrequency(&evse_pwm_input) && hw_pwmInput_getFrequency(&evse_pwm_input) <= 1010)
+        return CHARGER_CONNECTED_EVSE;
+    if (hw_gpio_readPin(&n_evse_i_lim_pin))
+        return CHARGER_CONNECTED_WALL;
+    return CHARGER_DISCONNECTED;
 }
 
-void io_charger_inputCaptureCallback(TIM_HandleTypeDef *htim)
+float io_charger_getDutyCycle()
 {
-    assert(htim == evse_pwm_input.htim);
-    hw_pwmInput_tick(&evse_pwm_input);
+    return hw_pwmInput_getDutyCycle(&evse_pwm_input);
 }
