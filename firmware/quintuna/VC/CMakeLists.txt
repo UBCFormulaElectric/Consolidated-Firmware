@@ -70,9 +70,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
     list(APPEND NO_CHECKS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
     )
     embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_VC_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -189,7 +189,6 @@ elseif ("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
             #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_imu.h"
     )
     create_fake_library(
             "quintuna_VC_fakes"

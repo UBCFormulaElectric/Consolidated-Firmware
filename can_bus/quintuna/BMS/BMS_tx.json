@@ -261,41 +261,35 @@
     }
   },
   "PowerLimit": {
-  "msg_id": 122,
-  "cycle_time": 10,
-  "description": "BMS Power Limit",
-  "signals": {
-    "ChargePowerLimit": {
-      "resolution": 1,
-      "min": 0,
-      "max": 100000,
-      "unit": "W"
-    },
-    "DischargePowerLimit": {
-      "resolution": 1,
-      "min": 0,
-      "max": 100000,
-      "unit": "W"
-    },
-    "ChargePowerLimitCondition": {
-      "enum": "ChargePowerLimitCondition"
-    },
-    "DischargePowerLimitCondition": {
-      "enum": "DischargePowerLimitCondition"
+    "msg_id": 122,
+    "cycle_time": 10,
+    "description": "BMS Power Limit",
+    "signals": {
+      "ChargePowerLimit": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "DischargePowerLimit": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "ChargePowerLimitCondition": {
+        "enum": "ChargePowerLimitCondition"
+      },
+      "DischargePowerLimitCondition": {
+        "enum": "DischargePowerLimitCondition"
+      }
     }
-  }
-},
+  },
   "CellVoltageStats_1": {
     "msg_id": 459,
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
-      "PackVoltage": {
-        "resolution": 0.01,
-        "min": 100,
-        "max": 650,
-        "unit": "V"
-      },
       "AvgCellVoltage": {
         "resolution": 0.001,
         "min": 0,
@@ -312,6 +306,11 @@
         "resolution": 1,
         "min": 0,
         "max": 9
+      },
+      "MinCellVoltageIdx": {
+        "resolution": 1,
+        "min": 0,
+        "max": 13
       }
     }
   },
@@ -320,10 +319,11 @@
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
-      "MinCellVoltageIdx": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
+      "PackVoltage": {
+        "resolution": 0.01,
+        "min": 100,
+        "max": 650,
+        "unit": "V"
       },
       "MaxCellVoltage": {
         "resolution": 0.001,
@@ -3333,6 +3333,16 @@
         "bits": 1
       },
       "HVNShdnOKStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "OpenWireCheck": {
+    "msg_id": 477,
+    "cycle_time": 100,
+    "description": "Open wire check status",
+    "signals": {
+      "OpenWireCheckStatus": {
         "bits": 1
       }
     }

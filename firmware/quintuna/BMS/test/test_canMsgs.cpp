@@ -48,7 +48,8 @@ TEST(CanMsgsTest, cell_temp_message_frequency)
 
 TEST(CanMsgsTest, cell_voltage_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_CELL_VOLTAGE_STATS_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_CELL_VOLTAGE_STATS_1_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_CELL_VOLTAGE_STATS_2_CYCLE_TIME_MS);
 }
 
 TEST(CanMsgsTest, tractive_system_message_frequency)

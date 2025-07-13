@@ -1,8 +1,5 @@
 import os
-import shutil
 import unittest
-
-from reactivex import generate
 
 from ...generate_can_from_json import generate_can_from_json
 
@@ -20,6 +17,7 @@ node_list = [
 class CodegenSmoke(unittest.TestCase):
     def test_codegen(self):
         for node in node_list:
+            print(f"Generating for code for {node}")
             node_path = os.path.join(valid_json_folder, node)
             self.assertTrue(os.path.isdir(node_path))
             file_output = os.path.join(os.path.dirname(__file__), "generated", node)

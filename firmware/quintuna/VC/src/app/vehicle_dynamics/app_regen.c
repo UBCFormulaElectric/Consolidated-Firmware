@@ -1,3 +1,4 @@
+#include <app_canAlerts.h>
 #include <stdlib.h>
 #include "math.h"
 
@@ -65,7 +66,7 @@ void app_regen_run(const float accelerator_pedal_percentage, TorqueAllocationOut
     }
 
     app_canTx_VC_RegenEnabled_set(regen_available);
-    app_canTx_VC_Info_RegenNotAvailable_set(!regen_available);
+    app_canAlerts_VC_Info_RegenNotAvailable_set(!regen_available);
 }
 
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
@@ -114,6 +115,8 @@ static void computeRegenTorqueRequest(
         activeDiffInputs->motor_speed_rr_rpm, activeDiffInputs->motor_speed_rl_rpm,
         activeDiffInputs->motor_speed_fr_rpm, activeDiffInputs->motor_speed_fl_rpm));
 
+    regenAttr->derating_value = 1.0f;
+
     if (min_motor_speed_kmh < 10.0f)
     {
         regenAttr->derating_value = (min_motor_speed_kmh - SPEED_MIN_kph) / SPEED_MIN_kph;
@@ -126,7 +129,6 @@ static void computeRegenTorqueRequest(
 
     if (regenAttr->enable_active_differential)
     {
-        activeDiffInputs->derating_value      = regenAttr->derating_value;
         activeDiffInputs->power_max_kW        = app_powerLimiting_computeMaxPower(regen_enabled);
         activeDiffInputs->wheel_angle_deg     = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
         activeDiffInputs->requested_torque_Nm = MAX_REGEN_Nm * activeDiffInputs->accelerator_pedal_percentage;
@@ -134,8 +136,8 @@ static void computeRegenTorqueRequest(
         app_activeDifferential_computeTorque(activeDiffInputs, torqueOutputToMotors);
 
         powerLimitingInputs.derating_value       = regenAttr->derating_value;
-        powerLimitingInputs.power_limit          = app_powerLimiting_computeMaxPower(true);
-        powerLimitingInputs.is_regen_mode        = true;
+        powerLimitingInputs.power_limit          = activeDiffInputs->power_max_kW;
+        powerLimitingInputs.is_regen_mode        = regen_enabled;
         powerLimitingInputs.torqueToMotors       = torqueOutputToMotors;
         powerLimitingInputs.total_requestedPower = app_totalPower(torqueOutputToMotors);
         app_powerLimiting_torqueReduction(&powerLimitingInputs);

@@ -44,7 +44,7 @@ static PowerLimiting_Inputs      powerLimitingInputs = { .power_limit_kW = POWER
 void app_regen_init(void)
 {
     app_canTx_VC_RegenEnabled_set(true);
-    app_canTx_VC_Warning_RegenNotAvailable_set(false);
+    app_canAlerts_VC_Warning_RegenNotAvailable_set(false);
 }
 
 void app_regen_run(const float accelerator_pedal_percentage)
@@ -63,7 +63,7 @@ void app_regen_run(const float accelerator_pedal_percentage)
     }
 
     app_canTx_VC_RegenEnabled_set(regen_available);
-    app_canTx_VC_Warning_RegenNotAvailable_set(!regen_available);
+    app_canAlerts_VC_Warning_RegenNotAvailable_set(!regen_available);
 
     app_regen_sendTorqueRequest(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }

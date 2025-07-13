@@ -226,14 +226,14 @@ void app_segments_broadcastOpenWireCheck(void)
     // See "Open Wire Check (ADOW Command)" in datasheet for this works.
     // Known limitation: If >=2x adjacent cells are open wire, it only reports the lowest one.
 
-    memset(owc_comm_ok, true, sizeof(owc_comm_ok));
+    bool overall_ok = true;
 
     for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
     {
         const bool owc_valid_first   = IS_EXIT_OK(owc_pucv_success[segment][0]);
         const bool owc_passing_first = owc_valid_first && owc_pucv_regs[segment][0] != 0;
 
-        owc_comm_ok[segment] &= owc_valid_first;
+        overall_ok &= owc_passing_first;
         owc_results_success[segment][0] = owc_valid_first;
         owc_results[segment][0]         = owc_passing_first;
 
@@ -246,7 +246,7 @@ void app_segments_broadcastOpenWireCheck(void)
             const bool owc_passing = owc_valid && owc_pdcv_regs[segment][cell] - owc_pucv_regs[segment][cell] <=
                                                       CONVERT_VOLTAGE_TO_100UV(0.4f);
 
-            owc_comm_ok[segment] &= owc_valid_first;
+            overall_ok &= owc_passing;
             owc_results_success[segment][cell + 1] = owc_valid;
             owc_results[segment][cell + 1]         = owc_passing;
 
@@ -259,13 +259,15 @@ void app_segments_broadcastOpenWireCheck(void)
         const bool owc_valid_last   = IS_EXIT_OK(owc_pdcv_success[segment][CELLS_PER_SEGMENT - 1]);
         const bool owc_passing_last = owc_valid_last && owc_pdcv_regs[segment][CELLS_PER_SEGMENT - 1] != 0;
 
-        owc_comm_ok[segment] &= owc_valid_last;
+        overall_ok &= owc_passing_last;
         owc_results_success[segment][CELL_TAPS_PER_SEGMENT - 1] = owc_valid_last;
         owc_results[segment][CELL_TAPS_PER_SEGMENT - 1]         = owc_passing_last;
 
         cell_owc_setters[segment][CELL_TAPS_PER_SEGMENT - 1](owc_passing_last);
         comm_ok_setters[segment](ALL_COMM_OK(segment));
     }
+
+    app_canTx_BMS_OpenWireCheckStatus_set(overall_ok);
 }
 
 void app_segments_broadcastVoltageStats(void)
@@ -366,7 +368,8 @@ void app_segments_broadcastTempStats(void)
             }
 
             // Get the minimum cell temp
-            if (success && cell_temp.value < tmp_min_cell_temp.value)
+            const bool inshallah = segment == 8 && cell == 12;
+            if (success && cell_temp.value < tmp_min_cell_temp.value && !inshallah)
             {
                 tmp_min_cell_temp = cell_temp;
             }

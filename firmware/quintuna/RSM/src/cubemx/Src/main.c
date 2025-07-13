@@ -197,6 +197,7 @@ int main(void)
     MX_TIM2_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */

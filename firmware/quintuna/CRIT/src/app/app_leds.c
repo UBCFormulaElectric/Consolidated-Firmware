@@ -63,7 +63,9 @@
                 led_value |= 1u << prefix##_R_BIT; /* red */                              \
                 break;                                                                    \
             case BOARD_LED_STATUS_MISSING_HEARTBEAT:                                      \
-                led_value |= 1u << prefix##_B_BIT; /* blue */                             \
+                led_value &= ~(1u << prefix##_R_BIT);                                     \
+                led_value &= ~(1u << prefix##_G_BIT);                                     \
+                led_value &= ~(1u << prefix##_B_BIT);                                     \
                 break;                                                                    \
             default:                                                                      \
                 break;                                                                    \
@@ -132,13 +134,14 @@ static BoardLEDStatus worstBoardStatus(CanNode board)
 void app_leds_update(void)
 {
     // Single‑LED flags from CAN
-    const bool imd_fault  = !app_canRx_BMS_ImdLatchOk_get();
-    const bool bspd_fault = !app_canRx_BMS_BspdLatchOk_get();
-    const bool ams_fault  = !app_canRx_BMS_BmsLatchOk_get();
-    const bool push_drive = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
-    const bool regen_on   = app_canRx_VC_RegenEnabled_get();
-    const bool torque_on  = app_canRx_VC_TorqueVectoringEnabled_get();
-    const bool shdn_ok    = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
+    const bool imd_fault       = !app_canRx_BMS_ImdLatchOk_get();
+    const bool bspd_fault      = !app_canRx_BMS_BspdLatchOk_get();
+    const bool ams_fault       = !app_canRx_BMS_BmsLatchOk_get();
+    const bool push_drive      = (app_canRx_VC_State_get() == VC_DRIVE_STATE);
+    const bool regen_on        = app_canRx_VC_RegenEnabled_get();
+    const bool torque_on       = app_canRx_VC_TorqueVectoringEnabled_get();
+    const bool shdn_ok         = (app_canRx_VC_FirstFaultNode_get() == SHDN_OK);
+    const bool open_wire_check = app_canRx_BMS_OpenWireCheckStatus_get();
 
     // Worst‑status of each RGB board
     BoardLEDStatus rsm_st  = worstBoardStatus(RSM_NODE);
@@ -183,9 +186,22 @@ void app_leds_update(void)
     {
         led_value |= 1u << TORQUE_BIT;
     }
+
     if (shdn_ok)
     {
         led_value |= 1u << SHDN_R_BIT;
+    }
+    else
+    {
+        led_value |= 1u << SHDN_G_BIT;
+    }
+
+    if (open_wire_check)
+    {
+        // Set led to magenta
+        led_value |= 1u << BMS_R_BIT;
+        led_value &= ~(1u << BMS_G_BIT);
+        led_value |= 1u << BMS_B_BIT;
     }
 
     // Shift out all 4 bytes (LSB first)

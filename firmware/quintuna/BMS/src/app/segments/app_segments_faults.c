@@ -15,7 +15,6 @@
 
 bool voltage_comm_ok[NUM_SEGMENTS];
 bool temp_comm_ok[NUM_SEGMENTS];
-bool owc_comm_ok[NUM_SEGMENTS];
 
 typedef struct
 {
@@ -55,7 +54,7 @@ static const ProfileConfig warning_profile_config = {
     .comm_err_debounce_ms      = COMM_ERR_DEBOUNCE_WARNING_MS,
     // setters
     .under_voltage_setter = app_canAlerts_BMS_Warning_CellUndervoltage_set,
-    .over_voltage_setter  = app_canAlerts_BMS_Warning_CellUndervoltage_set,
+    .over_voltage_setter  = app_canAlerts_BMS_Warning_CellOvervoltage_set,
     .over_temp_setter     = app_canAlerts_BMS_Warning_CellOvertemp_set,
     .comm_err_setter      = app_canAlerts_BMS_Warning_ModuleCommunicationError_set,
 };
@@ -130,9 +129,6 @@ bool checkProfile(Profile *profile)
     profile->config->over_voltage_setter(over_voltage_debounced);
     profile->config->over_temp_setter(over_temp_debounced);
     profile->config->comm_err_setter(comm_err_debounced);
-
-    // TODO: How long to debounce OWC comm err fault? Since OWC only runs every 10s at present...
-    // TODO: How do we want to respond to open wire in general?
 
     return under_voltage_debounced || over_voltage_debounced || over_temp_debounced || comm_err_debounced;
 }
