@@ -20,7 +20,6 @@ typedef enum
     EFUSE_CHANNEL_RL_PUMP,
 
     // Radiator Fan loadswitches
-    EFUSE_CHANNEL_L_RAD,
     EFUSE_CHANNEL_R_RAD,
 
     NUM_EFUSE_CHANNELS

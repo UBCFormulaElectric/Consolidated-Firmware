@@ -33,20 +33,20 @@ float app_powerLimiting_computeMaxPower(const bool isRegenOn)
     // ============== Calculate max powers =================
     // TODO: CONFIRM REGEN POWER LIMIT
     // TODO: LOOK INTO BMS DERATED POWER LIMIT, USE IT TO VALIDATE CURRENT LIMIT
-    // const float current_based_power_limit_kW =
-    //     app_canRx_BMS_TractiveSystemVoltage_get() *
-    //     (isRegenOn ? app_canRx_BMS_ChargeCurrentLimit_get() : app_canRx_BMS_DischargeCurrentLimit_get());
-    const float P_max = isRegenOn ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW;
+    const float bms_power_limit_kW =
+        (float)(isRegenOn ? app_canRx_BMS_ChargePowerLimit_get() : app_canRx_BMS_DischargePowerLimit_get());
+    const float abs_p_max  = isRegenOn ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW;
+    const float powerLimit = fminf(bms_power_limit_kW, abs_p_max);
 
-    app_canTx_VC_PowerLimitValue_set(P_max);
-    return P_max;
+    app_canTx_VC_PowerLimitValue_set(powerLimit);
+    return powerLimit;
 }
 
 float getMaxMotorTemp(void) // -- we're relying solely on the inverter thermal derating -- this is no longer needed but
                             // will likely be used in the future
 {
-    const float motor_fl_temp = (float)app_canRx_INVRL_MotorTemperature_get();
-    const float motor_fr_temp = (float)app_canRx_INVFL_MotorTemperature_get();
+    const float motor_fl_temp = (float)app_canRx_INVFL_MotorTemperature_get();
+    const float motor_fr_temp = (float)app_canRx_INVFR_MotorTemperature_get();
     const float motor_rl_temp = (float)app_canRx_INVRL_MotorTemperature_get();
     const float motor_rr_temp = (float)app_canRx_INVRR_MotorTemperature_get();
     return fmaxf(fmaxf(fmaxf(motor_fl_temp, motor_fr_temp), motor_rl_temp), motor_rr_temp);
@@ -61,15 +61,19 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
 
     float scale = CLAMP_TO_ONE(inputs->derating_value);
 
-    if (inputs->is_regen_mode && torque_negative_max_Nm < -avg_max_neg_torque)
+    if (inputs->is_regen_mode)
     {
-        scale *= -avg_max_neg_torque / torque_negative_max_Nm;
+        // If regen torque exceeds limit, scale all torque proportionally
+        if (torque_negative_max_Nm < -avg_max_neg_torque)
+        {
+            scale *= -avg_max_neg_torque / torque_negative_max_Nm;
+        }
+
         inputs->torqueToMotors->front_left_torque *= scale;
         inputs->torqueToMotors->front_right_torque *= scale;
         inputs->torqueToMotors->rear_left_torque *= scale;
-        inputs->torqueToMotors->rear_left_torque *= scale;
+        inputs->torqueToMotors->rear_right_torque *= scale;
     }
-
     else if (inputs->total_requestedPower > inputs->power_limit)
     {
         float torque_reduction =
@@ -78,15 +82,15 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
         inputs->torqueToMotors->front_left_torque -= torque_reduction;
         inputs->torqueToMotors->front_right_torque -= torque_reduction;
         inputs->torqueToMotors->rear_left_torque -= torque_reduction;
-        inputs->torqueToMotors->rear_left_torque -= torque_reduction;
+        inputs->torqueToMotors->rear_right_torque -= torque_reduction;
     }
 
     inputs->torqueToMotors->front_left_torque =
-        (float)CLAMP(inputs->torqueToMotors->front_left_torque, 0, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->front_left_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
     inputs->torqueToMotors->front_right_torque =
-        (float)CLAMP(inputs->torqueToMotors->front_right_torque, 0, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->front_right_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
     inputs->torqueToMotors->rear_left_torque =
-        (float)CLAMP(inputs->torqueToMotors->rear_left_torque, 0, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->rear_left_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
     inputs->torqueToMotors->rear_right_torque =
-        (float)CLAMP(inputs->torqueToMotors->rear_right_torque, 0, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->rear_right_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
 }

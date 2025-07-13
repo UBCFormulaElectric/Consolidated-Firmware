@@ -12,4 +12,10 @@ namespace io_vcShdn
 namespace io_vc
 {
 }
+
+namespace io_sbgEllipse
+{
+    void setEkfSolutionMode(uint32_t ekf_solution_mode);
+} // namespace io_sbgEllipse
+
 } // namespace fake

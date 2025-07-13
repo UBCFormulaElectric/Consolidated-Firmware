@@ -213,7 +213,7 @@ static void app_chargeStateRunOnTick100Hz(void)
         .maxVoltage_V =
             PACK_VOLTAGE_DC, // always cap at 581V
                              // .maxCurrent_A = idc_range.idc_min, // cap at min idc value to stay on the safe side
-        .maxCurrent_A = 5,
+        .maxCurrent_A = app_canRx_Debug_ChargingCurrent_get(),
         .stopCharging = !userEnable
     };
     buildTxFrame(&tx);

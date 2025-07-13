@@ -4,7 +4,6 @@
 #include "io_log.h"
 #include "app_canRx.h"
 #include "app_units.h"
-#include "io_imu_config.h"
 #include "app_vehicleDynamics.h"
 #include "app_torqueDistribution.h"
 #include "io_imu_config.h"
@@ -15,17 +14,17 @@ static PowerLimitingInputs powerLimitingInputs;
 void app_wheelVerticalForces_broadcast(const ImuData *imu_data)
 {
     app_canTx_VC_FrontLeftWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
     app_canTx_VC_FrontRightWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
     app_canTx_VC_RearLeftWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
     app_canTx_VC_RearRightWheelVerticalForce_set(
-        ((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
-        LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel));
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
+                   LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
 }
 
 float app_loadTransferConstant(const float long_accel)
@@ -50,6 +49,7 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
     // Total toruqe is to be our torque request from pedal * 4. We will assume the pedal percentage applies to
     // percentage of max torque of motor not of the car
 
+    // potential divisino by 0 if load_transfer_const = -1, not sure what values are expected here but should add safety
     torqueToMotors->front_left_torque =
         (inputs->total_torque_request * inputs->load_transfer_const) / (2 * (inputs->load_transfer_const + 1)) -
         (inputs->front_yaw_moment / (2 * F));
@@ -79,14 +79,30 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
 
 void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors)
 {
-    app_canTx_VC_INVFLTorqueSetpoint_set(
-        CLAMP(PEDAL_REMAPPING(torqueToMotors->front_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueSetpoint_set(
-        CLAMP(PEDAL_REMAPPING(torqueToMotors->front_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueSetpoint_set(
-        CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_left_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueSetpoint_set(
-        CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), 0, PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    //     app_canTx_VC_INVFLTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->front_left_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    //     app_canTx_VC_INVFRTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->front_right_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    //     app_canTx_VC_INVRLTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_left_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    //     app_canTx_VC_INVRRTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFLTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->front_left_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->front_right_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->rear_left_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
 }
 
 // TorqueAllocationOutputs *app_get_torqueToMotors()

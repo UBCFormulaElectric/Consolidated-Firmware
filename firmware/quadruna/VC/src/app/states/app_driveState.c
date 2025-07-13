@@ -123,13 +123,13 @@ static void driveStateRunOnTick100Hz(void)
     if (turn_regen_led)
     {
         app_canTx_VC_RegenEnabled_set(true);
-        app_canTx_VC_Warning_RegenNotAvailable_set(false);
+        app_canAlerts_VC_Warning_RegenNotAvailable_set(false);
     }
 
     if (!regen_switch_is_on)
     {
         app_canTx_VC_RegenEnabled_set(false);
-        app_canTx_VC_Warning_RegenNotAvailable_set(true);
+        app_canAlerts_VC_Warning_RegenNotAvailable_set(true);
     }
 
     if (exit_drive_to_init)
