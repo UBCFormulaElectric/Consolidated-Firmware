@@ -50,12 +50,6 @@ def get_signal_metadata():
         for signal in msg.signals
     ]
 
-
-# new api get all emun
-
-# new api get all emun
-
-
 @api.route("/signal/<signal_name>", methods=["GET"])
 def get_cached_signals(signal_name: str):
     """
