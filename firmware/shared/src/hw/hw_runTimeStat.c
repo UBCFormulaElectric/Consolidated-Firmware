@@ -8,12 +8,15 @@
 
 static TIM_HandleTypeDef *runTimeCounter;
 
+volatile unsigned long ulHighFrequencyTimerTick = 0;
+
 static RunTimeStats runtimestatistics[MAX_TASKS];
 
 // What we need to do is use fill the runtimestats buffer with the information assocaited with each task
 
 void hw_runTimeStat_init(TIM_HandleTypeDef *htim)
 {
+    memset(runtimestatistics, 0, sizeof(runtimestatistics));
     runTimeCounter = htim;
 }
 
@@ -56,5 +59,5 @@ void configureTimerForRunTimeStats(void)
 
 unsigned long getRunTimeCounterValue(void)
 {
-    return ulHighFrequencyTimerTicks;
+    return ulHighFrequencyTimerTick;
 }

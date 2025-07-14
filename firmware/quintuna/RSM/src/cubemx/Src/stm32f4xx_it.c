@@ -42,7 +42,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-static volatile unsigned long ulHighFrequencyTimerTick = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -288,7 +287,6 @@ void TIM7_IRQHandler(void)
     /* USER CODE BEGIN TIM7_IRQn 0 */
 
     /* USER CODE END TIM7_IRQn 0 */
-    ulHighFrequencyTimerTick++;
     HAL_TIM_IRQHandler(&htim7);
     /* USER CODE BEGIN TIM7_IRQn 1 */
 

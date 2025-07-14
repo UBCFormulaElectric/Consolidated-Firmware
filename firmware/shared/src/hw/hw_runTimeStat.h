@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "main.h"
 
+extern volatile unsigned long ulHighFrequencyTimerTick;
 typedef struct
 {
     float cpu_curr_usage;
