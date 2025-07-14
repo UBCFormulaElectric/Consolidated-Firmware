@@ -2,6 +2,7 @@
 #include "main.h"
 #include <string.h>
 #include <cmsis_os.h>
+#include "app_utils.h"
 
 #define MAX_TASKS 10
 
@@ -40,9 +41,11 @@ void hw_runTimeStat_hookCallBack(void)
         }
         else
         {
-            runtimestatistics[task].cpu_usage = (float)runTimeStats[task].ulRunTimeCounter /
+            runtimestatistics[task].cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
                                                 (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
-            runtimestatistics[task].stack_usage = runTimeStats[task].usStackHighWaterMark;
+            runtimestatistics[task].stack_usage_max = runTimeStats[task].usStackHighWaterMark;
+
+            runtimestatistics[task].cpu_max_usage = MAX(runtimestatistics[task].cpu_max_usage, runtimestatistics[task].cpu_curr_usage);
         }
     }
 }
