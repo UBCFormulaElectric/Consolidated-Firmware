@@ -1,24 +1,8 @@
 from settings import CAR_NAME
 from jsoncan import JsonCanParser
-import datetime
 import os
 from concurrent.futures import ThreadPoolExecutor
-
 import requests
-
-# _dockerized = os.environ.get("DOCKERIZED") == "1"
-# if not _dockerized:
-#     import sys
-
-#     sys.path.insert(
-#         0,
-#         os.path.abspath(
-#             os.path.join(
-#                 os.path.dirname(__file__), "../../../../../scripts/code_generation/"
-#             )
-#         ),
-#     )
-
 
 def _download_file(commit_sha, file, folder_path, save_dir):
     file_url = f"https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/{commit_sha}/{file['path']}"
@@ -98,7 +82,7 @@ if not os.path.lexists(json_can_config_root):
         "json can path does not exist, did you pass correct CAN_NAME")
 
 live_can_db = JsonCanParser(json_can_config_root).make_database()
-board_start_time: datetime.datetime = None
+# board_start_time: datetime.datetime = None
 
 
 def update_can_db(path):
@@ -106,6 +90,6 @@ def update_can_db(path):
     live_can_db = JsonCanParser(path).make_database()
 
 
-def update_base_time(time: datetime.datetime):
-    global board_start_time
-    board_start_time = time
+# def update_base_time(time: datetime.datetime):
+#     global board_start_time
+#     board_start_time = time

@@ -25,8 +25,9 @@ INFLUX_URL: LiteralString = os.environ.get(
 INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG")
 INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN")
 
-
-CAR_NAME: str | None = os.environ.get("CAR_NAME")
+if "CAR_NAME" not in os.environ:
+    raise KeyError("Environment variable 'CAR_NAME' is not set")
+CAR_NAME: str = os.environ["CAR_NAME"]
 
 # booting configure
 ENABLE_MOCK = str2bool(os.environ.get("ENABLE_MOCK"))

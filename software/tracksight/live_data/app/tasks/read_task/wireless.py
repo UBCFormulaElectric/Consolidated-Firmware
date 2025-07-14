@@ -5,7 +5,6 @@ import serial
 from crc import Calculator, Crc32
 from generated import telem_pb2
 from logger import logger
-from middleware.candb import update_base_time
 from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
 

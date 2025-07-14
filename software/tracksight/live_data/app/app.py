@@ -25,6 +25,10 @@ from settings import *
 # register blueprint for python
 app.register_blueprint(api, url_prefix="/api")
 
+@app.route("/", methods=["GET"])
+def index():
+    return "<p>Welcome to the UBC Formula Electric Telemetry Backend</p>"
+
 if DEBUG:
     logging.basicConfig(level=logging.DEBUG)
 else:

@@ -41,6 +41,7 @@ class JsonCanParser:
     _collects_data: Dict[
         str, bool
     ]  # _collects_data[node_name] = True if the node collects data
+    _signals_to_msgs: Dict[str, CanMessage]  # _signals_to_msgs[signal_name] gives the metadata for the message that contains the signal
 
     def __init__(self, can_data_dir: str):
         """
@@ -87,6 +88,7 @@ class JsonCanParser:
         self._enums.update(shared_enums)
         # populate this boy
         self._msgs = {}
+        self._signals_to_msgs = {}
         for node_name in node_names:
             node_specific_enums = parse_node_enum_data(can_data_dir, node_name)
             self._enums.update(node_specific_enums)
@@ -146,6 +148,7 @@ class JsonCanParser:
             forwarding=self._forwarding,
             enums=self._enums,
             collects_data=self._collects_data,
+            signals_to_msgs=self._signals_to_msgs,
         )
 
     # TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
@@ -156,6 +159,7 @@ class JsonCanParser:
         It
         1. adds the msg to the global dump of messages (self._msgs)
         2. adds the msg name to the list of messages broadcasted by the given node (self._nodes[node_name].tx_msg_names)
+        3. adds all the signals into the global dump of signals (self._signals_to_msgs)
 
         Note this function expects a valid CanMessage object
         """
@@ -180,6 +184,14 @@ class JsonCanParser:
 
         # register the message with the database of all messages
         self._msgs[msg.name] = msg
+
+        for signal in msg.signals:
+            # register the signal with the database of all signals
+            if signal.name in self._signals_to_msgs:
+                raise InvalidCanJson(
+                    f"Signal '{signal.name}' is already registered in message '{self._signals_to_msgs[signal.name].name}'"
+                )
+            self._signals_to_msgs[signal.name] = msg
 
     def _add_rx_msg(self, msg_name: str, rx_node_name: str) -> None:
         """

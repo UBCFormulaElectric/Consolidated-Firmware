@@ -342,6 +342,8 @@ class CanDatabase:
     enums: Dict[str, CanEnum]  # enums[enum_name] gives metadata for enum_name
     # collects_data[node_name] is true if this node collects data
     collects_data: Dict[str, bool]
+    # signals_to_msgs[signal_name] gives the message that contains the signal
+    signals_to_msgs: Dict[str, CanMessage]
 
     # this must be global state rather than local (node) state as the common usecase is navigation
     # which requires global information
