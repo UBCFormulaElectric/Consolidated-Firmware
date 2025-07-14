@@ -4,10 +4,15 @@ from typing import LiteralString
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+_DOTENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+if _DOTENV_PATH.exists():
+    load_dotenv(_DOTENV_PATH)
+else:
+    raise FileNotFoundError(f"Environment file not found at {_DOTENV_PATH}")
 
 
-def str2bool(v):
+def str2bool(v: str | None):
+    assert v is not None, "Environment variable cannot be None"
     return v.lower() in ("yes", "true", "t", "1")
 
 

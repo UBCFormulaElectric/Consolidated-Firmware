@@ -6,17 +6,20 @@ import logging
 
 # tasks
 import tasks.influx_logger as InfluxHandler
-from api.http import api
-from api.socket import sio
-
-# apis
-from flask_app import app
-from logger import log_path, logger
-from mDNS import register_mdns_service
-from settings import *
 from tasks.broadcaster import get_websocket_broadcast
 from tasks.read_task.mock import get_mock_task
 from tasks.read_task.wireless import get_wireless_task
+
+# apis
+from flask_app import app
+from api.http import api
+from api.socket import sio
+
+# infra
+from logger import log_path, logger
+from mDNS import register_mdns_service
+from settings import *
+
 
 # register blueprint for python
 app.register_blueprint(api, url_prefix="/api")
@@ -55,17 +58,17 @@ if ENABLE_MOCK:
 broadcast_thread.start()
 influx_logger_task.start()
 
-if (
-    not DEBUG
-):  # only when debug is off because it in debug mode it will create a subprocess and run this again
+if not DEBUG:  # only when debug is off because it in debug mode it will create a subprocess and run this again
     register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
 
-# please be adviced, that the 0.0.0.0 is strictly mandatory
-sio.run(
-    app,
-    debug=bool(DEBUG),
-    # debug=False,
-    host="0.0.0.0",
-    port=5000,
-)
-# on keyboard interrupt, the above handles killing
+try:
+    sio.run(
+        app,
+        debug=bool(DEBUG),
+        # debug=False,
+        host="0.0.0.0", # 0.0.0.0 means to listen on all network interfaces (ethernet, wifi, etc.)
+        port=5000,
+    )
+except KeyboardInterrupt:
+    # on keyboard interrupt, the above handles killing
+    logger.info("Keyboard Interrupt received, shutting down...")
