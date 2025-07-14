@@ -10,7 +10,7 @@ link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 
 import datetime
 from dataclasses import dataclass
-from queue import Queue
+from queue import Empty, Queue
 from threading import Thread
 # types
 from typing import NoReturn
@@ -23,6 +23,8 @@ from logger import logger
 from settings import (CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN,
                       INFLUX_URL)
 from urllib3.exceptions import NewConnectionError
+
+from tasks.stop_signal import should_run
 
 if INFLUX_ORG is None:
     raise Exception("No Influx Organization Provided")
@@ -67,7 +69,8 @@ class InfluxCanMsg:
 influx_queue = Queue()
 
 
-def _log_influx() -> NoReturn:
+def _log_influx() -> None:
+    logger.info("Starting InfluxDB logger thread")
     with influxdb_client.InfluxDBClient(
         url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=False
     ) as _client:
@@ -75,8 +78,11 @@ def _log_influx() -> NoReturn:
             write_options=WriteOptions(
                 write_type=WriteType.synchronous, batch_size=10)
         ) as write_api:
-            while True:
-                signal: InfluxCanMsg = influx_queue.get()
+            while should_run():
+                try:
+                    signal: InfluxCanMsg = influx_queue.get(timeout=1)
+                except Empty:
+                    continue
                 write_api.write(
                     bucket=INFLUX_BUCKET,
                     org=INFLUX_ORG,
@@ -87,6 +93,7 @@ def _log_influx() -> NoReturn:
                     },
                     write_precision=influxdb_client.WritePrecision.MS,
                 )
+    logger.info("InfluxDB logger thread stopped.")
 
 
 def get_influx_logger_task() -> Thread:

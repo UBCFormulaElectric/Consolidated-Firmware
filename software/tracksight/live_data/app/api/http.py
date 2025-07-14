@@ -1,12 +1,11 @@
 import datetime
-from calendar import week, weekday
 from dataclasses import dataclass
 
 import influxdb_client
 
 # api blueprints
 from api.historical_handler import historical_api
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response
 from logger import logger
 from middleware.candb import live_can_db
 from middleware.serial_port import get_serial
@@ -14,11 +13,11 @@ from middleware.serial_port import get_serial
 # ours
 from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
 
-# from api.files_handler import sd_api
+from api.files_handler import sd_api
 
 api = Blueprint("api", __name__)
 api.register_blueprint(historical_api)
-# api.register_blueprint(sd_api)
+api.register_blueprint(sd_api)
 
 
 @api.route("/health", methods=["GET"])

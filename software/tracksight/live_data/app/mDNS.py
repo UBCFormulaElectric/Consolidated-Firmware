@@ -1,8 +1,8 @@
 import socket
 import time
-from xml import dom
-
 from zeroconf import ServiceInfo, Zeroconf
+
+from logger import logger
 
 started = False
 
@@ -29,8 +29,7 @@ def register_mdns_service(ip: str, service_name: str):
     # Register the service with the Zeroconf instance
 
     zeroconf.register_service(info)
-    print(
-        f"Map domain name {domain_name} to {ip}")
+    logger.info(f"Map domain name {domain_name} to {ip}")
 
 
 if __name__ == "__main__":
