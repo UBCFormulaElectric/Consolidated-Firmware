@@ -6,8 +6,6 @@
 
 #define MAX_TASKS 10
 
-static volatile unsigned long ulHighFrequencyTimerTicks = 0;
-
 static TIM_HandleTypeDef *runTimeCounter;
 
 static RunTimeStats runtimestatistics[MAX_TASKS];
@@ -34,7 +32,7 @@ void hw_runTimeStat_hookCallBack(void)
 
     for (uint32_t task = 0; task < arraySize; task++)
     {
-        //get the idle time that we need to calculate the cpu usage associated
+        // get the idle time that we need to calculate the cpu usage associated
         if (runTimeStats[task].xHandle == idleHandle)
         {
             idle_counter = runTimeStats[task].ulRunTimeCounter;
@@ -42,10 +40,11 @@ void hw_runTimeStat_hookCallBack(void)
         else
         {
             runtimestatistics[task].cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
-                                                (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
+                                                     (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
             runtimestatistics[task].stack_usage_max = runTimeStats[task].usStackHighWaterMark;
 
-            runtimestatistics[task].cpu_max_usage = MAX(runtimestatistics[task].cpu_max_usage, runtimestatistics[task].cpu_curr_usage);
+            runtimestatistics[task].cpu_max_usage =
+                MAX(runtimestatistics[task].cpu_max_usage, runtimestatistics[task].cpu_curr_usage);
         }
     }
 }
@@ -58,10 +57,4 @@ void configureTimerForRunTimeStats(void)
 unsigned long getRunTimeCounterValue(void)
 {
     return ulHighFrequencyTimerTicks;
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    UNUSED(htim);
-    ulHighFrequencyTimerTicks++;
 }

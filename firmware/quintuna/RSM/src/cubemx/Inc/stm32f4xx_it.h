@@ -59,8 +59,8 @@ extern "C"
     void I2C1_EV_IRQHandler(void);
     void I2C1_ER_IRQHandler(void);
     void EXTI15_10_IRQHandler(void);
-    void TIM8_UP_TIM13_IRQHandler(void);
     void TIM6_IRQHandler(void);
+    void TIM7_IRQHandler(void);
     void DMA2_Stream0_IRQHandler(void);
     void CAN2_TX_IRQHandler(void);
     void CAN2_RX0_IRQHandler(void);
