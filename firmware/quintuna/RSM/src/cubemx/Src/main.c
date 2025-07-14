@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_usb.h"
+#include "hw_runTimeStat.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -830,6 +831,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     /* USER CODE BEGIN Callback 1 */
 
+    else if (htim->Instance == TIM7)
+    {
+        ulHighFrequencyTimerTick++;
+    }
     /* USER CODE END Callback 1 */
 }
 
