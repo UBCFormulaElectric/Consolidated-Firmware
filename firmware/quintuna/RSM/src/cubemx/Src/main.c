@@ -56,7 +56,7 @@ IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
-TIM_HandleTypeDef htim13;
+TIM_HandleTypeDef htim7;
 
 /* Definitions for Task1KHz */
 osThreadId_t         Task1KHzHandle;
@@ -145,7 +145,7 @@ static void MX_I2C3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_IWDG_Init(void);
-static void MX_TIM13_Init(void);
+static void MX_TIM7_Init(void);
 void        RunTask1KHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTask1Hz(void *argument);
@@ -198,7 +198,7 @@ int main(void)
     MX_TIM4_Init();
     MX_TIM2_Init();
     MX_IWDG_Init();
-    MX_TIM13_Init();
+    MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -626,32 +626,31 @@ static void MX_TIM4_Init(void)
 }
 
 /**
- * @brief TIM13 Initialization Function
+ * @brief TIM7 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_TIM13_Init(void)
+static void MX_TIM7_Init(void)
 {
-    /* USER CODE BEGIN TIM13_Init 0 */
+    /* USER CODE BEGIN TIM7_Init 0 */
 
-    /* USER CODE END TIM13_Init 0 */
+    /* USER CODE END TIM7_Init 0 */
 
-    /* USER CODE BEGIN TIM13_Init 1 */
+    /* USER CODE BEGIN TIM7_Init 1 */
 
-    /* USER CODE END TIM13_Init 1 */
-    htim13.Instance               = TIM13;
-    htim13.Init.Prescaler         = 10 - 1;
-    htim13.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim13.Init.Period            = 960 - 1;
-    htim13.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim13.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim13) != HAL_OK)
+    /* USER CODE END TIM7_Init 1 */
+    htim7.Instance               = TIM7;
+    htim7.Init.Prescaler         = 10 - 1;
+    htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim7.Init.Period            = 960 - 1;
+    htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN TIM13_Init 2 */
+    /* USER CODE BEGIN TIM7_Init 2 */
 
-    /* USER CODE END TIM13_Init 2 */
+    /* USER CODE END TIM7_Init 2 */
 }
 
 /**
