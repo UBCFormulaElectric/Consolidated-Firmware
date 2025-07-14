@@ -30,6 +30,7 @@
 #include "hw_resetReason.h"
 #include "hw_usb.h"
 #include "hw_gpios.h"
+#include "hw_runTimeStat.h"
 
 void tasks_preInit(void)
 {
@@ -47,6 +48,8 @@ void tasks_init(void)
     hw_adcs_chipsInit();
     hw_can_init(&can2);
     ASSERT_EXIT_OK(hw_usb_init());
+
+    hw_runTimeStat_init(&htim7);
 
     const ResetReason reset_reason = hw_resetReason_get();
     app_canTx_RSM_ResetReason_set((CanResetReason)reset_reason);
