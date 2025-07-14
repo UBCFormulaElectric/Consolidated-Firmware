@@ -1,23 +1,23 @@
 import datetime
-from calendar import week, weekday
 from dataclasses import dataclass
 
 import influxdb_client
+
 # api blueprints
 from api.historical_handler import historical_api
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response
 from logger import logger
 from middleware.candb import live_can_db
 from middleware.serial_port import get_serial
-# ours
-from settings import (CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN,
-                      INFLUX_URL)
 
-# from api.files_handler import sd_api
+# ours
+from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
+
+from api.files_handler import sd_api
 
 api = Blueprint("api", __name__)
 api.register_blueprint(historical_api)
-# api.register_blueprint(sd_api)
+api.register_blueprint(sd_api)
 
 
 @api.route("/health", methods=["GET"])
@@ -43,14 +43,12 @@ def get_signal_metadata():
             "enum": signal.enum,
             "tx_node": msg.tx_node_name,
             "cycle_time_ms": msg.cycle_time,
+            "id": msg.id,
+            "msg_name": msg.name,
         }
         for msg in live_can_db.msgs.values()
         for signal in msg.signals
     ]
-
-
-# new api get all emun
-
 
 @api.route("/signal/<signal_name>", methods=["GET"])
 def get_cached_signals(signal_name: str):
@@ -114,7 +112,7 @@ def set_rtc_time(time: RtcTime):
     buffer[8] = time.year
     # write the buffer to the serial port
 
-    ser.write(buffer)
+    # ser.write(buffer)
 
     return {"success": True}, 200
 
