@@ -101,6 +101,7 @@ void tasks_init(void)
     jobs_init();
 
     io_canTx_DAM_Bootup_sendAperiodic();
+    app_canTx_DAM_ResetReason_set((CanResetReason)hw_resetReason_get());
 }
 
 _Noreturn void tasks_runChimera(void)
