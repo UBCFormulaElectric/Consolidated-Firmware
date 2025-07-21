@@ -3,7 +3,7 @@ from threading import Thread
 
 import serial
 from crc import Calculator, Crc32
-from generated import telem_pb2
+from live_data.app.generated import telem_pb2
 from logger import logger
 from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
@@ -114,7 +114,7 @@ def _read_messages(port: str):
     """
     Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
     """
-    ser = get_serial()
+    ser = get_serial(port)
 
     base_time = None
 
@@ -128,7 +128,8 @@ def _read_messages(port: str):
             continue
 
         # CRC check
-        calculator = Calculator(Crc32.CRC32)
+        # this is very interesting because CRC32 is an object which is of the correct type
+        calculator = Calculator(Crc32.CRC32) # type: ignore
         calculated_checksum = (
             calculator.checksum(payload).to_bytes(4, byteorder="big").hex()
         )
