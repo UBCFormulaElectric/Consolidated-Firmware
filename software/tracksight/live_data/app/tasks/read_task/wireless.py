@@ -1,35 +1,24 @@
+"""
+Note: make sure to keep this file updated with the firmware
+"""
+from dataclasses import dataclass
 import datetime
 from threading import Thread
-
+from typing import Optional
 import serial
 from crc import Calculator, Crc32
+
+# ours
 from live_data.app.generated import telem_pb2
 from logger import logger
 from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
+from google.protobuf.message import DecodeError
 
 HEADER_SIZE = 7
 MAGIC = b"\xaa\x55"
 
 MAX_PAYLOAD_SIZE = 52  # this is arbitrary lmao
-
-
-def _make_bytes(message):
-    """
-    Make the byte array out of the messages array.
-    """
-    return bytearray(
-        [
-            message.message_0,
-            message.message_1,
-            message.message_2,
-            message.message_3,
-            message.message_4,
-            message.message_5,
-            message.message_6,
-            message.message_7,
-        ]
-    )
 
 
 def find_magic_in_buffer(buffer, magic=MAGIC):  # do i need to set magic here
@@ -109,6 +98,40 @@ def read_packet(ser: serial.Serial):
 
         return packet, payload_length, expected_crc
 
+@dataclass
+class TelemetryMessage:
+    can_id: int
+    payload: bytes
+    timestamp: datetime.datetime
+
+def parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
+    """
+    We contain all the nonsense protobuf disgusting types here
+    and make a nice interface for the rest of the code.
+    """
+    try:
+        message_received = telem_pb2.TelemMessage() # type: ignore
+        message_received.ParseFromString(payload) # type: ignore
+    except DecodeError as e:
+        logger.error(f"Failed to parse telemetry message: {e}")
+        return None
+    
+    return TelemetryMessage(
+        can_id=message_received.can_id, # type: ignore
+        payload=bytearray(
+            [
+                message_received.message_0, # type: ignore
+                message_received.message_1, # type: ignore
+                message_received.message_2, # type: ignore
+                message_received.message_3, # type: ignore
+                message_received.message_4, # type: ignore
+                message_received.message_5, # type: ignore
+                message_received.message_6, # type: ignore
+                message_received.message_7, # type: ignore
+            ]
+        ),
+        timestamp=message_received.time_stamp # type: ignore
+    )
 
 def _read_messages(port: str):
     """
@@ -142,11 +165,8 @@ def _read_messages(port: str):
             )
             continue
 
-        try:
-            message_received = telem_pb2.TelemMessage()
-            message_received.ParseFromString(payload)
-        except Exception as e:
-            logger.error(f"Error decoding protobuf message: {e}")
+        message_received = parse_telem_message(payload)
+        if message_received is None:
             continue
 
         # decode for start_time messages, don't push this to the queue
@@ -154,13 +174,13 @@ def _read_messages(port: str):
             # parse start_time from data if this pacakage is correct
             # print(message_received)
             base_time = datetime.datetime(
-                year=message_received.message_0
+                year=message_received.payload[0]
                 + 2000,  # need to offset this as on firmware side it is 0-99
-                month=message_received.message_1,
-                day=message_received.message_2,
-                hour=message_received.message_3,
-                minute=message_received.message_4,
-                second=message_received.message_5,
+                month=message_received.payload[1],
+                day=message_received.payload[2],
+                hour=message_received.payload[3],
+                minute=message_received.payload[4],
+                second=message_received.payload[5],
             ).astimezone(datetime.timezone.utc)
             logger.info(f"Base time recieved: {base_time}")
             continue
@@ -171,10 +191,9 @@ def _read_messages(port: str):
             continue
         # print(CanMsg(message_received.can_id, _make_bytes(message_received), base_time))
         timestamp = calculate_message_timestamp(
-            message_received.time_stamp, base_time)
+            message_received.timestamp, base_time)
         can_msg_queue.put(
-            CanMsg(message_received.can_id, _make_bytes(
-                message_received), timestamp)
+            CanMsg(message_received.can_id, message_received.payload, timestamp)
         )
 
 

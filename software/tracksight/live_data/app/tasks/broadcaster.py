@@ -16,14 +16,14 @@ from tasks.influx_logger import InfluxCanMsg, influx_queue
 from tasks.stop_signal import should_run
 
 
-@dataclass
+@dataclass(frozen=True)
 class CanMsg:
     can_id: int
-    can_value: bytearray
+    can_value: bytes
     can_timestamp: datetime
 
 
-@dataclass
+@dataclass(frozen=True)
 class Signal:
     name: str
     value: Any
