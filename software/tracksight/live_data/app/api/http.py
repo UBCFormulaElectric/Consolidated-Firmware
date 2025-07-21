@@ -1,17 +1,13 @@
 import datetime
 from dataclasses import dataclass
 
-import influxdb_client
-
 # api blueprints
 from api.historical_handler import historical_api
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, jsonify
+from settings import SERIAL_PORT
 from logger import logger
 from middleware.candb import live_can_db
 from middleware.serial_port import get_serial
-
-# ours
-from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
 
 from api.files_handler import sd_api
 
@@ -55,18 +51,6 @@ def get_cached_signals(signal_name: str):
     """
     Gets the signal name data (from the last 5 minutes) from the influx DB
     """
-    # query for the signal on the CURRENT LIVE CAR_live for all data points in the last prev_time
-    # with influxdb_client.InfluxDBClient(
-    #     url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=False
-    # ) as client:
-    #     query = f"""from(bucket:"{INFLUX_BUCKET}")
-    #         |> range(start: -1m)
-    #         |> filter(fn: (r) => r._measurement == "{CAR_NAME}_live" and r._field == "{signal_name}")
-    #         |> tail(n: {6000})"""
-    #     table = client.query_api().query(query)
-    # return jsonify(
-    #     table.to_json(columns=["_time", "_value"], indent=1)
-    # ), 200
     msg = live_can_db.signals_to_msgs.get(signal_name)
     if msg is None:
         return jsonify({"error": "Signal not found"}), 404
@@ -107,7 +91,7 @@ def set_rtc_time(time: RtcTime):
     Sets the RTC time
     """
 
-    ser = get_serial()
+    ser = get_serial(SERIAL_PORT)
     if ser is None:
         logger.error("Serial port not found, cannot set RTC time")
         return {"success": False, "error": "Serial port not found"}, 500
