@@ -48,25 +48,28 @@ static ActiveDifferential_Outputs activeDifferentialOutputs;
 static bool                       regen_enabled = true;
 static PowerLimitingInputs        powerLimitingInputs;
 
-void app_regen_run(const float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
+TorqueAllocationOutputs app_regen_run(const float accelerator_pedal_percentage)
 {
+    TorqueAllocationOutputs torqueOutputToMotors;
     // pedal percentage = [-1.0f, 0.0f] for deceleration range
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
     const bool regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
     if (regen_available)
     {
-        computeRegenTorqueRequest(&activeDifferentialInputs, &regenAttributes, torqueOutputToMotors);
+        computeRegenTorqueRequest(&activeDifferentialInputs, &regenAttributes, &torqueOutputToMotors);
     }
     else
     {
-        torqueOutputToMotors->front_left_torque  = 0.0f;
-        torqueOutputToMotors->front_right_torque = 0.0f;
-        torqueOutputToMotors->rear_left_torque   = 0.0f;
-        torqueOutputToMotors->rear_right_torque  = 0.0f;
+        torqueOutputToMotors.front_left_torque  = 0.0f;
+        torqueOutputToMotors.front_right_torque = 0.0f;
+        torqueOutputToMotors.rear_left_torque   = 0.0f;
+        torqueOutputToMotors.rear_right_torque  = 0.0f;
     }
 
     app_canTx_VC_RegenEnabled_set(regen_available);
     app_canAlerts_VC_Info_RegenNotAvailable_set(!regen_available);
+
+    return torqueOutputToMotors;
 }
 
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
