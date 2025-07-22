@@ -10,6 +10,7 @@ from crc import Calculator, Crc32
 
 # ours
 from generated import telem_pb2
+from tasks.stop_signal import should_run
 from logger import logger
 from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
@@ -147,7 +148,7 @@ def _read_messages(port: str):
 
     base_time = None
 
-    while True:
+    while should_run():
         payload = _read_packet(ser)
 
         message_received = _parse_telem_message(payload)

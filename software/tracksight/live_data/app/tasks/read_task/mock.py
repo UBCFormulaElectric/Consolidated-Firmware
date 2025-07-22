@@ -3,20 +3,18 @@ import os
 import time
 from threading import Thread
 
-# types
-from typing import NoReturn
-
 # ours
 from middleware.candb import live_can_db
 from tasks.broadcaster import CanMsg, can_msg_queue
+from tasks.stop_signal import should_run
 
 
 
-def read_messages_from_file() -> NoReturn:
+def read_messages_from_file():
     """
     Read messages from a file to simulate receiving from port. Used for testing front end
     """
-    while True:
+    while should_run():
         # Read the CSV file into a DataFrame
         # Iterate over each row (simulate message reception over time)
         # for _i, row in df.iterrows():
