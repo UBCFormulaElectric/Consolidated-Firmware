@@ -6,14 +6,10 @@ from threading import Thread
 # types
 from typing import NoReturn
 
-import pandas as pd
+# ours
 from middleware.candb import live_can_db
 from tasks.broadcaster import CanMsg, can_msg_queue
 
-# ours
-# we pass messages to the socket broadcaster
-
-#
 
 
 def read_messages_from_file() -> NoReturn:

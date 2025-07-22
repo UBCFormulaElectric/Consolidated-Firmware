@@ -60,6 +60,9 @@ def create_app():
     if ENABLE_MOCK and ENABLE_WIRELESS:
         logger.warning("Both mock and wireless tasks are enabled. This may lead to unexpected behavior.")
 
+    if not ENABLE_MOCK and not ENABLE_WIRELESS:
+        raise RuntimeError("No data source enabled. Please enable either mock or wireless data source.")
+
     # Reading Thread
     ws_broadcast_thread = get_websocket_broadcast()
     ws_broadcast_thread.start()

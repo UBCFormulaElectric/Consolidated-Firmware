@@ -36,10 +36,8 @@ def calculate_message_timestamp(message_timestamp, base_time):
 
     return timestamp
 
-# TODO I wonder if it's possible to drop packets between ser.read
-#   namely if we can ser.read, then a packet comes and goes, and we ser.read again and we miss the packet
-#   perhaps the solution is to have a thread -> queue -> read queue
-#   in that case, replace all ser.read with queue.get
+# https://pyserial.readthedocs.io/en/latest/pyserial_api.html#:~:text=The%20network%20layer%20also%20has%20buffers.%20This%20means%20that%20flush()%2C%20reset_input_buffer()%20and%20reset_output_buffer()%20may%20work%20with%20additional%20delay.%20Likewise%20in_waiting%20returns%20the%20size%20of%20the%20data%20arrived%20at%20the%20objects%20internal%20buffer%20and%20excludes%20any%20bytes%20in%20the%20network%20buffers%20or%20any%20server%20side%20buffer.
+# TLDR is that there are internal buffers for read/write, so we won't drop packets
 def _read_packet(ser: serial.Serial):
     """
     Read a packet from the serial port.
@@ -50,15 +48,21 @@ def _read_packet(ser: serial.Serial):
     """
     buffer = bytearray()
     while True:
+        # merk the first byte automatically
+        # this is because when we come around it generally is because it was wrong
+        buffer = buffer[1:]
+
         # find the magic bytes
         while buffer[0:2] != MAGIC:
             buffer = buffer [1:]  # remove the first byte if it is not magic
-            if len(buffer) < 2: buffer += ser.read(1)
+            if len(buffer) < 2: buffer += ser.read(HEADER_SIZE - len(buffer))
+            # after this read, len(buffer) == HEADER_SIZE
+            # this optimization allows us to not read the serial port less
+            # while remaining under the maximum amount of bytes we are allowed to keep
         assert buffer[0:2] == MAGIC, "Buffer should contain the magic bytes"
 
         # wait for full header
-        if len(buffer) < HEADER_SIZE:
-            buffer += ser.read(HEADER_SIZE - len(buffer))  # magic already populated
+        if len(buffer) < HEADER_SIZE: buffer += ser.read(HEADER_SIZE - len(buffer))
         assert len(buffer) >= HEADER_SIZE, "Buffer should contain the full header of 7 bytes"
 
         # parse remainder of header
@@ -67,7 +71,6 @@ def _read_packet(ser: serial.Serial):
             # note this means that magic is found, but the payload length is invalid
             # this is a good protection to make sure we don't overread the buffer and have to drop bytes
             logger.error(f"Payload length {payload_length} is too large")
-            buffer = buffer[1:]
             continue # restart
 
 
@@ -90,7 +93,6 @@ def _read_packet(ser: serial.Serial):
         )  # Updated to read 32-bit CRC and cast to hex
         if expected_crc != calculated_checksum:
             logger.error(f"CRC mismatch: computed {calculated_checksum}, expected {expected_crc}")
-            buffer = buffer[1:]
             continue # restart
 
         if len(buffer) > total_length:
