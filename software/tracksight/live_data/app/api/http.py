@@ -86,12 +86,12 @@ class RtcTime:
     second: int  # 0-59
 
 
-def set_rtc_time(time: RtcTime):
+def set_rtc_time(serial_port: str, time: RtcTime):
     """
     Sets the RTC time
     """
 
-    ser = get_serial(SERIAL_PORT)
+    ser = get_serial(serial_port)
     if ser is None:
         logger.error("Serial port not found, cannot set RTC time")
         return {"success": False, "error": "Serial port not found"}, 500
@@ -125,6 +125,10 @@ def api_set_rtc_time():
     """
     Sets the RTC time
     """
+    if SERIAL_PORT is None:
+        logger.error("Serial port not configured, cannot set RTC time")
+        return {"success": False, "error": "Serial port not configured"}, 500 
+
     # get the system time
     time = datetime.datetime.now()
 
@@ -140,4 +144,4 @@ def api_set_rtc_time():
     print(time)
 
     # set the time
-    return set_rtc_time(rtcTime)
+    return set_rtc_time(SERIAL_PORT, rtcTime)

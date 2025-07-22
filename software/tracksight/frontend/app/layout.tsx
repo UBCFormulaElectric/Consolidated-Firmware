@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
+import './globals.css'
 import { ThemeProvider } from "@/components/shared/ThemeProvider"
 import { SignalProvider } from "@/lib/contexts/SignalContext"
 import { PausePlayProvider } from "@/components/shared/PausePlayControl"
@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Tracksight Dashboard",
   description: "Monitoring and visualization dashboard for system data",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
