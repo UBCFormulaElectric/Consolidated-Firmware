@@ -2,7 +2,7 @@ import {
   getAlertSignalType,
   useSignals,
 } from "@/lib/contexts/SignalContext";
-import { formatWithMs } from "@/lib/utils/dateformat";
+import { formatWithMs } from "@/lib/dateformat";
 import { AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { useEffect, useState } from "react";
 

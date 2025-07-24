@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { DataPoint, DEBUG, DEFAULT_MAX_DATA_POINTS, SignalDataStore } from "./SignalConfig";
+import { DataPoint, DEBUG, DEFAULT_MAX_DATA_POINTS, SignalDataStore } from "../SignalConfig";
 
 export function useSignalData() {
 	// Optimized data storage

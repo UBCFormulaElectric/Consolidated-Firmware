@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef } from "react";
 import { Socket } from "socket.io-client";
-import { DEBUG } from "./SignalConfig";
+import { DEBUG } from "../SignalConfig";
 
 export function useSubscribers(socket: Socket, pruneSignalData: (name: string) => void, clearAllData: () => void) {
 	const signalSubscriberCount = useRef<Record<string, number>>({});

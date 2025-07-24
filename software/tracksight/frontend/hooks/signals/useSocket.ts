@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { BACKEND_URL, DEBUG, MAX_RECONNECT_ATTEMPTS } from "./SignalConfig";
+import { BACKEND_URL, DEBUG, MAX_RECONNECT_ATTEMPTS } from "../SignalConfig";
 
 export function useSocket() {
 	// Socket stored in ref to prevent re-initialization on dependency changes

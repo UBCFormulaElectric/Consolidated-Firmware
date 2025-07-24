@@ -25,9 +25,9 @@ import {
 } from "./SignalConfig";
 
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { useSocket } from "./socket";
-import { useSignalData } from "./useSignalData";
-import { useSubscribers } from "./useSubscribers";
+import { useSocket } from "./signals/useSocket";
+import { useSignalData } from "./signals/useSignalData";
+import { useSubscribers } from "./signals/useSubscribers";
 
 export const signalPatterns = {
   warning: /^.+_Warning_(?!.*Count$).+$/, // Warning messages (not counts)
