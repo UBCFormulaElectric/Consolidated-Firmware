@@ -37,8 +37,10 @@ if CAR_NAME is None:
 def setup():
     # Checks if the vehicle bucket exists, and if not, creates it
     logger.info(
-        f"Connecting to InfluxDB database at '{INFLUX_URL}' with token '{INFLUX_TOKEN}'."
+        f"Connecting to InfluxDB database at '{INFLUX_URL}' with token '{INFLUX_TOKEN}' and org '{INFLUX_ORG}'."
     )
+    if not INFLUX_ORG:
+        raise ValueError("INFLUX_ORG must be set in the environment variables.")
     with influxdb_client.InfluxDBClient(
         url=INFLUX_URL,
         token=INFLUX_TOKEN,

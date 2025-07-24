@@ -4,7 +4,7 @@
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
-import { formatWithMs } from "@/lib/utils/dateformat";
+import { formatWithMs } from "@/lib/dateformat";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
 
