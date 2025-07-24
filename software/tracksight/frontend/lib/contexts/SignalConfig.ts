@@ -2,9 +2,6 @@
 export enum SignalType {
   Numerical = "numerical",
   Enumeration = "enumeration",
-  Any = "any", // For signals that could be either
-  Warning = "Warning",
-  WarningCount = "WarningCount",
 }
 
 // Signal metadata interface
@@ -14,6 +11,10 @@ export interface SignalMeta {
   cycle_time_ms?: number;
   msg_id: number;
   msg_name: string;
+  enum?: {
+    name: string,
+    items: Record<string, string>
+  };
 }
 
 // Data point interface

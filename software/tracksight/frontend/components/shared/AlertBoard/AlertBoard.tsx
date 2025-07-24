@@ -1,5 +1,5 @@
 import {
-  getSignalType as getAlertSignalType,
+  getAlertSignalType,
   useSignals,
 } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/utils/dateformat";
@@ -36,7 +36,7 @@ export default function AlertBoard() {
     for (const point of data) {
       // Skip points without a name
       if (!point.name) continue;
-      
+
       const signalType = getAlertSignalType(point.name);
       if (signalType?.endsWith("Count")) {
         newCounts[point.name] = Number(point.value) || 0;
@@ -182,20 +182,18 @@ export default function AlertBoard() {
             alerts.map((alert) => (
               <div
                 key={alert.name}
-                className={`px-4 py-3 transition-colors ${
-                  alert.active
-                    ? "bg-white hover:bg-gray-50"
-                    : "bg-gray-100 text-gray-400 italic"
-                }`}
+                className={`px-4 py-3 transition-colors ${alert.active
+                  ? "bg-white hover:bg-gray-50"
+                  : "bg-gray-100 text-gray-400 italic"
+                  }`}
               >
                 <div className="flex justify-between items-start">
                   <div>
                     <p
-                      className={`${
-                        alert.active
-                          ? "text-gray-900"
-                          : "text-gray-400 line-through"
-                      }`}
+                      className={`${alert.active
+                        ? "text-gray-900"
+                        : "text-gray-400 line-through"
+                        }`}
                     >
                       {alert.name} ({counts[`${alert.name}Count`] ?? 0})
                     </p>
