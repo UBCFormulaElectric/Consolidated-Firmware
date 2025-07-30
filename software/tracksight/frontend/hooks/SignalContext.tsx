@@ -1,7 +1,6 @@
 // Centralized subscription management - single effect to handle all subscription changes
 // TODO unsubscribe all signals for sockets which are disconnected on backend
-// TODO handle pause
-// TODO subscribe when activeSignals change w/diff algo or callbacks :)
+// TODO backend implement pause
 // TODO all alerts must be broadcast to all listeners
 
 "use client";
