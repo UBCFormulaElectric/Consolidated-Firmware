@@ -116,7 +116,7 @@ def dump_file(sd_device: str, file_id: str):
         })
         historical_db.commit()
 
-    return None, 200
+    return "", 200
 
 
 @sd_api.route("/sd/<sd_device>/files/<file_id>/get", methods=["GET"])
