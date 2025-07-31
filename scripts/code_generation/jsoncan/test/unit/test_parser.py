@@ -1,7 +1,7 @@
 import unittest
 from typing import Set
 
-from ...src.can_database import All, CanMessage
+from ...src.can_database import AllRxMsgs, CanMessage
 from .fixture import CDBTests
 
 
@@ -120,7 +120,7 @@ class ConsistencyCheckTests(CDBTests):
                 self.assertTrue(node.name in self.cdb_valid.buses[bus_name].node_names)
 
             # check if the rx message are in the msg database
-            if not isinstance(node.rx_msgs_names, All):
+            if not isinstance(node.rx_msgs_names, AllRxMsgs):
                 for msg_name in node.rx_msgs_names:
                     self.assertTrue(msg_name in self.cdb_valid.msgs.keys())
 
@@ -183,7 +183,7 @@ class ConsistencyCheckTests(CDBTests):
                     continue
 
                 # skip if the rx is configured as all
-                if isinstance(node.rx_msgs_names, All):
+                if isinstance(node.rx_msgs_names, AllRxMsgs):
                     continue
 
                 self.assertTrue(alert_message.name in node.rx_msgs_names)

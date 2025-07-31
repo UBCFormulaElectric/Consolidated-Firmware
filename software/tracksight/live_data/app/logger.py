@@ -3,7 +3,7 @@ import os
 import logging
 
 # Setup logging.
-def _setupLogger():
+def _setupLogger(level = logging.DEBUG) -> tuple[logging.Logger, str]:
 	time_now = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
 	app_dir = os.path.dirname(os.path.abspath(__file__))
 	log_path = os.path.join(app_dir, "..", "logs", f"Live-Data--{time_now}.log")
@@ -11,6 +11,8 @@ def _setupLogger():
 		os.makedirs(os.path.dirname(log_path))
 
 	logger = logging.getLogger(__name__)
+
+	logger.handlers.clear()
 
 	# Create a file handler
 	file_handler = logging.FileHandler(log_path)
@@ -23,6 +25,8 @@ def _setupLogger():
 	consoleHandler = logging.StreamHandler()
 	consoleHandler.setFormatter(formatter)
 	logger.addHandler(consoleHandler)
+
+	logger.setLevel(level)  # Set the logging level to DEBUG
 
 	return logger, log_path
 

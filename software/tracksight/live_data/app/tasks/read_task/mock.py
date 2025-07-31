@@ -1,19 +1,20 @@
 import datetime
-import os
 import time
 from threading import Thread
+from random import random 
 
 # ours
-from middleware.candb import live_can_db
+from logger import logger
+
 from tasks.broadcaster import CanMsg, can_msg_queue
 from tasks.stop_signal import should_run
-
-
+from middleware.candb import live_can_db
 
 def read_messages_from_file():
     """
     Read messages from a file to simulate receiving from port. Used for testing front end
     """
+    logger.info("Starting mock read task")
     while should_run():
         # Read the CSV file into a DataFrame
         # Iterate over each row (simulate message reception over time)
@@ -25,41 +26,49 @@ def read_messages_from_file():
         #     # sleep before emitting next message
         #     time.sleep(1)
 
-        for msg_name, msg_obj in live_can_db.msgs.items():
-            can_msg_queue.put(
-                CanMsg(412, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
-            can_msg_queue.put(
-                CanMsg(500, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
-            # can_msg_queue.put(
-            #     CanMsg(501, bytearray(os.urandom(8)), datetime.datetime.now())
-            # )
-            # can_msg_queue.put(
-            #     CanMsg(502, bytearray(os.urandom(8)), datetime.datetime.now())
-            # )
+        bms_ts_msg = live_can_db.get_message_by_id(412)
+        assert bms_ts_msg is not None, "BMS Tractive System message not found"
+        payload = {
+            signal.name: round(random() * (signal.max_val - signal.min_val) + signal.min_val) for signal in bms_ts_msg.signals
+        }
+        bms_ts_payload = bms_ts_msg.pack(payload)
+        can_msg_queue.put(
+            CanMsg(412, bms_ts_payload, datetime.datetime.now()) # BMS Tractive System
+        )
 
-            # can_msg_queue.put(
-            #     CanMsg(503, bytearray(os.urandom(8)), datetime.datetime.now())
-            # )
+        vc_vitals_msg = live_can_db.get_message_by_id(500)
+        assert vc_vitals_msg is not None, "VC Vitals message not found"
+        vc_vitals_payload = vc_vitals_msg.pack({
+            signal.name: round(random() * (signal.max_val - signal.min_val) + signal.min_val) for signal in vc_vitals_msg.signals
+        })
+        can_msg_queue.put(
+            CanMsg(500, vc_vitals_payload, datetime.datetime.now()) # VC Vitals
+        )
+        # can_msg_queue.put(
+        #     CanMsg(501, bytearray(os.urandom(8)), datetime.datetime.now())
+        # )
+        # can_msg_queue.put(
+        #     CanMsg(502, bytearray(os.urandom(8)), datetime.datetime.now())
+        # )
 
-            # can_msg_queue.put(
-            #     CanMsg(504, bytearray(os.urandom(8)), datetime.datetime.now())
-            # )
-            # can_msg_queue.put(
-            #     CanMsg(505, bytearray(os.urandom(8)), datetime.datetime.now())
-            # )
-            # can_msg_queue.put(
-            #     CanMsg(506, bytearray(os.urandom(8)), datetime.datetime.now())
-            # )
-            can_msg_queue.put(
-                CanMsg(233, bytearray(os.urandom(8)), datetime.datetime.now())
-            )
+        # can_msg_queue.put(
+        #     CanMsg(503, bytearray(os.urandom(8)), datetime.datetime.now())
+        # )
 
-
-
-            time.sleep(0.1)
-
+        # can_msg_queue.put(
+        #     CanMsg(504, bytearray(os.urandom(8)), datetime.datetime.now())
+        # )
+        # can_msg_queue.put(
+        #     CanMsg(505, bytearray(os.urandom(8)), datetime.datetime.now())
+        # )
+        # can_msg_queue.put(
+        #     CanMsg(506, bytearray(os.urandom(8)), datetime.datetime.now())
+        # )
+        # can_msg_queue.put(
+        #     CanMsg(233, bytearray(os.urandom(8)), datetime.datetime.now()) # VC ConnectorBoardEfuse
+        # )
+        time.sleep(0.1)
+    logger.info("Mock read task stopped")
 
 def get_mock_task() -> Thread:
     # if data_file is None:

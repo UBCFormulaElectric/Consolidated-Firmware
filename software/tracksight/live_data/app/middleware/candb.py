@@ -37,7 +37,7 @@ def fetch_jsoncan_configs(commit_sha: str, force=False) -> str:
     if _cached_commit_sha == commit_sha and os.path.exists(save_dir) and not force:
         # this is an important optimization as this is the hot branch
         # namely, every time a commit info message comes in, this runs
-        return
+        return save_dir
 
     folder_path = f"can_bus/{_car}"
     url = f"https://api.github.com/repos/UBCFormulaElectric/Consolidated-Firmware/git/trees/{commit_sha}?recursive=1"

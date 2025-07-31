@@ -68,7 +68,7 @@ typedef enum
     {% for key, value in enum.items.items() -%}
     {{ value }} = {{ key }},
     {% endfor -%}
-    NUM_{{ enum.scremming_snake_name() }}_CHOICES = {{ enum.items.items() | length }},
+    NUM_{{ enum.screaming_snake_name() }}_CHOICES = {{ enum.items.items() | length }},
 } {{ enum.name }};
 {% endfor %}
 

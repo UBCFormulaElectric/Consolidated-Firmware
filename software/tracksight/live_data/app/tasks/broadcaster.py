@@ -11,7 +11,7 @@ from logger import logger
 
 # ours
 from middleware.candb import live_can_db
-from subtable import SUB_TABLE
+from api.subtable_handler import SUB_TABLE
 from tasks.influx_logger import InfluxCanMsg, influx_queue
 from tasks.stop_signal import should_run
 
@@ -69,8 +69,11 @@ def _send_data():
         #             f"Could not fetch new commit information for quintuna at commit {canmsg.can_value.hex()}"
         #         )
         #         continue  # do not continue to parse this message
-
-        for signal in live_can_db.unpack(canmsg.can_id, canmsg.can_value):
+        msg = live_can_db.get_message_by_id(canmsg.can_id)
+        if msg is None:
+            logger.warning(f"Received CAN message with unknown ID {canmsg.can_id}. Skipping.")
+            continue
+        for signal in msg.unpack(canmsg.can_value):
             for sid, signal_names in SUB_TABLE.items():
                 if signal.name in signal_names:
                     try:

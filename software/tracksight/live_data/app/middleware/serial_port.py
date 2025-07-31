@@ -1,6 +1,6 @@
 from typing import Dict
 import serial
-from settings import ENABLE_WIRELESS
+from settings import DATA_SOURCE
 
 _serial_port_map: Dict[str, serial.Serial] = {}
 
@@ -10,7 +10,7 @@ def get_serial(serial_port: str):
     If the serial port is not enabled or not set, returns None.
     Note that once a serial port is opened, it will be reused for subsequent calls. This may result in stale ports
     """
-    if not ENABLE_WIRELESS:
+    if DATA_SOURCE != "WIRELESS":
         raise ValueError("Wireless is not enabled. Cannot get serial port.")
 
     if serial_port not in _serial_port_map:

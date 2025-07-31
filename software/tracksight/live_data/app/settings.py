@@ -30,8 +30,7 @@ if "CAR_NAME" not in os.environ:
 CAR_NAME: str = os.environ["CAR_NAME"]
 
 # booting configure
-ENABLE_MOCK = str2bool(os.environ.get("ENABLE_MOCK"))
-ENABLE_WIRELESS = str2bool(os.environ.get("ENABLE_WIRELESS"))
+DATA_SOURCE = os.environ.get("DATA_SOURCE", "mock").upper()
 
 SERIAL_PORT = os.environ.get("SERIAL_PORT")
 DATA_FILE = os.environ.get("DATA_FILE")

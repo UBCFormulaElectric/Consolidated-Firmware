@@ -35,7 +35,7 @@ inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, cons
     file->cache_data        = (LogFsBlock_Data *)cfg->cache;
     file->is_open           = false;
     file->flags             = flags;
-    strcpy(file->path, cfg->path);
+    strcpy_s(file->path, sizeof(file->path), cfg->path);
 }
 
 static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg)
@@ -52,7 +52,7 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, LogFsFileCfg *cf
     fs->cache_file->prev_head_addr = LOGFS_INVALID_BLOCK;
     fs->cache_file->metadata_addr  = new_metadata_block;
     fs->cache_file->next_file_addr = LOGFS_INVALID_BLOCK;
-    strcpy(fs->cache_file->path, cfg->path);
+    strcpy_s(fs->cache_file->path, sizeof(fs->cache_file->path), cfg->path);
     disk_newPair(&file->file_pair, new_file_block);
     RET_ERR(disk_writePair(fs, &file->file_pair, false));
 
@@ -479,7 +479,7 @@ LogFsErr logfs_firstPath(LogFs *fs, LogFsPath *path)
 
     path->file_addr      = LOGFS_ORIGIN;
     path->next_file_addr = fs->cache_file->next_file_addr;
-    strcpy(path->path, fs->cache_file->path);
+    strcpy_s(path->path, sizeof(path->path), fs->cache_file->path);
     return LOGFS_ERR_OK;
 }
 
@@ -502,6 +502,6 @@ LogFsErr logfs_nextPath(LogFs *fs, LogFsPath *path)
 
     path->file_addr      = path->next_file_addr;
     path->next_file_addr = fs->cache_file->next_file_addr;
-    strcpy(path->path, fs->cache_file->path);
+    strcpy_s(path->path, sizeof(path->path), fs->cache_file->path);
     return LOGFS_ERR_OK;
 }

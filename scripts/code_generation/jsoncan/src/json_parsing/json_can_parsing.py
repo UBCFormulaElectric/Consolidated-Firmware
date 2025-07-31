@@ -8,7 +8,8 @@ from __future__ import annotations
 from typing import Dict, List, Set
 
 # types to populate up
-from ..can_database import CanDatabase, CanEnum, CanMessage, CanNode, All, BusForwarder
+from ..can_database import CanDatabase, CanMessage, CanNode, AllRxMsgs, BusForwarder
+from ..can_signals import CanEnum
 
 from .parse_alert import parse_alert_data, CanAlert
 from .parse_bus import CanBus, parse_bus_data
@@ -102,7 +103,7 @@ class JsonCanParser:
             if type(bus_rx_msgs_json) == str:
                 assert bus_rx_msgs_json == "all", "Schema check has failed"
                 # if "all" in messages then add all messages on all busses
-                self._nodes[rx_node_name].rx_msgs_names = All()
+                self._nodes[rx_node_name].rx_msgs_names = AllRxMsgs()
             else:
                 assert type(bus_rx_msgs_json) == list, "Schema check has failed"
                 for msg_name in bus_rx_msgs_json:
@@ -207,7 +208,7 @@ class JsonCanParser:
         """
         # if we are already listening to all, we don't need to register this specific message
         # in particular, this is useful for alerts which will blindly make everyone accept them
-        if type(self._nodes[rx_node_name].rx_msgs_names) == All:
+        if type(self._nodes[rx_node_name].rx_msgs_names) == AllRxMsgs:
             return
 
         # Check if this message is defined
@@ -222,7 +223,8 @@ class JsonCanParser:
                 f"{rx_node_name} cannot both transmit and receive {msg_name}"
             )
 
-        if msg_name in self._nodes[rx_node_name].rx_msgs_names:
+        # we already check if self._nodes[rx_node_name].rx_msgs_names is AllRxMsgs
+        if msg_name in self._nodes[rx_node_name].rx_msgs_names: # type: ignore
             raise InvalidCanJson(
                 f"Message {msg_name} is already registered to be received by node {rx_node_name}"
             )
@@ -232,7 +234,8 @@ class JsonCanParser:
                 f"Message '{msg_name}' is an FD message, but an RX node '{rx_node_name}' isn't FD-capable and so can't receive it!"
             )
 
-        self._nodes[rx_node_name].rx_msgs_names.add(msg_name)
+        # we already check if self._nodes[rx_node_name].rx_msgs_names is AllRxMsgs
+        self._nodes[rx_node_name].rx_msgs_names.add(msg_name) # type: ignore
 
     # def _consistency_check(self) -> None:
     #     # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other
