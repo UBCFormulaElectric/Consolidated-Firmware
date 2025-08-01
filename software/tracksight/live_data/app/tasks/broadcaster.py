@@ -12,7 +12,7 @@ from middleware.candb import live_can_db
 from api.subtable_handler import SUB_TABLE
 from tasks.influx_logger import InfluxCanMsg, influx_queue
 from tasks.stop_signal import should_run
-
+from sio import sio
 
 @dataclass(frozen=True)
 class CanMsg:
@@ -75,15 +75,15 @@ def _send_data():
             for sid, signal_names in SUB_TABLE.items():
                 if signal.name in signal_names:
                     try:
-                        # sio.emit(
-                        #     "data",
-                        #     {
-                        #         "name": signal.name,
-                        #         "value": signal.value,
-                        #         "timestamp": canmsg.can_timestamp.isoformat(),
-                        #     },
-                        #     to=sid,
-                        # )
+                        sio.emit(
+                            "data",
+                            {
+                                "name": signal.name,
+                                "value": signal.value,
+                                "timestamp": canmsg.can_timestamp.isoformat(),
+                            },
+                            to=sid,
+                        )
                         logger.info(f"Data sent to sid {sid}")
                     except Exception as e:
                         logger.error(f"Emit failed for sid {sid}: {e}")

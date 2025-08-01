@@ -1,6 +1,10 @@
 """
 Entrypoint to the telemetry backend
 """
+print("Starting app...")
+import time
+
+import_start_time = time.time()
 from settings import *
 from logger import logger
 
@@ -8,7 +12,6 @@ from flask_app import app
 from sio import sio
 
 from threading import Thread
-import time
 from typing import Optional
 
 # tasks
@@ -26,6 +29,12 @@ from api.http import http
 from api.subtable_handler import sub_handler
 
 from mDNS import register_mdns_service
+
+# just to make sure you have it, otherwise it throws weird assertion errors when you try to handle the disconnect of sockets
+import gevent
+
+import_end_time = time.time()
+logger.debug(f"Importing took {import_end_time - import_start_time:.2f} seconds")
 
 # this thread populates the message queue(s) with real data from the car
 wireless_thread: Optional[Thread] = None
