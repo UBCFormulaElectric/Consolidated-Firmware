@@ -6,10 +6,10 @@ from logger import logger
 conn = sqlite3.connect(":memory:") 
 
 conn.execute('''CREATE TABLE subtable (
-	sid STRING PRIMARY KEY,
-	signal_name STRING NOT NULL
+	sid STRING NOT NULL,
+	signal_name STRING NOT NULL,
+	UNIQUE (sid, signal_name)
 )''')
-conn.execute('''CREATE UNIQUE INDEX idx_sid_signal_name ON subtable (sid, signal_name)''')
 conn.commit()
 
 _subs: Set[str] = set()
@@ -25,9 +25,12 @@ def remove_sid(sid: str) -> None:
 	conn.commit()
 	_subs.remove(sid)
 
+class SubscriptionError(Exception):
+	...
+
 def subscribe_signal(sid: str, signal_name: str) -> None:
 	if sid not in _subs:
-		raise ValueError(f"SID {sid} is not subscribed. Please subscribe it first.")
+		raise SubscriptionError(f"SID {sid} is not subscribed. Please subscribe it first.")
 
 	c = conn.cursor()
 	try:
@@ -35,13 +38,18 @@ def subscribe_signal(sid: str, signal_name: str) -> None:
 		conn.commit()
 	except sqlite3.IntegrityError:
 		logger.warning(f"Signal {signal_name} for SID {sid} is already subscribed.")
-		pass
+		raise SubscriptionError(f"Signal {signal_name} is already subscribed for SID {sid}.")
 
 def unsubscribe_signal(sid: str, signal_name: str) -> None:
 	if sid not in _subs:
-		raise ValueError(f"SID {sid} is not subscribed. Please subscribe it first.")
+		raise SubscriptionError(f"SID {sid} is not subscribed. Please subscribe it first.")
 
 	c = conn.cursor()
+	# check if signal_name exists for the given sid
+	c.execute("SELECT COUNT(*) FROM subtable WHERE sid = ? AND signal_name = ?", (sid, signal_name))
+	if c.fetchone()[0] == 0:
+		raise SubscriptionError(f"Signal {signal_name} is not subscribed for SID {sid}.")
+	# remove the signal_name for the given sid
 	c.execute("DELETE FROM subtable WHERE sid = ? AND signal_name = ?", (sid, signal_name))
 	conn.commit()
 

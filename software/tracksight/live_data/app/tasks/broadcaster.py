@@ -63,7 +63,7 @@ def _send_data():
                         },
                         to=sid,
                     )
-                    logger.info(f"Data sent to sid {sid}")
+                    logger.debug(f"Signal {signal.name}={signal.value} sent to sid {sid}")
                 except Exception as e:
                     logger.error(f"Emit failed for sid {sid}: {e}")
 

@@ -1,9 +1,14 @@
 from flask import Blueprint, jsonify, request
 from logger import logger
 from middleware.candb import live_can_db
-from middleware.subtable import subscribe_signal, unsubscribe_signal
+from middleware.subtable import SubscriptionError, subscribe_signal, unsubscribe_signal
 
 sub_handler = Blueprint("subtable_handler", __name__)
+
+@sub_handler.errorhandler(SubscriptionError)
+def subscription_error_handler(err):
+	logger.error(f"Subscription error: {err}")
+	return jsonify({"error": str(err)}), 400
 
 @sub_handler.route("/subscribe", methods=["POST"])
 def subscribe():
@@ -26,11 +31,7 @@ def subscribe():
 		logger.error(f"{request_sid} failed to subscribe to {signal_name}")
 		return jsonify({"error": "Invalid signal"}), 400
 
-	try:
-		subscribe_signal(request_sid, signal_name)
-	except ValueError as e:
-		logger.error(f"Subscription failed: {e}")
-		return jsonify({"error": str(e)}), 400
+	subscribe_signal(request_sid, signal_name)
 
 	logger.info(f"{request_sid} subscribed to {signal_name}")
 	return jsonify({"msg": f"Subscribed {request_sid} to {signal_name}"}), 200
@@ -50,11 +51,7 @@ def unsubscribe():
 	if type(signal_name) is not str:
 		return jsonify({"error": "Failed to subscribe: signal must be a string"}), 400
 
-	try:
-		unsubscribe_signal(request_sid, signal_name)
-	except ValueError as e:
-		logger.error(f"Unsubscription failed: {e}")
-		return jsonify({"error": str(e)}), 400
+	unsubscribe_signal(request_sid, signal_name)
 
 	logger.info(f"{signal_name} removed from {request_sid}")
 	return jsonify({"msg": f"Unsubscribed {request_sid} from {signal_name}"}), 200
