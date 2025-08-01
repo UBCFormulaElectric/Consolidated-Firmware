@@ -1,6 +1,6 @@
 services:
   influx:
-    image: influxdb:2.7.6-alpine
+    image: influxdb:2-alpine
     ports:
       # Default port for Influx DB.
       - "8086:8086"

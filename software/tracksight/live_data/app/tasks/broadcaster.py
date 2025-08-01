@@ -38,7 +38,7 @@ can_msg_queue = Queue()
 
 
 def _send_data():
-    logger.info("Starting signal broadcaster thread")
+    logger.debug("Starting signal broadcaster thread")
     last_message = time()
     logged = False
     while should_run():
@@ -94,7 +94,7 @@ def _send_data():
             influx_queue.put(
                 InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
             )
-    logger.info("Signal broadcaster thread stopped.")
+    logger.debug("Signal broadcaster thread stopped.")
 
 def get_websocket_broadcast() -> Thread:
     return Thread(target=_send_data, daemon=True)

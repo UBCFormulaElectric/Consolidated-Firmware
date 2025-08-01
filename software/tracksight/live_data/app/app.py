@@ -2,14 +2,7 @@
 Entrypoint to the telemetry backend
 """
 from settings import *
-
-# Very import this is first
-import logging
-from logger import log_path, logger
-# if DEBUG:
-#     logging.basicConfig(level=logging.DEBUG)
-# else:
-#     logging.basicConfig(filename=log_path, level=logging.INFO)
+from logger import logger
 
 from threading import Thread
 import time
@@ -74,7 +67,7 @@ def create_app():
     influx_logger_task = InfluxHandler.get_influx_logger_task()
     influx_logger_task.start()
 
-    if not DEBUG:  # only when debug is off because it in debug mode it will create a subprocess and run this again
+    if not DEBUG and SERVER_IP:  # only when debug is off because it in debug mode it will create a subprocess and run this again
         register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
 
     sio.init_app(app, cors_allowed_origins="*")  # Allow all origins for CORS
@@ -85,7 +78,7 @@ if __name__ == "__main__":
     try:
         sio.run(
             app,
-            debug=bool(DEBUG),
+            debug=False,
             host="0.0.0.0", # 0.0.0.0 means to listen on all network interfaces (ethernet, wifi, etc.)
             port=5000,
         )

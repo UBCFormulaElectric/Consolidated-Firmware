@@ -12,8 +12,7 @@ import datetime
 from dataclasses import dataclass
 from queue import Empty, Queue
 from threading import Thread
-# types
-from typing import NoReturn
+from typing import Any
 
 # influx
 import influxdb_client
@@ -45,16 +44,18 @@ def setup():
         url=INFLUX_URL,
         token=INFLUX_TOKEN,
         org=INFLUX_ORG,
-        timeout=100_000_000,
         debug=False,
     ) as _client:
+        logger.info("Connected to InfluxDB successfully.")
         try:
             # creates the can_data bucket if it doesn't exist yet
+            logger.info("Checking if bucket exists...")
             if (
                 _client.buckets_api().find_bucket_by_name(bucket_name=INFLUX_BUCKET)
                 is None
             ):
                 _client.buckets_api().create_bucket(bucket_name=INFLUX_BUCKET)
+                logger.info(f"Created bucket '{INFLUX_BUCKET}' successfully.")
         except NewConnectionError:
             raise Exception(
                 "InfluxDB is not responding. Have you started the influx database docker container?"
@@ -64,7 +65,7 @@ def setup():
 @dataclass
 class InfluxCanMsg:
     name: str
-    value: any
+    value: Any
     timestamp: datetime.datetime
 
 
@@ -72,7 +73,7 @@ influx_queue = Queue()
 
 
 def _log_influx() -> None:
-    logger.info("Starting InfluxDB logger thread")
+    logger.debug("Starting InfluxDB logger thread")
     with influxdb_client.InfluxDBClient(
         url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=False
     ) as _client:
@@ -85,6 +86,9 @@ def _log_influx() -> None:
                     signal: InfluxCanMsg = influx_queue.get(timeout=1)
                 except Empty:
                     continue
+
+                logger.debug(f"Writing {signal.name} with value {signal.value} to InfluxDB")
+                # write the signal to influxdb
                 write_api.write(
                     bucket=INFLUX_BUCKET,
                     org=INFLUX_ORG,
@@ -95,7 +99,7 @@ def _log_influx() -> None:
                     },
                     write_precision=influxdb_client.WritePrecision.MS,
                 )
-    logger.info("InfluxDB logger thread stopped.")
+    logger.debug("InfluxDB logger thread stopped.")
 
 
 def get_influx_logger_task() -> Thread:

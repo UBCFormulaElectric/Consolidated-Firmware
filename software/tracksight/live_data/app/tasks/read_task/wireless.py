@@ -145,6 +145,7 @@ def _read_messages(port: str):
     Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
     """
     ser = get_serial(port)
+    logger.debug("Read messages thread started.")
 
     base_time = None
 
@@ -181,6 +182,7 @@ def _read_messages(port: str):
         can_msg_queue.put(
             CanMsg(message_received.can_id, message_received.payload, timestamp)
         )
+    logger.debug("Read messages thread stopped.")
 
 
 def get_wireless_task(serial_port: str | None) -> Thread:
