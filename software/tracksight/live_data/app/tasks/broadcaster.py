@@ -5,8 +5,7 @@ from queue import Empty, Queue
 from threading import Thread
 from time import time
 from typing import Any
-
-from api.socket import sio
+from sio import sio
 from logger import logger
 
 # ours

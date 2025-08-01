@@ -1,6 +1,10 @@
 """
 Entrypoint to the telemetry backend
 """
+from gevent import monkey
+monkey.patch_all()  # type: ignore
+
+from tasks.stop_signal import stop_run_signal
 from settings import *
 from logger import logger
 
@@ -20,18 +24,11 @@ from api.files_handler import sd_api
 from api.rtc_handler import rtc
 from api.http import http
 
-from api.socket import sio
+from sio import sio
 from flask_app import app
 
 # infra
 from mDNS import register_mdns_service
-
-
-# register blueprint for python
-app.register_blueprint(sd_api)
-app.register_blueprint(historical_api)
-app.register_blueprint(http)
-app.register_blueprint(rtc)
 
 # this thread populates the message queue(s) with real data from the car
 wireless_thread: Optional[Thread] = None
@@ -45,6 +42,12 @@ influx_logger_task: Optional[Thread] = None
 
 def create_app():
     global wireless_thread, mock_thread, ws_broadcast_thread, influx_logger_task
+
+    # register blueprint for python
+    app.register_blueprint(sd_api)
+    app.register_blueprint(historical_api)
+    app.register_blueprint(http)
+    app.register_blueprint(rtc)
 
     influx_start_time = time.time()
     # Setup the Message Populate Thread
@@ -76,6 +79,7 @@ def create_app():
 if __name__ == "__main__":
     create_app() # cast to void :) we already have a reference
     try:
+        logger.info("Starting Flask app with SocketIO...")
         sio.run(
             app,
             debug=False,
@@ -85,15 +89,9 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         # on keyboard interrupt, the above handles killing
         logger.info("Keyboard Interrupt received, shutting down...")
-        if wireless_thread:
-            wireless_thread.join()
-            logger.trace("Wireless thread stopped.")
-        if mock_thread:
-            mock_thread.join()
-            logger.trace("Mock thread stopped.")
-        if ws_broadcast_thread:
-            ws_broadcast_thread.join()
-            logger.trace("Broadcast thread stopped.")
-        if influx_logger_task:
-            influx_logger_task.join()
-            logger.trace("InfluxDB logger thread stopped.")
+    finally:
+        stop_run_signal()
+        if wireless_thread: wireless_thread.join()
+        if mock_thread: mock_thread.join()
+        if ws_broadcast_thread: ws_broadcast_thread.join()
+        if influx_logger_task: influx_logger_task.join()
