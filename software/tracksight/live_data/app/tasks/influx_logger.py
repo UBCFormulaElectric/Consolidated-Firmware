@@ -16,7 +16,7 @@ from flask_socketio import SocketIO
 import influxdb_client
 from influxdb_client.client.write_api import WriteOptions, WriteType
 # ours
-from types.CanMsg import CanSignal
+from CanMsg import CanSignal
 from logger import logger
 from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
 from urllib3.exceptions import NewConnectionError

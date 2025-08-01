@@ -79,7 +79,7 @@ def create_app():
 if __name__ == "__main__":
     create_app() # cast to void :) we already have a reference
     try:
-        logger.info("Starting Flask app with SocketIO...")
+        logger.info("Starting Flask app with SocketIO. Running on port 5000.")
         sio.run(
             app,
             debug=False,

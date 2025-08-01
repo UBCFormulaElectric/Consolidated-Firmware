@@ -8,7 +8,7 @@ from logger import logger
 from middleware.candb import live_can_db
 from api.subtable_handler import SUB_TABLE
 from tasks.influx_logger import influx_queue
-from types.CanMsg import CanMsg, CanSignal
+from CanMsg import CanMsg, CanSignal
 from tasks.stop_signal import should_run
 from sio import sio
 
