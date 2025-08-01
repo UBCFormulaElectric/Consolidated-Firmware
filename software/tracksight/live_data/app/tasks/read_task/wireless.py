@@ -15,6 +15,7 @@ from logger import logger
 from middleware.serial_port import get_serial
 from tasks.broadcaster import CanMsg, can_msg_queue
 from google.protobuf.message import DecodeError
+from settings import SERIAL_PORT
 
 HEADER_SIZE = 7
 MAGIC = b"\xaa\x55"
@@ -140,11 +141,13 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
         timestamp=message_received.time_stamp # type: ignore
     )
 
-def _read_messages(port: str):
+def _read_messages():
     """
     Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket
     """
-    ser = get_serial(port)
+    if SERIAL_PORT is None:
+        raise RuntimeError("SERIAL_PORT is not set, cannot read messages")
+    ser = get_serial(SERIAL_PORT)
     logger.debug("Read messages thread started.")
 
     base_time = None
@@ -185,13 +188,5 @@ def _read_messages(port: str):
     logger.debug("Read messages thread stopped.")
 
 
-def get_wireless_task(serial_port: str | None) -> Thread:
-    if serial_port is None:
-        raise RuntimeError(
-            "If running telemetry in wireless mode, you must specify the radio serial port!"
-        )
-    return Thread(
-        target=_read_messages,
-        args=(serial_port,),
-        daemon=True,
-    )
+def get_wireless_task(sio) -> Thread:
+    return sio.start_background_task(_read_messages)

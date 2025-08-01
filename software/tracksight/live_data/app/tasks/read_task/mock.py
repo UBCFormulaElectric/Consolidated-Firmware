@@ -1,7 +1,9 @@
 import datetime
 import time
 from threading import Thread
-from random import random 
+from random import random
+
+from flask_socketio import SocketIO 
 
 # ours
 from logger import logger
@@ -70,13 +72,10 @@ def read_messages_from_file():
         time.sleep(0.1)
     logger.debug("Mock read task stopped")
 
-def get_mock_task() -> Thread:
+def get_mock_task(sio: SocketIO) -> Thread:
     # if data_file is None:
     #     raise RuntimeError(
     #         "In 'mock' mode, you must specify the data file to read from")
-    mock_write_thread = Thread(
-        target=read_messages_from_file,
-        args=(),
-        daemon=True,
-    )
-    return mock_write_thread
+    return sio.start_background_task(
+        read_messages_from_file
+    ) 

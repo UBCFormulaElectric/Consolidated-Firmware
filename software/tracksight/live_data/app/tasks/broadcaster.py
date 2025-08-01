@@ -5,6 +5,7 @@ from queue import Empty, Queue
 from threading import Thread
 from time import time
 from typing import Any
+from flask_socketio import SocketIO
 from logger import logger
 
 # ours
@@ -94,5 +95,5 @@ def _send_data():
             )
     logger.debug("Signal broadcaster thread stopped.")
 
-def get_websocket_broadcast() -> Thread:
-    return Thread(target=_send_data, daemon=True)
+def get_websocket_broadcast(sio: SocketIO) -> Thread:
+    return sio.start_background_task(_send_data)

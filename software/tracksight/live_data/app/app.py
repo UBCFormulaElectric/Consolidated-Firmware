@@ -5,6 +5,9 @@ print("Starting app...")
 import time
 
 import_start_time = time.time()
+from gevent import monkey
+monkey.patch_all() # very important :)
+
 from settings import *
 from logger import logger
 
@@ -29,9 +32,6 @@ from api.http import http
 from api.subtable_handler import sub_handler
 
 from mDNS import register_mdns_service
-
-# just to make sure you have it, otherwise it throws weird assertion errors when you try to handle the disconnect of sockets
-import gevent
 
 import_end_time = time.time()
 logger.debug(f"Importing took {import_end_time - import_start_time:.2f} seconds")
@@ -62,20 +62,15 @@ def create_app():
     logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
 
     if DATA_SOURCE == "WIRELESS":
-        wireless_thread = get_wireless_task(SERIAL_PORT)
-        wireless_thread.start()
+        wireless_thread = get_wireless_task(sio)
     elif DATA_SOURCE == "MOCK":
-        mock_thread = get_mock_task()
-        mock_thread.start()
+        mock_thread = get_mock_task(sio)
     else:
         raise RuntimeError("Data source is not valid")
     
     # Reading Thread
-    ws_broadcast_thread = get_websocket_broadcast()
-    ws_broadcast_thread.start()
-
-    influx_logger_task = InfluxHandler.get_influx_logger_task()
-    influx_logger_task.start()
+    ws_broadcast_thread = get_websocket_broadcast(sio)
+    influx_logger_task = InfluxHandler.get_influx_logger_task(sio)
 
     if not DEBUG and SERVER_IP:  # only when debug is off because it in debug mode it will create a subprocess and run this again
         register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)

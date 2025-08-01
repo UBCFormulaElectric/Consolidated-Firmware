@@ -15,6 +15,7 @@ from threading import Thread
 from typing import Any
 
 # influx
+from flask_socketio import SocketIO
 import influxdb_client
 from influxdb_client.client.write_api import WriteOptions, WriteType
 # ours
@@ -104,8 +105,8 @@ def _log_influx() -> None:
     logger.debug("InfluxDB logger thread stopped.")
 
 
-def get_influx_logger_task() -> Thread:
-    return Thread(target=_log_influx, daemon=True)
+def get_influx_logger_task(sio: SocketIO) -> Thread:
+    return sio.start_background_task(_log_influx)
 
 
 # def get_measurements(cls) -> list[str]:
