@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Union, Any
+from typing import Dict, List, Optional, Set, Union
 
 import pandas as pd
 from strenum import StrEnum
@@ -16,7 +16,7 @@ from cantools.database.can.signal import Signal as CanToolSignal
 from cantools.typechecking import EncodeInputType
 
 from .utils import bits_to_bytes, pascal_to_screaming_snake_case, pascal_to_snake_case
-from .can_signals import CanSignal
+from .can_signals import CanSignal, CanEnum
 
 logger = logging.getLogger(__name__)
 
@@ -102,16 +102,16 @@ class CanMessage:
         return pascal_to_screaming_snake_case(self.name)
 
     # type of the message
-    def c_type(self):
+    def c_type(self) -> str:
         return self.name + "_Signals"
 
-    def id_macro(self):
+    def id_macro(self) -> str:
         return f"CAN_MSG_{self.snake_name().upper()}_ID"
 
-    def cycle_time_macro(self):
+    def cycle_time_macro(self) -> str:
         return f"CAN_MSG_{self.snake_name().upper()}_CYCLE_TIME_MS"
 
-    def dlc_macro(self):
+    def dlc_macro(self) -> str:
         return f"CAN_MSG_{self.snake_name().upper()}_DLC"
     
     def build_cantools_message(self) -> CanToolsMessage:
@@ -213,10 +213,10 @@ class CanNode:
     rx_msgs_names: Set[str] | AllRxMsgs  # list of messages that it is listening
     fd: bool
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 

@@ -8,20 +8,17 @@ TODO: explore configuration options for the database
 link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 """
 
-import datetime
-from dataclasses import dataclass
 from queue import Empty, Queue
 from threading import Thread
-from typing import Any
 
 # influx
 from flask_socketio import SocketIO
 import influxdb_client
 from influxdb_client.client.write_api import WriteOptions, WriteType
 # ours
+from types.CanMsg import CanSignal
 from logger import logger
-from settings import (CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN,
-                      INFLUX_URL)
+from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
 from urllib3.exceptions import NewConnectionError
 
 from tasks.stop_signal import should_run
@@ -64,16 +61,7 @@ def setup():
                 "InfluxDB is not responding. Have you started the influx database docker container?"
             )
 
-
-@dataclass
-class InfluxCanMsg:
-    name: str
-    value: Any
-    timestamp: datetime.datetime
-
-
-influx_queue = Queue()
-
+influx_queue: Queue[CanSignal] = Queue()
 
 def _log_influx() -> None:
     logger.debug("Starting InfluxDB logger thread")
@@ -86,11 +74,11 @@ def _log_influx() -> None:
         ) as write_api:
             while should_run():
                 try:
-                    signal: InfluxCanMsg = influx_queue.get(timeout=1)
+                    signal = influx_queue.get(timeout=1)
                 except Empty:
                     continue
 
-                # logger.debug(f"Writing {signal.name} with value {signal.value} to InfluxDB")
+                logger.debug(f"Writing {signal.name} with value {signal.value} to InfluxDB")
                 # write the signal to influxdb
                 write_api.write(
                     bucket=INFLUX_BUCKET,

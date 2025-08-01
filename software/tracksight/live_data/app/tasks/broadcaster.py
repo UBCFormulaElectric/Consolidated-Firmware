@@ -1,39 +1,18 @@
-import json
-from dataclasses import dataclass
-from datetime import datetime
 from queue import Empty, Queue
 from threading import Thread
 from time import time
-from typing import Any
 from flask_socketio import SocketIO
 from logger import logger
 
 # ours
 from middleware.candb import live_can_db
 from api.subtable_handler import SUB_TABLE
-from tasks.influx_logger import InfluxCanMsg, influx_queue
+from tasks.influx_logger import influx_queue
+from types.CanMsg import CanMsg, CanSignal
 from tasks.stop_signal import should_run
 from sio import sio
 
-@dataclass(frozen=True)
-class CanMsg:
-    can_id: int
-    can_value: bytes
-    can_timestamp: datetime
-
-
-@dataclass(frozen=True)
-class Signal:
-    name: str
-    value: Any
-    unit: str
-    timestamp: str
-
-    def toJSON(self) -> str:
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-
-can_msg_queue = Queue()
+can_msg_queue: Queue[CanMsg] = Queue()
 
 
 def _send_data():
@@ -89,9 +68,8 @@ def _send_data():
                     except Exception as e:
                         logger.error(f"Emit failed for sid {sid}: {e}")
             # send to influx logger
-            # logger.info(f"Sending to influx logger: {signal.name} = {signal.value}")
             influx_queue.put(
-                InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
+                CanSignal(signal.name, signal.value, canmsg.can_timestamp)
             )
     logger.debug("Signal broadcaster thread stopped.")
 
