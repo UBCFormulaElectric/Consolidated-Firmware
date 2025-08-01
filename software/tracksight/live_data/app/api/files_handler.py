@@ -81,9 +81,9 @@ def list_files_in_card(sd_device: str):
     file_names: list[str] = [file for file in logfs.list_dir() if file not in [
         "/bootcount.txt"]]
     return [{
-            "name": "file_1_name",
-            "start_iso_time": "2025-01-06"
-            }]
+        "name": file_name,
+        "start_iso_time": "2025-01-06"
+    } for file_name in file_names]
 
 
 @sd_api.route("/sd/<sd_device>/files/<file_id>/dump", methods=["POST"])

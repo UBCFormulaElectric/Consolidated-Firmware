@@ -14,6 +14,8 @@ conn.commit()
 
 _subs: Set[str] = set()
 
+paused_sids: set[str] = set()
+
 def add_sid(sid: str) -> None:
 	_subs.add(sid)
 
@@ -54,6 +56,17 @@ def unsubscribe_signal(sid: str, signal_name: str) -> None:
 	conn.commit()
 
 def get_subscribed_sids(signal_name: str) -> list[str]:
+	"""
+	Returns a list of SIDs that are subscribed to a given signal name.
+	Note that this does not include SIDs that are paused.
+	"""
 	c = conn.cursor()
 	c.execute("SELECT sid FROM subtable WHERE signal_name = ?", (signal_name,))
+	return [row[0] for row in c.fetchall() if row[0] not in paused_sids]
+
+def get_sid_signals(sid: str) -> list[str]:
+	if sid not in _subs:
+		raise SubscriptionError(f"SID {sid} is not subscribed. Please subscribe it first.")
+	c = conn.cursor()
+	c.execute("SELECT signal_name FROM subtable WHERE sid = ?", (sid,))
 	return [row[0] for row in c.fetchall()]
