@@ -1,12 +1,11 @@
 """
 Entrypoint to the telemetry backend
 """
-from gevent import monkey
-monkey.patch_all()  # type: ignore
-
-from tasks.stop_signal import stop_run_signal
 from settings import *
 from logger import logger
+
+from flask_app import app
+from sio import sio
 
 from threading import Thread
 import time
@@ -17,17 +16,15 @@ import tasks.influx_logger as InfluxHandler
 from tasks.broadcaster import get_websocket_broadcast
 from tasks.read_task.mock import get_mock_task
 from tasks.read_task.wireless import get_wireless_task
+from tasks.stop_signal import stop_run_signal
 
 # apis
 from api.historical_handler import historical_api
 from api.files_handler import sd_api
 from api.rtc_handler import rtc
 from api.http import http
+from api.subtable_handler import sub_handler
 
-from sio import sio
-from flask_app import app
-
-# infra
 from mDNS import register_mdns_service
 
 # this thread populates the message queue(s) with real data from the car
@@ -48,6 +45,7 @@ def create_app():
     app.register_blueprint(historical_api)
     app.register_blueprint(http)
     app.register_blueprint(rtc)
+    app.register_blueprint(sub_handler)
 
     influx_start_time = time.time()
     # Setup the Message Populate Thread
@@ -72,8 +70,6 @@ def create_app():
 
     if not DEBUG and SERVER_IP:  # only when debug is off because it in debug mode it will create a subprocess and run this again
         register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
-
-    sio.init_app(app, cors_allowed_origins="*")  # Allow all origins for CORS
     return app
 
 if __name__ == "__main__":
