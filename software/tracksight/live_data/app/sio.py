@@ -1,8 +1,8 @@
 from flask_socketio import SocketIO, emit
 from flask import request
-from api.subtable_handler import SUB_TABLE
 from flask_app import app
 from logger import logger
+from middleware.subtable import add_sid, remove_sid
 
 sio = SocketIO(app, cors_allowed_origins="*", logger=True)
 
@@ -13,10 +13,10 @@ def test(payload):
 @sio.on('connect')
 def connect():
     logger.info(f'{request.sid} connected!')
-    SUB_TABLE[request.sid] = set()
+    add_sid(request.sid)
 
 @sio.on('disconnect')
 def disconnect():
-    del SUB_TABLE[request.sid]
+    remove_sid(request.sid)
     logger.info(f'{request.sid} diconnected')
 

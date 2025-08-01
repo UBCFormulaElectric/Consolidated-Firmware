@@ -6,11 +6,11 @@ from logger import logger
 
 # ours
 from middleware.candb import live_can_db
-from api.subtable_handler import SUB_TABLE
 from tasks.influx_logger import influx_queue
 from CanMsg import CanMsg, CanSignal
 from tasks.stop_signal import should_run
 from sio import sio
+from middleware.subtable import get_subscribed_sids
 
 can_msg_queue: Queue[CanMsg] = Queue()
 
@@ -52,21 +52,21 @@ def _send_data():
             logger.warning(f"Received CAN message with unknown ID {canmsg.can_id}. Skipping.")
             continue
         for signal in msg.unpack(canmsg.can_value):
-            for sid, signal_names in SUB_TABLE.items():
-                if signal.name in signal_names:
-                    try:
-                        sio.emit(
-                            "data",
-                            {
-                                "name": signal.name,
-                                "value": signal.value,
-                                "timestamp": canmsg.can_timestamp.isoformat(),
-                            },
-                            to=sid,
-                        )
-                        logger.info(f"Data sent to sid {sid}")
-                    except Exception as e:
-                        logger.error(f"Emit failed for sid {sid}: {e}")
+            for sid in get_subscribed_sids(signal.name):
+                try:
+                    sio.emit(
+                        "data",
+                        {
+                            "name": signal.name,
+                            "value": signal.value,
+                            "timestamp": canmsg.can_timestamp.isoformat(),
+                        },
+                        to=sid,
+                    )
+                    logger.info(f"Data sent to sid {sid}")
+                except Exception as e:
+                    logger.error(f"Emit failed for sid {sid}: {e}")
+
             # send to influx logger
             influx_queue.put(
                 CanSignal(signal.name, signal.value, canmsg.can_timestamp)
