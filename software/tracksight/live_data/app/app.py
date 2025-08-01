@@ -59,7 +59,7 @@ def create_app():
     influx_start_time = time.time()
     # Setup the Message Populate Thread
     InfluxHandler.setup()
-    logger.info(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
+    logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
 
     if DATA_SOURCE == "WIRELESS":
         wireless_thread = get_wireless_task(SERIAL_PORT)

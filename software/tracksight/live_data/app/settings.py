@@ -38,3 +38,5 @@ DEBUG = str2bool(os.environ.get("DEBUG"))
 
 SERVER_IP = os.environ.get("SERVER_IP", None)
 SERVER_DOMAIN_NAME = os.environ.get("SERVER_DOMAIN_NAME", "telem")
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG").upper()

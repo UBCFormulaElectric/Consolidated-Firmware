@@ -35,7 +35,7 @@ if CAR_NAME is None:
 
 def setup():
     # Checks if the vehicle bucket exists, and if not, creates it
-    logger.info(
+    logger.debug(
         f"Connecting to InfluxDB database at '{INFLUX_URL}' with token '{INFLUX_TOKEN}' and org '{INFLUX_ORG}'."
     )
     if not INFLUX_ORG:
@@ -46,16 +46,18 @@ def setup():
         org=INFLUX_ORG,
         debug=False,
     ) as _client:
-        logger.info("Connected to InfluxDB successfully.")
+        logger.debug("Connected to InfluxDB successfully.")
         try:
             # creates the can_data bucket if it doesn't exist yet
-            logger.info("Checking if bucket exists...")
+            logger.info(f"Checking if bucket '{INFLUX_BUCKET}' exists...")
             if (
                 _client.buckets_api().find_bucket_by_name(bucket_name=INFLUX_BUCKET)
                 is None
             ):
                 _client.buckets_api().create_bucket(bucket_name=INFLUX_BUCKET)
                 logger.info(f"Created bucket '{INFLUX_BUCKET}' successfully.")
+            else:
+                logger.info(f"Bucket '{INFLUX_BUCKET}' already exists.")
         except NewConnectionError:
             raise Exception(
                 "InfluxDB is not responding. Have you started the influx database docker container?"
