@@ -5,6 +5,157 @@
 #define REDUCE_X true
 #define INCREASE_X false
 
+#include <stdint.h>
+#include <stdbool.h>
+
+/**
+ * Matrix
+ * 
+ * Used for all linear algebra related operations
+ * 
+ * mat array should be initialized as a single dimension array,
+ * it is implemented this way for simplicity and cache optimization
+ * 
+ * rows and cols should be inputted as such
+ */
+typedef struct
+{
+    float   *mat;
+    uint32_t rows;
+    uint32_t cols;
+} Matrix;
+
+
+/**
+ * ================================
+ * Linear Algebra Functions
+ * ================================
+ */
+
+/*
+ * Matrix Addition: result = A + B
+ */
+inline bool add(Matrix *result, const Matrix *A, const Matrix *B)
+{
+    // checks if matrix dimensions are violated
+    if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
+        return false;
+
+    // addition algorithm
+    for (uint32_t i = 0; i < A->rows * A->cols; i++)
+    {
+        result->mat[i] = A->mat[i] + B->mat[i];
+    }
+
+    return true;
+}
+
+
+/*
+ * Matrix Subtraction: result = A - B
+ */
+inline bool sub(Matrix *result, const Matrix *A, const Matrix *B)
+{
+    // checks if matrix dimensions are violated
+    if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
+        return false;
+
+    // subtraction algorithm
+    for (uint32_t i = 0; i < A->rows * A->cols; i++)
+    {
+        result->mat[i] = A->mat[i] - B->mat[i];
+    }
+
+    return true;
+}
+
+/*
+ * Matrix Multiplication: result = A * B
+ */
+inline bool mult(Matrix *result, const Matrix *A, const Matrix *B)
+{
+    // checks if matrix dimensions are violated
+    if (A->cols != B->rows || result->rows != A->rows || result->cols != B->cols)
+    {
+        return false;
+    }
+
+    for (uint32_t i = 0; i < result->rows * result->cols; i++)
+    {
+        result->mat[i] = 0.0f;
+    }
+
+    // multiplication algorithm cache optimized
+    for (uint32_t i = 0; i < A->rows; i++)
+    {
+        for (uint32_t j = 0; j < B->cols; j++)
+        {
+            for (uint32_t k = 0; k < A->cols; k++)
+            {
+                result->mat[i * result->cols + j] += A->mat[i * A->cols + k] * B->mat[k * B->cols + j];
+            }
+        }
+    }
+
+    return true;
+}
+
+/*
+ * Matrix Transpose: result = input^T
+ */
+inline bool transpose(Matrix *result, const Matrix *input)
+{
+    // checks if matrix dimensions are violated
+    if (result->rows != input->cols || result->cols != input->rows)
+    {
+        return false;
+    }
+
+    // transpose algorithm
+    for (uint32_t i = 0; i < input->rows; i++)
+    {
+        for (uint32_t j = 0; j < input->cols; j++)
+        {
+            result->mat[j * result->cols + i] = input->mat[i * input->cols + j];
+        }
+    }
+
+    return true;
+}
+
+/*
+ * 2x2 Matrix Inversion: result = X^-1
+ */
+inline bool inverse2x2(Matrix *result, const Matrix *X)
+{
+    // checks if matrix dimensions are violated
+    if (X->rows != 2 || X->cols != 2 || result->rows != 2 || result->cols != 2)
+    {
+        return false;
+    }
+
+    float a = X->mat[0];
+    float b = X->mat[1];
+    float c = X->mat[2];
+    float d = X->mat[3];
+
+    // compute determinant
+    float det = a * d - b * c;
+    if (det == 0.0f)
+        return false;
+
+    // inverse determinant
+    float inv_det = 1.0f / det;
+
+    // inverse matrix
+    result->mat[0] = d * inv_det;
+    result->mat[1] = -b * inv_det;
+    result->mat[2] = -c * inv_det;
+    result->mat[3] = a * inv_det;
+
+    return true;
+}
+
 /**
  * Trapezoidal approximation used to approximate a definite integral
  * @param integral The current value of the integral
