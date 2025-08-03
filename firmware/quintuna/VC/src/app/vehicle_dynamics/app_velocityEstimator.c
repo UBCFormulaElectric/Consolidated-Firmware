@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <math.h>
 
 #include "app_velocityEstimator.h"
@@ -9,6 +8,36 @@
 // for debugging purposes
 #define TOGGLE_GPS 1
 #define TOGGLE_WHEEL_SPD 1
+
+/**
+ * For making a generalized ekf api:
+ * estimation functions: app_velocityEstimator_init -> (app_ekf_init), app_velocityEstimator_run -> (app_ekf_run) should be implemented by the user 
+ * internal ekf functions: state_transition, state_jacobian, measurement_func, measurement_jacobian all should be implemented by the user
+ *
+ * things to figure out:
+ * predict and update internally have matrices of fixed dimensions, should be dynamic
+ * generalized velocity estimator -> (ekf) variables have fixed size, should be dynamic 
+ * all app_math.h linear algebra functions can handle different sizes except for inverse, use cholesky decomp or something for this
+ *
+ * approaches/solutions:
+ * there is a way to change the allocation of .mat to make it dynamic without malloc
+ * 
+ * create app_ekf api with ekf struct with the following members:
+ * state estimate
+ * covariance estimate, 
+ * State jacobian,
+ * Measurement jacobian 
+ * function pointers of internal ekf functions for user to implement, 
+ * time step
+ * 
+ * ekf api will have predict and update functions which will call the internal ekf function via the function pointers
+ * 
+ * Some variables will be statically defined in their respective estimator files 
+ * current internal ekf api functions signature may to change to include matrices to store result or they can be added as members to the ekf struct
+ * it is up to the user to not violate matrix dimensions
+ * 
+ * all the user has to do is define the internal ekf functions and call predict and update to run their estimator
+ */
 
 /*
  * ================================
@@ -38,128 +67,93 @@ static float time_step;
 
 /*
  * ================================
- * Linear Algebra Functions
+ * Velocity Estimator Functions
  * ================================
- *
- * Should these be inlined or will that increase mem size too much?
  */
 
-// void print_arr(float *a, uint32_t len)
-// {
-//     for (uint32_t i = 0; i < len; i++)
-//     {
-//         printf("%d: %f\n", i, a[i]);
-//     }
-// }
-/*
- * Matrix Addition: result = A + B
- */
-static inline bool add(Matrix *result, const Matrix *A, const Matrix *B)
+void app_velocityEstimator_init(VelocityEstimator_Config *config)
 {
-    if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
-        return false;
-
-    for (uint32_t i = 0; i < A->rows * A->cols; i++)
-    {
-        result->mat[i] = A->mat[i] + B->mat[i];
-    }
-
-    return true;
+    state_estimate.mat            = config->state_estimate_init;
+    covariance_estimate.mat       = config->covariance_estimate_init;
+    process_noise_cov.mat         = config->process_noise_cov;
+    measurement_ws_noise_cov.mat  = config->measurement_ws_noise_cov;
+    measurement_gps_noise_cov.mat = config->measurement_gps_noise_cov;
+    time_step                     = config->time_step;
 }
 
-/*
- * Matrix Subtraction: result = A - B
- */
-static inline bool sub(Matrix *result, const Matrix *A, const Matrix *B)
+void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
 {
-    if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
-        return false;
+    Matrix control_input   = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM_U, .cols = 1 };
+    Matrix measurement_ws  = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
+    Matrix measurement_gps = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
 
-    for (uint32_t i = 0; i < A->rows * A->cols; i++)
-    {
-        result->mat[i] = A->mat[i] - B->mat[i];
-    }
+    setUpControlInputs(&control_input, inputs);
+    convertWheelSpeedToMeasurement(&measurement_ws, inputs);
+    convertGpsToMeasurement(&measurement_gps, inputs);
 
-    return true;
+    predict(&state_estimate, &control_input);
+
+#if (TOGGLE_WHEEL_SPD == 1)
+    // use wheelspeed measurement if they are not slipping
+    if (inputs->rpm_derivative_ok)
+        update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
+#endif
+
+#if (TOGGLE_GPS == 1)
+    // use gps measurement if sbg is in the correct mode (solution mode 4)
+    if (inputs->gps_valid)
+        update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
+#endif
 }
 
-/*
- * Matrix Multiplication: result = A * B
- */
-static inline bool mult(Matrix *result, const Matrix *A, const Matrix *B)
+float *app_velocityEstimator_getVelocity()
 {
-    if (A->cols != B->rows || result->rows != A->rows || result->cols != B->cols)
-    {
-        return false;
-    }
-
-    for (uint32_t i = 0; i < result->rows * result->cols; i++)
-    {
-        result->mat[i] = 0.0f;
-    }
-
-    for (uint32_t i = 0; i < A->rows; i++)
-    {
-        for (uint32_t j = 0; j < B->cols; j++)
-        {
-            for (uint32_t k = 0; k < A->cols; k++)
-            {
-                result->mat[i * result->cols + j] += A->mat[i * A->cols + k] * B->mat[k * B->cols + j];
-            }
-        }
-    }
-
-    return true;
+    return state_estimate.mat;
 }
 
-/*
- * Matrix Transpose: result = input^T
- */
-static inline bool transpose(Matrix *result, const Matrix *input)
+float *app_velocityEstimator_getCovariance()
 {
-    if (result->rows != input->cols || result->cols != input->rows)
-    {
-        return false; // Incompatible dimensions
-    }
-
-    for (uint32_t i = 0; i < input->rows; i++)
-    {
-        for (uint32_t j = 0; j < input->cols; j++)
-        {
-            result->mat[j * result->cols + i] = input->mat[i * input->cols + j];
-        }
-    }
-
-    return true;
+    return covariance_estimate.mat;
 }
 
-/*
- * 2x2 Matrix Inversion: result = X^-1
- */
-static inline bool inverse2x2(Matrix *result, const Matrix *X)
+void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
 {
-    if (X->rows != 2 || X->cols != 2 || result->rows != 2 || result->cols != 2)
-    {
-        return false;
-    }
+    float v_rr = MOTOR_RPM_TO_MPS(inputs->rpm_rr);
+    float v_rl = MOTOR_RPM_TO_MPS(inputs->rpm_rl);
+    float v_fr = MOTOR_RPM_TO_MPS(inputs->rpm_fr);
+    float v_fl = MOTOR_RPM_TO_MPS(inputs->rpm_fl);
 
-    float a = X->mat[0];
-    float b = X->mat[1];
-    float c = X->mat[2];
-    float d = X->mat[3];
+    float yaw_rate    = inputs->yaw_rate_rad;
+    float wheel_angle = inputs->wheel_angle_rad;
 
-    float det = a * d - b * c;
-    if (det == 0.0f)
-        return false;
+    float vx_rr = v_rr + yaw_rate * TRACK_WIDTH_m;
+    float vx_rl = v_rl - yaw_rate * TRACK_WIDTH_m;
+    float vx_fr = v_fr * cosf(wheel_angle) + yaw_rate * TRACK_WIDTH_m;
+    float vx_fl = v_fr * cosf(wheel_angle) - yaw_rate * TRACK_WIDTH_m;
 
-    float inv_det = 1.0f / det;
+    float vy_rr = -yaw_rate * DIST_REAR_AXLE_CG - v_rr;
+    float vy_rl = -yaw_rate * DIST_REAR_AXLE_CG - v_rl;
+    float vy_fr = yaw_rate * DIST_FRONT_AXLE_CG - v_fr * sinf(wheel_angle);
+    float vy_fl = yaw_rate * DIST_FRONT_AXLE_CG - v_fl * sinf(wheel_angle);
 
-    result->mat[0] = d * inv_det;
-    result->mat[1] = -b * inv_det;
-    result->mat[2] = -c * inv_det;
-    result->mat[3] = a * inv_det;
+    float vx = (vx_fl + vx_fr + vx_rl + vx_rr) / 4.0f;
+    float vy = (vy_fl + vy_fr + vy_rl + vy_rr) / 4.0f;
 
-    return true;
+    measurement->mat[0] = vx;
+    measurement->mat[1] = vy;
+}
+
+void setUpControlInputs(Matrix *control_inputs, VelocityEstimator_Inputs *inputs)
+{
+    control_inputs->mat[0] = inputs->accel_x;
+    control_inputs->mat[1] = inputs->accel_y;
+    control_inputs->mat[2] = inputs->yaw_rate_rad;
+}
+
+void convertGpsToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
+{
+    measurement->mat[0] = inputs->gps_vx;
+    measurement->mat[1] = inputs->gps_vy;
 }
 
 /*
@@ -254,95 +248,4 @@ void update(Matrix *measurement, Matrix *prev_state, Matrix *measurement_noise_c
     mult(&KH, &K, &H_jacobian);
     mult(&KHP, &KH, &covariance_estimate);
     sub(&covariance_estimate, &covariance_estimate, &KHP);
-}
-
-/*
- * ================================
- * Velocity Estimator Functions
- * ================================
- */
-
-void app_velocityEstimator_init(VelocityEstimator_Config *config)
-{
-    state_estimate.mat            = config->state_estimate_init;
-    covariance_estimate.mat       = config->covariance_estimate_init;
-    process_noise_cov.mat         = config->process_noise_cov;
-    measurement_ws_noise_cov.mat  = config->measurement_ws_noise_cov;
-    measurement_gps_noise_cov.mat = config->measurement_gps_noise_cov;
-    time_step                     = config->time_step;
-}
-
-void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
-{
-    float v_rr = MOTOR_RPM_TO_MPS(inputs->rpm_rr);
-    float v_rl = MOTOR_RPM_TO_MPS(inputs->rpm_rl);
-    float v_fr = MOTOR_RPM_TO_MPS(inputs->rpm_fr);
-    float v_fl = MOTOR_RPM_TO_MPS(inputs->rpm_fl);
-
-    float yaw_rate    = inputs->yaw_rate_rad;
-    float wheel_angle = inputs->wheel_angle_rad;
-
-    float vx_rr = v_rr + yaw_rate * TRACK_WIDTH_m;
-    float vx_rl = v_rl - yaw_rate * TRACK_WIDTH_m;
-    float vx_fr = v_fr * cosf(wheel_angle) + yaw_rate * TRACK_WIDTH_m;
-    float vx_fl = v_fr * cosf(wheel_angle) - yaw_rate * TRACK_WIDTH_m;
-
-    float vy_rr = -yaw_rate * DIST_REAR_AXLE_CG - v_rr;
-    float vy_rl = -yaw_rate * DIST_REAR_AXLE_CG - v_rl;
-    float vy_fr = yaw_rate * DIST_FRONT_AXLE_CG - v_fr * sinf(wheel_angle);
-    float vy_fl = yaw_rate * DIST_FRONT_AXLE_CG - v_fl * sinf(wheel_angle);
-
-    float vx = (vx_fl + vx_fr + vx_rl + vx_rr) / 4.0f;
-    float vy = (vy_fl + vy_fr + vy_rl + vy_rr) / 4.0f;
-
-    measurement->mat[0] = vx;
-    measurement->mat[1] = vy;
-}
-
-void setUpControlInputs(Matrix *control_inputs, VelocityEstimator_Inputs *inputs)
-{
-    control_inputs->mat[0] = inputs->accel_x;
-    control_inputs->mat[1] = inputs->accel_y;
-    control_inputs->mat[2] = inputs->yaw_rate_rad;
-}
-
-void convertGpsToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
-{
-    measurement->mat[0] = inputs->gps_vx;
-    measurement->mat[1] = inputs->gps_vy;
-}
-
-void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
-{
-    Matrix control_input   = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM_U, .cols = 1 };
-    Matrix measurement_ws  = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
-    Matrix measurement_gps = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
-
-    setUpControlInputs(&control_input, inputs);
-    convertWheelSpeedToMeasurement(&measurement_ws, inputs);
-    convertGpsToMeasurement(&measurement_gps, inputs);
-
-    predict(&state_estimate, &control_input);
-
-#if (TOGGLE_WHEEL_SPD == 1)
-    // use wheelspeed measurement if they are not slipping
-    if (inputs->rpm_derivative_ok)
-        update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
-#endif
-
-#if (TOGGLE_GPS == 1)
-    // use gps measurement if sbg is in the correct mode (solution mode 4)
-    if (inputs->ekf_solution_4_valid)
-        update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
-#endif
-}
-
-float *app_velocityEstimator_getVelocity()
-{
-    return state_estimate.mat;
-}
-
-float *app_velocityEstimator_getCovariance()
-{
-    return covariance_estimate.mat;
 }

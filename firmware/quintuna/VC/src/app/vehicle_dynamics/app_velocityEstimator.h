@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "app_math.h"
+
 /*
  * Extended Kalman Filter (EKF)
  *
@@ -37,19 +39,15 @@
 
 typedef struct
 {
-    float   *mat;
-    uint32_t rows;
-    uint32_t cols;
-} Matrix;
-
-typedef struct
-{
     // measurements
+    // wheel speeds
     float rpm_rr;
     float rpm_rl;
     float rpm_fr;
     float rpm_fl;
+    // steering
     float wheel_angle_rad;
+    // gps
     float gps_vx;
     float gps_vy;
     // control inputs
@@ -57,7 +55,7 @@ typedef struct
     float accel_y;
     float yaw_rate_rad;
     // conditional inputs
-    bool ekf_solution_4_valid;
+    bool gps_valid;
     bool rpm_derivative_ok;
 } VelocityEstimator_Inputs;
 
@@ -84,7 +82,7 @@ void app_velocityEstimator_init(VelocityEstimator_Config *config);
  * Runs the predict and update step of the velocity estimator
  *
  * Must provide measurement and control input in
- * VelocityEstimator struct before eachc call
+ * VelocityEstimator struct before each call
  */
 void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs);
 
@@ -129,3 +127,9 @@ void measurement_func(Matrix *x);
  * Calculates the jacobian given the previous state and control variables
  */
 void measurement_jacobian(Matrix *x);
+
+void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs);
+
+void setUpControlInputs(Matrix *control_inputs, VelocityEstimator_Inputs *inputs);
+
+void convertGpsToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs);
