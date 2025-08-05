@@ -26,6 +26,7 @@ def remove_sid(sid: str) -> None:
 	c.execute("DELETE FROM subtable WHERE sid = ?", (sid,))
 	conn.commit()
 	_subs.remove(sid)
+	paused_sids.discard(sid)
 
 class SubscriptionError(Exception):
 	...
