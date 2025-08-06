@@ -249,6 +249,10 @@ extern "C"
     {
         return imd_frequency;
     }
+    void SetExpectedVoltageSelfTestValue(const uint16_t value)
+    {
+        expected_self_test_value = value;
+    }
 
     static float imd_duty_cycle = 0.0f;
     float        io_imd_getDutyCycle(void)

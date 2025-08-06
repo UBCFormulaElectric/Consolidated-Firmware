@@ -1,19 +1,19 @@
 #include "tasks.h"
 #include "jobs.h"
-#include <cmsis_os2.h>
 
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_utils.h"
-#include "app_canAlerts.h"
 #include "app_jsoncan.h"
+#include "app_canAlerts.h"
 
+#include "io_ltc6813.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
+#include "io_canMsg.h"
 #include "io_semaphore.h"
-#include "io_ltc6813.h"
 
 // hw
 #include "hw_usb.h"
@@ -22,13 +22,32 @@
 #include "hw_pwms.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
+#include "hw_bootup.h"
+#include "hw_gpios.h"
+#include "hw_resetReason.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
-#include "hw_resetReason.h"
-#include "hw_bootup.h"
-#include "hw_gpios.h"
+
+
+#include "semphr.h"
+#include <FreeRTOS.h>
+#include <cmsis_os2.h>
+#include <portmacro.h>
+
+CanTxQueue can_tx_queue;
+
+static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
+{
+    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
+    io_canQueue_pushTx(&can_tx_queue, &msg);
+}
+
+static void charger_transmit_func(const JsonCanMsg *msg)
+{
+    // LOG_INFO("Send charger message: %d", msg->std_id);
+}
 
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
@@ -59,12 +78,12 @@ void tasks_init(void)
     hw_adcs_chipsInit();
     hw_pwms_init();
 
-    // TODO: Start CAN1/CAN2 based on if we're charging at runtime.
-    // #ifdef CHARGER_CAN
-    // hw_can_init(&can2);
-    // #else
+// TODO: Start CAN1/CAN2 based on if we're charging at runtime.
+#ifdef CHARGER_CAN
     hw_can_init(&can2);
-    // #endif
+#else
+    hw_can_init(&can1);
+#endif
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
@@ -103,6 +122,12 @@ void tasks_init(void)
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
+
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
+    io_canTx_init(jsoncan_transmit_func, charger_transmit_func);
+    io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
+    io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
 
     jobs_init();
 
@@ -180,24 +205,22 @@ void tasks_runCanTx(void)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
 
-        // #ifdef CHARGER_CAN
-        //         // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN
-        //         for those
-        //         // (they won't get seen by the charger, but they'll show up on CANoe).
-        //         // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the
-        //         FD
-        //         // peripheral is configured without BRS. Figure out why it wasn't working?
-        //         if (tx_msg.dlc > 8)
-        //         {
-        //             LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
-        //         }
-        //         else
-        //         {
-        //             LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
-        //         }
-        // #else
-        LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
-        // #endif
+#ifdef CHARGER_CAN
+        // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN for those
+        // (they won't get seen by the charger, but they'll show up on CANoe).
+        // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the FD
+        // peripheral is configured without BRS. Figure out why it wasn't working?
+        if (tx_msg.dlc > 8)
+        {
+            LOG_IF_ERR(hw_fdcan_transmit(&can2, &tx_msg));
+        }
+        else
+        {
+            LOG_IF_ERR(hw_can_transmit(&can2, &tx_msg));
+        }
+#else
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
+#endif
     }
 }
 
@@ -215,7 +238,7 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCVoltages();
     for (;;)
     {
@@ -228,7 +251,7 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-    static const TickType_t period_ms = 1000U; // 1Hz
+    static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCTemps();
     for (;;)
     {

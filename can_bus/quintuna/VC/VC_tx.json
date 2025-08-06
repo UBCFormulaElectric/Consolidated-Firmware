@@ -1,10 +1,4 @@
 {
-  "Bootup": {
-    "msg_id": 230,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 500,
     "cycle_time": 10,
@@ -20,6 +14,9 @@
         "resolution": 1,
         "min": 0,
         "max": 10
+      },
+      "InverterState": {
+        "enum" : "VCInverterState"
       }
     }
   },
@@ -58,6 +55,38 @@
       }
     }
   },
+  "LoadTransfer": {
+    "msg_id" : 508,
+    "cycle_time": 100,
+    "description": "Vehicle Load Info",
+    "signals": {
+      "FrontLeftWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "FrontRightWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "RearLeftWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "RearRightWheelVerticalForce": {
+        "min": 0,
+        "max": 1000,
+        "resolution": 1
+      },
+      "LoadTransferScalar": {
+        "min": -2,
+        "max": 2,
+        "resolution": 0.1
+      }
+    }
+  },
   "VehicleDynamics": {
     "msg_id": 510,
     "cycle_time": 100,
@@ -72,7 +101,20 @@
       "VehicleVelocity": {
         "bits": 8
       },
-      "FrontYawMoment": {
+      "ReferenceYawRate":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "CorrectionYawRate":
+      {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1
+      },
+      "FrontYawMoment":
+      {
         "min": -100,
         "max": 100,
         "resolution": 0.1
@@ -108,7 +150,7 @@
       "TSMSOKStatus": {
         "bits": 1
       },
-      "SplitterBoxInterlockOKStatus": {
+      "MSDOrEMeterOKStatus": {
         "bits": 1
       }
     }
@@ -118,6 +160,9 @@
     "cycle_time": 100,
     "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
     "signals": {
+      "RsmTurnOnPump": {
+        "bits": 1
+      },
       "RearLeftPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
@@ -125,24 +170,6 @@
         "unit": "A"
       },
       "RearLeftPumpStatus": {
-        "bits": 1
-      },
-      "RearRightPumpCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "RearRightPumpStatus": {
-        "bits": 1
-      },
-      "FrontPumpCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "FrontPumpStatus": {
         "bits": 1
       },
       "LeftRadiatorFanCurrent": {
@@ -275,6 +302,153 @@
       }
     }
   },
+  "EllipseEkfNavVelocity": {
+    "msg_id": 218,
+    "cycle_time": 100,
+    "description": "Car Velocity info",
+    "signals": {
+      "VelocityNorth": {
+          "resolution": 0.05,
+          "min": -35,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityNorthAccuracy": {
+          "resolution": 0.1,
+          "min": 0,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityEast": {
+          "resolution": 0.05,
+          "min": -35,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityEastAccuracy": {
+          "resolution": 0.1,
+          "min": 0,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityDown": {
+          "resolution": 0.05,
+          "min": -35,
+          "max": 35,
+          "unit": "m/s"
+      },
+      "VelocityDownAccuracy": {
+          "resolution": 0.1,
+          "min": 0,
+          "max": 35,
+          "unit": "m/s"
+      }
+    }
+  },
+  "PIDSlipRatio": {
+    "msg_id": 213,
+    "cycle_time": 1000,
+    "description": "Debug messages for the PID slip ratio controller",
+    "signals": {
+      "PIDSlipRatioOutput": {
+        "start_bit": 0,
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "PIDSlipRatioError": {
+        "start_bit": 8,
+        "bits": 16,
+        "offset": 0,
+        "signed": true,
+        "min": -80,
+        "max": 80,
+        "scale": 0.1
+      },
+      "PIDSlipRatioDerivative": {
+        "start_bit": 24,
+        "bits": 16,
+        "offset": 0,
+        "signed": true,
+        "min": -160,
+        "max": 160,
+        "scale": 0.1
+      },
+      "PIDSlipRatioIntegral": {
+        "start_bit": 40,
+        "bits": 24,
+        "offset": 0,
+        "signed": true,
+        "min": -21474836,
+        "max": 21474836,
+        "scale": 0.1
+      }
+    }
+  },
+  "SlipRatios": {
+    "msg_id": 214,
+    "cycle_time": 1000,
+    "description": "Debug Messages for the Traction Control component of Torque Vectoring",
+    "signals": {
+      "SlipRatioRR": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "SlipRatioRL": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "SlipRatioFR": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      },
+      "SlipRatioFL": {
+        "bits": 8,
+        "offset": 0,
+        "signed": true,
+        "min": -1,
+        "max": 1,
+        "scale": 0.01
+      }
+    }
+  },
+  "PowerLimit": {
+    "msg_id": 216,
+    "cycle_time": 10,
+    "description": "Debug Power Messages for Power Limit ",
+    "signals": {
+      "TotalAllocatedPower": {
+        "min": 0,
+        "max": 120,
+        "resolution": 0.1
+      },
+      "RequestedPower": {
+        "min": 0,
+        "max": 120,
+        "resolution": 0.1
+      },
+      "PowerLimitValue" : {
+        "min": 0,
+        "max": 120,
+        "resolution": 0.1
+      }
+    }
+  },
   "ImuData": {
     "msg_id": 225,
     "cycle_time": 10,
@@ -370,7 +544,7 @@
         "bits": 1
       },
       "PumpRampUpSetPoint": {
-        "resolution": 1,
+        "resolution": 0.1,
         "min": 0,
         "max": 100,
         "unit": "%"
@@ -399,6 +573,19 @@
         "min": -360,
         "max": 360,
         "unit": "deg/s"
+      }
+    }
+  },
+  "PedalPercentage": {
+    "msg_id": 231,
+    "cycle_time": 100,
+    "description": "Pedal percentage info",
+    "signals": {
+      "RegenMappedPedalPercentage": {
+        "min": -100,
+        "max": 100,
+        "resolution": 0.1,
+        "unit": "%"
       }
     }
   },
@@ -579,6 +766,79 @@
         "start_bit": 48,
         "bits": 16,
         "signed": true
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 599,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "PowerMonitoring": {
+    "msg_id": 514,
+    "cycle_time": 100,
+    "description": "Power monitoring chip",
+    "signals": {
+      "ChannelOneVoltage": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 32.0,
+        "unit": "V"
+      },
+      "ChannelTwoVoltage": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 32.0,
+        "unit": "V"
+      },
+      "ChannelOneCurrent": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 25.0,
+        "unit": "A"
+      },
+      "ChannelTwoCurrent": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 25.0,
+        "unit": "A"
+      },
+      "ChannelOnePower": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 800.0,
+        "unit": "W"
+      },
+      "ChannelTwoPower": {
+        "resolution": 0.1,
+        "min": 0.0,
+        "max": 800.0,
+        "unit": "W"
+      }
+    }
+  },
+  "PCM": {
+    "msg_id": 234,
+    "cycle_time" : 100, 
+    "signals":
+    {
+      "PcmRetryCount":
+      {
+        "min" : 0,
+        "max" : 5,
+        "resolution": 1
+      }
+    }
+  },
+  "DriveMode": {
+    "msg_id": 235,
+    "cycle_time" : 100, 
+    "signals":
+    {
+      "VcDriveMode":
+      {
+        "enum": "DriveMode"
       }
     }
   }

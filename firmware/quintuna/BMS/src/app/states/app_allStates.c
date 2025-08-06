@@ -3,10 +3,12 @@
 #include "app_heartbeatMonitor.h"
 #include "app_imd.h"
 #include "app_irs.h"
+#include "app_powerLimit.h"
 #include "app_segments.h"
 #include "app_shdnLoop.h"
 #include "app_tractiveSystem.h"
 #include "io_bspdTest.h"
+#include "io_fans.h"
 #include "io_faultLatch.h"
 
 #include "app_canRx.h"
@@ -25,8 +27,6 @@ void app_allStates_init(void)
     app_timer_restart(&cell_monitor_settle_timer);
 }
 
-void app_allStates_runOnTick1Hz(void) {}
-
 void app_allStates_runOnTick100Hz(void)
 {
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -38,6 +38,12 @@ void app_allStates_runOnTick100Hz(void)
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
     app_shdnLoop_broadcast();
+    app_powerLimit_broadcast();
+
+    // TODO: Enable fans for endurance when contactors are closed.
+    // const bool hv_up = io_irs_isNegativeClosed() && io_irs_isPositiveClosed();
+    // io_fans_tick(hv_up);
+    io_fans_tick(false);
 
     io_bspdTest_enable(app_canRx_Debug_EnableTestCurrent_get());
     app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
@@ -60,13 +66,11 @@ void app_allStates_runOnTick100Hz(void)
 
     app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
     app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdTest_isAccelBrakeOk());
-
-    // // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
-    // // monitoring chips within 3 cycles
+    // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
+    // monitoring chips within 3 cycles
     // const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
     // if (acc_fault && settle_time_expired)
     // {
-    //     // TODO: Re-enable!
-    //     // app_stateMachine_setNextState(app_faultState_get());
+    //     app_stateMachine_setNextState(app_faultState_get());
     // }
 }

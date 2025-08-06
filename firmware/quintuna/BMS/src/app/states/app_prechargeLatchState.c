@@ -21,6 +21,9 @@ static void prechargeLatchStateRunOnTick100Hz(void)
     {
         app_stateMachine_setNextState(&init_state);
     }
+
+    // Run last since this checks for faults which overrides any other state transitions.
+    app_allStates_runOnTick100Hz();
 }
 
 static void prechargeLatchStateRunOnExit(void) {}

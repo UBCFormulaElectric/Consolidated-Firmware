@@ -1,3 +1,4 @@
+#include "app_utils.h"
 #include "io_loadswitchFake.h"
 
 #include <cassert>
@@ -18,14 +19,20 @@ void reset_tiLoadswitch(TI_LoadSwitch &tils)
 }
 void reset_stLoadswitch(ST_LoadSwitch &stls)
 {
-    stls.pgood                                       = true;
-    stls.set_stby_reset_gpio                         = false;
-    const_cast<Efuse *>(stls.efuse1)->current        = 0.0f;
-    const_cast<Efuse *>(stls.efuse2)->current        = 0.0f;
-    const_cast<Efuse *>(stls.efuse1)->enabled        = false;
-    const_cast<Efuse *>(stls.efuse2)->enabled        = false;
-    const_cast<Efuse *>(stls.efuse1)->simulate_fault = false;
-    const_cast<Efuse *>(stls.efuse2)->simulate_fault = false;
+    stls.pgood               = true;
+    stls.set_stby_reset_gpio = false;
+    if (stls.efuse1 != NULL)
+    {
+        const_cast<Efuse *>(stls.efuse1)->current        = 0.0f;
+        const_cast<Efuse *>(stls.efuse1)->enabled        = false;
+        const_cast<Efuse *>(stls.efuse1)->simulate_fault = false;
+    }
+    if (stls.efuse2 != NULL)
+    {
+        const_cast<Efuse *>(stls.efuse2)->current        = 0.0f;
+        const_cast<Efuse *>(stls.efuse2)->enabled        = false;
+        const_cast<Efuse *>(stls.efuse2)->simulate_fault = false;
+    }
 }
 void simulate_st_loadswitch_fault(const ST_LoadSwitch *loadswitch, const Efuse *efuse)
 {
@@ -70,6 +77,13 @@ extern "C"
         io_loadswitch_setChannel(loadswitch->efuse1, true);
         io_loadswitch_setChannel(loadswitch->efuse2, true);
     }
+
+    void io_STloadswitch_reset_set(const ST_LoadSwitch *loadswitch, bool set)
+    {
+        UNUSED(loadswitch);
+        UNUSED(set);
+    }
+
     void io_TILoadswitch_Reset(const TI_LoadSwitch *loadSwitch)
     {
         io_loadswitch_setChannel(loadSwitch->efuse, true);

@@ -81,11 +81,10 @@ static void init_update(void)
             data_buffer[5] = SEG_PATTERN_O;
             data_buffer[6] = SEG_PATTERN_P;
             break;
-        case SHDN_SB_ILCK:
-            data_buffer[0] = SEG_PATTERN_T;
+        case SHDN_MSD_EMETER_ILCK:
+            data_buffer[0] = SEG_PATTERN_M;
             data_buffer[1] = SEG_PATTERN_S;
-            data_buffer[2] = SEG_PATTERN_M;
-            data_buffer[3] = SEG_PATTERN_S;
+            data_buffer[2] = SEG_PATTERN_D;
             break;
         case SHDN_FR_ILCK:
             data_buffer[0] = SEG_PATTERN_F;
@@ -111,7 +110,7 @@ static void init_update(void)
             data_buffer[4] = SEG_PATTERN_L;
             data_buffer[5] = SEG_PATTERN_K;
             break;
-        case SHDN_HV_P_Ilck:
+        case SHDN_HV_P_ILCK:
             data_buffer[0] = SEG_PATTERN_H;
             data_buffer[1] = SEG_PATTERN_V;
             data_buffer[2] = SEG_PATTERN_D;
@@ -120,7 +119,7 @@ static void init_update(void)
             data_buffer[5] = SEG_PATTERN_L;
             data_buffer[6] = SEG_PATTERN_K;
             break;
-        case SHDN_HV_N_Ilck:
+        case SHDN_HV_N_ILCK:
             data_buffer[0] = SEG_PATTERN_H;
             data_buffer[1] = SEG_PATTERN_V;
             data_buffer[2] = SEG_PATTERN_D;

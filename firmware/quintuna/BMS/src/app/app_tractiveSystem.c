@@ -17,8 +17,6 @@
 #define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 #define STANDARD_TS_CHARGE_CURRENT_AMPS (STANDARD_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 
-#define TS_OVERCURRENT_DEBOUNCE_DURATION_MS (100U)
-
 #define W_TO_KW 1.0e-3f
 
 TimerChannel overcurrent_fault_timer;
@@ -58,6 +56,16 @@ float app_tractiveSystem_getCurrent(void)
     }
 }
 
+bool app_tractiveSystem_currentSensorOk(void)
+{
+    return io_tractiveSystem_currentSensorOk();
+}
+
+bool app_tractiveSystem_voltageSensorOk(void)
+{
+    return io_tractiveSystem_voltageSensorOk();
+}
+
 void app_tractiveSystem_broadcast(void)
 {
     const float ts_voltage            = app_tractiveSystem_getVoltage();
@@ -72,14 +80,6 @@ void app_tractiveSystem_broadcast(void)
     app_canTx_BMS_VoltageDiagState_set(ts_voltage_diag_state);
     app_canTx_BMS_CurrentDiagState_set(ts_current_diag_state);
 
-    //    Charge current is positive, discharge current is negative
-    //    TS current should be in the range: (-175, 30)
-    const float current_A = app_tractiveSystem_getCurrent();
-    // Check if the current is out of range
-    const bool ts_current_out_of_bounds =
-        !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, current_A);
-    const bool ts_overcurrent_fault =
-        app_timer_runIfCondition(&overcurrent_fault_timer, ts_current_out_of_bounds) == TIMER_STATE_EXPIRED;
-
-    app_canAlerts_BMS_Warning_TractiveSystemOvercurrent_set(ts_overcurrent_fault);
+    app_canTx_BMS_CurrentSensorOk_set(ts_current_sns_ok);
+    app_canTx_BMS_VoltageSensorOk_set(ts_voltage_sns_ok);
 }

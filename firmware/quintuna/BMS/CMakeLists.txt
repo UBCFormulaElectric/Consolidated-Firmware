@@ -14,10 +14,9 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_thermistor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
-        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_math.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -39,6 +38,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
@@ -179,7 +179,14 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
-            #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_irs.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bmsShdn.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_charger.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fans.h"
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
     )
     create_fake_library(
@@ -188,5 +195,6 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_jsoncan_fakes" "quintuna_BMS_fakes" "quintuna_BMS_commit_info")
+    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
     target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()

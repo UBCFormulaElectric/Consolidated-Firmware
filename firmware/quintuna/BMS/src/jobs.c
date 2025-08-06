@@ -5,7 +5,7 @@
 #include "states/app_allStates.h"
 #include "app_precharge.h"
 #include "app_segments.h"
-// #include "app_heartbeatMonitors.h"
+#include "app_shdnLoop.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_commitInfo.h"
@@ -66,7 +66,6 @@ void jobs_init()
     app_canTx_BMS_Heartbeat_set(true);
 
     app_precharge_init();
-    // app_heartbeatMonitor_init(&hb_monitor);
 
     app_segments_setDefaultConfig();
     app_segments_initFaults();
