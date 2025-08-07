@@ -42,11 +42,11 @@ static void computeRegenTorqueRequest(
     TorqueAllocationOutputs   *torqueOutputToMotors);
 
 // Global variables for regenerative braking logic
-static RegenBraking_Inputs        regenAttributes = { .enable_active_differential = true };
-static ActiveDifferential_Inputs  activeDifferentialInputs;
-static ActiveDifferential_Outputs activeDifferentialOutputs;
-static bool                       regen_enabled = true;
-static PowerLimitingInputs        powerLimitingInputs;
+static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
+static ActiveDifferential_Inputs activeDifferentialInputs;
+// static ActiveDifferential_Outputs activeDifferentialOutputs;
+static bool                regen_enabled = true;
+static PowerLimitingInputs powerLimitingInputs;
 
 void app_regen_run(const float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
