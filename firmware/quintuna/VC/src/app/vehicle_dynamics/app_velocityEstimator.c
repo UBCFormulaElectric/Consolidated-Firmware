@@ -4,10 +4,14 @@
 #include "app_velocityEstimator.h"
 #include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
+#include "app_sbgEllipse.h"
 
 // for debugging purposes
 #define TOGGLE_GPS 1
 #define TOGGLE_WHEEL_SPD 1
+
+// rpm derivative check constant, must be tuned
+#define SPEED_CHECK_MPS 2.0f
 
 /**
  * For making a generalized ekf api:
@@ -49,19 +53,76 @@
 static Matrix state_estimate = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
 
 // covariance estimate shows accuracy of velocity estimate
-static Matrix covariance_estimate = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+static Matrix covariance_estimate = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f, 
+        0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = DIM 
+};
 
-static Matrix F_jacobian = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+static Matrix F_jacobian = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f, 
+        0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = DIM 
+};
 
-static Matrix H_jacobian = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+static Matrix H_jacobian = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f, 
+        0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = DIM 
+};
 
-static Matrix measurement_predicted = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
+static Matrix measurement_predicted = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = 1 
+};
 
-static Matrix process_noise_cov = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+static Matrix process_noise_cov = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f, 
+        0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = DIM 
+};
 
-static Matrix measurement_ws_noise_cov = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+static Matrix measurement_ws_noise_cov = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f, 
+        0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = DIM 
+};
 
-static Matrix measurement_gps_noise_cov = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
+static Matrix measurement_gps_noise_cov = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f, 
+        0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = DIM 
+};
+
+// elements in order: {rr, rl, fr, fl}
+static Matrix measurement_ws_prev = { 
+    .mat = (float[]){ 
+        0.0f, 0.0f, 0.0f, 0.0f 
+    }, 
+    .rows = DIM, 
+    .cols = 1 
+};
 
 static float time_step;
 
@@ -87,21 +148,24 @@ void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
     Matrix measurement_ws  = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
     Matrix measurement_gps = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
 
+    // set up control inputs for prediction step
     setUpControlInputs(&control_input, inputs);
-    convertWheelSpeedToMeasurement(&measurement_ws, inputs);
+
+    // set up measurements for update step
     convertGpsToMeasurement(&measurement_gps, inputs);
+    bool wsCheck = convertWheelSpeedToMeasurement(&measurement_ws, inputs);
 
     predict(&state_estimate, &control_input);
 
 #if (TOGGLE_WHEEL_SPD == 1)
     // use wheelspeed measurement if they are not slipping
-    if (inputs->rpm_derivative_ok)
+    if (wsCheck == true)
         update(&measurement_ws, &state_estimate, &measurement_ws_noise_cov);
 #endif
 
 #if (TOGGLE_GPS == 1)
     // use gps measurement if sbg is in the correct mode (solution mode 4)
-    if (inputs->gps_valid)
+    if (app_sbgEllipse_getEkfSolutionMode() == POSITION)
         update(&measurement_gps, &state_estimate, &measurement_gps_noise_cov);
 #endif
 }
@@ -116,32 +180,65 @@ float *app_velocityEstimator_getCovariance()
     return covariance_estimate.mat;
 }
 
-void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
+/**
+ * add functionality to remove a specific wheel from the velocity calculation
+ * if it violates the derivative check
+ */
+bool convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
 {
-    float v_rr = MOTOR_RPM_TO_MPS(inputs->rpm_rr);
-    float v_rl = MOTOR_RPM_TO_MPS(inputs->rpm_rl);
-    float v_fr = MOTOR_RPM_TO_MPS(inputs->rpm_fr);
-    float v_fl = MOTOR_RPM_TO_MPS(inputs->rpm_fl);
+    // element ordering: {rr, rl, fr, fl}
+    float v[4] = {
+        MOTOR_RPM_TO_MPS(inputs->rpm_rr),
+        MOTOR_RPM_TO_MPS(inputs->rpm_rl),
+        MOTOR_RPM_TO_MPS(inputs->rpm_fr),
+        MOTOR_RPM_TO_MPS(inputs->rpm_fl)
+    };
 
     float yaw_rate    = inputs->yaw_rate_rad;
     float wheel_angle = inputs->wheel_angle_rad;
 
-    float vx_rr = v_rr + yaw_rate * TRACK_WIDTH_m;
-    float vx_rl = v_rl - yaw_rate * TRACK_WIDTH_m;
-    float vx_fr = v_fr * cosf(wheel_angle) + yaw_rate * TRACK_WIDTH_m;
-    float vx_fl = v_fr * cosf(wheel_angle) - yaw_rate * TRACK_WIDTH_m;
+    // x velocity components
+    float vx[4] = {
+        v[0] + yaw_rate * TRACK_WIDTH_m,
+        v[1] - yaw_rate * TRACK_WIDTH_m,
+        v[2] * cosf(wheel_angle) + yaw_rate * TRACK_WIDTH_m,
+        v[3] * cosf(wheel_angle) - yaw_rate * TRACK_WIDTH_m
+    };
 
-    float vy_rr = -yaw_rate * DIST_REAR_AXLE_CG - v_rr;
-    float vy_rl = -yaw_rate * DIST_REAR_AXLE_CG - v_rl;
-    float vy_fr = yaw_rate * DIST_FRONT_AXLE_CG - v_fr * sinf(wheel_angle);
-    float vy_fl = yaw_rate * DIST_FRONT_AXLE_CG - v_fl * sinf(wheel_angle);
+    // y velocity components
+    float vy[4] = {
+        -yaw_rate * DIST_REAR_AXLE_CG - v[0],
+        -yaw_rate * DIST_REAR_AXLE_CG - v[1],
+        yaw_rate * DIST_FRONT_AXLE_CG - v[2] * sinf(wheel_angle),
+        yaw_rate * DIST_FRONT_AXLE_CG - v[3] * sinf(wheel_angle)
+    };
 
-    float vx = (vx_fl + vx_fr + vx_rl + vx_rr) / 4.0f;
-    float vy = (vy_fl + vy_fr + vy_rl + vy_rr) / 4.0f;
+    float sum_vx = 0.0f, sum_vy = 0.0f;
+    int count = 0;
 
-    measurement->mat[0] = vx;
-    measurement->mat[1] = vy;
+    for (int i = 0; i < 4; i++) {
+        if (fabsf(v[i] - measurement_ws_prev.mat[i]) <= SPEED_CHECK_MPS) {
+            sum_vx += vx[i];
+            sum_vy += vy[i];
+            count++;
+        }
+    }
+
+    // store current speeds for next check
+    for (int i = 0; i < 4; i++) {
+        measurement_ws_prev.mat[i] = v[i];
+    }
+
+    measurement->mat[0] = sum_vx / (float)count;
+    measurement->mat[1] = sum_vy / (float)count;
+
+    if (count == 0) {
+        return false; // all wheels failed derivative check
+    }
+
+    return true;
 }
+
 
 void setUpControlInputs(Matrix *control_inputs, VelocityEstimator_Inputs *inputs)
 {
