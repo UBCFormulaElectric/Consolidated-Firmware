@@ -56,7 +56,7 @@ void app_segments_setBalanceConfig(const bool balance_config[NUM_SEGMENTS][CELLS
     }
 }
 
-void app_segments_setThermistorMuxConfig(ThermistorMux mux)
+void app_segments_setThermistorMuxConfig(const ThermistorMux mux)
 {
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {

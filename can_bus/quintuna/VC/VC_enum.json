@@ -22,6 +22,15 @@
     "VELOCITY": 3,
     "POSITION": 4
   },
+
+  "VCInverterState": {
+    "INV_SYSTEM_READY":0,
+    "INV_DC_ON":1,
+    "INV_ENABLE":2,
+    "INV_INVERTER_ON":3,
+    "INV_READY_FOR_DRIVE":4
+  },
+  
   "EllipseErrorCode": {
     "ELLIPSE_NO_ERROR": 0,
     "ELLIPSE_ERROR": 1,
@@ -44,5 +53,11 @@
     "ELLIPSE_NOT_CONTINUOUS_FRAME": 18,
     "ELLIPSE_INCOMPATIBLE_HARDWARE": 19,
     "ELLIPSE_INVALID_VERSION": 20
-  }
+  },
+  "PcmRetryStates":
+  {
+    "NO_RETRY" : 0,
+    "RETRY_TRIGGERED" : 1,
+    "RETRY_DONE": 2
+  } 
 }

@@ -1,10 +1,4 @@
 {
-  "Bootup": {
-    "msg_id": 715,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 700,
     "cycle_time": 100,
@@ -12,9 +6,6 @@
     "signals": {
       "Heartbeat": {
         "bits": 1
-      },
-      "State": {
-        "enum": "RsmStates"
       }
     }
   },
@@ -130,13 +121,16 @@
   "Brakes": {
     "msg_id": 713,
     "cycle_time": 1000,
-    "description": "Brake data",
+    "description": "Front and rear brake pressures",
     "signals": {
-      "BrakePressure": {
+      "RearBrakePressure": {
         "resolution": 0.1,
         "min": 0,
-        "max": 100,
-        "unit": "bar"
+        "max": 2500,
+        "unit": "psi"
+      },
+      "BrakeActuated": {
+        "bits": 1
       }
     }
   },
@@ -149,5 +143,11 @@
         "bits": 1
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 799,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }

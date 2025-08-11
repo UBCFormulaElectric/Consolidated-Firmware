@@ -11,13 +11,8 @@ from typing import Dict, List, Optional, Set, Union
 import pandas as pd
 from strenum import StrEnum
 
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from .utils import (bits_for_uint, bits_to_bytes, is_int,
+                    pascal_to_screaming_snake_case, pascal_to_snake_case)
 
 logger = logging.getLogger(__name__)
 

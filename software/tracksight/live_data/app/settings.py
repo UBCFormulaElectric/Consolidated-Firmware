@@ -4,10 +4,15 @@ from typing import LiteralString
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+_DOTENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+if _DOTENV_PATH.exists():
+    load_dotenv(_DOTENV_PATH)
+else:
+    raise FileNotFoundError(f"Environment file not found at {_DOTENV_PATH}")
 
 
-def str2bool(v):
+def str2bool(v: str | None):
+    assert v is not None, "Environment variable cannot be None"
     return v.lower() in ("yes", "true", "t", "1")
 
 
@@ -31,5 +36,5 @@ SERIAL_PORT = os.environ.get("SERIAL_PORT")
 DATA_FILE = os.environ.get("DATA_FILE")
 DEBUG = str2bool(os.environ.get("DEBUG"))
 
-SERVER_IP = os.environ.get("BACKEND_IP", "192.168.1.126")
-SERVER_DOMAIN_NAME = os.environ.get("SERVER_DOMAIN_NAME", "telemservices")
+SERVER_IP = os.environ.get("SERVER_IP", "192.168.137.1")
+SERVER_DOMAIN_NAME = os.environ.get("SERVER_DOMAIN_NAME", "telem")

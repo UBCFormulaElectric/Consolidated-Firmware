@@ -35,15 +35,17 @@ void io_canReroute_init(
     {%- endfor %}
 }
 
-{% for bus, reroutes in bus_name_and_reroutes %}
-void io_canReroute_{{bus}}(const JsonCanMsg* rx_msg)
+{% for bus_reroute in bus_name_and_reroutes %}
+void io_canReroute_{{bus_reroute.bus_name}}(const JsonCanMsg* rx_msg)
 {
     switch(rx_msg->std_id)
     {
-        {%- for r in reroutes %}
-        case {{ r.message.id_macro() }}:
+        {%- for msg_reroute in bus_reroute.reroutes %}
+        case {{ msg_reroute.msg.id_macro() }}:
         {
-            transmit_func_{{r.to_bus_name}}(rx_msg);
+            {%- for to_bus in msg_reroute.to_busses %}
+            transmit_func_{{to_bus}}(rx_msg);
+            {%- endfor %}
             break;
         }
         {%- endfor %}

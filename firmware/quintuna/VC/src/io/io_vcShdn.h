@@ -26,4 +26,4 @@ bool io_vcShdn_RearRightMotorInterlock_get(void);
  * Get the status of the splitter box interlock shutdown pin
  * @return the status of the splitter box interlock shutdown pin set in the shutdown config
  */
-bool io_vcShdn_SplitterBoxInterlockFault_get(void);
+bool io_vcShdn_MSDOrEMeterFault_get(void);

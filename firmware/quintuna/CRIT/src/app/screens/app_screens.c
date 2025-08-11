@@ -5,7 +5,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 
-#define NUM_OF_DRIVE_SCREENS 3u
+#define NUM_OF_DRIVE_SCREENS 2u
 
 /************************* Global Variables ***************************/
 static uint8_t current_screen = 0;
@@ -29,9 +29,7 @@ void app_screens_init(void)
     io_rotary_setPushCallback(app_screens_next);
 
     drive_screens[0] = main_drive_screen;
-    drive_screens[1] = warning_screen;
-    drive_screens[2] = vd_screen;
-
+    drive_screens[1] = drive_modes_screen;
     app_screens_update();
 }
 

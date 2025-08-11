@@ -14,7 +14,7 @@
 
 // Msg IDs
 {% for message in all_messages -%}
-#define {{ message.id_macro() }} ({{ message.id }})
+#define {{ message.id_macro() }} ({{ message.id }}U)
 {% endfor %}
 
 // Msg lengths (in bytes)

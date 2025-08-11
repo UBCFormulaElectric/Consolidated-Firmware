@@ -1,10 +1,4 @@
 {
-  "Bootup": {
-    "msg_id": 912,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 900,
     "cycle_time": 100,
@@ -61,7 +55,7 @@
       "RegenSwitch": {
         "enum": "SwitchState"
       },
-      "TorqueVecSwitch": {
+      "VanillaOverrideSwitch": {
         "enum": "SwitchState"
       },
       "LaunchControlSwitch": {
@@ -78,7 +72,7 @@
     "description": "Drive Mode.",
     "signals": {
       "DriveMode": {
-        "bits": 4
+        "enum": "DriveMode"
       }
     }
   },
@@ -104,5 +98,11 @@
         "bits": 1
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 999,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }

@@ -3,8 +3,6 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define ADC_VOLTAGE_TO_CURRENT_A 1.720f
-
 void io_loadswitch_setChannel(const Efuse *channel, const bool enabled)
 {
     assert(channel->enable_gpio != NULL);
@@ -22,6 +20,12 @@ float io_loadswitch_getChannelCurrent(const Efuse *channel)
     const AdcChannel *current_sense = channel->sns_adc_channel;
     assert(current_sense != NULL);
     return hw_adc_getVoltage(current_sense) * ADC_VOLTAGE_TO_CURRENT_A;
+}
+
+void io_STloadswitch_reset_set(const ST_LoadSwitch *loadswitch, const bool set)
+{
+    assert(loadswitch->stby_reset_gpio != NULL);
+    hw_gpio_writePin(loadswitch->stby_reset_gpio, set);
 }
 
 void io_STloadswitch_Reset(const ST_LoadSwitch *loadswitch)

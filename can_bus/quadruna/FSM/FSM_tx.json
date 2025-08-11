@@ -117,7 +117,7 @@
     "msg_id": 306,
 
     "cycle_time": 100,
-    "description": "Front and rear brake pressures.",
+    "description": "Brake Presures.",
     "signals": {
       "FrontBrakePressure": {
         "resolution": 1,

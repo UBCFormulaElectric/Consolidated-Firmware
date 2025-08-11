@@ -36,7 +36,7 @@ void CanQML::fault_poll()
         emit warnings_changed();
 }
 
-bool CanQML::fault_consolidation(QList<Q_Fault_Warning_Info *> &a, Fault_Warning_Info *b, int b_size)
+bool CanQML::fault_consolidation(QList<Q_Fault_Warning_Info *> &a, Fault_Warning_Info *b, const int b_size)
 {
     bool has_changed = false;
     int  ai = 0, bi = 0;

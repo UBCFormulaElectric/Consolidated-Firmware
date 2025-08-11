@@ -1,7 +1,7 @@
 #include "app_timer.h"
 #include "io_time.h"
 
-void app_timer_init(TimerChannel *const timer, uint32_t duration_ms)
+void app_timer_init(TimerChannel *const timer, const uint32_t duration_ms)
 {
     timer->duration_ms   = duration_ms;
     timer->state         = TIMER_STATE_IDLE;
@@ -60,7 +60,7 @@ uint32_t app_timer_getElapsedTime(const TimerChannel *const timer)
         case TIMER_STATE_RUNNING:
         {
             // Get elapsed time, but clamp to duration
-            uint32_t total_elapsed_time = io_time_getCurrentMs() - timer->start_time_ms;
+            const uint32_t total_elapsed_time = io_time_getCurrentMs() - timer->start_time_ms;
             elapsed_time = (total_elapsed_time > timer->duration_ms) ? timer->duration_ms : total_elapsed_time;
             break;
         }

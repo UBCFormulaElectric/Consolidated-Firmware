@@ -39,9 +39,9 @@ void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], 
             success[seg_idx] = success_a[seg_idx];
             continue;
         }
-        else if (IS_EXIT_ERR(success_a[seg_idx]))
+        else if (IS_EXIT_ERR(success_b[seg_idx]))
         {
-            success[seg_idx] = success_a[seg_idx];
+            success[seg_idx] = success_b[seg_idx];
             continue;
         }
 

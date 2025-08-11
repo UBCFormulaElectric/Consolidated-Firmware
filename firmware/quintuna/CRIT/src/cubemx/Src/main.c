@@ -497,8 +497,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(ROT_A_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LAUNCH_CONTROL_SIG_Pin TORQUE_VECTORING_SIG_Pin REGEN_SIG_Pin */
-    GPIO_InitStruct.Pin  = LAUNCH_CONTROL_SIG_Pin | TORQUE_VECTORING_SIG_Pin | REGEN_SIG_Pin;
+    /*Configure GPIO pins : LAUNCH_CONTROL_SIG_Pin VANILLA_SIG_Pin REGEN_SIG_Pin */
+    GPIO_InitStruct.Pin  = LAUNCH_CONTROL_SIG_Pin | VANILLA_SIG_Pin | REGEN_SIG_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

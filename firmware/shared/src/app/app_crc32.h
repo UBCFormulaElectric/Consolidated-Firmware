@@ -79,7 +79,7 @@ uint32_t app_crc32_update(uint32_t crc, const void *data, size_t data_len);
  * \param[in] crc  The current crc value.
  * \return     The final crc value.
  */
-static inline uint32_t app_crc32_finalize(uint32_t crc)
+static inline uint32_t app_crc32_finalize(const uint32_t crc)
 {
     return crc ^ 0xffffffff;
 }

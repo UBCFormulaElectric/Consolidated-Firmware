@@ -2,7 +2,7 @@
 #include "app_canTx.h"
 #include "io_irs.h"
 #include "app_canRx.h"
-#include "app_faultState.h"
+#include "app_prechargeLatchState.h"
 #include "app_initState.h"
 #include "app_driveState.h"
 #include "app_allStates.h"
@@ -21,7 +21,7 @@ static void app_prechargeDriveStateRunOnTick100Hz(void)
 
     if (state == PRECHARGE_STATE_FAILED_CRITICAL)
     {
-        app_stateMachine_setNextState(app_faultState_get());
+        app_stateMachine_setNextState(app_prechargeLatchState_get());
     }
     else if (state == PRECHARGE_STATE_FAILED)
     {
@@ -30,6 +30,12 @@ static void app_prechargeDriveStateRunOnTick100Hz(void)
     else if (state == PRECHARGE_STATE_SUCCESS)
     {
         // Precharge successful, close positive contactor.
+
+        // i am not sure this is smart? cause if all states overrides into fault state, does it close contactors in
+        // time?
+        // also on the other hand you want to close positive before you open precharge, so i guess?? but i think the
+        // time between the two should be very minimal since they get handled in the onentry and onexit of each
+        // state transition, which happens consecutively
         io_irs_closePositive();
 
         app_stateMachine_setNextState(app_driveState_get());

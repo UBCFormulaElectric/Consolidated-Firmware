@@ -15,9 +15,7 @@ typedef struct
 } FaultLatch;
 
 #else
-
 EMPTY_STRUCT(FaultLatch);
-
 #endif
 
 // latches to operate on
