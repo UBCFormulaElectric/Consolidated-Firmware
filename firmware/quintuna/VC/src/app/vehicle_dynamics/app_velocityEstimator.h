@@ -53,9 +53,6 @@ typedef struct
     float accel_x;
     float accel_y;
     float yaw_rate_rad;
-    // conditional inputs
-    bool gps_valid;
-    bool rpm_derivative_ok;
 } VelocityEstimator_Inputs;
 
 typedef struct
@@ -127,7 +124,15 @@ void measurement_func(Matrix *x);
  */
 void measurement_jacobian(Matrix *x);
 
-void convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs);
+/**
+ * Converts the wheel rpm into a vehicle velocity with x and y components
+ * 
+ * Additionally it performs a derivative check on each wheel and excludes it
+ * from the calculation if it fails. If all wheels happen to fail it will
+ * return false and the estimator will not use wheel speeds at all until 
+ * it passes at least 1 derivative check.
+ */
+bool convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs);
 
 void setUpControlInputs(Matrix *control_inputs, VelocityEstimator_Inputs *inputs);
 
