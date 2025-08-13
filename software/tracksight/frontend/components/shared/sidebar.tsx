@@ -1,31 +1,38 @@
 "use client"
-import { Database, SaveIcon, Trash2, ArrowRight } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Database, Trash2, ArrowRight } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
 import type React from "react"
 
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { PausePlayButton, useDisplayControl } from "@/components/shared/PausePlayControl"
-import { useSignals } from "@/lib/contexts/SignalContext"
 import Image from "next/image"
+import { useMemo } from "react"
 
-interface SidebarProps {
-  activePage: string
-  setActivePage: (page: string) => void
-}
+export default function Sidebar() {
+  const pathname = usePathname();
+  const activePage = useMemo(() => {
+    if (pathname === "/live-data") {
+      return "live-data";
+    } else if (pathname === "/visualize") {
+      return "visualize";
+    } else if (pathname === "/dashboard") {
+      return "dashboard";
+    } else {
+      return "live-data"; // Default to live-data
+    }
+  }, [pathname]);
 
-export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
   const router = useRouter()
-  const { clearData } = useSignals()
+  // const { clearData } = useSignals()
   const { isAutoscrollEnabled, toggleAutoscroll } = useDisplayControl()
 
   const handleNavigation = (page: string, route: string) => {
-    setActivePage(page)
     router.push(route)
   }
 
   const handlePruneData = () => {
     if (confirm("Are you sure you want to clear all stored data? This will keep your signal subscriptions but remove all historical data.")) {
-      clearData()
+      // clearData()
     }
   }
 
@@ -77,11 +84,10 @@ export default function Sidebar({ activePage, setActivePage }: SidebarProps) {
         {/* Autoscroll Toggle Button */}
         <button
           onClick={toggleAutoscroll}
-          className={`p-2 rounded-md transition-colors relative ${
-            isAutoscrollEnabled 
-              ? "bg-green-600 text-white hover:bg-green-700" 
-              : "bg-gray-600 text-white hover:bg-gray-700"
-          }`}
+          className={`p-2 rounded-md transition-colors relative ${isAutoscrollEnabled
+            ? "bg-green-600 text-white hover:bg-green-700"
+            : "bg-gray-600 text-white hover:bg-gray-700"
+            }`}
           title={isAutoscrollEnabled ? "Disable autoscroll" : "Enable autoscroll - automatically scroll to new data"}
           aria-label="Toggle autoscroll"
         >
@@ -120,9 +126,8 @@ function NavItem({ icon, label, isActive, onClick }: NavItemProps) {
     <li>
       <button
         onClick={onClick}
-        className={`flex items-center px-2 py-1 text-sm rounded-md transition-colors ${
-          isActive ? "bg-blue-800 text-white" : "text-blue-100 hover:bg-blue-800/50"
-        }`}
+        className={`flex items-center px-2 py-1 text-sm rounded-md transition-colors ${isActive ? "bg-blue-800 text-white" : "text-blue-100 hover:bg-blue-800/50"
+          }`}
       >
         <span className="mr-2">{icon}</span>
         <span>{label}</span>

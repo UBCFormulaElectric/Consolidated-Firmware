@@ -1,10 +1,10 @@
 import {
   getAlertSignalType,
   useSignals,
-} from "@/lib/contexts/SignalContext";
+} from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 import { AlertCircle, AlertTriangle, Info } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface Alert {
   type: "Fault" | "Warning" | "Info";
@@ -17,7 +17,7 @@ type Severity = "HIGH" | "MEDIUM" | "LOW";
 type AlertType = "Fault" | "Warning" | "Info";
 type SignalType = AlertType | "FaultCount" | "WarningCount" | "InfoCount";
 export default function AlertBoard() {
-  const { data } = useSignals();
+  const data: any[] = useMemo(() => ([]), []);
 
   // Separate state for each alert type
   const [faults, setFaults] = useState<Alert[]>([]);

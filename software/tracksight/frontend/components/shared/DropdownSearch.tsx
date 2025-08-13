@@ -1,11 +1,12 @@
 "use client";
 
-import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
+import { useSignals } from "@/hooks/SignalContext";
 import { X } from "lucide-react";
-import React from "react";
+import React, { useMemo } from "react";
 import { PlusButton } from "./PlusButton";
+import { SignalType } from "@/hooks/SignalConfig";
 
-// Type for each row's state<X />
+// Type for each row's state
 export interface RowItem {
   isOpen: boolean;
   searchTerm: string;
@@ -32,8 +33,10 @@ export const RowEditor: React.FC<RowEditorProps> = ({
   onCreateComponent,
   onDeleteRow,
 }) => {
-  const { availableSignals, subscribeToSignal, isLoadingSignals } =
-    useSignals();
+  const { subscribeToSignal } = useSignals();
+
+  const availableSignals: any[] = useMemo(() => [], []);
+  const isLoadingSignals = false;
 
   // Filter available signals based on search term
   const filteredSignals = availableSignals.filter(

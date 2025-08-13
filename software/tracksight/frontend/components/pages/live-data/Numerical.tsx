@@ -3,9 +3,10 @@
 
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
-import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
+import { SignalType } from "@/hooks/SignalConfig";
+import { useSignals } from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DynamicSignalGraphProps {
@@ -31,15 +32,19 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
     const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
     const {
-      availableSignals,
       activeSignals,
-      numericalData,
-      enumData,
       subscribeToSignal,
       unsubscribeFromSignal,
-      isLoadingSignals,
-      isNumericalSignal,
     } = useSignals();
+
+    const availableSignals: any[] = useMemo(() => [], []);
+    const numericalData: any[] = useMemo(() => [], []);
+    const enumData: any[] = useMemo(() => [], []);
+    const isLoadingSignals = false;
+    const isNumericalSignal = useCallback((signalName: string) => {
+      // Check if the signal is a numerical signal
+      return true;
+    }, []);
 
     const [chartHeight, setChartHeight] = useState(256);
     const [searchTerm, setSearchTerm] = useState("");

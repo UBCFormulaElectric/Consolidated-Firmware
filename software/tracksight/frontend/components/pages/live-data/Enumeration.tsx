@@ -2,7 +2,8 @@
 "use client";
 
 import { usePausePlay } from "@/components/shared/PausePlayControl";
-import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
+import { SignalType } from "@/hooks/SignalConfig";
+import { useSignals } from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
@@ -31,13 +32,14 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
     const {
       activeSignals,
-      numericalData,
-      enumData,
       subscribeToSignal,
       unsubscribeFromSignal,
       getEnumValues,
       mapEnumValue,
     } = useSignals();
+
+    const numericalData: any[] = useMemo(() => [], []);
+    const enumData: any[] = useMemo(() => [], []);
 
     // Track if this component subscribed to the signal for proper cleanup
     const hasSubscribed = useRef<boolean>(false);
