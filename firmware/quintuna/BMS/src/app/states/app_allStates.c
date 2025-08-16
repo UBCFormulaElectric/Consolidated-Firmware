@@ -64,9 +64,9 @@ void app_allStates_runOnTick100Hz(void)
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
-    const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
-    if (acc_fault && settle_time_expired)
-    {
-        app_stateMachine_setNextState(app_faultState_get());
-    }
+    // const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
+    // if (acc_fault && settle_time_expired)
+    // {
+    //     app_stateMachine_setNextState(app_faultState_get());
+    // }
 }
