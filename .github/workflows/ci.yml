@@ -181,7 +181,7 @@ jobs:
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.car }}_${{ matrix.board }}_test
 
       - name: Check Coverage
-        run: python3 scripts/utilities/check_coverage.py
+        run: python3 scripts/utilities/coverage.py
           --folder_path $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}/CMakeFiles/${{ matrix.car }}_${{ matrix.board }}_test.dir/src
 
   test-shared:
