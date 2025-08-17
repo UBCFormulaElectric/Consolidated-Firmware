@@ -25,7 +25,7 @@ def find_obj_files(folder_path: str) -> list[LiteralString | str | bytes]:
         os.path.join(dirpath, filename)
         for dirpath, dirnames, filenames in os.walk(folder_path)
         for filename in filenames
-        if filename.lower().endswith('.obj')
+        # if filename.lower().endswith('.obj')
     ]
 
 
@@ -53,6 +53,7 @@ if __name__ == "__main__":
 
     obj_files = find_obj_files(folder_path)
     print(obj_files)
+    exit(0)
 
     total_lines, total_lines_hit = 0, 0
     total_branches, total_branches_hit = 0, 0
