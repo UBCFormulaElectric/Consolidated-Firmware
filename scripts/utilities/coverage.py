@@ -4,6 +4,8 @@ from typing import LiteralString
 import re
 import argparse
 
+OBJECT_FILE_EXTENSION = '.obj' if os.name == 'nt' else '.o'
+
 
 def find_obj_files(folder_path: str) -> list[LiteralString | str | bytes]:
     """
@@ -25,7 +27,7 @@ def find_obj_files(folder_path: str) -> list[LiteralString | str | bytes]:
         os.path.join(dirpath, filename)
         for dirpath, dirnames, filenames in os.walk(folder_path)
         for filename in filenames
-        # if filename.lower().endswith('.obj')
+        if filename.lower().endswith(OBJECT_FILE_EXTENSION)
     ]
 
 
@@ -52,8 +54,6 @@ if __name__ == "__main__":
     folder_path = args.folder_path
 
     obj_files = find_obj_files(folder_path)
-    print(obj_files)
-    exit(0)
 
     total_lines, total_lines_hit = 0, 0
     total_branches, total_branches_hit = 0, 0
