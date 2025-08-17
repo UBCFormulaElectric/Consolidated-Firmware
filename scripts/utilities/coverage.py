@@ -52,6 +52,7 @@ if __name__ == "__main__":
     folder_path = args.folder_path
 
     obj_files = find_obj_files(folder_path)
+    print(obj_files)
 
     total_lines, total_lines_hit = 0, 0
     total_branches, total_branches_hit = 0, 0
