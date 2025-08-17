@@ -137,16 +137,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- board: VC
-          #  car: quadruna
-          #- board: BMS
-          #  car: quadruna
-          #- board: FSM
-          #  car: quadruna
-          #- board: RSM
-          #  car: quadruna
-          #- board: CRIT
-          #  car: quadruna
           # - board: BMS
           #   car: quintuna
           #- board: CRIT
@@ -189,6 +179,10 @@ jobs:
         run: |
           cd $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.car }}_${{ matrix.board }}_test
+
+      - name: Check Coverage
+        run: python3 scripts/utilities/check_coverage.py
+          --folder_path $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}/CMakeFiles/${{ matrix.car }}_${{ matrix.board }}_test.dir/src
 
   test-shared:
     name: Test Shared
