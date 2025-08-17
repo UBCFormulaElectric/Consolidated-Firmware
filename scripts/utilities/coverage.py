@@ -6,6 +6,10 @@ import argparse
 
 OBJECT_FILE_EXTENSION = '.obj' if os.name == 'nt' else '.o'
 
+RED = '\033[91m'
+GREEN = '\033[92m'
+RESET = '\033[0m'
+
 
 def find_obj_files(folder_path: str) -> list[LiteralString | str | bytes]:
     """
@@ -98,12 +102,12 @@ if __name__ == "__main__":
 
     error = False
     if total_lines_hit / total_lines < LINE_COVERAGE_THRESHOLD:
-        print(f"Line coverage below {LINE_COVERAGE_THRESHOLD * 100:.2f}% threshold")
+        print(f"{RED}Line coverage below {LINE_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}")
         error = True
     if total_branches_hit / total_branches < BRANCH_COVERAGE_THRESHOLD:
-        print(f"Branch coverage below {BRANCH_COVERAGE_THRESHOLD * 100:.2f}% threshold")
+        print(f"{RED}Branch coverage below {BRANCH_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}")
         error = True
     if error:
         raise Exception("Coverage thresholds not met. Please check the coverage report.")
     else:
-        print("Coverage thresholds met. Good job!")
+        print(f"{GREEN}Coverage thresholds met. Good job!{RESET}")
