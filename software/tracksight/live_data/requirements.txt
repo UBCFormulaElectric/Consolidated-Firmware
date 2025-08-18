@@ -14,4 +14,5 @@ gunicorn
 protobuf==5.29.3
 psutil
 logfs
-dotenv
+do
+gevent
