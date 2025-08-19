@@ -3,10 +3,12 @@ Note: make sure to keep this file updated with the firmware
 """
 from dataclasses import dataclass
 import datetime
+import struct
 from threading import Thread
 from typing import Optional, Union
 import serial
 from crc import Calculator, Crc32
+from ntplib import ntp_to_system_time
 
 # ours
 from tasks.stop_signal import should_run
@@ -16,10 +18,14 @@ from tasks.broadcaster import CanMsg, can_msg_queue
 from settings import SERIAL_PORT
 from enum import Enum
 
-HEADER_SIZE = 7
-MAGIC = b"\xaa\x55"
+from ntp import ntp_request
 
-MAX_PAYLOAD_SIZE = 52  # this is arbitrary lmao
+_HEADER_SIZE = 7
+_MAGIC = b"\xaa\x55"
+_MAX_PAYLOAD_SIZE = 52  # this is arbitrary lmao
+# this is very interesting because CRC32 is an object which is of the correct type
+_CRC_CALCULATOR = Calculator(Crc32.CRC32) # type: ignore
+
 
 def _calculate_message_timestamp(message_timestamp, base_time):
     if message_timestamp > 0:
@@ -54,21 +60,21 @@ def _read_packet(ser: serial.Serial):
         buffer = buffer[1:]
 
         # find the magic bytes
-        while buffer[0:2] != MAGIC:
+        while buffer[0:2] != _MAGIC:
             buffer = buffer [1:]  # remove the first byte if it is not magic
-            if len(buffer) < 2: buffer += ser.read(HEADER_SIZE - len(buffer))
+            if len(buffer) < 2: buffer += ser.read(_HEADER_SIZE - len(buffer))
             # after this read, len(buffer) == HEADER_SIZE
             # this optimization allows us to not read the serial port less
             # while remaining under the maximum amount of bytes we are allowed to keep
-        assert buffer[0:2] == MAGIC, "Buffer should contain the magic bytes"
+        assert buffer[0:2] == _MAGIC, "Buffer should contain the magic bytes"
 
         # wait for full header
-        if len(buffer) < HEADER_SIZE: buffer += ser.read(HEADER_SIZE - len(buffer))
-        assert len(buffer) >= HEADER_SIZE, "Buffer should contain the full header of 7 bytes"
+        if len(buffer) < _HEADER_SIZE: buffer += ser.read(_HEADER_SIZE - len(buffer))
+        assert len(buffer) >= _HEADER_SIZE, "Buffer should contain the full header of 7 bytes"
 
         # parse remainder of header
         payload_length = buffer[2]
-        if payload_length > MAX_PAYLOAD_SIZE:
+        if payload_length > _MAX_PAYLOAD_SIZE:
             # note this means that magic is found, but the payload length is invalid
             # this is a good protection to make sure we don't overread the buffer and have to drop bytes
             logger.error(f"Payload length {payload_length} is too large")
@@ -76,17 +82,14 @@ def _read_packet(ser: serial.Serial):
 
 
 		# after this point, a supposed payload will be read into the buffer
-        total_length = HEADER_SIZE + payload_length
+        total_length = _HEADER_SIZE + payload_length
         if len(buffer) < total_length:
             buffer += ser.read(total_length - len(buffer))  # read the rest of the packet
         assert len(buffer) >= total_length, "Buffer should contain the full packet"
-
-        # this is very interesting because CRC32 is an object which is of the correct type
-        calculator = Calculator(Crc32.CRC32) # type: ignore
-
+ 
         # CRC check
-        payload = bytes(buffer[HEADER_SIZE:])
-        calculated_checksum = calculator.checksum(payload).to_bytes(4, byteorder="big").hex()
+        payload = bytes(buffer[_HEADER_SIZE:])
+        calculated_checksum = _CRC_CALCULATOR.checksum(payload).to_bytes(4, byteorder="big").hex()
         expected_crc = (
             int.from_bytes(buffer[3:7], byteorder="big")
             .to_bytes(4, byteorder="big")
@@ -112,45 +115,55 @@ class CanPayload:
     can_payload: bytes
 
 @dataclass
-class NTPMessage:
-    t0: float
+class NTPDateMessage:
+    pass
+
+@dataclass
+class NTPTimeMessage:
+    pass
 
 @dataclass
 class BaseTimeRegMessage:
-    base_time: float
+    payload: datetime.datetime
 
 @dataclass
 class TelemetryMessage:
-    payload: Union[CanPayload, NTPMessage, BaseTimeRegMessage]
+    payload: Union[CanPayload, NTPTimeMessage, NTPDateMessage, BaseTimeRegMessage]
 
 
 class TelemetryMessageType(Enum):
     CAN = 0x01
     NTP = 0x02
-    BaseTimeReg = 0x03
+    NTPDate = 0x03
+    BaseTimeReg = 0x04
 
 def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
     """
-    We contain all the nonsense protobuf disgusting types here
-    and make a nice interface for the rest of the code.
+    Converts the payload into a TelemetryMessage which is nice to handle
     """
     match payload[0]:
         case TelemetryMessageType.CAN:
             if len(payload) < 9:
                 return None # Not enough data for CAN message
             return TelemetryMessage(CanPayload(
-                can_id=int.from_bytes(payload[1:5], byteorder="big"),
-                can_time_offset=float.fromhex(payload[5:9].hex()),
+                can_id=struct.unpack('<I', payload[1:5])[0],
+                can_time_offset=float.fromhex(payload[5:9].hex()), # NOTE single precision time offset
                 can_payload=payload[9:],
             ))
         case TelemetryMessageType.NTP:
-            if len(payload) < 9:
-                return None # Not enough data for NTP message
-            return TelemetryMessage(NTPMessage(t0=float.fromhex(payload[1:9].hex())))
+            return TelemetryMessage(NTPTimeMessage())
+        case TelemetryMessageType.NTPDate:
+            return TelemetryMessage(NTPDateMessage())
         case TelemetryMessageType.BaseTimeReg:
-            if len(payload) < 9:
-                return None # Not enough data for BaseTimeReg message
-            return TelemetryMessage(BaseTimeRegMessage(base_time=float.fromhex(payload[1:9].hex())))
+            return TelemetryMessage(BaseTimeRegMessage(datetime.datetime(
+                year=payload[1] + 2000,  # need to offset this as on firmware side it is 0-99
+                month=payload[2],
+                day=payload[3],
+                hour=payload[4],
+                minute=payload[5],
+                second=payload[6],
+                microsecond=struct.unpack('<I', payload[7:11])[0]
+            )))
         case _:
             return None
 
@@ -187,31 +200,27 @@ def _read_messages():
                     can_timestamp=timestamp,
                     can_value=can_payload.can_payload
                 ))
-                pass
-            case NTPMessage(t0):
+            case NTPTimeMessage():
                 # Handle NTP message
-                
-                pass
-            case BaseTimeRegMessage(bt):
+                t1, t2 = ntp_request(0)
+                t1_dt, t2_dt = datetime.datetime.fromtimestamp(ntp_to_system_time(t1), datetime.timezone.utc), \
+                      datetime.datetime.fromtimestamp(ntp_to_system_time(t2), datetime.timezone.utc)
+                payload = struct.pack('<B', t1_dt.hour, t1_dt.minute, t1_dt.second) + struct.pack('<I', t1_dt.microsecond) + \
+                    struct.pack('<B', t2_dt.hour, t2_dt.minute, t2_dt.second) + struct.pack('<I', t2_dt.microsecond)
+                ser.write(payload)
+            case NTPDateMessage():
+                # Handle NTPDate message
+                today = datetime.datetime.now(datetime.timezone.utc)
+                year, month, date, day = today.year, today.month, today.day, today.weekday()
+                payload = struct.pack('<B', year - 2000, month, date, day)
+                ser.write(payload)
+            case BaseTimeRegMessage(payload):
                 # Handle BaseTimeReg message
-                # parse start_time from data if this pacakage is correct
-                # print(message_received)
-                base_time = datetime.datetime(
-                    year=message_received.payload[0]
-                    + 2000,  # need to offset this as on firmware side it is 0-99
-                    month=message_received.payload[1],
-                    day=message_received.payload[2],
-                    hour=message_received.payload[3],
-                    minute=message_received.payload[4],
-                    second=message_received.payload[5],
-                ).astimezone(datetime.timezone.utc)
+                # Note that it should already be in UTC when received
+                base_time = payload 
                 logger.info(f"Base time received: {base_time}")
             case _:
                 logger.error(f"Unknown message type: {type(message_received.payload)}")
-
-        # decode for start_time messages, don't push this to the queue
-
-
     logger.debug("Read messages thread stopped.")
 
 

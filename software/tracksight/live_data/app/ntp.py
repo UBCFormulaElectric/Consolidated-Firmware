@@ -1,7 +1,6 @@
 from ntplib import NTPPacket
+from ntplib import ntp_to_system_time
 import socket
-
-from ntplib import system_to_ntp_time, ntp_to_system_time
 
 _TIMEOUT = 5
 _NTP_VERSION = 3
