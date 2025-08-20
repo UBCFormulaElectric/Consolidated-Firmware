@@ -12,5 +12,26 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
-  "files.associations": {}
+  "files.associations": {
+    "hw_chimeraconfig_v2.h": "c",
+    "hw_pwminput.h": "c",
+    "hw_spis.h": "c",
+    "hw_pwmoutput.h": "c",
+    "hw_gpios.h": "c",
+    "shared.pb.h": "c",
+    "ssm.pb.h": "c",
+    "pb.h": "c",
+    "hw_pwms.h": "c",
+    "hw_spi.h": "c",
+    "main.h": "c",
+    "hw_i2c.h": "c",
+    "stdint.h": "c",
+    "hw_pwminputfreqonly.h": "c",
+    "hw_hal.h": "c",
+    "format": "c",
+    "hw_chimera_v2.h": "c",
+    "hw_usb.h": "c",
+    "io_log.h": "c",
+    "usb_device.h": "c"
+  }
 }

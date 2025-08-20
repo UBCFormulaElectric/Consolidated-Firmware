@@ -24,6 +24,10 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_PwmOutput.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
+
 )
 
 # Collect include dirs and srcs.

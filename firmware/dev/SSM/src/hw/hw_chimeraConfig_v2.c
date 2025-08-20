@@ -30,7 +30,7 @@ const SpiDevice *id_to_spi[] = {
 
 //Chimera V2 enums to PWM signaling peripherals.
 const PwmInput *id_to_pwm_input[] = {
-    [] = &
+    [ssm_PwmNetName_] = &
 };
 
 const PwmInputFreqOnly *id_to_pwm_input_freq_only[] = {

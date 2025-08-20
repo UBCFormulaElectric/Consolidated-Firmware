@@ -44,6 +44,9 @@ extern "C"
     /* USER CODE BEGIN EC */
     extern SPI_HandleTypeDef hspi1;
     extern SPI_HandleTypeDef hspi2;
+    extern TIM_HandleTypeDef htim1; //36000000 hz
+    extern TIM_HandleTypeDef htim2; //72000000 hz
+
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

@@ -35,4 +35,4 @@ cd $CHIMERA_V2_DIR
             protoc \
             --proto-path=proto $file
     done
-cd $CACHED_WORKING_DIR
+cd "$CACHED_WORKING_DIR"

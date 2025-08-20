@@ -51,6 +51,9 @@
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 
+TIM_HandleTypeDef htim1; //36000000 hz
+TIM_HandleTypeDef htim2; //72000000 hz
+
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {

@@ -145,6 +145,94 @@ static const SpiDevice *hw_chimera_v2_getSpi(const hw_chimera_v2_Config *config,
 }
 #endif
 
+#ifdef HAL_TIM_MODULE_ENABLED
+#include "hw_pwmInput.h"
+#include "hw_pwmInputFreqOnly.h"
+#include "hw_pwmOutput.h"
+
+/**
+ * @brief Extract the incoming complete pwm peripheral corresponding to the protobuf-specified pwm name.
+ * @param config Collection of protobuf enum to peripheral tables and net name tags.
+ * @param net_name Pointer to the protobuf-generated PwmInput net name struct.
+ * @return A pointer to the pwm peripheral, or NULL if an error occurred.
+ */
+static const PwmInput *hw_chimera_v2_getPwmInput(const hw_chimera_v2_Config *config, const PwmNetName *net_name)
+{
+    if (config->spi_net_name_tag != net_name->which_name)
+    {
+        LOG_ERROR("Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
+        return NULL;
+    }
+    if (config->i2c_net_name_tag != net_name->which_name)
+    {
+        LOG_ERROR("Chimera: Expected I2C net name with tag %d, got %d", config->i2c_net_name_tag, net_name->which_name);
+        return NULL;
+    }
+
+    if (net_name->which_name == I2cNetName_dam_net_name_tag)
+        return config->id_to_i2c[net_name->name.dam_net_name];
+    if (net_name->which_name == I2cNetName_fsm_net_name_tag)
+        return config->id_to_i2c[net_name->name.fsm_net_name];
+    if (net_name->which_name == I2cNetName_rsm_net_name_tag)
+        return config->id_to_i2c[net_name->name.rsm_net_name];
+    if (net_name->which_name == I2cNetName_vc_net_name_tag)
+        return config->id_to_i2c[net_name->name.vc_net_name];
+
+    LOG_ERROR("Chimera: Received I2C device from unsupported board.");
+    return 0;
+
+    LOG_ERROR("Received SPI device from unsupported board.");
+    return NULL;
+}
+
+/**
+ * @brief Extract the incoming frequency only pwm peripheral corresponding to the protobuf-specified pwm name.
+ * @param config Collection of protobuf enum to peripheral tables and net name tags.
+ * @param net_name Pointer to the protobuf-generated PwmInputFrequencyOnly net name struct.
+ * @return A pointer to the pwm peripheral, or NULL if an error occurred.
+ */
+static const PwmInputFreqOnly *hw_chimera_v2_getPwmInputFreqOnly(const hw_chimera_v2_Config *config, const PwmNetName *net_name)
+{
+    if (config->spi_net_name_tag != net_name->which_name)
+    {
+        LOG_ERROR("Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
+        return NULL;
+    }
+
+    if (net_name->which_name == SpiNetName_bms_net_name_tag)
+        return config->id_to_spi[net_name->name.bms_net_name];
+    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
+        return config->id_to_spi[net_name->name.ssm_net_name];
+
+    LOG_ERROR("Received SPI device from unsupported board.");
+    return NULL;
+}
+
+/**
+ * @brief Extract the outgoing pwm peripheral corresponding to the protobuf-specified pwm name.
+ * @param config Collection of protobuf enum to peripheral tables and net name tags.
+ * @param net_name Pointer to the protobuf-generated PwmOutput net name struct.
+ * @return A pointer to the pwm peripheral, or NULL if an error occurred.
+ */
+static const PwmOutput *hw_chimera_v2_getPwmOutput(const hw_chimera_v2_Config *config, const PwmNetName *net_name)
+{
+    if (config->spi_net_name_tag != net_name->which_name)
+    {
+        LOG_ERROR("Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
+        return NULL;
+    }
+
+    if (net_name->which_name == SpiNetName_bms_net_name_tag)
+        return config->id_to_spi[net_name->name.bms_net_name];
+    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
+        return config->id_to_spi[net_name->name.ssm_net_name];
+
+    LOG_ERROR("Received SPI device from unsupported board.");
+    return NULL;
+}
+
+#endif
+
 /**
  * @brief Evaluate a Chimera V2 request.
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
