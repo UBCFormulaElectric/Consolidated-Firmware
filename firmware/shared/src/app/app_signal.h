@@ -14,9 +14,6 @@ typedef struct
 {
     // A flag used to indicate if the callback function is triggered
     bool is_signal_active;
-    // The world associated with this signal
-    struct World *world;
-
     // State of the signal
     SignalState state;
 
@@ -43,6 +40,7 @@ void app_signal_init(Signal *signal, uint32_t entry_time, uint32_t exit_time);
  * @note This calls the is_entry_condition_high() and is_exit_condition_high()
  * methods of the given signal
  * @param signal The signal to update
- * @param current_time_ms The current time, in milliseconds
+ * @param entry_condition_high
+ * @param exit_condition_high
  */
 SignalState app_signal_getState(Signal *signal, bool entry_condition_high, bool exit_condition_high);

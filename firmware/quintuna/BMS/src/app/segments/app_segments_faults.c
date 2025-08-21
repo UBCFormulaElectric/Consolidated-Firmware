@@ -1,11 +1,11 @@
+#include "states/app_states.h"
+
 #include "app_segments.h"
 #include "app_segments_internal.h"
-#include "app_stateMachine.h"
 #include "app_timer.h"
 #include "app_canAlerts.h"
 #include "app_canRx.h"
 #include "io_ltc6813.h"
-#include "states/app_chargeState.h"
 
 // Allows balancing of cells even if slight over-charging occurs. Occured prior to Competition 2024, where a fully
 // charged pack with max cell V of 4.19 after charging reported as 4.21 after settling. Cause currently unknown, but
@@ -79,19 +79,26 @@ static const ProfileConfig fault_profile_config = {
 static Profile fault_profile;
 static Profile warning_profile;
 
-void profileInit(Profile *profile, const ProfileConfig *config)
+static TimerChannel cell_monitor_settle_timer;
+// Time for voltage and cell temperature values to settle
+#define CELL_MONITOR_TIME_TO_SETTLE_MS (300U)
+
+static void profileInit(Profile *profile, const ProfileConfig *config)
 {
     app_timer_init(&profile->under_voltage_fault_timer, config->under_voltage_debounce_ms);
     app_timer_init(&profile->over_voltage_fault_timer, config->over_voltage_debounce_ms);
     app_timer_init(&profile->over_temp_fault_timer, config->over_temp_debounce_ms);
     app_timer_init(&profile->comm_err_fault_timer, config->comm_err_debounce_ms);
     profile->config = config;
+
+    app_timer_init(&cell_monitor_settle_timer, CELL_MONITOR_TIME_TO_SETTLE_MS);
+    app_timer_restart(&cell_monitor_settle_timer);
 }
 
-bool checkProfile(Profile *profile)
+static bool checkProfile(Profile *profile)
 {
     // if we are charging, max cell temp is 45C not 60C
-    const bool  is_charging             = app_stateMachine_getCurrentState() == app_chargeState_get();
+    const bool  is_charging             = app_stateMachine_getCurrentState() == &charge_state;
     const float max_allowable_cell_temp = is_charging ? MAX_CELL_CHARGE_TEMP_DEGC : profile->config->max_temp;
 
     // Check if balancing is enabled. For safety reasons, also check if current state is charge state, as we do not want
@@ -116,14 +123,22 @@ bool checkProfile(Profile *profile)
     }
     const bool comm_err = !comm_ok;
 
+    // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
+    // monitoring chips within 3 cycles
+    const bool settle_time_expired = app_timer_updateAndGetState(&cell_monitor_settle_timer) == TIMER_STATE_EXPIRED;
+
     const bool under_voltage_debounced =
-        app_timer_runIfCondition(&profile->under_voltage_fault_timer, under_voltage_condition) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->under_voltage_fault_timer, under_voltage_condition) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
     const bool over_voltage_debounced =
-        app_timer_runIfCondition(&profile->over_voltage_fault_timer, over_voltage_condition) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->over_voltage_fault_timer, over_voltage_condition) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
     const bool over_temp_debounced =
-        app_timer_runIfCondition(&profile->over_temp_fault_timer, over_temp_condition) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->over_temp_fault_timer, over_temp_condition) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
     const bool comm_err_debounced =
-        app_timer_runIfCondition(&profile->comm_err_fault_timer, comm_err) == TIMER_STATE_EXPIRED;
+        app_timer_runIfCondition(&profile->comm_err_fault_timer, comm_err) == TIMER_STATE_EXPIRED &&
+        settle_time_expired;
 
     profile->config->under_voltage_setter(under_voltage_debounced);
     profile->config->over_voltage_setter(over_voltage_debounced);
