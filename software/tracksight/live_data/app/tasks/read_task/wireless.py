@@ -156,12 +156,12 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
             return TelemetryMessage(NTPDateMessage())
         case TelemetryMessageType.BaseTimeReg:
             return TelemetryMessage(BaseTimeRegMessage(datetime.datetime(
-                year=payload[1] + 2000,  # need to offset this as on firmware side it is 0-99
-                month=payload[2],
-                day=payload[3],
-                hour=payload[4],
-                minute=payload[5],
-                second=payload[6],
+                year=int(payload[1]) + 2000,  # need to offset this as on firmware side it is 0-99
+                month=int(payload[2]),
+                day=int(payload[3]),
+                hour=int(payload[4]),
+                minute=int(payload[5]),
+                second=int(payload[6]),
                 microsecond=struct.unpack('<I', payload[7:11])[0]
             )))
         case _:
