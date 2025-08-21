@@ -14,18 +14,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_definitions("DEBUG=$<CONFIG:Debug>")
 message("🛠️ Build Type: ${CMAKE_BUILD_TYPE}")
 
-# Globally accessible paths
-set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
-set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
-set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
-
 option(DEBUG_FETCHCONTENT "Enable verbose output for FetchContent" OFF)
 IF (DEBUG_FETCHCONTENT)
     set(FETCHCONTENT_QUIET OFF)
 ELSE ()
     set(FETCHCONTENT_QUIET ON)
 ENDIF ()
-# cmake_policy(SET CMP0135 NEW)
 
 
 # ======== Dependency Management Configs ========
@@ -74,6 +68,7 @@ option(TARGET "The target to build for. Choose between \"binary\" and \"test\"."
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
+    include(firmware/cmake/shared.cmake)
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
         project("UBC Formula Electric Software" C ASM)

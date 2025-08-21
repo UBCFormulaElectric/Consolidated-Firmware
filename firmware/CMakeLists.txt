@@ -1,4 +1,3 @@
-include(cmake/shared.cmake)
 include(cmake/dependencies.cmake)
 IF (HANDLE_DEPS)
     include(cmake/optional_deps.cmake)

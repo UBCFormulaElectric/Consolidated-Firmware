@@ -271,7 +271,7 @@ function(embedded_image
             --boot-hex ${BOOT_HEX_PATH}
             --app-metadata-hex-out ${APP_METADATA_HEX_PATH}
             --image-hex-out ${IMAGE_HEX_PATH}
-            WORKING_DIRECTORY ${REPO_ROOT_DIR}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
