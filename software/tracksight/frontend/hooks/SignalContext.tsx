@@ -67,7 +67,7 @@ function useAvailableSignals() {
     queryKey: ["availableSignals"],
     queryFn: async () => {
       if (DEBUG) console.log("Fetching signal metadata");
-      const res = await fetch(`${BACKEND_URL}/api/signal`);
+      const res = await fetch(`${BACKEND_URL}/signal`);
       if (!res.ok) throw new Error(`Failed to fetch signals: ${res.status}`);
       const list = await res.json();
 
@@ -168,6 +168,8 @@ function handleData(
 // Context interface
 type SignalContextType = {
   availableSignalQuery: UseQueryResult<SignalMeta[], Error>;
+  socketConnected: boolean;
+  reconnectSocket: () => void;
   activeSignals: string[];
   alertSignals: Record<keyof typeof signalPatterns, SignalMeta[]>;
   subscribeToSignal: (signalName: string, type?: SignalType) => void;
@@ -236,6 +238,10 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   }, [availableSignalQuery.data]);
   const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } = useSignalData();
   const socket = useSocket();
+  const socketConnected = socket.connected;
+  const reconnectSocket = useCallback(() => {
+    if (!socket.connected) socket.connect();
+  }, [socket]);
   const { activeSignals, subscribeToSignal, unsubscribeFromSignal, getSignalRefCount, isSubscribed, clearAllSubscriptions } = useSubscribers(socket, pruneSignalData, clearAllData);
   // handling new data
   useEffect(() => {
@@ -245,19 +251,18 @@ export function SignalProvider({ children }: { children: ReactNode }) {
       socket.off("data", data_handler);
     };
   }, [socket, isSubscribed, addDataPoint, enumMetadata])
-  // handling pause/resume
+  // handling pause/resume via HTTP API (per-SID)
   const { isPaused } = useDisplayControl();
   useEffect(() => {
-    // Emit pause event to backend
-    if (socket.active) {
-      throw new Error("Socket is not active, cannot pause signals");
-    }
-    const send_cmd = isPaused ? "resume" : "pause";
-    if (DEBUG) console.log(`Sending ${send_cmd} command to backend`);
-    socket.emit(send_cmd);
-  }, [socket, isPaused]);
+    // Socket must be connected to have a SID
+    if (!socket.connected) return;
+    const sid = socket.id;
+    const endpoint = isPaused ? `${BACKEND_URL}/${sid}/pause` : `${BACKEND_URL}/${sid}/play`;
+    if (DEBUG) console.log(`Sending ${isPaused ? "pause" : "play"} command to backend for sid ${sid}`);
+    fetch(endpoint, { method: "POST" }).catch((e) => DEBUG && console.warn("Pause/Play request failed", e));
+  }, [socket.connected, socket.id, isPaused]);
   // DOWN BADDDDD
-  const getEnumValues = useCallback((name: string) => enumMetadata.current[name] ? Object.values(enumMetadata.current[name]) : [], []);
+  const getEnumValues = useCallback((name: string) => enumMetadata[name] ? Object.values(enumMetadata[name]) : [], [enumMetadata]);
   const mapEnumValue = useCallback((name: string, val: number | string) => enumMetadata[name]?.[String(val)], [enumMetadata]);
   const getDataInTimeRange = useCallback((startTime: number, endTime: number): DataPoint[] => {
     return dataStore.current.getDataInTimeRange(startTime, endTime);
@@ -272,6 +277,8 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     <SignalContext.Provider
       value={{
         availableSignalQuery,
+  socketConnected,
+  reconnectSocket,
         activeSignals,
         alertSignals,
         subscribeToSignal,

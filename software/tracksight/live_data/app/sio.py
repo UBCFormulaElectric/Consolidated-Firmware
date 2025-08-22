@@ -4,7 +4,7 @@ from flask_app import app
 from logger import logger
 from middleware.subtable import add_sid, remove_sid
 
-sio = SocketIO(app, cors_allowed_origins="*")
+sio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True, logger=True, async_mode='gevent')
 
 @sio.on("test")
 def test(payload):

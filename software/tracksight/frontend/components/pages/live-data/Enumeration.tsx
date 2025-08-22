@@ -46,12 +46,18 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     useEffect(() => {
       if (signalName && !hasSubscribed.current) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Enumeration mount ${signalName} -> subscribe`);
+        }
         subscribeToSignal(signalName, SignalType.Enumeration);
         hasSubscribed.current = true;
       }
 
       return () => {
         if (hasSubscribed.current) {
+          if (process.env.NODE_ENV !== "production") {
+            console.log(`[ui] Enumeration unmount ${signalName} -> unsubscribe`);
+          }
           unsubscribeFromSignal(signalName);
           hasSubscribed.current = false;
         }
@@ -136,11 +142,14 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const handleUnsubscribe = useCallback(() => {
       if (hasSubscribed.current) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Enumeration delete ${signalName} -> unsubscribe`);
+        }
         unsubscribeFromSignal(signalName);
         hasSubscribed.current = false;
       }
       onDelete();
-    }, [signalName, onDelete]); // Removed unsubscribeFromSignal dependency
+    }, [signalName, unsubscribeFromSignal, onDelete]);
 
     return (
       <div className="mb-6 p-4 w-full">

@@ -5,6 +5,8 @@ import { BACKEND_URL, DEBUG, MAX_RECONNECT_ATTEMPTS } from "../SignalConfig";
 export function useSocket() {
 	// Socket stored in ref to prevent re-initialization on dependency changes
 	const [socket, _setSocket] = useState<Socket>(io(BACKEND_URL, {
+		transports: ["websocket", "polling"],
+		autoConnect: true,
 		reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
 		timeout: 10000,
 	}));
@@ -24,9 +26,7 @@ export function useSocket() {
 		return () => {
 			socket.disconnect();
 		};
-	}, [socket]); // Empty dependency array - initialize only once
-
-	useEffect(() => { socket.disconnect() }, [])
+	}, [socket]); // Initialize only once and disconnect on unmount
 
 	return socket;
 }

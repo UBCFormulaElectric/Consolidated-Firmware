@@ -261,4 +261,4 @@ export const BACKEND_URL =
     : `http://localhost:5000`;
 export const MAX_RECONNECT_ATTEMPTS = 5;
 export const RECONNECT_INTERVAL = 3000; // 3 seconds
-export const DEBUG = false; // Set to false to disable debug logs
+export const DEBUG = true; // Set to false to disable debug logs

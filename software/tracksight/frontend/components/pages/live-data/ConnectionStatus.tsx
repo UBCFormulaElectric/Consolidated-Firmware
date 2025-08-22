@@ -1,13 +1,15 @@
 'use client'
 
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
+import { useSignals } from '@/hooks/SignalContext'
 
 export default function ConnectionStatus() {
-  const isConnected = false;
-  const isLoadingSignals = false;
-  const signalError = null;
-  const reconnect = useCallback(() => { }, []);
-  const availableSignals = useMemo(() => [], []);
+  const { availableSignalQuery, socketConnected, reconnectSocket } = useSignals();
+
+  const isConnected = socketConnected;
+  const isLoadingSignals = availableSignalQuery.isLoading || availableSignalQuery.isPending;
+  const signalError = availableSignalQuery.error ? String(availableSignalQuery.error) : null;
+  const availableSignals = useMemo(() => availableSignalQuery.data ?? [], [availableSignalQuery.data]);
 
   return (
     <div className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
@@ -34,7 +36,7 @@ export default function ConnectionStatus() {
         )}
 
         <button
-          onClick={reconnect}
+          onClick={reconnectSocket}
           disabled={isConnected && !signalError}
           className={`px-4 py-2 rounded ${isConnected && !signalError
             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'

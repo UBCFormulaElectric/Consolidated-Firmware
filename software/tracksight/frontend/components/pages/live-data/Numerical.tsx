@@ -277,6 +277,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const handleSelect = useCallback(
       (name: string) => {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Numerical add ${name} -> subscribe & attach to this graph`);
+        }
         subscribeToSignal(name, SignalType.Numerical);
         componentSubscriptions.current.add(name);
         setSubscriptionVersion((v) => v + 1);
@@ -288,6 +291,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const handleUnsub = useCallback(
       (name: string) => {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Numerical remove ${name} -> unsubscribe (chip click)`);
+        }
         unsubscribeFromSignal(name);
         componentSubscriptions.current.delete(name);
         setSubscriptionVersion((v) => v + 1);
@@ -296,17 +302,24 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     );
 
     const handleDelete = useCallback(() => {
-      numericalSignals.forEach((n) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`[ui] Numerical delete graph -> unsubscribe all owned signals`, Array.from(componentSubscriptions.current));
+      }
+      // Unsubscribe all signals that this component had subscribed to
+      Array.from(componentSubscriptions.current).forEach((n) => {
         unsubscribeFromSignal(n);
         componentSubscriptions.current.delete(n);
       });
       onDelete();
-    }, [numericalSignals, unsubscribeFromSignal, onDelete]);
+    }, [unsubscribeFromSignal, onDelete]);
 
     // Cleanup effect to prevent memory leaks and race conditions on unmount
     useEffect(() => {
       // Subscribe to the initial signal if provided
       if (signalName && !componentSubscriptions.current.has(signalName)) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Numerical mount with initial ${signalName} -> subscribe`);
+        }
         subscribeToSignal(signalName, SignalType.Numerical);
         componentSubscriptions.current.add(signalName);
         setSubscriptionVersion((v) => v + 1);
@@ -315,6 +328,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       return () => {
         // Only cleanup signals that this specific component instance subscribed to
         componentSubscriptions.current.forEach((signal) => {
+          if (process.env.NODE_ENV !== "production") {
+            console.log(`[ui] Numerical unmount -> unsubscribe ${signal}`);
+          }
           unsubscribeFromSignal(signal);
         });
         componentSubscriptions.current.clear();

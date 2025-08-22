@@ -4,7 +4,7 @@ import { useSignals } from "@/hooks/SignalContext";
 import { X } from "lucide-react";
 import React, { useMemo } from "react";
 import { PlusButton } from "./PlusButton";
-import { SignalType } from "@/hooks/SignalConfig";
+import { DEBUG } from "@/hooks/SignalConfig";
 
 // Type for each row's state
 export interface RowItem {
@@ -33,10 +33,10 @@ export const RowEditor: React.FC<RowEditorProps> = ({
   onCreateComponent,
   onDeleteRow,
 }) => {
-  const { subscribeToSignal } = useSignals();
+  const { availableSignalQuery } = useSignals();
 
-  const availableSignals: any[] = useMemo(() => [], []);
-  const isLoadingSignals = false;
+  const availableSignals: any[] = useMemo(() => availableSignalQuery.data ?? [], [availableSignalQuery.data]);
+  const isLoadingSignals = availableSignalQuery.isLoading;
 
   // Filter available signals based on search term
   const filteredSignals = availableSignals.filter(
@@ -47,12 +47,12 @@ export const RowEditor: React.FC<RowEditorProps> = ({
   );
 
   const handleSignalSelect = (signalName: string) => {
-    // Subscribe to the signal
-    subscribeToSignal(signalName, SignalType.Any);
+    DEBUG && console.log(`[ui] RowEditor selecting ${signalName} -> create component (component will subscribe)`);
     // Call the parent's onSelect handler
     onSelect(index, signalName);
     // Trigger component creation if callback is provided
     if (onCreateComponent) {
+      DEBUG && console.log(`[ui] RowEditor creating component for ${signalName} (row ${index})`);
       onCreateComponent(index, signalName);
     }
   };
@@ -84,7 +84,7 @@ export const RowEditor: React.FC<RowEditorProps> = ({
           <div className="mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg w-64 p-2">
             <input
               type="text"
-              placeholder="Search for websocket signals..."
+              placeholder="Search for signals..."
               className="w-full mb-2 px-2 py-1 border rounded bg-white dark:bg-gray-700 text-black dark:text-white"
               value={row.searchTerm}
               onChange={(e) => onSearch(index, e.target.value)}
