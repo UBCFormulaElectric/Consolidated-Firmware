@@ -8,7 +8,8 @@ from __future__ import annotations
 from typing import Dict, List, Set
 
 # types to populate up
-from ..can_database import CanDatabase, CanEnum, CanMessage, CanNode, All, BusForwarder
+from ..can_database import CanDatabase, CanMessage, CanNode, AllRxMsgs, BusForwarder
+from ..can_signals import CanEnum
 
 from .parse_alert import parse_alert_data, CanAlert
 from .parse_bus import CanBus, parse_bus_data
@@ -41,6 +42,7 @@ class JsonCanParser:
     _collects_data: Dict[
         str, bool
     ]  # _collects_data[node_name] = True if the node collects data
+    _signals_to_msgs: Dict[str, CanMessage]  # _signals_to_msgs[signal_name] gives the metadata for the message that contains the signal
 
     def __init__(self, can_data_dir: str):
         """
@@ -87,6 +89,7 @@ class JsonCanParser:
         self._enums.update(shared_enums)
         # populate this boy
         self._msgs = {}
+        self._signals_to_msgs = {}
         for node_name in node_names:
             node_specific_enums = parse_node_enum_data(can_data_dir, node_name)
             self._enums.update(node_specific_enums)
@@ -100,7 +103,7 @@ class JsonCanParser:
             if type(bus_rx_msgs_json) == str:
                 assert bus_rx_msgs_json == "all", "Schema check has failed"
                 # if "all" in messages then add all messages on all busses
-                self._nodes[rx_node_name].rx_msgs_names = All()
+                self._nodes[rx_node_name].rx_msgs_names = AllRxMsgs()
             else:
                 assert type(bus_rx_msgs_json) == list, "Schema check has failed"
                 for msg_name in bus_rx_msgs_json:
@@ -146,6 +149,7 @@ class JsonCanParser:
             forwarding=self._forwarding,
             enums=self._enums,
             collects_data=self._collects_data,
+            signals_to_msgs=self._signals_to_msgs,
         )
 
     # TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
@@ -156,6 +160,7 @@ class JsonCanParser:
         It
         1. adds the msg to the global dump of messages (self._msgs)
         2. adds the msg name to the list of messages broadcasted by the given node (self._nodes[node_name].tx_msg_names)
+        3. adds all the signals into the global dump of signals (self._signals_to_msgs)
 
         Note this function expects a valid CanMessage object
         """
@@ -181,6 +186,14 @@ class JsonCanParser:
         # register the message with the database of all messages
         self._msgs[msg.name] = msg
 
+        for signal in msg.signals:
+            # register the signal with the database of all signals
+            if signal.name in self._signals_to_msgs:
+                raise InvalidCanJson(
+                    f"Signal '{signal.name}' is already registered in message '{self._signals_to_msgs[signal.name].name}'"
+                )
+            self._signals_to_msgs[signal.name] = msg
+
     def _add_rx_msg(self, msg_name: str, rx_node_name: str) -> None:
         """
         This function registers a message which is to be received by a node on the bus
@@ -195,7 +208,7 @@ class JsonCanParser:
         """
         # if we are already listening to all, we don't need to register this specific message
         # in particular, this is useful for alerts which will blindly make everyone accept them
-        if type(self._nodes[rx_node_name].rx_msgs_names) == All:
+        if type(self._nodes[rx_node_name].rx_msgs_names) == AllRxMsgs:
             return
 
         # Check if this message is defined
@@ -210,7 +223,8 @@ class JsonCanParser:
                 f"{rx_node_name} cannot both transmit and receive {msg_name}"
             )
 
-        if msg_name in self._nodes[rx_node_name].rx_msgs_names:
+        # we already check if self._nodes[rx_node_name].rx_msgs_names is AllRxMsgs
+        if msg_name in self._nodes[rx_node_name].rx_msgs_names: # type: ignore
             raise InvalidCanJson(
                 f"Message {msg_name} is already registered to be received by node {rx_node_name}"
             )
@@ -220,7 +234,8 @@ class JsonCanParser:
                 f"Message '{msg_name}' is an FD message, but an RX node '{rx_node_name}' isn't FD-capable and so can't receive it!"
             )
 
-        self._nodes[rx_node_name].rx_msgs_names.add(msg_name)
+        # we already check if self._nodes[rx_node_name].rx_msgs_names is AllRxMsgs
+        self._nodes[rx_node_name].rx_msgs_names.add(msg_name) # type: ignore
 
     # def _consistency_check(self) -> None:
     #     # TODO should this be checked post-hoc, or should it be checked as you parse the messages. - you can add extra check here as the all the private object are closely related to each other

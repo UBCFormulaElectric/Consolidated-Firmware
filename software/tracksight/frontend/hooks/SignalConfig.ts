@@ -2,9 +2,6 @@
 export enum SignalType {
   Numerical = "numerical",
   Enumeration = "enumeration",
-  Any = "any", // For signals that could be either
-  Warning = "Warning",
-  WarningCount = "WarningCount",
 }
 
 // Signal metadata interface
@@ -14,6 +11,10 @@ export interface SignalMeta {
   cycle_time_ms?: number;
   msg_id: number;
   msg_name: string;
+  enum?: {
+    name: string,
+    items: Record<string, string>
+  };
 }
 
 // Data point interface
@@ -260,4 +261,4 @@ export const BACKEND_URL =
     : `http://localhost:5000`;
 export const MAX_RECONNECT_ATTEMPTS = 5;
 export const RECONNECT_INTERVAL = 3000; // 3 seconds
-export const DEBUG = false; // Set to false to disable debug logs
+export const DEBUG = true; // Set to false to disable debug logs
