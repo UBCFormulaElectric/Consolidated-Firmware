@@ -30,13 +30,7 @@ const NA_COLOR = "#E5E7EB"; // Light gray for N/A state
 const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
     const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
-    const {
-      activeSignals,
-      subscribeToSignal,
-      unsubscribeFromSignal,
-      getEnumValues,
-      mapEnumValue,
-    } = useSignals();
+    const { activeSignals, subscribeToSignal, unsubscribeFromSignal } = useSignals();
 
     const numericalData: any[] = useMemo(() => [], []);
     const enumData: any[] = useMemo(() => [], []);

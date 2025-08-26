@@ -17,6 +17,13 @@ export interface SignalMeta {
   };
 }
 
+export type AlertType = "Fault" | "Warning" | "Info";
+export type AlertSignalType =
+  | AlertType
+  | "FaultCount"
+  | "WarningCount"
+  | "InfoCount";
+
 // Data point interface
 export interface DataPoint {
   time: number | string;
@@ -252,6 +259,42 @@ export class SignalDataStore {
     });
   }
 }
+
+const AlertSignalTypePatterns: { alert_signal_type: AlertSignalType; pattern: RegExp }[] = [
+  {
+    alert_signal_type: "Warning",
+    pattern: /^.+_Warning_(?!.*Count$).+$/
+  },
+  {
+    alert_signal_type: "WarningCount",
+    pattern: /^.+_Warning_.+Count$/
+  },
+  {
+    alert_signal_type: "Info",
+    pattern: /^.+Info_(?!.*Count$).+$/
+  },
+  {
+    alert_signal_type: "InfoCount",
+    pattern: /^.+_Info_.+Count$/
+  },
+  {
+    alert_signal_type: "Fault",
+    pattern: /^.+Fault_(?!.*Count$).+$/
+  },
+  {
+    alert_signal_type: "FaultCount",
+    pattern: /^.+_Fault_.+Count$/
+  }
+]
+
+export const getAlertSignalType = (name: string): AlertSignalType | null => {
+  for (const { alert_signal_type, pattern } of AlertSignalTypePatterns) {
+    if (pattern.test(name)) {
+      return alert_signal_type;
+    }
+  }
+  return null;
+};
 
 // Default maximum number of data points to keep
 export const DEFAULT_MAX_DATA_POINTS = 1000;

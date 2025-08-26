@@ -1,47 +1,26 @@
 'use client'
 
-import React, { useMemo } from 'react'
 import { useSignals } from '@/hooks/SignalContext'
 
 export default function ConnectionStatus() {
-  const { availableSignalQuery, socketConnected, reconnectSocket } = useSignals();
-
-  const isConnected = socketConnected;
-  const isLoadingSignals = availableSignalQuery.isLoading || availableSignalQuery.isPending;
-  const signalError = availableSignalQuery.error ? String(availableSignalQuery.error) : null;
-  const availableSignals = useMemo(() => availableSignalQuery.data ?? [], [availableSignalQuery.data]);
+  const { socketConnected: isConnected, reconnectSocket } = useSignals();
 
   return (
     <div className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div
-            className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : isLoadingSignals ? 'bg-yellow-500' : 'bg-red-500'
-              }`}
-          />
+          {/* circle indicator */}
+          <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+
+          {/* main text */}
           <span className="font-medium">
-            {isConnected
-              ? `Connected: ${availableSignals.length} signals available`
-              : isLoadingSignals
-                ? 'Connecting to backend...'
-                : 'Disconnected'
-            }
+            {isConnected ? 'Connected to backend' : 'Connecting to backend...'}
           </span>
         </div>
 
-        {signalError && (
-          <div className="text-red-500 text-sm max-w-md truncate">
-            Error: {signalError}
-          </div>
-        )}
-
-        <button
-          onClick={reconnectSocket}
-          disabled={isConnected && !signalError}
-          className={`px-4 py-2 rounded ${isConnected && !signalError
-            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-            : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
+        <button onClick={reconnectSocket} disabled={isConnected}
+          className="px-4 py-2 rounded bg-blue-500 text-white cursor-pointer transition-colors hover:bg-blue-600
+            disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           {isConnected ? 'Connected' : 'Connect'}
         </button>
