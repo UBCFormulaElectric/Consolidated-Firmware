@@ -1,78 +1,45 @@
 "use client"
+import { useCallback } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Database, Trash2, ArrowRight } from "lucide-react"
-import { usePathname, useRouter } from "next/navigation"
-import type React from "react"
 
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { PausePlayButton, useDisplayControl } from "@/components/shared/PausePlayControl"
-import Image from "next/image"
-import { useMemo } from "react"
 
 export default function Sidebar() {
-  const pathname = usePathname();
-  const activePage = useMemo(() => {
-    if (pathname === "/live-data") {
-      return "live-data";
-    } else if (pathname === "/visualize") {
-      return "visualize";
-    } else if (pathname === "/dashboard") {
-      return "dashboard";
-    } else {
-      return "live-data"; // Default to live-data
-    }
-  }, [pathname]);
-
-  const router = useRouter()
-  // const { clearData } = useSignals()
   const { isAutoscrollEnabled, toggleAutoscroll } = useDisplayControl()
-
-  const handleNavigation = (page: string, route: string) => {
-    router.push(route)
-  }
-
-  const handlePruneData = () => {
+  const handlePruneData = useCallback(() => {
     if (confirm("Are you sure you want to clear all stored data? This will keep your signal subscriptions but remove all historical data.")) {
-      // clearData()
     }
-  }
-
+  }, [])
   return (
-    <div className="sticky top-0 h-16 w-full bg-blue-900 dark:bg-blue-900 relative flex items-center px-4">
+    <nav className="fixed top-0 h-16 left-0 right-0 bg-blue-900 dark:bg-blue-900 flex items-center px-4">
       {/* Logo */}
       <div className="flex items-center">
         <Image
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-q2Gcff7viO5jsIWpX3GPfyV7M52bUX.jpeg"
           alt="UBC Formula Electric"
-          width={32}
-          height={32}
-          className="rounded-md"
+          width={32} height={32} className="rounded-md"
         />
       </div>
 
       {/* Navigation */}
-      <nav className="ml-6">
-        <ul className="flex space-x-6">
-          <NavItem
-            icon={<Database size={18} />}
-            label="Live Data"
-            isActive={activePage === "live-data"}
-            onClick={() => handleNavigation("live-data", "/live-data")}
-          />
-          {/* Future navigation items can be added here:
+      <div className="ml-6">
+        <NavItem icon={<Database size={18} />} label="Live Data" pathName="/live-data" />
+        {/* Future navigation items can be added here:
           <NavItem
             icon={<SaveIcon size={18} />}
             label="Dashboard"
-            isActive={activePage === "dashboard"}
-            onClick={() => handleNavigation("dashboard", "/dashboard")}
+            pathName="/dashboard"
           />
           <NavItem
             icon={<ChartIcon size={18} />}
             label="Visualize"
-            isActive={activePage === "visualize"}
-            onClick={() => handleNavigation("visualize", "/visualize")}
+            pathName="/visualize"
           /> */}
-        </ul>
-      </nav>
+      </div>
 
       {/* Absolutely centered Pause/Play Button */}
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -84,7 +51,7 @@ export default function Sidebar() {
         {/* Autoscroll Toggle Button */}
         <button
           onClick={toggleAutoscroll}
-          className={`p-2 rounded-md transition-colors relative ${isAutoscrollEnabled
+          className={`p-2 rounded-md transition-colors relative cursor-pointer ${isAutoscrollEnabled
             ? "bg-green-600 text-white hover:bg-green-700"
             : "bg-gray-600 text-white hover:bg-gray-700"
             }`}
@@ -100,7 +67,7 @@ export default function Sidebar() {
         {/* Prune Data Button */}
         <button
           onClick={handlePruneData}
-          className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+          className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
           title="Clear all stored data (keeps subscriptions)"
           aria-label="Prune data"
         >
@@ -110,28 +77,22 @@ export default function Sidebar() {
         {/* Theme Toggle */}
         <ThemeToggle />
       </div>
-    </div>
+    </nav>
   )
 }
 
-interface NavItemProps {
+function NavItem({ icon, label, pathName }: {
   icon: React.ReactNode
   label: string
-  isActive: boolean
-  onClick: () => void
-}
-
-function NavItem({ icon, label, isActive, onClick }: NavItemProps) {
+  pathName: string
+}) {
+  const pathname = usePathname();
   return (
-    <li>
-      <button
-        onClick={onClick}
-        className={`flex items-center px-2 py-1 text-sm rounded-md transition-colors ${isActive ? "bg-blue-800 text-white" : "text-blue-100 hover:bg-blue-800/50"
-          }`}
-      >
+    <Link href={pathName}>
+      <button className={`flex items-center px-2 py-1 text-sm rounded-md transition-colors cursor-pointer ${pathname == pathName ? "bg-blue-800 text-white" : "text-blue-100 hover:bg-blue-800/50"}`}>
         <span className="mr-2">{icon}</span>
         <span>{label}</span>
       </button>
-    </li>
+    </Link>
   )
 }
