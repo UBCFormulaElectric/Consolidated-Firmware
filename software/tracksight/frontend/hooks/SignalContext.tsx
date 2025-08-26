@@ -277,8 +277,8 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     <SignalContext.Provider
       value={{
         availableSignalQuery,
-  socketConnected,
-  reconnectSocket,
+        socketConnected,
+        reconnectSocket,
         activeSignals,
         alertSignals,
         subscribeToSignal,
