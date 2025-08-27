@@ -5,7 +5,7 @@
 "use client";
 
 import { useDisplayControl } from "@/components/shared/PausePlayControl";
-import { createContext, ReactNode, useCallback, useContext, useEffect, } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "./SignalConfig";
 
 import { useSocket } from "./signals/useSocket";
@@ -186,7 +186,19 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   // }, [availableSignalQuery.data]);
   const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } = useSignalData();
   const socket = useSocket();
-  const socketConnected = socket.connected;
+  // Connection status needs a state
+  const [socketConnected, setSocketConnected] = useState<boolean>(socket.connected);
+
+  useEffect(() => {
+    const handleConnect = () => setSocketConnected(true);
+    const handleDisconnect = () => setSocketConnected(false);
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+    };
+  }, [socket]);
   const reconnectSocket = useCallback(() => {
     if (!socket.connected) socket.connect();
   }, [socket]);
