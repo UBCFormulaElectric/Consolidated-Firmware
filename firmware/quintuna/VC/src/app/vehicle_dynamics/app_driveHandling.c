@@ -18,15 +18,14 @@ static PowerLimitingInputs    powerLimitingInputs;
 
 static SensorStatus app_performSensorChecks(void);
 
-TorqueAllocationOutputs app_vanillaDrive_run(const float apps_pedal_percentage)
+void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)
 {
-    TorqueAllocationOutputs torqueOutputToMotors;
-    const float             bms_available_power = (float)app_canRx_BMS_AvailablePower_get();
-    const float             motor_speed_fr_rpm  = fabsf((float)app_canRx_INVFR_ActualVelocity_get());
-    const float             motor_speed_fl_rpm  = fabsf((float)app_canRx_INVFL_ActualVelocity_get());
-    const float             motor_speed_rr_rpm  = fabsf((float)app_canRx_INVRR_ActualVelocity_get());
-    const float             motor_speed_rl_rpm  = fabsf((float)app_canRx_INVRL_ActualVelocity_get());
-    float                   bms_torque_limit    = MAX_TORQUE_REQUEST_NM;
+    const float bms_available_power = (float)app_canRx_BMS_AvailablePower_get();
+    const float motor_speed_fr_rpm  = fabsf((float)app_canRx_INVFR_ActualVelocity_get());
+    const float motor_speed_fl_rpm  = fabsf((float)app_canRx_INVFL_ActualVelocity_get());
+    const float motor_speed_rr_rpm  = fabsf((float)app_canRx_INVRR_ActualVelocity_get());
+    const float motor_speed_rl_rpm  = fabsf((float)app_canRx_INVRL_ActualVelocity_get());
+    float       bms_torque_limit    = MAX_TORQUE_REQUEST_NM;
 
     if ((motor_speed_fr_rpm + motor_speed_fl_rpm + motor_speed_rr_rpm + motor_speed_rl_rpm) > 0.0f)
     {
@@ -45,15 +44,14 @@ TorqueAllocationOutputs app_vanillaDrive_run(const float apps_pedal_percentage)
     // data sheet says that the inverter expects a 16 bit signed int and that our sent request is scaled by 0.1
     const float torque_request = fminf(pedal_based_torque, max_bms_torque_request);
 
-    torqueOutputToMotors.front_left_torque  = torque_request;
-    torqueOutputToMotors.front_right_torque = torque_request;
-    torqueOutputToMotors.rear_left_torque   = torque_request;
-    torqueOutputToMotors.rear_right_torque  = torque_request;
+    torqueOutputToMotors->front_left_torque  = torque_request;
+    torqueOutputToMotors->front_right_torque = torque_request;
+    torqueOutputToMotors->rear_left_torque   = torque_request;
+    torqueOutputToMotors->rear_right_torque  = torque_request;
 
     app_canAlerts_VC_Info_DriveModeOverride_set(false);
 
     LOG_INFO("DriveHandling: Vanilla Mode Active");
-    return torqueOutputToMotors;
 }
 
 void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors)

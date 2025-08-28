@@ -18,8 +18,9 @@
 
 #define OFF 0
 
-static bool launch_control_switch_is_on;
-static bool regen_switch_is_on;
+static bool                    launch_control_switch_is_on;
+static bool                    regen_switch_is_on;
+static TorqueAllocationOutputs torqueOutputToMotors;
 
 static PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -88,8 +89,8 @@ static bool driveStatePassPreCheck()
 static void runDrivingAlgorithm(const float apps_pedal_percentage)
 {
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
-    const bool prev_regen_switch_val = regen_switch_is_on;
-    regen_switch_is_on               = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
+    bool prev_regen_switch_val = regen_switch_is_on;
+    regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
 
     // bool prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
     //  regen_switch_is_on = app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON &&
@@ -104,11 +105,33 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     // the entire tick so this could be removed.
     // at face value this would cause a negative pedal percentage to the
     // non regen algorithm
-    TorqueAllocationOutputs torqueOutputToMotors =
-        apps_pedal_percentage < 0.0f && regen_switch_is_on        ? app_regen_run(apps_pedal_percentage)
-        : SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get() ? app_vanillaDrive_run(apps_pedal_percentage)
-                                                                  : app_driveMode_run(apps_pedal_percentage);
+    if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
+    {
+        app_regen_run(apps_pedal_percentage, &torqueOutputToMotors);
+    }
+    else if (SWITCH_ON == app_canRx_CRIT_VanillaOverrideSwitch_get())
+    {
+        app_vanillaDrive_run(apps_pedal_percentage, &torqueOutputToMotors);
+    }
+    else
+    {
+        app_driveMode_run(apps_pedal_percentage, &torqueOutputToMotors);
+    }
+
     app_torqueBroadCast(&torqueOutputToMotors);
+}
+
+static void app_switchInit(void)
+{
+    if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
+    {
+        launch_control_switch_is_on = true;
+    }
+
+    if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
+    {
+        regen_switch_is_on = true;
+    }
 }
 
 static void app_enable_inv(void)
@@ -135,8 +158,8 @@ static void driveStateRunOnEntry()
     app_powerManager_updateConfig(power_manager_state);
     // Enable inverters
     app_enable_inv();
-    launch_control_switch_is_on = SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get();
-    regen_switch_is_on          = SWITCH_ON == app_canRx_CRIT_RegenSwitch_get();
+    app_switchInit();
+    app_reset_torqueToMotors(&torqueOutputToMotors);
     app_torqueVectoring_init();
 }
 
@@ -178,6 +201,8 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
     app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
     app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
+
+    app_reset_torqueToMotors(&torqueOutputToMotors);
 
     // Clear mapped pedal percentage
     app_canTx_VC_RegenMappedPedalPercentage_set(0.0f);
