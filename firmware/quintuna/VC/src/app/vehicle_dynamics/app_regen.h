@@ -13,7 +13,7 @@
  * before calculating and sending regenerative braking negative torque requests
  * @param accelerator_pedal_percentage is the pedal percentage
  */
-TorqueAllocationOutputs app_regen_run(float accelerator_pedal_percentage);
+void app_regen_run(float accelerator_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
 
 /**
  * Check if conditions allow for regenerative braking, if not reset
