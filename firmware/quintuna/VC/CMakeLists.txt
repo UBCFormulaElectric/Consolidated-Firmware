@@ -195,6 +195,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
     target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
-    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes")
+    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes" "quintuna_VC_commit_info")
     target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
 endif ()

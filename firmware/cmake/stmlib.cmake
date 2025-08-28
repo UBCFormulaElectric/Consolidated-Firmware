@@ -54,7 +54,7 @@ function(generate_stm32cube_code
             --codegen_output_dir ${IOC_DIR}
             --cube_bin ${STM32CUBEMX_BIN_PATH}
             --md5 ${TRACKED_MD5_LOCATION}
-            WORKING_DIRECTORY ${REPO_ROOT_DIR}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 
             COMMAND ${CMAKE_COMMAND} -E copy ${TRACKED_MD5_LOCATION} ${OUTPUT_MD5_LOCATION}
 

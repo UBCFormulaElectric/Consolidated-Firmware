@@ -36,7 +36,7 @@ void app_sbgEllipse_broadcast()
     const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    VelocityData velocity_calculated;
+    // VelocityData velocity_calculated;
 
     // calculating velocity data based on wheel speed
     // app_sbgEllipse_calculateVelocity(&velocity_calculated);
