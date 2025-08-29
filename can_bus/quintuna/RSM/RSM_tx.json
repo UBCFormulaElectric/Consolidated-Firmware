@@ -6,6 +6,24 @@
     "signals": {
       "Heartbeat": {
         "bits": 1
+      },
+      "CpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "CpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "StackUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
       }
     }
   },
