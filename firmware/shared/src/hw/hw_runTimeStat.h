@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "main.h"
 
+#define MAX_TASKS 10
+
 extern volatile unsigned long ulHighFrequencyTimerTick;
 typedef struct
 {
