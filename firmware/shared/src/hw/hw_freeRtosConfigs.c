@@ -1,4 +1,5 @@
 #include "hw_bootup.h"
+#include "hw_runTimeStat.h"
 #include "hw_utils.h"
 #include "io_log.h"
 #include <assert.h>
@@ -23,4 +24,7 @@ _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pc
 }
 
 // responsible for handling cpu load and stack watermark calculations
-void vApplicationIdleHook(void) {}
+void vApplicationIdleHook(void) 
+{   
+    hw_runTimeStat_hookCallBack();
+}

@@ -6,6 +6,7 @@
 #define MAX_TASKS 10
 
 extern volatile unsigned long ulHighFrequencyTimerTick;
+
 typedef struct
 {
     float cpu_curr_usage;
@@ -13,4 +14,15 @@ typedef struct
     float stack_usage_max;
 } RunTimeStats;
 
-void hw_runTimeStat_init(TIM_HandleTypeDef *htim);
+typedef struct
+{
+    void (*cpu_usage_setter)(float);
+    void (*stack_usage_max_setter)(float);
+    void (*cpu_usage_max_setter)(float);
+} RunTimeStatsPublish;
+
+
+void hw_runTimeStat_init(TIM_HandleTypeDef *htim, const RunTimeStatsPublish *const task_publish_info);
+
+
+void hw_runTimeStat_hookCallBack(void);

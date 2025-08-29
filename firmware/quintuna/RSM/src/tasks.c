@@ -49,7 +49,7 @@ void tasks_init(void)
     hw_can_init(&can2);
     ASSERT_EXIT_OK(hw_usb_init());
 
-    hw_runTimeStat_init(&htim7);
+    hw_runTimeStat_init(&htim7, &publish_info);
 
     const ResetReason reset_reason = hw_resetReason_get();
     app_canTx_RSM_ResetReason_set((CanResetReason)reset_reason);
