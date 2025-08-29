@@ -1,5 +1,6 @@
 #include "hw_runTimeStat.h"
 #include "main.h"
+#include <rsm.pb.h>
 #include <string.h>
 #include <cmsis_os.h>
 #include "app_utils.h"
@@ -13,14 +14,17 @@ volatile unsigned long ulHighFrequencyTimerTick = 0;
 
 static RunTimeStats runtimestatistics[MAX_TASKS];
 
+static const RunTimeStatsPublish *publish_info;
+
 //Function Decleration
 
 // What we need to do is use fill the runtimestats buffer with the information assocaited with each task
 
-void hw_runTimeStat_init(TIM_HandleTypeDef *htim)
+void hw_runTimeStat_init(TIM_HandleTypeDef *htim, const RunTimeStatsPublish *const task_publish_info)
 {
     memset(runtimestatistics, 0, sizeof(runtimestatistics));
     runTimeCounter = htim;
+    publish_info = task_publish_info;
 }
 
 void hw_runTimeStat_hookCallBack(void)
@@ -59,6 +63,10 @@ void hw_runTimeStat_hookCallBack(void)
     }
 }
 
+void hw_runTimeStat_publish()
+{
+
+}
 void configureTimerForRunTimeStats(void)
 {
     HAL_TIM_Base_Start_IT(runTimeCounter);
