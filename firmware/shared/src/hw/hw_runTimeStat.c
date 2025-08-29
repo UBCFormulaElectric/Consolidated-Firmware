@@ -6,11 +6,14 @@
 
 #define MAX_TASKS 10
 
+//Global variables
 static TIM_HandleTypeDef *runTimeCounter;
 
 volatile unsigned long ulHighFrequencyTimerTick = 0;
 
 static RunTimeStats runtimestatistics[MAX_TASKS];
+
+//Function Decleration
 
 // What we need to do is use fill the runtimestats buffer with the information assocaited with each task
 
@@ -42,10 +45,14 @@ void hw_runTimeStat_hookCallBack(void)
         }
         else
         {
+            //Calculate current cpu usage
             runtimestatistics[task].cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
                                                      (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
+            
+            //Calculate max stack usage 
             runtimestatistics[task].stack_usage_max = runTimeStats[task].usStackHighWaterMark;
 
+            //Calculate the max cpu usage
             runtimestatistics[task].cpu_max_usage =
                 MAX(runtimestatistics[task].cpu_max_usage, runtimestatistics[task].cpu_curr_usage);
         }
