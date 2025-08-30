@@ -24,7 +24,7 @@ _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pc
 }
 
 // responsible for handling cpu load and stack watermark calculations
-void vApplicationIdleHook(void) 
-{   
+void vApplicationIdleHook(void)
+{
     hw_runTimeStat_hookCallBack();
 }
