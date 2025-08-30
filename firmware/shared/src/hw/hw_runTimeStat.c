@@ -1,39 +1,58 @@
 #include "hw_runTimeStat.h"
 #include "main.h"
-#include <rsm.pb.h>
 #include <string.h>
 #include <cmsis_os.h>
 #include "app_utils.h"
+#include "tasks.h"
 
-#define MAX_TASKS 10
-
-//Global variables
+// Global variables
 static TIM_HandleTypeDef *runTimeCounter;
 
 volatile unsigned long ulHighFrequencyTimerTick = 0;
 
-static RunTimeStats runtimestatistics[MAX_TASKS];
+static TaskRuntimeStats *tasks_runtime_stat[NUM_OF_TASKS];
 
-static const RunTimeStatsPublish *publish_info;
+// TODO need to change the format of this such that each task has its own function registeration meaning it has a
+// function pointer to convery info
 
-//Function Decleration
+// Function Decleration
 
-// What we need to do is use fill the runtimestats buffer with the information assocaited with each task
-
-void hw_runTimeStat_init(TIM_HandleTypeDef *htim, const RunTimeStatsPublish *const task_publish_info)
+ExitCode hw_runTimeStat_init(TIM_HandleTypeDef *htim)
 {
-    memset(runtimestatistics, 0, sizeof(runtimestatistics));
+    if (NULL == htim)
+    {
+        return EXIT_CODE_INVALID_ARGS;
+    }
+
     runTimeCounter = htim;
-    publish_info = task_publish_info;
+
+    return EXIT_CODE_OK;
+}
+
+ExitCode hw_runTimeStat_registerTask(TaskRuntimeStats *task_info)
+{
+    if (NULL == task_info->cpu_usage_max_setter || NULL == task_info->cpu_usage_setter ||
+        NULL == task_info->stack_usage_max_setter)
+    {
+        return EXIT_CODE_INVALID_ARGS;
+    }
+    else if (NUM_OF_TASKS < task_info->task_index)
+    {
+        return EXIT_CODE_OUT_OF_RANGE;
+    }
+
+    tasks_runtime_stat[task_info->task_index] = task_info;
+
+    return EXIT_CODE_OK;
 }
 
 void hw_runTimeStat_hookCallBack(void)
 {
-    TaskStatus_t runTimeStats[MAX_TASKS];
+    TaskStatus_t runTimeStats[NUM_OF_TASKS];
 
     TaskHandle_t idleHandle = xTaskGetIdleTaskHandle();
 
-    uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)MAX_TASKS, NULL);
+    uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)NUM_OF_TASKS, NULL);
 
     // given each task that we get from the following getsystemstate call we are gonna calcualte the
     // cpu usage and stack usage
@@ -49,24 +68,20 @@ void hw_runTimeStat_hookCallBack(void)
         }
         else
         {
-            //Calculate current cpu usage
-            runtimestatistics[task].cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
+            // Calculate current cpu usage
+            tasks_runtime_stat[task]->cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
                                                      (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
-            
-            //Calculate max stack usage 
-            runtimestatistics[task].stack_usage_max = runTimeStats[task].usStackHighWaterMark;
 
-            //Calculate the max cpu usage
-            runtimestatistics[task].cpu_max_usage =
-                MAX(runtimestatistics[task].cpu_max_usage, runtimestatistics[task].cpu_curr_usage);
+            // Calculate max stack usage
+            tasks_runtime_stat[task]->stack_usage_max = runTimeStats[task].usStackHighWaterMark;
+
+            // Calculate the max cpu usage
+            tasks_runtime_stat[task]->cpu_max_usage =
+                MAX(tasks_runtime_stat[task]->cpu_max_usage, tasks_runtime_stat[task]->cpu_curr_usage);
         }
     }
 }
 
-void hw_runTimeStat_publish()
-{
-
-}
 void configureTimerForRunTimeStats(void)
 {
     HAL_TIM_Base_Start_IT(runTimeCounter);
