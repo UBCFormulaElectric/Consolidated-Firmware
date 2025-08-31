@@ -17,8 +17,9 @@ export default function LiveDataPage() {
       <h2 className="text-xl font-bold mb-2">Add New Signal Subscriptions</h2>
       <DynamicRowManager />
 
-
+      {/* big orange boy
       <div className="bg-orange-500 h-24 right-0 absolute" style={{ width: "500px" }} />
+      */}
     </div>
   );
 }
