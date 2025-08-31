@@ -25,6 +25,7 @@
 // hw
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_runTimeStat.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
@@ -48,6 +49,8 @@ void tasks_init(void)
     hw_adcs_chipsInit();
     hw_can_init(&can2);
     ASSERT_EXIT_OK(hw_usb_init());
+
+    hw_runTimeStat_init(&htim7);
 
     const ResetReason reset_reason = hw_resetReason_get();
     app_canTx_RSM_ResetReason_set((CanResetReason)reset_reason);
@@ -96,6 +99,11 @@ _Noreturn void tasks_run1Hz(void)
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    TaskRuntimeStats task_run1hz = { .task_index             = TASK_RUN1HZ,
+                                     .cpu_usage_max_setter   = app_canTx_RSM_TaskRun1HzCpuUsageMax_set,
+                                     .cpu_usage_setter       = app_canTx_RSM_TaskRun1HzCpuUsage_set,
+                                     .stack_usage_max_setter = app_canTx_RSM_TaskRun1HzStackUsage_set };
 
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
@@ -164,10 +172,15 @@ _Noreturn void tasks_run1kHz(void)
 void tasks_runCanTx(void)
 {
     // Setup tasks.
+    const uint32_t  period_ms                = 1U;
+    uint32_t start_ticks = osKernelGetTickCount();
+
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can2, &msg));
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
@@ -183,10 +196,14 @@ void tasks_runCanRxCallback(const CanMsg *msg)
 
 _Noreturn void tasks_runCanRx(void)
 {
+    const uint32_t  period_ms                = 1U;
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
         JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_msg);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
