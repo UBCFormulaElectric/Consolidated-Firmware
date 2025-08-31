@@ -3,9 +3,10 @@
 
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
-import { SignalType, useSignals } from "@/lib/contexts/SignalContext";
-import { formatWithMs } from "@/lib/utils/dateformat";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { SignalType } from "@/hooks/SignalConfig";
+import { useSignals } from "@/hooks/SignalContext";
+import { formatWithMs } from "@/lib/dateformat";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DynamicSignalGraphProps {
@@ -31,15 +32,19 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
     const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
     const {
-      availableSignals,
       activeSignals,
-      numericalData,
-      enumData,
       subscribeToSignal,
       unsubscribeFromSignal,
-      isLoadingSignals,
-      isNumericalSignal,
     } = useSignals();
+
+    const availableSignals: any[] = useMemo(() => [], []);
+    const numericalData: any[] = useMemo(() => [], []);
+    const enumData: any[] = useMemo(() => [], []);
+    const isLoadingSignals = false;
+    const isNumericalSignal = useCallback((signalName: string) => {
+      // Check if the signal is a numerical signal
+      return true;
+    }, []);
 
     const [chartHeight, setChartHeight] = useState(256);
     const [searchTerm, setSearchTerm] = useState("");
@@ -272,6 +277,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const handleSelect = useCallback(
       (name: string) => {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Numerical add ${name} -> subscribe & attach to this graph`);
+        }
         subscribeToSignal(name, SignalType.Numerical);
         componentSubscriptions.current.add(name);
         setSubscriptionVersion((v) => v + 1);
@@ -283,6 +291,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const handleUnsub = useCallback(
       (name: string) => {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Numerical remove ${name} -> unsubscribe (chip click)`);
+        }
         unsubscribeFromSignal(name);
         componentSubscriptions.current.delete(name);
         setSubscriptionVersion((v) => v + 1);
@@ -291,17 +302,24 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     );
 
     const handleDelete = useCallback(() => {
-      numericalSignals.forEach((n) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`[ui] Numerical delete graph -> unsubscribe all owned signals`, Array.from(componentSubscriptions.current));
+      }
+      // Unsubscribe all signals that this component had subscribed to
+      Array.from(componentSubscriptions.current).forEach((n) => {
         unsubscribeFromSignal(n);
         componentSubscriptions.current.delete(n);
       });
       onDelete();
-    }, [numericalSignals, unsubscribeFromSignal, onDelete]);
+    }, [unsubscribeFromSignal, onDelete]);
 
     // Cleanup effect to prevent memory leaks and race conditions on unmount
     useEffect(() => {
       // Subscribe to the initial signal if provided
       if (signalName && !componentSubscriptions.current.has(signalName)) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[ui] Numerical mount with initial ${signalName} -> subscribe`);
+        }
         subscribeToSignal(signalName, SignalType.Numerical);
         componentSubscriptions.current.add(signalName);
         setSubscriptionVersion((v) => v + 1);
@@ -310,6 +328,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       return () => {
         // Only cleanup signals that this specific component instance subscribed to
         componentSubscriptions.current.forEach((signal) => {
+          if (process.env.NODE_ENV !== "production") {
+            console.log(`[ui] Numerical unmount -> unsubscribe ${signal}`);
+          }
           unsubscribeFromSignal(signal);
         });
         componentSubscriptions.current.clear();

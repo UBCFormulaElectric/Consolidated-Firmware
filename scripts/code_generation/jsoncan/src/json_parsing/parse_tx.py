@@ -6,7 +6,8 @@ from schema import Schema, And, Optional, Or, SchemaError
 
 from .parse_error import InvalidCanJson
 from .parse_utils import load_json_file, get_optional_value
-from ..can_database import CanEnum, CanMessage, CanSignal
+from ..can_database import CanMessage, CanSignal
+from ..can_signals import CanEnum
 from ..utils import max_uint_for_bits
 
 
@@ -44,6 +45,7 @@ _tx_signal_schema = Schema(
                 Optional("unit"): str,
                 Optional("start_value"): Or(int, float),
                 Optional("start_bit"): int,
+                Optional("signed"): bool,
             }
         ),
         Schema(
@@ -55,6 +57,7 @@ _tx_signal_schema = Schema(
                 Optional("unit"): str,
                 Optional("start_value"): Or(int, float),
                 Optional("start_bit"): int,
+                Optional("signed"): bool,
             }
         ),
         Schema(
@@ -87,10 +90,10 @@ _tx_msg_schema = Schema(
     {
         "msg_id": And(int, lambda x: 0 <= x < 2**29),
         "signals": Or(
-            {
+            Schema({
                 str: _tx_signal_schema,
-            },
-            {},
+            }),
+            Schema({}),
         ),
         "cycle_time": Or(int, Schema(None), lambda x: x >= 0),
         Optional("disabled"): bool,
@@ -130,6 +133,7 @@ def _get_parsed_can_signal(
         signal_json_data, "start_bit", next_available_bit
     )
     signed = signal_json_data.get("signed", False)
+    assert type(signed) is bool, "Signed must be a boolean value"
     big_endian = signal_json_data.get("big_endian", False)
 
     # Get signal value data. Method depends on which data provided in JSON file.
@@ -197,6 +201,11 @@ def _get_parsed_can_signal(
         raise InvalidCanJson(
             f"Signal '{signal_name}' has invalid payload representation, and could not be parsed."
         )
+
+    assert signed or min_val >= 0, (
+       f"Signal '{signal_name}' is not signed, but can attain a value of {min_val}."
+        "If you want to use a signed signal, set 'signed' to true in the signal definition."
+    )
 
     # Parse start value
     start_val = signal_json_data.get("start_value", min_val)
