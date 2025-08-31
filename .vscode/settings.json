@@ -16,6 +16,7 @@
     "system_error": "c",
     "rsm.pb.h": "c",
     "hw_runtimestats.h": "c",
-    "stm32f4xx_hal_exti.h": "c"
+    "stm32f4xx_hal_exti.h": "c",
+    "cmsis_os.h": "c"
   }
 }
