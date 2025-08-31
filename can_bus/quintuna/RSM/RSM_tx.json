@@ -6,20 +6,28 @@
     "signals": {
       "Heartbeat": {
         "bits": 1
-      },
-      "CpuUsageMax" : {
+      }
+    }
+  },
+
+  "CPUDataLogInfo" :{
+    "msg_id" : 708,
+    "cycle_time" : 100,
+    "description" : "RSM cpu and stack information",
+    "signals" : {
+      "TaskRun1HzCpuUsageMax" : {
         "resolution" : 0.1,
         "min": 0,
         "max" : 100,
         "unit" : "%"
       },
-      "CpuUsage" : {
+      "TaskRun1HzCpuUsage" : {
         "resolution" : 0.1,
         "min": 0,
         "max" : 100,
         "unit" : "%"
       },
-      "StackUsage" : {
+      "TaskRun1HzStackUsage" : {
         "resolution" : 0.1,
         "min": 0,
         "max" : 100,
@@ -27,6 +35,7 @@
       }
     }
   },
+
   "Debug": {
     "msg_id": 707,
     "cycle_time": 1000,

@@ -13,8 +13,7 @@ typedef enum TaskIndex_e
     NUM_OF_TASKS    = 6
 } TaskIndex_e;
 
-    void
-               tasks_preInit();
+void           tasks_preInit();
 void           tasks_init();
 _Noreturn void tasks_run100Hz(void);
 _Noreturn void tasks_runCanTx(void);

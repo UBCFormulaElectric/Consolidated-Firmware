@@ -3,6 +3,7 @@
 #include <string.h>
 #include <cmsis_os.h>
 #include "app_utils.h"
+#ifndef BOOTLOADER
 #include "tasks.h"
 
 // Global variables
@@ -10,7 +11,8 @@ static TIM_HandleTypeDef *runTimeCounter;
 
 volatile unsigned long ulHighFrequencyTimerTick = 0;
 
-static TaskRuntimeStats *tasks_runtime_stat[NUM_OF_TASKS];
+static TaskRuntimeStats *tasks_runtime_stat[8];
+
 
 // TODO need to change the format of this such that each task has its own function registeration meaning it has a
 // function pointer to convery info
@@ -36,7 +38,7 @@ ExitCode hw_runTimeStat_registerTask(TaskRuntimeStats *task_info)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
-    else if (NUM_OF_TASKS < task_info->task_index)
+    else if (8 < task_info->task_index)
     {
         return EXIT_CODE_OUT_OF_RANGE;
     }
@@ -48,11 +50,11 @@ ExitCode hw_runTimeStat_registerTask(TaskRuntimeStats *task_info)
 
 void hw_runTimeStat_hookCallBack(void)
 {
-    TaskStatus_t runTimeStats[NUM_OF_TASKS];
+    TaskStatus_t runTimeStats[8];
 
     TaskHandle_t idleHandle = xTaskGetIdleTaskHandle();
 
-    uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)NUM_OF_TASKS, NULL);
+    uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)8, NULL);
 
     // given each task that we get from the following getsystemstate call we are gonna calcualte the
     // cpu usage and stack usage
@@ -70,7 +72,7 @@ void hw_runTimeStat_hookCallBack(void)
         {
             // Calculate current cpu usage
             tasks_runtime_stat[task]->cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
-                                                     (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
+                                                       (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
 
             // Calculate max stack usage
             tasks_runtime_stat[task]->stack_usage_max = runTimeStats[task].usStackHighWaterMark;
@@ -91,3 +93,9 @@ unsigned long getRunTimeCounterValue(void)
 {
     return ulHighFrequencyTimerTick;
 }
+
+#else
+
+void hw_runTimeStat_hookCallBack(void){}
+
+#endif

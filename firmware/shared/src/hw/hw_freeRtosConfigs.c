@@ -1,10 +1,10 @@
 #include "hw_bootup.h"
-#include "hw_runTimeStat.h"
 #include "hw_utils.h"
 #include "io_log.h"
 #include <assert.h>
 #include <cmsis_os.h>
 #include <projdefs.h>
+#include "hw_runTimeStat.h"
 
 _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
 {
