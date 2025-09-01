@@ -2,10 +2,13 @@
 #include "app_pid.h"
 #include "app_yawRateController.h"
 #include "app_units.h"
+#include "app_velocityEstimator.h"
 
 // Constants
 
-#define CAR_MASS_AT_CG_KG (300.0f) // checked with suspension -- weight with driver
+#define CAR_MASS_AT_CG_KG (300.0f)                           // checked with suspension -- weight with driver
+#define DIST_FRONT_AXLE_CG (0.837f)                          // a in meters
+#define DIST_REAR_AXLE_CG (WHEELBASE_m - DIST_FRONT_AXLE_CG) // b in meters
 #define GRAVITY (9.81f)
 #define CG_HEIGHT_FROM_GROUND_m (30.0f * CM_TO_M) // got 30cm from suspension team
 #define SMALL_EPSILON .000001f                    // to avoid divide by zero error
@@ -67,3 +70,4 @@ extern const PID_Config               PID_POWER_CORRECTION_CONFIG;
 extern const PID_Config               PID_TRACTION_CONTROL_CONFIG;
 extern const PID_Config               PID_YAW_RATE_CONTROLLER_CONFIG;
 extern const YawRateController_Config YAW_RATE_CONTROLLER_CONFIG;
+extern const VelocityEstimator_Config VELOCITY_ESTIMATOR_CONFIG;
