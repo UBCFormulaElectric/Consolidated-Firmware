@@ -5,6 +5,7 @@ add_subdirectory(RSM)
 add_subdirectory(VC)
 add_subdirectory(VCR)
 add_subdirectory(BMS)
+add_subdirectory(PCM)
 
 if ("${TARGET}" STREQUAL "binary")
     add_custom_target(quintuna_hexes)
