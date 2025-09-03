@@ -31,6 +31,11 @@ typedef struct
      */
     uint16_t task_index;
 
+    /*
+     * Stack Size
+     */
+    uint16_t stack_size;
+
     // Setter function pointers
 
     /*

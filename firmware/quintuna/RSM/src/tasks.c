@@ -172,8 +172,8 @@ _Noreturn void tasks_run1kHz(void)
 void tasks_runCanTx(void)
 {
     // Setup tasks.
-    const uint32_t  period_ms                = 1U;
-    uint32_t start_ticks = osKernelGetTickCount();
+    const uint32_t period_ms   = 1U;
+    uint32_t       start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -196,8 +196,8 @@ void tasks_runCanRxCallback(const CanMsg *msg)
 
 _Noreturn void tasks_runCanRx(void)
 {
-    const uint32_t  period_ms                = 1U;
-    uint32_t start_ticks = osKernelGetTickCount();
+    const uint32_t period_ms   = 1U;
+    uint32_t       start_ticks = osKernelGetTickCount();
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
