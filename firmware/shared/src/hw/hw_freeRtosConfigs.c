@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <cmsis_os.h>
 #include <projdefs.h>
-#include "hw_runTimeStat.h"
 
 _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
 {
@@ -21,10 +20,4 @@ _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pc
 
     BREAK_IF_DEBUGGER_CONNECTED();
     NVIC_SystemReset();
-}
-
-// responsible for handling cpu load and stack watermark calculations
-void vApplicationIdleHook(void)
-{
-    hw_runTimeStat_hookCallBack();
 }

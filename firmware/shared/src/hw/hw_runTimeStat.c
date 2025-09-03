@@ -1,18 +1,24 @@
+#ifndef BOOTLOADER
 #include "hw_runTimeStat.h"
 #include "main.h"
 #include <string.h>
 #include <cmsis_os.h>
 #include "app_utils.h"
-#ifndef BOOTLOADER
 #include "tasks.h"
+
+#define NUM_FT_TASKS 2
+#define IDLE_TASK_INDEX 0
+#define TMR_SVC_INDEX 1
 
 // Global variables
 static TIM_HandleTypeDef *runTimeCounter;
 
 volatile unsigned long ulHighFrequencyTimerTick = 0;
 
-static TaskRuntimeStats *tasks_runtime_stat[8];
-
+static TaskRuntimeStats *tasks_runtime_stat[NUM_OF_TASKS + NUM_FT_TASKS] = { [IDLE_TASK_INDEX] =
+                                                                                 &(TaskRuntimeStats){ 0 },
+                                                                             [TMR_SVC_INDEX] =
+                                                                                 &(TaskRuntimeStats){ 0 } };
 
 // TODO need to change the format of this such that each task has its own function registeration meaning it has a
 // function pointer to convery info
@@ -38,23 +44,23 @@ ExitCode hw_runTimeStat_registerTask(TaskRuntimeStats *task_info)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
-    else if (8 < task_info->task_index)
+    else if (NUM_OF_TASKS < task_info->task_index)
     {
         return EXIT_CODE_OUT_OF_RANGE;
     }
 
-    tasks_runtime_stat[task_info->task_index] = task_info;
+    tasks_runtime_stat[task_info->task_index + NUM_FT_TASKS] = task_info;
 
     return EXIT_CODE_OK;
 }
 
 void hw_runTimeStat_hookCallBack(void)
 {
-    TaskStatus_t runTimeStats[8];
+    TaskStatus_t runTimeStats[NUM_OF_TASKS + NUM_FT_TASKS];
 
     TaskHandle_t idleHandle = xTaskGetIdleTaskHandle();
 
-    uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)8, NULL);
+    uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)NUM_OF_TASKS + NUM_FT_TASKS, NULL);
 
     // given each task that we get from the following getsystemstate call we are gonna calcualte the
     // cpu usage and stack usage
@@ -63,23 +69,32 @@ void hw_runTimeStat_hookCallBack(void)
 
     for (uint32_t task = 0; task < arraySize; task++)
     {
-        // get the idle time that we need to calculate the cpu usage associated
+
         if (runTimeStats[task].xHandle == idleHandle)
         {
             idle_counter = runTimeStats[task].ulRunTimeCounter;
         }
-        else
+    }
+
+    for (uint32_t task = 0; task < arraySize; task++)
+    {
+        // get the idle time that we need to calculate the cpu usage associated
+        if (NULL != tasks_runtime_stat[task])
         {
-            // Calculate current cpu usage
-            tasks_runtime_stat[task]->cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
-                                                       (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
-
-            // Calculate max stack usage
-            tasks_runtime_stat[task]->stack_usage_max = runTimeStats[task].usStackHighWaterMark;
-
-            // Calculate the max cpu usage
-            tasks_runtime_stat[task]->cpu_max_usage =
-                MAX(tasks_runtime_stat[task]->cpu_max_usage, tasks_runtime_stat[task]->cpu_curr_usage);
+            if ((idle_counter + runTimeStats[task].ulRunTimeCounter) != 0)
+            {
+                // Calculate current cpu usage
+                tasks_runtime_stat[task]->cpu_curr_usage = (float)runTimeStats[task].ulRunTimeCounter /
+                                                           (float)(idle_counter + runTimeStats[task].ulRunTimeCounter);
+                // Calculate the max cpu usage
+                tasks_runtime_stat[task]->cpu_max_usage =
+                    MAX(tasks_runtime_stat[task]->cpu_max_usage, tasks_runtime_stat[task]->cpu_curr_usage);
+            }
+            {
+                // Calculate max stack usage
+                tasks_runtime_stat[task]->stack_usage_max =
+                    (float)runTimeStats[task].usStackHighWaterMark / (float)tasks_runtime_stat[task]->stack_size;
+            }
         }
     }
 }
@@ -96,6 +111,6 @@ unsigned long getRunTimeCounterValue(void)
 
 #else
 
-void hw_runTimeStat_hookCallBack(void){}
+void hw_runTimeStat_hookCallBack(void) {}
 
 #endif

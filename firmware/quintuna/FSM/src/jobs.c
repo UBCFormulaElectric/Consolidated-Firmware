@@ -35,7 +35,7 @@ void jobs_init(void)
     io_canQueue_initTx(&can_tx_queue);
     app_canTx_init();
     app_canRx_init();
-    //LOG_IF_ERR(io_imu_init());
+    // LOG_IF_ERR(io_imu_init());
     app_apps_init();
 
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
@@ -55,7 +55,7 @@ void jobs_run100Hz_tick(void)
     app_steering_broadcast();
     app_shdnLoop_broadcast();
     app_suspension_broadcast();
-    //app_imu_broadcast();
+    // app_imu_broadcast();
 
     io_canTx_enqueue100HzMsgs();
 }
