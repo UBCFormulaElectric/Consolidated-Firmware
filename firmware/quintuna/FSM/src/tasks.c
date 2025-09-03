@@ -94,14 +94,14 @@ _Noreturn void tasks_runChimera(void)
 
 void tasks_run1Hz(void)
 {
-    const uint32_t  period_ms                = 1000U;
-    const uint32_t  watchdog_grace_period_ms = 50U;
-    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
-    TaskRuntimeStats task_run1hz = { .task_index             = TASK_RUN1HZ,
-                                     .cpu_usage_max_setter   = app_canTx_FSM_TaskRun1HzCpuUsageMax_set,
-                                     .cpu_usage_setter       = app_canTx_FSM_TaskRun1HzCpuUsage_set,
-                                     .stack_usage_max_setter = app_canTx_FSM_TaskRun1HzStackUsage_set };
-
+    const uint32_t   period_ms                = 1000U;
+    const uint32_t   watchdog_grace_period_ms = 50U;
+    WatchdogHandle  *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+    TaskRuntimeStats task_run1hz              = { .task_index             = TASK_RUN1HZ,
+                                                  .stack_size             = 512,
+                                                  .cpu_usage_max_setter   = app_canTx_FSM_TaskRun1HzCpuUsageMax_set,
+                                                  .cpu_usage_setter       = app_canTx_FSM_TaskRun1HzCpuUsage_set,
+                                                  .stack_usage_max_setter = app_canTx_FSM_TaskRun1HzStackUsage_set };
 
     hw_runTimeStat_registerTask(&task_run1hz);
     uint32_t start_ticks = osKernelGetTickCount();
@@ -126,6 +126,14 @@ void tasks_run100Hz(void)
     const uint32_t  watchdog_grace_period_ms = 2U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
+    TaskRuntimeStats task_run100hz            = { .task_index             = TASK_RUN100HZ,
+                                                  .stack_size             = 512,
+                                                  .cpu_usage_max_setter   = app_canTx_FSM_TaskRun1HzCpuUsageMax_set,
+                                                  .cpu_usage_setter       = app_canTx_FSM_TaskRun1HzCpuUsage_set,
+                                                  .stack_usage_max_setter = app_canTx_FSM_TaskRun1HzStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_run100hz);
+
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
@@ -134,6 +142,7 @@ void tasks_run100Hz(void)
             jobs_run100Hz_tick();
         }
 
+        hw_runTimeStat_hookCallBack();
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
 
@@ -168,16 +177,10 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx()
 {
-    // Setup tasks.
-    const uint32_t  period_ms                = 1U;
-    uint32_t start_ticks = osKernelGetTickCount();
-
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can, &msg));
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
     }
 }
 
@@ -193,14 +196,10 @@ void tasks_runCanRxCallback(const CanMsg *msg)
 
 _Noreturn void tasks_runCanRx(void)
 {
-    const uint32_t  period_ms                = 1U;
-    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
         JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_msg);
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
     }
 }
