@@ -40,7 +40,7 @@ ExitCode hw_runTimeStat_init(TIM_HandleTypeDef *htim)
 ExitCode hw_runTimeStat_registerTask(TaskRuntimeStats *task_info)
 {
     if (NULL == task_info->cpu_usage_max_setter || NULL == task_info->cpu_usage_setter ||
-        NULL == task_info->stack_usage_max_setter)
+        NULL == task_info->stack_usage_max_setter || 0 <= task_info->stack_size)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
