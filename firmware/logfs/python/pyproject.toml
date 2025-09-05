@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "Python bindings for LogFS"
 requires-python = ">=3.9"
 
+# this is equivalent to entry_points["console_scripts"]
+[project.scripts]
+logfs = "logfs.shell:main"
+
 
 [build-system]
 requires = [
