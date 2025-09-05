@@ -2,24 +2,31 @@
 
 // app
 #include "states/app_states.h"
-#include "states/app_allStates.h"
 #include "app_precharge.h"
 #include "app_segments.h"
-#include "app_shdnLoop.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_commitInfo.h"
 #include "app_jsoncan.h"
 #include "app_canAlerts.h"
 #include "app_timer.h"
-// io
+#include "app_imd.h"
+#include "app_powerLimit.h"
+#include "app_shdnLoop.h"
+#include "app_tractiveSystem.h"
 #include "app_irs.h"
+
+// io
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_canMsg.h"
 #include "io_irs.h"
 #include "io_time.h"
 #include "io_semaphore.h"
+#include "io_bspdTest.h"
+#include "io_charger.h"
+#include "io_fans.h"
+#include "io_faultLatch.h"
 
 CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
 
@@ -41,7 +48,7 @@ static void charger_transmit_func(const JsonCanMsg *msg)
     UNUSED(msg);
 }
 
-void jobs_init()
+void jobs_init(void)
 {
     // isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an LTC transaction doesn't get interrupted
     // by another task. It's just a regular semaphore (no priority inheritance) since it depends on hardware.
@@ -92,12 +99,10 @@ void jobs_init()
     app_timer_init(&air_n_debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 
     app_stateMachine_init(&init_state);
-    app_allStates_init();
 }
 
 void jobs_run1Hz_tick(void)
 {
-    app_allStates_runOnTick1Hz();
     io_canTx_enqueue1HzMsgs();
 }
 
@@ -107,7 +112,43 @@ void jobs_run100Hz_tick(void)
 
     app_stateMachine_tick100Hz();
 
-    app_allStates_runOnTick100Hz();
+    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+
+    // app_heartbeatMonitor_checkIn(&hb_monitor);
+    // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
+
+    app_tractiveSystem_broadcast();
+    app_imd_broadcast();
+    app_shdnLoop_broadcast();
+    app_powerLimit_broadcast();
+
+    // TODO: Enable fans for endurance when contactors are closed.
+    // const bool hv_up = io_irs_isNegativeClosed() && io_irs_isPositiveClosed();
+    // io_fans_tick(hv_up);
+    io_fans_tick(false);
+
+    io_bspdTest_enable(app_canRx_Debug_EnableTestCurrent_get());
+    app_canTx_BMS_BSPDCurrentThresholdExceeded_set(io_bspdTest_isCurrentThresholdExceeded());
+
+    // If charge state has not placed a lock on broadcasting
+    // if the charger is charger is connected
+    app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
+
+    (void)app_segments_checkWarnings();
+    const bool acc_fault = app_segments_checkFaults();
+    io_faultLatch_setCurrentStatus(&bms_ok_latch, acc_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
+
+    // Update CAN signals for BMS latch statuses.
+    app_canTx_BMS_BmsCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_ImdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_BspdCurrentlyOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_BmsLatchOk_set(io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_ImdLatchOk_set(io_faultLatch_getLatchedStatus(&imd_ok_latch) == FAULT_LATCH_OK);
+    app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch) == FAULT_LATCH_OK);
+
+    app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
+    app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdTest_isAccelBrakeOk());
 
     const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool ir_negative_opened_debounced =

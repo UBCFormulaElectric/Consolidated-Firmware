@@ -7,7 +7,6 @@
 #include "app_jsoncan.h"
 #include "app_canAlerts.h"
 
-#include "io_ltc6813.h"
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canRx.h"
@@ -30,29 +29,12 @@
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
 
-
-#include "semphr.h"
 #include <FreeRTOS.h>
 #include <cmsis_os2.h>
 #include <portmacro.h>
 
-CanTxQueue can_tx_queue;
-
-static void jsoncan_transmit_func(const JsonCanMsg *tx_msg)
-{
-    const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
-    io_canQueue_pushTx(&can_tx_queue, &msg);
-}
-
-static void charger_transmit_func(const JsonCanMsg *msg)
-{
-    // LOG_INFO("Send charger message: %d", msg->std_id);
-}
-
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
-
-static Semaphore init_complete_locks;
 
 void tasks_runChimera(void)
 {
@@ -122,12 +104,6 @@ void tasks_init(void)
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
-
-    io_canQueue_initRx();
-    io_canQueue_initTx(&can_tx_queue);
-    io_canTx_init(jsoncan_transmit_func, charger_transmit_func);
-    io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
-    io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
 
     jobs_init();
 

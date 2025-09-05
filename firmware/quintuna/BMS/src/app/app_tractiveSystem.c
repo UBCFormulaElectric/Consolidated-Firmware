@@ -31,16 +31,6 @@ float app_tractiveSystem_getVoltage(void)
     return io_tractiveSystem_getVoltage();
 }
 
-bool app_tractiveSystem_getVoltageDiagState(void)
-{
-    return io_tractiveSystem_getVoltageDiagState();
-}
-
-bool app_tractiveSystem_getCurrentDiagState(void)
-{
-    return io_tractiveSystem_getCurrentDiagState();
-}
-
 float app_tractiveSystem_getCurrent(void)
 {
     const float low_res_current  = io_tractiveSystem_getCurrentLowResolution();
@@ -56,30 +46,17 @@ float app_tractiveSystem_getCurrent(void)
     }
 }
 
-bool app_tractiveSystem_currentSensorOk(void)
-{
-    return io_tractiveSystem_currentSensorOk();
-}
-
-bool app_tractiveSystem_voltageSensorOk(void)
-{
-    return io_tractiveSystem_voltageSensorOk();
-}
-
 void app_tractiveSystem_broadcast(void)
 {
     const float ts_voltage            = app_tractiveSystem_getVoltage();
     const float ts_current            = app_tractiveSystem_getCurrent();
     const float ts_power_kw           = ts_voltage * ts_current * W_TO_KW;
-    const bool  ts_voltage_diag_state = app_tractiveSystem_getVoltageDiagState();
-    const bool  ts_current_diag_state = app_tractiveSystem_getCurrentDiagState();
+    const bool  ts_voltage_diag_state = io_tractiveSystem_getVoltageDiagState();
+    const bool  ts_current_diag_state = io_tractiveSystem_getCurrentDiagState();
 
     app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
     app_canTx_BMS_TractiveSystemCurrent_set(ts_current);
     app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
-    app_canTx_BMS_VoltageDiagState_set(ts_voltage_diag_state);
-    app_canTx_BMS_CurrentDiagState_set(ts_current_diag_state);
-
-    app_canTx_BMS_CurrentSensorOk_set(ts_current_sns_ok);
-    app_canTx_BMS_VoltageSensorOk_set(ts_voltage_sns_ok);
+    app_canTx_BMS_VoltageSensorOk_set(ts_voltage_diag_state);
+    app_canTx_BMS_CurrentSensorOk_set(ts_current_diag_state);
 }
