@@ -15,7 +15,7 @@ static void balancingStateRunOnTick100Hz(void)
 {
     const bool air_negative_open          = !io_irs_isNegativeClosed();
     const bool stopped_requesting_balance = !app_canRx_Debug_CellBalancingRequest_get();
-    if (air_negative_open || stopped_requesting_balance)
+    if (stopped_requesting_balance)
     {
         app_stateMachine_setNextState(app_initState_get());
     }

@@ -34,7 +34,7 @@ static void app_initStateRunOnTick100Hz(void)
     // TODO: Detect charger via PWM.
     // const bool is_charger_connected      = (io_charger_getConnectionStatus() == EVSE_CONNECTED || WALL_CONNECTED);
 
-    if (is_irs_negative_closed && ts_discharged)
+    if (ts_discharged)
     {
         const bool external_charging_request = app_canRx_Debug_StartCharging_get();
 

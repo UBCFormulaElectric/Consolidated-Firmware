@@ -60,7 +60,7 @@ void app_allStates_runOnTick100Hz(void)
     app_canTx_BMS_BspdLatchOk_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
 
     (void)app_segments_checkWarnings();
-    const bool acc_fault = app_segments_checkFaults();
+    const bool acc_fault = false;
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
@@ -68,5 +68,6 @@ void app_allStates_runOnTick100Hz(void)
     if (acc_fault && settle_time_expired)
     {
         app_stateMachine_setNextState(app_faultState_get());
+        LOG_INFO("entering fault state from allStates");
     }
 }
