@@ -22,33 +22,33 @@ TEST_F(BmsStateMachineTest, init_proper_reset)
 {
     app_stateMachine_setCurrentState(&drive_state);
     jobs_init();
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
 TEST_F(BmsStateMachineTest, start_precharge_once_vc_bms_on_AND_irs_negative_closed)
 {
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
     LetTimePass(100);
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
 
     app_canRx_VC_State_update(VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
     LetTimePass(10);
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
 
     app_canRx_VC_State_update(VC_INVERTER_ON_STATE);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
 
     app_canRx_VC_State_update(VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
-    ASSERT_STATE_EQ(&precharge_drive_state);
+    ASSERT_STATE_EQ(precharge_drive_state);
 
     app_canRx_VC_State_update(VC_INIT_STATE);
     LetTimePass(10);
-    ASSERT_STATE_EQ(&precharge_drive_state); // surely precharge state is stable for at least 20ms
+    ASSERT_STATE_EQ(precharge_drive_state); // surely precharge state is stable for at least 20ms
 }
 
 TEST_F(BmsStateMachineTest, irs_negative_open_to_init_with_debounce)
@@ -56,17 +56,17 @@ TEST_F(BmsStateMachineTest, irs_negative_open_to_init_with_debounce)
     app_stateMachine_setCurrentState(&drive_state);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
-    ASSERT_STATE_EQ(&drive_state);
+    ASSERT_STATE_EQ(drive_state);
 
     fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
     for (int i = 0; i <= 200; i += 10)
     {
-        ASSERT_STATE_EQ(&drive_state) << "Expected state: drive_state, but got: "
-                                      << app_stateMachine_getCurrentState()->name
-                                      << ", time = " << io_time_getCurrentMs();
+        ASSERT_STATE_EQ(drive_state) << "Expected state: drive_state, but got: "
+                                     << app_stateMachine_getCurrentState()->name
+                                     << ", time = " << io_time_getCurrentMs();
         LetTimePass(10);
     }
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
 TEST_F(BmsStateMachineTest, check_contactors_open_in_inert_states)
@@ -84,12 +84,12 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 {
     app_canAlerts_BMS_Fault_TESTFAULT_set(true);
     LetTimePass(10);
-    ASSERT_STATE_EQ(&fault_state);
+    ASSERT_STATE_EQ(fault_state);
 
     app_canAlerts_BMS_Fault_TESTFAULT_set(false);
     ASSERT_FALSE(app_canAlerts_AnyBoardHasFault());
     LetTimePass(10);
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
 }
 
 TEST_F(BmsStateMachineTest, stays_in_fault_state_if_ir_negative_closes)
@@ -98,7 +98,7 @@ TEST_F(BmsStateMachineTest, stays_in_fault_state_if_ir_negative_closes)
     app_canAlerts_BMS_Fault_TESTFAULT_set(true);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     LetTimePass(100);
-    ASSERT_STATE_EQ(&fault_state);
+    ASSERT_STATE_EQ(fault_state);
 }
 
 TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch)
@@ -109,11 +109,11 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch)
     LetTimePass(10);
     ASSERT_TRUE(app_canTx_BMS_ImdCurrentlyOk_get());
     ASSERT_TRUE(app_canTx_BMS_ImdLatchOk_get());
-    ASSERT_STATE_EQ(&drive_state);
+    ASSERT_STATE_EQ(drive_state);
     fakes::faultLatches::updateFaultLatch(&imd_ok_latch, FAULT_LATCH_FAULT);
     fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
     LetTimePass(300);
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
     ASSERT_FALSE(app_canTx_BMS_ImdCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_ImdLatchOk_get());
 }
@@ -126,11 +126,11 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch)
     LetTimePass(10);
     ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
     ASSERT_TRUE(app_canTx_BMS_BmsLatchOk_get());
-    ASSERT_STATE_EQ(&drive_state);
+    ASSERT_STATE_EQ(drive_state);
     fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
     fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
     LetTimePass(300);
-    ASSERT_STATE_EQ(&init_state); // Since we have not set a fault, BMSCurrentlyOk should be true
+    ASSERT_STATE_EQ(init_state); // Since we have not set a fault, BMSCurrentlyOk should be true
     ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_BmsLatchOk_get());
 }
@@ -143,11 +143,11 @@ TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch)
     LetTimePass(10);
     ASSERT_TRUE(app_canTx_BMS_BspdCurrentlyOk_get());
     ASSERT_TRUE(app_canTx_BMS_BspdLatchOk_get());
-    ASSERT_STATE_EQ(&drive_state);
+    ASSERT_STATE_EQ(drive_state);
     fakes::faultLatches::updateFaultLatch(&bspd_ok_latch, FAULT_LATCH_FAULT);
     fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
     LetTimePass(300);
-    ASSERT_STATE_EQ(&init_state);
+    ASSERT_STATE_EQ(init_state);
     ASSERT_FALSE(app_canTx_BMS_BspdCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_BspdLatchOk_get());
 }
@@ -169,7 +169,7 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_over_voltage_fault)
     fakes::segments::setCellVoltages(cell_voltages_arr);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     LetTimePass(10010);
-    ASSERT_STATE_EQ(&fault_state);
+    ASSERT_STATE_EQ(fault_state);
     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
 }
@@ -190,7 +190,7 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
     fakes::segments::setCellVoltages(cell_voltages_arr);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     LetTimePass(10010);
-    ASSERT_STATE_EQ(&fault_state);
+    ASSERT_STATE_EQ(fault_state);
     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
 }
@@ -212,7 +212,7 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
 //     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
 //     LetTimePass(10010);
 //     LetTimePass(1000);
-//     ASSERT_STATE_EQ(&fault_state);
+//     ASSERT_STATE_EQ(fault_state);
 //     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 //     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
 // }
@@ -236,7 +236,7 @@ TEST_F(BmsStateMachineTest, precharge_success_test)
 
     for (int i = 0; i < just_good_time; i += 10)
     {
-        ASSERT_STATE_EQ(&precharge_drive_state);
+        ASSERT_STATE_EQ(precharge_drive_state);
         ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
         ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
         LetTimePass(10);
@@ -244,7 +244,7 @@ TEST_F(BmsStateMachineTest, precharge_success_test)
 
     fakes::tractiveSystem::setVoltage(target_voltage);
     LetTimePass(10);
-    ASSERT_STATE_EQ(&drive_state);
+    ASSERT_STATE_EQ(drive_state);
     ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_OPEN);
     ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
 }
@@ -263,7 +263,7 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
         for (closed_time = 0; io_irs_prechargeState() == CONTACTOR_STATE_CLOSED && closed_time < precharge_timeout_ub;
              closed_time += 10)
         {
-            ASSERT_STATE_EQ(&precharge_drive_state);
+            ASSERT_STATE_EQ(precharge_drive_state);
             ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
             LetTimePass(10);
         }
@@ -286,7 +286,7 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
                                                             << ", time = " << io_time_getCurrentMs();
     }
 
-    ASSERT_STATE_EQ(&precharge_latch_state);
+    ASSERT_STATE_EQ(precharge_latch_state);
 }
 
 TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
@@ -299,7 +299,7 @@ TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
 
     for (int i = 0; i < too_fast_time; i += 10)
     {
-        ASSERT_STATE_EQ(&precharge_drive_state);
+        ASSERT_STATE_EQ(precharge_drive_state);
         ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
         ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
         LetTimePass(10);

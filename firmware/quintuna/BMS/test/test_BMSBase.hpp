@@ -2,9 +2,7 @@
 #include "ecuTestBase.hpp"
 #include "test_fakes.h"
 
-#include "test_fakes.h"
 #include "fake_io_irs.hpp"
-#include "fake_io_tractiveSystem.hpp"
 #include "fake_io_tractiveSystem.hpp"
 #include "fake_io_imd.hpp"
 #include "fake_io_faultLatch.hpp"
@@ -28,7 +26,7 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
         fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
 
-        fakes::segments::SetPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::segments::setPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::segments::SetAuxRegs(1.5f); // Approx. 25C
 
         fake_io_time_getCurrentMs_reset();
@@ -62,15 +60,15 @@ class BMSBaseTest : public EcuTestBase
     {
         fake_io_time_getCurrentMs_reset();
         fake_io_tractiveSystem_getVoltage_reset();
-        fake_io_irs_isNegativeClosed_reset();
-        fake_io_irs_isPositiveClosed_reset();
+        fake_io_irs_negativeState_reset();
+        fake_io_irs_positiveState_reset();
         fake_io_imd_getFrequency_reset();
         fake_io_imd_getDutyCycle_reset();
         fake_io_faultLatch_getCurrentStatus_reset();
         fake_io_faultLatch_getLatchedStatus_reset();
         fake_io_tractiveSystem_getCurrentHighResolution_reset();
         fake_io_tractiveSystem_getCurrentLowResolution_reset();
-        fake_io_irs_closePositive_reset();
+        fake_io_irs_setPositive_reset();
         fake_io_faultLatch_setCurrentStatus_reset();
     }
 
@@ -80,13 +78,11 @@ class BMSBaseTest : public EcuTestBase
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
-    std::vector<const State *> GetAllStates(void)
+    std::vector<const State *> GetAllStates()
     {
-        return std::vector<const State *>{
-            app_initState_get(),           app_prechargeDriveState_get(), app_prechargeChargeState_get(),
-            app_prechargeLatchState_get(), app_driveState_get(),          app_chargeState_get(),
-            app_balancingState_get(),      app_faultState_get(),
-        };
+        return std::vector{ &init_state,        &precharge_drive_state, &precharge_charge_state, &precharge_latch_state,
+                            &drive_state,       &charge_state,          &balancing_state,        &fault_state,
+                            &charge_init_state, &charge_fault_state };
     }
     void SetImdCondition(const ImdConditionName condition_name)
     {
@@ -94,6 +90,9 @@ class BMSBaseTest : public EcuTestBase
             { IMD_CONDITION_SHORT_CIRCUIT, 0.0f },          { IMD_CONDITION_NORMAL, 10.0f },
             { IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f }, { IMD_CONDITION_SST, 30.0f },
             { IMD_CONDITION_DEVICE_ERROR, 40.0f },          { IMD_CONDITION_GROUND_FAULT, 50.0f }
+        };
+        fake_io_imd_getFrequency_returns(mapping.at(condition_name));
+    }
 
   public:
     struct StateMetadata
@@ -116,12 +115,3 @@ class BMSBaseTest : public EcuTestBase
         { &charge_fault_state, BMS_CHARGE_FAULT_STATE, true, false },
     } };
 };
-
-        fake_io_imd_getFrequency_returns(mapping.at(condition_name));
-        ASSERT_EQ(condition_name, app_imd_getCondition().name);
-    }
-};
-
-inline const FaultLatch bms_ok_latch  = {};
-inline const FaultLatch imd_ok_latch  = {};
-inline const FaultLatch bspd_ok_latch = {};

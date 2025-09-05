@@ -38,7 +38,7 @@ TEST_F(BMSCanTest, check_states_is_broadcasted_over_can)
         enforceStatePreconditions(metadata);
         app_stateMachine_setCurrentState(metadata.state);
         LetTimePass(10); // let the state settle
-        ASSERT_STATE_EQ(metadata.state);
+        ASSERT_STATE_EQ(*metadata.state);
         ASSERT_EQ(app_canTx_BMS_State_get(), metadata.can_state)
             << "Expected " << metadata.can_state << ", but got: " << app_canTx_BMS_State_get()
             << " in state: " << metadata.state->name;
@@ -114,7 +114,7 @@ TEST_F(BMSCanTest, check_air_positive_can_signals_for_all_states)
     {
         enforceStatePreconditions(metadata);
         app_stateMachine_setCurrentState(metadata.state);
-        ASSERT_STATE_EQ(metadata.state);
+        ASSERT_STATE_EQ(*metadata.state);
 
         io_irs_setPositive(CONTACTOR_STATE_CLOSED);
         // io_irs_setPrecharge(CONTACTOR_STATE_CLOSED);
@@ -141,7 +141,7 @@ TEST_F(BMSCanTest, check_imd_info_is_broadcasted_over_can_in_all_states)
         enforceStatePreconditions(metadata);
         app_stateMachine_setCurrentState(metadata.state);
         LetTimePass(10); // let the state settle
-        ASSERT_STATE_EQ(metadata.state);
+        ASSERT_STATE_EQ(*metadata.state);
 
         app_canTx_BMS_ImdOkHs_get();
         app_canTx_BMS_ImdCondition_get();
@@ -177,7 +177,7 @@ TEST_F(BMSCanTest, check_shdn_broadcasted_in_all_states)
         enforceStatePreconditions(metadata);
         app_stateMachine_setCurrentState(metadata.state);
         LetTimePass(10); // let the state settle
-        ASSERT_STATE_EQ(metadata.state);
+        ASSERT_STATE_EQ(*metadata.state);
     }
 }
 
@@ -201,11 +201,11 @@ TEST_F(BMSCanTest, check_tractive_system_params_broadcasted_in_all_states)
         enforceStatePreconditions(metadata);
         app_stateMachine_setCurrentState(metadata.state);
         LetTimePass(10); // let the state settle
-        ASSERT_STATE_EQ(metadata.state);
+        ASSERT_STATE_EQ(*metadata.state);
 
-        float expected_voltage  = set_voltage_current[metadata.can_state].first;
-        float expected_current  = set_voltage_current[metadata.can_state].second;
-        float expected_power_kw = expected_voltage * expected_current / 1000.0f;
+        const float expected_voltage  = set_voltage_current[metadata.can_state].first;
+        const float expected_current  = set_voltage_current[metadata.can_state].second;
+        const float expected_power_kw = expected_voltage * expected_current / 1000.0f;
         fakes::tractiveSystem::setVoltage(expected_voltage);
         if (std::abs(expected_current) > 50.0f)
         {
