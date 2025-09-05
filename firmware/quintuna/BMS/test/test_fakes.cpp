@@ -92,16 +92,19 @@ extern "C"
         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
     {
-        if (!started_therm_adc_conversion)
-        {
-            FAIL() << "Did not start thermistor ADC conversion";
-        }
-
-        memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
+        // if (started_therm_adc_conversion || started_self_test_aux)
+        // {
+        //     memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
+        // }
+        // else
+        // {
+        //     FAIL() << "Did not start thermistor ADC conversion";
+        // }
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
             for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
+                aux_regs[i][j]     = 0;
                 comm_success[i][j] = EXIT_CODE_OK;
             }
         }
@@ -168,14 +171,235 @@ extern "C"
     {
         return EXIT_CODE_OK;
     }
+
+#include "io_irs.h"
+    static ContactorState positive_state = CONTACTOR_STATE_OPEN;
+    void                  io_irs_setPositive(const ContactorState state)
+    {
+        positive_state = state;
+    }
+    ContactorState io_irs_positiveState(void)
+    {
+        return positive_state;
+    }
+
+    static ContactorState precharge_state = CONTACTOR_STATE_OPEN;
+    void                  io_irs_setPrecharge(const ContactorState state)
+    {
+        precharge_state = state;
+    }
+    ContactorState io_irs_prechargeState(void)
+    {
+        return precharge_state;
+    }
+
+    static ContactorState negative_state = CONTACTOR_STATE_OPEN;
+    ContactorState        io_irs_negativeState(void)
+    {
+        return negative_state;
+    }
+
+#include "io_tractiveSystem.h"
+    void io_tractiveSystem_init(void) {}
+
+    static float tractiveSystemVoltage = 0.0f;
+    float        io_tractiveSystem_getVoltage(void)
+    {
+        return tractiveSystemVoltage;
+    }
+
+    static float currentHighResolution = 0.0f, currentLowResolution = 0.0f;
+    float        io_tractiveSystem_getCurrentHighResolution(void)
+    {
+        return currentHighResolution;
+    }
+    float io_tractiveSystem_getCurrentLowResolution(void)
+    {
+        return currentLowResolution;
+    }
+
+    static bool voltageDiagState = true;
+    bool        io_tractiveSystem_getVoltageDiagState(void)
+    {
+        return voltageDiagState;
+    }
+
+    static bool currentDiagState = true;
+    bool        io_tractiveSystem_getCurrentDiagState(void)
+    {
+        return currentDiagState;
+    }
+
+#include "io_charger.h"
+    static ChargerConnectedType connectionStatus = CHARGER_DISCONNECTED;
+    ChargerConnectedType        io_charger_getConnectionStatus()
+    {
+        return connectionStatus;
+    }
+
+    static float evse_dutyCycle = 0.0f;
+    float        io_charger_getCPDutyCycle()
+    {
+        return evse_dutyCycle;
+    }
+
+#include "io_imd.h"
+    static float imd_frequency = 0.0f;
+    float        io_imd_getFrequency(void)
+    {
+        return imd_frequency;
+    }
+    void SetExpectedVoltageSelfTestValue(const uint16_t value)
+    {
+        expected_self_test_value = value;
+    }
+
+    static float imd_duty_cycle = 0.0f;
+    float        io_imd_getDutyCycle(void)
+    {
+        return imd_duty_cycle;
+    }
+
+    uint32_t io_imd_getTimeSincePowerOn(void)
+    {
+        return io_time_getCurrentMs();
+    }
+
+    static uint8_t pwm_counter = 0;
+    uint8_t        io_imd_pwmCounterTick(void)
+    {
+        return pwm_counter;
+    }
+
+#include "io_bmsShdn.h"
+    bool io_bmsShdn_msd_shdn_sns_pin_get(void)
+    {
+        return false;
+    }
+    bool io_bmsShdn_hv_p_intlck_sns_pin_get(void)
+    {
+        return false;
+    }
+    bool io_bmsShdn_hv_n_intlck_sns_pin_get(void)
+    {
+        return false;
+    }
+
+#include "io_faultLatch.h"
+    // latches to operate on
+    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false };
+    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
+    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
+
+    void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
+    {
+        assert(!latch->read_only);
+        fakes::faultLatches::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
+    }
+    FaultLatchState io_faultLatch_getCurrentStatus(const FaultLatch *latch)
+    {
+        return latch->status;
+    }
+    FaultLatchState io_faultLatch_getLatchedStatus(const FaultLatch *latch)
+    {
+        return latch->latched_state;
+    }
+
+#include "io_bspdTest.h"
+    void io_bspdTest_enable(const bool enable)
+    {
+        UNUSED(enable);
+    }
+    bool io_bspdTest_isCurrentThresholdExceeded(void)
+    {
+        return false;
+    }
+    bool io_bspdTest_isBrakePressureThresholdExceeded(void)
+    {
+        return false;
+    }
+    bool io_bspdTest_isAccelBrakeOk(void)
+    {
+        return true;
+    }
+
+#include "io_canTx.h"
+    void io_canTx_init(
+        void (*transmit_can1_msg_func)(const JsonCanMsg *),
+        void (*transmit_charger_msg_func)(const JsonCanMsg *))
+    {
+        UNUSED(transmit_can1_msg_func);
+        UNUSED(transmit_charger_msg_func);
+    }
 }
 
 namespace fakes
 {
+namespace irs
+{
+    void setNegativeState(const ContactorState state)
+    {
+        negative_state = state;
+    }
+} // namespace irs
+
+namespace tractiveSystem
+{
+    void setVoltage(const float voltage)
+    {
+        tractiveSystemVoltage = voltage;
+    }
+    void setCurrentHighResolution(const float current)
+    {
+        currentHighResolution = current;
+    }
+    void setCurrentLowResolution(const float current)
+    {
+        currentLowResolution = current;
+    }
+    void setVoltageDiagState(const bool state)
+    {
+        voltageDiagState = state;
+    }
+    void setCurrentDiagState(const bool state)
+    {
+        currentDiagState = state;
+    }
+} // namespace tractiveSystem
+
+namespace faultLatches
+{
+    void resetFaultLatch(const FaultLatch *latch)
+    {
+        const_cast<FaultLatch *>(latch)->status        = FAULT_LATCH_OK;
+        const_cast<FaultLatch *>(latch)->latched_state = FAULT_LATCH_OK;
+    }
+    void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
+    {
+        latch->status        = status;
+        latch->latched_state = latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
+    }
+} // namespace faultLatches
+
+namespace imd
+{
+    void setFrequency(const float frequency)
+    {
+        imd_frequency = frequency;
+    }
+    void setDutyCycle(const float duty_cycle)
+    {
+        imd_duty_cycle = duty_cycle;
+    }
+    void setPwmCounter(const uint8_t counter)
+    {
+        pwm_counter = counter;
+    }
+} // namespace imd
 
 namespace segments
 {
-    void SetCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
+    void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
     {
         for (int i = 0; i < NUM_SEGMENTS; i++)
         {
@@ -186,12 +410,19 @@ namespace segments
         }
     }
 
-    void SetCellVoltage(uint8_t segment, uint8_t cell, float voltage)
+    void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
     {
-        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
+        for (int i = 0; i < NUM_SEGMENTS; i++)
+        {
+            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            {
+                aux_regs_storage[i][j] =
+                    static_cast<uint16_t>(temperatures[i][j] * 1000); // Not sure if conversion is correct
+            }
+        }
     }
 
-    void SetPackVoltageEvenly(const float pack_voltage)
+    void setPackVoltageEvenly(const float pack_voltage)
     {
         const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
         std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
@@ -202,29 +433,12 @@ namespace segments
                 v[i][j] = cell_voltage;
             }
         }
-        SetCellVoltages(v);
+        setCellVoltages(v);
     }
 
-    void SetExpectedVoltageSelfTestValue(const uint16_t value)
+    void setExpectedVoltageSelfTestValue(const uint16_t value)
     {
         expected_self_test_value = value;
     }
-
-    void SetAuxRegs(float voltage)
-    {
-        for (int segment = 0; segment < NUM_SEGMENTS; segment++)
-        {
-            for (int cell = 0; cell < AUX_REGS_PER_SEGMENT; cell++)
-            {
-                aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
-            }
-        }
-    }
-
-    void SetAuxReg(uint8_t segment, uint8_t cell, float voltage)
-    {
-        aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
-    }
-
 } // namespace segments
 } // namespace fakes

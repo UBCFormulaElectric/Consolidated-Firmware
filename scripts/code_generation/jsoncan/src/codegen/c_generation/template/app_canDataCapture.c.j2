@@ -59,7 +59,7 @@ void app_canDataCapture_init()
 
 bool app_dataCapture_needsLog(uint32_t msg_id, uint32_t time_ms)
 {
-    (void)time_ms; // in case we don't use it.
+    (void)time_ms; // could be unused
     switch (msg_id)
     {
         {%- for msg in messages %}
@@ -83,14 +83,14 @@ bool app_dataCapture_needsLog(uint32_t msg_id, uint32_t time_ms)
 
 bool app_dataCapture_needsTelem(uint32_t msg_id, uint32_t time_ms)
 {
-    (void)time_ms; // in case we don't use it.
+    (void)time_ms; // could be unused
     switch (msg_id)
     {
         {%- for msg in messages %}
         {%- if msg.telem_cycle_time != None %}
         case {{msg.id_macro()}}:
         {
-        {%- if msg.telem_cycle_time != None and msg.telem_cycle_time != msg.cycle_time %}
+        {%- if msg.telem_cycle_time != msg.cycle_time %}
             if (time_ms > {{msg.name}}_next_log_time_ms)
             {
                 // Capture msg and increment variable.

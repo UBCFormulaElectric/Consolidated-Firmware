@@ -16,8 +16,7 @@ class BmsFaultTest : public BMSBaseTest
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
 {
-    const bool debounce_expires[2] = { true, false };
-    for (int i = 0; i < sizeof(debounce_expires); i++)
+    for (constexpr bool debounce_expires[2] = { true, false }; const bool debounce_expire : debounce_expires)
     {
         // Test that any cell can cause an overvoltage fault
         for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
@@ -30,23 +29,23 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
 
                 // Let accumulator startup count expire
                 LetTimePass(1000);
-                ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                ASSERT_STATE_EQ(init_state);
                 ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
 
                 // Set cell voltage critically high.
                 fakes::segments::SetCellVoltage(segment, cell, MAX_CELL_VOLTAGE_FAULT_V + 0.1f);
                 LetTimePass(OVER_VOLTAGE_DEBOUNCE_FAULT_MS);
 
-                if (debounce_expires[i])
+                if (debounce_expire)
                 {
                     // Let fault debounce expire, fault should be set.
                     LetTimePass(LTC_CONVERSION_PERIOD_MS);
-                    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(fault_state);
                     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
                     fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, false);
 
                     LetTimePass(1000);
-                    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(fault_state);
                     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
 
                     // Clear fault, should transition back to init.
@@ -55,12 +54,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
 
                     // Waits until fault latch reset button is pressed.
                     LetTimePass(1000);
-                    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(fault_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
 
                     fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, true);
                     LetTimePass(10);
-                    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
                 }
                 else
@@ -69,11 +68,11 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
                     fakes::segments::SetCellVoltage(segment, cell, MAX_CELL_VOLTAGE_FAULT_V - 0.1f);
                     LetTimePass(LTC_CONVERSION_PERIOD_MS);
 
-                    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
 
                     LetTimePass(1000);
-                    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
                 }
             }
@@ -97,7 +96,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
                 // Let accumulator startup count expire
                 LetTimePass(1000);
-                ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                ASSERT_STATE_EQ(init_state);
                 ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
 
                 // Set cell voltage critically low.
@@ -108,12 +107,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
                 {
                     // Let fault debounce expire, fault should be set.
                     LetTimePass(LTC_CONVERSION_PERIOD_MS);
-                    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(fault_state);
                     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
                     fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, false);
 
                     LetTimePass(1000);
-                    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(fault_state);
                     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
 
                     // Clear fault, should transition back to init.
@@ -122,12 +121,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
                     // Waits until fault latch reset button is pressed.
                     LetTimePass(1000);
-                    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(fault_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
 
                     fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, true);
                     LetTimePass(10);
-                    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
                 }
                 else
@@ -137,11 +136,11 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
                     LetTimePass(LTC_CONVERSION_PERIOD_MS);
 
                     LetTimePass(10);
-                    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
 
                     LetTimePass(1000);
-                    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+                    ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
                 }
             }
@@ -160,7 +159,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 
         // Let accumulator startup count expire
         LetTimePass(1000);
-        ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+        ASSERT_STATE_EQ(init_state);
         ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
         // Set cell temp critically high.
@@ -171,12 +170,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         {
             // Let fault debounce expire, fault should be set.
             LetTimePass(LTC_CONVERSION_PERIOD_MS);
-            ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+            ASSERT_STATE_EQ(fault_state);
             ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
             fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, false);
 
             LetTimePass(1000);
-            ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+            ASSERT_STATE_EQ(fault_state);
             ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
             // Clear fault, should transition back to init.
@@ -185,12 +184,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 
             // Waits until fault latch reset button is pressed.
             LetTimePass(1000);
-            ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+            ASSERT_STATE_EQ(fault_state);
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
             fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, true);
             LetTimePass(10);
-            ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+            ASSERT_STATE_EQ(init_state);
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
         }
         else
@@ -199,11 +198,11 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
             fakes::segments::SetAuxReg(0, 0, 1.5f);
             LetTimePass(LTC_CONVERSION_PERIOD_MS);
 
-            ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+            ASSERT_STATE_EQ(init_state);
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
             LetTimePass(1000);
-            ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+            ASSERT_STATE_EQ(init_state);
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
         }
     }
@@ -240,19 +239,19 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 //         {
 //             // Let fault debounce expire, fault should be set.
 //             LetTimePass(10);
-//             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_STATE_EQ(fault_state);
 //             ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
 //             // Confirm stays in fault indefinitely
 //             LetTimePass(1000);
-//             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_STATE_EQ(fault_state);
 //             ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
 //             // Clear fault, should transition back to init
 //             fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_CHARGE_TEMP_DEGC - 1.0f);
 //             fake_io_airs_isNegativeClosed_returns(false); // Negative contactor has to open to go back to init
 //             LetTimePass(10);
-//             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_STATE_EQ(init_state);
 //             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 //         }
 //         else
@@ -272,7 +271,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 
 // TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
 // {
-//     SetInitialState(app_initState_get());
+//     SetInitialState(init_state);
 
 //     // reset ts_voltage to 0 so state will transition from init to pre-charge
 //     fake_io_tractiveSystem_getVoltage_returns(0);
@@ -297,7 +296,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 //         if (i < 3)
 //         {
 //             // 3x precharge attempts haven't been exceeded, so back to init
-//             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_STATE_EQ(init_state);
 //             ASSERT_FALSE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
 
 //             // reset ts_voltage to 0 so state will transition from init to pre-charge
@@ -306,10 +305,10 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 //         else
 //         {
 //             // 3x precharge attempts have failed, so back transition to fault state indefinitely
-//             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_STATE_EQ(fault_state);
 //             ASSERT_TRUE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
 //             LetTimePass(1000U);
-//             ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_STATE_EQ(fault_state);
 //             ASSERT_TRUE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
 
 //             // Can't transition out of fault state due to precharge failure!
@@ -323,14 +322,14 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
 
     // Let accumulator startup count expire
     LetTimePass(1000);
-    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+    ASSERT_STATE_EQ(init_state);
     ASSERT_EQ(fake_io_faultLatch_setCurrentStatus_callCountForArgs(&bms_ok_latch, true), 0);
     ASSERT_EQ(fake_io_faultLatch_setCurrentStatus_callCountForArgs(&bms_ok_latch, false), 0);
 
     // Set cell voltage critically high and confirm fault is set
     fakes::segments::SetCellVoltage(0, 0, MAX_CELL_VOLTAGE_FAULT_V + 0.1f);
     LetTimePass(OVER_VOLTAGE_DEBOUNCE_FAULT_MS + LTC_CONVERSION_PERIOD_MS);
-    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
+    ASSERT_STATE_EQ(fault_state);
 
     // BMS OK status should be disabled upon entering fault state, which is latched in hardware
     ASSERT_EQ(fake_io_faultLatch_setCurrentStatus_callCountForArgs(&bms_ok_latch, true), 0);
