@@ -192,6 +192,37 @@
       }
     }
   },
+  "ImuVelocity": {
+    "msg_id": 224,
+    "cycle_time": 100,
+    "description": "velocity calculated from imu integration",
+    "signals": {
+      "ImuVelocityCutoff5hz": {
+        "resolution": 0.05,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "ImuVelocityCutoff10hz": {
+        "resolution": 0.05,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "ImuVelocityCutoff15hz": {
+        "resolution": 0.05,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "ImuVelocityCutoff20hz": {
+        "resolution": 0.05,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      }
+    }
+  },
   "EllipseStatus": {
     "msg_id": 223,
     "cycle_time": 100,
