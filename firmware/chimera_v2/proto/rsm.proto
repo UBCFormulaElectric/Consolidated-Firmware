@@ -27,3 +27,8 @@ enum I2cNetName {
   I2C_IMU_I2C = 1;
   I2C_R_PUMP_I2C = 2;
 }
+
+enum PwmNetName {
+  PWM_NET_NAME_UNSPECIFIED = 0;
+  PWM_FLOW_RATE_LPS = 1;
+}

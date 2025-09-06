@@ -29,7 +29,7 @@ void hw_pwmOutput_setDutyCycle(PwmOutput *pwm_output, float duty_cycle)
     __HAL_TIM_SET_COMPARE(pwm_output->htim, pwm_output->pwm_channel, ccr_value);
 }
 
-float hw_pwmOutput_getFrequency(PwmOutput *pwm_output, float frequency_hz)
+float hw_pwmOutput_getFrequency(PwmOutput *pwm_output)
 {
     return pwm_output->frequency_hz;
 }

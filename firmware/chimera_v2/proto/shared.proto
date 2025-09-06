@@ -186,7 +186,7 @@ message PwmNetName {
   }
 }
 
-message PwmInput {
+message PwmInputRequest {
   PwmNetName net_name = 1;
   float frequency_hz = 2;
   float duty_cycle = 3;
@@ -197,7 +197,7 @@ message FullPwmInputResponse {
   float measured_duty_cycle = 2;
 }
 
-message PwmInputFreqOnly {
+message PwmInputFreqOnlyRequest {
   PwmNetName net_name = 1;
   float frequency_hz = 2;
 }
@@ -206,7 +206,7 @@ message FreqOnlyPwmInputResponse {
   float measured_frequency_hz = 1;
 }
 
-message PwmOutput {
+message PwmOutputRequest {
   PwmNetName net_name = 1;
   float frequency_hz = 2;
   float duty_cycle = 3;
@@ -247,9 +247,9 @@ message ChimeraV2Request {
     SpiTransactionRequest spi_transaction = 11;
 
     // PWM.
-    PwmInput pwm_full_input = 12;
-    PwmInputFreqOnly pwm_freq_only_input = 13;
-    PwmOutput pwm_full_output = 14;
+    PwmInputRequest pwm_full_input = 12;
+    PwmInputFreqOnlyRequest pwm_freq_only_input = 13;
+    PwmOutputRequest pwm_full_output = 14;
   }
 }
 
@@ -275,8 +275,8 @@ message ChimeraV2Response {
     SpiTransactionResponse spi_transaction = 11;
 
     // PWM.
-    FullPwmInputResponse pwm_full_recieved = 12;
-    FreqOnlyPwmInputResponse pwm_freq_only_recieved = 13;
-    PwmOutputResponse pwm_full_output_sent = 14;
+    FullPwmInputResponse pwm_full_input = 12;
+    FreqOnlyPwmInputResponse pwm_freq_only_input = 13;
+    PwmOutputResponse pwm_full_output = 14;
   }
 }

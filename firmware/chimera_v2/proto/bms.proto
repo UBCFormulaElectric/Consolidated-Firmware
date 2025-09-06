@@ -52,3 +52,8 @@ enum SpiNetName {
     SPI_LTC6813_LS = 1;
     SPI_LTC6813_HS = 2;
 }
+
+enum PwmNetName {
+    PWM_NET_NAME_UNSPECIFIED = 0;
+    PWM_CHARGER = 1
+}

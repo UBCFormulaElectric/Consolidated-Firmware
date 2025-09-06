@@ -292,7 +292,18 @@ class _Board:
             Frequency and duty cycle values.
 
         """
-        return TBD
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.pwm_read.net_name,
+            self._net_name_tag,
+            self.board_module.PwmNetName.Value(net_name),
+        )
+        self._write(request)
+
+        # Wait for response.
+        response = self._read()
+        assert response.WhichOneof("payload") == "pwm_full_input"
+        return {"freq_hz":response.pwm_full_input.frequency_hz, "duty_cycle": response.pwn_full_input.duty_cycle}
     
     def pwm_input_freq_only(self, net_name: str) -> SpiDevice:
         """Read incoming PWM signal's frequency only.
@@ -304,7 +315,18 @@ class _Board:
             Only the frequency value of the PWM signal.
 
         """
-        return TBD
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.pwm_read.net_name,
+            self._net_name_tag,
+            self.board_module.PwmNetName.Value(net_name),
+        )
+        self._write(request)
+
+        # Wait for response.
+        response = self._read()
+        assert response.WhichOneof("payload") == "pwm_freq_only_input"
+        return {"freq_hz":response.pwm_full_input.frequency_hz}
     
     def pwm_output(self, net_name: str, duty_cycle: float, frequency_hz: float) -> SpiDevice:
         """Send a PWM signal to a designated board with specific timer channel frequency and desired duty cycle.
@@ -312,9 +334,18 @@ class _Board:
         Args:
             net_name: Identifier of the PWM receiver.
         """
-        return TBD
+        request = proto_autogen.shared_pb2.ChimeraV2Request()
+        setattr(
+            request.pwm_read.net_name,
+            self._net_name_tag,
+            self.board_module.PwmNetName.Value(net_name),
+        )
+        self._write(request)
 
-
+        # Wait for response.
+        response = self._read()
+        assert response.WhichOneof("payload") == "pwm_full_output"
+        return {"freq_hz":response.pwm_full_output.frequency_hz}
 
 class I2cDevice:
     def __init__(self, owner: _Board, net_name: str):

@@ -21,3 +21,8 @@ enum GpioNetName {
   GPIO_LED_SRCK = 15;
   GPIO_SEVEN_SEG_SRCK = 16;
 }
+
+enum PwmNetName { 
+  PWM_NET_NAME_UNSPECIFIED = 0;
+  PWM_LED_BRIGHTNESS = 0
+}

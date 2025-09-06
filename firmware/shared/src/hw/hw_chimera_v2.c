@@ -154,58 +154,49 @@ static const SpiDevice *hw_chimera_v2_getSpi(const hw_chimera_v2_Config *config,
  * @brief Extract the incoming complete pwm peripheral corresponding to the protobuf-specified pwm name.
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
  * @param net_name Pointer to the protobuf-generated PwmInput net name struct.
- * @return A pointer to the pwm peripheral, or NULL if an error occurred.
+ * @return A pointer to the pwm peripheral, or 0 if an error occurred.
  */
 static const PwmInput *hw_chimera_v2_getPwmInput(const hw_chimera_v2_Config *config, const PwmNetName *net_name)
 {
-    if (config->spi_net_name_tag != net_name->which_name)
+    if (config->id_to_pwm_input != net_name->which_name)
     {
-        LOG_ERROR("Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
+        LOG_ERROR("Expected PWM net name with tag %d, got %d", config->pwm_input_net_name_tag, net_name->which_name);
         return NULL;
     }
-    if (config->i2c_net_name_tag != net_name->which_name)
-    {
-        LOG_ERROR("Chimera: Expected I2C net name with tag %d, got %d", config->i2c_net_name_tag, net_name->which_name);
-        return NULL;
-    }
+    if (net_name->which_name == PwmNetName_bms_net_name_tag)
+        return config->id_to_pwm_input[net_name->name.bms_net_name];
+    if (net_name->which_name == PwmNetName_rsm_net_name_tag)
+        return config->id_to_pwm_input[net_name->name.rsm_net_name];
+    if (net_name->which_name == PwmNetName_crit_net_name_tag)
+        return config->id_to_pwm_input[net_name->name.crit_net_name];
 
-    if (net_name->which_name == I2cNetName_dam_net_name_tag)
-        return config->id_to_i2c[net_name->name.dam_net_name];
-    if (net_name->which_name == I2cNetName_fsm_net_name_tag)
-        return config->id_to_i2c[net_name->name.fsm_net_name];
-    if (net_name->which_name == I2cNetName_rsm_net_name_tag)
-        return config->id_to_i2c[net_name->name.rsm_net_name];
-    if (net_name->which_name == I2cNetName_vc_net_name_tag)
-        return config->id_to_i2c[net_name->name.vc_net_name];
-
-    LOG_ERROR("Chimera: Received I2C device from unsupported board.");
+    LOG_ERROR("Chimera: Recieving PWM from unsupported board.");
     return 0;
-
-    LOG_ERROR("Received SPI device from unsupported board.");
-    return NULL;
 }
 
 /**
  * @brief Extract the incoming frequency only pwm peripheral corresponding to the protobuf-specified pwm name.
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
  * @param net_name Pointer to the protobuf-generated PwmInputFrequencyOnly net name struct.
- * @return A pointer to the pwm peripheral, or NULL if an error occurred.
+ * @return A pointer to the pwm peripheral, or 0 if an error occurred.
  */
 static const PwmInputFreqOnly *hw_chimera_v2_getPwmInputFreqOnly(const hw_chimera_v2_Config *config, const PwmNetName *net_name)
 {
-    if (config->spi_net_name_tag != net_name->which_name)
+    if (config->pwm_input_freq_only_net_name_tag != net_name->which_name)
     {
         LOG_ERROR("Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
         return NULL;
     }
 
-    if (net_name->which_name == SpiNetName_bms_net_name_tag)
-        return config->id_to_spi[net_name->name.bms_net_name];
-    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
-        return config->id_to_spi[net_name->name.ssm_net_name];
+    if (net_name->which_name == PwmNetName_bms_net_name_tag)
+        return config->id_to_pwm_input_freq_only[net_name->name.bms_net_name];
+    if (net_name->which_name == PwmNetName_rsm_net_name_tag)
+        return config->id_to_pwm_input_freq_only[net_name->name.rsm_net_name];
+    if (net_name->which_name == PwmNetName_crit_net_name_tag)
+        return config->id_to_pwm_input_freq_only[net_name->name.crit_net_name];
 
-    LOG_ERROR("Received SPI device from unsupported board.");
-    return NULL;
+    LOG_ERROR("Received PWM from unsupported board.");
+    return 0;
 }
 
 /**
@@ -216,19 +207,21 @@ static const PwmInputFreqOnly *hw_chimera_v2_getPwmInputFreqOnly(const hw_chimer
  */
 static const PwmOutput *hw_chimera_v2_getPwmOutput(const hw_chimera_v2_Config *config, const PwmNetName *net_name)
 {
-    if (config->spi_net_name_tag != net_name->which_name)
+    if (config->pwm_output_net_name_tag != net_name->which_name)
     {
         LOG_ERROR("Expected SPI net name with tag %d, got %d", config->spi_net_name_tag, net_name->which_name);
         return NULL;
     }
 
-    if (net_name->which_name == SpiNetName_bms_net_name_tag)
-        return config->id_to_spi[net_name->name.bms_net_name];
-    if (net_name->which_name == SpiNetName_ssm_net_name_tag)
-        return config->id_to_spi[net_name->name.ssm_net_name];
+    if (net_name->which_name == PwmNetName_bms_net_name_tag)
+        return config->id_to_pwm_output[net_name->name.bms_net_name];
+    if (net_name->which_name == PwmNetName_rsm_net_name_tag)
+        return config->id_to_pwm_output[net_name->name.rsm_net_name];
+    if (net_name->which_name == PwmNetName_crit_net_name_tag)
+        return config->id_to_pwm_output[net_name->name.crit_net_name];
 
-    LOG_ERROR("Received SPI device from unsupported board.");
-    return NULL;
+    LOG_ERROR("Sending PWM device from unsupported board.");
+    return 0;
 }
 
 #endif
@@ -248,6 +241,49 @@ static bool hw_chimera_v2_evaluateRequest(
     // Empty provided response pointer.
     const ChimeraV2Response init = ChimeraV2Response_init_zero;
     *response                    = init;
+
+/*PWM commands*/
+#ifdef HAL_TIM_MODULE_ENABLED
+
+    if (request->which_payload == ChimeraV2Request_pwm_full_input){
+        const PwmInputRequest *payload = &request->payload.pwm_full_input;
+        const PwmInput *pwm = hw_chimera_v2_getPwmInput(config, &payload->net_name);
+        if (pwm == NULL)
+        {
+            LOG_ERROR("Chimera: Error fetching PWM input peripheral.");
+            return false;
+        }
+        // Format response.
+        response->payload.pwm_full_input.duty_cycle = hw_pwmInput_getDutyCycle(pwm);
+        response->payload.pwm_full_input.frequency_hz = hw_pwmInput_getFrequency(pwm);
+        response->which_payload           = ChimeraV2Response_pwm_full_input_tag;
+
+    }
+    
+    else if (request->which_payload == ChimeraV2Request_pwm_freq_only_input){
+        const PwmInputFreqOnlyRequest *payload = &request->payload.pwm_freq_only_input;
+        const PwmInputFreqOnly *pwm = hw_chimera_v2_getPwmInputFreqOnly(config, &payload->net_name);
+        if(pwm == NULL)
+        {
+            LOG_ERROR("Chimera: Error fetching PWM input peripheral.");
+            return false;
+        }
+        // Format responses 
+        response->payload.pwm_freq_only_input.frequency_hz = hw_pwmInputFreqOnly_getFrequency(pwm);
+        response->which_payload           = ChimeraV2Response_pwm_freq_only_input_tag;
+
+    }
+    else if(request->which_payload == ChimeraV2Request_pwm_full_output){
+        const PwmOutputRequest *payload = &request->payload.pwm_full_output;
+        const PwmOutput *pwm = hw_chimera_v2_getPwmOutput(config, &payload->net_name);
+        if (pwm == NULL){
+            LOG_ERROR("Chimera: Error fetching PWM output peripheral.");
+        }
+        //I dont think we need this whole block 
+        // float frquency = response->payload.pwm_full_output.duty_cycle;
+         response->payload.pwm_full_output.frequency_hz = hw_pwmOutput_getFrequency(pwm);
+    }
+#endif 
 
 /* GPIO commands. */
 #ifdef HAL_GPIO_MODULE_ENABLED

@@ -45,4 +45,4 @@ void hw_pwmOutput_setDutyCycle(PwmOutput *pwm_output, float duty_cycle);
  * @param pwm_output: PWM output instance.
  * @param frequency_hz: Desired PWM frequency.
  */
-float hw_pwmOutput_getFrequency(PwmOutput *pwm_output, float frequency_hz);
+float hw_pwmOutput_getFrequency(PwmOutput *pwm_output);

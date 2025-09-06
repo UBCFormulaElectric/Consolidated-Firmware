@@ -72,13 +72,13 @@ typedef struct
     pb_size_t pwm_input_freq_only_net_name_tag;
 
     // A table of Protobuf-generated net names to PWM peripherals.
-    const PwmInput **id_to_pwm_input_freq_only;
+    const PwmInputFreqOnly **id_to_pwm_input_freq_only;
     
     // The Protobuf-generated tag for the board's output PWM pins, defined in shared.pb.h.
     pb_size_t pwm_output_net_name_tag;
 
     // A table of Protobuf-generated net names to PWM peripherals.
-    const PwmInput **id_to_pwm_output;
+    const PwmOutput **id_to_pwm_output;
 #endif
 
 } hw_chimera_v2_Config;
