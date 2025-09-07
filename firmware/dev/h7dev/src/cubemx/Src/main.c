@@ -53,6 +53,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CORDIC_HandleTypeDef hcordic;
 
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
@@ -121,6 +122,7 @@ static void MX_SDMMC1_SD_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_UART9_Init(void);
 static void MX_RTC_Init(void);
+static void MX_CORDIC_Init(void);
 void        runDefaultTask(void *argument);
 void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
@@ -208,6 +210,7 @@ int main(void)
     MX_FDCAN1_Init();
     MX_UART9_Init();
     MX_RTC_Init();
+    MX_CORDIC_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     // __HAL_DBGMCU_FREEZE_IWDG();
@@ -365,6 +368,30 @@ void PeriphCommonClock_Config(void)
     {
         Error_Handler();
     }
+}
+
+/**
+ * @brief CORDIC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_CORDIC_Init(void)
+{
+    /* USER CODE BEGIN CORDIC_Init 0 */
+
+    /* USER CODE END CORDIC_Init 0 */
+
+    /* USER CODE BEGIN CORDIC_Init 1 */
+
+    /* USER CODE END CORDIC_Init 1 */
+    hcordic.Instance = CORDIC;
+    if (HAL_CORDIC_Init(&hcordic) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN CORDIC_Init 2 */
+
+    /* USER CODE END CORDIC_Init 2 */
 }
 
 /**

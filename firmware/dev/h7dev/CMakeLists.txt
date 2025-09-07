@@ -57,6 +57,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_adc_ex.c"
             "stm32h7xx_hal_adc.c"
             "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_cordic.c"
             "stm32h7xx_hal_dma_ex.c"
             "stm32h7xx_hal_dma.c"
             "stm32h7xx_hal_exti.c"
