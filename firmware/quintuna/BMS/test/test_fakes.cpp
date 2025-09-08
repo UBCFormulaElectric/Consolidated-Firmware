@@ -1,4 +1,4 @@
-#include "test_fakes.h"
+#include "test_fakes.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -8,6 +8,22 @@ extern "C"
 {
 #include "io_time.h"
 }
+
+struct FaultLatchParams
+{
+    FaultLatch     *arg0;
+    FaultLatchState arg1;
+
+    bool operator==(const FaultLatchParams &other) const { return arg0 == other.arg0 && arg1 == other.arg1; }
+};
+template <> struct std::hash<FaultLatchParams>
+{
+    std::size_t operator()(const FaultLatchParams &params) const noexcept
+    {
+        return hash<const FaultLatch *>()(params.arg0) ^ hash<FaultLatchState>()(params.arg1);
+    }
+};
+static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;
 
 extern "C"
 {
@@ -331,6 +347,12 @@ extern "C"
         UNUSED(transmit_can1_msg_func);
         UNUSED(transmit_charger_msg_func);
     }
+
+#include "io_fans.h"
+    void io_fans_tick(const bool enable)
+    {
+        (void)enable;
+    }
 }
 
 namespace fakes
@@ -379,6 +401,14 @@ namespace faultLatches
         latch->status        = status;
         latch->latched_state = latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
     }
+    void setCurrentStatus_resetCallCounts()
+    {
+        setCurrentStatus_call_count = {};
+    }
+    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, const FaultLatchState status)
+    {
+        return setCurrentStatus_call_count[FaultLatchParams(const_cast<FaultLatch *>(latch), status)];
+    }
 } // namespace faultLatches
 
 namespace imd
@@ -410,6 +440,11 @@ namespace segments
         }
     }
 
+    void setCellVoltage(const size_t segment, const size_t cell, const uint16_t voltage)
+    {
+        voltage_regs[segment][cell] = voltage;
+    }
+
     void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
     {
         for (int i = 0; i < NUM_SEGMENTS; i++)
@@ -439,6 +474,22 @@ namespace segments
     void setExpectedVoltageSelfTestValue(const uint16_t value)
     {
         expected_self_test_value = value;
+    }
+
+    void SetAuxRegs(const float voltage)
+    {
+        for (int i = 0; i < NUM_SEGMENTS; i++)
+        {
+            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            {
+                aux_regs_storage[i][j] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
+            }
+        }
+    }
+
+    void SetAuxReg(const uint8_t segment, const uint8_t cell, const float voltage)
+    {
+        aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
     }
 } // namespace segments
 } // namespace fakes

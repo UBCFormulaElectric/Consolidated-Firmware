@@ -1,11 +1,6 @@
 #pragma once
 #include "ecuTestBase.hpp"
-#include "test_fakes.h"
-
-#include "fake_io_irs.hpp"
-#include "fake_io_tractiveSystem.hpp"
-#include "fake_io_imd.hpp"
-#include "fake_io_faultLatch.hpp"
+#include "test_fakes.hpp"
 
 extern "C"
 {
@@ -29,12 +24,21 @@ class BMSBaseTest : public EcuTestBase
         fakes::segments::setPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::segments::SetAuxRegs(1.5f); // Approx. 25C
 
-        fake_io_time_getCurrentMs_reset();
-
         jobs_init();
+        jobs_initLTCVoltages();
+        jobs_initLTCTemps();
+        jobs_initLTCDiagnostics();
+
+        register_task(jobs_run1Hz_tick, 1000);
+        register_task(jobs_run100Hz_tick, 10);
+        register_task(jobs_run1kHz_tick, 1);
+        register_task(jobs_runLTCVoltages, 500);
+        register_task(jobs_runLTCDiagnostics, 500);
+        register_task(jobs_runLTCTemperatures, 10000);
     }
     void board_teardown() override {}
-    void tick_100hz() override
+
+    static void tick_100hz()
     {
         jobs_runLTCTemperatures();
         jobs_runLTCVoltages();
@@ -42,7 +46,7 @@ class BMSBaseTest : public EcuTestBase
 
         jobs_run100Hz_tick();
     }
-    void tick_1hz() override
+    static void tick_1hz()
     {
         jobs_run1Hz_tick();
 
@@ -54,22 +58,6 @@ class BMSBaseTest : public EcuTestBase
         // app_segments_runAuxConversion();
         // app_segments_broadcastTempsVRef();
         // app_segments_broadcastTempStats();
-    }
-
-    void TearDown() override
-    {
-        fake_io_time_getCurrentMs_reset();
-        fake_io_tractiveSystem_getVoltage_reset();
-        fake_io_irs_negativeState_reset();
-        fake_io_irs_positiveState_reset();
-        fake_io_imd_getFrequency_reset();
-        fake_io_imd_getDutyCycle_reset();
-        fake_io_faultLatch_getCurrentStatus_reset();
-        fake_io_faultLatch_getLatchedStatus_reset();
-        fake_io_tractiveSystem_getCurrentHighResolution_reset();
-        fake_io_tractiveSystem_getCurrentLowResolution_reset();
-        fake_io_irs_setPositive_reset();
-        fake_io_faultLatch_setCurrentStatus_reset();
     }
 
     void SetInitialState(const State *const initial_state)
@@ -91,27 +79,27 @@ class BMSBaseTest : public EcuTestBase
             { IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f }, { IMD_CONDITION_SST, 30.0f },
             { IMD_CONDITION_DEVICE_ERROR, 40.0f },          { IMD_CONDITION_GROUND_FAULT, 50.0f }
         };
-        fake_io_imd_getFrequency_returns(mapping.at(condition_name));
+        fakes::imd::setFrequency(mapping.at(condition_name));
     }
-
-  public:
-    struct StateMetadata
-    {
-        const State *state;
-        BmsState     can_state;
-        bool         requires_irs_negative_closed;
-        bool         requires_fault;
-    };
-    std::array<StateMetadata, 10> state_metadata = { {
-        { &init_state, BMS_INIT_STATE, false, false },
-        { &fault_state, BMS_FAULT_STATE, false, true },
-        { &precharge_drive_state, BMS_PRECHARGE_DRIVE_STATE, true, false },
-        { &drive_state, BMS_DRIVE_STATE, true, false },
-        { &balancing_state, BMS_BALANCING_STATE, true, false },
-        { &precharge_latch_state, BMS_PRECHARGE_LATCH_STATE, true, false },
-        { &precharge_charge_state, BMS_PRECHARGE_CHARGE_STATE, true, false },
-        { &charge_state, BMS_CHARGE_STATE, true, false },
-        { &charge_init_state, BMS_CHARGE_INIT_STATE, true, false },
-        { &charge_fault_state, BMS_CHARGE_FAULT_STATE, true, false },
-    } };
 };
+
+struct StateMetadata
+{
+    const State *state;
+    BmsState     can_state;
+    bool         requires_irs_negative_closed;
+    bool         requires_fault;
+};
+
+constexpr inline std::array<StateMetadata, 10> state_metadata = { {
+    { &init_state, BMS_INIT_STATE, false, false },
+    { &fault_state, BMS_FAULT_STATE, false, true },
+    { &precharge_drive_state, BMS_PRECHARGE_DRIVE_STATE, true, false },
+    { &drive_state, BMS_DRIVE_STATE, true, false },
+    { &balancing_state, BMS_BALANCING_STATE, true, false },
+    { &precharge_latch_state, BMS_PRECHARGE_LATCH_STATE, true, false },
+    { &precharge_charge_state, BMS_PRECHARGE_CHARGE_STATE, true, false },
+    { &charge_state, BMS_CHARGE_STATE, true, false },
+    { &charge_init_state, BMS_CHARGE_INIT_STATE, true, false },
+    { &charge_fault_state, BMS_CHARGE_FAULT_STATE, true, false },
+} };

@@ -27,8 +27,10 @@ namespace tractiveSystem
 
 namespace faultLatches
 {
-    void resetFaultLatch(const FaultLatch *latch);
-    void updateFaultLatch(FaultLatch *latch, FaultLatchState status);
+    void     resetFaultLatch(const FaultLatch *latch);
+    void     updateFaultLatch(FaultLatch *latch, FaultLatchState status);
+    void     setCurrentStatus_resetCallCounts();
+    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, FaultLatchState status);
 } // namespace faultLatches
 
 namespace imd
@@ -40,6 +42,7 @@ namespace imd
 namespace segments
 {
     void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);
+    void setCellVoltage(size_t segment, size_t cell, uint16_t voltage);
     void setPackVoltageEvenly(float pack_voltage);
     void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures);
 

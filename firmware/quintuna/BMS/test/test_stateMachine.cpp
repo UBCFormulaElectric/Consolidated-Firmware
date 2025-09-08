@@ -2,7 +2,7 @@
 #include "fake_io_faultLatch.hpp"
 #include "test_BMSBase.hpp"
 
-#include "test_fakes.h"
+#include "test_fakes.hpp"
 
 extern "C"
 {
