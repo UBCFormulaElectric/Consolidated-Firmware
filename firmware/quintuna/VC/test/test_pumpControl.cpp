@@ -16,10 +16,8 @@ static Efuse *pumpEfuse()
 
 class VCPumpControlTest : public VCBaseTest
 {
-  protected:
-    void SetUp() override
+    void board_setup() override
     {
-        VCBaseTest::SetUp();
         rl_pump_loadswitch.pgood = false;
         auto *pumpEfuse          = const_cast<Efuse *>(efuse_channels[EFUSE_CHANNEL_RL_PUMP]);
         pumpEfuse->enabled       = true;

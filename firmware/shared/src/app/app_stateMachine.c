@@ -64,7 +64,18 @@ void app_stateMachine_tickTransitionState(void)
 #ifdef TARGET_TEST
 void app_stateMachine_setCurrentState(const State *const state)
 {
+    if (current_state->run_on_exit != NULL)
+    {
+        current_state->run_on_exit();
+    }
+
+    current_state = state;
+
+    if (current_state->run_on_entry != NULL)
+    {
+        current_state->run_on_entry();
+    }
+
     next_state = state;
-    app_stateMachine_tickTransitionState();
 }
 #endif
