@@ -72,8 +72,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
         {
             app_canAlerts_VC_Info_DriveModeOverride_set(false);
 
-            torqueToMotorsInputs.front_yaw_moment     = 0.0f;
-            torqueToMotorsInputs.rear_yaw_moment      = 0.0f;
+            torqueToMotorsInputs.yaw_moment     = 0.0f;
             torqueToMotorsInputs.load_transfer_const  = 1.0f;
             torqueToMotorsInputs.total_torque_request = apps_pedal_percentage * MAX_TORQUE_REQUEST_NM * 4;
             torqueToMotorsInputs.power_limit_kw       = app_powerLimiting_computeMaxPower(false);
@@ -117,7 +116,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             if (sensor_status.useTV)
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(false);
-                app_torqueVectoring_run(apps_pedal_percentage);
+                app_torqueVectoring_run(apps_pedal_percentage, torqueOutputToMotors);
                 app_canTx_VC_VcDriveMode_set(DRIVE_MODE_TV);
                 LOG_INFO("DriveHandling: Torque Vectoring Mode Active");
             }
@@ -131,6 +130,36 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
         default:
             break;
     }
+
+    app_torqueBroadcast(torqueOutputToMotors);
+}
+
+void app_torqueBroadcast(TorqueAllocationOutputs *torqueToMotors)
+{
+    //     app_canTx_VC_INVFLTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->front_left_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    //     app_canTx_VC_INVFRTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->front_right_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    //     app_canTx_VC_INVRLTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_left_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    //     app_canTx_VC_INVRRTorqueSetpoint_set(
+    //         CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
+    //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFLTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->front_left_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVFRTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->front_right_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRLTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->rear_left_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    app_canTx_VC_INVRRTorqueSetpoint_set(CLAMP(
+        PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
+        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
 }
 
 static SensorStatus app_performSensorChecks(void)

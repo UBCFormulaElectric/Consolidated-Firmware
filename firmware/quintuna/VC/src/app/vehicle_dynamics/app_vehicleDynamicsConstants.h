@@ -10,6 +10,7 @@
 #define CG_HEIGHT_FROM_GROUND_m (30.0f * CM_TO_M) // got 30cm from suspension team
 #define SMALL_EPSILON .000001f                    // to avoid divide by zero error
 #define SLIP_RATIO_IDEAL 0.05f
+#define TIRE_FRICTION 1.2f // this value should definitely be verified, currently just a placeholder
 #define WHEELBASE_mm 1550
 #define WHEELBASE_m (WHEELBASE_mm * MM_TO_M)
 #define TRACK_WIDTH_mm 1100
@@ -39,6 +40,7 @@
 #define DIST_FRONT_AXLE_CG (0.837f)                          // a in meters
 #define DIST_REAR_AXLE_CG (WHEELBASE_m - DIST_FRONT_AXLE_CG) // b in meters
 #define WEIGHT_ACROSS_BODY (CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m)
+#define STATIC_VEHICLE_TORQUE_LIMIT (CAR_MASS_AT_CG_KG * GRAVITY * TIRE_FRICTION * WHEEL_DIAMETER_M * 0.5f) / GEAR_RATIO
 
 /************** Macros for finding vertical forces on wheels based on diagram on page 21 ****************/
 #define REAR_WEIGHT_DISTRIBUTION (WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG)

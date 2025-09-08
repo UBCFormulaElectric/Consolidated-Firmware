@@ -17,15 +17,11 @@ float app_loadTransferConstant(float long_accel);
 
 /*
  * Calculates torque to allocate to each wheel
- *
- * Notes:
- * Currently adapted to 2 wheel drive
- * Sends torque requests if TV is on
  */
 void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutputs *torqueToMotors);
 
 void app_reset_torqueToMotors(TorqueAllocationOutputs *torqueToMotors);
 
-void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors);
+float app_torqueDistribution_totalTorqueLimit(float total_torque);
 
 TorqueAllocationOutputs *app_get_torqueToMotors(TorqueAllocationOutputs *torqueToMotors);

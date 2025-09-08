@@ -17,3 +17,5 @@
 void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
 
 void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutputs *torqueOutputToMotors);
+
+void app_torqueBroadcast(TorqueAllocationOutputs *torqueToMotors);

@@ -85,12 +85,14 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
         inputs->torqueToMotors->rear_right_torque -= torque_reduction;
     }
 
+    float torque_lower_bound = (inputs->is_regen_mode) ? MAX_REGEN_Nm : 0.0f;
+
     inputs->torqueToMotors->front_left_torque =
-        (float)CLAMP(inputs->torqueToMotors->front_left_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->front_left_torque, torque_lower_bound, MAX_TORQUE_REQUEST_NM);
     inputs->torqueToMotors->front_right_torque =
-        (float)CLAMP(inputs->torqueToMotors->front_right_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->front_right_torque, torque_lower_bound, MAX_TORQUE_REQUEST_NM);
     inputs->torqueToMotors->rear_left_torque =
-        (float)CLAMP(inputs->torqueToMotors->rear_left_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->rear_left_torque, torque_lower_bound, MAX_TORQUE_REQUEST_NM);
     inputs->torqueToMotors->rear_right_torque =
-        (float)CLAMP(inputs->torqueToMotors->rear_right_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
+        (float)CLAMP(inputs->torqueToMotors->rear_right_torque, torque_lower_bound, MAX_TORQUE_REQUEST_NM);
 }

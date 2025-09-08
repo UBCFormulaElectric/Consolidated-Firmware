@@ -118,7 +118,7 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
         app_driveMode_run(apps_pedal_percentage, &torqueOutputToMotors);
     }
 
-    app_torqueBroadCast(&torqueOutputToMotors);
+    app_torqueBroadcast(&torqueOutputToMotors);
 }
 
 static void app_switchInit(void)

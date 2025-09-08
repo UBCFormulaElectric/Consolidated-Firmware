@@ -66,8 +66,10 @@ typedef struct TorqueAllocationInputs // regardless of if controller is used or 
     float power_limit_kw;
     float load_transfer_const;
     float total_torque_request;
-    float rear_yaw_moment;
-    float front_yaw_moment;
+    // float rear_yaw_moment;
+    // float front_yaw_moment;
+    float yaw_moment;
+    float long_accel;
 } TorqueAllocationInputs;
 
 typedef struct TorqueAllocationOutputs
@@ -80,10 +82,10 @@ typedef struct TorqueAllocationOutputs
 
 typedef struct
 {
-    bool imuOk : 1;
-    bool steeringOk : 1;
-    bool gpsOk : 1;
-    bool useTV : 1;
+    bool imuOk;
+    bool steeringOk;
+    bool gpsOk;
+    bool useTV;
 } SensorStatus;
 
 typedef struct PowerLimitingInputs

@@ -10,7 +10,7 @@
 #define HZ_TO_MS(hz) (1000 / (hz))
 
 // Length conversions.
-#define INCH_TO_KM (0.0000254f)
+#define IN_TO_KM (0.0000254f)
 #define IN_TO_M (0.0254f)
 #define MM_TO_M (0.001f)
 #define CM_TO_M (0.01f)
@@ -21,8 +21,9 @@
 #define RPM_TO_RADS(rpm) ((rpm) * M_PI_F / 30.0f)
 
 #define WHEEL_DIAMETER_IN (18.0f)
-#define GEAR_RATIO (14.321f) // verified by noah
-#define MOTOR_RPM_TO_KMH(rpm) ((rpm) * (float)WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO)
+#define WHEEL_DIAMETER_M (IN_TO_M * WHEEL_DIAMETER_IN)
+#define GEAR_RATIO (14.3f) // verified by noah
+#define MOTOR_RPM_TO_KMH(rpm) ((rpm) * (float)WHEEL_DIAMETER_IN * M_PI_F * IN_TO_KM * MIN_TO_HOUR / GEAR_RATIO)
 #define MOTOR_KMH_TO_RPM(kmh) \
     ((int)((kmh) / ((float)WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO)))
 #define WHEEL_KMH_TO_RPM(kmh) ((int)((kmh) / ((float)WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR)))
