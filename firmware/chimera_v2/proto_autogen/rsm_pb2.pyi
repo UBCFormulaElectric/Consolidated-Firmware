@@ -79,3 +79,18 @@ I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
 I2C_IMU_I2C: I2cNetName.ValueType
 I2C_R_PUMP_I2C: I2cNetName.ValueType
 global___I2cNetName = I2cNetName
+
+class _PwmNetName:
+    ValueType = typing.NewType('ValueType', builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _PwmNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PwmNetName.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    PWM_NET_NAME_UNSPECIFIED: _PwmNetName.ValueType
+    PWM_FLOW_RATE_LPS: _PwmNetName.ValueType
+
+class PwmNetName(_PwmNetName, metaclass=_PwmNetNameEnumTypeWrapper):
+    ...
+PWM_NET_NAME_UNSPECIFIED: PwmNetName.ValueType
+PWM_FLOW_RATE_LPS: PwmNetName.ValueType
+global___PwmNetName = PwmNetName

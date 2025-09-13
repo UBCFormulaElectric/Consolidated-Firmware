@@ -55,5 +55,5 @@ enum SpiNetName {
 
 enum PwmNetName {
     PWM_NET_NAME_UNSPECIFIED = 0;
-    PWM_CHARGER = 1
+    PWM_CHARGER = 1;
 }

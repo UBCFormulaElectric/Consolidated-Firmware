@@ -281,7 +281,6 @@ class _Board:
         """
         return SpiDevice(self, net_name)
     
-    #maybe combine the inputs
     def pwm_input(self, net_name: str) -> SpiDevice:
         """Read incoming PWM signal's frequency and duty cycle.
 

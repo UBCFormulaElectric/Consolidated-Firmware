@@ -620,8 +620,7 @@ static void hw_chimera_v2_tick(const hw_chimera_v2_Config *config)
 #define USB_REQUEST_TIMEOUT_MS (1000)
     // CHIMERA Packet Format:
     // [ length low byte  | length high byte | content bytes    | ... ]
-
-    // Get length bytes.
+f
     uint8_t length_bytes[2] = { 0, 0 };
     for (uint8_t idx = 0; idx < 2; idx++)
     {

@@ -129,3 +129,18 @@ SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_LTC6813_LS: SpiNetName.ValueType
 SPI_LTC6813_HS: SpiNetName.ValueType
 global___SpiNetName = SpiNetName
+
+class _PwmNetName:
+    ValueType = typing.NewType('ValueType', builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _PwmNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PwmNetName.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    PWM_NET_NAME_UNSPECIFIED: _PwmNetName.ValueType
+    PWM_CHARGER: _PwmNetName.ValueType
+
+class PwmNetName(_PwmNetName, metaclass=_PwmNetNameEnumTypeWrapper):
+    ...
+PWM_NET_NAME_UNSPECIFIED: PwmNetName.ValueType
+PWM_CHARGER: PwmNetName.ValueType
+global___PwmNetName = PwmNetName
