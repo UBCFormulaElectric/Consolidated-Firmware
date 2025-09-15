@@ -5,6 +5,7 @@
 #include "io_log.h"
 #include "io_ltc6813.h"
 #include <app_canTx.h>
+#include <app_canRx.h>
 #include <string.h>
 #include <app_canUtils.h>
 
@@ -17,12 +18,26 @@
 #define DISCHARGE_THRESHOLD_V (10 * 1e-3f) // 10mV
 #define SETTLE_PERIOD_MS (30 * 1000)       // 1min
 #define BALANCE_PERIOD_MS (5 * 60 * 1000)  // 5min
+#define PWM_TICK_MS (500) // PWM resolution (500ms) is limited by tasks_runLtcVoltages
+#define PWM_DEFAULT_FREQUENCY_HZ (1) // 10Hz
+#define PWM_DEFAULT_DUTY_PC (50) // 50%
 
 static TimerChannel   settle_timer;
 static TimerChannel   balance_timer;
+static TimerChannel   pwm_timer;
+
 static bool           discharge_enabled[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static CellParam      discharge_leader;
 static BalancingState state;
+
+static void computePWMBalance(void) {
+    const bool override = app_canRx_Debug_CellBalancingOverridePWM_get();
+    float freq_hz = override ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
+    uint8_t duty_pc = override ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
+    
+
+
+}
 
 static void updateCellsToBalance(void)
 {
@@ -59,10 +74,17 @@ static void disableBalance(void)
     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])discharge_enabled);
 }
 
+static void computeDuties(void) {
+    
+}
+
 void app_segments_balancingInit(void)
 {
+    float frequency = app_canRx_Debug_CellBalancingOverridePWMFrequency_get();
+
     app_timer_init(&settle_timer, SETTLE_PERIOD_MS);
     app_timer_init(&balance_timer, BALANCE_PERIOD_MS);
+    app_timer_init(&pwm_timer, frequency);
 
     disableBalance();
     state = BALANCING_DISABLED;
