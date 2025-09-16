@@ -24,51 +24,8 @@
         "--output_dir",
         "temp",
         "--dbc_output",
-        "temp/quadruna_can.dbc"
       ],
       "console": "integratedTerminal"
-    },
-    {
-      "name": "Debug Embedded: VC (Quadruna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quadruna/VC/quadruna_VC.hex",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quadruna/VC/quadruna_VC_boot.elf",
-        "build_fw_dev/firmware/quadruna/VC/quadruna_VC_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: VC (Quadruna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32H733VG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: VC",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
     },
     {
       "name": "Debug Embedded: VC (Quintuna)",
@@ -154,90 +111,6 @@
       }
     },
     {
-      "name": "Debug Embedded: BMS (Quadruna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS.hex",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
-        "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: BMS (Quadruna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32H733VG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: BMS",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Debug Embedded: FSM (Quadruna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quadruna/FSM/quadruna_FSM.hex",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quadruna/FSM/quadruna_FSM_boot.elf",
-        "build_fw_dev/firmware/quadruna/FSM/quadruna_FSM_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: FSM (Quadruna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32F412RG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: FSM",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
       "name": "Debug Embedded: FSM (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/FSM/quintuna_FSM.hex",
@@ -280,48 +153,6 @@
       }
     },
     {
-      "name": "Debug Embedded: RSM (Quadruna)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quadruna/RSM/quadruna_RSM.hex",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quadruna/RSM/quadruna_RSM_boot.elf",
-        "build_fw_dev/firmware/quadruna/RSM/quadruna_RSM_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: RSM (Quadruna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32F412RG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: RSM",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
       "name": "Debug Embedded: RSM (Quintuna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/quintuna/RSM/quintuna_RSM.hex",
@@ -357,49 +188,6 @@
         "decoders": [
           {
             "label": "Debug logs: RSM",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Debug Embedded: CRIT (Quadruna)",
-      "cwd": "${workspaceRoot}",
-      // binary config
-      "executable": "build_fw_dev/firmware/quadruna/CRIT/quadruna_CRIT.hex",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quadruna/CRIT/quadruna_CRIT_boot.elf",
-        "build_fw_dev/firmware/quadruna/CRIT/quadruna_CRIT_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: CRIT (Quadruna)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32F412RG",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: CRIT",
             "port": 0,
             "type": "console"
           }
@@ -497,7 +285,6 @@
       "executable": "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        // "build_fw_dev/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
         "build_fw_dev/firmware/quintuna/VCR/quintuna_VCR_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VCR (Quintuna)",
@@ -654,82 +441,12 @@
     },
     // ========== TESTS ==========
     {
-      "name": "Debug Tests: VC (Quadruna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/VC/quadruna_VC_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: VC (Quadruna)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
       "name": "Debug Tests: VC (Quintuna)",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/quintuna/VC/quintuna_VC_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: VC (Quintuna)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
-      "name": "Debug Tests: BMS (Quadruna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/BMS/quadruna_BMS_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: BMS (Quadruna)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
-      "name": "Debug Tests: FSM (Quadruna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/FSM/quadruna_FSM_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: FSM (Quadruna)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
-      "name": "Debug Tests: RSM (Quadruna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/RSM/quadruna_RSM_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: RSM (Quadruna)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
-      "name": "Debug Tests: CRIT (Quadruna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/CRIT/quadruna_CRIT_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: CRIT (Quadruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -772,6 +489,20 @@
       "program": "${workspaceRoot}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
       "cwd": "${workspaceRoot}",
       // "preLaunchTask": "Build Tests: BMS (Quintuna)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: FSM (Hexray)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/FSM/hexray_FSM_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: FSM (Hexray)",
       "linux": {
         "MIMode": "gdb"
       },
