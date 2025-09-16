@@ -28,11 +28,7 @@ set(HW_INCLUDE_DIRS
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm4")
-    if ("${BOOTLOAD}" STREQUAL "ON")
-        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_app.ld")
-    else ()
-        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_app_only.ld")
-    endif ()
+    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_app_only.ld")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
@@ -46,21 +42,26 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
     list(APPEND NO_CHECKS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
     )
     embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("hexray_FSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
+        "stm32h5xx_hal.c"
+        stm32h5xx_hal.c
+        stm32h5xx_hal_rcc.c
+        stm32h5xx_hal_rcc_ex.c
+        stm32h5xx_hal_pwr_ex.c
+        stm32h5xx_hal_cortex.c
+        stm32h5xx_hal_exti.c
+        stm32h5xx_hal_tim.c            
     )
 
-    stm32f412rx_cube_library(
+    stm32h563xx_cube_library(
             "hexray_FSM_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${MD5_LOCATION}"
-            TRUE
+            False
     )
 
     # CommitInfo
@@ -72,32 +73,8 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32cube" "hexray_FSM_stm32cube_hal"
-        "hexray_FSM_commit_info" "chimera_v2_proto_cm4" "m")
+        "hexray_FSM_commit_info" "m")
 
-    if ("${BOOTLOAD}" STREQUAL "ON")
-        #bootloader files
-        file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-        file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-        embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
-        stm32f4_boot_binary(
-                "hexray_FSM_boot"
-                "${BOOT_SRCS}"
-                "${BOOT_CUBEMX_SRCS}"
-                "${BOOT_INCLUDE_DIRS}"
-                "hexray_FSM"
-                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
-        )
-        target_link_libraries("hexray_FSM_boot.elf" PRIVATE "hexray_FSM_commit_info")
-
-        embedded_image(
-                "hexray_FSM"
-                "hexray_FSM_app.hex"
-                "${CMAKE_CURRENT_BINARY_DIR}/hexray_FSM_app.hex"
-                "hexray_FSM_boot.hex"
-                "${CMAKE_CURRENT_BINARY_DIR}/hexray_FSM_boot.hex"
-        )
-    endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
@@ -108,7 +85,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("hexray_FSM_test" PRIVATE STM32F412Rx)
+    add_compile_definitions("hexray_FSM_test" PRIVATE STM32H563Rx)
 
     # JSONCAN
     jsoncan_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
