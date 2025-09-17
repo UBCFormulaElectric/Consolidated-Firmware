@@ -18,9 +18,10 @@
 #define DISCHARGE_THRESHOLD_V (10 * 1e-3f) // 10mV
 #define SETTLE_PERIOD_MS (30 * 1000)       // 1min
 #define BALANCE_PERIOD_MS (5 * 60 * 1000)  // 5min
-#define PWM_TICK_MS (500) // PWM resolution (500ms) is limited by tasks_runLtcVoltages
-#define PWM_DEFAULT_FREQUENCY_HZ (1) // 10Hz
-#define PWM_DEFAULT_DUTY_PC (50) // 50%
+#define PWM_TICK_MS (500U) // PWM resolution (500ms) is limited by tasks_runLtcVoltages
+#define PWM_DEFAULT_FREQUENCY_HZ (0.1F) // 10Hz
+#define PWM_DEFAULT_DUTY_PC (50U) // 50%
+#define PWM_MAXIMUM_FREQUENCY_HZ (1000 / PWM_TICK_MS) // 2Hz
 
 static TimerChannel   settle_timer;
 static TimerChannel   balance_timer;
@@ -30,13 +31,135 @@ static bool           discharge_enabled[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static CellParam      discharge_leader;
 static BalancingState state;
 
+static bool pwm_high;
+static bool pwm_config_initialized;
+static uint32_t pwm_period_ticks;
+static uint32_t pwm_tick_index;
+static uint32_t pwm_on_ticks;
+
+// Computes the ticks in a period for a given frequency
+static uint32_t computePeriodTicks(const float frequency_hz) {
+    
+    if (frequency_hz <= 0.0f) {
+        return 0U;
+    }
+
+    const float period_ms = 1000.0f/frequency_hz;
+    const float ticks_per_period = period_ms / (float) PWM_TICK_MS;
+
+    return (uint32_t) MAX(1.0f, roundf(ticks_per_period))
+}
+
+// Computes the on ticks in a period for a given duty cycle
+static uint32_t computeOnTicks(const uint32_t period_ticks, const uint8_t duty_pc) {
+    
+    if (period_ticks == 0U || duty_pc == 0U) {
+        return 0U;
+    }
+
+    if (duty_pc >= 100U) {
+        return period_ticks;
+    }
+
+    const float duty_ratio = (float) duty_pc / 100.0f;
+    const uint32_t raw_on_ticks = (uint32_t) roundf(duty_ratio * period_ticks);
+    
+    return CLAMP (raw_on_ticks, 1U, period_ticks);
+}
+
+
+static void computeDuties() {
+    
+}
+
+
 static void computePWMBalance(void) {
     const bool override = app_canRx_Debug_CellBalancingOverridePWM_get();
     float freq_hz = override ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
     uint8_t duty_pc = override ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
-    
 
+    //Clamp values from CAN message (NOT SURE IF NEEDED)
+    freq_hz = CLAMP(freq_hz, 0.0f, PWM_MAXIMUM_FREQUENCY_HZ);
+    duty_pc = CLAMP(duty_pc, 0U, 100U);
 
+    //Frequency of 0Hz means static enable based on duty cycle only
+    if (freq_hz <= 0.0f) {
+        pwm_period_ticks = 1U;
+        pwm_on_ticks = duty_pc > 0 ? 1U : 0U;
+        pwm_tick_index = 0U;
+        pwm_high = duty_pc > 0;
+        pwm_config_initialized = true;
+
+        app_timer_stop(&pwm_timer);
+        computeDuties();
+        return;
+    }
+
+    // Compute desired period and on ticks
+    const uint32_t desired_period_ticks = computePeriodTicks(freq_hz);
+    const uint32_t desired_on_ticks = computeOnTicks(desired_period_ticks, duty_pc);
+
+    // Check if config changed
+    const bool config_changed = !pwm_config_initialized || desired_period_ticks != pwm_period_ticks || desired_on_ticks != pwm_on_ticks;
+    pwm_config_initialized = true;
+
+    // Handle special cases
+    if (desired_on_ticks == 0U) {
+        pwm_period_ticks = desired_period_ticks;
+        pwm_on_ticks = 0U;
+        pwm_tick_index = 0U;
+        pwm_high = false;
+
+        app_timer_stop(&pwm_timer);
+        computeDuties();
+        return;
+    }
+
+    if (desired_on_ticks >= desired_period_ticks) {
+        pwm_period_ticks = MAX(1U, desired_period_ticks);
+        pwm_on_ticks = pwm_period_ticks;
+        pwm_tick_index = 0U;
+        pwm_high = true;
+
+        app_timer_stop(&pwm_timer);
+        computeDuties();
+        return;
+    }
+
+    // If config changed, reset the PWM cycle
+    if (config_changed) {
+        pwm_period_ticks = MAX(1U, desired_period_ticks);
+        pwm_on_ticks = CLAMP(desired_on_ticks, 1U, pwm_period_ticks) ;
+        pwm_tick_index = 0U;
+        pwm_high = true;
+
+        app_timer_stop(&pwm_timer);
+        computeDuties();
+        return;
+    }
+
+    const TimerState pwm_timer_state = app_timer_updateAndGetState(&pwm_timer);
+
+    if(pwm_timer_state == TIMER_STATE_IDLE) {
+        app_timer_restart(&pwm_timer);
+        computeDuties();
+        return;
+    } 
+
+    if (pwm_timer_state == TIMER_STATE_RUNNING) {
+        computeDuties();
+        return;
+    }
+
+    app_timer_restart(&pwm_timer);
+
+    if (pwm_tick_index >= pwm_period_ticks) {
+        pwm_tick_index = 0U;
+    }
+
+    pwm_high = pwm_tick_index < pwm_on_ticks;
+    pwm_tick_index = (pwm_tick_index + 1U) % pwm_period_ticks;
+    computeDuties();
 }
 
 static void updateCellsToBalance(void)
@@ -80,11 +203,9 @@ static void computeDuties(void) {
 
 void app_segments_balancingInit(void)
 {
-    float frequency = app_canRx_Debug_CellBalancingOverridePWMFrequency_get();
-
     app_timer_init(&settle_timer, SETTLE_PERIOD_MS);
     app_timer_init(&balance_timer, BALANCE_PERIOD_MS);
-    app_timer_init(&pwm_timer, frequency);
+    app_timer_init(&pwm_timer, PWM_TICK_MS);
 
     disableBalance();
     state = BALANCING_DISABLED;
