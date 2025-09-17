@@ -85,7 +85,7 @@ set(CM33_DEFINES
 set(CM33_FPU_FLAGS
         -mcpu=cortex-m33
         -mfloat-abi=hard
-        -mfpu=fpv5-sp-d16
+        -mfpu=fpv4-sp-d16
 )
 
 set(CM4_DEFINES
