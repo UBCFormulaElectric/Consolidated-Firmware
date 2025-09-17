@@ -483,12 +483,54 @@
       }
     },
     {
+      "name": "Debug Tests: CRIT (Hexray)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/CRIT/hexray_CRIT_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: CRIT (Hexray)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: DAM (Hexray)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/DAM/hexray_DAM_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: DAM (Hexray)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
       "name": "Debug Tests: FSM (Hexray)",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/hexray/FSM/hexray_FSM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: FSM (Hexray)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: RSM (Hexray)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/RSM/hexray_RSM_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: RSM (Hexray)",
       "linux": {
         "MIMode": "gdb"
       },

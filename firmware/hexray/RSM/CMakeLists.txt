@@ -1,5 +1,5 @@
 message("")
-message("⚙️ Configuring FSM (Hexray)")
+message("⚙️ Configuring RSM (Hexray)")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
@@ -33,18 +33,18 @@ if ("${TARGET}" STREQUAL "binary")
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
-            "hexray_FSM_app"
+            "hexray_RSM_app"
             "${SRCS}"
             "${INCLUDE_DIRS}"
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
 
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
+    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
     list(APPEND NO_CHECKS
     )
     embedded_no_checks("${NO_CHECKS}")
-    generate_stm32cube_code("hexray_FSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
+    generate_stm32cube_code("hexray_RSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
         "stm32h5xx_hal.c"
@@ -57,45 +57,45 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     stm32h563xx_cube_library(
-            "hexray_FSM_stm32cube_hal"
+            "hexray_RSM_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${MD5_LOCATION}"
             False
     )
 
     # JSONCAN
-    jsoncan_embedded_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # CommitInfo
     commit_info_library(
-            "hexray_FSM_app.elf"
-            "hexray_FSM_commit_info"
+            "hexray_RSM_app.elf"
+            "hexray_RSM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
             "${ARM_CORE}"
     )
 
-    target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32cube" "hexray_FSM_stm32cube_hal"
-        "hexray_FSM_commit_info" "m")
+    target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32cube" "hexray_RSM_stm32cube_hal"
+        "hexray_RSM_commit_info" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     compile_gtest_executable(
-            "hexray_FSM_test"
+            "hexray_RSM_test"
             "${SRCS}"
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("hexray_FSM_test" PRIVATE STM32H563Rx)
+    add_compile_definitions("hexray_RSM_test" PRIVATE STM32H563Rx)
 
     # JSONCAN
-    jsoncan_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
-            "hexray_FSM_test"
-            "hexray_FSM_commit_info"
+            "hexray_RSM_test"
+            "hexray_RSM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
     
@@ -106,9 +106,9 @@ elseif ("${TARGET}" STREQUAL "test")
     file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
     list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
     create_fake_library(
-            "hexray_FSM_fakes"
+            "hexray_RSM_fakes"
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("hexray_FSM_test" PRIVATE "hexray_FSM_fakes" "hexray_FSM_commit_info")
+    target_link_libraries("hexray_RSM_test" PRIVATE "hexray_RSM_fakes" "hexray_RSM_commit_info")
 endif ()
