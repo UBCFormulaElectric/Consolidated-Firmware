@@ -279,6 +279,16 @@
       ]
     },
     {
+      "label": "Run Tests: BMS (Quintuna)",
+      "type": "shell",
+      "command": "${workspaceFolder}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
+      "group": "test",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Build Tests: Shared",
       "group": "build",
       "type": "cmake",
