@@ -77,6 +77,8 @@ extern uint32_t SystemCoreClock;
 #define configUSE_RECURSIVE_MUTEXES 1
 #define configUSE_COUNTING_SEMAPHORES 1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
+#define configENABLE_TRUSTZONE 0
+#define configOVERRIDE_DEFAULT_TICK_CONFIGURATION 1
 /* USER CODE BEGIN MESSAGE_BUFFER_LENGTH_TYPE */
 /* Defaults to size_t for backward compatibility, but can be changed
    if lengths will always be less than the number of bytes in a size_t. */
@@ -168,7 +170,7 @@ standard names. */
 /* IMPORTANT: After 10.3.1 update, Systick_Handler comes from NVIC (if SYS timebase = systick), otherwise from
  * cmsis_os2.c */
 
-#define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 0
+#define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 1
 
 /* USER CODE BEGIN Defines */
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */

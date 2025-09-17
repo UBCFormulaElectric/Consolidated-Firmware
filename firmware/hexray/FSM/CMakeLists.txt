@@ -27,7 +27,7 @@ set(HW_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    set(ARM_CORE "cm4")
+    set(ARM_CORE "cm33")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_app_only.ld")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
@@ -64,6 +64,9 @@ if ("${TARGET}" STREQUAL "binary")
             False
     )
 
+    # JSONCAN
+    jsoncan_embedded_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+
     # CommitInfo
     commit_info_library(
             "hexray_FSM_app.elf"
@@ -89,6 +92,7 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # JSONCAN
     jsoncan_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
+
     # CommitInfo
     commit_info_library(
             "hexray_FSM_test"
