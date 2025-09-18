@@ -112,12 +112,15 @@ if __name__ == "__main__":
         print("Overall branch coverage: N/A (no branches)")
 
     error = False
-    if total_lines_hit / total_lines < LINE_COVERAGE_THRESHOLD:
+    if total_lines != 0 and total_lines_hit / total_lines < LINE_COVERAGE_THRESHOLD:
         print(
             f"{RED}Line coverage below {LINE_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}"
         )
         error = True
-    if total_branches_hit / total_branches < BRANCH_COVERAGE_THRESHOLD:
+    if (
+        total_branches != 0
+        and total_branches_hit / total_branches < BRANCH_COVERAGE_THRESHOLD
+    ):
         print(
             f"{RED}Branch coverage below {BRANCH_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}"
         )
