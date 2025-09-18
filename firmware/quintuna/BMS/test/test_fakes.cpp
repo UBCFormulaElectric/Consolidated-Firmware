@@ -235,13 +235,13 @@ extern "C"
     }
 
     static bool voltageDiagState = true;
-    bool        io_tractiveSystem_getVoltageDiagState(void)
+    bool        io_tractiveSystem_getVoltageSnsDiagState(void)
     {
         return voltageDiagState;
     }
 
     static bool currentDiagState = true;
-    bool        io_tractiveSystem_getCurrentDiagState(void)
+    bool        io_tractiveSystem_getCurrentSnsDiagState(void)
     {
         return currentDiagState;
     }

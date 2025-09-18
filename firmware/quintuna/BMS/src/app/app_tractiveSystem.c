@@ -48,9 +48,9 @@ float app_tractiveSystem_getCurrent(void)
 
 void app_tractiveSystem_broadcast(void)
 {
-    const float ts_voltage            = app_tractiveSystem_getVoltage();
-    const float ts_current            = app_tractiveSystem_getCurrent();
-    const float ts_power_kw           = ts_voltage * ts_current * W_TO_KW;
+    const float ts_voltage                = app_tractiveSystem_getVoltage();
+    const float ts_current                = app_tractiveSystem_getCurrent();
+    const float ts_power_kw               = ts_voltage * ts_current * W_TO_KW;
     const bool  ts_voltage_sns_diag_state = io_tractiveSystem_getVoltageSnsDiagState();
     const bool  ts_current_sns_diag_state = io_tractiveSystem_getCurrentSnsDiagState();
 
