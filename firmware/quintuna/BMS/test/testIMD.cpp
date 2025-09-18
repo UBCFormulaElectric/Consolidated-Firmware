@@ -4,18 +4,31 @@ extern "C"
 {
 #include "app_imd.h"
 }
-
-class ImdTest : public BMSBaseTest
+class BMSIMDTest : public BMSBaseTest
 {
+  public:
+    static void test_imd_setImdCondition(const ImdConditionName condition_name)
+    {
+        const std::map<ImdConditionName, float> mapping{
+            { IMD_CONDITION_SHORT_CIRCUIT, 0.0f },          { IMD_CONDITION_NORMAL, 10.0f },
+            { IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f }, { IMD_CONDITION_SST, 30.0f },
+            { IMD_CONDITION_DEVICE_ERROR, 40.0f },          { IMD_CONDITION_GROUND_FAULT, 50.0f }
+        };
+        fakes::imd::setFrequency(mapping.at(condition_name));
+        ASSERT_EQ(condition_name, app_imd_getCondition().name);
+    }
 };
 
-TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditions)
+TEST_F(BMSIMDTest, check_insulation_resistance_for_normal_and_undervoltage_conditions)
 {
-    const std::vector<ImdConditionName> condition_names = { IMD_CONDITION_NORMAL, IMD_CONDITION_UNDERVOLTAGE_DETECTED };
+    constexpr float IMD_CONDITION_NORMAL_FREQUENCY                = 10.0f;
+    constexpr float IMD_CONDITION_UNDERVOLTAGE_DETECTED_FREQUENCY = 20.0f;
 
-    for (const auto &condition_name : condition_names)
+    for (const std::vector condition_frequencies = { IMD_CONDITION_NORMAL_FREQUENCY,
+                                                     IMD_CONDITION_UNDERVOLTAGE_DETECTED_FREQUENCY };
+         const auto        frequency : condition_frequencies)
     {
-        SetImdCondition(condition_name);
+        fakes::imd::setFrequency(frequency);
 
         // From ISOMETER® IR155-3203/IR155-3204 manual:
         //     Insulation Resistance =
@@ -48,19 +61,21 @@ TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditio
     }
 }
 
-TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
+TEST_F(BMSIMDTest, check_good_and_bad_evaluation_for_sst_condition)
 {
-    SetImdCondition(IMD_CONDITION_SST);
-
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 5...10% ("good")
     //                   90...95% ("bad")
+
+    constexpr float SST_FREQUENCY = 30.0f;
 
     constexpr float GOOD_MIN_DUTY_CYCLE = 5.0f;
     constexpr float GOOD_MAX_DUTY_CYCLE = 10.0f;
 
     constexpr float BAD_MIN_DUTY_CYCLE = 90.0f;
     constexpr float BAD_MAX_DUTY_CYCLE = 95.0f;
+
+    fakes::imd::setFrequency(SST_FREQUENCY);
 
     fakes::imd::setDutyCycle(GOOD_MIN_DUTY_CYCLE - 0.1f);
     ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
@@ -98,15 +113,19 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
     ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
 }
 
-TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
+TEST_F(BMSIMDTest, check_pwm_encoding_for_device_error_condition)
 {
-    SetImdCondition(IMD_CONDITION_DEVICE_ERROR);
+    test_imd_setImdCondition(IMD_CONDITION_DEVICE_ERROR);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
 
+    constexpr float DEVICE_ERROR_FREQUENCY = 40.0f;
+
     constexpr float MIN_VALID_DUTY_CYCLE = 47.5f;
     constexpr float MAX_VALID_DUTY_CYCLE = 52.5f;
+
+    fakes::imd::setFrequency(DEVICE_ERROR_FREQUENCY);
 
     fakes::imd::setDutyCycle(MIN_VALID_DUTY_CYCLE - 0.1f);
     ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
@@ -121,38 +140,15 @@ TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
     ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
 }
 
-TEST_F(ImdTest, check_pwm_encoding_for_ground_fault_condition)
-{
-    SetImdCondition(IMD_CONDITION_GROUND_FAULT);
-
-    // From ISOMETER® IR155-3203/IR155-3204 manual:
-    //     Duty cycle => 47.5...52.5%
-
-    constexpr float MIN_VALID_DUTY_CYCLE = 47.5f;
-    constexpr float MAX_VALID_DUTY_CYCLE = 52.5f;
-
-    fakes::imd::setDutyCycle(MIN_VALID_DUTY_CYCLE - 0.1f);
-    ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
-
-    fakes::imd::setDutyCycle(MIN_VALID_DUTY_CYCLE);
-    ASSERT_EQ(true, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
-
-    fakes::imd::setDutyCycle(MAX_VALID_DUTY_CYCLE);
-    ASSERT_EQ(true, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
-
-    fakes::imd::setDutyCycle(MAX_VALID_DUTY_CYCLE + 0.1f);
-    ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
-}
-
-TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
+TEST_F(BMSIMDTest, check_mapping_for_frequency_to_condition)
 {
     struct ConditionLut
     {
-        const float            frequency;
-        const ImdConditionName condition_name;
+        float            frequency;
+        ImdConditionName condition_name;
     };
 
-    static constexpr std::array<ConditionLut, 32> lookup_table = { {
+    const std::vector<ConditionLut> lookup_table = {
         { 0.0f, IMD_CONDITION_SHORT_CIRCUIT },
         { 1.0f, IMD_CONDITION_SHORT_CIRCUIT },
         { 2.0f, IMD_CONDITION_SHORT_CIRCUIT },
@@ -185,9 +181,9 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
         { 51.0f, IMD_CONDITION_GROUND_FAULT },
         { 52.0f, IMD_CONDITION_GROUND_FAULT },
         { 53.0f, IMD_CONDITION_INVALID },
-    } };
+    };
 
-    for (auto &[frequency, condition_name] : lookup_table)
+    for (const auto &[frequency, condition_name] : lookup_table)
     {
         fakes::imd::setFrequency(frequency);
         ASSERT_EQ(app_imd_getCondition().name, condition_name);

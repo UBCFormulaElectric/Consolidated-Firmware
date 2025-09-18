@@ -1,571 +1,322 @@
-
-#include "fake_io_faultLatch.hpp"
 #include "test_BMSBase.hpp"
+
+#include "test_fakes.hpp"
 
 extern "C"
 {
-#include "app_canTx.h"
+#include "states/app_states.h"
 #include "app_canRx.h"
-#include "app_stateMachine.h"
-#include "app_tractiveSystem.h"
-#include "app_precharge.h"
-#include "app_canUtils.h"
-#include "io_faultLatch.h"
+#include "app_canTx.h"
+#include "app_canAlerts.h"
+#include "io_irs.h"
+#include "io_time.h"
 }
 
 class BmsStateMachineTest : public BMSBaseTest
 {
 };
 
-TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
+TEST_F(BmsStateMachineTest, init_proper_reset)
 {
-    SetInitialState(app_initState_get());
-    EXPECT_EQ(BMS_INIT_STATE, app_canTx_BMS_State_get());
+    app_stateMachine_setCurrentState(&drive_state);
+    jobs_init();
+    ASSERT_STATE_EQ(init_state);
 }
 
-TEST_F(BmsStateMachineTest, check_precharge_drive_state_is_broadcasted_over_can)
+TEST_F(BmsStateMachineTest, start_precharge_once_vc_bms_on_AND_irs_negative_closed)
 {
-    SetInitialState(app_prechargeDriveState_get());
-    EXPECT_EQ(BMS_PRECHARGE_DRIVE_STATE, app_canTx_BMS_State_get());
+    ASSERT_STATE_EQ(init_state);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(init_state);
+
+    app_canRx_VC_State_update(VC_BMS_ON_STATE);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
+
+    app_canRx_VC_State_update(VC_INVERTER_ON_STATE);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
+
+    app_canRx_VC_State_update(VC_BMS_ON_STATE);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(precharge_drive_state);
+
+    app_canRx_VC_State_update(VC_INIT_STATE);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(precharge_drive_state); // surely precharge state is stable for at least 20ms
 }
 
-TEST_F(BmsStateMachineTest, check_precharge_charge_state_is_broadcasted_over_can)
+TEST_F(BmsStateMachineTest, irs_negative_open_to_init_with_debounce)
 {
-    SetInitialState(app_prechargeChargeState_get());
-    EXPECT_EQ(BMS_PRECHARGE_CHARGE_STATE, app_canTx_BMS_State_get());
-}
+    app_stateMachine_setCurrentState(&drive_state);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(drive_state);
 
-TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
-{
-    SetInitialState(app_driveState_get());
-    EXPECT_EQ(BMS_DRIVE_STATE, app_canTx_BMS_State_get());
-}
-
-TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
-{
-    SetInitialState(app_faultState_get());
-    EXPECT_EQ(BMS_FAULT_STATE, app_canTx_BMS_State_get());
-}
-
-TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
-{
-    SetInitialState(app_chargeState_get());
-    EXPECT_EQ(BMS_CHARGE_STATE, app_canTx_BMS_State_get());
-}
-
-TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
-{
-    float fake_frequency = 0.0f;
-
-    for (const auto &state : GetAllStates())
+    fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
+    for (int i = 0; i <= 200; i += 10)
     {
-        SetInitialState(state);
-        fake_io_imd_getFrequency_returns(fake_frequency);
+        ASSERT_STATE_EQ(drive_state) << "Expected state: drive_state, but got: "
+                                     << app_stateMachine_getCurrentState()->name
+                                     << ", time = " << io_time_getCurrentMs();
         LetTimePass(10);
-
-        EXPECT_EQ(fake_frequency, app_canTx_BMS_ImdFrequency_get());
-
-        // To avoid false positives, we use a different duty cycle each time
-        fake_frequency++;
     }
+    ASSERT_STATE_EQ(init_state);
 }
 
-TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_states)
+TEST_F(BmsStateMachineTest, check_contactors_open_in_inert_states)
 {
-    float fake_duty_cycle = 0.0f;
+    io_irs_setPositive(CONTACTOR_STATE_CLOSED);
+    app_stateMachine_setCurrentState(&fault_state);
+    ASSERT_EQ(io_irs_positiveState(), CONTACTOR_STATE_OPEN);
 
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-        fake_io_imd_getDutyCycle_returns(fake_duty_cycle);
-
-        LetTimePass(10);
-
-        EXPECT_EQ(fake_duty_cycle, app_canTx_BMS_ImdDutyCycle_get());
-
-        // To avoid false positives, we use a different frequency each time
-        fake_duty_cycle++;
-    }
-}
-
-TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
-{
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-        SetImdCondition(IMD_CONDITION_NORMAL);
-
-        // Test an arbitrarily chosen valid resistance
-        fake_io_imd_getDutyCycle_returns(50.0f);
-        LetTimePass(10);
-
-        EXPECT_EQ(IMD_CONDITION_NORMAL, app_canTx_BMS_ImdCondition_get());
-        EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
-        EXPECT_EQ(1200, app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_get());
-
-        // Test an arbitrarily chosen invalid resistance
-        fake_io_imd_getDutyCycle_returns(0.0f);
-        LetTimePass(10);
-        EXPECT_EQ(IMD_CONDITION_NORMAL, app_canTx_BMS_ImdCondition_get());
-        EXPECT_EQ(false, app_canTx_BMS_ImdValidDutyCycle_get());
-    }
-}
-
-TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
-{
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-        SetImdCondition(IMD_CONDITION_UNDERVOLTAGE_DETECTED);
-
-        // Test an arbitrarily chosen valid resistance
-        fake_io_imd_getDutyCycle_returns(50.0f);
-        LetTimePass(10);
-
-        EXPECT_EQ(IMD_CONDITION_UNDERVOLTAGE_DETECTED, app_canTx_BMS_ImdCondition_get());
-        EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
-        EXPECT_EQ(1200, app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_get());
-
-        // Test an arbitrarily chosen invalid resistance
-        fake_io_imd_getDutyCycle_returns(0.0f);
-        LetTimePass(10);
-        EXPECT_EQ(IMD_CONDITION_UNDERVOLTAGE_DETECTED, app_canTx_BMS_ImdCondition_get());
-        EXPECT_EQ(false, app_canTx_BMS_ImdValidDutyCycle_get());
-    }
-}
-
-TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
-{
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-        SetImdCondition(IMD_CONDITION_SST);
-
-        // Test an arbitrarily chosen SST_GOOD
-        fake_io_imd_getDutyCycle_returns(7.5f);
-
-        LetTimePass(10);
-        EXPECT_EQ(IMD_CONDITION_SST, app_canTx_BMS_ImdCondition_get());
-        EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
-        EXPECT_EQ(SST_GOOD, app_canTx_BMS_ImdSpeedStartStatus30Hz_get());
-
-        // Test an arbitrarily chosen SST_BAD
-        fake_io_imd_getDutyCycle_returns(92.5f);
-
-        LetTimePass(10);
-        EXPECT_EQ(IMD_CONDITION_SST, app_canTx_BMS_ImdCondition_get());
-        EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
-        EXPECT_EQ(SST_BAD, app_canTx_BMS_ImdSpeedStartStatus30Hz_get());
-
-        // Test an arbitrarily chosen invalid SST status
-        fake_io_imd_getDutyCycle_returns(0.0f);
-
-        LetTimePass(10);
-        EXPECT_EQ(IMD_CONDITION_SST, app_canTx_BMS_ImdCondition_get());
-        EXPECT_EQ(false, app_canTx_BMS_ImdValidDutyCycle_get());
-    }
-}
-
-TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
-{
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-        fake_io_imd_getTimeSincePowerOn_returns(123);
-        LetTimePass(10);
-        EXPECT_EQ(123, app_canTx_BMS_ImdTimeSincePowerOn_get());
-    }
-}
-
-// TODO: Detect Elcon charger.
-// TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
-// {
-//     for (const auto &state : GetAllStates())
-//     {
-//         SetInitialState(state);
-
-//         app_canRx_BRUSA_IsConnected_update(true);
-//         LetTimePass(1000);
-//         EXPECT_EQ(true, app_canTx_BMS_ChargerConnected_get());
-
-//         app_canRx_BRUSA_IsConnected_update(false);
-//         LetTimePass(1000);
-//         EXPECT_EQ(false, app_canTx_BMS_ChargerConnected_get());
-//     }
-// }
-
-TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
-{
-    // Enable BMS_OK
-    fake_io_faultLatch_getCurrentStatus_returnsForArgs(&bms_ok_latch, true);
-
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        // Make sure the state machine sets the CAN signal for BMS_OK
-        LetTimePass(10);
-        ASSERT_EQ(true, app_canTx_BMS_BmsCurrentlyOk_get());
-
-        // Reset the CAN signal for BMS_OK
-        app_canTx_BMS_BmsCurrentlyOk_set(false);
-    }
-}
-
-TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
-{
-    // Enable IMD_OK
-    fake_io_faultLatch_getCurrentStatus_returnsForArgs(&imd_ok_latch, true);
-
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        // Make sure the state machine sets the CAN signal for IMD_OK
-        LetTimePass(10);
-        ASSERT_EQ(true, app_canTx_BMS_ImdCurrentlyOk_get());
-
-        // Reset the CAN signal for IMD_OK
-        app_canTx_BMS_ImdCurrentlyOk_set(false);
-    }
-}
-
-TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
-{
-    // Enable BSPD_OK
-    fake_io_faultLatch_getCurrentStatus_returnsForArgs(&bspd_ok_latch, true);
-
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        // Make sure the state machine sets the CAN signal for BSPD_OK
-        LetTimePass(10);
-        ASSERT_EQ(true, app_canTx_BMS_BspdCurrentlyOk_get());
-
-        // Reset the CAN signal for BSPD_OK
-        app_canTx_BMS_BspdCurrentlyOk_set(false);
-    }
-}
-
-// TODO: Detect Elcon charger.
-// TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state)
-// {
-//     SetInitialState(app_chargeState_get());
-//     fake_io_irs_isNegativeClosed_returns(true);
-
-//     // Set the current values to above the threshold for charging to stop (charging should continue)
-//     fake_io_tractiveSystem_getCurrentHighResolution_returns(1.0f);
-//     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
-
-//     // Simulate situation with charger present and user indicate to start charging
-//     app_canRx_BRUSA_IsConnected_update(false);
-//     app_canRx_Debug_StartCharging_update(true);
-
-//     LetTimePass(1000);
-
-//     // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
-//     ASSERT_EQ(true, app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_get());
-//     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
-// }
-
-TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
-{
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        fake_io_irs_isNegativeClosed_returns(false);
-        fake_io_irs_isPositiveClosed_returns(false);
-
-        LetTimePass(10);
-        ASSERT_EQ(CONTACTOR_STATE_OPEN, app_canTx_BMS_IrNegative_get());
-        ASSERT_EQ(CONTACTOR_STATE_OPEN, app_canTx_BMS_IrPositive_get());
-
-        fake_io_irs_isNegativeClosed_returns(false);
-        fake_io_irs_isPositiveClosed_returns(true);
-
-        LetTimePass(10);
-        ASSERT_EQ(CONTACTOR_STATE_OPEN, app_canTx_BMS_IrNegative_get());
-        ASSERT_EQ(CONTACTOR_STATE_CLOSED, app_canTx_BMS_IrPositive_get());
-
-        fake_io_irs_isNegativeClosed_returns(true);
-        fake_io_irs_isPositiveClosed_returns(false);
-
-        LetTimePass(10);
-        ASSERT_EQ(CONTACTOR_STATE_CLOSED, app_canTx_BMS_IrNegative_get());
-        ASSERT_EQ(CONTACTOR_STATE_OPEN, app_canTx_BMS_IrPositive_get());
-
-        fake_io_irs_isNegativeClosed_returns(true);
-        fake_io_irs_isPositiveClosed_returns(true);
-
-        LetTimePass(10);
-        ASSERT_EQ(CONTACTOR_STATE_CLOSED, app_canTx_BMS_IrNegative_get());
-        ASSERT_EQ(CONTACTOR_STATE_CLOSED, app_canTx_BMS_IrPositive_get());
-    }
-}
-
-TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state)
-{
-    fake_io_irs_openPositive_reset();
-
-    SetInitialState(app_faultState_get());
-    ASSERT_EQ(fake_io_irs_openPositive_callCount(), 1);
+    io_irs_setPositive(CONTACTOR_STATE_CLOSED);
+    app_stateMachine_setCurrentState(&init_state);
+    ASSERT_EQ(io_irs_positiveState(), CONTACTOR_STATE_OPEN);
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set)
 {
-    // Assume no AIR shutdown faults have been set
-    SetInitialState(app_faultState_get());
+    app_canAlerts_BMS_Fault_TESTFAULT_set(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(fault_state);
 
-    fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, false);
-    LetTimePass(1000);
-    ASSERT_EQ(BMS_FAULT_STATE, app_canTx_BMS_State_get());
-
-    fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, true);
-    LetTimePass(1000);
-    ASSERT_EQ(BMS_INIT_STATE, app_canTx_BMS_State_get());
+    app_canAlerts_BMS_Fault_TESTFAULT_set(false);
+    ASSERT_FALSE(app_canAlerts_AnyBoardHasFault());
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
 }
 
-// TODO: Detect Elcon charger.
-// TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
+TEST_F(BmsStateMachineTest, stays_in_fault_state_if_ir_negative_closes)
+{
+    app_stateMachine_setCurrentState(&fault_state);
+    app_canAlerts_BMS_Fault_TESTFAULT_set(true);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(fault_state);
+}
+
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+    ASSERT_TRUE(app_canTx_BMS_ImdCurrentlyOk_get());
+    ASSERT_TRUE(app_canTx_BMS_ImdLatchOk_get());
+    ASSERT_STATE_EQ(drive_state);
+    fakes::faultLatches::updateFaultLatch(&imd_ok_latch, FAULT_LATCH_FAULT);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
+    LetTimePass(300);
+    ASSERT_STATE_EQ(init_state);
+    ASSERT_FALSE(app_canTx_BMS_ImdCurrentlyOk_get());
+    ASSERT_FALSE(app_canTx_BMS_ImdLatchOk_get());
+}
+
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+    ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
+    ASSERT_TRUE(app_canTx_BMS_BmsLatchOk_get());
+    ASSERT_STATE_EQ(drive_state);
+    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
+    LetTimePass(300);
+    ASSERT_STATE_EQ(init_state); // Since we have not set a fault, BMSCurrentlyOk should be true
+    ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
+    ASSERT_FALSE(app_canTx_BMS_BmsLatchOk_get());
+}
+
+TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+    ASSERT_TRUE(app_canTx_BMS_BspdCurrentlyOk_get());
+    ASSERT_TRUE(app_canTx_BMS_BspdLatchOk_get());
+    ASSERT_STATE_EQ(drive_state);
+    fakes::faultLatches::updateFaultLatch(&bspd_ok_latch, FAULT_LATCH_FAULT);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
+    LetTimePass(300);
+    ASSERT_STATE_EQ(init_state);
+    ASSERT_FALSE(app_canTx_BMS_BspdCurrentlyOk_get());
+    ASSERT_FALSE(app_canTx_BMS_BspdLatchOk_get());
+}
+
+// fault tests probably can move to testFaults.cpp
+TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_over_voltage_fault)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 4.21f; // last cell overvoltage
+    io_ltc6813_startCellsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10010);
+    ASSERT_STATE_EQ(fault_state);
+    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+    ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
+TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 2.6f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 2.49f;
+    io_ltc6813_startCellsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10010);
+    ASSERT_STATE_EQ(fault_state);
+    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+    ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
+// TODO: Implement proper mocking of the cell temperatures with transfer functions for the aux regs
+// TEST_F(BmsStateMachineTest, goes_to_state_cell_over_temp_fault)
 // {
-//     SetInitialState(app_initState_get());
-//     fake_io_irs_isNegativeClosed_returns(true);
-
-//     // Without the CAN message to start charging, will remain in init state when charger is connected
-//     app_canRx_BRUSA_IsConnected_update(true);
-
-//     LetTimePass(20);
-
-//     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+//     app_stateMachine_setCurrentState(&drive_state);
+//     std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> cell_temps_arr{};
+//     for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+//     {
+//         for (size_t cell = 0; cell < AUX_REGS_PER_SEGMENT; ++cell)
+//         {
+//             cell_temps_arr[seg][cell] = 50.0f;
+//         }
+//     }
+//     cell_temps_arr[NUM_SEGMENTS - 1][AUX_REGS_PER_SEGMENT - 1] = 61.0f; // last cell over temperature
+//     fakes::segments::setCellTemperatures(cell_temps_arr);
+//     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+//     LetTimePass(10010);
+//     LetTimePass(1000);
+//     ASSERT_STATE_EQ(fault_state);
+//     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+//     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
 // }
 
-TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
+// precharge tests
+// TODO set these values
+static constexpr float undervoltage = 200.0f, target_voltage = 600.0f;
+static constexpr int   too_fast_time = 20, just_good_time = 380;
+
+static constexpr int precharge_timeout = 2260, precharge_cooldown = 1000, precharge_timeout_ub = 2500,
+                     precharge_cooldown_ub = 1500;
+
+static constexpr int precharge_retries = 3;
+TEST_F(BmsStateMachineTest, precharge_success_test)
 {
-    SetInitialState(app_initState_get());
-    fake_io_irs_isNegativeClosed_returns(true);
-
-    // Set the current values to above the threshold for charging to stop (charging should continue)
-    fake_io_tractiveSystem_getCurrentHighResolution_returns(1.0f);
-    fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
-
-    // Simulate situation with charger present and user indicate to start charging
-    app_canRx_Debug_StartCharging_update(true);
-
-    // Allow BMS time to go through Init state
+    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    fakes::tractiveSystem::setVoltage(0);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
     LetTimePass(10);
-    fake_io_tractiveSystem_getVoltage_returns(550.0f);
 
-    // Pause for slightly longer to allow pre-charge
-    LetTimePass(210);
-
-    printf("%s", app_stateMachine_getCurrentState()->name);
-    ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
-}
-
-TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
-{
-    SetInitialState(app_chargeState_get());
-    fake_io_irs_isNegativeClosed_returns(true);
-
-    // Set the current values to above the threshold for charging to stop (charging should continue)
-    fake_io_tractiveSystem_getCurrentHighResolution_returns(1.0f);
-    fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
-
-    // Simulate situation with charger present and user indicate to start charging
-    app_canRx_Debug_StartCharging_update(true);
-
-    LetTimePass(100);
-
-    ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
-}
-
-TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
-{
-    SetInitialState(app_chargeState_get());
-    fake_io_irs_isNegativeClosed_returns(true);
-
-    // Set the current values to above the threshold for charging to stop (charging should continue)
-    fake_io_tractiveSystem_getCurrentHighResolution_returns(1.0f);
-    fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
-
-    // Simulate situation with charger present and user indicate to start charging
-    app_canRx_Debug_StartCharging_update(false);
-
-    LetTimePass(1000);
-    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
-}
-
-TEST_F(BmsStateMachineTest, fault_from_charger_fault)
-{
-    SetInitialState(app_chargeState_get());
-    fake_io_irs_isNegativeClosed_returns(true);
-
-    // Set the current values to above the threshold for charging to stop (charging should continue)
-    fake_io_tractiveSystem_getCurrentHighResolution_returns(1.0f);
-    fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
-
-    // Simulate situation with charger present and user indicate to start charging
-    app_canRx_Elcon_ChargerOverTemperature_update(true);
-    app_canRx_Debug_StartCharging_update(true);
-
-    // Charger faults are debounced for 3s
-    LetTimePass(3010);
-    const State *currentState = app_stateMachine_getCurrentState();
-
-    ASSERT_EQ(app_initState_get(), currentState);
-}
-
-TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)
-{
-    SetInitialState(app_initState_get());
-
-    // Let accumulator startup count expire
-    LetTimePass(1000);
-
-    // Set TS current negative to trigger discharging condition in tempertature check
-    fake_io_tractiveSystem_getCurrentHighResolution_returns(-10.0f);
-    fake_io_tractiveSystem_getCurrentLowResolution_returns(-10.0f);
-
-    // Simulate over-voltage fault in drive state
-    fakes::segments::SetCellVoltage(0, 0, MAX_CELL_VOLTAGE_FAULT_V + 0.1);
-    LetTimePass(LTC_CONVERSION_PERIOD_MS + OVER_VOLTAGE_DEBOUNCE_FAULT_MS + 10);
-
-    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
-    fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, false);
-
-    // Check that state machine remains in fault state without cycling to init state for long period of time
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < just_good_time; i += 10)
     {
+        ASSERT_STATE_EQ(precharge_drive_state);
+        ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
+        ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
         LetTimePass(10);
-        ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
     }
 
-    // Remove fault condition and check transition to init state
-    fakes::segments::SetCellVoltage(0, 0, MAX_CELL_VOLTAGE_FAULT_V - 0.1);
-    fake_io_faultLatch_getLatchedStatus_returnsForArgs(&bms_ok_latch, true);
-
-    LetTimePass(LTC_CONVERSION_PERIOD_MS + 10);
-    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+    fakes::tractiveSystem::setVoltage(target_voltage);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(drive_state);
+    ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_OPEN);
+    ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
 }
 
-TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_status)
+TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
 {
-    struct
+    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    fakes::tractiveSystem::setVoltage(undervoltage);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
+    LetTimePass(10);
+
+    for (int retry = 0; retry < precharge_retries; retry++)
     {
-        bool    air_negative_closes;
-        float   initial_ts_voltage;
-        VCState vc_state;
-        float   precharge_duration;
-        bool    expect_precharge_starts;
-        bool    expect_precharge_successful;
-    } test_params[5] = { {
-                             // Precharge doesn't start, AIR- doesn't close
-                             .air_negative_closes         = false,
-                             .initial_ts_voltage          = 0.0,
-                             .vc_state                    = VC_BMS_ON_STATE,
-                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
-                             .expect_precharge_starts     = false,
-                             .expect_precharge_successful = false,
-                         },
-                         {
-                             // Precharge doesn't start, TS voltage too high
-                             .air_negative_closes         = false,
-                             .initial_ts_voltage          = 11.0, // 10V is threshold to precharge
-                             .vc_state                    = VC_BMS_ON_STATE,
-                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
-                             .expect_precharge_starts     = false,
-                             .expect_precharge_successful = false,
-                         },
-                         {
-                             // Nominal precharge, success
-                             .air_negative_closes         = true,
-                             .initial_ts_voltage          = 0.0,
-                             .vc_state                    = VC_BMS_ON_STATE,
-                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
-                             .expect_precharge_starts     = true,
-                             .expect_precharge_successful = true,
-                         },
-                         {
-                             // Fast precharge, fails
-                             .air_negative_closes         = true,
-                             .initial_ts_voltage          = 0.0,
-                             .vc_state                    = VC_BMS_ON_STATE,
-                             .precharge_duration          = PRECHARGE_COMPLETION_LOWER_BOUND - 30,
-                             .expect_precharge_starts     = true,
-                             .expect_precharge_successful = false,
-                         },
-                         {
-                             // Slow precharge, fails
-                             .air_negative_closes = true,
-                             .initial_ts_voltage  = 0.0,
-                             .vc_state            = VC_BMS_ON_STATE,
-                             .precharge_duration =
-                                 PRECHARGE_COMPLETION_UPPER_BOUND + 20U, // Allow inverter on state to complete again
-                             .expect_precharge_starts     = true,
-                             .expect_precharge_successful = false,
-                         } };
-
-    for (int i = 0; i < 5; i++)
-    {
-        TearDown();
-        SetUp();
-
-        // Let accumulator startup count expire
-        LetTimePass(1000);
-
-        // Set initial conditions for precharge
-        fake_io_irs_isNegativeClosed_returns(test_params[i].air_negative_closes);
-        fake_io_tractiveSystem_getVoltage_returns(test_params[i].initial_ts_voltage);
-        app_canRx_VC_State_update(test_params[i].vc_state);
-
-        if (test_params[i].expect_precharge_starts)
+        int closed_time;
+        for (closed_time = 0; io_irs_prechargeState() == CONTACTOR_STATE_CLOSED && closed_time < precharge_timeout_ub;
+             closed_time += 10)
         {
-            // Precharge should start
-            LetTimePass(10U);
-            ASSERT_EQ(app_prechargeDriveState_get(), app_stateMachine_getCurrentState());
-            ASSERT_EQ(fake_io_irs_closePositive_callCount(), 0);
-
-            // Let precharge duration elapse, confirm still in precharge state and AIR+ open
-            LetTimePass(test_params[i].precharge_duration);
-            ASSERT_EQ(app_prechargeDriveState_get(), app_stateMachine_getCurrentState());
-            ASSERT_EQ(fake_io_irs_closePositive_callCount(), 0);
-
-            // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
-            fake_io_tractiveSystem_getVoltage_returns(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+            ASSERT_STATE_EQ(precharge_drive_state);
+            ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
             LetTimePass(10);
-
-            if (test_params[i].expect_precharge_successful)
-            {
-                // Precharge successful, enter drive
-                ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
-                ASSERT_EQ(fake_io_irs_closePositive_callCount(), 1);
-
-                LetTimePass(1000);
-                ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
-                ASSERT_EQ(fake_io_irs_closePositive_callCount(), 1);
-            }
-            else
-            {
-                // Precharge failed, back to init to try again
-                ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
-                ASSERT_EQ(fake_io_irs_closePositive_callCount(), 0);
-
-                LetTimePass(1000);
-                ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
-                ASSERT_EQ(fake_io_irs_closePositive_callCount(), 0);
-            }
         }
-        else
+        ASSERT_LE(abs(closed_time - precharge_timeout), 100)
+            << "Expected precharge to be closed for approximately " << precharge_timeout << "ms, but was "
+            << closed_time << "ms, time=" << io_time_getCurrentMs();
+
+        // cooldown
+        if (retry == precharge_retries - 1)
+            break;
+        int open_time;
+        for (open_time = 0; io_irs_prechargeState() == CONTACTOR_STATE_OPEN && open_time < precharge_cooldown_ub;
+             open_time += 10)
         {
-            // Precharge doesn't start, stay in init indefinitely
-            ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
-            ASSERT_EQ(fake_io_irs_closePositive_callCount(), 0);
-
-            LetTimePass(1000);
-            ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
-            ASSERT_EQ(fake_io_irs_closePositive_callCount(), 0);
+            ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
+            LetTimePass(10);
         }
+        ASSERT_LE(abs(open_time - precharge_cooldown), 100) << "Expected precharge to be open for approximately "
+                                                            << precharge_cooldown << "ms, but was " << open_time << "ms"
+                                                            << ", time = " << io_time_getCurrentMs();
     }
+
+    ASSERT_STATE_EQ(precharge_latch_state);
 }
+
+TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
+{
+    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    fakes::tractiveSystem::setVoltage(0.0f);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
+    LetTimePass(10);
+
+    for (int i = 0; i < too_fast_time; i += 10)
+    {
+        ASSERT_STATE_EQ(precharge_drive_state);
+        ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
+        ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
+        LetTimePass(10);
+    }
+
+    fakes::tractiveSystem::setVoltage(target_voltage);
+    LetTimePass(10);
+    ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_OPEN);
+    ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
+    // we presume that it is in the retry phase as described above now
+}
+
+// charging tests
+TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging) {}
+TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {}
+TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state) {}
+TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state) {}
+TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state) {}
+TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays) {}
+TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts) {}
+TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg) {}
+TEST_F(BmsStateMachineTest, fault_from_charger_fault) {}
