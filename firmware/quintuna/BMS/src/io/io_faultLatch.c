@@ -24,7 +24,7 @@ const FaultLatch bspd_ok_latch = {
 void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
 {
     assert(latch->read_only == false);
-    hw_gpio_writePin(latch->current_status_gpio, status == FAULT_LATCH_OK ? 1 : 0);
+    hw_gpio_writePin(latch->current_status_gpio, status == FAULT_LATCH_OK ? true : false);
 }
 
 FaultLatchState io_faultLatch_getCurrentStatus(const FaultLatch *latch)

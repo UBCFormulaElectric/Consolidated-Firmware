@@ -9,19 +9,6 @@
 
 #include <assert.h>
 
-// #define PRECHARGE_ACC_VOLTAGE_THRESHOLD 0.9f
-// #define NUM_OF_INVERTERS 4U
-// #define INVERTER_CAPACITANCE_F 75e-6f
-// #define NUM_OF_RESISTORS 1U
-// #define PRECHARGE_RESISTANCE_OHMS 3e3f
-// #define S_TO_MS 1000U
-// #define PRECHARGE_RC_MS (S_TO_MS * (PRECHARGE_RESISTANCE_OHMS * NUM_OF_RESISTORS * INVERTER_CAPACITANCE_F *
-// NUM_OF_INVERTERS))
-// #define MAX_PRECHARGE_ATTEMPTS 3U #define PRECHARGE_COMPLETION_MS ((float)PRECHARGE_RC_MS * 2.7f)
-// // 2.7RC corresponds to time to reach ~93% charged #define PRECHARGE_COMPLETION_UPPERBOUND_MS
-// (uint32_t)(PRECHARGE_COMPLETION_MS * 5.0f) #define PRECHARGE_COMPLETION_LOWERBOUND_MS
-// (uint32_t)(PRECHARGE_COMPLETION_MS * 0.5f)
-
 static void app_prechargeChargeStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);

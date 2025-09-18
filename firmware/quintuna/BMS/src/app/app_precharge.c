@@ -21,7 +21,6 @@ void app_precharge_init(void)
     app_timer_init(&lower_bound_timer, PRECHARGE_COMPLETION_LOWER_BOUND);
     app_timer_init(&upper_bound_timer, PRECHARGE_COMPLETION_UPPER_BOUND);
     app_timer_init(&cooldown_timer, PRECHARGE_COOLDOWN_TIME);
-    num_precharge_failures = 0;
 }
 
 void app_precharge_restart(void)
@@ -51,9 +50,9 @@ PrechargeState app_precharge_poll(const bool precharge_for_charging)
 
     const bool is_air_negative_open = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool is_ts_rising_slowly =
-        ts_voltage < threshold_voltage && app_timer_updateAndGetState(&upper_bound_timer) == TIMER_STATE_EXPIRED;
+        (ts_voltage < threshold_voltage) && (app_timer_updateAndGetState(&upper_bound_timer) == TIMER_STATE_EXPIRED);
     const bool is_ts_rising_quickly =
-        ts_voltage > threshold_voltage && app_timer_updateAndGetState(&lower_bound_timer) == TIMER_STATE_RUNNING;
+        (ts_voltage > threshold_voltage) && (app_timer_updateAndGetState(&lower_bound_timer) == TIMER_STATE_RUNNING);
 
     bool has_precharge_fault =
         precharge_for_charging ? is_ts_rising_slowly : is_ts_rising_slowly | is_ts_rising_quickly;
