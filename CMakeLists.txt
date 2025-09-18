@@ -68,24 +68,26 @@ option(TARGET "The target to build for. Choose between \"binary\" and \"test\"."
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
-
-    # Override AppleClang with Homebrew GCC for gcov support on macOS
+    # Override AppleClang with Homebrew GCC for gcov support on macOS.
     IF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin" AND ${TARGET} STREQUAL "test")
-        message(STATUS "📌 Configuring Homebrew GCC for macOS unit tests")
+        message("📌 Searching for latest Homebrew GCC for host-based unit tests")
 
-        set(HOMEBREW_GCC_CANDIDATES gcc-15 gcc-14 gcc-13 gcc-12 gcc-11 gcc-10 gcc)
-        find_program(HOMEBREW_GCC NAMES ${HOMEBREW_GCC_CANDIDATES}
-            PATHS /opt/homebrew/bin /usr/local/bin
-            NO_DEFAULT_PATH
+        file(GLOB HOMEBREW_GCC_CANDIDATES
+            "/opt/homebrew/bin/gcc-[0-9]*"
+            "/usr/local/bin/gcc-[0-9]*"
         )
 
-        IF(NOT HOMEBREW_GCC)
-            message(FATAL_ERROR "❌ No Homebrew GCC found. Please install with: brew install gcc")
-        ENDIF()
+        IF(HOMEBREW_GCC_CANDIDATES)
+            list(SORT HOMEBREW_GCC_CANDIDATES COMPARE NATURAL ORDER DESCENDING)
+            list(GET HOMEBREW_GCC_CANDIDATES 0 HOMEBREW_GCC)
+            string(REPLACE "gcc" "g++" HOMEBREW_GXX ${HOMEBREW_GCC})
 
-        string(REPLACE "gcc" "g++" HOMEBREW_GXX "${HOMEBREW_GCC}")
-        set(CMAKE_C_COMPILER "${HOMEBREW_GCC}" CACHE STRING "" FORCE)
-        set(CMAKE_CXX_COMPILER "${HOMEBREW_GXX}" CACHE STRING "" FORCE)
+            set(CMAKE_C_COMPILER ${HOMEBREW_GCC} CACHE STRING "" FORCE)
+            set(CMAKE_CXX_COMPILER ${HOMEBREW_GXX} CACHE STRING "" FORCE)
+
+        ELSE()
+            message(FATAL_ERROR "❌ No Homebrew GCC installation found. Please install with 'brew install gcc'")
+        ENDIF()
     ENDIF()
 
     include(firmware/cmake/shared.cmake)
