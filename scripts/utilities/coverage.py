@@ -4,11 +4,11 @@ from typing import LiteralString
 import re
 import argparse
 
-OBJECT_FILE_EXTENSION = '.obj' if os.name == 'nt' else '.o'
+OBJECT_FILE_EXTENSION = ".obj" if os.name == "nt" else ".o"
 
-RED = '\033[91m'
-GREEN = '\033[92m'
-RESET = '\033[0m'
+RED = "\033[91m"
+GREEN = "\033[92m"
+RESET = "\033[0m"
 
 
 def find_obj_files(folder_path: str) -> list[LiteralString | str | bytes]:
@@ -41,16 +41,16 @@ BRANCH_COVERAGE_THRESHOLD = 0.8
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate code coverage using gcov.")
     parser.add_argument(
-        '--gcov_cmd',
+        "--gcov_cmd",
         type=str,
-        default='gcov',
-        help='Path to the gcov command (default: "gcov")'
+        default="gcov",
+        help='Path to the gcov command (default: "gcov")',
     )
     parser.add_argument(
-        '--folder_path',
+        "--folder_path",
         type=str,
         required=True,
-        help='Path to the folder containing .obj files'
+        help="Path to the folder containing .obj files",
     )
     args = parser.parse_args()
 
@@ -65,20 +65,21 @@ if __name__ == "__main__":
     for obj_file in obj_files:
         obj_dir, obj_filename = os.path.split(obj_file)
 
-        gcov_command = [gcov_cmd, '-b', '-c', '-n', obj_filename]
+        gcov_command = [gcov_cmd, "-b", "-c", "-n", obj_filename]
         process = subprocess.run(
-            gcov_command,
-            cwd=obj_dir,
-            capture_output=True,
-            text=True,
-            check=True
+            gcov_command, cwd=obj_dir, capture_output=True, text=True, check=True
         )
 
         if process.returncode != 0:
             raise Exception("gcov errors:\n", process.stderr)
 
         lines = process.stdout
-        line_coverage, line_count, branch_coverage, branch_count = None, None, None, None
+        line_coverage, line_count, branch_coverage, branch_count = (
+            None,
+            None,
+            None,
+            None,
+        )
         line_match = re.search(r"Lines executed:(\d+\.\d+)% of (\d+)", lines)
         if line_match:
             line_coverage = float(line_match.group(1))
@@ -96,16 +97,30 @@ if __name__ == "__main__":
             total_branches += branch_count
             total_branches_hit += round(branch_coverage * branch_count / 100)
 
-    print(f"Overall line coverage: {total_lines_hit / total_lines * 100:.2f}% ({total_lines_hit}/{total_lines})")
-    print(
-        f"Overall branch coverage: {total_branches_hit / total_branches * 100:.2f}% ({total_branches_hit}/{total_branches})")
+    if total_lines != 0:
+        print(
+            f"Overall line coverage: {total_lines_hit / total_lines * 100:.2f}% ({total_lines_hit}/{total_lines})"
+        )
+    else:
+        print("Overall line coverage: N/A (no lines)")
+
+    if total_branches != 0:
+        print(
+            f"Overall branch coverage: {total_branches_hit / total_branches * 100:.2f}% ({total_branches_hit}/{total_branches})"
+        )
+    else:
+        print("Overall branch coverage: N/A (no branches)")
 
     error = False
     if total_lines_hit / total_lines < LINE_COVERAGE_THRESHOLD:
-        print(f"{RED}Line coverage below {LINE_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}")
+        print(
+            f"{RED}Line coverage below {LINE_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}"
+        )
         error = True
     if total_branches_hit / total_branches < BRANCH_COVERAGE_THRESHOLD:
-        print(f"{RED}Branch coverage below {BRANCH_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}")
+        print(
+            f"{RED}Branch coverage below {BRANCH_COVERAGE_THRESHOLD * 100:.2f}% threshold{RESET}"
+        )
         error = True
     if error:
         # raise Exception("Coverage thresholds not met. Please check the coverage report.")
