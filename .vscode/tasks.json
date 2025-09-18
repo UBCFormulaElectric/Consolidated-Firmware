@@ -55,7 +55,10 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_FSM.hex",
+        "hexray_CRIT_app.hex",
+        "hexray_DAM_app.hex",
+        "hexray_FSM_app.hex",
+        "hexray_RSM_app.hex",
       ]
     },
     {
@@ -189,7 +192,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_CRIT.hex"
+        "hexray_CRIT_app.hex"
       ]
     },
     {
@@ -207,7 +210,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_DAM.hex"
+        "hexray_DAM_app.hex"
       ]
     },
     {
@@ -225,7 +228,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_FSM.hex"
+        "hexray_FSM_app.hex"
       ]
     },
     {
@@ -243,7 +246,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_RSM.hex"
+        "hexray_RSM_app.hex"
       ]
     },
     {
