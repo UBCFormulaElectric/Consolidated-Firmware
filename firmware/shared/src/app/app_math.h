@@ -1,4 +1,9 @@
 #pragma once
+#include "stdbool.h"
+
+// Direction to derate x variable
+#define REDUCE_X true
+#define INCREASE_X false
 
 /**
  * Trapezoidal approximation used to approximate a definite integral
@@ -20,7 +25,8 @@ static inline void app_math_trapezoidalRule(double *integral, float *f_prev, con
  * @param x Value on x axis
  * @param max_y Value corresponding to 100% of the y value
  * @param roll_off_x The value to begin derating the power
- * @param max_x The x value where you want y to be 0%
+ * @param limit_x The x value where you want y to be 0%
+ * @param derating_direction True if x needs to be decreased, False if x needs to be increased
  * @return Linearly derated value
  */
-float app_math_linearDerating(float x, float max_y, float roll_off_x, float max_x);
+float app_math_linearDerating(float x, float max_y, float roll_off_x, float limit_x, bool derating_direction);

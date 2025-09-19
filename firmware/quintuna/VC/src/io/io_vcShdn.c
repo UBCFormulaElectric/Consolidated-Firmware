@@ -16,7 +16,7 @@ bool io_vcShdn_RearRightMotorInterlock_get(void)
     return hw_gpio_readPin(&rr_ilck_3v3_out);
 }
 
-bool io_vcShdn_SplitterBoxInterlockFault_get(void)
+bool io_vcShdn_MSDOrEMeterFault_get(void)
 {
     return hw_gpio_readPin(&sb_shdn_3v3_out);
 }

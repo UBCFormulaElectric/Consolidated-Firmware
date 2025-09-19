@@ -16,9 +16,6 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_RR_PUMP] = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_F_PUMP]  = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_L_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = false, .timeout = 200, .max_retry = 5 } }
 };
 
@@ -39,7 +36,7 @@ static void bmsOnStateRunOnTick100Hz(void)
 
     if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
     {
-        app_stateMachine_setNextState(&hvInit_state); // HARD CODED FOR SPINNING WHEELS REVERT TO PCMONSTATE
+        app_stateMachine_setNextState(&pcmOn_state);
     }
 }
 static void bmsOnStateRunOnExit(void) {}

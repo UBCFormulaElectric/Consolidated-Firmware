@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <stdbool.h>
 
+#define TS_OVERCURRENT_DEBOUNCE_DURATION_MS (100U)
+
 /**
  * Init the app tractive system module.
  */

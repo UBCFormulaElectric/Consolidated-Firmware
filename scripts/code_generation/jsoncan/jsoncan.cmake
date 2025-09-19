@@ -92,14 +92,14 @@ endfunction()
 
 function(log_bus_load CAR)
     # Define CAN directory based on repository root directory
-    set(CAN_DIR "${REPO_ROOT_DIR}/can_bus")
+    set(CAN_DIR "${CMAKE_SOURCE_DIR}/can_bus")
     set(CAN_JSON_DIR "${CAN_DIR}/${CAR}")
     message("  📚 [jsoncan.cmake, log_bus_load()] Registering CAN bus load calculation for ${CAR}")
     add_custom_target(
             can_bus_load_${CAR}
             COMMAND ${PYTHON_COMMAND} "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
             --can_data_dir "${CAN_JSON_DIR}"
-            WORKING_DIRECTORY "${REPO_ROOT_DIR}"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
             COMMENT "Calculating CAN bus load using JSON CAN data for ${CAR}"
     )
 endfunction()

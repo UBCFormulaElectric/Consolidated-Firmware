@@ -7,22 +7,22 @@
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 #include "app_canAlerts.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
-#include "io_buzzer.h"
 #include "io_telemMessage.h"
 #include "io_telemRx.h"
-#include "io_time.h"
+#include "io_bootHandler.h"
+#include "io_canRx.h"
 #include "io_canTx.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
-#include "hw_gpios.h"
 #include "hw_crc.h"
 #include "hw_resetReason.h"
 
@@ -177,11 +177,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        // ToDo: check if this is needed and investigate why is_fd is not a bool
-
-        hw_fdcan_transmit(&can1, &tx_msg);
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
     }
 }
 

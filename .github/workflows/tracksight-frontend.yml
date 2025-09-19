@@ -24,11 +24,11 @@ jobs:
       - name: Install Dependancies
         run: |
           cd software/tracksight/frontend
-          npm install
+          yarn install
       - name: Build project
         run: |
           cd software/tracksight/frontend
-          npm run build
+          yarn run build
       - name: Cache node_modules
         uses: actions/cache@v3
         with:

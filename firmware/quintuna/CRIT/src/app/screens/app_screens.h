@@ -8,8 +8,9 @@ typedef struct
 } Screen;
 
 extern Screen main_drive_screen;
-extern Screen init_screen;
+extern Screen drive_modes_screen;
 extern Screen start_up_screen;
+extern Screen init_screen;
 
 void app_screens_init(void);
 void app_screens_update(void);

@@ -37,7 +37,7 @@ function(create_fake_library
                 --output-header ${FAKE_HDR}
                 --output-source ${FAKE_SRC}
                 COMMENT "Generating fake for ${HDR_TO_FAKE}"
-                WORKING_DIRECTORY ${REPO_ROOT_DIR}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 DEPENDS ${FAKEGEN_SCRIPT_SRCS} ${HDR_TO_FAKE}
         )
         list(APPEND FAKE_HDR_DIRS ${HDR_DIR})
@@ -67,10 +67,23 @@ function(compile_gtest_executable
             ${TEST_INCLUDE_DIRS}
             ${TEST_DIR}
     )
-    target_compile_options(${TEST_EXECUTABLE_NAME}
-            PUBLIC
-            -Wall
-    )
+    if (MSVC)
+        target_compile_options(${TEST_EXECUTABLE_NAME}
+                PRIVATE
+                /W3
+                /WX
+        )
+    else ()
+        target_compile_options(${TEST_EXECUTABLE_NAME}
+                PRIVATE
+                -Wall
+                -Wextra
+                -Werror
+                -pedantic
+                --coverage
+        )
+        target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
+    endif ()
     target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
             COMMAND ${TEST_EXECUTABLE_NAME})

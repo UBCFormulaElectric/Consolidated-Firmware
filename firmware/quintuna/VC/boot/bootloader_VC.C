@@ -14,4 +14,5 @@ void bootloader_boardSpecific_init(void){
     HAL_GPIO_WritePin(BMS_EN_GPIO_Port, BMS_EN_Pin, true);
     HAL_GPIO_WritePin(RSM_EN_GPIO_Port, RSM_EN_Pin, true);
     HAL_GPIO_WritePin(DAM_EN_GPIO_Port, DAM_EN_Pin, true);
+    HAL_GPIO_WritePin(FRONT_EN_GPIO_Port, FRONT_EN_Pin, true);
 }

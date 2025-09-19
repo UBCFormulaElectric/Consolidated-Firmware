@@ -15,11 +15,15 @@ def _setupLogger():
 	# Create a file handler
 	file_handler = logging.FileHandler(log_path)
 	# Create a formatter and set it for the file handler
-	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+	formatter = logging.Formatter('(%(asctime)s - %(name)s) [%(levelname)s] %(message)s')
 	file_handler.setFormatter(formatter)
-
-	# Add the file handler to the logger
 	logger.addHandler(file_handler)
+
+	# console handler
+	consoleHandler = logging.StreamHandler()
+	consoleHandler.setFormatter(formatter)
+	logger.addHandler(consoleHandler)
+
 	return logger, log_path
 
 logger, log_path = _setupLogger()

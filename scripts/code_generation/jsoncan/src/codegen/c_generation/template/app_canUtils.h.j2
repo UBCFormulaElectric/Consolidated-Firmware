@@ -86,9 +86,14 @@ typedef enum
 {% for message in messages %}
 typedef struct
 {
+    {%- if message.signals | length == 0 %}
+    // No signals in this message
+    char dummy;
+    {%- else %}
     {%- for signal in message.signals %}
     {{ signal.datatype() }} {{ signal.name }}_value;
     {%- endfor %}
+    {%- endif %}
 } {{ message.name }}_Signals;
 {% endfor %}
 

@@ -5,7 +5,7 @@
 typedef enum
 {
     // INV_RSM loadswitch
-    EFUSE_CHANNEL_F_INV,
+    EFUSE_CHANNEL_F_INV = 0u,
     EFUSE_CHANNEL_RSM,
 
     // INV_BMS loadswitch
@@ -18,11 +18,8 @@ typedef enum
 
     // TI loadswitches
     EFUSE_CHANNEL_RL_PUMP,
-    EFUSE_CHANNEL_RR_PUMP,
-    EFUSE_CHANNEL_F_PUMP,
 
     // Radiator Fan loadswitches
-    EFUSE_CHANNEL_L_RAD,
     EFUSE_CHANNEL_R_RAD,
 
     NUM_EFUSE_CHANNELS

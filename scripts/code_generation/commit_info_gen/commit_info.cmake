@@ -24,7 +24,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
                 COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
                 --output-header ${header_location}
                 --output-source ${src_location}
-                WORKING_DIRECTORY ${REPO_ROOT_DIR}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         )
         message("  📚 [commit_info.cmake, commit_info_generate_sources()] Registered rules for files at ${directory_location_relative}")
     ELSEIF (${USE_COMMIT_INFO} STREQUAL "ON")
@@ -32,7 +32,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
                 COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
                 --output-header ${header_location}
                 --output-source ${src_location}
-                WORKING_DIRECTORY ${REPO_ROOT_DIR}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 COMMAND_ERROR_IS_FATAL ANY
         )
         message("  📚 [commit_info.cmake, commit_info_generate_sources()] Generated commit info files at ${directory_location_relative}")
@@ -41,7 +41,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
                 COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
                 --output-header ${header_location}
                 --output-source ${src_location}
-                WORKING_DIRECTORY ${REPO_ROOT_DIR}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 PRE_BUILD
         )
         message("  📚 [commit_info.cmake, commit_info_generate_sources()] Registered bind target for ${bind_target}")

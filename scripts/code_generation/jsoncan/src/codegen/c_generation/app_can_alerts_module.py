@@ -16,7 +16,7 @@ class AppCanAlertsModule(CModule):
 
     def source_template(self) -> str:
         if self._node_name not in self._db.alerts.keys():
-            return ""
+            return "typedef int _;"
         j2_env = j2.Environment(
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )

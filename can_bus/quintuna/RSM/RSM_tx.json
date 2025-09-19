@@ -121,13 +121,16 @@
   "Brakes": {
     "msg_id": 713,
     "cycle_time": 1000,
-    "description": "Brake data",
+    "description": "Front and rear brake pressures",
     "signals": {
-      "BrakePressure": {
+      "RearBrakePressure": {
         "resolution": 0.1,
         "min": 0,
-        "max": 100,
-        "unit": "bar"
+        "max": 2500,
+        "unit": "psi"
+      },
+      "BrakeActuated": {
+        "bits": 1
       }
     }
   },

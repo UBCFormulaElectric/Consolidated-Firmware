@@ -9,6 +9,7 @@ set(BOOT_DIR "${FIRMWARE_DIR}/boot")
 set(SHARED_DIR "${FIRMWARE_DIR}/shared")
 set(THIRD_PARTY_DIR "${FIRMWARE_DIR}/third_party")
 set(TEST_DIR "${FIRMWARE_DIR}/test")
+set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 
 # C shared code
 set(SHARED_EMBEDDED_DIR "${SHARED_DIR}/src")
@@ -52,7 +53,7 @@ function(commit_info_library
     ENDIF ()
 endfunction()
 
-set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
+set(CAN_DIR ${CMAKE_SOURCE_DIR}/can_bus)
 
 # Generates library ${CAR}_${BOARD}_jsoncan
 message("  🔃 Registered jsoncan_library() function")

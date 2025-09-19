@@ -17,29 +17,11 @@
       "StartCharging": {
         "bits": 1
       },
-      "ClearChargerLatchedFault": {
-        "bits": 1
-      },
-      "FaultEncounteredOverride": {
-        "bits": 1
-      },
-      "ChargingCurrentOverride": {
-        "bits": 1
-      },
-      "ChargingVoltageOverride": {
-        "bits": 1
-      },
-      "ChargingCurrentTargetValue": {
+      "ChargingCurrent": {
         "resolution": 0.1,
         "min": 0,
-        "max": 12.5,
+        "max": 14,
         "unit": "A"
-      },
-      "ChargingVoltageTargetValue": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 350.0,
-        "unit": "V"
       }
     }
   },
