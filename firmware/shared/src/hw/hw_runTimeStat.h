@@ -9,8 +9,6 @@ extern volatile unsigned long ulHighFrequencyTimerTick;
 // Task instance for runtimestats
 typedef struct
 {
-    // Info regarding the runtimestats
-
     /*
      * CPU usage
      */
@@ -54,6 +52,30 @@ typedef struct
     void (*cpu_usage_max_setter)(float);
 
 } TaskRuntimeStats;
+
+typedef struct
+{
+    /*
+     * CPU usage
+     */
+    float cpu_curr_usage;
+
+    /*
+     * Max CPU usage
+     */
+    float cpu_max_usage;
+
+    // Setter function pointers
+    /*
+     * CPU usage can setter function
+     */
+    void (*cpu_usage_setter)(float);
+
+    /*
+     * Max CPU usage can setter function
+     */
+    void (*cpu_usage_max_setter)(float);
+} CpuRunTimeStats;
 
 ExitCode hw_runTimeStat_init(TIM_HandleTypeDef *htim);
 

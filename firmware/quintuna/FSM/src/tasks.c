@@ -126,11 +126,11 @@ void tasks_run100Hz(void)
     const uint32_t  watchdog_grace_period_ms = 2U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
-    TaskRuntimeStats task_run100hz            = { .task_index             = TASK_RUN100HZ,
-                                                  .stack_size             = 512,
-                                                  .cpu_usage_max_setter   = app_canTx_FSM_TaskRun1HzCpuUsageMax_set,
-                                                  .cpu_usage_setter       = app_canTx_FSM_TaskRun1HzCpuUsage_set,
-                                                  .stack_usage_max_setter = app_canTx_FSM_TaskRun1HzStackUsage_set };
+    TaskRuntimeStats task_run100hz = { .task_index             = TASK_RUN100HZ,
+                                       .stack_size             = 512,
+                                       .cpu_usage_max_setter   = app_canTx_FSM_TaskRun1HzCpuUsageMax_set,
+                                       .cpu_usage_setter       = app_canTx_FSM_TaskRun1HzCpuUsage_set,
+                                       .stack_usage_max_setter = app_canTx_FSM_TaskRun1HzStackUsage_set };
 
     hw_runTimeStat_registerTask(&task_run100hz);
 
