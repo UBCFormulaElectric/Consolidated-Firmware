@@ -18,7 +18,8 @@
       "InverterState": {
         "enum" : "VCInverterState"
       }
-    },
+    }
+  },
     "LvBatteryStatus": {
       "msg_id": 230,
       "cycle_time": 100,
@@ -47,7 +48,7 @@
       }
     },
     "LvBatterySafetyStatus": {
-      "msg_id": 231,
+      "msg_id": 236,
       "cycle_time": 100,
       "description": "Status of the LV battery pack.",
       "signals": {
