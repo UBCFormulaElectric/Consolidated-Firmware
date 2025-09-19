@@ -82,3 +82,5 @@ ExitCode hw_runTimeStat_init(TIM_HandleTypeDef *htim);
 void hw_runTimeStat_hookCallBack(void);
 
 ExitCode hw_runTimeStat_registerTask(TaskRuntimeStats *task_info);
+
+ExitCode hw_runtimeStat_registerCpu(CpuRunTimeStats *cpu_info);
