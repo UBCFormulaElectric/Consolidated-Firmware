@@ -287,15 +287,12 @@ float io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell)
 {
     uint8_t voltage_cmd = (uint8_t)voltage_cell;
 
-    if (!hw_i2c_transmit(&bat_mtr, &voltage_cmd, 1))
-    {
-        return -1;
-    }
+    if (IS_EXIT_ERR(hw_i2c_transmit(&bat_mtr, &voltage_cmd, 1))) return -1;
+
     uint8_t voltage_buffer[2];
-    if (!hw_i2c_receive(&bat_mtr, voltage_buffer, 2))
-    {
-        return -1;
-    }
+    
+    if (IS_EXIT_ERR(hw_i2c_receive(&bat_mtr, voltage_buffer, 2))) return -1;
+
     int16_t voltage = (int16_t)(voltage_buffer[0] | (voltage_buffer[1] << 8));
     return translateVoltageData(voltage);
 }
