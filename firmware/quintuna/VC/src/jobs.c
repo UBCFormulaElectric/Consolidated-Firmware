@@ -22,11 +22,13 @@
 #include "app_heartbeatMonitors.h"
 #include "app_shdnLoop.h"
 #include "app_shdnLast.h"
+#include "app_batteryMonitor.h"
 
 // io
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_lowVoltageBattery.h"
 
 #include <app_canAlerts.h>
 #include <stdbool.h>
@@ -75,6 +77,7 @@ void jobs_init()
 
     app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(&init_state);
+    io_lowVoltageBattery_init();
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
@@ -122,6 +125,7 @@ void jobs_run100Hz_tick(void)
     app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
+    app_batteryMonitor_broadcast();
     // app_sbgEllipse_broadcast();
 
     io_canTx_enqueue100HzMsgs();
