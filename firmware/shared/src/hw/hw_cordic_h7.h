@@ -2,35 +2,34 @@
 #include <stdint.h>
 #include "app_utils.h"
 
-typedef struct
-{
-    CORDIC_HandleTypeDef handle;
-} Cordic;
+/**
+ * Single argument CORDIC operations
+ *
+ * These functions are designed to be used similarly to standard library math functions for ease of use
+ */
 
-// typedef enum
-// {
-//     CORDIC_COS = 0U,
-//     CORDIC_SIN,
-//     CORDIC_PHASE,
-//     CORDIC_MOD,
-//     CORDIC_ATAN,
-//     CORDIC_COSH,
-//     CORDIC_SINH,
-//     CORDIC_ATANH,
-//     CORDIC_LN,
-//     CORDIC_SQRT,
-// } CordicFunc;
+// result = m*cos(theta)
+float c_cos(const float theta, const float m);
 
-void hw_cordic_init(Cordic *handle);
+// result = m*sin(theta)
+float c_sin(const float theta, const float m);
 
-// CORDIC operations
-ExitCode c_cos(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_sin(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_phase(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_mod(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_atan(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_cosh(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_sinh(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_atanh(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_ln(const float *in_buf, float *out_buf, uint32_t buf_size);
-ExitCode c_sqrt(const float *in_buf, float *out_buf, uint32_t buf_size);
+// result = angle of 2D vector
+float c_phase(const float x, const float y);
+
+// result = magnitude of 2D vector
+float c_mag(const float x, const float y);
+
+// result of the functions below should be same as the standard lib
+float c_atan(const float x);
+float c_cosh(const float x);
+float c_sinh(const float x);
+float c_atanh(const float x);
+float c_ln(const float x);
+float c_sqrt(const float x);
+
+/**
+ * Multiple argument CORDIC operations
+ *
+ * These functions take in buffers of arguments and performs the operation on all arguments
+ */

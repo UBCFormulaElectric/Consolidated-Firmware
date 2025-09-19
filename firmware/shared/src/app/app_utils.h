@@ -54,6 +54,12 @@
         unsigned char _unused; \
     } name;
 
+// Uses Cortex M7 FPU, got this from FMAC docs
+#ifdef STM32H733xx
+#define FLOAT_TO_Q1_15(x) (int16_t)(x*0x8000U)
+#define Q1_15_TO_FLOAT(x) (float)(x / ((float)(0x8000U)))
+#endif
+
 typedef enum
 {
     EXIT_CODE_OK = 0,
