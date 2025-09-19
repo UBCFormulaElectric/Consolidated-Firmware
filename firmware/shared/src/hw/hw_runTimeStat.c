@@ -46,14 +46,14 @@ ExitCode hw_runTimeStat_init(TIM_HandleTypeDef *htim)
     return EXIT_CODE_OK;
 }
 
-ExitCode hw_runtimeStat_registerCpu(CpuRunTimeStats *cpu)
+ExitCode hw_runtimeStat_registerCpu(CpuRunTimeStats *cpu_info)
 {
-    if (NULL == cpu->cpu_usage_max_setter || NULL == cpu->cpu_usage_setter)
+    if (NULL == cpu_info->cpu_usage_max_setter || NULL == cpu_info->cpu_usage_setter)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
 
-    cpu_runtime_stat = cpu;
+    cpu_runtime_stat = cpu_info;
 
     return EXIT_CODE_OK;
 }
