@@ -25,6 +25,7 @@ typedef enum
     PRECHARGE_STATE_SUCCESS,
     PRECHARGE_STATE_FAILED,
     PRECHARGE_STATE_FAILED_CRITICAL,
+    PRECHARGE_STATE_COOLDOWN,
 } PrechargeState;
 
 void           app_precharge_init(void);

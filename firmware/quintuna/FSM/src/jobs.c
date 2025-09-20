@@ -17,7 +17,6 @@
 #include "io_canQueue.h"
 #include "io_imu.h"
 #include "io_log.h"
-#include "app_jsoncan.h"
 
 CanTxQueue can_tx_queue;
 

@@ -21,18 +21,18 @@ const FaultLatch bspd_ok_latch = {
     .invert              = true,
 };
 
-void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const bool status)
+void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
 {
     assert(latch->read_only == false);
-    hw_gpio_writePin(latch->current_status_gpio, !status);
+    hw_gpio_writePin(latch->current_status_gpio, status == FAULT_LATCH_OK ? true : false);
 }
 
-bool io_faultLatch_getCurrentStatus(const FaultLatch *latch)
+FaultLatchState io_faultLatch_getCurrentStatus(const FaultLatch *latch)
 {
-    return hw_gpio_readPin(latch->current_status_gpio) ^ latch->invert;
+    return hw_gpio_readPin(latch->current_status_gpio) ^ latch->invert ? FAULT_LATCH_OK : FAULT_LATCH_FAULT;
 }
 
-bool io_faultLatch_getLatchedStatus(const FaultLatch *latch)
+FaultLatchState io_faultLatch_getLatchedStatus(const FaultLatch *latch)
 {
-    return hw_gpio_readPin(latch->latch_status_gpio);
+    return hw_gpio_readPin(latch->latch_status_gpio) ? FAULT_LATCH_OK : FAULT_LATCH_FAULT;
 }

@@ -474,6 +474,20 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
       "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: BMS (Quintuna)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    }
+    {
+      "name": "Debug Tests: VC (Quintuna)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
+      "cwd": "${workspaceRoot}",
       // "preLaunchTask": "Build Tests: BMS (Quintuna)",
       "linux": {
         "MIMode": "gdb"

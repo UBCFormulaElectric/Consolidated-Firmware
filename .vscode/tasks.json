@@ -257,6 +257,14 @@
       "targets": [
         "hexray_RSM_test"
       ]
+      "label": "Run Tests: BMS (Quintuna)",
+      "type": "shell",
+      "command": "${workspaceFolder}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
+      "group": "test",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
     },
     {
       "label": "Build Tests: Shared",
