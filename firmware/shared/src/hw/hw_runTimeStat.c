@@ -9,9 +9,9 @@
 /*
  * Software defines
  */
-#define IDLE_TASK_INDEX 0U
-#define TMR_SVC_INDEX 1U
-#define NUM_FT_TASKS 2U
+#define IDLE_TASK_INDEX  0U
+#define TMR_SVC_INDEX    1U
+#define NUM_FT_TASKS     2U
 #define NUM_TOTAL_TASKS  (NUM_FT_TASKS + NUM_OF_TASKS)
 
 /*
