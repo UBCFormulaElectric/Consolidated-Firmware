@@ -116,11 +116,10 @@ void hw_runTimeStat_hookCallBack(void)
                 tasks_runtime_stat[task]->cpu_max_usage =
                     MAX(tasks_runtime_stat[task]->cpu_max_usage, tasks_runtime_stat[task]->cpu_curr_usage);
             }
-            {
-                // Calculate max stack usage
-                tasks_runtime_stat[task]->stack_usage_max =
-                    (float)runTimeStats[task].usStackHighWaterMark / (float)tasks_runtime_stat[task]->stack_size;
-            }
+            
+            // Calculate max stack usage
+            tasks_runtime_stat[task]->stack_usage_max =
+                (float)runTimeStats[task].usStackHighWaterMark / (float)tasks_runtime_stat[task]->stack_size;
         }
     }
 }
