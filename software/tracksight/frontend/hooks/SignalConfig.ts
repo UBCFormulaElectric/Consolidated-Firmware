@@ -297,7 +297,7 @@ export const getAlertSignalType = (name: string): AlertSignalType | null => {
 };
 
 // Default maximum number of data points to keep
-export const DEFAULT_MAX_DATA_POINTS = 1000;
+export const DEFAULT_MAX_DATA_POINTS = 1000; // lowk we wanna keep it all
 export const BACKEND_URL =
   typeof window !== "undefined"
     ? `http://${window.location.hostname}:5000`

@@ -5,7 +5,7 @@
 "use client";
 
 import { useDisplayControl } from "@/components/shared/PausePlayControl";
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "./SignalConfig";
 
 import { useSocket } from "./signals/useSocket";
@@ -45,7 +45,7 @@ function handleData(
 ) {
   DEBUG && console.log("Received data:", data);
 
-  if (!data || typeof data !== "object" || !data.name || !data.value) {
+  if (data.value === undefined) {
     DEBUG && console.error("Invalid data received:", data);
     return;
   }
@@ -125,6 +125,11 @@ type SignalContextType = {
   // alertSignals: Record<keyof typeof signalPatterns, SignalMeta[]>;
   subscribeToSignal: (signalName: string, type?: SignalType) => void;
   unsubscribeFromSignal: (signalName: string, clearData?: boolean) => void;
+  // Data accessors exposed to consumers
+  getSignalData: (signalName: string) => DataPoint[];
+  getAllData: () => DataPoint[];
+  getNumericalData: () => DataPoint[];
+  getEnumData: () => DataPoint[];
   // clearAllData: () => void;
   // pruneData: (maxPoints?: number) => void;
   // pruneSignalData: (signalName: string) => void;
@@ -137,6 +142,27 @@ type SignalContextType = {
   // getSignalData: (signalName: string) => DataPoint[];
   // getDataCount: () => number;
 };
+// Lightweight data version store to avoid context-wide re-renders
+const dataVersionStore = (() => {
+  let version = 0;
+  const listeners = new Set<() => void>();
+  return {
+    getSnapshot: () => version,
+    subscribe: (fn: () => void) => {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    },
+    bump: () => {
+      version++;
+      listeners.forEach((fn) => fn());
+    },
+  };
+})();
+
+export function useDataVersion() {
+  return useSyncExternalStore(dataVersionStore.subscribe, dataVersionStore.getSnapshot);
+}
+
 // Create the context
 const SignalContext = createContext<SignalContextType | undefined>(undefined);
 // Provider component
@@ -184,7 +210,11 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   //   });
   //   return types;
   // }, [availableSignalQuery.data]);
-  const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } = useSignalData();
+  // Incrementing version triggers re-render of any consumer that uses data via context (by reading a hidden span attr)
+  const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } = useSignalData(() => {
+    // notify only subscribers who opt-in via useDataVersion()
+    dataVersionStore.bump();
+  });
   const socket = useSocket();
   // Connection status needs a state
   const [socketConnected, setSocketConnected] = useState<boolean>(socket.connected);
@@ -238,25 +268,36 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   // }, [dataStore.current]);
   return (
     <SignalContext.Provider
-      value={{
-        // availableSignalQuery,
-        socketConnected,
-        reconnectSocket,
-        activeSignals,
-        // alertSignals,
-        subscribeToSignal,
-        unsubscribeFromSignal,
-        // clearAllData,
-        // pruneData,
-        // pruneSignalData,
-        // getSignalRefCount,
-        // clearAllSubscriptions,
-        // getEnumValues,
-        // mapEnumValue,
-        // getDataInTimeRange,
-        // getSignalData,
-        // getDataCount,
-      }}
+      value={useMemo(() => {
+        // stabilize data accessors; they read from refs and never need to change
+        const getSignalData = (signalName: string) => dataStore.current.getSignalData(signalName);
+        const getAllData = () => dataStore.current.getAllData();
+        const getNumericalData = () => dataStore.current.getNumericalData();
+        const getEnumData = () => dataStore.current.getEnumData();
+        return {
+          // availableSignalQuery,
+          socketConnected,
+          reconnectSocket,
+          activeSignals,
+          // alertSignals,
+          subscribeToSignal,
+          unsubscribeFromSignal,
+          getSignalData,
+          getAllData,
+          getNumericalData,
+          getEnumData,
+          // clearAllData,
+          // pruneData,
+          // pruneSignalData,
+          // getSignalRefCount,
+          // clearAllSubscriptions,
+          // getEnumValues,
+          // mapEnumValue,
+          // getDataInTimeRange,
+          // getSignalData,
+          // getDataCount,
+        };
+      }, [socketConnected, reconnectSocket, activeSignals, subscribeToSignal, unsubscribeFromSignal])}
     >
       {children}
     </SignalContext.Provider>

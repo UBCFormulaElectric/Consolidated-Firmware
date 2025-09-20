@@ -1,8 +1,9 @@
 'use client'
 
+import React from 'react'
 import { useSignals } from '@/hooks/SignalContext'
 
-export default function ConnectionStatus() {
+const ConnectionStatus = React.memo(function ConnectionStatus() {
   const { socketConnected: isConnected, reconnectSocket } = useSignals();
 
   return (
@@ -27,4 +28,6 @@ export default function ConnectionStatus() {
       </div>
     </div>
   )
-}
+})
+
+export default ConnectionStatus

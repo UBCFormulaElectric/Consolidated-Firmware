@@ -1,7 +1,6 @@
 "use client"
 
 import { ThemeProvider } from "@/components/shared/ThemeProvider"
-import { SignalProvider } from "@/hooks/SignalContext"
 import { PausePlayProvider } from "@/components/shared/PausePlayControl"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
@@ -11,9 +10,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
 				<PausePlayProvider>
-					<SignalProvider>
-						{children}
-					</SignalProvider>
+					{children}
 				</PausePlayProvider>
 			</ThemeProvider>
 		</QueryClientProvider>

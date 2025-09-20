@@ -3,7 +3,7 @@
 
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { SignalType } from "@/hooks/SignalConfig";
-import { useSignals } from "@/hooks/SignalContext";
+import { useSignals, useDataVersion } from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
@@ -30,10 +30,10 @@ const NA_COLOR = "#E5E7EB"; // Light gray for N/A state
 const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
     const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
-    const { activeSignals, subscribeToSignal, unsubscribeFromSignal } = useSignals();
-
-    const numericalData: any[] = useMemo(() => [], []);
-    const enumData: any[] = useMemo(() => [], []);
+  const { subscribeToSignal, unsubscribeFromSignal, getEnumData, getSignalData } = useSignals() as any;
+  const dataVersion = useDataVersion();
+  // Enumeration-only data
+  const enumData: any[] = useMemo(() => getEnumData(), [getEnumData, dataVersion]);
 
     // Track if this component subscribed to the signal for proper cleanup
     const hasSubscribed = useRef<boolean>(false);
@@ -62,51 +62,15 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       const filteredData = enumData.filter(
         (d) => d.name === signalName && d.value != null
       );
-
       if (filteredData.length === 0) return [];
-
-      // Get all unique timestamps from active signals (no windowing)
-      const timestamps = new Set<number>();
-
-      // Get data from all active signals to create shared time grid
-      const allActiveData = [...numericalData, ...enumData].filter((d) =>
-        activeSignals.includes(d.name as string)
-      );
-
-      allActiveData.forEach((d) => {
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        timestamps.add(t);
-      });
-
-      const sortedTimes = Array.from(timestamps).sort((a, b) => a - b);
-
-      // Track last known state to fill gaps (similar to numerical's forward-fill)
-      let lastKnownState: string | undefined;
-
-      // Group data by time for efficient lookup
-      const dataByTime: Record<number, string> = {};
-      filteredData.forEach((d) => {
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        dataByTime[t] = String(d.value);
-      });
-
-      // Build chart data with forward-filled states and N/A handling
-      return sortedTimes.map((time) => {
-        if (dataByTime[time] !== undefined) {
-          // We have actual data for this time point
-          lastKnownState = dataByTime[time];
-          return { time, state: lastKnownState };
-        } else if (lastKnownState !== undefined) {
-          // No data for this time point, use last known state (forward-fill)
-          return { time, state: lastKnownState };
-        } else {
-          // No data has arrived yet for this signal - show N/A state
-          return { time, state: "N/A" };
-        }
-      }) as { time: number; state: string }[];
-    }, [enumData, numericalData, activeSignals, signalName]);
+      // Sort only this signal's points
+      return filteredData
+        .map((d) => ({
+          time: typeof d.time === "number" ? d.time : new Date(d.time).getTime(),
+          state: String(d.value),
+        }))
+        .sort((a, b) => a.time - b.time) as { time: number; state: string }[];
+    }, [enumData, signalName]);
 
     const pixelPerPoint = 50; // Same as numerical component
     const width =
@@ -120,14 +84,15 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         xOffset: index * pixelPerPoint * (horizontalScale / 100),
       }));
     }, [chartData, horizontalScale]);
-    const enumVals = getEnumValues(signalName);
-    const lastCode = chartData.length
-      ? chartData[chartData.length - 1].state
-      : undefined;
-    const lastLabel =
-      lastCode != null
-        ? mapEnumValue(signalName, lastCode) ?? lastCode
-        : undefined;
+    // Derive set of labels from observed values for this signal
+    const enumVals = useMemo(() => {
+      const seen = new Set<string>();
+      getSignalData(signalName).forEach((p: any) => { if (typeof p.value === 'string') seen.add(String(p.value)); });
+      return Array.from(seen.values()).sort();
+    }, [getSignalData, signalName, enumData.length]);
+
+    const lastCode = chartData.length ? chartData[chartData.length - 1].state : undefined;
+    const lastLabel = lastCode;
 
     const labelBars = useMemo(() => {
       const maxLabels = 10;
@@ -226,16 +191,10 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
           >
             <div className="h-6 flex flex-row flex-nowrap">
               {bars.map((bar, idx) => {
-                const label = mapEnumValue(signalName, bar.state) ?? bar.state;
+                const label = bar.state;
 
                 // Use special N/A color for N/A state, otherwise use normal color mapping
-                const iColor =
-                  bar.state === "N/A"
-                    ? NA_COLOR
-                    : stateColors[
-                    Math.max(enumVals.indexOf(label), 0) %
-                    stateColors.length
-                    ];
+                const iColor = bar.state === "N/A" ? NA_COLOR : stateColors[Math.max(enumVals.indexOf(label), 0) % stateColors.length];
 
                 // Calculate end time for the current bar
                 const endTime =

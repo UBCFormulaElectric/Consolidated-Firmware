@@ -4,10 +4,10 @@
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType } from "@/hooks/SignalConfig";
-import { useSignals } from "@/hooks/SignalContext";
+import { useSignals, useDataVersion } from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
+import UPlotChart from "@/components/shared/UPlotChart";
 
 interface DynamicSignalGraphProps {
   signalName: string;
@@ -30,21 +30,17 @@ const signalColors = [
 
 const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
-    const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
-    const {
-      activeSignals,
-      subscribeToSignal,
-      unsubscribeFromSignal,
-    } = useSignals();
+  const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
+  // Single context access (removed enum mixing & duplicate calls)
+  const signalsCtx = useSignals() as any;
+  const dataVersion = useDataVersion();
+  const { activeSignals, subscribeToSignal, unsubscribeFromSignal, getNumericalData } = signalsCtx;
 
-    const availableSignals: any[] = useMemo(() => [], []);
-    const numericalData: any[] = useMemo(() => [], []);
-    const enumData: any[] = useMemo(() => [], []);
-    const isLoadingSignals = false;
-    const isNumericalSignal = useCallback((signalName: string) => {
-      // Check if the signal is a numerical signal
-      return true;
-    }, []);
+  // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
+  const availableSignals: any[] = useMemo(() => [], []);
+  // Only numerical data now
+  const numericalData: any[] = useMemo(() => getNumericalData(), [getNumericalData, dataVersion]);
+  const isLoadingSignals = false;
 
     const [chartHeight, setChartHeight] = useState(256);
     const [searchTerm, setSearchTerm] = useState("");
@@ -54,8 +50,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       left: 0,
     });
     const buttonRef = useRef<HTMLDivElement>(null);
-    const chartContainerRef = useRef<HTMLDivElement>(null);
-    const [horizontalScrollPosition, setHorizontalScrollPosition] = useState(0);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  // Removed horizontal scroll virtualization state
 
     // Track signals this component instance subscribed to for proper cleanup
     const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -64,153 +60,55 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     // Get only the signals that this specific graph instance has subscribed to
     const thisGraphSignals = React.useMemo(() => {
-      // When paused, show all signals this component has subscribed to regardless of global activeSignals
-      // When not paused, filter by both component subscriptions and global activeSignals
-      const result = Array.from(componentSubscriptions.current).filter(
-        (sig) =>
-          (isPaused || activeSignals.includes(sig)) && isNumericalSignal(sig)
+      return Array.from(componentSubscriptions.current).filter(
+        (sig) => isPaused || activeSignals.includes(sig)
       );
-      return result;
-    }, [activeSignals, isNumericalSignal, subscriptionVersion, isPaused]);
+    }, [activeSignals, subscriptionVersion, isPaused]);
 
-    const chartData = React.useMemo(() => {
-      const filteredData = numericalData.filter(
-        (d) =>
-          thisGraphSignals.includes(d.name as string) &&
-          isNumericalSignal(d.name as string)
-      );
+    // Build sparse aligned arrays for uPlot: [x[], ...y[]]
+    const uplotData = React.useMemo(() => {
+      const MAX_POINTS = 8000;
+      const filtered = numericalData.filter((d) => thisGraphSignals.includes(d.name as string));
+      if (filtered.length === 0) return [[], ...thisGraphSignals.map(() => [])] as [number[], ...(Array<(number|null)[]>)] ;
 
-      if (filteredData.length === 0) return [];
-
-      // Get all unique timestamps from active signals for the complete timeline
-      const allTimestamps = new Set<number>();
-
-      // Get data from all active signals to create shared time grid
-      const allActiveData = [...numericalData, ...enumData].filter((d) =>
-        activeSignals.includes(d.name as string)
-      );
-
-      allActiveData.forEach((d) => {
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        allTimestamps.add(t);
-      });
-
-      const sortedTimes = Array.from(allTimestamps).sort((a, b) => a - b);
-
-      if (sortedTimes.length === 0) return [];
-
-      // Calculate viewport-based windowing parameters
-      const viewportWidth =
-        typeof window !== "undefined" ? window.innerWidth : 1200;
-      const pixelPerPoint = 50;
-      const scaledPixelPerPoint = pixelPerPoint * (horizontalScale / 100);
-      const pointsPerViewport = Math.ceil(viewportWidth / scaledPixelPerPoint);
-
-      // Buffer: 2x viewport on each side
-      const bufferSize = pointsPerViewport * 2;
-
-      // Calculate scroll-based time window
-      const totalWidth = sortedTimes.length * scaledPixelPerPoint;
-      const maxScrollLeft = Math.max(0, totalWidth - viewportWidth);
-      const clampedScrollPosition = Math.min(
-        horizontalScrollPosition,
-        maxScrollLeft
-      );
-
-      // Convert scroll position to data point index
-      const scrollProgress =
-        maxScrollLeft > 0 ? clampedScrollPosition / maxScrollLeft : 0;
-      const maxStartIndex = Math.max(0, sortedTimes.length - pointsPerViewport);
-      const viewportStartIndex = Math.floor(scrollProgress * maxStartIndex);
-
-      // Apply buffer around the viewport
-      const bufferStartIndex = Math.max(0, viewportStartIndex - bufferSize);
-      const bufferEndIndex = Math.min(
-        sortedTimes.length,
-        viewportStartIndex + pointsPerViewport + bufferSize
-      );
-
-      const windowedTimes = sortedTimes.slice(bufferStartIndex, bufferEndIndex);
-
-      // Track last known value for each signal to fill gaps
-      const lastKnownValues: Record<string, number> = {};
-
-      // Initialize last known values from data before the window (for forward-filling)
-      const preWindowData = sortedTimes.slice(0, bufferStartIndex);
-      preWindowData.forEach((time) => {
-        thisGraphSignals.forEach((signalName) => {
-          if (!isNumericalSignal(signalName)) return;
-
-          // Find the most recent value for this signal before the window
-          const signalData = filteredData.find(
-            (d) =>
-              d.name === signalName &&
-              (typeof d.time === "number"
-                ? d.time
-                : new Date(d.time).getTime()) === time
-          );
-
-          if (signalData && signalData.value !== undefined) {
-            lastKnownValues[signalName] = Number(signalData.value);
-          }
-        });
-      });
-
-      // Group data by signal and time for efficient lookup
-      const dataBySignal: Record<string, Record<number, number>> = {};
-      filteredData.forEach((d) => {
-        const signalName = d.name as string;
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-
-        if (!dataBySignal[signalName]) {
-          dataBySignal[signalName] = {};
+      // Per-signal timestamp -> value map and union X
+      const perSig = new Map<string, Map<number, number>>();
+      thisGraphSignals.forEach((s) => perSig.set(s, new Map()));
+      const xSet = new Set<number>();
+      for (const d of filtered) {
+        const sig = d.name as string;
+        const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+        const v = typeof d.value === "number" ? d.value : Number(d.value);
+        if (!Number.isFinite(v)) continue;
+        perSig.get(sig)!.set(t, v);
+        xSet.add(t);
+      }
+      let x = Array.from(xSet).sort((a, b) => a - b);
+      if (x.length > MAX_POINTS) {
+        const step = x.length / MAX_POINTS;
+        const down: number[] = [];
+        for (let i = 0; i < MAX_POINTS; i++) down.push(x[Math.floor(i * step)]);
+        if (down[down.length - 1] !== x[x.length - 1]) down[down.length - 1] = x[x.length - 1];
+        x = down;
+      }
+      const ys: Array<(number|null)[]> = [];
+      for (const sig of thisGraphSignals) {
+        const m = perSig.get(sig)!;
+        const arr: (number|null)[] = new Array(x.length);
+        for (let i = 0; i < x.length; i++) {
+          const t = x[i];
+          arr[i] = m.has(t) ? (m.get(t) as number) : null;
         }
-        dataBySignal[signalName][t] =
-          d.value !== undefined ? Number(d.value) : 0;
-      });
-
-      // Build chart data with forward-filled values for the windowed time range
-      return windowedTimes.map((time) => {
-        const dataPoint: any = { time };
-
-        // For each signal this graph has subscribed to, get the value or carry forward the last known value
-        thisGraphSignals.forEach((signalName) => {
-          if (!isNumericalSignal(signalName)) return;
-
-          const signalData = dataBySignal[signalName];
-          if (signalData && signalData[time] !== undefined) {
-            // We have data for this time point
-            lastKnownValues[signalName] = signalData[time];
-            dataPoint[signalName] = signalData[time];
-          } else if (lastKnownValues[signalName] !== undefined) {
-            // No data for this time point, use last known value
-            dataPoint[signalName] = lastKnownValues[signalName];
-          }
-          // If no last known value exists, don't add the property (signal hasn't started yet)
-        });
-
-        return dataPoint;
-      });
-    }, [
-      numericalData,
-      enumData,
-      activeSignals,
-      thisGraphSignals,
-      isNumericalSignal,
-      horizontalScale,
-      horizontalScrollPosition,
-    ]);
+        ys.push(arr);
+      }
+      return [x, ...ys] as [number[], ...(Array<(number|null)[]>)];
+    }, [numericalData, thisGraphSignals]);
 
     const numericalSignals = thisGraphSignals;
 
     const availableOptions = React.useMemo(
-      () =>
-        availableSignals.filter(
-          (s) => !thisGraphSignals.includes(s.name) && isNumericalSignal(s.name)
-        ),
-      [availableSignals, thisGraphSignals, isNumericalSignal]
+      () => availableSignals.filter((s) => !thisGraphSignals.includes(s.name)),
+      [availableSignals, thisGraphSignals]
     );
 
     const filteredSignals = React.useMemo(() => {
@@ -222,58 +120,15 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const pixelPerPoint = 50;
 
-    // Calculate total width based on ALL data points to maintain scroll illusion
-    const totalDataPoints = React.useMemo(() => {
-      const allTimestamps = new Set<number>();
-      const allActiveData = [...numericalData, ...enumData].filter((d) =>
-        activeSignals.includes(d.name as string)
-      );
-      allActiveData.forEach((d) => {
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        allTimestamps.add(t);
-      });
-      return allTimestamps.size;
-    }, [numericalData, enumData, activeSignals]);
+  // Simplified: total points = rendered chart points
+  const totalDataPoints = (uplotData[0] as number[]).length;
 
-    // Total width represents the entire timeline for scrolling
-    const totalWidth =
-      Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
+  // Width simply scales with number of points shown
+  const totalWidth = Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
+  const chartWidth = totalWidth;
 
-    // Chart width matches the rendered data
-    const chartWidth =
-      Math.max(chartData.length * pixelPerPoint, 100) * (horizontalScale / 100);
-
-    // Calculate chart position offset to maintain scroll illusion
-    const chartOffset = React.useMemo(() => {
-      if (totalDataPoints === 0) return 0;
-
-      const viewportWidth =
-        typeof window !== "undefined" ? window.innerWidth : 1200;
-      const scaledPixelPerPoint = pixelPerPoint * (horizontalScale / 100);
-      const pointsPerViewport = Math.ceil(viewportWidth / scaledPixelPerPoint);
-      const bufferSize = pointsPerViewport * 2;
-
-      const totalTimelineWidth = totalDataPoints * scaledPixelPerPoint;
-      const maxScrollLeft = Math.max(0, totalTimelineWidth - viewportWidth);
-      const clampedScrollPosition = Math.min(
-        horizontalScrollPosition,
-        maxScrollLeft
-      );
-
-      const scrollProgress =
-        maxScrollLeft > 0 ? clampedScrollPosition / maxScrollLeft : 0;
-      const maxStartIndex = Math.max(0, totalDataPoints - pointsPerViewport);
-      const viewportStartIndex = Math.floor(scrollProgress * maxStartIndex);
-      const bufferStartIndex = Math.max(0, viewportStartIndex - bufferSize);
-
-      return bufferStartIndex * scaledPixelPerPoint;
-    }, [
-      totalDataPoints,
-      horizontalScale,
-      horizontalScrollPosition,
-      pixelPerPoint,
-    ]);
+  // No offset needed without virtualization
+  const chartOffset = 0;
 
     const handleSelect = useCallback(
       (name: string) => {
@@ -337,63 +192,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       };
     }, [signalName]); // Only depend on signalName, not the functions
 
-    // Track scroll position for viewport windowing
-    useEffect(() => {
-      const handleScroll = (event: Event) => {
-        const target = event.target as HTMLElement;
-        setHorizontalScrollPosition(target.scrollLeft);
-      };
+  // Removed scroll listener logic
 
-      // Try multiple selectors to find the correct scroll container
-      const scrollContainers = [
-        document.querySelector(".overflow-x-scroll"),
-        chartContainerRef.current?.closest(".overflow-x-scroll"),
-        document.querySelector('[class*="overflow-x-scroll"]'),
-      ].filter(Boolean);
-
-      let activeContainer: Element | null = null;
-
-      // Find the container that actually has horizontal scroll capability
-      for (const container of scrollContainers) {
-        if (container && container.scrollWidth > container.clientWidth) {
-          activeContainer = container;
-          break;
-        }
-      }
-
-      if (activeContainer) {
-        activeContainer.addEventListener("scroll", handleScroll, {
-          passive: true,
-        });
-        // Set initial scroll position
-        setHorizontalScrollPosition(activeContainer.scrollLeft);
-        return () =>
-          activeContainer?.removeEventListener("scroll", handleScroll);
-      }
-    }, [chartData.length]); // Re-run when chart data changes
-
-    // Debug info for windowing calculations
-    const debugInfo = React.useMemo(() => {
-      if (totalDataPoints === 0) return null;
-
-      const viewportWidth =
-        typeof window !== "undefined" ? window.innerWidth : 1200;
-      const scaledPixelPerPoint = 50 * (horizontalScale / 100);
-      const pointsPerViewport = Math.ceil(viewportWidth / scaledPixelPerPoint);
-      const totalWidth = totalDataPoints * scaledPixelPerPoint;
-      const maxScrollLeft = Math.max(0, totalWidth - viewportWidth);
-      const scrollProgress =
-        maxScrollLeft > 0
-          ? ((horizontalScrollPosition / maxScrollLeft) * 100).toFixed(1)
-          : "0";
-
-      return {
-        pointsPerViewport,
-        scrollProgress: `${scrollProgress}%`,
-        totalWidth: Math.round(totalWidth),
-        viewportWidth: Math.round(viewportWidth),
-      };
-    }, [totalDataPoints, horizontalScale, horizontalScrollPosition]);
+  // Debug info disabled after removing virtualization
+  const debugInfo = null;
 
     return (
       <div className="mb-6 p-4 block w-full relative">
@@ -525,24 +327,12 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
           {/* Debug info for viewport windowing */}
           <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
-            <div>
-              Total points: {totalDataPoints} | Rendered: {chartData.length}
-            </div>
-            <div>
-              Horizontal Scroll: {horizontalScrollPosition}px | Chart Offset:{" "}
-              {Math.round(chartOffset)}px
-            </div>
-            {debugInfo && (
-              <div>
-                Viewport: {debugInfo.pointsPerViewport} pts | Scroll:{" "}
-                {debugInfo.scrollProgress} | Width: {debugInfo.viewportWidth}px
-                / {debugInfo.totalWidth}px
-              </div>
-            )}
+            <div>Total points: {totalDataPoints}</div>
+            <div>Chart Offset: {Math.round(chartOffset)}px</div>
           </div>
         </div>
 
-        {chartData.length === 0 ? (
+  {totalDataPoints === 0 ? (
           <div className="w-full h-[256px] flex items-center justify-center text-gray-500">
             No data
           </div>
@@ -564,33 +354,28 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                   top: 0,
                 }}
               >
-                <AreaChart
+                <UPlotChart
+                  data={uplotData as [number[], ...(Array<(number|null)[]>)]}
                   width={chartWidth}
                   height={chartHeight}
-                  data={chartData}
-                >
-                  <XAxis
-                    dataKey="time"
-                    tickFormatter={(t) => formatWithMs(new Date(t))}
-                    interval={1}
-                  />
-                  <YAxis domain={[0, "auto"]} />
-                  <Tooltip
-                    isAnimationActive={false}
-                    labelFormatter={(time) => formatWithMs(new Date(time))}
-                  />
-                  {numericalSignals.map((sig, i) => (
-                    <Area
-                      key={sig}
-                      type="monotone"
-                      dataKey={sig}
-                      stroke={signalColors[i % signalColors.length]}
-                      fill={signalColors[i % signalColors.length]}
-                      strokeWidth={1}
-                      isAnimationActive={false}
-                    />
-                  ))}{" "}
-                </AreaChart>
+                  series={numericalSignals.map((sig, i) => ({ label: sig, color: signalColors[i % signalColors.length] }))}
+                  options={{
+                    // Make uPlot lighter by disabling interactive features
+                    legend: { show: false },
+                    cursor: {
+                      show: false,
+                      x: false,
+                      y: false,
+                      drag: { x: false, y: false, setScale: false },
+                      // Disable proximity calculations for focus/hover
+                      focus: { prox: -1 },
+                      hover: { prox: null },
+                    },
+                    // Optional: on HiDPI (retina) this reduces pixel work. Enable if you want extra speed.
+                    // pxRatio: 1,
+                  }}
+                  spanGaps
+                />
               </div>
             </div>
           </>

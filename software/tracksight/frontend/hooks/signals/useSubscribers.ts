@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { BACKEND_URL, DEBUG } from "../SignalConfig";
 
@@ -6,11 +6,18 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 	const signalSubscriberCount = useRef<Record<string, number>>({});
 	// Pending debounce unsubscribe timers (name -> timeout id)
 	const pendingUnsubs = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+	// Track when a subscribe cancels a scheduled unsubscribe so we can skip backend re-subscribe
+	const revivedFromPending = useRef<Record<string, boolean>>({});
 	const UNSUB_DEBOUNCE_MS = 200; // delay to absorb StrictMode double-invoke
 	const getSignalRefCount = useCallback((name: string) => signalSubscriberCount.current[name] || 0, []);
 
-	const activeSignals = useMemo(() => Object.keys(signalSubscriberCount.current).filter(k => signalSubscriberCount.current[k] > 0), [signalSubscriberCount])
-	const isSubscribed = useCallback((signalName: string) => signalName in signalSubscriberCount.current, [signalSubscriberCount]);
+	// Trigger re-computation when subscriber counts change (since we store them in a ref)
+	const [tick, setTick] = useState(0);
+	const activeSignals = useMemo(
+		() => Object.keys(signalSubscriberCount.current).filter(k => signalSubscriberCount.current[k] > 0),
+		[tick]
+	);
+	const isSubscribed = useCallback((signalName: string) => (signalSubscriberCount.current[signalName] || 0) > 0, [signalSubscriberCount]);
 
 	// SUB MANAGEMENT
 	const subscribeToSignal = useCallback((signalName: string) => {
@@ -21,15 +28,26 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 			clearTimeout(pendingUnsubs.current[name]);
 			delete pendingUnsubs.current[name];
 			DEBUG && console.log(`[subs] cancel pending unsubscribe for ${name}`);
+			// Mark that this is a revive; server still considers us subscribed
+			revivedFromPending.current[name] = true;
 		}
 		const prev = signalSubscriberCount.current[name] || 0;
 		const next = prev + 1;
 		signalSubscriberCount.current[name] = next;
 		if (DEBUG) console.log(`[subs] subscribe(${name}) count ${prev} -> ${next}`);
+		// force re-render for activeSignals consumers
+		setTick(t => t + 1);
 
 		// Only inform backend when transitioning 0 -> 1 AND no pending cancelled unsubscribe (prev===0)
 		if (prev > 0) {
 			DEBUG && console.log(`[subs] ${name} already has refs (${next}), skip backend subscribe`);
+			return;
+		}
+
+		// If we just revived from a pending unsubscribe, do not call backend again
+		if (revivedFromPending.current[name]) {
+			DEBUG && console.log(`[subs] ${name} revived; skip backend subscribe`);
+			delete revivedFromPending.current[name];
 			return;
 		}
 
@@ -71,6 +89,8 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 		const next = prev - 1;
 		signalSubscriberCount.current[name] = next;
 		if (DEBUG) console.log(`[subs] unsubscribe(${name}) count ${prev} -> ${next}`);
+		// re-render for activeSignals consumers
+		setTick(t => t + 1);
 
 		if (next === 0) {
 			// Schedule debounced backend unsubscribe
@@ -87,6 +107,8 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 				delete pendingUnsubs.current[name];
 				// Remove from map only now to keep potential quick revive logic clean
 				delete signalSubscriberCount.current[name];
+				// update activeSignals after final removal
+				setTick(t => t + 1);
 				if (socket.connected && socket.id) {
 					const sid = socket.id;
 					fetch(`${BACKEND_URL}/unsubscribe`, {
@@ -143,6 +165,8 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 			const sid = socket.id;
 			const names = Object.keys(signalSubscriberCount.current);
 			DEBUG && console.log(`[subs] socket connected (${sid}); resubscribing ${names.length} signals`, names);
+			// On fresh connect, backend has no state; clear any revive flags
+			revivedFromPending.current = {};
 			names.forEach((name) => {
 				fetch(`${BACKEND_URL}/subscribe`, {
 					method: "POST",

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { DataPoint, DEBUG, DEFAULT_MAX_DATA_POINTS, SignalDataStore } from "../SignalConfig";
 
-export function useSignalData() {
+// Optional onFlush callback notifies when a batch has been flushed so consumers can trigger re-render.
+export function useSignalData(onFlush?: () => void) {
 	// Optimized data storage
 	const dataStore = useRef<SignalDataStore>(new SignalDataStore());
 	// OPTIMIZED BATCHING SYSTEM using data store
@@ -70,6 +71,8 @@ export function useSignalData() {
 		// Clear timers
 		batchUpdateTimer.current = null;
 		rafUpdateTimer.current = null;
+		// Notify consumer (SignalContext) so it can bump a version state to re-render subscribers
+		if (onFlush) onFlush();
 	}, []);
 
 	// ENHANCED BATCHED DATA ADDITION with RAF and size-based flushing
