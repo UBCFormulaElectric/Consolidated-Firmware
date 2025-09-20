@@ -289,8 +289,9 @@ void tasks_runLtcVoltages(void)
             io_ltc6813_wakeup();
             LOG_IF_ERR(app_segments_configSync());
 
+            const bool pwm_phase_active = app_segments_balancing_isPhaseActive();
             // Mute/unmute balancing.
-            if (balancing_enabled)
+            if (balancing_enabled && pwm_phase_active)
             {
                 LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
             }
