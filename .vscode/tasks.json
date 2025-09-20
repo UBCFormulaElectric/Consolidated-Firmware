@@ -33,21 +33,6 @@
       "preset": "${command:cmake.activeConfigurePresetName}"
     },
     {
-      "label": "Build Embedded Quadruna",
-      "detail": "CMake Generate step",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_BMS.hex",
-        "quadruna_VC.hex",
-        "quadruna_CRIT.hex",
-        "quadruna_RSM.hex",
-        "quadruna_FSM.hex",
-        "can_bus_load_quadruna"
-      ]
-    },
-    {
       "label": "Build Embedded Quintuna",
       "detail": "CMake Generate step",
       "group": "build",
@@ -64,6 +49,19 @@
       ]
     },
     {
+      "label": "Build Embedded Hexray",
+      "detail": "CMake Generate step",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_CRIT_app.hex",
+        "hexray_DAM_app.hex",
+        "hexray_FSM_app.hex",
+        "hexray_RSM_app.hex",
+      ]
+    },
+    {
       "label": "CMake: Clean",
       "detail": "CMake template clean task",
       "group": "build",
@@ -72,57 +70,12 @@
       "preset": "${command:cmake.activeBuildPresetName}"
     },
     {
-      "label": "Build Embedded: BMS (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_BMS.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: CRIT (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_CRIT.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: FSM (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_FSM.hex",
-      ]
-    },
-    {
       "label": "Build Embedded: VCR (Quintuna)",
       "group": "build",
       "type": "cmake",
       "command": "build",
       "targets": [
         "quintuna_VCR_app.elf",
-      ]
-    },
-    {
-      "label": "Build Embedded: RSM (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_RSM.hex",
-      ]
-    },
-    {
-      "label": "Build Embedded: VC (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_VC.hex"
       ]
     },
     {
@@ -207,57 +160,12 @@
       ]
     },
     {
-      "label": "Build Tests: BMS (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_BMS_test"
-      ]
-    },
-    {
-      "label": "Build Tests: CRIT (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_CRIT_test"
-      ]
-    },
-    {
       "label": "Build Tests: CRIT (Quintuna)",
       "group": "build",
       "type": "cmake",
       "command": "build",
       "targets": [
         "quintuna_CRIT_test"
-      ]
-    },
-    {
-      "label": "Build Tests: FSM (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_FSM_test"
-      ]
-    },
-    {
-      "label": "Build Tests: RSM (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_RSM_test"
-      ]
-    },
-    {
-      "label": "Build Tests: VC (Quadruna)",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "quadruna_VC_test"
       ]
     },
     {
@@ -279,6 +187,78 @@
       ]
     },
     {
+      "label": "Build Embedded: CRIT (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_CRIT_app.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: CRIT (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_CRIT_test"
+      ]
+    },
+    {
+      "label": "Build Embedded: DAM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_DAM_app.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: DAM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_DAM_test"
+      ]
+    },
+    {
+      "label": "Build Embedded: FSM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_FSM_app.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: FSM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_FSM_test"
+      ]
+    },
+    {
+      "label": "Build Embedded: RSM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_RSM_app.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: RSM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_RSM_test"
+      ]
+    },
+    {
       "label": "Build Tests: Shared",
       "group": "build",
       "type": "cmake",
@@ -294,15 +274,6 @@
       "command": "build",
       "targets": [
         "jsoncan_test"
-      ]
-    },
-    {
-      "label": "CAN Bus Load: Quadruna",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "can_bus_load_quadruna"
       ]
     },
     {
