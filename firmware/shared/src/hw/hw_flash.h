@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "cmsis_os.h"
 
 #if defined(STM32F412Rx)
 
@@ -60,3 +61,7 @@ bool hw_flash_programFlashWord(uint32_t address, uint32_t *data);
  * @return True if successful, otherwise false.
  */
 bool hw_flash_eraseSector(uint8_t sector);
+
+void               hw_flash_init(osSemaphoreId_t sem, osMessageQueueId_t queue);
+bool               hw_flash_waitComplete(TickType_t timeout);
+osMessageQueueId_t hw_flash_getFlashQueue(void);
