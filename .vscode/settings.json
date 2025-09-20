@@ -11,5 +11,12 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ]
+  ],
+  "files.associations": {
+    "app_utils.h": "c",
+    "app_timer.h": "c",
+    "app_segments.h": "c",
+    "app_segments_internal.h": "c",
+    "app_cantx.h": "c"
+  }
 }
