@@ -54,7 +54,7 @@ static uint32_t computePeriodTicks(const float frequency_hz)
 }
 
 // Computes the on ticks in a period for a given duty cycle
-static uint32_t computeOnTicks(const uint32_t period_ticks, const uint32q_t duty_pc)
+static uint32_t computeOnTicks(const uint32_t period_ticks, const uint32_t duty_pc)
 {
     if (period_ticks == 0U || duty_pc == 0U)
     {
@@ -67,7 +67,7 @@ static uint32_t computeOnTicks(const uint32_t period_ticks, const uint32q_t duty
     }
 
     const float    duty_ratio   = (float)duty_pc / 100.0f;
-    const uint32_t raw_on_ticks = (uint32_t)roundf(duty_ratio * (float) period_ticks);
+    const uint32_t raw_on_ticks = (uint32_t)roundf(duty_ratio * (float)period_ticks);
 
     return CLAMP(raw_on_ticks, 1U, period_ticks);
 }
@@ -105,7 +105,7 @@ static void computePWMBalance(void)
 {
     const bool override = app_canRx_Debug_CellBalancingOverridePWM_get();
     float      freq_hz  = override ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
-    uint32_t    duty_pc  = override ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
+    uint32_t   duty_pc  = override ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
 
     // Frequency of 0Hz means static enable based on duty cycle only
     if (freq_hz <= 0.0f)
@@ -122,7 +122,7 @@ static void computePWMBalance(void)
     }
 
     // Compute desired period and on ticks
-    const uint32_t desired_period_ticks = computePeriodTicks( freq_hz);
+    const uint32_t desired_period_ticks = computePeriodTicks(freq_hz);
     const uint32_t desired_on_ticks     = computeOnTicks(desired_period_ticks, duty_pc);
 
     // Check if config changed
