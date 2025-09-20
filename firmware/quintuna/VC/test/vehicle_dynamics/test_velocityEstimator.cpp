@@ -5,6 +5,7 @@ extern "C"
 #include "app_utils.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_velocityEstimator.h"
+#include "app_math.h"
 #include "math.h"
 #include "app_units.h"
 }
