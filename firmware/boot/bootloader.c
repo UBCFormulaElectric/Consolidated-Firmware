@@ -256,7 +256,7 @@ _Noreturn void bootloader_runFlashTask(void)
             {
                 vTaskDelay(pdMS_TO_TICKS(0.5));
             }
-            hw_flash_waitComplete(portMAX_DELAY);
+            hw_flash_waitFlashComplete(portMAX_DELAY);
         }
     }
 }

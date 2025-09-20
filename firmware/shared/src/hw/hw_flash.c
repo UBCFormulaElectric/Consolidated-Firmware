@@ -119,7 +119,7 @@ osMessageQueueId_t hw_flash_getFlashQueue(void)
     return flashQueue;
 }
 
-bool hw_flash_waitComplete(TickType_t timeout)
+bool hw_flash_waitFlashComplete(TickType_t timeout)
 {
     return xSemaphoreTake(flashDoneSem, timeout) == pdTRUE;
 }

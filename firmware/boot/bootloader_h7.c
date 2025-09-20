@@ -7,14 +7,14 @@
 #include "hw_fdcan.h"
 #include "queue.h"
 
+#define NUM_OF_BUFF 2
+
 extern CanHandle can;
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
     assert(hfdcan == can.hcan);
     return &can;
 }
-
-#define NUM_OF_BUFF 2
 
 static uint8_t       flash_buf[NUM_OF_BUFF][FLASH_WORD_BYTES];
 static uint8_t       active_buf = 0;
@@ -41,6 +41,5 @@ void bootloader_boardSpecific_program(uint32_t address, uint64_t data)
 
         active_buf ^= 1;
         fill_count = 0;
-        memset(flash_buf[active_buf], 0xFF, FLASH_WORD_BYTES);
     }
 }

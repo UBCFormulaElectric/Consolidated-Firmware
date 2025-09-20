@@ -25,11 +25,14 @@
 #include "bootloader.h"
 #include "hw_error.h"
 #include "hw_fdcan.h"
+#include "hw_flash.h"
 #include "io_canQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-typedef StaticTask_t osStaticThreadDef_t;
+typedef StaticTask_t      osStaticThreadDef_t;
+typedef StaticQueue_t     osStaticMessageQDef_t;
+typedef StaticSemaphore_t osStaticSemaphoreDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -58,7 +61,7 @@ const osThreadAttr_t interfaceTask_attributes = {
     .cb_size    = sizeof(interfaceTaskControlBlock),
     .stack_mem  = &interfaceTaskBuffer[0],
     .stack_size = sizeof(interfaceTaskBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
+    .priority   = (osPriority_t)osPriorityAboveNormal1,
 };
 /* Definitions for tickTask */
 osThreadId_t         tickTaskHandle;
@@ -84,6 +87,35 @@ const osThreadAttr_t canTxTask_attributes = {
     .stack_size = sizeof(canTxTaskBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
+/* Definitions for flashTask */
+osThreadId_t         flashTaskHandle;
+uint32_t             flashTaskBuffer[512];
+osStaticThreadDef_t  flashTaskControlBlock;
+const osThreadAttr_t flashTask_attributes = {
+    .name       = "flashTask",
+    .cb_mem     = &flashTaskControlBlock,
+    .cb_size    = sizeof(flashTaskControlBlock),
+    .stack_mem  = &flashTaskBuffer[0],
+    .stack_size = sizeof(flashTaskBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+/* Definitions for flashQueue */
+osMessageQueueId_t         flashQueueHandle;
+uint8_t                    flash_queueBuffer[4 * 36];
+osStaticMessageQDef_t      flash_queueControlBlock;
+const osMessageQueueAttr_t flashQueue_attributes = { .name    = "flashQueue",
+                                                     .cb_mem  = &flash_queueControlBlock,
+                                                     .cb_size = sizeof(flash_queueControlBlock),
+                                                     .mq_mem  = &flash_queueBuffer,
+                                                     .mq_size = sizeof(flash_queueBuffer) };
+/* Definitions for flashDoneSem */
+osSemaphoreId_t         flashDoneSemHandle;
+osStaticSemaphoreDef_t  flashDoneSemControlBlock;
+const osSemaphoreAttr_t flashDoneSem_attributes = {
+    .name    = "flashDoneSem",
+    .cb_mem  = &flashDoneSemControlBlock,
+    .cb_size = sizeof(flashDoneSemControlBlock),
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -95,6 +127,7 @@ static void MX_FDCAN2_Init(void);
 void        runInterfaceTask(void *argument);
 void        runTickTask(void *argument);
 void        runCanTxTask(void *argument);
+void        runFlashTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -145,6 +178,10 @@ int main(void)
     /* add mutexes, ... */
     /* USER CODE END RTOS_MUTEX */
 
+    /* Create the semaphores(s) */
+    /* creation of flashDoneSem */
+    flashDoneSemHandle = osSemaphoreNew(1, 1, &flashDoneSem_attributes);
+
     /* USER CODE BEGIN RTOS_SEMAPHORES */
     /* add semaphores, ... */
     /* USER CODE END RTOS_SEMAPHORES */
@@ -153,8 +190,12 @@ int main(void)
     /* start timers, add new ones, ... */
     /* USER CODE END RTOS_TIMERS */
 
+    /* Create the queue(s) */
+    /* creation of flashQueue */
+    flashQueueHandle = osMessageQueueNew(4, 36, &flashQueue_attributes);
+
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    hw_flash_init(flashDoneSemHandle, flashQueueHandle);
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -166,6 +207,9 @@ int main(void)
 
     /* creation of canTxTask */
     canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
+
+    /* creation of flashTask */
+    flashTaskHandle = osThreadNew(runFlashTask, NULL, &flashTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -383,6 +427,21 @@ void runCanTxTask(void *argument)
         osDelay(1);
     }
     /* USER CODE END runCanTxTask */
+}
+
+/* USER CODE BEGIN Header_runFlashTask */
+/**
+ * @brief Function implementing the flashTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runFlashTask */
+void runFlashTask(void *argument)
+{
+    /* USER CODE BEGIN runFlashTask */
+    /* Infinite loop */
+    bootloader_runFlashTask();
+    /* USER CODE END runFlashTask */
 }
 
 /**
