@@ -10,6 +10,8 @@
 
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
+#include "hw_flash.h"
+#include "queue.h"
 
 #include "app_commitInfo.h"
 #include "io_canQueue.h"
@@ -237,6 +239,24 @@ _Noreturn void bootloader_runInterfaceTask(void)
         else
         {
             LOG_ERROR("got stdid %X", command.std_id);
+        }
+    }
+}
+
+_Noreturn void bootloader_runFlashTask(void)
+{
+    FlashJob           job;
+    osMessageQueueId_t flash_queue = hw_flash_getFlashQueue();
+
+    for (;;)
+    {
+        if (xQueueReceive(flash_queue, &job, portMAX_DELAY) == pdTRUE)
+        {
+            while (!hw_flash_programFlashWord(job.addr, (uint32_t *)job.data))
+            {
+                vTaskDelay(pdMS_TO_TICKS(0.5));
+            }
+            hw_flash_waitComplete(portMAX_DELAY);
         }
     }
 }
