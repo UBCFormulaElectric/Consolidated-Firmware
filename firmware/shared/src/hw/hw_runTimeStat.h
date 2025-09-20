@@ -4,6 +4,13 @@
 #include "main.h"
 #include "app_utils.h"
 
+#ifdef STM32F412Rx
+#include "stm32f4xx_hal_tim.h"
+#elif STM32H7VG33
+#include "stm32h7xx_hal_tim.h"
+#elif STM32H562RI
+#endif
+
 extern volatile unsigned long ulHighFrequencyTimerTick;
 
 // Task instance for runtimestats
