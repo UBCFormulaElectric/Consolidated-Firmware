@@ -19,10 +19,6 @@ class VCStateMachineTest : public VCBaseTest
 {
 };
 
-#define ASSERT_STATE_EQ(expectedState)                            \
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &expectedState) \
-        << "Expected state: " << expectedState.name << ", but got: " << app_stateMachine_getCurrentState()->name
-
 // Helper to set state and invoke its entry action
 static void SetStateWithEntry(const State *s)
 {

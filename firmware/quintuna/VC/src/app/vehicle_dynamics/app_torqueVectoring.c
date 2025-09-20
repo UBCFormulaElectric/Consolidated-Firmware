@@ -21,7 +21,7 @@ static TractionControl_Inputs traction_control_inputs;
 // static TractionControl_Outputs    traction_control_outputs;
 static YawRateController yaw_rate_controller;
 
-static bool run_traction_control = false;
+// static bool run_traction_control = false;
 
 // NOTE: Correction factor centered about 0.0f
 
@@ -29,8 +29,8 @@ static bool run_traction_control = false;
  * No PID for now.
  */
 
-static PID                    pid_power_correction;
-static float                  pid_power_correction_factor = 0.0f;
+static PID pid_power_correction;
+// static float                  pid_power_correction_factor = 0.0f;
 static PID                    pid_traction_control;
 const ImuData                *imu_output;
 static TorqueAllocationInputs torqueAllocation = { .front_yaw_moment     = 0.0f,
@@ -43,7 +43,7 @@ static PID                    yrc_pid;
 static float accelerator_pedal_percent;
 static float battery_voltage;
 static float steering_angle_deg;
-static float current_limit_based_max_power;
+// static float current_limit_based_max_power;
 
 void app_torqueVectoring_init(void)
 {
@@ -76,9 +76,10 @@ void app_torqueVectoring_handleAcceleration(void)
 {
     // Power Limiting
     // Power limit correction
-    float power_limit      = app_powerLimiting_computeMaxPower(RULES_BASED_POWER_LIMIT_KW); // -- HARD CODED FIX LATER
+    // float power_limit      = app_powerLimiting_computeMaxPower(RULES_BASED_POWER_LIMIT_KW); // -- HARD CODED FIX
+    // LATER
     float total_yaw_moment = 0.0f;
-    float load_transfer_const = 1.0f;
+    // float load_transfer_const = 1.0f;
 
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
@@ -92,7 +93,7 @@ void app_torqueVectoring_handleAcceleration(void)
     // imu load transfer calc
     torqueAllocation.load_transfer_const = app_loadTransferConstant(imu_output->long_accel);
 
-    float desired_tot_yaw_moment          = app_yawRateController_getYawMoment();
+    // float desired_tot_yaw_moment          = app_yawRateController_getYawMoment();
     torqueAllocation.total_torque_request = accelerator_pedal_percent * (MAX_TORQUE_REQUEST_NM * 4);
     torqueAllocation.rear_yaw_moment      = total_yaw_moment / (1 + torqueAllocation.load_transfer_const);
     torqueAllocation.front_yaw_moment     = total_yaw_moment - torqueAllocation.rear_yaw_moment;
