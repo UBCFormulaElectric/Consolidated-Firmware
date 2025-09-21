@@ -8,4 +8,6 @@ namespace io::time
  * @return Time in ms.
  */
 uint32_t getCurrentMs();
+void     delay(uint32_t ms);
+void     delayUntil(uint32_t time);
 } // namespace io::time
