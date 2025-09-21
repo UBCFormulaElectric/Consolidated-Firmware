@@ -217,7 +217,9 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   });
   const socket = useSocket();
   // Connection status needs a state
-  const [socketConnected, setSocketConnected] = useState<boolean>(socket.connected);
+  // Important: start as disconnected for deterministic SSR/CSR markup
+  // We'll flip to true on the first "connect" event from the browser.
+  const [socketConnected, setSocketConnected] = useState<boolean>(false);
 
   useEffect(() => {
     const handleConnect = () => setSocketConnected(true);
