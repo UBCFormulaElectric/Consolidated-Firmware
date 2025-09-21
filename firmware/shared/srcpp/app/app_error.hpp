@@ -1,8 +1,8 @@
 #pragma once
-#include "io_log.h"
-#include <assert.h>
+#include "io_log.hpp"
+#include <cassert>
 
-enum class
+enum class ExitCode
 {
     EXIT_CODE_OK = 0,
     EXIT_CODE_INVALID_ARGS,
@@ -15,11 +15,20 @@ enum class
     EXIT_CODE_CHECKSUM_FAIL,
     EXIT_INDETERMINATE, // use this for when you don't know what the exit code is YET
     NUM_EXIT_CODES,
-} ExitCode;
+};
 
-#define IS_EXIT_OK(code) ((code) == EXIT_CODE_OK)
-#define IS_EXIT_ERR(code) ((code) != EXIT_CODE_OK)
-#define ASSERT_EXIT_OK(code) (assert(code == EXIT_CODE_OK))
+inline bool IS_EXIT_OK(const ExitCode code)
+{
+    return code == ExitCode::EXIT_CODE_OK;
+}
+inline bool IS_EXIT_ERR(const ExitCode code)
+{
+    return code != ExitCode::EXIT_CODE_OK;
+}
+inline void ASSERT_EXIT_OK(const ExitCode code)
+{
+    assert(code == ExitCode::EXIT_CODE_OK);
+}
 
 #define RETURN_IF_ERR(err_expr)                                                \
     {                                                                          \
