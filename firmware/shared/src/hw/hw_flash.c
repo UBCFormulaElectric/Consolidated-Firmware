@@ -6,16 +6,16 @@
 #include "queue.h"
 #include "io_log.h"
 
-static osSemaphoreId_t    flashDoneSem;
-static osMessageQueueId_t flashQueue;
-static volatile bool      flash_busy;
+StaticSemaphore_t    flash_lock_buf;
+SemaphoreHandle_t    flash_lock;
+static volatile bool flash_busy;
 
 /* --------- HAL CB --------- */
 void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 {
     flash_busy = false;
     HAL_FLASH_Lock();
-    xSemaphoreGiveFromISR(flashDoneSem, NULL);
+    xSemaphoreGiveFromISR(flash_lock, NULL);
 }
 
 void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
@@ -23,7 +23,7 @@ void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
     LOG_ERROR("Error while flashing");
     flash_busy = false;
     HAL_FLASH_Lock();
-    xSemaphoreGiveFromISR(flashDoneSem, NULL);
+    xSemaphoreGiveFromISR(flash_lock, NULL);
 }
 
 #if defined(STM32F412Rx)
@@ -108,18 +108,12 @@ bool hw_flash_eraseSector(uint8_t sector)
     return status == HAL_OK && sector_error == 0xFFFFFFFFU;
 }
 
-void hw_flash_init(osSemaphoreId_t sem, osMessageQueueId_t queue)
+void hw_flash_init(void)
 {
-    flashDoneSem = sem;
-    flashQueue   = queue;
+    flash_lock = xSemaphoreCreateBinaryStatic(&flash_lock_buf);
 }
 
-osMessageQueueId_t hw_flash_getFlashQueue(void)
+bool hw_flash_takeLock(TickType_t timeout)
 {
-    return flashQueue;
-}
-
-bool hw_flash_waitFlashComplete(TickType_t timeout)
-{
-    return xSemaphoreTake(flashDoneSem, timeout) == pdTRUE;
+    return xSemaphoreTake(flash_lock, timeout) == pdTRUE;
 }

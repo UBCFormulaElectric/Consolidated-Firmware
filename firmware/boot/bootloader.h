@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "hw_hal.h"
+#include "FreeRTOS.h"
+#include "queue.h"
 
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
@@ -21,7 +23,7 @@ typedef struct
 {
     uint32_t addr;
     uint8_t  data[FLASH_WORD_BYTES];
-} FlashJob;
+} FlashJob_t;
 
 void           bootloader_preInit(void);
 void           bootloader_init(void);
@@ -33,3 +35,4 @@ _Noreturn void bootloader_runCanTxTask(void);
 void bootloader_boardSpecific_init(void);
 void bootloader_boardSpecific_tick(void);
 void bootloader_boardSpecific_program(uint32_t address, uint64_t data);
+void bootloader_boardSpecific_setFlashQueue(QueueHandle_t queue);

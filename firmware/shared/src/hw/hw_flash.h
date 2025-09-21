@@ -62,6 +62,5 @@ bool hw_flash_programFlashWord(uint32_t address, uint32_t *data);
  */
 bool hw_flash_eraseSector(uint8_t sector);
 
-void               hw_flash_init(osSemaphoreId_t sem, osMessageQueueId_t queue);
-bool               hw_flash_waitFlashComplete(TickType_t timeout);
-osMessageQueueId_t hw_flash_getFlashQueue(void);
+void hw_flash_init(void);
+bool hw_flash_takeLock(TickType_t timeout);

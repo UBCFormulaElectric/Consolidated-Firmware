@@ -32,6 +32,8 @@
 
 #include "app_utils.h"
 
+#define QUEUE_LENGTH 5
+
 extern TIM_HandleTypeDef htim6;
 
 // Need these to be created an initialized elsewhere
@@ -76,6 +78,10 @@ static CanTxQueue can_tx_queue;
 static uint32_t   current_address;
 static bool       update_in_progress;
 static BootStatus boot_status;
+
+static StaticQueue_t flash_queue_buf;
+static uint8_t       flash_queue_storage[QUEUE_LENGTH * sizeof(FlashJob_t)];
+static QueueHandle_t flash_queue;
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -175,6 +181,9 @@ void bootloader_init(void)
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    hw_flash_init();
+    flash_queue = xQueueCreateStatic(QUEUE_LENGTH, sizeof(FlashJob_t), flash_queue_storage, &flash_queue_buf);
+    bootloader_boardSpecific_setFlashQueue(flash_queue);
     bootloader_boardSpecific_init();
 }
 
@@ -245,8 +254,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
 _Noreturn void bootloader_runFlashTask(void)
 {
-    FlashJob           job;
-    osMessageQueueId_t flash_queue = hw_flash_getFlashQueue();
+    FlashJob_t job;
 
     for (;;)
     {
@@ -254,9 +262,9 @@ _Noreturn void bootloader_runFlashTask(void)
         {
             while (!hw_flash_programFlashWord(job.addr, (uint32_t *)job.data))
             {
-                vTaskDelay(pdMS_TO_TICKS(0.5));
+                vTaskDelay(pdMS_TO_TICKS(1));
             }
-            hw_flash_waitFlashComplete(portMAX_DELAY);
+            hw_flash_takeLock(portMAX_DELAY);
         }
     }
 }

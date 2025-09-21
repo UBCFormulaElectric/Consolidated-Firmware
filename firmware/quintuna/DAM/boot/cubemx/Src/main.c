@@ -30,9 +30,7 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-typedef StaticTask_t      osStaticThreadDef_t;
-typedef StaticQueue_t     osStaticMessageQDef_t;
-typedef StaticSemaphore_t osStaticSemaphoreDef_t;
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -99,23 +97,6 @@ const osThreadAttr_t flashTask_attributes = {
     .stack_size = sizeof(flashTaskBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
-/* Definitions for flashQueue */
-osMessageQueueId_t         flashQueueHandle;
-uint8_t                    flash_queueBuffer[4 * 36];
-osStaticMessageQDef_t      flash_queueControlBlock;
-const osMessageQueueAttr_t flashQueue_attributes = { .name    = "flashQueue",
-                                                     .cb_mem  = &flash_queueControlBlock,
-                                                     .cb_size = sizeof(flash_queueControlBlock),
-                                                     .mq_mem  = &flash_queueBuffer,
-                                                     .mq_size = sizeof(flash_queueBuffer) };
-/* Definitions for flashDoneSem */
-osSemaphoreId_t         flashDoneSemHandle;
-osStaticSemaphoreDef_t  flashDoneSemControlBlock;
-const osSemaphoreAttr_t flashDoneSem_attributes = {
-    .name    = "flashDoneSem",
-    .cb_mem  = &flashDoneSemControlBlock,
-    .cb_size = sizeof(flashDoneSemControlBlock),
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -178,10 +159,6 @@ int main(void)
     /* add mutexes, ... */
     /* USER CODE END RTOS_MUTEX */
 
-    /* Create the semaphores(s) */
-    /* creation of flashDoneSem */
-    flashDoneSemHandle = osSemaphoreNew(1, 1, &flashDoneSem_attributes);
-
     /* USER CODE BEGIN RTOS_SEMAPHORES */
     /* add semaphores, ... */
     /* USER CODE END RTOS_SEMAPHORES */
@@ -190,12 +167,7 @@ int main(void)
     /* start timers, add new ones, ... */
     /* USER CODE END RTOS_TIMERS */
 
-    /* Create the queue(s) */
-    /* creation of flashQueue */
-    flashQueueHandle = osMessageQueueNew(4, 36, &flashQueue_attributes);
-
     /* USER CODE BEGIN RTOS_QUEUES */
-    hw_flash_init(flashDoneSemHandle, flashQueueHandle);
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
