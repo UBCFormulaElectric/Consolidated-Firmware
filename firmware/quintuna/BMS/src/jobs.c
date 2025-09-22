@@ -135,8 +135,12 @@ void jobs_run100Hz_tick(void)
     // if the charger is charger is connected
     app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
 
-    (void)app_segments_checkWarnings();
-    const bool acc_fault = app_segments_checkFaults();
+    #ifdef TARGET_HV_SUPPLY
+        const bool acc_fault = false;
+    #else
+        (void)app_segments_checkWarnings();
+        const bool acc_fault = app_segments_checkFaults();
+    #endif
     io_faultLatch_setCurrentStatus(&bms_ok_latch, acc_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
 
     // Update CAN signals for BMS latch statuses.
