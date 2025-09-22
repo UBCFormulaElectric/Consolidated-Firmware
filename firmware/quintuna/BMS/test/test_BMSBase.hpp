@@ -38,28 +38,6 @@ class BMSBaseTest : public EcuTestBase
     }
     void board_teardown() override {}
 
-    static void tick_100hz()
-    {
-        jobs_runLTCTemperatures();
-        jobs_runLTCVoltages();
-        jobs_runLTCDiagnostics();
-
-        jobs_run100Hz_tick();
-    }
-    static void tick_1hz()
-    {
-        jobs_run1Hz_tick();
-
-        // These run in a separate task on the micro but at 1Hz.
-
-        // app_segments_runVoltageConversion();
-        // app_segments_broadcastCellVoltages();
-        // app_segments_broadcastVoltageStats();
-        // app_segments_runAuxConversion();
-        // app_segments_broadcastTempsVRef();
-        // app_segments_broadcastTempStats();
-    }
-
     void SetInitialState(const State *const initial_state)
     {
         app_stateMachine_init(initial_state);
