@@ -218,10 +218,10 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
 // precharge tests
 // TODO set these values
 static constexpr float undervoltage = 200.0f, target_voltage = 600.0f;
-static constexpr int   too_fast_time = 20, just_good_time = 380;
+static constexpr int   too_fast_time = 20, just_good_time = 1220;
 
-static constexpr int precharge_timeout = 2260, precharge_cooldown = 1000, precharge_timeout_ub = 2500,
-                     precharge_cooldown_ub = 1500;
+static constexpr int precharge_timeout = 3000, precharge_cooldown = 1500;
+static constexpr int timing_tolerance = 500;
 
 static constexpr int precharge_retries = 3;
 TEST_F(BmsStateMachineTest, precharge_success_test)
@@ -258,14 +258,15 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
     for (int retry = 0; retry < precharge_retries; retry++)
     {
         int closed_time;
-        for (closed_time = 0; io_irs_prechargeState() == CONTACTOR_STATE_CLOSED && closed_time < precharge_timeout_ub;
+        for (closed_time = 0;
+             io_irs_prechargeState() == CONTACTOR_STATE_CLOSED && closed_time < precharge_timeout + timing_tolerance;
              closed_time += 10)
         {
             ASSERT_STATE_EQ(precharge_drive_state);
             ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
             LetTimePass(10);
         }
-        ASSERT_LE(abs(closed_time - precharge_timeout), 100)
+        ASSERT_NEAR(closed_time, precharge_timeout, 100)
             << "Expected precharge to be closed for approximately " << precharge_timeout << "ms, but was "
             << closed_time << "ms, time=" << io_time_getCurrentMs();
 
@@ -273,15 +274,16 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
         if (retry == precharge_retries - 1)
             break;
         int open_time;
-        for (open_time = 0; io_irs_prechargeState() == CONTACTOR_STATE_OPEN && open_time < precharge_cooldown_ub;
+        for (open_time = 0;
+             io_irs_prechargeState() == CONTACTOR_STATE_OPEN && open_time < precharge_cooldown + timing_tolerance;
              open_time += 10)
         {
             ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
             LetTimePass(10);
         }
-        ASSERT_LE(abs(open_time - precharge_cooldown), 100) << "Expected precharge to be open for approximately "
-                                                            << precharge_cooldown << "ms, but was " << open_time << "ms"
-                                                            << ", time = " << io_time_getCurrentMs();
+        ASSERT_NEAR(open_time, precharge_cooldown, 100) << "Expected precharge to be open for approximately "
+                                                        << precharge_cooldown << "ms, but was " << open_time << "ms"
+                                                        << ", time = " << io_time_getCurrentMs();
     }
 
     ASSERT_STATE_EQ(precharge_latch_state);

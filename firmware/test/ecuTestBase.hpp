@@ -26,7 +26,7 @@ class EcuTestBase : public testing::Test
         auto operator<=>(const EcuTask &other) const { return next_run_time_ms <=> other.next_run_time_ms; }
     };
 
-    std::priority_queue<EcuTask, std::vector<EcuTask>, std::greater<>> task_queue;
+    std::priority_queue<EcuTask, std::vector<EcuTask>, std::greater<EcuTask>> task_queue;
 
   protected:
     void SetUp() final

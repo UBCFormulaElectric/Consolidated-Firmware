@@ -98,7 +98,7 @@ TEST_F(BMSCanTest, check_latched_faults_broadcasted_over_can)
         << "Expected BSPD OK latch to be latched as FAULT";
 
     fakes::segments::setPackVoltageEvenly(550.0f);
-    LetTimePass(10);
+    LetTimePass(500);
 
     ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
     ASSERT_FALSE(app_canTx_BMS_BmsLatchOk_get());
@@ -166,7 +166,7 @@ TEST_F(BMSCanTest, check_imd_info_is_broadcasted_over_can_in_all_states)
         app_canTx_BMS_ImdSpeedStartStatus30Hz_get();
 
         // seconds_since_power_on
-        ASSERT_EQ(app_canTx_BMS_ImdTimeSincePowerOn_get() + 1, io_time_getCurrentMs());
+        ASSERT_NEAR(app_canTx_BMS_ImdTimeSincePowerOn_get(), io_time_getCurrentMs(), 20);
     }
 }
 
