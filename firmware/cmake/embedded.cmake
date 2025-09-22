@@ -78,6 +78,16 @@ set(SHARED_LINKER_FLAGS
         --specs=nosys.specs
 )
 
+set(CM33_DEFINES
+        -DARM_MATH_CM33
+)
+# FPU flags are compiler and linker flags
+set(CM33_FPU_FLAGS
+        -mcpu=cortex-m33
+        -mfloat-abi=hard
+        -mfpu=fpv4-sp-d16
+)
+
 set(CM4_DEFINES
         -DARM_MATH_CM4
 )
@@ -131,6 +141,10 @@ function(embedded_library
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
+    ELSEIF ("${ARM_CORE}" STREQUAL "cm33")
+        list(APPEND COMPILER_DEFINES ${CM33_DEFINES})
+        list(APPEND COMPILER_FLAGS ${CM33_FPU_FLAGS})
+        list(APPEND LINKER_FLAGS ${CM33_FPU_FLAGS})
     ELSEIF ("${ARM_CORE}" STREQUAL "cm7")
         list(APPEND COMPILER_DEFINES ${CM7_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM7_FPU_FLAGS})
@@ -202,6 +216,10 @@ function(embedded_binary
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
+    ELSEIF ("${ARM_CORE}" STREQUAL "cm33")
+        list(APPEND COMPILER_DEFINES ${CM33_DEFINES})
+        list(APPEND COMPILER_FLAGS ${CM33_FPU_FLAGS})
+        list(APPEND LINKER_FLAGS ${CM33_FPU_FLAGS})
     ELSEIF ("${ARM_CORE}" STREQUAL "cm7")
         list(APPEND COMPILER_DEFINES ${CM7_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM7_FPU_FLAGS})
