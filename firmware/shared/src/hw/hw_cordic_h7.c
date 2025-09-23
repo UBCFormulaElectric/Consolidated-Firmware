@@ -45,13 +45,13 @@ static ExitCode cordic_dispatcher(
     return exit;
 }
 
-float c_cos(const float angle_rad, const float modulus)
+float c_cos(const float theta, const float m)
 {
-    if (modulus == 0.0f)
+    if (m == 0.0f)
         return 0.0f;
 
     int16_t result;
-    int16_t in_buf = { FLOAT_TO_Q1_15(angle_rad / M_PI), FLOAT_TO_Q1_15(modulus) };
+    int16_t in_buf = { FLOAT_TO_Q1_15(theth / M_PI), FLOAT_TO_Q1_15(m) };
 
     // add scaling if modulus > 1 or adapt to Q1.15
 
@@ -62,13 +62,13 @@ float c_cos(const float angle_rad, const float modulus)
     return Q1_15_TO_FLOAT(result);
 }
 
-float c_sin(const float angle_rad, const float modulus)
+float c_sin(const float theta, const float m)
 {
-    if (modulus == 0.0f)
+    if (m == 0.0f)
         return 0.0f;
 
     int16_t result;
-    int16_t in_buf = { FLOAT_TO_Q1_15(angle_rad / M_PI), FLOAT_TO_Q1_15(modulus) };
+    int16_t in_buf = { FLOAT_TO_Q1_15(theta / M_PI), FLOAT_TO_Q1_15(m) };
 
     // add scaling if modulus > 1 or adapt to Q1.15
 
@@ -79,7 +79,7 @@ float c_sin(const float angle_rad, const float modulus)
     return Q1_15_TO_FLOAT(result);
 }
 
-float c_phase(const float x, const float y)
-{
+// float c_phase(const float x, const float y)
+// {
 
-}
+// }
