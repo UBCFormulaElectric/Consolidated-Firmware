@@ -1,7 +1,6 @@
 #include "io_imd.h"
 #include "app_imd.h"
 #include <string.h>
-#include <stdlib.h>
 #include <assert.h>
 #include "app_canUtils.h"
 #include "app_canTx.h"
@@ -60,33 +59,23 @@ static ImdConditionName estimateConditionName(const float frequency)
 
 ImdCondition app_imd_getCondition()
 {
-    const float pwm_frequency  = app_imd_getPwmFrequency();
-    const float pwm_duty_cycle = app_imd_getPwmDutyCycle();
+    const float pwm_frequency  = io_imd_getFrequency();
+    const float pwm_duty_cycle = io_imd_getDutyCycle();
 
     ImdCondition condition;
-    memset(&condition, 0, sizeof(condition));
 
     const uint8_t ticks_since_pwm_update = io_imd_pwmCounterTick();
-
-    if (ticks_since_pwm_update == MAX_8_BITS_VALUE)
-    {
-        condition.name = IMD_CONDITION_SHORT_CIRCUIT;
-    }
-    else
-    {
-        condition.name = estimateConditionName(pwm_frequency);
-    }
+    condition.name =
+        ticks_since_pwm_update == UINT8_MAX ? IMD_CONDITION_SHORT_CIRCUIT : estimateConditionName(pwm_frequency);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)
     {
         case IMD_CONDITION_SHORT_CIRCUIT:
-        {
             // This condition doesn't use duty cycle to encode information so
             // any duty cycle is valid.
             condition.pwm_encoding.valid_duty_cycle = true;
-        }
-        break;
+            break;
         case IMD_CONDITION_NORMAL:
         case IMD_CONDITION_UNDERVOLTAGE_DETECTED:
         {
@@ -139,40 +128,22 @@ ImdCondition app_imd_getCondition()
         break;
         case IMD_CONDITION_DEVICE_ERROR:
         case IMD_CONDITION_GROUND_FAULT:
-        {
             condition.pwm_encoding.valid_duty_cycle =
                 (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true : false;
-        }
-        break;
+            break;
         case IMD_CONDITION_INVALID:
-        {
-            condition.pwm_encoding.valid_duty_cycle = false;
-        }
-        break;
         default:
-        {
             condition.pwm_encoding.valid_duty_cycle = false;
-        }
-        break;
+            break;
     }
 
     return condition;
 }
 
-float app_imd_getPwmFrequency()
-{
-    return io_imd_getFrequency();
-}
-
-float app_imd_getPwmDutyCycle()
-{
-    return io_imd_getDutyCycle();
-}
-
 void app_imd_broadcast()
 {
-    app_canTx_BMS_ImdFrequency_set(app_imd_getPwmFrequency());
-    app_canTx_BMS_ImdDutyCycle_set(app_imd_getPwmDutyCycle());
+    app_canTx_BMS_ImdFrequency_set(io_imd_getFrequency());
+    app_canTx_BMS_ImdDutyCycle_set(io_imd_getDutyCycle());
     app_canTx_BMS_ImdTimeSincePowerOn_set(io_imd_getTimeSincePowerOn());
 
     const ImdCondition condition = app_imd_getCondition();

@@ -2,6 +2,7 @@
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_hal.h"
+#include "hw_gpios.h"
 #include <assert.h>
 #include <math.h>
 
@@ -189,12 +190,12 @@ float io_tractiveSystem_getCurrentLowResolution(void)
     return -(low_res_current + low_res_curr_calibration);
 }
 
-bool io_tractiveSystem_currentSensorOk(void)
-{
-    return hw_gpio_readPin(&ts_isense_ocsc_ok_pin);
-}
-
-bool io_tractiveSystem_voltageSensorOk(void)
+bool io_tractiveSystem_getVoltageSnsDiagState(void)
 {
     return hw_gpio_readPin(&diag_ts_pin);
+}
+
+bool io_tractiveSystem_getCurrentSnsDiagState(void)
+{
+    return hw_gpio_readPin(&ts_isense_ocsc_ok_pin);
 }
