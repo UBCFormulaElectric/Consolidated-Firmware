@@ -14,9 +14,7 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "PLATFORM": "firmware",
         "TARGET": "binary",
-        "HANDLE_DEPS": "OFF",
         "USE_COMMIT_INFO": "MINIMAL",
-        "NO_VENV": "ON",
         "BOOTLOAD": "ON",
         "WATCHDOG": "ON"
       },
@@ -31,9 +29,7 @@
         "CMAKE_BUILD_TYPE": "Release",
         "PLATFORM": "firmware",
         "TARGET": "binary",
-        "HANDLE_DEPS": "OFF",
         "USE_COMMIT_INFO": "ON",
-        "NO_VENV": "ON",
         "BOOTLOAD": "ON",
         "WATCHDOG": "ON"
       },
@@ -64,9 +60,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "PLATFORM": "firmware",
-        "TARGET": "test",
-        "HANDLE_DEPS": "OFF",
-        "NO_VENV": "ON"
+        "TARGET": "test"
       },
       "binaryDir": "build_fw_test"
     },
