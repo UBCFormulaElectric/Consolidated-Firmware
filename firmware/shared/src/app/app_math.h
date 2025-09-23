@@ -35,7 +35,7 @@ typedef struct
 /*
  * Matrix Addition: result = A + B
  */
-inline bool add(Matrix *result, const Matrix *A, const Matrix *B)
+static inline bool add(Matrix *result, const Matrix *A, const Matrix *B)
 {
     // checks if matrix dimensions are violated
     if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
@@ -50,11 +50,10 @@ inline bool add(Matrix *result, const Matrix *A, const Matrix *B)
     return true;
 }
 
-
 /*
  * Matrix Subtraction: result = A - B
  */
-inline bool sub(Matrix *result, const Matrix *A, const Matrix *B)
+static inline bool sub(Matrix *result, const Matrix *A, const Matrix *B)
 {
     // checks if matrix dimensions are violated
     if (A->rows != B->rows || A->cols != B->cols || result->rows != A->rows || result->cols != A->cols)
@@ -72,7 +71,7 @@ inline bool sub(Matrix *result, const Matrix *A, const Matrix *B)
 /*
  * Matrix Multiplication: result = A * B
  */
-inline bool mult(Matrix *result, const Matrix *A, const Matrix *B)
+static inline bool mult(Matrix *result, const Matrix *A, const Matrix *B)
 {
     // checks if matrix dimensions are violated
     if (A->cols != B->rows || result->rows != A->rows || result->cols != B->cols)
@@ -103,7 +102,7 @@ inline bool mult(Matrix *result, const Matrix *A, const Matrix *B)
 /*
  * Matrix Transpose: result = input^T
  */
-inline bool transpose(Matrix *result, const Matrix *input)
+static inline bool transpose(Matrix *result, const Matrix *input)
 {
     // checks if matrix dimensions are violated
     if (result->rows != input->cols || result->cols != input->rows)
@@ -126,7 +125,7 @@ inline bool transpose(Matrix *result, const Matrix *input)
 /*
  * 2x2 Matrix Inversion: result = X^-1
  */
-inline bool inverse2x2(Matrix *result, const Matrix *X)
+static inline bool inverse2x2(Matrix *result, const Matrix *X)
 {
     // checks if matrix dimensions are violated
     if (X->rows != 2 || X->cols != 2 || result->rows != 2 || result->cols != 2)
