@@ -20,6 +20,131 @@
       }
     }
   },
+    "LvBatteryStatus": {
+      "msg_id": 230,
+      "cycle_time": 100,
+      "description": "Status of the LV battery pack.",
+      "signals": {
+        "StateOfCharge": {
+          "min": 0,
+          "max": 100,
+          "resolution": 0.1
+        },
+        "PermanentFault": {
+          "bits": 1
+        },
+        "SafetyFault": {
+          "bits": 1
+        },
+        "OpenWireCheck": {
+          "bits": 1
+        },
+        "InternalWatchdog": {
+          "bits": 1
+        },
+        "PrechargeMode": {
+          "bits": 1
+        }
+      }
+    },
+    "LvBatterySafetyStatus": {
+      "msg_id": 236,
+      "cycle_time": 100,
+      "description": "Status of the LV battery pack.",
+      "signals": {
+        "Undervoltage": {
+          "bits": 1
+        },
+        "Overvoltage": {
+          "bits": 1
+        },
+        "ChargingOvercurrent": {
+          "bits": 1
+        },
+        "OvercurrentInDischarge1": {
+          "bits": 1
+        },
+        "OvercurrentInDischarge2": {
+          "bits": 1
+        },
+        "ShortCircuitInDischarge": {
+          "bits": 1
+        },
+        "UndertemperatureInCharge": {
+          "bits": 1
+        },
+        "UndertemperatureInDischarge": {
+          "bits": 1
+        },
+        "InternalUndertemperature": {
+          "bits": 1
+        },
+        "OvertemperatureInCharge": {
+          "bits": 1
+        },
+        "OvertemperatureInDischarge": {
+          "bits": 1
+        },
+        "InternalOvertemperature": {
+          "bits": 1
+        },
+        "FETOvertemperature": {
+          "bits": 1
+        },
+        "PrechargeTimeout": {
+          "bits": 1
+        },
+        "CellOvervoltageLatch": {
+          "bits": 1
+        },
+        "OvercurrentDischargeLatch": {
+          "bits": 1
+        },
+        "ShortCircuitDischargeLatch": {
+          "bits": 1
+        },
+        "OvercurrentDischarge3": {
+          "bits": 1
+        } 
+      }
+    },
+    "LvBatteryVoltage": {
+      "msg_id": 232,
+      "cycle_time": 100,
+      "description": "Status of the LV battery pack.",
+      "signals": {
+        "StackVoltage": {
+          "min": 0,
+          "max": 14,
+          "resolution": 0.01,
+          "unit": "V"
+        },
+        "Cell0": {
+          "min": 0,
+          "max": 4.2,
+          "resolution": 0.01,
+          "unit": "V"
+        },
+        "Cell1": {
+          "min": 0,
+          "max": 4.2,
+          "resolution": 0.01,
+          "unit": "V"
+        },
+        "Cell2": {
+          "min": 0,
+          "max": 4.2,
+          "resolution": 0.01,
+          "unit": "V"
+        },
+        "Cell3": {
+          "min": 0,
+          "max": 4.2,
+          "resolution": 0.01,
+          "unit": "V"
+        }
+      }
+    },
   "CommitInfo": {
     "msg_id": 509,
     "cycle_time": 100,
