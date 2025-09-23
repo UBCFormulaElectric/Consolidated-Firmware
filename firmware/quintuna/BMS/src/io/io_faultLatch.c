@@ -31,5 +31,5 @@ FaultLatchState io_faultLatch_getCurrentStatus(const FaultLatch *latch)
 
 FaultLatchState io_faultLatch_getLatchedStatus(const FaultLatch *latch)
 {
-    return !hw_gpio_readPin(latch->latch_status_gpio) ? FAULT_LATCH_OK : FAULT_LATCH_FAULT;
+    return hw_gpio_readPin(latch->latch_status_gpio) ? FAULT_LATCH_FAULT : FAULT_LATCH_OK;
 }
