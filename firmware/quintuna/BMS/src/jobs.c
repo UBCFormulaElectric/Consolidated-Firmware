@@ -74,6 +74,7 @@ void jobs_init(void)
 
     app_precharge_init();
 
+#ifndef TARGET_HV_SUPPLY
     app_segments_setDefaultConfig();
     app_segments_initFaults();
     // Write LTC configs.
@@ -95,6 +96,7 @@ void jobs_init(void)
     app_segments_broadcastStatusSelfTest();
     app_segments_broadcastOpenWireCheck();
     app_segments_balancingInit();
+#endif
 
     app_timer_init(&air_n_debounce_timer, AIR_N_DEBOUNCE_PERIOD);
 
@@ -135,12 +137,12 @@ void jobs_run100Hz_tick(void)
     // if the charger is charger is connected
     app_canTx_BMS_ChargerConnectedType_set(io_charger_getConnectionStatus());
 
-    #ifdef TARGET_HV_SUPPLY
-        const bool acc_fault = false;
-    #else
-        (void)app_segments_checkWarnings();
-        const bool acc_fault = app_segments_checkFaults();
-    #endif
+#ifdef TARGET_HV_SUPPLY
+    const bool acc_fault = false;
+#else
+    (void)app_segments_checkWarnings();
+    const bool acc_fault = app_segments_checkFaults();
+#endif
     io_faultLatch_setCurrentStatus(&bms_ok_latch, acc_fault ? FAULT_LATCH_FAULT : FAULT_LATCH_OK);
 
     // Update CAN signals for BMS latch statuses.

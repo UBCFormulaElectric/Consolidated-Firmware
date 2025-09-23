@@ -128,6 +128,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
+    target_compile_definitions("quintuna_BMS_app.elf" PUBLIC TARGET_HV_SUPPLY)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
