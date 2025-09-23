@@ -14,7 +14,6 @@ typedef struct
     const Gpio *current_status_gpio;
     const Gpio *latch_status_gpio;
     const bool  read_only; // Certain fault latches can only be read from.
-    const bool  invert;
 } FaultLatch;
 
 extern const FaultLatch bms_ok_latch;
