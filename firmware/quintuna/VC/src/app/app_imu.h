@@ -3,6 +3,6 @@
 #include "app_canTx.h"
 #include <stdbool.h>
 
-void app_collect_imu_data();
+void app_imu_broadcast();
 
 const ImuData *app_get_imu_struct();
