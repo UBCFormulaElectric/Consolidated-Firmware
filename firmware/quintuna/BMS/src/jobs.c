@@ -188,13 +188,14 @@ void jobs_initLTCVoltages(void)
 void jobs_runLTCVoltages(void)
 {
     const bool balancing_enabled = app_stateMachine_getCurrentState() == &balancing_state;
+    const bool pwm_phase_active = app_segments_balancing_isPhaseActive();
     io_semaphore_take(&isospi_bus_access_lock, MAX_TIMEOUT);
     {
         io_ltc6813_wakeup();
         LOG_IF_ERR(app_segments_configSync());
 
         // Mute/unmute balancing.
-        if (balancing_enabled)
+        if (balancing_enabled && pwm_phase_active)
         {
             LOG_IF_ERR(io_ltc6813_sendBalanceCommand());
         }
