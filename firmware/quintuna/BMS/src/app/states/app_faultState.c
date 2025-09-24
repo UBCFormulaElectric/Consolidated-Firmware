@@ -14,11 +14,11 @@ static void app_faultStateRunOnEntry(void)
 
 static void app_faultStateRunOnTick100Hz(void)
 {
-    #ifdef TARGET_HV_SUPPLY
-        const bool acc_fault_cleared = true;
-    #else
-        const bool acc_fault_cleared = !app_segments_checkFaults();
-    #endif
+#ifdef TARGET_HV_SUPPLY
+    const bool acc_fault_cleared = true;
+#else
+    const bool acc_fault_cleared = !app_segments_checkFaults();
+#endif
     // const bool precharge_ok      = !app_precharge_limitExceeded();
     const bool bms_fault_cleared = io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK;
 

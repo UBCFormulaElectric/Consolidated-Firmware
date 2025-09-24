@@ -398,6 +398,10 @@ namespace faultLatches
     }
     void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
     {
+        if (latch->latched_state == FAULT_LATCH_OK && status == FAULT_LATCH_FAULT)
+        {
+            setCurrentStatus_call_count[FaultLatchParams(const_cast<FaultLatch *>(latch), status)]++;
+        }
         latch->status        = status;
         latch->latched_state = latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
     }
@@ -440,9 +444,9 @@ namespace segments
         }
     }
 
-    void setCellVoltage(const size_t segment, const size_t cell, const uint16_t voltage)
+    void setCellVoltage(const size_t segment, const size_t cell, float voltage)
     {
-        voltage_regs[segment][cell] = voltage;
+        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
     }
 
     void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)

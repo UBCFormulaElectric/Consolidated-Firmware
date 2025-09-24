@@ -317,8 +317,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
 {
-    fakes::faultLatches::setCurrentStatus_resetCallCounts();
-
     // Let accumulator startup count expire
     LetTimePass(1000);
     ASSERT_STATE_EQ(init_state);

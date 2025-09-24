@@ -20,6 +20,7 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
         fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
         fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
+        fakes::faultLatches::setCurrentStatus_resetCallCounts();
 
         fakes::segments::setPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::segments::SetAuxRegs(1.5f); // Approx. 25C
