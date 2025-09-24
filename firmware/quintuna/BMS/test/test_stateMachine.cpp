@@ -313,6 +313,27 @@ TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
 }
 
 // charging tests
+TEST_F(BmsStateMachineTest, charging_tests_test) {
+
+    // Set up system to enter charge state
+    app_stateMachine_setCurrentState(&charge_state);
+
+    // Moch/fake charger being connected
+    fakes::charger::setConnectionStatus(CHARGER_CONNECTED_WALL);
+    fakes::charger::setCPDutyCycle(0.5f);
+
+    // Moch/fake charging for 1 second with no interruptions
+    for (int i = 0; i < 100; i += 10)
+    {
+        ASSERT_STATE_EQ(charge_state); // Should remain in charge state
+        LetTimePass(10);
+    }
+
+    fakes::charger::setConnectionStatus(CHARGER_DISCONNECTED);
+    LetTimePass(1000); // Wait for debounce time to pass
+
+    ASSERT_STATE_EQ(init_state); // Should transition to init state
+}
 TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging) {}
 TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {}
 TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state) {}
