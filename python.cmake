@@ -16,6 +16,18 @@ set(PYTHON_COMMAND ${Python3_EXECUTABLE})
 
 find_program(PIPENV_COMMAND pipenv)
 IF (PIPENV_COMMAND)
+    # check that pipenv exists
+    execute_process(COMMAND ${PIPENV_COMMAND} --venv
+            OUTPUT_VARIABLE FIND_PIPENV_OUTPUT
+            RESULT_VARIABLE PIPENV_VALID_CMD_RESULT
+            ERROR_VARIABLE FIND_PIPENV_ERROR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE)
+ELSE ()
+    set(PIPENV_VALID_CMD_RESULT 1)
+ENDIF ()
+
+IF (${PIPENV_VALID_CMD_RESULT} EQUAL 0)
     message("  ℹ️ Found pipenv: ${PIPENV_COMMAND}")
     message("  📟 Using pipenv command: ${PIPENV_COMMAND}")
 
@@ -31,17 +43,6 @@ IF (PIPENV_COMMAND)
     ENDIF ()
     set(PYTHON_COMMAND ${PIPENV_COMMAND} run ${PYTHON_BASE_COMMAND})
 
-    # check that pipenv exists
-    execute_process(COMMAND ${PIPENV_COMMAND} --venv
-            OUTPUT_VARIABLE FIND_PIPENV_OUTPUT
-            RESULT_VARIABLE FIND_PIPENV_RESULT
-            ERROR_VARIABLE FIND_PIPENV_ERROR
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_STRIP_TRAILING_WHITESPACE)
-    IF (${FIND_PIPENV_RESULT})
-        message(FATAL_ERROR "Pipenv path report error: ${FIND_PIPENV_RESULT} ${FIND_PIPENV_ERROR}
-            Make sure that you have ran \"pipenv install\" in the root directory")
-    ENDIF ()
     message("  🛣 Pipenv path: ${FIND_PIPENV_OUTPUT}")
 
     # check that dependencies are installed with pipenv
