@@ -25,6 +25,7 @@
 #include "bootloader.h"
 #include "hw_error.h"
 #include "hw_fdcan.h"
+#include "hw_flash.h"
 #include "io_canQueue.h"
 /* USER CODE END Includes */
 
@@ -58,7 +59,7 @@ const osThreadAttr_t interfaceTask_attributes = {
     .cb_size    = sizeof(interfaceTaskControlBlock),
     .stack_mem  = &interfaceTaskBuffer[0],
     .stack_size = sizeof(interfaceTaskBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
+    .priority   = (osPriority_t)osPriorityAboveNormal1,
 };
 /* Definitions for tickTask */
 osThreadId_t         tickTaskHandle;
@@ -84,6 +85,18 @@ const osThreadAttr_t canTxTask_attributes = {
     .stack_size = sizeof(canTxTaskBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
+/* Definitions for flashTask */
+osThreadId_t         flashTaskHandle;
+uint32_t             flashTaskBuffer[512];
+osStaticThreadDef_t  flashTaskControlBlock;
+const osThreadAttr_t flashTask_attributes = {
+    .name       = "flashTask",
+    .cb_mem     = &flashTaskControlBlock,
+    .cb_size    = sizeof(flashTaskControlBlock),
+    .stack_mem  = &flashTaskBuffer[0],
+    .stack_size = sizeof(flashTaskBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -95,6 +108,7 @@ static void MX_FDCAN2_Init(void);
 void        runInterfaceTask(void *argument);
 void        runTickTask(void *argument);
 void        runCanTxTask(void *argument);
+void        runFlashTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -154,7 +168,6 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -166,6 +179,9 @@ int main(void)
 
     /* creation of canTxTask */
     canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
+
+    /* creation of flashTask */
+    flashTaskHandle = osThreadNew(runFlashTask, NULL, &flashTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -383,6 +399,21 @@ void runCanTxTask(void *argument)
         osDelay(1);
     }
     /* USER CODE END runCanTxTask */
+}
+
+/* USER CODE BEGIN Header_runFlashTask */
+/**
+ * @brief Function implementing the flashTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runFlashTask */
+void runFlashTask(void *argument)
+{
+    /* USER CODE BEGIN runFlashTask */
+    /* Infinite loop */
+    bootloader_runFlashTask();
+    /* USER CODE END runFlashTask */
 }
 
 /**

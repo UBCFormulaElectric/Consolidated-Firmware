@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "cmsis_os.h"
 
 #if defined(STM32F412Rx)
 
@@ -41,7 +42,7 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
 #elif defined(STM32H733xx)
 
 /**
- * Write a "flash word" to flash, which is 32 bytes or 256 bits.
+ * Write a async "flash word" to flash, which is 32 bytes (256 bits).
  * This is the smallest amount of memory you can program at a time on the
  * STM32H733xx. Must be erased first.
  * @param address Address to write to.
@@ -60,3 +61,6 @@ bool hw_flash_programFlashWord(uint32_t address, uint32_t *data);
  * @return True if successful, otherwise false.
  */
 bool hw_flash_eraseSector(uint8_t sector);
+
+void hw_flash_init(void);
+bool hw_flash_takeLock(TickType_t timeout);
