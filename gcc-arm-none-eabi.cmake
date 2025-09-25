@@ -44,4 +44,5 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 # Turn this on to debug makefile
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
+message("")
 message("✅ ARM Toolchain Included, using ${CMAKE_C_COMPILER}")

@@ -24,12 +24,6 @@ ENDIF ()
 
 # ======== Dependency Management Configs ========
 message("")
-option(HANDLE_DEPS "Build build on the server" OFF)
-IF (HANDLE_DEPS)
-    message("🏗️ CMake is now controlling the optional dependencies")
-ELSE ()
-    message("🏠 Completely using your dependencies")
-ENDIF ()
 include(get_cpm.cmake)
 message("✅ Downloaded CPM.cmake")
 

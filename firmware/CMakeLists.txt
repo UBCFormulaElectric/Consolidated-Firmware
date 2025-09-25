@@ -1,7 +1,4 @@
 include(cmake/dependencies.cmake)
-IF (HANDLE_DEPS)
-    include(cmake/optional_deps.cmake)
-ENDIF ()
 
 IF ("${TARGET}" STREQUAL "binary")
     option(BOOTLOAD "Build the bootloader" OFF)
