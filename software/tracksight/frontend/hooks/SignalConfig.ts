@@ -300,8 +300,8 @@ export const getAlertSignalType = (name: string): AlertSignalType | null => {
 export const DEFAULT_MAX_DATA_POINTS = 1000; // lowk we wanna keep it all
 export const BACKEND_URL =
   typeof window !== "undefined"
-    ? `http://${window.location.hostname}:5001`
-    : `http://localhost:5001`;
+    ? `http://${window.location.hostname}:5000`
+    : `http://localhost:5000`;
 export const MAX_RECONNECT_ATTEMPTS = 5;
 export const RECONNECT_INTERVAL = 3000; // 3 seconds
 export const DEBUG = true; // Set to false to disable debug logs
