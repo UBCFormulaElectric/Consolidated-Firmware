@@ -12,10 +12,11 @@ type Props = {
   width: number;
   height: number;
   spanGaps?: boolean; // connect across nulls
-  options?: any; // keep flexible; uPlot's Options type is large
+  options?: any; // keep flexible; uPlot's Options type is large,
+  version?: number
 };
 
-export default function UPlotChart({ data, series, width, height, spanGaps = true, options }: Props) {
+export default function UPlotChart({ data, series, width, height, spanGaps = true, options, version }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const plotRef = useRef<any>(null);
   const uCtorRef = useRef<any>(null);
@@ -77,7 +78,7 @@ export default function UPlotChart({ data, series, width, height, spanGaps = tru
       pendingRAF.current = null;
       u.setData(data);
     });
-  }, [data]);
+  }, [data, version]);
 
   // Size updates
   useEffect(() => {
@@ -105,8 +106,8 @@ export default function UPlotChart({ data, series, width, height, spanGaps = tru
         axes: [{}, {}],
         hooks: {
           init: [
-            (u: any) => {
-              console.log("Intialized new uPlot instance");
+            () => {
+              console.warn("[WARNING]: Re-rendered full chart, ensure this isn't unnecesary")
             }
           ]
         },
