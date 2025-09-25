@@ -303,9 +303,9 @@ extern "C"
 
 #include "io_faultLatch.h"
     // latches to operate on
-    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false };
-    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
-    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
+    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true, false };
+    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false, true };
+    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false, true };
 
     void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
     {
