@@ -8,6 +8,7 @@ import { useSignals, useDataVersion } from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import UPlotChart from "@/components/shared/UPlotChart";
+import createDataPointFormatter from '@/lib/charts/createDataPointFormatter';
 
 interface DynamicSignalGraphProps {
   signalName: string;
@@ -81,44 +82,13 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       );
     }, [activeSignals, subscriptionVersion, isPaused]);
 
-    // Build sparse aligned arrays for uPlot: [x[], ...y[]]
-    const uplotData = React.useMemo(() => {
-      const MAX_POINTS = 8000;
-      const filtered = numericalData.filter((d) => thisGraphSignals.includes(d.name as string));
-      if (filtered.length === 0) return [[], ...thisGraphSignals.map(() => [])] as [number[], ...(Array<(number | null)[]>)];
+    const dataPointsFormatter = useMemo(() => {
+      return createDataPointFormatter(componentSubscriptions.current);
+    }, [componentSubscriptions.current]);
 
-      // Per-signal timestamp -> value map and union X
-      const perSig = new Map<string, Map<number, number>>();
-      thisGraphSignals.forEach((s) => perSig.set(s, new Map()));
-      const xSet = new Set<number>();
-      for (const d of filtered) {
-        const sig = d.name as string;
-        const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        const v = typeof d.value === "number" ? d.value : Number(d.value);
-        if (!Number.isFinite(v)) continue;
-        perSig.get(sig)!.set(t, v);
-        xSet.add(t);
-      }
-      let x = Array.from(xSet).sort((a, b) => a - b);
-      if (x.length > MAX_POINTS) {
-        const step = x.length / MAX_POINTS;
-        const down: number[] = [];
-        for (let i = 0; i < MAX_POINTS; i++) down.push(x[Math.floor(i * step)]);
-        if (down[down.length - 1] !== x[x.length - 1]) down[down.length - 1] = x[x.length - 1];
-        x = down;
-      }
-      const ys: Array<(number | null)[]> = [];
-      for (const sig of thisGraphSignals) {
-        const m = perSig.get(sig)!;
-        const arr: (number | null)[] = new Array(x.length);
-        for (let i = 0; i < x.length; i++) {
-          const t = x[i];
-          arr[i] = m.has(t) ? (m.get(t) as number) : null;
-        }
-        ys.push(arr);
-      }
-      return [x, ...ys] as [number[], ...(Array<(number | null)[]>)];
-    }, [numericalData, thisGraphSignals]);
+    const uPlotData = useMemo(() => {
+      return dataPointsFormatter(numericalData);
+    }, [dataPointsFormatter, dataVersion]);
 
     const numericalSignals = thisGraphSignals;
 
@@ -137,10 +107,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const pixelPerPoint = 50;
 
     // Simplified: total points = rendered chart points
-    const totalDataPoints = (uplotData[0] as number[]).length;
+    const totalDataPoints = (uPlotData[0] as number[]).length;
 
     // Width simply scales with number of points shown
-    const totalWidth = Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
+    const totalWidth = 1028;
     const chartWidth = totalWidth;
 
     // No offset needed without virtualization
@@ -371,7 +341,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                 }}
               >
                 <UPlotChart
-                  data={uplotData as [number[], ...(Array<(number | null)[]>)]}
+                  data={uPlotData as [number[], ...(Array<(number | null)[]>)]}
+                  version={dataVersion}
                   width={chartWidth}
                   height={chartHeight}
                   series={numericalSeries}
