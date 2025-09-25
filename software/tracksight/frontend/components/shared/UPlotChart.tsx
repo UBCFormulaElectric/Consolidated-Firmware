@@ -103,6 +103,13 @@ export default function UPlotChart({ data, series, width, height, spanGaps = tru
         series: uPlotSeries,
         scales: { x: { time: true } },
         axes: [{}, {}],
+        hooks: {
+          init: [
+            (u: any) => {
+              console.log("Intialized new uPlot instance");
+            }
+          ]
+        },
         ...options,
       },
       currentData,
