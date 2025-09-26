@@ -101,8 +101,7 @@ extern "C"
 #define ROT_A_EXTI_IRQn EXTI0_IRQn
 #define LAUNCH_CONTROL_SIG_Pin GPIO_PIN_1
 #define LAUNCH_CONTROL_SIG_GPIO_Port GPIOB
-#define VANILLA_SIG_Pin GPIO_PIN_2
-#define VANILLA_SIG_GPIO_Port GPIOB
+// deleted vanilla_sig
 #define REGEN_SIG_Pin GPIO_PIN_10
 #define REGEN_SIG_GPIO_Port GPIOB
 #define LED_DIMMING_Pin GPIO_PIN_14
@@ -131,6 +130,9 @@ extern "C"
 #define SEVEN_SEG_RCK_GPIO_Port GPIOB
 #define SEVEN_SEG_DIMMING_Pin GPIO_PIN_6
 #define SEVEN_SEG_DIMMING_GPIO_Port GPIOB
+//new
+#define TORQUE_VECTORING_SIG_GPIO_Port GPIO_PIN_2
+#define TORQUE_VECTORING_SIG_Pin GPIOB
 
     /* USER CODE BEGIN Private defines */
 

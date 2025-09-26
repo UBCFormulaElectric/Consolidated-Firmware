@@ -12,7 +12,9 @@ extern const Gpio rot_b;
 
 extern const Gpio rot_a;
 extern const Gpio launch_control_sig;
-extern const Gpio vanilla_sig;
+// deleted Vanilla_sig as it was a hotfix at comp
+//new
+extern const Gpio torque_vectoring_sig;
 extern const Gpio regen_sig;
 
 extern const Gpio led_srck;

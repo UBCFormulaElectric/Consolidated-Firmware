@@ -15,6 +15,8 @@
 #include "io_canQueue.h"
 #include "io_canRx.h"
 #include "io_bootHandler.h"
+//new
+#include "hw_gpios.h"   // for 'led' and torque_vectoring_sig
 
 // hw
 #include "hw_hardFaultHandler.h"
@@ -136,12 +138,32 @@ void tasks_run100Hz()
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
+    // Blink timing: toggle every 250 ms => 2 Hz blink at 100 Hz task.
+    static uint8_t blink_div = 0;
+    static uint8_t led_on = 0;
+
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
         {
             jobs_run100Hz_tick();
         }
+
+        //new: torque vectoring switch -> blink the MCU debug LED 
+        // Read the input directly.
+        const GPIO_PinState sw = HAL_GPIO_ReadPin(torque_vectoring_sig.port, torque_vectoring_sig.pin);
+        if (sw == GPIO_PIN_SET) {
+            if (++blink_div >= 25) {         // 25 * 10 ms = 250 ms
+                blink_div = 0;
+                led_on ^= 1U;
+                HAL_GPIO_WritePin(led.port, led.pin, led_on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+            }
+        } else {
+            blink_div = 0;
+            led_on    = 0;
+            HAL_GPIO_WritePin(led.port, led.pin, GPIO_PIN_RESET);
+        }
+
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
