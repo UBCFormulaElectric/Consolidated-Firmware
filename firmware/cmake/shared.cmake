@@ -9,6 +9,7 @@ set(BOOT_DIR "${FIRMWARE_DIR}/boot")
 set(SHARED_DIR "${FIRMWARE_DIR}/shared")
 set(THIRD_PARTY_DIR "${FIRMWARE_DIR}/third_party")
 set(TEST_DIR "${FIRMWARE_DIR}/test")
+set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 
 # C shared code
 set(SHARED_EMBEDDED_DIR "${SHARED_DIR}/src")
@@ -17,10 +18,10 @@ set(SHARED_IO_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/io")
 set(SHARED_HW_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/hw")
 set(SHARED_FAKES_DIR "${SHARED_DIR}/src_fake")
 # C++ shared code
-#set(SHARED_EMBEDDED_DIR_CPP "${SHARED_DIR}/srcpp")
-#set(SHARED_APP_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/app")
-#set(SHARED_IO_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/io")
-#set(SHARED_HW_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/hw")
+set(SHARED_EMBEDDED_DIR_CPP "${SHARED_DIR}/srcpp")
+set(SHARED_APP_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/app")
+set(SHARED_IO_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/io")
+set(SHARED_HW_INCLUDE_DIR_CPP "${SHARED_EMBEDDED_DIR_CPP}/hw")
 # code sources
 file(GLOB_RECURSE SHARED_APP_SRCS "${SHARED_APP_INCLUDE_DIR}/*.c")
 file(GLOB_RECURSE SHARED_IO_SRCS "${SHARED_IO_INCLUDE_DIR}/*.c")
@@ -52,7 +53,7 @@ function(commit_info_library
     ENDIF ()
 endfunction()
 
-set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
+set(CAN_DIR ${CMAKE_SOURCE_DIR}/can_bus)
 
 # Generates library ${CAR}_${BOARD}_jsoncan
 message("  🔃 Registered jsoncan_library() function")
