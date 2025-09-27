@@ -108,21 +108,21 @@ extern "C"
         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
     {
-        // if (started_therm_adc_conversion || started_self_test_aux)
-        // {
-        //     memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
-        // }
-        // else
-        // {
-        //     FAIL() << "Did not start thermistor ADC conversion";
-        // }
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        if (started_therm_adc_conversion || started_self_test_aux)
         {
-            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
+            for (int i = 0; i < NUM_SEGMENTS; i++)
             {
-                aux_regs[i][j]     = 0;
-                comm_success[i][j] = EXIT_CODE_OK;
+                for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+                {
+                    // aux_regs[i][j]     = 0;
+                    comm_success[i][j] = EXIT_CODE_OK;
+                }
             }
+        }
+        else
+        {
+            FAIL() << "Did not start thermistor ADC conversion";
         }
         started_therm_adc_conversion = false;
     }

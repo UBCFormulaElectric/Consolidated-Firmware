@@ -58,7 +58,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
                     ASSERT_STATE_EQ(fault_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
 
-                    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_OK);
+                    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
                     LetTimePass(10);
                     ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
@@ -124,7 +124,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
                     ASSERT_STATE_EQ(fault_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
 
-                    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_OK);
+                    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
                     LetTimePass(10);
                     ASSERT_STATE_EQ(init_state);
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
@@ -162,7 +162,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
         // Set cell temp critically high.
-        fakes::segments::SetAuxReg(0, 0, 0.5f); // Approx. 70C
+        fakes::segments::SetAuxReg(0, 0, 5.0f); // Approx. 70C
         LetTimePass(OVER_TEMP_DEBOUNCE_FAULT_MS);
 
         if (debounce_expire)
@@ -178,7 +178,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
             ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
             // Clear fault, should transition back to init.
-            fakes::segments::SetAuxReg(0, 0, 1.5f);
+            fakes::segments::SetAuxReg(0, 0, 15.0f);
             LetTimePass(LTC_CONVERSION_PERIOD_MS);
 
             // Waits until fault latch reset button is pressed.
@@ -186,7 +186,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
             ASSERT_STATE_EQ(fault_state);
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
-            fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_OK);
+            fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
             LetTimePass(10);
             ASSERT_STATE_EQ(init_state);
             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
