@@ -28,7 +28,8 @@
     "INV_DC_ON":1,
     "INV_ENABLE":2,
     "INV_INVERTER_ON":3,
-    "INV_READY_FOR_DRIVE":4
+    "INV_READY_FOR_DRIVE":4,
+    "INV_ERROR_RETRY":5 
   },
   
   "EllipseErrorCode": {
