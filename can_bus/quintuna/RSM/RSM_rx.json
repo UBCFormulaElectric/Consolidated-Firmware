@@ -3,6 +3,7 @@
     "FSM_Vitals", 
     "FSM_Brake",
     "VC_ConnectorBoardEfuse",
-    "VC_PumpStatus"
+    "VC_PumpStatus",
+    "Debug_SetCoolantPump"
   ]
 }

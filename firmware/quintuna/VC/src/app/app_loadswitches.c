@@ -14,6 +14,7 @@ static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_BMS]     = app_canTx_VC_BMSStatus_set,
     [EFUSE_CHANNEL_R_INV]   = app_canTx_VC_RearInvertersStatus_set,
     [EFUSE_CHANNEL_DAM]     = app_canTx_VC_DAMStatus_set,
+
     [EFUSE_CHANNEL_FRONT]   = app_canTx_VC_FrontStatus_set,
     [EFUSE_CHANNEL_RL_PUMP] = app_canTx_VC_RearLeftPumpStatus_set,
     [EFUSE_CHANNEL_R_RAD]   = app_canTx_VC_RightRadiatorFanStatus_set

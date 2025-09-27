@@ -5,5 +5,5 @@
 
 void app_pumpControl_MonitorPumps(void)
 {
-    io_rPump_setPercentage(app_canRx_VC_PumpRampUpSetPoint_get());
+    io_rPump_setPercentage(app_canRx_Debug_SetCoolantPump_CustomVal_get());
 }
