@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
+#include "app_inverterBringup.h"
 
 #define INV_QUIT_TIMEOUT_MS (10 * 1000)
 #define NO_TORQUE 0.0
@@ -33,11 +34,23 @@ static PowerManagerConfig power_manager_state = {
 // static bool power_sequencing_done = false;
 // static bool ready_for_drive       = false;
 
+/*keeping track of whether this is requested from retry or not. 
+if it's the first time booting up then we need to go through 
+all the states but if it's from a retry then we know our DC is on*/
+static bool bringup_post_fault_retry = false;
+
+/*Start up sequence of the inverters once all the requirements are met*/
 static void hvInitStateRunOnEntry(void)
 {
+    if (bringup_post_fault_retry){
+    current_inverter_state = INV_DC_ON;
+    }
+    else{
+        current_inverter_state = INV_SYSTEM_READY;
+    }
+
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
-    current_inverter_state = INV_SYSTEM_READY;
     app_timer_init(&start_up_timer, INV_QUIT_TIMEOUT_MS);
 
     app_canTx_VC_INVFRTorqueSetpoint_set(0);
@@ -70,16 +83,13 @@ static void hvInitStateRunOnTick100Hz(void)
                 LOG_INFO("inv_system_ready -> inv_dc_on");
                 current_inverter_state = INV_DC_ON;
                 app_timer_stop(&start_up_timer);
-
-                // Error reset should be set to false cause we were successful
-                app_canTx_VC_INVFLbErrorReset_set(false);
-                app_canTx_VC_INVFRbErrorReset_set(false);
-                app_canTx_VC_INVRLbErrorReset_set(false);
-                app_canTx_VC_INVRRbErrorReset_set(false);
             }
             else if (app_canAlerts_VC_Info_InverterRetry_get())
             {
-                app_warningHandling_inverterReset();
+                LOG_INFO("inv_system_ready -> inv_error_retry");
+                current_inverter_state = INV_ERROR_RETRY;
+                app_timer_stop(&start_up_timer);
+                app_stateMachine_setNextState(&inverter_retry_state);
             }
             break;
         }
@@ -142,10 +152,8 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         }
         case INV_READY_FOR_DRIVE:
-            if (app_canAlerts_VC_Info_InverterRetry_get())
+            if (bringup_post_fault_retry)
             {
-                app_warningHandling_inverterStatus();
-                app_canAlerts_VC_Info_InverterRetry_set(false);
                 app_stateMachine_setNextState(&drive_state);
             }
             else
@@ -172,6 +180,7 @@ static void hvInitStateRunOnExit(void)
     app_canTx_VC_INVFRbErrorReset_set(false);
     app_canTx_VC_INVRLbErrorReset_set(false);
     app_canTx_VC_INVRRbErrorReset_set(false);
+    bringup_post_fault_retry = false;
 }
 
 State hvInit_state = { .name              = "HV INIT",
