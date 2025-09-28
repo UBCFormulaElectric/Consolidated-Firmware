@@ -47,7 +47,7 @@ PrechargeState app_precharge_poll(const bool precharge_for_charging)
     }
     const float ts_voltage = app_tractiveSystem_getVoltage();
 #ifdef TARGET_HV_SUPPLY
-#define HV_SUPPLY_VOLTAGE (550.0f)
+#define HV_SUPPLY_VOLTAGE (588.0f)
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
     const float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
