@@ -31,6 +31,8 @@ static RetryProtocol efuses_retry_state[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_R_INV]   = { .loadswitch.st = &inv_bms_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_DAM]     = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_FRONT]   = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_RR_PUMP] = { .loadswitch.ti = &rr_pump_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_F_PUMP]  = { .loadswitch.ti = &f_pump_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_RL_PUMP] = { .loadswitch.ti = &rl_pump_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_R_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 }
 };
@@ -82,7 +84,7 @@ static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
 
 static bool is_efuse_ok(const uint8_t current_efuse_sequence)
 {
-    if (EFUSE_CHANNEL_RL_PUMP <= current_efuse_sequence)
+    if (EFUSE_CHANNEL_RL_PUMP <= current_efuse_sequence && current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP)
     {
         return io_TILoadswitch_pgood(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
     }
