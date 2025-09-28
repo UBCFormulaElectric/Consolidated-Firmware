@@ -123,8 +123,9 @@ void jobs_run100Hz_tick(void)
     app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     //app_pumpControl_MonitorPumps();
-    io_pumpControl_setPercentage((uint8_t)app_canRx_Debug_SetCoolantPump_CustomVal_get(), RR_PUMP);
-    //io_pumpControl_setPercentage((uint8_t)app_canRx_Debug_SetCoolantPump_CustomVal_get(), F_PUMP);
+    LOG_INFO("PUmp percentage: %d", (uint8_t)app_canRx_Debug_SetCoolantPump_CustomVal_get());
+    io_pumpControl_setPercentage(50, RR_PUMP);
+    io_pumpControl_setPercentage(50, F_PUMP);
     app_collect_imu_data();
     // app_sbgEllipse_broadcast();
 
