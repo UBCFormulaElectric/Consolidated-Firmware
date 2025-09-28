@@ -2,6 +2,7 @@
 #include "io_loadswitch.h"
 #include "io_time.h"
 #include "io_loadswitches.h"
+#include <app_canRx.h>
 #include <app_canTx.h>
 
 #define SLOPE (0.5f)
@@ -21,7 +22,7 @@ static void pumpControl_rampUp(void)
     }
     // calculate percentage based on defined slope above
     uint8_t percentage = (uint8_t)(SLOPE * time);
-    app_canTx_VC_PumpRampUpSetPoint_set((uint32_t)percentage);
+    //app_canTx_VC_PumpRampUpSetPoint_set((uint8_t)app_canRx_Debug_SetCoolantPump_CustomVal_get());
 
     if (percentage == 100)
     {

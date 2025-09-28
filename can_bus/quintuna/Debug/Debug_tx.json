@@ -87,10 +87,10 @@
         "bits": 1
       },
       "SetCoolantPump_CustomVal": {
-        "resolution": 15.625,
+        "resolution": 0.01,
         "min": 0,
-        "max": 2000,
-        "unit": "L/H"
+        "max": 100,
+        "unit": "%"
       }
     }
   },
