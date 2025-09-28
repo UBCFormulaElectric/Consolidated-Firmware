@@ -22,7 +22,7 @@ static void pumpControl_rampUp(void)
     }
     // calculate percentage based on defined slope above
     uint8_t percentage = (uint8_t)(SLOPE * time);
-    //app_canTx_VC_PumpRampUpSetPoint_set((uint8_t)app_canRx_Debug_SetCoolantPump_CustomVal_get());
+    // app_canTx_VC_PumpRampUpSetPoint_set((uint8_t)app_canRx_Debug_SetCoolantPump_CustomVal_get());
 
     if (percentage == 100)
     {

@@ -15,8 +15,8 @@
 #define APP_VALIDITY_ID_LOWBITS (0x8)
 #define GO_TO_BOOT (0x9)
 
-void           bootloader_preInit(void);
-void           bootloader_init(void);
+void bootloader_preInit(void);
+void bootloader_init(void);
 void bootloader_runInterfaceTask(void);
 void bootloader_runTickTask(void);
 void bootloader_runCanTxTask(void);

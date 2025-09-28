@@ -16,7 +16,6 @@ static const Efuse rl_pump_efuse   = { .enable_gpio = &rl_pump_en, .sns_adc_chan
 static const Efuse r_rad_fan_efuse = { .enable_gpio = &rr_rad_fan_en, .sns_adc_channel = &r_rad_fan_i_sns };
 static const Efuse l_rad_fan_efuse = { .enable_gpio = &rl_rad_fan_en, .sns_adc_channel = &l_rad_fan_i_sns };
 
-
 const ST_LoadSwitch inv_rsm_loadswitch = { .efuse1          = &f_inv_efuse,
                                            .efuse2          = &rsm_efuse,
                                            .stby_reset_gpio = &fr_stby_inv };
