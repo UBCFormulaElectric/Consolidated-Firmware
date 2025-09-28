@@ -20,7 +20,6 @@ void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 
 void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 {
-    LOG_ERROR("Error while flashing");
     flash_busy = false;
     HAL_FLASH_Lock();
     xSemaphoreGiveFromISR(flash_lock, NULL);

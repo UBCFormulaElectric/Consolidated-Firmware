@@ -71,7 +71,7 @@ const osThreadAttr_t tickTask_attributes = {
     .cb_size    = sizeof(tickTaskControlBlock),
     .stack_mem  = &tickTaskBuffer[0],
     .stack_size = sizeof(tickTaskBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityNormal1,
 };
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
@@ -95,7 +95,7 @@ const osThreadAttr_t flashTask_attributes = {
     .cb_size    = sizeof(flashTaskControlBlock),
     .stack_mem  = &flashTaskBuffer[0],
     .stack_size = sizeof(flashTaskBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
 
@@ -297,7 +297,7 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.MessageRAMOffset     = 0;
     hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 1;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 64;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
@@ -376,10 +376,7 @@ void runTickTask(void *argument)
 {
     /* USER CODE BEGIN runTickTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runTickTask();
     /* USER CODE END runTickTask */
 }
 
@@ -394,10 +391,7 @@ void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
 }
 
