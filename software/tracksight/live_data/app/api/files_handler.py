@@ -5,6 +5,7 @@ Assortment of API endpoints used to manage SD cards attached to the computer,
 # import sqlite3
 
 import psutil
+import platform
 from flask import Blueprint, send_file
 from logfs import LogFs, LogFsDiskFactory
 from logger import logger
@@ -112,6 +113,14 @@ def too_many_sd_card_error_handler(err):
     return {"error": "Many SD Cards Matched This Description"}, 500
 
 
+def is_removable(opts: str) -> bool:
+    parts = set(opts.split(","))
+    if platform.system() == "Darwin":
+        return "external" in parts
+    else:
+        return "removable" in parts
+
+
 def find_sd_card(sd_device: str):
     """
     Finds an SD card based on the device name
@@ -119,8 +128,10 @@ def find_sd_card(sd_device: str):
     Raises TooManySDCards if multiple of such device exists (this should not happen)
     """
 
-    candidate_partitions = list(filter(
-        lambda d: d.device == sd_device and "removable" in d.opts.split(","), psutil.disk_partitions()))
+    candidate_partitions = [
+        d for d in psutil.disk_partitions()
+        if d.device == sd_device and is_removable(d.opts)
+    ]
     if len(candidate_partitions) != 1:
         if len(candidate_partitions) == 0:
             raise NoSDCard()
@@ -146,8 +157,7 @@ def create_logfs(mountpoint: str):
 
 @sd_api.route("/sd/list", methods=["GET"])
 def list_sd_cards():
-    removable_cards = [i for i in psutil.disk_partitions(
-    ) if "removable" in i.opts.split(",")]
+    removable_cards = [i for i in psutil.disk_partitions() if is_removable(i.opts)]
     return [card.device for card in removable_cards]
 
 # IMPORTANT NOTE: sd_device must be adequately escaped when placed in a url string (use %2F)
