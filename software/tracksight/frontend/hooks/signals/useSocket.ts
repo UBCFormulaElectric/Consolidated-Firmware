@@ -7,6 +7,23 @@ let sharedSocket: Socket | null = null;
 let listenersAttached = false;
 
 function getSharedSocket(): Socket {
+	// Avoid creating a real socket on the server during SSR to prevent hydration mismatches
+	if (typeof window === 'undefined') {
+		// Return a minimal stub that matches the Socket interface we use
+		// so that render-time reads like `socket.connected` are stable (false)
+		const noop = () => { /* no-op */ };
+		return {
+			connected: false,
+			id: undefined,
+			on: noop as any,
+			off: noop as any,
+			emit: noop as any,
+			connect: noop as any,
+			disconnect: noop as any,
+			// spread to satisfy index signature expectations
+		} as unknown as Socket;
+	}
+
 	if (!sharedSocket) {
 		sharedSocket = io(BACKEND_URL, {
 			transports: ["websocket", "polling"],

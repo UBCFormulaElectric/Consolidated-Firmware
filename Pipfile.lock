@@ -1,11 +1,15 @@
 {
     "_meta": {
         "hash": {
+<<<<<<< HEAD
             "sha256": "fb5ee670669e889c2f9e91fb828c616ab291688781efcaf73c4e5faaaa9c81c5"
+=======
+            "sha256": "478f89764c97a398cc286f65f32158797b4624676c832539468711058284b217"
+>>>>>>> master
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.11"
+            "python_version": "3.13"
         },
         "sources": [
             {
@@ -15,6 +19,7 @@
             }
         ]
     },
+<<<<<<< HEAD
     "default": {
         "appdirs": {
             "hashes": [
@@ -2532,4 +2537,8 @@
             "version": "==80.9.0"
         }
     }
+=======
+    "default": {},
+    "develop": {}
+>>>>>>> master
 }
