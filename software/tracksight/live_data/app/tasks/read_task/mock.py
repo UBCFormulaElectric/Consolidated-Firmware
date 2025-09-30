@@ -2,6 +2,7 @@ import datetime
 import os
 import time
 from threading import Thread
+
 # types
 from typing import NoReturn
 
@@ -32,9 +33,37 @@ def read_messages_from_file() -> NoReturn:
 
         for msg_name, msg_obj in live_can_db.msgs.items():
             can_msg_queue.put(
-                CanMsg(412, bytearray(os.urandom(8)), datetime.datetime.now()))
+                CanMsg(412, bytearray(os.urandom(8)), datetime.datetime.now())
+            )
             can_msg_queue.put(
-                CanMsg(500, bytearray(os.urandom(8)), datetime.datetime.now()))
+                CanMsg(500, bytearray(os.urandom(8)), datetime.datetime.now())
+            )
+            # can_msg_queue.put(
+            #     CanMsg(501, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+            # can_msg_queue.put(
+            #     CanMsg(502, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+
+            # can_msg_queue.put(
+            #     CanMsg(503, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+
+            # can_msg_queue.put(
+            #     CanMsg(504, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+            # can_msg_queue.put(
+            #     CanMsg(505, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+            # can_msg_queue.put(
+            #     CanMsg(506, bytearray(os.urandom(8)), datetime.datetime.now())
+            # )
+            can_msg_queue.put(
+                CanMsg(233, bytearray(os.urandom(8)), datetime.datetime.now())
+            )
+
+
+
             time.sleep(0.1)
 
 

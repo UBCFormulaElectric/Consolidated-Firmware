@@ -55,17 +55,26 @@ extern "C"
     static Efuse rl_pump_efuse{};
     static Efuse r_rad_fan_efuse{};
 
-    ST_LoadSwitch      inv_rsm_loadswitch                 = { .efuse1 = &f_inv_efuse, .efuse2 = &rsm_efuse };
-    ST_LoadSwitch      inv_bms_loadswitch                 = { .efuse1 = &bms_efuse, .efuse2 = &r_inv_efuse };
-    ST_LoadSwitch      front_loadswitch                   = { .efuse1 = &dam_efuse, .efuse2 = &front_efuse };
-    TI_LoadSwitch      rl_pump_loadswitch                 = { .efuse = &rl_pump_efuse };
-    ST_LoadSwitch      rad_fan_loadswitch                 = { .efuse1 = NULL, .efuse2 = &r_rad_fan_efuse };
-    const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS] = {
-        [EFUSE_CHANNEL_F_INV] = &f_inv_efuse,     [EFUSE_CHANNEL_RSM] = &rsm_efuse,
-        [EFUSE_CHANNEL_BMS] = &bms_efuse,         [EFUSE_CHANNEL_R_INV] = &r_inv_efuse,
-        [EFUSE_CHANNEL_DAM] = &dam_efuse,         [EFUSE_CHANNEL_FRONT] = &front_efuse,
-        [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_R_RAD] = &r_rad_fan_efuse
-    };
+    ST_LoadSwitch      inv_rsm_loadswitch                 = { .efuse1              = &f_inv_efuse,
+                                                              .efuse2              = &rsm_efuse,
+                                                              .pgood               = false,
+                                                              .set_stby_reset_gpio = false };
+    ST_LoadSwitch      inv_bms_loadswitch                 = { .efuse1              = &bms_efuse,
+                                                              .efuse2              = &r_inv_efuse,
+                                                              .pgood               = false,
+                                                              .set_stby_reset_gpio = false };
+    ST_LoadSwitch      front_loadswitch                   = { .efuse1              = &dam_efuse,
+                                                              .efuse2              = &front_efuse,
+                                                              .pgood               = false,
+                                                              .set_stby_reset_gpio = false };
+    TI_LoadSwitch      rl_pump_loadswitch                 = { .efuse = &rl_pump_efuse, .pgood = false };
+    ST_LoadSwitch      rad_fan_loadswitch                 = { .efuse1              = NULL,
+                                                              .efuse2              = &r_rad_fan_efuse,
+                                                              .pgood               = false,
+                                                              .set_stby_reset_gpio = false };
+    const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS] = { &f_inv_efuse,   &rsm_efuse,      &bms_efuse,
+                                                              &r_inv_efuse,   &dam_efuse,      &front_efuse,
+                                                              &rl_pump_efuse, &r_rad_fan_efuse };
 
 #include "io_vcShdn.h"
     bool io_vcShdn_TsmsFault_get(void)

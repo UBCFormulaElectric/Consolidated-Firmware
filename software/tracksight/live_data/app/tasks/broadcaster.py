@@ -3,17 +3,17 @@ from dataclasses import dataclass
 from datetime import datetime
 from queue import Empty, Queue
 from threading import Thread
-# types
-from typing import NoReturn
+from time import time
+from typing import Any
 
 from api.socket import sio
-# ours
 from logger import logger
-from middleware.candb import fetch_jsoncan_configs, live_can_db, update_can_db
-from requests import HTTPError
+
+# ours
+from middleware.candb import live_can_db
 from subtable import SUB_TABLE
-from tasks.influx_logger import InfluxCanMsg  # for passing the message along
-from tasks.influx_logger import influx_queue
+from tasks.influx_logger import InfluxCanMsg, influx_queue
+from tasks.stop_signal import should_run
 
 
 @dataclass
@@ -26,7 +26,7 @@ class CanMsg:
 @dataclass
 class Signal:
     name: str
-    value: any
+    value: Any
     unit: str
     timestamp: str
 
@@ -37,13 +37,23 @@ class Signal:
 can_msg_queue = Queue()
 
 
-def _send_data() -> NoReturn:
-    while True:
+def _send_data():
+    logger.info("Starting signal broadcaster thread")
+    last_message = time()
+    logged = False
+    while should_run():
         try:
-            canmsg: CanMsg = can_msg_queue.get(timeout=30)
+            canmsg: CanMsg = can_msg_queue.get(timeout=1) # tune this to get the server kill timeout
+            # note a large value would require the server to take longer to kill the thread
+            # while a smaller value will cause more frequent checks for the stop signal (cpu usage)
         except Empty:
-            logger.warning("30 second canmsg drought (for sockets)")
+            if time() - last_message > 5 and not logged:
+                logger.warning("No CAN messages received by the signal broadcaster thread in the last 5 seconds.")
+                logged = True
             continue
+
+        last_message = time()
+        logged = False
 
         # handle commit info updates
         # if (
@@ -71,19 +81,17 @@ def _send_data() -> NoReturn:
                                 "value": signal.value,
                                 "timestamp": canmsg.can_timestamp.isoformat(),
                             },
-                            room=sid,
+                            to=sid,
                         )
                         logger.info(f"Data sent to sid {sid}")
                     except Exception as e:
                         logger.error(f"Emit failed for sid {sid}: {e}")
             # send to influx logger
-            # print(
-            #     f"Sending to influx logger: {signal.name} = {signal.value}"
-            # )
+            # logger.info(f"Sending to influx logger: {signal.name} = {signal.value}")
             influx_queue.put(
                 InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
             )
-
+    logger.info("Signal broadcaster thread stopped.")
 
 def get_websocket_broadcast() -> Thread:
     return Thread(target=_send_data, daemon=True)
