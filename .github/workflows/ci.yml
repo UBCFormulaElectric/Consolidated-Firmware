@@ -53,6 +53,8 @@ jobs:
             ioc_dir: firmware/quintuna/VC/src/cubemx
           - board: VCR
             ioc_dir: firmware/quintuna/VCR/src/cubemx
+          - board: PCM
+            ioc_dir: firmware/quintuna/PCM/src/cubemx
           - board: BMS
             ioc_dir: firmware/hexray/BMS/src/cubemx
           - board: CRIT
@@ -116,6 +118,7 @@ jobs:
           - board: quintuna_RSM.hex
           - board: quintuna_VC.hex
           - board: quintuna_VCR_app.elf
+          - board: quintuna_PCM_app.elf
           - board: hexray_BMS_app.hex
           - board: hexray_CRIT_app.hex
           - board: hexray_DAM_app.hex

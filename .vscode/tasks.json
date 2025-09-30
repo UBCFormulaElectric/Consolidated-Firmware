@@ -133,6 +133,15 @@
       ]
     },
     {
+      "label": "Build Embedded: PCM (Quintuna)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "quintuna_PCM_app.elf",
+      ]
+    },
+    {
       "label": "Build Embedded: f4dev",
       "group": "build",
       "type": "cmake",
