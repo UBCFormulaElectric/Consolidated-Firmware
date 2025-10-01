@@ -68,9 +68,9 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
     bool status = true;
     HAL_FLASH_Unlock();
 
-    for (uint32_t i = 0; i < size; i++)
+    for (uint32_t byte = 0; byte < size; byte++)
     {
-        if (!hw_flash_verifyAndRetryScalar(address + i, buffer[i], 1, FLASH_TYPEPROGRAM_BYTE))
+        if (!hw_flash_verifyAndRetryScalar(address + byte, buffer[byte], 1, FLASH_TYPEPROGRAM_BYTE))
         {
             status = false;
             break;
