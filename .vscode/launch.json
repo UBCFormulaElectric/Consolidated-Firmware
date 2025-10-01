@@ -76,7 +76,7 @@
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_boot.elf",
-        "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf"
+        "build_fw_dev/firmware/quintuna/DAM/quintuna_DAM_app.elf",
       ],
       "preLaunchTask": "Build Embedded: DAM (Quintuna)",
       // cortex configurations
@@ -314,7 +314,44 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: BMS",
+            "label": "Debug logs: VCR",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: PCM (Quintuna)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/quintuna/PCM/quintuna_PCM_app.elf",
+      "preLaunchTask": "Build Embedded: PCM (Quintuna)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32F412RG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: VCR",
             "port": 0,
             "type": "console"
           }
@@ -484,6 +521,20 @@
       }
     },
     {
+      "name": "Debug Tests: BMS (Hexray)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/BMS/hexray_VC_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: BMS (Hexray)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
       "name": "Debug Tests: CRIT (Hexray)",
       "type": "cppdbg",
       "request": "launch",
@@ -532,6 +583,20 @@
       "program": "${workspaceRoot}/build_fw_test/firmware/hexray/RSM/hexray_RSM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: RSM (Hexray)",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: VC (Hexray)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/VC/hexray_VC_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: VC (Hexray)",
       "linux": {
         "MIMode": "gdb"
       },

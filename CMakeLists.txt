@@ -24,12 +24,6 @@ ENDIF ()
 
 # ======== Dependency Management Configs ========
 message("")
-option(HANDLE_DEPS "Build build on the server" OFF)
-IF (HANDLE_DEPS)
-    message("🏗️ CMake is now controlling the optional dependencies")
-ELSE ()
-    message("🏠 Completely using your dependencies")
-ENDIF ()
 include(get_cpm.cmake)
 message("✅ Downloaded CPM.cmake")
 
@@ -69,15 +63,15 @@ message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
     # Override AppleClang with Homebrew GCC for gcov support on macOS.
-    IF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin" AND ${TARGET} STREQUAL "test")
+    IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin" AND ${TARGET} STREQUAL "test")
         message("📌 Searching for latest Homebrew GCC for host-based unit tests")
 
         file(GLOB HOMEBREW_GCC_CANDIDATES
-            "/opt/homebrew/bin/gcc-[0-9]*"
-            "/usr/local/bin/gcc-[0-9]*"
+                "/opt/homebrew/bin/gcc-[0-9]*"
+                "/usr/local/bin/gcc-[0-9]*"
         )
 
-        IF(HOMEBREW_GCC_CANDIDATES)
+        IF (HOMEBREW_GCC_CANDIDATES)
             list(SORT HOMEBREW_GCC_CANDIDATES COMPARE NATURAL ORDER DESCENDING)
             list(GET HOMEBREW_GCC_CANDIDATES 0 HOMEBREW_GCC)
             string(REPLACE "gcc" "g++" HOMEBREW_GXX ${HOMEBREW_GCC})
@@ -85,16 +79,16 @@ IF ("${PLATFORM}" STREQUAL "firmware")
             set(CMAKE_C_COMPILER ${HOMEBREW_GCC} CACHE STRING "" FORCE)
             set(CMAKE_CXX_COMPILER ${HOMEBREW_GXX} CACHE STRING "" FORCE)
 
-        ELSE()
+        ELSE ()
             message(FATAL_ERROR "❌ No Homebrew GCC installation found. Please install with 'brew install gcc'")
-        ENDIF()
-    ENDIF()
+        ENDIF ()
+    ENDIF ()
 
     include(firmware/cmake/shared.cmake)
 
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
-        project("UBC Formula Electric Software" C ASM)
+        project("UBC Formula Electric Software" C CXX ASM)
     ELSEIF ("${TARGET}" STREQUAL "test")
         project("UBC Formula Electric Software" C CXX)
     ELSE ()
